@@ -24,7 +24,6 @@
                     <div class="btn-group">
                         <a class="btn default" ng-click="vm.unarchive(vm.case.id)" ng-show="vm.case.archived">Unarchive</a>
                         <a class="btn default" ng-click="vm.archive(vm.case.id)" ng-hide="vm.case.archived">Archive</a>
-                        <a class="btn default" ng-click="vm.openPostponeWidget()">Test</a>
                     </div>
                 </div>
                 <div class="clearfix"></div>
@@ -57,17 +56,30 @@
                             {{ phonenumber.raw_input }} ({{phonenumber.type}})
                         </div>
                     </li>
+                    <li ng-if="vm.account.addresses.length">
+                        <strong>Addresses: </strong>
+                        <div ng-repeat="address in vm.account.addresses">
+                            {{ address.street }} {{ address.street_number }}{{ address.complement }}
+                            <br />
+                            {{ address.postal_code }}, {{ address.city }}
+                            <br />
+                            {{ address.country_display }}
+                        </div>
+                    </li>
                     <li ng-if="vm.account.websites.length">
                         <strong>Websites: </strong>
                         <div ng-repeat="website in vm.account.websites">
                             <a target="_blank" href="https://{{website.website}}">{{ website.website }}</a>
                         </div>
                     </li>
+                    <li ng-if="vm.case.parcel_identifier">
+                        <strong>Shipment:</strong>
+                        <div><a href="{{ vm.case.parcel_link }}">Track this parcel</a></div>
+                    </li>
                 </ul>
 
             </div>
         </dashboard-widget>
-
 
         <dashboard-widget ng-if="vm.case.contact" widget-name="'Contact info'">
             <div name="portlet-caption">
@@ -105,7 +117,7 @@
                 <ul class="case-detail-block-list">
                     <li>
                         <strong>Assigned to:</strong>
-                        <span>{{ vm.case.assigned_to_name || 'nobody' }}</span>
+                        <span>{{ vm.case.assigned_to_name || 'Nobody' }}</span>
                         <a ng-if="vm.case.assigned_to_id == currentUser.id" ng-click="vm.assignCase()">[remove assignee]</a>
                         <a ng-if="vm.case.assigned_to_id != currentUser.id" ng-click="vm.assignCase()">[<i class="fa fa-anchor"></i> assign to me ]</a>
                     </li>
@@ -116,7 +128,7 @@
                         <!--<a ng-click="vm.openPostponeWidget(vm.case)" tooltip="Aaah, that's too soon!">-->
                              <!--{{ vm.case.expires | date:"d MMM y" }} <i class="fa fa-history"></i>-->
                         <!--</a>-->
-                         {{ vm.case.expires | date:"d MMM y" }}
+                        {{ vm.case.expires | date:"d MMM y" }}
                     </li>
                 </ul>
             </div>

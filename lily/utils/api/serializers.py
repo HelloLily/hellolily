@@ -29,14 +29,14 @@ class RelatedModelSerializer(serializers.ModelSerializer):
 # TODO: Delete this serializer
 class RelatedFieldSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
-        obj = super(RelatedFieldSerializer, self).to_internal_value(data)
-
         is_deleted = data.get('is_deleted', False)
 
         if 'id' not in data and is_deleted:
             # New object but removed, don't do anything
             return {}
         else:
+            obj = super(RelatedFieldSerializer, self).to_internal_value(data)
+
             obj.update({
                 'is_deleted': data.get('is_deleted', False)
             })
@@ -126,6 +126,7 @@ class AddressSerializer(serializers.ModelSerializer):
     """
     street = serializers.CharField(required=True)
     street_number = serializers.IntegerField(required=True, error_messages={'invalid': 'Please enter a number.'})
+    country_display = serializers.CharField(source='get_country_display', read_only=True)
 
     class Meta:
         model = Address
@@ -138,6 +139,7 @@ class AddressSerializer(serializers.ModelSerializer):
             'city',
             'state_province',
             'country',
+            'country_display',
             'type',
         )
 

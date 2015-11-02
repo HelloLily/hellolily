@@ -189,7 +189,7 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Account, Co
             });
         }
 
-        vm.contact = HLFields.cleanRelatedFields(vm.contact);
+        vm.contact = HLFields.cleanRelatedFields(vm.contact, 'contact');
 
         if (vm.contact.id) {
             // If there's an ID set it means we're dealing with an existing contact, so update it

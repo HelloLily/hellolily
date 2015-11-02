@@ -501,14 +501,17 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
 
         task = self.send_message(email_outbox_message)
 
+        success_url = self.get_success_url()
+
         # Send and archive was pressed, so start an archive task
         if task and form.data.get('archive', False) == 'true':
+            success_url = '/#/email/all/INBOX'  # Exception for archiving, go to inbox
             archive_email_message.apply_async(args=(self.object.id,))
 
         if is_ajax(self.request):
             return HttpResponse(anyjson.dumps({'task_id': task.id}), content_type='application/json')
         else:
-            return HttpResponseRedirect(self.get_success_url())
+            return HttpResponseRedirect(success_url)
 
     def send_message(self, email_outbox_message):
         """

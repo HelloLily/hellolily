@@ -1,6 +1,5 @@
 import datetime
 from datetime import date, timedelta
-from urlparse import urlparse
 
 import anyjson
 from django.conf import settings
@@ -288,9 +287,10 @@ class UpdateStageAjaxView(LoginRequiredMixin, AjaxUpdateView):
             if 'stage' in request.POST.keys() and len(request.POST.keys()) == 1:
                 instance.stage = int(request.POST['stage'])
 
-                if instance.stage in [1, 3]:
-                    instance.closed_date = datetime.datetime.utcnow().replace(tzinfo=utc)
-                elif instance.stage in [0, 2]:
+                if instance.stage in [Deal.WON_STAGE, Deal.LOST_STAGE]:
+                    if not instance.closed_date:
+                        instance.closed_date = datetime.datetime.utcnow().replace(tzinfo=utc)
+                else:
                     instance.closed_date = None
 
                 instance.save()

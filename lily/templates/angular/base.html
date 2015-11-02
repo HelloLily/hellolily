@@ -96,7 +96,7 @@
         <script type="text/javascript" src="{% static 'analytics.js' %}" charset="utf-8"></script>
         <script>
             var currentUser = {
-                id: '{{ user.id }}',
+                id: parseInt('{{ user.id }}'),
                 firstName: '{{ user.first_name }}',
                 lastName: '{{ user.last_name }}',
                 email: '{{ user.email }}',

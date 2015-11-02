@@ -12,7 +12,7 @@ def create_related_fields(instance, related_fields, data):
     """
     for field in related_fields:
         for item_data in data.get(field['data_string']):
-            if not item_data['is_deleted']:
+            if item_data and not item_data['is_deleted']:
                 # Remove is_deleted key so the create doesn't raise an error
                 del item_data['is_deleted']
 

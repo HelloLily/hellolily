@@ -26,4 +26,11 @@
 #login-form .form-group ~ .form-group {
     display: inline-block;
 }
+
+#login-form .form-group > div.checkbox input[type="checkbox"] {
+
+    position: relative;
+    margin-left: 0;
+
+}
 /* END Login scherm fixes */

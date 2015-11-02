@@ -5,14 +5,14 @@ function countrySelector(Country) {
     return {
         restrict: 'E',
         scope: {
-            address: '='
+            address: '=',
         },
         templateUrl: 'forms/directives/country.html',
-        link: function (scope) {
+        link: function(scope) {
             scope.countries = [];
-            Country.getList().then(function (countries) {
+            Country.getList().then(function(countries) {
                 scope.countries = countries;
             });
-        }
-    }
+        },
+    };
 }

@@ -19,9 +19,9 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseListController', CaseListController);
 
-CaseListController.$inject = ['$location', '$modal', '$scope', '$state', '$timeout', 'Case', 'Cookie', 'HLFilters',
+CaseListController.$inject = ['$location', '$modal', '$scope', '$state', '$timeout', 'Case', 'Cookie',
     'UserTeams', '$q'];
-function CaseListController($location, $modal, $scope, $state, $timeout, Case, Cookie, HLFilters, UserTeams, $q) {
+function CaseListController($location, $modal, $scope, $state, $timeout, Case, Cookie, UserTeams, $q) {
     var cookie = Cookie('caseList');
     var vm = this;
 
@@ -53,16 +53,18 @@ function CaseListController($location, $modal, $scope, $state, $timeout, Case, C
             created: true,
             assignedTo: true,
             createdBy: true,
-            tags: true
+            tags: true,
         }),
         expiresFilter: cookie.get('expiresFilter', ''),
     };
-    vm.displayFilterClear = false;
+    vm.displayTypeFilterClear = false;
+    vm.displayNonTypeFilterClear = false;
     vm.filterList = [];
 
     vm.updateFilterQuery = updateFilterQuery;
     vm.setSearchQuery = setSearchQuery;
-    vm.clearFilters = clearFilters;
+    vm.clearNonTypeFilters = clearNonTypeFilters;
+    vm.clearTypeFilters = clearTypeFilters;
     vm.assignTo = assignTo;
 
     activate();
@@ -84,7 +86,7 @@ function CaseListController($location, $modal, $scope, $state, $timeout, Case, C
 
         // Check if filter is set as query parameter
         var search = $location.search().search;
-        if (search != undefined) {
+        if (search !== undefined) {
             searchQuery = search;
         } else {
             // Get searchQuery from cookie
@@ -100,6 +102,20 @@ function CaseListController($location, $modal, $scope, $state, $timeout, Case, C
      */
     function setSearchQuery(queryString) {
         vm.table.searchQuery = queryString;
+    }
+
+    function _displayClearButtons() {
+        vm.displayTypeFilterClear = false;
+        vm.displayNonTypeFilterClear = false;
+        vm.filterList.forEach(function(filter) {
+            if (filter.selected) {
+                if (filter.isTypeFilter) {
+                    vm.displayTypeFilterClear = true;
+                } else {
+                    vm.displayNonTypeFilterClear = true;
+                }
+            }
+        });
     }
 
     /**
@@ -118,6 +134,7 @@ function CaseListController($location, $modal, $scope, $state, $timeout, Case, C
         // (Because it is faster; loading the list uses AJAX requests).
         if (filterListCookie) {
             vm.filterList = filterListCookie;
+            _displayClearButtons();
         }
 
         // But we still update the list afterwards (in case a filter was changed)
@@ -163,6 +180,7 @@ function CaseListController($location, $modal, $scope, $state, $timeout, Case, C
                     name: 'Case type ' + caseName,
                     value: 'casetype_id:' + caseId,
                     selected: false,
+                    isTypeFilter: true,
                 });
             });
             return filters;
@@ -189,6 +207,8 @@ function CaseListController($location, $modal, $scope, $state, $timeout, Case, C
 
             // Update filterList once AJAX calls are done.
             vm.filterList = filterList;
+            _displayClearButtons();
+
             // Watch doesn't get triggered here, so manually call _updateTableSettings.
             _updateTableSettings();
         });
@@ -266,11 +286,59 @@ function CaseListController($location, $modal, $scope, $state, $timeout, Case, C
     }
 
     function updateFilterQuery() {
-        HLFilters.updateFilterQuery(vm);
+        /*
+        * Update the filter based on the separate filters.
+        */
+        var typeFilterStrings = [];
+        var nonTypeFilterStrings = [];
+        _displayClearButtons();
+        vm.table.filterQuery = '';
+
+        vm.filterList.forEach(function(filter) {
+            if (filter.id && filter.id === 'archived') {
+                if (!filter.selected) {
+                    nonTypeFilterStrings.push('archived:false');
+                }
+            } else {
+                if (filter.selected) {
+                    if (filter.isTypeFilter) {
+                        typeFilterStrings.push(filter.value);
+                    } else {
+                        nonTypeFilterStrings.push(filter.value);
+                    }
+                }
+            }
+        });
+
+        if (vm.table.expiresFilter) {
+            nonTypeFilterStrings.push(vm.table.expiresFilter);
+        }
+
+        // If we have type filter, we join them OR-wise.
+        if (typeFilterStrings.length > 0) {
+            nonTypeFilterStrings.push('(' + typeFilterStrings.join(' OR ') + ')');
+        }
+
+        // Finally join all filters AND-wise.
+        vm.table.filterQuery = nonTypeFilterStrings.join(' AND ');
     }
 
-    function clearFilters() {
-        HLFilters.clearFilters(vm);
+    function clearNonTypeFilters() {
+        vm.filterList.forEach(function(filter) {
+            if (!filter.isTypeFilter) {
+                filter.selected = false;
+            }
+        });
+        updateFilterQuery();
+    }
+
+    function clearTypeFilters() {
+        vm.filterList.forEach(function(filter) {
+            if (filter.isTypeFilter) {
+                filter.selected = false;
+            }
+        });
+        updateFilterQuery();
     }
 
     function assignTo(myCase) {

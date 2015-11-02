@@ -1,7 +1,7 @@
 angular.module('app.accounts.services').factory('AccountDetail', AccountDetail);
 
 AccountDetail.$inject = ['$resource', 'HLObjectDetails'];
-function AccountDetail ($resource, HLObjectDetails) {
+function AccountDetail($resource, HLObjectDetails) {
     return $resource(
         '/search/search/?type=accounts_account&filterquery=id\::id',
         {},
@@ -19,8 +19,8 @@ function AccountDetail ($resource, HLObjectDetails) {
                     }
 
                     return null;
-                }
-            }
+                },
+            },
         }
     );
 }

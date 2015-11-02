@@ -33,6 +33,9 @@ function Account($http, $q, $resource) {
                 url: '/api/utils/countries/',
                 method: 'OPTIONS',
             },
+            searchByEmail: {
+                url: '/search/emailaddress/:email_address',
+            },
         });
 
     Account.getAccounts = getAccounts;

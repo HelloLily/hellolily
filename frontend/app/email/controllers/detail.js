@@ -25,8 +25,8 @@ function emailConfig($stateProvider) {
 }
 
 angular.module('app.email').controller('EmailDetail', EmailDetailController);
-EmailDetailController.$inject = ['$scope', '$state', '$stateParams', '$http', 'AccountDetail', 'EmailMessage', 'RecipientInformation', 'SelectedEmailAccount', 'message'];
-function EmailDetailController($scope, $state, $stateParams, $http, AccountDetail, EmailMessage, RecipientInformation, SelectedEmailAccount, message) {
+EmailDetailController.$inject = ['$scope', '$state', '$stateParams', '$http', 'Account', 'EmailMessage', 'RecipientInformation', 'SelectedEmailAccount', 'message'];
+function EmailDetailController($scope, $state, $stateParams, $http, Account, EmailMessage, RecipientInformation, SelectedEmailAccount, message) {
     var vm = this;
     vm.displayAllRecipients = false;
     vm.message = message;
@@ -167,23 +167,11 @@ function EmailDetailController($scope, $state, $stateParams, $http, AccountDetai
                             if (data.data.id) {
                                 $scope.emailSettings.contactId = data.data.id;
 
-                                var accountsQuery = '';
-
-                                if (data.data.accounts) {
-                                    var accountIds = [];
-
-                                    for (var i=0; i < data.data.accounts.length; i++) {
-                                        accountIds.push('id:' + data.data.accounts[i].id);
-                                    }
-
-                                    accountsQuery = ' AND ' + accountIds.join(' OR ');
-                                }
-
                                 // Check if the contact is linked to an account
-                                AccountDetail.get({filterquery: 'email_addresses.email_address:"@' + $scope.emailSettings.website + '"' + accountsQuery}).$promise.then(function(account) {
-                                    if (account.id) {
-                                        $scope.emailSettings.account = account;
-                                        $scope.emailSettings.accountId = account.id;
+                                Account.searchByEmail({email_address: '@' + $scope.emailSettings.website}).$promise.then(function(account) {
+                                    if (account.data && account.data.id) {
+                                        $scope.emailSettings.account = account.data;
+                                        $scope.emailSettings.accountId = account.data.id;
                                     } else {
                                         $scope.emailSettings.sidebar.form = 'createAccount';
                                     }

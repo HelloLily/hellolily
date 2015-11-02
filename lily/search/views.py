@@ -95,8 +95,12 @@ class EmailAddressSearchView(LoginRequiredMixin, View):
 
         email_address = kwargs.get('email_address', None)
 
-        # 1: Search for Contact with given email address
-        results = self._search_contact(email_address)
+        results = {}
+
+        # Only search for contacts if a full email is given
+        if email_address.split('@')[0]:
+            # 1: Search for Contact with given email address
+            results = self._search_contact(email_address)
 
         # 2: Search for Account with given email address
         if not results:
@@ -144,7 +148,8 @@ class EmailAddressSearchView(LoginRequiredMixin, View):
             model_type='accounts_account',
             size=1,
         )
-        search.filter_query('email_addresses.email_address:%s' % email_address)
+        # Try to find an account with the full email address
+        search.filter_query('email_addresses.email_address:"%s"' % email_address)
 
         hits, facets, total, took = search.do_search()
         if hits:
@@ -159,7 +164,11 @@ class EmailAddressSearchView(LoginRequiredMixin, View):
                 model_type='accounts_account',
                 size=1,
             )
-            search.filter_query('email_addresses.email_address:%s' % email_address.split('@')[1])
+
+            # No account with the full email address exist, so use the domain for further searching
+            domain = email_address.split('@')[1]
+            # Try to find an account which contains the domain
+            search.filter_query('email_addresses.email_address:"%s" OR website:%s' % (domain, domain))
 
             hits, facets, total, took = search.do_search()
             if total > 1:

@@ -4,25 +4,25 @@
 angular.module('app.accounts').config(accountConfig);
 
 accountConfig.$inject = ['$stateProvider'];
-function accountConfig ($stateProvider) {
+function accountConfig($stateProvider) {
     $stateProvider.state('base.accounts.detail', {
         url: '/{id:[0-9]{1,}}',
         views: {
             '@': {
                 templateUrl: 'accounts/controllers/detail.html',
-                controller: AccountDetailController
-            }
+                controller: AccountDetailController,
+            },
         },
         ncyBreadcrumb: {
-            label: '{{ account.name }}'
+            label: '{{ account.name }}',
         },
         resolve: {
             account: ['AccountDetail', '$stateParams', function(AccountDetail, $stateParams) {
                 var accountId = $stateParams.id;
                 return AccountDetail.get({id: accountId}).$promise;
-            }]
-        }
-    })
+            }],
+        },
+    });
 }
 
 angular.module('app.accounts').controller('AccountDetailController', AccountDetailController);

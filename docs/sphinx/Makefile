@@ -50,7 +50,7 @@ html:
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
 allhtml:
-	sphinx-apidoc -f -o source/modules ../
+	sphinx-apidoc -f -o source/modules ../../
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 
 livehtml:

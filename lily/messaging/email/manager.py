@@ -351,9 +351,12 @@ class GmailManager(object):
                         # No label error, raise
                         raise
                 else:
-                    full_message_dict = self.connector.get_message_info(email_message.message_id)
+                    label_list = self.connector.get_message_label_list(email_message.message_id)
                     # Store updated message
-                    self.message_builder.store_message_info(full_message_dict, message_dict['id'])
+                    self.message_builder.store_labels_for_message({
+                        'labelIds': label_list,
+                        'threadId': message_dict.get('threadId', ''),
+                    }, message_dict['id'])
                     self.message_builder.save()
                     break
 

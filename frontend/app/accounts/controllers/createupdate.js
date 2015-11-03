@@ -162,13 +162,13 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
         // Make sure it's not an empty website being added
         if (primaryWebsite && primaryWebsite !== 'http://' && primaryWebsite !== 'https://') {
             var exists = false;
-            for (var i in vm.account.websites) {
-                if (vm.account.websites[i].website === primaryWebsite) {
+            angular.forEach(vm.account.websites, function(website) {
+                if (website.is_primary) {
+                    website.website = primaryWebsite;
                     exists = true;
-                    vm.account.websites[i].is_primary = true;
-                    break;
                 }
-            }
+            });
+
             if (!exists) {
                 vm.account.websites.unshift({website: primaryWebsite, is_primary: true});
             }

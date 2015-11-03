@@ -29,6 +29,7 @@ function DashboardWidgetController(Cookie, $scope) {
     };
 
     vm.cookieName = _getWidgetCookieName();
+    vm.height = 250;
 
     vm.toggleCollapse = toggleCollapse;
     vm.removeWidget = removeWidget;
@@ -53,6 +54,10 @@ function DashboardWidgetController(Cookie, $scope) {
         _updateWidgetCookie();
 
         _watchWidgetVisibility();
+
+        if (vm.widgetDynamicHeight) {
+            vm.height = 'auto';
+        }
     }
 
     function _getWidgetCookieName() {

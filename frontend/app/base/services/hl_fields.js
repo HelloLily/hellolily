@@ -35,6 +35,10 @@ function HLFields() {
 
                         if (fieldValue.website) {
                             if (!fieldValue.is_primary || (fieldValue.is_primary && object.primaryWebsite)) {
+                                if (fieldValue.website !== object.primaryWebsite) {
+                                    fieldValue.is_primary = false;
+                                }
+
                                 cleanedValues.push(fieldValue);
                             }
                         }

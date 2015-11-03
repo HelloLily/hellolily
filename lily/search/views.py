@@ -167,8 +167,9 @@ class EmailAddressSearchView(LoginRequiredMixin, View):
 
             # No account with the full email address exist, so use the domain for further searching
             domain = email_address.split('@')[1]
+
             # Try to find an account which contains the domain
-            search.filter_query('email_addresses.email_address:"%s" OR website:%s' % (domain, domain))
+            search.filter_query('email_addresses.email_address:"%s" OR website:%s OR website:"%s/"' % (domain, domain, domain))
 
             hits, facets, total, took = search.do_search()
             if total > 1:

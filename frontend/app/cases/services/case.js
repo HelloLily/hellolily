@@ -87,10 +87,12 @@ function Case($http, $modal, $resource, $q, $state, AccountDetail, ContactDetail
     }
 
     function _getSorting(field, sorting) {
-        var sort = '';
-        sort += sorting ? '-' : '';
-        sort += field;
-        return sort;
+        if(field !== 'id') {
+            var sort = '';
+            sort += sorting ? '-' : '';
+            sort += field;
+            return sort;
+        }
     }
 
     /**

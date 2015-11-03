@@ -20,7 +20,7 @@ function UnassignedCasesController ($http, $scope, $state, Case, Cookie) {
     vm.table = {
         order: cookie.get('order', {
             ascending: true,
-            column: 'id',  // string: current sorted column
+            column: 'created',  // string: current sorted column
         }),
         items: [],
     };

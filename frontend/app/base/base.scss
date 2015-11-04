@@ -205,6 +205,7 @@ td .label-sm {
     padding-bottom: 0 !important;
 }
 
+
 .page-header.navbar .page-actions {
     margin-top: 22px;
 }
@@ -215,4 +216,8 @@ td .label-sm {
 
 .page-header.navbar .top-menu .navbar-nav > li.dropdown .dropdown-menu:after {
     right: 22px;
+}
+
+.max-height-400 {
+    max-height: 400px;
 }

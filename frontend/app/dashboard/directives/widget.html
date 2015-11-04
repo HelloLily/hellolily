@@ -11,7 +11,7 @@
             </div>
 
             <div class="portlet-body" ng-show="vm.widgetInfo.status == 1">
-                <div ng-if="vm.widgetScrollable" class="scroll-body" slimscroll="{height: 250}" ng-multi-transclude="portlet-body"></div>
+                <div ng-if="vm.widgetScrollable" ng-class="{'max-height-400': vm.widgetDynamicHeight}" slimscroll="{height: {{ vm.height }}}" class="scroll-body" ng-multi-transclude="portlet-body"></div>
                 <div ng-if="!vm.widgetScrollable" ng-multi-transclude="portlet-body"></div>
             </div>
         </div>

@@ -12,25 +12,48 @@
         <table class="table table-hover">
             <thead>
                 <tr>
-                    <th sort-column="id" table="vm.table">Case nr.</th>
-                    <th>Client</th>
+                    <th style="width: 55px;">Nr.</th>
                     <th>Subject</th>
-                    <th sort-column="priority" table="vm.table">Prio</th>
-                    <th>Status</th>
-                    <th sort-column="expires" table="vm.table">Exp date</th>
+                    <th>Client</th>
+                    <th style="width: 250px;">Type</th>
+                    <th style="width: 70px;">Priority</th>
+                    <th style="width: 80px;">Postpone</th>
                 </tr>
             </thead>
             <tbody>
                 <tr ng-repeat="myCase in vm.table.items">
-                    <td><a ui-sref="base.cases.detail({ id: myCase.id })">{{ myCase.id }}</a></td>
-                    <td><a ui-sref="base.accounts.detail({ id: myCase.account })">{{ myCase.account_name }}</a></td>
-                    <td><a ui-sref="base.cases.detail({ id: myCase.id })">{{ myCase.subject }}</a></td>
                     <td>
-                    <span title="3"></span>
-                    <span class="label label-sm ng-binding" ng-class="{0: 'label-success', 1: 'label-info', 2: 'label-warning', 3: 'label-danger'}[myCase.priority]">{{ myCase.priority_name }}</span>
+                        <a ui-sref="base.cases.detail({ id: myCase.id })">
+                            {{ myCase.id }}
+                        </a>
                     </td>
-                    <td>{{ myCase.status }}</td>
-                    <td><a ng-click="vm.openPostponeWidget(myCase)" tooltip="Aaah, that's too soon!"><i class="fa fa-history"></i> {{ myCase.expires | date }}</a></td>
+                    <td>
+                        <a ui-sref="base.cases.detail({ id: myCase.id })">
+                            {{ myCase.subject }}
+                        </a>
+                    </td>
+                    <td>
+                        <a ui-sref="base.contacts.detail({ id: myCase.contact })" ng-if="myCase.contact">
+                            {{ myCase.contact_name }}
+                        </a>
+                        <span ng-if="myCase.contact && myCase.account"> at </span>
+                        <a ui-sref="base.accounts.detail({ id: myCase.account })" ng-if="myCase.account">
+                            {{ myCase.account_name }}
+                        </a>
+                    </td>
+                    <td>
+                        {{ myCase.casetype_name }}
+                    </td>
+                    <td>
+                        <span class="label label-sm ng-binding" ng-class="{0: 'label-success', 1: 'label-info', 2: 'label-warning', 3: 'label-danger'}[myCase.priority]">
+                            {{ myCase.priority_name }}
+                        </span>
+                    </td>
+                    <td>
+                        <a ng-click="vm.openPostponeWidget(myCase)" tooltip="Aaah, that's too soon!">
+                            <i class="fa fa-history"></i>
+                        </a>
+                    </td>
                 </tr>
                 <tr ng-hide="vm.table.items.length">
                     <td colspan="6">No cases</td>

@@ -20,7 +20,7 @@
                     <th sort-column="expires" table="vm.table">Exp date</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody ng-if="vm.table.expiresFilter">
                 <tr ng-repeat="myCase in vm.table.items">
                     <td><a ui-sref="base.cases.detail({ id: myCase.id })">{{ myCase.id }}</a></td>
                     <td><a ui-sref="base.accounts.detail({ id: myCase.account })">{{ myCase.account_name }}</a></td>
@@ -33,6 +33,25 @@
                     <td><a ng-click="vm.openPostponeWidget(myCase)" tooltip="Aaah, that's too soon!"><i class="fa fa-history"></i> {{ myCase.expires | date }}</a></td>
                 </tr>
                 <tr ng-hide="vm.table.items.length">
+                    <td colspan="6">No cases</td>
+                </tr>
+            </tbody>
+            <tbody ng-if="!vm.table.expiresFilter" ng-repeat="item in vm.table.items">
+                <tr class="bg-grey">
+                    <td colspan="6">{{ item.name }}</td>
+                </tr>
+                <tr ng-repeat="myCase in item.cases">
+                    <td><a ui-sref="base.cases.detail({ id: myCase.id })">{{ myCase.id }}</a></td>
+                    <td><a ui-sref="base.accounts.detail({ id: myCase.account })">{{ myCase.account_name }}</a></td>
+                    <td><a ui-sref="base.cases.detail({ id: myCase.id })">{{ myCase.subject }}</a></td>
+                    <td>
+                    <span title="3"></span>
+                    <span class="label label-sm ng-binding" ng-class="{0: 'label-success', 1: 'label-info', 2: 'label-warning', 3: 'label-danger'}[myCase.priority]">{{ myCase.priority_name }}</span>
+                    </td>
+                    <td>{{ myCase.status }}</td>
+                    <td><a ng-click="vm.openPostponeWidget(myCase)" tooltip="Aaah, that's too soon!"><i class="fa fa-history"></i> {{ myCase.expires | date }}</a></td>
+                </tr>
+                <tr ng-hide="item.cases.length">
                     <td colspan="6">No cases</td>
                 </tr>
             </tbody>

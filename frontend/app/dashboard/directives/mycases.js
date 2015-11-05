@@ -16,10 +16,10 @@ function MyCasesController($scope, Case, Cookie) {
     var vm = this;
     vm.highPrioCases = 0;
     vm.table = {
-        order: cookie.get('order', {
+        order: {
             ascending: true,
-            column: 'expires', // string: current sorted column
-        }),
+            column: 'priority', // string: current sorted column
+        },
         items: [],
         expiresFilter: cookie.get('expiresFilter', ''),
     };
@@ -101,9 +101,8 @@ function MyCasesController($scope, Case, Cookie) {
     }
 
     function _watchTable() {
-        $scope.$watchGroup(['vm.table.order.ascending', 'vm.table.order.column', 'vm.table.expiresFilter'], function() {
+        $scope.$watchGroup(['vm.table.expiresFilter'], function() {
             _getMyCases();
-            cookie.put('order', vm.table.order);
             cookie.put('expiresFilter', vm.table.expiresFilter);
         });
     }

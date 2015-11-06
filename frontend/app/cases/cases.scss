@@ -114,3 +114,49 @@ td .label-sm {
     margin-right: 5px;
     color: #999;
 }
+
+.cases-person-selector-dropdown {
+    max-height: 300px;
+    min-width: 250px;
+    max-width: 350px;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    .no-icon-spacing {
+        left: 18px;
+        position: relative;
+    }
+
+    .cases-person-selector-dropdown-option:hover {
+        cursor: pointer;
+        background-color: #eeeeee;
+    }
+
+    .user-option {
+        position: relative;
+        left: 25px;
+        padding: 2px;
+    }
+
+     .team-option {
+         padding: 2px;
+     }
+
+    .cases-person-selector-dropdown-selection-box {
+        display: inline-block;
+        border: 1px solid #c5c5c5;
+        height: 16px;
+        width: 16px;
+        top: 2px;
+        position: relative;
+
+        i.fa-check {
+            position: relative;
+            top: -3px;
+        }
+    }
+}
+
+.cases-btn-group-person-selector-padding-left-5 {
+    padding-left: 5px;
+}

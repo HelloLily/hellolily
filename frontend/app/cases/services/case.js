@@ -98,12 +98,18 @@ function Case($http, $modal, $resource, $q, $state, AccountDetail, ContactDetail
     /**
      * Service to return a resource for my cases widget
      */
-    function getMyCasesWidget(field, sorting, filter) {
+    function getMyCasesWidget(field, sorting, expiresFilter, usersFilter) {
         var deferred = $q.defer();
-        var filterQuery = 'archived:false AND NOT casetype_name:Callback AND assigned_to_id:' + currentUser.id;
+        var filterQuery = 'archived:false AND NOT casetype_name:Callback';
 
-        if (filter) {
-            filterQuery += ' AND ' + filter;
+        if (expiresFilter) {
+            filterQuery += ' AND ' + expiresFilter;
+        }
+
+        if (usersFilter) {
+            filterQuery += ' AND (' + usersFilter + ')';
+        } else {
+            filterQuery += ' AND assigned_to_id:' + currentUser.id;
         }
 
         Case.query({

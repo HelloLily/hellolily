@@ -16,6 +16,7 @@
 .tags1
 .v8flags.*
 dist-packages/
+/styleguide
 
 celerybeat-schedule
 celeryev.pid

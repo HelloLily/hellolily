@@ -263,10 +263,11 @@ class DealsWon(RawDatabaseView):
                 public.deals_deal
             WHERE
                 deals_deal.assigned_to_id = users_lilyuser.id AND
-                deals_deal.closed_date BETWEEN now() - interval '1 month' AND date_trunc('month', now()) - interval '1 second' AND
+                deals_deal.closed_date > now() - interval '30 days month' AND
                 deals_deal.tenant_id = {tenant_id} AND
                 deals_deal.is_deleted = false AND
-                deals_deal.new_business = true
+                deals_deal.new_business = true AND
+                deals_deal.stage = 2
             GROUP BY
                 users_lilyuser.last_name
             ORDER BY
@@ -289,9 +290,9 @@ class DealsLost(RawDatabaseView):
                 public.deals_deal
             WHERE
                 deals_deal.assigned_to_id = users_lilyuser.id AND
-                deals_deal.created BETWEEN now() - interval '1 month' AND  date_trunc('month', now())  - interval '1 second' AND
+                deals_deal.closed_date > now() - interval '30 days month' AND
                 deals_deal.tenant_id = {tenant_id} AND
-                deals_deal.stage != 2 AND
+                deals_deal.stage = 3 AND
                 deals_deal.is_deleted = false AND
                 deals_deal.new_business = true
             GROUP BY
@@ -317,9 +318,11 @@ class DealsAmountRecurring(RawDatabaseView):
                 public.deals_deal
             WHERE
                 deals_deal.assigned_to_id = users_lilyuser.id AND
-                deals_deal.closed_date BETWEEN now() - interval '1 month' AND  date_trunc('month', now())  - interval '1 second' AND
+                deals_deal.closed_date > now() - interval '30 days month' AND
                 deals_deal.is_deleted = false AND
-                deals_deal.tenant_id = {tenant_id}
+                deals_deal.tenant_id = {tenant_id} AND
+                deals_deal.new_business = false AND
+                deals_deal.stage = 2
             GROUP BY
                 users_lilyuser.last_name,deals_deal.new_business
             ORDER BY

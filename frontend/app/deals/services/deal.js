@@ -88,7 +88,7 @@ function Deal ($resource) {
 
     function getDealsToCheck (column, ordering, userId) {
 
-        var filterQuery = 'stage:2 AND is_checked:false';
+        var filterQuery = 'stage:2 AND is_checked:false AND new_business:true';
         if (userId) {
             filterQuery += ' AND assigned_to_id:' + userId;
         }

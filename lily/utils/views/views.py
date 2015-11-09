@@ -18,6 +18,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, FormView
 from django.views.generic.base import View, TemplateView, RedirectView
 
+from lily.utils.models.models import PhoneNumber
 from ..forms import SugarCsvImportForm
 from ..functions import is_ajax
 from ..tasks import import_sugar_csv
@@ -615,6 +616,28 @@ class BaseView(LoginRequiredMixin, TemplateView):
             'DEBUG': settings.DEBUG
         })
         return kwargs
+
+
+class RedirectAccountContactView(RedirectView):
+    permanent = False
+
+    def get_redirect_url(self, *args, **kwargs):
+        phone_nr = PhoneNumber.objects.filter(
+            number=kwargs.get('phone_nr'),
+            status=PhoneNumber.ACTIVE_STATUS
+        ).first()
+
+        if not phone_nr:
+            return None
+
+        account = phone_nr.account_set.first()
+        if account:
+            return '/#/accounts/%s' % account.id
+
+        contact = phone_nr.contact_set.first()
+        if contact:
+            return '/#/contacts/%s' % contact.id
+
 
 # Perform logic here instead of in urls.py
 ajax_update_view = login_required(AjaxUpdateView.as_view())

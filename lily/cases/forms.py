@@ -126,7 +126,7 @@ class CreateUpdateCaseForm(TagsFormMixin, HelloLilyModelForm):
         self.fields['parcel_provider'].initial = Parcel.DPD
         self.fields['status'].initial = CaseStatus.objects.first()
 
-        self.fields['type'].queryset = CaseType.objects.filter(is_archived=False)
+        self.fields['type'].queryset = CaseType.objects.filter(is_archived=False).order_by('type')
 
         if self.instance.parcel is not None:
             self.fields['parcel_provider'].initial = self.instance.parcel.provider

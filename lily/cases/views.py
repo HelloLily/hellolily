@@ -380,7 +380,7 @@ class GetCaseTypesView(LoginRequiredMixin, View):
     http_method_names = ['get']
 
     def get(self, request, *args, **kwargs):
-        casetypes_objects = CaseType.objects.filter(is_archived=False, use_as_filter=True)
+        casetypes_objects = CaseType.objects.filter(is_archived=False, use_as_filter=True).order_by('type')
         casetypes = {}
 
         for casetypes_object in casetypes_objects:

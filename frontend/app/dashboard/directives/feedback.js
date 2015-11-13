@@ -30,23 +30,25 @@ function FeedbackController ($scope, $state, Account, Cookie, Deal, CaseDetail) 
 
     ///////////
 
-    function activate () {
+    function activate() {
         _watchTable();
     }
 
-    function _getFeedbackDeals () {
-        var feedbackDeals = [];
-
+    function _getFeedbackDeals() {
         Deal.getFeedbackDeals(
             vm.table.order.column,
             vm.table.order.ascending
-        ).then(function (dealList) {
+        ).then(function(dealList) {
             // vm.table.items = dealList;
             angular.forEach(dealList, function(deal) {
-                var caseList = CaseDetail.query({filterquery: 'account:' + deal.account, archived: false});
+                CaseDetail.query({filterquery: 'account:' + deal.account + ' AND archived:false'}).$promise.then(function(caseList) {
+                    if (caseList.length > 0) {
+                        deal.hasUnarchivedCases = true;
+                    }
+                });
             });
 
-            vm.table.items = feedbackDeals;
+            vm.table.items = dealList;
         });
     }
 

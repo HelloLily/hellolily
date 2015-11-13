@@ -1,0 +1,38 @@
+// Function that can be used to determine if the text-color should be black or white based on input color
+
+@function text-color($text-color) {
+    @if (lightness($text-color) >  60) {
+        @return #000000;
+    }
+    @else {
+        @return #ffffff;
+    }
+}
+
+@mixin notification-icon($color) {
+    color: text-color($color);
+    background: $color;
+    padding: 3px;
+    border-radius: $baseBorderRadius;
+
+    &:hover {
+        background: darken($color, 10);
+        color: text-color(darken($color,10));
+    }
+}
+
+.danger-icon {
+    @include notification-icon($criticalPrioColor);
+}
+
+.warning-icon {
+    @include notification-icon($highPrioColor);
+}
+
+.normal-icon {
+    @include notification-icon($mediumPrioColor);
+}
+
+.succes-icon {
+    @include notification-icon($lowPrioColor);
+}

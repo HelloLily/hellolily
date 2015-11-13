@@ -10,8 +10,8 @@ function feedbackDirective () {
     }
 }
 
-FeedbackController.$inject = ['$scope', '$state', 'Account', 'Cookie', 'Deal'];
-function FeedbackController ($scope, $state, Account, Cookie, Deal) {
+FeedbackController.$inject = ['$scope', '$state', 'Account', 'Cookie', 'Deal', 'CaseDetail'];
+function FeedbackController ($scope, $state, Account, Cookie, Deal, CaseDetail) {
     var cookie = Cookie('feedbackWidget');
 
     var vm = this;
@@ -35,11 +35,18 @@ function FeedbackController ($scope, $state, Account, Cookie, Deal) {
     }
 
     function _getFeedbackDeals () {
+        var feedbackDeals = [];
+
         Deal.getFeedbackDeals(
             vm.table.order.column,
             vm.table.order.ascending
-        ).then(function (deals) {
-            vm.table.items = deals;
+        ).then(function (dealList) {
+            // vm.table.items = dealList;
+            angular.forEach(dealList, function(deal) {
+                var caseList = CaseDetail.query({filterquery: 'account:' + deal.account, archived: false});
+            });
+
+            vm.table.items = feedbackDeals;
         });
     }
 

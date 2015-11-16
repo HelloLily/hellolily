@@ -18,12 +18,11 @@ function dealsConfig($stateProvider) {
 
 angular.module('app.deals').controller('DealListController', DealListController);
 
-DealListController.$inject = ['$http', '$location', '$scope', 'Cookie', 'Deal', 'HLFilters'];
-function DealListController($http, $location, $scope, Cookie, Deal, HLFilters) {
+DealListController.$inject = ['$location', '$scope', 'Settings', 'Cookie', 'Deal', 'HLFilters'];
+function DealListController($location, $scope, Settings, Cookie, Deal, HLFilters) {
     var cookie = Cookie('dealList');
 
-    $scope.conf.pageTitleBig = 'Deals';
-    $scope.conf.pageTitleSmall = 'do all your lookin\' here';
+    Settings.page.setAllTitles('list', 'deals');
 
     // Setup search query
     var searchQuery = '';

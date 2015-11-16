@@ -24,11 +24,13 @@ function contactsConfig ($stateProvider) {
 
 angular.module('app.contacts').controller('ContactDetailController', ContactDetail);
 
-ContactDetail.$inject = ['$scope', '$stateParams', 'ContactDetail', 'CaseDetail', 'contact'];
-function ContactDetail($scope, $stateParams, ContactDetail, CaseDetail, contact) {
+ContactDetail.$inject = ['$scope', '$stateParams', 'Settings', 'ContactDetail', 'CaseDetail', 'contact'];
+function ContactDetail($scope, $stateParams, Settings, ContactDetail, CaseDetail, contact) {
     var id = $stateParams.id;
 
     $scope.contact = contact;
+    
+    Settings.page.setAllTitles('detail', contact.name);
 
     if ($scope.contact.accounts) {
         $scope.contact.accounts.forEach(function(account) {
@@ -38,9 +40,6 @@ function ContactDetail($scope, $stateParams, ContactDetail, CaseDetail, contact)
             })
         });
     }
-
-    $scope.conf.pageTitleBig = 'Contact detail';
-    $scope.conf.pageTitleSmall = 'the devil is in the details';
 
     $scope.caseList = CaseDetail.query({filterquery: 'contact:' + id, sort: '-created'});
     $scope.caseList.$promise.then(function(caseList) {

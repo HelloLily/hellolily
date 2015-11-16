@@ -25,13 +25,12 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseDetailController', CaseDetailController);
 
-CaseDetailController.$inject = ['$http', '$scope', '$stateParams', 'Case', 'Account', 'CaseStatuses', 'caseItem', 'Contact'];
-function CaseDetailController($http, $scope, $stateParams, Case, Account, CaseStatuses, caseItem, Contact) {
+CaseDetailController.$inject = ['$http', '$scope', '$stateParams', 'Settings', 'Case', 'Account', 'CaseStatuses', 'caseItem', 'Contact'];
+function CaseDetailController($http, $scope, $stateParams, Settings, Case, Account, CaseStatuses, caseItem, Contact) {
     var vm = this;
     var id = $stateParams.id;
 
-    $scope.conf.pageTitleBig = 'Case';
-    $scope.conf.pageTitleSmall = 'the devil is in the details';
+    Settings.page.setAllTitles('detail', caseItem.subject);
 
     vm.case = caseItem;
     vm.caseStatuses = CaseStatuses.query();

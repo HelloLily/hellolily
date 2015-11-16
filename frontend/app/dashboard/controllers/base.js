@@ -19,14 +19,15 @@ function dashboardConfig ($stateProvider) {
 
 angular.module('app.dashboard').controller('DashboardController', DashboardController);
 
-DashboardController.$inject = ['$modal', '$scope', '$state'];
-function DashboardController ($modal, $scope, $state) {
+DashboardController.$inject = ['$modal', '$state', 'Settings'];
+function DashboardController ($modal, $state, Settings) {
     var db = this;
 
     db.openWidgetSettingsModal = openWidgetSettingsModal;
 
-    $scope.conf.pageTitleBig = 'Dashboard';
-    $scope.conf.pageTitleSmall = 'statistics and usage';
+    Settings.page.setTitle('custom', 'Dashboard');
+    Settings.page.header.setMain('custom', 'Dashboard');
+    Settings.page.header.setSub('custom', 'statistics and usage');
 
     ////////////
 

@@ -19,16 +19,15 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseListController', CaseListController);
 
-CaseListController.$inject = ['$location', '$modal', '$scope', '$state', '$timeout', 'Case', 'Cookie',
+CaseListController.$inject = ['$location', '$modal', '$scope', '$state', '$timeout', 'Settings', 'Case', 'Cookie',
     'UserTeams', '$q'];
-function CaseListController($location, $modal, $scope, $state, $timeout, Case, Cookie, UserTeams, $q) {
+function CaseListController($location, $modal, $scope, $state, $timeout, Settings, Case, Cookie, UserTeams, $q) {
     var cookie = Cookie('caseList');
     var vm = this;
 
     vm.openPostponeWidget = Case.openPostponeWidget;
 
-    $scope.conf.pageTitleBig = 'Cases';
-    $scope.conf.pageTitleSmall = 'do all your lookin\' here';
+    Settings.page.setAllTitles('list', 'cases');
 
     /**
      * table object: stores all the information to correctly display the table

@@ -29,8 +29,8 @@ function accountConfig($stateProvider) {
  */
 angular.module('app.accounts').controller('AccountList', AccountList);
 
-AccountList.$inject = ['$scope', '$window', 'Account', 'Cookie'];
-function AccountList($scope, $window, Account, Cookie) {
+AccountList.$inject = ['$scope', '$window', 'Settings', 'Account', 'Cookie'];
+function AccountList($scope, $window, Settings, Account, Cookie) {
     var vm = this;
     var cookie = Cookie('accountList');
     /**
@@ -67,8 +67,7 @@ function AccountList($scope, $window, Account, Cookie) {
         _setupWatches();
     }
 
-    $scope.conf.pageTitleBig = 'Accounts';
-    $scope.conf.pageTitleSmall = 'An overview of accounts';
+    Settings.page.setAllTitles('list', 'accounts');
 
 
     function deleteAccount(account) {

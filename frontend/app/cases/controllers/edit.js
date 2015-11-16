@@ -20,15 +20,14 @@ function caseConfig ($stateProvider) {
 
 angular.module('app.cases').controller('CaseEditController', CaseEditController);
 
-CaseEditController.$inject = ['$scope', '$stateParams', 'CaseDetail'];
-function CaseEditController ($scope, $stateParams, CaseDetail) {
+CaseEditController.$inject = ['$scope', '$stateParams', 'Settings', 'CaseDetail'];
+function CaseEditController ($scope, $stateParams, Settings, CaseDetail) {
     var id = $stateParams.id;
     var casePromise = CaseDetail.get({id: id}).$promise;
 
     casePromise.then(function(caseObject) {
         $scope.case = caseObject;
-        $scope.conf.pageTitleBig = caseObject.subject;
-        $scope.conf.pageTitleSmall = 'change is natural';
+        Settings.page.setAllTitles('edit', $scope.case.subject);
         HLSelect2.init();
     });
 }

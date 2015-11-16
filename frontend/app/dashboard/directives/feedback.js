@@ -10,8 +10,8 @@ function feedbackDirective () {
     }
 }
 
-FeedbackController.$inject = ['$scope', '$state', 'Account', 'Cookie', 'Deal'];
-function FeedbackController ($scope, $state, Account, Cookie, Deal) {
+FeedbackController.$inject = ['$scope', '$state', 'Account', 'Cookie', 'Deal', 'CaseDetail'];
+function FeedbackController ($scope, $state, Account, Cookie, Deal, CaseDetail) {
     var cookie = Cookie('feedbackWidget');
 
     var vm = this;
@@ -30,16 +30,24 @@ function FeedbackController ($scope, $state, Account, Cookie, Deal) {
 
     ///////////
 
-    function activate () {
+    function activate() {
         _watchTable();
     }
 
-    function _getFeedbackDeals () {
+    function _getFeedbackDeals() {
         Deal.getFeedbackDeals(
             vm.table.order.column,
             vm.table.order.ascending
-        ).then(function (deals) {
-            vm.table.items = deals;
+        ).then(function(dealList) {
+            angular.forEach(dealList, function(deal) {
+                CaseDetail.query({filterquery: 'account:' + deal.account + ' AND archived:false'}).$promise.then(function(caseList) {
+                    if (caseList.length > 0) {
+                        deal.hasUnarchivedCases = true;
+                    }
+                });
+            });
+
+            vm.table.items = dealList;
         });
     }
 

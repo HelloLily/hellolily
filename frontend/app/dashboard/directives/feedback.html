@@ -17,7 +17,13 @@
             </thead>
             <tbody>
                 <tr ng-repeat="deal in vm.table.items">
-                    <td><a ui-sref="base.accounts.detail({ id: deal.account })">{{ deal.account_name }}</a></td>
+                    <td>
+                        <a ui-sref="base.accounts.detail({ id: deal.account })">{{ deal.account_name }}</a>
+                        <a ng-if="deal.hasUnarchivedCases" ui-sref="base.accounts.detail({ id: deal.account })" class="warning-icon pull-right" tooltip="This account has an unarchived case">
+                            <i class="fa fa-briefcase"></i>
+                        </a>
+                    </td>
+
                     <td>{{ deal.closing_date | relativeDate }}</td>
                     <td ng-show="deal.quote_id"><a ng-href="https://freedom.voys.nl/quotes/pdf/{{ deal.quote_id }}/" target="_blank"><i class="fa fa-dashboard"></i> Check</a></td>
                     <td ng-hide="deal.quote_id"><i>No quote id registered</i></td>

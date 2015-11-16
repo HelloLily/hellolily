@@ -172,7 +172,7 @@ function CaseDetailController($http, $scope, $stateParams, Case, Account, CaseSt
                 vm.case.archived = false;
             }).
             error(function(data, status, headers, config) {
-                // Request failed propper error?
+                // Request failed proper error?
             });
     }
 }

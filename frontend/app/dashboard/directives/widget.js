@@ -8,7 +8,7 @@ function dashboardWidget() {
             widgetCloseable: '=',
             widgetClass: '=',
             widgetScrollable: '=',
-            widgetDynamicHeight:'=',
+            widgetDynamicHeight: '=',
         },
         templateUrl: 'dashboard/directives/widget.html',
         controller: DashboardWidgetController,
@@ -18,17 +18,17 @@ function dashboardWidget() {
     };
 }
 
-DashboardWidgetController.$inject = ['Cookie', '$scope'];
-function DashboardWidgetController(Cookie, $scope) {
+DashboardWidgetController.$inject = ['LocalStorage', '$scope'];
+function DashboardWidgetController(LocalStorage, $scope) {
     var vm = this;
-    var cookie = Cookie('widgetInfo');
+    var storage = LocalStorage('widgetInfo');
     var widgetStatus = {
         hidden: 0,
         visible: 1,
         collapsed: 2,
     };
 
-    vm.cookieName = _getWidgetCookieName();
+    vm.storageName = _getWidgetStorageName();
     vm.height = 250;
 
     vm.toggleCollapse = toggleCollapse;
@@ -40,19 +40,17 @@ function DashboardWidgetController(Cookie, $scope) {
 
     function activate() {
         // Get visibility status of the widget
-        var widgetInfo = cookie.getObjectValue(vm.cookieName, {});
-        var currentWidgetStatus = widgetInfo.status;
+        var widgetInfo = storage.getObjectValue(vm.storageName, {});
 
-        if (typeof currentWidgetStatus === 'undefined') {
-            // No cookie value yet, so set status to visible
+        if (typeof widgetInfo === 'object' && !Object.keys(widgetInfo).length) {
+            // No locally stored value, so set status to visible
             widgetInfo.status = widgetStatus.visible;
             widgetInfo.name = vm.widgetName;
         }
 
         vm.widgetInfo = widgetInfo;
 
-        _updateWidgetCookie();
-
+        _updateWidgetStorage();
         _watchWidgetVisibility();
 
         if (vm.widgetDynamicHeight) {
@@ -60,25 +58,25 @@ function DashboardWidgetController(Cookie, $scope) {
         }
     }
 
-    function _getWidgetCookieName() {
+    function _getWidgetStorageName() {
         // Strip all whitespace and make the name lowercase
         return vm.widgetName.replace(/\s+/g, '').toLowerCase();
     }
 
     function _watchWidgetVisibility() {
-        // Check the status of a widget for changes and update the cookie
+        // Check the status of a widget for changes and update the locally stored value
         $scope.$watch('vm.widgetInfo.status', function() {
-            _updateWidgetCookie();
+            _updateWidgetStorage();
         });
     }
 
     /**
-     * Sets the widget info cookie.
-     * The cookie contains the name of the widget (used for settings)
+     * Stores the widget info in local storage.
+     * The widget info contains the name of the widget (used for settings)
      * and visibility status of the widget.
      */
-    function _updateWidgetCookie() {
-        cookie.putObjectValue(vm.cookieName, vm.widgetInfo);
+    function _updateWidgetStorage() {
+        storage.putObjectValue(vm.storageName, vm.widgetInfo);
     }
 
     function toggleCollapse() {

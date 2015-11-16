@@ -7,7 +7,7 @@ from elasticutils import S
 
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
-from lily.messaging.email.models.models import EmailAccount
+from lily.messaging.email.models.models import EmailAccount, SharedEmailConfig
 from lily.search.connections_utils import get_es_client_kwargs
 
 
@@ -267,9 +267,13 @@ class LilySearch(object):
         ).filter(tenant=user.tenant, is_deleted=False).distinct('id')
 
         # Hide when we do not want to follow an email_account.
+        email_account_exclude_list = SharedEmailConfig.objects.filter(
+            user=user,
+            is_hidden=True
+        ).values_list('email_account_id', flat=True)
+
         email_accounts = email_accounts.exclude(
-            sharedemailconfig__is_hidden=True,
-            sharedemailconfig__user=user,
+            id__in=email_account_exclude_list
         )
 
         if not email_accounts:

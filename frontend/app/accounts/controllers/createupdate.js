@@ -101,6 +101,12 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
                 if (vm.account.assigned_to) {
                     vm.account.assigned_to = vm.account.assigned_to.id;
                 }
+
+                if (vm.account.hasOwnProperty('social_media') && vm.account.social_media.length) {
+                    angular.forEach(vm.account.social_media, function(profile) {
+                        vm.account[profile.name] = profile.username;
+                    });
+                }
             });
         } else {
             Settings.page.setAllTitles('create', 'account');
@@ -199,6 +205,13 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
                 form[key].$setValidity(key, true);
             }
         });
+
+        if (vm.account.twitter) {
+            vm.account.social_media = [{
+                name: 'twitter',
+                username: vm.account.twitter,
+            }];
+        }
 
         vm.account = HLFields.cleanRelatedFields(vm.account, 'account');
 

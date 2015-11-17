@@ -19,7 +19,7 @@ function MyCasesController($scope, Case, LocalStorage) {
         order: storage.get('order', {
             ascending: true,
             column: 'priority', // string: current sorted column
-        },
+        }),
         items: [],
         expiresFilter: storage.get('expiresFilter', ''),
     };

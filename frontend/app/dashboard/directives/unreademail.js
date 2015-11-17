@@ -1,25 +1,25 @@
 angular.module('app.dashboard.directives').directive('unreadEmail', unreadEmailDirective);
 
-function unreadEmailDirective () {
+function unreadEmailDirective() {
     return {
         scope: {},
         templateUrl: 'dashboard/directives/unreademail.html',
         controller: UnreadEmailController,
-        controllerAs: 'vm'
-    }
+        controllerAs: 'vm',
+    };
 }
 
-UnreadEmailController.$inject = ['$scope', 'EmailMessage', 'Cookie'];
-function UnreadEmailController ($scope, EmailMessage, Cookie) {
-    var cookie = Cookie('unreadEmailWidget');
+UnreadEmailController.$inject = ['$scope', 'EmailMessage', 'LocalStorage'];
+function UnreadEmailController($scope, EmailMessage, LocalStorage) {
+    var storage = LocalStorage('unreadEmailWidget');
 
     var vm = this;
     vm.table = {
-        order: cookie.get('order', {
+        order: storage.get('order', {
             ascending: true,
-            column: 'sent_date'  // string: current sorted column
+            column: 'sent_date',  // string: current sorted column
         }),
-        items: []
+        items: [],
     };
     activate();
 
@@ -29,11 +29,11 @@ function UnreadEmailController ($scope, EmailMessage, Cookie) {
         _watchTable();
     }
 
-    function _getMessages () {
+    function _getMessages() {
         EmailMessage.getDashboardMessages(
             vm.table.order.column,
             vm.table.order.ascending
-        ).then(function (messages) {
+        ).then(function(messages) {
             vm.table.items = messages;
         });
     }
@@ -41,7 +41,7 @@ function UnreadEmailController ($scope, EmailMessage, Cookie) {
     function _watchTable() {
         $scope.$watchGroup(['vm.table.order.ascending', 'vm.table.order.column'], function() {
             _getMessages();
-            cookie.put('order', vm.table.order);
-        })
+            storage.put('order', vm.table.order);
+        });
     }
 }

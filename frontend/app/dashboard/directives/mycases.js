@@ -9,19 +9,19 @@ function myCasesDirective() {
     };
 }
 
-MyCasesController.$inject = ['$scope', 'Case', 'Cookie'];
-function MyCasesController($scope, Case, Cookie) {
-    var cookie = Cookie('myCasesWidget');
+MyCasesController.$inject = ['$scope', 'Case', 'LocalStorage'];
+function MyCasesController($scope, Case, LocalStorage) {
+    var storage = LocalStorage('myCasesWidget');
 
     var vm = this;
     vm.highPrioCases = 0;
     vm.table = {
-        order: {
+        order: storage.get('order', {
             ascending: true,
             column: 'priority', // string: current sorted column
         },
         items: [],
-        expiresFilter: cookie.get('expiresFilter', ''),
+        expiresFilter: storage.get('expiresFilter', ''),
     };
 
     vm.openPostponeWidget = openPostponeWidget;
@@ -103,7 +103,8 @@ function MyCasesController($scope, Case, Cookie) {
     function _watchTable() {
         $scope.$watchGroup(['vm.table.expiresFilter'], function() {
             _getMyCases();
-            cookie.put('expiresFilter', vm.table.expiresFilter);
+            storage.put('order', vm.table.order);
+            storage.put('expiresFilter', vm.table.expiresFilter);
         });
     }
 }

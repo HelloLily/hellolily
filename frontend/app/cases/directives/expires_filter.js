@@ -10,16 +10,16 @@ function caseExpiresFilter() {
         controller: CaseExpiresFilterWidgetController,
         controllerAs: 'vm',
         bindToController: true,
-    }
+    };
 }
 
-CaseExpiresFilterWidgetController.$inject = ['Cookie', '$scope'];
-function CaseExpiresFilterWidgetController(Cookie, $scope) {
+CaseExpiresFilterWidgetController.$inject = ['LocalStorage', '$scope'];
+function CaseExpiresFilterWidgetController(LocalStorage, $scope) {
     var vm = this;
-    var cookie = Cookie('case');
+    var storage = LocalStorage('case');
 
     // Get the stored value or set to 'All' if it doesn't exist
-    vm.expiresFilter = cookie.get('expiresFilter', 0);
+    vm.expiresFilter = storage.get('expiresFilter', 0);
 
     activate();
 
@@ -56,7 +56,7 @@ function CaseExpiresFilterWidgetController(Cookie, $scope) {
                     break;
             }
 
-            cookie.put('expiresFilter', vm.expiresFilter);
+            storage.put('expiresFilter', vm.expiresFilter);
             vm.filterStore = filter;
         });
     }

@@ -22,6 +22,11 @@ class WebsiteSerializer(RelatedFieldSerializer):
     id = serializers.IntegerField(required=False)
     website = serializers.CharField(required=True, max_length=255, validators=[HostnameValidator()])
 
+    def save(self):
+        self.website = self.website.strip('/')
+
+        return super(WebsiteSerializer, self).save()
+
     class Meta:
         model = Website
         fields = (

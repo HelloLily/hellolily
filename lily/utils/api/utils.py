@@ -65,6 +65,10 @@ def update_related_fields(instance, related_fields, data):
                 if is_deleted:
                     item_obj.delete()
                 else:
+                    # TODO: Temporary fix to strip slashes
+                    if field['model'] == 'Website':
+                        item_data['website'] = item_data['website'].strip('/')
+
                     # Otherwise update the object
                     item_obj.update(**item_data)
             else:

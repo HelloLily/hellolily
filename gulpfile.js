@@ -18,16 +18,12 @@ var rename = require('gulp-rename');  // rename current file stream
 var sass = require('gulp-sass');  // Sass compilation
 var size = require('gulp-size');  // notify about filesize
 var sourcemaps = require('gulp-sourcemaps');  // create sourcemaps from original files and create a .map file
+var styleguide = require('sc5-styleguide');
 var templateCache = require('gulp-angular-templatecache');  // create out of html files Angular templates in one js file/stream
 var uglify = require('gulp-uglify');  // minify javascript file
 var uglifyCss = require('gulp-uglifycss');  // minify css file
 var watch = require('gulp-watch');  // Optimized file change watcher
 var wrap = require('gulp-wrap');  // surround current file(s) with other content (IIFE eg.)
-
-var styleguide = require('sc5-styleguide');
-
-var outputPath = 'styleguide';
-
 /**
  * Config for Gulp.
  */
@@ -108,6 +104,11 @@ var config = {
             ],
         },
     },
+    styleguide: {
+        path: 'styleguide',
+        overviewPath: './styleguide/README.md',
+        guideName: 'HelloLily Styleguide',
+    },
     cdn: {
         defaultBase: (process.env.STATIC_URL || '/static/'),  // static url to prepend to all file paths.
         root: 'frontend/',
@@ -143,30 +144,32 @@ gulp.src = function() {
 
 /** LIVING STYLE GUIDE */
 
-gulp.task('styleguide:generate', function() {
-  return gulp.src(config.app.sass.src)
-    .pipe(styleguide.generate({
-        title: 'My Styleguide',
-        server: true,
-        rootPath: outputPath,
-        overviewPath: './styleguide/README.md'
-      }))
-    .pipe(gulp.dest(outputPath));
+gulp.task('styleguide-generate', function() {
+    return gulp.src(config.app.sass.src)
+        .pipe(styleguide.generate({
+            title: config.styleguide.guideName,
+            server: true,
+            rootPath: config.styleguide.path,
+            overviewPath: config.styleguide.overviewPath,
+        }))
+    .pipe(gulp.dest(config.styleguide.path));
 });
 
-gulp.task('styleguide', ['styleguide:generate']);
+gulp.task('styleguide-applystyles', function() {
+    return gulp.src(config.app.sass.fileName)
+        .pipe(sass())
+        .pipe(plumber(function(error) {
+            // Output an error message
+            gutil.log(gutil.colors.red('Error (' + error.plugin + '): ' + error.message));
+            // Emit the end event, to properly end the task.
+            this.emit('end');
+        }))
 
-
-gulp.task('styleguide:applystyles', function() {
-  return gulp.src(config.app.sass.fileName)
-    .pipe(sass({
-      errLogToConsole: true
-    }))
     .pipe(styleguide.applyStyles())
-    .pipe(gulp.dest(outputPath));
+    .pipe(gulp.dest(config.styleguide.path));
 });
 
-gulp.task('styleguide', ['styleguide:generate', 'styleguide:applystyles']);
+gulp.task('styleguide', ['styleguide-generate', 'styleguide-applystyles']);
 
 /**
  * Clean build dir.
@@ -350,9 +353,7 @@ gulp.task('watch', [], function() {
     // Watch for changes in sass files.
     watch(config.app.sass.src, function() {
         gulp.start('app-css');
-        gulp.start('styleguide');
     });
-
 
     // Make our app templates.
     watch(config.app.templates.src, function() {

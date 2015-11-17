@@ -158,12 +158,6 @@ gulp.task('styleguide-generate', function() {
 gulp.task('styleguide-applystyles', function() {
     return gulp.src(config.app.sass.fileName)
         .pipe(sass())
-        .pipe(plumber(function(error) {
-            // Output an error message
-            gutil.log(gutil.colors.red('Error (' + error.plugin + '): ' + error.message));
-            // Emit the end event, to properly end the task.
-            this.emit('end');
-        }))
 
     .pipe(styleguide.applyStyles())
     .pipe(gulp.dest(config.styleguide.path));

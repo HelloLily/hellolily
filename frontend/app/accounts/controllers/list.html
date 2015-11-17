@@ -78,8 +78,7 @@
                         </a>
                     </td>
                     <td ng-show="vm.table.visibility.contactInformation">
-
-                        <div ng-repeat="email in account.email_addresses | filter: {status: '!'+ 0}">
+                        <div ng-repeat="email in account.email_addresses | filter: {status: '!' + 0}">
                             <a ui-sref="base.email.composeEmail({ email:email.email_address })" title="{{ ::email.email_address }}">
                                 <i class="fa fa-envelope-alt"></i>
                                 {{ email.email_address }}

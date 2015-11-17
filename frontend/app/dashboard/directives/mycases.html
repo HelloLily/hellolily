@@ -59,11 +59,11 @@
                     <td colspan="6">No cases</td>
                 </tr>
             </tbody>
-            <tbody ng-if="!vm.table.expiresFilter" ng-repeat="item in vm.table.items">
+            <tbody ng-if="!vm.table.expiresFilter" ng-repeat="(key, cases) in vm.table.items">
                 <tr class="bg-grey">
-                    <td colspan="6">{{ item.name }}</td>
+                    <td colspan="6" class="text-capitalize">{{ key }}</td>
                 </tr>
-                <tr ng-repeat="myCase in item.cases">
+                <tr ng-repeat="myCase in cases">
                     <td>
                         <a ui-sref="base.cases.detail({ id: myCase.id })">
                             {{ myCase.id }}

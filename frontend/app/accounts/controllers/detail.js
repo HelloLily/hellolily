@@ -27,16 +27,15 @@ function accountConfig($stateProvider) {
 
 angular.module('app.accounts').controller('AccountDetailController', AccountDetailController);
 
-AccountDetailController.$inject = ['$scope', '$stateParams', 'CaseDetail', 'ContactDetail', 'DealDetail', 'account'];
-function AccountDetailController($scope, $stateParams, CaseDetail, ContactDetail, DealDetail, account) {
+AccountDetailController.$inject = ['$scope', '$stateParams', 'Settings', 'CaseDetail', 'ContactDetail', 'DealDetail', 'account'];
+function AccountDetailController($scope, $stateParams, Settings, CaseDetail, ContactDetail, DealDetail, account) {
     /**
      * Details page with historylist and more detailed account information.
      */
     var id = $stateParams.id;
 
     $scope.account = account;
-    $scope.conf.pageTitleBig = account.name;
-    $scope.conf.pageTitleSmall = 'change is natural';
+    Settings.page.setAllTitles('detail', account.name);
 
     $scope.caseList = CaseDetail.query({filterquery: 'account:' + id, sort: '-created'});
     $scope.caseList.$promise.then(function(caseList) {

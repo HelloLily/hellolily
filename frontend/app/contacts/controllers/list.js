@@ -18,12 +18,11 @@ function contactsConfig($stateProvider) {
 
 angular.module('app.contacts').controller('ContactListController', ContactListController);
 
-ContactListController.$inject = ['$scope', '$window', 'Contact', 'LocalStorage', 'ContactTest'];
-function ContactListController($scope, $window, Contact, LocalStorage, ContactTest) {
+ContactListController.$inject = ['$scope', '$window', 'Settings', 'Contact', 'LocalStorage', 'ContactTest'];
+function ContactListController($scope, $window, Settings, Contact, LocalStorage, ContactTest) {
     var storage = LocalStorage('contactList');
 
-    $scope.conf.pageTitleBig = 'Contacts';
-    $scope.conf.pageTitleSmall = 'do all your lookin\' here';
+    Settings.page.setAllTitles('list', 'contacts');
 
     /**
      * table object: stores all the information to correctly display the table

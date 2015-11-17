@@ -29,8 +29,8 @@ function accountConfig($stateProvider) {
  */
 angular.module('app.accounts').controller('AccountList', AccountList);
 
-AccountList.$inject = ['$scope', '$window', 'Account', 'LocalStorage'];
-function AccountList($scope, $window, Account, LocalStorage) {
+AccountList.$inject = ['$scope', '$window', 'Settings', 'Account', 'LocalStorage'];
+function AccountList($scope, $window, Settings, Account, LocalStorage) {
     var vm = this;
     var storage = LocalStorage('accountList');
     /**
@@ -67,8 +67,7 @@ function AccountList($scope, $window, Account, LocalStorage) {
         _setupWatches();
     }
 
-    $scope.conf.pageTitleBig = 'Accounts';
-    $scope.conf.pageTitleSmall = 'An overview of accounts';
+    Settings.page.setAllTitles('list', 'accounts');
 
 
     function deleteAccount(account) {

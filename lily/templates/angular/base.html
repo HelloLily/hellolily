@@ -10,12 +10,12 @@
     <!-- BEGIN HEAD -->
     <head>
         <meta charset="utf-8"/>
-        <title ng-bind="'HelloLily | ' + conf.headTitle">HelloLily</title>
+        <title ng-bind="settings.page.title + '- HelloLily'">HelloLily</title>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
         <meta http-equiv="Content-type" content="text/html; charset=utf-8">
         <meta content="" name="description"/>
-        <meta content="" name="author"/>
+        <meta content="Devhouse Spindle" name="author"/>
         <!-- BEGIN GLOBAL MANDATORY STYLES -->
         <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&subset=all" rel="stylesheet" type="text/css">
         {% endverbatim %}
@@ -66,7 +66,24 @@
             <div class="page-content-wrapper">
                 <div class="page-content">
                     <!-- BEGIN PAGE HEAD -->
-                    <div ng-include="'base/page_header.html'" class="page-head">
+                    <div class="page-head">
+                        <div class="page-head">
+                            <!-- BEGIN PAGE TITLE -->
+                            <div class="page-title">
+                                <h1>
+                                    {{ settings.page.header.main }}
+                                    <small>{{ settings.page.header.sub }}</small>
+                                </h1>
+                            </div>
+
+                            <div class="page-toolbar">
+                                <div class="btn-group btn-theme-panel">
+                                    <a ng-show="$state.current.name.indexOf('detail') > -1 && $state.current.name.indexOf('email') == -1 && !($state.current.name | endsWith: 'edit')" ng-click="$state.go('.edit')" class="btn"><i class="fa fa-edit"></i></a>
+                                    <a ng-show="$state.current.name.indexOf('detail') > -1 && $state.current.name.indexOf('email') == -1 && !($state.current.name | endsWith: 'edit')" detail-delete class="btn" data-target="#confirm-delete"><i class="fa fa-trash"></i></a>
+                                </div>
+                            </div>
+                            <!-- END PAGE TITLE -->
+                        </div>
                     </div>
                     <!-- END PAGE HEAD -->
                     <!-- BEGIN PAGE BREADCRUMB -->

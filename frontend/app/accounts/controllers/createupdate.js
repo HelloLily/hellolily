@@ -9,7 +9,7 @@ function accountConfig($stateProvider) {
         url: '/create',
         views: {
             '@': {
-                templateUrl: 'accounts/controllers/form_outer.html',
+                templateUrl: 'accounts/controllers/form.html',
                 controller: AccountCreateController,
                 controllerAs: 'vm',
             },
@@ -23,7 +23,7 @@ function accountConfig($stateProvider) {
         url: '/edit',
         views: {
             '@': {
-                templateUrl: 'accounts/controllers/form_outer.html',
+                templateUrl: 'accounts/controllers/form.html',
                 controller: AccountCreateController,
                 controllerAs: 'vm',
             },
@@ -39,8 +39,8 @@ function accountConfig($stateProvider) {
  */
 angular.module('app.accounts').controller('AccountCreateController', AccountCreateController);
 
-AccountCreateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'User', 'HLFields', 'HLForms'];
-function AccountCreateController($scope, $state, $stateParams, Account, User, HLFields, HLForms) {
+AccountCreateController.$inject = ['$scope', '$state', '$stateParams', 'Settings', 'Account', 'User', 'HLFields', 'HLForms'];
+function AccountCreateController($scope, $state, $stateParams, Settings, Account, User, HLFields, HLForms) {
     var vm = this;
     vm.account = {};
     vm.people = [];
@@ -70,17 +70,17 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
             });
         });
 
-        $scope.conf.pageTitleSmall = 'change is natural';
-
         _getAccount();
     }
 
     function _getAccount() {
         // Fetch the account or create empty account
         if ($stateParams.id) {
-            $scope.conf.pageTitleBig = 'Edit account';
             Account.get({id: $stateParams.id}).$promise.then(function(account) {
+                Settings.page.setAllTitles('edit', account.name);
+
                 vm.account = account;
+
                 angular.forEach(account.websites, function(website) {
                     if (website.is_primary) {
                         vm.account.primaryWebsite = website.website;
@@ -98,13 +98,15 @@ function AccountCreateController($scope, $state, $stateParams, Account, User, HL
                     vm.account.tags = tags;
                 }
 
-                vm.account.assigned_to = vm.account.assigned_to.id;
-
-                $scope.conf.pageTitleBig = vm.account.name;
+                if (vm.account.assigned_to) {
+                    vm.account.assigned_to = vm.account.assigned_to.id;
+                }
             });
         } else {
-            $scope.conf.pageTitleBig = 'New account';
+            Settings.page.setAllTitles('create', 'account');
+
             vm.account = Account.create();
+
             User.me().$promise.then(function(user) {
                 vm.account.assigned_to = user.id;
             });

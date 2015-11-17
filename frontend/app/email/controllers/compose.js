@@ -113,12 +113,13 @@ function emailConfig ($stateProvider) {
 
 angular.module('app.email').controller('EmailComposeController', EmailComposeController);
 
-EmailComposeController.$inject = ['$scope', '$state', '$stateParams', '$templateCache', '$q', 'ContactDetail', 'EmailMessage', 'EmailTemplate', 'SelectedEmailAccount'];
-function EmailComposeController ($scope, $state, $stateParams, $templateCache, $q, ContactDetail, EmailMessage, EmailTemplate, SelectedEmailAccount) {
+EmailComposeController.$inject = ['$scope', '$state', '$stateParams', '$templateCache', '$q', 'Settings', 'ContactDetail', 'EmailMessage', 'EmailTemplate', 'SelectedEmailAccount'];
+function EmailComposeController ($scope, $state, $stateParams, $templateCache, $q, Settings, ContactDetail, EmailMessage, EmailTemplate, SelectedEmailAccount) {
     var vm = this;
 
-    $scope.conf.pageTitleBig = 'Send email';
-    $scope.conf.pageTitleSmall = 'sending love through the world!';
+    Settings.page.setTitle('custom', 'Compose email');
+    Settings.page.header.setMain('custom', 'Compose email');
+    Settings.page.header.setSub('email');
 
     vm.discard = discard;
 

@@ -49,10 +49,11 @@ function emailConfig($stateProvider, $urlRouterProvider) {
 
 angular.module('app.email').controller('EmailBaseController', EmailBaseController);
 
-EmailBaseController.$inject = ['$scope'];
-function EmailBaseController($scope) {
-    $scope.conf.pageTitleBig = 'Email';
-    $scope.conf.pageTitleSmall = 'sending love through the world!';
+EmailBaseController.$inject = ['$scope', 'Settings'];
+function EmailBaseController($scope, Settings) {
+    Settings.page.setTitle('custom', 'Email');
+    Settings.page.header.setMain('custom', 'Email');
+    Settings.page.header.setSub('email');
 
     activate();
 

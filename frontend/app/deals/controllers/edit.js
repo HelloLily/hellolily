@@ -20,14 +20,13 @@ function dealsConfig ($stateProvider) {
 
 angular.module('app.deals').controller('DealEditController', DealEditController);
 
-DealEditController.$inject = ['$scope', '$stateParams', 'DealDetail'];
-function DealEditController ($scope, $stateParams, DealDetail) {
+DealEditController.$inject = ['$scope', '$stateParams', 'Settings', 'DealDetail'];
+function DealEditController ($scope, $stateParams, Settings, DealDetail) {
     var id = $stateParams.id;
     var dealPromise = DealDetail.get({id: id}).$promise;
 
     dealPromise.then(function(deal) {
         $scope.deal = deal;
-        $scope.conf.pageTitleBig = 'Edit ' + deal.name;
-        $scope.conf.pageTitleSmall = 'change is natural';
+        Settings.page.setAllTitles('edit', deal.name);
     })
 }

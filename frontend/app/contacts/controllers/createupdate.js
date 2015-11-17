@@ -9,7 +9,7 @@ function contactConfig($stateProvider) {
         url: '/create',
         views: {
             '@': {
-                templateUrl: 'contacts/controllers/form_outer.html',
+                templateUrl: 'contacts/controllers/form.html',
                 controller: ContactCreateUpdateController,
                 controllerAs: 'vm',
             },
@@ -22,7 +22,7 @@ function contactConfig($stateProvider) {
         url: '/edit',
         views: {
             '@': {
-                templateUrl: 'contacts/controllers/form_outer.html',
+                templateUrl: 'contacts/controllers/form.html',
                 controller: ContactCreateUpdateController,
                 controllerAs: 'vm',
             },
@@ -36,7 +36,7 @@ function contactConfig($stateProvider) {
         url: '/account/{accountId:[0-9]{1,}}',
         views: {
             '@': {
-                templateUrl: 'contacts/controllers/form_outer.html',
+                templateUrl: 'contacts/controllers/form.html',
                 controller: ContactCreateUpdateController,
                 controllerAs: 'vm',
             },
@@ -52,8 +52,8 @@ function contactConfig($stateProvider) {
  */
 angular.module('app.contacts').controller('ContactCreateUpdateController', ContactCreateUpdateController);
 
-ContactCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'Contact', 'Tag', 'HLFields', 'HLForms'];
-function ContactCreateUpdateController($scope, $state, $stateParams, Account, Contact, Tag, HLFields, HLForms) {
+ContactCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', 'Settings', 'Account', 'Contact', 'Tag', 'HLFields', 'HLForms'];
+function ContactCreateUpdateController($scope, $state, $stateParams, Settings, Account, Contact, Tag, HLFields, HLForms) {
     var vm = this;
     vm.contact = {};
     vm.tags = [];
@@ -76,28 +76,24 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Account, Co
     ////
 
     function activate() {
-        $scope.conf.pageTitleSmall = 'change is natural';
-
         _getContact();
     }
 
     function _getContact() {
         // Fetch the contact or create empty contact
         if ($stateParams.id) {
-            $scope.conf.pageTitleBig = 'Edit contact';
             Contact.get({id: $stateParams.id}).$promise.then(function(contact) {
                 vm.contact = contact;
+                Settings.page.setAllTitles('edit', contact.full_name);
 
                 if (vm.contact.hasOwnProperty('social_media') && vm.contact.social_media.length) {
                     angular.forEach(vm.contact.social_media, function(profile) {
                         vm.contact[profile.name] = profile.username;
                     });
                 }
-
-                $scope.conf.pageTitleBig = vm.contact.name;
             });
         } else {
-            $scope.conf.pageTitleBig = 'New contact';
+            Settings.page.setAllTitles('create', 'contact');
             vm.contact = Contact.create();
 
             if ($stateParams.accountId) {

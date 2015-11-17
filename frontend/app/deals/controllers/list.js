@@ -18,12 +18,11 @@ function dealsConfig($stateProvider) {
 
 angular.module('app.deals').controller('DealListController', DealListController);
 
-DealListController.$inject = ['$location', '$scope', 'LocalStorage', 'Deal', 'HLFilters'];
-function DealListController($location, $scope, LocalStorage, Deal, HLFilters) {
+DealListController.$inject = ['$location', '$scope', 'Settings', 'LocalStorage', 'Deal', 'HLFilters'];
+function DealListController($location, $scope, Settings, LocalStorage, Deal, HLFilters) {
     var storage = LocalStorage('dealList');
 
-    $scope.conf.pageTitleBig = 'Deals';
-    $scope.conf.pageTitleSmall = 'do all your lookin\' here';
+    Settings.page.setAllTitles('list', 'deals');
 
     // Setup search query
     var searchQuery = '';

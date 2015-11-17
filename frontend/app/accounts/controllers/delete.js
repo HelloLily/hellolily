@@ -10,9 +10,9 @@ function accountConfig ($stateProvider) {
         url: '/delete',
         views: {
             '@': {
-                controller: 'AccountDeleteController'
-            }
-        }
+                controller: 'AccountDeleteController',
+            },
+        },
     });
 }
 
@@ -22,11 +22,11 @@ function accountConfig ($stateProvider) {
 angular.module('app.accounts').controller('AccountDeleteController', AccountDeleteController);
 
 AccountDeleteController.$inject = ['$state', '$stateParams', 'Account'];
-function AccountDeleteController ($state, $stateParams, Account) {
+function AccountDeleteController($state, $stateParams, Account) {
     var id = $stateParams.id;
 
     Account.delete({
-        id:id
+        id: id,
     }, function() {  // On success
         $state.go('base.accounts');
     }, function(error) {  // On error

@@ -46,10 +46,9 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseCreateController', CaseCreateController);
 
-CaseCreateController.$inject = ['$scope', 'UserTeams'];
-function CaseCreateController($scope, UserTeams) {
-    $scope.conf.pageTitleBig = 'New case';
-    $scope.conf.pageTitleSmall = 'making cases';
+CaseCreateController.$inject = ['Settings', 'UserTeams'];
+function CaseCreateController(Settings, UserTeams) {
+    Settings.page.setAllTitles('create', 'case');
 
     activate();
 

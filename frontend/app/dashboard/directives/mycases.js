@@ -22,9 +22,11 @@ function MyCasesController($scope, Case, LocalStorage) {
         }),
         items: [],
         expiresFilter: storage.get('expiresFilter', ''),
+        usersFilter: storage.get('usersFilter', ''),
     };
 
     vm.openPostponeWidget = openPostponeWidget;
+    vm.numOfCases = 0;
 
     activate();
 
@@ -49,7 +51,8 @@ function MyCasesController($scope, Case, LocalStorage) {
         Case.getMyCasesWidget(
             field,
             sorting,
-            vm.table.expiresFilter
+            vm.table.expiresFilter,
+            vm.table.usersFilter
         ).then(function(data) {
             if (vm.table.expiresFilter !== '') {
                 vm.table.items = data;
@@ -87,6 +90,7 @@ function MyCasesController($scope, Case, LocalStorage) {
                     vm.highPrioCases++;
                 }
             }
+            vm.numOfCases = data.length;
         });
     }
 
@@ -99,10 +103,11 @@ function MyCasesController($scope, Case, LocalStorage) {
     }
 
     function _watchTable() {
-        $scope.$watchGroup(['vm.table.expiresFilter'], function() {
+        $scope.$watchGroup(['vm.table.expiresFilter', 'vm.table.usersFilter'], function() {
             _getMyCases();
             storage.put('order', vm.table.order);
             storage.put('expiresFilter', vm.table.expiresFilter);
+            storage.put('usersFilter', vm.table.usersFilter);
         });
     }
 }

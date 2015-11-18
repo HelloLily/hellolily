@@ -88,6 +88,10 @@
                         </div>
                     </td>
                 </tr>
+                <tr ng-show="account.social" ng-repeat="social in account.social">
+                    <th><i class="fa fa-{{ social.social_name | lowercase }}"></i> {{ social.social_name }}</th>
+                    <td><a ng-href="{{ social.social_url }}" target="_blank">{{ social.social_profile }}</a></td>
+                </tr>
                 <tr ng-show="account.tag">
                     <th>
                         <i class="fa fa-tag"></i>

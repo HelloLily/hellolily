@@ -115,6 +115,7 @@ class AccountCreateSerializer(serializers.ModelSerializer):
     phone_numbers = OldPhoneNumberSerializer(many=True, required=False)
     tags = OldTagSerializer(many=True, required=False)
     websites = WebsiteSerializer(many=True, required=False)
+    social_media = SocialMediaSerializer(many=True, required=False)
 
     # Dict used when creating/updating the related fields of the account
     related_fields = [
@@ -122,6 +123,7 @@ class AccountCreateSerializer(serializers.ModelSerializer):
         {'data_string': 'email_addresses', 'model': 'EmailAddress'},
         {'data_string': 'addresses', 'model': 'Address'},
         {'data_string': 'phone_numbers', 'model': 'PhoneNumber'},
+        {'data_string': 'social_media', 'model': 'SocialMedia'},
     ]
 
     class Meta:
@@ -140,6 +142,7 @@ class AccountCreateSerializer(serializers.ModelSerializer):
             'legalentity',
             'name',
             'phone_numbers',
+            'social_media',
             'tags',
             'taxnumber',
             'websites',
@@ -154,6 +157,7 @@ class AccountCreateSerializer(serializers.ModelSerializer):
             'email_addresses': validated_data.pop('email_addresses', {}),
             'addresses': validated_data.pop('addresses', {}),
             'phone_numbers': validated_data.pop('phone_numbers', {}),
+            'social_media': validated_data.pop('social_media', {}),
         }
 
         # TODO: Make sure that errors in related fields raise an error and don't save the account

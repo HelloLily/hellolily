@@ -126,6 +126,27 @@
                                 </form-group>
                             </form-portlet-body>
                         </form-portlet>
+
+                        <form-portlet title="Social media">
+                            <form-portlet-body>
+                                <form-group label-title="Twitter" label-icon="twitter" label-id="twitter" field="accountForm.twitter">
+                                    <div ng-class="{'col-xs-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <i class="fa fa-twitter"></i>
+                                            </span>
+                                            <input class="form-control"
+                                                   id="twitter"
+                                                   name="twitter"
+                                                   maxlength="255"
+                                                   placeholder="Twitter"
+                                                   type="text"
+                                                   ng-model="vm.account.twitter">
+                                        </div>
+                                    </div>
+                                </form-group>
+                            </form-portlet-body>
+                        </form-portlet>
                     </div>
 
                     <div class="form-actions">

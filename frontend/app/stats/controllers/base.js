@@ -19,8 +19,8 @@ function statsConfig($stateProvider) {
 
 angular.module('app.stats').controller('StatsBaseController', StatsBaseController);
 
-StatsBaseController.$inject = ['$scope', 'Stats'];
-function StatsBaseController($scope, Stats) {
+StatsBaseController.$inject = ['Settings', 'Stats'];
+function StatsBaseController(Settings, Stats) {
     var vm = this;
     vm.totalCasesLastWeek = 0;
     vm.perTypeCountCases = {};

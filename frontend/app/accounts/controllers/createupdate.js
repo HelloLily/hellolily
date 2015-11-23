@@ -62,11 +62,13 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
     function activate() {
         User.query().$promise.then(function(userList) {
             angular.forEach(userList, function(user) {
-                vm.people.push({
-                    id: user.id,
-                    // Convert to single string so searching with spaces becomes possible
-                    name: _getFullName(user),
-                });
+                if (user.first_name !== '') {
+                    vm.people.push({
+                        id: user.id,
+                        // Convert to single string so searching with spaces becomes possible
+                        name: _getFullName(user),
+                    });
+                }
             });
         });
 

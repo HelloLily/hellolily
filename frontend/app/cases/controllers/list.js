@@ -19,16 +19,15 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseListController', CaseListController);
 
-CaseListController.$inject = ['$location', '$modal', '$scope', '$state', '$timeout', 'Case', 'Cookie',
+CaseListController.$inject = ['$location', '$modal', '$scope', '$state', 'Settings', 'Case', 'LocalStorage',
     'UserTeams', '$q'];
-function CaseListController($location, $modal, $scope, $state, $timeout, Case, Cookie, UserTeams, $q) {
-    var cookie = Cookie('caseList');
+function CaseListController($location, $modal, $scope, $state, Settings, Case, LocalStorage, UserTeams, $q) {
+    var storage = LocalStorage('caseList');
     var vm = this;
 
     vm.openPostponeWidget = Case.openPostponeWidget;
 
-    $scope.conf.pageTitleBig = 'Cases';
-    $scope.conf.pageTitleSmall = 'do all your lookin\' here';
+    Settings.page.setAllTitles('list', 'cases');
 
     /**
      * table object: stores all the information to correctly display the table
@@ -38,11 +37,11 @@ function CaseListController($location, $modal, $scope, $state, $timeout, Case, C
         pageSize: 60,  // number of items per page
         totalItems: 0, // total number of items
         searchQuery: '',  // search query
-        order: cookie.get('order', {
+        order: storage.get('order', {
             ascending: true,
             column: 'expires',  // string: current sorted column
         }),
-        visibility: cookie.get('visibility', {
+        visibility: storage.get('visibility', {
             caseId: true,
             client: true,
             subject: true,
@@ -55,7 +54,7 @@ function CaseListController($location, $modal, $scope, $state, $timeout, Case, C
             createdBy: true,
             tags: true,
         }),
-        expiresFilter: cookie.get('expiresFilter', ''),
+        expiresFilter: storage.get('expiresFilter', ''),
     };
     vm.displayTypeFilterClear = false;
     vm.displayNonTypeFilterClear = false;
@@ -72,12 +71,9 @@ function CaseListController($location, $modal, $scope, $state, $timeout, Case, C
     //////
 
     function activate() {
-        // This timeout is needed because by default getting a cookie with Angular has a delay
-        $timeout(function() {
-            _setSearchQuery();
-            _getFilterList();
-            _setupWatchers();
-        }, 50);
+        _setSearchQuery();
+        _getFilterList();
+        _setupWatchers();
     }
 
     function _setSearchQuery() {
@@ -89,8 +85,7 @@ function CaseListController($location, $modal, $scope, $state, $timeout, Case, C
         if (search !== undefined) {
             searchQuery = search;
         } else {
-            // Get searchQuery from cookie
-            searchQuery = cookie.get('searchQuery', '');
+            searchQuery = storage.get('searchQuery', '');
         }
         vm.table.searchQuery = searchQuery;
     }
@@ -119,21 +114,20 @@ function CaseListController($location, $modal, $scope, $state, $timeout, Case, C
     }
 
     /**
-     * Gets the filter list. Uses a cookie to merge selections.
+     * Gets the filter list. Merges selections with locally stored values.
      *
      * @returns filterList (object): object containing the filter list
      */
     function _getFilterList() {
-        var filterListCookie = cookie.get('filterListSelected', null);
+        var storedFilterList = storage.get('filterListSelected', null);
         var filterList;
         var teamsCall;
         var casesCall;
 
-
-        // Use the value from cookie first.
+        // Use the value from storage first.
         // (Because it is faster; loading the list uses AJAX requests).
-        if (filterListCookie) {
-            vm.filterList = filterListCookie;
+        if (storedFilterList) {
+            vm.filterList = storedFilterList;
             _displayClearButtons();
         }
 
@@ -183,6 +177,7 @@ function CaseListController($location, $modal, $scope, $state, $timeout, Case, C
                     isTypeFilter: true,
                 });
             });
+
             return filters;
         });
 
@@ -194,12 +189,12 @@ function CaseListController($location, $modal, $scope, $state, $timeout, Case, C
                 });
             });
 
-            if (filterListCookie) {
-                // Cookie is set, merge the selections from this cookie.
-                angular.forEach(filterListCookie, function(caseInCookie) {
+            if (storedFilterList) {
+                // Stored filter list exists, merge the selections from with the stored values.
+                angular.forEach(storedFilterList, function(storedFilter) {
                     angular.forEach(filterList, function(caseInList) {
-                        if (caseInCookie.name === caseInList.name) {
-                            caseInList.selected = caseInCookie.selected;
+                        if (storedFilter.name === caseInList.name) {
+                            caseInList.selected = storedFilter.selected;
                         }
                     });
                 });
@@ -215,14 +210,14 @@ function CaseListController($location, $modal, $scope, $state, $timeout, Case, C
     }
 
     /**
-     * _updateTableSettings() sets scope variables to the cookie
+     * _updateTableSettings() puts the scope variables in local storage
      */
     function _updateTableSettings() {
-        cookie.put('searchQuery', vm.table.searchQuery);
-        cookie.put('archived', vm.table.archived);
-        cookie.put('order', vm.table.order);
-        cookie.put('visibility', vm.table.visibility);
-        cookie.put('filterListSelected', vm.filterList);
+        storage.put('searchQuery', vm.table.searchQuery);
+        storage.put('archived', vm.table.archived);
+        storage.put('order', vm.table.order);
+        storage.put('visibility', vm.table.visibility);
+        storage.put('filterListSelected', vm.filterList);
     }
 
     /**
@@ -273,7 +268,7 @@ function CaseListController($location, $modal, $scope, $state, $timeout, Case, C
         });
 
         /**
-         * Watches the filters so when the cookie is loaded,
+         * Watches the filters so when the stored values are loaded,
          * the filterQuery changes and a new set of deals is fetched
          */
         $scope.$watchCollection('vm.filterList', function() {
@@ -329,6 +324,7 @@ function CaseListController($location, $modal, $scope, $state, $timeout, Case, C
                 filter.selected = false;
             }
         });
+
         updateFilterQuery();
     }
 
@@ -338,6 +334,7 @@ function CaseListController($location, $modal, $scope, $state, $timeout, Case, C
                 filter.selected = false;
             }
         });
+
         updateFilterQuery();
     }
 

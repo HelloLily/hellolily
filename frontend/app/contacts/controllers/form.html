@@ -1,166 +1,174 @@
-<div ng-if="emailSettings.sidebar.form" class="inbox-header inbox-view-header">
-    <h1 class="pull-left">Add contact</h1>
-</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet light">
+            <div class="portlet-body form">
+                <div ng-if="emailSettings.sidebar.form" class="inbox-header inbox-view-header">
+                    <h1 class="pull-left">Add contact</h1>
+                </div>
 
-<form novalidate class="form-horizontal" name="contactForm">
-    <div class="form-body">
-        <form-portlet title="Who was it?">
-            <form-portlet-body>
-                <form-radio-buttons options="['Formal', 'Informal']" label-title="Salutation" input-name="salutation" required="true" field="vm.contact.salutation" sidebar="emailSettings.sidebar.form"></form-radio-buttons>
-                <form-radio-buttons options="['Male', 'Female', 'Unknown/Other']" label-title="Gender" input-name="gender" required="true" field="vm.contact.gender" sidebar="emailSettings.sidebar.form"></form-radio-buttons>
-                <form-group label-title="Name" label-icon="building-o" required="true" ng-class="{'has-error': contactForm.last_name.$invalid}">
-                    <div ng-class="{'col-xs-12': emailSettings.sidebar.form, 'col-md-9': !emailSettings.sidebar.form}">
-                        <div class="form-group-inline">
-                            <div class="no-padding" ng-class="{'col-xs-4': emailSettings.sidebar.form, 'col-md-2': !emailSettings.sidebar.form}">
-                                <input class="form-control"
-                                       id="id_first_name"
-                                       maxlength="255"
-                                       name="first_name"
-                                       placeholder="First name"
-                                       type="text"
-                                       ng-model="vm.contact.first_name">
+                <form novalidate class="form-horizontal" name="contactForm">
+                    <div class="form-body">
+                        <form-portlet title="Who was it?">
+                            <form-portlet-body>
+                                <form-radio-buttons options="['Formal', 'Informal']" label-title="Salutation" input-name="salutation" required="true" field="vm.contact.salutation" sidebar="emailSettings.sidebar.form"></form-radio-buttons>
+                                <form-radio-buttons options="['Male', 'Female', 'Unknown/Other']" label-title="Gender" input-name="gender" required="true" field="vm.contact.gender" sidebar="emailSettings.sidebar.form"></form-radio-buttons>
+                                <form-group label-title="Name" label-icon="building-o" required="true" ng-class="{'has-error': contactForm.last_name.$invalid}">
+                                    <div ng-class="{'col-xs-12': emailSettings.sidebar.form, 'col-md-9': !emailSettings.sidebar.form}">
+                                        <div class="form-group-inline">
+                                            <div class="no-padding" ng-class="{'col-xs-4': emailSettings.sidebar.form, 'col-md-2': !emailSettings.sidebar.form}">
+                                                <input class="form-control"
+                                                       id="id_first_name"
+                                                       maxlength="255"
+                                                       name="first_name"
+                                                       placeholder="First name"
+                                                       type="text"
+                                                       ng-model="vm.contact.first_name">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group-inline">
+                                            <div class="no-padding-right" ng-class="{'col-xs-4': emailSettings.sidebar.form, 'col-md-1': !emailSettings.sidebar.form}">
+                                                <input class="form-control"
+                                                       id="id_preposition"
+                                                       maxlength="255"
+                                                       name="preposition"
+                                                       placeholder="Preposition"
+                                                       type="text"
+                                                       ng-model="vm.contact.preposition">
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group-inline">
+                                            <div ng-class="{'col-xs-4': emailSettings.sidebar.form, 'col-md-2': !emailSettings.sidebar.form}">
+                                                <input class="form-control"
+                                                       id="id_last_name"
+                                                       maxlength="255"
+                                                       name="last_name"
+                                                       placeholder="Last name"
+                                                       type="text"
+                                                       ng-model="vm.contact.last_name">
+                                            </div>
+                                        </div>
+
+                                        <field-error form="contactForm" field="last_name"></field-error>
+                                    </div>
+                                </form-group>
+                                <form-group label-title="Works at" label-icon="child" label-id="id_account" field="contactForm.accounts">
+                                    <div ng-class="{'col-xs-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
+                                        <ui-select multiple ng-model="vm.contact.accounts" theme="bootstrap" class="form-control" name="accounts">
+                                            <ui-select-match placeholder="Select one or more account(s)">{{ $item.name }}</ui-select-match>
+                                            <ui-select-choices repeat="account in vm.accounts" refresh="vm.refreshAccounts($select.search)" refresh-delay="150">
+                                                <div ng-bind-html="account.name | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                        <span class="help-text text-muted">Please type at least 2 characters to begin the search</span>
+                                    </div>
+                                </form-group>
+                                <form-group label-title="Description" label-icon="info" label-id="id_description" field="contactForm.description">
+                                    <div ng-class="{'col-xs-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
+                                        <textarea class="form-control" cols="40" id="id_description" name="description" placeholder="Description" rows="3" ng-model="vm.contact.description"></textarea>
+                                    </div>
+                                </form-group>
+                                </form-group>
+                            </form-portlet-body>
+                        </form-portlet>
+                        <form-portlet title="Contact information">
+                            <form-portlet-body>
+                                <form-email-addresses email-addresses="vm.contact.email_addresses"
+                                                      add-related-field="vm.addRelatedField(field)"
+                                                      remove-related-field="vm.removeRelatedField(field, index, remove)">
+                                </form-email-addresses>
+                                <form-phone-numbers phone-numbers="vm.contact.phone_numbers"
+                                                    add-related-field="vm.addRelatedField(field)"
+                                                    remove-related-field="vm.removeRelatedField(field, index, remove)">
+                                </form-phone-numbers>
+                                <form-addresses addresses="vm.contact.addresses"
+                                                add-related-field="vm.addRelatedField(field)"
+                                                remove-related-field="vm.removeRelatedField(field, index, remove)">
+                                </form-addresses>
+                            </form-portlet-body>
+                        </form-portlet>
+                        <form-portlet title="Tags">
+                            <form-portlet-body>
+                                <form-group label-title="Tags" label-id="id_tags" label-icon="tags" field="contactForm.tags">
+                                    <div ng-class="{'col-xs-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
+                                        <div class="show-and-hide-input">
+                                            <div class="form-control-static" ng-class="{hide: vm.contact.tags.length}">
+                                                <a href="javascript:void(0)" class="toggle-original-form-input" data-action="show">
+                                                    Add&nbsp;<i class="fa fa-angle-down"></i>
+                                                </a>
+                                            </div>
+
+                                            <div class="original-form-widget" ng-class="{hide: !vm.contact.tags.length}">
+                                                <ui-select multiple ng-model="vm.contact.tags" theme="bootstrap" tagging="vm.addTagChoice" tagging-label="(new tag)">
+                                                    <ui-select-match placeholder="Add tags...">{{ $item.name }}</ui-select-match>
+                                                    <ui-select-choices repeat="tag in vm.tag_choices" refresh="vm.refreshTags($select.search)" refresh-delay="150">
+                                                        <div ng-bind-html="tag.name | highlight: $select.search"></div>
+                                                    </ui-select-choices>
+                                                </ui-select>
+                                            </div>
+
+                                            <div class="form-control-static" ng-class="{hide: !vm.contact.tags.length}">
+                                                <a href="javascript:void(0)" class="toggle-original-form-input" data-action="hide">
+                                                    Cancel&nbsp;<i class="fa fa-angle-up"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form-group>
+                            </form-portlet-body>
+                        </form-portlet>
+                        <form-portlet title="Social media">
+                             <form-portlet-body>
+                                <form-group label-title="Twitter" label-icon="twitter" label-id="twitter" field="contactForm.twitter">
+                                    <div ng-class="{'col-xs-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <i class="fa fa-twitter"></i>
+                                            </span>
+                                            <input class="form-control"
+                                                   id="twitter"
+                                                   name="twitter"
+                                                   maxlength="255"
+                                                   placeholder="Twitter"
+                                                   type="text"
+                                                   ng-model="vm.contact.twitter">
+                                        </div>
+                                    </div>
+                                </form-group>
+                                <form-group label-title="LinkedIn" label-icon="linkedin" label-id="linkedin" field="contactForm.linkedin">
+                                    <div ng-class="{'col-xs-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">
+                                                <i class="fa fa-linkedin"></i>
+                                            </span>
+                                            <input class="form-control"
+                                                   id="linkedin"
+                                                   name="linkedin"
+                                                   maxlength="255"
+                                                   placeholder="LinkedIn"
+                                                   type="text"
+                                                   ng-model="vm.contact.linkedin">
+                                        </div>
+                                    </div>
+                                </form-group>
+                            </form-portlet-body>
+                        </form-portlet>
+                    </div>
+                    <div class="form-actions">
+                        <div class="row">
+                            <div class="col-md-offset-2 col-md-10">
+                                <button type="button" class="btn blue" ng-click="vm.saveContact(contactForm)">
+                                    <i class="fa fa-check"></i> Save
+                                </button>
+                                <button type="button" class="btn default" ng-click="vm.cancelContactCreation()">
+                                    Back
+                                </button>
                             </div>
                         </div>
-
-                        <div class="form-group-inline">
-                            <div class="no-padding-right" ng-class="{'col-xs-4': emailSettings.sidebar.form, 'col-md-1': !emailSettings.sidebar.form}">
-                                <input class="form-control"
-                                       id="id_preposition"
-                                       maxlength="255"
-                                       name="preposition"
-                                       placeholder="Preposition"
-                                       type="text"
-                                       ng-model="vm.contact.preposition">
-                            </div>
-                        </div>
-
-                        <div class="form-group-inline">
-                            <div ng-class="{'col-xs-4': emailSettings.sidebar.form, 'col-md-2': !emailSettings.sidebar.form}">
-                                <input class="form-control"
-                                       id="id_last_name"
-                                       maxlength="255"
-                                       name="last_name"
-                                       placeholder="Last name"
-                                       type="text"
-                                       ng-model="vm.contact.last_name">
-                            </div>
-                        </div>
-
-                        <field-error form="contactForm" field="last_name"></field-error>
                     </div>
-                </form-group>
-                <form-group label-title="Works at" label-icon="child" label-id="id_account" field="contactForm.accounts">
-                    <div ng-class="{'col-xs-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
-                        <ui-select multiple ng-model="vm.contact.accounts" theme="bootstrap" class="form-control" name="accounts">
-                            <ui-select-match placeholder="Select one or more account(s)">{{ $item.name }}</ui-select-match>
-                            <ui-select-choices repeat="account in vm.accounts" refresh="vm.refreshAccounts($select.search)" refresh-delay="150">
-                                <div ng-bind-html="account.name | highlight: $select.search"></div>
-                            </ui-select-choices>
-                        </ui-select>
-                        <span class="help-text text-muted">Please type at least 2 characters to begin the search</span>
-                    </div>
-                </form-group>
-                <form-group label-title="Description" label-icon="info" label-id="id_description" field="contactForm.description">
-                    <div ng-class="{'col-xs-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
-                        <textarea class="form-control" cols="40" id="id_description" name="description" placeholder="Description" rows="3" ng-model="vm.contact.description"></textarea>
-                    </div>
-                </form-group>
-                </form-group>
-            </form-portlet-body>
-        </form-portlet>
-        <form-portlet title="Contact information">
-            <form-portlet-body>
-                <form-email-addresses email-addresses="vm.contact.email_addresses"
-                                      add-related-field="vm.addRelatedField(field)"
-                                      remove-related-field="vm.removeRelatedField(field, index, remove)">
-                </form-email-addresses>
-                <form-phone-numbers phone-numbers="vm.contact.phone_numbers"
-                                    add-related-field="vm.addRelatedField(field)"
-                                    remove-related-field="vm.removeRelatedField(field, index, remove)">
-                </form-phone-numbers>
-                <form-addresses addresses="vm.contact.addresses"
-                                add-related-field="vm.addRelatedField(field)"
-                                remove-related-field="vm.removeRelatedField(field, index, remove)">
-                </form-addresses>
-            </form-portlet-body>
-        </form-portlet>
-        <form-portlet title="Tags">
-            <form-portlet-body>
-                <form-group label-title="Tags" label-id="id_tags" label-icon="tags" field="contactForm.tags">
-                    <div ng-class="{'col-xs-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
-                        <div class="show-and-hide-input">
-                            <div class="form-control-static" ng-class="{hide: vm.contact.tags.length}">
-                                <a href="javascript:void(0)" class="toggle-original-form-input" data-action="show">
-                                    Add&nbsp;<i class="fa fa-angle-down"></i>
-                                </a>
-                            </div>
-
-                            <div class="original-form-widget" ng-class="{hide: !vm.contact.tags.length}">
-                                <ui-select multiple ng-model="vm.contact.tags" theme="bootstrap" tagging="vm.addTagChoice" tagging-label="(new tag)">
-                                    <ui-select-match placeholder="Add tags...">{{ $item.name }}</ui-select-match>
-                                    <ui-select-choices repeat="tag in vm.tag_choices" refresh="vm.refreshTags($select.search)" refresh-delay="150">
-                                        <div ng-bind-html="tag.name | highlight: $select.search"></div>
-                                    </ui-select-choices>
-                                </ui-select>
-                            </div>
-
-                            <div class="form-control-static" ng-class="{hide: !vm.contact.tags.length}">
-                                <a href="javascript:void(0)" class="toggle-original-form-input" data-action="hide">
-                                    Cancel&nbsp;<i class="fa fa-angle-up"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </form-group>
-            </form-portlet-body>
-        </form-portlet>
-        <form-portlet title="Social media">
-             <form-portlet-body>
-                <form-group label-title="Twitter" label-icon="twitter" label-id="twitter" field="contactForm.twitter">
-                    <div ng-class="{'col-xs-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
-                        <div class="input-group">
-                            <span class="input-group-addon">
-                                <i class="fa fa-twitter"></i>
-                            </span>
-                            <input class="form-control"
-                                   id="twitter"
-                                   name="twitter"
-                                   maxlength="255"
-                                   placeholder="Twitter"
-                                   type="text"
-                                   ng-model="vm.contact.twitter">
-                        </div>
-                    </div>
-                </form-group>
-                <form-group label-title="LinkedIn" label-icon="linkedin" label-id="linkedin" field="contactForm.linkedin">
-                    <div ng-class="{'col-xs-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
-                        <div class="input-group">
-                            <span class="input-group-addon">
-                                <i class="fa fa-linkedin"></i>
-                            </span>
-                            <input class="form-control"
-                                   id="linkedin"
-                                   name="linkedin"
-                                   maxlength="255"
-                                   placeholder="LinkedIn"
-                                   type="text"
-                                   ng-model="vm.contact.linkedin">
-                        </div>
-                    </div>
-                </form-group>
-            </form-portlet-body>
-        </form-portlet>
-    </div>
-    <div class="form-actions">
-        <div class="row">
-            <div class="col-md-offset-2 col-md-10">
-                <button type="button" class="btn blue" ng-click="vm.saveContact(contactForm)">
-                    <i class="fa fa-check"></i> Save
-                </button>
-                <a class="btn default" ng-click="vm.cancelContactCreation()">
-                    Back
-                </a>
+                </form>
             </div>
         </div>
     </div>
-</form>
+</div>

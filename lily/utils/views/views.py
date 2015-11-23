@@ -622,21 +622,21 @@ class RedirectAccountContactView(RedirectView):
     permanent = False
 
     def get_redirect_url(self, *args, **kwargs):
-        phone_nr = PhoneNumber.objects.filter(
+        phone_nr_list = PhoneNumber.objects.filter(
             number=kwargs.get('phone_nr'),
             status=PhoneNumber.ACTIVE_STATUS
-        ).first()
+        )
 
-        if not phone_nr:
-            return None
+        for phone_nr in phone_nr_list:
+            account = phone_nr.account_set.filter(tenant=self.request.user.tenant).first()
+            if account:
+                return '/#/accounts/%s' % account.id
 
-        account = phone_nr.account_set.first()
-        if account:
-            return '/#/accounts/%s' % account.id
+            contact = phone_nr.contact_set.filter(tenant=self.request.user.tenant).first()
+            if contact:
+                return '/#/contacts/%s' % contact.id
 
-        contact = phone_nr.contact_set.first()
-        if contact:
-            return '/#/contacts/%s' % contact.id
+        return None
 
 
 # Perform logic here instead of in urls.py

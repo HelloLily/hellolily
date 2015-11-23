@@ -13,13 +13,9 @@ function appConfig ($stateProvider) {
 
 angular.module('app.base').controller('BaseController', BaseController);
 
-BaseController.$inject = ['$scope', '$state', 'Notifications'];
-function BaseController($scope, $state, Notifications) {
-    $scope.conf = {
-        headTitle: 'Welcome!',
-        pageTitleBig: 'HelloLily',
-        pageTitleSmall: 'welcome to my humble abode!',
-    };
+BaseController.$inject = ['$scope', '$state', 'Settings', 'Notifications'];
+function BaseController($scope, $state, Settings, Notifications) {
+    $scope.settings = Settings;
 
     $scope.emailSettings = {
         sidebar: {
@@ -49,8 +45,7 @@ function BaseController($scope, $state, Notifications) {
                 toastr[message.level](message.message);
             });
         }, function(error) {  // On error
-            console.log('An error occurred!');
-            console.log(error);
+            toastr.error(error, 'Couldn\'t load notifications');
         });
     }
 

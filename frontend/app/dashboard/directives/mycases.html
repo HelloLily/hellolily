@@ -2,11 +2,12 @@
     <div name="portlet-caption">
         <i class="fa fa-briefcase"></i>
         <span class="caption-subject bold uppercase"> MY CASES</span>
-        <span class="caption-helper">({{ vm.table.items.length }})</span>
+        <span class="caption-helper">({{ vm.numOfCases }})</span>
         <span class="label label-sm label-danger" ng-if="vm.highPrioCases">{{ vm.highPrioCases }}</span>
     </div>
     <div name="portlet-caption-extra">
         <case-expires-filter filter-store="vm.table.expiresFilter"></case-expires-filter>
+        <case-users-filter users-store="vm.table.usersFilter"></case-users-filter>
     </div>
     <div name="portlet-body">
         <table class="table table-hover">
@@ -59,11 +60,11 @@
                     <td colspan="6">No cases</td>
                 </tr>
             </tbody>
-            <tbody ng-if="!vm.table.expiresFilter" ng-repeat="item in vm.table.items">
+            <tbody ng-if="!vm.table.expiresFilter" ng-repeat="(key, cases) in vm.table.items">
                 <tr class="bg-grey">
-                    <td colspan="6">{{ item.name }}</td>
+                    <td colspan="6" class="text-capitalize">{{ key }}</td>
                 </tr>
-                <tr ng-repeat="myCase in item.cases">
+                <tr ng-repeat="myCase in cases">
                     <td>
                         <a ui-sref="base.cases.detail({ id: myCase.id })">
                             {{ myCase.id }}

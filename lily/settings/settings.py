@@ -178,7 +178,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.gzip.GZipMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.common.BrokenLinkEmailsMiddleware',
+    'lily.utils.middleware.CustomBrokenLinkEmailsMiddleware',
     'lily.tenant.middleware.TenantMiddleware',
 )
 

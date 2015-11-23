@@ -232,6 +232,11 @@ class Website(TenantMixin, models.Model):
     def __unicode__(self):
         return self.website
 
+    def save(self, *args, **kwargs):
+        self.website = self.website.strip('/')
+
+        return super(Website, self).save(*args, **kwargs)
+
     class Meta:
         verbose_name = _('website')
         verbose_name_plural = _('websites')

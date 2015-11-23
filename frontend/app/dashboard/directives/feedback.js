@@ -1,26 +1,26 @@
 
 angular.module('app.dashboard.directives').directive('feedback', feedbackDirective);
 
-function feedbackDirective () {
+function feedbackDirective() {
     return {
         scope: {},
         templateUrl: 'dashboard/directives/feedback.html',
         controller: FeedbackController,
-        controllerAs: 'vm'
-    }
+        controllerAs: 'vm',
+    };
 }
 
-FeedbackController.$inject = ['$scope', '$state', 'Account', 'Cookie', 'Deal', 'CaseDetail'];
-function FeedbackController ($scope, $state, Account, Cookie, Deal, CaseDetail) {
-    var cookie = Cookie('feedbackWidget');
+FeedbackController.$inject = ['$scope', '$state', 'Account', 'LocalStorage', 'Deal', 'CaseDetail'];
+function FeedbackController ($scope, $state, Account, LocalStorage, Deal, CaseDetail) {
+    var storage = LocalStorage('feedbackWidget');
 
     var vm = this;
     vm.table = {
-        order: cookie.get('order', {
+        order: storage.get('order', {
             ascending: true,
-            column: 'closing_date'  // string: current sorted column
+            column: 'closing_date',  // string: current sorted column
         }),
-        items: []
+        items: [],
     };
 
     vm.feedbackFormSentForDeal = feedbackFormSentForDeal;
@@ -51,13 +51,13 @@ function FeedbackController ($scope, $state, Account, Cookie, Deal, CaseDetail) 
         });
     }
 
-    function feedbackFormSentForDeal (deal) {
+    function feedbackFormSentForDeal(deal) {
         deal.feedbackFormSent().then(function() {
-           vm.table.items.splice(vm.table.items.indexOf(deal), 1);
+            vm.table.items.splice(vm.table.items.indexOf(deal), 1);
         });
     }
 
-    function openFeedbackForm (deal) {
+    function openFeedbackForm(deal) {
         Account.get({id: deal.account}, function(account) {
             var emailAddress = account.getEmailAddress();
             if (emailAddress) {
@@ -71,7 +71,7 @@ function FeedbackController ($scope, $state, Account, Cookie, Deal, CaseDetail) 
     function _watchTable() {
         $scope.$watchGroup(['vm.table.order.ascending', 'vm.table.order.column'], function() {
             _getFeedbackDeals();
-            cookie.put('order', vm.table.order);
-        })
+            storage.put('order', vm.table.order);
+        });
     }
 }

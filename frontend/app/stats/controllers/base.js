@@ -28,8 +28,9 @@ function StatsBaseController($scope, Stats) {
     vm.countWithoutTagsCases = 0;
     vm.topTagsCases = {};
 
-    $scope.conf.pageTitleBig = 'Stats';
-    $scope.conf.pageTitleSmall = 'All you can stat';
+    Settings.page.setTitle('custom', 'Stats');
+    Settings.page.header.setMain('custom', 'Stats');
+    Settings.page.header.setSub('custom', 'All you can stat');
 
     activate();
 

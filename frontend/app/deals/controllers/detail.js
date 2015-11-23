@@ -25,12 +25,12 @@ function dealsConfig($stateProvider) {
 
 angular.module('app.deals').controller('DealDetailController', DealDetailController);
 
-DealDetailController.$inject = ['$http', '$scope', 'DealStages', 'deal'];
-function DealDetailController($http, $scope, DealStages, deal) {
+DealDetailController.$inject = ['$http', '$scope', 'Settings', 'DealStages', 'deal'];
+function DealDetailController($http, $scope, Settings, DealStages, deal) {
+    $scope.deal = deal;
     var vm = this;
 
-    $scope.conf.pageTitleBig = 'Deal detail';
-    $scope.conf.pageTitleSmall = 'the devil is in the details';
+    Settings.page.setAllTitles('detail', deal.name);
 
     vm.deal = deal;
     vm.dealStages = DealStages.query();

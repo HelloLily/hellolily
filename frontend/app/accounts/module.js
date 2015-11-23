@@ -15,5 +15,5 @@ angular.module('app.accounts', [
     'app.email.services',
     'app.forms.directives',
     'app.notes',
-    'app.services'
+    'app.services',
 ]);

@@ -29,10 +29,10 @@ function accountConfig($stateProvider) {
  */
 angular.module('app.accounts').controller('AccountList', AccountList);
 
-AccountList.$inject = ['$scope', '$window', 'Account', 'Cookie'];
-function AccountList($scope, $window, Account, Cookie) {
+AccountList.$inject = ['$scope', '$window', 'Settings', 'Account', 'LocalStorage'];
+function AccountList($scope, $window, Settings, Account, LocalStorage) {
     var vm = this;
-    var cookie = Cookie('accountList');
+    var storage = LocalStorage('accountList');
     /**
      * table object: stores all the information to correctly display the table
      */
@@ -40,12 +40,12 @@ function AccountList($scope, $window, Account, Cookie) {
         page: 1,  // current page of pagination: 1-index
         pageSize: 20,  // number of items per page
         totalItems: 0, // total number of items
-        filter: cookie.get('filter', ''),  // search filter
-        order: cookie.get('order', {
+        filter: storage.get('filter', ''),  // search filter
+        order: storage.get('order', {
             ascending: true,
             column: 'modified',  // string: current sorted column
         }),
-        visibility: cookie.get('visibility', {
+        visibility: storage.get('visibility', {
             name: true,
             contactInformation: true,
             assignedTo: true,
@@ -67,8 +67,7 @@ function AccountList($scope, $window, Account, Cookie) {
         _setupWatches();
     }
 
-    $scope.conf.pageTitleBig = 'Accounts';
-    $scope.conf.pageTitleSmall = 'An overview of accounts';
+    Settings.page.setAllTitles('list', 'accounts');
 
 
     function deleteAccount(account) {
@@ -85,12 +84,12 @@ function AccountList($scope, $window, Account, Cookie) {
     }
 
     /**
-     * _updateTableSettings() sets scope variables to the cookie
+     * _updateTableSettings() puts the scope variables in local storage
      */
     function _updateTableSettings() {
-        cookie.put('filter', vm.table.filter);
-        cookie.put('order', vm.table.order);
-        cookie.put('visibility', vm.table.visibility);
+        storage.put('filter', vm.table.filter);
+        storage.put('order', vm.table.order);
+        storage.put('visibility', vm.table.visibility);
     }
 
     /**

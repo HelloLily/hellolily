@@ -94,7 +94,7 @@
 
         /** Style */
         "block-spacing": [2, "always"],                 // http://eslint.org/docs/rules/block-spacing
-        "indent": [2, 4],                               // http://eslint.org/docs/rules/indent
+        "indent": [2, 4, {"SwitchCase": 1}],            // http://eslint.org/docs/rules/indent
         "brace-style": [2,                              // http://eslint.org/docs/rules/brace-style
           "1tbs", {
           "allowSingleLine": true

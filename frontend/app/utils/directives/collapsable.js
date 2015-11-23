@@ -1,7 +1,7 @@
 angular.module('app.utils.directives').directive('collapsable', CollapsableDirective);
 
 CollapsableDirective.$inject = [];
-function CollapsableDirective () {
+function CollapsableDirective() {
     return {
         restrict: 'E',
         transclude: true,
@@ -10,23 +10,23 @@ function CollapsableDirective () {
         controllerAs: 'cl',
         bindToController: true,
         scope: {
-            name: '@'
-        }
-    }
+            name: '@',
+        },
+    };
 }
 
-CollapsableController.$inject = ['$scope', 'Cookie'];
-function CollapsableController ($scope, Cookie) {
+CollapsableController.$inject = ['$scope', 'LocalStorage'];
+function CollapsableController($scope, LocalStorage) {
     var vm = this;
 
-    var cookie = Cookie('collapseDirective-' + vm.name);
-    vm.folded = cookie.get('folded', false);
+    var storage = LocalStorage('collapseDirective-' + vm.name);
+    vm.folded = storage.get('folded', false);
 
     vm.toggleFolded = toggleFolded;
 
-    function toggleFolded () {
+    function toggleFolded() {
         vm.folded = !vm.folded;
-        cookie.put('folded', vm.folded);
+        storage.put('folded', vm.folded);
         $scope.$broadcast('foldedToggle', vm.folded);
     }
 }

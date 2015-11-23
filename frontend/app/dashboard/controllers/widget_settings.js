@@ -1,11 +1,11 @@
 angular.module('app.dashboard').controller('WidgetSettingsModal', WidgetSettingsModalController);
 
-WidgetSettingsModalController.$inject = ['$modalInstance', 'Cookie'];
-function WidgetSettingsModalController ($modalInstance, Cookie) {
+WidgetSettingsModalController.$inject = ['$modalInstance', 'LocalStorage'];
+function WidgetSettingsModalController($modalInstance, LocalStorage) {
     var vm = this;
-    var cookie = Cookie('widgetInfo');
+    var storage = LocalStorage('widgetInfo');
 
-    vm.widgetSettings = cookie.get('', {});
+    vm.widgetSettings = storage.get('', {});
 
     vm.saveModal = saveModal;
     vm.closeModal = closeModal;
@@ -13,7 +13,8 @@ function WidgetSettingsModalController ($modalInstance, Cookie) {
     ////////////
 
     function saveModal() {
-        cookie.put('', vm.widgetSettings);
+        // Store the widget settings
+        storage.put('', vm.widgetSettings);
 
         $modalInstance.close();
     }

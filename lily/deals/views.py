@@ -163,7 +163,7 @@ class CreateDealView(CreateUpdateDealMixin, CreateView):
             # Reload when user is in the deal list
             response = anyjson.serialize({
                 'error': False,
-                'redirect_url': self.get_success_url()^M
+                'redirect_url': self.get_success_url()
             })
             return HttpResponse(response, content_type='application/json')
 

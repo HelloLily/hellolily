@@ -1,8 +1,16 @@
+.cache
+.npm
+.qws
 .git
-temp_bin
+checks
 dist-packages
 Dockers
+docs
+frontend
 lily
 locale
+node_modules
 python_imap
 taskmonitor
+temp_bin
+tests

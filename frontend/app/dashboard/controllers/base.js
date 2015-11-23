@@ -1,32 +1,33 @@
 angular.module('app.dashboard').config(dashboardConfig);
 
 dashboardConfig.$inject = ['$stateProvider'];
-function dashboardConfig ($stateProvider) {
+function dashboardConfig($stateProvider) {
     $stateProvider.state('base.dashboard', {
         url: '/',
         views: {
             '@': {
                 templateUrl: 'dashboard/controllers/base.html',
                 controller: DashboardController,
-                controllerAs: 'db'
-            }
+                controllerAs: 'db',
+            },
         },
         ncyBreadcrumb: {
-            label: 'Dashboard'
-        }
+            label: 'Dashboard',
+        },
     });
 }
 
 angular.module('app.dashboard').controller('DashboardController', DashboardController);
 
-DashboardController.$inject = ['$modal', '$scope', '$state'];
-function DashboardController ($modal, $scope, $state) {
+DashboardController.$inject = ['$modal', '$state', 'Settings'];
+function DashboardController($modal, $state, Settings) {
     var db = this;
 
     db.openWidgetSettingsModal = openWidgetSettingsModal;
 
-    $scope.conf.pageTitleBig = 'Dashboard';
-    $scope.conf.pageTitleSmall = 'statistics and usage';
+    Settings.page.setTitle('custom', 'Dashboard');
+    Settings.page.header.setMain('custom', 'Dashboard');
+    Settings.page.header.setSub('custom', 'statistics and usage');
 
     ////////////
 
@@ -35,7 +36,7 @@ function DashboardController ($modal, $scope, $state) {
             templateUrl: 'dashboard/controllers/widget_settings.html',
             controller: 'WidgetSettingsModal',
             controllerAs: 'vm',
-            size: 'md'
+            size: 'md',
         });
 
         modalInstance.result.then(function() {

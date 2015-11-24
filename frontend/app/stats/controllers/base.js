@@ -19,8 +19,8 @@ function statsConfig($stateProvider) {
 
 angular.module('app.stats').controller('StatsBaseController', StatsBaseController);
 
-StatsBaseController.$inject = ['$scope', 'Stats'];
-function StatsBaseController($scope, Stats) {
+StatsBaseController.$inject = ['Settings', 'Stats'];
+function StatsBaseController(Settings, Stats) {
     var vm = this;
     vm.totalCasesLastWeek = 0;
     vm.perTypeCountCases = {};
@@ -28,8 +28,9 @@ function StatsBaseController($scope, Stats) {
     vm.countWithoutTagsCases = 0;
     vm.topTagsCases = {};
 
-    $scope.conf.pageTitleBig = 'Stats';
-    $scope.conf.pageTitleSmall = 'All you can stat';
+    Settings.page.setTitle('custom', 'Stats');
+    Settings.page.header.setMain('custom', 'Stats');
+    Settings.page.header.setSub('custom', 'All you can stat');
 
     activate();
 

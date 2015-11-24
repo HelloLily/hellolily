@@ -1,7 +1,7 @@
 angular.module('app.accounts.services').factory('Account', Account);
 
-Account.$inject = ['$http', '$q', '$resource'];
-function Account($http, $q, $resource) {
+Account.$inject = ['$http', '$q', '$resource', 'HLUtils'];
+function Account($http, $q, $resource, HLUtils) {
     var Account = $resource(
         '/api/accounts/account/:id/',
         null,
@@ -215,74 +215,69 @@ function Account($http, $q, $resource) {
 
     Account.prototype._addEmailAddresses = function(data) {
         var account = this;
-        var newEmailAddresses = data.email_addresses;
-        var primaryExists = false;
 
-        if (data.primary_email) {
-            primaryExists = true;
-            newEmailAddresses.unshift(data.primary_email);
-        }
-
-        for (var i in newEmailAddresses) {
-            var isPrimary = primaryExists && i == 0;
+        angular.forEach(data.email_addresses, function(emailAddress) {
             var add = true;
-            for (var j in account.email_addresses) {
-                if (account.email_addresses[j].email_address == newEmailAddresses[i]) {
+
+            angular.forEach(account.email_addresses, function(accountEmailAddress) {
+                // Check if email address already exists
+                if (emailAddress === accountEmailAddress.email_address) {
                     add = false;
-                    break;
                 }
-            }
+            });
 
             if (add) {
-                account.email_addresses.push({email_address: newEmailAddresses[i], is_primary: isPrimary});
+                if (data.primary_email && data.primary_email === emailAddress) {
+                    account.email_addresses.unshift({email_address: emailAddress, is_primary: true, status: 2});
+                } else {
+                    account.email_addresses.push({email_address: emailAddress, is_primary: false, status: 1});
+                }
             }
-        }
+        });
     };
 
     Account.prototype._addPhoneNumbers = function(data) {
         var account = this;
-        var newPhoneNumbers = data.phone_numbers;
 
-        if (data.phone_number) {
-            newPhoneNumbers.unshift(data.phone_number);
-        }
-
-        for (var i in newPhoneNumbers) {
+        angular.forEach(data.phone_numbers, function(phoneNumber) {
             var add = true;
-            for (var j in account.phone_numbers) {
-                if (account.phone_numbers[j].raw_input === newPhoneNumbers[i]) {
+
+            angular.forEach(account.phone_numbers, function(accountPhoneNumber) {
+                // Check if phone number already exists
+                if (phoneNumber === accountPhoneNumber.raw_input) {
                     add = false;
-                    break;
                 }
-            }
+            });
+
             if (add) {
-                account.phone_numbers.push({raw_input: newPhoneNumbers[i]});
+                phoneNumber = HLUtils.formatPhoneNumber({raw_input: phoneNumber, type: 'work'});
+
+                account.phone_numbers.push(phoneNumber);
             }
-        }
+        });
     };
 
     Account.prototype._addAddresses = function(data) {
         var account = this;
-        for (var i in data.addresses) {
+
+        angular.forEach(data.addresses, function(address) {
+            if (!address.type) {
+                address.type = 'visiting';
+            }
+
             var add = true;
-            for (var j in account.addresses) {
-                add = false;
-                for (var k in data.addresses[i]) {
-                    if (data.addresses[i].hasOwnProperty(k)) {
-                        if (account.addresses[j][k] !== data.addresses[i][k]) {
-                            add = true;
-                        }
-                    }
+
+            angular.forEach(account.addresses, function(accountAddress) {
+                // Check if address already exists
+                if (angular.equals(address, accountAddress)) {
+                    add = false;
                 }
-                if (add) break;
-            }
+            });
+
             if (add) {
-                if (!data.addresses[i].type) {
-                    data.addresses[i].type = 'visiting';
-                }
-                account.addresses.push(data.addresses[i]);
+                account.addresses.push(address);
             }
-        }
+        });
     };
 
     return Account;

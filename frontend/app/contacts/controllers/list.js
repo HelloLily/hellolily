@@ -1,7 +1,7 @@
 angular.module('app.contacts').config(contactsConfig);
 
 contactsConfig.$inject = ['$stateProvider'];
-function contactsConfig ($stateProvider) {
+function contactsConfig($stateProvider) {
     $stateProvider.state('base.contacts', {
         url: '/contacts',
         views: {
@@ -18,12 +18,11 @@ function contactsConfig ($stateProvider) {
 
 angular.module('app.contacts').controller('ContactListController', ContactListController);
 
-ContactListController.$inject = ['$scope', '$window', 'Contact', 'Cookie', 'ContactTest'];
-function ContactListController($scope, $window, Contact, Cookie, ContactTest) {
-    var cookie = Cookie('contactList');
+ContactListController.$inject = ['$scope', '$window', 'Settings', 'Contact', 'LocalStorage', 'ContactTest'];
+function ContactListController($scope, $window, Settings, Contact, LocalStorage, ContactTest) {
+    var storage = LocalStorage('contactList');
 
-    $scope.conf.pageTitleBig = 'Contacts';
-    $scope.conf.pageTitleSmall = 'do all your lookin\' here';
+    Settings.page.setAllTitles('list', 'contacts');
 
     /**
      * table object: stores all the information to correctly display the table
@@ -32,12 +31,12 @@ function ContactListController($scope, $window, Contact, Cookie, ContactTest) {
         page: 1,  // current page of pagination: 1-index
         pageSize: 20,  // number of items per page
         totalItems: 0, // total number of items
-        filter: cookie.get('filter', ''),  // search filter
-        order: cookie.get('order', {
+        filter: storage.get('filter', ''),  // search filter
+        order: storage.get('order', {
             ascending: true,
             column: 'modified',  // string: current sorted column
         }),
-        visibility: cookie.get('visibility', {
+        visibility: storage.get('visibility', {
             name: true,
             contactInformation: true,
             worksAt: true,
@@ -60,12 +59,12 @@ function ContactListController($scope, $window, Contact, Cookie, ContactTest) {
     };
 
     /**
-     * updateTableSettings() sets scope variables to the cookie
+     * updateTableSettings() puts the scope variables in local storage
      */
     function updateTableSettings() {
-        cookie.put('filter', $scope.table.filter);
-        cookie.put('order', $scope.table.order);
-        cookie.put('visibility', $scope.table.visibility);
+        storage.put('filter', $scope.table.filter);
+        storage.put('order', $scope.table.order);
+        storage.put('visibility', $scope.table.visibility);
     }
 
     /**
@@ -135,7 +134,7 @@ function ContactListController($scope, $window, Contact, Cookie, ContactTest) {
         // Add all visible columns
         angular.forEach($scope.table.visibility, function(value, key) {
             if (value) {
-                getParams += '&export_columns='+ key;
+                getParams += '&export_columns=' + key;
             }
         });
 
@@ -147,5 +146,5 @@ function ContactListController($scope, $window, Contact, Cookie, ContactTest) {
 
         // Open url
         $window.open(url);
-    }
+    };
 }

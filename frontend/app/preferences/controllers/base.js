@@ -20,8 +20,9 @@ function preferencesConfig ($stateProvider) {
 
 angular.module('app.preferences').controller('PreferencesBase', PreferencesBase);
 
-PreferencesBase.$inject = ['$scope'];
-function PreferencesBase ($scope) {
-    $scope.conf.pageTitleBig = 'Preferences';
-    $scope.conf.pageTitleSmall = 'configure your mayhem';
+PreferencesBase.$inject = ['Settings'];
+function PreferencesBase (Settings) {
+    Settings.page.setTitle('custom', 'Preferences');
+    Settings.page.header.setMain('custom', 'Preferences');
+    Settings.page.header.setSub('custom', 'configure your mayhem');
 }

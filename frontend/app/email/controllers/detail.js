@@ -25,8 +25,8 @@ function emailConfig($stateProvider) {
 }
 
 angular.module('app.email').controller('EmailDetail', EmailDetailController);
-EmailDetailController.$inject = ['$scope', '$state', '$stateParams', '$http', 'Account', 'EmailMessage', 'RecipientInformation', 'SelectedEmailAccount', 'message'];
-function EmailDetailController($scope, $state, $stateParams, $http, Account, EmailMessage, RecipientInformation, SelectedEmailAccount, message) {
+EmailDetailController.$inject = ['$scope', '$state', '$stateParams', '$http', 'Settings', 'Account', 'EmailMessage', 'RecipientInformation', 'SelectedEmailAccount', 'message'];
+function EmailDetailController($scope, $state, $stateParams, $http, Settings, Account, EmailMessage, RecipientInformation, SelectedEmailAccount, message) {
     var vm = this;
     vm.displayAllRecipients = false;
     vm.message = message;
@@ -42,8 +42,9 @@ function EmailDetailController($scope, $state, $stateParams, $http, Account, Ema
     vm.toggleAccountSidebar = toggleAccountSidebar;
     vm.toggleContactSidebar = toggleContactSidebar;
 
-    $scope.conf.pageTitleBig = 'Email message';
-    $scope.conf.pageTitleSmall = 'sending love through the world!';
+    Settings.page.setTitle('custom', 'Email message');
+    Settings.page.header.setMain('custom', 'Email message');
+    Settings.page.header.setSub('email');
 
     activate();
 

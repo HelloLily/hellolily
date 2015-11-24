@@ -35,8 +35,8 @@ function emailConfig($stateProvider) {
 
 angular.module('app.email').controller('EmailListController', EmailListController);
 
-EmailListController.$inject = ['$location', '$scope', '$rootScope', '$state', '$stateParams', 'EmailMessage', 'EmailLabel', 'EmailAccount', 'HLText', 'SelectedEmailAccount'];
-function EmailListController($location, $scope, $rootScope, $state, $stateParams, EmailMessage, EmailLabel, EmailAccount, HLText, SelectedEmailAccount) {
+EmailListController.$inject = ['$location', '$scope', '$state', '$stateParams', 'Settings', 'EmailMessage', 'EmailLabel', 'EmailAccount', 'HLText', 'SelectedEmailAccount'];
+function EmailListController($location, $scope, $state, $stateParams, Settings, EmailMessage, EmailLabel, EmailAccount, HLText, SelectedEmailAccount) {
     var vm = this;
     vm.emailMessages = [];
     // Check if filter is set as query parameter
@@ -65,8 +65,9 @@ function EmailListController($location, $scope, $rootScope, $state, $stateParams
     vm.reloadMessages = reloadMessages;
     vm.goToDraft = goToDraft;
 
-    $scope.conf.pageTitleBig = 'Email';
-    $scope.conf.pageTitleSmall = 'sending love through the world!';
+    Settings.page.setTitle('custom', 'Email');
+    Settings.page.header.setMain('custom', 'Email');
+    Settings.page.header.setSub('email');
 
     activate();
 
@@ -78,7 +79,6 @@ function EmailListController($location, $scope, $rootScope, $state, $stateParams
         // Store current email account
         SelectedEmailAccount.setCurrentAccountId($stateParams.accountId);
         SelectedEmailAccount.setCurrentFolderId($stateParams.labelId);
-        $scope.conf.sidebar = null;
     }
 
     function watchTable() {
@@ -100,7 +100,6 @@ function EmailListController($location, $scope, $rootScope, $state, $stateParams
             vm.table.page = pageNumber;
         }
     }
-
 
     function toggleCheckboxes() {
         for (var i in vm.emailMessages) {

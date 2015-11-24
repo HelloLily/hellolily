@@ -12,13 +12,13 @@ function unassignedCasesDirective() {
     };
 }
 
-UnassignedCasesController.$inject = ['$http', '$scope', '$state', 'Case', 'Cookie'];
-function UnassignedCasesController ($http, $scope, $state, Case, Cookie) {
+UnassignedCasesController.$inject = ['$http', '$scope', '$state', 'Case', 'LocalStorage'];
+function UnassignedCasesController($http, $scope, $state, Case, LocalStorage) {
     var vm = this;
-    var cookie = Cookie('unassignedCasesForTeam' + vm.team.id + 'Widget');
+    var storage = LocalStorage('unassignedCasesForTeam' + vm.team.id + 'Widget');
     vm.highPrioCases = 0;
     vm.table = {
-        order: cookie.get('order', {
+        order: storage.get('order', {
             ascending: true,
             column: 'created',  // string: current sorted column
         }),
@@ -69,8 +69,8 @@ function UnassignedCasesController ($http, $scope, $state, Case, Cookie) {
 
     function _watchTable() {
         $scope.$watchGroup(['vm.table.order.ascending', 'vm.table.order.column'], function() {
-             _getUnassignedCases();
-            cookie.put('order', vm.table.order);
+            _getUnassignedCases();
+            storage.put('order', vm.table.order);
         });
     }
 }

@@ -18,12 +18,11 @@ function dealsConfig($stateProvider) {
 
 angular.module('app.deals').controller('DealListController', DealListController);
 
-DealListController.$inject = ['$http', '$location', '$scope', 'Cookie', 'Deal', 'HLFilters'];
-function DealListController($http, $location, $scope, Cookie, Deal, HLFilters) {
-    var cookie = Cookie('dealList');
+DealListController.$inject = ['$location', '$scope', 'Settings', 'LocalStorage', 'Deal', 'HLFilters'];
+function DealListController($location, $scope, Settings, LocalStorage, Deal, HLFilters) {
+    var storage = LocalStorage('dealList');
 
-    $scope.conf.pageTitleBig = 'Deals';
-    $scope.conf.pageTitleSmall = 'do all your lookin\' here';
+    Settings.page.setAllTitles('list', 'deals');
 
     // Setup search query
     var searchQuery = '';
@@ -33,8 +32,8 @@ function DealListController($http, $location, $scope, Cookie, Deal, HLFilters) {
     if (search != undefined) {
         searchQuery = search;
     } else {
-        // Get searchQuery from cookie
-        searchQuery = cookie.get('searchQuery', '');
+        // Get searchQuery from storage
+        searchQuery = storage.get('searchQuery', '');
     }
 
     /**
@@ -46,12 +45,12 @@ function DealListController($http, $location, $scope, Cookie, Deal, HLFilters) {
         totalItems: 0, // total number of items
         searchQuery: searchQuery,  // search query
         filterQuery: '',
-        archived: cookie.get('archived', false),
-        order: cookie.get('order', {
+        archived: storage.get('archived', false),
+        order: storage.get('order', {
             ascending: true,
             column: 'closing_date',  // string: current sorted column
         }),
-        visibility: cookie.get('visibility', {
+        visibility: storage.get('visibility', {
             deal: true,
             stage: true,
             created: true,
@@ -68,7 +67,7 @@ function DealListController($http, $location, $scope, Cookie, Deal, HLFilters) {
     /**
      * stores the selected filters
      */
-    $scope.filterList = cookie.get('filterList', [
+    $scope.filterList = storage.get('filterList', [
         {
             name: 'Assigned to me',
             value: 'assigned_to_id:' + currentUser.id,
@@ -123,14 +122,14 @@ function DealListController($http, $location, $scope, Cookie, Deal, HLFilters) {
     ]);
 
     /**
-     * updateTableSettings() sets scope variables to the cookie
+     * updateTableSettings() puts the scope variables in local storage
      */
     function updateTableSettings() {
-        cookie.put('searchQuery', $scope.table.searchQuery);
-        cookie.put('archived', $scope.table.archived);
-        cookie.put('order', $scope.table.order);
-        cookie.put('visibility', $scope.table.visibility);
-        cookie.put('filterList', $scope.filterList);
+        storage.put('searchQuery', $scope.table.searchQuery);
+        storage.put('archived', $scope.table.archived);
+        storage.put('order', $scope.table.order);
+        storage.put('visibility', $scope.table.visibility);
+        storage.put('filterList', $scope.filterList);
     }
 
     /**
@@ -177,7 +176,7 @@ function DealListController($http, $location, $scope, Cookie, Deal, HLFilters) {
     });
 
     /**
-     * Watches the filters so when the cookie is loaded,
+     * Watches the filters so when the values are retrieved from local storage,
      * the filterQuery changes and a new set of deals is fetched
      */
     $scope.$watchCollection('filterList', function() {

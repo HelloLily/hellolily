@@ -1,25 +1,25 @@
 angular.module('app.dashboard.directives').directive('followUp', followUpDirective);
 
-function followUpDirective () {
+function followUpDirective() {
     return {
         scope: {},
         templateUrl: 'dashboard/directives/followup.html',
         controller: FollowUpController,
-        controllerAs: 'vm'
-    }
+        controllerAs: 'vm',
+    };
 }
 
-FollowUpController.$inject = ['$modal', '$scope', 'Deal', 'Cookie'];
-function FollowUpController ($modal, $scope, Deal, Cookie) {
-    var cookie = Cookie('followupWidget');
+FollowUpController.$inject = ['$modal', '$scope', 'Deal', 'LocalStorage'];
+function FollowUpController($modal, $scope, Deal, LocalStorage) {
+    var storage = LocalStorage('followupWidget');
     var vm = this;
 
     vm.table = {
-        order: cookie.get('order', {
+        order: storage.get('order', {
             ascending: true,
-            column: 'created'
+            column: 'created',
         }),
-        items: []
+        items: [],
     };
 
     vm.openFollowUpWidgetModal = openFollowUpWidgetModal;
@@ -36,7 +36,7 @@ function FollowUpController ($modal, $scope, Deal, Cookie) {
         Deal.getFollowUpWidgetData(
             vm.table.order.column,
             vm.table.order.ascending
-        ).then(function (data){
+        ).then(function(data) {
             vm.table.items = data;
         });
     }
@@ -48,10 +48,10 @@ function FollowUpController ($modal, $scope, Deal, Cookie) {
             controllerAs: 'vm',
             size: 'md',
             resolve: {
-                followUp: function(){
+                followUp: function() {
                     return followUp;
-                }
-            }
+                },
+            },
         });
 
         modalInstance.result.then(function() {
@@ -62,7 +62,7 @@ function FollowUpController ($modal, $scope, Deal, Cookie) {
     function _watchTable() {
         $scope.$watchGroup(['vm.table.order.ascending', 'vm.table.order.column'], function() {
             _getFollowUp();
-            cookie.put('order', vm.table.order);
-        })
+            storage.put('order', vm.table.order);
+        });
     }
 }

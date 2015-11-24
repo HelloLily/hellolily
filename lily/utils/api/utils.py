@@ -12,10 +12,10 @@ def create_related_fields(instance, related_fields, data):
     """
     for field in related_fields:
         for item_data in data.get(field['data_string']):
-            if item_data and not item_data['is_deleted']:
-                # Remove is_deleted key so the create doesn't raise an error
-                del item_data['is_deleted']
+            # Remove is_deleted key from dict (so update/create don't give errors)
+            is_deleted = item_data.pop('is_deleted', False)
 
+            if item_data and not is_deleted:
                 # Websites are different than the other related fields.
                 # For now just have it as an edge case in this function.
                 # In the future we might want to change how websites are setup.
@@ -24,7 +24,10 @@ def create_related_fields(instance, related_fields, data):
                     model.objects.create(account=instance, **item_data)
                 else:
                     # Get the model
-                    model = get_model('utils', field['model'])
+                    if field['model'] == 'SocialMedia':
+                        model = get_model('socialmedia', field['model'])
+                    else:
+                        model = get_model('utils', field['model'])
                     # Create new object from model and add to set
                     field_name = field['data_string']
                     getattr(instance, field_name).add(model.objects.create(**item_data))
@@ -65,6 +68,10 @@ def update_related_fields(instance, related_fields, data):
                 if is_deleted:
                     item_obj.delete()
                 else:
+                    # TODO: Temporary fix to strip slashes
+                    if field['model'] == 'Website':
+                        item_data['website'] = item_data['website'].strip('/')
+
                     # Otherwise update the object
                     item_obj.update(**item_data)
             else:
@@ -84,6 +91,13 @@ def update_related_fields(instance, related_fields, data):
                         'account': instance
                     })
                     model.objects.create(**item_data)
+                elif field['model'] == 'SocialMedia':
+                    model = get_model('socialmedia', field['model'])
+                    field_name = field['data_string']
+
+                    manager = getattr(instance, field_name)
+                    manager.exclude(id=instance.id).delete()
+                    getattr(instance, field_name).add(model.objects.create(**item_data))
                 else:
                     model = get_model('utils', field['model'])
                     field_name = field['data_string']

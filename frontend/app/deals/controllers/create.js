@@ -32,8 +32,7 @@ function dealsConfig ($stateProvider) {
 
 angular.module('app.deals').controller('DealCreateController', DealCreateController);
 
-DealCreateController.$inject = ['$scope'];
-function DealCreateController ($scope) {
-    $scope.conf.pageTitleBig = 'New deal';
-    $scope.conf.pageTitleSmall = 'making deals';
+DealCreateController.$inject = ['Settings'];
+function DealCreateController (Settings) {
+    Settings.page.setAllTitles('create', 'deal')
 }

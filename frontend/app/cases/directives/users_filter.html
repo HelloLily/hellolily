@@ -1,0 +1,51 @@
+<div class="btn-group cases-btn-group-person-selector-padding-left-5">
+    <a class="btn btn-default btn-circle" href="javascript:;" data-toggle="dropdown" ng-click="vm.loadTeams()">
+        <i class="fa fa-user"></i>
+
+        <span class="hidden-480">
+            <span ng-show="vm.usersDisplayNames.length >= 3">
+                {{ vm.usersDisplayNames.length }} selected
+            </span>
+            <span ng-show="vm.usersDisplayNames.length < 3" ng-repeat="display in vm.usersDisplayNames">
+                {{ display }} {{ $last ? '' : ', '}}
+            </span>
+        </span>
+
+        <i class="fa fa-angle-down"></i>
+    </a>
+
+    <div class="pull-right hold-on-click dropdown-checkboxes dropdown-menu">
+        <div class="cases-person-selector-dropdown">
+            <div class="cases-person-selector-dropdown-option" ng-click="vm.toggleUser('', vm.currentUser.id)">
+                <div class="team-option">
+                    <div class="cases-person-selector-dropdown-selection-box">
+                        <i ng-class="{'fa fa-check': vm.usersSelection.indexOf(vm.currentUser.id) > -1}"></i>
+                    </div>
+                    <span> {{ vm.currentUser.fullName }} </span>
+                </div>
+            </div>
+
+            <div ng-repeat="team in vm.teams">
+                <div class="cases-person-selector-dropdown-option" ng-click="vm.toggleUser(team)">
+                    <div class="team-option">
+                        <div class="cases-person-selector-dropdown-selection-box">
+                            <i ng-class="{'fa fa-check': vm.teamsSelection.indexOf(team.id) > -1}"></i>
+                        </div>
+                        <span> {{ team.name }} </span>
+                    </div>
+                </div>
+
+                <div ng-repeat="user in team.users">
+                    <div class="cases-person-selector-dropdown-option" ng-click="vm.toggleUser(team, user.id)">
+                        <div class="user-option">
+                            <div class="cases-person-selector-dropdown-selection-box">
+                                <i ng-class="{'fa fa-check': vm.usersSelection.indexOf(user.id) > -1}"></i>
+                            </div>
+                            <span> {{ user.full_name }} </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -31,6 +31,7 @@ class AccountTests(APITestCase):
         'legalentity': '',
         'name': 'Test account',
         'phone_numbers': [],
+        'social_media': [],
         'tags': [],
         'taxnumber': '',
         'websites': []

@@ -74,6 +74,10 @@ class AccountMapping(BaseMapping):
                 'type': 'string',
                 'index_analyzer': 'website_analyzer',
             },
+            'second_level_domain': {
+                'type': 'string',
+                'index': 'not_analyzed',
+            },
             'address_full': {
                 'type': 'string',
                 'index': 'no',
@@ -155,6 +159,7 @@ class AccountMapping(BaseMapping):
             } for email in obj.email_addresses.all()],
             'description': obj.description,
             'website': [website.website for website in obj.websites.all()],
+            'second_level_domain': [website.second_level for website in obj.websites.all()],
             'address': [{
                 'address_street': address.street,
                 'address_street_number': address.street_number,

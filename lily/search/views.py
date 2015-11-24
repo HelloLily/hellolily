@@ -2,6 +2,7 @@ import anyjson
 from django.http.response import HttpResponse
 from django.views.generic.base import View
 
+from lily.accounts.models import Website
 from lily.utils.views.mixins import LoginRequiredMixin
 
 from .lily_search import LilySearch
@@ -168,9 +169,10 @@ class EmailAddressSearchView(LoginRequiredMixin, View):
             # No account with the full email address exist, so use the domain for further searching
             domain = email_address.split('@')[1]
 
+            second_level_domain = Website(website=domain).second_level
             # Try to find an account which contains the domain
-            search.filter_query('email_addresses.email_address:"%s" OR website:"%s"' %
-                                (domain, domain))
+            search.filter_query('email_addresses.email_address:"%s" OR second_level_domain:"%s"' %
+                                (domain, second_level_domain))
 
             hits, facets, total, took = search.do_search()
             if total > 1:

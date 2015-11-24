@@ -3,6 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch.dispatcher import receiver
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from lily.tags.models import TaggedObjectMixin
@@ -231,6 +232,24 @@ class Website(TenantMixin, models.Model):
 
     def __unicode__(self):
         return self.website
+
+    @cached_property
+    def full_domain(self):
+        """Return the full domain name."""
+        domain = self.website
+        domain = domain.lstrip('http://').lstrip('https://')
+        domain = domain.split('/')[0]
+        return domain
+
+    @cached_property
+    def second_level(self):
+        """Return the second level domain."""
+        second = self.full_domain
+        if second.endswith('.co.uk') or second.endswith('.co.za'):
+            second = '.'.join(second.split('.')[-3:-2])
+        else:
+            second = '.'.join(second.split('.')[-2:-1])
+        return second
 
     def save(self, *args, **kwargs):
         self.website = self.website.strip('/')

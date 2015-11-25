@@ -9,7 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from lily.tags.models import TaggedObjectMixin
 from lily.tenant.models import TenantMixin
 from lily.users.models import LilyUser
-from lily.utils.functions import flatten
+from lily.utils.functions import flatten, clean_website
 from lily.utils.models.models import EmailAddress
 from lily.utils.models.mixins import Common, CaseClientModelMixin
 try:
@@ -252,7 +252,7 @@ class Website(TenantMixin, models.Model):
         return second
 
     def save(self, *args, **kwargs):
-        self.website = self.website.strip('/')
+        self.website = clean_website(self.website)
 
         return super(Website, self).save(*args, **kwargs)
 

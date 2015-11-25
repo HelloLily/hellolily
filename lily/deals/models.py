@@ -10,6 +10,14 @@ from lily.tenant.models import TenantMixin
 from lily.utils.models.mixins import DeletedMixin, ArchivedMixin
 
 
+class DealNextStep(TenantMixin):
+    name = models.CharField(max_length=255)
+    date_increment = models.IntegerField(default=0)
+
+    def __unicode__(self):
+        return self.name
+
+
 class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     """
     Deal model
@@ -89,7 +97,6 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
                                 verbose_name=_('currency'))
     amount_once = models.DecimalField(max_digits=19, decimal_places=2, verbose_name=_('one-time cost'), default=0)
     amount_recurring = models.DecimalField(max_digits=19, decimal_places=2, verbose_name=_('recurring costs'), default=0)
-    expected_closing_date = models.DateField(verbose_name=_('expected closing date'), null=True, blank=False)
     closed_date = models.DateTimeField(verbose_name=_('closed date'), blank=True, null=True)
     stage = models.IntegerField(choices=STAGE_CHOICES, default=OPEN_STAGE, verbose_name=_('status'))
     assigned_to = models.ForeignKey(LilyUser, verbose_name=_('assigned to'), null=True)
@@ -103,6 +110,8 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     quote_id = models.CharField(max_length=255, verbose_name=_('freedom quote id'), blank=True)
     found_through = models.IntegerField(max_length=255, blank=True, null=True, choices=FOUND_THROUGH_CHOICES, verbose_name=_('found us through'))
     contacted_by = models.IntegerField(max_length=255, blank=True, null=True, choices=CONTACTED_BY_CHOICES, verbose_name=_('contacted us by'))
+    next_step = models.ForeignKey(DealNextStep, verbose_name=_('next step'), null=True, related_name='deals')
+    next_step_date = models.DateField(verbose_name=_('next step date'), null=True, blank=True)
 
     import_id = models.CharField(max_length=100, verbose_name=_('import id'), default='', blank=True, db_index=True)
 

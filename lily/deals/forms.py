@@ -12,10 +12,10 @@ from lily.tags.forms import TagsFormMixin
 from lily.tenant.middleware import get_current_user
 from lily.users.models import LilyUser
 from lily.utils.forms import HelloLilyModelForm
-from lily.utils.forms.widgets import DatePicker, ShowHideWidget, AjaxSelect2Widget, BootstrapRadioFieldRenderer
+from lily.utils.forms.widgets import DatePicker, AjaxSelect2Widget, BootstrapRadioFieldRenderer
 from lily.utils.functions import add_business_days
 
-from .models import Deal
+from .models import Deal, DealNextStep
 
 
 class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
@@ -40,10 +40,16 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
         widget=forms.Select()
     )
 
-    expected_closing_date = forms.DateField(
-        label=_('Expected closing date'),
+    next_step = forms.ModelChoiceField(
+        label=_('Next step'),
+        queryset=DealNextStep.objects,
+        empty_label=_('Select the next step'),
+    )
+
+    next_step_date = forms.DateField(
+        label=_('Next step date'),
         input_formats=settings.DATE_INPUT_FORMATS,
-        initial=add_business_days(datetime.datetime.now(), 12),
+        required=False,
         widget=DatePicker(
             options={
                 'autoclose': 'true',
@@ -99,7 +105,7 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
                 'fields': ('name', 'amount_once', 'amount_recurring', 'currency', 'description', 'quote_id'),
             }),
             (_('What\'s the status?'), {
-                'fields': ('stage', 'expected_closing_date', 'assigned_to'),
+                'fields': ('stage', 'next_step', 'next_step_date', 'assigned_to'),
             }),
             (_('Action checklist'), {
                 'fields': ('twitter_checked', 'is_checked', 'card_sent', 'feedback_form_sent'),
@@ -133,53 +139,6 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
                 'data-uniformed': 'true',
             }),
             'card_sent': forms.widgets.RadioSelect(renderer=BootstrapRadioFieldRenderer, attrs={
-                'data-skip-uniform': 'true',
-                'data-uniformed': 'true',
-            }),
-        }
-
-
-class CreateDealQuickbuttonForm(CreateUpdateDealForm):
-    """
-    Form that is used for adding a new Deal through a quickbutton form.
-    """
-    def __init__(self, *args, **kwargs):
-        """
-        Overload super().__init__ to change auto_id to prevent clashing form field id's with
-        other forms.
-        """
-        kwargs.update({
-            'auto_id': 'id_deal_quickbutton_%s',
-        })
-
-        super(CreateDealQuickbuttonForm, self).__init__(*args, **kwargs)
-
-    class Meta:
-        model = Deal
-        fields = (
-            'name',
-            'new_business',
-            'description',
-            'account',
-            'currency',
-            'amount_once',
-            'amount_recurring',
-            'expected_closing_date',
-            'stage',
-            'assigned_to',
-        )
-
-        widgets = {
-            'description': ShowHideWidget(forms.Textarea(attrs={
-                'rows': 3,
-            })),
-            'currency': forms.Select(attrs={
-                'class': 'chzn-select-no-search',
-            }),
-            'stage': forms.Select(attrs={
-                'class': 'chzn-select-no-search',
-            }),
-            'new_business': forms.widgets.RadioSelect(renderer=BootstrapRadioFieldRenderer, attrs={
                 'data-skip-uniform': 'true',
                 'data-uniformed': 'true',
             }),

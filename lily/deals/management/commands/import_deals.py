@@ -44,7 +44,6 @@ class Command(BaseCommand):
         'Name': 'name',
         'Date Created': 'created',
         'Description': 'description',
-        'Expected Close Date': 'expected_closing_date',
         'Feedback Form Send?': 'feedback_form_sent',
     }
     type_mapping = {
@@ -95,12 +94,6 @@ class Command(BaseCommand):
                     # Set created date to original created date in sugar.
                     if attribute == 'created':
                         value = timezone.make_aware(datetime.strptime(str(value), "%d-%m-%Y %H.%M"), timezone.get_current_timezone())
-                    # Make closing date timezone aware
-                    if attribute == 'expected_closing_date':
-                        # Failing sugar datetime values
-                        if value == '30-11--0001':
-                            value = '01-01-1970'
-                        value = timezone.make_aware(datetime.strptime(str(value), "%d-%m-%Y"), timezone.get_current_timezone())
                     deal_kwargs[attribute] = value
 
             eenmalig = Decimal(values.get('Eenmalig').decode('utf-8').replace(u'\u20ac', '').replace(',', '')) if values.get('Eenmalig') is not None else 0.00

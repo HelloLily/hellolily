@@ -19,9 +19,9 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseListController', CaseListController);
 
-CaseListController.$inject = ['$location', '$modal', '$scope', '$state', 'Settings', 'Case', 'LocalStorage',
+CaseListController.$inject = ['$modal', '$scope', '$state', '$timeout', 'Settings', 'Case', 'LocalStorage',
     'UserTeams', '$q'];
-function CaseListController($location, $modal, $scope, $state, Settings, Case, LocalStorage, UserTeams, $q) {
+function CaseListController($modal, $scope, $state, $timeout, Settings, Case, LocalStorage, UserTeams, $q) {
     var storage = LocalStorage('caseList');
     var vm = this;
 
@@ -36,7 +36,6 @@ function CaseListController($location, $modal, $scope, $state, Settings, Case, L
         page: 1,  // current page of pagination: 1-index
         pageSize: 60,  // number of items per page
         totalItems: 0, // total number of items
-        searchQuery: '',  // search query
         order: storage.get('order', {
             ascending: true,
             column: 'expires',  // string: current sorted column
@@ -54,7 +53,8 @@ function CaseListController($location, $modal, $scope, $state, Settings, Case, L
             createdBy: true,
             tags: true,
         }),
-        expiresFilter: storage.get('expiresFilter', ''),
+        dueDateFilter: storage.get('dueDateFilter', ''),
+        searchQuery: storage.get('searchQuery', ''),
     };
     vm.displayTypeFilterClear = false;
     vm.displayNonTypeFilterClear = false;
@@ -71,23 +71,11 @@ function CaseListController($location, $modal, $scope, $state, Settings, Case, L
     //////
 
     function activate() {
-        _setSearchQuery();
-        _getFilterList();
-        _setupWatchers();
-    }
-
-    function _setSearchQuery() {
-        // Setup search query
-        var searchQuery = '';
-
-        // Check if filter is set as query parameter
-        var search = $location.search().search;
-        if (search !== undefined) {
-            searchQuery = search;
-        } else {
-            searchQuery = storage.get('searchQuery', '');
-        }
-        vm.table.searchQuery = searchQuery;
+        // This timeout is needed because by loading from LocalStorage isn't fast enough
+        $timeout(function() {
+            _getFilterList();
+            _setupWatchers();
+        }, 50);
     }
 
     /**
@@ -234,12 +222,10 @@ function CaseListController($location, $modal, $scope, $state, Settings, Case, L
             vm.table.order.ascending,
             vm.table.archived,
             vm.table.filterQuery
-        )
-            .then(function(data) {
-                vm.table.items = data.cases;
-                vm.table.totalItems = data.total;
-            }
-        );
+        ).then(function(data) {
+            vm.table.items = data.cases;
+            vm.table.totalItems = data.total;
+        });
     }
 
     function _setupWatchers() {
@@ -275,7 +261,7 @@ function CaseListController($location, $modal, $scope, $state, Settings, Case, L
             updateFilterQuery();
         });
 
-        $scope.$watch('vm.table.expiresFilter', function() {
+        $scope.$watch('vm.table.dueDateFilter', function() {
             updateFilterQuery();
         });
     }
@@ -305,8 +291,8 @@ function CaseListController($location, $modal, $scope, $state, Settings, Case, L
             }
         });
 
-        if (vm.table.expiresFilter) {
-            nonTypeFilterStrings.push(vm.table.expiresFilter);
+        if (vm.table.dueDateFilter) {
+            nonTypeFilterStrings.push(vm.table.dueDateFilter);
         }
 
         // If we have type filter, we join them OR-wise.

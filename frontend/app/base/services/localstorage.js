@@ -24,8 +24,10 @@ function LocalStorage() {
      * @returns {*}: Retrieved or default value
      */
     LocalStorage.prototype.get = function(field, defaultValue) {
+        var value = localStorage.getItem(this.prefix + field);
+
         try {
-            var value = JSON.parse(localStorage.getItem(this.prefix + field));
+            value = JSON.parse(value);
 
             return (value !== null) ? value : defaultValue;
         } catch (error) {
@@ -59,12 +61,10 @@ function LocalStorage() {
      * Creates/updates a local storage based on the given prefix + field name.
      *
      * @param field {string}: Name of the field to be created/updated
-     * @param value {*} : The value in the local storage
+     * @param value {*} : The value to be stored
      */
     LocalStorage.prototype.put = function(field, value) {
-        if (typeof value === 'object') {
-            value = JSON.stringify(value);
-        }
+        value = JSON.stringify(value);
 
         localStorage.setItem(this.prefix + field, value);
     };

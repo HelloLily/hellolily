@@ -35,21 +35,24 @@ function emailConfig($stateProvider) {
 
 angular.module('app.email').controller('EmailListController', EmailListController);
 
-EmailListController.$inject = ['$location', '$scope', '$state', '$stateParams', 'Settings', 'EmailMessage', 'EmailLabel', 'EmailAccount', 'HLText', 'SelectedEmailAccount'];
-function EmailListController($location, $scope, $state, $stateParams, Settings, EmailMessage, EmailLabel, EmailAccount, HLText, SelectedEmailAccount) {
+EmailListController.$inject = ['$scope', '$state', '$stateParams', 'Settings', 'EmailMessage', 'EmailLabel',
+    'EmailAccount', 'HLText', 'LocalStorage', 'SelectedEmailAccount'];
+function EmailListController($scope, $state, $stateParams, Settings, EmailMessage, EmailLabel, EmailAccount, HLText, LocalStorage, SelectedEmailAccount) {
+    var storage = LocalStorage('inbox');
     var vm = this;
+
     vm.emailMessages = [];
-    // Check if filter is set as query parameter
+    vm.primaryEmailAccount = null;
     vm.table = {
         page: 0,  // current page of pagination: 1-index
         pageSize: 20,  // number of items per page
         totalItems: 0, // total number of items
-        filter: '',  // search filter
+        filter: storage.get('searchQuery', ''),  // search filter
     };
     vm.opts = {
-        checkboxesAll: false
+        checkboxesAll: false,
     };
-    vm.primaryEmailAccount = null;
+
     vm.setPage = setPage;
     vm.toggleCheckboxes = toggleCheckboxes;
     vm.showReplyOrForwardButtons = showReplyOrForwardButtons;
@@ -74,7 +77,6 @@ function EmailListController($location, $scope, $state, $stateParams, Settings, 
     ///////
 
     function activate() {
-        vm.table.filter = $location.search().search || '';
         watchTable();
         // Store current email account
         SelectedEmailAccount.setCurrentAccountId($stateParams.accountId);
@@ -91,8 +93,15 @@ function EmailListController($location, $scope, $state, $stateParams, Settings, 
             if (oldValues[0] === '' && newValues[0] !== '') {
                 vm.setPage(0);
             }
+
+            _updateTableSettings();
             _reloadMessages();
         });
+    }
+
+    function _updateTableSettings() {
+        storage.put('searchQuery', vm.table.filter);
+        storage.put('page', vm.table.page);
     }
 
     function setPage(pageNumber) {
@@ -102,7 +111,7 @@ function EmailListController($location, $scope, $state, $stateParams, Settings, 
     }
 
     function toggleCheckboxes() {
-        for (var i in vm.emailMessages) {
+        for(var i in vm.emailMessages) {
             vm.emailMessages[i].checked = vm.opts.checkboxesAll;
         }
     }
@@ -192,7 +201,7 @@ function EmailListController($location, $scope, $state, $stateParams, Settings, 
         }
     }
 
-    function archiveMessages () {
+    function archiveMessages() {
         for (var i in vm.emailMessages) {
             if (vm.emailMessages[i].checked) {
                 EmailMessage.archive({id: vm.emailMessages[i].id});
@@ -207,6 +216,7 @@ function EmailListController($location, $scope, $state, $stateParams, Settings, 
                 EmailMessage.trash({id: vm.emailMessages[i].id});
             }
         }
+
         _removeCheckedMessagesFromList();
     }
 
@@ -264,7 +274,7 @@ function EmailListController($location, $scope, $state, $stateParams, Settings, 
                 EmailLabel.query({
                     label_id: $stateParams.labelId,
                     account__id: $stateParams.accountId,
-                }, function (results) {
+                }, function(results) {
                     if (results.length) {
                         vm.label = results[0];
                         vm.label.name = vm.label.name.hlCapitalize();

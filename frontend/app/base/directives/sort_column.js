@@ -17,7 +17,7 @@
  */
 angular.module('app.directives').directive('sortColumn', sortColumn);
 
-function sortColumn () {
+function sortColumn() {
     /**
      * _setSortableIcon() removes current sorting classes and adds new based on current
      * sorting column and direction
@@ -28,7 +28,7 @@ function sortColumn () {
      */
     var _setSortableIcon = function($scope, element, sortColumn) {
         // Add classes based on current sorted column
-        if($scope.table.order.column === sortColumn) {
+        if ($scope.table.order.column === sortColumn) {
             if ($scope.table.order.ascending) {
                 $scope.sorted = 1;
             } else {
@@ -42,11 +42,11 @@ function sortColumn () {
     return {
         restrict: 'A',
         scope: {
-            table: '='
+            table: '=',
         },
         transclude: true,
         templateUrl: 'base/directives/sort_column.html',
-        link: function ($scope, element, attrs) {
+        link: function($scope, element, attrs) {
             // Watch the table ordering & sorting
             $scope.$watchCollection('table.order', function() {
                 _setSortableIcon($scope, element, attrs.sortColumn);
@@ -54,7 +54,7 @@ function sortColumn () {
 
             // When element is clicked, set the table ordering & sorting based on this DOM element
             element.on('click', function() {
-                if($scope.table.order.column === attrs.sortColumn) {
+                if ($scope.table.order.column === attrs.sortColumn) {
                     $scope.table.order.ascending = !$scope.table.order.ascending;
                     $scope.$apply();
                 } else {
@@ -62,6 +62,6 @@ function sortColumn () {
                     $scope.$apply();
                 }
             });
-        }
-    }
+        },
+    };
 }

@@ -618,7 +618,7 @@ class BaseView(LoginRequiredMixin, TemplateView):
         return kwargs
 
 
-class RedirectAccountContactView(RedirectView):
+class RedirectAccountContactView(LoginRequiredMixin, RedirectView):
     permanent = False
 
     def get_redirect_url(self, *args, **kwargs):

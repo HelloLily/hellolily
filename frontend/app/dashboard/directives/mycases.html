@@ -61,7 +61,7 @@
                 </tr>
             </tbody>
             <tbody ng-if="!vm.table.expiresFilter" ng-repeat="(key, cases) in vm.table.items">
-                <tr class="bg-grey">
+                <tr class="bg-grey" ng-show="cases.length">
                     <td colspan="6" class="text-capitalize">{{ key }}</td>
                 </tr>
                 <tr ng-repeat="myCase in cases">
@@ -98,7 +98,9 @@
                         </a>
                     </td>
                 </tr>
-                <tr ng-hide="item.cases.length">
+            </tbody>
+            <tbody ng-hide="vm.table.items.expired.length || vm.table.items.today.length || vm.table.items.tomorrow.length || vm.table.items.later.length">
+                <tr>
                     <td colspan="6">No cases</td>
                 </tr>
             </tbody>

@@ -18,7 +18,7 @@ function DealsToCheckController($scope, LocalStorage, Deal, UserTeams) {
     vm.table = {
         order: storage.get('order', {
             ascending: true,
-            column: 'closing_date',  // string: current sorted column
+            column: 'next_step_date',  // string: current sorted column
         }),
         items: [],
         selectedUserId: storage.get('selectedUserId'),

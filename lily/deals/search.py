@@ -59,9 +59,6 @@ class DealMapping(BaseMapping):
             'modified': {
                 'type': 'date',
             },
-            'closing_date': {
-                'type': 'date',
-            },
             'closed_date': {
                 'type': 'date',
             },
@@ -96,7 +93,13 @@ class DealMapping(BaseMapping):
             },
             'quote_id': {
                 'type': 'string'
-            }
+            },
+            'next_step': {
+                'type': 'string',
+            },
+            'next_step_date': {
+                'type': 'date',
+            },
         })
         return mapping
 
@@ -140,7 +143,6 @@ class DealMapping(BaseMapping):
             'tag': [tag.name for tag in obj.tags.all() if tag.name],
             'created': obj.created,
             'modified': obj.modified,
-            'closing_date': obj.expected_closing_date,
             'closed_date': obj.closed_date,
             'is_checked': obj.is_checked,
             'archived': obj.is_archived,
@@ -153,4 +155,6 @@ class DealMapping(BaseMapping):
             'contacted_by_name': obj.get_contacted_by_display(),
             'new_business': obj.new_business,
             'quote_id': obj.quote_id,
+            'next_step': obj.next_step.name if obj.next_step else None,
+            'next_step_date': obj.next_step_date
         }

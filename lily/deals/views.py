@@ -16,7 +16,7 @@ from lily.utils.functions import is_ajax
 from lily.utils.views import AjaxUpdateView
 from lily.utils.views.mixins import LoginRequiredMixin
 
-from .forms import CreateUpdateDealForm, CreateDealQuickbuttonForm
+from .forms import CreateUpdateDealForm
 from .models import Deal
 
 
@@ -121,9 +121,6 @@ class CreateDealView(CreateUpdateDealMixin, CreateView):
         """
         For AJAX calls, use a different form and template.
         """
-        if is_ajax(request):
-            self.template_name_suffix = '_form_ajax'
-            self.form_class = CreateDealQuickbuttonForm
 
         return super(CreateDealView, self).dispatch(request, *args, **kwargs)
 

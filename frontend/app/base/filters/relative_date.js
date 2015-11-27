@@ -19,6 +19,9 @@ angular.module('app.filters').filter('relativeDate', relativeDate);
 relativeDate.$inject = ['$filter'];
 function relativeDate ($filter) {
     return function (date, fallbackDateFormat, compareWithMidnight) {
+        // No date, so just return an empty string
+        if (!date) return '';
+
         // Get current date
         var now = new Date(),
             calculateDelta, day, delta, hour, minute, week, month, year;

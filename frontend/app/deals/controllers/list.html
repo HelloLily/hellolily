@@ -15,7 +15,8 @@
                     <checkbox model="table.visibility.amountOnce">One-time cost</checkbox>
                     <checkbox model="table.visibility.amountRecurring">Recurring costs</checkbox>
                     <checkbox model="table.visibility.assignedTo">Assigned to</checkbox>
-                    <checkbox model="table.visibility.closingDate">Closing date</checkbox>
+                    <checkbox model="table.visibility.nextStep">Next step</checkbox>
+                    <checkbox model="table.visibility.nextStepDate">Next step date</checkbox>
                     <checkbox model="table.visibility.newBusiness">New business</checkbox>
                     <checkbox model="table.visibility.feedbackFormSent">Feedback form sent</checkbox>
                     <checkbox model="table.visibility.tags">Tags</checkbox>
@@ -60,7 +61,8 @@
                 <th ng-show="table.visibility.amountOnce" sort-column="amount_once" table="table">One-time cost</th>
                 <th ng-show="table.visibility.amountRecurring" sort-column="amount_recurring" table="table">Recurring costs</th>
                 <th ng-show="table.visibility.assignedTo" sort-column="assigned_to_name" table="table">Assigned to</th>
-                <th ng-show="table.visibility.closingDate" sort-column="closing_date" table="table" class="width-10">Closing date</th>
+                <th ng-show="table.visibility.nextStep" sort-column="next_step" table="table">Next step</th>
+                <th ng-show="table.visibility.nextStepDate" sort-column="next_step_date" table="table">Next step date</th>
                 <th ng-show="table.visibility.newBusiness" sort-column="new_business" table="table">Business</th>
                 <th ng-show="table.visibility.feedbackFormSent" sort-column="feedback_form_sent" table="table">Feedback form sent</th>
                 <th ng-show="table.visibility.tags">Tags</th>
@@ -93,8 +95,11 @@
                     <td ng-show="table.visibility.assignedTo">
                         {{ deal.assigned_to_name }}
                     </td>
-                    <td ng-show="table.visibility.closingDate" title="{{ deal.closing_date | date:'dd MMMM y HH:mm' }}">
-                        {{ deal.closing_date | relativeDate }}
+                    <td ng-show="table.visibility.nextStep">
+                        {{ deal.next_step }}
+                    </td>
+                    <td ng-show="table.visibility.nextStepDate">
+                        {{ deal.next_step_date | relativeDate }}
                     </td>
                     <td ng-show="table.visibility.newBusiness">
                         <span ng-if="deal.new_business">New</span>

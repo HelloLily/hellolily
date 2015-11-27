@@ -17,7 +17,6 @@ class DealSerializer(serializers.ModelSerializer):
             'stage',
             'assigned_to',
             'feedback_form_sent',
-            'expected_closing_date',
             'new_business',
             'content_type',
             'is_checked',

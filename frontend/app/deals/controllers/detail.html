@@ -29,11 +29,20 @@
                             {{ ::vm.deal.created | relativeDate }}
                         </div>
                         <div>
-                            <label>Closing date:</label>
-                            <span id="closed-date" ng-if="!vm.deal.closed_date">
-                                {{ ::vm.deal.closing_date | relativeDate }}
+                            <label>Next step:</label>
+                            <span id="next-step" ng-if="vm.deal.next_step">
+                                {{ ::vm.deal.next_step }}
                             </span>
-                            <span id="closed-date" ng-if="vm.deal.closed_date">
+                        </div>
+                        <div ng-if="::vm.deal.next_step_date">
+                            <label>Next step date:</label>
+                            <span>
+                                {{ ::vm.deal.next_step_date | relativeDate }}
+                            </span>
+                        </div>
+                        <div ng-if="vm.deal.closed_date">
+                            <label>Closed date:</label>
+                            <span id="closed-date">
                                 {{ vm.deal.closed_date | relativeDate }}
                             </span>
                         </div>

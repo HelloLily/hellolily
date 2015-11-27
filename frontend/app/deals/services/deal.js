@@ -1,7 +1,7 @@
 angular.module('app.deals.services').factory('Deal', Deal);
 
 Deal.$inject = ['$resource'];
-function Deal ($resource) {
+function Deal($resource) {
     var Deal = $resource(
         '/api/deals/deal/:id',
         null,
@@ -9,15 +9,14 @@ function Deal ($resource) {
             update: {
                 method: 'PUT',
                 params: {
-                    id: '@id'
-                }
+                    id: '@id',
+                },
             },
             query: {
                 url: '/search/search/',
                 method: 'GET',
-                params:
-                {
-                    type: 'deals_deal'
+                params: {
+                    type: 'deals_deal',
                 },
                 isArray: true,
                 transformResponse: function(data) {
@@ -29,14 +28,15 @@ function Deal ($resource) {
                                 historyType: 'deal',
                                 color: 'blue',
                                 date: obj.modified,
-                                total_size: data.total
+                                total_size: data.total,
                             });
-                            objects.push(obj)
+
+                            objects.push(obj);
                         });
                     }
                     return objects;
-                }
-            }
+                },
+            },
         }
     );
 
@@ -65,7 +65,12 @@ function Deal ($resource) {
      *          total int: total number of deal objects
      *      }
      */
-    function getDeals (queryString, page, pageSize, orderColumn, orderedAsc, filterQuery) {
+    function getDeals(queryString, page, pageSize, orderColumn, orderedAsc, filterQuery) {
+        // Temporary fix to ensure the app doesn't break because of a non-existent column.
+        if (orderColumn === 'closing_date') {
+            orderColumn = 'next_step_date';
+        }
+
         var sort = '';
         if (orderedAsc) sort += '-';
         sort += orderColumn;
@@ -75,19 +80,18 @@ function Deal ($resource) {
             page: page - 1,
             size: pageSize,
             sort: sort,
-            filterquery: filterQuery
-        }, function (deals) {
+            filterquery: filterQuery,
+        }, function(deals) {
             if (deals.length) {
                 return {
                     deals: deals,
-                    total: deals[0].total_size
+                    total: deals[0].total_size,
                 };
             }
         }).$promise;
     }
 
-    function getDealsToCheck (column, ordering, userId) {
-
+    function getDealsToCheck(column, ordering, userId) {
         var filterQuery = 'stage:2 AND is_checked:false AND new_business:true';
         if (userId) {
             filterQuery += ' AND assigned_to_id:' + userId;
@@ -95,23 +99,23 @@ function Deal ($resource) {
         return getDeals('', 1, 20, column, ordering, filterQuery);
     }
 
-    function getFeedbackDeals (column, ordering) {
+    function getFeedbackDeals(column, ordering) {
         var filterQuery = 'stage:2 AND feedback_form_sent:false AND assigned_to_id:' + currentUser.id;
         return getDeals('', 1, 20, column, ordering, filterQuery);
     }
 
-    function getFollowUpWidgetData (column, ordering){
+    function getFollowUpWidgetData(column, ordering) {
         var filterQuery = '(stage: 0 OR stage: 1 OR stage: 4 OR stage: 5) AND assigned_to_id: ' + currentUser.id;
         return getDeals('', 1, 20, column, ordering, filterQuery);
     }
 
-    function feedbackFormSent () {
+    function feedbackFormSent() {
         var deal = this;
         deal.feedback_form_sent = true;
         return deal.$update();
     }
 
-    function markDealAsChecked () {
+    function markDealAsChecked() {
         var deal = this;
         deal.is_checked = true;
         return deal.$update();

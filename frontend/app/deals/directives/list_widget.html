@@ -20,7 +20,6 @@
                     <th>Subject</th>
                     <th>Created</th>
                     <th>Costs</th>
-                    <th>Closes</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -29,7 +28,6 @@
                     <td><a ui-sref="base.deals.detail({id: deal.id})">{{ deal.name }}</a></td>
                     <td>{{ deal.created | date:'dd MMMM yy' }}</td>
                     <td>&euro;{{ deal.amount_once }} + &euro;{{ deal.amount_recurring }}/m</td>
-                    <td>{{ deal.closing_date | date:'dd MMMM yy' }}</td>
                 </tr>
                 <tr ng-hide="list.length">
                     <td colspan="5">No Deals</td>

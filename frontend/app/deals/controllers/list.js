@@ -48,7 +48,7 @@ function DealListController($location, $scope, Settings, LocalStorage, Deal, HLF
         archived: storage.get('archived', false),
         order: storage.get('order', {
             ascending: true,
-            column: 'closing_date',  // string: current sorted column
+            column: 'next_step_date',  // string: current sorted column
         }),
         visibility: storage.get('visibility', {
             deal: true,
@@ -58,10 +58,12 @@ function DealListController($location, $scope, Settings, LocalStorage, Deal, HLF
             amountOnce: true,
             amountRecurring: true,
             assignedTo: true,
+            nextStep: true,
+            nextStepDate: true,
             closingDate: true,
             feedbackFormSent: true,
             newBusiness: true,
-            tags: true
+            tags: true,
         })};
 
     /**

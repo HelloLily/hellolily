@@ -3,10 +3,9 @@ import time
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from elasticsearch.exceptions import NotFoundError
 
 from lily.search.analyzers import get_analyzers
-from lily.search.connections_utils import get_es_client
+from lily.search.connections_utils import get_es_client, get_index_name
 from lily.search.indexing import index_objects
 from lily.search.scan_search import ModelMappings
 
@@ -14,19 +13,18 @@ from lily.search.scan_search import ModelMappings
 class Command(BaseCommand):
     help = """Index current model instances into Elasticsearch. It does this by
 creating a new index, then changing the alias to point to the new index.
-(afterwards removing the old index).
+(afterwards removing the old index). It uses 1 index per type.
 
 It uses custom index implementation for fast and synchronous indexing.
 
 There are basically two ways to use this command, the first to index all
-configured mappings, which will create a new index, apply mappings and such:
+configured mappings:
 
     index
 
-The second way is to target a specific model, in which no new index will be
-created and no mappings will be applied. It only indexes the specific model:
+The second way is to target a specific model:
 
-    index -t Contact
+    index -t contact
 
 or with fully qualified name:
 
@@ -41,12 +39,6 @@ It is possible to specify multiple models, using comma separation."""
                     default='',
                     help='Choose specific model targets, comma separated.'
                     ),
-        make_option('-i', '--id',
-                    action='store',
-                    dest='id',
-                    default='',
-                    help='Choose specific IDs, comma separated. Has no effect without "target" option.'
-                    ),
         make_option('-q', '--queries',
                     action='store_true',
                     dest='queries',
@@ -55,154 +47,140 @@ It is possible to specify multiple models, using comma separation."""
         make_option('-f', '--force',
                     action='store_true',
                     dest='force',
-                    help='Force the creation of the new_index alias, removing the old one.'
+                    help='Force the creation of the new index, removing the old one (leftovers).'
                     ),
     )
 
     def handle(self, *args, **options):
         es = get_es_client()
 
-        # Check if specific targets specified to run, or otherwise run all.
         target = options['target']
         if target:
             targets = target.split(',')
-            # Check specific IDs.
-            if options['id']:
-                ids = options['id'].split(',')
-                self.index(settings.ES_INDEXES['default'], specific_targets=targets, ids=ids)
-            else:
-                self.index(settings.ES_INDEXES['default'], specific_targets=targets)
-
         else:
-            if es.indices.exists(settings.ES_INDEXES['new_index']):
-                if options['force']:
-                    es.indices.delete(settings.ES_INDEXES['new_index'])
-                else:
-                    raise Exception('%s already exists, run with -f to remove old' % settings.ES_INDEXES['new_index'])
+            targets = []  # (meaning all)
+        has_targets = targets != []
 
-            # Define analyzers and set alias for new index.
-            index_settings = {
-                'mappings': {},
-                'settings': get_analyzers(),
-                'aliases': {
-                    settings.ES_INDEXES['new_index']: {},
-                },
-            }
+        self.stdout.write('Please remember that HelloLily needs to be in maintenance mode. '
+                          '(Hit ctrl+c in 5 seconds to abort).')
+        time.sleep(5)
 
-            # Retrieve the mappings for the index-enabled models.
-            for mapping_class in ModelMappings.get_model_mappings().values():
-                model_name = mapping_class.get_mapping_type_name()
-                index_settings['mappings'].update({model_name: mapping_class.get_mapping()})
+        for mapping in ModelMappings.get_model_mappings().values():
+            model = mapping.get_model()
+            model_name = mapping.get_mapping_type_name()
+            main_index_base = settings.ES_INDEXES['default']
+            main_index = get_index_name(main_index_base, mapping)
 
-            new_index = 'index_%s' % (int(time.time()))
-            self.stdout.write('Creating new index "%s"' % new_index)
-            es.indices.create(new_index, body=index_settings)
-            self.index(new_index)
+            # Skip this model if there are specific targets and not specified.
+            if has_targets and not self.model_targetted(model, targets):
+                continue
 
-            # The default index name, (we will use as an alias).
-            index_name = settings.ES_INDEXES['default']
+            self.stdout.write('==> %s' % model_name)
 
-            # Check if we have a current index.
+            # Check if we currently have an index for this mapping.
             old_index = None
-            aliases = es.indices.get_aliases(name=index_name)
+            aliases = es.indices.get_aliases(name=main_index)
             for key, value in aliases.iteritems():
                 if value['aliases']:
                     old_index = key
+                    self.stdout.write('Current index "%s"' % key)
 
-            # Change the alias to point to our new index, and remove the old index.
+            # Check any indices with no alias (leftovers from failed indexing).
+            # Or it could be that it is still in progress,
+            aliases = es.indices.get_aliases()
+            for key, value in aliases.iteritems():
+                if not key.endswith(model_name):
+                    # Not the model we are looking after.
+                    continue
+                if key == main_index:
+                    # This is an auto created index. Will be removed at end of command.
+                    continue
+                if not value['aliases']:
+                    if options['force']:
+                        self.stdout.write('Removing leftover "%s"' % key)
+                        es.indices.delete(key)
+                    else:
+                        raise Exception('Found leftover %s, proceed with -f to remove.'
+                                        ' Make sure indexing this model is not already running!' % key)
 
-            self.stdout.write('Changing alias "%s" from old index "%s" to new index "%s"' %
-                              (index_name, old_index, new_index))
+            # Create new index.
+            index_settings = {
+                'mappings': {
+                    model_name: mapping.get_mapping()
+                },
+                'settings': {
+                    'analysis': get_analyzers()['analysis'],
+                    'number_of_shards': 1,
+                }
+            }
+            temp_index_base = 'index_%s' % (int(time.time()))
+            temp_index = get_index_name(temp_index_base, mapping)
+
+            self.stdout.write('Creating new index "%s"' % temp_index)
+            es.indices.create(temp_index, body=index_settings)
+
+            # Index documents.
+            self.index_documents(mapping, temp_index_base)
+
+            # Switch aliases.
             if old_index:
                 es.indices.update_aliases({
                     'actions': [
-                        {'remove': {'index': old_index, 'alias': index_name}},
-                        {'add': {'index': new_index, 'alias': index_name}},
+                        {'remove': {'index': old_index, 'alias': main_index}},
+                        {'remove': {'index': old_index, 'alias': main_index_base}},
+                        {'add': {'index': temp_index, 'alias': main_index}},
+                        {'add': {'index': temp_index, 'alias': main_index_base}},
                     ]
                 })
+                self.stdout.write('Removing previous index "%s"' % old_index)
                 es.indices.delete(old_index)
             else:
-                if es.indices.exists(index_name):
+                if es.indices.exists(main_index):
                     # This is a corner case. There was no alias named index_name, but
                     # an index index_name nevertheless exists, this only happens when the index
                     # was already created (because of ES auto creation features).
-                    es.indices.delete(index_name)
+                    self.stdout.write('Removing previous (presumably auto created) index "%s"' % main_index)
+                    es.indices.delete(main_index)
                 es.indices.update_aliases({
                     'actions': [
-                        {'add': {'index': new_index, 'alias': index_name}}
+                        {'add': {'index': temp_index, 'alias': main_index}},
+                        {'add': {'index': temp_index, 'alias': main_index_base}},
                     ]
                 })
-            es.indices.update_aliases({
-                'actions': [
-                    {'remove': {'index': new_index, 'alias': settings.ES_INDEXES['new_index']}},
-                ]
-            })
-            # Compensate for the small race condition in the signal handlers:
-            # They check if the index exists then updates documents, however when we
-            # delete the alias in between these two commands, we can end up with
-            # an auto created index named new_index, so we simply delete it again.
-            time.sleep(5)
-            try:
-                es.indices.delete(settings.ES_INDEXES['new_index'])
-            except NotFoundError:
-                pass
+            self.stdout.write('')
+
+        self.stdout.write('Indexing finished.')
+        for remaining_target in targets:
+            self.stdout.write('There was an unknown target specified: %s' % remaining_target)
 
         if options['queries']:
             from django.db import connection
             for query in connection.queries:
                 print query
 
-    def index(self, index_name, specific_targets=None, ids=None):
-        """
-        Index objects from our index-enabled models.
-        """
-        for mapping_class in ModelMappings.get_model_mappings().values():
-            model = mapping_class.get_model()
-            # Skip this model if there are specific targets and not specified.
-            if not self.model_targetted(model, specific_targets):
-                continue
-            model = mapping_class.get_model()
+    def index_documents(self, mapping, temp_index_base):
+        model = mapping.get_model()
+        self.stdout.write('Indexing %s' % self.full_name(model))
 
-            if ids:
-                for arg_id in ids:
-                    try:
-                        obj = model.objects.get(id=arg_id)
-                    except model.DoesNotExist:
-                        self.stdout.write('ID does not exist, deleting %s for %s' % (arg_id, self.full_name(model)))
-                        mapping_class.unindex(arg_id, index=index_name)
-                    else:
-                        if mapping_class.has_deleted() and obj.is_deleted:
-                            self.stdout.write('ID is_deleted, deleting %s for %s' % (arg_id, self.full_name(model)))
-                            mapping_class.unindex(arg_id, index=index_name)
-                        else:
-                            self.stdout.write('ID updating %s for %s' % (arg_id, self.full_name(model)))
-                            document = mapping_class.extract_document(arg_id, obj)
-                            mapping_class.bulk_index([document], id_field='id', index=index_name)
-                return
+        if mapping.has_deleted():
+            model_objs = model.objects.filter(is_deleted=False)
+        else:
+            model_objs = model.objects.all()
 
-            self.stdout.write('Indexing %s' % self.full_name(model))
-
-            if mapping_class.has_deleted():
-                model_objs = model.objects.filter(is_deleted=False)
-            else:
-                model_objs = model.objects.all()
-
-            index_objects(mapping_class, model_objs, index_name, print_progress=True)
+        index_objects(mapping, model_objs, temp_index_base, print_progress=True)
 
     def model_targetted(self, model, specific_targets):
         """
-        Check if the model is targetted for indexing. If no specific targets
-        are specified, all models are indexed.
+        Check if the model is targetted for indexing.
         """
-        if not specific_targets:
-            return True
-        for specific_target in specific_targets:
-            if specific_target in [model.__name__, self.full_name(model)]:
+        for specific_target in list(specific_targets):
+            if specific_target.lower() in [model.__name__.lower(), self.full_name(model).lower()]:
+                specific_targets.remove(specific_target)
                 return True
         return False
 
     def full_name(self, model):
         """
-        Get the fully qualified name of a model
+        Get the fully qualified name of a model.
         """
         return '%s.%s' % (model.__module__, model.__name__)

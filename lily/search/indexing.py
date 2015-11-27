@@ -1,5 +1,4 @@
 from datetime import date
-import itertools
 import logging
 import traceback
 
@@ -7,13 +6,12 @@ from django.conf import settings
 from elasticsearch.exceptions import NotFoundError
 from elasticutils.contrib.django import tasks
 
-from lily.search.connections_utils import get_es_client
+from lily.search.connections_utils import get_es_client, get_index_name
 from lily.utils import logutil
 
 
 logger = logging.getLogger('search')
-NEW_INDEX = settings.ES_INDEXES['new_index']
-DEFAULT_INDEX = settings.ES_INDEXES['default']
+main_index = settings.ES_INDEXES['default']
 es = get_es_client(maxsize=1)
 
 
@@ -29,16 +27,13 @@ def update_in_index(instance, mapping):
         remove_from_index(instance, mapping)
     else:
         logger.info(u'Updating instance %s: %s' % (instance.__class__.__name__, instance.pk))
-        # Extract all aliases available.
-        aliases = list(itertools.chain(*[v['aliases'].keys() for v in es.indices.get_aliases().itervalues() if 'aliases' in v]))
 
-        for index in [DEFAULT_INDEX, NEW_INDEX]:
-            try:
-                if index in aliases:
-                    tasks.index_objects(mapping, [instance.id], es=es, index=index)
-                    es.indices.refresh(index)
-            except Exception, e:
-                logger.error(traceback.format_exc(e))
+        try:
+            main_index_with_type = get_index_name(main_index, mapping)
+            tasks.index_objects(mapping, [instance.id], es=es, index=main_index_with_type)
+            es.indices.refresh(main_index_with_type)
+        except Exception, e:
+            logger.error(traceback.format_exc(e))
 
 
 def remove_from_index(instance, mapping):
@@ -50,17 +45,15 @@ def remove_from_index(instance, mapping):
     if settings.ES_DISABLED:
         return
     logger.info(u'Removing instance %s: %s' % (instance.__class__.__name__, instance.pk))
-    # Extract all aliases available.
-    aliases = list(itertools.chain(*[v['aliases'].keys() for v in es.indices.get_aliases().itervalues() if 'aliases' in v]))
-    for index in [DEFAULT_INDEX, NEW_INDEX]:
-        try:
-            if index in aliases:
-                tasks.unindex_objects(mapping, [instance.id], es=es, index=index)
-                es.indices.refresh(index)
-        except NotFoundError, e:
-            logger.warn('Not found in index instance %s: %s' % (instance.__class__.__name__, instance.pk))
-        except Exception, e:
-            logger.error(traceback.format_exc(e))
+
+    try:
+        main_index_with_type = get_index_name(main_index, mapping)
+        tasks.unindex_objects(mapping, [instance.id], es=es, index=main_index_with_type)
+        es.indices.refresh(main_index_with_type)
+    except NotFoundError, e:
+        logger.warn('Not found in index instance %s: %s' % (instance.__class__.__name__, instance.pk))
+    except Exception, e:
+        logger.error(traceback.format_exc(e))
 
 
 def index_objects(mapping, queryset, index, print_progress=False):
@@ -72,10 +65,10 @@ def index_objects(mapping, queryset, index, print_progress=False):
         documents.append(mapping.extract_document(instance.id, instance))
 
         if len(documents) >= 100:
-            mapping.bulk_index(documents, id_field='id', index=index, es=es)
+            mapping.bulk_index(documents, id_field='id', index=get_index_name(index, mapping), es=es)
             documents = []
 
-    mapping.bulk_index(documents, id_field='id', index=index, es=es)
+    mapping.bulk_index(documents, id_field='id', index=get_index_name(index, mapping), es=es)
     documents = []
 
 
@@ -87,7 +80,7 @@ def unindex_objects(mapping, queryset, index, print_progress=False):
 
     for instance in queryset_iterator(mapping, queryset, print_progress=print_progress):
         try:
-            mapping.unindex(instance.pk, index=index, es=es)
+            mapping.unindex(instance.pk, index=get_index_name(index, mapping), es=es)
         except NotFoundError:
             # Not present in the first place? Just ignore.
             pass

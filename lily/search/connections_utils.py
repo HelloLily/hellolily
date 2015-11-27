@@ -29,6 +29,11 @@ def get_es_client_kwargs(**kwargs_overrides):
     return client_kwargs
 
 
+def get_index_name(base_index_name, mapping):
+    """Returns the full index name, based on the base index name and mapping."""
+    return '%s.%s' % (base_index_name, mapping.get_mapping_type_name())
+
+
 class Urllib3HttpBlockingConnection(Urllib3HttpConnection):
     """
     Default connection class using the `urllib3`, with blocking option.

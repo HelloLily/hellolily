@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from rest_framework.fields import empty
@@ -16,25 +17,26 @@ class SocialMediaSerializer(serializers.ModelSerializer):
         """
         Check the validity of the twitter username and/or profile_url.
         """
-        Twitter(url=profile_url, username=username)
+        profile = Twitter(username=username, profile_url=profile_url)
+
+        return profile.username, profile.profile_url
 
     def validate_linkedin(self, username, profile_url):
         """
         Check the validity of the linkedin username and/or profile_url.
         """
-        LinkedIn(url=profile_url, username=username)
+        profile = LinkedIn(username=username, profile_url=profile_url)
+
+        return profile.username, profile.profile_url
 
     def validate(self, attrs):
         attrs = super(SocialMediaSerializer, self).validate(attrs)
 
         try:
-            getattr(self, 'validate_%s' % attrs.get('name'))(username=attrs.get('username'), profile_url=attrs.get('profile_url'))
-        except ValueError:
-            error_msg = _('Invalid value for username or profile url.')
-            raise serializers.ValidationError({
-                'username': error_msg,
-                'profile_url': error_msg
-            })
+            attrs['username'], attrs['profile_url'] = getattr(self, 'validate_%s' % attrs.get('name'))(
+                username=attrs.get('username'),
+                profile_url=attrs.get('profile_url')
+            )
         except TypeError:
             error_msg = _('Please fill in username or profile url.')
             raise serializers.ValidationError({

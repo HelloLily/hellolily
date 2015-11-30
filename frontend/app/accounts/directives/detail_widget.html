@@ -59,7 +59,7 @@
                     <td>
                         <div ng-repeat="site in account.website">
                             <a href="{{ site }}" target="_blank">
-                                {{ site }}
+                                {{ site | stripScheme }}
                             </a>
                         </div>
                     </td>

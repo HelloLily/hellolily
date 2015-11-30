@@ -10,6 +10,6 @@ describe('Get a user to login and show dashboard:', function() {
         driver.findElement(By.id('id_password')).sendKeys('testing');
         driver.findElement(By.id('id_password')).submit();
 
-        expect(driver.getTitle()).toEqual('HelloLily | Welcome!');
+        expect(driver.getTitle()).toEqual('Dashboard - HelloLily');
     });
 });

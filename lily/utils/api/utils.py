@@ -1,4 +1,5 @@
 from django.db.models.loading import get_model
+from lily.utils.functions import clean_website
 
 
 def create_related_fields(instance, related_fields, data):
@@ -68,9 +69,9 @@ def update_related_fields(instance, related_fields, data):
                 if is_deleted:
                     item_obj.delete()
                 else:
-                    # TODO: Temporary fix to strip slashes
+                    # TODO: Temporary fix to clean websites
                     if field['model'] == 'Website':
-                        item_data['website'] = item_data['website'].strip('/')
+                        item_data['website'] = clean_website(item_data['website'])
 
                     # Otherwise update the object
                     item_obj.update(**item_data)

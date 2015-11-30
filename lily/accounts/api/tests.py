@@ -31,6 +31,7 @@ class AccountTests(APITestCase):
         'legalentity': '',
         'name': 'Test account',
         'phone_numbers': [],
+        'social_media': [],
         'tags': [],
         'taxnumber': '',
         'websites': []
@@ -198,7 +199,7 @@ class AccountTests(APITestCase):
                 'other_type': None
             }],
             'websites': [{
-                'website': 'www.domain.com',
+                'website': 'http://www.domain.com',
                 'is_primary': False
             }],
             'addresses': [
@@ -419,7 +420,7 @@ class AccountTests(APITestCase):
         compare_data.update({
             'websites': [
                 {
-                    'website': 'domain.com',
+                    'website': 'http://domain.com',
                     'is_primary': True
                 },
                 {

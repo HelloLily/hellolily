@@ -69,7 +69,7 @@
                     <li ng-if="vm.account.websites.length">
                         <strong>Websites: </strong>
                         <div ng-repeat="website in vm.account.websites">
-                            <a target="_blank" href="https://{{website.website}}">{{ website.website }}</a>
+                            <a target="_blank" href="{{website.website}}">{{ website.website | stripScheme }}</a>
                         </div>
                     </li>
                     <li ng-if="vm.case.parcel_identifier">

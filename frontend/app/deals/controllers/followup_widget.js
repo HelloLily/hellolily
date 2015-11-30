@@ -1,16 +1,15 @@
 angular.module('app.deals').controller('FollowUpWidgetModal', FollowUpWidgetModalController);
 
-FollowUpWidgetModalController.$inject = ['$filter', '$modalInstance', 'Deal', 'DealStages', 'followUp'];
-function FollowUpWidgetModalController ($filter, $modalInstance, Deal, DealStages, followUp) {
+FollowUpWidgetModalController.$inject = ['$modalInstance', 'Deal', 'DealStages', 'followUp'];
+function FollowUpWidgetModalController($modalInstance, Deal, DealStages, followUp) {
     var vm = this;
     vm.dealStages = [];
-    vm.selectedStage = { id: followUp.stage, name: followUp.stage_name };
+    vm.selectedStage = {id: followUp.stage, name: followUp.stage_name};
     vm.followUp = followUp;
     vm.pickerIsOpen = false;
-    vm.closingDate = new Date(followUp.closing_date);
     vm.dateFormat = 'dd MMMM yyyy';
     vm.datepickerOptions = {
-        startingDay: 1
+        startingDay: 1,
     };
 
     vm.openDatePicker = openDatePicker;
@@ -24,18 +23,17 @@ function FollowUpWidgetModalController ($filter, $modalInstance, Deal, DealStage
     }
 
     function _getDealStages() {
-        DealStages.query({}, function(data){
+        DealStages.query({}, function(data) {
             vm.dealStages = [];
-            for(var i = 0; i < data.length; i++){
-                vm.dealStages.push({ id: data[i][0], name: data[i][1]});
+            for (var i = 0; i < data.length; i++) {
+                vm.dealStages.push({id: data[i][0], name: data[i][1]});
             }
         });
     }
 
     function saveModal() {
-        var newDate = $filter('date')(vm.closingDate, 'yyyy-MM-dd');
         var newStage = vm.selectedStage.id;
-        Deal.update({id: followUp.id}, {stage: newStage, expected_closing_date: newDate}, function() {
+        Deal.update({id: followUp.id}, {stage: newStage}, function() {
             $modalInstance.close();
         });
     }

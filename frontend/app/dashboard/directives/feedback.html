@@ -9,7 +9,6 @@
             <thead>
                 <tr>
                     <th>Account</th>
-                    <th sort-column="closing_date" table="vm.table">Won date</th>
                     <th>Usage</th>
                     <th>Send feedback</th>
                     <th>Check after send</th>
@@ -23,8 +22,6 @@
                             <i class="fa fa-briefcase"></i>
                         </a>
                     </td>
-
-                    <td>{{ deal.closing_date | relativeDate }}</td>
                     <td ng-show="deal.quote_id"><a ng-href="https://freedom.voys.nl/quotes/pdf/{{ deal.quote_id }}/" target="_blank"><i class="fa fa-dashboard"></i> Check</a></td>
                     <td ng-hide="deal.quote_id"><i>No quote id registered</i></td>
                     <td><a ng-click="vm.openFeedbackForm(deal)" class="btn btn-sm btn-default"><i class="fa fa-bullhorn"></i> Feedback form</a></td>

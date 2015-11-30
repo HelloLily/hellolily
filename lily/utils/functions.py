@@ -1,6 +1,7 @@
 import datetime
 import operator
 import re
+import urlparse
 from itertools import chain
 
 from django import forms
@@ -277,3 +278,21 @@ def add_business_days(date, days, days_of_business=None):
              (7 * multiplier))
 
     return date + datetime.timedelta(days=delta)
+
+
+def clean_website(website):
+    # Empty website, don't clean it
+    if website != 'http://':
+        website = website.strip().strip('/')
+
+        if not urlparse.urlparse(website).scheme:
+            website = 'http://' + website
+
+        parse_result = urlparse.urlparse(website)
+        # Only lowercase the domain part of the url.
+        # Tuples are immutable, so use _replace to set the new value.
+        parse_result = parse_result._replace(netloc=parse_result.netloc.lower())
+
+        website = urlparse.urlunparse(parse_result)
+
+    return website

@@ -11,14 +11,14 @@ function feedbackDirective() {
 }
 
 FeedbackController.$inject = ['$scope', '$state', 'Account', 'LocalStorage', 'Deal', 'CaseDetail'];
-function FeedbackController ($scope, $state, Account, LocalStorage, Deal, CaseDetail) {
+function FeedbackController($scope, $state, Account, LocalStorage, Deal, CaseDetail) {
     var storage = LocalStorage('feedbackWidget');
 
     var vm = this;
     vm.table = {
         order: storage.get('order', {
             ascending: true,
-            column: 'closing_date',  // string: current sorted column
+            column: 'next_step_date',  // string: current sorted column
         }),
         items: [],
     };

@@ -7,7 +7,8 @@ function dealsConfig($stateProvider) {
         views: {
             '@': {
                 templateUrl: 'deals/controllers/list.html',
-                controller: DealListController
+                controller: DealListController,
+                controllerAs: 'vm',
             },
         },
         ncyBreadcrumb: {
@@ -18,37 +19,25 @@ function dealsConfig($stateProvider) {
 
 angular.module('app.deals').controller('DealListController', DealListController);
 
-DealListController.$inject = ['$location', '$scope', 'Settings', 'LocalStorage', 'Deal', 'HLFilters'];
-function DealListController($location, $scope, Settings, LocalStorage, Deal, HLFilters) {
+DealListController.$inject = ['$scope', '$timeout', 'Settings', 'LocalStorage', 'Deal', 'HLFilters'];
+function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFilters) {
     var storage = LocalStorage('dealList');
+    var vm = this;
 
     Settings.page.setAllTitles('list', 'deals');
-
-    // Setup search query
-    var searchQuery = '';
-
-    // Check if searchQuery is set as query parameter
-    var search = $location.search().search;
-    if (search != undefined) {
-        searchQuery = search;
-    } else {
-        // Get searchQuery from storage
-        searchQuery = storage.get('searchQuery', '');
-    }
 
     /**
      * table object: stores all the information to correctly display the table
      */
-    $scope.table = {
+    vm.table = {
         page: 1,  // current page of pagination: 1-index
         pageSize: 20,  // number of items per page
         totalItems: 0, // total number of items
-        searchQuery: searchQuery,  // search query
         filterQuery: '',
         archived: storage.get('archived', false),
         order: storage.get('order', {
             ascending: true,
-            column: 'closing_date',  // string: current sorted column
+            column: 'next_step_date',  // string: current sorted column
         }),
         visibility: storage.get('visibility', {
             deal: true,
@@ -58,16 +47,37 @@ function DealListController($location, $scope, Settings, LocalStorage, Deal, HLF
             amountOnce: true,
             amountRecurring: true,
             assignedTo: true,
-            closingDate: true,
+            nextStep: true,
+            nextStepDate: true,
             feedbackFormSent: true,
             newBusiness: true,
-            tags: true
-        })};
+            tags: true,
+        }),
+        dueDateFilter: storage.get('dueDateFilter', ''),
+        searchQuery: storage.get('searchQuery', ''),
+    };
+
+    vm.displayFilterClear = false;
+
+    vm.updateFilterQuery = updateFilterQuery;
+    vm.setSearchQuery = setSearchQuery;
+    vm.clearFilters = clearFilters;
+
+    activate();
+
+    //////
+
+    function activate() {
+        // This timeout is needed because by loading from LocalStorage isn't fast enough
+        $timeout(function() {
+            _setupWatchers();
+        }, 50);
+    }
 
     /**
      * stores the selected filters
      */
-    $scope.filterList = storage.get('filterList', [
+    vm.filterList = storage.get('filterList', [
         {
             name: 'Assigned to me',
             value: 'assigned_to_id:' + currentUser.id,
@@ -122,85 +132,87 @@ function DealListController($location, $scope, Settings, LocalStorage, Deal, HLF
     ]);
 
     /**
-     * updateTableSettings() puts the scope variables in local storage
+     * _updateTableSettings() puts the scope variables in local storage
      */
-    function updateTableSettings() {
-        storage.put('searchQuery', $scope.table.searchQuery);
-        storage.put('archived', $scope.table.archived);
-        storage.put('order', $scope.table.order);
-        storage.put('visibility', $scope.table.visibility);
-        storage.put('filterList', $scope.filterList);
+    function _updateTableSettings() {
+        storage.put('searchQuery', vm.table.searchQuery);
+        storage.put('archived', vm.table.archived);
+        storage.put('order', vm.table.order);
+        storage.put('visibility', vm.table.visibility);
+        storage.put('filterList', vm.filterList);
     }
 
     /**
-     * updateDeals() reloads the deals through a service
+     * _updateDeals() reloads the deals through a service
      *
      * Updates table.items and table.totalItems
      */
-    function updateDeals() {
+    function _updateDeals() {
         Deal.getDeals(
-            $scope.table.searchQuery,
-            $scope.table.page,
-            $scope.table.pageSize,
-            $scope.table.order.column,
-            $scope.table.order.ascending,
-            $scope.table.filterQuery
+            vm.table.searchQuery,
+            vm.table.page,
+            vm.table.pageSize,
+            vm.table.order.column,
+            vm.table.order.ascending,
+            vm.table.filterQuery
         ).then(function(deals) {
-            $scope.table.items = deals;
-            $scope.table.totalItems = deals.length ? deals[0].total_size : 0;
+            vm.table.items = deals;
+            vm.table.totalItems = deals.length ? deals[0].total_size : 0;
         });
     }
 
-    /**
-     * Watches the model info from the table that, when changed,
-     * needs a new set of deals
-     */
-    $scope.$watchGroup([
-        'table.page',
-        'table.order.column',
-        'table.order.ascending',
-        'table.searchQuery',
-        'table.archived',
-        'table.filterQuery',
-    ], function() {
-        updateTableSettings();
-        updateDeals();
-    });
+    function _setupWatchers() {
+        /**
+         * Watches the model info from the table that, when changed,
+         * needs a new set of deals
+         */
+        $scope.$watchGroup([
+            'vm.table.page',
+            'vm.table.order.column',
+            'vm.table.order.ascending',
+            'vm.table.searchQuery',
+            'vm.table.archived',
+            'vm.table.filterQuery',
+        ], function() {
+            _updateTableSettings();
+            _updateDeals();
+        });
 
-    /**
-     * Watches the model info from the table that, when changed,
-     * needs to store the info to the cache
-     */
-    $scope.$watchCollection('table.visibility', function() {
-        updateTableSettings();
-    });
+        /**
+         * Watches the model info from the table that, when changed,
+         * needs to store the info to the cache
+         */
+        $scope.$watchCollection('vm.table.visibility', function() {
+            _updateTableSettings();
+        });
 
-    /**
-     * Watches the filters so when the values are retrieved from local storage,
-     * the filterQuery changes and a new set of deals is fetched
-     */
-    $scope.$watchCollection('filterList', function() {
-        $scope.updateFilterQuery();
-    });
+        /**
+         * Watches the filters so when the values are retrieved from local storage,
+         * the filterQuery changes and a new set of deals is fetched
+         */
+        $scope.$watchCollection('vm.filterList', function() {
+            updateFilterQuery();
+        });
+
+        $scope.$watch('vm.table.dueDateFilter', function() {
+            updateFilterQuery();
+        });
+    }
 
     /**
      * setSearchQuery() sets the search query of the table
      *
      * @param queryString string: string that will be set as the new search query on the table
      */
-    $scope.setSearchQuery = function(queryString) {
-        $scope.table.searchQuery = queryString;
-    };
+    function setSearchQuery(queryString) {
+        vm.table.searchQuery = queryString;
+    }
 
-    $scope.toggleArchived = function() {
-        $scope.table.archived = !$scope.table.archived;
-    };
+    function updateFilterQuery() {
+        HLFilters.updateFilterQuery(vm);
+    }
 
-    $scope.updateFilterQuery = function() {
-        HLFilters.updateFilterQuery($scope);
-    };
-
-    $scope.clearFilters = function() {
-        HLFilters.clearFilters($scope);
-    };
+    function clearFilters() {
+        HLFilters.clearFilters(vm);
+    }
 }

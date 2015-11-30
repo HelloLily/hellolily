@@ -5,8 +5,8 @@
  * date is to far in the past, it will fallback to angulars $filter
  *
  * @param: date {date|string} : date object or date string to transform
- * @param: fallbackDateFormat string (optional): fallback $filter argument
- * @param: compareWithMidnight boolean (optional): should the date comparison be with midnight or not
+ * @param: fallbackDateFormat {string} (optional): fallback $filter argument
+ * @param: compareWithMidnight {boolean} (optional): should the date comparison be with midnight or not
  *
  * @returns: string : a relative date string
  *
@@ -17,11 +17,14 @@
 angular.module('app.filters').filter('relativeDate', relativeDate);
 
 relativeDate.$inject = ['$filter'];
-function relativeDate ($filter) {
-    return function (date, fallbackDateFormat, compareWithMidnight) {
+function relativeDate($filter) {
+    return function(date, fallbackDateFormat, compareWithMidnight) {
+        // No date, so just return an empty string
+        if (!date) return '';
+
         // Get current date
         var now = new Date(),
-            calculateDelta, day, delta, hour, minute, week, month, year;
+            calculateDelta, day, delta, hour, minute, week;
 
         // If date is a string, format to date object
         if (!(date instanceof Date)) {
@@ -39,11 +42,9 @@ function relativeDate ($filter) {
         hour = minute * 60;
         day = hour * 24;
         week = day * 7;
-        month = day * 30;
-        year = day * 365;
 
         // Calculate delta in seconds
-        calculateDelta = function () {
+        calculateDelta = function() {
             return delta = Math.round((date - now) / 1000);
         };
 
@@ -64,8 +65,7 @@ function relativeDate ($filter) {
             if (window.innerWidth < 992) {
                 // Display as a short version if it's a small screen (tablet, smartphone, etc.)
                 fallbackDateFormat = 'dd MMM. yyyy'; // Renders as 29 Jan. 2015
-            }
-            else {
+            } else {
                 fallbackDateFormat = 'dd MMMM yyyy'; // Renders as 29 January 2015
             }
         }
@@ -111,9 +111,9 @@ function relativeDate ($filter) {
                 case Math.floor(delta / week) !== 1:
                     return 'a week';
                 default:
-                    // Use angular $filter
+                    // Use Angular $filter
                     return $filter('date')(date, fallbackDateFormat);
             }
         }
-    }
+    };
 }

@@ -27,18 +27,8 @@ function Settings() {
     };
 
     function setTitle(pageType, newTitle) {
-        var formats = {
-            list: 'List of ',
-            detail: 'View ',
-            create: 'New ',
-            edit: 'Edit ',
-            custom: '',
-        };
-        var _title = newTitle || '';
-
-        if (pageType) {
-            Settings.page.title = formats[pageType] + _title;
-        }
+        // Capitalize first letter of the new title
+        Settings.page.title = newTitle.charAt(0).toUpperCase() + newTitle.slice(1);
 
         return Settings.page.title;
     }

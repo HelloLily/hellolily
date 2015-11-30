@@ -6,7 +6,7 @@
         <span class="label label-sm label-danger" ng-if="vm.highPrioCases">{{ vm.highPrioCases }}</span>
     </div>
     <div name="portlet-caption-extra">
-        <case-expires-filter filter-store="vm.table.expiresFilter"></case-expires-filter>
+        <due-date-filter filter-store="vm.table.dueDateFilter" type="'case'"></due-date-filter>
         <case-users-filter users-store="vm.table.usersFilter"></case-users-filter>
     </div>
     <div name="portlet-body">
@@ -21,47 +21,8 @@
                     <th style="width: 80px;">Postpone</th>
                 </tr>
             </thead>
-            <tbody ng-if="vm.table.expiresFilter">
-                <tr ng-repeat="myCase in vm.table.items">
-                    <td>
-                        <a ui-sref="base.cases.detail({ id: myCase.id })">
-                            {{ myCase.id }}
-                        </a>
-                    </td>
-                    <td>
-                        <a ui-sref="base.cases.detail({ id: myCase.id })">
-                            {{ myCase.subject }}
-                        </a>
-                    </td>
-                    <td>
-                        <a ui-sref="base.contacts.detail({ id: myCase.contact })" ng-if="myCase.contact">
-                            {{ myCase.contact_name }}
-                        </a>
-                        <span ng-if="myCase.contact && myCase.account"> at </span>
-                        <a ui-sref="base.accounts.detail({ id: myCase.account })" ng-if="myCase.account">
-                            {{ myCase.account_name }}
-                        </a>
-                    </td>
-                    <td>
-                        {{ myCase.casetype_name }}
-                    </td>
-                    <td>
-                        <span class="label label-sm ng-binding" ng-class="{0: 'label-success', 1: 'label-info', 2: 'label-warning', 3: 'label-danger'}[myCase.priority]">
-                            {{ myCase.priority_name }}
-                        </span>
-                    </td>
-                    <td>
-                        <a ng-click="vm.openPostponeWidget(myCase)" tooltip="Aaah, that's too soon!">
-                            <i class="fa fa-history"></i>
-                        </a>
-                    </td>
-                </tr>
-                <tr ng-hide="vm.table.items.length">
-                    <td colspan="6">No cases</td>
-                </tr>
-            </tbody>
-            <tbody ng-if="!vm.table.expiresFilter" ng-repeat="(key, cases) in vm.table.items">
-                <tr class="bg-grey">
+            <tbody ng-repeat="(key, cases) in vm.table.items">
+                <tr class="bg-grey" ng-show="cases.length && key.length">
                     <td colspan="6" class="text-capitalize">{{ key }}</td>
                 </tr>
                 <tr ng-repeat="myCase in cases">
@@ -98,7 +59,9 @@
                         </a>
                     </td>
                 </tr>
-                <tr ng-hide="item.cases.length">
+            </tbody>
+            <tbody>
+                <tr ng-show="vm.numOfCases == 0">
                     <td colspan="6">No cases</td>
                 </tr>
             </tbody>

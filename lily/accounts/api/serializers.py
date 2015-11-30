@@ -1,3 +1,4 @@
+from lily.utils.functions import clean_website
 from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
 from lily.accounts.api.validators import HostnameValidator
@@ -23,7 +24,7 @@ class WebsiteSerializer(RelatedFieldSerializer):
     website = serializers.CharField(required=True, max_length=255, validators=[HostnameValidator()])
 
     def save(self):
-        self.website = self.website.strip('/')
+        self.website = clean_website(self.website)
 
         return super(WebsiteSerializer, self).save()
 

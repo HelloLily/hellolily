@@ -13,7 +13,6 @@
                     <th sort-column="created" table="vm.table">Date</th>
                     <th>Monthly</th>
                     <th sort-column="stage_name" table="vm.table">Status</th>
-                    <th>Edit</th>
                 </tr>
             </thead>
             <tbody>
@@ -23,7 +22,6 @@
                     <td>{{ followUp.created|date }}</td>
                     <td>{{ followUp.amount_recurring | currency:"€" }}</td>
                     <td>{{ followUp.stage_name }}</td>
-                    <td><a ng-click="vm.openFollowUpWidgetModal(followUp)"><i class="fa fa-edit"></i> Edit</a></td>
                 </tr>
                 <tr ng-hide="vm.table.items.length">
                     <td colspan="6">No follow up deals</td>

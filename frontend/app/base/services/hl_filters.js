@@ -1,41 +1,39 @@
 angular.module('app.services').service('HLFilters', HLFilters);
 
-function HLFilters () {
-    this.updateFilterQuery = function ($scope) {
-        $scope.table.filterQuery = '';
-        $scope.displayFilterClear = false;
+function HLFilters() {
+    this.updateFilterQuery = function(viewModel) {
+        viewModel.table.filterQuery = '';
+        viewModel.displayFilterClear = false;
         var filterStrings = [];
 
-        for (var i = 0; i < $scope.filterList.length; i++) {
-            var filter = $scope.filterList[i];
-            if (filter.id && filter.id == 'archived') {
+        for (var i = 0; i < viewModel.filterList.length; i++) {
+            var filter = viewModel.filterList[i];
+            if (filter.id && filter.id === 'archived') {
                 if (!filter.selected) {
                     filterStrings.push('archived:false');
+                } else {
+                    viewModel.displayFilterClear = true;
                 }
-                else {
-                    $scope.displayFilterClear = true;
-                }
-            }
-            else {
+            } else {
                 if (filter.selected) {
                     filterStrings.push(filter.value);
-                    $scope.displayFilterClear = true;
+                    viewModel.displayFilterClear = true;
                 }
             }
         }
 
-        if ($scope.table.expiresFilter) {
-            filterStrings.push($scope.table.expiresFilter);
+        if (viewModel.table.dueDateFilter) {
+            filterStrings.push(viewModel.table.dueDateFilter);
         }
 
-        $scope.table.filterQuery = filterStrings.join(' AND ');
+        viewModel.table.filterQuery = filterStrings.join(' AND ');
     };
 
-    this.clearFilters = function ($scope) {
-        for (var i = 0; i < $scope.filterList.length; i++) {
-            $scope.filterList[i].selected = false;
+    this.clearFilters = function(viewModel) {
+        for (var i = 0; i < viewModel.filterList.length; i++) {
+            viewModel.filterList[i].selected = false;
         }
 
-        $scope.updateFilterQuery();
+        viewModel.updateFilterQuery();
     };
 }

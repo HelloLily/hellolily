@@ -21,7 +21,7 @@ function MyCasesController($scope, Case, LocalStorage) {
             column: 'priority', // string: current sorted column
         }),
         items: [],
-        expiresFilter: storage.get('expiresFilter', ''),
+        dueDateFilter: storage.get('dueDateFilter', ''),
         usersFilter: storage.get('usersFilter', ''),
     };
 
@@ -40,7 +40,7 @@ function MyCasesController($scope, Case, LocalStorage) {
         var field = '';
         var sorting = false;
 
-        if (vm.expiresFilter !== '') {
+        if (vm.dueDateFilter !== '') {
             field = vm.table.order.column;
             sorting = vm.table.order.ascending;
         } else {
@@ -51,10 +51,10 @@ function MyCasesController($scope, Case, LocalStorage) {
         Case.getMyCasesWidget(
             field,
             sorting,
-            vm.table.expiresFilter,
+            vm.table.dueDateFilter,
             vm.table.usersFilter
         ).then(function(data) {
-            if (vm.table.expiresFilter !== '') {
+            if (vm.table.dueDateFilter !== '') {
                 // Add empty key to prevent showing a header and to not crash the for loop.
                 vm.table.items = {
                     '': data,
@@ -106,10 +106,10 @@ function MyCasesController($scope, Case, LocalStorage) {
     }
 
     function _watchTable() {
-        $scope.$watchGroup(['vm.table.expiresFilter', 'vm.table.usersFilter'], function() {
+        $scope.$watchGroup(['vm.table.dueDateFilter', 'vm.table.usersFilter'], function() {
             _getMyCases();
             storage.put('order', vm.table.order);
-            storage.put('expiresFilter', vm.table.expiresFilter);
+            storage.put('dueDateFilter', vm.table.dueDateFilter);
             storage.put('usersFilter', vm.table.usersFilter);
         });
     }

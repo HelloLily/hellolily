@@ -55,7 +55,10 @@ function MyCasesController($scope, Case, LocalStorage) {
             vm.table.usersFilter
         ).then(function(data) {
             if (vm.table.expiresFilter !== '') {
-                vm.table.items = data;
+                // Add empty key to prevent showing a header and to not crash the for loop.
+                vm.table.items = {
+                    '': data,
+                };
             } else {
                 var now = moment();
                 var tomorrow = moment().add('1', 'day');

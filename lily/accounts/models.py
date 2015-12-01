@@ -1,3 +1,5 @@
+import urlparse
+
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -236,10 +238,7 @@ class Website(TenantMixin, models.Model):
     @cached_property
     def full_domain(self):
         """Return the full domain name."""
-        domain = self.website
-        domain = domain.lstrip('http://').lstrip('https://')
-        domain = domain.split('/')[0]
-        return domain
+        return urlparse.urlparse(self.website.strip()).hostname
 
     @cached_property
     def second_level(self):

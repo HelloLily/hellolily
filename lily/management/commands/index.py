@@ -26,9 +26,10 @@ The second way is to target a specific model:
 
     index -t contact
 
-or with fully qualified name:
+or with other names:
 
     index -t lily.contacts.models.Contact
+    index -t contacts_contact
 
 It is possible to specify multiple models, using comma separation."""
 
@@ -37,22 +38,32 @@ It is possible to specify multiple models, using comma separation."""
                     action='store',
                     dest='target',
                     default='',
-                    help='Choose specific model targets, comma separated.'
+                    help='Choose specific model targets, comma separated (no added space after comma).'
                     ),
         make_option('-q', '--queries',
                     action='store_true',
                     dest='queries',
                     help='Show the queries that were executed during the command.'
                     ),
-        make_option('-f', '--force',
+        make_option('-l', '--list',
                     action='store_true',
-                    dest='force',
-                    help='Force the creation of the new index, removing the old one (leftovers).'
+                    dest='list',
+                    help='List available models to target.'
                     ),
     )
 
     def handle(self, *args, **options):
         es = get_es_client()
+
+        if args:
+            self.stdout.write('Aborting, unexpected arguments %s' % list(args))
+            return
+
+        if options['list']:
+            self.stdout.write('Possible models to index:\n')
+            for mapping in ModelMappings.get_model_mappings().values():
+                self.stdout.write(mapping.get_mapping_type_name())
+            return
 
         target = options['target']
         if target:
@@ -61,18 +72,27 @@ It is possible to specify multiple models, using comma separation."""
             targets = []  # (meaning all)
         has_targets = targets != []
 
-        self.stdout.write('Please remember that HelloLily needs to be in maintenance mode. '
-                          '(Hit ctrl+c in 5 seconds to abort).')
-        time.sleep(5)
+        self.stdout.write('Please remember that HelloLily needs to be in maintenance mode. \n\n')
+
+        if has_targets:
+            # Do a quick run to check if all targets are valid models.
+            check_targets = list(targets)  # make a copy
+            for target in check_targets:
+                for mapping in ModelMappings.get_model_mappings().values():
+                    if self.model_targetted(mapping, [target]):
+                        check_targets.remove(target)
+                        break
+            if check_targets:
+                self.stdout.write('Aborting, following targets not recognized: %s' % check_targets)
+                return
 
         for mapping in ModelMappings.get_model_mappings().values():
-            model = mapping.get_model()
             model_name = mapping.get_mapping_type_name()
             main_index_base = settings.ES_INDEXES['default']
             main_index = get_index_name(main_index_base, mapping)
 
             # Skip this model if there are specific targets and not specified.
-            if has_targets and not self.model_targetted(model, targets):
+            if has_targets and not self.model_targetted(mapping, targets):
                 continue
 
             self.stdout.write('==> %s' % model_name)
@@ -150,8 +170,6 @@ It is possible to specify multiple models, using comma separation."""
             self.stdout.write('')
 
         self.stdout.write('Indexing finished.')
-        for remaining_target in targets:
-            self.stdout.write('There was an unknown target specified: %s' % remaining_target)
 
         if options['queries']:
             from django.db import connection
@@ -169,13 +187,16 @@ It is possible to specify multiple models, using comma separation."""
 
         index_objects(mapping, model_objs, temp_index_base, print_progress=True)
 
-    def model_targetted(self, model, specific_targets):
+    def model_targetted(self, mapping, specific_targets):
         """
-        Check if the model is targetted for indexing.
+        Check if the mapping is targetted for indexing.
         """
-        for specific_target in list(specific_targets):
-            if specific_target.lower() in [model.__name__.lower(), self.full_name(model).lower()]:
-                specific_targets.remove(specific_target)
+        model = mapping.get_model()
+        model_short_name = model.__name__.lower()
+        model_full_name = self.full_name(model).lower()
+        model_mappings_name = mapping.get_mapping_type_name().lower()
+        for target in specific_targets:
+            if target.lower() in [model_short_name, model_full_name, model_mappings_name]:
                 return True
         return False
 

@@ -238,12 +238,19 @@ class Website(TenantMixin, models.Model):
     @cached_property
     def full_domain(self):
         """Return the full domain name."""
-        return urlparse.urlparse(self.website.strip()).hostname
+        if not self.website:
+            return None
+        if not (self.website.startswith('http://') or self.website.startswith('https://')):
+            return urlparse.urlparse('http://' + self.website.strip()).hostname
+        else:
+            return urlparse.urlparse(self.website.strip()).hostname
 
     @cached_property
     def second_level(self):
         """Return the second level domain."""
         second = self.full_domain
+        if not second:
+            return None
         if second.endswith('.co.uk') or second.endswith('.co.za'):
             second = '.'.join(second.split('.')[-3:-2])
         else:

@@ -19,8 +19,8 @@ function dashboardConfig($stateProvider) {
 
 angular.module('app.dashboard').controller('DashboardController', DashboardController);
 
-DashboardController.$inject = ['$modal', '$state', 'Settings'];
-function DashboardController($modal, $state, Settings) {
+DashboardController.$inject = ['$uibModal', '$state', 'Settings'];
+function DashboardController($uibModal, $state, Settings) {
     var db = this;
 
     db.openWidgetSettingsModal = openWidgetSettingsModal;
@@ -32,7 +32,7 @@ function DashboardController($modal, $state, Settings) {
     ////////////
 
     function openWidgetSettingsModal() {
-        var modalInstance = $modal.open({
+        var modalInstance = $uibModal.open({
             templateUrl: 'dashboard/controllers/widget_settings.html',
             controller: 'WidgetSettingsModal',
             controllerAs: 'vm',

@@ -1,7 +1,7 @@
 angular.module('app.dashboard').controller('WidgetSettingsModal', WidgetSettingsModalController);
 
-WidgetSettingsModalController.$inject = ['$modalInstance', 'LocalStorage'];
-function WidgetSettingsModalController($modalInstance, LocalStorage) {
+WidgetSettingsModalController.$inject = ['$uibModalInstance', 'LocalStorage'];
+function WidgetSettingsModalController($uibModalInstance, LocalStorage) {
     var vm = this;
     var storage = LocalStorage('widgetInfo');
 
@@ -16,10 +16,10 @@ function WidgetSettingsModalController($modalInstance, LocalStorage) {
         // Store the widget settings
         storage.put('', vm.widgetSettings);
 
-        $modalInstance.close();
+        $uibModalInstance.close();
     }
 
     function closeModal() {
-        $modalInstance.dismiss();
+        $uibModalInstance.dismiss();
     }
 }

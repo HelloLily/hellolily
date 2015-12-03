@@ -1,7 +1,7 @@
 angular.module('app.preferences').controller('PreferencesSetTemplateDefaultModal', PreferencesSetTemplateDefaultModal);
 
-PreferencesSetTemplateDefaultModal.$inject = ['$http', '$modalInstance', '$scope', 'emailTemplate'];
-function PreferencesSetTemplateDefaultModal ($http, $modalInstance, $scope, emailTemplate) {
+PreferencesSetTemplateDefaultModal.$inject = ['$http', '$uibModalInstance', '$scope', 'emailTemplate'];
+function PreferencesSetTemplateDefaultModal ($http, $uibModalInstance, $scope, emailTemplate) {
     $scope.emailTemplate = emailTemplate;
 
     $scope.ok = function () {
@@ -11,12 +11,12 @@ function PreferencesSetTemplateDefaultModal ($http, $modalInstance, $scope, emai
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             data: $.param({id: $scope.emailTemplate.id})
         }).success(function() {
-            $modalInstance.close($scope.emailTemplate);
+            $uibModalInstance.close($scope.emailTemplate);
         });
     };
 
     // Lets not change anything
     $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
+        $uibModalInstance.dismiss('cancel');
     };
 }

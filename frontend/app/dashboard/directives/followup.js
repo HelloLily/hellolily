@@ -9,14 +9,14 @@ function followUpDirective() {
     };
 }
 
-FollowUpController.$inject = ['$modal', '$scope', 'Deal', 'LocalStorage'];
-function FollowUpController($modal, $scope, Deal, LocalStorage) {
+FollowUpController.$inject = ['$uibModal', '$scope', 'Deal', 'LocalStorage'];
+function FollowUpController($uibModal, $scope, Deal, LocalStorage) {
     var storage = LocalStorage('followupWidget');
     var vm = this;
 
     vm.table = {
         order: storage.get('order', {
-            ascending: true,
+            descending: true,
             column: 'created',
         }),
         items: [],
@@ -33,16 +33,16 @@ function FollowUpController($modal, $scope, Deal, LocalStorage) {
     }
 
     function _getFollowUp() {
-        Deal.getFollowUpWidgetData(
-            vm.table.order.column,
-            vm.table.order.ascending
-        ).then(function(data) {
+        var filterQuery = '(stage: 0 OR stage: 1 OR stage: 4 OR stage: 5) AND assigned_to_id: ' + currentUser.id;
+        var dealPromise = Deal.getDeals('', 1, 20, vm.table.order.column, vm.table.order.descending, filterQuery);
+
+        dealPromise.then(function(data) {
             vm.table.items = data;
         });
     }
 
     function openFollowUpWidgetModal(followUp) {
-        var modalInstance = $modal.open({
+        var modalInstance = $uibModal.open({
             templateUrl: 'deals/controllers/followup_widget.html',
             controller: 'FollowUpWidgetModal',
             controllerAs: 'vm',
@@ -60,7 +60,7 @@ function FollowUpController($modal, $scope, Deal, LocalStorage) {
     }
 
     function _watchTable() {
-        $scope.$watchGroup(['vm.table.order.ascending', 'vm.table.order.column'], function() {
+        $scope.$watchGroup(['vm.table.order.descending', 'vm.table.order.column'], function() {
             _getFollowUp();
             storage.put('order', vm.table.order);
         });

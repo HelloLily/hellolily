@@ -13,9 +13,13 @@ from lily.utils.models.mixins import DeletedMixin, ArchivedMixin
 class DealNextStep(TenantMixin):
     name = models.CharField(max_length=255)
     date_increment = models.IntegerField(default=0)
+    position = models.IntegerField(choices=[(i, i) for i in range(10)], default=9)
 
     def __unicode__(self):
         return self.name
+
+    class Meta:
+        ordering = ['position']
 
 
 class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):

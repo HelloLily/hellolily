@@ -121,7 +121,7 @@ It is possible to specify multiple models, using comma separation."""
                     # This is an auto created index. Will be removed at end of command.
                     continue
                 if not value['aliases']:
-                    if options.get('force', ''):
+                    if options['force']:
                         self.stdout.write('Removing leftover "%s"' % key)
                         es.indices.delete(key)
                     else:

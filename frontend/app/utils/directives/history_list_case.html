@@ -35,19 +35,19 @@
 
         <ul class="list-inline list-justified">
             <li>
-                <small class="text-muted" tooltip="Expires on {{ ::vm.item.date | date:'dd MMMM yy' }} at {{ ::vm.item.date | date:'HH:mm' }}">
+                <small class="text-muted" uib-tooltip="Expires on {{ ::vm.item.date | date:'dd MMMM yy' }} at {{ ::vm.item.date | date:'HH:mm' }}">
                     <i class="fa fa-calendar"></i>
                     {{ ::vm.item.date | date:'dd MMMM yy HH:mm' }}
                 </small>
             </li>
             <li ng-if="::vm.item.assigned_to_name">
-                <small class="text-muted" tooltip="Assigned to: {{ ::vm.item.assigned_to_name }}">
+                <small class="text-muted" uib-tooltip="Assigned to: {{ ::vm.item.assigned_to_name }}">
                     <i class="fa fa-child"></i>
                     {{ ::vm.item.assigned_to_name || "Nobody" }}
                 </small>
             </li>
             <li>
-                <small class="text-muted" tooltip="Created by: {{ ::vm.item.created_by }}">
+                <small class="text-muted" uib-tooltip="Created by: {{ ::vm.item.created_by }}">
                     <i class="fa fa-user"></i>
                     {{ ::vm.item.created_by || "Nobody" }}
                 </small>
@@ -61,13 +61,13 @@
         <p>{{ ::note.content }}</p>
         <ul class="list-inline list-justified">
             <li>
-                <small class="text-muted" tooltip="Created on {{ ::note.date | date:'dd MMMM yy' }} at {{ ::note.date | date:'HH:mm' }}">
+                <small class="text-muted" uib-tooltip="Created on {{ ::note.date | date:'dd MMMM yy' }} at {{ ::note.date | date:'HH:mm' }}">
                     <i class="fa fa-calendar"></i>
                     {{ ::note.date | date:'dd MMMM yy HH:mm' }}
                 </small>
             </li>
             <li>
-                <small class="text-muted" tooltip="Created by: {{ ::note.author }}">
+                <small class="text-muted" uib-tooltip="Created by: {{ ::note.author }}">
                     <i class="fa fa-user"></i>
                     {{ ::note.author }}
                 </small>

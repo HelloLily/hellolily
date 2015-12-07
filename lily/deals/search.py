@@ -29,7 +29,8 @@ class DealMapping(BaseMapping):
                 'type': 'integer',
             },
             'account_customer_id': {
-                'type': 'integer',
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
             },
             'account_name': {
                 'type': 'string',

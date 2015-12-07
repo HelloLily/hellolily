@@ -30,19 +30,19 @@
         </em>
         <ul class="list-inline list-justified">
             <li>
-                <small class="text-muted" tooltip="Sent on {{ ::vm.item.date | date:'dd MMMM yy' }} at {{ ::vm.item.date | date:'HH:mm' }}">
+                <small class="text-muted" uib-tooltip="Sent on {{ ::vm.item.date | date:'dd MMMM yy' }} at {{ ::vm.item.date | date:'HH:mm' }}">
                     <i class="fa fa-calendar"></i>
                     {{ ::vm.item.date | date:'dd MMMM yy HH:mm' }}
                 </small>
             </li>
             <li>
-                <small class="text-muted" tooltip="Sent by: {{ ::vm.item.sender_name }}">
+                <small class="text-muted" uib-tooltip="Sent by: {{ ::vm.item.sender_name }}">
                     <i class="fa fa-user"></i>
                     {{ ::vm.item.sender_name }}
                 </small>
             </li>
             <li>
-                <small class="text-muted" tooltip="Sent by: {{ ::vm.item.sender_email }}">
+                <small class="text-muted" uib-tooltip="Sent by: {{ ::vm.item.sender_email }}">
                     <i class="fa">@</i>
                     {{ ::vm.item.sender_email }}
                 </small>

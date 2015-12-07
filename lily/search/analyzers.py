@@ -36,9 +36,9 @@ def get_analyzers():
                 # Websites will be tokenized on component hierarchy, i.e.
                 # www.example.org will hit on the following search terms:
                 # 'org', 'example.org' and 'www.example.org'
-                'website_analyzer': {
+                'domain_analyzer': {
                     'type': 'custom',
-                    'tokenizer': 'website_tokenizer',
+                    'tokenizer': 'domain_tokenizer',
                     'filter': ['lowercase', 'my_ascii'],
                 },
                 # The analyzer used for searching across all fields.
@@ -70,7 +70,7 @@ def get_analyzers():
                     'type': 'pattern',
                     'pattern': '@|\\.',
                 },
-                'website_tokenizer': {
+                'domain_tokenizer': {
                     'type': 'path_hierarchy',
                     'delimiter': '.',
                     'reverse': True,

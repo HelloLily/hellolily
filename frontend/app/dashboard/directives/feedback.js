@@ -17,7 +17,7 @@ function FeedbackController($scope, $state, Account, LocalStorage, Deal, CaseDet
     var vm = this;
     vm.table = {
         order: storage.get('order', {
-            ascending: true,
+            descending: true,
             column: 'next_step_date',  // string: current sorted column
         }),
         items: [],
@@ -35,10 +35,10 @@ function FeedbackController($scope, $state, Account, LocalStorage, Deal, CaseDet
     }
 
     function _getFeedbackDeals() {
-        Deal.getFeedbackDeals(
-            vm.table.order.column,
-            vm.table.order.ascending
-        ).then(function(dealList) {
+        var filterQuery = 'stage:2 AND feedback_form_sent:false AND assigned_to_id:' + currentUser.id;
+        var dealPromise = Deal.getDeals('', 1, 20, vm.table.order.column, vm.table.order.descending, filterQuery);
+
+        dealPromise.then(function(dealList) {
             angular.forEach(dealList, function(deal) {
                 CaseDetail.query({filterquery: 'account:' + deal.account + ' AND archived:false'}).$promise.then(function(caseList) {
                     if (caseList.length > 0) {
@@ -69,7 +69,7 @@ function FeedbackController($scope, $state, Account, LocalStorage, Deal, CaseDet
     }
 
     function _watchTable() {
-        $scope.$watchGroup(['vm.table.order.ascending', 'vm.table.order.column'], function() {
+        $scope.$watchGroup(['vm.table.order.descending', 'vm.table.order.column'], function() {
             _getFeedbackDeals();
             storage.put('order', vm.table.order);
         });

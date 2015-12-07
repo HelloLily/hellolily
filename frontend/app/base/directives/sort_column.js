@@ -29,10 +29,10 @@ function sortColumn() {
     var _setSortableIcon = function($scope, element, sortColumn) {
         // Add classes based on current sorted column
         if ($scope.table.order.column === sortColumn) {
-            if ($scope.table.order.ascending) {
-                $scope.sorted = 1;
-            } else {
+            if ($scope.table.order.descending) {
                 $scope.sorted = -1;
+            } else {
+                $scope.sorted = 1;
             }
         } else {
             $scope.sorted = 0;
@@ -55,7 +55,7 @@ function sortColumn() {
             // When element is clicked, set the table ordering & sorting based on this DOM element
             element.on('click', function() {
                 if ($scope.table.order.column === attrs.sortColumn) {
-                    $scope.table.order.ascending = !$scope.table.order.ascending;
+                    $scope.table.order.descending = !$scope.table.order.descending;
                     $scope.$apply();
                 } else {
                     $scope.table.order.column = attrs.sortColumn;

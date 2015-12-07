@@ -1,0 +1,69 @@
+<dashboard-widget widget-name="'My deals'" widget-class="'col-md-12'" widget-scrollable="true" widget-closeable="true" widget-dynamic-height="true">
+    <div name="portlet-caption">
+        <i class="fa fa-briefcase"></i>
+        <span class="caption-subject bold uppercase"> MY DEALS</span>
+        <span class="caption-helper">({{ vm.numOfDeals }})</span>
+        <span class="label label-sm label-danger" ng-if="vm.highPrioDeals">{{ vm.highPrioDeals }}</span>
+    </div>
+    <div name="portlet-caption-extra">
+        <due-date-filter filter-store="vm.table.dueDateFilter" filter-field="'next_step_date'" type="'deal'"></due-date-filter>
+        <deal-users-filter users-store="vm.table.usersFilter"></deal-users-filter>
+    </div>
+    <div name="portlet-body">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th style="width: 25%;">Deal</th>
+                    <th>Client</th>
+                    <th style="width: 15%;">Deal size</th>
+                    <th style="width: 5%;">Next step</th>
+                    <th style="width: 10%;">Next step date</th>
+                    <th style="width: 5%;">Actions</th>
+                </tr>
+            </thead>
+            <tbody ng-repeat="(key, deals) in vm.table.items">
+                <tr class="bg-grey" ng-show="deals.length && key.length">
+                    <td colspan="6" class="text-capitalize">{{ key }}</td>
+                </tr>
+                <tr ng-repeat="myDeal in deals">
+                    <td>
+                        <a ui-sref="base.deals.detail({ id: myDeal.id })">
+                            {{ myDeal.name }}
+                        </a>
+                    </td>
+                    <td>
+                        <a ui-sref="base.contacts.detail({ id: myDeal.contact })" ng-if="myDeal.contact">
+                            {{ myDeal.contact_name }}
+                        </a>
+                        <span ng-if="myDeal.contact && myDeal.account_name"> at </span>
+                        <a ui-sref="base.accounts.detail({ id: myDeal.account })" ng-if="myDeal.account">
+                            {{ myDeal.account_name }}
+                        </a>
+                    </td>
+                    <td>
+                        {{ myDeal.amount_recurring | currency:'&euro; ' }} /month | {{ myDeal.amount_once | currency:'&euro; ' }} /once
+                    </td>
+                    <td>
+                        <span class="label label-sm" ng-class="{0: 'label-danger', 1: 'label-success', 2: 'label-warning', 3: 'label-info', 4: 'label-default'}[myDeal.next_step.position]">
+                            {{ myDeal.next_step.name }}
+                        </span>
+                    </td>
+                    <td>
+                        {{ myDeal.next_step_date | relativeDate:'':true }}
+                    </td>
+                    <td>
+                        <postpone type="'Deal'" object="myDeal" date-field="'next_step_date'" callback="vm.getMyDeals()" display-date="false" class="margin-right-10"></postpone>
+                        <a ng-href="https://freedom.voys.nl/client/{{ myDeal.account_customer_id }}" target="_blank" ng-if="myDeal.account_customer_id">
+                            <i class="fa fa-cloud-upload"></i>
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+            <tbody>
+                <tr ng-show="vm.numOfDeals == 0">
+                    <td colspan="6">No deals</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</dashboard-widget>

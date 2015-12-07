@@ -184,6 +184,8 @@ class LilySearch(object):
                         'content',
                         'author',
                         'about_name',
+                        'domain',
+                        'second_level_domain',
                     ],
                 },
             }

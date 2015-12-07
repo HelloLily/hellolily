@@ -1,7 +1,7 @@
 angular.module('app.cases.services').factory('Case', Case);
 
-Case.$inject = ['$http', '$modal', '$resource', '$q', '$state', 'AccountDetail', 'ContactDetail'];
-function Case($http, $modal, $resource, $q, $state, AccountDetail, ContactDetail) {
+Case.$inject = ['$http', '$resource', '$q', 'AccountDetail', 'ContactDetail', 'HLUtils'];
+function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils) {
     var Case = $resource(
         '/api/cases/case/:id',
         {},
@@ -34,7 +34,6 @@ function Case($http, $modal, $resource, $q, $state, AccountDetail, ContactDetail
     Case.getMyCasesWidget = getMyCasesWidget;
     Case.getCallbackRequests = getCallbackRequests;
     Case.getUnassignedCasesForTeam = getUnassignedCasesForTeam;
-    Case.openPostponeWidget = openPostponeWidget;
 
     return Case;
 
@@ -66,7 +65,7 @@ function Case($http, $modal, $resource, $q, $state, AccountDetail, ContactDetail
                 q: queryString,
                 page: page - 1,
                 size: pageSize,
-                sort: _getSorting(orderColumn, orderedAsc),
+                sort: HLUtils.getSorting(orderColumn, orderedAsc),
                 filterquery: filterQuery,
             },
         }).then(function(response) {
@@ -86,19 +85,10 @@ function Case($http, $modal, $resource, $q, $state, AccountDetail, ContactDetail
         });
     }
 
-    function _getSorting(field, sorting) {
-        if(field !== 'id') {
-            var sort = '';
-            sort += sorting ? '-' : '';
-            sort += field;
-            return sort;
-        }
-    }
-
     /**
      * Service to return a resource for my cases widget
      */
-    function getMyCasesWidget(field, sorting, dueDateFilter, usersFilter) {
+    function getMyCasesWidget(field, descending, dueDateFilter, usersFilter) {
         var deferred = $q.defer();
         var filterQuery = 'archived:false AND NOT casetype_name:Callback';
 
@@ -114,8 +104,8 @@ function Case($http, $modal, $resource, $q, $state, AccountDetail, ContactDetail
 
         Case.query({
             filterquery: filterQuery,
-            sort: _getSorting(field, sorting),
-            size: 25,
+            sort: HLUtils.getSorting(field, descending),
+            size: 100,
         }, function(cases) {
             deferred.resolve(cases);
         });
@@ -128,13 +118,13 @@ function Case($http, $modal, $resource, $q, $state, AccountDetail, ContactDetail
      *
      * @returns cases with the callback case type
      */
-    function getCallbackRequests(field, sorting) {
+    function getCallbackRequests(field, descending) {
         var filterQuery = 'archived:false AND casetype_name:Callback AND assigned_to_id:' + currentUser.id;
         var deferred = $q.defer();
 
         Case.query({
             filterquery: filterQuery,
-            sort: _getSorting(field, sorting),
+            sort: HLUtils.getSorting(field, descending),
         }, function(cases) {
             angular.forEach(cases, function(callbackCase) {
                 if (callbackCase.account) {
@@ -153,34 +143,12 @@ function Case($http, $modal, $resource, $q, $state, AccountDetail, ContactDetail
         return deferred.promise;
     }
 
-    function getUnassignedCasesForTeam(teamId, field, sorting) {
+    function getUnassignedCasesForTeam(teamId, field, descending) {
         var filterQuery = 'archived:false AND _missing_:assigned_to_id AND assigned_to_groups:' + teamId;
 
         return Case.query({
             filterquery: filterQuery,
-            sort: _getSorting(field, sorting),
+            sort: HLUtils.getSorting(field, descending),
         }).$promise;
-    }
-
-    function openPostponeWidget(myCase, returnInstance) {
-        var modalInstance = $modal.open({
-            templateUrl: 'cases/controllers/postpone.html',
-            controller: 'CasePostponeModal',
-            controllerAs: 'vm',
-            size: 'sm',
-            resolve: {
-                myCase: function() {
-                    return myCase;
-                },
-            },
-        });
-
-        if (!returnInstance) {
-            modalInstance.result.then(function() {
-                $state.go($state.current, {}, {reload: true});
-            });
-        } else {
-            return modalInstance;
-        }
     }
 }

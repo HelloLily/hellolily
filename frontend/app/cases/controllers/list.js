@@ -19,13 +19,11 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseListController', CaseListController);
 
-CaseListController.$inject = ['$modal', '$scope', '$state', '$timeout', 'Settings', 'Case', 'LocalStorage',
+CaseListController.$inject = ['$uibModal', '$scope', '$state', '$timeout', 'Settings', 'Case', 'LocalStorage',
     'UserTeams', '$q'];
-function CaseListController($modal, $scope, $state, $timeout, Settings, Case, LocalStorage, UserTeams, $q) {
+function CaseListController($uibModal, $scope, $state, $timeout, Settings, Case, LocalStorage, UserTeams, $q) {
     var storage = LocalStorage('caseList');
     var vm = this;
-
-    vm.openPostponeWidget = Case.openPostponeWidget;
 
     Settings.page.setAllTitles('list', 'cases');
 
@@ -37,7 +35,7 @@ function CaseListController($modal, $scope, $state, $timeout, Settings, Case, Lo
         pageSize: 60,  // number of items per page
         totalItems: 0, // total number of items
         order: storage.get('order', {
-            ascending: true,
+            descending: true,
             column: 'expires',  // string: current sorted column
         }),
         visibility: storage.get('visibility', {
@@ -219,7 +217,7 @@ function CaseListController($modal, $scope, $state, $timeout, Settings, Case, Lo
             vm.table.page,
             vm.table.pageSize,
             vm.table.order.column,
-            vm.table.order.ascending,
+            vm.table.order.descending,
             vm.table.archived,
             vm.table.filterQuery
         ).then(function(data) {
@@ -236,7 +234,7 @@ function CaseListController($modal, $scope, $state, $timeout, Settings, Case, Lo
         $scope.$watchGroup([
             'vm.table.page',
             'vm.table.order.column',
-            'vm.table.order.ascending',
+            'vm.table.order.descending',
             'vm.table.searchQuery',
             'vm.table.archived',
             'vm.table.filterQuery',
@@ -325,7 +323,7 @@ function CaseListController($modal, $scope, $state, $timeout, Settings, Case, Lo
     }
 
     function assignTo(myCase) {
-        var modalInstance = $modal.open({
+        var modalInstance = $uibModal.open({
             templateUrl: 'cases/controllers/assignto.html',
             controller: 'CaseAssignModal',
             controllerAs: 'vm',

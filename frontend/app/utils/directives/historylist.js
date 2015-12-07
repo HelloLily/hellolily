@@ -1,16 +1,16 @@
 angular.module('app.utils.directives').directive('historyList', HistoryListDirective);
 
-HistoryListDirective.$inject = ['$filter', '$http', '$modal', '$q', '$state', 'EmailAccount', 'Note', 'NoteDetail', 'CaseDetail', 'DealDetail','EmailDetail'];
-function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount, Note, NoteDetail, CaseDetail, DealDetail, EmailDetail) {
+HistoryListDirective.$inject = ['$filter', '$http', '$uibModal', '$q', '$state', 'EmailAccount', 'Note', 'NoteDetail', 'CaseDetail', 'DealDetail', 'EmailDetail'];
+function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccount, Note, NoteDetail, CaseDetail, DealDetail, EmailDetail) {
     return {
         restrict: 'E',
         replace: true,
         scope: {
             target: '=',
-            object: '='
+            object: '=',
         },
         templateUrl: 'utils/directives/historylist.html',
-        link: function (scope, element, attrs) {
+        link: function(scope, element, attrs) {
             var noteTargets = ['account', 'contact', 'deal', 'case'];
             var caseTargets = ['account', 'contact'];
             var dealTargets = ['account'];
@@ -23,7 +23,7 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
             scope.history.types = {
                 '': {name: 'All', visible: true},
                 'note': {name: 'Notes', visible: false},
-                'case': {name: 'Cases',visible: false},
+                'case': {name: 'Cases', visible: false},
                 'deal': {name: 'Deals', visible: false},
                 'email': {name: 'Emails', visible: false}
             };
@@ -54,7 +54,7 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
                 if (!scope.object.$resolved) {
                     scope.object.$promise.then(function(obj) {
                         _fetchHistory(obj);
-                    })
+                    });
                 } else {
                     _fetchHistory(scope.object);
                 }
@@ -73,10 +73,10 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
                 var requestLength = neededLength + 1;
 
                 // Check if we need to fetch notes
-                if (noteTargets.indexOf(scope.target) != -1) {
+                if (noteTargets.indexOf(scope.target) !== -1) {
                     var notePromise;
 
-                    if (scope.target == 'account' && obj.contact && obj.contact.length) {
+                    if (scope.target === 'account' && obj.contact && obj.contact.length) {
                         var filterquery = '(content_type:' + scope.target + ' AND object_id:' + obj.id + ')';
 
                         // Show all notes of contacts linked to the account
@@ -84,9 +84,8 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
                             filterquery += ' OR (content_type:contact AND object_id:' + obj.contact[i] + ')';
                         }
 
-                        notePromise = NoteDetail.query({filterquery: filterquery, size: requestLength }).$promise;
-                    }
-                    else {
+                        notePromise = NoteDetail.query({filterquery: filterquery, size: requestLength}).$promise;
+                    } else {
                         notePromise = NoteDetail.query({filterquery: 'content_type:' + scope.target + ' AND object_id:' + obj.id, size: requestLength }).$promise;
                     }
 
@@ -96,7 +95,7 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
                         results.forEach(function(note) {
                             // If it's a contact's note, add extra attribute to the note
                             // so we can identify it in the template
-                            if (scope.target == 'account' && note.content_type == 'contact') {
+                            if (scope.target === 'account' && note.content_type === 'contact') {
                                 note.showContact = true;
                             }
 
@@ -106,7 +105,7 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
                 }
 
                 // Check if we need to fetch cases
-                if (caseTargets.indexOf(scope.target) != -1) {
+                if (caseTargets.indexOf(scope.target) !== -1) {
                     var casePromise = CaseDetail.query({filterquery: scope.target + ':' + obj.id, size: requestLength}).$promise;
                     promises.push(casePromise);  // Add promise to list of all promises for later handling
 
@@ -122,7 +121,7 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
                 }
 
                 // Check if we need to fetch deals
-                if (dealTargets.indexOf(scope.target) != -1) {
+                if (dealTargets.indexOf(scope.target) !== -1) {
                     var dealPromise = DealDetail.query({filterquery: scope.target + ':' + obj.id, size: requestLength}).$promise;
                     promises.push(dealPromise);  // Add promise to list of all promises for later handling
 
@@ -130,10 +129,10 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
                         results.forEach(function(deal) {
                             NoteDetail.query({
                                 filterquery: 'content_type:deal AND object_id:' + deal.id,
-                                size: 5
-                            }).$promise.then(function (notes) {
-                                    deal.notes = notes;
-                                });
+                                size: 5,
+                            }).$promise.then(function(notes) {
+                                deal.notes = notes;
+                            });
                             history.push(deal);
                         });
                     });
@@ -145,7 +144,7 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
                     promises.push(tenantEmailAccountPromise); // Add tenant email query to promises list
 
                     var emailPromise;
-                    if (scope.target == 'account') {
+                    if (scope.target === 'account') {
                         emailPromise = EmailDetail.query({account_related: obj.id, size: requestLength}).$promise;
                     } else {
                         emailPromise = EmailDetail.query({contact_related: obj.id, size: requestLength}).$promise;
@@ -157,7 +156,7 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
                         var emailMessageList = results[1];
 
                         emailMessageList.forEach(function(email) {
-                            tenantEmailAccountList.forEach(function (emailAddress) {
+                            tenantEmailAccountList.forEach(function(emailAddress) {
                                 if (emailAddress.email_address === email.sender_email) {
                                     email.right = true;
                                 }
@@ -178,7 +177,7 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
 
                         var addNormal = true;
 
-                        if (item.historyType == 'note') {
+                        if (item.historyType === 'note') {
                             // Pinned notes should always be first in the list
                             if (item.is_pinned) {
                                 orderedHistoryList.unshift(item);
@@ -197,8 +196,7 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
 
                         // Set the button text to inform the user what's happening
                         scope.history.showMoreText = 'No history (refresh)';
-                    }
-                    else if (orderedHistoryList.length <= neededLength) {
+                    } else if (orderedHistoryList.length <= neededLength) {
                         // Make sure the max size of the list doesn't grow each click
                         page -= 1;
 
@@ -220,26 +218,26 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
                         content: note.content,
                         type: note.type,
                         content_type: scope.target,
-                        object_id: scope.object.id
-                    })
+                        object_id: scope.object.id,
+                    }),
                 }).success(function() {
                     $state.go($state.current, {}, {reload: true});
                 });
             }
 
             function editNote(note) {
-                var modalInstance = $modal.open({
+                var modalInstance = $uibModal.open({
                     templateUrl: 'utils/controllers/note_edit.html',
                     controller: 'EditNoteModalController',
                     size: 'lg',
                     resolve: {
-                        note: function () {
+                        note: function() {
                             return note;
-                        }
-                    }
+                        },
+                    },
                 });
 
-                modalInstance.result.then(function () {
+                modalInstance.result.then(function() {
                     $state.go($state.current, {}, {reload: true});
                 });
             }
@@ -253,15 +251,15 @@ function HistoryListDirective ($filter, $http, $modal, $q, $state, EmailAccount,
             function deleteNote(note) {
                 if (confirm('Are you sure?')) {
                     Note.delete({
-                        id: note.id
+                        id: note.id,
                     }, function() {  // On success
                         var index = scope.history.list.indexOf(note);
                         scope.history.list.splice(index, 1);
                     }, function(error) {  // On error
-                        alert('something went wrong.')
+                        alert('something went wrong.');
                     });
                 }
             }
-        }
-    }
+        },
+    };
 }

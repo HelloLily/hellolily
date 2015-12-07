@@ -1,13 +1,13 @@
 angular.module('app.deals.services').factory('Deal', Deal);
 
-Deal.$inject = ['$resource'];
-function Deal($resource) {
+Deal.$inject = ['$q', '$resource', 'HLUtils'];
+function Deal($q, $resource, HLUtils) {
     var Deal = $resource(
         '/api/deals/deal/:id',
         null,
         {
             update: {
-                method: 'PUT',
+                method: 'PATCH',
                 params: {
                     id: '@id',
                 },
@@ -41,9 +41,6 @@ function Deal($resource) {
     );
 
     Deal.getDeals = getDeals;
-    Deal.getDealsToCheck = getDealsToCheck;
-    Deal.getFeedbackDeals = getFeedbackDeals;
-    Deal.getFollowUpWidgetData = getFollowUpWidgetData;
     Deal.prototype.markDealAsChecked = markDealAsChecked;
     Deal.prototype.feedbackFormSent = feedbackFormSent;
 
@@ -65,15 +62,13 @@ function Deal($resource) {
      *          total int: total number of deal objects
      *      }
      */
-    function getDeals(queryString, page, pageSize, orderColumn, orderedAsc, filterQuery) {
+    function getDeals(queryString, page, pageSize, orderColumn, orderedDesc, filterQuery) {
         // Temporary fix to ensure the app doesn't break because of a non-existent column.
         if (orderColumn === 'closing_date') {
             orderColumn = 'next_step_date';
         }
 
-        var sort = '';
-        if (orderedAsc) sort += '-';
-        sort += orderColumn;
+        var sort = HLUtils.getSorting(orderColumn, orderedDesc);
 
         return Deal.query({
             q: queryString,
@@ -89,24 +84,6 @@ function Deal($resource) {
                 };
             }
         }).$promise;
-    }
-
-    function getDealsToCheck(column, ordering, userId) {
-        var filterQuery = 'stage:2 AND is_checked:false AND new_business:true';
-        if (userId) {
-            filterQuery += ' AND assigned_to_id:' + userId;
-        }
-        return getDeals('', 1, 20, column, ordering, filterQuery);
-    }
-
-    function getFeedbackDeals(column, ordering) {
-        var filterQuery = 'stage:2 AND feedback_form_sent:false AND assigned_to_id:' + currentUser.id;
-        return getDeals('', 1, 20, column, ordering, filterQuery);
-    }
-
-    function getFollowUpWidgetData(column, ordering) {
-        var filterQuery = '(stage: 0 OR stage: 1 OR stage: 4 OR stage: 5) AND assigned_to_id: ' + currentUser.id;
-        return getDeals('', 1, 20, column, ordering, filterQuery);
     }
 
     function feedbackFormSent() {

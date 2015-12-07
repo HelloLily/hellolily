@@ -1,7 +1,7 @@
 angular.module('app.preferences').controller('EmailAccountShareModalController', EmailAccountShareModalController);
 
-EmailAccountShareModalController.$inject = ['$modalInstance', '$scope', 'EmailAccount', 'User', 'currentAccount'];
-function EmailAccountShareModalController ($modalInstance, $scope, EmailAccount, User, currentAccount) {
+EmailAccountShareModalController.$inject = ['$uibModalInstance', '$scope', 'EmailAccount', 'User', 'currentAccount'];
+function EmailAccountShareModalController ($uibModalInstance, $scope, EmailAccount, User, currentAccount) {
     $scope.currentAccount = currentAccount;
 
     // Get all users to display in a list
@@ -20,7 +20,7 @@ function EmailAccountShareModalController ($modalInstance, $scope, EmailAccount,
         // Save updated account information
         if ($scope.currentAccount.public) {
             EmailAccount.update({id: $scope.currentAccount.id}, $scope.currentAccount, function() {
-                $modalInstance.close();
+                $uibModalInstance.close();
             });
         } else {
             // Get ids of the users to share with
@@ -32,13 +32,13 @@ function EmailAccountShareModalController ($modalInstance, $scope, EmailAccount,
             });
             // Push ids to api
             EmailAccount.shareWith({id: $scope.currentAccount.id}, {shared_with_users: shared_with_users}, function() {
-                $modalInstance.close();
+                $uibModalInstance.close();
             });
         }
     };
 
     // Lets not change anything
     $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
+        $uibModalInstance.dismiss('cancel');
     };
 }

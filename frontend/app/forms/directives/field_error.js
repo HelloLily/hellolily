@@ -6,13 +6,13 @@ function fieldError() {
         scope: {
             form: '=',
             field: '@',
-            index: '='
+            index: '=',
         },
         templateUrl: 'forms/directives/field_error.html',
         controller: FieldErrorController,
         controllerAs: 'vm',
-        bindToController: true
-    }
+        bindToController: true,
+    };
 }
 
 function FieldErrorController() {

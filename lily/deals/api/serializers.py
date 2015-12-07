@@ -18,6 +18,8 @@ class DealSerializer(serializers.ModelSerializer):
             'assigned_to',
             'feedback_form_sent',
             'new_business',
+            'next_step',
+            'next_step_date',
             'content_type',
             'is_checked',
         )

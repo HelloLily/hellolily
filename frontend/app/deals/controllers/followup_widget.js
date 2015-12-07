@@ -1,7 +1,7 @@
 angular.module('app.deals').controller('FollowUpWidgetModal', FollowUpWidgetModalController);
 
-FollowUpWidgetModalController.$inject = ['$modalInstance', 'Deal', 'DealStages', 'followUp'];
-function FollowUpWidgetModalController($modalInstance, Deal, DealStages, followUp) {
+FollowUpWidgetModalController.$inject = ['$uibModalInstance', 'Deal', 'DealStages', 'followUp'];
+function FollowUpWidgetModalController($uibModalInstance, Deal, DealStages, followUp) {
     var vm = this;
     vm.dealStages = [];
     vm.selectedStage = {id: followUp.stage, name: followUp.stage_name};
@@ -34,7 +34,7 @@ function FollowUpWidgetModalController($modalInstance, Deal, DealStages, followU
     function saveModal() {
         var newStage = vm.selectedStage.id;
         Deal.update({id: followUp.id}, {stage: newStage}, function() {
-            $modalInstance.close();
+            $uibModalInstance.close();
         });
     }
 
@@ -45,6 +45,6 @@ function FollowUpWidgetModalController($modalInstance, Deal, DealStages, followU
     }
 
     function closeModal() {
-        $modalInstance.close();
+        $uibModalInstance.close();
     }
 }

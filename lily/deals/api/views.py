@@ -125,3 +125,11 @@ class DealViewSet(mixins.RetrieveModelMixin,
     def get_queryset(self):
         queryset = self.model.objects.filter(tenant_id=self.request.user.tenant_id)
         return queryset
+
+    def partial_update(self, request, *args, **kwargs):
+        deal = Deal.objects.get(pk=kwargs.get('pk'))
+        serializer = DealSerializer(deal, data=request.data, partial=True)
+
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data)

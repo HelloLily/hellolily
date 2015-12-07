@@ -18,7 +18,7 @@
                 <tr ng-repeat="deal in vm.table.items">
                     <td>
                         <a ui-sref="base.accounts.detail({ id: deal.account })">{{ deal.account_name }}</a>
-                        <a ng-if="deal.hasUnarchivedCases" ui-sref="base.accounts.detail({ id: deal.account })" class="warning-icon pull-right" tooltip="This account has an unarchived case">
+                        <a ng-if="deal.hasUnarchivedCases" ui-sref="base.accounts.detail({ id: deal.account })" class="warning-icon pull-right" uib-tooltip="This account has an unarchived case">
                             <i class="fa fa-briefcase"></i>
                         </a>
                     </td>

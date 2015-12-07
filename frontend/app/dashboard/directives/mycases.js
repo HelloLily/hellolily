@@ -9,15 +9,15 @@ function myCasesDirective() {
     };
 }
 
-MyCasesController.$inject = ['$scope', 'Case', 'LocalStorage'];
-function MyCasesController($scope, Case, LocalStorage) {
+MyCasesController.$inject = ['$scope', 'Case', 'HLUtils', 'LocalStorage'];
+function MyCasesController($scope, Case, HLUtils, LocalStorage) {
     var storage = LocalStorage('myCasesWidget');
-
     var vm = this;
+    
     vm.highPrioCases = 0;
     vm.table = {
         order: storage.get('order', {
-            ascending: true,
+            descending: true,
             column: 'priority', // string: current sorted column
         }),
         items: [],
@@ -25,8 +25,9 @@ function MyCasesController($scope, Case, LocalStorage) {
         usersFilter: storage.get('usersFilter', ''),
     };
 
-    vm.openPostponeWidget = openPostponeWidget;
     vm.numOfCases = 0;
+
+    vm.getMyCases = getMyCases;
 
     activate();
 
@@ -36,21 +37,18 @@ function MyCasesController($scope, Case, LocalStorage) {
         _watchTable();
     }
 
-    function _getMyCases() {
-        var field = '';
-        var sorting = false;
+    function getMyCases() {
+        var field = 'expires';
+        var descending = false;
 
-        if (vm.dueDateFilter !== '') {
+        if (vm.table.dueDateFilter !== '') {
             field = vm.table.order.column;
-            sorting = vm.table.order.ascending;
-        } else {
-            field = 'expires';
-            sorting = false;
+            descending = vm.table.order.descending;
         }
 
         Case.getMyCasesWidget(
             field,
-            sorting,
+            descending,
             vm.table.dueDateFilter,
             vm.table.usersFilter
         ).then(function(data) {
@@ -60,54 +58,24 @@ function MyCasesController($scope, Case, LocalStorage) {
                     '': data,
                 };
             } else {
-                var now = moment();
-                var tomorrow = moment().add('1', 'day');
-
-                var cases = {
-                    expired: [],
-                    today: [],
-                    tomorrow: [],
-                    later: [],
-                };
-
-                angular.forEach(data, function(myCase) {
-                    var day = moment(myCase.expires);
-
-                    if (day.isBefore(now, 'day')) {
-                        cases.expired.push(myCase);
-                    } else if (day.isSame(now, 'day')) {
-                        cases.today.push(myCase);
-                    } else if (day.isSame(tomorrow, 'day')) {
-                        cases.tomorrow.push(myCase);
-                    } else {
-                        cases.later.push(myCase);
-                    }
-                });
-
-                vm.table.items = cases;
+                vm.table.items = HLUtils.timeCategorizeObjects(data, 'expires');
             }
 
             vm.highPrioCases = 0;
+
             for (var i in data) {
                 if (data[i].priority === 3) {
                     vm.highPrioCases++;
                 }
             }
+
             vm.numOfCases = data.length;
-        });
-    }
-
-    function openPostponeWidget(myCase) {
-        var modalInstance = Case.openPostponeWidget(myCase, true);
-
-        modalInstance.result.then(function() {
-            _getMyCases();
         });
     }
 
     function _watchTable() {
         $scope.$watchGroup(['vm.table.dueDateFilter', 'vm.table.usersFilter'], function() {
-            _getMyCases();
+            getMyCases();
             storage.put('order', vm.table.order);
             storage.put('dueDateFilter', vm.table.dueDateFilter);
             storage.put('usersFilter', vm.table.usersFilter);

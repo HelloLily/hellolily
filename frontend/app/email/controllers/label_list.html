@@ -49,7 +49,7 @@
     <ul class="inbox-nav margin-bottom-10">
         <li class="mailbox-header">
             <div class="mailbox-header-title" ng-click="vm.clickAccountHeader(account)">
-                <i class="fa fa-star" ng-show="account.id == vm.primaryEmailAccountId" tooltip="Primary account"></i>
+                <i class="fa fa-star" ng-show="account.id == vm.primaryEmailAccountId" uib-tooltip="Primary account"></i>
                 {{ account.label }}
             </div>
             <collapsable-button></collapsable-button>

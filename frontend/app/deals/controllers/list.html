@@ -62,7 +62,7 @@
                 <th ng-show="vm.table.visibility.amountOnce" sort-column="amount_once" table="vm.table">One-time cost</th>
                 <th ng-show="vm.table.visibility.amountRecurring" sort-column="amount_recurring" table="vm.table">Recurring costs</th>
                 <th ng-show="vm.table.visibility.assignedTo" sort-column="assigned_to_name" table="vm.table">Assigned to</th>
-                <th ng-show="vm.table.visibility.nextStep" sort-column="next_step" table="vm.table">Next step</th>
+                <th ng-show="vm.table.visibility.nextStep" sort-column="next_step.name" table="vm.table">Next step</th>
                 <th ng-show="vm.table.visibility.nextStepDate" sort-column="next_step_date" table="vm.table">Next step date</th>
                 <th ng-show="vm.table.visibility.newBusiness" sort-column="new_business" table="vm.table">Business</th>
                 <th ng-show="vm.table.visibility.feedbackFormSent" sort-column="feedback_form_sent" table="vm.table">Feedback form sent</th>
@@ -97,7 +97,7 @@
                         {{ deal.assigned_to_name }}
                     </td>
                     <td ng-show="vm.table.visibility.nextStep">
-                        {{ deal.next_step }}
+                        {{ deal.next_step.name }}
                     </td>
                     <td ng-show="vm.table.visibility.nextStepDate">
                         {{ deal.next_step_date | relativeDate }}
@@ -128,7 +128,7 @@
             Showing {{ (vm.table.page - 1) * vm.table.pageSize }} to {{ vm.table.page * vm.table.pageSize }} of {{ vm.table.totalItems | number }} records
         </div>
         <div class="col-md-5" ng-if="vm.table.totalItems > vm.table.pageSize">
-            <pagination total-items="vm.table.totalItems" ng-model="vm.table.page" items-per-page="vm.table.pageSize" max-size="5"></pagination>
+            <uib-pagination total-items="vm.table.totalItems" ng-model="vm.table.page" items-per-page="vm.table.pageSize" max-size="5"></uib-pagination>
         </div>
     </div>
 </div>

@@ -1,7 +1,7 @@
 angular.module('app.utils').controller('EditNoteModalController', EditNoteModalController);
 
-EditNoteModalController.$inject = ['$http', '$modalInstance', '$scope', 'note'];
-function EditNoteModalController($http, $modalInstance, $scope, note) {
+EditNoteModalController.$inject = ['$http', '$uibModalInstance', '$scope', 'note'];
+function EditNoteModalController($http, $uibModalInstance, $scope, note) {
     note.modalType = note.type;
     $scope.note = note;
     $scope.ok = function () {
@@ -11,12 +11,12 @@ function EditNoteModalController($http, $modalInstance, $scope, note) {
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             data: $.param({content: $scope.note.content, type: $scope.note.modalType})
         }).success(function() {
-            $modalInstance.close($scope.note);
+            $uibModalInstance.close($scope.note);
         });
     };
 
     // Lets not change anything
     $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
+        $uibModalInstance.dismiss('cancel');
     };
 }

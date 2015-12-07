@@ -8,25 +8,24 @@ function emailPreferencesStates($stateProvider) {
             '@base.preferences': {
                 templateUrl: 'preferences/controllers/emailaccount_list.html',
                 controller: PreferencesEmailAccountList,
-                controllerAs: 'vm'
-            }
+                controllerAs: 'vm',
+            },
         },
         ncyBreadcrumb: {
-            label: 'Email Account'
+            label: 'Email account',
         },
         resolve: {
-            user: ['User', function (User) {
+            user: ['User', function(User) {
                 return User.me().$promise;
-            }]
-        }
+            }],
+        },
     });
 }
 
 angular.module('app.preferences').controller('PreferencesEmailAccountList', PreferencesEmailAccountList);
 
-PreferencesEmailAccountList.$inject =['$modal', 'EmailAccount', 'User', 'user', '$http'];
-function PreferencesEmailAccountList($modal, EmailAccount, User, user, $http) {
-
+PreferencesEmailAccountList.$inject = ['$uibModal', 'EmailAccount', 'User', 'user', '$http'];
+function PreferencesEmailAccountList($uibModal, EmailAccount, User, user, $http) {
     var vm = this;
     vm.ownedAccounts = [];
     vm.sharedAccounts = [];
@@ -77,7 +76,7 @@ function PreferencesEmailAccountList($modal, EmailAccount, User, user, $http) {
         });
 
         // Accounts public
-        EmailAccount.query({public: "True"}, function(data) {
+        EmailAccount.query({public: 'True'}, function(data) {
             vm.publicAccounts = data;
             data.forEach(function(account) {
                 checkHiddenState(account);
@@ -86,7 +85,7 @@ function PreferencesEmailAccountList($modal, EmailAccount, User, user, $http) {
     }
 
     function updateSharedEmailSetting(account_id, is_hidden) {
-        var body = { email_account: account_id }
+        var body = {email_account: account_id};
         if (is_hidden) {
             body.is_hidden = true;
         }
@@ -103,7 +102,7 @@ function PreferencesEmailAccountList($modal, EmailAccount, User, user, $http) {
         updateSharedEmailSetting(account.id, true);
     }
 
-    function deleteAccount (accountId) {
+    function deleteAccount(accountId) {
         if (confirm('sure to delete?')) {
             EmailAccount.delete({id: accountId}, function() {
                 // Reload accounts
@@ -112,16 +111,16 @@ function PreferencesEmailAccountList($modal, EmailAccount, User, user, $http) {
         }
     }
 
-    function openShareAccountModal (emailAccount) {
-        var modalInstance = $modal.open({
+    function openShareAccountModal(emailAccount) {
+        var modalInstance = $uibModal.open({
             templateUrl: 'preferences/controllers/emailaccount_share.html',
             controller: 'EmailAccountShareModalController',
             size: 'lg',
             resolve: {
                 currentAccount: function() {
                     return emailAccount;
-                }
-            }
+                },
+            },
         });
 
         modalInstance.result.then(function () {
@@ -131,7 +130,7 @@ function PreferencesEmailAccountList($modal, EmailAccount, User, user, $http) {
         });
     }
 
-    function makePrimaryAccount (emailAccount) {
+    function makePrimaryAccount(emailAccount) {
         vm.currentUser.primary_email_account = emailAccount.id;
         User.update({id: 'me'}, vm.currentUser);
     }

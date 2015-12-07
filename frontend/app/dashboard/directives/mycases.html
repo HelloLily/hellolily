@@ -18,12 +18,13 @@
                     <th>Client</th>
                     <th style="width: 250px;">Type</th>
                     <th style="width: 70px;">Priority</th>
+                    <th style="width: 10%;">Expires</th>
                     <th style="width: 80px;">Postpone</th>
                 </tr>
             </thead>
             <tbody ng-repeat="(key, cases) in vm.table.items">
                 <tr class="bg-grey" ng-show="cases.length && key.length">
-                    <td colspan="6" class="text-capitalize">{{ key }}</td>
+                    <td colspan="7" class="text-capitalize">{{ key }}</td>
                 </tr>
                 <tr ng-repeat="myCase in cases">
                     <td>
@@ -54,9 +55,10 @@
                         </span>
                     </td>
                     <td>
-                        <a ng-click="vm.openPostponeWidget(myCase)" tooltip="Aaah, that's too soon!">
-                            <i class="fa fa-history"></i>
-                        </a>
+                        {{ myCase.expires | relativeDate:'':true }}
+                    </td>
+                    <td>
+                        <postpone type="'Case'" object="myCase" date-field="'expires'" callback="vm.getMyCases()" display-date="false"></postpone>
                     </td>
                 </tr>
             </tbody>

@@ -3,7 +3,6 @@ angular.module('app.services').factory('Country', Country);
 Country.$inject = ['$q', 'Account'];
 function Country($q, Account) {
     var list = [];
-
     var Country = {};
 
     Country.getList = getList;
@@ -31,5 +30,5 @@ function Country($q, Account) {
         return deferred.promise;
     }
 
-    return Country
+    return Country;
 }

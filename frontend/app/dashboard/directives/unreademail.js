@@ -16,7 +16,7 @@ function UnreadEmailController($scope, EmailMessage, LocalStorage) {
     var vm = this;
     vm.table = {
         order: storage.get('order', {
-            ascending: true,
+            descending: true,
             column: 'sent_date',  // string: current sorted column
         }),
         items: [],
@@ -32,14 +32,14 @@ function UnreadEmailController($scope, EmailMessage, LocalStorage) {
     function _getMessages() {
         EmailMessage.getDashboardMessages(
             vm.table.order.column,
-            vm.table.order.ascending
+            vm.table.order.descending
         ).then(function(messages) {
             vm.table.items = messages;
         });
     }
 
     function _watchTable() {
-        $scope.$watchGroup(['vm.table.order.ascending', 'vm.table.order.column'], function() {
+        $scope.$watchGroup(['vm.table.order.descending', 'vm.table.order.column'], function() {
             _getMessages();
             storage.put('order', vm.table.order);
         });

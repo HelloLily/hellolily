@@ -28,6 +28,9 @@ class DealMapping(BaseMapping):
             'account': {
                 'type': 'integer',
             },
+            'account_customer_id': {
+                'type': 'integer',
+            },
             'account_name': {
                 'type': 'string',
                 'index_analyzer': 'normal_edge_analyzer',
@@ -95,7 +98,15 @@ class DealMapping(BaseMapping):
                 'type': 'string'
             },
             'next_step': {
-                'type': 'string',
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'name': {
+                        'type': 'string',
+                        'analyzer': 'normal_edge_analyzer',
+                    },
+                    'date_increment': {'type': 'integer'},
+                }
             },
             'next_step_date': {
                 'type': 'date',
@@ -133,6 +144,7 @@ class DealMapping(BaseMapping):
             'name': obj.name,
             'body': obj.description,
             'account': obj.account_id if obj.account else None,
+            'account_customer_id': obj.account.customer_id if obj.account else None,
             'account_name': obj.account.name if obj.account else None,
             'assigned_to_name': obj.assigned_to.get_full_name() if obj.assigned_to else None,
             'assigned_to_id': obj.assigned_to.id if obj.assigned_to else None,
@@ -155,6 +167,11 @@ class DealMapping(BaseMapping):
             'contacted_by_name': obj.get_contacted_by_display(),
             'new_business': obj.new_business,
             'quote_id': obj.quote_id,
-            'next_step': obj.next_step.name if obj.next_step else None,
-            'next_step_date': obj.next_step_date
+            'next_step': {
+                'id': obj.next_step.id,
+                'name': obj.next_step.name,
+                'date_increment': obj.next_step.date_increment,
+                'position': obj.next_step.position,
+            } if obj.next_step else None,
+            'next_step_date': obj.next_step_date,
         }

@@ -36,7 +36,7 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
         filterQuery: '',
         archived: storage.get('archived', false),
         order: storage.get('order', {
-            ascending: true,
+            descending: true,
             column: 'next_step_date',  // string: current sorted column
         }),
         visibility: storage.get('visibility', {
@@ -153,7 +153,7 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
             vm.table.page,
             vm.table.pageSize,
             vm.table.order.column,
-            vm.table.order.ascending,
+            vm.table.order.descending,
             vm.table.filterQuery
         ).then(function(deals) {
             vm.table.items = deals;
@@ -169,7 +169,7 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
         $scope.$watchGroup([
             'vm.table.page',
             'vm.table.order.column',
-            'vm.table.order.ascending',
+            'vm.table.order.descending',
             'vm.table.searchQuery',
             'vm.table.archived',
             'vm.table.filterQuery',

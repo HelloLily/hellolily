@@ -39,4 +39,43 @@ function HLUtils() {
 
         return phoneNumber;
     };
+
+    this.getSorting = function(field, descending) {
+        var sort = '';
+        sort += descending ? '-' : '';
+        sort += field;
+        return sort;
+    };
+
+    this.timeCategorizeObjects = function(data, field) {
+        var now = moment();
+        var tomorrow = moment().add('1', 'day');
+
+        var items = {
+            expired: [],
+            today: [],
+            tomorrow: [],
+            later: [],
+        };
+
+        angular.forEach(data, function(item) {
+            if (item[field]) {
+                var day = moment(item[field]);
+
+                if (day.isBefore(now, 'day')) {
+                    items.expired.push(item);
+                } else if (day.isSame(now, 'day')) {
+                    items.today.push(item);
+                } else if (day.isSame(tomorrow, 'day')) {
+                    items.tomorrow.push(item);
+                } else {
+                    items.later.push(item);
+                }
+            } else {
+                items.later.push(item);
+            }
+        });
+
+        return items;
+    };
 }

@@ -112,7 +112,7 @@
                     {{ ::case.created | relativeDate:'':true }}
                 </td>
                 <td ng-show="vm.table.visibility.expires" title="{{ case.expires | date:'dd MMMM y HH:mm' }}">
-                    <a ng-click="vm.openPostponeWidget(case)" tooltip="Aaah, that's too soon!"><i class="fa fa-history"></i>{{ ::case.expires | relativeDate:'':true }}</a>
+                    <postpone type="'Case'" object="case" date-field="'expires'"></postpone>
                 </td>
                 <td ng-show="vm.table.visibility.assignedTo">
                     <span ng-if="case.assigned_to_id">{{ ::case.assigned_to_name }}</span>
@@ -136,7 +136,7 @@
             Showing {{ (vm.table.page - 1) * vm.table.pageSize }} to {{ vm.table.page * vm.table.pageSize }} of {{ vm.table.totalItems | number }} records
         </div>
         <div class="col-md-5" ng-if="vm.table.totalItems > vm.table.pageSize">
-            <pagination total-items="vm.table.totalItems" ng-model="vm.table.page" items-per-page="vm.table.pageSize" max-size="5"></pagination>
+            <uib-pagination total-items="vm.table.totalItems" ng-model="vm.table.page" items-per-page="vm.table.pageSize" max-size="5"></uib-pagination>
         </div>
     </div>
 </div>

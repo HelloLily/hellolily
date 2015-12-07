@@ -33,7 +33,7 @@ function ContactListController($scope, $window, Settings, Contact, LocalStorage,
         totalItems: 0, // total number of items
         filter: storage.get('filter', ''),  // search filter
         order: storage.get('order', {
-            ascending: true,
+            descending: true,
             column: 'modified',  // string: current sorted column
         }),
         visibility: storage.get('visibility', {
@@ -74,7 +74,7 @@ function ContactListController($scope, $window, Settings, Contact, LocalStorage,
      */
     function updateContacts() {
         var sort = $scope.table.order.column;
-        if ($scope.table.order.ascending) {
+        if ($scope.table.order.descending) {
             sort = '-'.concat(sort);
         }
 
@@ -96,7 +96,7 @@ function ContactListController($scope, $window, Settings, Contact, LocalStorage,
     $scope.$watchGroup([
         'table.page',
         'table.order.column',
-        'table.order.ascending',
+        'table.order.descending',
         'table.filter',
     ], function() {
         updateTableSettings();

@@ -117,7 +117,7 @@
             Showing {{ (vm.table.page - 1) * vm.table.pageSize }} to {{ vm.table.page * vm.table.pageSize }} of {{ vm.table.totalItems | number }} records
         </div>
         <div class="col-md-5" ng-if="vm.table.totalItems > vm.table.pageSize">
-            <pagination total-items="vm.table.totalItems" ng-model="vm.table.page" items-per-page="vm.table.pageSize" max-size="5"></pagination>
-        </div>
+            <uib-pagination total-items="vm.table.totalItems" ng-model="vm.table.page" items-per-page="vm.table.pageSize" max-size="5"></uib-pagination>
+        </div>i
     </div>
 </div>

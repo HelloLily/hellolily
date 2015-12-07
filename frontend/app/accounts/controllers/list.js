@@ -42,7 +42,7 @@ function AccountList($scope, $window, Settings, Account, LocalStorage) {
         totalItems: 0, // total number of items
         filter: storage.get('filter', ''),  // search filter
         order: storage.get('order', {
-            ascending: true,
+            descending: true,
             column: 'modified',  // string: current sorted column
         }),
         visibility: storage.get('visibility', {
@@ -103,7 +103,7 @@ function AccountList($scope, $window, Settings, Account, LocalStorage) {
             vm.table.page,
             vm.table.pageSize,
             vm.table.order.column,
-            vm.table.order.ascending
+            vm.table.order.descending
         ).then(function(data) {
             vm.table.items = data.accounts;
             vm.table.totalItems = data.total;
@@ -115,7 +115,7 @@ function AccountList($scope, $window, Settings, Account, LocalStorage) {
          * Watches the model info from the table that, when changed,
          * needs a new set of accounts
          */
-        $scope.$watchGroup(['vm.table.page', 'vm.table.order.column', 'vm.table.order.ascending', 'vm.table.filter'], function() {
+        $scope.$watchGroup(['vm.table.page', 'vm.table.order.column', 'vm.table.order.descending', 'vm.table.filter'], function() {
             _updateTableSettings();
             _updateAccounts();
         });

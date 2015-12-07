@@ -50,6 +50,11 @@ It is possible to specify multiple models, using comma separation."""
                     dest='list',
                     help='List available models to target.'
                     ),
+        make_option('-f', '--force',
+                    action='store_true',
+                    dest='force',
+                    help='Force the creation of the new index, removing the old one (leftovers).'
+                    ),
     )
 
     def handle(self, *args, **options):

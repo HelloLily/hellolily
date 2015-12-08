@@ -59,7 +59,7 @@
                         </span>
                     </td>
                     <td>
-                        {{ myCase.expires | relativeDate:'':true }}
+                        {{ myCase.expires | date:'dd MMMM y' }}
                     </td>
                     <td>
                         <postpone type="'Case'" object="myCase" date-field="'expires'" callback="vm.getMyCases()" display-date="false"></postpone>

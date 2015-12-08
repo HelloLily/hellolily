@@ -49,7 +49,7 @@
                         </span>
                     </td>
                     <td>
-                        {{ myDeal.next_step_date | relativeDate:'':true }}
+                        {{ myDeal.next_step_date | date:'dd MMMM y' }}
                     </td>
                     <td>
                         <postpone type="'Deal'" object="myDeal" date-field="'next_step_date'" callback="vm.getMyDeals()" display-date="false" class="margin-right-10"></postpone>

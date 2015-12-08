@@ -8,6 +8,7 @@ function postponeDirective() {
             type: '=',
             dateField: '=',
             callback: '&',
+            displayDate: '=',
         },
         templateUrl: 'utils/directives/postpone.html',
         controller: PostponeController,

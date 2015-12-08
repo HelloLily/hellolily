@@ -10,8 +10,8 @@
             <thead>
                 <tr>
                     <th>Casenr.</th>
-                    <th>Client</th>
                     <th>Subject</th>
+                    <th>Client</th>
                     <th sort-column="priority" table="vm.table">Prio</th>
                     <th sort-column="created" table="vm.table">Created</th>
                     <th></th>
@@ -23,8 +23,8 @@
                 </tr>
                 <tr ng-repeat="case in vm.table.items">
                     <td><a ui-sref="base.cases.detail({ id: case.id })">{{ case.id }}</a></td>
-                    <td><a ui-sref="base.accounts.detail({ id: case.account })" ng-if="::case.account">{{ ::case.account_name }}</a></td>
                     <td><a ui-sref="base.cases.detail({ id: case.id })" title="{{ ::case.subject }}">{{ ::case.subject }}</a></td>
+                    <td><a ui-sref="base.accounts.detail({ id: case.account })" ng-if="::case.account">{{ ::case.account_name }}</a></td>
                     <td>
                         <span class="label label-sm" ng-class="{0: 'label-success', 1: 'label-info', 2: 'label-warning', 3: 'label-danger'}[case.priority]">
                             {{ case.priority_name }}

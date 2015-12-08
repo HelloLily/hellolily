@@ -41,10 +41,13 @@ function MyDealsController($scope, Deal, HLUtils, LocalStorage) {
         var field = 'next_step.position';
         var descending = false;
 
-        var filterQuery = 'archived:false';
+        var filterQuery = 'archived:false AND NOT next_step.name:"None"';
 
         if (vm.table.dueDateFilter) {
             filterQuery += ' AND ' + vm.table.dueDateFilter;
+        } else {
+            // Only display deals with a next step date.
+            filterQuery += ' AND next_step_date:*';
         }
 
         if (vm.table.usersFilter) {
@@ -53,7 +56,7 @@ function MyDealsController($scope, Deal, HLUtils, LocalStorage) {
             filterQuery += ' AND assigned_to_id:' + currentUser.id;
         }
 
-        var dealPromise = Deal.getDeals('', 1, 100, field, descending, filterQuery);
+        var dealPromise = Deal.getDeals('', 1, 250, field, descending, filterQuery);
         dealPromise.then(function(data) {
             if (vm.table.dueDateFilter !== '') {
                 // Add empty key to prevent showing a header and to not crash the for loop.

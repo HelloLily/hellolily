@@ -100,7 +100,7 @@
                         {{ deal.next_step.name }}
                     </td>
                     <td ng-show="vm.table.visibility.nextStepDate">
-                        {{ deal.next_step_date | relativeDate }}
+                        {{ deal.next_step_date | date:'dd MMMM y' }}
                     </td>
                     <td ng-show="vm.table.visibility.newBusiness">
                         <span ng-if="deal.new_business">New</span>

@@ -18,13 +18,14 @@
                     <th>Client</th>
                     <th style="width: 250px;">Type</th>
                     <th style="width: 70px;">Priority</th>
+                    <th style="width: 150px;">Status</th>
                     <th style="width: 10%;">Expires</th>
                     <th style="width: 80px;">Postpone</th>
                 </tr>
             </thead>
             <tbody ng-repeat="(key, cases) in vm.table.items">
                 <tr class="bg-grey" ng-show="cases.length && key.length">
-                    <td colspan="7" class="text-capitalize">{{ key }}</td>
+                    <td colspan="8" class="text-capitalize">{{ key }}</td>
                 </tr>
                 <tr ng-repeat="myCase in cases">
                     <td>
@@ -50,12 +51,15 @@
                         {{ myCase.casetype_name }}
                     </td>
                     <td>
+                        {{ myCase.status }}
+                    </td>
+                    <td>
                         <span class="label label-sm ng-binding" ng-class="{0: 'label-success', 1: 'label-info', 2: 'label-warning', 3: 'label-danger'}[myCase.priority]">
                             {{ myCase.priority_name }}
                         </span>
                     </td>
                     <td>
-                        {{ myCase.expires | relativeDate:'':true }}
+                        {{ myCase.expires | date:'dd MMMM y' }}
                     </td>
                     <td>
                         <postpone type="'Case'" object="myCase" date-field="'expires'" callback="vm.getMyCases()" display-date="false"></postpone>

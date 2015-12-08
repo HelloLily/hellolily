@@ -53,7 +53,7 @@ function Deal($q, $resource, HLUtils) {
      * @param page int: current page of pagination
      * @param pageSize int: current page size of pagination
      * @param orderColumn string: current sorting of deals
-     * @param orderedAsc {boolean}: current ordering
+     * @param orderedDesc {boolean}: current ordering
      * @param filterQuery {string}: contains the filters which are used in ElasticSearch
      *
      * @returns Promise object: when promise is completed:

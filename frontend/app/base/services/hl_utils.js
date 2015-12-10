@@ -40,6 +40,11 @@ function HLUtils() {
         return phoneNumber;
     };
 
+    this.getFullName = function(user) {
+        // $.grep removes values that are empty so the .join doesn't have double spaces
+        return $.grep([user.first_name, user.preposition, user.last_name], Boolean).join(' ');
+    };
+    
     this.getSorting = function(field, descending) {
         var sort = '';
         sort += descending ? '-' : '';

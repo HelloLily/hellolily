@@ -39,8 +39,9 @@ function accountConfig($stateProvider) {
  */
 angular.module('app.accounts').controller('AccountCreateController', AccountCreateController);
 
-AccountCreateController.$inject = ['$scope', '$state', '$stateParams', 'Settings', 'Account', 'User', 'HLFields', 'HLForms'];
-function AccountCreateController($scope, $state, $stateParams, Settings, Account, User, HLFields, HLForms) {
+AccountCreateController.$inject = ['$scope', '$state', '$stateParams', 'Settings', 'Account', 'User', 'HLFields',
+    'HLForms', 'HLUtils'];
+function AccountCreateController($scope, $state, $stateParams, Settings, Account, User, HLFields, HLForms, HLUtils) {
     var vm = this;
     vm.account = {};
     vm.people = [];
@@ -66,7 +67,7 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
                     vm.people.push({
                         id: user.id,
                         // Convert to single string so searching with spaces becomes possible
-                        name: _getFullName(user),
+                        name: HLUtils.getFullName(user),
                     });
                 }
             });
@@ -132,11 +133,6 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
                 }
             }
         }
-    }
-
-    function _getFullName(user) {
-        // $.grep removes values that are empty so the .join doesn't have double spaces
-        return $.grep([user.first_name, user.preposition, user.last_name], Boolean).join(' ');
     }
 
     function loadDataproviderData(form) {

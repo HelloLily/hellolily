@@ -74,6 +74,7 @@ class Case(TenantMixin, TaggedObjectMixin, DeletedMixin, ArchivedMixin):
     expires = models.DateField(verbose_name=_('expires'), default=week_from_now)
 
     parcel = models.ForeignKey(Parcel, verbose_name=_('parcel'), null=True, blank=True)
+    billing_checked = models.BooleanField(default=False)
 
     @property
     def content_type(self):

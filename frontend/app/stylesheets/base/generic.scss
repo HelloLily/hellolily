@@ -182,10 +182,6 @@ td .label-sm {
     white-space: pre;
 }
 
-.form-control.select2-container {
-    border: 1px solid #e5e5e5;
-}
-
 .padding-top-15 {
     padding-top: 15px;
 }
@@ -209,6 +205,33 @@ td .label-sm {
 
 .bg-grey {
     background: #eeeeee;
+}
+
+input.ui-select-search {
+    width: 100% !important;
+}
+
+.form-datepicker {
+    ul {
+        *:focus {
+            outline: none;
+        }
+        .btn-default {
+            border: none;
+        }
+    }
+    .dropdown-menu {
+        padding: 10px;
+    }
+}
+
+.select2-container-multi .select2-choices .select2-search-choice {
+    padding: 4px 20px 4px 4px;
+}
+
+.select2-container-multi .select2-search-choice-close {
+    left: initial;
+    margin-top: 0 !important;
 }
 
 .pre-wrap {

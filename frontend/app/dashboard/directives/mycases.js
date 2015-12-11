@@ -13,7 +13,7 @@ MyCasesController.$inject = ['$scope', 'Case', 'HLUtils', 'LocalStorage'];
 function MyCasesController($scope, Case, HLUtils, LocalStorage) {
     var storage = LocalStorage('myCasesWidget');
     var vm = this;
-    
+
     vm.highPrioCases = 0;
     vm.table = {
         order: storage.get('order', {

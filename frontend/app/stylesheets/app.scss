@@ -1,14 +1,17 @@
-@import "./base/stylesheets/variables";
-@import "./accounts/accounts";
-@import "./base/base";
-@import "./base/stylesheets/icons";
-@import "./base/stylesheets/historylist";
-@import "./base/stylesheets/lists";
-@import "./cases/cases";
-@import "./deals/deals";
-@import "./email/inbox";
-@import "./users/users";
-@import "./utils/animate";
+@import "variables";
+@import "mixins";
+@import "contacts/accounts";
+@import "contacts/users";
+
+@import "base/generic";
+@import "base/icons";
+@import "base/historylist";
+@import "base/lists";
+@import "base/animate";
+
+@import "cases/cases";
+@import "deals/deals";
+@import "mail/inbox";
 
 small {
     text-transform: lowercase;

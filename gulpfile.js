@@ -16,9 +16,9 @@ var rebaseUrls = require('gulp-css-rebase-urls');  // Make relative paths absolu
 var remember = require('gulp-remember');  // Remember all files after a cached call
 var rename = require('gulp-rename');  // rename current file stream
 var sass = require('gulp-sass');  // Sass compilation
+var shell = require('gulp-shell'); // For running shell commands
 var size = require('gulp-size');  // notify about filesize
 var sourcemaps = require('gulp-sourcemaps');  // create sourcemaps from original files and create a .map file
-var styleguide = require('sc5-styleguide');
 var templateCache = require('gulp-angular-templatecache');  // create out of html files Angular templates in one js file/stream
 var uglify = require('gulp-uglify');  // minify javascript file
 var uglifyCss = require('gulp-uglifycss');  // minify css file
@@ -46,8 +46,8 @@ var config = {
             },
         },
         sass: {
-            src: ['frontend/app/**/*.scss'],
-            base: 'frontend/app/app.scss',
+            src: ['frontend/app/stylesheets/**/*.scss'],
+            base: 'frontend/app/stylesheets/app.scss',
             fileName: 'app.css',
         },
         templates: {
@@ -104,11 +104,6 @@ var config = {
             ],
         },
     },
-    styleguide: {
-        path: 'styleguide',
-        overviewPath: './styleguide/README.md',
-        guideName: 'HelloLily Styleguide',
-    },
     cdn: {
         defaultBase: (process.env.STATIC_URL || '/static/'),  // static url to prepend to all file paths.
         root: 'frontend/',
@@ -141,29 +136,6 @@ gulp.src = function() {
         })
     );
 };
-
-/** LIVING STYLE GUIDE */
-
-gulp.task('styleguide-generate', function() {
-    return gulp.src(config.app.sass.src)
-        .pipe(styleguide.generate({
-            title: config.styleguide.guideName,
-            server: true,
-            rootPath: config.styleguide.path,
-            overviewPath: config.styleguide.overviewPath,
-        }))
-    .pipe(gulp.dest(config.styleguide.path));
-});
-
-gulp.task('styleguide-applystyles', function() {
-    return gulp.src(config.app.sass.fileName)
-        .pipe(sass())
-
-    .pipe(styleguide.applyStyles())
-    .pipe(gulp.dest(config.styleguide.path));
-});
-
-gulp.task('styleguide', ['styleguide-generate', 'styleguide-applystyles']);
 
 /**
  * Clean build dir.
@@ -217,6 +189,7 @@ gulp.task('app-css', [], function() {
         }))
         .pipe(gulp.dest(config.app.buildDir))
         .pipe(ifElse(isWatcher, size))
+        .pipe(shell(['styleguide']))
         .pipe(ifElse(isWatcher, livereload));
 });
 

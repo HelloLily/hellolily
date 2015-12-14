@@ -16,59 +16,62 @@ class ContactSerializer(WritableNestedSerializer):
     """
     Serializer for the contact model.
     """
-    # Set non mutable fields
+    # Set non mutable fields.
     created = serializers.DateTimeField(read_only=True)
     modified = serializers.DateTimeField(read_only=True)
     full_name = serializers.CharField(read_only=True)
+    content_type = ContentTypeSerializer(read_only=True)
 
-    # Related fields
+    # Related fields.
     phone_numbers = RelatedPhoneNumberSerializer(many=True, required=False, create_only=True)
     addresses = RelatedAddressSerializer(many=True, required=False, create_only=True)
     email_addresses = RelatedEmailAddressSerializer(many=True, required=False, create_only=True)
     social_media = RelatedSocialMediaSerializer(many=True, required=False, create_only=True)
     accounts = RelatedAccountSerializer(many=True, required=False)
     tags = RelatedTagSerializer(many=True, required=False, create_only=True)
-    content_type = ContentTypeSerializer()
 
-    # Show string versions of fields
+    # Show string versions of fields.
     gender_display = serializers.CharField(source='get_gender_display', read_only=True)
     salutation_display = serializers.CharField(source='get_salutation_display', read_only=True)
 
     class Meta:
         model = Contact
         fields = (
-            'id',
+            'accounts',
+            'addresses',
+            'content_type',
             'created',
-            'modified',
+            'description',
+            'email_addresses',
             'first_name',
-            'preposition',
-            'last_name',
             'full_name',
             'gender',
             'gender_display',
-            'title',
-            'description',
+            'id',
+            'last_name',
+            'modified',
+            'phone_numbers',
+            'preposition',
             'salutation',
             'salutation_display',
-            'phone_numbers',
             'social_media',
-            'addresses',
-            'email_addresses',
-            'accounts',
             'tags',
-            'content_type',
+            'title',
         )
 
     def validate(self, data):
-        if not any([data.get('first_name', None), data.get('preposition', None), data.get('last_name', None)]):
-            raise serializers.ValidationError({'last_name': _('Please enter a valid name.')})
+        # Check if we are related and if we only passed in the id, which means user just wants new reference.
+        if not (len(data) == 1 and 'id' in data and hasattr(self, 'is_related_serializer')):
+            # Not just a new reference, so validate if contact is set properly.
+            if not any([data.get('first_name', None), data.get('preposition', None), data.get('last_name', None)]):
+                raise serializers.ValidationError({'last_name': _('Please enter a valid name.')})
 
         return super(ContactSerializer, self).validate(data)
 
     def _handle_accounts(self, instance, account_list, update=False):
-        # Create new accounts
+        # Create new accounts.
         account_instances = self.fields['accounts'].create([a for a in account_list if not a.get('id')])
-        # Update and link existing accounts
+        # Update and link existing accounts.
         account_instances += self.fields['accounts'].update(instance, [a for a in account_list if a.get('id')])
 
         function_list = []
@@ -92,7 +95,7 @@ class ContactSerializer(WritableNestedSerializer):
         with transaction.atomic():
             instance = super(ContactSerializer, self).create(validated_data)
 
-            if account_list:
+            if account_list and not hasattr(self, 'is_related_serializer'):
                 self._handle_accounts(instance, account_list)
 
         return instance
@@ -103,13 +106,34 @@ class ContactSerializer(WritableNestedSerializer):
         with transaction.atomic():
             instance = super(ContactSerializer, self).update(instance, validated_data)
 
-            if account_list:
-                self._handle_accounts(instance, account_list, update=True)
-            elif not self.root.partial:
-                self._handle_accounts(instance, [], update=True)
+            if not hasattr(self, 'is_related_serializer'):
+                if account_list:
+                    self._handle_accounts(instance, account_list, update=True)
+                elif not self.root.partial:
+                    self._handle_accounts(instance, [], update=True)
 
         return instance
 
 
 class RelatedContactSerializer(RelatedSerializerMixin, ContactSerializer):
-    pass
+    """
+    Serializer for the contact model when used as a relation.
+    """
+    class Meta:
+        model = Contact
+        # Override the fields because we don't want related fields in this serializer.
+        fields = (
+            'id',
+            'created',
+            'modified',
+            'first_name',
+            'preposition',
+            'last_name',
+            'full_name',
+            'gender',
+            'gender_display',
+            'title',
+            'description',
+            'salutation',
+            'salutation_display',
+        )

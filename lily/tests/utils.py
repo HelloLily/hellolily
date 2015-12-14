@@ -1,10 +1,12 @@
-from datetime import datetime
+from urllib import urlencode
+
+from datetime import datetime, date
 import json
 from unittest import SkipTest
 
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import ForeignKey, Manager
+from django.db.models import Manager, Model
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APIClient, APITestCase
@@ -62,6 +64,7 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
     factory_cls = None
     model_cls = None
     serializer_cls = None
+    ordering = ('-id', )  # Default ordering field
 
     def setUp(self):
         """
@@ -70,9 +73,28 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         For some reason the testrunner recognizes these tests outside of a tests.py as well.
         But we don't want to run these if there is no serializer/model set.
         """
-        raise SkipTest
-        # if not self.model_cls or not self.serializer_cls:
-        #     raise SkipTest
+        if not self.model_cls or not self.serializer_cls:
+            raise SkipTest
+
+    def _transform_value(self, value):
+        """
+        Transform the value into something comparable.
+
+        Date: transform to string like so: 2015-11-23
+        Datetime: transform into string like so: 2015-11-23T10:58:31.754643Z
+
+        If value is not a date/datetime do nothing and return.
+        """
+        if isinstance(value, datetime):
+            # In the case of datetime special formatting is required.
+            db_value = value.isoformat()
+            if db_value.endswith('+00:00'):
+                value = db_value[:-6] + 'Z'
+
+        if isinstance(value, date):
+            value = value.isoformat()
+
+        return value
 
     def _compare_objects(self, db_obj, api_obj, serializer=None):
         """
@@ -90,24 +112,54 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
                 db_value = getattr(db_obj, field)
                 api_value = api_obj.get(field)
 
-                if isinstance(db_value, datetime):
-                    # In the case of datetime special formatting is required.
-                    db_value = db_value.isoformat()
-                    if db_value.endswith('+00:00'):
-                        db_value = db_value[:-6] + 'Z'
+                db_value = self._transform_value(db_value)
 
-                if isinstance(db_value, ForeignKey) or isinstance(db_value, Manager):
+                if isinstance(db_value, Model) or isinstance(db_value, Manager):
                     # Relationships can't be checked generically
                     continue
 
                 # Make sure the field value matches that of the factory object
                 self.assertEqual(api_value, db_value)
 
+    def _create_object(self, with_relations=False, size=1, **kwargs):
+        """
+        Default implentation for the creation of objects, this doesn't do anything with relations other than
+        what the factory does by default.
+        """
+        # Set a default tenant of the user.
+        kwargs['tenant'] = self.user_obj.tenant if not kwargs.get('tenant') else kwargs['tenant']
+
+        object_list = self.factory_cls.create_batch(size=size, **kwargs)
+
+        if size > 1:
+            return object_list
+        else:
+            # If required size is 1, just give the object instead of a list.
+            return object_list[0]
+
+    def _create_object_stub(self, with_relations=False, size=1, **kwargs):
+        """
+        Default implentation for the creation of stubs, this doesn't do anything with relations other than
+        what the factory does by default.
+        """
+        object_list = self.factory_cls.stub_batch(size=size, **kwargs)
+
+        if size > 1:
+            return [obj.__dict__ for obj in object_list]
+        else:
+            # If required size is 1, just give the object instead of a list.
+            return object_list[0].__dict__
+
+    def get_url(self, name, ordering=None, *args, **kwargs):
+        return '%s?%s' % (reverse(name, *args, **kwargs), urlencode({
+            'ordering': ordering or ','.join(self.ordering)
+        }))
+
     def test_get_list_unauthenticated(self):
         """
         Test that an unauthenticated user doesn't have access to the list.
         """
-        request = self.anonymous_user.get(reverse(self.list_url), format='json')
+        request = self.anonymous_user.get(self.get_url(self.list_url))
         self.assertEqual(request.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(request.data, {u'detail': u'Authentication credentials were not provided.'})
 
@@ -116,9 +168,10 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         Test that the list returns normally when the user is properly authenticated.
         """
         set_current_user(self.user_obj)
-        obj_list = self.factory_cls.create_batch(size=3, tenant=self.user_obj.tenant)
+        obj_list = self._create_object(size=3)
 
-        request = self.user.get(reverse(self.list_url), format='json')
+        request = self.user.get(self.get_url(self.list_url))
+
         self.assertEqual(request.status_code, status.HTTP_200_OK)
         request_data = json.loads(request.content)
         self.assertEqual(len(obj_list), len(request_data))
@@ -132,11 +185,11 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         Test that deleted objects are not returned as part of the list.
         """
         set_current_user(self.user_obj)
-        obj_list = self.factory_cls.create_batch(size=3, tenant=self.user_obj.tenant)
+        obj_list = self._create_object(size=3)
 
         obj_to_delete = obj_list.pop()
         obj_to_delete.delete()
-        request = self.user.get(reverse(self.list_url), format='json')
+        request = self.user.get(self.get_url(self.list_url))
         self.assertEqual(request.status_code, status.HTTP_200_OK)
         request_data = json.loads(request.content)
         self.assertEqual(len(obj_list), len(request_data))
@@ -149,11 +202,13 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         """
         Test that users from different tenants can't access eachothers data.
         """
-        set_current_user(self.user_obj)
-        self.factory_cls.create_batch(size=3, tenant=self.user_obj.tenant)
-        other_tenant_obj_list = self.factory_cls.create_batch(size=3, tenant=self.other_tenant_user_obj.tenant)
+        set_current_user(self.other_tenant_user_obj)
+        other_tenant_obj_list = self._create_object(size=3, tenant=self.other_tenant_user_obj.tenant)
 
-        request = self.other_tenant_user.get(reverse(self.list_url), format='json')
+        set_current_user(self.user_obj)
+        self._create_object(size=3)
+
+        request = self.other_tenant_user.get(self.get_url(self.list_url))
         self.assertEqual(request.status_code, status.HTTP_200_OK)
         request_data = json.loads(request.content)
         self.assertEqual(len(other_tenant_obj_list), len(request_data))
@@ -167,9 +222,9 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         Test that an unauthenticated user doesn't have access to the object.
         """
         set_current_user(self.user_obj)
-        db_obj = self.factory_cls.create(tenant=self.user_obj.tenant)
+        db_obj = self._create_object()
 
-        request = self.anonymous_user.get(reverse(self.detail_url, kwargs={'pk': db_obj.pk}))
+        request = self.anonymous_user.get(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}))
         self.assertEqual(request.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(request.data, {u'detail': u'Authentication credentials were not provided.'})
 
@@ -178,9 +233,9 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         Test that the object returns normally when the user is properly authenticated.
         """
         set_current_user(self.user_obj)
-        db_obj = self.factory_cls.create(tenant=self.user_obj.tenant)
+        db_obj = self._create_object()
 
-        request = self.user.get(reverse(self.detail_url, kwargs={'pk': db_obj.pk}))
+        request = self.user.get(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}))
         self.assertEqual(request.status_code, status.HTTP_200_OK)
         self._compare_objects(db_obj, json.loads(request.content))
 
@@ -189,10 +244,10 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         Test that deleted objects are not returned.
         """
         set_current_user(self.user_obj)
-        db_obj = self.factory_cls.create(tenant=self.user_obj.tenant)
+        db_obj = self._create_object()
         db_obj.delete()  # Delete the object
 
-        request = self.user.get(reverse(self.detail_url, kwargs={'pk': db_obj.pk}))
+        request = self.user.get(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}))
         self.assertEqual(request.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(request.data, {u'detail': u'Not found.'})
 
@@ -201,9 +256,9 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         Test that users from different tenants can't access eachothers data.
         """
         set_current_user(self.user_obj)
-        db_obj = self.factory_cls.create(tenant=self.user_obj.tenant)
+        db_obj = self._create_object()
 
-        request = self.other_tenant_user.get(reverse(self.detail_url, kwargs={'pk': db_obj.pk}))
+        request = self.other_tenant_user.get(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}))
         self.assertEqual(request.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(request.data, {u'detail': u'Not found.'})
 
@@ -212,10 +267,9 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         Test that an unauthenticated user doesn't have the access to create an object.
         """
         set_current_user(self.user_obj)
-        stub_dict = self.factory_cls.stub().__dict__
-        del stub_dict['tenant']
+        stub_dict = self._create_object_stub()
 
-        request = self.anonymous_user.post(reverse(self.list_url), stub_dict)
+        request = self.anonymous_user.post(self.get_url(self.list_url), stub_dict)
         self.assertEqual(request.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(request.data, {u'detail': u'Authentication credentials were not provided.'})
 
@@ -224,10 +278,9 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         Test that the object is created normally when the user is properly authenticated.
         """
         set_current_user(self.user_obj)
-        stub_dict = self.factory_cls.stub().__dict__
-        del stub_dict['tenant']
+        stub_dict = self._create_object_stub()
 
-        request = self.user.post(reverse(self.list_url), stub_dict)
+        request = self.user.post(self.get_url(self.list_url), stub_dict)
         self.assertEqual(request.status_code, status.HTTP_201_CREATED)
 
         created_id = json.loads(request.content).get('id')
@@ -241,10 +294,9 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         Test that the tenant is set correctly on the new object.
         """
         set_current_user(self.user_obj)
-        stub_dict = self.factory_cls.stub().__dict__
-        del stub_dict['tenant']
+        stub_dict = self._create_object_stub()
 
-        request = self.user.post(reverse(self.list_url), stub_dict)
+        request = self.user.post(self.get_url(self.list_url), stub_dict)
         self.assertEqual(request.status_code, status.HTTP_201_CREATED)
 
         db_obj = self.model_cls.objects.get(pk=request.data.get('id'))
@@ -255,11 +307,10 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         Test that an unauthenticated user doesn't have the access to update an object.
         """
         set_current_user(self.user_obj)
-        db_obj = self.factory_cls.create(tenant=self.user_obj.tenant)
-        stub_dict = self.factory_cls.stub().__dict__
-        del stub_dict['tenant']
+        db_obj = self._create_object()
+        stub_dict = self._create_object_stub()
 
-        request = self.anonymous_user.put(reverse(self.detail_url, kwargs={'pk': db_obj.pk}), stub_dict)
+        request = self.anonymous_user.put(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}), stub_dict)
         self.assertEqual(request.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(request.data, {u'detail': u'Authentication credentials were not provided.'})
 
@@ -268,30 +319,29 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         Test that the object is updated normally when the user is properly authenticated.
         """
         set_current_user(self.user_obj)
-        db_obj = self.factory_cls.create(tenant=self.user_obj.tenant)
-        stub_dict = self.factory_cls.stub().__dict__
-        del stub_dict['tenant']
+        db_obj = self._create_object()
+        stub_dict = self._create_object_stub()
 
-        request = self.user.put(reverse(self.detail_url, kwargs={'pk': db_obj.pk}), data=stub_dict)
+        request = self.user.put(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}), data=stub_dict)
         self.assertEqual(request.status_code, status.HTTP_200_OK)
 
-        response = json.loads(request.content)
+        created_id = json.loads(request.content).get('id')
+        self.assertIsNotNone(created_id)
 
-        for field_name, field_value in stub_dict.items():
-            self.assertEqual(field_value, response.get(field_name))
+        db_obj = self.model_cls.objects.get(pk=created_id)
+        self._compare_objects(db_obj, json.loads(request.content))
 
     def test_update_object_deleted_filter(self):
         """
         Test that deleted objects can't be updated.
         """
         set_current_user(self.user_obj)
-        db_obj = self.factory_cls.create(tenant=self.user_obj.tenant)
+        db_obj = self._create_object()
         db_obj.delete()  # Delete the object
 
-        stub_dict = self.factory_cls.stub().__dict__
-        del stub_dict['tenant']
+        stub_dict = self._create_object_stub()
 
-        request = self.user.put(reverse(self.detail_url, kwargs={'pk': db_obj.pk}), data=stub_dict)
+        request = self.user.put(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}), data=stub_dict)
         self.assertEqual(request.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(request.data, {u'detail': u'Not found.'})
 
@@ -300,11 +350,10 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         Test that users from different tenants can't update eachothers data.
         """
         set_current_user(self.user_obj)
-        db_obj = self.factory_cls.create(tenant=self.user_obj.tenant)
-        stub_dict = self.factory_cls.stub().__dict__
-        del stub_dict['tenant']
+        db_obj = self._create_object()
+        stub_dict = self._create_object_stub()
 
-        request = self.other_tenant_user.put(reverse(self.detail_url, kwargs={'pk': db_obj.pk}), stub_dict)
+        request = self.other_tenant_user.put(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}), stub_dict)
         self.assertEqual(request.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(request.data, {u'detail': u'Not found.'})
 
@@ -313,9 +362,9 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         Test that an unauthenticated user doesn't have the access to delete an object.
         """
         set_current_user(self.user_obj)
-        db_obj = self.factory_cls.create(tenant=self.user_obj.tenant)
+        db_obj = self._create_object()
 
-        request = self.anonymous_user.delete(reverse(self.detail_url, kwargs={'pk': db_obj.pk}))
+        request = self.anonymous_user.delete(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}))
         self.assertEqual(request.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(request.data, {u'detail': u'Authentication credentials were not provided.'})
 
@@ -324,9 +373,9 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         Test that the object is deleted normally when the user is properly authenticated.
         """
         set_current_user(self.user_obj)
-        db_obj = self.factory_cls.create(tenant=self.user_obj.tenant)
+        db_obj = self._create_object()
 
-        request = self.user.delete(reverse(self.detail_url, kwargs={'pk': db_obj.pk}))
+        request = self.user.delete(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}))
         self.assertEqual(request.status_code, status.HTTP_204_NO_CONTENT)
 
         if 'is_deleted' in self.model_cls._meta.get_all_field_names():
@@ -336,10 +385,10 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
 
     def test_delete_object_deleted_filter(self):
         set_current_user(self.user_obj)
-        db_obj = self.factory_cls.create(tenant=self.user_obj.tenant)
+        db_obj = self._create_object()
         db_obj.delete()  # Delete the object
 
-        request = self.user.delete(reverse(self.detail_url, kwargs={'pk': db_obj.pk}))
+        request = self.user.delete(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}))
         self.assertEqual(request.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(request.data, {u'detail': u'Not found.'})
 
@@ -348,8 +397,8 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         Test that users from different tenants can't delete eachothers data.
         """
         set_current_user(self.user_obj)
-        db_obj = self.factory_cls.create(tenant=self.user_obj.tenant)
+        db_obj = self._create_object()
 
-        request = self.other_tenant_user.delete(reverse(self.detail_url, kwargs={'pk': db_obj.pk}))
+        request = self.other_tenant_user.delete(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}))
         self.assertEqual(request.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(request.data, {u'detail': u'Not found.'})

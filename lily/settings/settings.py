@@ -175,7 +175,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.gzip.GZipMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'lily.utils.middleware.CustomBrokenLinkEmailsMiddleware',
@@ -188,6 +187,10 @@ elif DEBUG:
     SSLIFY_DISABLE = True
     MIDDLEWARE_CLASSES += (
         'debug_toolbar.middleware.DebugToolbarMiddleware',
+    )
+else:
+    MIDDLEWARE_CLASSES += (
+        'django.middleware.gzip.GZipMiddleware',
     )
 
 #######################################################################################################################
@@ -574,7 +577,12 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'lily.utils.authentication.TokenGETAuthentication',
     ),
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+    ),
+    'DEFAULT_METADATA_CLASS': 'lily.utils.api.metadata.ExtraFieldInfoMetaData',
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',  # Use application/json instead of multipart/form-data requests in tests.
+
 }
 
 #######################################################################################################################

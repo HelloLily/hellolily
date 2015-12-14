@@ -55,6 +55,10 @@ class BaseConnector(object):
         Raises:
             ValidationError: When the username is not valid.
         """
+
+        # We want clean usernames in the database, so strip certain characters.
+        username = username.lstrip('@')
+
         if self._username_regex.match(username):
             if autofill:
                 self.profile_url = self._profile_url_base % {'username': username}

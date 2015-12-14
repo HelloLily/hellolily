@@ -1,31 +1,33 @@
-angular.module('app.cases.directives').directive('caseUsersFilter', caseUsersFilter);
+angular.module('app.dashboard.directives').directive('usersFilter', usersFilter);
 
-function caseUsersFilter() {
+function usersFilter() {
     return {
         restrict: 'E',
         scope: {
             usersStore: '=',
+            storageName: '=',
         },
-        templateUrl: 'cases/directives/users_filter.html',
-        controller: CaseUsersFilterWidgetController,
+        templateUrl: 'dashboard/directives/users_filter.html',
+        controller: UsersFilterController,
         controllerAs: 'vm',
         bindToController: true,
     };
 }
 
-CaseUsersFilterWidgetController.$inject = ['LocalStorage', 'UserTeams'];
-function CaseUsersFilterWidgetController(LocalStorage, UserTeams) {
+UsersFilterController.$inject = ['LocalStorage', 'UserTeams'];
+function UsersFilterController(LocalStorage, UserTeams) {
     var vm = this;
-    var storage = LocalStorage('case');
+    var storage = LocalStorage(vm.storageName);
 
     vm.usersSelection = storage.get('usersFilter', [currentUser.id]);
     vm.usersDisplayNames = storage.get('usersDisplayFilter', [currentUser.firstName]);
     vm.teamsSelection = storage.get('teamsFilter', []);
+    vm.currentUser = currentUser;
     vm.users = [];
     vm.teams = [];
+
     vm.toggleUser = toggleUser;
     vm.loadTeams = loadTeams;
-    vm.currentUser = currentUser;
 
     function loadTeams() {
         var teamObj;

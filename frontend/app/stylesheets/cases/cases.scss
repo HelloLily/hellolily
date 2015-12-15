@@ -1,3 +1,59 @@
+/* SG
+# Cases/Heading  #
+```
+<div class="case-info-heading label-success">
+    <div class="case-info-heading-priority">
+        Low priority
+    </div>
+    <div class="case-info-heading-title">
+        Title
+    </div>
+    <div class="case-info-heading-description">
+        Omschrijving
+    </div>
+</div>
+```
+*/
+
+/* SG
+# Cases/Priority #
+Add priority to case headings by adding these classes in the `case-info-heading` div.
+
+`label-success` for low priority
+
+`label-info` for medium priority
+
+`label-warning` for high priority
+
+`label-danger` for critical priority
+
+```
+<div class="case-info-heading label-success">
+    <div class="case-info-heading-priority">
+        Low priority
+    </div>
+</div>
+
+<div class="case-info-heading label-info">
+    <div class="case-info-heading-priority">
+        Medium priority
+    </div>
+</div>
+
+<div class="case-info-heading label-warning">
+    <div class="case-info-heading-priority">
+        High priority
+    </div>
+</div>
+
+<div class="case-info-heading label-danger">
+    <div class="case-info-heading-priority">
+        Critical priority
+    </div>
+</div>
+```
+*/
+
 #case-status {
     margin-top: 15px;
     margin-bottom: 15px;

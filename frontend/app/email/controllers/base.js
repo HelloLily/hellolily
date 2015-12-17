@@ -31,6 +31,14 @@ function emailConfig($stateProvider, $urlRouterProvider) {
             'showContact@base.email': {
                 controller: EmailShowContactController,
             },
+            'createCase@base.email': {
+                templateUrl: 'cases/controllers/form.html',
+                controller: 'CaseCreateUpdateController',
+                controllerAs: 'vm',
+            },
+            'showCase@base.email': {
+                controller: EmailShowCaseController,
+            },
         },
         ncyBreadcrumb: {
             label: 'Email',
@@ -114,6 +122,24 @@ function EmailShowContactController($scope, ContactDetail) {
                     });
                 });
             }
+        });
+    }
+}
+
+angular.module('app.email').controller('EmailShowCaseController', EmailShowCaseController);
+EmailShowCaseController.$inject = ['$scope', 'CaseDetail'];
+function EmailShowCaseController($scope, CaseDetail) {
+    $scope.$watch('emailSettings.sidebar.case', function(newValue, oldValue) {
+        if (oldValue === 'showCase' && newValue === 'checkCase' && $scope.emailSettings.caseId) {
+            activate();
+        }
+    }, true);
+
+    activate();
+
+    function activate() {
+        CaseDetail.get({id: $scope.emailSettings.caseId}).$promise.then(function(lilyCase) {
+            $scope.lilyCase = lilyCase;
         });
     }
 }

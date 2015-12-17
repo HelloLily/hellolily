@@ -1,28 +1,16 @@
 <div ng-if="vm.message.id" class="inbox-header inbox-view-header">
     <h1 class="pull-left">{{ vm.message.subject}}</h1>
     <div class="pull-right" ng-if="emailSettings.sidebar">
-        <button class="btn btn-sm blue"
-                ng-show="!emailSettings.accountId"
-                ng-click="vm.toggleAccountSidebar()">
-            <i class="fa fa-plus"></i> Account
+        <button class="btn btn-sm blue" ng-click="vm.toggleAccountSidebar()">
+            <i ng-class="{'fa fa-eye': emailSettings.accountId, 'fa fa-plus': !emailSettings.accountId}"></i> Account
         </button>
 
-        <button class="btn btn-sm blue"
-                ng-show="emailSettings.accountId"
-                ng-click="vm.toggleAccountSidebar()">
-            <i class="fa fa-eye"></i> Account
+        <button class="btn btn-sm blue" ng-click="vm.toggleContactSidebar()">
+            <i ng-class="{'fa fa-eye': emailSettings.contactId, 'fa fa-plus': !emailSettings.contactId}"></i> Contact
         </button>
 
-        <button class="btn btn-sm blue"
-                ng-show="!emailSettings.contactId"
-                ng-click="vm.toggleContactSidebar()">
-            <i class="fa fa-plus"></i> Contact
-        </button>
-
-        <button class="btn btn-sm blue"
-                ng-show="emailSettings.contactId"
-                ng-click="vm.toggleContactSidebar()">
-            <i class="fa fa-eye"></i> Contact
+        <button class="btn btn-sm blue" ng-click="vm.toggleCasesSidebar()">
+            <i ng-class="{'fa fa-eye': emailSettings.contactId, 'fa fa-plus': !emailSettings.contactId}"></i> Case
         </button>
     </div>
 </div>

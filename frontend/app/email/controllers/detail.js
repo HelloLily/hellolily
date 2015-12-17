@@ -41,6 +41,7 @@ function EmailDetailController($scope, $state, $stateParams, $http, Settings, Ac
     vm.showSidebar = showSidebar;
     vm.toggleAccountSidebar = toggleAccountSidebar;
     vm.toggleContactSidebar = toggleContactSidebar;
+    vm.toggleCasesSidebar = toggleCasesSidebar;
 
     Settings.page.setTitle('custom', 'Email message');
     Settings.page.header.setMain('custom', 'Email message');
@@ -244,6 +245,22 @@ function EmailDetailController($scope, $state, $stateParams, $http, Settings, Ac
             // Create contact form is open, so close it
             $scope.emailSettings.sidebar.form = null;
             $scope.emailSettings.sidebar.contact = false;
+        }
+    }
+
+    function toggleCasesSidebar() {
+        $scope.emailSettings.sidebar.case = !$scope.emailSettings.sidebar.case;
+
+        if (!$scope.emailSettings.caseId && $scope.emailSettings.sidebar.form !== 'createCase') {
+            // No contact set and no form open, so open the contact create form
+            $scope.emailSettings.sidebar.form = 'createCase';
+            $scope.emailSettings.sidebar.case = true;
+            $scope.emailSettings.sidebar.contact = false;
+            $scope.emailSettings.sidebar.account = false;
+        } else if ($scope.emailSettings.sidebar.form === 'createCase') {
+            // Create contact form is open, so close it
+            $scope.emailSettings.sidebar.form = null;
+            $scope.emailSettings.sidebar.case = false;
         }
     }
 

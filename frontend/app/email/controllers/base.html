@@ -19,6 +19,7 @@
                         <!-- Setting ui-view to emailSettings.sidebar.form doesn't update the view if a different form is clicked. So doing ng-if instead -->
                         <div ng-if="emailSettings.sidebar.form == 'createAccount'" ui-view="createAccount"></div>
                         <div ng-if="emailSettings.sidebar.form == 'createContact'" ui-view="createContact"></div>
+                        <div ng-if="emailSettings.sidebar.form == 'createCase'" ui-view="createCase"></div>
                     </div>
                 </div>
             </div>
@@ -38,6 +39,12 @@
                     <contact-list-widget title="{{ account.name }}" account-id="{{ account.id }}" list="account.colleagueList" ng-if="contact.accounts.length == 1" height="300"></contact-list-widget>
                     <contact-list-widget title="{{ account.name }}" account-id="{{ account.id }}" list="account.colleagueList" ng-if="contact.accounts.length >= 2" height="91"></contact-list-widget>
                 </div>
+            </div>
+        </div>
+
+        <div ng-if="emailSettings.sidebar.case && emailSettings.caseId">
+            <div ui-view="showCase">
+                <case-detail-widget account="account" height="300"></case-detail-widget>
             </div>
         </div>
     </div>

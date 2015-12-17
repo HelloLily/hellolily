@@ -1,7 +1,7 @@
 angular.module('app.base').config(appConfig);
 
 appConfig.$inject = ['$stateProvider'];
-function appConfig ($stateProvider) {
+function appConfig($stateProvider) {
     $stateProvider.state('base', {
         abstract: true,
         controller: BaseController,

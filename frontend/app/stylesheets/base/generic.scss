@@ -211,18 +211,15 @@ input.ui-select-search {
     width: 100% !important;
 }
 
-.form-datepicker {
-    ul {
-        *:focus {
-            outline: none;
-        }
-        .btn-default {
-            border: none;
-        }
+ul[uib-datepicker-popup-wrap] {
+    *:focus {
+        outline: none;
     }
-    .dropdown-menu {
-        padding: 10px;
+    .btn-default {
+        border: none;
     }
+
+    padding: 10px;
 }
 
 .select2-container-multi .select2-choices .select2-search-choice {
@@ -232,6 +229,59 @@ input.ui-select-search {
 .select2-container-multi .select2-search-choice-close {
     left: initial;
     margin-top: 0 !important;
+}
+
+.width-50-percent {
+    width: 50%;
+}
+
+.collapsable {
+    cursor: pointer;
+
+    .collapse-indicator {
+        float: right;
+        padding: 7px;
+
+        i {
+            &.fa-check {
+                vertical-align: top;
+                margin-right: 5px;
+            }
+            &.fa-angle-up {
+                font-size: 20px;
+            }
+        }
+
+        .fa-angle-up {
+            -webkit-transition: all ease-in-out 0.30s;
+            transition: all ease-in-out 0.30s;
+
+            -ms-transform: none; /* IE 9 */
+            -webkit-transform: none; /* Chrome, Safari, Opera */
+            transform: none;
+
+            &.rotate {
+                -ms-transform: rotate(180deg); /* IE 9 */
+                -webkit-transform: rotate(180deg); /* Chrome, Safari, Opera */
+                transform: rotate(180deg);
+            }
+        }
+    }
+}
+
+.portlet {
+    .collapse-content {
+        max-height: 1000px;
+        overflow: hidden;
+        -webkit-transition: max-height ease-in-out 0.5s;
+        transition: max-height ease-in-out 0.5s;
+
+        &.ng-hide {
+            max-height: 0;
+            -webkit-transition: max-height ease 0.45s;
+            transition: max-height ease 0.45s;
+        }
+    }
 }
 
 .pre-wrap {

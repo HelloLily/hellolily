@@ -1,0 +1,12 @@
+<div class="portlet">
+    <div class="portlet-title collapsable" ng-class="{'width-50-percent': !vm.sidebar}" ng-click="vm.collapsed = !vm.collapsed">
+        <div class="caption">
+            {{ vm.title }}
+        </div>
+        <div class="collapse-indicator">
+            <i ng-if="vm.isComplete" class="fa fa-check text-success"></i> <i class="fa fa-angle-up" ng-class="{'rotate': vm.collapsed}"></i>
+        </div>
+    </div>
+    <div class="collapse-content" ng-show="vm.collapsable && !vm.collapsed"><ng-transclude></ng-transclude></div>
+</div>
+

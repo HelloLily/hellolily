@@ -72,12 +72,77 @@ function CaseCreateUpdateController($scope, $stateParams, Account, Case, Contact
     vm.caseTypes = [];
     vm.caseStatuses = [];
     vm.casePriorities = [];
+    vm.formPortlets = {
+        0: {
+            fields: ['subject', 'type'],
+        },
+        1: {
+            fields: ['status', 'priority', 'expires'],
+        },
+        2: {
+            fields: [''],
+        },
+    };
+    vm.datepickerOptions = {
+        startingDay: 1,
+    };
 
     vm.assignToMe = assignToMe;
     vm.refreshAccounts = refreshAccounts;
     vm.refreshContacts = refreshContacts;
     vm.cancelCaseCreation = cancelCaseCreation;
     vm.saveCase = saveCase;
+    vm.openNextStep = openNextStep;
+
+    $scope.$watch('vm.case.priority', function() {
+        var daysToAdd = [5, 3, 1, 0];
+
+        var i = 0;
+        var newDate = moment();
+
+        // Add days based on what the priority is. Skip weekends.
+        while (i < daysToAdd[vm.case.priority]) {
+            newDate = newDate.add(1, 'day');
+
+            if (newDate.day() !== 0 && newDate.day() !== 6) {
+                i++;
+            }
+        }
+
+        vm.case.expires = newDate.format();
+    });
+
+    $scope.$watchGroup(['vm.case.type', 'vm.case.status', 'vm.case.priority', 'vm.case.expires'], function() {
+        openNextStep();
+    });
+
+    function openNextStep() {
+        for (var i = 0; i < Object.keys(vm.formPortlets).length; i++) {
+            var fieldsSet = true;
+            var portlet = vm.formPortlets[i];
+
+            // Check if all fields are set.
+            portlet.fields.forEach(function(field) {
+                // 0 is a valid input (selects), so allow it.
+                if (vm.case[field] === '' || vm.case[field] === null || vm.case[field] === undefined) {
+                    fieldsSet = false;
+                }
+            });
+
+            if (!fieldsSet) {
+                // Fields not completely filled in, so just stop checking the portlets.
+                break;
+            }
+
+            // Automatically close the current portlet if it hasn't been completed.
+            if (!portlet.portlet.collapsed && !portlet.portlet.isComplete) {
+                portlet.portlet.isComplete = true;
+                vm.formPortlets[i + 1].portlet.collapsed = false;
+
+                return;
+            }
+        }
+    }
 
     activate();
 
@@ -166,7 +231,7 @@ function CaseCreateUpdateController($scope, $stateParams, Account, Case, Contact
         }
     }
 
-    function saveCase(form) {
+    function saveCase(form, archive) {
         if (!_checkCaseForm()) {
             return false;
         }
@@ -181,7 +246,9 @@ function CaseCreateUpdateController($scope, $stateParams, Account, Case, Contact
             }
         });
 
-        console.log(vm.case);
+        if (archive) {
+            vm.case.is_archived = true;
+        }
 
         if (vm.case.id) {
             // If there's an ID set it means we're dealing with an existing contact, so update it

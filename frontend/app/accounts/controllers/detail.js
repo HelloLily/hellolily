@@ -37,7 +37,7 @@ function AccountDetailController($scope, $stateParams, Settings, CaseDetail, Con
     $scope.account = account;
     Settings.page.setAllTitles('detail', account.name);
 
-    $scope.caseList = CaseDetail.query({filterquery: 'account:' + id, sort: '-created'});
+    $scope.caseList = CaseDetail.query({filterquery: 'account:' + id, sort: '-created', size: 100});
     $scope.caseList.$promise.then(function(caseList) {
         $scope.caseList = caseList;
     });

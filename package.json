@@ -24,6 +24,7 @@
     "gulp-remember": "^0.3.0",
     "gulp-rename": "^1.2.2",
     "gulp-sass": "^2.0.1",
+    "gulp-shell": "^0.5.1",
     "gulp-size": "^2.0.0",
     "gulp-sourcemaps": "^1.5.2",
     "gulp-uglify": "^1.2.0",
@@ -35,7 +36,7 @@
     "karma": "^0.13.10",
     "karma-chrome-launcher": "^0.2.0",
     "karma-jasmine": "^0.3.6",
-    "merge-stream": "^0.1.7",
-    "sc5-styleguide": "0.3.37"
+    "markdown-styleguide-generator": "^2.0.4",
+    "merge-stream": "^0.1.7"
   }
 }

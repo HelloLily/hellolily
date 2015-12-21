@@ -1,0 +1,26 @@
+{
+	"sgComment": "SG",
+	"srcFolder": "./frontend/app/stylesheets",
+	"outputFile": "./styleguide/styleguide.html",
+	"templateFile": "./styleguide/template.html",
+	"themeFile": "./styleguide/style.css",
+	"highlightFolder": "./node_modules/markdown-styleguide-generator/node_modules/highlight.js/styles",
+	"highlightStyle": "github",
+	"excludeDirs": [
+		"target",
+		"node_modules"
+	],
+	"fileExtensions": {
+		"scss": true,
+		"sass": false,
+		"css": false,
+		"less": false
+	},
+	"walkerOptions": {
+		"followLinks": false
+	},
+	"customVars": {
+		"projectName": "HelloLily"
+	},
+	"jqFile": "./node_modules/markdown-styleguide-generator/template/jquery.js"
+}

@@ -9,8 +9,8 @@ function myDealsDirective() {
     };
 }
 
-MyDealsController.$inject = ['$scope', 'Deal', 'HLUtils', 'LocalStorage'];
-function MyDealsController($scope, Deal, HLUtils, LocalStorage) {
+MyDealsController.$inject = ['$scope', 'Deal', 'HLUtils', 'LocalStorage', 'CaseDetail'];
+function MyDealsController($scope, Deal, HLUtils, LocalStorage, CaseDetail) {
     var storage = LocalStorage('myDealsWidget');
 
     var vm = this;
@@ -65,6 +65,14 @@ function MyDealsController($scope, Deal, HLUtils, LocalStorage) {
                 };
             } else {
                 vm.table.items = HLUtils.timeCategorizeObjects(data, 'next_step_date');
+
+                angular.forEach(data, function(deal) {
+                    CaseDetail.query({filterquery: 'account:' + deal.account + ' AND archived:false'}).$promise.then(function(caseList) {
+                        if (caseList.length > 0) {
+                            deal.hasUnarchivedCases = true;
+                        }
+                    });
+                });
             }
 
             vm.numOfDeals = data.length;

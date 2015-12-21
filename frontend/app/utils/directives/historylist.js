@@ -106,7 +106,7 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
 
                 // Check if we need to fetch cases
                 if (caseTargets.indexOf(scope.target) !== -1) {
-                    var casePromise = CaseDetail.query({filterquery: scope.target + ':' + obj.id, size: requestLength}).$promise;
+                    var casePromise = CaseDetail.query({filterquery: scope.target + ':' + obj.id, size: 100}).$promise;
                     promises.push(casePromise);  // Add promise to list of all promises for later handling
 
                     casePromise.then(function(results) {

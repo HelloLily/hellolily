@@ -81,6 +81,7 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
         (1, _('Social media')),
         (2, _('Talk with employee')),
         (3, _('Existing customer')),
+        (5, _('Radio')),
         (4, _('Other')),
     )
 

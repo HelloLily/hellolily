@@ -100,24 +100,30 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default='EUR',
                                 verbose_name=_('currency'))
     amount_once = models.DecimalField(max_digits=19, decimal_places=2, verbose_name=_('one-time cost'), default=0)
-    amount_recurring = models.DecimalField(max_digits=19, decimal_places=2, verbose_name=_('recurring costs'), default=0)
+    amount_recurring = models.DecimalField(max_digits=19, decimal_places=2, verbose_name=_('recurring costs'),
+                                           default=0)
     closed_date = models.DateTimeField(verbose_name=_('closed date'), blank=True, null=True)
     stage = models.IntegerField(choices=STAGE_CHOICES, default=OPEN_STAGE, verbose_name=_('status'))
     assigned_to = models.ForeignKey(LilyUser, verbose_name=_('assigned to'), null=True)
     notes = GenericRelation('notes.Note', content_type_field='content_type',
                             object_id_field='object_id', verbose_name='list of notes')
-    feedback_form_sent = models.BooleanField(default=False, verbose_name=_('feedback form sent'), choices=FEEDBACK_CHOICES)
+    feedback_form_sent = models.BooleanField(default=False, verbose_name=_('feedback form sent'),
+                                             choices=FEEDBACK_CHOICES)
     new_business = models.BooleanField(default=False, verbose_name=_('business'), choices=BUSINESS_CHOICES)
     is_checked = models.BooleanField(default=False, verbose_name=_('quote checked'), choices=QUOTE_CHECKED_CHOICES)
     twitter_checked = models.BooleanField(default=False, choices=TWITTER_CHECKED_CHOICES)
     card_sent = models.BooleanField(default=False, choices=CARD_SENT_CHOICES)
     quote_id = models.CharField(max_length=255, verbose_name=_('freedom quote id'), blank=True)
-    found_through = models.IntegerField(max_length=255, blank=True, null=True, choices=FOUND_THROUGH_CHOICES, verbose_name=_('found us through'))
-    contacted_by = models.IntegerField(max_length=255, blank=True, null=True, choices=CONTACTED_BY_CHOICES, verbose_name=_('contacted us by'))
+    found_through = models.IntegerField(max_length=255, blank=True, null=True, choices=FOUND_THROUGH_CHOICES,
+                                        verbose_name=_('found us through'))
+    contacted_by = models.IntegerField(max_length=255, blank=True, null=True, choices=CONTACTED_BY_CHOICES,
+                                       verbose_name=_('contacted us by'))
     next_step = models.ForeignKey(DealNextStep, verbose_name=_('next step'), null=True, related_name='deals')
     next_step_date = models.DateField(verbose_name=_('next step date'), null=True, blank=True)
 
     import_id = models.CharField(max_length=100, verbose_name=_('import id'), default='', blank=True, db_index=True)
+
+    imported_from = models.CharField(max_length=50, verbose_name=_('imported from'), null=True, blank=True)
 
     @property
     def content_type(self):

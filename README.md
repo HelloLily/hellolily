@@ -31,7 +31,19 @@ Populate the database with some testdata.
 
     docker-compose run web python manage.py testdata
 
+Install Node modules.
+    # With locally installed npm.
+    npm install
+    # Or by using a dockerfied npm (for convenience).
+    docker run -v $(pwd):/home/docker ferdynice/gulpy npm install
+
 ## Running the webserver
+
+Run Gulp (build and watch changes)
+    # With locally installed gulp.
+    gulp
+    # Or by using a dockerfied gulp (for convenience).
+    docker run -v $(pwd):/home/docker ferdynice/gulpy gulp
 
 Run the Django development server along with dependent containers.
 

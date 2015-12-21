@@ -32,13 +32,12 @@
                         </a>
                     </td>
                     <td>
-                        <a ui-sref="base.contacts.detail({ id: myDeal.contact })" ng-if="myDeal.contact">
-                            {{ myDeal.contact_name }}
+                        <a ng-if="myDeal.hasUnarchivedCases" ui-sref="base.accounts.detail({ id: deal.account })" class="warning-icon" uib-tooltip="This account has an unarchived case">
+                            <i class="fa fa-briefcase"></i>
                         </a>
-                        <span ng-if="myDeal.contact && myDeal.account_name"> at </span>
-                        <a ui-sref="base.accounts.detail({ id: myDeal.account })" ng-if="myDeal.account">
-                            {{ myDeal.account_name }}
-                        </a>
+                        <a ui-sref="base.contacts.detail({ id: myDeal.contact })" ng-if="myDeal.contact"> {{ myDeal.contact_name }}</a>
+                        <span ng-if="myDeal.contact && myDeal.account_name"> at</span>
+                        <a ui-sref="base.accounts.detail({ id: myDeal.account })" ng-if="myDeal.account"> {{ myDeal.account_name }}</a>
                     </td>
                     <td>
                         {{ myDeal.amount_recurring | currency:'&euro; ' }} /month | {{ myDeal.amount_once | currency:'&euro; ' }} /once

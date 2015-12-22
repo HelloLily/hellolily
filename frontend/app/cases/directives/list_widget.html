@@ -2,38 +2,74 @@
     <div class="portlet-title">
         <div class="caption">
             <i class="fa fa-briefcase"></i>
-            {{ title }}
+            {{ vm.title }}
         </div>
         <div class="actions">
-            <a ui-sref="{{ addLink || 'base.cases.create' }}" class="btn btn-circle btn-default">
+            <a ui-sref="{{ vm.addLink || 'base.cases.create' }}" class="btn btn-circle btn-default">
                 <i class="fa fa-plus"></i>
                 Add
             </a>
         </div>
     </div>
     <div class="portlet-body">
-        <div class="scroll-body" slimscroll="{height: height}">
-            <table class="table table-hover">
+        <div class="scroll-body" slimscroll="{height: vm.height}">
+            <table class="table">
                 <thead>
-                <tr>
-                    <th>Priority</th>
-                    <th>Subject</th>
-                    <th>Type</th>
-                    <th>Status</th>
-                    <th>Expires</th>
-                </tr>
+                    <tr>
+                        <th></th>
+                        <th>Subject</th>
+                        <th>Status</th>
+                        <th>Expires</th>
+                        <th></th>
+                    </tr>
                 </thead>
-                <tbody>
-                <tr ng-repeat="case in list" ng-show="list.length">
-                    <td>{{ case.priority_name }}</td>
-                    <td><a ui-sref="base.cases.detail({id: case.id})">{{ case.subject }}</a></td>
-                    <td>{{ case.casetype_name }}</td>
-                    <td>{{ case.status }}</td>
-                    <td>{{ case.expires | date:'dd MMMM yy' }}</td>
-                </tr>
-                <tr ng-hide="list.length">
-                    <td colspan="5">No cases</td>
-                </tr>
+                <tbody ng-repeat="case in vm.list" ng-if="vm.list.length">
+                    <tr>
+                        <td><i class="fa fa-circle" ng-class="{0: 'low', 1: 'medium', 2: 'high', 3: 'critical'}[case.priority]"></i></td>
+                        <td><a ui-sref="base.cases.detail({id: case.id})">{{ case.subject }}</a></td>
+                        <td>{{ case.status }}</td>
+                        <td>
+                            <postpone type="'Case'" object="case" date-field="'expires'" display-date="true"></postpone>
+                        </td>
+                        <td class="collapsable" ng-click="case.collapsed = !case.collapsed">
+                            <div class="collapse-indicator no-padding">
+                                <i class="fa fa-angle-up" ng-class="{'rotate': case.collapsed}"></i>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" class="collapsable-cell">
+                            <div ng-show="!case.collapsed" class="collapse-content">
+                                {{ case.body }}
+
+                                <ul class="list-inline list-justified">
+                                    <li>
+                                        <small class="text-muted">
+                                            <i class="fa fa-circle"></i>
+                                            {{ case.casetype_name }}
+                                        </small>
+                                    </li>
+                                    <li ng-if="case.assigned_to_name">
+                                        <small class="text-muted" uib-tooltip="Assigned to: {{ case.assigned_to_name }}">
+                                            <i class="fa fa-child"></i>
+                                            {{ case.assigned_to_name || "Nobody" }}
+                                        </small>
+                                    </li>
+                                    <li>
+                                        <small class="text-muted" uib-tooltip="Created by: {{ case.created_by }}">
+                                            <i class="fa fa-user"></i>
+                                            {{ case.created_by || "Nobody" }}
+                                        </small>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody ng-if="!vm.list.length">
+                    <tr>
+                        <td colspan="5">No cases</td>
+                    </tr>
                 </tbody>
             </table>
         </div>

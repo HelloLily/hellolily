@@ -9,8 +9,8 @@ function ContactListWidget() {
             list: '=',
             height: '=',
             accountId: '@',
-            addLink: '@'
+            addLink: '@',
         },
-        templateUrl: 'contacts/directives/list_widget.html'
-    }
+        templateUrl: 'contacts/directives/list_widget.html',
+    };
 }

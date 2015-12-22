@@ -221,6 +221,22 @@ td .label-sm {
     border-left: 6px $color solid;
 }
 
+.low {
+    color: $lowPrioColor;
+}
+
+.medium {
+    color: $mediumPrioColor;
+}
+
+.high {
+    color: $highPrioColor;
+}
+
+.critical {
+    color: $criticalPrioColor;
+}
+
 .priority-button {
     padding: 5px 12px;
     border: 1px solid #E5E5E5;

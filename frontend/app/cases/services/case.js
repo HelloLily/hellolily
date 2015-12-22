@@ -27,7 +27,8 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserT
                 },
             },
             caseTypes: {
-                url: '/cases/casetypes/',
+                isArray: true,
+                url: 'api/cases/types/',
             },
             caseStatuses: {
                 isArray: true,
@@ -59,7 +60,7 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserT
 
         UserTeams.mine().$promise.then(function(userTeams) {
             angular.forEach(userTeams, function(team) {
-                teams.push(team);
+                teams.push(team.id);
             });
         });
 

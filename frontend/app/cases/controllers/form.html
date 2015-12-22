@@ -49,7 +49,7 @@
                                                ng-blur="vm.openNextStep()" />
                                     </div>
                                 </form-group>
-                                
+
                                 <form-group label-title="Description" label-icon="info" label-id="id_description" field="caseForm.description">
                                     <div ng-class="{'col-md-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
                                         <textarea class="form-control" cols="40" id="id_description" name="description" placeholder="Description" rows="3" ng-model="vm.case.description"></textarea>
@@ -59,9 +59,9 @@
                                 <form-group label-title="Type" label-icon="info" label-id="id_type" field="caseForm.type" required="true">
                                     <div ng-class="{'col-md-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
                                         <ui-select ng-model="vm.case.type" theme="select2" class="form-control" name="type" search-enabled="false" append-to-body="true">
-                                            <ui-select-match placeholder="Select a type">{{ $select.selected.name }}</ui-select-match>
+                                            <ui-select-match placeholder="Select a type">{{ $select.selected.type }}</ui-select-match>
                                                 <ui-select-choices repeat="type.id as type in vm.caseTypes">
-                                                <div ng-bind-html="type.name"></div>
+                                                <div ng-bind-html="type.type"></div>
                                             </ui-select-choices>
                                         </ui-select>
                                     </div>
@@ -139,7 +139,7 @@
                                     <div ng-class="{'col-md-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
                                         <ui-select multiple ng-model="vm.case.assigned_to_groups" theme="select2" class="form-control" name="assigned_to_groups" append-to-body="true">
                                             <ui-select-match placeholder="Select one or more account(s)">{{ $item.name }}</ui-select-match>
-                                            <ui-select-choices repeat="account in vm.teams">
+                                            <ui-select-choices repeat="account.id as account in vm.teams">
                                                 <div ng-bind-html="account.name | highlight: $select.search"></div>
                                             </ui-select-choices>
                                         </ui-select>
@@ -175,8 +175,8 @@
                                 </div>
                             </div>
                         </form-portlet>
-
-                        <form-portlet ng-if="!emailSettings.sidebar.form" title="Parcel information">
+                        
+                        <form-portlet ng-if="!emailSettings.sidebar.form && vm.case.type.name == vm.configCaseType" title="Parcel information">
                             <form-portlet-body>
                         <form-portlet ng-if="!emailSettings.sidebar.form && vm.case.type.name == vm.configCaseType" title="Parcel information">
                                 <form-group label-title="Parcel provider" label-icon="info" label-id="id_parcel_provider" field="caseForm.parcel_provider">

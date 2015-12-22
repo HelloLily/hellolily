@@ -61,9 +61,10 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseCreateUpdateController', CaseCreateUpdateController);
 
-CaseCreateUpdateController.$inject = ['$scope', '$stateParams', 'Account', 'Case', 'Contact', 'HLForms', 'HLUtils',
-    'Settings', 'UserTeams', 'User'];
-function CaseCreateUpdateController($scope, $stateParams, Account, Case, Contact, HLForms, HLUtils, Settings, UserTeams, User) {
+CaseCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'Case', 'Contact', 'HLForms',
+                                      'HLUtils', 'Settings', 'UserTeams', 'User'];
+function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case, Contact, HLForms, HLUtils, Settings,
+                                    UserTeams, User) {
     var vm = this;
 
     vm.case = {};
@@ -153,19 +154,7 @@ function CaseCreateUpdateController($scope, $stateParams, Account, Case, Contact
         _getTeams();
 
         Case.caseTypes(function(data) {
-            var caseTypes = [];
-
-            // TODO: API should probably just return it like this.
-            // Instead of converting it to the proper format in the front end.
-            angular.forEach(data.casetypes, function(caseType, caseTypeId) {
-                caseTypes.push({id: caseTypeId, name: caseType});
-
-                if (caseType === 'Config') {
-                    vm.configCaseType = caseTypeId;
-                }
-            });
-
-            vm.caseTypes = caseTypes;
+            vm.caseTypes = data;
         });
 
         Case.caseStatuses(function(data) {
@@ -193,8 +182,16 @@ function CaseCreateUpdateController($scope, $stateParams, Account, Case, Contact
             Settings.page.setAllTitles('create', 'case');
             vm.case = Case.create();
 
-            //if ($scope.emailSettings) {
-            //}
+            if ($scope.emailSettings) {
+                // Auto fill data if it's available
+                if ($scope.emailSettings.contact) {
+                    vm.case.contact = $scope.emailSettings.contact;
+                }
+
+                if ($scope.emailSettings.account) {
+                    vm.case.account = $scope.emailSettings.account;
+                }
+            }
         }
     }
 
@@ -249,6 +246,8 @@ function CaseCreateUpdateController($scope, $stateParams, Account, Case, Contact
         if (archive) {
             vm.case.is_archived = true;
         }
+
+        vm.case.expires = moment(vm.case.expires).format('YYYY-MM-DD');
 
         if (vm.case.id) {
             // If there's an ID set it means we're dealing with an existing contact, so update it

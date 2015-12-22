@@ -25,8 +25,8 @@ function emailConfig($stateProvider) {
 }
 
 angular.module('app.email').controller('EmailDetail', EmailDetailController);
-EmailDetailController.$inject = ['$scope', '$state', '$stateParams', '$http', 'Settings', 'Account', 'EmailMessage', 'RecipientInformation', 'SelectedEmailAccount', 'message'];
-function EmailDetailController($scope, $state, $stateParams, $http, Settings, Account, EmailMessage, RecipientInformation, SelectedEmailAccount, message) {
+EmailDetailController.$inject = ['$scope', '$state', '$stateParams', '$http', 'Case', 'Settings', 'Account', 'EmailMessage', 'RecipientInformation', 'SelectedEmailAccount', 'message'];
+function EmailDetailController($scope, $state, $stateParams, $http, Case, Settings, Account, EmailMessage, RecipientInformation, SelectedEmailAccount, message) {
     var vm = this;
     vm.displayAllRecipients = false;
     vm.message = message;
@@ -164,6 +164,10 @@ function EmailDetailController($scope, $state, $stateParams, $http, Settings, Ac
                                     $scope.emailSettings.sidebar.form = 'createContact';
                                     $scope.emailSettings.account = data.data;
                                 }
+
+                                Case.query({filterquery: 'account:' + data.data.id, sort: '-created'}).$promise.then(function(cases) {
+                                    $scope.emailSettings.caseList = cases;
+                                });
                             }
                         } else if (data.type === 'contact') {
                             if (data.data.id) {
@@ -178,8 +182,15 @@ function EmailDetailController($scope, $state, $stateParams, $http, Settings, Ac
                                         $scope.emailSettings.sidebar.form = 'createAccount';
                                     }
                                 });
+
+                                Case.query({filterquery: 'contact:' + data.data.id, sort: '-created'}).$promise.then(function(cases) {
+                                    $scope.emailSettings.caseList = cases;
+                                    $scope.emailSettings.sidebar.case = true;
+                                });
                             }
                         }
+
+                        $scope.emailSettings.sidebar.case = true;
                     } else {
                         $scope.emailSettings.sidebar.form = 'createAccount';
                         $scope.emailSettings.sidebar.contact = false;

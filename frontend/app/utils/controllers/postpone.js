@@ -58,6 +58,8 @@ function PostponeModal($filter, $uibModalInstance, $scope, data, $injector) {
             };
 
             args[vm.dateField] = newDate;
+            // Update the model so changes are reflected instantly.
+            vm.object[vm.dateField] = newDate;
 
             // Dynamically get the model that should be updated
             $injector.get(vm.type).update(args, function() {

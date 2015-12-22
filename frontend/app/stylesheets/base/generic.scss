@@ -81,9 +81,11 @@
     }
 }
 
-td .label-sm {
-    display: block;
-    padding: 4px 6px !important;
+td {
+    .label-sm {
+        display: block;
+        padding: 4px 6px !important;
+    }
 }
 
 /*  END TABLE STUFF */
@@ -153,7 +155,7 @@ td .label-sm {
 }
 
 .no-padding {
-    padding: 0;
+    padding: 0 !important;
 }
 
 .break {
@@ -281,7 +283,29 @@ ul[uib-datepicker-popup-wrap] {
             -webkit-transition: max-height ease 0.45s;
             transition: max-height ease 0.45s;
         }
+
+        ul {
+            margin-top: 10px;
+        }
     }
+}
+
+.no-border {
+    border: none !important;
+}
+
+.collapsable-cell {
+    border: none !important;
+    padding: 0 25px !important;
+    white-space: pre-wrap;
+
+    ul {
+        margin-top: 10px;
+    }
+}
+
+.table tbody {
+    border: initial !important; // reset Metronic styling
 }
 
 .pre-wrap {

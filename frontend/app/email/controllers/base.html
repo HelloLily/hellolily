@@ -42,9 +42,9 @@
             </div>
         </div>
 
-        <div ng-if="emailSettings.sidebar.case && emailSettings.caseId">
-            <div ui-view="showCase">
-                <case-detail-widget account="account" height="300"></case-detail-widget>
+        <div ng-if="emailSettings.sidebar.case && emailSettings.caseList">
+            <div ui-view="showCases">
+                <case-list-widget title="Cases" list="emailSettings.caseList" height="300" sidebar="true" add-link="base.email.createCase"></case-list-widget>
             </div>
         </div>
     </div>

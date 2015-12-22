@@ -36,9 +36,6 @@ function emailConfig($stateProvider, $urlRouterProvider) {
                 controller: 'CaseCreateUpdateController',
                 controllerAs: 'vm',
             },
-            'showCase@base.email': {
-                controller: EmailShowCaseController,
-            },
         },
         ncyBreadcrumb: {
             label: 'Email',
@@ -57,11 +54,14 @@ function emailConfig($stateProvider, $urlRouterProvider) {
 
 angular.module('app.email').controller('EmailBaseController', EmailBaseController);
 
-EmailBaseController.$inject = ['$scope', 'Settings'];
-function EmailBaseController($scope, Settings) {
+EmailBaseController.$inject = ['$scope', '$state', 'Settings'];
+function EmailBaseController($scope, $state, Settings) {
     Settings.page.setTitle('custom', 'Email');
     Settings.page.header.setMain('custom', 'Email');
     Settings.page.header.setSub('email');
+
+    console.log($scope);
+    console.log($state);
 
     activate();
 
@@ -122,24 +122,6 @@ function EmailShowContactController($scope, ContactDetail) {
                     });
                 });
             }
-        });
-    }
-}
-
-angular.module('app.email').controller('EmailShowCaseController', EmailShowCaseController);
-EmailShowCaseController.$inject = ['$scope', 'CaseDetail'];
-function EmailShowCaseController($scope, CaseDetail) {
-    $scope.$watch('emailSettings.sidebar.case', function(newValue, oldValue) {
-        if (oldValue === 'showCase' && newValue === 'checkCase' && $scope.emailSettings.caseId) {
-            activate();
-        }
-    }, true);
-
-    activate();
-
-    function activate() {
-        CaseDetail.get({id: $scope.emailSettings.caseId}).$promise.then(function(lilyCase) {
-            $scope.lilyCase = lilyCase;
         });
     }
 }

@@ -24,6 +24,19 @@ class CaseStatusSerializer(serializers.ModelSerializer):
         )
 
 
+class CaseTypeSerializer(serializers.ModelSerializer):
+    """
+    Serializer for case status model
+    """
+    class Meta:
+        model = CaseType
+        fields = (
+            'id',
+            'type',
+            'use_as_filter',
+        )
+
+
 class RelatedCaseStatusSerializer(RelatedSerializerMixin, CaseStatusSerializer):
     pass
 

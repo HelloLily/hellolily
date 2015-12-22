@@ -1,6 +1,6 @@
 angular.module('app.deals.directives').directive('dealListWidget', DealListWidgetDirective);
 
-function DealListWidgetDirective () {
+function DealListWidgetDirective() {
     return {
         restrict: 'E',
         replace: true,
@@ -8,8 +8,8 @@ function DealListWidgetDirective () {
             title: '@',
             list: '=',
             height: '=',
-            addLink: '@'
+            addLink: '@',
         },
-        templateUrl: 'deals/directives/list_widget.html'
-    }
+        templateUrl: 'deals/directives/list_widget.html',
+    };
 }

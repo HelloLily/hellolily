@@ -38,7 +38,9 @@
                     </th>
                     <td>
                         <div ng-repeat="phone in contact.phones">
-                            {{ phone }}
+                            <a href="tel:{{ phone }}">
+                                {{ phone }}
+                            </a>
                         </div>
                     </td>
                 </tr>

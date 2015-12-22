@@ -47,7 +47,9 @@
                     </th>
                     <td>
                         <div ng-repeat="phone in account.phones">
-                            {{ phone }}
+                             <a href="tel:{{ phone }}">
+                                {{ phone }}
+                            </a>
                         </div>
                     </td>
                 </tr>

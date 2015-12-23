@@ -1,1 +1,6 @@
-<a ng-click="pp.openPostponeModal(pp.object)" uib-tooltip="Aaah, that's too soon!"><i class="fa fa-history"></i><span ng-if="pp.displayDate">&nbsp;{{ pp.object[pp.dateField] | relativeDate:'':true }}</span></a>
+<span style="position: relative;">
+    <a ng-click="pp.openPostponeModal(pp.object)" uib-tooltip="Aaah, that's too soon!">
+        <i class="fa fa-history"></i>
+        <span ng-if="pp.displayDate">&nbsp;{{ pp.object[pp.dateField] | relativeDate:'':true }}</span>
+    </a>
+</span>

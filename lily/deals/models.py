@@ -22,6 +22,17 @@ class DealNextStep(TenantMixin):
         ordering = ['position']
 
 
+class DealWhyCustomer(TenantMixin):
+    name = models.CharField(max_length=255)
+    position = models.IntegerField(choices=[(i, i) for i in range(10)], default=9)
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['position']
+
+
 class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     """
     Deal model
@@ -121,10 +132,9 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
                                        verbose_name=_('contacted us by'))
     next_step = models.ForeignKey(DealNextStep, verbose_name=_('next step'), null=True, related_name='deals')
     next_step_date = models.DateField(verbose_name=_('next step date'), null=True, blank=True)
-
     import_id = models.CharField(max_length=100, verbose_name=_('import id'), default='', blank=True, db_index=True)
-
     imported_from = models.CharField(max_length=50, verbose_name=_('imported from'), null=True, blank=True)
+    why_customer = models.ForeignKey(DealWhyCustomer, verbose_name=_('why'), null=True, related_name='deals')
 
     @property
     def content_type(self):

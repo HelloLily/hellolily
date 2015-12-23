@@ -24,6 +24,10 @@
                             <label>Contacted us by:</label>
                             {{ ::vm.deal.contacted_by_name }}
                         </div>
+                        <div ng-if="vm.deal.why_customer">
+                            <label>Why customer:</label>
+                            {{ ::vm.deal.why_customer }}
+                        </div>
                         <div>
                             <label>Created:</label>
                             {{ ::vm.deal.created | relativeDate }}

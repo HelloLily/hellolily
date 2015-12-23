@@ -112,6 +112,10 @@ class DealMapping(BaseMapping):
             'next_step_date': {
                 'type': 'date',
             },
+            'why_customer': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
         })
         return mapping
 
@@ -175,4 +179,5 @@ class DealMapping(BaseMapping):
                 'position': obj.next_step.position,
             } if obj.next_step else None,
             'next_step_date': obj.next_step_date,
+            'why_customer': obj.why_customer.name if obj.why_customer else None,
         }

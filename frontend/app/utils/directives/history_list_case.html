@@ -1,5 +1,4 @@
 <div class="case-history-item" ng-class="{'case': 'history-item-right'}[vm.item.historyType]">
-
     <div class="history-item-badge">
         <i class="fa fa-briefcase"></i>
     </div>
@@ -26,12 +25,10 @@
     </div>
 
     <div class='history-item-body first'>
-
-        <div>{{ ::vm.item.body }}</div>
+        <div class="pre-wrap" ng-bind-html="::vm.item.body | parseUrls"></div>
         <div><strong>Status:</strong> {{ ::vm.item.status}} ({{ ::vm.item.archived ? 'active' : 'archived'}})</div>
         <div><strong>Priority:</strong> {{ ::vm.item.priority_name }}</div>
         <div><strong>Type:</strong> {{ ::vm.item.casetype_name }}</div>
-
 
         <ul class="list-inline list-justified">
             <li>

@@ -114,7 +114,7 @@
 <div ng-if="vm.deal.id" class="row no-margin" ng-show="::vm.deal.body">
     <div class="well well-md">
         <h4>Description</h4>
-        <p ng-bind-html="vm.deal.body | nl2br"></p>
+        <p class="pre-wrap" ng-bind-html="vm.deal.body | parseUrls"></p>
     </div>
 </div>
 <history-list ng-if="vm.deal.id" target="'deal'" object="vm.deal"></history-list>

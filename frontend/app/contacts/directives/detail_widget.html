@@ -12,8 +12,7 @@
     <div class="portlet-body">
         <div>
             <div class="scroll-body" slimscroll="{height: height/2}">
-                <!-- Do not put content of paragraph on new line, because of pre-line css that whitespace will show -->
-                <p style="white-space: pre-line">{{ contact.description || 'No description' }}</p>
+                <p class="pre-wrap" ng-bind-html="contact.description || 'No description' | parseUrls"></p>
             </div>
         </div>
         <div class="scroll-body" slimscroll="{height: height/2}">

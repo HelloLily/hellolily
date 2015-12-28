@@ -1,5 +1,4 @@
 <div class="deal-history-item history-item-right">
-
     <div class="history-item-badge">
         <i class="fa fa-money"></i>
     </div>
@@ -20,7 +19,7 @@
     </div>
 
     <div class="history-item-body first">
-        <em style="white-space: pre-wrap;">{{ ::vm.item.body }}</em>
+        <em class="pre-wrap" ng-bind-html="::vm.item.body | parseUrls"></em>
         <div class="timeline-footer">
             Last changed: {{ ::vm.item.modified | date:'dd MMMM yy HH:mm' }}<br/>
             {{ ::vm.item.new_business ? 'New business' : 'Existing business'}}<br/>
@@ -50,11 +49,10 @@
             </li>
         </ul>
     </div>
-
     <history-add-note item="vm.item"></history-add-note>
-    <div class='history-item-body next' ng-repeat="note in ::vm.item.notes">
-        <p class='inline-header'><i class="fa fa-file-text-o"></i> Note</p>
 
+    <div class='history-item-body next' ng-repeat="note in vm.item.notes">
+        <p class='inline-header'><i class="fa fa-sticky-note"></i> Note</p>
         <p>{{ ::note.content }}</p>
         <ul class="list-inline list-justified">
             <li>
@@ -70,6 +68,5 @@
                 </small>
             </li>
         </ul>
-
     </div>
 </div>

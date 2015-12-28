@@ -14,7 +14,7 @@ from lily.users.models import LilyUser
 from lily.utils.forms import HelloLilyModelForm
 from lily.utils.forms.widgets import DatePicker, AjaxSelect2Widget, BootstrapRadioFieldRenderer
 
-from .models import Deal, DealNextStep
+from .models import Deal, DealNextStep, DealWhyCustomer
 
 
 class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
@@ -60,6 +60,11 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
         )
     )
 
+    why_customer = forms.ModelChoiceField(
+        label=_('Why customer'),
+        queryset=DealWhyCustomer.objects,
+    )
+
     is_archived = forms.BooleanField(widget=forms.HiddenInput(), required=False)
 
     def __init__(self, *args, **kwargs):
@@ -98,7 +103,7 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
 
         fieldsets = (
             (_('Who is it?'), {
-                'fields': ('account', 'is_archived', 'new_business', 'found_through', 'contacted_by'),
+                'fields': ('account', 'is_archived', 'new_business', 'found_through', 'contacted_by', 'why_customer'),
             }),
             (_('What is it?'), {
                 'fields': ('name', 'amount_once', 'amount_recurring', 'currency', 'description', 'quote_id'),

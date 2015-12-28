@@ -25,7 +25,7 @@
     </div>
 
     <div class="history-item-body">
-        <p><em ng-bind-html="::vm.item.content | nl2br"></em></p>
+        <p><em class="pre-wrap" ng-bind-html="::vm.item.content | parseUrls"></em></p>
         <ul class="list-inline list-justified">
             <li>
                 <small class="text-muted" uib-tooltip="Created on {{ ::vm.item.date | date:'dd MMMM yy' }} at {{ ::vm.item.date | date:'HH:mm' }}">

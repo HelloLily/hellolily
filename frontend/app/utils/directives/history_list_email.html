@@ -24,8 +24,7 @@
     </div>
 
     <div class="history-item-body">
-        <em style="white-space: pre-wrap;">
-            {{ ::vm.item.body | limitTo:265 }}
+        <em class="pre-wrap" ng-bind-html="vm.item.body | limitTo:265 | parseUrls">
             <span ng-if="::vm.item.body.length >= 265">...</span>
         </em>
         <ul class="list-inline list-justified">

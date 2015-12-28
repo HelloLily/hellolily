@@ -10,7 +10,7 @@
                 #{{ vm.case.id }} - [ {{ vm.case.casetype_name }} ] - {{ vm.case.subject }}
             </div>
             <div class="case-info-heading-description" ng-if="vm.case.id" ng-show="::vm.case.body">
-                <div ng-bind-html="vm.case.body | nl2br"></div>
+                <div class="pre-wrap" ng-bind-html="vm.case.body | parseUrls"></div>
             </div>
         </div>
 

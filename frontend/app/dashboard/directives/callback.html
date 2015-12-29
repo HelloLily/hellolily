@@ -28,7 +28,7 @@
                         </div>
                     </td>
                     <td><a ui-sref="base.cases.detail({ id: case.id })">{{ case.subject }}</a></td>
-                    <td>{{ case.created | relativeDate }}</td>
+                    <td><date date="case.created" show-time="true"></date></td>
                 </tr>
                 <tr ng-hide="vm.table.items.length">
                     <td colspan="5">No callback requests</td>

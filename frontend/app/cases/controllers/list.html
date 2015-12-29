@@ -108,8 +108,8 @@
                 <td ng-show="vm.table.visibility.status">
                     {{ ::case.status }}
                 </td>
-                <td ng-show="vm.table.visibility.created" title="{{ case.created | date:'dd MMMM y HH:mm' }}">
-                    {{ ::case.created | relativeDate:'':true }}
+                <td ng-show="vm.table.visibility.created">
+                    <date date="case.created"></date>
                 </td>
                 <td ng-show="vm.table.visibility.expires" title="{{ case.expires | date:'dd MMMM y HH:mm' }}">
                     <postpone type="'Case'" object="case" date-field="'expires'" display-date="true"></postpone>

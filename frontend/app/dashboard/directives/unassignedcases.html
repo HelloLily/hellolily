@@ -30,7 +30,7 @@
                             {{ case.priority_name }}
                         </span>
                     </td>
-                    <td>{{ case.created  | relativeDate }}</td>
+                    <td><date date="case.created" show-time="true"></date></td>
                     <td><a ng-click="vm.assignToMe(case)"><i class="fa fa-anchor"></i> Assign to me</a></td>
                 </tr>
             </tbody>

@@ -23,7 +23,7 @@
                         <div>{{ message.subject }}</div><br>
                         <div><em>{{ message.snippet }}</em></div>
                     </td>
-                    <td>{{ message.sent_date | relativeDate }}</td>
+                    <td><date date="message.sent_date" show-time="true"></date></td>
                     <td>
                         <div><a ui-sref="base.email.reply({id: message.id})"><i class="fa fa-reply"></i> reply</a></div>
                         <div><a ui-sref="base.email.detail({id: message.id})"><i class="fa fa-eye"></i> view</a></div>

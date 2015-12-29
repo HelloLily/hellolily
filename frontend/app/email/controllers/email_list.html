@@ -126,7 +126,7 @@
                 <a class="link-no-decoration" ui-sref="base.email.detail({id: message.id})">{{ message.subject }}</a>
             </td>
             <td title="{{ message.sent_date | date:'dd MMMM y H:mm' }}" class="view-message text-right text-nowrap" ui-sref="base.email.detail({id: message.id})">
-                {{ message.sent_date | relativeDate }}
+                <date date="message.sent_date" show-time="true"></date>
             </td>
         </tr>
         </tbody>

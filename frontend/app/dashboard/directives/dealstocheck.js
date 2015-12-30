@@ -36,7 +36,7 @@ function DealsToCheckController($scope, LocalStorage, Deal, UserTeams) {
 
     function _getDealsToCheck() {
         if (vm.table.selectedUserId) {
-            var filterQuery = 'stage:2 AND is_checked:false AND new_business:true';
+            var filterQuery = 'stage:2 AND is_checked:false AND new_business:true AND archived:false';
 
             if (vm.table.selectedUserId) {
                 filterQuery += ' AND assigned_to_id:' + vm.table.selectedUserId;

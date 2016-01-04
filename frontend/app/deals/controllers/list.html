@@ -81,8 +81,8 @@
                     <td ng-show="vm.table.visibility.stage">
                         {{ deal.stage_name }}
                     </td>
-                    <td ng-show="vm.table.visibility.created" title="{{ deal.created | date:'dd MMMM y HH:mm' }}">
-                        {{ deal.created | relativeDate }}
+                    <td ng-show="vm.table.visibility.created">
+                        <date date="deal.created"></date>
                     </td>
                     <td ng-show="vm.table.visibility.name">
                         <a ui-sref="base.deals.detail({ id: deal.id })" title="{{ deal.name }}">{{ deal.name }}</a>

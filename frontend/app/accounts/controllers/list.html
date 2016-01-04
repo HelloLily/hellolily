@@ -100,8 +100,8 @@
                     <td ng-show="vm.table.visibility.assignedTo">
                         {{ ::account.assigned_to }}
                     </td>
-                    <td ng-show="vm.table.visibility.created" title="{{ account.created | date:'dd MMMM y HH:mm' }}">{{ ::account.created | relativeDate }}</td>
-                    <td ng-show="vm.table.visibility.modified" title="{{ account.modified | date:'dd MMMM y HH:mm' }}">{{ ::account.modified | relativeDate }}</td>
+                    <td ng-show="vm.table.visibility.created"><date date="account.created"></date></td>
+                    <td ng-show="vm.table.visibility.modified"><date date="account.modified"></date></td>
                     <td ng-show="vm.table.visibility.tags">
                         <span ng-repeat="tag in account.tag">
                             <a href="javascript:void(0)" ng-click="vm.setFilter(tag)">{{ ::tag }}</a>

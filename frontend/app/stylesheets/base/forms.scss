@@ -1,0 +1,36 @@
+.togglable-portlet {
+
+}
+
+.togglable-portlet-heading {
+    line-height: 50px;
+    border-bottom: 1px #e7ecf1 solid;
+    color: #5b667b;
+}
+
+.portlet-heading-title {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.portlet-heading-icon {
+    float: right;
+
+    i {
+        float: right;
+        line-height: 50px;
+        font-size: 24px;
+        margin: 0px;
+    }
+}
+
+
+.rotate {
+    -ms-transform: rotate(180deg); /* IE 9 */
+    -webkit-transform: rotate(180deg); /* Chrome, Safari, Opera */
+    transform: rotate(180deg);
+}
+
+.clickable {
+    cursor: pointer;
+}

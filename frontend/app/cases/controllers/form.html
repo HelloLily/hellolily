@@ -8,7 +8,7 @@
 
                 <form novalidate class="form-horizontal" name="caseForm">
                     <div class="form-body">
-                        <form-portlet ng-if="!emailSettings.sidebar.form" title="Who was it?">
+                        <form-portlet ng-if="!emailSettings.sidebar.form" title="Who was it?" collapsable="true" position="0">
                             <form-portlet-body>
                                 <form-group label-title="Account" label-icon="child" label-id="id_account" field="caseForm.account">
                                     <div ng-class="{'col-md-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
@@ -21,7 +21,7 @@
                                         <span class="help-text text-muted">Please type at least 2 characters to begin the search</span>
                                     </div>
                                 </form-group>
-                                
+
                                 <form-group label-title="Contact" label-icon="child" label-id="id_contact" field="caseForm.contact">
                                     <div ng-class="{'col-md-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
                                         <ui-select ng-model="vm.case.contact" theme="select2" class="form-control" name="contact">
@@ -176,9 +176,8 @@
                             </div>
                         </form-portlet>
                         
-                        <form-portlet ng-if="!emailSettings.sidebar.form && vm.case.type.name == vm.configCaseType" title="Parcel information">
+                        <form-portlet ng-if="!emailSettings.sidebar.form && vm.case.type == vm.configCaseType" title="Parcel information">
                             <form-portlet-body>
-                        <form-portlet ng-if="!emailSettings.sidebar.form && vm.case.type.name == vm.configCaseType" title="Parcel information">
                                 <form-group label-title="Parcel provider" label-icon="info" label-id="id_parcel_provider" field="caseForm.parcel_provider">
                                     <div ng-class="{'col-md-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
                                         <ui-select ng-model="vm.case.parcel_provider" theme="select2" class="form-control" name="parcel_provider" search-enabled="false">

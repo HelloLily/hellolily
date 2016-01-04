@@ -2,31 +2,31 @@
     <div class="portlet-title">
         <div class="caption">
             <i class="fa fa-users"></i>
-            <span ng-show="accountId">
+            <span ng-show="vm.account.id">
                 Colleagues at
-                <a ui-sref="base.accounts.detail({id: accountId })">{{ title }}</a>
+                <a ui-sref="base.accounts.detail({id: vm.account.id })">{{ vm.account.name }}</a>
             </span>
-            <span ng-hide="accountId">
+            <span ng-hide="vm.account.id">
                 <span ng-show="$parent.contact">
                     <a ui-sref="base.contacts.detail.edit({id: $parent.contact.id})">Edit</a> to link with an account
                 </span>
-                <span ng-show="!$parent.contact">{{ title }}</span>
+                <span ng-show="!$parent.contact">{{ vm.account.name }}</span>
             </span>
         </div>
         <div ng-hide="$parent.contact" class="actions">
-            <a ui-sref="{{ addLink || 'base.contacts.create' }}" class="btn btn-circle btn-default" ng-hide="accountId">
+            <a ui-sref="{{ vm.addLink || 'base.contacts.create' }}" class="btn btn-circle btn-default" ng-hide="vm.account.id">
                 <i class="fa fa-plus"></i>
                 Add
             </a>
-            <a ui-sref="base.contacts.create.fromAccount({accountId: accountId})" class="btn btn-circle btn-default" ng-show="accountId">
+            <a ui-sref="base.contacts.create.fromAccount({accountId: vm.account.id})" class="btn btn-circle btn-default" ng-show="vm.account.id">
                 <i class="fa fa-plus"></i>
                 Add
             </a>
         </div>
     </div>
     <div class="portlet-body">
-        <div class="scroll-body" slimscroll="{height: height || 250}">
-            <div ng-show="list.length">
+        <div class="scroll-body" slimscroll="{height: vm.height || 250}">
+            <div ng-show="vm.list.length">
                 <div class="row">
                     <!-- Removing some right padding to make the gutters smaller -->
                     <div class="header col-xs-4 no-padding-right">
@@ -39,7 +39,7 @@
                         Phone
                     </div>
                 </div>
-                <div class="row" ng-repeat="contact in list">
+                <div class="row" ng-repeat="contact in vm.list">
                     <div class="col-xs-4 no-padding-right break">
                         <a ui-sref="base.contacts.detail({id: contact.id})">{{ contact.name }}</a>
                     </div>
@@ -54,7 +54,7 @@
                     </div>
                 </div>
             </div>
-            <div ng-hide="list.length">
+            <div ng-hide="vm.list.length">
                 No contacts
             </div>
         </div>

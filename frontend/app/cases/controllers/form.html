@@ -13,7 +13,7 @@
                                 <form-group label-title="Account" label-icon="child" label-id="id_account" field="caseForm.account">
                                     <div ng-class="{'col-md-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
                                         <ui-select ng-model="vm.case.account" theme="select2" class="form-control" name="account">
-                                            <ui-select-match placeholder="Select an account">{{ $select.selected.name }}</ui-select-match>
+                                            <ui-select-match placeholder="Select an account" allow-clear="true">{{ $select.selected.name }}</ui-select-match>
                                             <ui-select-choices repeat="account.id as account in vm.accounts | propsFilter: {name: $select.search}" refresh="vm.refreshAccounts($select.search)" refresh-delay="150">
                                                 <div ng-bind-html="account.name | highlight: $select.search"></div>
                                             </ui-select-choices>
@@ -25,8 +25,8 @@
                                 <form-group label-title="Contact" label-icon="child" label-id="id_contact" field="caseForm.contact">
                                     <div ng-class="{'col-md-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
                                         <ui-select ng-model="vm.case.contact" theme="select2" class="form-control" name="contact">
-                                            <ui-select-match placeholder="Select an contact">{{ $select.selected.name }}</ui-select-match>
-                                            <ui-select-choices repeat="contact.id as contact in vm.contacts | propsFilter: {name: $select.search}" refresh="vm.refreshContacts($select.search)" refresh-delay="150">
+                                            <ui-select-match placeholder="Select an contact" allow-clear="true">{{ $select.selected.name }}</ui-select-match>
+                                            <ui-select-choices repeat="contact.id as contact in vm.contacts | propsFilter: {name: $select.search}" refresh="vm.refreshContacts($select.search)">
                                                 <div ng-bind-html="contact.name | highlight: $select.search"></div>
                                             </ui-select-choices>
                                         </ui-select>

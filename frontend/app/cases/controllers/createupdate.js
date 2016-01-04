@@ -62,9 +62,9 @@ function caseConfig($stateProvider) {
 angular.module('app.cases').controller('CaseCreateUpdateController', CaseCreateUpdateController);
 
 CaseCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'Case', 'Contact', 'HLForms',
-                                      'HLUtils', 'Settings', 'UserTeams', 'User'];
-function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case, Contact, HLForms, HLUtils, Settings,
-                                    UserTeams, User) {
+                                      'HLSearch', 'HLUtils', 'Settings', 'UserTeams', 'User'];
+function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case, Contact, HLForms, HLSearch, HLUtils,
+                                    Settings, UserTeams, User) {
     var vm = this;
 
     vm.case = {};
@@ -87,13 +87,14 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     vm.datepickerOptions = {
         startingDay: 1,
     };
+    vm.configCaseType = 0;
 
     vm.assignToMe = assignToMe;
-    vm.refreshAccounts = refreshAccounts;
-    vm.refreshContacts = refreshContacts;
     vm.cancelCaseCreation = cancelCaseCreation;
     vm.saveCase = saveCase;
     vm.openNextStep = openNextStep;
+    vm.refreshAccounts = refreshAccounts;
+    vm.refreshContacts = refreshContacts;
 
     $scope.$watch('vm.case.priority', function() {
         var daysToAdd = [5, 3, 1, 0];
@@ -155,6 +156,12 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
 
         Case.caseTypes(function(data) {
             vm.caseTypes = data;
+
+            angular.forEach(data, function(caseType) {
+                if (caseType.type === 'Config') {
+                    vm.configCaseType = caseType.id;
+                }
+            });
         });
 
         Case.caseStatuses(function(data) {
@@ -169,6 +176,9 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         ];
 
         _getCase();
+
+        //vm.accounts = Account.search({size: 60, sort: '-modified'});
+        //vm.contacts = Contact.search({size: 60, sort: '-modified'});
     }
 
     function _getCase() {
@@ -280,30 +290,28 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         toastr.error('Uh oh, there seems to be a problem', 'Oops!');
     }
 
+    $scope.$watch('vm.case.account', function() {
+        // Get contacts that work for the selected account.
+        refreshContacts('');
+    });
+
     function refreshAccounts(query) {
-        if (query.length >= 2) {
-            var exclude = '';
-
-            // Exclude accounts already selected
-            angular.forEach(vm.case.accounts, function(account) {
-                exclude += ' AND NOT id:' + account.id;
-            });
-
-            vm.accounts = Account.search({filterquery: 'name:(' + query + ')' + exclude, size: 60, sort: '-modified'});
-        }
+        vm.accounts = HLSearch.refreshList(query, 'Account');
     }
 
     function refreshContacts(query) {
-        if (query.length >= 2) {
-            var exclude = '';
+        var accountQuery = '';
 
-            // Exclude accounts already selected
-            angular.forEach(vm.case.contacts, function(contact) {
-                exclude += ' AND NOT id:' + contact.id;
-            });
+        if (vm.case.account) {
+            if (query.length >= 2) {
+                accountQuery += ' AND ';
+            }
 
-            vm.contacts = Contact.search({filterquery: 'name:(' + query + ')' + exclude, size: 60, sort: '-modified'});
+            // Only show contacts of the selected account.
+            accountQuery += 'accounts.id:' + vm.case.account;
         }
+
+        vm.contacts = HLSearch.refreshList(query, 'Contact', null, accountQuery);
     }
 
     function _checkCaseForm() {

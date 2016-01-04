@@ -11,17 +11,15 @@ function CaseListWidget() {
             addLink: '@',
         },
         templateUrl: 'cases/directives/list_widget.html',
-        controller: FormPortletController,
+        controller: CaseListWidgetController,
         controllerAs: 'vm',
         bindToController: true,
     };
 }
 
-FormPortletController.$inject = [];
-function FormPortletController() {
+CaseListWidgetController.$inject = [];
+function CaseListWidgetController() {
     var vm = this;
-
-    console.log(vm.list);
 
     angular.forEach(vm.list, function(lilyCase) {
         lilyCase.collapsed = true;

@@ -84,8 +84,8 @@ function ContactListController($scope, $window, Settings, Contact, LocalStorage,
             size: $scope.table.pageSize,
             sort: sort,
         }, function(data) {  // On success
-            $scope.table.items = data.contacts;
-            $scope.table.totalItems = data.total;
+            $scope.table.items = data;
+            $scope.table.totalItems = data.length;
         });
     }
 

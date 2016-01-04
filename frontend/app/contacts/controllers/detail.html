@@ -5,16 +5,15 @@
         <contact-detail-widget contact="contact" height="300"></contact-detail-widget>
     </div>
     <div class="col-md-4">
-        <div ng-repeat="account in contact.accounts" ng-show="contact.accounts.length">
-            <contact-list-widget title="{{ account.name }}" account-id="{{ account.id }}" add-link="base.contacts.create.fromAccount({id: {{ account.id }}})" list="account.colleagueList" ng-if="contact.accounts.length == 1" height="300"></contact-list-widget>
-            <contact-list-widget title="{{ account.name }}" account-id="{{ account.id }}" add-link="base.contacts.create.fromAccount({id: {{ account.id }}})" list="account.colleagueList" ng-if="contact.accounts.length >= 2" height="91"></contact-list-widget>
+        <div ng-if="contact.accounts.length" ng-repeat="account in contact.accounts">
+            <list-widget title="Contacts" account="account" add-link="base.contacts.create.fromAccount({id: {{ account.id }}})" list="account.colleagueList" height="height"></list-widget>
         </div>
         <div ng-hide="contact.accounts.length">
-            <contact-list-widget list="" height="300"></contact-list-widget>
+            <list-widget title="Contacts" height="300"></list-widget>
         </div>
     </div>
     <div class="col-md-4">
-        <case-list-widget title="Cases" list="caseList" height="300" add-link="base.cases.create.fromContact({id: {{ contact.id }}})"></case-list-widget>
+        <list-widget title="Cases" list="caseList" height="300" add-link="base.cases.create.fromContact({id: {{ contact.id }}})"></list-widget>
     </div>
 </div>
 

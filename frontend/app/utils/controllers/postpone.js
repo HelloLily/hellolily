@@ -50,7 +50,7 @@ function PostponeModal($filter, $uibModalInstance, $scope, data, $injector) {
 
     function _updateDayAndCloseModal() {
         if (!moment(vm.date).isSame(moment(vm.object[vm.dateField]))) {
-            // Update the due date for this case
+            // Update the due date for this case.
             var newDate = $filter('date')(vm.date, 'yyyy-MM-dd');
 
             var args = {
@@ -61,7 +61,7 @@ function PostponeModal($filter, $uibModalInstance, $scope, data, $injector) {
             // Update the model so changes are reflected instantly.
             vm.object[vm.dateField] = newDate;
 
-            // Dynamically get the model that should be updated
+            // Dynamically get the model that should be updated.
             $injector.get(vm.type).update(args, function() {
                 $uibModalInstance.close();
             });

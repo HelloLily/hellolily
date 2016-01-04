@@ -60,9 +60,6 @@ function EmailBaseController($scope, $state, Settings) {
     Settings.page.header.setMain('custom', 'Email');
     Settings.page.header.setSub('email');
 
-    console.log($scope);
-    console.log($state);
-
     activate();
 
     //////
@@ -113,6 +110,7 @@ function EmailShowContactController($scope, ContactDetail) {
     function activate() {
         ContactDetail.get({id: $scope.emailSettings.contactId}).$promise.then(function(contact) {
             $scope.contact = contact;
+            $scope.height = 300;
 
             if ($scope.contact.accounts) {
                 $scope.contact.accounts.forEach(function(account) {
@@ -121,6 +119,10 @@ function EmailShowContactController($scope, ContactDetail) {
                         account.colleagueList = colleagues;
                     });
                 });
+            }
+
+            if ($scope.contact.accounts.length >= 2) {
+                $scope.height = 91;
             }
         });
     }

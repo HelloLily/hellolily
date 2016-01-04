@@ -28,7 +28,7 @@
         <div ng-if="emailSettings.sidebar.account && emailSettings.accountId">
             <div ui-view="showAccount">
                 <account-detail-widget account="account" height="300"></account-detail-widget>
-                <contact-list-widget ng-if="!emailSettings.contactId" title="{{ account.name }}" list="contactList" height="300" account-id="{{ account.id }}"></contact-list-widget>
+                <list-widget ng-if="!emailSettings.contactId" title="{{ account.name }}" module="contacts" list="contactList" height="300" account-id="{{ account.id }}"></list-widget>
             </div>
         </div>
 
@@ -36,15 +36,14 @@
             <div ui-view="showContact">
                 <contact-detail-widget contact="contact" height="300"></contact-detail-widget>
                 <div ng-repeat="account in contact.accounts" ng-show="contact.accounts.length">
-                    <contact-list-widget title="{{ account.name }}" account-id="{{ account.id }}" list="account.colleagueList" ng-if="contact.accounts.length == 1" height="300"></contact-list-widget>
-                    <contact-list-widget title="{{ account.name }}" account-id="{{ account.id }}" list="account.colleagueList" ng-if="contact.accounts.length >= 2" height="91"></contact-list-widget>
+                    <list-widget title="{{ account.name }}" module="contacts" account-id="{{ account.id }}" list="account.colleagueList" height="height"></list-widget>
                 </div>
             </div>
         </div>
 
         <div ng-if="emailSettings.sidebar.case && emailSettings.caseList">
             <div ui-view="showCases">
-                <case-list-widget title="Cases" list="emailSettings.caseList" height="300" sidebar="true" add-link="base.email.createCase"></case-list-widget>
+                <list-widget title="Cases" list="emailSettings.caseList" height="300" sidebar="true" add-link="base.email.createCase"></list-widget>
             </div>
         </div>
     </div>

@@ -21,8 +21,7 @@
     <div class="portlet-body">
         <div>
             <div class="scroll-body" slimscroll="{height: height/2}">
-            <!-- Do not put content of paragraph on new line, because of pre-line css that whitespace will show -->
-            <p style="white-space: pre-line">{{ account.description || 'No description' }}</p>
+            <p class="pre-wrap" ng-bind-html="account.description || 'No description' | parseUrls"></p>
         </div>
     </div>
     <div class="scroll-body" slimscroll="{height: height/2}">
@@ -47,7 +46,9 @@
                     </th>
                     <td>
                         <div ng-repeat="phone in account.phones">
-                            {{ phone }}
+                             <a href="tel:{{ phone }}">
+                                {{ phone }}
+                            </a>
                         </div>
                     </td>
                 </tr>

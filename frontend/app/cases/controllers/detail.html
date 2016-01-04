@@ -10,7 +10,7 @@
                 #{{ vm.case.id }} - [ {{ vm.case.casetype_name }} ] - {{ vm.case.subject }}
             </div>
             <div class="case-info-heading-description" ng-if="vm.case.id" ng-show="::vm.case.body">
-                <div ng-bind-html="vm.case.body | nl2br"></div>
+                <div class="pre-wrap" ng-bind-html="vm.case.body | parseUrls"></div>
             </div>
         </div>
 
@@ -51,9 +51,9 @@
                         </div>
                     </li>
                     <li ng-if="vm.account.phone_numbers.length">
-                        <strong>Phonenumbers: </strong>
+                        <strong>Phone numbers: </strong>
                         <div ng-repeat="phonenumber in vm.account.phone_numbers">
-                            {{ phonenumber.raw_input }} ({{phonenumber.type}})
+                            <a href="tel:{{ phonenumber.raw_input }}">{{ phonenumber.raw_input }}</a>{{ phonenumber.raw_input }} ({{phonenumber.type}})
                         </div>
                     </li>
                     <li ng-if="vm.account.addresses.length">
@@ -98,9 +98,9 @@
                         </div>
                     </li>
                     <li ng-if="vm.contact.phone_numbers.length">
-                        <strong>Phonenumbers: </strong>
+                        <strong>Phone numbers: </strong>
                         <div ng-repeat="phonenumber in vm.contact.phone_numbers">
-                            {{ phonenumber.raw_input }} ({{phonenumber.type}})
+                            <a href="tel:{{ phonenumber.raw_input }}">{{ phonenumber.raw_input }}</a> ({{phonenumber.type}})
                         </div>
                     </li>
                 </ul>

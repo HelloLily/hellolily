@@ -45,9 +45,6 @@ function MyDealsController($scope, Deal, HLUtils, LocalStorage, CaseDetail) {
 
         if (vm.table.dueDateFilter) {
             filterQuery += ' AND ' + vm.table.dueDateFilter;
-        } else {
-            // Only display deals with a next step date.
-            filterQuery += ' AND next_step_date:*';
         }
 
         if (vm.table.usersFilter) {

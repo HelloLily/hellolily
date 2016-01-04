@@ -113,11 +113,11 @@
                             <a ui-sref="base.accounts.detail({id: account.id})">{{ account.name }}</a>
                         </div>
                     </td>
-                    <td ng-show="table.visibility.created" title="{{ contact.created | date:'dd MMMM y HH:mm' }}">
-                        {{ ::contact.created | relativeDate }}
+                    <td ng-show="table.visibility.created">
+                        <date date="contact.created"></date>
                     </td>
-                    <td ng-show="table.visibility.modified" title="{{ contact.modified | date:'dd MMMM y HH:mm' }}">
-                        {{ ::contact.modified | relativeDate }}
+                    <td ng-show="table.visibility.modified">
+                        <date date="contact.modified"></date>
                     </td>
                     <td ng-show="table.visibility.tags">
                         <span ng-repeat="tag in contact.tag">
@@ -129,12 +129,5 @@
             </tbody>
         </table>
     </div>
-    <div class="row">
-        <div class="col-md-7">
-            Showing {{ (table.page - 1) * table.pageSize }} to {{ table.page * table.pageSize }} of {{ table.totalItems | number }} records
-        </div>
-        <div class="col-md-5" ng-if="table.totalItems > table.pageSize">
-            <uib-pagination total-items="table.totalItems" ng-model="table.page" items-per-page="table.pageSize" max-size="5"></uib-pagination>
-        </div>
-    </div>
+    <hl-pagination values="table"></hl-pagination>
 </div>

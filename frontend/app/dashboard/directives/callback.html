@@ -20,11 +20,15 @@
                     <td><a ui-sref="base.accounts.detail({ id: case.account })">{{ case.account_name }}</a></td>
                     <td><a ui-sref="base.contacts.detail({ id: case.contact })">{{ case.contact_name }}</a></td>
                     <td>
-                        <div ng-show="case.accountPhone"><i class="fa fa-building"></i> {{ case.accountPhone }}</div>
-                        <div ng-show="case.contactPhone"><i class="fa fa-user"></i> {{ case.contactPhone }}</div>
+                        <div ng-show="case.accountPhone">
+                            <a href="tel:{{ case.accountPhone }}"><i class="fa fa-building"></i> {{ case.accountPhone }}</a>
+                        </div>
+                        <div ng-show="case.contactPhone">
+                            <a href="tel:{{ case.contactPhone }}"><i class="fa fa-user"></i> {{ case.contactPhone }}</a>
+                        </div>
                     </td>
                     <td><a ui-sref="base.cases.detail({ id: case.id })">{{ case.subject }}</a></td>
-                    <td>{{ case.created | relativeDate }}</td>
+                    <td><date date="case.created" show-time="true"></date></td>
                 </tr>
                 <tr ng-hide="vm.table.items.length">
                     <td colspan="5">No callback requests</td>

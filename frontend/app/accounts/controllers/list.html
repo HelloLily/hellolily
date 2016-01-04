@@ -100,8 +100,8 @@
                     <td ng-show="vm.table.visibility.assignedTo">
                         {{ ::account.assigned_to }}
                     </td>
-                    <td ng-show="vm.table.visibility.created" title="{{ account.created | date:'dd MMMM y HH:mm' }}">{{ ::account.created | relativeDate }}</td>
-                    <td ng-show="vm.table.visibility.modified" title="{{ account.modified | date:'dd MMMM y HH:mm' }}">{{ ::account.modified | relativeDate }}</td>
+                    <td ng-show="vm.table.visibility.created"><date date="account.created"></date></td>
+                    <td ng-show="vm.table.visibility.modified"><date date="account.modified"></date></td>
                     <td ng-show="vm.table.visibility.tags">
                         <span ng-repeat="tag in account.tag">
                             <a href="javascript:void(0)" ng-click="vm.setFilter(tag)">{{ ::tag }}</a>
@@ -112,12 +112,5 @@
             </tbody>
         </table>
     </div>
-    <div class="row">
-        <div class="col-md-7">
-            Showing {{ (vm.table.page - 1) * vm.table.pageSize }} to {{ vm.table.page * vm.table.pageSize }} of {{ vm.table.totalItems | number }} records
-        </div>
-        <div class="col-md-5" ng-if="vm.table.totalItems > vm.table.pageSize">
-            <uib-pagination total-items="vm.table.totalItems" ng-model="vm.table.page" items-per-page="vm.table.pageSize" max-size="5"></uib-pagination>
-        </div>i
-    </div>
+    <hl-pagination values="vm.table"></hl-pagination>
 </div>

@@ -34,7 +34,7 @@
             <span class="bold">{{ vm.message.sender.name }}</span>&nbsp;<span>&lt;{{ vm.message.sender.email_address }}&gt;</span>
 
             <div class="pull-right">
-                <span class="bold"><abbr title="{{ vm.message.sent_date | date:'dd MMMM y H:mm' }}">{{ vm.message.sent_date | relativeDate }}</abbr></span>
+                <span class="bold"><abbr title="{{ vm.message.sent_date | date:'dd MMMM y H:mm' }}"><date date="vm.message.sent_date"></date></abbr></span>
 
                 <div class="inbox-info-btn">
                     <div class="btn-group">

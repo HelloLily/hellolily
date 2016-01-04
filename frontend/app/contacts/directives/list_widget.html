@@ -14,7 +14,7 @@
             </span>
         </div>
         <div ng-hide="$parent.contact" class="actions">
-            <a ui-sref="{{ addLink|| 'base.contacts.create' }}" class="btn btn-circle btn-default" ng-hide="accountId">
+            <a ui-sref="{{ addLink || 'base.contacts.create' }}" class="btn btn-circle btn-default" ng-hide="accountId">
                 <i class="fa fa-plus"></i>
                 Add
             </a>
@@ -50,7 +50,7 @@
                         <span ng-hide="contact.email_addresses[0]">-</span>
                     </div>
                     <div class="col-xs-3 break">
-                        {{ contact.phones[0] || '-' }}
+                        <a href="tel:{{ contact.phones[0] || '' }}">{{ contact.phones[0] || '-' }}</a>
                     </div>
                 </div>
             </div>

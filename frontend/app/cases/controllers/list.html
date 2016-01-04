@@ -108,8 +108,8 @@
                 <td ng-show="vm.table.visibility.status">
                     {{ ::case.status }}
                 </td>
-                <td ng-show="vm.table.visibility.created" title="{{ case.created | date:'dd MMMM y HH:mm' }}">
-                    {{ ::case.created | relativeDate:'':true }}
+                <td ng-show="vm.table.visibility.created">
+                    <date date="case.created"></date>
                 </td>
                 <td ng-show="vm.table.visibility.expires" title="{{ case.expires | date:'dd MMMM y HH:mm' }}">
                     <postpone type="'Case'" object="case" date-field="'expires'" display-date="true"></postpone>
@@ -131,12 +131,5 @@
             </tbody>
         </table>
     </div>
-    <div class="row">
-        <div class="col-md-7">
-            Showing {{ (vm.table.page - 1) * vm.table.pageSize }} to {{ vm.table.page * vm.table.pageSize }} of {{ vm.table.totalItems | number }} records
-        </div>
-        <div class="col-md-5" ng-if="vm.table.totalItems > vm.table.pageSize">
-            <uib-pagination total-items="vm.table.totalItems" ng-model="vm.table.page" items-per-page="vm.table.pageSize" max-size="5"></uib-pagination>
-        </div>
-    </div>
+    <hl-pagination values="vm.table"></hl-pagination>
 </div>

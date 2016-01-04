@@ -24,9 +24,13 @@
                             <label>Contacted us by:</label>
                             {{ ::vm.deal.contacted_by_name }}
                         </div>
+                        <div ng-if="vm.deal.why_customer">
+                            <label>Why customer:</label>
+                            {{ ::vm.deal.why_customer }}
+                        </div>
                         <div>
                             <label>Created:</label>
-                            {{ ::vm.deal.created | relativeDate }}
+                            <date date="vm.deal.created"></date>
                         </div>
                         <div>
                             <label>Next step:</label>
@@ -36,14 +40,12 @@
                         </div>
                         <div ng-if="::vm.deal.next_step_date">
                             <label>Next step date:</label>
-                            <span>
-                                {{ ::vm.deal.next_step_date | relativeDate }}
-                            </span>
+                            <date date="vm.deal.next_step_date"></date>
                         </div>
                         <div ng-if="vm.deal.closed_date">
                             <label>Closed date:</label>
                             <span id="closed-date">
-                                {{ vm.deal.closed_date | relativeDate }}
+                                <date date="vm.deal.closed_date"></date>
                             </span>
                         </div>
                    </div>
@@ -110,7 +112,7 @@
 <div ng-if="vm.deal.id" class="row no-margin" ng-show="::vm.deal.body">
     <div class="well well-md">
         <h4>Description</h4>
-        <p ng-bind-html="vm.deal.body | nl2br"></p>
+        <p class="pre-wrap" ng-bind-html="vm.deal.body | parseUrls"></p>
     </div>
 </div>
 <history-list ng-if="vm.deal.id" target="'deal'" object="vm.deal"></history-list>

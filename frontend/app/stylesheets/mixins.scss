@@ -4,3 +4,23 @@
 We have mixins in order to keep our cascading style sheets DRY (Don't Repeat
 Yourself) and maintainable.
 */
+
+//BREAKPOINT MIXIN
+
+@mixin breakpoint($point) {
+   @if $point == mobile {
+     @media (max-width: $breakpoint-mobile) { @content ; }
+  }
+   @else if $point == tablet {
+     @media (min-width: $breakpoint-tablet) { @content ; }
+  }
+    @else if $point == laptop {
+     @media (min-width: $breakpoint-laptop) { @content ; }
+  }
+   @else if $point == desktop {
+     @media (min-width: $breakpoint-desktop)  { @content ; }
+  }
+  @else if $point == tv {
+     @media (min-width: $breakpoint-tv)  { @content ; }
+  }
+}

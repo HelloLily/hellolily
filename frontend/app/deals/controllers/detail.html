@@ -5,45 +5,45 @@
       <div class="portlet light">
             <div class="portlet-body">
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="col-md-12 deal-detail-info">
                         <div>
-                            <label>Account:</label>
+                            <label>Account</label>
                             <a ui-sref="base.accounts.detail({ id: vm.deal.account })">
                                 {{ ::vm.deal.account_name }}
                             </a>
                         </div>
                         <div>
-                            <label>Deal name:</label>
+                            <label>Deal name</label>
                             {{ ::vm.deal.name }}
                         </div>
                         <div ng-if="vm.deal.found_through_name">
-                            <label>Found us through:</label>
+                            <label>Found us through</label>
                             {{ ::vm.deal.found_through_name }}
                         </div>
                         <div ng-if="vm.deal.contacted_by_name">
-                            <label>Contacted us by:</label>
+                            <label>Contacted us by</label>
                             {{ ::vm.deal.contacted_by_name }}
                         </div>
                         <div ng-if="vm.deal.why_customer">
-                            <label>Why customer:</label>
+                            <label>Why customer</label>
                             {{ ::vm.deal.why_customer }}
                         </div>
                         <div>
-                            <label>Created:</label>
-                            <date date="vm.deal.created"></date>
+                            <label>Created</label>
+                             <date date="vm.deal.created"></date>
                         </div>
                         <div>
-                            <label>Next step:</label>
+                            <label>Next step</label>
                             <span id="next-step" ng-if="vm.deal.next_step">
                                 {{ ::vm.deal.next_step.name }}
                             </span>
                         </div>
                         <div ng-if="::vm.deal.next_step_date">
-                            <label>Next step date:</label>
+                            <label>Next step date</label>
                             <date date="vm.deal.next_step_date"></date>
                         </div>
                         <div ng-if="vm.deal.closed_date">
-                            <label>Closed date:</label>
+                            <label>Closed date</label>
                             <span id="closed-date">
                                 <date date="vm.deal.closed_date"></date>
                             </span>
@@ -57,34 +57,48 @@
       <div class="portlet light">
             <div class="portlet-body">
                 <div class="row">
-                    <div class="col-md-12">
-                        <label>Assigned to:</label> {{ ::vm.deal.assigned_to_name }}<br/>
-                        <label>One-time cost:</label> {{ ::vm.deal.amount_once | currency:"€" }}<br/>
-                        <label>Recurring costs:</label> {{ ::vm.deal.amount_recurring | currency:"€" }}<br/>
-                        <label>Status:</label> {{ vm.deal.stage_name }} <span ng-show="vm.deal.archived">- Archived</span><br/>
+                    <div class="col-md-12 deal-detail-info">
                         <div>
-                            <label>Twitter checked:</label>
+                            <label>Assigned to</label>
+                            {{ ::vm.deal.assigned_to_name }}
+                        </div>
+                        <div>
+                            <label>One-time cost</label>
+                            {{ ::vm.deal.amount_once | currency:"€" }}
+                        </div>
+                        <div>
+                            <label>Recurring costs</label>
+                            {{ ::vm.deal.amount_recurring | currency:"€" }}
+                        </div>
+                        <div>
+                            <label>Status</label> {{ vm.deal.stage_name }}
+                            <span ng-show="vm.deal.archived">- Archived</span>
+                        </div>
+                        <div>
+                            <label>Twitter checked</label>
                             <span ng-if="vm.deal.twitter_checked">&nbsp;<i class="fa fa-check"></i></span>
                             <span ng-if="!vm.deal.twitter_checked"> -</span><br/>
                         </div>
                         <div ng-show="vm.deal.stage == 2">
-                            <label>Quote checked:</label>
+                            <label>Quote checked</label>
                             <span ng-show="vm.deal.is_checked">&nbsp;<i class="fa fa-check"></i></span>
                             <span ng-hide="vm.deal.is_checked"> -</span><br/>
                         </div>
                         <div>
-                            <label>Card sent:</label>
+                            <label>Card sent</label>
                             <span ng-if="vm.deal.card_sent">&nbsp;<i class="fa fa-check"></i></span>
                             <span ng-if="!vm.deal.card_sent"> -</span><br/>
                         </div>
                         <div>
-                            <label>Feedback form sent:</label>
+                            <label>Feedback form sent</label>
                             <span ng-if="vm.deal.feedback_form_sent">&nbsp;<i class="fa fa-check"></i></span>
                             <span ng-if="!vm.deal.feedback_form_sent"> -</span><br/>
                         </div>
-                        <div ng-show="vm.deal.quote_id">
-                            <label>Freedom quote:</label>
-                            <a ng-href="https://freedom.voys.nl/quotes/pdf/{{ vm.deal.quote_id }}/" target="_blank">Open in freedom</a>
+                        <div ng-show="vm.deal.quote_id || vm.deal.account_customer_id">
+                            <label>External</label>
+                            <a ng-show="vm.deal.quote_id" ng-href="https://freedom.voys.nl/quotes/pdf/{{ vm.deal.quote_id }}/">Quote</a>
+                            <span ng-show="vm.deal.quote_id && vm.deal.account_customer_id">|</span>
+                            <a ng-href="https://freedom.voys.nl/client/{{ vm.deal.account_customer_id }}" ng-if="vm.deal.account_customer_id">Environment</a>
                         </div>
                    </div>
                 </div>

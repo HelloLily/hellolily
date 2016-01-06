@@ -8,17 +8,17 @@
                     <i class="fa fa-angle-down"></i>
                 </button>
                 <div class="dropdown-menu hold-on-click dropdown-checkboxes">
-                    <checkbox model="vm.table.visibility.account">Account</checkbox>
-                    <checkbox model="vm.table.visibility.stage">Stage</checkbox>
-                    <checkbox model="vm.table.visibility.created">Created</checkbox>
                     <checkbox model="vm.table.visibility.name">Subject</checkbox>
-                    <checkbox model="vm.table.visibility.amountOnce">One-time cost</checkbox>
-                    <checkbox model="vm.table.visibility.amountRecurring">Recurring costs</checkbox>
-                    <checkbox model="vm.table.visibility.assignedTo">Assigned to</checkbox>
+                    <checkbox model="vm.table.visibility.account">Client</checkbox>
+                    <checkbox model="vm.table.visibility.stage">Stage</checkbox>
                     <checkbox model="vm.table.visibility.nextStep">Next step</checkbox>
                     <checkbox model="vm.table.visibility.nextStepDate">Next step date</checkbox>
+                    <checkbox model="vm.table.visibility.assignedTo">Assigned to</checkbox>
+                    <checkbox model="vm.table.visibility.amountOnce">One-time cost</checkbox>
+                    <checkbox model="vm.table.visibility.amountRecurring">Recurring costs</checkbox>
                     <checkbox model="vm.table.visibility.newBusiness">New business</checkbox>
                     <checkbox model="vm.table.visibility.feedbackFormSent">Feedback form sent</checkbox>
+                    <checkbox model="vm.table.visibility.created">Created</checkbox>
                     <checkbox model="vm.table.visibility.tags">Tags</checkbox>
                 </div>
             </div>
@@ -55,17 +55,17 @@
         <table class="table table-bordered table-striped flip-content">
             <thead class="flip-content">
                 <th>Edit</th>
-                <th ng-show="vm.table.visibility.account" class="width-10">Account</th>
-                <th ng-show="vm.table.visibility.stage" sort-column="stage" table="vm.table">Stage</th>
-                <th ng-show="vm.table.visibility.created" sort-column="created" table="vm.table" class="width-10">Created</th>
                 <th ng-show="vm.table.visibility.name" table="vm.table" class="width-20">Subject</th>
-                <th ng-show="vm.table.visibility.amountOnce" sort-column="amount_once" table="vm.table">One-time cost</th>
-                <th ng-show="vm.table.visibility.amountRecurring" sort-column="amount_recurring" table="vm.table">Recurring costs</th>
-                <th ng-show="vm.table.visibility.assignedTo" sort-column="assigned_to_name" table="vm.table">Assigned to</th>
+                <th ng-show="vm.table.visibility.account" class="width-10">Client</th>
+                <th ng-show="vm.table.visibility.stage" sort-column="stage" table="vm.table">Stage</th>
                 <th ng-show="vm.table.visibility.nextStep" sort-column="next_step.name" table="vm.table">Next step</th>
                 <th ng-show="vm.table.visibility.nextStepDate" sort-column="next_step_date" table="vm.table">Next step date</th>
+                <th ng-show="vm.table.visibility.assignedTo" sort-column="assigned_to_name" table="vm.table">Assigned to</th>
+                <th ng-show="vm.table.visibility.amountOnce" sort-column="amount_once" table="vm.table">One-time cost</th>
+                <th ng-show="vm.table.visibility.amountRecurring" sort-column="amount_recurring" table="vm.table">Recurring costs</th>
                 <th ng-show="vm.table.visibility.newBusiness" sort-column="new_business" table="vm.table">Business</th>
                 <th ng-show="vm.table.visibility.feedbackFormSent" sort-column="feedback_form_sent" table="vm.table">Feedback form sent</th>
+                <th ng-show="vm.table.visibility.created" sort-column="created" table="vm.table" class="width-10">Created</th>
                 <th ng-show="vm.table.visibility.tags">Tags</th>
             </thead>
             <tbody>
@@ -75,32 +75,29 @@
                             <i class="fa fa-edit"></i>
                         </a>
                     </td>
+                    <td ng-show="vm.table.visibility.name">
+                        <a ui-sref="base.deals.detail({ id: deal.id })" title="{{ deal.name }}">{{ deal.name }}</a>
+                    </td>
                     <td ng-show="vm.table.visibility.account">
                         <a ui-sref="base.accounts.detail({ id: deal.account })">{{ deal.account_name }}</a>
                     </td>
                     <td ng-show="vm.table.visibility.stage">
                         {{ deal.stage_name }}
                     </td>
-                    <td ng-show="vm.table.visibility.created">
-                        <date date="deal.created"></date>
+                    <td ng-show="vm.table.visibility.nextStep">
+                        {{ deal.next_step.name }}
                     </td>
-                    <td ng-show="vm.table.visibility.name">
-                        <a ui-sref="base.deals.detail({ id: deal.id })" title="{{ deal.name }}">{{ deal.name }}</a>
+                    <td ng-show="vm.table.visibility.nextStepDate">
+                        {{ deal.next_step_date | date:'dd MMMM y' }}
+                    </td>
+                    <td ng-show="vm.table.visibility.assignedTo">
+                        {{ deal.assigned_to_name }}
                     </td>
                     <td ng-show="vm.table.visibility.amountOnce">
                         {{ deal.amount_once |currency:'&euro; ' }}
                     </td>
                     <td ng-show="vm.table.visibility.amountRecurring">
                         {{ deal.amount_recurring |currency:'&euro; ' }}
-                    </td>
-                    <td ng-show="vm.table.visibility.assignedTo">
-                        {{ deal.assigned_to_name }}
-                    </td>
-                    <td ng-show="vm.table.visibility.nextStep">
-                        {{ deal.next_step.name }}
-                    </td>
-                    <td ng-show="vm.table.visibility.nextStepDate">
-                        {{ deal.next_step_date | date:'dd MMMM y' }}
                     </td>
                     <td ng-show="vm.table.visibility.newBusiness">
                         <span ng-if="deal.new_business">New</span>
@@ -112,6 +109,9 @@
 
                         <span ng-if="!deal.feedback_form_sent"><i class="fa fa-remove text-warning"></i></span>
                         <span ng-if="!deal.feedback_form_sent" class="text-warning">Not yet</span>
+                    </td>
+                    <td ng-show="vm.table.visibility.created">
+                        <date date="deal.created"></date>
                     </td>
                     <td ng-show="vm.table.visibility.tags">
                         <span ng-repeat="tag in deal.tag">

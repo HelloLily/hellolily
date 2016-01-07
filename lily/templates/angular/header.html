@@ -5,17 +5,96 @@
     <!-- BEGIN HEADER INNER -->
     <div class="page-header-inner">
         <!-- BEGIN LOGO -->
-        <div class="page-logo">
+        <div class="page-header-logo-container">
             <a ui-sref="base.dashboard" class="page-header-logo">
                 Hello<strong>Lily</strong>
             </a>
         </div>
         <!-- END LOGO -->
         <!-- BEGIN RESPONSIVE MENU TOGGLER -->
-            <a href="javascript:;" class="menu-toggler responsive-toggler" data-toggle="collapse" data-target=".navbar-collapse"></a>
+            <a class="main-nav-toggle" ng-click="mainNavCollapsed = !mainNavCollapsed">
+                <i class="fa fa-bars"></i>
+            </a>
         <!-- END RESPONSIVE MENU TOGGLER -->
+
+        <!-- BEGIN PAGE TOP -->
+            <ul class="drop-down pull-right">
+                <li class="header-user-menu drop-down-item" data-toggle="drop-down" data-hover="dropdown" data-close-others="true">
+                    <a href="#">
+                        <i class="icon-user"></i>
+                        <div class="header-user-menu-username-container">
+                            <span class="header-user-menu-username">{{ currentUser.fullName }}</span>
+                        </div>
+                        <i class="fa fa-sort-desc"></i>
+                    </a>
+
+                    <ul class="header-user-menu-item drop-down-sub-menu right-aligned">
+                        <li class="drop-down-sub-menu-item">
+                            <a ui-sref="base.preferences.user.profile">
+                                <i class="icon-user"></i>
+                                My profile
+                            </a>
+                        </li>
+                        <li class="drop-down-sub-menu-item">
+                            <a ui-sref="base.preferences.user.account">
+                                <i class="icon-settings"></i>
+                                My account
+                            </a>
+                        </li>
+                        <li class="divider"></li>
+                        <li class="drop-down-sub-menu-item">
+                            <a href="#">
+                                <i class="fa fa-briefcase"></i>
+                                Company account
+                            </a>
+                        </li>
+                        <li class="drop-down-sub-menu-item">
+                            <a href="#">
+                                <i class="icon-users"></i>
+                                Company users
+                            </a>
+                        </li>
+                        <li class="drop-down-sub-menu-item">
+                            <a href="#">
+                                <i class="icon-grid"></i>
+                                Company workflow
+                            </a>
+                        </li>
+                        <li class="divider"></li>
+                        <li class="drop-down-sub-menu-item">
+                            <a ui-sref="base.preferences.emailaccounts">
+                                <i class="icon-envelope"></i>
+                                E-mail accounts
+                            </a>
+                        </li>
+                        <li class="drop-down-sub-menu-item">
+                            <a ui-sref="base.preferences.emailtemplates">
+                                <i class="icon-envelope-letter"></i>
+                                E-mail templates
+                            </a>
+                        </li>
+                        <li class="drop-down-sub-menu-item">
+                            <a ui-sref="base.preferences.templatevariables">
+                                <i class="fa fa-code"></i>
+                                Template variables
+                            </a>
+                        </li>
+                        <li class="divider"></li>
+                        <li class="drop-down-sub-menu-item">
+                            <a href="/logout">
+                                <i class="icon-key"></i>
+                                Log out
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+
+        <!-- END TOP NAVIGATION MENU -->
+
+
         <!-- BEGIN MAINNAVIGATION -->
-        <ul class="main-nav">
+        <ul class="main-nav" ng-class="mainNavCollapsed ? 'main-nav-toggled':''">
             <li class="main-nav-item">
                 <a ui-sref-active="active" ui-sref="base.dashboard">
                     <i class="fa fa-home"></i>
@@ -61,84 +140,6 @@
                 </a>
             </li>
         </ul>
-
-        <!-- BEGIN PAGE TOP -->
-        <div class="header-user-menu">
-
-            <ul class="nav navbar-nav pull-right">
-                <!-- BEGIN USER LOGIN DROPDOWN -->
-                <!-- DOC: Apply "dropdown-dark" class after below "dropdown-extended" to change the dropdown styte -->
-                <li class="dropdown dropdown-user dropdown-dark">
-                    <a href="#" class="dropdown-user-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
-                        <!-- DOC: Add 'username-hide-on-mobile' class to hide on mobile to make space for buttons on this row -->
-                        <span class="username">
-                            Hello {{ currentUser.fullName }}
-                        </span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-default">
-                        <li>
-                            <a ui-sref="base.preferences.user.profile">
-                                <i class="icon-user"></i>
-                                My profile
-                            </a>
-                        </li>
-                        <li>
-                            <a ui-sref="base.preferences.user.account">
-                                <i class="icon-settings"></i>
-                                My account
-                            </a>
-                        </li>
-                        <li class="divider"></li>
-                        <li>
-                            <a href="#">
-                                <i class="fa fa-briefcase"></i>
-                                Company account
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#">
-                                <i class="icon-users"></i>
-                                Company users
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#">
-                                <i class="icon-grid"></i>
-                                Company workflow
-                            </a>
-                        </li>
-                        <li class="divider"></li>
-                        <li>
-                            <a ui-sref="base.preferences.emailaccounts">
-                                <i class="icon-envelope"></i>
-                                E-mail accounts
-                            </a>
-                        </li>
-                        <li>
-                            <a ui-sref="base.preferences.emailtemplates">
-                                <i class="icon-envelope-letter"></i>
-                                E-mail templates
-                            </a>
-                        </li>
-                        <li>
-                            <a ui-sref="base.preferences.templatevariables">
-                                <i class="fa fa-code"></i>
-                                Template variables
-                            </a>
-                        </li>
-                        <li class="divider"></li>
-                        <li>
-                            <a href="/logout">
-                                <i class="icon-key"></i>
-                                Log out
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-                <!-- END USER LOGIN DROPDOWN -->
-            </ul>
-        </div>
-        <!-- END TOP NAVIGATION MENU -->
     </div>
     <!-- END HEADER INNER -->
     <!-- BEGIN SUBHEADER -->

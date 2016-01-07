@@ -4,6 +4,16 @@
     border-bottom: 1px #CED9E3 solid;
 }
 
+.page-header-logo-container {
+    float: left;
+    padding: 0 10px;
+    margin-right: 20px;
+
+    @media (max-width: $breakpoint-mobile) {
+        margin-right: 0px;
+    }
+}
+
 .page-header-logo {
     font-size: 1.4em;
     line-height: 60px;
@@ -15,14 +25,36 @@
 }
 
 .main-nav {
+    display: block;
     float: left;
     margin: 0;
     padding: 0;
     list-style: none;
+    @extend .no-select;
 
     @media (max-width: $breakpoint-mobile) {
-        display: block;
+        display: none;
         width: 100%;
+
+        &.main-nav-toggled {
+            display: block;
+        }
+    }
+}
+
+.main-nav-toggle {
+    float: right;
+    width: 40px;
+    text-align: center;
+    display: none;
+
+    i {
+        font-size: 18px;
+        line-height: 60px;
+    }
+
+    @media (max-width: $breakpoint-mobile){
+        display: block;
     }
 }
 
@@ -38,6 +70,10 @@
         margin-right: 0px;
     }
 
+    @media (max-width: $breakpoint-laptop) {
+        margin: 0;
+    }
+
     @media (max-width: $breakpoint-mobile) {
         margin: 0;
         display: block;
@@ -49,8 +85,22 @@
         }
     }
 
-    @media (max-width: $breakpoint-tablet) {
+    @media (max-width: $breakpoint-mobile) {
         margin: 0;
+    }
+}
+
+.main-nav-item .title {
+    @media (max-width: $breakpoint-desktop){
+        display: inline-block;
+    }
+
+    @media (max-width: $breakpoint-laptop){
+        display: none;
+    }
+
+    @media (max-width: $breakpoint-mobile){
+        display: inline-block;
     }
 }
 
@@ -93,4 +143,40 @@
         padding-top: 1px;
         padding-bottom: 1px;
     }
+}
+
+.header-user-menu {
+    margin-right: 10px;
+    line-height: 60px;
+
+    a {
+        text-decoration: none;
+    }
+}
+
+.header-user-menu-username-container {
+    display: inline-block;
+    line-height: 12px;
+}
+
+
+.header-user-menu-username {
+    display: inline-block;
+
+    @media (max-width: $breakpoint-laptop) {
+        display: block;
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    @media (max-width: $breakpoint-mobile) {
+        display: none;
+    }
+}
+
+.header-user-menu-item {
+    top: 65px;
+    line-height: 40px;
 }

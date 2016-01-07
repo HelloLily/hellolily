@@ -25,12 +25,7 @@ function DateController() {
             // In certain cases we want to display the time if it's the same day.
             vm.dateFormat = 'HH:mm';
         } else {
-            if (window.innerWidth < 992) {
-                // Display as a short version if it's a small screen (tablet, smartphone, etc.)
-                vm.dateFormat = ' dd MMM. yyyy'; // Renders as 29 Dec. 2015
-            } else {
-                vm.dateFormat = ' dd MMMM yyyy'; // Renders as 29 December 2015
-            }
+            vm.dateFormat = 'dd MMM. yyyy'; // Renders as 29 Dec. 2015
         }
     }
 }

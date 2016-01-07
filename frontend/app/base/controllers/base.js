@@ -26,6 +26,7 @@ function BaseController($scope, $state, Settings, Notifications) {
         },
         accountId: false,
         contactId: false,
+        caseList: null,
     };
 
     $scope.loadNotifications = loadNotifications;
@@ -75,6 +76,7 @@ function BaseController($scope, $state, Settings, Notifications) {
             $scope.emailSettings.website = null;
             $scope.emailSettings.account = null;
             $scope.emailSettings.contact = null;
+            $scope.emailSettings.caseList = null;
 
             $scope.$$phase || $scope.apply();
         }

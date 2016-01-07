@@ -61,10 +61,10 @@ function EmailDetailController($scope, $state, $stateParams, $http, Case, Settin
                 } else {
                     vm.onlyPlainText = true;
                 }
-                // It's easier to iterate through a single array, so make an array with all recipients
+                // It's easier to iterate through a single array, so make an array with all recipients.
                 vm.message.all_recipients = result.received_by.concat(result.received_by_cc);
 
-                // Get contacts
+                // Get contacts.
                 RecipientInformation.getInformation(vm.message.all_recipients);
 
                 if (!result.read) {
@@ -78,7 +78,7 @@ function EmailDetailController($scope, $state, $stateParams, $http, Case, Settin
 
                 vm.message.recipients = recipients.join(',');
 
-                // Store current email account
+                // Store current email account.
                 SelectedEmailAccount.setCurrentAccountId(vm.message.account);
 
                 showSidebar();
@@ -159,33 +159,33 @@ function EmailDetailController($scope, $state, $stateParams, $http, Case, Settin
                                 $scope.emailSettings.accountId = data.data.id;
 
                                 if (!data.complete) {
-                                    // Account found, but no contact belongs to account, so setup auto fill data
+                                    // Account found, but no contact belongs to account, so setup auto fill data.
                                     _setupContactInfo();
                                     $scope.emailSettings.sidebar.form = 'createContact';
                                     $scope.emailSettings.account = data.data;
                                 }
 
-                                Case.query({filterquery: 'account:' + data.data.id, sort: '-created'}).$promise.then(function(cases) {
-                                    $scope.emailSettings.caseList = cases;
-                                });
+                                var filterquery = 'account:' + data.data.id;
+                                _getCases(filterquery);
                             }
                         } else if (data.type === 'contact') {
                             if (data.data.id) {
                                 $scope.emailSettings.contactId = data.data.id;
 
-                                // Check if the contact is linked to an account
+                                // Check if the contact is linked to an account.
                                 Account.searchByEmail({email_address: '@' + $scope.emailSettings.website}).$promise.then(function(account) {
+                                    var filterquery = 'contact:' + data.data.id;
+
                                     if (account.data && account.data.id) {
                                         $scope.emailSettings.account = account.data;
                                         $scope.emailSettings.accountId = account.data.id;
+
+                                        filterquery += ' OR account:' + account.data.id;
                                     } else {
                                         $scope.emailSettings.sidebar.form = 'createAccount';
                                     }
-                                });
 
-                                Case.query({filterquery: 'contact:' + data.data.id, sort: '-created'}).$promise.then(function(cases) {
-                                    $scope.emailSettings.caseList = cases;
-                                    $scope.emailSettings.sidebar.case = true;
+                                    _getCases(filterquery);
                                 });
                             }
                         }
@@ -195,7 +195,7 @@ function EmailDetailController($scope, $state, $stateParams, $http, Case, Settin
                         $scope.emailSettings.sidebar.form = 'createAccount';
                         $scope.emailSettings.sidebar.contact = false;
 
-                        // Setup auto fill contact data in case the user only wants to create a contact
+                        // Setup auto fill contact data in case the user only wants to create a contact.
                         _setupContactInfo();
                     }
                 });
@@ -233,12 +233,12 @@ function EmailDetailController($scope, $state, $stateParams, $http, Case, Settin
         $scope.emailSettings.sidebar.account = !$scope.emailSettings.sidebar.account;
 
         if (!$scope.emailSettings.accountId && $scope.emailSettings.sidebar.form !== 'createAccount') {
-            // No account set and no form open, so open the account create form
+            // No account set and no form open, so open the account create form.
             $scope.emailSettings.sidebar.form = 'createAccount';
             $scope.emailSettings.sidebar.account = true;
             $scope.emailSettings.sidebar.contact = false;
         } else if ($scope.emailSettings.sidebar.form === 'createAccount') {
-            // Create account form is open, so close it
+            // Create account form is open, so close it.
             $scope.emailSettings.sidebar.form = null;
             $scope.emailSettings.sidebar.account = false;
         }
@@ -248,7 +248,7 @@ function EmailDetailController($scope, $state, $stateParams, $http, Case, Settin
         $scope.emailSettings.sidebar.contact = !$scope.emailSettings.sidebar.contact;
 
         if (!$scope.emailSettings.contactId && $scope.emailSettings.sidebar.form !== 'createContact') {
-            // No contact set and no form open, so open the contact create form
+            // No contact set and no form open, so open the contact create form.
             $scope.emailSettings.sidebar.form = 'createContact';
             $scope.emailSettings.sidebar.contact = true;
             $scope.emailSettings.sidebar.account = false;
@@ -262,13 +262,14 @@ function EmailDetailController($scope, $state, $stateParams, $http, Case, Settin
     function toggleCasesSidebar() {
         $scope.emailSettings.sidebar.case = !$scope.emailSettings.sidebar.case;
 
-        if (!$scope.emailSettings.caseId && $scope.emailSettings.sidebar.form !== 'createCase') {
-            // No contact set and no form open, so open the contact create form
+        if ($scope.emailSettings.sidebar.form !== 'createCase') {
+            // No form open, so open the case create form.
             $scope.emailSettings.sidebar.form = 'createCase';
             $scope.emailSettings.sidebar.case = true;
-            $scope.emailSettings.sidebar.contact = false;
-            $scope.emailSettings.sidebar.account = false;
-        } else if ($scope.emailSettings.sidebar.form === 'createCase') {
+        } else if ($scope.emailSettings.sidebar.form === 'createCase' && $scope.emailSettings.caseList) {
+            $scope.emailSettings.sidebar.form = null;
+            $scope.emailSettings.sidebar.case = true;
+        } else {
             // Create contact form is open, so close it
             $scope.emailSettings.sidebar.form = null;
             $scope.emailSettings.sidebar.case = false;
@@ -277,7 +278,17 @@ function EmailDetailController($scope, $state, $stateParams, $http, Case, Settin
 
     function _watchSidebarVisibility() {
         $scope.$watchCollection('emailSettings.sidebar', function() {
-            $scope.emailSettings.sidebar.isVisible = $scope.emailSettings.sidebar.account || $scope.emailSettings.sidebar.contact || $scope.emailSettings.sidebar.form;
+            $scope.emailSettings.sidebar.isVisible = $scope.emailSettings.sidebar.account ||
+                $scope.emailSettings.sidebar.contact || $scope.emailSettings.sidebar.case ||
+                $scope.emailSettings.sidebar.form;
+        });
+    }
+
+    function _getCases(filterquery) {
+        Case.query({filterquery: filterquery, sort: '-created'}, function(cases) {
+            if (cases.length) {
+                $scope.emailSettings.caseList = cases;
+            }
         });
     }
 }

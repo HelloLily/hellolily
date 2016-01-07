@@ -14,7 +14,7 @@ from ..models import Case, CaseStatus, CaseType
 
 class CaseStatusSerializer(serializers.ModelSerializer):
     """
-    Serializer for case status model
+    Serializer for case status model.
     """
     class Meta:
         model = CaseStatus
@@ -24,26 +24,13 @@ class CaseStatusSerializer(serializers.ModelSerializer):
         )
 
 
-class CaseTypeSerializer(serializers.ModelSerializer):
-    """
-    Serializer for case status model
-    """
-    class Meta:
-        model = CaseType
-        fields = (
-            'id',
-            'type',
-            'use_as_filter',
-        )
-
-
 class RelatedCaseStatusSerializer(RelatedSerializerMixin, CaseStatusSerializer):
     pass
 
 
 class CaseTypeSerializer(serializers.ModelSerializer):
     """
-    Serializer for case type model
+    Serializer for case type model.
     """
     class Meta:
         model = CaseType

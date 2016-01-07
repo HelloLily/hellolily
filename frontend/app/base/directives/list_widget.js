@@ -11,13 +11,13 @@ function ListWidget() {
             height: '=',
             addLink: '@',
             collapsableItems: '=',
-            account: '=',
+            object: '=',
         },
         templateUrl: function(elem, attrs) {
             var templateUrl = '';
 
             if (attrs.module) {
-                // Some custom title is given, so use the given module name.
+                // Template url can't be determined from the given title. So use the module name.
                 templateUrl = attrs.module + '/directives/list_widget.html';
             } else {
                 templateUrl = attrs.title.toLowerCase() + '/directives/list_widget.html';
@@ -36,7 +36,7 @@ function ListWidgetController() {
     var vm = this;
 
     if (vm.collapsableItems) {
-        // Certain list widget have collapsable cells, so set the default state to collapsed.
+        // Certain list widgets have collapsable cells, so set the default state to collapsed.
         angular.forEach(vm.list, function(item) {
             item.collapsed = true;
         });

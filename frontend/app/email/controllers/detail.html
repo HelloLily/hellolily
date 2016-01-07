@@ -9,8 +9,11 @@
             <i ng-class="{'fa fa-eye': emailSettings.contactId, 'fa fa-plus': !emailSettings.contactId}"></i> Contact
         </button>
 
-        <button class="btn btn-sm blue" ng-click="vm.toggleCasesSidebar()">
-            <i ng-class="{'fa fa-eye': emailSettings.contactId, 'fa fa-plus': !emailSettings.contactId}"></i> Case
+        <button class="btn btn-sm blue" ng-if="emailSettings.accountId || emailSettings.contactId" ng-click="vm.toggleCasesSidebar()">
+            <i class="fa fa-plus"></i> Case
+        </button>
+        <button class="btn btn-sm blue" ng-if="emailSettings.caseList" ng-click="vm.toggleCasesSidebar()">
+            <i class="fa fa-eye"></i> Cases
         </button>
     </div>
 </div>

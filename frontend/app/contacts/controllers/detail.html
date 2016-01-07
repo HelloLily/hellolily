@@ -6,14 +6,14 @@
     </div>
     <div class="col-md-4">
         <div ng-if="contact.accounts.length" ng-repeat="account in contact.accounts">
-            <list-widget title="Contacts" account="account" add-link="base.contacts.create.fromAccount({id: {{ account.id }}})" list="account.colleagueList" height="height"></list-widget>
+            <list-widget title="Contacts" object="account" add-link="base.contacts.create.fromAccount({id: {{ account.id }}})" list="account.colleagueList" height="height"></list-widget>
         </div>
         <div ng-hide="contact.accounts.length">
             <list-widget title="Contacts" height="300"></list-widget>
         </div>
     </div>
     <div class="col-md-4">
-        <list-widget title="Cases" list="caseList" height="300" add-link="base.cases.create.fromContact({id: {{ contact.id }}})"></list-widget>
+        <list-widget title="Cases" list="caseList" height="300" add-link="base.cases.create.fromContact({id: {{ contact.id }}})" collapsable-items="true"></list-widget>
     </div>
 </div>
 

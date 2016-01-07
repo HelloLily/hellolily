@@ -65,11 +65,9 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserT
         });
 
         return new Case({
-            subject: '',
             billing_checked: false,
             assigned_to_groups: teams,
             priority: 0,
-            parcel_provider: 1,
             expires: expires,
             tags: [],
         });

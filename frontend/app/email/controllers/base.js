@@ -36,6 +36,9 @@ function emailConfig($stateProvider, $urlRouterProvider) {
                 controller: 'CaseCreateUpdateController',
                 controllerAs: 'vm',
             },
+            //'showCases@base.email': {
+            //    controller: EmailShowCasesController,
+            //},
         },
         ncyBreadcrumb: {
             label: 'Email',
@@ -54,8 +57,8 @@ function emailConfig($stateProvider, $urlRouterProvider) {
 
 angular.module('app.email').controller('EmailBaseController', EmailBaseController);
 
-EmailBaseController.$inject = ['$scope', '$state', 'Settings'];
-function EmailBaseController($scope, $state, Settings) {
+EmailBaseController.$inject = ['$scope', 'Settings'];
+function EmailBaseController($scope, Settings) {
     Settings.page.setTitle('custom', 'Email');
     Settings.page.header.setMain('custom', 'Email');
     Settings.page.header.setSub('email');
@@ -119,11 +122,27 @@ function EmailShowContactController($scope, ContactDetail) {
                         account.colleagueList = colleagues;
                     });
                 });
-            }
 
-            if ($scope.contact.accounts.length >= 2) {
-                $scope.height = 91;
+                if ($scope.contact.accounts.length >= 2) {
+                    $scope.height = 91;
+                }
             }
         });
     }
 }
+
+//angular.module('app.email').controller('EmailShowCasesController', EmailShowCasesController);
+//EmailShowCasesController.$inject = ['$scope'];
+//function EmailShowCasesController($scope) {
+//    $scope.$watch('emailSettings.sidebar.case', function(newValue, oldValue) {
+//        if (oldValue === 'showCases' && newValue === 'checkCases' && $scope.emailSettings.caseList) {
+//            activate();
+//        }
+//    }, true);
+//
+//    activate();
+//
+//    function activate() {
+//    }
+//}
+

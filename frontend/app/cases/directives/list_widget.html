@@ -4,7 +4,7 @@
             <i class="fa fa-briefcase"></i>
             {{ vm.title }}
         </div>
-        <div class="actions">
+        <div class="actions" ng-if="!$parent.emailSettings.sidebar.case">
             <a ui-sref="{{ vm.addLink || 'base.cases.create' }}" class="btn btn-circle btn-default">
                 <i class="fa fa-plus"></i>
                 Add
@@ -25,15 +25,15 @@
                 </thead>
                 <tbody ng-repeat="case in vm.list" ng-if="vm.list.length">
                     <tr>
-                        <td><i class="fa fa-circle" ng-class="{0: 'low', 1: 'medium', 2: 'high', 3: 'critical'}[case.priority]"></i></td>
+                        <td><i class="fa fa-circle" ng-class="{0: 'low-priority-color', 1: 'medium-priority-color', 2: 'high-priority-color', 3: 'critical-priority-color'}[case.priority]"></i></td>
                         <td><a ui-sref="base.cases.detail({id: case.id})">{{ case.subject }}</a></td>
                         <td>{{ case.status }}</td>
                         <td>
                             <postpone type="'Case'" object="case" date-field="'expires'" display-date="true"></postpone>
                         </td>
-                        <td class="collapsable" ng-click="case.collapsed = !case.collapsed">
+                        <td class="clickable" ng-click="case.collapsed = !case.collapsed">
                             <div class="collapse-indicator no-padding">
-                                <i class="fa fa-angle-up" ng-class="{'rotate': case.collapsed}"></i>
+                                <i class="fa fa-angle-down" ng-class="{'rotate': case.collapsed}"></i>
                             </div>
                         </td>
                     </tr>

@@ -61,27 +61,30 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseCreateUpdateController', CaseCreateUpdateController);
 
-CaseCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'Case', 'Contact', 'HLForms',
-                                      'HLSearch', 'HLUtils', 'Settings', 'UserTeams', 'User'];
-function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case, Contact, HLForms, HLSearch, HLUtils,
-                                    Settings, UserTeams, User) {
+CaseCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'Case', 'Contact', 'ContactDetail',
+    'HLForms', 'HLSearch', 'HLUtils', 'Settings', 'UserTeams', 'User'];
+function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case, Contact, ContactDetail, HLForms,
+                                    HLSearch, HLUtils, Settings, UserTeams, User) {
     var vm = this;
 
     vm.case = {};
     vm.teams = [];
-    vm.people = [];
+    vm.assignOptions = [];
     vm.caseTypes = [];
     vm.caseStatuses = [];
     vm.casePriorities = [];
     vm.formPortlets = {
         0: {
-            fields: ['subject', 'type'],
+            fields: [],
         },
         1: {
-            fields: ['status', 'priority', 'expires'],
+            fields: ['subject', 'type', 'status'],
         },
         2: {
-            fields: [''],
+            fields: ['priority', 'expires'],
+        },
+        3: {
+            fields: [],
         },
     };
     vm.datepickerOptions = {
@@ -97,49 +100,47 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     vm.refreshContacts = refreshContacts;
 
     $scope.$watch('vm.case.priority', function() {
-        var daysToAdd = [5, 3, 1, 0];
-
-        var i = 0;
-        var newDate = moment();
-
-        // Add days based on what the priority is. Skip weekends.
-        while (i < daysToAdd[vm.case.priority]) {
-            newDate = newDate.add(1, 'day');
-
-            if (newDate.day() !== 0 && newDate.day() !== 6) {
-                i++;
-            }
-        }
-
-        vm.case.expires = newDate.format();
+        vm.case.expires = HLUtils.addBusinessDays(vm.case.priority);
     });
 
-    $scope.$watchGroup(['vm.case.type', 'vm.case.status', 'vm.case.priority', 'vm.case.expires'], function() {
-        openNextStep();
+    var watchGroup = [
+        'vm.case.type',
+        'vm.case.status',
+        'vm.case.priority',
+        'vm.case.expires',
+        'vm.case.account',
+        'vm.case.contact',
+    ];
+
+    $scope.$watchGroup(watchGroup, function(newValues, oldValues) {
+        if (newValues !== oldValues && !vm.case.id) {
+            openNextStep();
+        }
     });
 
     function openNextStep() {
-        for (var i = 0; i < Object.keys(vm.formPortlets).length; i++) {
-            var fieldsSet = true;
+        for (var i = vm.startsAt; i < Object.keys(vm.formPortlets).length; i++) {
+            var fieldHasValue = true;
             var portlet = vm.formPortlets[i];
 
             // Check if all fields are set.
             portlet.fields.forEach(function(field) {
                 // 0 is a valid input (selects), so allow it.
                 if (vm.case[field] === '' || vm.case[field] === null || vm.case[field] === undefined) {
-                    fieldsSet = false;
+                    fieldHasValue = false;
                 }
             });
 
-            if (!fieldsSet) {
+            if (!fieldHasValue) {
                 // Fields not completely filled in, so just stop checking the portlets.
                 break;
             }
 
-            // Automatically close the current portlet if it hasn't been completed.
-            if (!portlet.portlet.collapsed && !portlet.portlet.isComplete) {
+            if (!portlet.portlet.isComplete) {
                 portlet.portlet.isComplete = true;
-                vm.formPortlets[i + 1].portlet.collapsed = false;
+                if (vm.formPortlets[i + 1]) {
+                    vm.formPortlets[i + 1].portlet.collapsed = false;
+                }
 
                 return;
             }
@@ -151,7 +152,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     ////
 
     function activate() {
-        _getPeople();
+        _getAssignOptions();
         _getTeams();
 
         Case.caseTypes(function(data) {
@@ -176,13 +177,10 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         ];
 
         _getCase();
-
-        //vm.accounts = Account.search({size: 60, sort: '-modified'});
-        //vm.contacts = Contact.search({size: 60, sort: '-modified'});
     }
 
     function _getCase() {
-        // Fetch the contact or create empty contact
+        // Fetch the contact or create empty contact.
         if ($stateParams.id) {
             Case.get({id: $stateParams.id}).$promise.then(function(lilyCase) {
                 vm.case = lilyCase;
@@ -193,29 +191,55 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             vm.case = Case.create();
 
             if ($scope.emailSettings) {
-                // Auto fill data if it's available
-                if ($scope.emailSettings.contact) {
-                    vm.case.contact = $scope.emailSettings.contact;
+                // Auto fill data if it's available.
+                if ($scope.emailSettings.contactId) {
+                    if ($scope.emailSettings.account) {
+                        var filterquery = 'accounts.id:' + $scope.emailSettings.account.id;
+
+                        ContactDetail.query({filterquery: filterquery}).$promise.then(function(colleagues) {
+                            var colleagueIds = [];
+                            angular.forEach(colleagues, function(colleague) {
+                                colleagueIds.push(colleague.id);
+                            });
+
+                            // Check if the contact actually works at the account.
+                            if (colleagueIds.indexOf($scope.emailSettings.contactId) > -1) {
+                                vm.case.contact = $scope.emailSettings.contactId;
+                            }
+                        });
+                    } else {
+                        vm.case.contact = $scope.emailSettings.contactId;
+                    }
                 }
 
-                if ($scope.emailSettings.account) {
-                    vm.case.account = $scope.emailSettings.account;
+                if ($scope.emailSettings.accountId) {
+                    vm.case.account = $scope.emailSettings.accountId;
                 }
+            }
+
+            if ($scope.emailSettings.sidebar.form) {
+                vm.startsAt = 1;
+            } else {
+                vm.startsAt = 0;
             }
         }
     }
 
-    function _getPeople() {
+    function _getAssignOptions() {
+        var assignOptions = [];
+
         User.query().$promise.then(function(userList) {
             angular.forEach(userList, function(user) {
                 if (user.first_name !== '') {
-                    vm.people.push({
+                    assignOptions.push({
                         id: user.id,
-                        // Convert to single string so searching with spaces becomes possible
+                        // Convert to single string so searching with spaces becomes possible.
                         name: HLUtils.getFullName(user),
                     });
                 }
             });
+
+            vm.assignOptions = assignOptions;
         });
     }
 
@@ -239,13 +263,13 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     }
 
     function saveCase(form, archive) {
-        if (!_checkCaseForm()) {
+        if (!_caseFormIsValid()) {
             return false;
         }
 
         HLForms.blockUI();
 
-        // Clear all errors of the form (in case of new errors)
+        // Clear all errors of the form (in case of new errors).
         angular.forEach(form, function(value, key) {
             if (typeof value === 'object' && value.hasOwnProperty('$modelValue')) {
                 form[key].$error = {};
@@ -260,7 +284,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         vm.case.expires = moment(vm.case.expires).format('YYYY-MM-DD');
 
         if (vm.case.id) {
-            // If there's an ID set it means we're dealing with an existing contact, so update it
+            // If there's an ID set it means we're dealing with an existing contact, so update it.
             vm.case.$update(function() {
                 toastr.success('I\'ve updated the case for you!', 'Done');
                 $state.go('base.cases.detail', {id: vm.case.id}, {reload: true});
@@ -274,7 +298,6 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
                 if ($scope.emailSettings.sidebar.form === 'createCase') {
                     $scope.emailSettings.sidebar.form = null;
                     $scope.emailSettings.sidebar.case = true;
-                    $scope.emailSettings.caseId = vm.case.id;
                 } else {
                     $state.go('base.cases.detail', {id: vm.case.id});
                 }
@@ -314,7 +337,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         vm.contacts = HLSearch.refreshList(query, 'Contact', null, accountQuery);
     }
 
-    function _checkCaseForm() {
+    function _caseFormIsValid() {
         if (!vm.case.account && !vm.case.contact) {
             bootbox.dialog({
                 message: 'Please select an account or contact the case belongs to',

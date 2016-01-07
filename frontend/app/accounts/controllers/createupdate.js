@@ -224,6 +224,7 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
         } else {
             vm.account.$save(function() {
                 toastr.success('I\'ve saved the account for you!', 'Yay');
+                
                 if ($scope.emailSettings.sidebar.form === 'createAccount') {
                     if (!$scope.emailSettings.contactId) {
                         $scope.emailSettings.sidebar.form = 'createContact';

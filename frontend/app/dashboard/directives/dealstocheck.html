@@ -5,7 +5,7 @@
         <span class="caption-helper">({{ vm.table.items.length }})</span>
     </div>
     <div name="portlet-caption-extra">
-        <select class="form-control input-sm xsm" ng-options="user.id as user.first_name for user in vm.users" ng-model="vm.table.selectedUserId"></select>
+        <users-filter users-store="vm.table.usersFilter" storage-name="'dealsToCheck'"></users-filter>
     </div>
     <div name="portlet-body">
         <table class="table table-hover">

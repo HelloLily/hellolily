@@ -1,0 +1,15 @@
+.dropdown-toggle i.fa-angle-down {
+    margin-left: 10px;
+}
+
+.dropdown-toggle i:first-child {
+    margin-right: 2px;
+}
+
+.dropdown-toggle {
+    &.no-primary-icon {
+        i {
+            margin: 0;
+        }
+    }
+}

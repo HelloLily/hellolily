@@ -12,7 +12,7 @@
                 ng-click="vm.toggleAccountSidebar()">
             <i class="fa fa-eye"></i> Account
         </button>
-        
+
         <button class="btn btn-sm blue"
                 ng-show="!emailSettings.contactId"
                 ng-click="vm.toggleContactSidebar()">
@@ -41,7 +41,7 @@
                         <a ui-sref="base.email.reply({ id: vm.message.id })" class="btn blue reply-btn">
                             <i class="fa fa-mail-reply"></i> Reply
                         </a>
-                        <button class="btn blue dropdown-toggle" data-toggle="dropdown">
+                        <button class="btn blue dropdown-toggle no-primary-icon" data-toggle="dropdown">
                             <i class="fa fa-angle-down"></i>
                         </button>
                         <ul class="dropdown-menu pull-right">

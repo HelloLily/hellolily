@@ -1,28 +1,20 @@
 <div class="row">
-    <div style="padding: 12px 20px 15px 20px;"
-         ng-class="{'col-md-9': emailSettings.sidebar.isVisible, 'col-md-12': !emailSettings.sidebar.isVisible}">
-        <div class="portlet light">
-            <div class="portlet-body">
-                <div class="row inbox">
-                    <div class="col-md-2" ui-view="labelList"></div>
-                    <div class="col-md-10" ui-view></div>
-                </div>
-            </div>
-        </div>
+    <div class="no-padding" ng-class="{'col-md-9': emailSettings.sidebar.isVisible, 'col-md-12': !emailSettings.sidebar.isVisible}">
+        <div class="col-md-2" ui-view="labelList"></div>
+        <div class="col-md-10" ui-view></div>
     </div>
 
-    <div class="col-md-3 email-sidebar" ng-show="emailSettings.sidebar.isVisible">
-        <div class="portlet light" ng-if="emailSettings.sidebar.form">
-            <div class="portlet-body">
+    <div class="col-md-3" ng-show="emailSettings.sidebar.isVisible">
+        <div ng-if="emailSettings.sidebar.form">
+
                 <div class="row inbox">
                     <div class="col-md-12">
                         <!-- Setting ui-view to emailSettings.sidebar.form doesn't update the view if a different form is clicked. So doing ng-if instead -->
-                        <div ng-if="emailSettings.sidebar.form == 'createAccount'" ui-view="createAccount"></div>
-                        <div ng-if="emailSettings.sidebar.form == 'createContact'" ui-view="createContact"></div>
-                        <div ng-if="emailSettings.sidebar.form == 'createCase'" ui-view="createCase"></div>
+                        <div class="create-sidebar" ng-if="emailSettings.sidebar.form == 'createAccount'" ui-view="createAccount"></div>
+                        <div class="create-sidebar" ng-if="emailSettings.sidebar.form == 'createContact'" ui-view="createContact"></div>
+                        <div class="create-sidebar" ng-if="emailSettings.sidebar.form == 'createCase'" ui-view="createCase"></div>
                     </div>
                 </div>
-            </div>
         </div>
 
         <div ng-if="emailSettings.sidebar.account && emailSettings.accountId">

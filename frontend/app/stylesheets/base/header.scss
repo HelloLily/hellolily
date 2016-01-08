@@ -110,12 +110,13 @@ $navyBlue: #5b667b;
 }
 
 .main-nav-item a {
+    position: relative;
     border-bottom: 3px transparent solid;
     box-sizing: border-box;
     text-decoration: none;
     font-size: 14px;
-    line-height: 57px;
-    padding: 0 10px;
+    line-height: 60px;
+    padding: 0px 10px;
     display: block;
     color: $navyBlue;
 
@@ -134,6 +135,12 @@ $navyBlue: #5b667b;
 
 .main-nav-item a i {
     font-size: 18px;
+    position: relative;
+    top: 2px;
+
+    &.hl-deals-filled-icon {
+        font-size: 20px;
+    }
 }
 
 .main-nav-item a.active {

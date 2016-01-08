@@ -1,14 +1,15 @@
 <dashboard-widget widget-name="'My deals'" widget-class="'col-md-12'" widget-scrollable="true" widget-closeable="true" widget-dynamic-height="true">
-    <div name="portlet-caption">
-        <i class="fa fa-briefcase"></i>
-        <span class="caption-subject bold uppercase"> MY DEALS</span>
-        <span class="caption-helper">({{ vm.numOfDeals }})</span>
-        <span class="label label-sm label-danger" ng-if="vm.highPrioDeals">{{ vm.highPrioDeals }}</span>
+    <div class="widget-name" name="widget-title">
+        <i class="lilicon hl-deals-filled-icon"></i>
+        My Deals
+        <span class="label-amount">{{ vm.numOfDeals }}</span><span class="label-amount high-prio" ng-if="vm.highPrioDeals" uib-tooltip="Critical priority">{{ vm.highPrioDeals }}</span>
     </div>
-    <div name="portlet-caption-extra">
+
+    <div name="widget-filters">
         <due-date-filter filter-store="vm.table.dueDateFilter" filter-field="'next_step_date'" type="'deal'"></due-date-filter>
         <users-filter users-store="vm.table.usersFilter" storage-name="'myDeals'"></users-filter>
     </div>
+
     <div name="portlet-body">
         <table class="table table-hover">
             <thead>

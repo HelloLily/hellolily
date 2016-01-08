@@ -21,11 +21,11 @@
         {% endverbatim %}
 
         <link href="{% static 'vendor/vendor.css' %}" rel="stylesheet" type="text/css">
-        <link href="{% static 'app.css' %}" rel="stylesheet" type="text/css">
+        <link href="{% static 'app/app.css' %}" rel="stylesheet" type="text/css">
 
         {% verbatim %}
         <!-- END GLOBAL STYLES -->
-        {% endverbatim %}<link rel="shortcut icon" href="{% static 'images/core/favicon.ico' %}" />{% verbatim %}
+        {% endverbatim %}<link rel="shortcut icon" href="{% static 'app/images/core/favicon.ico' %}" />{% verbatim %}
     </head>
     <!-- END HEAD -->
     <!-- BEGIN BODY -->
@@ -103,9 +103,9 @@
         <![endif]-->
         {% endverbatim %}
         <script type="text/javascript" src="{% static 'vendor/vendor.js' %}" charset="utf-8"></script>
-        <script type="text/javascript" src="{% static 'templates.js' %}" charset="utf-8"></script>
-        <script type="text/javascript" src="{% static 'app.js' %}" charset="utf-8"></script>
-        <script type="text/javascript" src="{% static 'analytics.js' %}" charset="utf-8"></script>
+        <script type="text/javascript" src="{% static 'app/templates.js' %}" charset="utf-8"></script>
+        <script type="text/javascript" src="{% static 'app/app.js' %}" charset="utf-8"></script>
+        <script type="text/javascript" src="{% static 'app/analytics.js' %}" charset="utf-8"></script>
         <script>
             var currentUser = {
                 id: parseInt('{{ user.id }}'),

@@ -1,3 +1,7 @@
+//Fonts
+@import "fonts/lilicon";
+
+// Primary requirements
 @import "variables";
 @import "mixins";
 
@@ -13,6 +17,8 @@
 @import "base/animate";
 @import "base/buttons";
 @import "base/forms";
+@import "base/filters";
+@import "base/widget";
 
 @import "cases/cases";
 @import "deals/deals";

@@ -1,7 +1,13 @@
-.subheader {
+$lightBg: #eff2f9;
+$baseBorderColor: #ced9e3;
+$lightBorderColor: #e5e9f0;
+$LilyBlue: #5b9bd1;
+$navyBlue: #5b667b;
+
+.sub-header {
     padding: 10px;
-    background: #eff2f9;
-    border-bottom: 1px #CED9E3 solid;
+    background: $lightBg;
+    border-bottom: 1px $baseBorderColor solid;
 }
 
 .page-header-logo-container {
@@ -78,10 +84,10 @@
         margin: 0;
         display: block;
         width: 100%;
-        border-bottom: 1px #e5e9f0 solid;
+        border-bottom: 1px $lightBorderColor solid;
 
         &:first-child {
-            border-top: 1px #e5e9f0 solid;
+            border-top: 1px $lightBorderColor solid;
         }
     }
 
@@ -91,9 +97,8 @@
 }
 
 .main-nav-item .title {
-    @media (max-width: $breakpoint-desktop){
-        display: inline-block;
-    }
+    display: inline-block;
+
 
     @media (max-width: $breakpoint-laptop){
         display: none;
@@ -112,12 +117,12 @@
     line-height: 57px;
     padding: 0 10px;
     display: block;
-    color: #5b667b;
+    color: $navyBlue;
 
     &:hover,
     &:focus {
         text-decoration: none;
-        color: #5b9bd1;
+        color: $lilyBlue;
     }
 
     @media (max-width: $breakpoint-mobile) {
@@ -132,12 +137,12 @@
 }
 
 .main-nav-item a.active {
-    color: #5b9bd1;
-    border-bottom: 3px #5b9bd1 solid;
+    color: $lilyBlue;
+    border-bottom: 3px $lilyBlue solid;
 
     @media (max-width: $breakpoint-mobile) {
         border-bottom: 0px transparent solid;
-        border-left: 3px #5b9bd1 solid;
+        border-left: 3px $lilyBlue solid;
         margin-top: -1px;
         margin-bottom: -1px;
         padding-top: 1px;
@@ -159,7 +164,6 @@
     line-height: 12px;
 }
 
-
 .header-user-menu-username {
     display: inline-block;
 
@@ -179,4 +183,32 @@
 .header-user-menu-item {
     top: 65px;
     line-height: 40px;
+}
+
+.sub-header-action-menu .drop-down-item {
+    color: white;
+    display: block;
+    background: $lilyBlue;
+    line-height: 28px;
+    border-radius: 4px;
+    padding: 0 10px;
+    text-decoration: none;
+
+    &:hover {
+        background: darken($LilyBlue,10);
+    }
+}
+
+.sub-header-action-menu.open {
+    .drop-down-item {
+        background: darken($LilyBlue,10);
+    }
+}
+
+.sub-header-action-menu-item {
+    line-height: 40px;
+}
+
+.sub-header-action-submenu {
+    margin-top: 7px !important;
 }

@@ -92,7 +92,6 @@
 
         <!-- END TOP NAVIGATION MENU -->
 
-
         <!-- BEGIN MAINNAVIGATION -->
         <ul class="main-nav" ng-class="mainNavCollapsed ? 'main-nav-toggled':''">
             <li class="main-nav-item">
@@ -144,9 +143,9 @@
     <!-- END HEADER INNER -->
     <!-- BEGIN SUBHEADER -->
     <div class="clearfix"></div>
-    <div class="subheader">
+    <div class="sub-header">
         <!-- BEGIN PAGE ACTIONS -->
-        <div class="page-actions">
+        <div class="pull-right">
             <!-- BEGIN LARGE ACTIONS -->
             <div class="hidden-sm hidden-xs">
                 <a class="btn blue btn-sm" ui-sref="base.accounts.create" role="button"><i class="fa fa-plus"></i> Account</a>
@@ -155,23 +154,24 @@
                 <a class="btn blue btn-sm" ui-sref="base.cases.create" role="button"><i class="fa fa-plus"></i> Case</a>
             </div>
             <!-- END LARGE ACTIONS -->
+
             <!-- BEGIN SMALL ACTIONS -->
-            <div class="btn-group hidden-md hidden-lg">
-                <button type="button" class="btn blue btn-sm dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true" aria-expanded="false">
-                    Add
-                    <i class="fa fa-angle-down"></i>
-                </button>
-                <ul class="dropdown-menu" role="menu">
-                    <li>
+            <div class="sub-header-action-menu drop-down hidden-md hidden-lg">
+                <a class="drop-down-item" data-toggle="dropdown" data-hover="dropdown" data-close-others="true" aria-expanded="false">
+                    add <i class="fa fa-angle-down"></i>
+                </a>
+
+                <ul class="sub-header-action-submenu drop-down-sub-menu right-aligned white-menu">
+                    <li class="sub-header-action-menu-item drop-down-sub-menu-item">
                         <a ui-sref="base.accounts.create"><i class="fa fa-plus"></i> Account</a>
                     </li>
-                    <li>
+                    <li class="sub-header-action-menu-item drop-down-sub-menu-item">
                         <a ui-sref="base.contacts.create"><i class="fa fa-plus"></i> Contact</a>
                     </li>
-                    <li>
+                    <li class="sub-header-action-menu-item drop-down-sub-menu-item">
                         <a ui-sref="base.deals.create"><i class="fa fa-plus"></i> Deal</a>
                     </li>
-                    <li>
+                    <li class="sub-header-action-menu-item drop-down-sub-menu-item">
                         <a ui-sref="base.cases.create"><i class="fa fa-plus"></i> Case</a>
                     </li>
                 </ul>

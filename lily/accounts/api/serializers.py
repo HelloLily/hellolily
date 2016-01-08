@@ -208,6 +208,9 @@ class AccountCreateSerializer(serializers.ModelSerializer):
 
 
 class RelatedAccountSerializer(RelatedSerializerMixin, AccountCreateSerializer):
+    """
+    Serializer for the account model when used as a relation.
+    """
     class Meta:
         model = Account
         fields = (  # No related fields in this serializer

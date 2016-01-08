@@ -34,7 +34,7 @@ CASETYPE_CHOICES = (
     'Implement',
     'Misc',
     'Advice'
-    'Customer Happyness',
+    'Customer Happiness',
 )
 
 
@@ -48,7 +48,6 @@ class CaseTypeFactory(DjangoModelFactory):
 
 
 class CaseStatusFactory(DjangoModelFactory):
-
     position = Sequence(int)
     status = Iterator(CASESTATUS_CHOICES)
     tenant = SubFactory(TenantFactory)

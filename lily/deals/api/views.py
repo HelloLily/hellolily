@@ -7,8 +7,8 @@ from rest_framework.viewsets import GenericViewSet
 
 from lily.users.models import LilyUser
 
-from .serializers import DealSerializer
-from ..models import Deal
+from .serializers import DealSerializer, DealNextStepSerializer
+from ..models import Deal, DealNextStep
 
 
 class DealCommunicationList(APIView):
@@ -133,3 +133,13 @@ class DealViewSet(mixins.RetrieveModelMixin,
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
+
+
+class DealNextStepList(APIView):
+    model = DealNextStep
+    serializer_class = DealNextStepSerializer
+
+    def get(self, request, format=None):
+        queryset = self.model.objects.filter(tenant_id=self.request.user.tenant_id)
+        serializer = DealNextStepSerializer(queryset, many=True)
+        return Response(serializer.data)

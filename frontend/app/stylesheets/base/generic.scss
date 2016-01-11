@@ -326,3 +326,9 @@ table {
     -ms-user-select: none;
     user-select: none;
 }
+
+.caption {
+    .btn-group:not(:last-child) {
+        margin-right: 5px;
+    }
+}

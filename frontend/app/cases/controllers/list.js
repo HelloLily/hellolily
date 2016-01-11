@@ -19,9 +19,10 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseListController', CaseListController);
 
-CaseListController.$inject = ['$uibModal', '$scope', '$state', '$timeout', 'Settings', 'Case', 'LocalStorage',
-    'UserTeams', '$q'];
-function CaseListController($uibModal, $scope, $state, $timeout, Settings, Case, LocalStorage, UserTeams, $q) {
+CaseListController.$inject = ['$q', '$scope', '$state', '$timeout', '$uibModal', 'Case', 'HLFilters', 'LocalStorage', 'Settings',
+    'UserTeams'];
+function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFilters, LocalStorage, Settings,
+                            UserTeams) {
     var storage = LocalStorage('caseList');
     var vm = this;
 
@@ -54,14 +55,13 @@ function CaseListController($uibModal, $scope, $state, $timeout, Settings, Case,
         dueDateFilter: storage.get('dueDateFilter', ''),
         searchQuery: storage.get('searchQuery', ''),
     };
-    vm.displayTypeFilterClear = false;
-    vm.displayNonTypeFilterClear = false;
+    vm.displayFilterClear = false;
+    vm.displaySpecialFilterClear = false;
     vm.filterList = [];
 
     vm.updateFilterQuery = updateFilterQuery;
     vm.setSearchQuery = setSearchQuery;
-    vm.clearNonTypeFilters = clearNonTypeFilters;
-    vm.clearTypeFilters = clearTypeFilters;
+    vm.clearFilters = clearFilters;
     vm.assignTo = assignTo;
 
     activate();
@@ -85,20 +85,6 @@ function CaseListController($uibModal, $scope, $state, $timeout, Settings, Case,
         vm.table.searchQuery = queryString;
     }
 
-    function _displayClearButtons() {
-        vm.displayTypeFilterClear = false;
-        vm.displayNonTypeFilterClear = false;
-        vm.filterList.forEach(function(filter) {
-            if (filter.selected) {
-                if (filter.isTypeFilter) {
-                    vm.displayTypeFilterClear = true;
-                } else {
-                    vm.displayNonTypeFilterClear = true;
-                }
-            }
-        });
-    }
-
     /**
      * Gets the filter list. Merges selections with locally stored values.
      *
@@ -114,7 +100,6 @@ function CaseListController($uibModal, $scope, $state, $timeout, Settings, Case,
         // (Because it is faster; loading the list uses AJAX requests).
         if (storedFilterList) {
             vm.filterList = storedFilterList;
-            _displayClearButtons();
         }
 
         // But we still update the list afterwards (in case a filter was changed)
@@ -160,7 +145,7 @@ function CaseListController($uibModal, $scope, $state, $timeout, Settings, Case,
                     name: 'Case type ' + caseName,
                     value: 'casetype_id:' + caseId,
                     selected: false,
-                    isTypeFilter: true,
+                    isSpecialFilter: true,
                 });
             });
 
@@ -188,7 +173,6 @@ function CaseListController($uibModal, $scope, $state, $timeout, Settings, Case,
 
             // Update filterList once AJAX calls are done.
             vm.filterList = filterList;
-            _displayClearButtons();
 
             // Watch doesn't get triggered here, so manually call _updateTableSettings.
             _updateTableSettings();
@@ -265,61 +249,11 @@ function CaseListController($uibModal, $scope, $state, $timeout, Settings, Case,
     }
 
     function updateFilterQuery() {
-        /*
-        * Update the filter based on the separate filters.
-        */
-        var typeFilterStrings = [];
-        var nonTypeFilterStrings = [];
-        _displayClearButtons();
-        vm.table.filterQuery = '';
-
-        vm.filterList.forEach(function(filter) {
-            if (filter.id && filter.id === 'archived') {
-                if (!filter.selected) {
-                    nonTypeFilterStrings.push('archived:false');
-                }
-            } else {
-                if (filter.selected) {
-                    if (filter.isTypeFilter) {
-                        typeFilterStrings.push(filter.value);
-                    } else {
-                        nonTypeFilterStrings.push(filter.value);
-                    }
-                }
-            }
-        });
-
-        if (vm.table.dueDateFilter) {
-            nonTypeFilterStrings.push(vm.table.dueDateFilter);
-        }
-
-        // If we have type filter, we join them OR-wise.
-        if (typeFilterStrings.length > 0) {
-            nonTypeFilterStrings.push('(' + typeFilterStrings.join(' OR ') + ')');
-        }
-
-        // Finally join all filters AND-wise.
-        vm.table.filterQuery = nonTypeFilterStrings.join(' AND ');
+        HLFilters.updateFilterQuery(vm);
     }
 
-    function clearNonTypeFilters() {
-        vm.filterList.forEach(function(filter) {
-            if (!filter.isTypeFilter) {
-                filter.selected = false;
-            }
-        });
-
-        updateFilterQuery();
-    }
-
-    function clearTypeFilters() {
-        vm.filterList.forEach(function(filter) {
-            if (filter.isTypeFilter) {
-                filter.selected = false;
-            }
-        });
-
-        updateFilterQuery();
+    function clearFilters(clearSpecial) {
+        HLFilters.clearFilters(vm, clearSpecial);
     }
 
     function assignTo(myCase) {

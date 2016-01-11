@@ -56,8 +56,9 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
         dueDateFilter: storage.get('dueDateFilter', ''),
         searchQuery: storage.get('searchQuery', ''),
     };
-
     vm.displayFilterClear = false;
+    vm.displaySpecialFilterClear = false;
+    vm.filterList = [];
 
     vm.updateFilterQuery = updateFilterQuery;
     vm.setSearchQuery = setSearchQuery;
@@ -71,65 +72,103 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
         // This timeout is needed because by loading from LocalStorage isn't fast enough
         $timeout(function() {
             _setupWatchers();
+            _getFilterList();
         }, 50);
     }
 
-    /**
-     * stores the selected filters
-     */
-    vm.filterList = storage.get('filterList', [
-        {
-            name: 'Assigned to me',
-            value: 'assigned_to_id:' + currentUser.id,
-            selected: false,
-        },
-        {
-            name: 'New business',
-            value: 'new_business:true',
-            selected: false,
-        },
-        {
-            name: 'Proposal stage',
-            value: 'stage:1',
-            selected: false,
-        },
-        {
-            name: 'Won stage',
-            value: 'stage:2',
-            selected: false,
-        },
-        {
-            name: 'Called',
-            value: 'stage:4',
-            selected: false,
-        },
-        {
-            name: 'Emailed',
-            value: 'stage:5',
-            selected: false,
-        },
-        {
-            name: 'Feedback form not sent',
-            value: 'feedback_form_sent:false',
-            selected: false,
-        },
-        {
-            name: 'Age between 7 and 30 days',
-            value: 'created:[' + moment().subtract(30, 'd').format('YYYY-MM-DD') + ' TO ' + moment().subtract(7, 'd').format('YYYY-MM-DD') + ']',
-            selected: false,
-        },
-        {
-            name: 'Age between 30 and 120 days',
-            value: 'created:[' + moment().subtract(120, 'd').format('YYYY-MM-DD') + ' TO ' + moment().subtract(30, 'd').format('YYYY-MM-DD') + ']',
-            selected: false,
-        },
-        {
-            name: 'Archived',
-            value: '',
-            selected: false,
-            id: 'archived',
-        },
-    ]);
+    function _getFilterList() {
+        var storedFilterList = storage.get('filterListSelected', null);
+        var filterList;
+
+        // Use the value from storage first.
+        // (Because it is faster; loading the list uses AJAX requests).
+        if (storedFilterList) {
+            vm.filterList = storedFilterList;
+        }
+
+        // But we still update the list afterwards (in case a filter was changed)
+        filterList = [
+            {
+                name: 'Assigned to me',
+                value: 'assigned_to_id:' + currentUser.id,
+                selected: false,
+            },
+            {
+                name: 'New business',
+                value: 'new_business:true',
+                selected: false,
+            },
+            {
+                name: 'Proposal stage',
+                value: 'stage:1',
+                selected: false,
+            },
+            {
+                name: 'Won stage',
+                value: 'stage:2',
+                selected: false,
+            },
+            {
+                name: 'Called',
+                value: 'stage:4',
+                selected: false,
+            },
+            {
+                name: 'Emailed',
+                value: 'stage:5',
+                selected: false,
+            },
+            {
+                name: 'Feedback form not sent',
+                value: 'feedback_form_sent:false',
+                selected: false,
+            },
+            {
+                name: 'Age between 7 and 30 days',
+                value: 'created:[' + moment().subtract(30, 'd').format('YYYY-MM-DD') + ' TO ' + moment().subtract(7, 'd').format('YYYY-MM-DD') + ']',
+                selected: false,
+            },
+            {
+                name: 'Age between 30 and 120 days',
+                value: 'created:[' + moment().subtract(120, 'd').format('YYYY-MM-DD') + ' TO ' + moment().subtract(30, 'd').format('YYYY-MM-DD') + ']',
+                selected: false,
+            },
+            {
+                name: 'Archived',
+                value: '',
+                selected: false,
+                id: 'archived',
+            },
+        ];
+
+        Deal.nextSteps(function(nextSteps) {
+            angular.forEach(nextSteps, function(nextStep) {
+                filterList.push({
+                    name: 'Next step ' + nextStep.name,
+                    value: 'next_step.id:' + nextStep.id,
+                    selected: false,
+                    isSpecialFilter: true,
+                });
+            });
+
+            if (storedFilterList) {
+                // Stored filter list exists, merge the selections from with the stored values.
+                angular.forEach(storedFilterList, function(storedFilter) {
+                    angular.forEach(filterList, function(caseInList) {
+                        if (storedFilter.name === caseInList.name) {
+                            caseInList.selected = storedFilter.selected;
+                        }
+                    });
+                });
+            }
+
+            // Update filterList once AJAX calls are done.
+            vm.filterList = filterList;
+
+            // Watch doesn't get triggered here, so manually call _updateTableSettings.
+            _updateTableSettings();
+        });
+    }
 
     /**
      * _updateTableSettings() puts the scope variables in local storage
@@ -139,7 +178,7 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
         storage.put('archived', vm.table.archived);
         storage.put('order', vm.table.order);
         storage.put('visibility', vm.table.visibility);
-        storage.put('filterList', vm.filterList);
+        storage.put('filterListSelected', vm.filterList);
     }
 
     /**
@@ -212,7 +251,7 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
         HLFilters.updateFilterQuery(vm);
     }
 
-    function clearFilters() {
-        HLFilters.clearFilters(vm);
+    function clearFilters(clearSpecial) {
+        HLFilters.clearFilters(vm, clearSpecial);
     }
 }

@@ -93,17 +93,16 @@ class SearchView(LoginRequiredMixin, View):
 class EmailAddressSearchView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
-
         email_address = kwargs.get('email_address', None)
 
         results = {}
 
-        # Only search for contacts if a full email is given
+        # Only search for contacts if a full email is given.
         if email_address.split('@')[0]:
-            # 1: Search for Contact with given email address
+            # 1: Search for contact with given email address.
             results = self._search_contact(email_address)
 
-        # 2: Search for Account with given email address
+        # 2: Search for account with given email address.
         if not results:
             results = self._search_account(email_address)
 
@@ -124,7 +123,8 @@ class EmailAddressSearchView(LoginRequiredMixin, View):
             model_type='contacts_contact',
             size=1,
         )
-        search.filter_query('email_addresses.email_address:%s' % email_address)
+        # Try to find an contact with the full email address.
+        search.filter_query('email_addresses.email_address:"%s"' % email_address)
 
         hits, facets, total, took = search.do_search()
         if hits:
@@ -149,7 +149,7 @@ class EmailAddressSearchView(LoginRequiredMixin, View):
             model_type='accounts_account',
             size=1,
         )
-        # Try to find an account with the full email address
+        # Try to find an account with the full email address.
         search.filter_query('email_addresses.email_address:"%s"' % email_address)
 
         hits, facets, total, took = search.do_search()
@@ -166,11 +166,11 @@ class EmailAddressSearchView(LoginRequiredMixin, View):
                 size=1,
             )
 
-            # No account with the full email address exist, so use the domain for further searching
+            # No account with the full email address exist, so use the domain for further searching.
             domain = email_address.split('@')[1]
 
             second_level_domain = Website(website=domain).second_level
-            # Try to find an account which contains the domain
+            # Try to find an account which contains the domain.
             search.filter_query('email_addresses.email_address:"%s" OR second_level_domain:"%s"' %
                                 (domain, second_level_domain))
 

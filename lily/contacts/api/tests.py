@@ -1,5 +1,4 @@
 from rest_framework import status
-from rest_framework.reverse import reverse
 
 from lily.accounts.factories import AccountFactory
 from lily.accounts.models import Account
@@ -25,45 +24,69 @@ class ContactTests(GenericAPITestCase):
     model_cls = Contact
     serializer_cls = ContactSerializer
 
-    def _create_object_with_relations(self):
+    def _create_object(self, with_relations=False, size=1, **kwargs):
         """
         Create an object with relations in the database using factories.
         """
-        contact = self.factory_cls(tenant=self.user_obj.tenant)
-        contact.phone_numbers.add(PhoneNumberFactory(tenant=contact.tenant))
-        contact.social_media.add(SocialMediaFactory(tenant=contact.tenant))
-        contact.addresses.add(AddressFactory(tenant=contact.tenant))
-        contact.email_addresses.add(EmailAddressFactory(tenant=contact.tenant))
-        contact.functions.add(FunctionFactory(tenant=contact.tenant, contact=contact))
-        contact.tags.add(TagFactory(tenant=contact.tenant, subject=contact))
+        # Set a default tenant of the user.
+        kwargs['tenant'] = self.user_obj.tenant if not kwargs.get('tenant') else kwargs['tenant']
 
-        return contact
+        object_list = self.factory_cls.create_batch(size=size, **kwargs)
 
-    def _create_object_stub_with_relations(self):
+        for iteration in range(0, size):
+            obj = object_list[iteration]
+
+            if with_relations:
+                obj.phone_numbers.add(PhoneNumberFactory(tenant=obj.tenant))
+                obj.social_media.add(SocialMediaFactory(tenant=obj.tenant))
+                obj.addresses.add(AddressFactory(tenant=obj.tenant))
+                obj.email_addresses.add(EmailAddressFactory(tenant=obj.tenant))
+                obj.functions.add(FunctionFactory(tenant=obj.tenant, contact=obj))
+                obj.tags.add(TagFactory(tenant=obj.tenant, subject=obj))
+
+        if size > 1:
+            return object_list
+        else:
+            # If required size is 1, just give the object instead of a list.
+            return object_list[0]
+
+    def _create_object_stub(self, with_relations=False, size=1, **kwargs):
         """
         Create an object dict with relation dicts using factories.
         """
-        contact = self.factory_cls.stub().__dict__
-        contact['phone_numbers'] = [PhoneNumberFactory.stub().__dict__, ]
-        contact['social_media'] = [SocialMediaFactory.stub().__dict__, ]
-        contact['addresses'] = [AddressFactory.stub().__dict__, ]
-        contact['email_addresses'] = [EmailAddressFactory.stub().__dict__, ]
-        contact['accounts'] = [AccountFactory.stub().__dict__, ]
-        contact['tags'] = [TagFactory.stub().__dict__, ]
+        object_list = []
 
-        del contact['tenant']
-        del contact['accounts'][0]['tenant']
+        for iteration in range(0, size):
+            obj = self.factory_cls.stub(**kwargs).__dict__
+            del obj['tenant']
 
-        return contact
+            if with_relations:
+                # If relations are needed, override them, because a dict is needed instead of an instance.
+                obj['phone_numbers'] = [PhoneNumberFactory.stub().__dict__, ]
+                obj['social_media'] = [SocialMediaFactory.stub().__dict__, ]
+                obj['addresses'] = [AddressFactory.stub().__dict__, ]
+                obj['email_addresses'] = [EmailAddressFactory.stub().__dict__, ]
+                obj['accounts'] = [AccountFactory.stub().__dict__, ]
+                obj['tags'] = [TagFactory.stub().__dict__, ]
+
+                del obj['accounts'][0]['tenant']
+
+            object_list.append(obj)
+
+        if size > 1:
+            return object_list
+        else:
+            # If required size is 1, just give the object instead of a list.
+            return object_list[0]
 
     def test_create_object_with_relations(self):
         """
         Test that the creation of an account is succesfull with relations.
         """
-        contact = self._create_object_stub_with_relations()
+        contact = self._create_object_stub(with_relations=True)
 
-        # Perform normal create
-        request = self.user.post(reverse(self.list_url), contact)
+        # Perform normal create.
+        request = self.user.post(self.get_url(self.list_url), contact)
         self.assertEqual(request.status_code, status.HTTP_201_CREATED)
 
         created_id = request.data['id']
@@ -77,10 +100,10 @@ class ContactTests(GenericAPITestCase):
 
         account_id = request.data['accounts'][0]['id']  # For use in testcase #3
 
-        # Check if id's are validated (create_only) and normal fields are validated
+        # Check if id's are validated (create_only) and normal fields are validated.
         contact['phone_numbers'][0].update({'id': request.data['phone_numbers'][0]['id']})
         contact['accounts'].append({'id': 999})
-        request = self.user.post(reverse(self.list_url), contact)
+        request = self.user.post(self.get_url(self.list_url), contact)
         self.assertEqual(request.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(request.data, {
             'phone_numbers': [{
@@ -92,11 +115,11 @@ class ContactTests(GenericAPITestCase):
                 'id': ['The id must point to an existing object.']}
             ]})
 
-        # Check that deleted objects can't be referenced
+        # Check that deleted objects can't be referenced.
         Account.objects.get(pk=account_id).delete()
         contact['accounts'] = [{'id': account_id}, ]
-        del contact['phone_numbers']  # Clear phone_numbers, obly check account referencing
-        request = self.user.post(reverse(self.list_url), contact)
+        del contact['phone_numbers']  # Clear phone_numbers, only check account referencing.
+        request = self.user.post(self.get_url(self.list_url), contact)
         self.assertEqual(request.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(request.data, {
             'accounts': [{
@@ -111,7 +134,7 @@ class ContactTests(GenericAPITestCase):
         stub_dict = self.model_cls().__dict__
         del stub_dict['_state']
 
-        request = self.user.post(reverse(self.list_url), stub_dict)
+        request = self.user.post(self.get_url(self.list_url), stub_dict)
         self.assertEqual(request.status_code, status.HTTP_400_BAD_REQUEST)
 
         self.assertEqual(request.data, {
@@ -124,10 +147,10 @@ class ContactTests(GenericAPITestCase):
         """
         Test that the update of an account is succesfull with relations.
         """
-        contact = self._create_object_with_relations()
-        new_contact = self._create_object_stub_with_relations()
+        contact = self._create_object(with_relations=True)
+        new_contact = self._create_object_stub(with_relations=True)
 
-        request = self.user.put(reverse(self.detail_url, kwargs={'pk': contact.pk}), new_contact)
+        request = self.user.put(self.get_url(self.detail_url, kwargs={'pk': contact.pk}), new_contact)
         self.assertEqual(request.status_code, status.HTTP_200_OK)
 
         created_id = request.data['id']

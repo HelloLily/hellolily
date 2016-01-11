@@ -1,0 +1,116 @@
+.drop-down {
+    position: relative;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    .drop-down-item {
+        z-index: 999;
+    }
+
+    .drop-down-sub-menu {
+        display: none;
+    }
+
+    &.open {
+        .drop-down-sub-menu {
+            position: absolute;
+            z-index: 1000;
+            display: block;
+        }
+    }
+}
+
+.drop-down-sub-menu {
+    position: relative;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background: #5b667b;
+    border: 1px solid #5b667b;
+    min-width: 160px;
+
+    &.right-aligned {
+        right: 0;
+
+        &:before {
+            right: 9px;
+        }
+
+        &:after {
+            right: 10px;
+        }
+    }
+
+    &.left-aligned {
+        left: 0;
+
+        &:before {
+            left: 9px;
+        }
+
+        &:after {
+            left: 10px;
+        }
+    }
+
+    &.white-menu {
+        background: #ffffff;
+        border: 1px #ced9e3 solid;
+
+        &:before {
+            border-bottom: 8px solid #ced9e3;
+        }
+
+        &:after {
+            border-bottom: 7px solid #ffffff;
+        }
+
+        .drop-down-sub-menu-item a {
+            color: #5b667b;
+
+            &:hover {
+                background: #eff2f9;
+            }
+        }
+    }
+
+    &:before {
+        position: absolute;
+        top: -8px;
+        right: auto;
+        display: inline-block !important;
+        border-right: 8px solid transparent;
+        border-bottom: 8px solid #5b667b;
+        border-left: 8px solid transparent;
+        content: '';
+    }
+
+    &:after {
+        position: absolute;
+        top: -7px;
+        right: auto;
+        display: inline-block !important;
+        border-right: 7px solid transparent;
+        border-bottom: 7px solid #5b667b;
+        border-left: 7px solid transparent;
+        content: '';
+    }
+}
+
+.drop-down-sub-menu-item a {
+    width: 100%;
+    padding: 0 10px;
+    display: block;
+    text-decoration: none;
+    color: #d4dadf;
+
+    &:hover {
+        background: darken(#5b667b, 10);
+    }
+}
+
+.drop-down-sub-menu .divider {
+    margin: 5px;
+    border-bottom: 1px lighten(#5b667b,10) solid;
+}

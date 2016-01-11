@@ -1,9 +1,11 @@
 import django_filters
-from rest_framework import mixins
+from rest_framework import viewsets
+from rest_framework.filters import OrderingFilter, DjangoFilterBackend
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.viewsets import GenericViewSet
 
+from lily.api.filters import ElasticSearchFilter
+from lily.tenant.api.mixins import SetTenantUserMixin
 from .serializers import CaseSerializer, CaseStatusSerializer
 from ..models import Case, CaseStatus
 
@@ -38,38 +40,56 @@ class CaseFilter(django_filters.FilterSet):
 
     class Meta:
         model = Case
-        fields = ['type', 'status', 'not_type', 'not_status', 'is_deleted']
+        fields = ['type', 'status', 'not_type', 'not_status', ]
 
 
-class CaseViewSet(mixins.RetrieveModelMixin,
-                  mixins.ListModelMixin,
-                  mixins.UpdateModelMixin,
-                  GenericViewSet):
+class CaseViewSet(SetTenantUserMixin, viewsets.ModelViewSet):
     """
-    List all cases for a tenant.
+    Returns a list of all **active** cases in the system.
+
+    #Search#
+    Searching is enabled on this API.
+
+    To search, provide a field name to search on followed by the value you want to search for to the search parameter.
+
+    #Filtering#
+    Filtering is enabled on this API.
+
+    To filter, use the field name as parameter name followed by the value you want to filter on.
+
+    #Ordering#
+    Ordering is enabled on this API.
+
+    To order, provide a comma seperated list to the ordering argument. Use `-` minus to inverse the ordering.
+
+    #Examples#
+    - plain: `/api/cases/case/`
+    - search: `/api/cases/case/?search=subject:Doremi`
+    - filter: `/api/cases/case/?type=1`
+    - order: `/api/cases/case/?ordering=subject,-id`
+
+    #Returns#
+    * List of cases with related fields
     """
-    filter_class = CaseFilter
-    model = Case
+    # Set the queryset, without .all() this filters on the tenant.
+    queryset = Case.objects
+    # Set the serializer class for this viewset.
     serializer_class = CaseSerializer
-    queryset = Case.objects  # Without .all() this filters on the tenant
+    # Set all filter backends that this viewset uses.
+    filter_backends = (ElasticSearchFilter, OrderingFilter, DjangoFilterBackend,)
+
+    # ElasticSearchFilter: set the model type.
+    model_type = 'cases_case'
+    # OrderingFilter: set all possible fields to order by.
+    ordering_fields = ('id', 'created', 'modified', 'priority', 'subject',)
+    # OrderingFilter: set the default ordering fields.
+    ordering = ('id',)
+    # DjangoFilter: set the filter class.
+    filter_class = CaseFilter
 
     def get_queryset(self):
-        queryset = self.model.objects.filter(tenant_id=self.request.user.tenant_id)
-        queryset = queryset_filter(self.request, queryset)
-        return queryset
-
-    def get(self, request, format=None):
-        filtered_queryset = self.filter_class(request.GET, queryset=self.get_queryset())
-        serializer = self.serializer_class(filtered_queryset, context={'request': request}, many=True)
-        return Response(serializer.data)
-
-    def partial_update(self, request, *args, **kwargs):
-        case = Case.objects.get(pk=kwargs.get('pk'))
-        serializer = CaseSerializer(case, data=request.data, partial=True)
-
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data)
+        queryset = super(CaseViewSet, self).get_queryset().filter(is_deleted=False)
+        return queryset_filter(self.request, queryset)
 
 
 class UserCaseList(APIView):

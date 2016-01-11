@@ -50,3 +50,10 @@ Run the Django development server along with dependent containers.
     docker-compose run --service-ports web
 
 To login, go to http://localhost:8003/ (or `boot2docker ip` in case you're using that). Use credentials that were printed during the `testdata` command.
+
+## Sync mail
+
+To sync mail, set the following properties in your .env file (get the values from the Google Developers Console)
+- GA_CLIENT_ID
+- GA_CLIENT_SECRET
+- GMAIL_CALLBACK_URL

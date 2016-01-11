@@ -22,7 +22,8 @@ function DealsToCheckController($scope, LocalStorage, Deal, UserTeams) {
             column: 'next_step_date',  // string: current sorted column
         }),
         items: [],
-        selectedUserId: storage.get('selectedUserId'),
+        usersFilter: storage.get('usersFilter', ''),
+
     };
     vm.markDealAsChecked = markDealAsChecked;
     activate();
@@ -35,18 +36,18 @@ function DealsToCheckController($scope, LocalStorage, Deal, UserTeams) {
     }
 
     function _getDealsToCheck() {
-        if (vm.table.selectedUserId) {
-            var filterQuery = 'stage:2 AND is_checked:false AND new_business:true AND archived:false';
+        var filterQuery = 'stage:2 AND is_checked:false AND new_business:true AND archived:false';
 
-            if (vm.table.selectedUserId) {
-                filterQuery += ' AND assigned_to_id:' + vm.table.selectedUserId;
-            }
-
-            var dealPromise = Deal.getDeals('', 1, 20, vm.table.order.column, vm.table.order.descending, filterQuery);
-            dealPromise.then(function(deals) {
-                vm.table.items = deals;
-            });
+        if (vm.table.usersFilter) {
+            filterQuery += ' AND (' + vm.table.usersFilter + ')';
+        } else {
+            filterQuery += ' AND assigned_to_id:' + currentUser.id;
         }
+
+        var dealPromise = Deal.getDeals('', 1, 20, vm.table.order.column, vm.table.order.descending, filterQuery);
+        dealPromise.then(function(deals) {
+            vm.table.items = deals;
+        });
     }
 
     function _getUsers() {
@@ -58,10 +59,10 @@ function DealsToCheckController($scope, LocalStorage, Deal, UserTeams) {
     }
 
     function _watchTable() {
-        $scope.$watchGroup(['vm.table.order.descending', 'vm.table.order.column', 'vm.table.selectedUserId'], function() {
+        $scope.$watchGroup(['vm.table.order.descending', 'vm.table.order.column', 'vm.table.usersFilter'], function() {
             _getDealsToCheck();
             storage.put('order', vm.table.order);
-            storage.put('selectedUserId', vm.table.selectedUserId);
+            storage.put('usersFilter', vm.table.usersFilter);
         });
     }
 

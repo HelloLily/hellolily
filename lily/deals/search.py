@@ -107,6 +107,7 @@ class DealMapping(BaseMapping):
                         'analyzer': 'normal_edge_analyzer',
                     },
                     'date_increment': {'type': 'integer'},
+                    'position': {'type': 'integer'}
                 }
             },
             'next_step_date': {

@@ -1,0 +1,214 @@
+$lightBg: #eff2f9;
+$baseBorderColor: #ced9e3;
+$lightBorderColor: #e5e9f0;
+$LilyBlue: #5b9bd1;
+$navyBlue: #5b667b;
+
+.sub-header {
+    padding: 10px;
+    background: $lightBg;
+    border-bottom: 1px $baseBorderColor solid;
+}
+
+.page-header-logo-container {
+    float: left;
+    padding: 0 10px;
+    margin-right: 20px;
+
+    @media (max-width: $breakpoint-mobile) {
+        margin-right: 0px;
+    }
+}
+
+.page-header-logo {
+    font-size: 1.4em;
+    line-height: 60px;
+
+    &:hover,
+    &:focus {
+        text-decoration: none;
+    }
+}
+
+.main-nav {
+    display: block;
+    float: left;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    @extend .no-select;
+
+    @media (max-width: $breakpoint-mobile) {
+        display: none;
+        width: 100%;
+
+        &.main-nav-toggled {
+            display: block;
+        }
+    }
+}
+
+.main-nav-toggle {
+    float: right;
+    width: 40px;
+    text-align: center;
+    display: none;
+
+    i {
+        font-size: 18px;
+        line-height: 60px;
+    }
+
+    @media (max-width: $breakpoint-mobile){
+        display: block;
+    }
+}
+
+.main-nav-item {
+    float: left;
+    margin: 0 10px;
+
+    &:first-child {
+        margin-left: 0px;
+    }
+
+    &:last-child {
+        margin-right: 0px;
+    }
+
+    @media (max-width: $breakpoint-laptop) {
+        margin: 0;
+    }
+
+    @media (max-width: $breakpoint-mobile) {
+        margin: 0;
+        display: block;
+        width: 100%;
+        border-bottom: 1px $lightBorderColor solid;
+
+        &:first-child {
+            border-top: 1px $lightBorderColor solid;
+        }
+    }
+
+    @media (max-width: $breakpoint-mobile) {
+        margin: 0;
+    }
+}
+
+.main-nav-item .title {
+    display: inline-block;
+
+
+    @media (max-width: $breakpoint-laptop){
+        display: none;
+    }
+
+    @media (max-width: $breakpoint-mobile){
+        display: inline-block;
+    }
+}
+
+.main-nav-item a {
+    border-bottom: 3px transparent solid;
+    box-sizing: border-box;
+    text-decoration: none;
+    font-size: 14px;
+    line-height: 57px;
+    padding: 0 10px;
+    display: block;
+    color: $navyBlue;
+
+    &:hover,
+    &:focus {
+        text-decoration: none;
+        color: $lilyBlue;
+    }
+
+    @media (max-width: $breakpoint-mobile) {
+        line-height: 40px;
+        border-bottom: 0px;
+        border-left: 3px transparent solid;
+    }
+}
+
+.main-nav-item a i {
+    font-size: 18px;
+}
+
+.main-nav-item a.active {
+    color: $lilyBlue;
+    border-bottom: 3px $lilyBlue solid;
+
+    @media (max-width: $breakpoint-mobile) {
+        border-bottom: 0px transparent solid;
+        border-left: 3px $lilyBlue solid;
+        margin-top: -1px;
+        margin-bottom: -1px;
+        padding-top: 1px;
+        padding-bottom: 1px;
+    }
+}
+
+.header-user-menu {
+    margin-right: 10px;
+    line-height: 60px;
+
+    a {
+        text-decoration: none;
+    }
+}
+
+.header-user-menu-username-container {
+    display: inline-block;
+    line-height: 12px;
+}
+
+.header-user-menu-username {
+    display: inline-block;
+
+    @media (max-width: $breakpoint-laptop) {
+        display: block;
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    @media (max-width: $breakpoint-mobile) {
+        display: none;
+    }
+}
+
+.header-user-menu-item {
+    top: 65px;
+    line-height: 40px;
+}
+
+.sub-header-action-menu .drop-down-item {
+    color: white;
+    display: block;
+    background: $lilyBlue;
+    line-height: 28px;
+    border-radius: 4px;
+    padding: 0 10px;
+    text-decoration: none;
+
+    &:hover {
+        background: darken($LilyBlue,10);
+    }
+}
+
+.sub-header-action-menu.open {
+    .drop-down-item {
+        background: darken($LilyBlue,10);
+    }
+}
+
+.sub-header-action-menu-item {
+    line-height: 40px;
+}
+
+.sub-header-action-submenu {
+    margin-top: 7px !important;
+}

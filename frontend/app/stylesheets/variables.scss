@@ -30,6 +30,12 @@ $mediumPrioColor: #89c4f4;
 $highPrioColor: #dfba49;
 $criticalPrioColor: #f3565d;
 
-
 //BORDERS
 $baseBorderRadius: 4px;
+
+// BREAKPOINTS
+$breakpoint-mobile: 420px;
+$breakpoint-tablet: 780px;
+$breakpoint-laptop: 1030px;
+$breakpoint-desktop: 1200px;
+$breakpoint-tv: 1800px;

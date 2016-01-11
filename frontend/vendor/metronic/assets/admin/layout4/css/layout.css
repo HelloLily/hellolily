@@ -56,9 +56,6 @@ Page Header
   margin: 0;
   border: 0px;
   padding: 0px;
-  box-shadow: none;
-  height: 75px;
-  min-height: 75px;
   filter: none;
   background-image: none;
   /* Fixed header */
@@ -77,10 +74,9 @@ Page Header
 .page-header.navbar .page-logo {
   float: left;
   display: block;
-  width: 265px;
-  height: 75px;
   padding-left: 20px;
   padding-right: 20px;
+  margin-right: 20px;
 }
 .page-header.navbar .page-logo > .logo-image,
 .page-header.navbar .page-logo > a {
@@ -171,9 +167,8 @@ Page Header
   margin: 30.5px 14px 0 6px;
 }
 .page-header.navbar .page-actions {
-  margin: 17px 0 15px 10px;
   padding: 0;
-  float: left;
+  float: right;
 }
 .page-header.navbar .page-actions .btn-group .btn-sm {
   margin-top: 6px;
@@ -198,7 +193,6 @@ Page Header
 .page-header.navbar .top-menu .navbar-nav > li.dropdown {
   margin: 0px;
   padding: 0px;
-  height: 75px;
   display: inline-block;
 }
 .page-header.navbar .top-menu .navbar-nav > li.dropdown:last-child {
@@ -723,7 +717,6 @@ Page Header
   }
   .page-header.navbar .page-actions {
     float: right;
-    margin-right: 70px;
   }
   .page-header.navbar .page-actions .dropdown-menu {
     right: 0;
@@ -786,7 +779,7 @@ Page container
   clear: both;
 }
 .page-header-fixed .page-container {
-  margin-top: 75px;
+  margin-top: 109px;
 }
 .page-footer-fixed.page-footer-fixed-mobile .page-container {
   margin-bottom: 20px !important;
@@ -813,7 +806,7 @@ Page container
     padding: 10px 10px 0 10px;
   }
   .page-header-fixed.page-header-fixed-mobile .page-container {
-    margin-top: 75px !important;
+    margin-top: 109px !important;
   }
 }
 @media (max-width: 767px) {
@@ -1420,10 +1413,9 @@ Page content
     width: 100%;
   }
   .page-content-wrapper .page-content {
-    margin-left: 235px;
     margin-top: 0px;
     min-height: 600px;
-    padding: 10px 0 0 20px;
+    padding: 0 0 10px;
   }
   .page-content-wrapper .page-content.no-min-height {
     min-height: auto;
@@ -1433,9 +1425,6 @@ Page content
   }
   .page-sidebar-reversed .page-content-wrapper .page-content {
     margin-left: 0 !important;
-    margin-right: 235px !important;
-    padding-left: 0;
-    padding-right: 20px;
   }
   .page-sidebar-reversed.page-sidebar-fixed.page-sidebar-hover-on .page-content-wrapper .page-content {
     margin-left: 0;
@@ -1782,8 +1771,8 @@ Theme Panel
     width: 105px !important;
   }
 }
-/***          
-Page Loading         
+/***
+Page Loading
 ***/
 .page-on-load {
   background: #fefefe;

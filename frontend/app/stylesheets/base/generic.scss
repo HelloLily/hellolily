@@ -118,12 +118,6 @@ td .label-sm {
     color: #595959;
 }
 
-/* FIX z-index of topnav */
-
-.page-header.navbar.navbar-fixed-top {
-    z-index: 3;
-}
-
 /* Contacts freedomlink style */
 
 .contact {
@@ -205,15 +199,6 @@ td .label-sm {
     padding-bottom: 0 !important;
 }
 
-
-.page-header.navbar .page-actions {
-    margin-top: 22px;
-}
-
-.page-header.navbar .page-logo .logo-default {
-    margin-top: 25px;
-}
-
 .page-header.navbar .top-menu .navbar-nav > li.dropdown .dropdown-menu:after {
     right: 22px;
 }
@@ -228,4 +213,13 @@ td .label-sm {
 
 .pre-wrap {
     white-space: pre-wrap;
+}
+
+.no-select {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }

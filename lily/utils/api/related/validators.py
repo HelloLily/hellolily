@@ -2,7 +2,30 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
 
-class CreateOnlyValidator(object):
+class BaseRelatedValidator(object):
+    instance = None
+    field_name = None
+    error_messages = {}
+    manager = None
+
+    def set_context(self, serializer):
+        self.serializer = serializer
+        self.instance = serializer.root.instance
+
+        if hasattr(serializer.parent, 'many'):
+            self.many = True
+            self.field_name = serializer.parent.source
+            if self.instance:
+                self.manager = getattr(self.instance, self.field_name)
+            else:
+                self.manager = self.serializer.Meta.model.objects
+        else:
+            self.many = False
+            self.field_name = serializer.source
+            self.manager = getattr(serializer.parent.Meta.model, self.field_name).get_queryset()
+
+
+class CreateOnlyValidator(BaseRelatedValidator):
     """
     Validator used to disable assignment of existing objects as relations.
     """

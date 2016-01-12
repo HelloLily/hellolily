@@ -58,7 +58,7 @@ class ContactTests(GenericAPITestCase):
 
     def test_create_object_with_relations(self):
         """
-        Test that the creation of an account is succesfull with relations.
+        Test that the creation of a contact is succesfull with relations.
         """
         contact = self._create_object_stub_with_relations()
 
@@ -122,7 +122,7 @@ class ContactTests(GenericAPITestCase):
 
     def test_update_object_with_relations(self):
         """
-        Test that the update of an account is succesfull with relations.
+        Test that the update of a contact is succesfull with relations.
         """
         contact = self._create_object_with_relations()
         new_contact = self._create_object_stub_with_relations()

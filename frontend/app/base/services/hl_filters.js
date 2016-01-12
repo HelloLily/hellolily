@@ -2,36 +2,69 @@ angular.module('app.services').service('HLFilters', HLFilters);
 
 function HLFilters() {
     this.updateFilterQuery = function(viewModel) {
-        viewModel.table.filterQuery = '';
-        viewModel.displayFilterClear = false;
+        // Update the filter based on the separate filters.
         var filterStrings = [];
+        var specialFilterStrings = [];
 
-        for (var i = 0; i < viewModel.filterList.length; i++) {
-            var filter = viewModel.filterList[i];
+        viewModel.table.filterQuery = '';
+
+        this._displayClearButtons(viewModel);
+
+        viewModel.filterList.forEach(function(filter) {
             if (filter.id && filter.id === 'archived') {
                 if (!filter.selected) {
                     filterStrings.push('archived:false');
-                } else {
-                    viewModel.displayFilterClear = true;
                 }
             } else {
                 if (filter.selected) {
-                    filterStrings.push(filter.value);
-                    viewModel.displayFilterClear = true;
+                    if (filter.isSpecialFilter) {
+                        specialFilterStrings.push(filter.value);
+                    } else {
+                        filterStrings.push(filter.value);
+                    }
                 }
             }
-        }
+        });
 
         if (viewModel.table.dueDateFilter) {
             filterStrings.push(viewModel.table.dueDateFilter);
         }
 
+        // If we have type filter, we join them OR-wise.
+        if (specialFilterStrings.length > 0) {
+            filterStrings.push('(' + specialFilterStrings.join(' OR ') + ')');
+        }
+
+        // Finally join all filters AND-wise.
         viewModel.table.filterQuery = filterStrings.join(' AND ');
     };
 
-    this.clearFilters = function(viewModel) {
+    this._displayClearButtons = function(viewModel) {
+        viewModel.displayFilterClear = false;
+        viewModel.displaySpecialFilterClear = false;
+
+        viewModel.filterList.forEach(function(filter) {
+            if (filter.selected) {
+                if (filter.isSpecialFilter) {
+                    viewModel.displaySpecialFilterClear = true;
+                } else {
+                    viewModel.displayFilterClear = true;
+                }
+            }
+        });
+    };
+
+    this.clearFilters = function(viewModel, clearSpecial) {
         for (var i = 0; i < viewModel.filterList.length; i++) {
-            viewModel.filterList[i].selected = false;
+            if (clearSpecial) {
+                if (viewModel.filterList[i].isSpecialFilter) {
+                    // Clear special filters.
+                    viewModel.filterList[i].selected = false;
+                }
+            } else {
+                // Otherwise clear the standard filters.
+                viewModel.filterList[i].selected = false;
+            }
         }
 
         viewModel.updateFilterQuery();

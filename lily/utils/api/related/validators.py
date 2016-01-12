@@ -15,7 +15,10 @@ class BaseRelatedValidator(object):
         if hasattr(serializer.parent, 'many'):
             self.many = True
             self.field_name = serializer.parent.source
-            self.manager = getattr(self.serializer.root.Meta.model, self.field_name).field.model.objects
+            if self.instance:
+                self.manager = getattr(self.instance, self.field_name)
+            else:
+                self.manager = self.serializer.Meta.model.objects
         else:
             self.many = False
             self.field_name = serializer.source

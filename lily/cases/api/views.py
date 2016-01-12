@@ -6,8 +6,8 @@ from rest_framework.views import APIView
 
 from lily.api.filters import ElasticSearchFilter
 from lily.tenant.api.mixins import SetTenantUserMixin
-from .serializers import CaseSerializer, CaseStatusSerializer
-from ..models import Case, CaseStatus
+from .serializers import CaseSerializer, CaseStatusSerializer, CaseTypeSerializer
+from ..models import Case, CaseStatus, CaseType
 
 
 def queryset_filter(request, queryset):
@@ -143,4 +143,14 @@ class CaseStatusList(APIView):
     def get(self, request, format=None):
         queryset = self.model.objects.filter(tenant_id=self.request.user.tenant_id)
         serializer = CaseStatusSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class CaseTypeList(APIView):
+    model = CaseType
+    serializer_class = CaseTypeSerializer
+
+    def get(self, request, format=None):
+        queryset = self.model.objects.filter(tenant_id=self.request.user.tenant_id)
+        serializer = CaseTypeSerializer(queryset, many=True)
         return Response(serializer.data)

@@ -20,14 +20,18 @@ function Contact($resource) {
                 method: 'OPTIONS',
             },
             search: {
-                url: '/search/search/?type=contacts_contact',
+                url: '/search/search/?type=contacts_contact&filterquery=:filterquery',
                 method: 'GET',
-                transformResponse: function(response) {
-                    var data = angular.fromJson(response);
-                    return {
-                        contacts: data.hits,
-                        total: data.total,
-                    };
+                isArray: true,
+                transformResponse: function(data) {
+                    data = angular.fromJson(data);
+                    var objects = [];
+                    if (data && data.hits && data.hits.length > 0) {
+                        data.hits.forEach(function(obj) {
+                            objects.push(obj);
+                        });
+                    }
+                    return objects;
                 },
             },
         }

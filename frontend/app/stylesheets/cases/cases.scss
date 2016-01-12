@@ -78,7 +78,7 @@ td .label-sm {
     padding: 3px 10px;
 }
 
-@mixin case-priority-color($color){
+@mixin case-priority-color($color) {
     border: 1px $color solid;
     background: white;
 
@@ -112,7 +112,7 @@ td .label-sm {
 }
 
 .case-info-heading-priority {
-    padding: 0px 10px;
+    padding: 0 10px;
     line-height: 40px;
     font-size: 16px;
 }
@@ -215,4 +215,50 @@ td .label-sm {
 
 .cases-btn-group-person-selector-padding-left-5 {
     padding-left: 5px;
+}
+
+@mixin case-priority-border-indicator($color) {
+    border-left: 6px $color solid;
+}
+
+.low-priority-color {
+    color: $lowPrioColor;
+}
+
+.medium-priority-color {
+    color: $mediumPrioColor;
+}
+
+.high-priority-color {
+    color: $highPrioColor;
+}
+
+.critical-priority-color {
+    color: $criticalPrioColor;
+}
+
+.priority-button {
+    padding: 5px 12px;
+    border: 1px solid #E5E5E5;
+    border-radius: $baseBorderRadius;
+    width: 49%;
+    margin-bottom: 1.5%;
+
+    &.low-priority-indicator {
+        @include case-priority-border-indicator($lowPrioColor);
+        margin-right: 1.5%;
+    }
+
+    &.medium-priority-indicator {
+        @include case-priority-border-indicator($mediumPrioColor);
+    }
+
+    &.high-priority-indicator {
+        @include case-priority-border-indicator($highPrioColor);
+        margin-right: 1.5%;
+    }
+
+    &.critical-priority-indicator {
+        @include case-priority-border-indicator($criticalPrioColor);
+    }
 }

@@ -19,6 +19,7 @@
                         <!-- Setting ui-view to emailSettings.sidebar.form doesn't update the view if a different form is clicked. So doing ng-if instead -->
                         <div ng-if="emailSettings.sidebar.form == 'createAccount'" ui-view="createAccount"></div>
                         <div ng-if="emailSettings.sidebar.form == 'createContact'" ui-view="createContact"></div>
+                        <div ng-if="emailSettings.sidebar.form == 'createCase'" ui-view="createCase"></div>
                     </div>
                 </div>
             </div>
@@ -27,7 +28,7 @@
         <div ng-if="emailSettings.sidebar.account && emailSettings.accountId">
             <div ui-view="showAccount">
                 <account-detail-widget account="account" height="300"></account-detail-widget>
-                <contact-list-widget ng-if="!emailSettings.contactId" title="{{ account.name }}" list="contactList" height="300" account-id="{{ account.id }}"></contact-list-widget>
+                <list-widget ng-if="!emailSettings.contactId" title="{{ account.name }}" module="contacts" list="contactList" height="300" object="account"></list-widget>
             </div>
         </div>
 
@@ -35,9 +36,14 @@
             <div ui-view="showContact">
                 <contact-detail-widget contact="contact" height="300"></contact-detail-widget>
                 <div ng-repeat="account in contact.accounts" ng-show="contact.accounts.length">
-                    <contact-list-widget title="{{ account.name }}" account-id="{{ account.id }}" list="account.colleagueList" ng-if="contact.accounts.length == 1" height="300"></contact-list-widget>
-                    <contact-list-widget title="{{ account.name }}" account-id="{{ account.id }}" list="account.colleagueList" ng-if="contact.accounts.length >= 2" height="91"></contact-list-widget>
+                    <list-widget title="{{ account.name }}" module="contacts" object="account" list="account.colleagueList" height="height"></list-widget>
                 </div>
+            </div>
+        </div>
+
+        <div ng-if="emailSettings.sidebar.case && emailSettings.sidebar.form != 'createCase' && emailSettings.caseList">
+            <div ui-view="showCases">
+                <list-widget title="Cases" list="emailSettings.caseList" height="300" add-link="base.email.createCase" collapsable-items="true"></list-widget>
             </div>
         </div>
     </div>

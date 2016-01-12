@@ -40,6 +40,11 @@ function HLUtils() {
         return phoneNumber;
     };
 
+    this.getFullName = function(user) {
+        // Join strings in array while ignoring empty values.
+        return [user.first_name, user.preposition, user.last_name].filter(function(val) { return val; }).join(' ');
+    };
+
     this.getSorting = function(field, descending) {
         var sort = '';
         sort += descending ? '-' : '';
@@ -77,5 +82,23 @@ function HLUtils() {
         });
 
         return items;
+    };
+
+    this.addBusinessDays = function(priority) {
+        var daysToAdd = [5, 3, 1, 0];
+
+        var i = 0;
+        var newDate = moment();
+
+        // Add days based on what the priority is. Skip weekends.
+        while (i < daysToAdd[priority]) {
+            newDate = newDate.add(1, 'day');
+
+            if (newDate.day() !== 0 && newDate.day() !== 6) {
+                i++;
+            }
+        }
+
+        return newDate.format();
     };
 }

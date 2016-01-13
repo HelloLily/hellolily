@@ -1,11 +1,10 @@
 <dashboard-widget widget-name="'My cases'" widget-class="'col-md-12'" widget-scrollable="true" widget-closeable="true" widget-dynamic-height="true">
-    <div name="portlet-caption">
-        <i class="fa fa-briefcase"></i>
-        <span class="caption-subject bold uppercase"> MY CASES</span>
-        <span class="caption-helper">({{ vm.numOfCases }})</span>
-        <span class="label label-sm label-danger" ng-if="vm.highPrioCases">{{ vm.highPrioCases }}</span>
+    <div class="widget-name" name="widget-title">
+        <i class="lilicon hl-case-icon"></i>
+        My Cases
+        <span class="label-amount">{{ vm.numOfCases }}</span><span class="label-amount high-prio" ng-if="vm.highPrioCases" uib-tooltip="Critical priority">{{ vm.highPrioCases }}</span>
     </div>
-    <div name="portlet-caption-extra">
+    <div name="widget-filters">
         <due-date-filter filter-store="vm.table.dueDateFilter" type="'case'"></due-date-filter>
         <users-filter users-store="vm.table.usersFilter" storage-name="'myCases'"></users-filter>
     </div>

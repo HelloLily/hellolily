@@ -1,8 +1,8 @@
 <dashboard-widget widget-name="'Unread email'" widget-class="'col-md-6'" widget-scrollable="true" widget-closeable="true">
-    <div name="portlet-caption">
-        <i class="fa fa-envelope-o"></i>
-        <span class="caption-subject bold uppercase"> UNREAD E-MAIL</span>
-        <span class="caption-helper">({{ vm.table.items.length }})</span>
+    <div class="widget-name" name="widget-title">
+        <i class="lilicon hl-mail-icon"></i>
+        Unread E-mail
+        <span class="label-amount">{{ vm.table.items.length }}</span>
     </div>
     <div name="portlet-body">
         <table class="table table-hover">

@@ -29,7 +29,7 @@ var wrap = require('gulp-wrap');  // surround current file(s) with other content
  */
 var config = {
     app: {
-        buildDir: 'lily/static/',
+        buildDir: 'lily/static/app/',
         js: {
             src: [
                 'frontend/app/**/module.js',

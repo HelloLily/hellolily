@@ -142,7 +142,7 @@ function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFil
             var filters = [];
             angular.forEach(cases, function(caseName, caseId) {
                 filters.push({
-                    name: 'Case type ' + caseName,
+                    name: caseName,
                     value: 'casetype_id:' + caseId,
                     selected: false,
                     isSpecialFilter: true,

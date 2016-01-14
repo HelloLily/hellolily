@@ -172,16 +172,11 @@ gulp.task('app-css', [], function() {
             return sourcemaps.init();
         }))
         .pipe(sass())
-        .pipe(ifElse(isProduction, function() {
-            return rebaseUrls({root: config.cdn.root});
+        .pipe(rebaseUrls({root: config.cdn.root}))
+        .pipe(cdnizer({
+            defaultCDNBase: config.cdn.defaultBase,
+            files: config.cdn.src,
         }))
-        .pipe(ifElse(isProduction, function() {
-            return cdnizer({
-                defaultCDNBase: config.cdn.defaultBase,
-                files: config.cdn.src,
-            });
-        }))
-
         .pipe(ifElse(isProduction, uglifyCss))
         .pipe(rename(config.app.sass.fileName))
         .pipe(ifElse(!isProduction, function() {

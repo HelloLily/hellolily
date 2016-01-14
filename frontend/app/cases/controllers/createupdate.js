@@ -204,34 +204,34 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
                 });
             }
 
-            if ($scope.emailSettings) {
+            if (Settings.email.data && (Settings.email.data.account || Settings.email.data.contact)) {
                 // Auto fill data if it's available.
-                if ($scope.emailSettings.contactId) {
-                    if ($scope.emailSettings.account) {
-                        var filterquery = 'accounts.id:' + $scope.emailSettings.account.id;
+                if (Settings.email.data.contact.id) {
+                    if (Settings.email.data && Settings.email.data.account) {
+                        var filterquery = 'accounts.id:' + Settings.email.data.account.id;
 
-                        ContactDetail.query({filterquery: filterquery}).$promise.then(function(colleagues) {
+                        ContactDetail.query({filterquery: filterquery}).$promise.then(function (colleagues) {
                             var colleagueIds = [];
-                            angular.forEach(colleagues, function(colleague) {
+                            angular.forEach(colleagues, function (colleague) {
                                 colleagueIds.push(colleague.id);
                             });
 
                             // Check if the contact actually works at the account.
-                            if (colleagueIds.indexOf($scope.emailSettings.contactId) > -1) {
-                                vm.case.contact = $scope.emailSettings.contactId;
+                            if (colleagueIds.indexOf(Settings.email.data.contact.id) > -1) {
+                                vm.case.contact = Settings.email.data.contact.id;
                             }
                         });
                     } else {
-                        vm.case.contact = $scope.emailSettings.contactId;
+                        vm.case.contact = Settings.email.data.contact.id;
                     }
                 }
 
-                if ($scope.emailSettings.accountId) {
-                    vm.case.account = $scope.emailSettings.accountId;
+                if (Settings.email.data && Settings.email.data.account) {
+                    vm.case.account = Settings.email.data.account.id;
                 }
             }
 
-            if ($scope.emailSettings.sidebar.form) {
+            if (Settings.email.sidebar.form) {
                 vm.startsAt = 1;
             } else {
                 vm.startsAt = 0;
@@ -268,9 +268,9 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     }
 
     function cancelCaseCreation() {
-        if ($scope.emailSettings.sidebar.form === 'createCase') {
-            $scope.emailSettings.sidebar.form = null;
-            $scope.emailSettings.sidebar.case = false;
+        if (Settings.email.sidebar.form === 'cases') {
+            Settings.email.sidebar.form = null;
+            Settings.email.sidebar.case = false;
         } else {
             $state.go('base.cases');
         }
@@ -311,9 +311,10 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             vm.case.$save(function() {
                 toastr.success('I\'ve saved the case for you!', 'Yay');
 
-                if ($scope.emailSettings.sidebar.form === 'createCase') {
-                    $scope.emailSettings.sidebar.form = null;
-                    $scope.emailSettings.sidebar.case = true;
+                if (Settings.email.sidebar.form === 'cases') {
+                    Settings.email.sidebar.form = null;
+
+                    Metronic.unblockUI();
                 } else {
                     $state.go('base.cases.detail', {id: vm.case.id});
                 }

@@ -2,7 +2,7 @@
     <div class="col-md-12">
         <div class="portlet light">
             <div class="portlet-body form">
-                <div ng-if="emailSettings.sidebar.form" class="email-inbox-header inbox-view-header">
+                <div ng-if="settings.email.sidebar.form" class="email-inbox-header inbox-view-header">
                     <h1 class="pull-left">Add contact</h1>
                 </div>
 
@@ -10,12 +10,12 @@
                     <div class="form-body">
                         <form-portlet title="Who was it?">
                             <form-portlet-body>
-                                <form-radio-buttons options="['Formal', 'Informal']" label-title="Salutation" input-name="salutation" required="true" field="vm.contact.salutation" sidebar="emailSettings.sidebar.form"></form-radio-buttons>
-                                <form-radio-buttons options="['Male', 'Female', 'Unknown/Other']" label-title="Gender" input-name="gender" required="true" field="vm.contact.gender" sidebar="emailSettings.sidebar.form"></form-radio-buttons>
+                                <form-radio-buttons options="['Formal', 'Informal']" label-title="Salutation" input-name="salutation" required="true" field="vm.contact.salutation" sidebar="settings.email.sidebar.form"></form-radio-buttons>
+                                <form-radio-buttons options="['Male', 'Female', 'Unknown/Other']" label-title="Gender" input-name="gender" required="true" field="vm.contact.gender" sidebar="settings.email.sidebar.form"></form-radio-buttons>
                                 <form-group label-title="Name" label-icon="building-o" required="true" ng-class="{'has-error': contactForm.last_name.$invalid}">
-                                    <div ng-class="{'col-xs-12': emailSettings.sidebar.form, 'col-md-9': !emailSettings.sidebar.form}">
+                                    <div ng-class="{'col-xs-12': settings.email.sidebar.form, 'col-md-9': !settings.email.sidebar.form}">
                                         <div class="form-group-inline">
-                                            <div class="no-padding" ng-class="{'col-xs-4': emailSettings.sidebar.form, 'col-md-2': !emailSettings.sidebar.form}">
+                                            <div class="no-padding" ng-class="{'col-xs-4': settings.email.sidebar.form, 'col-md-2': !settings.email.sidebar.form}">
                                                 <input class="form-control"
                                                        id="id_first_name"
                                                        maxlength="255"
@@ -27,7 +27,7 @@
                                         </div>
 
                                         <div class="form-group-inline">
-                                            <div class="no-padding-right" ng-class="{'col-xs-4': emailSettings.sidebar.form, 'col-md-1': !emailSettings.sidebar.form}">
+                                            <div class="no-padding-right" ng-class="{'col-xs-4': settings.email.sidebar.form, 'col-md-1': !settings.email.sidebar.form}">
                                                 <input class="form-control"
                                                        id="id_preposition"
                                                        maxlength="255"
@@ -39,7 +39,7 @@
                                         </div>
 
                                         <div class="form-group-inline">
-                                            <div ng-class="{'col-xs-4': emailSettings.sidebar.form, 'col-md-2': !emailSettings.sidebar.form}">
+                                            <div ng-class="{'col-xs-4': settings.email.sidebar.form, 'col-md-2': !settings.email.sidebar.form}">
                                                 <input class="form-control"
                                                        id="id_last_name"
                                                        maxlength="255"
@@ -54,7 +54,7 @@
                                     </div>
                                 </form-group>
                                 <form-group label-title="Works at" label-icon="child" label-id="id_account" field="contactForm.accounts">
-                                    <div ng-class="{'col-xs-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
+                                    <div ng-class="{'col-xs-12': settings.email.sidebar.form, 'col-md-4': !settings.email.sidebar.form}">
                                         <ui-select multiple ng-model="vm.contact.accounts" theme="bootstrap" class="form-control" name="accounts">
                                             <ui-select-match placeholder="Select one or more account(s)">{{ $item.name }}</ui-select-match>
                                             <ui-select-choices repeat="account in vm.accounts" refresh="vm.refreshAccounts($select.search)" refresh-delay="150">
@@ -65,7 +65,7 @@
                                     </div>
                                 </form-group>
                                 <form-group label-title="Description" label-icon="info" label-id="id_description" field="contactForm.description">
-                                    <div ng-class="{'col-xs-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
+                                    <div ng-class="{'col-xs-12': settings.email.sidebar.form, 'col-md-4': !settings.email.sidebar.form}">
                                         <textarea class="form-control" cols="40" id="id_description" name="description" placeholder="Description" rows="3" ng-model="vm.contact.description"></textarea>
                                     </div>
                                 </form-group>
@@ -91,7 +91,7 @@
                         <form-portlet title="Tags">
                             <form-portlet-body>
                                 <form-group label-title="Tags" label-id="id_tags" label-icon="tags" field="contactForm.tags">
-                                    <div ng-class="{'col-xs-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
+                                    <div ng-class="{'col-xs-12': settings.email.sidebar.form, 'col-md-4': !settings.email.sidebar.form}">
                                         <div class="show-and-hide-input">
                                             <div class="form-control-static" ng-class="{hide: vm.contact.tags.length}">
                                                 <a href="javascript:void(0)" class="toggle-original-form-input" data-action="show">
@@ -121,7 +121,7 @@
                         <form-portlet title="Social media">
                              <form-portlet-body>
                                 <form-group label-title="Twitter" label-icon="twitter" label-id="twitter" field="contactForm.twitter">
-                                    <div ng-class="{'col-xs-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
+                                    <div ng-class="{'col-xs-12': settings.email.sidebar.form, 'col-md-4': !settings.email.sidebar.form}">
                                         <div class="input-group">
                                             <span class="input-group-addon">
                                                 <i class="fa fa-twitter"></i>
@@ -137,7 +137,7 @@
                                     </div>
                                 </form-group>
                                 <form-group label-title="LinkedIn" label-icon="linkedin" label-id="linkedin" field="contactForm.linkedin">
-                                    <div ng-class="{'col-xs-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
+                                    <div ng-class="{'col-xs-12': settings.email.sidebar.form, 'col-md-4': !settings.email.sidebar.form}">
                                         <div class="input-group">
                                             <span class="input-group-addon">
                                                 <i class="fa fa-linkedin"></i>

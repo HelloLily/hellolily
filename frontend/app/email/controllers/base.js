@@ -36,9 +36,6 @@ function emailConfig($stateProvider, $urlRouterProvider) {
                 controller: 'CaseCreateUpdateController',
                 controllerAs: 'vm',
             },
-            //'showCases@base.email': {
-            //    controller: EmailShowCasesController,
-            //},
         },
         ncyBreadcrumb: {
             label: 'Email',
@@ -57,8 +54,8 @@ function emailConfig($stateProvider, $urlRouterProvider) {
 
 angular.module('app.email').controller('EmailBaseController', EmailBaseController);
 
-EmailBaseController.$inject = ['$scope', 'Settings'];
-function EmailBaseController($scope, Settings) {
+EmailBaseController.$inject = ['Settings'];
+function EmailBaseController(Settings) {
     Settings.page.setTitle('custom', 'Email');
     Settings.page.header.setMain('custom', 'Email');
     Settings.page.header.setSub('email');
@@ -68,20 +65,15 @@ function EmailBaseController($scope, Settings) {
     //////
 
     function activate() {
-        $scope.emailSettings.sidebar = {
-            account: null,
-            contact: null,
-            form: null,
-            isVisible: false,
-        };
+        Settings.email.resetEmailSettings();
     }
 }
 
 angular.module('app.email').controller('EmailShowAccountController', EmailShowAccountController);
-EmailShowAccountController.$inject = ['$scope', 'AccountDetail', 'ContactDetail'];
-function EmailShowAccountController($scope, AccountDetail, ContactDetail) {
-    $scope.$watch('emailSettings.sidebar.account', function(newValue, oldValue) {
-        if (oldValue === 'showAccount' && newValue === 'checkAccount' && $scope.emailSettings.accountId) {
+EmailShowAccountController.$inject = ['$scope', 'AccountDetail', 'ContactDetail', 'Settings'];
+function EmailShowAccountController($scope, AccountDetail, ContactDetail, Settings) {
+    $scope.$watch('settings.email.sidebar.account', function(newValue, oldValue) {
+        if (oldValue === 'showAccount' && newValue === 'checkAccount' && Settings.email.data.account.id) {
             activate();
         }
     }, true);
@@ -89,9 +81,9 @@ function EmailShowAccountController($scope, AccountDetail, ContactDetail) {
     activate();
 
     function activate() {
-        AccountDetail.get({id: $scope.emailSettings.accountId}).$promise.then(function(account) {
+        AccountDetail.get({id: Settings.email.data.account.id}).$promise.then(function(account) {
             $scope.account = account;
-            $scope.contactList = ContactDetail.query({filterquery: 'accounts.id:' + $scope.emailSettings.accountId});
+            $scope.contactList = ContactDetail.query({filterquery: 'accounts.id:' + Settings.email.data.account.id});
             $scope.contactList.$promise.then(function(contactList) {
                 $scope.contactList = contactList;
             });
@@ -100,10 +92,10 @@ function EmailShowAccountController($scope, AccountDetail, ContactDetail) {
 }
 
 angular.module('app.email').controller('EmailShowContactController', EmailShowContactController);
-EmailShowContactController.$inject = ['$scope', 'ContactDetail'];
-function EmailShowContactController($scope, ContactDetail) {
-    $scope.$watch('emailSettings.sidebar.contact', function(newValue, oldValue) {
-        if (oldValue === 'showContact' && newValue === 'checkContact' && $scope.emailSettings.contactId) {
+EmailShowContactController.$inject = ['$scope', 'ContactDetail', 'Settings'];
+function EmailShowContactController($scope, ContactDetail, Settings) {
+    $scope.$watch('settings.email.sidebar.contact', function(newValue, oldValue) {
+        if (oldValue === 'showContact' && newValue === 'checkContact' && Settings.email.data.contact.id) {
             activate();
         }
     }, true);
@@ -111,7 +103,7 @@ function EmailShowContactController($scope, ContactDetail) {
     activate();
 
     function activate() {
-        ContactDetail.get({id: $scope.emailSettings.contactId}).$promise.then(function(contact) {
+        ContactDetail.get({id: Settings.email.data.contact.id}).$promise.then(function(contact) {
             $scope.contact = contact;
             $scope.height = 300;
 
@@ -130,19 +122,3 @@ function EmailShowContactController($scope, ContactDetail) {
         });
     }
 }
-
-//angular.module('app.email').controller('EmailShowCasesController', EmailShowCasesController);
-//EmailShowCasesController.$inject = ['$scope'];
-//function EmailShowCasesController($scope) {
-//    $scope.$watch('emailSettings.sidebar.case', function(newValue, oldValue) {
-//        if (oldValue === 'showCases' && newValue === 'checkCases' && $scope.emailSettings.caseList) {
-//            activate();
-//        }
-//    }, true);
-//
-//    activate();
-//
-//    function activate() {
-//    }
-//}
-

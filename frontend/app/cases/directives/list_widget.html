@@ -4,7 +4,7 @@
             <i class="lilicon hl-case-icon"></i>
             {{ vm.title }}
         </div>
-        <div class="actions" ng-if="!$parent.emailSettings.sidebar.case">
+        <div class="actions" ng-if="!$parent.settings.email.sidebar.case">
             <a ui-sref="{{ vm.addLink || 'base.cases.create' }}" class="btn btn-circle btn-default">
                 <i class="fa fa-plus"></i>
                 Add

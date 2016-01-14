@@ -4,9 +4,7 @@
     </div>
 </div>
 
-
 <div class="email-inbox-actions-header">
-
     <ul class="email-inbox-actions btn-group">
         <li>
             <a ui-sref="base.email.reply({ id: vm.message.id })" class="reply-btn">
@@ -45,24 +43,24 @@
         </li>
     </ul>
 
-    <ul class="email-inbox-actions pull-right no-margin-right" ng-if="emailSettings.sidebar">
+    <ul class="email-inbox-actions pull-right no-margin-right" ng-if="settings.email.sidebar">
         <li>
-            <a ng-click="vm.toggleAccountSidebar()">
-                <i ng-class="{'fa fa-eye': emailSettings.accountId, 'fa fa-plus': !emailSettings.accountId}"></i> Account
+            <a ng-click="vm.toggleSidebar('account')">
+                <i ng-class="{'fa fa-eye': settings.email.data.account.id, 'fa fa-plus': !settings.email.data.account.id}"></i> Account
             </a>
         </li>
         <li>
-            <a ng-click="vm.toggleContactSidebar()">
-                <i ng-class="{'fa fa-eye': emailSettings.contactId, 'fa fa-plus': !emailSettings.contactId}"></i> Contact
+            <a ng-click="vm.toggleSidebar('contact')">
+                <i ng-class="{'fa fa-eye': settings.email.data.contact.id, 'fa fa-plus': !settings.email.data.contact.id}"></i> Contact
             </a>
         </li>
-        <li ng-if="emailSettings.accountId || emailSettings.contactId">
-            <a ng-click="vm.toggleCasesSidebar()">
+        <li ng-if="settings.email.data.account.id || settings.email.data.contact.id">
+            <a ng-click="vm.toggleSidebar('cases')">
                 <i class="fa fa-plus"></i> Case
             </a>
         </li>
-        <li ng-if="emailSettings.caseList">
-            <a ng-click="vm.toggleCasesSidebar()">
+        <li ng-if="settings.email.data.cases">
+            <a ng-click="vm.toggleSidebar('cases', true)">
                 <i class="fa fa-eye"></i> Cases
             </a>
         </li>

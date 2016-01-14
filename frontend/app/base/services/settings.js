@@ -18,11 +18,11 @@ function Settings() {
             sidebar: {
                 account: null,
                 contact: null,
+                cases: null,
                 form: null,
                 isVisible: false,
             },
-            accountId: false,
-            contactId: false,
+            resetEmailSettings: resetEmailSettings,
         },
     };
 
@@ -75,6 +75,24 @@ function Settings() {
         setTitle(pageType, objectInfo);
         setMain(pageType, objectInfo);
         setSub(pageType, objectInfo);
+    }
+
+    function resetEmailSettings() {
+        // email.sidebar stores the state of sidebar panels (so hidden/closed).
+        Settings.email.sidebar = {
+            account: null,
+            contact: null,
+            form: null,
+            isVisible: false,
+        };
+
+        // email.data stores the actual data which is used for the sidebars.
+        Settings.email.data = {
+            website: null,
+            account: null,
+            contact: null,
+            cases: null,
+        };
     }
 
     return Settings;

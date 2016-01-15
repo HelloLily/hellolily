@@ -5,10 +5,6 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.views.generic import RedirectView
 
-from lily.api.urls import router, accounts_router
-from lily.cases.api.views import UserCaseList, TeamsCaseList, CaseStatusList, CaseTypeList
-from lily.deals.api.views import DealCommunicationList, DealWonWrittenList, DealStagesList, DealNextStepList
-from lily.utils.api.views import CallerName, Notifications, Queues
 from lily.utils.views import BaseView
 
 admin.autodiscover()
@@ -35,22 +31,7 @@ urlpatterns = patterns(
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
     # Django rest
-    url(r'^api/', include(router.urls)),
-    url(r'^api/', include(accounts_router.urls)),
-    url(r'^api/cases/teams/$', TeamsCaseList.as_view()),
-    url(r'^api/cases/teams/(?P<pk>[0-9]+)/$', TeamsCaseList.as_view()),
-    url(r'^api/cases/user/$', UserCaseList.as_view()),
-    url(r'^api/cases/user/(?P<pk>[0-9]+)/$', UserCaseList.as_view()),
-    url(r'^api/cases/statuses/$', CaseStatusList.as_view()),
-    url(r'^api/cases/types/$', CaseTypeList.as_view()),
-    url(r'^api/deals/stages/$', DealStagesList.as_view()),
-    url(r'^api/deals/stats/communication/$', DealCommunicationList.as_view()),
-    url(r'^api/deals/stats/wonwritten/$', DealWonWrittenList.as_view()),
-    url(r'^api/deals/nextsteps/$', DealNextStepList.as_view()),
-    url(r'^api/utils/queues/(?P<queue>[\w]+)/$', Queues.as_view()),
-    url(r'^api/utils/notifications/$', Notifications.as_view()),
-    url(r'^api/utils/callername/$', CallerName.as_view()),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^api/', include('lily.api.urls')),
 
     url(r'^$', BaseView.as_view(), name='base_view'),
 

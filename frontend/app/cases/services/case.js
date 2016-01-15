@@ -42,7 +42,6 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserT
     Case.getCaseTypes = getCaseTypes;
     Case.getMyCasesWidget = getMyCasesWidget;
     Case.getCallbackRequests = getCallbackRequests;
-    Case.getUnassignedCasesForTeam = getUnassignedCasesForTeam;
 
     // Hardcoded because these are the only case priorities.
     Case.casePriorities = [
@@ -176,15 +175,6 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserT
         });
 
         return deferred.promise;
-    }
-
-    function getUnassignedCasesForTeam(teamId, field, descending) {
-        var filterQuery = 'archived:false AND _missing_:assigned_to_id AND assigned_to_groups:' + teamId;
-
-        return Case.query({
-            filterquery: filterQuery,
-            sort: HLUtils.getSorting(field, descending),
-        }).$promise;
     }
 
     return Case;

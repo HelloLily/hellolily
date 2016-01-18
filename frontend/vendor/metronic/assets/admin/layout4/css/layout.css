@@ -66,10 +66,10 @@ Page Header
   /* Top menu */
 }
 .page-header.navbar.navbar-fixed-top {
-  z-index: 9995;
+  z-index: 1030;
 }
 .page-header.navbar.navbar-static-top {
-  z-index: 9995;
+  z-index: 1030;
 }
 .page-header.navbar .page-logo {
   float: left;
@@ -266,7 +266,7 @@ Page Header
   min-width: 160px;
   max-width: 275px;
   width: 275px;
-  z-index: 9995;
+  z-index: 1030;
   /* header notifications dropdowns */
 }
 .page-header.navbar .top-menu .navbar-nav > li.dropdown-extended .dropdown-menu > li.external {

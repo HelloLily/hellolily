@@ -4,7 +4,7 @@
 }
 
 .widget-heading {
-    background: #edf0f8;
+    background: $skyGrey;
     border: 1px #ced9e3 solid;
     line-height: 60px;
     padding: 0 15px;
@@ -13,7 +13,7 @@
         height: 1px;
         display: block;
         content: "";
-        background: lighten(#edf0f8,4);
+        background: lighten($skyGrey,4);
         margin: 0 -15px;
     }
 }

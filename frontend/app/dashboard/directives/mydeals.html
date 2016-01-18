@@ -11,19 +11,19 @@
     </div>
 
     <div name="portlet-body">
-        <table class="table table-hover">
+        <table class="widget-table">
             <thead>
                 <tr>
-                    <th style="width: 25%;">Deal</th>
+                    <th>Deal</th>
                     <th>Client</th>
-                    <th style="width: 15%;">Deal size</th>
-                    <th style="width: 5%;">Next step</th>
-                    <th style="width: 10%;">Next step date</th>
-                    <th style="width: 5%;">Actions</th>
+                    <th>Deal size</th>
+                    <th>Next step</th>
+                    <th>Next step date</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody ng-repeat="(key, deals) in vm.table.items">
-                <tr class="bg-grey" ng-show="deals.length && key.length">
+                <tr class="widget-table-sub-heading" ng-show="deals.length && key.length">
                     <td colspan="6" class="text-capitalize">{{ key }}</td>
                 </tr>
                 <tr ng-repeat="myDeal in deals">
@@ -34,7 +34,7 @@
                     </td>
                     <td>
                         <a ng-if="myDeal.hasUnarchivedCases" ui-sref="base.accounts.detail({ id: deal.account })" class="warning-icon" uib-tooltip="This account has an unarchived case">
-                            <i class="fa fa-briefcase"></i>
+                            <i class="font-size-16 lilicon hl-case-icon"></i>
                         </a>
                         <a ui-sref="base.contacts.detail({ id: myDeal.contact })" ng-if="myDeal.contact"> {{ myDeal.contact_name }}</a>
                         <span ng-if="myDeal.contact && myDeal.account_name"> at</span>
@@ -44,15 +44,15 @@
                         {{ myDeal.amount_recurring | currency:'&euro; ' }} /month | {{ myDeal.amount_once | currency:'&euro; ' }} /once
                     </td>
                     <td>
-                        <span class="label label-sm" ng-class="{0: 'label-danger', 1: 'label-success', 2: 'label-warning', 3: 'label-info', 4: 'label-default'}[myDeal.next_step.position]">
+                        <span>
                             {{ myDeal.next_step.name }}
                         </span>
                     </td>
                     <td>
-                        {{ myDeal.next_step_date | date:'dd MMMM y' }}
+                        <postpone type="'Deal'" object="myDeal" date-field="'next_step_date'" callback="vm.getMyDeals()" display-date="false"></postpone>
+                        <date date="myDeal.next_step_date"></date>
                     </td>
                     <td>
-                        <postpone type="'Deal'" object="myDeal" date-field="'next_step_date'" callback="vm.getMyDeals()" display-date="false" class="margin-right-10"></postpone>
                         <a ng-href="https://freedom.voys.nl/client/{{ myDeal.account_customer_id }}" target="_blank" ng-if="myDeal.account_customer_id">
                             <i class="fa fa-cloud-upload"></i>
                         </a>

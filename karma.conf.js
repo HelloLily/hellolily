@@ -16,7 +16,7 @@ module.exports = function(config) {
         // list of files / patterns to load in the browser
         files: [
             'lily/static/vendor/vendor.js',
-            'lily/static/app.js',
+            'lily/static/app/app.js',
             'lily/static/templates.js',
             'frontend/vendor/**/angular-mocks.js',
             'frontend/**/*Spec.js',

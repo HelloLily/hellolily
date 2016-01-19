@@ -93,6 +93,7 @@ class CaseSerializer(WritableNestedSerializer):
     class Meta:
         model = Case
         fields = (
+            'id',
             'account',
             'assigned_to',
             'assigned_to_groups',
@@ -102,7 +103,6 @@ class CaseSerializer(WritableNestedSerializer):
             'created_by',
             'description',
             'expires',
-            'id',
             'is_archived',
             'modified',
             'priority',

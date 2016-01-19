@@ -140,7 +140,7 @@ class CreateCaseView(CreateUpdateCaseMixin, CreateView):
 
     def get_success_url(self):
         """
-        Get the url to redirect to after this form has succesfully been submitted.
+        Get the url to redirect to after this form has successfully been submitted.
         """
         if self.object:
             return '/#/cases/' + str(self.object.id)
@@ -162,7 +162,7 @@ class UpdateCaseView(CreateUpdateCaseMixin, UpdateView):
 
     def get_success_url(self):
         """
-        Get the url to redirect to after this form has succesfully been submitted.
+        Get the url to redirect to after this form has successfully been submitted.
         """
         # return '/#/cases/%s' % self.object.pk
         return '/#/cases'

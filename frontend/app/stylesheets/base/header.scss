@@ -1,18 +1,12 @@
-$lightBg: #eff2f9;
-$baseBorderColor: #ced9e3;
-$lightBorderColor: #e5e9f0;
-$LilyBlue: #5b9bd1;
-$navyBlue: #5b667b;
-
 .sub-header {
-    padding: 10px;
-    background: $lightBg;
+    padding: 10px 20px;
+    background: $skyGrey;
     border-bottom: 1px $baseBorderColor solid;
 }
 
 .page-header-logo-container {
     float: left;
-    padding: 0 10px;
+    padding: 0 10px 0 20px;
     margin-right: 20px;
 
     @media (max-width: $breakpoint-mobile) {
@@ -110,12 +104,13 @@ $navyBlue: #5b667b;
 }
 
 .main-nav-item a {
+    position: relative;
     border-bottom: 3px transparent solid;
     box-sizing: border-box;
     text-decoration: none;
     font-size: 14px;
     line-height: 57px;
-    padding: 0 10px;
+    padding: 0px 10px;
     display: block;
     color: $navyBlue;
 
@@ -134,6 +129,12 @@ $navyBlue: #5b667b;
 
 .main-nav-item a i {
     font-size: 18px;
+    position: relative;
+    top: 2px;
+
+    &.hl-deals-filled-icon {
+        font-size: 20px;
+    }
 }
 
 .main-nav-item a.active {
@@ -151,7 +152,7 @@ $navyBlue: #5b667b;
 }
 
 .header-user-menu {
-    margin-right: 10px;
+    margin-right: 20px;
     line-height: 60px;
 
     a {
@@ -195,13 +196,13 @@ $navyBlue: #5b667b;
     text-decoration: none;
 
     &:hover {
-        background: darken($LilyBlue,10);
+        background: darken($lilyBlue,10);
     }
 }
 
 .sub-header-action-menu.open {
     .drop-down-item {
-        background: darken($LilyBlue,10);
+        background: darken($lilyBlue,10);
     }
 }
 

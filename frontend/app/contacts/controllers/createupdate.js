@@ -18,6 +18,7 @@ function contactConfig($stateProvider) {
             label: 'Create',
         },
     });
+
     $stateProvider.state('base.contacts.detail.edit', {
         url: '/edit',
         views: {
@@ -52,7 +53,8 @@ function contactConfig($stateProvider) {
  */
 angular.module('app.contacts').controller('ContactCreateUpdateController', ContactCreateUpdateController);
 
-ContactCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', 'Settings', 'Account', 'Contact', 'Tag', 'HLFields', 'HLForms'];
+ContactCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', 'Settings', 'Account', 'Contact', 'Tag',
+    'HLFields', 'HLForms'];
 function ContactCreateUpdateController($scope, $state, $stateParams, Settings, Account, Contact, Tag, HLFields, HLForms) {
     var vm = this;
     vm.contact = {};

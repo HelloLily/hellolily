@@ -36,3 +36,19 @@
 .succes-icon {
     @include notification-icon($lowPrioColor);
 }
+
+.hl-low-prio-icon {
+    color: $lowPrioColor
+}
+
+.hl-normal-prio-icon {
+    color: $mediumPrioColor;
+}
+
+.hl-high-prio-icon {
+    color: $highPrioColor;
+}
+
+.hl-critical-prio-icon {
+    color: $criticalPrioColor;
+}

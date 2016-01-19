@@ -15,7 +15,7 @@ from lily.utils.models.mixins import DeletedMixin, ArchivedMixin
 
 class CaseType(TenantMixin, ArchivedMixin):
     type = models.CharField(max_length=255, db_index=True)
-    # Whether it shows in the filter list or not
+    # Whether it shows in the filter list or not.
     use_as_filter = models.BooleanField(default=True)
 
     def __unicode__(self):
@@ -74,11 +74,12 @@ class Case(TenantMixin, TaggedObjectMixin, DeletedMixin, ArchivedMixin):
     expires = models.DateField(verbose_name=_('expires'), default=week_from_now)
 
     parcel = models.ForeignKey(Parcel, verbose_name=_('parcel'), null=True, blank=True)
+    billing_checked = models.BooleanField(default=False)
 
     @property
     def content_type(self):
         """
-        Return the content type (Django model) for this model
+        Return the content type (Django model) for this model.
         """
         return ContentType.objects.get(app_label='cases', model='case')
 

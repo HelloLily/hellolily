@@ -18,6 +18,5 @@ class SocialMediaFactory(DjangoModelFactory):
     username = LazyAttribute(lambda o: faker.user_name())
     profile_url = LazyAttribute(lambda o: social_media[o.name] % o.username)
 
-
     class Meta:
         model = SocialMedia

@@ -1,11 +1,11 @@
 <div class="portlet light">
     <div class="portlet-title">
         <div class="caption">
-            <i class="fa fa-money"></i>
-            {{ title }}
+            <i class="lilicon hl-deals-filled-icon"></i>
+            {{ vm.title }}
         </div>
         <div class="actions">
-            <a ui-sref="{{ addLink || 'base.deals.create' }}"  class="btn btn-circle btn-default">
+            <a ui-sref="{{ vm.addLink || 'base.deals.create' }}"  class="btn btn-circle btn-default">
                 <i class="fa fa-plus"></i>
                 Add
             </a>
@@ -23,13 +23,13 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr ng-repeat="deal in list" ng-show="list.length">
+                <tr ng-repeat="deal in vm.list" ng-show="vm.list.length">
                     <td>{{ deal.stage_name }}</td>
                     <td><a ui-sref="base.deals.detail({id: deal.id})">{{ deal.name }}</a></td>
                     <td>{{ deal.created | date:'dd MMMM yy' }}</td>
                     <td>&euro;{{ deal.amount_once }} + &euro;{{ deal.amount_recurring }}/m</td>
                 </tr>
-                <tr ng-hide="list.length">
+                <tr ng-hide="vm.list.length">
                     <td colspan="5">No Deals</td>
                 </tr>
                 </tbody>

@@ -81,9 +81,11 @@
     }
 }
 
-td .label-sm {
-    display: block;
-    padding: 4px 6px !important;
+td {
+    .label-sm {
+        display: block;
+        padding: 4px 6px !important;
+    }
 }
 
 /*  END TABLE STUFF */
@@ -153,7 +155,7 @@ td .label-sm {
 }
 
 .no-padding {
-    padding: 0;
+    padding: 0 !important;
 }
 
 .break {
@@ -182,10 +184,6 @@ td .label-sm {
     white-space: pre;
 }
 
-.form-control.select2-container {
-    border: 1px solid #e5e5e5;
-}
-
 .padding-top-15 {
     padding-top: 15px;
 }
@@ -211,8 +209,113 @@ td .label-sm {
     background: #eeeeee;
 }
 
+input.ui-select-search {
+    width: 100% !important;
+}
+
+ul[uib-datepicker-popup-wrap] {
+    padding: 10px;
+
+    *:focus {
+        outline: none;
+    }
+    .btn-default {
+        border: none;
+    }
+}
+
+.select2-container-multi .select2-choices .select2-search-choice {
+    padding: 4px 20px 4px 4px;
+}
+
+.select2-container-multi .select2-search-choice-close {
+    left: initial;
+    margin-top: 0 !important;
+}
+
+.width-50-percent {
+    width: 50%;
+}
+
+.collapse-content {
+    max-height: 9999px;
+    overflow: hidden;
+    -webkit-transition: max-height cubic-bezier(1, 0, 1, 1) 0.5s;
+    transition: max-height cubic-bezier(1, 0, 1, 1) 0.5s;
+
+    &.ng-hide {
+        max-height: 0;
+        -webkit-transition: max-height cubic-bezier(0, 1, 1, 1) 0.225s;
+        transition: max-height cubic-bezier(0, 1, 1, 1) 0.225s;
+    }
+}
+
+.portlet {
+    .collapse-content {
+        ul {
+            margin-top: 10px;
+        }
+    }
+}
+
+.no-border {
+    border: none !important;
+}
+
 .pre-wrap {
     white-space: pre-wrap;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+table {
+    .collapsable-cell {
+        border: none !important;
+        padding: 0 25px !important;
+        white-space: pre-wrap;
+
+        ul {
+            margin-top: 10px;
+        }
+    }
+}
+
+.table tbody {
+    border: initial !important; // reset Metronic styling
+}
+
+@mixin rotate($degrees) {
+    -webkit-transition: all ease-in-out 0.30s;
+    transition: all ease-in-out 0.30s;
+
+    -ms-transform: rotate($degrees + deg); /* IE 9 */
+    -webkit-transform: rotate($degrees + deg); /* Chrome, Safari, Opera */
+    transform: rotate($degrees + deg);
+}
+
+@mixin reset-rotation() {
+    -webkit-transition: all ease-in-out 0.30s;
+    transition: all ease-in-out 0.30s;
+
+    -ms-transform: none; /* IE 9 */
+    -webkit-transform: none; /* Chrome, Safari, Opera */
+    transform: none;
+}
+
+.collapse-indicator {
+    i {
+        font-size: 20px;
+    }
+
+    .fa-angle-down {
+        @include reset-rotation();
+
+        &.rotate {
+            @include rotate(90);
+        }
+    }
 }
 
 .no-select {
@@ -222,4 +325,26 @@ td .label-sm {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+}
+
+.caption {
+    .btn-group:not(:last-child) {
+        margin-right: 5px;
+    }
+}
+
+.align-center {
+    text-align: center;
+}
+
+.no-text-decoration {
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: none;
+    }
+}
+
+.font-size-16 {
+    font-size: 16px;
 }

@@ -16,13 +16,12 @@
     <div class="row">
         <div class="col-md-12 margin-top-10">
             <p>Lets go crazy:</p>
-            <div class="input-group">
+            <div class="input-group form-datepicker">
                 <input type="text"
                        class="form-control"
                        ng-model="vm.date"
                        uib-datepicker-popup="{{ vm.dateFormat }}"
                        datepicker-options="vm.datepickerOptions"
-                       show-button-bar="false"
                        is-open="vm.pickerIsOpen"
                        date-disabled="vm.disabledDates(date, mode)"
                        date-formatter="{{ vm.dateFormat }}" />

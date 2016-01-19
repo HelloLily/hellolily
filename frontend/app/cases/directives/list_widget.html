@@ -1,39 +1,77 @@
 <div class="portlet light">
     <div class="portlet-title">
         <div class="caption">
-            <i class="fa fa-briefcase"></i>
-            {{ title }}
+            <i class="lilicon hl-case-icon"></i>
+            {{ vm.title }}
         </div>
-        <div class="actions">
-            <a ui-sref="{{ addLink || 'base.cases.create' }}" class="btn btn-circle btn-default">
+        <div class="actions" ng-if="!$parent.emailSettings.sidebar.case">
+            <a ui-sref="{{ vm.addLink || 'base.cases.create' }}" class="btn btn-circle btn-default">
                 <i class="fa fa-plus"></i>
                 Add
             </a>
         </div>
     </div>
     <div class="portlet-body">
-        <div class="scroll-body" slimscroll="{height: height}">
-            <table class="table table-hover">
+        <div class="scroll-body" slimscroll="{height: vm.height}">
+            <table class="table">
                 <thead>
-                <tr>
-                    <th>Priority</th>
-                    <th>Subject</th>
-                    <th>Type</th>
-                    <th>Status</th>
-                    <th>Expires</th>
-                </tr>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Status</th>
+                        <th style="text-align: center;">Prio</th>
+                        <th>Expires</th>
+                        <th></th>
+                    </tr>
                 </thead>
-                <tbody>
-                <tr ng-repeat="case in list" ng-show="list.length">
-                    <td>{{ case.priority_name }}</td>
-                    <td><a ui-sref="base.cases.detail({id: case.id})">{{ case.subject }}</a></td>
-                    <td>{{ case.casetype_name }}</td>
-                    <td>{{ case.status }}</td>
-                    <td>{{ case.expires | date:'dd MMMM yy' }}</td>
-                </tr>
-                <tr ng-hide="list.length">
-                    <td colspan="5">No cases</td>
-                </tr>
+                <tbody ng-repeat="case in vm.list" ng-if="vm.list.length">
+                    <tr>
+                        <td><a ui-sref="base.cases.detail({id: case.id})">{{ case.subject }}</a></td>
+                        <td>{{ case.status }}</td>
+                        <td style="width: 50px; text-align: center;">
+                            <i tooltip-placement="left" uib-tooltip="{{ case.priority_name }} priority" class="lilicon" ng-class="{0: 'hl-low-prio-icon', 1: 'hl-normal-prio-icon', 2: 'hl-high-prio-icon', 3: 'hl-critical-prio-icon'}[case.priority]"></i>
+                        </td>
+                        <td style="width: 130px">
+                            <postpone type="'Case'" object="case" date-field="'expires'" display-date="true"></postpone>
+                        </td>
+                        <td class="clickable" style="width: 40px;" ng-click="case.collapsed = !case.collapsed">
+                            <div class="collapse-indicator no-padding">
+                                <i class="fa fa-angle-down" ng-class="{'rotate': case.collapsed}"></i>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="5" class="collapsable-cell">
+                            <div ng-show="!case.collapsed" class="collapse-content">
+                                {{ case.body }}
+
+                                <ul class="list-inline list-justified">
+                                    <li>
+                                        <small class="text-muted">
+                                            <i class="fa fa-circle"></i>
+                                            {{ case.casetype_name }}
+                                        </small>
+                                    </li>
+                                    <li ng-if="case.assigned_to_name">
+                                        <small class="text-muted" uib-tooltip="Assigned to: {{ case.assigned_to_name }}">
+                                            <i class="fa fa-child"></i>
+                                            {{ case.assigned_to_name || "Nobody" }}
+                                        </small>
+                                    </li>
+                                    <li>
+                                        <small class="text-muted" uib-tooltip="Created by: {{ case.created_by }}">
+                                            <i class="fa fa-user"></i>
+                                            {{ case.created_by || "Nobody" }}
+                                        </small>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody ng-if="!vm.list.length">
+                    <tr>
+                        <td colspan="5">No cases</td>
+                    </tr>
                 </tbody>
             </table>
         </div>

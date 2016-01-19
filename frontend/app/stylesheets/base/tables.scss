@@ -1,0 +1,44 @@
+.widget-table {
+    width: 100%;
+    line-height: 20px;
+    color: $navyBlue;
+
+    thead {
+        th {
+            padding: 5px 15px;
+            background: $skyGrey;
+            border-top: 1px white solid;
+            border-bottom: 1px $baseBorderColor solid;
+            font-weight: 500;
+            color: #9fa6b6;
+        }
+    }
+
+    tbody {
+        tr {
+            &:hover {
+                background: lighten($skyGrey, 3);
+            }
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px lighten($baseBorderColor, 12) solid;
+        }
+
+        tr.widget-table-sub-heading {
+            td {
+                padding: 5px 15px;
+                background: lighten($skyGrey, 2);
+            }
+        }
+    }
+
+    .widget-table-priority-cell {
+        text-align: center;
+
+        i {
+            font-size: 18px;
+        }
+    }
+}

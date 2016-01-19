@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from lily.api.serializers import ContentTypeSerializer
-from ..models import Deal
+from ..models import Deal, DealNextStep
 
 
 class DealSerializer(serializers.ModelSerializer):
@@ -23,3 +23,18 @@ class DealSerializer(serializers.ModelSerializer):
             'content_type',
             'is_checked',
         )
+
+
+class DealNextStepSerializer(serializers.ModelSerializer):
+    """
+    Serializer for deal next step model.
+    """
+    class Meta:
+        model = DealNextStep
+        fields = (
+            'id',
+            'name',
+            'date_increment',
+            'position',
+        )
+

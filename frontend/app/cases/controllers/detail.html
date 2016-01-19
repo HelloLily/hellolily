@@ -35,7 +35,7 @@
 
     <div ng-if="vm.case.id" class="col-md-4">
         <dashboard-widget ng-if="vm.case.account" widget-name="'Account info'">
-            <div name="portlet-caption">
+            <div name="widget-title">
                 <a ui-sref="base.accounts.detail({ id: vm.case.account })">
                     <i class="fa fa-building-o"></i>
                     {{ vm.case.account_name }}
@@ -82,7 +82,7 @@
         </dashboard-widget>
 
         <dashboard-widget ng-if="vm.case.contact" widget-name="'Contact info'">
-            <div name="portlet-caption">
+            <div name="widget-title">
                 <a ui-sref="base.contacts.detail({ id: vm.case.contact })">
                     <i class="fa fa-user"></i>
                     {{ vm.case.contact_name }}
@@ -108,7 +108,7 @@
         </dashboard-widget>
 
         <dashboard-widget widget-name="'More info'">
-            <div name="portlet-caption">
+            <div name="widget-title">
                 <i class="fa fa-info"></i>
                 More info
             </div>
@@ -135,7 +135,7 @@
         </dashboard-widget>
 
         <dashboard-widget widget-name="'Tags'">
-            <div name="portlet-caption">
+            <div name="widget-title">
                 <i class="fa fa-tag"></i>
                 Tags
             </div>

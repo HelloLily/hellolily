@@ -17,7 +17,7 @@
                     <checkbox model="vm.table.visibility.customerId">Customer ID</checkbox>
                 </div>
             </div>
-            <a ng-click="vm.exportToCsv()" class="btn btn-default">Export accounts</a>
+            <button ng-click="vm.exportToCsv()" class="btn btn-default">Export accounts</button>
         </div>
         <div class="tools col-xs-12 col-md-6">
             <form class="form-inline pull-right">
@@ -73,7 +73,7 @@
                     </td>
                     <td ng-show="vm.table.visibility.name">
                         <a class="list-link" ui-sref="base.accounts.detail({ id: account.id })" title="{{ ::account.name }}">
-                            <i class="fa fa-building-o"></i>
+                            <i class="lilicon hl-company-icon"></i>
                             <span class="list-link-name">{{ ::account.name }}</span>
                         </a>
                     </td>
@@ -113,4 +113,5 @@
         </table>
     </div>
     <hl-pagination values="vm.table"></hl-pagination>
+        </div>
 </div>

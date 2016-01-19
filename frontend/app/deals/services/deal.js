@@ -1,7 +1,7 @@
 angular.module('app.deals.services').factory('Deal', Deal);
 
-Deal.$inject = ['$q', '$resource', 'HLUtils'];
-function Deal($q, $resource, HLUtils) {
+Deal.$inject = ['$resource', 'HLUtils'];
+function Deal($resource, HLUtils) {
     var Deal = $resource(
         '/api/deals/deal/:id',
         null,
@@ -36,6 +36,10 @@ function Deal($q, $resource, HLUtils) {
                     }
                     return objects;
                 },
+            },
+            nextSteps: {
+                isArray: true,
+                url: 'api/deals/nextsteps',
             },
         }
     );

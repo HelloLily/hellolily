@@ -16,7 +16,7 @@
                     <checkbox model="table.visibility.tags">Tags</checkbox>
                 </div>
             </div>
-            <a ng-click="exportToCsv()" class="btn btn-default">Export contacts</a>
+            <button ng-click="exportToCsv()" class="btn btn-default">Export contacts</button>
         </div>
         <div class="tools col-xs-12 col-md-6">
             <form class="form-inline pull-right">
@@ -84,7 +84,7 @@
                     </td>
                     <td ng-show="table.visibility.name">
                         <a class="list-link" ui-sref="base.contacts.detail({ id: contact.id })" title="{{ ::contact.name }}">
-                            <i class="fa fa-user"></i>
+                            <i class="lilicon hl-user-icon"></i>
                             <span class="list-link-name">{{ ::contact.name }}</span>
                         </a>
                     </td>

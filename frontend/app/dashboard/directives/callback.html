@@ -1,15 +1,14 @@
 <dashboard-widget widget-name="'Callback requests'" widget-class="'col-md-6'" widget-scrollable="true" widget-closeable="true">
-    <div name="portlet-caption">
+    <div class="widget-name" name="widget-title">
         <i class="fa fa-phone"></i>
-        <span class="caption-subject bold uppercase"> CALLBACK REQUESTS</span>
-        <span class="caption-helper">({{ vm.table.items.length }})</span>
+        Callback Requests
+        <span class="label-amount">{{ vm.table.items.length }}</span>
     </div>
     <div name="portlet-body">
-        <table class="table table-hover">
+        <table class="widget-table">
             <thead>
             <tr>
-                <th>Account</th>
-                <th>Contact</th>
+                <th>Client</th>
                 <th>Phone number</th>
                 <th>Subject</th>
                 <th sort-column="created" table="vm.table">Created</th>
@@ -17,21 +16,28 @@
             </thead>
             <tbody>
                 <tr ng-repeat="case in vm.table.items">
-                    <td><a ui-sref="base.accounts.detail({ id: case.account })">{{ case.account_name }}</a></td>
-                    <td><a ui-sref="base.contacts.detail({ id: case.contact })">{{ case.contact_name }}</a></td>
                     <td>
+                        <span ng-show="case.contact">
+                            <a ui-sref="base.contacts.detail({ id: case.contact })">{{ case.contact_name }}</a>
+                        </span>
+                        <span ng-if="case.contact && case.account"> at </span>
+                        <span ng-show="case.account">
+                            <a ui-sref="base.accounts.detail({ id: case.account })">{{ case.account_name }}</a>
+                        </span>
+                    </td>
+                    <td style="width: 140px; min-width: 140px;">
                         <div ng-show="case.accountPhone">
-                            <a href="tel:{{ case.accountPhone }}"><i class="fa fa-building"></i> {{ case.accountPhone }}</a>
+                            <i class="lilicon hl-company-icon"></i> <a href="tel:{{ case.accountPhone }}">{{ case.accountPhone }}</a>
                         </div>
                         <div ng-show="case.contactPhone">
                             <a href="tel:{{ case.contactPhone }}"><i class="fa fa-user"></i> {{ case.contactPhone }}</a>
                         </div>
                     </td>
                     <td><a ui-sref="base.cases.detail({ id: case.id })">{{ case.subject }}</a></td>
-                    <td><date date="case.created" show-time="true"></date></td>
+                    <td style="width: 130px;"><date date="case.created" show-time="true"></date></td>
                 </tr>
                 <tr ng-hide="vm.table.items.length">
-                    <td colspan="5">No callback requests</td>
+                    <td colspan="4">No callback requests</td>
                 </tr>
             </tbody>
         </table>

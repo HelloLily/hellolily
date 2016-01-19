@@ -1,6 +1,6 @@
 angular.module('app.services').service('HLForms', HLForms);
 
-function HLForms () {
+function HLForms() {
     /**
      * setErrors() sets the errors of the forms, making use of Angular's error handling.
      *

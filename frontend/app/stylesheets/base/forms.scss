@@ -1,0 +1,26 @@
+.collapsable-portlet {
+
+}
+
+.collapsable-portlet-heading {
+    line-height: 50px;
+    border-bottom: 1px #e7ecf1 solid;
+    color: #5b667b;
+    margin-bottom: 10px;
+}
+
+.portlet-heading-title {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.portlet-heading-icon {
+    float: right;
+
+    i {
+        float: right;
+        line-height: 50px;
+        font-size: 24px;
+        margin: 0;
+    }
+}

@@ -1,11 +1,11 @@
 <dashboard-widget widget-name="'Unread email'" widget-class="'col-md-6'" widget-scrollable="true" widget-closeable="true">
-    <div name="portlet-caption">
-        <i class="fa fa-envelope-o"></i>
-        <span class="caption-subject bold uppercase"> UNREAD E-MAIL</span>
-        <span class="caption-helper">({{ vm.table.items.length }})</span>
+    <div class="widget-name" name="widget-title">
+        <i class="lilicon hl-mail-icon"></i>
+        Unread E-mail
+        <span class="label-amount">{{ vm.table.items.length }}</span>
     </div>
     <div name="portlet-body">
-        <table class="table table-hover">
+        <table class="widget-table">
             <thead>
                 <tr>
                     <th sort-column="account_name" table="vm.table">Mailbox</th>
@@ -20,8 +20,7 @@
                     <td>{{ message.account_name }}</td>
                     <td>{{ message.sender_name || message.sender_email }}</td>
                     <td>
-                        <div>{{ message.subject }}</div><br>
-                        <div><em>{{ message.snippet }}</em></div>
+                        <div>{{ message.subject }}</div>
                     </td>
                     <td><date date="message.sent_date" show-time="true"></date></td>
                     <td>

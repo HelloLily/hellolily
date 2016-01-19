@@ -1,9 +1,8 @@
 <dashboard-widget widget-name="'Unassigned ' + vm.team.name + ' cases'" widget-class="'col-md-6'" widget-scrollable="true" widget-closeable="true">
-    <div name="portlet-caption">
+    <div class="widget-name" name="widget-title">
         <i class="fa fa-suitcase"></i>
-        <span class="caption-subject bold uppercase"> {{vm.team.name | uppercase}} CASES</span>
-        <span class="caption-helper">({{ vm.table.items.length }})</span>
-        <span class="label label-sm label-danger" ng-if="vm.highPrioCases">{{ vm.highPrioCases }}</span>
+        {{vm.team.name}} Cases
+        <span class="label-amount">{{ vm.table.items.length }}</span><span class="label-amount high-prio" ng-if="vm.highPrioCases" uib-tooltip="Critical priority">{{ vm.highPrioCases }}</span>
     </div>
     <div name="portlet-body">
         <table class="table table-hover">

@@ -1,7 +1,7 @@
 angular.module('app.cases.services').factory('Case', Case);
 
-Case.$inject = ['$http', '$resource', '$q', 'AccountDetail', 'ContactDetail', 'HLUtils'];
-function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils) {
+Case.$inject = ['$http', '$resource', '$q', 'AccountDetail', 'ContactDetail', 'HLUtils', 'UserTeams'];
+function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserTeams) {
     var Case = $resource(
         '/api/cases/case/:id',
         {},
@@ -26,18 +26,86 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils) {
                     id: '@id',
                 },
             },
+            caseTypes: {
+                isArray: true,
+                url: 'api/cases/types/',
+            },
+            caseStatuses: {
+                isArray: true,
+                url: '/api/cases/statuses/',
+            },
         }
     );
 
+    Case.create = create;
     Case.getCases = getCases;
     Case.getCaseTypes = getCaseTypes;
     Case.getMyCasesWidget = getMyCasesWidget;
     Case.getCallbackRequests = getCallbackRequests;
-    Case.getUnassignedCasesForTeam = getUnassignedCasesForTeam;
+    Case.clean = clean;
 
-    return Case;
+    // Hardcoded because these are the only case priorities.
+    Case.casePriorities = [
+        {position: 0, name: 'Low'},
+        {position: 1, name: 'Medium'},
+        {position: 2, name: 'High'},
+        {position: 3, name: 'Critical'},
+    ];
 
     /////////
+
+    function create() {
+        var expires = moment().add(1, 'week').format();  // default expiry date is a week from now
+        var teams = [];
+
+        UserTeams.mine().$promise.then(function(userTeams) {
+            angular.forEach(userTeams, function(team) {
+                teams.push(team.id);
+            });
+        });
+
+        return new Case({
+            billing_checked: false,
+            assigned_to_groups: teams,
+            priority: 0,
+            expires: expires,
+            tags: [],
+        });
+    }
+
+    /**
+     * Clean the case data.
+     * @param data (object): The case that's being created/updated.
+     */
+    function clean(data) {
+        var cleanedData = angular.copy(data);
+
+        angular.forEach(cleanedData, function(fieldValue, field) {
+            if (fieldValue) {
+                // We don't want to send whole objects to the API, because they're not accepted.
+                // So loop through all fields and extract IDs.
+                if (fieldValue.constructor === Array) {
+                    var ids = [];
+
+                    angular.forEach(fieldValue, function(item) {
+                        if (typeof item === 'object') {
+                            if (item.hasOwnProperty('id')) {
+                                ids.push(item.id);
+                            }
+                        }
+                    });
+
+                    cleanedData[field] = ids;
+                } else if (typeof fieldValue === 'object') {
+                    if (fieldValue.hasOwnProperty('id')) {
+                        cleanedData[field] = fieldValue.id;
+                    }
+                }
+            }
+        });
+
+        return cleanedData;
+    }
 
     /**
      * getCases() gets the cases from the search backend through a promise
@@ -140,15 +208,9 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils) {
             });
             deferred.resolve(cases);
         });
+
         return deferred.promise;
     }
 
-    function getUnassignedCasesForTeam(teamId, field, descending) {
-        var filterQuery = 'archived:false AND _missing_:assigned_to_id AND assigned_to_groups:' + teamId;
-
-        return Case.query({
-            filterquery: filterQuery,
-            sort: HLUtils.getSorting(field, descending),
-        }).$promise;
-    }
+    return Case;
 }

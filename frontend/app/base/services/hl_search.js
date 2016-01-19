@@ -7,6 +7,10 @@ function HLSearch($injector) {
     function refreshList(query, model, excludeItems, extraQuery) {
         var items = [];
 
+        if (!extraQuery) {
+            extraQuery = '';
+        }
+
         // Dynamically get the model.
         model = $injector.get(model);
 

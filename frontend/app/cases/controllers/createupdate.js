@@ -269,6 +269,8 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
 
         HLForms.blockUI();
 
+        vm.case = Case.clean(vm.case);
+
         // Clear all errors of the form (in case of new errors).
         angular.forEach(form, function(value, key) {
             if (typeof value === 'object' && value.hasOwnProperty('$modelValue')) {

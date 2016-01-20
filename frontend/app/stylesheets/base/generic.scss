@@ -348,3 +348,12 @@ table {
 .font-size-16 {
     font-size: 16px;
 }
+
+.text-overflow-hidden {
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.no-wrap {
+    white-space: nowrap;
+}

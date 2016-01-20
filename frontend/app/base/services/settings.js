@@ -27,7 +27,7 @@ function Settings() {
     };
 
     function setTitle(pageType, newTitle) {
-        // Capitalize first letter of the new title
+        // Capitalize first letter of the new title.
         Settings.page.title = newTitle.charAt(0).toUpperCase() + newTitle.slice(1);
 
         return Settings.page.title;
@@ -35,15 +35,17 @@ function Settings() {
 
     function setMain(pageType, newHeader) {
         var formats = {
-            list: 'List of ',
-            detail: 'View ',
             create: 'New ',
             edit: 'Edit ',
             custom: '',
         };
 
         if (pageType && newHeader) {
-            Settings.page.header.main = formats[pageType] + newHeader;
+            if (formats[pageType]) {
+                Settings.page.header.main = formats[pageType] + newHeader;
+            } else {
+                Settings.page.header.main = newHeader.charAt(0).toUpperCase() + newHeader.slice(1);
+            }
         }
 
         return Settings.page.header.main;

@@ -8,6 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 
 register = template.Library()
 
+
 @register.filter
 def naturaldatetime(value, arg='d b'):
     """
@@ -17,17 +18,17 @@ def naturaldatetime(value, arg='d b'):
     """
     if not type(value) is datetime:
         return value
-    
+
     tzinfo = getattr(value, 'tzinfo', None)
     today = datetime.now(tzinfo).date()
     delta = value.date() - today
-    
-    if delta.days == 0: #Check if today
+
+    if delta.days == 0:  # Check if today
         return value.strftime('%H:%M')
-    elif delta.days == 1: #Check if tomorrow
+    elif delta.days == 1:  # Check if tomorrow
         return _(u'tomorrow')
-    elif delta.days == -1: #Check if yesterday
+    elif delta.days == -1:  # Check if yesterday
         return _(u'yesterday')
-    elif (delta.days > 365) or (delta.days < -365): #Check if not within the same year
+    elif (delta.days > 365) or (delta.days < -365):  # Check if not within the same year
         return defaultfilters.date(value, 'd-m-Y')
-    return defaultfilters.date(value, arg) #Return 'day month'
+    return defaultfilters.date(value, arg)  # Return 'day month'

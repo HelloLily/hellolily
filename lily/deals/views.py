@@ -104,7 +104,7 @@ class CreateUpdateDealMixin(LoginRequiredMixin):
         """
         Overloading super().form_valid to add success message after editing.
         """
-        # Save instance
+        # Save instance.
         response = super(CreateUpdateDealMixin, self).form_valid(form)
 
         return response
@@ -130,7 +130,7 @@ class CreateDealView(CreateUpdateDealMixin, CreateView):
         """
         initial = super(CreateDealView, self).get_initial()
 
-        # If the Deal is created from an Account, initialize the form with data from that Account
+        # If the Deal is created from an Account, initialize the form with data from that Account.
         account_pk = self.kwargs.get('account_pk', None)
         if account_pk:
             try:
@@ -142,7 +142,7 @@ class CreateDealView(CreateUpdateDealMixin, CreateView):
 
                 deal_count = Deal.objects.filter(account=account).count()
 
-                # If the account is newer than 7 days and it doesn't have any deals associated we mark it as a new business
+                # If the account is newer than 7 days and it doesn't have any deals; we mark it as a new business.
                 if deal_count == 0 and account.created.date() > date.today() - timedelta(days=7):
                     initial.update({'new_business': True})
 
@@ -306,5 +306,8 @@ class UpdateStageAjaxView(LoginRequiredMixin, AjaxUpdateView):
                 return HttpResponse(anyjson.serialize({'stage': stage}), content_type='application/json')
             else:
                 closed_date_local = instance.closed_date.astimezone(timezone(settings.TIME_ZONE))
-                response = anyjson.serialize({'closed_date': closed_date_local.strftime('%d %b %y %H:%M'), 'stage': stage})
+                response = anyjson.serialize({
+                    'closed_date': closed_date_local.strftime('%d %b %y %H:%M'),
+                    'stage': stage,
+                })
                 return HttpResponse(response, content_type='application/json')

@@ -17,7 +17,7 @@ from .models import BlogEntry
 class AddBlogEntryView(CreateView):
     form_class = CreateBlogEntryForm
     model = BlogEntry
-    
+
     def dispatch(self, request, *args, **kwargs):
         """
         Overloading super().dispatch to change the template to be rendered for ajax requests.
@@ -29,7 +29,7 @@ class AddBlogEntryView(CreateView):
 
         if is_ajax(request):
             self.template_name_suffix = '_form_ajax'
-        
+
         return super(AddBlogEntryView, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -98,7 +98,6 @@ class DeleteBlogEntryView(DeleteView):
         self.object.delete()
 
         if is_ajax(request):
-            do_redirect = True
             url = request.META.get('HTTP_REFERER', reverse('dashboard'))
 
             # Return response

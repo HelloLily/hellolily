@@ -7,7 +7,8 @@ from .views import (AcceptInvitationView, RegistrationView, ActivationView, Acti
 from .forms import CustomPasswordResetForm, CustomSetPasswordForm
 
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     # Registration
     url(r'^registration/$', RegistrationView.as_view(), name='registration'),
 
@@ -47,6 +48,7 @@ urlpatterns = patterns('',
 )
 
 # Views from django.contrib.auth.views
-urlpatterns += patterns('django.contrib.auth.views',
+urlpatterns += patterns(
+    'django.contrib.auth.views',
     url(r'^logout/$', 'logout_then_login', name='logout'),
 )

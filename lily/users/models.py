@@ -14,12 +14,6 @@ from lily.socialmedia.models import SocialMedia
 from lily.tenant.models import TenantMixin, Tenant
 
 
-try:
-    from lily.tenant.functions import add_tenant
-except ImportError:
-    from lily.utils.functions import dummy_function as add_tenant
-
-
 class LilyUserManager(UserManager):
 
     def _create_user(self, email, password, is_staff, is_superuser, tenant_id=None, **extra_fields):
@@ -77,8 +71,17 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
     preposition = models.CharField(_('preposition'), max_length=100, blank=True)
     last_name = models.CharField(_('last name'), max_length=45)
     email = models.EmailField(_('email address'), max_length=255, unique=True)
-    is_staff = models.BooleanField(_('staff status'), default=False, help_text=_('Designates whether the user can log into this admin site.'))
-    is_active = models.BooleanField(_('active'), default=True, help_text=_('Designates whether this user should be treated as active. Unselect this instead of deleting accounts.'))
+    is_staff = models.BooleanField(
+        _('staff status'),
+        default=False,
+        help_text=_('Designates whether the user can log into this admin site.')
+    )
+    is_active = models.BooleanField(
+        _('active'),
+        default=True,
+        help_text=_('Designates whether this user should be treated as active. '
+                    'Unselect this instead of deleting accounts.')
+    )
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
     lily_groups = models.ManyToManyField(
         LilyGroup,

@@ -80,7 +80,10 @@ class EmailAccount(TenantMixin, DeletedMixin):
         help_text=_('Select the users wich to share the account with.'),
         blank=True,
     )
-    public = models.BooleanField(default=False, help_text=_('Make the email account accessible for the whole company.'))
+    public = models.BooleanField(
+        default=False,
+        help_text=_('Make the email account accessible for the whole company.')
+    )
 
     def __unicode__(self):
         return u'%s  (%s)' % (self.label, self.email_address)
@@ -307,8 +310,11 @@ class TemplateVariable(TenantMixin):
     name = models.CharField(verbose_name=_('variable name'), max_length=255)
     text = models.TextField(verbose_name='variable text')
     owner = models.ForeignKey(LilyUser, related_name='template_variable')
-    is_public = models.BooleanField(default=False, choices=NO_YES_CHOICES,
-                                    help_text='A public template variable is available to everyone in your organisation')
+    is_public = models.BooleanField(
+        default=False,
+        choices=NO_YES_CHOICES,
+        help_text='A public template variable is available to everyone in your organisation'
+    )
 
     class Meta:
         app_label = 'email'
@@ -369,7 +375,7 @@ class EmailTemplateAttachment(TenantMixin):
 
 
 class EmailDraft(TimeStampedModel):
-    send_from = models.ForeignKey(EmailAccount, verbose_name=_('From'), related_name='drafts')  # or simple charfield with modelchoices?
+    send_from = models.ForeignKey(EmailAccount, verbose_name=_('From'), related_name='drafts')
     send_to_normal = models.TextField(null=True, blank=True, verbose_name=_('to'))
     send_to_cc = models.TextField(null=True, blank=True, verbose_name=_('cc'))
     send_to_bcc = models.TextField(null=True, blank=True, verbose_name=_('bcc'))

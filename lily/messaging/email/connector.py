@@ -1,4 +1,3 @@
-import base64
 import logging
 import random
 import time
@@ -6,7 +5,7 @@ import time
 import anyjson
 from django.conf import settings
 from googleapiclient.errors import HttpError
-from googleapiclient.http import BatchHttpRequest, MediaFileUpload, MediaInMemoryUpload
+from googleapiclient.http import BatchHttpRequest, MediaInMemoryUpload
 
 from .credentials import get_credentials, InvalidCredentialsError
 from .services import build_gmail_service
@@ -125,7 +124,9 @@ class GmailConnector(object):
         # Check if there are more pages.
         while 'nextPageToken' in response:
             page_token = response['nextPageToken']
-            response = self.execute_service_call(self.service.users().messages().list(userId='me', pageToken=page_token))
+            response = self.execute_service_call(
+                self.service.users().messages().list(userId='me', pageToken=page_token)
+            )
             messages.extend(response.get('messages', []))
 
         # Store history_id
@@ -297,7 +298,12 @@ class GmailConnector(object):
 
     def send_email_message(self, message_string, thread_id=None):
         message_dict = {}
-        media = MediaInMemoryUpload(message_string, mimetype='message/rfc822', chunksize=settings.GMAIL_CHUNK_SIZE, resumable=True)
+        media = MediaInMemoryUpload(
+            message_string,
+            mimetype='message/rfc822',
+            chunksize=settings.GMAIL_CHUNK_SIZE,
+            resumable=True
+        )
         if thread_id:
             message_dict.update({'threadId': thread_id})
         return self.execute_service_call(
@@ -305,13 +311,23 @@ class GmailConnector(object):
         )
 
     def create_draft_email_message(self, message_string):
-        media = MediaInMemoryUpload(message_string, mimetype='message/rfc822', chunksize=settings.GMAIL_CHUNK_SIZE, resumable=True)
+        media = MediaInMemoryUpload(
+            message_string,
+            mimetype='message/rfc822',
+            chunksize=settings.GMAIL_CHUNK_SIZE,
+            resumable=True
+        )
         return self.execute_service_call(
             self.service.users().drafts().create(userId='me', media_body=media)
         )
 
     def update_draft_email_message(self, message_string, draft_id):
-        media = MediaInMemoryUpload(message_string, mimetype='message/rfc822', chunksize=settings.GMAIL_CHUNK_SIZE, resumable=True)
+        media = MediaInMemoryUpload(
+            message_string,
+            mimetype='message/rfc822',
+            chunksize=settings.GMAIL_CHUNK_SIZE,
+            resumable=True
+        )
         return self.execute_service_call(
             self.service.users().drafts().update(userId='me', media_body=media, id=draft_id)
         )

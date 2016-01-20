@@ -162,7 +162,7 @@ def toggle_read_email_message(email_id, read=True):
         try:
             logger.debug('Toggle read: %s', email_message)
             manager.toggle_read_email_message(email_message, read=read)
-        except Exception, e:
+        except Exception:
             logger.exception('Failed toggle read for: %s' % email_message)
         finally:
             manager.cleanup()
@@ -187,7 +187,7 @@ def archive_email_message(email_id):
         try:
             logger.debug('Archiving: %s', email_message)
             manager.archive_email_message(email_message)
-        except Exception, e:
+        except Exception:
             logger.exception('Failed archiving %s' % email_message)
         finally:
             manager.cleanup()
@@ -213,7 +213,7 @@ def trash_email_message(email_id):
         try:
             logger.debug('Trashing: %s', email_message)
             manager.trash_email_message(email_message)
-        except Exception, e:
+        except Exception:
             logger.exception('Failed trashing %s' % email_message)
         finally:
             manager.cleanup()
@@ -239,7 +239,7 @@ def add_and_remove_labels_for_message(email_id, add_labels=None, remove_labels=N
         try:
             logger.debug('Changing labels for: %s', email_message)
             manager.add_and_remove_labels_for_message(email_message, add_labels, remove_labels)
-        except Exception, e:
+        except Exception:
             logger.exception('Failed changing labels for %s' % email_message)
         finally:
             manager.cleanup()
@@ -368,7 +368,9 @@ def send_message(email_outbox_message_id, original_message_id=None):
             raise
         finally:
             manager.cleanup()
-    send_logger.info('Done sending email_outbox_message: %d And sent_succes value: %s' % (email_outbox_message_id, sent_success))
+    send_logger.info(
+        'Done sending email_outbox_message: %d And sent_succes value: %s' % (email_outbox_message_id, sent_success)
+    )
     return sent_success
 
 
@@ -407,6 +409,7 @@ def create_draft_email_message(email_outbox_message_id):
         manager.cleanup()
 
     return draft_success
+
 
 @task(name='update_draft_email_message', bind=True)
 @task(logger=logger)

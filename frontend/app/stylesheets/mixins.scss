@@ -4,3 +4,18 @@
 We have mixins in order to keep our cascading style sheets DRY (Don't Repeat
 Yourself) and maintainable.
 */
+
+@mixin colored-bullet($size, $color) {
+    margin-left: 5px;
+
+    &:before {
+        content: "";
+        display: inline-block;
+        position: relative;
+        left: -5px;
+        height: $size;
+        width: $size;
+        border-radius: $size / 2;
+        background: $color;
+    }
+}

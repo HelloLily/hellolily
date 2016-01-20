@@ -52,3 +52,29 @@
 .hl-critical-prio-icon {
     color: $criticalPrioColor;
 }
+
+.step-type {
+    &.position-1 {
+        @include colored-bullet(10px, $bulletColor1)
+    }
+
+    &.position-2 {
+        @include colored-bullet(10px, $bulletColor2)
+    }
+
+    &.position-3 {
+        @include colored-bullet(10px, $bulletColor3)
+    }
+
+    &.position-4 {
+        @include colored-bullet(10px, $bulletColor4)
+    }
+
+    &.position-5 {
+        @include colored-bullet(10px, $bulletColor5)
+    }
+
+    &.position-6 {
+        @include colored-bullet(10px, $bulletColor6)
+    }
+}

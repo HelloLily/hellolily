@@ -37,12 +37,12 @@
         <dashboard-widget ng-if="vm.case.account" widget-name="'Account info'">
             <div name="widget-title">
                 <a ui-sref="base.accounts.detail({ id: vm.case.account })">
-                    <i class="fa fa-building-o"></i>
+                    <i class="lilicon hl-company-icon"></i>
                     {{ vm.case.account_name }}
                 </a>
             </div>
 
-            <div name="portlet-body">
+            <div name="portlet-body" class="widget-content">
                 <ul class="case-detail-block-list">
                     <li ng-if="vm.account.email_addresses.length">
                         <strong>E-mail addresses</strong>
@@ -76,6 +76,9 @@
                         <strong>Shipment:</strong>
                         <div><a href="{{ vm.case.parcel_link }}">Track this parcel</a></div>
                     </li>
+                    <li ng-if="!vm.account.email_addresses.length && !vm.account.phone_numbers.length && !vm.account.addresses.length && !vm.account.websites.length && !vm.case.parcel_identifier" >
+                        No additional information
+                    </li>
                 </ul>
 
             </div>
@@ -84,12 +87,12 @@
         <dashboard-widget ng-if="vm.case.contact" widget-name="'Contact info'">
             <div name="widget-title">
                 <a ui-sref="base.contacts.detail({ id: vm.case.contact })">
-                    <i class="fa fa-user"></i>
+                    <i class="lilicon hl-user-icon"></i>
                     {{ vm.case.contact_name }}
                 </a>
             </div>
 
-            <div name="portlet-body">
+            <div name="portlet-body" class="widget-content">
                 <ul class="case-detail-block-list">
                     <li ng-if="vm.contact.email_addresses.length">
                         <strong>E-mail addresses: </strong>
@@ -103,6 +106,9 @@
                             <a href="tel:{{ phonenumber.raw_input }}">{{ phonenumber.raw_input }}</a> ({{phonenumber.type}})
                         </div>
                     </li>
+                    <li ng-if="!vm.contact.email_addresses.length && !vm.contact.phone_numbers.length">
+                        No additional information
+                    </li>
                 </ul>
             </div>
         </dashboard-widget>
@@ -113,7 +119,7 @@
                 More info
             </div>
 
-            <div name="portlet-body">
+            <div name="portlet-body" class="widget-content">
                 <ul class="case-detail-block-list">
                     <li>
                         <strong>Assigned to:</strong>
@@ -140,7 +146,7 @@
                 Tags
             </div>
 
-            <div name="portlet-body">
+            <div name="portlet-body" class="widget-content">
                 <span ng-if="vm.case.tag" class="case-detail-tag" ng-repeat="tag in vm.case.tag">{{ tag }}</span>
                 <span ng-if="!vm.case.tag">No tags</span>
             </div>

@@ -32,9 +32,13 @@
 
         <ul class="list-inline list-justified">
             <li>
-                <small class="text-muted" uib-tooltip="Expires on {{ ::vm.item.date | date:'dd MMMM yy' }} at {{ ::vm.item.date | date:'HH:mm' }}">
+                <small class="text-muted" uib-tooltip="Expires on {{ ::vm.item.created | date:'dd MMMM yy' }} at {{ ::vm.item.created | date:'HH:mm' }}">
                     <i class="fa fa-calendar"></i>
-                    {{ ::vm.item.date | date:'dd MMMM yy HH:mm' }}
+                    {{ ::vm.item.created | date:'dd MMMM yy HH:mm' }}
+                </small>
+                <small class="text-muted margin-left-10" uib-tooltip="Expires on {{ ::vm.item.expires | date:'dd MMMM yy' }} at {{ ::vm.item.expires | date:'HH:mm' }}">
+                    <i class="lilicon hl-postpone-icon"></i>
+                    {{ ::vm.item.expires | date:'dd MMMM yy HH:mm' }}
                 </small>
             </li>
             <li ng-if="::vm.item.assigned_to_name">

@@ -34,6 +34,10 @@
                     <i class="fa fa-calendar"></i>
                     {{ ::vm.item.created | date:'dd MMM yy HH:mm' }}
                 </small>
+                <small ng-if="vm.item.next_step_date" class="text-muted margin-left-10" uib-tooltip="Next step on {{ ::vm.item.next_step_date | date:'dd MMMM yy' }} at {{ ::vm.item.next_step_date | date:'HH:mm' }}">
+                    <i class="lilicon hl-postpone-icon"></i>
+                    {{ ::vm.item.next_step_date | date:'dd MMMM yy HH:mm' }}
+                </small>
             </li>
             <li>
                 <small class="text-muted" uib-tooltip="Assigned to: {{ ::vm.item.assigned_to_name }}">

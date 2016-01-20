@@ -37,8 +37,12 @@ function ListWidgetController() {
 
     if (vm.collapsableItems) {
         // Certain list widgets have collapsable cells, so set the default state to collapsed.
-        angular.forEach(vm.list, function(item) {
-            item.collapsed = true;
+        vm.list.$promise.then(function(list) {
+            angular.forEach(list, function(item) {
+                item.collapsed = true;
+            });
+
+            vm.list = list;
         });
     }
 }

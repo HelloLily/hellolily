@@ -17,7 +17,7 @@ function caseConfig($stateProvider) {
     });
 
     $stateProvider.state('base.cases.create.fromContact', {
-        url: '/contact/{id:[0-9]{1,}}',
+        url: '/contact/{contactId:[0-9]{1,}}',
         views: {
             '@': {
                 templateUrl: 'cases/controllers/form.html',
@@ -31,7 +31,7 @@ function caseConfig($stateProvider) {
     });
 
     $stateProvider.state('base.cases.create.fromAccount', {
-        url: '/account/{id:[0-9]{1,}}',
+        url: '/account/{accountId:[0-9]{1,}}',
         views: {
             '@': {
                 templateUrl: 'cases/controllers/form.html',
@@ -159,7 +159,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             vm.caseTypes = data;
 
             angular.forEach(data, function(caseType) {
-                if (caseType.type === 'Config') {
+                if (caseType.type.indexOf('Config') > -1) {
                     vm.configCaseType = caseType.id;
                 }
             });
@@ -189,6 +189,20 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         } else {
             Settings.page.setAllTitles('create', 'case');
             vm.case = Case.create();
+
+            if ($stateParams.accountId) {
+                Account.get({id: $stateParams.accountId}).$promise.then(function(account) {
+                    vm.case.account = account;
+                });
+            }
+
+            if ($stateParams.contactId) {
+                Contact.get({id: $stateParams.contactId}).$promise.then(function(contact) {
+                    vm.case.contact = contact;
+                    // API returns 'full_name' but ES returns 'name'. So get the full name and set the name.
+                    vm.case.contact.name = contact.full_name;
+                });
+            }
 
             if ($scope.emailSettings) {
                 // Auto fill data if it's available.
@@ -353,7 +367,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             });
 
             return false;
-        } else if (!vm.case.assigned_to_groups.length && !vm.case.assigned_to) {
+        } else if ((vm.case.assigned_to_groups && !vm.case.assigned_to_groups.length) && !vm.case.assigned_to) {
             bootbox.dialog({
                 message: 'Please select a colleague or team to assign the case to',
                 title: 'No assignee set',

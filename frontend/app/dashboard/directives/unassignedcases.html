@@ -1,7 +1,7 @@
 <dashboard-widget widget-name="'Unassigned ' + vm.team.name + ' cases'" widget-class="'col-md-6'" widget-scrollable="true" widget-closeable="true">
     <div class="widget-name" name="widget-title">
         <i class="fa fa-suitcase"></i>
-        {{vm.team.name}} Cases
+        {{vm.team.name}} cases
         <span class="label-amount">{{ vm.table.items.length }}</span><span class="label-amount high-prio" ng-if="vm.highPrioCases" uib-tooltip="Critical priority">{{ vm.highPrioCases }}</span>
     </div>
     <div name="portlet-body">

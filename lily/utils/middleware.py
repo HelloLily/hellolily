@@ -34,8 +34,11 @@ class CustomBrokenLinkEmailsMiddleware(BrokenLinkEmailsMiddleware):
                         ('INTERNAL ' if self.is_internal_request(domain, referer) else ''),
                         domain
                     ),
-                    "Referrer: %s\nRequested URL: %s\nUser agent: %s\n"
+                    "Referrer: %s\n"
+                    "Requested URL: %s\n"
+                    "Type of request: %s\n"
+                    "User agent: %s\n"
                     "IP address: %s\n"
-                    "User: %s\n" % (referer, path, ua, ip, user),
+                    "User: %s\n" % (referer, path, request.method, ua, ip, user),
                     fail_silently=True)
         return response

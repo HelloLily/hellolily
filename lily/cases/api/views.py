@@ -92,6 +92,28 @@ class CaseViewSet(SetTenantUserMixin, viewsets.ModelViewSet):
         return queryset_filter(self.request, queryset)
 
 
+class TeamsCaseList(APIView):
+    """
+    List all cases assigned to the current users teams.
+    """
+    model = Case
+    serializer_class = CaseSerializer
+    filter_class = CaseFilter
+
+    def get_queryset(self):
+        queryset = self.model.objects.filter(tenant_id=self.request.user.tenant_id)
+        queryset = queryset_filter(self.request, queryset)
+        return queryset
+
+    def get(self, request, pk=None, format=None):
+        if pk is None:
+            pk = self.request.user.lily_groups.all()
+        queryset = self.get_queryset().filter(assigned_to_groups=pk)
+        filtered_queryset = self.filter_class(request.GET, queryset=queryset)
+        serializer = self.serializer_class(filtered_queryset, context={'request': request}, many=True)
+        return Response(serializer.data)
+
+
 class CaseStatusList(APIView):
     model = CaseStatus
     serializer_class = CaseStatusSerializer

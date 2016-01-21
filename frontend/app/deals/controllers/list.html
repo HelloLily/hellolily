@@ -97,7 +97,7 @@
                         {{ deal.stage_name }}
                     </td>
                     <td ng-show="vm.table.visibility.nextStep">
-                        <span class="label label-sm" ng-class="{0: 'label-danger', 1: 'label-success', 2: 'label-warning', 3: 'label-info', 4: 'label-default'}[deal.next_step.position]">
+                        <span class="step-type" ng-class="{0: 'position-1', 1: 'position-2', 2: 'position-3', 3: 'position-4', 4: 'position-5', 5: 'position-6'}[deal.next_step.position]">
                             {{ deal.next_step.name }}
                         </span>
                     </td>

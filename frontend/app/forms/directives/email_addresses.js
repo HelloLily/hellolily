@@ -23,7 +23,7 @@ function formEmailAddresses() {
 FormEmailAddressesController.$inject = ['$rootScope'];
 function FormEmailAddressesController($rootScope) {
     var vm = this;
-    vm.sidebar = $rootScope.$$childHead.emailSettings.sidebar.form;
+    vm.sidebar = $rootScope.$$childHead.settings.email.sidebar.form;
 
     vm.setPrimaryEmailAddress = setPrimaryEmailAddress;
 
@@ -32,7 +32,7 @@ function FormEmailAddressesController($rootScope) {
     /////
 
     function activate() {
-        if (vm.sidebar == 'createContact') {
+        if (vm.sidebar === 'contact') {
             vm.emailLabel = 'Email';
         } else {
             vm.emailLabel = 'Company email';

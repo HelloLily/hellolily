@@ -53,9 +53,9 @@ function contactConfig($stateProvider) {
  */
 angular.module('app.contacts').controller('ContactCreateUpdateController', ContactCreateUpdateController);
 
-ContactCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', 'Settings', 'Account', 'Contact', 'Tag',
+ContactCreateUpdateController.$inject = ['$state', '$stateParams', 'Settings', 'Account', 'Contact', 'Tag',
     'HLFields', 'HLForms'];
-function ContactCreateUpdateController($scope, $state, $stateParams, Settings, Account, Contact, Tag, HLFields, HLForms) {
+function ContactCreateUpdateController($state, $stateParams, Settings, Account, Contact, Tag, HLFields, HLForms) {
     var vm = this;
     vm.contact = {};
     vm.tags = [];
@@ -103,31 +103,31 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Settings, A
                 vm.contact.accounts.push(account);
             }
 
-            if ($scope.emailSettings) {
+            if (Settings.email.data) {
                 // Auto fill data if it's available
-                if ($scope.emailSettings.contact) {
-                    if ($scope.emailSettings.contact.firstName) {
-                        vm.contact.first_name = $scope.emailSettings.contact.firstName;
+                if (Settings.email.data.contact) {
+                    if (Settings.email.data.contact.firstName) {
+                        vm.contact.first_name = Settings.email.data.contact.firstName;
                     }
 
-                    if ($scope.emailSettings.contact.preposition) {
-                        vm.contact.preposition = $scope.emailSettings.contact.preposition;
+                    if (Settings.email.data.contact.preposition) {
+                        vm.contact.preposition = Settings.email.data.contact.preposition;
                     }
 
-                    if ($scope.emailSettings.contact.lastName) {
-                        vm.contact.last_name = $scope.emailSettings.contact.lastName;
+                    if (Settings.email.data.contact.lastName) {
+                        vm.contact.last_name = Settings.email.data.contact.lastName;
                     }
 
-                    if ($scope.emailSettings.contact.emailAddress) {
+                    if (Settings.email.data.contact.emailAddress) {
                         vm.contact.email_addresses.push({
-                            email_address: $scope.emailSettings.contact.emailAddress,
+                            email_address: Settings.email.data.contact.emailAddress,
                             status: 2,
                         });
                     }
                 }
 
-                if ($scope.emailSettings.account) {
-                    vm.contact.accounts.push($scope.emailSettings.account);
+                if (Settings.email.data.account) {
+                    vm.contact.accounts.push(Settings.email.data.account);
                 }
             }
         }
@@ -142,9 +142,9 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Settings, A
     }
 
     function cancelContactCreation() {
-        if ($scope.emailSettings.sidebar.form === 'createContact') {
-            $scope.emailSettings.sidebar.form = null;
-            $scope.emailSettings.sidebar.contact = false;
+        if (Settings.email.sidebar.form === 'contact') {
+            Settings.email.sidebar.form = null;
+            Settings.email.sidebar.contact = false;
         } else {
             $state.go('base.contacts');
         }
@@ -201,10 +201,10 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Settings, A
             vm.contact.$save(function() {
                 toastr.success('I\'ve saved the contact for you!', 'Yay');
 
-                if ($scope.emailSettings.sidebar.form === 'createContact') {
-                    $scope.emailSettings.sidebar.form = null;
-                    $scope.emailSettings.sidebar.contact = true;
-                    $scope.emailSettings.contactId = vm.contact.id;
+                if (Settings.email.sidebar.form === 'contact') {
+                    Settings.email.sidebar.form = null;
+                    Settings.email.sidebar.contact = true;
+                    Settings.email.data.contact = vm.contact;
                 } else {
                     $state.go('base.contacts.detail', {id: vm.contact.id});
                 }

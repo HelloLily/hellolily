@@ -40,5 +40,5 @@ function FormPortletController($rootScope, $scope) {
         $scope.$parent.vm.formPortlets[vm.position].portlet = vm;
     }
 
-    vm.sidebar = $rootScope.$$childHead.emailSettings.sidebar.form;
+    vm.sidebar = $rootScope.$$childHead.settings.email.sidebar.form;
 }

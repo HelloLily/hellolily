@@ -53,7 +53,7 @@
                     <li ng-if="vm.account.phone_numbers.length">
                         <strong>Phone numbers: </strong>
                         <div ng-repeat="phonenumber in vm.account.phone_numbers">
-                            <a href="tel:{{ phonenumber.raw_input }}">{{ phonenumber.raw_input }}</a>{{ phonenumber.raw_input }} ({{phonenumber.type}})
+                            <a href="tel:{{ phonenumber.raw_input }}">{{ phonenumber.raw_input }}</a> ({{phonenumber.type}})
                         </div>
                     </li>
                     <li ng-if="vm.account.addresses.length">

@@ -8,7 +8,6 @@
 @import "contacts/accounts";
 @import "contacts/users";
 
-@import "base/generic";
 @import "base/icons";
 @import "base/header";
 @import "base/dropdown";
@@ -24,6 +23,18 @@
 @import "cases/cases";
 @import "deals/deals";
 @import "mail/inbox";
+
+@import "mail/email";
+
+@import "base/generic";
+
+@import "mail/email";
+
+@import "mail/email";
+
+@import "mail/email";
+
+@import "base/generic";
 
 small {
     text-transform: lowercase;

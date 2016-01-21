@@ -1,149 +1,178 @@
-<div class="inbox-header">
-    <h1 class="pull-left" ng-show="vm.table.filter">Search: {{ vm.table.filter }}</h1>
-    <h1 class="pull-left" ng-hide="vm.table.filter">
+<div class="email-inbox-header no-margin-bottom">
+    <h1 ng-show="vm.table.filter">Search: {{ vm.table.filter }}</h1>
+    <h1 ng-hide="vm.table.filter">
         <span ng-show="vm.account">{{ vm.account.email_address }}</span>
         <span ng-hide="vm.account">All mailboxes</span>
         <span ng-show="vm.label.name"> - {{ vm.label.name }}</span>
         <span ng-hide="vm.label"> - All mail</span>
     </h1>
-    <form class="form-inline pull-right">
+    <form class="email-inbox-search">
         <div class="input-group input-medium">
             <input type="text" class="form-control" placeholder="Search" ng-model="vm.table.filter">
             <span class="input-group-btn">
-                <button type="submit" class="btn green"><i class="fa fa-search"></i></button>
+                <button type="submit" class="email-inbox-search-button"><i class="fa fa-search"></i></button>
             </span>
         </div>
     </form>
 </div>
 <div class="inbox-content">
-    <table class="table table-striped table-advance table-hover">
+    <table class="table table-striped table-hover">
         <thead>
-        <tr>
-            <th colspan="7">
-                <checkbox model="vm.opts.checkboxesAll" ng-click="vm.toggleCheckboxes()"></checkbox>
-                <div class="btn-group">
-                        <span class="pull-left" ng-if="::vm.account">
-                            <a class="btn btn-sm blue dropdown-toggle" href="javascript:void(0)" data-toggle="dropdown">
+            <tr>
+                <th colspan="7">
+                    <checkbox model="vm.opts.checkboxesAll" ng-click="vm.toggleCheckboxes()"></checkbox>
+
+                    <ul class="email-inbox-actions btn-group" ng-if="::vm.account">
+                        <li>
+                            <a class="dropdown-toggle" href="javascript:void(0)" data-toggle="dropdown">
                                 <i class="fa fa-folder"></i> Move to <i class="fa fa-angle-down"></i>
                             </a>
                             <ul class="dropdown-menu labels">
-                                <li class="inbox" ng-hide="vm.label.label_id == 'INBOX'">
-                                    <a href="javascript:void(0)" class="btn" ng-click="vm.moveMessages('INBOX')">Inbox</a>
+                                <li ng-hide="vm.label.label_id == 'INBOX'">
+                                    <a href="javascript:void(0)" ng-click="vm.moveMessages('INBOX')">Inbox</a>
                                 </li>
-                                <li class="spam" ng-hide="vm.label.label_id == 'SPAM'">
-                                    <a href="javascript:void(0)" class="btn" ng-click="vm.moveMessages('SPAM')">Spam</a>
+                                <li ng-hide="vm.label.label_id == 'SPAM'">
+                                    <a href="javascript:void(0)" ng-click="vm.moveMessages('SPAM')">Spam</a>
                                 </li>
-                                <li ng-repeat="accountLabel in vm.account.labels" class="inbox" ng-if="accountLabel.label_type != 0 && accountLabel.label_id != vm.label.label_id">
-                                    <a href="javascript:void(0)" class="btn" ng-click="vm.moveMessages(accountLabel.label_id)">{{ accountLabel.name }}</a>
+                                <li ng-repeat="accountLabel in vm.account.labels" ng-if="accountLabel.label_type != 0 && accountLabel.label_id != vm.label.label_id">
+                                    <a href="javascript:void(0)" ng-click="vm.moveMessages(accountLabel.label_id)">{{ accountLabel.name }}</a>
                                 </li>
                             </ul>
-                        </span>
-                </div>
-                <div class="btn-group">
-                    <a class="btn btn-sm blue dropdown-toggle no-primary-icon" href="javascript:void(0)" data-toggle="dropdown">
-                        More&nbsp;<i class="fa fa-angle-down"></i>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a ng-click="vm.markAsRead()">
-                                <i class="fa fa-pencil"></i> Mark as read</a>
                         </li>
+                    </ul>
+
+                    <ul ng-show="vm.showReplyOrForwardButtons()" class="email-inbox-actions">
                         <li>
-                            <a ng-click="vm.markAsUnread()">
-                                <i class="fa fa-pencil"></i> Mark as unread</a>
-                        </li>
-                        <li>
-                            <a ng-show="vm.showReplyOrForwardButtons()" ng-click="vm.replyOnMessage()">
+                            <a ng-click="vm.replyOnMessage()">
                                 <i class="fa fa-mail-reply"></i> Reply</a>
                         </li>
                         <li>
-                            <a ng-show="vm.showReplyOrForwardButtons()" ng-click="vm.replyAllOnMessage()">
+                            <a ng-click="vm.replyAllOnMessage()">
                                 <i class="fa fa-mail-reply-all"></i> Reply all</a>
                         </li>
                         <li>
-                            <a ng-show="vm.showReplyOrForwardButtons()" ng-click="vm.forwardOnMessage()">
+                            <a ng-click="vm.forwardOnMessage()">
                                 <i class="fa fa-mail-forward"></i> Forward</a>
+                        </li>
+                    </ul>
+
+                    <ul class="email-inbox-actions">
+                        <li>
+                            <a ng-click="vm.archiveMessages()" ng-show="vm.label">
+                                <i class="fa fa-archive"></i> Archive
+                            </a>
                         </li>
                         <li>
                             <a href="#">
-                                <i class="fa fa-ban"></i> Spam</a>
+                                <i class="fa fa-ban"></i> Spam
+                            </a>
+                        </li>
+                        <li ng-if="vm.label.id != 'TRASH'">
+                            <a ng-click="vm.trashMessages()">
+                                <i class="fa fa-trash-o"></i> Delete
+                            </a>
+                        </li>
+                        <li ng-if="vm.label.id == 'TRASH'">
+                            <a ng-click="vm.deleteMessages()">
+                                <i class="fa fa-trash-o"></i> Delete
+                            </a>
                         </li>
                     </ul>
-                </div>
-                <a class="btn btn-sm blue" ng-if="vm.label.id != 'TRASH'" ng-click="vm.trashMessages()">
-                    <i class="fa fa-trash-o"></i> Delete
-                </a>
-                <a class="btn btn-sm red" ng-if="vm.label.id == 'TRASH'" ng-click="vm.deleteMessages()">
-                    <i class="fa fa-trash-o"></i> Delete
-                </a>
-                <a class="btn btn-sm blue" ng-click="vm.archiveMessages()" ng-show="vm.label">
-                    <i class="fa fa-archive"></i> Archive
-                </a>
-                <a class="btn btn-sm blue" ng-click="vm.reloadMessages()">
-                    <i class="fa fa-refresh"></i> Refresh
-                </a>
-                <div class="pagination-control pull-right">
-                        <span class="pagination-info">
+
+                    <ul class="email-inbox-actions">
+                        <li>
+                            <a ng-click="vm.markAsRead()">
+                                <i class="fa fa-eye"></i> Mark as read
+                            </a>
+                        </li>
+                        <li>
+                            <a ng-click="vm.markAsUnread()">
+                                <i class="fa fa-eye-slash"></i> Mark as unread
+                            </a>
+                        </li>
+                    </ul>
+
+                    <ul class="email-inbox-actions">
+                        <li>
+                            <a ng-click="vm.reloadMessages()">
+                                <i class="fa fa-refresh"></i> Refresh
+                            </a>
+                        </li>
+                    </ul>
+
+                    <ul class="email-pagination">
+                        <li class="email-pagination-page-info">
+                    <ul class="email-pagination">
+                        <li class="email-pagination-page-info">
                             {{ vm.table.page * vm.table.pageSize + 1}}-{{ [(vm.table.page + 1) * vm.table.pageSize, vm.table.totalItems] | minValue }} of {{ vm.table.totalItems | number }}
-                        </span>
-                    <a class="btn btn-sm blue" ng-click="vm.setPage(vm.table.page - 1)">
-                        <i class="fa fa-angle-left"></i>
-                    </a>
-                    <a class="btn btn-sm blue" ng-click="vm.setPage(vm.table.page + 1)">
-                        <i class="fa fa-angle-right"></i>
-                    </a>
-                </div>
-            </th>
-        </tr>
+                        </li>
+                        <li class="email-pagination-arrow left">
+                            <a ng-click="vm.setPage(vm.table.page - 1)">
+                                <i class="fa fa-caret-left"></i>
+                            </a>
+                        </li>
+                        <li class="email-pagination-arrow right">
+                            <a ng-click="vm.setPage(vm.table.page + 1)">
+                                <i class="fa fa-caret-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </th>
+            </tr>
         </thead>
         <tbody>
-        <tr ng-repeat="message in vm.emailMessages" style="cursor: pointer;" ng-class="{'unread': !message.read}">
-            <td class="inbox-small-cells">
-                <checkbox model="message.checked"></checkbox>
-            </td>
-            <td contact-icon message="message"></td>
-            <td class="view-message hidden-xs" ng-show="vm.label.name != 'Sent' && vm.label.name != 'Draft'" ui-sref="base.email.detail({id: message.id})">
-                <span ng-show="message.sender_name" title="{{ message.sender_email }}">{{ message.sender_name }}</span>
-                <span ng-hide="message.sender_name">{{ message.sender_email }}</span>
-            </td>
-            <td class="view-message hidden-xs" ng-show="vm.label.name == 'Sent'" ui-sref="base.email.detail({id: message.id})">
-                <span ng-show="message.received_by_name">{{ message.received_by_name.join(', ') }}</span>
-                <span ng-hide="message.received_by_name">{{ message.received_by_email.join(', ') }}</span>
-            </td>
-            <td class="view-message hidden-xs" ng-show="vm.label.name == 'Draft'" ui-sref="base.email.draft({id: message.id})">
-                {{ message.received_by_email.join(',') }}
-            </td>
-            <td class="inbox-small-cells">
-                <thread-info message_id="message.id"></thread-info>
-            </td>
-            <td class="view-message inbox-small-cells" ui-sref="base.email.detail({id: message.id})">
-                <i class="fa fa-paperclip" ng-if="message.has_attachment"></i>
-            </td>
-            <td class="view-message" ng-if="vm.label.name == 'Draft'">
-                <a class="link-no-decoration" ui-sref="base.email.draft({id: message.id})">{{ message.subject }}</a>
-            </td>
-            <td class="view-message" ng-if="vm.label.name != 'Draft'">
-                <a class="link-no-decoration" ui-sref="base.email.detail({id: message.id})">{{ message.subject }}</a>
-            </td>
-            <td title="{{ message.sent_date | date:'dd MMMM y H:mm' }}" class="view-message text-right text-nowrap" ui-sref="base.email.detail({id: message.id})">
-                <date date="message.sent_date" show-time="true"></date>
-            </td>
-        </tr>
+            <tr ng-repeat="message in vm.emailMessages" style="cursor: pointer;" ng-class="{'unread': !message.read}">
+                <td class="inbox-small-cells">
+                    <checkbox model="message.checked"></checkbox>
+                </td>
+                <td contact-icon message="message"></td>
+                <td class="view-message hidden-xs" ng-show="vm.label.name != 'Sent' && vm.label.name != 'Draft'" ui-sref="base.email.detail({id: message.id})">
+                    <span ng-show="message.sender_name" title="{{ message.sender_email }}">{{ message.sender_name }}</span>
+                    <span ng-hide="message.sender_name">{{ message.sender_email }}</span>
+                </td>
+                <td class="view-message hidden-xs" ng-show="vm.label.name == 'Sent'" ui-sref="base.email.detail({id: message.id})">
+                    <span ng-show="message.received_by_name">{{ message.received_by_name.join(', ') }}</span>
+                    <span ng-hide="message.received_by_name">{{ message.received_by_email.join(', ') }}</span>
+                </td>
+                <td class="view-message hidden-xs" ng-show="vm.label.name == 'Draft'" ui-sref="base.email.draft({id: message.id})">
+                    {{ message.received_by_email.join(',') }}
+                </td>
+                <td class="inbox-small-cells">
+                    <thread-info message_id="message.id"></thread-info>
+                </td>
+                <td class="view-message inbox-small-cells" ui-sref="base.email.detail({id: message.id})">
+                    <i class="fa fa-paperclip" ng-if="message.has_attachment"></i>
+                </td>
+                <td class="view-message" ng-if="vm.label.name == 'Draft'">
+                    <a class="link-no-decoration" ui-sref="base.email.draft({id: message.id})">{{ message.subject }}</a>
+                </td>
+                <td class="view-message" ng-if="vm.label.name != 'Draft'">
+                    <a class="link-no-decoration" ui-sref="base.email.detail({id: message.id})">{{ message.subject }}</a>
+                </td>
+                <td title="{{ message.sent_date | date:'dd MMMM y H:mm' }}" class="view-message text-right text-nowrap" ui-sref="base.email.detail({id: message.id})">
+                    <date date="message.sent_date" show-time="true"></date>
+                </td>
+            </tr>
         </tbody>
+
         <tfoot>
             <tr>
                 <td colspan="7">
-                    <div class="pagination-control pull-right">
-                        <span class="pagination-info">
+                    <ul class="email-pagination">
+                        <li class="email-pagination-page-info">
                             {{ vm.table.page * vm.table.pageSize + 1}}-{{ [(vm.table.page + 1) * vm.table.pageSize, vm.table.totalItems] | minValue }} of {{ vm.table.totalItems | number }}
-                        </span>
-                        <a class="btn btn-sm blue" ng-click="vm.setPage(vm.table.page - 1)">
-                            <i class="fa fa-angle-left"></i>
-                        </a>
-                        <a class="btn btn-sm blue" ng-click="vm.setPage(vm.table.page + 1)">
-                            <i class="fa fa-angle-right"></i>
-                        </a>
-                    </div>
+                        </li>
+                        <li class="email-pagination-arrow left">
+                            <a ng-click="vm.setPage(vm.table.page - 1)">
+                                <i class="fa fa-caret-left"></i>
+                            </a>
+                        </li>
+                        <li class="email-pagination-arrow right">
+                            <a ng-click="vm.setPage(vm.table.page + 1)">
+                                <i class="fa fa-caret-right"></i>
+                            </a>
+                        </li>
+                    </ul>
                 </td>
             </tr>
         </tfoot>

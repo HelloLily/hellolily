@@ -88,8 +88,8 @@ class RelatedSerializerMixin(ValidateEverythingSimultaneouslyMixin):
 
     def to_internal_value(self, data):
         """
-        If just the id is given, it means the request is an attempt to link a related instance. Then skip all validation
-        except the validation of the id field. The id field checks if it's a valid link.
+        If just the id is given, it means the request is an attempt to link a related instance. Then skip all
+        validation except the validation of the id field. The id field checks if it's a valid link.
 
         Monkey patch the validate empty values function of the serializers fields. This way the validation that checks
         if fields are required also works on partial updates (PATCH) requests.
@@ -164,6 +164,8 @@ class RelatedSerializerMixin(ValidateEverythingSimultaneouslyMixin):
                 data['object_id'] = instance.pk
             else:
                 # Remove unique together validator because we are creating so it's always unique.
-                self.validators = [validator for validator in self.validators if not isinstance(validator, UniqueTogetherValidator)]
+                self.validators = [
+                    validator for validator in self.validators if not isinstance(validator, UniqueTogetherValidator)
+                ]
 
         return self.to_internal_value_fields(data)

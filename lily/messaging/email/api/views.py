@@ -302,5 +302,3 @@ class TemplateVariableViewSet(mixins.DestroyModelMixin,
         }
 
         return Response(template_variables)
-
-

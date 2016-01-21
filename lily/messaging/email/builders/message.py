@@ -10,7 +10,6 @@ from bs4 import BeautifulSoup, UnicodeDammit
 from dateutil.parser import parse
 from django.conf import settings
 from django.core.files import File
-from django.core.urlresolvers import reverse
 from django.db import transaction, IntegrityError
 import pytz
 
@@ -341,7 +340,7 @@ class MessageBuilder(object):
                 encoding = soup.original_encoding
                 try:
                     decoded_body = body.decode(encoding)
-                except (LookupError, UnicodeDecodeError) as e:
+                except (LookupError, UnicodeDecodeError):
                     pass
 
         # If decoding fails, just force utf-8
@@ -378,7 +377,7 @@ class MessageBuilder(object):
                 encoding = dammit.original_encoding
                 try:
                     decoded_body = body.decode(encoding)
-                except (LookupError, UnicodeDecodeError) as e:
+                except (LookupError, UnicodeDecodeError):
                     pass
 
         # If decoding fails, just force utf-8

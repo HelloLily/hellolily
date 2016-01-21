@@ -35,12 +35,13 @@ class IsAjaxBase(Node):
         # Gracefully fail if request is not in the context
         if not request:
             import warnings
-            warnings.warn("The ifisajax templatetag require that a "
-                          "'request' variable is available in the template's "
-                          "context. Check you are using a RequestContext to "
-                          "render your template, and that "
-                          "'django.core.context_processors.request' is in "
-                          "your TEMPLATE_CONTEXT_PROCESSORS setting"
+            warnings.warn(
+                "The ifisajax templatetag require that a "
+                "'request' variable is available in the template's "
+                "context. Check you are using a RequestContext to "
+                "render your template, and that "
+                "'django.core.context_processors.request' is in "
+                "your TEMPLATE_CONTEXT_PROCESSORS setting"
             )
             return self.nodelist_false.render(context)
 
@@ -89,7 +90,7 @@ def joinby(value, delimiter):
     When a list with database items is given it will use the primary keys.
     """
     items = []
-    if type( value ) == list:
+    if type(value) == list:
         for item in value:
             if item.pk:
                 items.append(str(int_to_base36(item.pk)))

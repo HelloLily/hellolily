@@ -24,7 +24,10 @@ class PrioritySelect(Select):
                 selected_choices.remove(option_value)
         else:
             selected_html = ''
-        selected_html += ' class="i-16 i-tag %s"' % priority_css_class_mapping.get(option_value, '') if len(option_value) > 0 else ''
+
+        css_classes = priority_css_class_mapping.get(option_value, '') if len(option_value) > 0 else ''
+        selected_html += ' class="i-16 i-tag %s"' % css_classes
+
         return u'<option value="%s"%s>%s</option>' % (
             escape(option_value), selected_html,
             conditional_escape(force_unicode(option_label))

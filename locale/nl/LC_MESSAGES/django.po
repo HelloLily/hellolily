@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-17 14:16+0100\n"
+"POT-Creation-Date: 2016-01-20 11:19+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,58 +18,34 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-msgid "Website"
+msgid "Source"
 msgstr ""
 
-msgid "Company name"
+msgid "History"
 msgstr ""
 
-msgid "E-mail addresses"
+msgid "Annotate"
 msgstr ""
 
-msgid "Phone number"
+msgid "Please enter a valid URL."
 msgstr ""
 
-msgid "Company name already in use."
+msgid "Inactive"
 msgstr ""
 
-msgid "E-mail address already in use."
+msgid "Active"
 msgstr ""
 
-msgid "Website already in use."
+msgid "Pending"
 msgstr ""
 
-msgid "Extra website(s)"
+msgid "Previous customer"
 msgstr ""
 
-msgid "Primary website"
+msgid "Bankrupt"
 msgstr ""
 
-msgid "Twitter"
-msgstr ""
-
-msgid "Assigned to"
-msgstr ""
-
-msgid "Not assigned"
-msgstr ""
-
-msgid "Please enter a valid username or link"
-msgstr ""
-
-msgid "Who was it?"
-msgstr ""
-
-msgid "Who is handling the account?"
-msgstr ""
-
-msgid "Contact information"
-msgstr ""
-
-msgid "bankrupt"
-msgstr ""
-
-msgid "previous customer"
+msgid "Unknown"
 msgstr ""
 
 msgid "customer id"
@@ -111,6 +87,9 @@ msgstr ""
 msgid "assigned to"
 msgstr ""
 
+msgid "import id"
+msgstr ""
+
 msgid "account"
 msgstr ""
 
@@ -124,6 +103,9 @@ msgid "primary website"
 msgstr ""
 
 msgid "websites"
+msgstr ""
+
+msgid "Company name already in use."
 msgstr ""
 
 msgid "ID"
@@ -141,6 +123,12 @@ msgstr ""
 msgid "Mobile Phone"
 msgstr ""
 
+msgid "Address"
+msgstr ""
+
+msgid "Assigned to"
+msgstr ""
+
 msgid "Created"
 msgstr ""
 
@@ -150,180 +138,10 @@ msgstr ""
 msgid "Tags"
 msgstr ""
 
-#, python-format
-msgid "%s (Account) has been saved."
+msgid "Customer ID"
 msgstr ""
 
-#, python-format
-msgid "%s (Account) has been edited."
-msgstr ""
-
-#, python-format
-msgid "%s (Account) has been deleted."
-msgstr ""
-
-msgid "Deleting this account cannot be undone. Are you sure?"
-msgstr ""
-
-msgid "Cancel"
-msgstr ""
-
-msgid "Sending.."
-msgstr ""
-
-msgid "Continue"
-msgstr ""
-
-#, python-format
-msgid "%(account_name)s"
-msgstr ""
-
-msgid "Edit"
-msgstr ""
-
-msgid "Delete"
-msgstr ""
-
-msgid "Unknown"
-msgstr ""
-
-msgid "E-mail address"
-msgstr ""
-
-msgid "Main address"
-msgstr ""
-
-msgid "Not assigned yet"
-msgstr ""
-
-msgid "Deals"
-msgstr ""
-
-msgid "Cases"
-msgstr ""
-
-msgid "Contacts"
-msgstr ""
-
-msgid "Other"
-msgstr ""
-
-msgid "Name"
-msgstr ""
-
-msgid "There are no known contact for this company"
-msgstr ""
-
-msgid "General information"
-msgstr ""
-
-msgid "No description"
-msgstr ""
-
-msgid "Click to add one"
-msgstr ""
-
-msgid "Phone numbers"
-msgstr ""
-
-msgid "Addresses"
-msgstr ""
-
-msgid "Edit account"
-msgstr ""
-
-msgid "Add account"
-msgstr ""
-
-msgid "Create account"
-msgstr ""
-
-msgid "Accounts"
-msgstr ""
-
-#, python-format
-msgid "Filtered by tag '%(tag_name)s'"
-msgstr ""
-
-msgid "Tools"
-msgstr ""
-
-msgid "Export to csv"
-msgstr ""
-
-msgid "Columns"
-msgstr ""
-
-msgid "Undo the deletion of this row"
-msgstr ""
-
-msgid "Delete this row"
-msgstr ""
-
-msgid "Add a website"
-msgstr ""
-
-msgid "activity"
-msgstr ""
-
-msgid "activities"
-msgstr ""
-
-msgid "question"
-msgstr ""
-
-msgid "poll"
-msgstr ""
-
-msgid "polls"
-msgstr ""
-
-msgid "choice"
-msgstr ""
-
-msgid "choices"
-msgstr ""
-
-msgid "bookmark url"
-msgstr ""
-
-msgid "bookmark"
-msgstr ""
-
-msgid "bookmarks"
-msgstr ""
-
-msgid "title"
-msgstr ""
-
-msgid "start date"
-msgstr ""
-
-msgid "start time"
-msgstr ""
-
-msgid "end date"
-msgstr ""
-
-msgid "end time"
-msgstr ""
-
-msgid "location"
-msgstr ""
-
-msgid "url"
-msgstr ""
-
-msgid "event"
-msgstr ""
-
-msgid "events"
-msgstr ""
-
-msgid "message"
-msgstr ""
-
-msgid "statuses"
+msgid "Given contact must work at the account."
 msgstr ""
 
 msgid "Status"
@@ -347,6 +165,15 @@ msgstr ""
 msgid "Select a contact"
 msgstr ""
 
+msgid "Assigned to teams"
+msgstr ""
+
+msgid "Select one or more team(s)"
+msgstr ""
+
+msgid "Select a user"
+msgstr ""
+
 msgid "Expires"
 msgstr ""
 
@@ -362,7 +189,13 @@ msgstr ""
 msgid "Selected contact doesn't work at account"
 msgstr ""
 
+msgid "Who was it?"
+msgstr ""
+
 msgid "What to do?"
+msgstr ""
+
+msgid "Who is going to do this?"
 msgstr ""
 
 msgid "When to do it?"
@@ -395,6 +228,12 @@ msgstr ""
 msgid "type"
 msgstr ""
 
+msgid "assigned to teams"
+msgstr ""
+
+msgid "created by"
+msgstr ""
+
 msgid "contact"
 msgstr ""
 
@@ -413,6 +252,36 @@ msgstr ""
 msgid "cases"
 msgstr ""
 
+msgid "Deleting this case cannot be undone. Are you sure?"
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Sending.."
+msgstr ""
+
+msgid "Continue"
+msgstr ""
+
+msgid "Save"
+msgstr ""
+
+msgid "Save and archive"
+msgstr ""
+
+msgid "Back"
+msgstr ""
+
+msgid "Create case"
+msgstr ""
+
+msgid "Sending..."
+msgstr ""
+
+msgid "Edit case"
+msgstr ""
+
 #, python-format
 msgid "%s (Case) has been created."
 msgstr ""
@@ -421,18 +290,16 @@ msgstr ""
 msgid "%s (Case) has been updated."
 msgstr ""
 
-msgid "Case has been archived."
+msgid "Case could not be archived"
 msgstr ""
 
-#, python-format
-msgid "%d cases have been archived."
+msgid "Case has been archived"
 msgstr ""
 
-msgid "Case has been unarchived."
+msgid "Case could not be unarchived"
 msgstr ""
 
-#, python-format
-msgid "%d cases have been unarchived."
+msgid "Case has been unarchived"
 msgstr ""
 
 #, python-format
@@ -450,76 +317,35 @@ msgstr ""
 msgid "Status has been changed to %s"
 msgstr ""
 
-msgid "Deleting this case cannot be undone. Are you sure?"
+msgid "Assignee could not be changed"
 msgstr ""
 
-msgid "Case"
+#, python-format
+msgid "Assignee has been changed to %s"
 msgstr ""
 
-msgid "Case name"
+msgid "Case has been unassigned"
 msgstr ""
 
-msgid "Case Number"
-msgstr ""
-
-msgid "Priority"
-msgstr ""
-
-msgid "Archived"
-msgstr ""
-
-msgid "Parcel"
-msgstr ""
-
-msgid "Unarchive"
-msgstr ""
-
-msgid "Archive"
-msgstr ""
-
-msgid "Description"
-msgstr ""
-
-msgid "Edit case"
-msgstr ""
-
-msgid "Create case"
-msgstr ""
-
-msgid "Save"
-msgstr ""
-
-msgid "Save and Archive"
-msgstr ""
-
-msgid "Back"
-msgstr ""
-
-msgid "Sending..."
-msgstr ""
-
-msgid "No."
-msgstr ""
-
-msgid "Client"
-msgstr ""
-
-msgid "Subject"
-msgstr ""
-
-msgid "Archived Cases"
-msgstr ""
-
-msgid "Actions"
+msgid "Please enter a valid name."
 msgstr ""
 
 msgid "Works at"
 msgstr ""
 
-msgid "Name can't be empty"
+msgid "Select one or more account(s)"
+msgstr ""
+
+msgid "Twitter"
 msgstr ""
 
 msgid "LinkedIn"
+msgstr ""
+
+msgid "Please enter a valid username or link"
+msgstr ""
+
+msgid "Name can't be empty"
 msgstr ""
 
 msgid "Male"
@@ -529,12 +355,6 @@ msgid "Female"
 msgstr ""
 
 msgid "Unknown/Other"
-msgstr ""
-
-msgid "Inactive"
-msgstr ""
-
-msgid "Active"
 msgstr ""
 
 msgid "Formal"
@@ -553,6 +373,9 @@ msgid "last name"
 msgstr ""
 
 msgid "gender"
+msgstr ""
+
+msgid "title"
 msgstr ""
 
 msgid "picture"
@@ -585,70 +408,41 @@ msgstr ""
 msgid "functions"
 msgstr ""
 
-#, python-format
-msgid "%s (Contact) has been saved."
-msgstr ""
-
-#, python-format
-msgid "%s (Contact) has been edited."
-msgstr ""
-
-#, python-format
-msgid "%s (Contact) has been deleted."
-msgstr ""
-
-msgid "Deleting this contact cannot be undone. Are you sure?"
-msgstr ""
-
-msgid "Mobile number"
-msgstr ""
-
-msgid "Colleagues"
-msgstr ""
-
-msgid "This is the only known contact for this company"
-msgstr ""
-
-msgid "There are no known colleagues for this contact"
-msgstr ""
-
-msgid "Title"
-msgstr ""
-
-msgid "Salutation"
-msgstr ""
-
-msgid "Gender"
-msgstr ""
-
-msgid "Function"
-msgstr ""
-
-msgid "More information"
-msgstr ""
-
-msgid "Less information"
-msgstr ""
-
 msgid "Edit contact"
 msgstr ""
 
 msgid "Add contact"
 msgstr ""
 
-msgid "Create contact"
+msgid "Name"
 msgstr ""
 
-msgid "Expected closing date"
+#, python-format
+msgid "%s (Contact) has been %s."
 msgstr ""
 
-msgid "For who is it?"
+msgid "Next step"
+msgstr ""
+
+msgid "Select the next step"
+msgstr ""
+
+msgid "Next step date"
+msgstr ""
+
+msgid "Why customer"
+msgstr ""
+
+msgid "Who is it?"
 msgstr ""
 
 msgid "What is it?"
 msgstr ""
 
 msgid "What's the status?"
+msgstr ""
+
+msgid "Action checklist"
 msgstr ""
 
 msgid "Euro"
@@ -672,10 +466,10 @@ msgstr ""
 msgid "United States dollar"
 msgstr ""
 
-msgid "New"
+msgid "Open"
 msgstr ""
 
-msgid "Pending"
+msgid "Proposal sent"
 msgstr ""
 
 msgid "Won"
@@ -684,19 +478,118 @@ msgstr ""
 msgid "Lost"
 msgstr ""
 
+msgid "Called"
+msgstr ""
+
+msgid "Emailed"
+msgstr ""
+
+msgid "No"
+msgstr ""
+
+msgid "Yes"
+msgstr ""
+
+msgid "Existing"
+msgstr ""
+
+msgid "New"
+msgstr ""
+
+msgid "Not yet"
+msgstr ""
+
+msgid "Done"
+msgstr ""
+
+msgid "Almost"
+msgstr ""
+
+msgid "Writing it now"
+msgstr ""
+
+msgid "Nearly"
+msgstr ""
+
+msgid "Search engine"
+msgstr ""
+
+msgid "Social media"
+msgstr ""
+
+msgid "Talk with employee"
+msgstr ""
+
+msgid "Existing customer"
+msgstr ""
+
+msgid "Radio"
+msgstr ""
+
+msgid "Other"
+msgstr ""
+
+msgid "Quote"
+msgstr ""
+
+msgid "Contact form"
+msgstr ""
+
+msgid "Phone"
+msgstr ""
+
+msgid "Web chat"
+msgstr ""
+
+msgid "E-mail"
+msgstr ""
+
+msgid "Instant connect"
+msgstr ""
+
 msgid "name"
 msgstr ""
 
 msgid "currency"
 msgstr ""
 
-msgid "amount"
+msgid "one-time cost"
 msgstr ""
 
-msgid "expected closing date"
+msgid "recurring costs"
 msgstr ""
 
 msgid "closed date"
+msgstr ""
+
+msgid "feedback form sent"
+msgstr ""
+
+msgid "business"
+msgstr ""
+
+msgid "quote checked"
+msgstr ""
+
+msgid "freedom quote id"
+msgstr ""
+
+msgid "found us through"
+msgstr ""
+
+msgid "contacted us by"
+msgstr ""
+
+msgid "next step"
+msgstr ""
+
+msgid "next step date"
+msgstr ""
+
+msgid "imported from"
+msgstr ""
+
+msgid "why"
 msgstr ""
 
 msgid "deal"
@@ -705,18 +598,25 @@ msgstr ""
 msgid "deals"
 msgstr ""
 
-msgid "Deal has been archived."
+msgid "Deleting this deal cannot be undone. Are you sure?"
 msgstr ""
 
-#, python-format
-msgid "%d deals have been archived."
+msgid "Edit deal"
 msgstr ""
 
-msgid "Deal has been unarchived."
+msgid "Create deal"
 msgstr ""
 
-#, python-format
-msgid "%d deals have been unarchived."
+msgid "Deal could not be archived"
+msgstr ""
+
+msgid "Deal has been archived"
+msgstr ""
+
+msgid "Deal could not be unarchived"
+msgstr ""
+
+msgid "Deal has been unarchived"
 msgstr ""
 
 #, python-format
@@ -741,271 +641,7 @@ msgstr ""
 msgid "Stage has been changed to"
 msgstr ""
 
-msgid "Deleting this deal cannot be undone. Are you sure?"
-msgstr ""
-
-msgid "Deal"
-msgstr ""
-
-msgid "Deal name"
-msgstr ""
-
-msgid "Closing date"
-msgstr ""
-
-msgid "expected"
-msgstr ""
-
-msgid "Amount"
-msgstr ""
-
-msgid "Edit deal"
-msgstr ""
-
-msgid "Create deal"
-msgstr ""
-
-msgid "Stage"
-msgstr ""
-
-msgid "Archived Deals"
-msgstr ""
-
-msgid "Closed"
-msgstr ""
-
-msgid "Don't share"
-msgstr ""
-
-msgid "Everybody"
-msgstr ""
-
-msgid "Specific users"
-msgstr ""
-
-msgid "shared with"
-msgstr ""
-
-msgid "owner"
-msgstr ""
-
-msgid "messaging account"
-msgstr ""
-
-msgid "messaging accounts"
-msgstr ""
-
-msgid "messages"
-msgstr ""
-
-#, python-format
-msgid "Could not resolve %(imap_host)s"
-msgstr ""
-
-#, python-format
-msgid "Could not connect to %(imap_host)s:%(imap_port)s"
-msgstr ""
-
-msgid "Unable to login with provided username and password on the IMAP host"
-msgstr ""
-
-#, python-format
-msgid "Could not resolve %(smtp_host)s"
-msgstr ""
-
-msgid "Unable to login with provided username and password on the SMTP host"
-msgstr ""
-
-#, python-format
-msgid "Could not connect to %(smtp_host)s:%(smtp_port)s"
-msgstr ""
-
-msgid "Inbox"
-msgstr ""
-
-msgid "Sent"
-msgstr ""
-
-msgid "Drafts"
-msgstr ""
-
-msgid "Trash"
-msgstr ""
-
-msgid "Spam"
-msgstr ""
-
-msgid "Failed to retrieve email message. Please try again later."
-msgstr ""
-
-#, python-format
-msgid "%s has been created"
-msgstr ""
-
-#, python-format
-msgid "%s has been updated"
-msgstr ""
-
-msgid "email template"
-msgstr ""
-
-#, python-format
-msgid "%s has been deleted."
-msgstr ""
-
-#, python-format
-msgid "%s is no longer a default template"
-msgstr ""
-
-#, python-format
-msgid "%s has been set as default for: %s"
-msgstr ""
-
-#, python-format
-msgid "%s has been set as default for: %s and %s others"
-msgstr ""
-
-msgid "Message has been marked as read"
-msgstr ""
-
-msgid "Messages have been marked as read"
-msgstr ""
-
-msgid "Message has been marked as unread"
-msgstr ""
-
-msgid "Messages have been marked as unread"
-msgstr ""
-
-msgid "Message has been deleted"
-msgstr ""
-
-msgid "Messages have been deleted"
-msgstr ""
-
-msgid "Message has been moved"
-msgstr ""
-
-msgid "Messages have been moved"
-msgstr ""
-
-msgid "Sorry, I couldn't save your e-mail as a draft, please try again later"
-msgstr ""
-
-#, python-format
-msgid ""
-"Failed to create save_message task for email account %d. Outbox message id "
-"was %d."
-msgstr ""
-
-msgid ""
-"Sorry, I couldn't archive your e-mail. You should try to archive it again "
-"later"
-msgstr ""
-
-#, python-format
-msgid ""
-"Failed to create archive_message task for email account %d. Message id was "
-"%d and folder was %s."
-msgstr ""
-
-#, python-format
-msgid "Gonna deliver your email as fast as I can to %s"
-msgstr ""
-
-msgid ""
-"Sorry, I couldn't deliver your e-mail, but I did save it as a draft so you "
-"can try again later"
-msgstr ""
-
-#, python-format
-msgid ""
-"Failed to create send_message task for email account %d. Outbox message id "
-"was %d."
-msgstr ""
-
-#, python-format
-msgid "Failed to save draft. Cannot login for %s"
-msgstr ""
-
-#, python-format
-msgid "%(email)s has been saved."
-msgstr ""
-
-#, python-format
-msgid "%(email)s has been updated."
-msgstr ""
-
-msgid "email account"
-msgstr ""
-
-#, python-format
-msgid "%(email)s has been deleted."
-msgstr ""
-
-#, python-format
-msgid "%(email)s has been updated"
-msgstr ""
-
-#, python-format
-msgid "%(email)s is no longer visible."
-msgstr ""
-
-msgid "Failed to connect to your mail server. Please try again later."
-msgstr ""
-
-#, python-format
-msgid "%s for %s"
-msgstr ""
-
-msgid "Email provider"
-msgstr ""
-
-msgid "Set a custom email provider"
-msgstr ""
-
-msgid "Incoming server (IMAP)"
-msgstr ""
-
-msgid "Incoming port"
-msgstr ""
-
-msgid "Incoming SSL"
-msgstr ""
-
-msgid "Outgoing server (SMTP)"
-msgstr ""
-
-msgid "Outgoing port"
-msgstr ""
-
-msgid "Outgoing SSL"
-msgstr ""
-
-msgid "This field is required."
-msgstr ""
-
-msgid ""
-"This account already exists, please use sharing options for access by "
-"multiple persons."
-msgstr ""
-
 msgid "Your account"
-msgstr ""
-
-msgid "Account credentials"
-msgstr ""
-
-msgid "Connection settings"
-msgstr ""
-
-msgid "Share with"
-msgstr ""
-
-msgid "Select a user"
-msgstr ""
-
-msgid "To share with everybody create a company email address."
 msgstr ""
 
 msgid "Template"
@@ -1027,6 +663,9 @@ msgid "Please provide at least one recipient."
 msgstr ""
 
 msgid "Invalid email account selected to use as sender."
+msgstr ""
+
+msgid "Template ID"
 msgstr ""
 
 msgid "Insert variable"
@@ -1054,58 +693,16 @@ msgstr ""
 msgid "There was an error in your file:<br> %s"
 msgstr ""
 
-msgid "e-mail provider"
+msgid "Select the users wich to share the account with."
 msgstr ""
 
-msgid "e-mail providers"
+msgid "Make the email account accessible for the whole company."
 msgstr ""
 
-msgid "No (working) credentials"
+msgid "System"
 msgstr ""
 
-msgid "Working credentials"
-msgstr ""
-
-msgid "Credentials needs testing"
-msgstr ""
-
-msgid "The sender's name your recipients see."
-msgstr ""
-
-msgid "Give your account a custom name (optional)."
-msgstr ""
-
-msgid "The email address, used to identify you."
-msgstr ""
-
-msgid "e-mail account"
-msgstr ""
-
-msgid "e-mail accounts"
-msgstr ""
-
-msgid "No address"
-msgstr ""
-
-msgid "e-mail message"
-msgstr ""
-
-msgid "e-mail messages"
-msgstr ""
-
-msgid "e-mail attachment"
-msgstr ""
-
-msgid "e-mail attachments"
-msgstr ""
-
-msgid "Low priority"
-msgstr ""
-
-msgid "Normal priority"
-msgstr ""
-
-msgid "High priority"
+msgid "User"
 msgstr ""
 
 msgid "template name"
@@ -1123,6 +720,15 @@ msgstr ""
 msgid "e-mail templates"
 msgstr ""
 
+msgid "variable name"
+msgstr ""
+
+msgid "e-mail template variable"
+msgstr ""
+
+msgid "e-mail template variables"
+msgstr ""
+
 msgid "default e-mail template"
 msgstr ""
 
@@ -1130,6 +736,9 @@ msgid "default e-mail templates"
 msgstr ""
 
 msgid "template attachment"
+msgstr ""
+
+msgid "content type"
 msgstr ""
 
 msgid "attachment of"
@@ -1144,7 +753,16 @@ msgstr ""
 msgid "From"
 msgstr ""
 
-msgid "Html body"
+msgid "to"
+msgstr ""
+
+msgid "cc"
+msgstr ""
+
+msgid "bcc"
+msgstr ""
+
+msgid "html body"
 msgstr ""
 
 msgid "e-mail draft"
@@ -1153,10 +771,13 @@ msgstr ""
 msgid "e-mail drafts"
 msgstr ""
 
-msgid "Email headers"
+msgid "email headers"
 msgstr ""
 
-msgid "Number of mapped attachments"
+msgid "number of mapped attachments"
+msgstr ""
+
+msgid "from"
 msgstr ""
 
 msgid "e-mail outbox message"
@@ -1171,126 +792,22 @@ msgstr ""
 msgid "e-mail outbox attachments"
 msgstr ""
 
-msgid "Your email addresses"
-msgstr ""
-
-msgid "Add an email address"
-msgstr ""
-
-msgid "Email addresses shared with you"
-msgstr ""
-
-msgid "No email addresses shared with you."
-msgstr ""
-
-msgid "Company email addresses"
-msgstr ""
-
-msgid "Start wizard to set up incoming and outgoing email for this address"
-msgstr ""
-
-msgid "Sharing is caring"
-msgstr ""
-
-msgid "Just manage it"
-msgstr ""
-
-msgid "Throw it away"
-msgstr ""
-
-msgid "I don't want to see this"
-msgstr ""
-
-msgid "Are you sure you no longer want access to this email address?"
-msgstr ""
-
-msgid "View e-mail templates"
-msgstr ""
-
-msgid "Add an e-mail template"
-msgstr ""
-
-msgid "Mailbox"
-msgstr ""
-
 msgid "Compose"
-msgstr ""
-
-msgid ""
-"Please be patient for the mail from this account will be retrieved soon."
-msgstr ""
-
-msgid "Edit your email account configuration."
-msgstr ""
-
-msgid "You cannot edit this account, since it is not yours."
-msgstr ""
-
-msgid ""
-"Your account doesn\\'t seem to be active. Please activate your account to "
-"view your email."
-msgstr ""
-
-msgid "Send"
 msgstr ""
 
 msgid "Send and archive"
 msgstr ""
 
-msgid "Discarding.."
+msgid "Subject"
 msgstr ""
 
-msgid "Discard"
-msgstr ""
-
-msgid "Saving.."
+msgid "Send"
 msgstr ""
 
 msgid "Draft"
 msgstr ""
 
-msgid "I'm sorry"
-msgstr ""
-
-msgid ""
-"I couldn't find a recipient, could you please fill in where I need to send "
-"this mail."
-msgstr ""
-
-msgid "Ok"
-msgstr ""
-
-msgid "in"
-msgstr ""
-
-msgid "Loading"
-msgstr ""
-
-msgid "Reply"
-msgstr ""
-
-msgid "Forward"
-msgstr ""
-
-msgid "Mark as unread"
-msgstr ""
-
-msgid "Archiving"
-msgstr ""
-
-msgid "Deleting"
-msgstr ""
-
-msgid "Loading.."
-msgstr ""
-
-#, python-format
-msgid "%(counter)s attachment"
-msgid_plural "%(counter)s attachments"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "Download"
+msgid "Discard"
 msgstr ""
 
 msgid "No subject"
@@ -1305,33 +822,6 @@ msgstr ""
 msgid "Inactive email account"
 msgstr ""
 
-#, python-format
-msgid "with %(counter)s result for `%(search_key)s`"
-msgid_plural "with %(counter)s results for `%(search_key)s`"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "Search.."
-msgstr ""
-
-msgid "Mark as read"
-msgstr ""
-
-msgid "Move to"
-msgstr ""
-
-msgid "of"
-msgstr ""
-
-msgid "&lt;No subject&gt;"
-msgstr ""
-
-msgid "There are no messages in this folder."
-msgstr ""
-
-msgid "Deleting this email template cannot be undone. Are you sure?"
-msgstr ""
-
 msgid "Edit email template"
 msgstr ""
 
@@ -1344,22 +834,22 @@ msgstr ""
 msgid "Insert"
 msgstr ""
 
-msgid "Your email templates"
-msgstr ""
-
-msgid "Manage defaults"
-msgstr ""
-
-msgid "Make default"
-msgstr ""
-
-msgid "Add an email template"
-msgstr ""
-
 msgid "Attachments"
 msgstr ""
 
+msgid "Undo the deletion of this row"
+msgstr ""
+
+msgid "Delete this row"
+msgstr ""
+
 msgid "Add an attachment"
+msgstr ""
+
+msgid "Edit template variable"
+msgstr ""
+
+msgid "Create template variable"
 msgstr ""
 
 #, python-format
@@ -1397,7 +887,126 @@ msgstr ""
 msgid "%s (%d hours ago)"
 msgstr ""
 
+#, python-format
+msgid "%(sender)s (%(email_address)s) wrote on %(date)s:"
+msgstr ""
+
+#, python-format
+msgid "Could not resolve %(imap_host)s"
+msgstr ""
+
+#, python-format
+msgid "Could not connect to %(imap_host)s:%(imap_port)s"
+msgstr ""
+
+msgid "Unable to login with provided username and password on the IMAP host"
+msgstr ""
+
+#, python-format
+msgid "Could not resolve %(smtp_host)s"
+msgstr ""
+
+msgid "Unable to login with provided username and password on the SMTP host"
+msgstr ""
+
+#, python-format
+msgid "Could not connect to %(smtp_host)s:%(smtp_port)s"
+msgstr ""
+
+#, python-format
+msgid "%(label)s has been updated."
+msgstr ""
+
+msgid "Sorry, I couldn't load the given template. Please try a different one"
+msgstr ""
+
+msgid ""
+"Sorry, I couldn't load the given template. I'll load your default email "
+"template instead"
+msgstr ""
+
+msgid "Sorry, I couldn't remove your e-mail draft"
+msgstr ""
+
+#, python-format
+msgid ""
+"Failed to create remove_draft task for email account %d. Draft message id "
+"was %d."
+msgstr ""
+
+msgid "Gonna deliver your email as fast as I can"
+msgstr ""
+
+msgid ""
+"Sorry, I couldn't deliver your e-mail, but I did save it as a draft so you "
+"can try again later"
+msgstr ""
+
+#, python-format
+msgid ""
+"Failed to create send_message task (%s) outbox message id was %d. TRACE: %s"
+msgstr ""
+
+msgid "Creating a draft as fast as I can"
+msgstr ""
+
+msgid "Sorry, I couldn't save you e-mail as a draft"
+msgstr ""
+
+#, python-format
+msgid ""
+"Failed to create create_draft_email_message task for email account %d. "
+"Outbox message id was %d."
+msgstr ""
+
+msgid "Sending email as fast as I can"
+msgstr ""
+
+msgid "Sorry, I couldn't send your e-mail"
+msgstr ""
+
+#, python-format
+msgid ""
+"Failed to create %s task for email account %d. Outbox message id was %d."
+msgstr ""
+
+#, python-format
+msgid "%s has been created"
+msgstr ""
+
+#, python-format
+msgid "%s has been updated"
+msgstr ""
+
+msgid "email template"
+msgstr ""
+
+#, python-format
+msgid "%s (Email template) has been deleted."
+msgstr ""
+
+#, python-format
+msgid "%s is no longer a default template"
+msgstr ""
+
+#, python-format
+msgid "%s has been set as default for: %s"
+msgstr ""
+
+#, python-format
+msgid "%s has been set as default for: %s and %s others"
+msgstr ""
+
 msgid "Write your note here"
+msgstr ""
+
+msgid "Note"
+msgstr ""
+
+msgid "Call"
+msgstr ""
+
+msgid "Meetup"
 msgstr ""
 
 msgid "note"
@@ -1409,22 +1018,65 @@ msgstr ""
 msgid "notes"
 msgstr ""
 
-msgid "The note was successfully deleted."
-msgstr ""
-
-msgid "Note has been updated."
-msgstr ""
-
 msgid "Deleting this note cannot be undone. Are you sure?"
 msgstr ""
 
 msgid "Add note"
 msgstr ""
 
-msgid "Note"
+msgid "Edit"
+msgstr ""
+
+msgid "Delete"
 msgstr ""
 
 msgid "Create Case"
+msgstr ""
+
+msgid "The note was successfully deleted."
+msgstr ""
+
+msgid "Note has been updated."
+msgstr ""
+
+msgid "Personal information"
+msgstr ""
+
+msgid "Contact information"
+msgstr ""
+
+msgid "Language and time"
+msgstr ""
+
+msgid "Current password"
+msgstr ""
+
+msgid "New password"
+msgstr ""
+
+msgid "Confirm new password"
+msgstr ""
+
+msgid "Forgot your password?"
+msgstr ""
+
+msgid "Your passwords don't match."
+msgstr ""
+
+msgid "Password is incorrect."
+msgstr ""
+
+msgid "Change your email address"
+msgstr ""
+
+msgid "Change your password"
+msgstr ""
+
+msgid "Confirm your password"
+msgstr ""
+
+#, python-format
+msgid "%(name)s has been updated"
 msgstr ""
 
 msgid "I'm so sorry, I couldn't find any data for this website."
@@ -1436,7 +1088,19 @@ msgstr ""
 msgid "English"
 msgstr ""
 
-msgid "Invalid username or url"
+msgid "Please fill in username or profile url."
+msgstr ""
+
+msgid "Invalid username, incorrect format."
+msgstr ""
+
+msgid "Invalid profile url, not a valid url."
+msgstr ""
+
+msgid "Invalid profile url, linking to wrong website."
+msgstr ""
+
+msgid "Invalid profile url, username or id could not be parsed."
 msgstr ""
 
 msgid "Facebook"
@@ -1469,188 +1133,7 @@ msgstr ""
 msgid "list of tags"
 msgstr ""
 
-msgid "Oops! You're lost."
-msgstr ""
-
-msgid "We can not find the page you're looking for."
-msgstr ""
-
-msgid "Return home"
-msgstr ""
-
-msgid "or try the search bar below."
-msgstr ""
-
-msgid "Oops! Something went wrong."
-msgstr ""
-
-msgid "We are fixing it!"
-msgstr ""
-
-msgid "Please come back in a while."
-msgstr ""
-
-msgid "I successfully delivered your e-mail!"
-msgstr ""
-
-msgid "Yay!"
-msgstr ""
-
-msgid ""
-"Sorry, I couldn\\'t deliver your e-mail, but I did save it as a draft so you "
-"can try again later."
-msgstr ""
-
-msgid "Oops!"
-msgstr ""
-
-msgid "I successfully saved your message as a draft!"
-msgstr ""
-
-msgid "I couldn\\'t save your message as a draft, please try again!"
-msgstr ""
-
-#, python-format
-msgid "Deleting this %(form_object_name)s cannot be undone. Are you sure?"
-msgstr ""
-
-msgid "History"
-msgstr ""
-
-msgid "All"
-msgstr ""
-
-msgid "Prev"
-msgstr ""
-
-msgid "Next"
-msgstr ""
-
-msgid "Records"
-msgstr ""
-
-msgid "Showing _START_ to _END_ of _TOTAL_ records"
-msgstr ""
-
-msgid "Add case"
-msgstr ""
-
-msgid "Add deal"
-msgstr ""
-
-#, python-format
-msgid "You have one new message"
-msgid_plural "You have %(counter)s new messages"
-msgstr[0] ""
-msgstr[1] ""
-
-#, python-format
-msgid "And %(count)s more new messages!"
-msgstr ""
-
-msgid "See all messages"
-msgstr ""
-
-msgid "Hello"
-msgstr ""
-
-msgid "Dashboard"
-msgstr ""
-
-msgid "Settings"
-msgstr ""
-
-msgid "Profile"
-msgstr ""
-
-msgid "Log out"
-msgstr ""
-
-msgid "E-mail"
-msgstr ""
-
-msgid "--- Clear ---"
-msgstr ""
-
-msgid "Beaming up the information now, almost within range!"
-msgstr ""
-
-msgid "I\\'m on my way!"
-msgstr ""
-
-msgid "There was an error trying to fetch your data, please don\\'t be mad."
-msgstr ""
-
-msgid "We did it! Your new data should be right there waiting for you."
-msgstr ""
-
-msgid "Yeah!"
-msgstr ""
-
-msgid "Do you wish to overwrite the following fields?\\n"
-msgstr ""
-
-msgid "Your profile"
-msgstr ""
-
-msgid "You"
-msgstr ""
-
-msgid "Your company"
-msgstr ""
-
-msgid "Users"
-msgstr ""
-
-msgid "Workflow"
-msgstr ""
-
-msgid "Your email"
-msgstr ""
-
-msgid "Templates"
-msgstr ""
-
-msgid "Normal Text"
-msgstr ""
-
-msgid "Heading 1"
-msgstr ""
-
-msgid "Heading 2"
-msgstr ""
-
-msgid "Heading 3"
-msgstr ""
-
-msgid "Heading 4"
-msgstr ""
-
-msgid "Heading 5"
-msgstr ""
-
-msgid "Heading 6"
-msgstr ""
-
-msgid "bold"
-msgstr ""
-
-msgid "italic"
-msgstr ""
-
-msgid "underline"
-msgstr ""
-
-msgid "OK"
-msgstr ""
-
 msgid "Write something here"
-msgstr ""
-
-msgid "Post successful."
-msgstr ""
-
-msgid "Post deleted."
 msgstr ""
 
 msgid "Deleting this blogpost cannot be undone. Are you sure?"
@@ -1668,6 +1151,12 @@ msgstr ""
 msgid "Create Blogpost"
 msgstr ""
 
+msgid "Post successful."
+msgstr ""
+
+msgid "Post deleted."
+msgstr ""
+
 msgid "Please enter a correct e-mail address and password. "
 msgstr ""
 
@@ -1683,7 +1172,7 @@ msgstr ""
 msgid "Password"
 msgstr ""
 
-msgid "Remember me on this device"
+msgid "Remember me"
 msgstr ""
 
 msgid ""
@@ -1699,22 +1188,12 @@ msgstr ""
 msgid "You cannot request a password reset for an account that is inactive."
 msgstr ""
 
-#, python-format
-msgid "An <nobr>e-mail</nobr> with reset instructions has been sent to %s."
-msgstr ""
-
-msgid "New password"
-msgstr ""
-
-msgid "Confirmation"
-msgstr ""
-
 msgid ""
 "You cannot request a new activation e-mail for an account that is already "
 "active."
 msgstr ""
 
-msgid "Password confirmation"
+msgid "Confirm password"
 msgstr ""
 
 msgid "First name"
@@ -1724,6 +1203,9 @@ msgid "Preposition"
 msgstr ""
 
 msgid "Last name"
+msgstr ""
+
+msgid "E-mail address already in use."
 msgstr ""
 
 msgid "The two password fields didn't match."
@@ -1743,39 +1225,6 @@ msgstr ""
 
 msgid ""
 "You can't invite someone more than once (e-mail addresses must be unique)."
-msgstr ""
-
-msgid "Personal information"
-msgstr ""
-
-msgid "Language and time"
-msgstr ""
-
-msgid "New email address"
-msgstr ""
-
-msgid "Current password"
-msgstr ""
-
-msgid "Confirm new password"
-msgstr ""
-
-msgid "Current email address"
-msgstr ""
-
-msgid "Forgot your password?"
-msgstr ""
-
-msgid "If you want to change your password, please verify your current one."
-msgstr ""
-
-msgid "Your passwords don't match."
-msgstr ""
-
-msgid "Change your email address"
-msgstr ""
-
-msgid "Change your password"
 msgstr ""
 
 msgid "email address"
@@ -1798,7 +1247,13 @@ msgstr ""
 msgid "date joined"
 msgstr ""
 
+msgid "Lily groups"
+msgstr ""
+
 msgid "phone number"
+msgstr ""
+
+msgid "list of social media"
 msgstr ""
 
 msgid "language"
@@ -1816,120 +1271,29 @@ msgstr ""
 msgid "You are now logged out."
 msgstr ""
 
-msgid "I\\m sorry, but I can't let anyone register at the moment."
-msgstr ""
-
-msgid ""
-"Registration completed. I've sent you an email, please check it to activate "
-"your account."
-msgstr ""
-
-msgid "I've activated your account, please login."
-msgstr ""
-
-msgid ""
-"Reactivation successful. I've sent you an email, please check it to activate "
-"your account."
-msgstr ""
-
-msgid "The invitations were sent successfully"
-msgstr ""
-
-msgid "I did it! I've sent the invitations successfully."
-msgstr ""
-
-#, python-format
-msgid "%(name)s has been updated"
-msgstr ""
-
 msgid "Account activation failed"
 msgstr ""
 
 msgid ""
-"Activation failed. This happened because either the link is invalid, the "
-"activation period expired or the associated account has already been "
-"activated. You can apply for a new activation link or try to log in."
+"This happened because either the link is invalid, the activation period "
+"expired or the associated account has already been activated. You can apply "
+"for a new activation link or try to log in."
 msgstr ""
 
 msgid "Try again"
 msgstr ""
 
-msgid "Back to Log in"
+msgid "Back to login"
 msgstr ""
 
 msgid "Resend activation e-mail"
 msgstr ""
 
-msgid ""
-"Didn\\'t receive your activation e-mail? Enter your e-mail address below, "
-"and I'll e-mail it again, free of charge!"
-msgstr ""
-
-msgid "Go to log in"
-msgstr ""
-
-msgid "HelloLily"
-msgstr ""
-
-msgid "Welcome to the HelloLily beta!"
+msgid "Didn't receive your activation e-mail?"
 msgstr ""
 
 msgid ""
-"I'd like you to help me the best personal assistant on the web. Please "
-"report you bugs, questions and ideas via the <strong>support</strong> link "
-"in the menu."
-msgstr ""
-
-msgid "Latest contacts"
-msgstr ""
-
-msgid "View details for "
-msgstr ""
-
-msgid "All contacts"
-msgstr ""
-
-msgid "Latest accounts"
-msgstr ""
-
-msgid "All accounts"
-msgstr ""
-
-msgid "Microblog"
-msgstr ""
-
-msgid "Post"
-msgstr ""
-
-msgid "Filtered by"
-msgstr ""
-
-msgid "remove filter"
-msgstr ""
-
-#, python-format
-msgid "No entries found for #%(tag)s."
-msgstr ""
-
-msgid "Show everything"
-msgstr ""
-
-msgid "There are no entries in the microblog yet."
-msgstr ""
-
-msgid "Log in"
-msgstr ""
-
-msgid "Login"
-msgstr ""
-
-msgid "Registration"
-msgstr ""
-
-msgid "Register"
-msgstr ""
-
-msgid "Registration is closed at the moment. Please try again later."
+"Enter your e-mail address below, and I'll e-mail it again, free of charge!"
 msgstr ""
 
 msgid "Accept invitation"
@@ -1953,10 +1317,29 @@ msgstr ""
 msgid "Add an invite"
 msgstr ""
 
+msgid "Login"
+msgstr ""
+
 msgid "Password reset complete"
 msgstr ""
 
 msgid "Your password has been reset. You can go ahead and log in now."
+msgstr ""
+
+msgid "Back to Log in"
+msgstr ""
+
+msgid ""
+"Please enter your new password twice so I can verify you typed it in "
+"correctly."
+msgstr ""
+
+msgid ""
+"The password reset link was invalid, possibly because it has already been "
+"used. Please request a new password reset."
+msgstr ""
+
+msgid "Change my password"
 msgstr ""
 
 msgid "Reset password"
@@ -1965,20 +1348,7 @@ msgstr ""
 msgid "Password reset unsuccessful"
 msgstr ""
 
-msgid ""
-"The password reset link was invalid, possibly because it has already been "
-"used. Please request a new password reset."
-msgstr ""
-
 msgid "Enter your new password"
-msgstr ""
-
-msgid ""
-"Please enter your new password twice so I can verify you typed it in "
-"correctly."
-msgstr ""
-
-msgid "Change my password"
 msgstr ""
 
 msgid "Password reset successful"
@@ -1989,21 +1359,83 @@ msgid ""
 "address you submitted. You should be receiving it shortly."
 msgstr ""
 
-msgid "Reset my password"
+msgid "Forgotten your password?"
 msgstr ""
 
 msgid ""
-"Forgotten your password? Enter your e-mail address below, and I'll email "
-"instructions for setting a new one."
+"Enter your e-mail address below, and I'll email instructions for setting a "
+"new one."
 msgstr ""
 
-msgid "invalid input"
+msgid "Reset my password"
+msgstr ""
+
+msgid "Registration"
+msgstr ""
+
+msgid "Register"
+msgstr ""
+
+msgid "Registration closed"
+msgstr ""
+
+msgid "Registration is closed at the moment. Please try again later."
+msgstr ""
+
+msgid "I've sent you an email, please check it to reset your password."
+msgstr ""
+
+msgid "I've reset your password, please login."
+msgstr ""
+
+msgid "I'm sorry, but I can't let anyone register at the moment."
+msgstr ""
+
+msgid ""
+"Registration completed. I've sent you an email, please check it to activate "
+"your account."
+msgstr ""
+
+msgid "I've activated your account, please login."
+msgstr ""
+
+msgid ""
+"Reactivation successful. I've sent you an email, please check it to activate "
+"your account."
+msgstr ""
+
+msgid "The invitations were sent successfully"
+msgstr ""
+
+msgid "I did it! I've sent the invitations successfully."
+msgstr ""
+
+msgid "The id must point to an existing object."
+msgstr ""
+
+msgid "The id must match that of the object being updated."
+msgstr ""
+
+msgid "Referencing to objects with an id is not allowed."
+msgstr ""
+
+msgid "Only id's of linked objects are valid."
+msgstr ""
+
+msgid ""
+"Updating and/or creating objects is not allowed. Please provide an id only."
+msgstr ""
+
+msgid "Only id's of existing objects are valid."
+msgstr ""
+
+msgid "Invalid input"
+msgstr ""
+
+msgid "Phone number"
 msgstr ""
 
 msgid "Phone Number"
-msgstr ""
-
-msgid "Address"
 msgstr ""
 
 msgid "CSV"
@@ -2012,7 +1444,19 @@ msgstr ""
 msgid "Import rows as"
 msgstr ""
 
-msgid "Enter a valid hostname."
+msgid "Contacts"
+msgstr ""
+
+msgid "Accounts"
+msgstr ""
+
+msgid "Functions"
+msgstr ""
+
+msgid "From source:"
+msgstr ""
+
+msgid "Sugar"
 msgstr ""
 
 msgid "Add"
@@ -2022,9 +1466,6 @@ msgid "Remove"
 msgstr ""
 
 msgid "deleted"
-msgstr ""
-
-msgid "list of social media"
 msgstr ""
 
 msgid "list of addresses"
@@ -2037,6 +1478,12 @@ msgid "Work"
 msgstr ""
 
 msgid "Mobile"
+msgstr ""
+
+msgid "Home"
+msgstr ""
+
+msgid "Fax"
 msgstr ""
 
 msgid "phone numbers"
@@ -2822,10 +2269,10 @@ msgstr ""
 msgid "addresses"
 msgstr ""
 
-msgid "e-mail address"
+msgid "Primary"
 msgstr ""
 
-msgid "primary e-mail"
+msgid "e-mail address"
 msgstr ""
 
 msgid "e-mail addresses"
@@ -2840,6 +2287,9 @@ msgstr ""
 msgid "Add a phone number"
 msgstr ""
 
+msgid "Loading.."
+msgstr ""
+
 msgid "End of list"
 msgstr ""
 
@@ -2847,6 +2297,27 @@ msgid "Show more"
 msgstr ""
 
 msgid "Text type"
+msgstr ""
+
+msgid "Normal Text"
+msgstr ""
+
+msgid "Heading 1"
+msgstr ""
+
+msgid "Heading 2"
+msgstr ""
+
+msgid "Heading 3"
+msgstr ""
+
+msgid "Heading 4"
+msgstr ""
+
+msgid "Heading 5"
+msgstr ""
+
+msgid "Heading 6"
 msgstr ""
 
 msgid "Make bold"
@@ -2876,6 +2347,9 @@ msgstr ""
 msgid "Create a link"
 msgstr ""
 
+msgid "OK"
+msgstr ""
+
 #, python-format
 msgid "Show all posts with tag #%s"
 msgstr ""
@@ -2887,4 +2361,10 @@ msgid "yesterday"
 msgstr ""
 
 msgid "Import started, you should see results in de appropriate list"
+msgstr ""
+
+msgid "Didn't set the correct message level"
+msgstr ""
+
+msgid "No message has been set"
 msgstr ""

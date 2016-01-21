@@ -191,7 +191,10 @@ E.g.:
                 attribute = self.account_column_attribute_mapping.get(column)
                 # Set created date to original created date in sugar.
                 if attribute == 'created':
-                    value = timezone.make_aware(datetime.strptime(str(value), "%d-%m-%Y %H.%M"), timezone.get_current_timezone())
+                    value = timezone.make_aware(
+                        datetime.strptime(str(value), "%d-%m-%Y %H.%M"),
+                        timezone.get_current_timezone()
+                    )
                 account_kwargs[attribute] = value
 
         if not len(account_kwargs):
@@ -213,7 +216,6 @@ E.g.:
 
         # Extend description with netwerk opstelling information.
         extended_description = ""
-        old_description = ""
         if values.get('Netwerk opstelling'):
             extended_description = ' # Netwerk opstelling: ' + values.get('Netwerk opstelling')
         if not account.description:
@@ -307,7 +309,10 @@ E.g.:
                 attribute = self.contact_column_attribute_mapping.get(column)
                 # Set created date to original created date in sugar.
                 if attribute == 'created':
-                    value = timezone.make_aware(datetime.strptime(str(value), "%d-%m-%Y %H.%M"), timezone.get_current_timezone())
+                    value = timezone.make_aware(
+                        datetime.strptime(str(value), "%d-%m-%Y %H.%M"),
+                        timezone.get_current_timezone()
+                    )
                 contact_kwargs[attribute] = value
 
         # Check if we can find a first and or last name
@@ -371,7 +376,9 @@ E.g.:
                             # account
                             contact = contact_list.first()
                             if len(contact_list) > 1:
-                                self.duplicate_contacts.append(contact_kwargs['first_name'] + " " + contact_kwargs['last_name'])
+                                self.duplicate_contacts.append(
+                                    contact_kwargs['first_name'] + " " + contact_kwargs['last_name']
+                                )
                     else:
                         self.unmatched_contacts.append(values.get('ID'))
                         return

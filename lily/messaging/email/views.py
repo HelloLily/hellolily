@@ -72,7 +72,8 @@ class OAuth2Callback(LoginRequiredMixin, View):
         return HttpResponseRedirect('/#/preferences/emailaccounts/edit/%s' % account.pk)
 
 
-class EmailAccountUpdateView(LoginRequiredMixin, AjaxFormMixin, SuccessMessageMixin, FormActionMixin, StaticContextMixin, UpdateView):
+class EmailAccountUpdateView(LoginRequiredMixin, AjaxFormMixin, SuccessMessageMixin, FormActionMixin,
+                             StaticContextMixin, UpdateView):
     template_name = 'ajax_form.html'
     model = EmailAccount
     form_class = EmailAccountCreateUpdateForm
@@ -127,7 +128,10 @@ class EmailMessageHTMLView(LoginRequiredMixin, DetailView):
 class EmailAttachmentProxy(View):
     def get(self, request, *args, **kwargs):
         try:
-            attachment = EmailAttachment.objects.get(pk=self.kwargs['pk'], message__account__tenant_id=self.request.user.tenant.id)
+            attachment = EmailAttachment.objects.get(
+                pk=self.kwargs['pk'],
+                message__account__tenant_id=self.request.user.tenant.id
+            )
         except:
             raise Http404()
 
@@ -264,10 +268,14 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
         recipient = None
 
         if email_address:
-            recipient = Contact.objects.filter(email_addresses__email_address=email_address).order_by('created').first()
+            recipient = Contact.objects.filter(
+                email_addresses__email_address=email_address
+            ).order_by('created').first()
 
             if not recipient:
-                recipient = Account.objects.filter(email_addresses__email_address=email_address).order_by('created').first()
+                recipient = Account.objects.filter(
+                    email_addresses__email_address=email_address
+                ).order_by('created').first()
 
         if recipient:
             context.update({
@@ -293,7 +301,8 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
                 except DefaultEmailTemplate.DoesNotExist:
                     message = _('Sorry, I couldn\'t load the given template. Please try a different one')
                 else:
-                    message = _('Sorry, I couldn\'t load the given template. I\'ll load your default email template instead')
+                    message = _('Sorry, I couldn\'t load the given template. '
+                                'I\'ll load your default email template instead')
 
                 messages.warning(self.request, message)
                 template = None
@@ -355,7 +364,9 @@ class EmailMessageSendOrArchiveView(EmailMessageComposeView):
         """
         send_logger = logging.getLogger('email_errors_temp_logger')
 
-        send_logger.info('Begin creating task for email_outbox_message %d to %s' % (email_outbox_message.id, email_outbox_message.to))
+        send_logger.info('Begin creating task for email_outbox_message %d to %s' % (
+            email_outbox_message.id, email_outbox_message.to
+        ))
 
         task = send_message.apply_async(
             args=(email_outbox_message.id,),
@@ -363,7 +374,9 @@ class EmailMessageSendOrArchiveView(EmailMessageComposeView):
             default_retry_delay=100,
         )
 
-        send_logger.info('Task (%s) status %s for email_outbox_message %d' % (task.id, task.status, email_outbox_message.id))
+        send_logger.info('Task (%s) status %s for email_outbox_message %d' % (
+            task.id, task.status, email_outbox_message.id
+        ))
 
         if task.status is not FAILURE:
             messages.info(
@@ -451,9 +464,12 @@ class EmailMessageDraftView(EmailMessageComposeView):
                 self.request,
                 _('Sorry, I couldn\'t save you e-mail as a draft')
             )
-            logging.error(_('Failed to create create_draft_email_message task for email account %d. Outbox message id was %d.') % (
-                email_outbox_message.send_from, email_outbox_message.id
-            ))
+            logging.error(
+                _('Failed to create create_draft_email_message task for email account %d. '
+                  'Outbox message id was %d.') % (
+                      email_outbox_message.send_from, email_outbox_message.id
+                )
+            )
 
         return task
 
@@ -525,7 +541,9 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
         """
         send_logger = logging.getLogger('email_errors_temp_logger')
 
-        send_logger.info('Begin creating reply/forward task for email_outbox_message %d to %s' % (email_outbox_message.id, email_outbox_message.to))
+        send_logger.info('Begin creating reply/forward task for email_outbox_message %d to %s' % (
+            email_outbox_message.id, email_outbox_message.to
+        ))
 
         task = send_message.apply_async(
             args=(email_outbox_message.id, self.object.id),
@@ -533,7 +551,9 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
             default_retry_delay=100,
         )
 
-        send_logger.info('Reply/forward Task (%s) status %s for email_outbox_message %d' % (task.id, task.status, email_outbox_message.id))
+        send_logger.info('Reply/forward Task (%s) status %s for email_outbox_message %d' % (
+            task.id, task.status, email_outbox_message.id
+        ))
 
         if task:
             messages.info(
@@ -766,7 +786,9 @@ class EmailTemplateSetDefaultView(LoginRequiredMixin, FormActionMixin, SuccessMe
         elif default_for_length == 1:
             message = _('%s has been set as default for: %s' % (self.object, default_for[0]))
         else:
-            message = _('%s has been set as default for: %s and %s others' % (self.object, default_for[0], default_for_length - 1))
+            message = _('%s has been set as default for: %s and %s others' % (
+                self.object, default_for[0], default_for_length - 1
+            ))
         return message
 
     def get_success_url(self):
@@ -852,9 +874,15 @@ class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
                     variable = custom_variable
 
                 if public:
-                    template_variable = TemplateVariable.objects.filter(name__iexact=variable, is_public=True)
+                    template_variable = TemplateVariable.objects.filter(
+                        name__iexact=variable,
+                        is_public=True
+                    )
                 else:
-                    template_variable = TemplateVariable.objects.filter(name__iexact=variable, owner=get_current_user())
+                    template_variable = TemplateVariable.objects.filter(
+                        name__iexact=variable,
+                        owner=get_current_user()
+                    )
 
                 if template_variable:
                     # find = '\[\[ custom.' + custom_variable + '(\s)?\]\]'

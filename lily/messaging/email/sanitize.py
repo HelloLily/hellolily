@@ -5,10 +5,10 @@ _ALLOWED_TAGS = [
     'br', 'button', 'caption', 'center', 'cite', 'code', 'col', 'colgroup', 'data', 'datalist', 'dd', 'del', 'details',
     'dfn', 'dir', 'div', 'dl', 'dt', 'em', 'fieldset', 'figcaption', 'figure', 'font', 'footer', 'form', 'h1', 'h2',
     'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hr', 'html', 'i', 'img', 'input', 'ins', 'kbd', 'keygen', 'label',
-    'legend', 'li', 'link', 'main', 'map', 'mark', 'menu', 'menuitem', 'meta', 'meter', 'nav', 'ol', 'optgroup', 'option',
-    'output', 'p', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'section', 'select', 'small', 'span',
-    'strike', 'strong', 'style', 'sub', 'summary', 'sup', 'table', 'title', 'tbody', 'td', 'textarea', 'tfoot', 'th',
-    'thead', 'time', 'tr', 'tt', 'u', 'ul', 'var', 'wbr'
+    'legend', 'li', 'link', 'main', 'map', 'mark', 'menu', 'menuitem', 'meta', 'meter', 'nav', 'ol', 'optgroup',
+    'option', 'output', 'p', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'section', 'select', 'small',
+    'span', 'strike', 'strong', 'style', 'sub', 'summary', 'sup', 'table', 'title', 'tbody', 'td', 'textarea', 'tfoot',
+    'th', 'thead', 'time', 'tr', 'tt', 'u', 'ul', 'var', 'wbr'
 ]
 
 _ALLOWED_ATTRIBUTES = [
@@ -25,20 +25,22 @@ _ALLOWED_ATTRIBUTES = [
 ]
 
 _ALLOWED_STYLES = [
-    'background', 'background-attachment', 'background-color', 'background-image', 'background-position', 'background-repeat',
-    'border', 'border-bottom', 'border-bottom-color', 'border-bottom-style', 'border-bottom-width', 'border-collapse',
-    'border-color', 'border-left', 'border-left-color', 'border-left-style', 'border-left-width', 'border-right',
-    'border-right-color', 'border-right-style', 'border-right-width', 'border-spacing', 'border-style', 'border-top',
-    'border-top-color', 'border-top-style', 'border-top-width', 'border-width', 'bottom', 'caption-side', 'clear',
-    'clip', 'color', 'content', 'counter-increment', 'counter-reset', 'cursor', 'direction', 'display', 'empty-cells',
-    'float', 'font', 'font-family', 'font-size', 'font-style', 'font-variant', 'font-weight', 'height', 'left',
-    'letter-spacing', 'line-height', 'list-style', 'list-style-image', 'list-style-position', 'list-style-type',
-    'margin', 'margin-bottom', 'margin-left', 'margin-right', 'margin-top', 'max-height', 'max-width', 'min-height',
-    'min-width', 'opacity', 'orphans', 'outline', 'outline-color', 'outline-style', 'outline-width', 'overflow',
-    'padding', 'padding-bottom', 'padding-left', 'padding-right', 'padding-top', 'page-break-after', 'page-break-before',
-    'page-break-inside', 'quotes', 'right', 'table-layout', 'text-align', 'text-decoration', 'text-indent', 'text-transform',
-    'top', 'unicode-bidi', 'url', 'vertical-align', 'visibility', 'white-space', 'widows', 'width', 'word-spacing', 'z-index'
+    'background', 'background-attachment', 'background-color', 'background-image', 'background-position',
+    'background-repeat', 'border', 'border-bottom', 'border-bottom-color', 'border-bottom-style',
+    'border-bottom-width', 'border-collapse', 'border-color', 'border-left', 'border-left-color', 'border-left-style',
+    'border-left-width', 'border-right', 'border-right-color', 'border-right-style', 'border-right-width',
+    'border-spacing', 'border-style', 'border-top', 'border-top-color', 'border-top-style', 'border-top-width',
+    'border-width', 'bottom', 'caption-side', 'clear', 'clip', 'color', 'content', 'counter-increment',
+    'counter-reset', 'cursor', 'direction', 'display', 'empty-cells', 'float', 'font', 'font-family', 'font-size',
+    'font-style', 'font-variant', 'font-weight', 'height', 'left', 'letter-spacing', 'line-height', 'list-style',
+    'list-style-image', 'list-style-position', 'list-style-type', 'margin', 'margin-bottom', 'margin-left',
+    'margin-right', 'margin-top', 'max-height', 'max-width', 'min-height', 'min-width', 'opacity', 'orphans',
+    'outline', 'outline-color', 'outline-style', 'outline-width', 'overflow', 'padding', 'padding-bottom',
+    'padding-left', 'padding-right', 'padding-top', 'page-break-after', 'page-break-before', 'page-break-inside',
+    'quotes', 'right', 'table-layout', 'text-align', 'text-decoration', 'text-indent', 'text-transform', 'top',
+    'unicode-bidi', 'url', 'vertical-align', 'visibility', 'white-space', 'widows', 'width', 'word-spacing', 'z-index'
 ]
+
 
 def sanitize_html_email(html):
     if html is None:

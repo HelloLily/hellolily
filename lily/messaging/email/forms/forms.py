@@ -305,7 +305,9 @@ class CreateUpdateEmailTemplateForm(HelloLilyModelForm):
         text_part = cleaned_data.get('body_text')
 
         if not html_part and not text_part:
-            self._errors['body_html'] = self.error_class([_('Please fill in the html part or the text part, at least one of these is required.')])
+            self._errors['body_html'] = self.error_class(
+                [_('Please fill in the html part or the text part, at least one of these is required.')]
+            )
         elif html_part:
             # For some reason sometimes nbsp's are added, so remove them
             parsed_template = TemplateParser(self.clean_nbsp(html_part))

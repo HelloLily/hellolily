@@ -151,13 +151,13 @@ class AddonTextInput(TextInput):
             self.html_template = '''
                 <div%(div_attrs)s>
                     <input%(input_attrs)s/>
-                    ''' + \
-                    span + \
+                ''' + \
+                span + \
                 '''</div>'''
         else:
             self.html_template = '''
                 <div%(div_attrs)s>''' + \
-                    span + \
+                span + \
                 '''<input%(input_attrs)s/>
                 </div>'''
 
@@ -245,7 +245,10 @@ class ShowHideWidget(Widget):
         before_html = mark_safe(u'''
             <div class="show-and-hide-input">
             <div class="form-control-static %(add_class)s">
-            <a href="javascript:void(0)" class="toggle-original-form-input" data-action="show">%(add_text)s <i class="fa fa-angle-down"></i></a>
+            <a href="javascript:void(0)" class="toggle-original-form-input" data-action="show">
+                %(add_text)s
+                <i class="fa fa-angle-down"></i>
+            </a>
             </div>
             <div class="original-form-widget %(input_class)s">
         ''' % {
@@ -256,7 +259,10 @@ class ShowHideWidget(Widget):
         after_html = mark_safe(u'''
             </div>
             <div class="form-control-static %(cancel_class)s">
-            <a href="javascript:void(0)" class="toggle-original-form-input" data-action="hide">%(cancel_text)s <i class="fa fa-angle-up"></i></a>
+            <a href="javascript:void(0)" class="toggle-original-form-input" data-action="hide">
+                %(cancel_text)s
+                <i class="fa fa-angle-up"></i>
+            </a>
             </div>
             </div>
         ''' % {

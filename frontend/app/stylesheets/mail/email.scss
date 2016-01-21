@@ -50,67 +50,48 @@
 }
 
 .email-nav {
-
+    background: #ffffff;
     border: 1px solid $lilyBorderDark;
-    border-bottom: 0;
 
     li {
-
-        &.active {
-            a {
-                color: $lilyDarkBlue;
-                border-bottom: 1px solid $lilyBorderDark;
-                border-top: 1px solid $lilyBorderDark;
-
-                &:hover {
-                    background: $lilyWhiteToneHover;
-                    color: $lilyDarkBlue;
-                }
-            }
-
-            .unread-count, .label-count {
-                color: $lilyDarkBlue;
-            }
-
-            &:first-child {
-                a {
-                    border-top: 1px solid $lilyWhiteTone;
-                }
-            }
-        }
-
-        a {
+        .email-nav-item {
             color: $lilyDarkBlue;
-            background-color: #ffffff;
-            border-radius: 0;
-            margin-bottom: 0;
             padding: 0px 15px;
             line-height: 40px;
             position: relative;
-            width: 100%;
-            text-align: left;
-            border-top: 1px solid #ffffff;
-            border-bottom: 1px solid #ffffff;
+            border-top: 1px solid transparent;
+            border-bottom: 1px solid transparent;
             overflow: hidden;
             text-overflow: ellipsis;
 
             &:hover {
                 background-color: $lilyWhiteToneHover;
             }
+        }
 
-            &:first-child {
-                a {
-                    border-top: 1px solid $lilyWhiteTone;
+        &.active {
+            .email-nav-item {
+                color: $lilyDarkBlue;
+                border-bottom: 1px solid $lilyBorderLight;
+                border-top: 1px solid $lilyBorderLight;
+                background: $lilyWhiteToneHover;
+            }
+        }
+
+        &:first-child {
+            &.active {
+                .email-nav-item {
+                    border-top: 1px solid transparent;
                 }
             }
         }
-    }
 
-    li:last-of-type {
-        border-bottom: 1px solid $lilyBorderDark;
-
-        a {
-            border-bottom: 0;
+        &:last-child {
+            &.active {
+                .email-nav-item {
+                    border-bottom: 1px solid transparent;
+                }
+            }
         }
     }
 }
@@ -218,6 +199,7 @@
     border-radius: 4px;
     font-size: 15px;
     text-align: center;
+    text-decoration: none;
 
     i {
         font-weight: bold;
@@ -229,13 +211,8 @@
         background: darken($lilyGreen, 5);
     }
 
-    &:visited {
-        color: #ffffff;
-        text-decoration: none;
-        background: darken($lilyGreen, 5);
-    }
-
-    &:visited {
+    &:visited,
+    &:focus {
         color: #ffffff;
         text-decoration: none;
     }

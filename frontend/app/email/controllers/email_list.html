@@ -139,7 +139,7 @@
                     <thread-info message_id="message.id"></thread-info>
                 </td>
                 <td class="view-message inbox-small-cells" ui-sref="base.email.detail({id: message.id})">
-                    <i class="fa fa-paperclip" ng-if="message.has_attachment"></i>
+                    <i class="lilicon hl-paperclip-icon" uib-tooltip="There is a file attached" tooltip-placement="left" ng-if="message.has_attachment"></i>
                 </td>
                 <td class="view-message" ng-if="vm.label.name == 'Draft'">
                     <a class="link-no-decoration" ui-sref="base.email.draft({id: message.id})">{{ message.subject }}</a>

@@ -1,7 +1,7 @@
 <ul class="email-compose-button-container">
     <li ui-sref-active="active">
         <a ui-sref="base.email.compose" data-title="Compose" class="email-compose-button">
-            <i class="fa fa-envelope-o"></i> Compose email
+            <i class="font-size-16 no-bold lilicon hl-mail-icon"></i> Compose email
         </a>
     </li>
 </ul>
@@ -36,7 +36,7 @@
                     Trash <span class="label-count" ng-if="vm.labelCount['TRASH']">{{ vm.labelCount['TRASH'] }}</span>
                 </a>
             </li>
-            <li>
+            <li ui-sref-active="active">
                 <a class="email-nav-item" ui-sref="base.email.list({labelId:''})">All mail</a>
             </li>
         </collapsable-content>

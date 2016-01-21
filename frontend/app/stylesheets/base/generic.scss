@@ -358,8 +358,12 @@ table {
     overflow: hidden;
 }
 
+.no-bold {
+    font-weight: normal !important;
+}
+
 .no-wrap {
-    white-space: nowrap;
+    white-space: nowrap !important;
 }
 
 .margin-left-10 {

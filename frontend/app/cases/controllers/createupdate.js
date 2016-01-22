@@ -183,7 +183,8 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         // Fetch the contact or create empty contact.
         if ($stateParams.id) {
             Case.get({id: $stateParams.id}).$promise.then(function(lilyCase) {
-                vm.case = lilyCase;
+                vm.case = Case.clean(lilyCase);
+
                 Settings.page.setAllTitles('edit', lilyCase.subject);
             });
         } else {

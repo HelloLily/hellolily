@@ -93,6 +93,9 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserT
                             if (item.hasOwnProperty('id')) {
                                 ids.push(item.id);
                             }
+                        } else if (typeof item === 'number') {
+                            // Seems to be an ID, so just add it to the ID array.
+                            ids.push(item);
                         }
                     });
 

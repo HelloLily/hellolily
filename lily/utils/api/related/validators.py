@@ -15,14 +15,9 @@ class BaseRelatedValidator(object):
         if hasattr(serializer.parent, 'many'):
             self.many = True
             self.field_name = serializer.parent.source
-            if self.instance:
-                self.manager = getattr(self.instance, self.field_name)
-            else:
-                self.manager = self.serializer.Meta.model.objects
         else:
             self.many = False
             self.field_name = serializer.source
-            self.manager = getattr(serializer.parent.Meta.model, self.field_name).get_queryset()
 
 
 class CreateOnlyValidator(BaseRelatedValidator):
@@ -33,6 +28,19 @@ class CreateOnlyValidator(BaseRelatedValidator):
         'not_allowed': _('Referencing to objects with an id is not allowed.'),
         'not_valid': _('Only id\'s of linked objects are valid.')
     }
+
+    def set_context(self, serializer):
+        super(CreateOnlyValidator, self).set_context(serializer)
+
+        if self.many:
+            if self.instance:
+                # Use the instance to auto filter on already linked objects.
+                self.manager = getattr(self.instance, self.field_name)
+            else:
+                # Use the plain field to filter on valid objects.
+                self.manager = serializer.Meta.model.objects
+        else:
+            self.manager = getattr(serializer.parent.Meta.model, self.field_name).get_queryset()
 
     def __call__(self, value):
         if 'id' in value:
@@ -50,6 +58,14 @@ class AssignOnlyValidator(BaseRelatedValidator):
         'not_allowed': _('Updating and/or creating objects is not allowed. Please provide an id only.'),
         'not_valid': _('Only id\'s of existing objects are valid.'),
     }
+
+    def set_context(self, serializer):
+        super(AssignOnlyValidator, self).set_context(serializer)
+
+        if self.many:
+            self.manager = serializer.Meta.model.objects
+        else:
+            self.manager = getattr(serializer.parent.Meta.model, self.field_name).get_queryset()
 
     def __call__(self, value):
         if 'id' not in value or not len(value) == 1:

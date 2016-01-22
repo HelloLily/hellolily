@@ -161,8 +161,8 @@
                                     <div ng-class="{'col-md-12': settings.email.sidebar.form, 'col-md-4': !settings.email.sidebar.form}">
                                         <ui-select multiple ng-model="vm.case.assigned_to_groups" theme="select2" class="form-control" name="assigned_to_groups" append-to-body="true">
                                             <ui-select-match placeholder="Select one or more account(s)">{{ $item.name }}</ui-select-match>
-                                            <ui-select-choices repeat="account.id as account in vm.teams">
-                                                <div ng-bind-html="account.name | highlight: $select.search"></div>
+                                            <ui-select-choices repeat="team.id as team in vm.teams">
+                                                <div ng-bind-html="team.name | highlight: $select.search"></div>
                                             </ui-select-choices>
                                         </ui-select>
                                     </div>

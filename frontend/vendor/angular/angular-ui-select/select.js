@@ -331,13 +331,14 @@ uis.controller('uiSelectCtrl',
 
       ctrl.search = initSearchValue || ctrl.search;
 
-      // Give it time (twice) to appear before focus
+      // Give it time to appear before focus. Limit tries so we don't get infinite loops
       $timeout((function() {
-        var retried = false;
+        var retried = 0;
         function focus() {
           ctrl.searchInput[0].focus();
-          if (window.document.activeElement !== ctrl.searchInput[0] && !retried) {
-            retried = true;
+
+          if (window.document.activeElement !== ctrl.searchInput[0] && retried < 10) {
+            retried++;
             $timeout(focus);
           }
         }

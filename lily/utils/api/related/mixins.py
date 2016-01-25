@@ -22,10 +22,15 @@ class RelatedSerializerMixin(ValidateEverythingSimultaneouslyMixin):
     extra_field_attrs = ['create_only', 'assign_only']
 
     def __init__(self, create_only=False, assign_only=False, instance=None, data=empty, **kwargs):
-        assert not (kwargs.get('read_only', False) and create_only), 'May not set both `read_only` and `create_only`.'
-        assert not (kwargs.get('read_only', False) and assign_only), 'May not set both `read_only` and `assign_only`.'
-        assert not (kwargs.get('many', False) and create_only), 'May not set `create_only` to True when `many` is False.'
+        allow_null = kwargs.get('allow_null', False)
+        read_only = kwargs.get('read_only', False)
+        many = kwargs.get('many', False)
+
+        assert not (read_only and create_only), 'May not set both `read_only` and `create_only`.'
+        assert not (read_only and assign_only), 'May not set both `read_only` and `assign_only`.'
+        assert not (many and create_only), 'May not set `create_only` to True when `many` is False.'
         assert not (create_only and assign_only), 'May not set both `create_only` and `assign_only`.'
+        assert not (allow_null and many), 'May not set both `allow_null` and `many`.'
 
         self.create_only = create_only
         if create_only:

@@ -1,26 +1,10 @@
-<div class="form-group" ng-class="{'has-error': field.$invalid}">
-    <label for="{{ labelId }}"
-           ng-class="{'col-xs-12': vm.sidebar, 'control-label col-md-2': !vm.sidebar, 'required':required}">
-        {{ labelTitle }}
-    </label>
-    <!--
-    <label ng-if="vm.sidebar" class="col-md-2 control-label icons-text" for="{{ labelId }}"
-           ng-class="{'required':required, 'with-icon':(labelIcon || labelChar)}">
-        <div class="text-center">
-
-            <div>
-                <i title="{{ labelTitle }}" ng-if="labelIcon" class="label-icon" ng-class="'fa fa-' + labelIcon"></i>
-            </div>
-
-            <div title="{{ labelTitle }}" ng-if="labelChar" class="label-icon"><strong>{{ labelChar }}</strong></div>
-
-            <div class="label-text">{{ labelTitle }}</div>
-        </div>
-        <div ng-if="!(labelIcon || labelChar)">
+<div class="hl-form-field" ng-class="{'has-error': field.$invalid}">
+    <div ng-class="{'supercard-form': vm.sidebar}">
+        <label for="{{ labelId }}" ng-class="{'required':required}">
             {{ labelTitle }}
-        </div>
-    </label>
-    -->
-    <ng-transclude></ng-transclude>
-    <span class="help-block" ng-show="field.$error.message" ng-class="{'col-xs-12': vm.sidebar}">{{ field.$error.message }}</span>
+        </label>
+
+        <ng-transclude></ng-transclude>
+        <span class="help-block" ng-show="field.$error.message" ng-class="{'col-xs-12': vm.sidebar}">{{ field.$error.message }}</span>
+    </div>
 </div>

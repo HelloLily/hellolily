@@ -142,8 +142,20 @@ td {
     font-size: inherit !important;
 }
 
-.required {
-    font-weight: bold;
+label.required {
+    &:after {
+        vertical-align: middle;
+        margin-left: 5px;
+        font-size: 10px;
+        color: #c9c9c9;
+        display: inline-block;
+        content: "(required)"
+    }
+}
+
+.help-text {
+    font-size: 10px;
+    color: #c9c9c9 !important;
 }
 
 .no-padding-left {
@@ -339,6 +351,10 @@ table {
 
 .align-center {
     text-align: center;
+}
+
+.align-right {
+    text-align: right;
 }
 
 .no-text-decoration {

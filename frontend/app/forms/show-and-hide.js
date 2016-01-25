@@ -18,7 +18,7 @@
             var self = this;
 
             // When modal is shown, lets instantiate the select2 in the modals
-            $('body').on('click', '.form .toggle-original-form-input', function() {
+            $('body').on('click', '.toggle-original-form-input', function() {
                 var field = $(this).closest('.show-and-hide-input');
 
                 /* hide clicked link */

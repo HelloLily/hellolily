@@ -1,5 +1,5 @@
 <ui-select ng-model="address.country" theme="select2" ng-disabled="address.is_deleted" class="form-control">
-    <ui-select-match placeholder="Select or search a country...">
+    <ui-select-match placeholder="Select a country">
         {{ $select.selected.display_name }}
     </ui-select-match>
     <ui-select-choices repeat="country.value as country in countries | filter: $select.search">

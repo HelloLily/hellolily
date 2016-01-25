@@ -14,7 +14,7 @@
                                     <div ng-class="{'col-md-12': settings.email.sidebar.form, 'col-md-4': !settings.email.sidebar.form}">
                                         <ui-select ng-model="vm.case.account" theme="select2" class="form-control" name="account" append-to-body="true">
                                             <ui-select-match placeholder="Select an account" allow-clear="true">{{ $select.selected.name }}</ui-select-match>
-                                            <ui-select-choices repeat="account.id as account in vm.accounts | propsFilter: {name: $select.search}" refresh="vm.refreshAccounts($select.search)" refresh-delay="150">
+                                            <ui-select-choices repeat="account in vm.accounts | propsFilter: {name: $select.search}" refresh="vm.refreshAccounts($select.search)" refresh-delay="150">
                                                 <div ng-bind-html="account.name | highlight: $select.search"></div>
                                             </ui-select-choices>
                                         </ui-select>
@@ -26,7 +26,7 @@
                                     <div ng-class="{'col-md-12': settings.email.sidebar.form, 'col-md-4': !settings.email.sidebar.form}">
                                         <ui-select ng-model="vm.case.contact" theme="select2" class="form-control" name="contact" append-to-body="true">
                                             <ui-select-match placeholder="Select an contact" allow-clear="true">{{ $select.selected.name }}</ui-select-match>
-                                            <ui-select-choices repeat="contact.id as contact in vm.contacts | propsFilter: {name: $select.search}" refresh="vm.refreshContacts($select.search)">
+                                            <ui-select-choices repeat="contact in vm.contacts | propsFilter: {name: $select.search}" refresh="vm.refreshContacts($select.search)">
                                                 <div ng-bind-html="contact.name | highlight: $select.search"></div>
                                             </ui-select-choices>
                                         </ui-select>
@@ -162,7 +162,7 @@
                                 <form-group label-title="Assigned to" label-icon="child" label-id="id_assigned_to" field="caseForm.assigned_to">
                                     <div ng-class="{'col-md-12': settings.email.sidebar.form, 'col-md-4': !settings.email.sidebar.form}">
                                         <ui-select ng-model="vm.case.assigned_to" theme="select2" class="form-control" name="assigned_to" append-to-body="true">
-                                            <ui-select-match placeholder="Assign to...">{{ $select.selected.name }}</ui-select-match>
+                                            <ui-select-match placeholder="Assign to..." allow-clear="true">{{ $select.selected.name }}</ui-select-match>
                                             <ui-select-choices repeat="person.id as person in vm.assignOptions | propsFilter: {name: $select.search}">
                                                 <div ng-bind-html="person.name | highlight: $select.search"></div>
                                             </ui-select-choices>

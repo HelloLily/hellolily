@@ -3,9 +3,25 @@ angular.module('app.cases.services').factory('Case', Case);
 Case.$inject = ['$http', '$resource', '$q', 'AccountDetail', 'ContactDetail', 'HLUtils', 'UserTeams'];
 function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserTeams) {
     var Case = $resource(
-        '/api/cases/case/:id',
+        '/api/cases/case/:id/',
         {},
         {
+            get: {
+                transformResponse: function(data) {
+                    var lilyCase = angular.fromJson(data);
+
+                    if (lilyCase.contact) {
+                        // API returns 'full_name' but ES returns 'name'. So get the full name and set the name.
+                        lilyCase.contact.name = lilyCase.contact.full_name;
+                    }
+
+                    if (lilyCase.assigned_to) {
+                        lilyCase.assigned_to.name = HLUtils.getFullName(lilyCase.assigned_to);
+                    }
+
+                    return lilyCase;
+                },
+            },
             query: {
                 url: '/search/search/?type=cases_case&filterquery=:filterquery',
                 isArray: true,
@@ -21,7 +37,7 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserT
                 },
             },
             update: {
-                method: 'PATCH',
+                method: 'PUT',
                 params: {
                     id: '@id',
                 },

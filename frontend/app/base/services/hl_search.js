@@ -21,7 +21,7 @@ function HLSearch($injector) {
 
                 // Only exclude items if we have a multi-select field.
                 if (excludeItems) {
-                    // Exclude items already selected
+                    // Exclude items already selected.
                     angular.forEach(items, function(item) {
                         exclude += ' AND NOT id:' + item.id;
                     });

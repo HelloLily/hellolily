@@ -6,6 +6,7 @@ function dateDirective() {
         scope: {
             date: '=',
             showTime: '=',
+            addTime: '=',
         },
         templateUrl: 'utils/directives/date.html',
         controller: DateController,
@@ -25,7 +26,11 @@ function DateController() {
             // In certain cases we want to display the time if it's the same day.
             vm.dateFormat = 'HH:mm';
         } else {
-            vm.dateFormat = 'dd MMM. yyyy'; // Renders as 29 Dec. 2015
+            if (vm.addTime) {
+                vm.dateFormat = 'dd MMM. yyyy - HH:mm'; // Renders as 29 Dec. - 2015 12:15
+            } else {
+                vm.dateFormat = 'dd MMM. yyyy'; // Renders as 29 Dec. 2015
+            }
         }
     }
 }

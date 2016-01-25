@@ -5,7 +5,6 @@ import os
 from decimal import Decimal
 from datetime import datetime, timedelta
 
-from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
 from django.core.management.base import BaseCommand
 from django.utils import timezone
@@ -93,13 +92,31 @@ class Command(BaseCommand):
                     attribute = self.column_attribute_mapping.get(column)
                     # Set created date to original created date in sugar.
                     if attribute == 'created':
-                        value = timezone.make_aware(datetime.strptime(str(value), "%d-%m-%Y %H.%M"), timezone.get_current_timezone())
+                        value = timezone.make_aware(
+                            datetime.strptime(str(value), "%d-%m-%Y %H.%M"),
+                            timezone.get_current_timezone()
+                        )
                     deal_kwargs[attribute] = value
 
-            eenmalig = Decimal(values.get('Eenmalig').decode('utf-8').replace(u'\u20ac', '').replace(',', '')) if values.get('Eenmalig') is not None else 0.00
-            maandelijks = Decimal(values.get('Maandelijks').decode('utf-8').replace(u'\u20ac', '').replace(',', '')) if values.get('Maandelijks') is not None else 0.00
-            hardware = Decimal(values.get('Hardware').decode('utf-8').replace(u'\u20ac', '').replace(',', '')) if values.get('Hardware') is not None else 0.00
-            amount = Decimal(values.get('Opportunity Amount').decode('utf-8').replace(u'\u20ac', '').replace(',', '')) if values.get('Opportunity Amount') is not None else 0.00
+            eenmalig = 0.00
+            if values.get('Eenmalig') is not None:
+                eenmalig = Decimal(values.get('Eenmalig').decode('utf-8').replace(u'\u20ac', '').replace(',', ''))
+
+            maandelijks = 0.00
+            if values.get('Maandelijks') is not None:
+                maandelijks = Decimal(
+                    values.get('Maandelijks').decode('utf-8').replace(u'\u20ac', '').replace(',', '')
+                )
+
+            hardware = 0.00
+            if values.get('Hardware') is not None:
+                hardware = Decimal(values.get('Hardware').decode('utf-8').replace(u'\u20ac', '').replace(',', ''))
+
+            amount = 0.00
+            if values.get('Opportunity Amount') is not None:
+                amount = Decimal(
+                    values.get('Opportunity Amount').decode('utf-8').replace(u'\u20ac', '').replace(',', '')
+                )
 
             deal_kwargs['amount_once'] = (eenmalig + hardware) if (eenmalig > 0.00 or hardware > 0.00) else amount
             deal_kwargs['amount_recurring'] = maandelijks
@@ -122,10 +139,17 @@ class Command(BaseCommand):
 
                 deal.is_archived = True
 
-                if values.get('Sales Stage', '') == 'Special' and deal.created > timezone.make_aware((datetime.now() - timedelta(6*365/12)), timezone.get_current_timezone()):
+                some_time_ago = timezone.make_aware(
+                    (datetime.now() - timedelta(6 * 365 / 12)), timezone.get_current_timezone()
+                )
+
+                is_special = values.get('Sales Stage', '') == 'Special'
+                if is_special and deal.created > some_time_ago:
                     deal.is_archived = False
 
-                if values.get('Sales Stage', None) not in ('Closed Won', 'Closed Lost') and deal.created > timezone.make_aware((datetime.now() - timedelta(3*365/12)), timezone.get_current_timezone()):
+                is_closed_won = values.get('Sales Stage', None) not in ('Closed Won', 'Closed Lost')
+
+                if is_closed_won and deal.created > some_time_ago:
                     deal.is_archived = False
 
                 user_id = values.get('Assigned User ID')

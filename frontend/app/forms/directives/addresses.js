@@ -31,5 +31,5 @@ function FormAddressesController($rootScope) {
         {key: 'other', value: 'Other'},
     ];
 
-    vm.sidebar = $rootScope.$$childHead.emailSettings.sidebar.form;
+    vm.sidebar = $rootScope.$$childHead.settings.email.sidebar.form;
 }

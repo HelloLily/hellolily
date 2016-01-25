@@ -39,9 +39,9 @@ function accountConfig($stateProvider) {
  */
 angular.module('app.accounts').controller('AccountCreateController', AccountCreateController);
 
-AccountCreateController.$inject = ['$scope', '$state', '$stateParams', 'Settings', 'Account', 'User', 'HLFields',
+AccountCreateController.$inject = ['$state', '$stateParams', 'Settings', 'Account', 'User', 'HLFields',
     'HLForms', 'HLUtils'];
-function AccountCreateController($scope, $state, $stateParams, Settings, Account, User, HLFields, HLForms, HLUtils) {
+function AccountCreateController($state, $stateParams, Settings, Account, User, HLFields, HLForms, HLUtils) {
     var vm = this;
     vm.account = {};
     vm.people = [];
@@ -120,17 +120,15 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
                 vm.account.assigned_to = user.id;
             });
 
-            if ($scope.emailSettings) {
-                if ($scope.emailSettings.website) {
-                    vm.account.primaryWebsite = $scope.emailSettings.website;
+            if (Settings.email.data && Settings.email.data.website) {
+                vm.account.primaryWebsite = Settings.email.data.website;
 
-                    vm.account.getDataproviderInfo($scope.emailSettings.website).then(function() {
-                        if (!vm.account.name) {
-                            var company = $scope.emailSettings.website.split('.').slice(0, -1).join(' ');
-                            vm.account.name = company.charAt(0).toUpperCase() + company.slice(1);
-                        }
-                    });
-                }
+                vm.account.getDataproviderInfo(Settings.email.data.website).then(function() {
+                    if (!vm.account.name) {
+                        var company = Settings.email.data.website.split('.').slice(0, -1).join(' ');
+                        vm.account.name = company.charAt(0).toUpperCase() + company.slice(1);
+                    }
+                });
             }
         }
     }
@@ -153,9 +151,9 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
     }
 
     function cancelAccountCreation() {
-        if ($scope.emailSettings.sidebar.form === 'createAccount') {
-            $scope.emailSettings.sidebar.form = null;
-            $scope.emailSettings.sidebar.account = false;
+        if (Settings.email.sidebar.form === 'account') {
+            Settings.email.sidebar.form = null;
+            Settings.email.sidebar.account = false;
         } else {
             $state.go('base.accounts');
         }
@@ -224,17 +222,17 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
         } else {
             vm.account.$save(function() {
                 toastr.success('I\'ve saved the account for you!', 'Yay');
-                
-                if ($scope.emailSettings.sidebar.form === 'createAccount') {
-                    if (!$scope.emailSettings.contactId) {
-                        $scope.emailSettings.sidebar.form = 'createContact';
-                        $scope.emailSettings.account = vm.account;
+
+                if (Settings.email.sidebar.form === 'account') {
+                    if (!Settings.email.data.contact.id) {
+                        Settings.email.sidebar.form = 'contact';
+                        Settings.email.data.account = vm.account;
                     } else {
-                        $scope.emailSettings.sidebar.account = true;
-                        $scope.emailSettings.sidebar.form = null;
+                        Settings.email.sidebar.account = true;
+                        Settings.email.sidebar.form = null;
                     }
 
-                    $scope.emailSettings.accountId = vm.account.id;
+                    Settings.email.data.account = vm.account;
                 } else {
                     $state.go('base.accounts.detail', {id: vm.account.id});
                 }

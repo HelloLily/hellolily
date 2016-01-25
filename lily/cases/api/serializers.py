@@ -59,7 +59,7 @@ class CaseSerializer(WritableNestedSerializer):
     account = RelatedAccountSerializer(required=False, allow_null=True)
     contact = RelatedContactSerializer(required=False, allow_null=True)
     assigned_to = RelatedLilyUserSerializer(required=False, allow_null=True, assign_only=True)
-    assigned_to_groups = RelatedLilyGroupSerializer(many=True, required=False, allow_null=True, assign_only=True)
+    assigned_to_groups = RelatedLilyGroupSerializer(many=True, required=False, assign_only=True)
     type = RelatedCaseTypeSerializer(assign_only=True)
     status = RelatedCaseStatusSerializer(assign_only=True)
 

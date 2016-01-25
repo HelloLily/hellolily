@@ -51,18 +51,10 @@ def pretty_datetime(time, format=None):
     else:
         return datetime.strftime(localized_time, '%d-%b.')
 
+
 @register.filter(name='pretty_datetime_relative')
 def pretty_datetime_relative(time, format=None):
     result = pretty_datetime(time, format)
-
-    if isinstance(time, basestring):
-        parsed_time = parse(time)
-        parsed_time.tzinfo._name = None  # clear tzname to rely solely on the offset (not all tznames are supported)
-        utc_time = parsed_time.astimezone(tzutc())
-    elif isinstance(time, datetime):
-        utc_time = time.astimezone(tzutc())
-    else:
-        return None
 
     # Convert to local
     localized_time, localized_now = localized_times(time)
@@ -86,11 +78,11 @@ def pretty_datetime_relative(time, format=None):
         elif s < 120:
             return _('%s (1 minute ago)') % result
         elif s < 3600:
-            return _('%s (%d minutes ago)') % (result, (s/60))
+            return _('%s (%d minutes ago)') % (result, (s / 60))
         elif s < 7200:
             return _('1 hour ago')
         else:
-            return _('%s (%d hours ago)') % (result, (s/3600))
+            return _('%s (%d hours ago)') % (result, (s / 3600))
 
 
 @register.filter(name='other_mailbox_folders')
@@ -130,7 +122,8 @@ def other_mailbox_folders(email_account, active_url):
                                 <i class="icon-folder-%(state)s"></i>
                                 <div class="tree-folder-name">%(folder)s</div>
                             </div>
-                            <div class="tree-folder-content %(folder_content_class)s" data-scroller="true" data-max-height="256px" data-always-visible="1" data-rail-visible="0">'''
+                            <div class="tree-folder-content %(folder_content_class)s" data-scroller="true"
+                            data-max-height="256px" data-always-visible="1" data-rail-visible="0">'''
 
             is_folder_active, subfolder_html = get_subfolder_html(folder.get('children'))
             # Make sure parent is marked active as well

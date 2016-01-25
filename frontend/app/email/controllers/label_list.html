@@ -1,54 +1,51 @@
-<ul class="inbox-nav margin-bottom-10">
-    <li class="compose-btn" ui-sref-active="active">
-        <a ui-sref="base.email.compose" data-title="Compose" class="btn green">
-            <i class="fa fa-edit"></i> Compose
+<ul class="email-compose-button-container">
+    <li ui-sref-active="active">
+        <a ui-sref="base.email.compose" data-title="Compose" class="email-compose-button">
+            <i class="font-size-16 no-bold lilicon hl-mail-icon"></i> Compose email
         </a>
-        <b></b>
     </li>
+</ul>
+
+<ul class="email-nav">
     <collapsable name="all-accounts">
-        <li class="mailbox-header">
-            <div class="mailbox-header-title" ng-click="vm.clickAccountHeader()">
+        <li class="email-nav-header">
+            <div class="email-nav-header-title" ng-click="vm.clickAccountHeader()">
                 All mailboxes
             </div>
             <collapsable-button></collapsable-button>
             <div class="clearfix"></div>
         </li>
         <collapsable-content>
-            <li class="inbox" ui-sref-active="active">
-                <a class="btn" ui-sref="base.email.list({labelId:'INBOX'})">
-                    Inbox <span ng-if="vm.labelCount['INBOX']"> ({{ vm.labelCount['INBOX'] }})</span>
+            <li ui-sref-active="active">
+                <a class="email-nav-item" ui-sref="base.email.list({labelId:'INBOX'})">
+                    Inbox <span class="label-count" ng-if="vm.labelCount['INBOX']">{{ vm.labelCount['INBOX'] }}</span>
                 </a>
-                <b></b>
             </li>
-            <li class="sent" ui-sref-active="active">
-                <a class="btn" ui-sref="base.email.list({labelId:'SENT'})">
-                    Sent <span ng-if="vm.labelCount['SENT']"> ({{ vm.labelCount['SENT'] }})</span>
+            <li ui-sref-active="active">
+                <a class="email-nav-item" ui-sref="base.email.list({labelId:'SENT'})">
+                    Sent <span class="label-count" ng-if="vm.labelCount['SENT']">{{ vm.labelCount['SENT'] }}</span>
                 </a>
-                <b></b>
             </li>
-            <li class="draft" ui-sref-active="active">
-                <a class="btn" ui-sref="base.email.list({labelId:'DRAFT'})">
-                    Draft <span ng-if="vm.labelCount['DRAFT']"> ({{ vm.labelCount['DRAFT'] }})</span>
+            <li ui-sref-active="active">
+                <a class="email-nav-item" ui-sref="base.email.list({labelId:'DRAFT'})">
+                    Draft <span class="label-count" ng-if="vm.labelCount['DRAFT']">{{ vm.labelCount['DRAFT'] }}</span>
                 </a>
-                <b></b>
             </li>
-            <li class="trash" ui-sref-active="active">
-                <a class="btn" ui-sref="base.email.list({labelId:'TRASH'})">
-                    Trash <span ng-if="vm.labelCount['TRASH']"> ({{ vm.labelCount['TRASH'] }})</span>
+            <li ui-sref-active="active">
+                <a class="email-nav-item" ui-sref="base.email.list({labelId:'TRASH'})">
+                    Trash <span class="label-count" ng-if="vm.labelCount['TRASH']">{{ vm.labelCount['TRASH'] }}</span>
                 </a>
-                <b></b>
             </li>
-            <li class="allmail">
-                <a class="btn" ui-sref="base.email.list({labelId:''})">All mail</a>
-                <b></b>
+            <li ui-sref-active="active">
+                <a class="email-nav-item" ui-sref="base.email.list({labelId:''})">All mail</a>
             </li>
         </collapsable-content>
     </collapsable>
 </ul>
 <collapsable name="account-{{ account.id }}" ng-repeat="account in vm.accountList">
-    <ul class="inbox-nav margin-bottom-10">
-        <li class="mailbox-header">
-            <div class="mailbox-header-title" ng-click="vm.clickAccountHeader(account)">
+    <ul class="email-nav">
+        <li class="email-nav-header">
+            <div class="email-nav-header-title" ng-click="vm.clickAccountHeader(account)">
                 <i class="fa fa-star" ng-show="account.id == vm.primaryEmailAccountId" uib-tooltip="Primary account"></i>
                 {{ account.label }}
             </div>
@@ -56,38 +53,32 @@
             <div class="clearfix"></div>
         </li>
         <collapsable-content>
-            <li class="inbox" ui-sref-active="active">
-                <a class="btn" ui-sref="base.email.accountList({labelId:'INBOX', accountId: account.id})">
-                    Inbox <span ng-if="vm.hasUnreadLabel(account, 'INBOX')"> ({{ vm.unreadCountForLabel(account, 'INBOX') }})</span>
+            <li ui-sref-active="active">
+                <a class="email-nav-item" ui-sref="base.email.accountList({labelId:'INBOX', accountId: account.id})">
+                    Inbox <span class="unread-count" ng-if="vm.hasUnreadLabel(account, 'INBOX')">{{ vm.unreadCountForLabel(account, 'INBOX') }}</span>
                 </a>
-                <b></b>
             </li>
-            <li class="sent" ui-sref-active="active">
-                <a class="btn" ui-sref="base.email.accountList({labelId:'SENT', accountId: account.id})">
-                    Sent <span ng-if="vm.hasUnreadLabel(account, 'SENT')"> ({{ vm.unreadCountForLabel(account, 'SENT') }})</span>
+            <li ui-sref-active="active">
+                <a class="email-nav-item" ui-sref="base.email.accountList({labelId:'SENT', accountId: account.id})">
+                    Sent <span class="unread-count" ng-if="vm.hasUnreadLabel(account, 'SENT')">{{ vm.unreadCountForLabel(account, 'SENT') }}</span>
                 </a>
-                <b></b>
             </li>
-            <li class="draft" ui-sref-active="active">
-                <a class="btn" ui-sref="base.email.accountList({labelId:'DRAFT', accountId: account.id})">
-                    Draft <span ng-if="vm.hasUnreadLabel(account, 'DRAFT')"> ({{ vm.unreadCountForLabel(account, 'DRAFT') }})</span>
+            <li ui-sref-active="active">
+                <a class="email-nav-item" ui-sref="base.email.accountList({labelId:'DRAFT', accountId: account.id})">
+                    Draft <span class="unread-count" ng-if="vm.hasUnreadLabel(account, 'DRAFT')">{{ vm.unreadCountForLabel(account, 'DRAFT') }}</span>
                 </a>
-                <b></b>
             </li>
-            <li class="trash" ui-sref-active="active">
-                <a class="btn" ui-sref="base.email.accountList({labelId:'TRASH', accountId: account.id})">
-                    Trash <span ng-if="vm.hasUnreadLabel(account, 'TRASH')"> ({{ vm.unreadCountForLabel(account, 'TRASH') }})</span>
+            <li ui-sref-active="active">
+                <a class="email-nav-item" ui-sref="base.email.accountList({labelId:'TRASH', accountId: account.id})">
+                    Trash <span class="unread-count" ng-if="vm.hasUnreadLabel(account, 'TRASH')">{{ vm.unreadCountForLabel(account, 'TRASH') }}</span>
                 </a>
-                <b></b>
             </li>
-            <li ng-repeat="label in account.labels | orderBy:'name'" class="inbox" ng-if="label.label_type != 0" ui-sref-active="active">
-                <a class="btn" ui-sref="base.email.accountList({labelId: label.label_id, accountId: account.id})">
-                    {{ label.name }}<span ng-show="label.unread"> ({{ label.unread }})</span></a>
-                <b></b>
+            <li ng-repeat="label in account.labels | orderBy:'name'" ng-if="label.label_type != 0" ui-sref-active="active">
+                <a class="email-nav-item" ui-sref="base.email.accountList({labelId: label.label_id, accountId: account.id})">
+                    {{ label.name }}<span class="unread-count" ng-show="label.unread">{{ label.unread }}</span></a>
             </li>
-            <li class="allmail" ui-sref-active="active">
-                <a class="btn" ui-sref="base.email.accountAllList({accountId: account.id})">All mail</a>
-                <b></b>
+            <li ui-sref-active="active">
+                <a class="email-nav-item" ui-sref="base.email.accountAllList({accountId: account.id})">All mail</a>
             </li>
         <collapsable-content>
     </ul>

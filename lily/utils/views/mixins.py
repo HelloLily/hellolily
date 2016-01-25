@@ -105,7 +105,7 @@ class ExportListViewMixin(FilterQuerysetMixin):
             exportable_columns = {
                 'column_name_1': {
                     'headers': ['header_name_1',]  # Can be multiple columns.
-                    'columns_for_item': ['columns_for_item',]  # Can be multple columns, must match 'headers' in length.
+                    'columns_for_item': ['columns_for_item',]  # Can be multiple columns, must match 'headers' in length.
                 },
             }
         search_fields (list of strings): The fields of the queryset where the queryset will be filtered on. The filter
@@ -465,11 +465,15 @@ class ModelFormSetViewMixin(object):
         """
         kwargs = super(ModelFormSetViewMixin, self).get_context_data(**kwargs)
         if not is_ajax(self.request):  # filter formsets from ajax requests
-            if not 'formsets' in kwargs:
+            if 'formsets' not in kwargs:
                 kwargs['formsets'] = OrderedDict()
 
             for context_name, instance in self.formsets.items():
-                kwargs['formsets'][context_name] = {'instance': instance, 'label': self.formset_data[context_name]['label'], 'template': self.formset_data[context_name]['template']}
+                kwargs['formsets'][context_name] = {
+                    'instance': instance,
+                    'label': self.formset_data[context_name]['label'],
+                    'template': self.formset_data[context_name]['template']
+                }
 
         return kwargs
 
@@ -658,7 +662,6 @@ class AjaxFormMixin(object):
         return response
 
     def form_ajax_invalid(self, form, html):
-        context = RequestContext(self.request, self.get_context_data(form=form))
         return HttpResponse(anyjson.serialize({
             'error': True,
             'html': html,

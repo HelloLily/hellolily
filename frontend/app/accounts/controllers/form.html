@@ -2,8 +2,8 @@
     <div class="col-md-12">
         <div class="portlet light">
             <div class="portlet-body form">
-                <div ng-if="emailSettings.sidebar.form" class="inbox-header inbox-view-header">
-                    <h1 class="pull-left">Add account</h1>
+                <div ng-if="settings.email.sidebar.form" class="email-inbox-header inbox-view-header">
+                    <h1>Add account</h1>
                 </div>
 
                 <form novalidate class="form-horizontal" name="accountForm">
@@ -11,7 +11,7 @@
                         <form-portlet title="Who was it?">
                             <form-portlet-body>
                                 <form-group label-title="Primary website" label-icon="globe" label-id="primary_website" field="accountForm.primaryWebsite">
-                                    <div ng-class="{'col-xs-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
+                                    <div ng-class="{'col-xs-12': settings.email.sidebar.form, 'col-md-4': !settings.email.sidebar.form}">
                                         <div class="input-group">
                                             <input class="form-control"
                                                    id="primary_website"
@@ -33,7 +33,7 @@
                                     </div>
                                 </form-group>
                                 <form-group label-title="Company name" label-icon="building-o" label-id="id_name" field="accountForm.name" required="true">
-                                    <div ng-class="{'col-md-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
+                                    <div ng-class="{'col-md-12': settings.email.sidebar.form, 'col-md-4': !settings.email.sidebar.form}">
                                         <input class="form-control"
                                                id="id_name"
                                                maxlength="255"
@@ -45,13 +45,13 @@
                                 </form-group>
 
                                 <form-group label-title="Description" label-icon="info" label-id="id_description" field="accountForm.description">
-                                    <div ng-class="{'col-md-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
+                                    <div ng-class="{'col-md-12': settings.email.sidebar.form, 'col-md-4': !settings.email.sidebar.form}">
                                         <textarea class="form-control" cols="40" id="id_description" name="description" placeholder="Description" rows="3" ng-model="vm.account.description"></textarea>
                                     </div>
                                 </form-group>
 
                                 <form-group label-title="Customer ID" label-char="#" label-id="id_customer_id" field="costumer_id">
-                                    <div ng-class="{'col-md-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
+                                    <div ng-class="{'col-md-12': settings.email.sidebar.form, 'col-md-4': !settings.email.sidebar.form}">
                                         <input class="form-control" id="id_customer_id" maxlength="32" name="customer_id" name="costumer_id" placeholder="Customer ID" type="text" ng-model="vm.account.customer_id">
                                     </div>
                                 </form-group>
@@ -61,7 +61,7 @@
                         <form-portlet title="Who is handling the account?">
                             <form-portlet-body>
                                 <form-group label-title="Assigned to" label-icon="child" label-id="id_assigned_to" field="accountForm.assigned_to">
-                                    <div ng-class="{'col-md-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
+                                    <div ng-class="{'col-md-12': settings.email.sidebar.form, 'col-md-4': !settings.email.sidebar.form}">
                                         <ui-select ng-model="vm.account.assigned_to" theme="select2" class="form-control" name="assigned_to">
                                             <ui-select-match placeholder="Assign to...">{{ $select.selected.name }}</ui-select-match>
                                             <ui-select-choices repeat="person.id as person in vm.people | propsFilter: {name: $select.search}">
@@ -99,7 +99,7 @@
                         <form-portlet title="Tags">
                             <form-portlet-body>
                                 <form-group label-title="Tags" label-id="id_tags" label-icon="tags" field="accountForm.tags">
-                                    <div ng-class="{'col-xs-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
+                                    <div ng-class="{'col-xs-12': settings.email.sidebar.form, 'col-md-4': !settings.email.sidebar.form}">
                                         <div class="show-and-hide-input">
                                             <div class="form-control-static">
                                                 <a href="javascript:void(0)" class="toggle-original-form-input" data-action="show">
@@ -130,7 +130,7 @@
                         <form-portlet title="Social media">
                             <form-portlet-body>
                                 <form-group label-title="Twitter" label-icon="twitter" label-id="twitter" field="accountForm.twitter">
-                                    <div ng-class="{'col-xs-12': emailSettings.sidebar.form, 'col-md-4': !emailSettings.sidebar.form}">
+                                    <div ng-class="{'col-xs-12': settings.email.sidebar.form, 'col-md-4': !settings.email.sidebar.form}">
                                         <div class="input-group">
                                             <span class="input-group-addon">
                                                 <i class="fa fa-twitter"></i>

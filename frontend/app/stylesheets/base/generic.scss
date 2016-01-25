@@ -158,6 +158,10 @@ td {
     padding: 0 !important;
 }
 
+.no-margin-right {
+    margin-right: 0;
+}
+
 .break {
     word-wrap: break-word;
 }
@@ -347,4 +351,21 @@ table {
 
 .font-size-16 {
     font-size: 16px;
+}
+
+.text-overflow-hidden {
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.no-bold {
+    font-weight: normal !important;
+}
+
+.no-wrap {
+    white-space: nowrap !important;
+}
+
+.margin-left-10 {
+    margin-left: 10px;
 }

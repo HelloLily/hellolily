@@ -30,7 +30,7 @@ function FormPhoneNumbersController($rootScope, HLUtils) {
         {key: 'fax', value: 'Fax'},
         {key: 'other', value: 'Other'},
     ];
-    vm.sidebar = $rootScope.$$childHead.emailSettings.sidebar.form;
+    vm.sidebar = $rootScope.$$childHead.settings.email.sidebar.form;
 
     vm.formatPhoneNumber = HLUtils.formatPhoneNumber;
 }

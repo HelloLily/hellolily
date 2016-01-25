@@ -1,14 +1,5 @@
 // Function that can be used to determine if the text-color should be black or white based on input color
 
-@function text-color($text-color) {
-    @if (lightness($text-color) >  60) {
-        @return #000000;
-    }
-    @else {
-        @return #ffffff;
-    }
-}
-
 @mixin notification-icon($color) {
     color: text-color($color);
     background: $color;
@@ -51,4 +42,56 @@
 
 .hl-critical-prio-icon {
     color: $criticalPrioColor;
+}
+
+.step-type {
+    &.position-1 {
+        @include colored-bullet(10px, $bulletColor1)
+    }
+
+    &.position-2 {
+        @include colored-bullet(10px, $bulletColor2)
+    }
+
+    &.position-3 {
+        @include colored-bullet(10px, $bulletColor3)
+    }
+
+    &.position-4 {
+        @include colored-bullet(10px, $bulletColor4)
+    }
+
+    &.position-5 {
+        @include colored-bullet(10px, $bulletColor5)
+    }
+
+    &.position-6 {
+        @include colored-bullet(10px, $bulletColor6)
+    }
+}
+
+.step-type-label {
+    &.position-1 {
+        @include colored-label(24px, $bulletColor1)
+    }
+
+    &.position-2 {
+        @include colored-label(24px, $bulletColor2)
+    }
+
+    &.position-3 {
+        @include colored-label(24px, $bulletColor3)
+    }
+
+    &.position-4 {
+        @include colored-label(24px, $bulletColor4)
+    }
+
+    &.position-5 {
+        @include colored-label(24px, $bulletColor5)
+    }
+
+    &.position-6 {
+        @include colored-label(24px, $bulletColor6)
+    }
 }

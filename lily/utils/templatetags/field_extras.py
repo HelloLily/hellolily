@@ -7,6 +7,7 @@ register = template.Library()
 # Added functionality: conversion to integer to be able to display the display value after posting
 # a form (original int then turns into unicode).
 
+
 @register.filter(name='field_value')
 def field_value(field):
     """
@@ -28,6 +29,7 @@ def field_value(field):
         val = ''
     return val
 
+
 @register.filter(name='display_value')
 def display_value(field):
     """
@@ -47,12 +49,14 @@ def display_value(field):
                 return desc
     return value
 
+
 @register.filter('widget_type')
 def widget_type(field):
     """
     Return the widget class name of given field in lowercase for easy comparison.
     """
     return field.field.widget.__class__.__name__.lower()
+
 
 @register.filter('field_classes')
 def field_classes(field):

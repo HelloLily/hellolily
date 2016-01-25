@@ -1,127 +1,151 @@
-<div ng-if="vm.message.id" class="inbox-header inbox-view-header">
-    <h1 class="pull-left">{{ vm.message.subject}}</h1>
-    <div class="pull-right" ng-if="emailSettings.sidebar">
-        <button class="btn btn-sm blue" ng-click="vm.toggleAccountSidebar()">
-            <i ng-class="{'fa fa-eye': emailSettings.accountId, 'fa fa-plus': !emailSettings.accountId}"></i> Account
-        </button>
-
-        <button class="btn btn-sm blue" ng-click="vm.toggleContactSidebar()">
-            <i ng-class="{'fa fa-eye': emailSettings.contactId, 'fa fa-plus': !emailSettings.contactId}"></i> Contact
-        </button>
-
-        <button class="btn btn-sm blue" ng-if="emailSettings.accountId || emailSettings.contactId" ng-click="vm.toggleCasesSidebar()">
-            <i class="fa fa-plus"></i> Case
-        </button>
-        <button class="btn btn-sm blue" ng-if="emailSettings.caseList" ng-click="vm.toggleCasesSidebar()">
-            <i class="fa fa-eye"></i> Cases
-        </button>
+<div ng-if="vm.message.id" class="email-inbox-header">
+    <div class="email-title">
+        <h1>{{ vm.message.subject}}</h1>
     </div>
 </div>
-<div class="inbox-view-info">
-    <div ng-if="!vm.message.id" ng-include="'utils/controllers/does_not_exist.html'" class="row">
-    </div>
-    <div ng-if="vm.message.id" class="row">
-        <div class="email-info-top">
-            <span class="bold">{{ vm.message.sender.name }}</span>&nbsp;<span>&lt;{{ vm.message.sender.email_address }}&gt;</span>
 
-            <div class="pull-right">
-                <span class="bold"><abbr title="{{ vm.message.sent_date | date:'dd MMMM y H:mm' }}"><date date="vm.message.sent_date"></date></abbr></span>
+<div class="email-inbox-actions-header">
+    <ul class="email-inbox-actions btn-group">
+        <li>
+            <a ui-sref="base.email.reply({ id: vm.message.id })" class="reply-btn">
+                <i class="fa fa-mail-reply"></i> Reply
+            </a>
+        </li>
+        <li>
+            <a class="dropdown-toggle no-primary-icon" data-toggle="dropdown">
+                <i class="fa fa-angle-down"></i>
+            </a>
+            <ul class="dropdown-menu labels">
+                <li>
+                    <a ui-sref="base.email.replyAll({ id: vm.message.id })"><i class="fa fa-reply-all reply-btn"></i> Reply all </a>
+                </li>
+                <li>
+                    <a ui-sref="base.email.forward({ id: vm.message.id })"><i class="fa fa-mail-forward reply-btn"></i> Forward </a>
+                </li>
+                <li class="divider">
+                </li>
+                <li>
+                    <a ng-click="vm.markAsUnread()"><i class="fa fa-envelope reply-btn"></i> Mark as unread </a>
+                </li>
+                <li>
+                    <a href="#"><i class="fa fa-ban"></i> Spam </a>
+                </li>
+            </ul>
+        </li>
+    </ul>
 
-                <div class="inbox-info-btn">
-                    <div class="btn-group">
-                        <a ui-sref="base.email.reply({ id: vm.message.id })" class="btn blue reply-btn">
-                            <i class="fa fa-mail-reply"></i> Reply
-                        </a>
-                        <button class="btn blue dropdown-toggle no-primary-icon" data-toggle="dropdown">
-                            <i class="fa fa-angle-down"></i>
-                        </button>
-                        <ul class="dropdown-menu pull-right">
-                            <li>
-                                <a ui-sref="base.email.replyAll({ id: vm.message.id })"><i class="fa fa-reply-all reply-btn"></i> Reply all </a>
-                            </li>
-                            <li>
-                                <a ui-sref="base.email.forward({ id: vm.message.id })"><i class="fa fa-mail-forward reply-btn"></i> Forward </a>
-                            </li>
-                            <li class="divider">
-                            </li>
-                            <li>
-                                <a ng-click="vm.markAsUnread()"><i class="fa fa-envelope reply-btn"></i> Mark as unread </a>
-                            </li>
-                            <li>
-                                <a href="#"><i class="fa fa-ban"></i> Spam </a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="btn-group">
-                        <button class="btn blue" ng-click="vm.trashMessage()"><i class="fa fa-trash-o"></i> Delete </button>
-                        <button class="btn blue" ng-click="vm.archiveMessage()"><i class="fa fa-archive"></i> Archive</button>
-                    </div>
+    <ul class="email-inbox-actions">
+        <li>
+            <a ng-click="vm.trashMessage()"><i class="fa fa-trash-o"></i> Delete </a>
+        </li>
+        <li>
+            <a ng-click="vm.archiveMessage()"><i class="fa fa-archive"></i> Archive</a>
+        </li>
+    </ul>
+
+    <ul class="email-inbox-actions pull-right no-margin-right" ng-if="settings.email.sidebar">
+        <li>
+            <a ng-click="vm.toggleSidebar('account')">
+                <i ng-class="{'fa fa-eye': settings.email.data.account.id, 'fa fa-plus': !settings.email.data.account.id}"></i> Account
+            </a>
+        </li>
+        <li>
+            <a ng-click="vm.toggleSidebar('contact')">
+                <i ng-class="{'fa fa-eye': settings.email.data.contact.id, 'fa fa-plus': !settings.email.data.contact.id}"></i> Contact
+            </a>
+        </li>
+        <li ng-if="settings.email.data.account.id || settings.email.data.contact.id">
+            <a ng-click="vm.toggleSidebar('cases')">
+                <i class="fa fa-plus"></i> Case
+            </a>
+        </li>
+        <li ng-if="settings.email.data.cases">
+            <a ng-click="vm.toggleSidebar('cases', true)">
+                <i class="fa fa-eye"></i> Cases
+            </a>
+        </li>
+    </ul>
+</div>
+
+<div class="email-content-container">
+    <div class="inbox-view-info">
+        <div ng-if="!vm.message.id" ng-include="'utils/controllers/does_not_exist.html'" class="row">
+        </div>
+
+        <div ng-if="vm.message.id" class="row">
+            <div class="email-info-top">
+                <span class="bold">{{ vm.message.sender.name }}</span>&nbsp;<span>&lt;{{ vm.message.sender.email_address }}&gt;</span>
+
+                <div class="pull-right">
+                    <span class="bold"><date date="vm.message.sent_date" add-time="true"></date></span>
                 </div>
             </div>
-        </div>
-        <div class="email-recipients-wrapper">
-            <div class="email-recipients" ng-class="{'overlay': !vm.displayAllRecipients}" ng-show="vm.message.received_by.length">
-                <span>to </span>
-                <span ng-repeat="receiver in vm.message.all_recipients">
-                    <span ng-if="receiver.name">
-                            <span ng-if="receiver.contact_id"><a ui-sref="base.contacts.detail({ id: receiver.contact_id })">{{ receiver.name }}</a></span>
-                            <span ng-if="!receiver.contact_id">{{ receiver.name }}</span>
-                            <{{ receiver.email_address }}><span ng-if="!$last">, </span>
+
+
+            <div class="email-recipients-wrapper">
+                <div class="email-recipients"  ng-show="vm.message.received_by.length">
+                    <span>to </span>
+                    <span ng-repeat="receiver in vm.message.all_recipients">
+                        <span ng-if="receiver.name">
+                                <span ng-if="receiver.contact_id"><a ui-sref="base.contacts.detail({ id: receiver.contact_id })">{{ receiver.name }}</a></span>
+                                <span ng-if="!receiver.contact_id">{{ receiver.name }}</span>
+                                <{{ receiver.email_address }}><span ng-if="!$last">, </span>
+                        </span>
+                        <span ng-if="!receiver.name">
+                            <span>{{ receiver.email_address }}</span><span ng-if="!$last">, </span>
+                        </span>
                     </span>
-                    <span ng-if="!receiver.name">
-                        <span>{{ receiver.email_address }}</span><span ng-if="!$last">, </span>
-                    </span>
-                </span>
+                </div>
+                <button class="btn show-more-recipients" ng-show="vm.message.received_by.length > 2" ng-click="vm.toggleOverlay()">
+                    <i class="fa" ng-class="{true: 'fa-caret-square-o-up', false: 'fa-caret-square-o-down'}[vm.displayAllRecipients]"></i>
+                </button>
             </div>
-            <button class="btn show-more-recipients" ng-click="vm.toggleOverlay()">
-                <i class="fa" ng-class="{true: 'fa-caret-square-o-up', false: 'fa-caret-square-o-down'}[vm.displayAllRecipients]"></i>
-            </button>
-        </div>
 
-        <div class="pull-right">
-            <a class="pull-right" ng-show="!vm.onlyPlainText && vm.message.bodyHTMLUrl && vm.message.body_text" ng-click="vm.toggleEmailVariant()">Give me the plain text version</a>
-            <a class="pull-right" ng-show="vm.onlyPlainText && vm.message.bodyHTMLUrl" ng-click="vm.toggleEmailVariant()">Show me the nicely formatted email</a>
-        </div>
-
-    </div>
-</div>
-
-<div ng-if="vm.message.id" class="inbox-view clearfix" ng-hide="vm.onlyPlainText" id="ifrm_container">
-    <iframe resize-iframe ng-src="{{ vm.message.bodyHTMLUrl | trustAsResourceUrl }}" class="col-xs-12 col-md-12 hidden" frameBorder="0"></iframe>
-</div>
-
-<div ng-if="vm.message.id" class="inbox-view detail-plain-text" ng-show="vm.onlyPlainText">
-    {{ vm.message.body_text }}
-</div>
-
-<div ng-if="vm.message.id" class="inbox-attached margin-bottom-25" ng-show="vm.message.attachments.length">
-    <div ng-repeat="attachment in normal_attachments = (vm.message.attachments | filter: {inline: false})">
-        <div>
-            <strong>{{ attachment.name }}</strong>
-            <span>
-            {{ attachment.size / 1024 | number: 0}} KB </span>
-            <a href="/messaging/email/attachment/{{ attachment.id }}/" target="_blank">
-                Download
-            </a>
+            <div class="pull-right">
+                <a class="pull-right" ng-show="!vm.onlyPlainText && vm.message.bodyHTMLUrl && vm.message.body_text" ng-click="vm.toggleEmailVariant()">Give me the plain text version</a>
+                <a class="pull-right" ng-show="vm.onlyPlainText && vm.message.bodyHTMLUrl" ng-click="vm.toggleEmailVariant()">Show me the nicely formatted email</a>
+            </div>
         </div>
     </div>
-    <div ng-init="inlineAttachmentsVisible = false" ng-show="normal_attachments.length < vm.message.attachments.length">
-        There are {{ vm.message.attachments.length - normal_attachments.length }} inline attachments.
-        <a ng-click="inlineAttachmentsVisible = !inlineAttachmentsVisible" ng-hide="inlineAttachmentsVisible">
-            Show
-        </a>
-        <a ng-click="inlineAttachmentsVisible = !inlineAttachmentsVisible" ng-show="inlineAttachmentsVisible">
-            Hide
-        </a>
-        <div ng-show="inlineAttachmentsVisible">
-            <div ng-repeat="attachment in vm.message.attachments | filter: {inline: true}">
-                <div>
-                    <strong>{{ attachment.name }}</strong>
+
+    <div ng-if="vm.message.id" class="inbox-view clearfix" ng-hide="vm.onlyPlainText" id="ifrm_container">
+        <iframe resize-iframe ng-src="{{ vm.message.bodyHTMLUrl | trustAsResourceUrl }}" class="email-content" frameBorder="0"></iframe>
+    </div>
+
+    <div ng-if="vm.message.id" class="inbox-view detail-plain-text" ng-show="vm.onlyPlainText">
+        {{ vm.message.body_text }}
+    </div>
+
+    <div ng-if="vm.message.id" class="inbox-attached margin-bottom-25" ng-show="vm.message.attachments.length">
+        <div ng-repeat="attachment in normal_attachments = (vm.message.attachments | filter: {inline: false})">
+            <div>
+                <strong>{{ attachment.name }}</strong>
                 <span>
                 {{ attachment.size / 1024 | number: 0}} KB </span>
-                    <a href="/messaging/email/attachment/{{ attachment.id }}/" target="_blank">
-                        Download
-                    </a>
+                <a href="/messaging/email/attachment/{{ attachment.id }}/" target="_blank">
+                    Download
+                </a>
+            </div>
+        </div>
+
+        <div ng-init="inlineAttachmentsVisible = false" ng-show="normal_attachments.length < vm.message.attachments.length">
+            There are {{ vm.message.attachments.length - normal_attachments.length }} inline attachments.
+            <a ng-click="inlineAttachmentsVisible = !inlineAttachmentsVisible" ng-hide="inlineAttachmentsVisible">
+                Show
+            </a>
+            <a ng-click="inlineAttachmentsVisible = !inlineAttachmentsVisible" ng-show="inlineAttachmentsVisible">
+                Hide
+            </a>
+            <div ng-show="inlineAttachmentsVisible">
+                <div ng-repeat="attachment in vm.message.attachments | filter: {inline: true}">
+                    <div>
+                        <strong>{{ attachment.name }}</strong>
+                    <span>
+                    {{ attachment.size / 1024 | number: 0}} KB </span>
+                        <a href="/messaging/email/attachment/{{ attachment.id }}/" target="_blank">
+                            Download
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

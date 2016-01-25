@@ -39,12 +39,20 @@ class UserBasedTest(object):
         cls.user.login(email=cls.user_obj.email, password=password)
 
         # Set the superuser on the class
-        cls.superuser_obj = LilyUser.objects.create_superuser(email='superuser1@lily.com', password=password, tenant_id=1)
+        cls.superuser_obj = LilyUser.objects.create_superuser(
+            email='superuser1@lily.com',
+            password=password,
+            tenant_id=1
+        )
         cls.superuser = APIClient()
         cls.superuser.login(email=cls.superuser_obj.email, password=password)
 
         # Set the authenticated user from another tenant on the class
-        cls.other_tenant_user_obj = LilyUser.objects.create_user(email='user2@lily.com', password=password, tenant_id=2)
+        cls.other_tenant_user_obj = LilyUser.objects.create_user(
+            email='user2@lily.com',
+            password=password,
+            tenant_id=2
+        )
         cls.other_tenant_user = APIClient()
         cls.other_tenant_user.login(email=cls.other_tenant_user_obj.email, password=password)
 
@@ -101,7 +109,10 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         Compare two objects with eachother based on the fields of the API serializer.
         """
         serializer = serializer if serializer else self.serializer_cls()
-        serializer_field_list = serializer.get_field_names(serializer._declared_fields, model_meta.get_field_info(self.model_cls))
+        serializer_field_list = serializer.get_field_names(
+            serializer._declared_fields,
+            model_meta.get_field_info(self.model_cls)
+        )
         model_field_list = self.model_cls._meta.get_all_field_names()
 
         for field in serializer_field_list:

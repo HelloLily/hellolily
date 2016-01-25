@@ -1,7 +1,7 @@
 <dashboard-widget widget-name="'My deals'" widget-class="'col-md-12'" widget-scrollable="true" widget-closeable="true" widget-dynamic-height="true">
     <div class="widget-name" name="widget-title">
         <i class="lilicon hl-deals-filled-icon"></i>
-        My Deals
+        My deals
         <span class="label-amount">{{ vm.numOfDeals }}</span><span class="label-amount high-prio" ng-if="vm.highPrioDeals" uib-tooltip="Critical priority">{{ vm.highPrioDeals }}</span>
     </div>
 
@@ -44,15 +44,15 @@
                         {{ myDeal.amount_recurring | currency:'&euro; ' }} /month | {{ myDeal.amount_once | currency:'&euro; ' }} /once
                     </td>
                     <td>
-                        <span>
+                        <span class="step-type" ng-class="{0: 'position-1', 1: 'position-2', 2: 'position-3', 3: 'position-4', 4: 'position-5', 5: 'position-6'}[myDeal.next_step.position]">
                             {{ myDeal.next_step.name }}
                         </span>
                     </td>
-                    <td>
+                    <td style="width: 130px;">
                         <postpone type="'Deal'" object="myDeal" date-field="'next_step_date'" callback="vm.getMyDeals()" display-date="false"></postpone>
                         <date date="myDeal.next_step_date"></date>
                     </td>
-                    <td>
+                    <td style="width: 75px;">
                         <a ng-href="https://freedom.voys.nl/client/{{ myDeal.account_customer_id }}" target="_blank" ng-if="myDeal.account_customer_id">
                             <i class="fa fa-cloud-upload"></i>
                         </a>

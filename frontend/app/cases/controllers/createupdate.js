@@ -142,6 +142,12 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
                     vm.formPortlets[i + 1].portlet.collapsed = false;
                 }
 
+                // TODO: Hacky way to open the last portlet when the second-to-last portlet is opened.
+                // The whole opening of portlets might need a rewrite anyway, so just do this the ugly way.
+                if (i + 1 === 2) {
+                    vm.formPortlets[3].portlet.collapsed = false;
+                }
+
                 return;
             }
         }
@@ -180,10 +186,10 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     }
 
     function _getCase() {
-        // Fetch the contact or create empty contact.
+        // Fetch the case or create an empty one.
         if ($stateParams.id) {
             Case.get({id: $stateParams.id}).$promise.then(function(lilyCase) {
-                vm.case = Case.clean(lilyCase);
+                vm.case = lilyCase;
 
                 Settings.page.setAllTitles('edit', lilyCase.subject);
             });
@@ -205,11 +211,11 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
                 });
             }
 
-            if ($scope.emailSettings) {
+            if (Settings.email.data && (Settings.email.data.account || Settings.email.data.contact)) {
                 // Auto fill data if it's available.
-                if ($scope.emailSettings.contactId) {
-                    if ($scope.emailSettings.account) {
-                        var filterquery = 'accounts.id:' + $scope.emailSettings.account.id;
+                if (Settings.email.data.contact.id) {
+                    if (Settings.email.data && Settings.email.data.account) {
+                        var filterquery = 'accounts.id:' + Settings.email.data.account.id;
 
                         ContactDetail.query({filterquery: filterquery}).$promise.then(function(colleagues) {
                             var colleagueIds = [];
@@ -218,21 +224,21 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
                             });
 
                             // Check if the contact actually works at the account.
-                            if (colleagueIds.indexOf($scope.emailSettings.contactId) > -1) {
-                                vm.case.contact = $scope.emailSettings.contactId;
+                            if (colleagueIds.indexOf(Settings.email.data.contact.id) > -1) {
+                                vm.case.contact = Settings.email.data.contact.id;
                             }
                         });
                     } else {
-                        vm.case.contact = $scope.emailSettings.contactId;
+                        vm.case.contact = Settings.email.data.contact.id;
                     }
                 }
 
-                if ($scope.emailSettings.accountId) {
-                    vm.case.account = $scope.emailSettings.accountId;
+                if (Settings.email.data && Settings.email.data.account) {
+                    vm.case.account = Settings.email.data.account.id;
                 }
             }
 
-            if ($scope.emailSettings.sidebar.form) {
+            if (Settings.email.sidebar.form) {
                 vm.startsAt = 1;
             } else {
                 vm.startsAt = 0;
@@ -269,9 +275,9 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     }
 
     function cancelCaseCreation() {
-        if ($scope.emailSettings.sidebar.form === 'createCase') {
-            $scope.emailSettings.sidebar.form = null;
-            $scope.emailSettings.sidebar.case = false;
+        if (Settings.email.sidebar.form === 'cases') {
+            Settings.email.sidebar.form = null;
+            Settings.email.sidebar.case = false;
         } else {
             $state.go('base.cases');
         }
@@ -283,6 +289,20 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         }
 
         HLForms.blockUI();
+
+        // TODO: Hopefully temporary fix to allow clearing these fields.
+        // Because the API doesn't see missing fields as cleared.
+        if (!vm.case.account) {
+            vm.case.account = null;
+        }
+
+        if (!vm.case.contact) {
+            vm.case.contact = null;
+        }
+
+        if (!vm.case.assigned_to) {
+            vm.case.assigned_to = null;
+        }
 
         vm.case = Case.clean(vm.case);
 
@@ -312,9 +332,10 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             vm.case.$save(function() {
                 toastr.success('I\'ve saved the case for you!', 'Yay');
 
-                if ($scope.emailSettings.sidebar.form === 'createCase') {
-                    $scope.emailSettings.sidebar.form = null;
-                    $scope.emailSettings.sidebar.case = true;
+                if (Settings.email.sidebar.form === 'cases') {
+                    Settings.email.sidebar.form = null;
+
+                    Metronic.unblockUI();
                 } else {
                     $state.go('base.cases.detail', {id: vm.case.id});
                 }
@@ -335,8 +356,23 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         refreshContacts('');
     });
 
+    $scope.$watch('vm.case.contact', function() {
+        if (vm.case.contact && vm.case.contact.accounts && vm.case.contact.accounts.length) {
+            // Get accounts that the select contact works for.
+            vm.accounts = vm.case.contact.accounts;
+        } else {
+            // Just get the accounts list.
+            vm.accounts = null;
+            refreshAccounts('');
+        }
+    });
+
     function refreshAccounts(query) {
-        vm.accounts = HLSearch.refreshList(query, 'Account');
+        // Don't load if we selected a contact.
+        // Because we want to display all accounts the contact works for.
+        if (!vm.case.contact && !vm.accounts) {
+            vm.accounts = HLSearch.refreshList(query, 'Account');
+        }
     }
 
     function refreshContacts(query) {
@@ -348,7 +384,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             }
 
             // Only show contacts of the selected account.
-            accountQuery += 'accounts.id:' + vm.case.account;
+            accountQuery += 'accounts.id:' + vm.case.account.id;
         }
 
         vm.contacts = HLSearch.refreshList(query, 'Contact', null, accountQuery);

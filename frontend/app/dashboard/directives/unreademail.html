@@ -1,32 +1,29 @@
 <dashboard-widget widget-name="'Unread email'" widget-class="'col-md-6'" widget-scrollable="true" widget-closeable="true">
     <div class="widget-name" name="widget-title">
         <i class="lilicon hl-mail-icon"></i>
-        Unread E-mail
+        Unread e-mail
         <span class="label-amount">{{ vm.table.items.length }}</span>
     </div>
     <div name="portlet-body">
         <table class="widget-table">
             <thead>
                 <tr>
-                    <th sort-column="account_name" table="vm.table">Mailbox</th>
+                    <th style="min-width: 100px;" sort-column="account_name" table="vm.table">Mailbox</th>
                     <th>From</th>
                     <th>Subject</th>
-                    <th sort-column="sent_date" table="vm.table">Created</th>
-                    <th width="105px">Actions</th>
+                    <th style="width: 120px;" sort-column="sent_date" table="vm.table">Created</th>
+                    <th style="width: 75px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <tr ng-repeat="message in vm.table.items">
-                    <td>{{ message.account_name }}</td>
+                    <td class="text-overflow-hidden no-wrap" style="max-width: 160px;"><span uib-tooltip="{{ message.account_name }}">{{ message.account_name }}<span></td>
                     <td>{{ message.sender_name || message.sender_email }}</td>
-                    <td>
-                        <div>{{ message.subject }}</div>
-                    </td>
+                    <td><a ui-sref="base.email.detail({id: message.id})">{{ message.subject }}</a></td>
                     <td><date date="message.sent_date" show-time="true"></date></td>
                     <td>
-                        <div><a ui-sref="base.email.reply({id: message.id})"><i class="fa fa-reply"></i> reply</a></div>
-                        <div><a ui-sref="base.email.detail({id: message.id})"><i class="fa fa-eye"></i> view</a></div>
-                        <div><i class="fa fa-sitemap"></i> create</div>
+                        <span class="margin-right-10"><a ui-sref="base.email.reply({id: message.id})" uib-tooltip="reply"><i class="fa fa-reply"></i></a></span>
+                        <span><a ui-sref="base.email.detail({id: message.id})" uib-tooltip="view"><i class="fa fa-eye"></i></a></span>
                     </td>
                 </tr>
                 <tr ng-hide="vm.table.items.length">

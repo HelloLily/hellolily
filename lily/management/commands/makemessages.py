@@ -1,5 +1,3 @@
-from django.core import management
-from django.core.management import CommandError
 from django.core.management.commands import makemessages
 
 

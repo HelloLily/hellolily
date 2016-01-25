@@ -1,0 +1,516 @@
+.email-nav,
+.email-compose-button-container {
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.email-nav-header-title {
+    float: left;
+    width: 100%;
+    padding: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 40px;
+    padding-left: 15px;
+}
+
+.email-nav-header {
+    color: $lilyBlue;
+    background: $lilyHeaderBg;
+    display: block;
+    font-size: 15px;
+    border-left: none;
+    text-align: left;
+    margin-right: 0;
+    border-bottom: 1px solid $lilyBorderDark;
+    border-top: 1px solid $lilyWhiteTone;
+}
+
+.email-nav-header-icon {
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    top: 7px;
+    line-height: 24px;
+    min-width: 24px;
+    text-align: center;
+    border-radius: 5px;
+    color: #9fa6b6;
+    background: $lilyHeaderBg;
+
+    &:hover {
+        color: $lilyDarkBlue;
+        background: $lilyBorderDark;
+    }
+}
+
+.email-nav {
+    background: #ffffff;
+    border: 1px solid $lilyBorderDark;
+
+    li {
+        .email-nav-item {
+            color: $lilyDarkBlue;
+            padding: 0px 15px;
+            line-height: 40px;
+            position: relative;
+            border-top: 1px solid transparent;
+            border-bottom: 1px solid transparent;
+            overflow: hidden;
+            text-overflow: ellipsis;
+
+            &:hover {
+                background-color: $lilyWhiteToneHover;
+            }
+        }
+
+        &.active {
+            .email-nav-item {
+                color: $lilyDarkBlue;
+                border-bottom: 1px solid $lilyBorderLight;
+                border-top: 1px solid $lilyBorderLight;
+                background: $lilyWhiteToneHover;
+            }
+        }
+
+        &:first-child {
+            &.active {
+                .email-nav-item {
+                    border-top: 1px solid transparent;
+                }
+            }
+        }
+
+        &:last-child {
+            &.active {
+                .email-nav-item {
+                    border-bottom: 1px solid transparent;
+                }
+            }
+        }
+    }
+}
+
+.unread-count, .label-count {
+    font-size: 12px;
+    padding: 3px 8px;
+    border: 1px solid $lilyBorderDark;
+    border-radius: 5px;
+    color: $lilyDarkBlue;
+    right: 10px;
+    top: 8px;
+    position: absolute;
+    line-height: 16px;
+    margin-right: 0;
+}
+
+.inbox-content {
+    background-color: #ffffff;
+    border: 1px solid $lilyBorderDark;
+    border-top: 0;
+
+    tfoot {
+        background-color: $lilyHeaderBg;
+        border-top: 1px solid $lilyWhiteTone;
+    }
+
+    tbody {
+        border-bottom: 1px solid $lilyBorderDark;
+
+        tr {
+
+            height: 50px;
+            background: #ffffff;
+
+            td {
+                vertical-align: middle;
+                padding: 6px;
+                border-top: 1px solid $lilyBorderLight;
+                padding-right: 16px;
+
+                &:first-child {
+                    padding-left: 8px;
+                }
+
+                &.inbox-small-cells {
+                    width: 20px;
+                }
+            }
+
+            thead th {
+                background: #edf0f8;
+                border-bottom: 0;
+            }
+
+            &:nth-of-type(odd){
+                background: #ffffff;
+            }
+
+            &.unread {
+                font-weight: bold;
+                background: $lilyWhiteToneHover;
+            }
+
+            &:hover {
+                background: $lilyWhiteToneHover;
+            }
+        }
+    }
+
+    thead {
+        border-top: 1px solid $lilyWhiteTone;
+        tr th > label {
+            width: 50px;
+        }
+    }
+
+    table {
+        margin-bottom: 0;
+
+        thead th {
+            background: $lilyHeaderBg;
+            border-bottom: 0;
+        }
+    }
+}
+
+
+
+.email-nav-item {
+    font-size: 14px;
+    display: block;
+
+    &:hover, &:focus {
+        text-decoration: none;
+    }
+}
+
+.email-compose-button {
+    background: $lilyGreen;
+    color: #ffffff;
+    width: 100%;
+    display: block;
+    line-height: 40px;
+    border-radius: 4px;
+    font-size: 15px;
+    text-align: center;
+    text-decoration: none;
+
+    i {
+        font-weight: bold;
+    }
+
+    &:hover {
+        color: #ffffff;
+        text-decoration: none;
+        background: darken($lilyGreen, 5);
+    }
+
+    &:visited,
+    &:focus {
+        color: #ffffff;
+        text-decoration: none;
+    }
+}
+
+.create-sidebar .portlet.light {
+    padding: 0;
+
+    .form-body {
+        padding: 15px;
+    }
+
+    .form-horizontal {
+        border: 1px solid $lilyBorderDark;
+    }
+
+    .inbox-view-header {
+        margin-bottom: 0;
+        border-bottom: 0;
+    }
+}
+
+.email-content-container {
+    padding: 15px;
+    background: $lilyWhiteTone;
+    border: 1px solid $lilyBorderDark;
+    border-top: none;
+}
+
+.email-inbox-header,
+.email-inbox-actions-header,
+.email-inbox-compose-options,
+.email-reply-actions-header {
+    background-color: $lilyHeaderBg;
+    padding: 10px 20px;
+    border: 1px solid $lilyBorderDark;
+    position: relative;
+
+    &:before {
+        height: 1px;
+        display: block;
+        content: "";
+        background: $lilyWhiteTone;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+    }
+
+    h1 {
+        font-size: 20px;
+        margin: 0;
+        line-height: 33px;
+        color: $lilyDarkBlue;
+        font-weight: 600;
+    }
+}
+
+.email-inbox-actions-header {
+    border-top: none;
+}
+
+.email-inbox-compose-options {
+    border: none;
+}
+
+.email-reply-actions-header {
+    border: none;
+
+    &:before {
+        top: -2px;
+    }
+}
+
+.email-inbox-compose-options {
+    border: none;
+}
+
+.email-inbox-search {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+}
+
+.email-inbox-search-button {
+    background-color: $lilyGreen;
+    border: none;
+    height: 34px;
+    width: 30px;
+    color: #ffffff;
+    border: none;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    box-sizing: border-box;
+}
+
+.email-inbox-actions {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    margin-right: 10px;
+    display: inline-block;
+
+    li {
+        display: inline-block;
+        vertical-align: middle;
+        box-sizing: border-box;
+        line-height: 30px;
+        border: 1px solid $lilyBorderDark;
+        border-right: 0;
+
+        a,
+        button {
+            height: 100%;
+            display: block;
+            color: $lilyDarkBlue;
+            border: none;
+            border-top: 1px solid $lilyWhiteTone;
+            padding: 0px 10px;
+            background: none;
+
+            &:hover, &:focus {
+                text-decoration: none;
+                background: lighten($lilyHeaderBg, 2);
+            }
+
+            &.email-inbox-primary {
+                background: $lilyGreen;
+                color: $lilyWhiteTone;
+                border: none;
+            }
+        }
+
+        &:first-child {
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+
+            a,
+            button {
+                border-top-left-radius: 4px;
+                border-bottom-left-radius: 4px;
+            }
+        }
+
+        &:last-child {
+            border-right: 1px solid $lilyBorderDark;
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+
+            a,
+            button {
+                border-top-right-radius: 4px;
+                border-bottom-right-radius: 4px;
+            }
+        }
+
+        .dropdown-menu {
+
+            li {
+                display: block;
+                border: 0;
+                border-radius: 0;
+
+                a {
+                    padding: 10px 0px 10px 10px;
+                }
+            }
+        }
+    }
+}
+
+.create-sidebar .portlet.light {
+    padding: 0;
+
+    .form-body {
+        padding: 15px;
+    }
+
+    .form-horizontal {
+        border: 1px solid $lilyBorderDark;
+    }
+
+    .inbox-view-header {
+        margin-bottom: 0;
+        border-bottom: 0;
+    }
+}
+
+.email-content-container {
+    padding: 20px;
+    background: $lilyWhiteTone;
+    border: 1px solid $lilyBorderDark;
+    border-top: none;
+}
+
+.email-inbox-header {
+    background-color: $lilyHeaderBg;
+    padding-left: 20px;
+    padding-bottom: 10px;
+    border: 1px solid $lilyBorderDark;
+    overflow: hidden;
+    position: relative;
+
+    h1 {
+        font-size: 20px;
+    }
+}
+
+.email-pagination {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    float: right;
+
+    li {
+        display: inline-block;
+        vertical-align: middle;
+
+        &.email-pagination-page-info {
+            padding-right: 10px;
+            font-weight: normal;
+        }
+    }
+}
+
+.email-pagination-arrow {
+    width: 30px;
+    height: 30px;
+    display: inline-block;
+    border: 1px solid $lilyBorderDark;
+
+    a {
+        position: relative;
+        height: 100%;
+        width: 100%;
+        display: inline-block;
+        border-top: 1px solid $lilyWhiteTone;
+        border-radius: 4px;
+    }
+
+    i {
+        margin-top: 0;
+        position: absolute;
+        line-height: 27px;
+        left: 2px;
+        font-size: 18px;
+        color: $lilyDarkBlue;
+    }
+
+    &.left {
+        border-top-left-radius: 4px;
+        border-bottom-left-radius: 4px;
+        border-right: 0;
+    }
+
+    &.right {
+        border-top-right-radius: 4px;
+        border-bottom-right-radius: 4px;
+    }
+}
+
+.email-reply-meta-container {
+    padding: 10px 20px;
+}
+.email-content {
+    width: 100%;
+}
+
+// Metronic overrides for this branch for now to make it a bit neater
+// and in line with the rest of the design before overhauling the reply
+// container and associated HTML/CSS.
+
+.mail-attachments {
+    padding-left: 20px;
+}
+
+.email-compose {
+    padding: 10px;
+}
+.inbox-compose {
+    background: #ffffff;
+    .inbox-form-group > label {
+        text-align: left;
+    }
+}
+div.checker {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.email-recipients span {
+    display: inline;
+}
+
+.email-reply-meta-container {
+    padding: 10px 20px;
+}
+
+.email-content {
+    width: 100%;
+}

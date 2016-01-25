@@ -213,7 +213,7 @@ class DealsUnsentFeedbackForms(RawDatabaseView):
                 deals_deal.assigned_to_id = users_lilyuser.id AND
                 deals_deal.stage = 2 AND
                 deals_deal.new_business = true AND
-                deals_deal.closed_date BETWEEN (now() - interval '120 day') and (now() - interval '30 day') AND
+                deals_deal.closed_date BETWEEN (now() - interval '120 day') AND (now() - interval '30 day') AND
                 deals_deal.feedback_form_sent = false AND
                 /* deals_deal.card_sent = true AND */
                 deals_deal.tenant_id = {tenant_id} AND
@@ -236,8 +236,8 @@ class DealsUrgentFollowUp(RawDatabaseView):
                 public.deals_deal
             WHERE
                 deals_deal.assigned_to_id = users_lilyuser.id AND
-                deals_deal.created < now() - interval '7 days'  AND
-                deals_deal.created > now() - interval '60 days'  AND
+                deals_deal.next_step_date < now() - interval '7 days' AND
+                deals_deal.next_step_date > now() - interval '60 days' AND
                 deals_deal.tenant_id = {tenant_id} AND
                 deals_deal.is_deleted = false AND
                 (deals_deal.stage = 0 or deals_deal.stage = 1)

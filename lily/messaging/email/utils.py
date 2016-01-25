@@ -126,8 +126,9 @@ def get_email_parameter_api_dict():
                 for field in model.EMAIL_TEMPLATE_PARAMETERS:
                     field_name, field_verbose_name = get_field_names(field)
 
+                    key = '%s.%s' % (model._meta.verbose_name.lower(), field_name.lower())
                     _EMAIL_PARAMETER_API_DICT.setdefault(model._meta.verbose_name.capitalize(), {}).update({
-                        '%s.%s' % (model._meta.verbose_name.lower(), field_name.lower()): field_verbose_name.capitalize()
+                        key: field_verbose_name.capitalize()
                     })
     return _EMAIL_PARAMETER_API_DICT
 
@@ -146,14 +147,15 @@ def get_email_parameter_choices():
                 for field in model.EMAIL_TEMPLATE_PARAMETERS:
                     field_name, field_verbose_name = get_field_names(field)
 
+                    key = '%s.%s' % (model._meta.verbose_name.lower(), field_name.lower())
                     if '%s' % model._meta.verbose_name.capitalize() in _EMAIL_PARAMETER_CHOICES:
                         _EMAIL_PARAMETER_CHOICES.get('%s' % model._meta.verbose_name.capitalize()).update({
-                            '%s.%s' % (model._meta.verbose_name.lower(), field_name.lower()): field_verbose_name.capitalize(),
+                            key: field_verbose_name.capitalize(),
                         })
                     else:
                         _EMAIL_PARAMETER_CHOICES.update({
                             '%s' % model._meta.verbose_name.capitalize(): {
-                                '%s.%s' % (model._meta.verbose_name.lower(), field_name.lower()): field_verbose_name.capitalize(),
+                                key: field_verbose_name.capitalize(),
                             }
                         })
     return _EMAIL_PARAMETER_CHOICES
@@ -218,7 +220,10 @@ class TemplateParser(object):
         Escape variables and delete Django syntax around variables that are not allowed.
         """
         # Filter on parameters with the following syntax: model.field
-        param_regex = (re.compile('(%s[\s]*[a-zA-Z]+\.[a-zA-Z_]+[\s]*%s)' % (re.escape(VARIABLE_TAG_START), re.escape(VARIABLE_TAG_END))))
+        param_regex = (re.compile('(%s[\s]*[a-zA-Z]+\.[a-zA-Z_]+[\s]*%s)' % (
+            re.escape(VARIABLE_TAG_START),
+            re.escape(VARIABLE_TAG_END)
+        )))
         parameter_list = [x for x in re.findall(param_regex, text)]
 
         for parameter in parameter_list:
@@ -226,7 +231,10 @@ class TemplateParser(object):
             split_parameter = stripped_parameter.split('|')[0]
             if split_parameter in get_email_parameter_dict():
                 # variable is accepted, now just escape so it can be rendered later
-                text = text.replace('%s' % parameter, '{%% templatetag openvariable %%} %s {%% templatetag closevariable %%}' % stripped_parameter)
+                text = text.replace(
+                    '%s' % parameter,
+                    '{%% templatetag openvariable %%} %s {%% templatetag closevariable %%}' % stripped_parameter
+                )
                 self.valid_parameters.append(stripped_parameter)
             else:
                 # variable is not accepted, remove surrounding braces
@@ -363,12 +371,12 @@ def replace_cid_and_change_headers(html, pk):
         for image in inline_images:
             image_cid = image['cid']
 
-            for attachment in attachments:
-                if (attachment.cid[1:-1] == image_cid or attachment.cid == image_cid) and attachment.cid not in cid_done:
+            for file in attachments:
+                if (file.cid[1:-1] == image_cid or file.cid == image_cid) and file.cid not in cid_done:
                     image['src'] = "cid:%s" % image_cid
 
-                    storage_file = default_storage._open(attachment.attachment.name)
-                    filename = get_attachment_filename_from_url(attachment.attachment.name)
+                    storage_file = default_storage._open(file.attachment.name)
+                    filename = get_attachment_filename_from_url(file.attachment.name)
 
                     if hasattr(storage_file, 'key'):
                         content_type = storage_file.key.content_type
@@ -383,14 +391,14 @@ def replace_cid_and_change_headers(html, pk):
                         'content-type': content_type,
                         'content-disposition': 'inline',
                         'content-filename': filename,
-                        'content-id': attachment.cid,
+                        'content-id': file.cid,
                         'x-attachment-id': image_cid,
                         'content-transfer-encoding': 'base64',
                         'content': content
                     }
 
                     dummy_headers.append(response)
-                    cid_done.append(attachment.cid)
+                    cid_done.append(file.cid)
                     del image['cid']
 
         body_html = soup.encode_contents()
@@ -503,7 +511,9 @@ class EmailMultiRelated(EmailMultiAlternatives):
     def __init__(self, subject='', body='', from_email=None, to=None, bcc=None,
                  connection=None, attachments=None, headers=None, alternatives=None, cc=None):
         self.related_attachments = []
-        super(EmailMultiRelated, self).__init__(subject, body, from_email, to, bcc, connection, attachments, headers, alternatives, cc)
+        super(EmailMultiRelated, self).__init__(
+            subject, body, from_email, to, bcc, connection, attachments, headers, alternatives, cc
+        )
 
     def attach_related(self, filename=None, content=None, mimetype=None):
         """

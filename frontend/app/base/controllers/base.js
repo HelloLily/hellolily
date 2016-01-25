@@ -15,19 +15,8 @@ angular.module('app.base').controller('BaseController', BaseController);
 
 BaseController.$inject = ['$scope', '$state', 'Settings', 'Notifications'];
 function BaseController($scope, $state, Settings, Notifications) {
+    // Make sure the settings are available everywhere.
     $scope.settings = Settings;
-
-    $scope.emailSettings = {
-        sidebar: {
-            account: null,
-            contact: null,
-            form: null,
-            isVisible: false,
-        },
-        accountId: false,
-        contactId: false,
-        caseList: null,
-    };
 
     $scope.loadNotifications = loadNotifications;
 
@@ -63,20 +52,8 @@ function BaseController($scope, $state, Settings, Notifications) {
 
     function _setPreviousState(event, toState, toParams, fromState, fromParams) {
         $scope.previousState = $state.href(fromState, fromParams);
-        if ($scope.emailSettings.sidebar && fromState && fromState.name === 'base.email.detail') {
-            $scope.emailSettings.sidebar = {
-                account: null,
-                contact: null,
-                form: null,
-                isVisible: false,
-            };
-
-            $scope.emailSettings.accountId = null;
-            $scope.emailSettings.contactId = null;
-            $scope.emailSettings.website = null;
-            $scope.emailSettings.account = null;
-            $scope.emailSettings.contact = null;
-            $scope.emailSettings.caseList = null;
+        if (Settings.email.sidebar && fromState && fromState.name === 'base.email.detail') {
+            Settings.email.resetEmailSettings();
 
             $scope.$$phase || $scope.apply();
         }

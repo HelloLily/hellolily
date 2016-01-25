@@ -142,6 +142,12 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
                     vm.formPortlets[i + 1].portlet.collapsed = false;
                 }
 
+                // TODO: Hacky way to open the last portlet when the second-to-last portlet is opened.
+                // The whole opening of portlets might need a rewrite anyway, so just do this the ugly way.
+                if (i + 1 === 2) {
+                    vm.formPortlets[3].portlet.collapsed = false;
+                }
+
                 return;
             }
         }
@@ -180,10 +186,10 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     }
 
     function _getCase() {
-        // Fetch the contact or create empty contact.
+        // Fetch the case or create an empty one.
         if ($stateParams.id) {
             Case.get({id: $stateParams.id}).$promise.then(function(lilyCase) {
-                vm.case = Case.clean(lilyCase);
+                vm.case = lilyCase;
 
                 Settings.page.setAllTitles('edit', lilyCase.subject);
             });
@@ -211,9 +217,9 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
                     if (Settings.email.data && Settings.email.data.account) {
                         var filterquery = 'accounts.id:' + Settings.email.data.account.id;
 
-                        ContactDetail.query({filterquery: filterquery}).$promise.then(function (colleagues) {
+                        ContactDetail.query({filterquery: filterquery}).$promise.then(function(colleagues) {
                             var colleagueIds = [];
-                            angular.forEach(colleagues, function (colleague) {
+                            angular.forEach(colleagues, function(colleague) {
                                 colleagueIds.push(colleague.id);
                             });
 
@@ -336,8 +342,23 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         refreshContacts('');
     });
 
+    $scope.$watch('vm.case.contact', function() {
+        if (vm.case.contact && vm.case.contact.accounts && vm.case.contact.accounts.length) {
+            // Get accounts that the select contact works for.
+            vm.accounts = vm.case.contact.accounts;
+        } else {
+            // Just get the accounts list.
+            vm.accounts = null;
+            refreshAccounts('');
+        }
+    });
+
     function refreshAccounts(query) {
-        vm.accounts = HLSearch.refreshList(query, 'Account');
+        // Don't load if we selected a contact.
+        // Because we want to display all accounts the contact works for.
+        if (!vm.case.contact && !vm.accounts) {
+            vm.accounts = HLSearch.refreshList(query, 'Account');
+        }
     }
 
     function refreshContacts(query) {
@@ -349,7 +370,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             }
 
             // Only show contacts of the selected account.
-            accountQuery += 'accounts.id:' + vm.case.account;
+            accountQuery += 'accounts.id:' + vm.case.account.id;
         }
 
         vm.contacts = HLSearch.refreshList(query, 'Contact', null, accountQuery);

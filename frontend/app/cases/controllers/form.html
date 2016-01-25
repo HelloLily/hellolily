@@ -57,25 +57,19 @@
                                     </div>
                                 </form-group>
 
-                                <form-group label-title="Type" label-icon="info" label-id="id_type" field="caseForm.type" required="true">
+                                <form-group label-title="Type" label-id="id_type" field="caseForm.type" required="true">
                                     <div ng-class="{'col-md-12': settings.email.sidebar.form, 'col-md-4': !settings.email.sidebar.form}">
-                                        <ui-select ng-model="vm.case.type" theme="select2" class="form-control" name="type" search-enabled="false" append-to-body="true">
-                                            <ui-select-match placeholder="Select a type">{{ $select.selected.type }}</ui-select-match>
-                                                <ui-select-choices repeat="type.id as type in vm.caseTypes">
-                                                <div ng-bind-html="type.type"></div>
-                                            </ui-select-choices>
-                                        </ui-select>
+                                        <select ng-model="vm.case.type" ng-options="type.id as type.type for type in vm.caseTypes" class="form-control">
+                                            <option value="" hidden>---------</option>
+                                        </select>
                                     </div>
                                 </form-group>
 
-                                <form-group label-title="Status" label-icon="info" label-id="id_status" field="caseForm.status" required="true">
+                                <form-group label-title="Status" label-id="id_status" field="caseForm.status" required="true">
                                     <div ng-class="{'col-md-12': settings.email.sidebar.form, 'col-md-4': !settings.email.sidebar.form}">
-                                        <ui-select ng-model="vm.case.status" theme="select2" class="form-control" name="status" search-enabled="false" append-to-body="true">
-                                            <ui-select-match placeholder="Select a status">{{ $select.selected.status }}</ui-select-match>
-                                                <ui-select-choices repeat="status.id as status in vm.caseStatuses">
-                                                <div ng-bind-html="status.status"></div>
-                                            </ui-select-choices>
-                                        </ui-select>
+                                        <select ng-model="vm.case.status" ng-options="status.id as status.status for status in vm.caseStatuses" class="form-control">
+                                            <option value="" hidden>---------</option>
+                                        </select>
                                     </div>
                                 </form-group>
 
@@ -114,12 +108,9 @@
                             <form-portlet-body>
                                 <form-group label-title="Priority" label-icon="info" label-id="id_priority" field="caseForm.priority" required="true">
                                     <div ng-if='!settings.email.sidebar.form' class="col-md-4">
-                                        <ui-select ng-model="vm.case.priority" theme="select2" class="form-control" name="priority" search-enabled="false" append-to-body="true">
-                                            <ui-select-match>{{ $select.selected.name }}</ui-select-match>
-                                                <ui-select-choices repeat="priority.position as priority in vm.casePriorities">
-                                                <div ng-bind-html="priority.name"></div>
-                                            </ui-select-choices>
-                                        </ui-select>
+                                        <select ng-model="vm.case.priority" ng-options="priority.position as priority.name for priority in vm.casePriorities" class="form-control">
+                                            <option value="" hidden>---------</option>
+                                        </select>
                                     </div>
                                     <div ng-if="settings.email.sidebar.form" class="col-md-12">
                                         <label class="priority-button" ng-repeat="priority in vm.casePriorities"

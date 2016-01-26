@@ -290,18 +290,20 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
 
         HLForms.blockUI();
 
-        // TODO: Hopefully temporary fix to allow clearing these fields.
-        // Because the API doesn't see missing fields as cleared.
-        if (!vm.case.account) {
-            vm.case.account = null;
-        }
+        if (vm.case.id) {
+            // TODO: Hopefully temporary fix to allow clearing these fields.
+            // Because the API doesn't see missing fields as cleared.
+            if (!vm.case.account) {
+                vm.case.account = null;
+            }
 
-        if (!vm.case.contact) {
-            vm.case.contact = null;
-        }
+            if (!vm.case.contact) {
+                vm.case.contact = null;
+            }
 
-        if (!vm.case.assigned_to) {
-            vm.case.assigned_to = null;
+            if (!vm.case.assigned_to) {
+                vm.case.assigned_to = null;
+            }
         }
 
         vm.case = Case.clean(vm.case);

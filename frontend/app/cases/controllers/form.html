@@ -59,7 +59,7 @@
 
                                 <form-group label-title="Type" label-id="id_type" field="caseForm.type" required="true">
                                     <div ng-class="{'col-md-12': settings.email.sidebar.form, 'col-md-4': !settings.email.sidebar.form}">
-                                        <select ng-model="vm.case.type" ng-options="type.id as type.type for type in vm.caseTypes" class="form-control">
+                                        <select ng-model="vm.case.type" ng-options="type.id as type.type for type in vm.caseTypes track by type.id" class="form-control">
                                             <option value="" hidden>---------</option>
                                         </select>
                                     </div>
@@ -67,7 +67,7 @@
 
                                 <form-group label-title="Status" label-id="id_status" field="caseForm.status" required="true">
                                     <div ng-class="{'col-md-12': settings.email.sidebar.form, 'col-md-4': !settings.email.sidebar.form}">
-                                        <select ng-model="vm.case.status" ng-options="status.id as status.status for status in vm.caseStatuses" class="form-control">
+                                        <select ng-model="vm.case.status" ng-options="status.id as status.status for status in vm.caseStatuses track by status.id" class="form-control">
                                             <option value="" hidden>---------</option>
                                         </select>
                                     </div>
@@ -152,7 +152,7 @@
                                     <div ng-class="{'col-md-12': settings.email.sidebar.form, 'col-md-4': !settings.email.sidebar.form}">
                                         <ui-select multiple ng-model="vm.case.assigned_to_groups" theme="select2" class="form-control" name="assigned_to_groups" append-to-body="true">
                                             <ui-select-match placeholder="Select one or more account(s)">{{ $item.name }}</ui-select-match>
-                                            <ui-select-choices repeat="team.id as team in vm.teams">
+                                            <ui-select-choices repeat="team.id as team in vm.teams | propsFilter: {name: $select.search}">
                                                 <div ng-bind-html="team.name | highlight: $select.search"></div>
                                             </ui-select-choices>
                                         </ui-select>

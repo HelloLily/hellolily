@@ -242,10 +242,12 @@ function EmailDetailController($scope, $state, $stateParams, $http, Case, Settin
         var data = Settings.email.data[modelName];
         var hasData = false;
 
-        if (typeof data === 'object' && data.id) {
-            hasData = true;
-        } else if (typeof data.constructor === Array && data.length) {
-            hasData = true;
+        if (data !== null) {
+            if (typeof data === 'object' && data.id) {
+                hasData = true;
+            } else if (typeof data.constructor === Array && data.length) {
+                hasData = true;
+            }
         }
 
         if (!hasData && form !== modelName) {

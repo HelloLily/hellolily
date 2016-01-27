@@ -12,6 +12,12 @@ function Deal($resource, HLUtils) {
                     id: '@id',
                 },
             },
+            patch: {
+                method: 'PATCH',
+                params: {
+                    id: '@id',
+                },
+            },
             query: {
                 url: '/search/search/',
                 method: 'GET',

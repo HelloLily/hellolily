@@ -6,10 +6,16 @@
             <div class="portlet-body">
                 <div class="row">
                     <div class="col-md-12 deal-detail-info">
-                        <div>
+                        <div ng-if="vm.deal.account">
                             <label>Account</label>
                             <a ui-sref="base.accounts.detail({ id: vm.deal.account })">
                                 {{ ::vm.deal.account_name }}
+                            </a>
+                        </div>
+                        <div ng-if="vm.deal.contact">
+                            <label>Contact</label>
+                            <a ui-sref="base.contacts.detail({ id: vm.deal.contact })">
+                                {{ ::vm.deal.contact_name }}
                             </a>
                         </div>
                         <div>
@@ -31,6 +37,10 @@
                         <div>
                             <label>Created</label>
                              <date date="vm.deal.created"></date>
+                        </div>
+                        <div>
+                            <label>Created by</label>
+                             <date date="vm.deal.created_by"></date>
                         </div>
                         <div>
                             <label>Next step</label>

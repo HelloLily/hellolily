@@ -68,7 +68,6 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserT
     _case.getCaseTypes = getCaseTypes;
     _case.getMyCasesWidget = getMyCasesWidget;
     _case.getCallbackRequests = getCallbackRequests;
-    _case.clean = clean;
 
     // Hardcoded because these are the only case priorities.
     _case.casePriorities = [
@@ -97,43 +96,6 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserT
             expires: expires,
             tags: [],
         });
-    }
-
-    /**
-     * Clean the case data.
-     * @param data (object): The case that's being created/updated.
-     */
-    function clean(data) {
-        var cleanedData = angular.copy(data);
-
-        angular.forEach(cleanedData, function(fieldValue, field) {
-            if (fieldValue) {
-                // We don't want to send whole objects to the API, because they're not accepted.
-                // So loop through all fields and extract IDs.
-                if (fieldValue.constructor === Array) {
-                    var ids = [];
-
-                    angular.forEach(fieldValue, function(item) {
-                        if (typeof item === 'object') {
-                            if (item.hasOwnProperty('id')) {
-                                ids.push(item.id);
-                            }
-                        } else if (typeof item === 'number') {
-                            // Seems to be an ID, so just add it to the ID array.
-                            ids.push(item);
-                        }
-                    });
-
-                    cleanedData[field] = ids;
-                } else if (typeof fieldValue === 'object') {
-                    if (fieldValue.hasOwnProperty('id')) {
-                        cleanedData[field] = fieldValue.id;
-                    }
-                }
-            }
-        });
-
-        return cleanedData;
     }
 
     /**

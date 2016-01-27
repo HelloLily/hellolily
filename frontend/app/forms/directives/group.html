@@ -3,7 +3,6 @@
         <label for="{{ labelId }}" ng-class="{'required':required}">
             {{ labelTitle }}
         </label>
-
         <ng-transclude></ng-transclude>
         <span class="help-block" ng-show="field.$error.message" ng-class="{'col-xs-12': vm.sidebar}">{{ field.$error.message }}</span>
     </div>

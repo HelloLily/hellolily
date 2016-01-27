@@ -84,10 +84,6 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     vm.refreshAccounts = refreshAccounts;
     vm.refreshContacts = refreshContacts;
 
-    $scope.$watch('vm.case.priority', function() {
-        vm.case.expires = HLUtils.addBusinessDays(vm.case.priority);
-    });
-
     activate();
 
     ////
@@ -186,6 +182,61 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         }
     }
 
+    $scope.$watch('vm.case.priority', function() {
+        var daysToAdd = [5, 3, 1, 0];
+        vm.case.expires = HLUtils.addBusinessDays(daysToAdd[vm.case.priority]);
+    });
+
+    var watchGroup = [
+        'vm.case.type',
+        'vm.case.status',
+        'vm.case.priority',
+        'vm.case.expires',
+        'vm.case.account',
+        'vm.case.contact',
+    ];
+
+    $scope.$watchGroup(watchGroup, function(newValues, oldValues) {
+        if (newValues !== oldValues && !vm.case.id) {
+            openNextStep();
+        }
+    });
+
+    function openNextStep() {
+        for (var i = vm.startsAt; i < Object.keys(vm.formPortlets).length; i++) {
+            var fieldHasValue = true;
+            var portlet = vm.formPortlets[i];
+
+            // Check if all fields are set.
+            portlet.fields.forEach(function(field) {
+                // 0 is a valid input (selects), so allow it.
+                if (vm.case[field] === '' || vm.case[field] === null || vm.case[field] === undefined) {
+                    fieldHasValue = false;
+                }
+            });
+
+            if (!fieldHasValue) {
+                // Fields not completely filled in, so just stop checking the portlets.
+                break;
+            }
+
+            if (!portlet.portlet.isComplete) {
+                portlet.portlet.isComplete = true;
+                if (vm.formPortlets[i + 1]) {
+                    vm.formPortlets[i + 1].portlet.collapsed = false;
+                }
+
+                // TODO: Hacky way to open the last portlet when the second-to-last portlet is opened.
+                // The whole opening of portlets might need a rewrite anyway, so just do this the ugly way.
+                if (i + 1 === 2) {
+                    vm.formPortlets[3].portlet.collapsed = false;
+                }
+
+                return;
+            }
+        }
+    }
+
     function _getAssignOptions() {
         var assignOptions = [];
 
@@ -246,8 +297,6 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             }
         }
 
-        vm.case = Case.clean(vm.case);
-
         // Clear all errors of the form (in case of new errors).
         angular.forEach(form, function(value, key) {
             if (typeof value === 'object' && value.hasOwnProperty('$modelValue')) {
@@ -262,16 +311,19 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
 
         vm.case.expires = moment(vm.case.expires).format('YYYY-MM-DD');
 
-        if (vm.case.id) {
+        // clean modifies the object, so preserve the state by copying the object (in case of errors).
+        var cleanedCase = HLForms.clean(angular.copy(vm.case));
+
+        if (cleanedCase.id) {
             // If there's an ID set it means we're dealing with an existing contact, so update it.
-            vm.case.$update(function() {
+            cleanedCase.$update(function() {
                 toastr.success('I\'ve updated the case for you!', 'Done');
-                $state.go('base.cases.detail', {id: vm.case.id}, {reload: true});
+                $state.go('base.cases.detail', {id: cleanedCase.id}, {reload: true});
             }, function(response) {
                 _handleBadResponse(response, form);
             });
         } else {
-            vm.case.$save(function() {
+            cleanedCase.$save(function() {
                 toastr.success('I\'ve saved the case for you!', 'Yay');
 
                 if (Settings.email.sidebar.form === 'cases') {
@@ -279,7 +331,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
 
                     Metronic.unblockUI();
                 } else {
-                    $state.go('base.cases.detail', {id: vm.case.id});
+                    $state.go('base.cases.detail', {id: cleanedCase.id});
                 }
             }, function(response) {
                 _handleBadResponse(response, form);

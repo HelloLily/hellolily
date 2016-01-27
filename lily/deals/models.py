@@ -4,6 +4,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from lily.accounts.models import Account
+from lily.contacts.models import Contact
 from lily.tags.models import TaggedObjectMixin
 from lily.users.models import LilyUser
 from lily.tenant.models import TenantMixin
@@ -81,12 +82,15 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     name = models.CharField(max_length=255, verbose_name=_('name'))
     description = models.TextField(verbose_name=_('description'), blank=True)
     account = models.ForeignKey(Account, verbose_name=_('account'))
+    contact = models.ForeignKey(Contact, verbose_name=_('contact'), null=True, blank=True)
     currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, verbose_name=_('currency'))
     amount_once = models.DecimalField(max_digits=19, decimal_places=2, verbose_name=_('one-time cost'))
     amount_recurring = models.DecimalField(max_digits=19, decimal_places=2, verbose_name=_('recurring costs'))
     closed_date = models.DateTimeField(verbose_name=_('closed date'), blank=True, null=True)
     stage = models.IntegerField(choices=STAGE_CHOICES, verbose_name=_('status'))
     assigned_to = models.ForeignKey(LilyUser, verbose_name=_('assigned to'), null=True)
+    created_by = models.ForeignKey(LilyUser, verbose_name=_('created by'),
+                                   related_name='created_deals', null=True, blank=True)
     notes = GenericRelation('notes.Note', content_type_field='content_type', object_id_field='object_id',
                             verbose_name='list of notes')
     feedback_form_sent = models.BooleanField(default=False, verbose_name=_('feedback form sent'))

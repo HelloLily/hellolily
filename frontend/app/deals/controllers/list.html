@@ -9,7 +9,7 @@
                 </button>
                 <div class="dropdown-menu hold-on-click dropdown-checkboxes">
                     <checkbox model="vm.table.visibility.name">Subject</checkbox>
-                    <checkbox model="vm.table.visibility.account">Client</checkbox>
+                    <checkbox model="vm.table.visibility.client">Client</checkbox>
                     <checkbox model="vm.table.visibility.stage">Stage</checkbox>
                     <checkbox model="vm.table.visibility.nextStep">Next step</checkbox>
                     <checkbox model="vm.table.visibility.nextStepDate">Next step date</checkbox>
@@ -72,7 +72,7 @@
             <thead class="flip-content">
                 <th>Edit</th>
                 <th ng-show="vm.table.visibility.name" table="vm.table" class="width-20">Subject</th>
-                <th ng-show="vm.table.visibility.account" class="width-10">Client</th>
+                <th ng-show="vm.table.visibility.client" class="width-10">Client</th>
                 <th ng-show="vm.table.visibility.stage" sort-column="stage" table="vm.table">Stage</th>
                 <th ng-show="vm.table.visibility.nextStep" sort-column="next_step.name" table="vm.table">Next step</th>
                 <th ng-show="vm.table.visibility.nextStepDate" sort-column="next_step_date" table="vm.table">Next step date</th>
@@ -94,8 +94,10 @@
                     <td ng-show="vm.table.visibility.name">
                         <a ui-sref="base.deals.detail({ id: deal.id })" title="{{ deal.name }}">{{ deal.name }}</a>
                     </td>
-                    <td ng-show="vm.table.visibility.account">
-                        <a ui-sref="base.accounts.detail({ id: deal.account })">{{ deal.account_name }}</a>
+                    <td ng-show="vm.table.visibility.client">
+                        <a ui-sref="base.contacts.detail({ id: deal.contact })" ng-if="::deal.contact">{{ ::deal.contact_name }}</a>
+                        <span ng-if="deal.contact && deal.account"> at </span>
+                        <a ui-sref="base.accounts.detail({ id: deal.account })">{{ ::deal.account_name }}</a>
                     </td>
                     <td ng-show="vm.table.visibility.stage">
                         {{ deal.stage_name }}

@@ -4,6 +4,7 @@ from datetime import datetime, date
 import json
 from unittest import SkipTest
 
+from decimal import Decimal
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Manager, Model
@@ -84,6 +85,19 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         if not self.model_cls or not self.serializer_cls:
             raise SkipTest
 
+    def assertStatus(self, request, desired_code):
+        """
+        Helper function to assert that the response of the API is what is expected.
+        If the response status code doesn't match log the response for debugging.
+        """
+        if request.status_code != desired_code:
+            print ''
+            print self._testMethodName
+            print request.data
+            print ''
+
+        self.assertEqual(request.status_code, desired_code)
+
     def _transform_value(self, value):
         """
         Transform the value into something comparable.
@@ -98,6 +112,9 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
             db_value = value.isoformat()
             if db_value.endswith('+00:00'):
                 value = db_value[:-6] + 'Z'
+
+        if isinstance(value, Decimal):
+            value = str(value)
 
         if isinstance(value, date):
             value = value.isoformat()
@@ -153,6 +170,9 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         Default implentation for the creation of stubs, this doesn't do anything with relations other than
         what the factory does by default.
         """
+        # Set a default tenant of the user.
+        kwargs['tenant'] = None
+
         object_list = self.factory_cls.stub_batch(size=size, **kwargs)
 
         if size > 1:
@@ -171,7 +191,7 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         Test that an unauthenticated user doesn't have access to the list.
         """
         request = self.anonymous_user.get(self.get_url(self.list_url))
-        self.assertEqual(request.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertStatus(request, status.HTTP_403_FORBIDDEN)
         self.assertEqual(request.data, {u'detail': u'Authentication credentials were not provided.'})
 
     def test_get_list_authenticated(self):
@@ -183,7 +203,7 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
 
         request = self.user.get(self.get_url(self.list_url))
 
-        self.assertEqual(request.status_code, status.HTTP_200_OK)
+        self.assertStatus(request, status.HTTP_200_OK)
         request_data = json.loads(request.content)
         self.assertEqual(len(obj_list), len(request_data))
 
@@ -201,12 +221,11 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         obj_to_delete = obj_list.pop()
         obj_to_delete.delete()
         request = self.user.get(self.get_url(self.list_url))
-        self.assertEqual(request.status_code, status.HTTP_200_OK)
-        request_data = json.loads(request.content)
-        self.assertEqual(len(obj_list), len(request_data))
+        self.assertStatus(request, status.HTTP_200_OK)
+        self.assertEqual(len(obj_list), len(request.data))
 
         for i, db_obj in enumerate(reversed(obj_list)):
-            api_obj = request_data[i]
+            api_obj = request.data[i]
             self._compare_objects(db_obj, api_obj)
 
     def test_get_list_tenant_filter(self):
@@ -220,12 +239,11 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         self._create_object(size=3)
 
         request = self.other_tenant_user.get(self.get_url(self.list_url))
-        self.assertEqual(request.status_code, status.HTTP_200_OK)
-        request_data = json.loads(request.content)
-        self.assertEqual(len(other_tenant_obj_list), len(request_data))
+        self.assertStatus(request, status.HTTP_200_OK)
+        self.assertEqual(len(other_tenant_obj_list), len(request.data))
 
         for i, db_obj in enumerate(reversed(other_tenant_obj_list)):
-            api_obj = request_data[i]
+            api_obj = request.data[i]
             self._compare_objects(db_obj, api_obj)
 
     def test_get_object_unauthenticated(self):
@@ -236,7 +254,7 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         db_obj = self._create_object()
 
         request = self.anonymous_user.get(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}))
-        self.assertEqual(request.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertStatus(request, status.HTTP_403_FORBIDDEN)
         self.assertEqual(request.data, {u'detail': u'Authentication credentials were not provided.'})
 
     def test_get_object_authenticated(self):
@@ -247,7 +265,7 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         db_obj = self._create_object()
 
         request = self.user.get(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}))
-        self.assertEqual(request.status_code, status.HTTP_200_OK)
+        self.assertStatus(request, status.HTTP_200_OK)
         self._compare_objects(db_obj, json.loads(request.content))
 
     def test_get_object_deleted_filter(self):
@@ -259,7 +277,7 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         db_obj.delete()  # Delete the object
 
         request = self.user.get(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}))
-        self.assertEqual(request.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertStatus(request, status.HTTP_404_NOT_FOUND)
         self.assertEqual(request.data, {u'detail': u'Not found.'})
 
     def test_get_object_tenant_filter(self):
@@ -270,7 +288,7 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         db_obj = self._create_object()
 
         request = self.other_tenant_user.get(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}))
-        self.assertEqual(request.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertStatus(request, status.HTTP_404_NOT_FOUND)
         self.assertEqual(request.data, {u'detail': u'Not found.'})
 
     def test_create_object_unauthenticated(self):
@@ -281,7 +299,7 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         stub_dict = self._create_object_stub()
 
         request = self.anonymous_user.post(self.get_url(self.list_url), stub_dict)
-        self.assertEqual(request.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertStatus(request, status.HTTP_403_FORBIDDEN)
         self.assertEqual(request.data, {u'detail': u'Authentication credentials were not provided.'})
 
     def test_create_object_authenticated(self):
@@ -292,7 +310,7 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         stub_dict = self._create_object_stub()
 
         request = self.user.post(self.get_url(self.list_url), stub_dict)
-        self.assertEqual(request.status_code, status.HTTP_201_CREATED)
+        self.assertStatus(request, status.HTTP_201_CREATED)
 
         created_id = json.loads(request.content).get('id')
         self.assertIsNotNone(created_id)
@@ -308,7 +326,7 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         stub_dict = self._create_object_stub()
 
         request = self.user.post(self.get_url(self.list_url), stub_dict)
-        self.assertEqual(request.status_code, status.HTTP_201_CREATED)
+        self.assertStatus(request, status.HTTP_201_CREATED)
 
         db_obj = self.model_cls.objects.get(pk=request.data.get('id'))
         self.assertEqual(self.user_obj.tenant, db_obj.tenant)
@@ -322,7 +340,7 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         stub_dict = self._create_object_stub()
 
         request = self.anonymous_user.put(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}), stub_dict)
-        self.assertEqual(request.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertStatus(request, status.HTTP_403_FORBIDDEN)
         self.assertEqual(request.data, {u'detail': u'Authentication credentials were not provided.'})
 
     def test_update_object_authenticated(self):
@@ -336,11 +354,11 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         request = self.user.put(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}), data=stub_dict)
         self.assertEqual(request.status_code, status.HTTP_200_OK)
 
-        created_id = json.loads(request.content).get('id')
+        created_id = request.data.get('id')
         self.assertIsNotNone(created_id)
 
         db_obj = self.model_cls.objects.get(pk=created_id)
-        self._compare_objects(db_obj, json.loads(request.content))
+        self._compare_objects(db_obj, request.data)
 
     def test_update_object_deleted_filter(self):
         """
@@ -353,7 +371,7 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         stub_dict = self._create_object_stub()
 
         request = self.user.put(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}), data=stub_dict)
-        self.assertEqual(request.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertStatus(request, status.HTTP_404_NOT_FOUND)
         self.assertEqual(request.data, {u'detail': u'Not found.'})
 
     def test_update_object_tenant_filter(self):
@@ -365,7 +383,7 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         stub_dict = self._create_object_stub()
 
         request = self.other_tenant_user.put(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}), stub_dict)
-        self.assertEqual(request.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertStatus(request, status.HTTP_404_NOT_FOUND)
         self.assertEqual(request.data, {u'detail': u'Not found.'})
 
     def test_delete_object_unauthenticated(self):
@@ -376,7 +394,7 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         db_obj = self._create_object()
 
         request = self.anonymous_user.delete(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}))
-        self.assertEqual(request.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertStatus(request, status.HTTP_403_FORBIDDEN)
         self.assertEqual(request.data, {u'detail': u'Authentication credentials were not provided.'})
 
     def test_delete_object_authenticated(self):
@@ -387,12 +405,12 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         db_obj = self._create_object()
 
         request = self.user.delete(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}))
-        self.assertEqual(request.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertStatus(request, status.HTTP_204_NO_CONTENT)
 
         if 'is_deleted' in self.model_cls._meta.get_all_field_names():
             self.assertTrue(self.model_cls.objects.get(pk=db_obj.pk).is_deleted)
         else:
-            self.assertRaises(ObjectDoesNotExist, self.model_cls.objects.get(pk=db_obj.pk))
+            self.assertRaises(self.model_cls.DoesNotExist, self.model_cls.objects.get(pk=db_obj.pk))
 
     def test_delete_object_deleted_filter(self):
         set_current_user(self.user_obj)
@@ -400,7 +418,7 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         db_obj.delete()  # Delete the object
 
         request = self.user.delete(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}))
-        self.assertEqual(request.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertStatus(request, status.HTTP_404_NOT_FOUND)
         self.assertEqual(request.data, {u'detail': u'Not found.'})
 
     def test_delete_object_tenant_filter(self):
@@ -411,5 +429,5 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         db_obj = self._create_object()
 
         request = self.other_tenant_user.delete(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}))
-        self.assertEqual(request.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertStatus(request, status.HTTP_404_NOT_FOUND)
         self.assertEqual(request.data, {u'detail': u'Not found.'})

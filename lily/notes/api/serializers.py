@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
 
+from lily.utils.api.related.mixins import RelatedSerializerMixin
 from ..models import Note, NOTABLE_MODELS
 
 
@@ -8,19 +9,43 @@ class NoteSerializer(serializers.ModelSerializer):
     """
     Serializer for the contact model.
     """
-    # Show string versions of fields
+    # Show string versions of fields.
     author = serializers.StringRelatedField(read_only=True)
-    content_type = serializers.PrimaryKeyRelatedField(queryset=ContentType.objects.filter(model__in=NOTABLE_MODELS))
+    content_type = serializers.PrimaryKeyRelatedField(queryset=ContentType.objects.filter(model__in=NOTABLE_MODELS),
+                                                      write_only=True)
+    object_id = serializers.IntegerField(write_only=True)
 
     class Meta:
         model = Note
         fields = (
             'id',
-            'created',
-            'modified',
-            'content',
             'author',
+            'content',
             'content_type',
-            'object_id',
+            'created',
             'is_pinned',
+            'modified',
+            'object_id',
+        )
+
+
+class RelatedNoteSerializer(RelatedSerializerMixin, NoteSerializer):
+    """
+    Serializer used to serialize tags from reference of another serializer.
+    """
+    # We set required to False because, as a related serializer, we don't know the object_id yet during validation
+    # of a POST request. The instance has not yet been created.
+    object_id = serializers.IntegerField(required=False)
+
+    class Meta:
+        model = Note
+        fields = (
+            'id',
+            'author',
+            'content',
+            'content_type',
+            'created',
+            'is_pinned',
+            'modified',
+            'object_id',
         )

@@ -103,7 +103,7 @@ class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializer
         with transaction.atomic():
             instance = super(WritableNestedSerializer, self).update(instance, non_related_data)
 
-            # Do save of many to many related fields
+            # Do save of many to many related fields.
             for field_name, field_data in many_related_data.items():
                 serializer = self.fields[field_name]
                 related_instance_list = serializer.update(None, field_data)

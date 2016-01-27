@@ -37,6 +37,7 @@ class ContactSerializer(WritableNestedSerializer):
     class Meta:
         model = Contact
         fields = (
+            'id',
             'accounts',
             'addresses',
             'content_type',
@@ -47,7 +48,6 @@ class ContactSerializer(WritableNestedSerializer):
             'full_name',
             'gender',
             'gender_display',
-            'id',
             'last_name',
             'modified',
             'phone_numbers',

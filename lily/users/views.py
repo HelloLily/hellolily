@@ -80,7 +80,7 @@ class RegistrationView(FormView):
         token = token_generator.make_token(user)
 
         # Send an activation mail
-        # TODO: only create/save contact when e-mail sent succesfully
+        # TODO: only create/save contact when e-mail sent successfully
         send_templated_mail(
             template_name='activation',
             from_email=settings.DEFAULT_FROM_EMAIL,

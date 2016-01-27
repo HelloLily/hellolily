@@ -92,7 +92,7 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         """
         if request.status_code != desired_code:
             print ''
-            print self._testMethodName
+            print '%s.%s' % (self.model_cls.__name__, self._testMethodName)
             print request.data
             print ''
 
@@ -352,7 +352,7 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         stub_dict = self._create_object_stub()
 
         request = self.user.put(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}), data=stub_dict)
-        self.assertEqual(request.status_code, status.HTTP_200_OK)
+        self.assertStatus(request, status.HTTP_200_OK)
 
         created_id = request.data.get('id')
         self.assertIsNotNone(created_id)
@@ -410,7 +410,8 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         if 'is_deleted' in self.model_cls._meta.get_all_field_names():
             self.assertTrue(self.model_cls.objects.get(pk=db_obj.pk).is_deleted)
         else:
-            self.assertRaises(self.model_cls.DoesNotExist, self.model_cls.objects.get(pk=db_obj.pk))
+            with self.assertRaises(self.model_cls.DoesNotExist):
+                self.model_cls.objects.get(pk=db_obj.pk)
 
     def test_delete_object_deleted_filter(self):
         set_current_user(self.user_obj)

@@ -36,6 +36,7 @@ class DealNextStepFactory(DjangoModelFactory):
 
 
 class DealWhyCustomerFactory(DjangoModelFactory):
+    name = LazyAttribute(lambda o: faker.word())
 
     class Meta:
         model = DealWhyCustomer

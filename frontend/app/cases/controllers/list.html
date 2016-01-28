@@ -11,9 +11,9 @@
                     <checkbox model="vm.table.visibility.caseId">No.</checkbox>
                     <checkbox model="vm.table.visibility.subject">Subject</checkbox>
                     <checkbox model="vm.table.visibility.client">Client</checkbox>
-                    <checkbox model="vm.table.visibility.priority">Priority</checkbox>
                     <checkbox model="vm.table.visibility.type">Type</checkbox>
                     <checkbox model="vm.table.visibility.status">Status</checkbox>
+                    <checkbox model="vm.table.visibility.priority">Priority</checkbox>
                     <checkbox model="vm.table.visibility.created">Created</checkbox>
                     <checkbox model="vm.table.visibility.expires">Expires</checkbox>
                     <checkbox model="vm.table.visibility.assignedTo">Assigned to</checkbox>
@@ -69,9 +69,9 @@
                 <th ng-show="vm.table.visibility.caseId" class="width-4">No.</th>
                 <th ng-show="vm.table.visibility.subject" class="width-20">Subject</th>
                 <th ng-show="vm.table.visibility.client" class="width-20">Client</th>
-                <th ng-show="vm.table.visibility.priority" sort-column="priority" table="vm.table">Priority</th>
                 <th ng-show="vm.table.visibility.type" sort-column="casetype_name" table="vm.table">Type</th>
                 <th ng-show="vm.table.visibility.status" sort-column="status" table="vm.table">Status</th>
+                <th ng-show="vm.table.visibility.priority" sort-column="priority" table="vm.table">Priority</th>
                 <th ng-show="vm.table.visibility.created" sort-column="created" table="vm.table" class="width-10">Created</th>
                 <th ng-show="vm.table.visibility.expires" sort-column="expires" table="vm.table" class="width-10">Expires</th>
                 <th ng-show="vm.table.visibility.assignedTo" sort-column="assigned_to_name" table="vm.table">Assigned to</th>
@@ -96,15 +96,15 @@
                     <span ng-if="case.contact && case.account"> at </span>
                     <a ui-sref="base.accounts.detail({ id: case.account })">{{ ::case.account_name }}</a>
                 </td>
-                <td ng-show="vm.table.visibility.priority">
-                    <span title="{{ ::case.priority }}"></span>
-                    <span class="label label-sm" ng-class="{'label-success': !case.priority, 'label-info': case.priority === 1, 'label-warning': case.priority === 2, 'label-danger': case.priority === 3 } ">{{ ::case.priority_name | lowercase }}</span>
-                </td>
                 <td ng-show="vm.table.visibility.type">
                     {{ ::case.casetype_name }}
                 </td>
                 <td ng-show="vm.table.visibility.status">
                     {{ ::case.status }}
+                </td>
+                <td ng-show="vm.table.visibility.priority">
+                    <span title="{{ ::case.priority }}"></span>
+                    <span class="label label-sm" ng-class="{'label-success': !case.priority, 'label-info': case.priority === 1, 'label-warning': case.priority === 2, 'label-danger': case.priority === 3 } ">{{ ::case.priority_name | lowercase }}</span>
                 </td>
                 <td ng-show="vm.table.visibility.created">
                     <date date="case.created"></date>

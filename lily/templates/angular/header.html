@@ -13,7 +13,7 @@
         <!-- END LOGO -->
         <!-- BEGIN RESPONSIVE MENU TOGGLER -->
             <a class="main-nav-toggle" ng-click="mainNavCollapsed = !mainNavCollapsed">
-                <i class="fa fa-bars"></i>
+                <i class="fa" ng-class="mainNavCollapsed ? 'fa-times':'fa-bars'"></i>
             </a>
         <!-- END RESPONSIVE MENU TOGGLER -->
 
@@ -76,45 +76,45 @@
         <!-- BEGIN MAINNAVIGATION -->
         <ul class="main-nav" ng-class="mainNavCollapsed ? 'main-nav-toggled':''">
             <li class="main-nav-item">
-                <a ui-sref-active="active" ui-sref="base.dashboard">
+                <a ui-sref-active="active" ui-sref="base.dashboard" ng-click="mainNavCollapsed = !mainNavCollapsed">
                     <i class="lilicon hl-home-icon"></i>
                     <span class="title">Dashboard</span>
                 </a>
             </li>
 
             <li class="main-nav-item">
-                <a ui-sref-active="active" ui-sref="base.stats">
+                <a ui-sref-active="active" ui-sref="base.stats" ng-click="mainNavCollapsed = !mainNavCollapsed">
                     <i class="lilicon hl-stats-icon"></i>
                     <span class="title">Stats</span>
                 </a>
             </li>
 
             <li class="main-nav-item">
-                <a ui-sref-active="active" ui-sref="base.email">
+                <a ui-sref-active="active" ui-sref="base.email" ng-click="mainNavCollapsed = !mainNavCollapsed">
                     <i class="lilicon hl-mail-icon"></i>
                     <span class="title">Email</span>
                 </a>
             </li>
             <li class="main-nav-item">
-                <a ui-sref-active="active" ui-sref="base.accounts">
+                <a ui-sref-active="active" ui-sref="base.accounts" ng-click="mainNavCollapsed = !mainNavCollapsed">
                     <i class="lilicon hl-company-icon"></i>
                     <span class="title">Accounts</span>
                 </a>
             </li>
             <li class="main-nav-item">
-                <a ui-sref-active="active" ui-sref="base.contacts">
+                <a ui-sref-active="active" ui-sref="base.contacts" ng-click="mainNavCollapsed = !mainNavCollapsed">
                     <i class="lilicon hl-user-icon"></i>
                     <span class="title">Contacts</span>
                 </a>
             </li>
             <li class="main-nav-item">
-                <a ui-sref-active="active" ui-sref="base.deals">
+                <a ui-sref-active="active" ui-sref="base.deals" ng-click="mainNavCollapsed = !mainNavCollapsed">
                     <i class="lilicon hl-deals-filled-icon"></i>
                     <span class="title">Deals</span>
                 </a>
             </li>
             <li class="main-nav-item">
-                <a ui-sref-active="active" ui-sref="base.cases">
+                <a ui-sref-active="active" ui-sref="base.cases" ng-click="mainNavCollapsed = !mainNavCollapsed">
                     <i class="lilicon hl-case-icon"></i>
                     <span class="title">Cases</span>
                 </a>

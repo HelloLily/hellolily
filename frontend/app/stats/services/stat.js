@@ -2,10 +2,10 @@ angular.module('app.stats.services').factory('Stats', Stats);
 
 Stats.$inject = ['$resource'];
 function Stats($resource) {
-    var Stats = $resource(
+    var _stats = $resource(
         '/stats/:appname/:endpoint/:groupid',
         {}
     );
 
-    return Stats;
+    return _stats;
 }

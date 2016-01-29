@@ -139,7 +139,7 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
                 }
 
                 // Check if we need to fetch emails
-                if (emailTargets.indexOf(scope.target) != -1) {
+                if (emailTargets.indexOf(scope.target) !== -1) {
                     var tenantEmailAccountPromise = EmailAccount.query().$promise;
                     promises.push(tenantEmailAccountPromise); // Add tenant email query to promises list
 
@@ -152,7 +152,7 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
                     promises.push(emailPromise);  // Add promise to list of all promises for later handling
 
                     $q.all([tenantEmailAccountPromise, emailPromise]).then(function(results) {
-                        var tenantEmailAccountList = results[0];
+                        var tenantEmailAccountList = results[0].results;
                         var emailMessageList = results[1];
 
                         emailMessageList.forEach(function(email) {

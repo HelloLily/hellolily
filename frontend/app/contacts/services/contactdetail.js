@@ -1,8 +1,8 @@
 angular.module('app.contacts.services').factory('ContactDetail', ContactDetail);
 
 ContactDetail.$inject = ['$resource', 'HLObjectDetails'];
-function ContactDetail ($resource, HLObjectDetails) {
-    return $resource(
+function ContactDetail($resource, HLObjectDetails) {
+    var _contactDetail = $resource(
         '/search/search/?type=contacts_contact&filterquery=id\::id',
         {},
         {
@@ -41,4 +41,6 @@ function ContactDetail ($resource, HLObjectDetails) {
             }
         }
     )
+
+    return _contactDetail;
 }

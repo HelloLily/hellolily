@@ -50,43 +50,41 @@ function PreferencesEmailAccountList($uibModal, EmailAccount, User, user, $http)
     function loadAccounts() {
         // Accounts owned
         EmailAccount.query({owner: vm.currentUser.id}, function(data) {
-            vm.ownedAccounts = data;
+            vm.ownedAccounts = data.results;
         });
 
         function checkHiddenState(account) {
             $http.get('/api/messaging/email/shared_email_config/?email_account=' + account.id).success(function(d) {
-                var is_hidden = false;
+                var isHidden = false;
                 if (d.length) {
                     if (d[0].is_hidden) {
-                        is_hidden = true;
+                        isHidden = true;
                     }
                 }
-                account.hidden = is_hidden;
+                account.hidden = isHidden;
             });
         }
 
         // Accounts shared with user
         EmailAccount.query({shared_with_users__id: vm.currentUser.id}, function(data) {
-            vm.sharedAccounts = data;
-            data.forEach(function(account) {
-                data.forEach(function(account) {
-                    checkHiddenState(account);
-                });
+            vm.sharedAccounts = data.results;
+            data.results.forEach(function(account) {
+                checkHiddenState(account);
             });
         });
 
         // Accounts public
         EmailAccount.query({public: 'True'}, function(data) {
-            vm.publicAccounts = data;
-            data.forEach(function(account) {
+            vm.publicAccounts = data.results;
+            data.results.forEach(function(account) {
                 checkHiddenState(account);
             });
         });
     }
 
-    function updateSharedEmailSetting(account_id, is_hidden) {
-        var body = {email_account: account_id};
-        if (is_hidden) {
+    function updateSharedEmailSetting(accountId, isHidden) {
+        var body = {email_account: accountId};
+        if (isHidden) {
             body.is_hidden = true;
         }
         $http.post('/api/messaging/email/shared_email_config/', body);

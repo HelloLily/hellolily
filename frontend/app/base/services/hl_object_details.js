@@ -1,6 +1,6 @@
 angular.module('app.services').service('HLObjectDetails', HLObjectDetails);
-function HLObjectDetails () {
-    this.getPhone = function (object) {
+function HLObjectDetails() {
+    this.getPhone = function(object) {
         if (object.phone_mobile) return object.phone_mobile[0];
         if (object.phone_work) return object.phone_work[0];
         if (object.phone_other) return object.phone_other[0];
@@ -8,7 +8,7 @@ function HLObjectDetails () {
         return null;
     };
 
-    this.getPhones = function (object) {
+    this.getPhones = function(object) {
         var phones = [];
 
         if (object.phone_mobile) phones = phones.concat(object.phone_mobile);
@@ -18,22 +18,22 @@ function HLObjectDetails () {
         return phones;
     };
 
-    this.getEmailAddresses = function (object) {
-        var email_addresses = object.email_addresses;
+    this.getEmailAddresses = function(object) {
+        var emailAddressList = object.email_addresses;
 
-        if (email_addresses && email_addresses.length > 1) {
+        if (emailAddressList && emailAddressList.length > 1) {
             // Copy the email address array and loop over it
-            angular.forEach(email_addresses.slice(), function (email_address, index) {
+            angular.forEach(emailAddressList.slice(), function(emailAddress, index) {
                 // Check if email address has the status 'Primary'
-                if (email_address.status == 2) {
+                if (emailAddress.status === 2) {
                     // Remove element at specified index
-                    email_addresses.splice(index, 1);
+                    emailAddressList.splice(index, 1);
                     // Add the email address to the start of the array
-                    email_addresses.unshift(email_address);
+                    emailAddressList.unshift(emailAddress);
                 }
             });
         }
 
-        return email_addresses;
+        return emailAddressList;
     };
 }

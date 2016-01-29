@@ -2,7 +2,7 @@ angular.module('app.cases.services').factory('Case', Case);
 
 Case.$inject = ['$http', '$resource', '$q', 'AccountDetail', 'ContactDetail', 'HLUtils', 'UserTeams'];
 function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserTeams) {
-    var Case = $resource(
+    var _case = $resource(
         '/api/cases/case/:id/',
         {},
         {
@@ -26,10 +26,10 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserT
                 url: '/search/search/?type=cases_case&filterquery=:filterquery',
                 isArray: true,
                 transformResponse: function(data) {
-                    var data = angular.fromJson(data);
+                    var jsonData = angular.fromJson(data);
                     var objects = [];
-                    if (data && data.hits && data.hits.length > 0) {
-                        data.hits.forEach(function(obj) {
+                    if (jsonData && jsonData.hits && jsonData.hits.length > 0) {
+                        jsonData.hits.forEach(function(obj) {
                             objects.push(obj);
                         });
                     }
@@ -50,7 +50,7 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserT
             },
             caseTypes: {
                 isArray: true,
-                url: 'api/cases/types/',
+                url: '/api/cases/types/',
             },
             caseStatuses: {
                 isArray: true,
@@ -59,16 +59,16 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserT
         }
     );
 
-    Case.create = create;
-    Case.getCases = getCases;
-    Case.getCaseTypes = getCaseTypes;
-    Case.getMyCasesWidget = getMyCasesWidget;
-    Case.getCallbackRequests = getCallbackRequests;
-    Case.getUnassignedCasesForTeam = getUnassignedCasesForTeam;
-    Case.clean = clean;
+    _case.create = create;
+    _case.getCases = getCases;
+    _case.getCaseTypes = getCaseTypes;
+    _case.getMyCasesWidget = getMyCasesWidget;
+    _case.getCallbackRequests = getCallbackRequests;
+    _case.getUnassignedCasesForTeam = getUnassignedCasesForTeam;
+    _case.clean = clean;
 
     // Hardcoded because these are the only case priorities.
-    Case.casePriorities = [
+    _case.casePriorities = [
         {position: 0, name: 'Low'},
         {position: 1, name: 'Medium'},
         {position: 2, name: 'High'},
@@ -87,7 +87,7 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserT
             });
         });
 
-        return new Case({
+        return new _case({
             billing_checked: false,
             assigned_to_groups: teams,
             priority: 0,
@@ -196,7 +196,7 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserT
             filterQuery += ' AND assigned_to_id:' + currentUser.id;
         }
 
-        Case.query({
+        _case.query({
             filterquery: filterQuery,
             sort: HLUtils.getSorting(field, descending),
             size: 100,
@@ -210,7 +210,7 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserT
     function getUnassignedCasesForTeam(teamId, field, descending) {
         var filterQuery = 'archived:false AND _missing_:assigned_to_id AND assigned_to_groups:' + teamId;
 
-        return Case.query({
+        return _case.query({
             filterquery: filterQuery,
             sort: HLUtils.getSorting(field, descending),
         }).$promise;
@@ -225,7 +225,7 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserT
         var filterQuery = 'archived:false AND casetype_name:Callback AND assigned_to_id:' + currentUser.id;
         var deferred = $q.defer();
 
-        Case.query({
+        _case.query({
             filterquery: filterQuery,
             sort: HLUtils.getSorting(field, descending),
         }, function(cases) {
@@ -247,5 +247,5 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserT
         return deferred.promise;
     }
 
-    return Case;
+    return _case;
 }

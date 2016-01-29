@@ -22,10 +22,10 @@ function contactsConfig($stateProvider) {
     });
 }
 
-angular.module('app.contacts').controller('ContactDetailController', ContactDetail);
+angular.module('app.contacts').controller('ContactDetailController', ContactDetailController);
 
-ContactDetail.$inject = ['$scope', '$stateParams', 'Settings', 'ContactDetail', 'CaseDetail', 'contact'];
-function ContactDetail($scope, $stateParams, Settings, ContactDetail, CaseDetail, contact) {
+ContactDetailController.$inject = ['$scope', '$stateParams', 'Settings', 'ContactDetail', 'CaseDetail', 'contact'];
+function ContactDetailController($scope, $stateParams, Settings, ContactDetail, CaseDetail, contact) {
     var id = $stateParams.id;
 
     $scope.contact = contact;

@@ -2,10 +2,13 @@ angular.module('app.contacts.services').factory('Contact', Contact);
 
 Contact.$inject = ['$resource'];
 function Contact($resource) {
-    var Contact = $resource(
+    var _contact = $resource(
         '/api/contacts/contact/:id/',
         null,
         {
+            query: {
+                isArray: false,
+            },
             update: {
                 method: 'PUT',
                 params: {
@@ -24,25 +27,27 @@ function Contact($resource) {
                 method: 'GET',
                 isArray: true,
                 transformResponse: function(data) {
-                    data = angular.fromJson(data);
+                    var jsonData = angular.fromJson(data);
                     var objects = [];
-                    if (data && data.hits && data.hits.length > 0) {
-                        data.hits.forEach(function(obj) {
+
+                    if (jsonData && jsonData.hits && jsonData.hits.length > 0) {
+                        jsonData.hits.forEach(function(obj) {
                             objects.push(obj);
                         });
                     }
+
                     return objects;
                 },
             },
         }
     );
 
-    Contact.create = create;
+    _contact.create = create;
 
     //////
 
     function create() {
-        return new Contact({
+        return new _contact({
             salutation: 1, // Default salutation is 'Informal'
             gender: 2, // Default gender is 'Unknown/Other'
             first_name: '',
@@ -56,6 +61,6 @@ function Contact($resource) {
         });
     }
 
-    return Contact;
+    return _contact;
 }
 

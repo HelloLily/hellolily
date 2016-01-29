@@ -70,13 +70,11 @@ class DealTests(GenericAPITestCase):
         """
         pass
 
-
     def test_create_object_validation(self):
         """
         Test that the create of a deal is validated properly.
         """
         pass
-
 
     def test_update_object_with_relations(self):
         """
@@ -84,14 +82,12 @@ class DealTests(GenericAPITestCase):
         """
         pass
 
-
     def test_update_object_validation(self):
         """
         Test that the update of a deal is validated properly.
         """
         # Update of the object.
         pass
-
 
     def test_partial_update_object_with_relations(self):
         """

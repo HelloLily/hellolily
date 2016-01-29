@@ -6,7 +6,6 @@ from unittest import SkipTest
 
 from decimal import Decimal
 from django.contrib.auth.models import AnonymousUser
-from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Manager, Model
 from rest_framework import status
 from rest_framework.reverse import reverse

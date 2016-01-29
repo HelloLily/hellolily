@@ -9,8 +9,8 @@ function myCasesDirective() {
     };
 }
 
-MyCasesController.$inject = ['$scope', 'Case', 'HLUtils', 'LocalStorage'];
-function MyCasesController($scope, Case, HLUtils, LocalStorage) {
+MyCasesController.$inject = ['$filter', '$scope', 'Case', 'HLUtils', 'LocalStorage'];
+function MyCasesController($filter, $scope, Case, HLUtils, LocalStorage) {
     var storage = LocalStorage('myCasesWidget');
     var vm = this;
 
@@ -52,6 +52,9 @@ function MyCasesController($scope, Case, HLUtils, LocalStorage) {
             vm.table.dueDateFilter,
             vm.table.usersFilter
         ).then(function(data) {
+            // Make sure the data is sorted by priority as well.
+            data = $filter('orderBy')(data, '-priority');
+
             if (vm.table.dueDateFilter !== '') {
                 // Add empty key to prevent showing a header and to not crash the for loop.
                 vm.table.items = {

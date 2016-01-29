@@ -4,7 +4,7 @@
             <i class="lilicon hl-deals-filled-icon"></i>
             {{ vm.title }}
         </div>
-        <div class="actions">
+        <div class="actions" ng-if="!$parent.settings.email.sidebar.deal">
             <a ui-sref="{{ vm.addLink || 'base.deals.create' }}"  class="btn btn-circle btn-default">
                 <i class="fa fa-plus"></i>
                 Add
@@ -12,26 +12,66 @@
         </div>
     </div>
     <div class="portlet-body">
-        <div class="scroll-body" slimscroll="{height: height}">
-            <table class="table table-hover">
+        <div class="scroll-body" slimscroll="{height: vm.height}">
+            <table class="table">
                 <thead>
-                <tr>
-                    <th>Stage</th>
-                    <th>Subject</th>
-                    <th>Created</th>
-                    <th>Costs</th>
-                </tr>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Stage</th>
+                        <th>Next step</th>
+                        <th></th>
+                    </tr>
                 </thead>
-                <tbody>
-                <tr ng-repeat="deal in vm.list" ng-show="vm.list.length">
-                    <td>{{ deal.stage_name }}</td>
-                    <td><a ui-sref="base.deals.detail({id: deal.id})">{{ deal.name }}</a></td>
-                    <td>{{ deal.created | date:'dd MMMM yy' }}</td>
-                    <td>&euro;{{ deal.amount_once }} + &euro;{{ deal.amount_recurring }}/m</td>
-                </tr>
-                <tr ng-hide="vm.list.length">
-                    <td colspan="5">No Deals</td>
-                </tr>
+                <tbody ng-repeat="deal in vm.list" ng-if="vm.list.length">
+                    <tr>
+                        <td><a ui-sref="base.deals.detail({id: deal.id})">{{ deal.name }} {{ deal.name }} {{ deal.name }}</a></td>
+                        <td>{{ deal.stage_name }}</td>
+                        <td>
+                            <span ng-if="deal.next_step"
+                                  class="step-type"
+                                  uib-tooltip="{{ deal.next_step.name }}"
+                                  ng-class="{0: 'position-1', 1: 'position-2', 2: 'position-3', 3: 'position-4', 4: 'position-5', 5: 'position-6'}[deal.next_step.position]"></span>
+                            {{ deal.next_step_date | date:'dd MMMM yy' }}
+                        </td>
+                        <td class="clickable" style="width: 40px;" ng-click="deal.collapsed = !deal.collapsed">
+                            <div class="collapse-indicator no-padding">
+                                <i class="fa fa-angle-down" ng-class="{'rotate': deal.collapsed}"></i>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" class="collapsable-cell">
+                            <div ng-show="!deal.collapsed" class="collapse-content">
+                                {{ deal.body }}
+
+                                <ul class="list-inline list-justified">
+                                    <li>
+                                        <small class="text-muted" uib-tooltip="Costs">
+                                            <i class="fa fa-money"></i>
+                                            &euro;{{ deal.amount_once }} + &euro;{{ deal.amount_recurring }}/m
+                                        </small>
+                                    </li>
+                                    <li ng-if="deal.assigned_to_name">
+                                        <small class="text-muted" uib-tooltip="Assigned to: {{ deal.assigned_to_name }}">
+                                            <i class="fa fa-child"></i>
+                                            {{ deal.assigned_to_name || "Nobody" }}
+                                        </small>
+                                    </li>
+                                    <li>
+                                        <small class="text-muted" uib-tooltip="Created by: {{ deal.created_by }}">
+                                            <i class="fa fa-user"></i>
+                                            {{ deal.created_by || "Nobody" }}
+                                        </small>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody ng-if="!vm.list.length">
+                    <tr>
+                        <td colspan="4">No deals</td>
+                    </tr>
                 </tbody>
             </table>
         </div>

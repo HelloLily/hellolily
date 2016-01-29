@@ -17,7 +17,7 @@ function dealConfig($stateProvider) {
     });
 
     $stateProvider.state('base.deals.create.fromAccount', {
-        url: '/account/{id:[0-9]{1,}}',
+        url: '/account/{accountId:[0-9]{1,}}',
         views: {
             '@': {
                 templateUrl: 'deals/controllers/form.html',
@@ -47,8 +47,10 @@ function dealConfig($stateProvider) {
 
 angular.module('app.deals').controller('DealCreateUpdateController', DealCreateUpdateController);
 
-DealCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'Deal', 'HLForms', 'HLSearch', 'HLUtils', 'Settings', 'User'];
-function DealCreateUpdateController($scope, $state, $stateParams, Account, Deal, HLForms, HLSearch, HLUtils, Settings, User) {
+DealCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'Contact', 'Deal', 'HLForms',
+    'HLSearch', 'HLUtils', 'Settings', 'User'];
+function DealCreateUpdateController($scope, $state, $stateParams, Account, Contact, Deal, HLForms,
+                                    HLSearch, HLUtils, Settings, User) {
     var vm = this;
 
     vm.deal = {};
@@ -125,11 +127,23 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Deal,
             Settings.page.setAllTitles('create', 'deal');
             vm.deal = Deal.create();
 
-            if ($scope.settings.email) {
-                // Auto fill data if it's available.
-                if ($scope.settings.email.accountId) {
-                    vm.deal.account = $scope.settings.email.accountId;
-                }
+            if ($stateParams.accountId) {
+                Account.get({id: $stateParams.accountId}).$promise.then(function(account) {
+                    vm.deal.account = account;
+                });
+            }
+
+            if ($stateParams.contactId) {
+                Contact.get({id: $stateParams.contactId}).$promise.then(function(contact) {
+                    vm.deal.contact = contact;
+                    // API returns 'full_name' but ES returns 'name'. So get the full name and set the name.
+                    vm.deal.contact.name = contact.full_name;
+
+                    if (vm.deal.contact.accounts && vm.deal.contact.accounts.length === 1) {
+                        // Automatically fill in the account the contact works at.
+                        vm.deal.account = vm.deal.contact.accounts[0];
+                    }
+                });
             }
         }
     }

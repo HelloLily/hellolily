@@ -25,8 +25,10 @@ function emailConfig($stateProvider) {
 }
 
 angular.module('app.email').controller('EmailDetail', EmailDetailController);
-EmailDetailController.$inject = ['$scope', '$state', '$stateParams', '$timeout', '$http', 'Case', 'Settings', 'Account', 'EmailMessage', 'RecipientInformation', 'SelectedEmailAccount', 'message', 'HLShortcuts'];
-function EmailDetailController($scope, $state, $stateParams, $timeout, $http, Case, Settings, Account, EmailMessage, RecipientInformation, SelectedEmailAccount, message, HLShortcuts) {
+EmailDetailController.$inject = ['$http', '$scope', '$state', '$stateParams', '$timeout', 'Account', 'Case', 'Deal',
+    'EmailMessage', 'Settings', 'RecipientInformation', 'SelectedEmailAccount', 'message'];
+function EmailDetailController($http, $scope, $state, $stateParams, $timeout, Account, Case, Deal, EmailMessage,
+                               Settings, RecipientInformation, SelectedEmailAccount, message) {
     var vm = this;
     vm.displayAllRecipients = false;
     vm.message = message;
@@ -210,6 +212,7 @@ function EmailDetailController($scope, $state, $stateParams, $timeout, $http, Ca
                                     $timeout(checkFilterQuery);
                                 } else {
                                     _getCases(filterquery);
+                                    _getDeals(filterquery);
                                 }
                             }
 
@@ -217,6 +220,7 @@ function EmailDetailController($scope, $state, $stateParams, $timeout, $http, Ca
                         })());
 
                         Settings.email.sidebar.case = true;
+                        Settings.email.sidebar.deal = true;
                     } else {
                         Settings.email.sidebar.form = 'account';
                         Settings.email.sidebar.contact = false;
@@ -258,11 +262,11 @@ function EmailDetailController($scope, $state, $stateParams, $timeout, $http, Ca
         };
     }
 
-    function toggleSidebar(modelName, toggleCaseList) {
+    function toggleSidebar(modelName, toggleList) {
         // TODO: This is a temporary workaround until we fix the 'Add' button in the list widget.
-        // Also remove the toggleCaseList param once we fix it and refactor this.
-        if (modelName === 'cases') {
-            _toggleCasesSidebar(toggleCaseList);
+        // Also remove the toggleList param once we fix it and refactor this.
+        if (modelName === 'cases' || modelName === 'deals') {
+            _toggleListWidget(modelName, toggleList);
             return false;
         }
 
@@ -289,14 +293,17 @@ function EmailDetailController($scope, $state, $stateParams, $timeout, $http, Ca
         }
     }
 
-    function _toggleCasesSidebar(toggleCaseList) {
-        if (toggleCaseList) {
-            Settings.email.sidebar.case = !Settings.email.sidebar.case;
+    function _toggleListWidget(modelName, toggleList) {
+        var modelNamePlural = modelName;
+        modelName = modelName.slice(0, 4);
+
+        if (toggleList) {
+            Settings.email.sidebar[modelName] = !Settings.email.sidebar[modelName];
         } else {
-            if (Settings.email.sidebar.form !== 'cases') {
+            if (Settings.email.sidebar.form !== modelNamePlural) {
                 // No data yet and no form open, so open the form.
-                Settings.email.sidebar.form = 'cases';
-            } else if (Settings.email.sidebar.form === 'cases') {
+                Settings.email.sidebar.form = modelNamePlural;
+            } else if (Settings.email.sidebar.form === modelNamePlural) {
                 // Form is open, so close it.
                 Settings.email.sidebar.form = null;
             }
@@ -315,6 +322,14 @@ function EmailDetailController($scope, $state, $stateParams, $timeout, $http, Ca
         Case.query({filterquery: filterquery, sort: '-created'}, function(cases) {
             if (cases.length) {
                 Settings.email.data.cases = cases;
+            }
+        });
+    }
+
+    function _getDeals(filterquery) {
+        Deal.query({filterquery: filterquery, sort: '-created'}, function(deals) {
+            if (deals.length) {
+                Settings.email.data.deals = deals;
             }
         });
     }

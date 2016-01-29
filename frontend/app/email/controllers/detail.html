@@ -61,6 +61,11 @@
                 <i class="fa fa-eye"></i> Cases
             </a>
         </li>
+        <li ng-if="settings.email.data.deals">
+            <a ng-click="vm.toggleSidebar('deals', true)">
+                <i class="fa fa-eye"></i> Deals
+            </a>
+        </li>
     </ul>
     <div class="clearfix"></div>
 </div>
@@ -78,7 +83,6 @@
                     <span class="bold"><date date="vm.message.sent_date" add-time="true"></date></span>
                 </div>
             </div>
-
 
             <div class="email-recipients-wrapper">
                 <div class="email-recipients"  ng-show="vm.message.received_by.length">

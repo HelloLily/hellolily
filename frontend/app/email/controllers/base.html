@@ -38,5 +38,11 @@
                 <list-widget title="Cases" list="settings.email.data.cases" height="300" collapsable-items="true"></list-widget>
             </div>
         </div>
+
+        <div ng-if="settings.email.sidebar.deal && settings.email.data.deals">
+            <div ui-view="showDeals">
+                <list-widget title="Deals" list="settings.email.data.deals" height="300" collapsable-items="true"></list-widget>
+            </div>
+        </div>
     </div>
 </div>

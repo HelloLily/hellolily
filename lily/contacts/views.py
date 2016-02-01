@@ -166,7 +166,7 @@ class AddContactView(CreateUpdateContactMixin, CreateView):
 
     def get_success_url(self):
         """
-        Get the url to redirect to after this form has succesfully been submitted.
+        Get the url to redirect to after this form has successfully been submitted.
         """
         if self.object:
             return '/#/contacts/' + str(self.object.id)
@@ -183,7 +183,7 @@ class EditContactView(CreateUpdateContactMixin, UpdateView):
 
     def get_success_url(self):
         """
-        Get the url to redirect to after this form has succesfully been submitted.
+        Get the url to redirect to after this form has successfully been submitted.
         """
         # return '%s?order_by=5&sort_order=desc' % (reverse('contact_list'))
         return '/#/contacts/%s' % self.object.pk

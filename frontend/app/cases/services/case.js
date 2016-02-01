@@ -42,6 +42,12 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserT
                     id: '@id',
                 },
             },
+            patch: {
+                method: 'PATCH',
+                params: {
+                    id: '@id',
+                },
+            },
             caseTypes: {
                 isArray: true,
                 url: 'api/cases/types/',

@@ -9,8 +9,7 @@ from lily.accounts.factories import AccountFactory
 from lily.users.factories import LilyUserFactory
 from lily.tenant.factories import TenantFactory
 
-from .models import Deal, DealNextStep
-
+from .models import Deal, DealNextStep, DealWhyCustomer
 
 faker = Factory.create('nl_NL')
 past_date = datetime.date.today() - datetime.timedelta(days=10)
@@ -36,6 +35,13 @@ class DealNextStepFactory(DjangoModelFactory):
         django_get_or_create = ('tenant', 'name', 'date_increment')
 
 
+class DealWhyCustomerFactory(DjangoModelFactory):
+    name = LazyAttribute(lambda o: faker.word())
+
+    class Meta:
+        model = DealWhyCustomer
+
+
 class DealFactory(DjangoModelFactory):
     tenant = SubFactory(TenantFactory)
     name = LazyAttribute(lambda o: faker.word())
@@ -51,8 +57,9 @@ class DealFactory(DjangoModelFactory):
     card_sent = FuzzyChoice([True, False])
     new_business = FuzzyChoice([True, False])
     stage = FuzzyChoice(dict(Deal.STAGE_CHOICES).keys())
-    found_through = FuzzyChoice(dict(Deal.CONTACTED_BY_CHOICES).keys())
-    contacted_by = FuzzyChoice(dict(Deal.FOUND_THROUGH_CHOICES).keys())
+    found_through = FuzzyChoice(dict(Deal.FOUND_THROUGH_CHOICES).keys())
+    contacted_by = FuzzyChoice(dict(Deal.CONTACTED_BY_CHOICES).keys())
+    why_customer = SubFactory(DealWhyCustomerFactory, tenant=SelfAttribute('..tenant'))
 
     class Meta:
         model = Deal

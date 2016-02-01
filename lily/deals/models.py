@@ -57,42 +57,14 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
         (EMAILED_STAGE, _('Emailed')),
     )
 
-    NO_YES_CHOICES = (
-        (False, _('No')),
-        (True, _('Yes')),
-    )
-
-    BUSINESS_CHOICES = (
-        (False, _('Existing')),
-        (True, _('New')),
-    )
-
-    FEEDBACK_CHOICES = (
-        (False, _('Not yet')),
-        (True, _('Done')),
-    )
-
-    QUOTE_CHECKED_CHOICES = (
-        (False, _('Almost')),
-        (True, _('Done')),
-    )
-
-    CARD_SENT_CHOICES = (
-        (False, _('Writing it now')),
-        (True, _('Done')),
-    )
-
-    TWITTER_CHECKED_CHOICES = (
-        (False, _('Nearly')),
-        (True, _('Done')),
-    )
-
     FOUND_THROUGH_CHOICES = (
         (0, _('Search engine')),
         (1, _('Social media')),
         (2, _('Talk with employee')),
         (3, _('Existing customer')),
         (5, _('Radio')),
+        (6, _('Public speaking')),
+        (7, _('Press and articles')),
         (4, _('Other')),
     )
 
@@ -119,12 +91,11 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     assigned_to = models.ForeignKey(LilyUser, verbose_name=_('assigned to'), null=True)
     notes = GenericRelation('notes.Note', content_type_field='content_type',
                             object_id_field='object_id', verbose_name='list of notes')
-    feedback_form_sent = models.BooleanField(default=False, verbose_name=_('feedback form sent'),
-                                             choices=FEEDBACK_CHOICES)
-    new_business = models.BooleanField(default=False, verbose_name=_('business'), choices=BUSINESS_CHOICES)
-    is_checked = models.BooleanField(default=False, verbose_name=_('quote checked'), choices=QUOTE_CHECKED_CHOICES)
-    twitter_checked = models.BooleanField(default=False, choices=TWITTER_CHECKED_CHOICES)
-    card_sent = models.BooleanField(default=False, choices=CARD_SENT_CHOICES)
+    feedback_form_sent = models.BooleanField(default=False, verbose_name=_('feedback form sent'))
+    new_business = models.BooleanField(default=False, verbose_name=_('business'))
+    is_checked = models.BooleanField(default=False, verbose_name=_('quote checked'))
+    twitter_checked = models.BooleanField(default=False)
+    card_sent = models.BooleanField(default=False)
     quote_id = models.CharField(max_length=255, verbose_name=_('freedom quote id'), blank=True)
     found_through = models.IntegerField(max_length=255, blank=True, null=True, choices=FOUND_THROUGH_CHOICES,
                                         verbose_name=_('found us through'))

@@ -5,7 +5,8 @@ from lily.accounts.api.views import (AccountViewSet, AccountAddressViewSet, Acco
                                      AccountPhoneNumberViewSet, AccountTagViewSet, WebsiteViewSet)
 from lily.cases.api.views import CaseViewSet, CaseStatusList, CaseTypeList
 from lily.contacts.api.views import ContactViewSet
-from lily.deals.api.views import DealViewSet, DealStagesList, DealNextStepList
+from lily.deals.api.views import DealViewSet, DealStagesList, DealNextStepList, DealNextStepViewSet, \
+    DealWhyCustomerViewSet
 from lily.messaging.email.api.views import (EmailLabelViewSet, EmailAccountViewSet, EmailMessageViewSet,
                                             EmailTemplateViewSet, SharedEmailConfigViewSet,
                                             TemplateVariableViewSet)
@@ -33,7 +34,10 @@ router = DefaultRouter()
 
 router.register(r'cases/case', CaseViewSet)
 router.register(r'contacts/contact', ContactViewSet)
+
 router.register(r'deals/deal', DealViewSet)
+router.register(r'deals/next-steps', DealNextStepViewSet)
+router.register(r'deals/why-customer', DealWhyCustomerViewSet)
 
 router.register(r'messaging/email/label', EmailLabelViewSet)
 router.register(r'messaging/email/account', EmailAccountViewSet)

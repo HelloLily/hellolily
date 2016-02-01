@@ -25,14 +25,11 @@
                     <ul class="email-inbox-actions btn-group" ng-if="::vm.account">
                         <li>
                             <a class="dropdown-toggle" href="javascript:void(0)" data-toggle="dropdown">
-                                <i class="fa fa-folder"></i> Move to <i class="fa fa-angle-down"></i>
+                                <i class="fa fa-folder"></i> <span class="email-inbox-action-desc">Move to</span> <i class="fa fa-angle-down"></i>
                             </a>
                             <ul class="dropdown-menu labels">
                                 <li ng-hide="vm.label.label_id == 'INBOX'">
                                     <a href="javascript:void(0)" ng-click="vm.moveMessages('INBOX')">Inbox</a>
-                                </li>
-                                <li ng-hide="vm.label.label_id == 'SPAM'">
-                                    <a href="javascript:void(0)" ng-click="vm.moveMessages('SPAM')">Spam</a>
                                 </li>
                                 <li ng-repeat="accountLabel in vm.account.labels" ng-if="accountLabel.label_type != 0 && accountLabel.label_id != vm.label.label_id">
                                     <a href="javascript:void(0)" ng-click="vm.moveMessages(accountLabel.label_id)">{{ accountLabel.name }}</a>
@@ -41,40 +38,20 @@
                         </li>
                     </ul>
 
-                    <ul ng-show="vm.showReplyOrForwardButtons()" class="email-inbox-actions">
-                        <li>
-                            <a ng-click="vm.replyOnMessage()">
-                                <i class="fa fa-mail-reply"></i> Reply</a>
-                        </li>
-                        <li>
-                            <a ng-click="vm.replyAllOnMessage()">
-                                <i class="fa fa-mail-reply-all"></i> Reply all</a>
-                        </li>
-                        <li>
-                            <a ng-click="vm.forwardOnMessage()">
-                                <i class="fa fa-mail-forward"></i> Forward</a>
-                        </li>
-                    </ul>
-
                     <ul class="email-inbox-actions">
                         <li>
                             <a ng-click="vm.archiveMessages()" ng-show="vm.label">
-                                <i class="fa fa-archive"></i> Archive
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#">
-                                <i class="fa fa-ban"></i> Spam
+                                <i class="fa fa-archive"></i> <span class="email-inbox-action-desc">Archive</span>
                             </a>
                         </li>
                         <li ng-if="vm.label.id != 'TRASH'">
                             <a ng-click="vm.trashMessages()">
-                                <i class="fa fa-trash-o"></i> Delete
+                                <i class="lilicon hl-trashcan-icon"></i> <span class="email-inbox-action-desc">Delete</span>
                             </a>
                         </li>
                         <li ng-if="vm.label.id == 'TRASH'">
                             <a ng-click="vm.deleteMessages()">
-                                <i class="fa fa-trash-o"></i> Delete
+                                <i class="lilicon hl-trashcan-icon"></i> <span class="email-inbox-action-desc">Delete</span>
                             </a>
                         </li>
                     </ul>
@@ -82,12 +59,12 @@
                     <ul class="email-inbox-actions">
                         <li>
                             <a ng-click="vm.markAsRead()">
-                                <i class="fa fa-eye"></i> Mark as read
+                                <i class="fa fa-eye"></i> <span class="email-inbox-action-desc">Mark as read</span>
                             </a>
                         </li>
                         <li>
                             <a ng-click="vm.markAsUnread()">
-                                <i class="fa fa-eye-slash"></i> Mark as unread
+                                <i class="fa fa-eye-slash"></i> <span class="email-inbox-action-desc">Mark as unread</span>
                             </a>
                         </li>
                     </ul>
@@ -95,8 +72,23 @@
                     <ul class="email-inbox-actions">
                         <li>
                             <a ng-click="vm.reloadMessages()">
-                                <i class="fa fa-refresh"></i> Refresh
+                                <i class="fa fa-refresh"></i> <span class="email-inbox-action-desc">Refresh</span>
                             </a>
+                        </li>
+                    </ul>
+
+                    <ul ng-show="vm.showReplyOrForwardButtons()" class="email-inbox-actions is-full-mobile">
+                        <li>
+                            <a ng-click="vm.replyOnMessage()">
+                                <i class="fa fa-mail-reply"></i> <span class="email-inbox-action-desc">Reply</span></a>
+                        </li>
+                        <li>
+                            <a ng-click="vm.replyAllOnMessage()">
+                                <i class="fa fa-mail-reply-all"></i> <span class="email-inbox-action-desc">Reply all</span></a>
+                        </li>
+                        <li>
+                            <a ng-click="vm.forwardOnMessage()">
+                                <i class="fa fa-mail-forward"></i> <span class="email-inbox-action-desc">Forward</span></a>
                         </li>
                     </ul>
 
@@ -116,7 +108,9 @@
                         </li>
                     </ul>
                 </th>
+                <div class="clearfix"></div>
             </tr>
+            <div class="clearfix"></div>
         </thead>
         <tbody>
             <tr ng-repeat="message in vm.emailMessages" style="cursor: pointer;" ng-class="{'unread': !message.read}">

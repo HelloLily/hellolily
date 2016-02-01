@@ -81,13 +81,13 @@ class ContactTests(GenericAPITestCase):
 
     def test_create_object_with_relations(self):
         """
-        Test that the creation of a contact is succesfull with relations.
+        Test that the creation of a contact is successfull with relations.
         """
         contact = self._create_object_stub(with_relations=True)
 
         # Perform normal create.
         request = self.user.post(self.get_url(self.list_url), contact)
-        self.assertEqual(request.status_code, status.HTTP_201_CREATED)
+        self.assertStatus(request, status.HTTP_201_CREATED)
 
         created_id = request.data['id']
         self.assertIsNotNone(created_id)
@@ -104,7 +104,7 @@ class ContactTests(GenericAPITestCase):
         contact['phone_numbers'][0].update({'id': request.data['phone_numbers'][0]['id']})
         contact['accounts'].append({'id': 999})
         request = self.user.post(self.get_url(self.list_url), contact)
-        self.assertEqual(request.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertStatus(request, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(request.data, {
             'phone_numbers': [{
                 'id': ['Referencing to objects with an id is not allowed.']
@@ -120,7 +120,7 @@ class ContactTests(GenericAPITestCase):
         contact['accounts'] = [{'id': account_id}, ]
         del contact['phone_numbers']  # Clear phone_numbers, only check account referencing.
         request = self.user.post(self.get_url(self.list_url), contact)
-        self.assertEqual(request.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertStatus(request, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(request.data, {
             'accounts': [{
                 'id': ['The id must point to an existing object.']
@@ -135,7 +135,7 @@ class ContactTests(GenericAPITestCase):
         del stub_dict['_state']
 
         request = self.user.post(self.get_url(self.list_url), stub_dict)
-        self.assertEqual(request.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertStatus(request, status.HTTP_400_BAD_REQUEST)
 
         self.assertEqual(request.data, {
             'last_name': [
@@ -145,13 +145,13 @@ class ContactTests(GenericAPITestCase):
 
     def test_update_object_with_relations(self):
         """
-        Test that the update of a contact is succesfull with relations.
+        Test that the update of a contact is successfull with relations.
         """
         contact = self._create_object(with_relations=True)
         new_contact = self._create_object_stub(with_relations=True)
 
         request = self.user.put(self.get_url(self.detail_url, kwargs={'pk': contact.pk}), new_contact)
-        self.assertEqual(request.status_code, status.HTTP_200_OK)
+        self.assertStatus(request, status.HTTP_200_OK)
 
         created_id = request.data['id']
         self.assertIsNotNone(created_id)

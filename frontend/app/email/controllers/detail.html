@@ -27,23 +27,20 @@
                 <li>
                     <a ng-click="vm.markAsUnread()"><i class="fa fa-envelope reply-btn"></i> Mark as unread </a>
                 </li>
-                <li>
-                    <a href="#"><i class="fa fa-ban"></i> Spam </a>
-                </li>
             </ul>
         </li>
     </ul>
 
     <ul class="email-inbox-actions">
         <li>
-            <a ng-click="vm.trashMessage()"><i class="fa fa-trash-o"></i> Delete </a>
+            <a ng-click="vm.archiveMessage()"><i class="fa fa-archive"></i> Archive</a>
         </li>
         <li>
-            <a ng-click="vm.archiveMessage()"><i class="fa fa-archive"></i> Archive</a>
+            <a ng-click="vm.trashMessage()"><i class="lilicon hl-trashcan-icon"></i> Delete </a>
         </li>
     </ul>
 
-    <ul class="email-inbox-actions pull-right no-margin-right" ng-if="settings.email.sidebar">
+    <ul class="email-inbox-actions email-inbox-supercard-nav" ng-if="settings.email.sidebar">
         <li>
             <a ng-click="vm.toggleSidebar('account')">
                 <i ng-class="{'fa fa-eye': settings.email.data.account.id, 'fa fa-plus': !settings.email.data.account.id}"></i> Account
@@ -65,6 +62,7 @@
             </a>
         </li>
     </ul>
+    <div class="clearfix"></div>
 </div>
 
 <div class="email-content-container">

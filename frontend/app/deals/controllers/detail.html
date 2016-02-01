@@ -34,7 +34,7 @@
                         </div>
                         <div>
                             <label>Next step</label>
-                            <span id="next-step" ng-if="vm.deal.next_step">
+                            <span class="step-type" id="next-step" ng-if="vm.deal.next_step" ng-class="{0: 'position-1', 1: 'position-2', 2: 'position-3', 3: 'position-4', 4: 'position-5', 5: 'position-6'}[vm.deal.next_step.position]">
                                 {{ ::vm.deal.next_step.name }}
                             </span>
                         </div>

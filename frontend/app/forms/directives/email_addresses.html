@@ -1,43 +1,57 @@
-<div class="form-group" ng-repeat="emailAddress in vm.emailAddresses">
-    <label for="id_email_addresses-email_address-{{ $index }}"
-           ng-show="$first"
-           ng-class="{'col-xs-12': vm.sidebar, 'control-label col-md-2': !vm.sidebar}">{{ vm.emailLabel }}</label>
-    <div ng-class="{'col-xs-12': vm.sidebar, 'col-md-4': !vm.sidebar, 'col-md-offset-2': !$first && !vm.sidebar, 'has-error': form['email_addresses-email_address-' + $index].$invalid }">
-        <input class="form-control"
-               id="id_email_addresses-email_address-{{ $index }}"
-               maxlength="255"
-               name="email_addresses-email_address-{{ $index }}"
-               placeholder="Email address"
-               ng-model="emailAddress.email_address"
-               ng-readonly="emailAddress.is_deleted">
-        <field-error form="form" field="email_addresses-email_address" index="$index"></field-error>
-    </div>
-    <label class="hidden control-label" for="id_email_addresses-is_primary-{{ $index }}">Primary email</label>
-    <div ng-class="{'col-xs-10 padding-top-15': vm.sidebar, 'col-md-4': !vm.sidebar}">
-        <select class="form-control"
-                id="id_email_addresses-is_primary-{{ $index }}"
-                name="email_addresses-is_primary-{{ $index }}"
-                ng-model="emailAddress.status"
-                ng-options="o.v as o.n for o in [{ n: 'Primary', v: 2 }, { n: 'Other', v: 1 }, { n: 'Inactive', v: 0}]"
-                ng-readonly="emailAddress.is_deleted"
-                ng-change="vm.setPrimaryEmailAddress(emailAddress)">
-        </select>
-    </div>
-    <div ng-class="{'col-xs-2 padding-top-15': vm.sidebar, 'col-md-2': !vm.sidebar}">
-        <a ng-click="vm.removeRelatedField({field: 'emailAddress', index: $index, remove: false})"
-           class="btn btn-sm default" title="Undo the deletion of this row" ng-show="emailAddress.is_deleted">
-            <i class="fa fa-undo"></i>
-        </a>
-        <a ng-click="vm.removeRelatedField({field: 'emailAddress', index: $index, remove: true})"
-           class="btn btn-sm default" title="Delete this row" ng-hide="emailAddress.is_deleted">
-            <i class="fa fa-trash"></i>
-        </a>
-    </div>
+<div class="hl-form-field" ng-repeat="emailAddress in vm.emailAddresses">
+    <label for="id_email_addresses-email_address-{{ $index }}" ng-show="$first">
+        {{ vm.emailLabel }}
+    </label>
+
+    <table class="hl-form-table">
+        <tbody>
+            <tr>
+                <td class="hl-form-table-column" ng-class="{'has-error': form['email_addresses-email_address-' + $index].$invalid }">
+                    <input class="form-control"
+                           id="id_email_addresses-email_address-{{ $index }}"
+                           maxlength="255"
+                           name="email_addresses-email_address-{{ $index }}"
+                           placeholder="Email address"
+                           ng-model="emailAddress.email_address"
+                           ng-readonly="emailAddress.is_deleted">
+                    <field-error form="form" field="email_addresses-email_address" index="$index"></field-error>
+                </td>
+
+                <label class="hidden control-label" for="id_email_addresses-is_primary-{{ $index }}">
+                    Primary email
+                </label>
+
+                <td class="hl-form-table-column">
+                    <select class="form-control"
+                            id="id_email_addresses-is_primary-{{ $index }}"
+                            name="email_addresses-is_primary-{{ $index }}"
+                            ng-model="emailAddress.status"
+                            ng-options="o.v as o.n for o in [{ n: 'Primary', v: 2 }, { n: 'Other', v: 1 }, { n: 'Inactive', v: 0}]"
+                            ng-readonly="emailAddress.is_deleted"
+                            ng-change="vm.setPrimaryEmailAddress(emailAddress)">
+                    </select>
+                </td>
+
+                <td class="hl-form-table-column small-cell">
+                    <a ng-click="vm.removeRelatedField({field: 'emailAddress', index: $index, remove: false})"
+                       class="btn btn-sm default" title="Undo the deletion of this row" ng-show="emailAddress.is_deleted">
+                        <i class="fa fa-undo"></i>
+                    </a>
+                    <a ng-click="vm.removeRelatedField({field: 'emailAddress', index: $index, remove: true})"
+                       class="btn btn-sm default" title="Delete this row" ng-hide="emailAddress.is_deleted">
+                        <i class="fa fa-trash"></i>
+                    </a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </div>
-<div class="form-group">
-    <label ng-hide="vm.emailAddresses.length"
-           ng-class="{'col-xs-12': vm.sidebar, 'control-label col-md-2': !vm.sidebar}">{{ vm.emailLabel }}</label>
-    <div class="col-md-10" ng-class="{ 'col-md-offset-2': vm.emailAddresses.length && !vm.sidebar }">
+
+<div class="hl-form-field">
+    <label ng-hide="vm.emailAddresses.length">
+        {{ vm.emailLabel }}
+    </label>
+    <div>
         <a ng-click="vm.addRelatedField({field: 'emailAddress'})" class="form-control-static">Add an email address</a>
     </div>
 </div>

@@ -242,6 +242,11 @@
     border-top: none;
 }
 
+.email-inbox-header {
+    overflow: hidden;
+    margin-bottom: -1px; // to prevent double borders when above .hl-form-body
+}
+
 .email-inbox-header,
 .email-inbox-actions-header,
 .email-inbox-compose-options,
@@ -406,19 +411,6 @@
     background: $lilyWhiteTone;
     border: 1px solid $lilyBorderDark;
     border-top: none;
-}
-
-.email-inbox-header {
-    background-color: $lilyHeaderBg;
-    padding-left: 20px;
-    padding-bottom: 10px;
-    border: 1px solid $lilyBorderDark;
-    overflow: hidden;
-    position: relative;
-
-    h1 {
-        font-size: 20px;
-    }
 }
 
 .email-pagination {

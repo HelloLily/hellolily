@@ -1,3 +1,10 @@
+/* SG
+# Buttons #
+
+Information about buttons
+
+*/
+
 .dropdown-toggle i.fa-angle-down {
     margin-left: 10px;
 }
@@ -11,5 +18,83 @@
         i {
             margin: 0;
         }
+    }
+}
+
+/* SG
+# Buttons/Radio Buttons #
+
+Radio buttons can be used to offer the user a selection range.
+```
+<div class="radio-button-group">
+    <label class="radio-button">
+        <div class="radio-button-inset">
+            <input type="radio">
+            Option 1
+        </div>
+    </label>
+
+    <label class="radio-button">
+        <div class="radio-button-inset">
+            <input type="radio">
+            Option 2
+        </div>
+    </label>
+
+    <label class="radio-button active">
+        <div class="radio-button-inset">
+            <input type="radio" checked>
+            Option 3
+        </div>
+    </label>
+</div>
+```
+*/
+
+.radio-button-group {
+    display: inline-block;
+
+    .radio-button {
+        line-height: 30px;
+        border: 1px solid $baseBorderColor;
+        border-left: none;
+        background: $lilyHeaderBg;
+        margin: 0;
+        float: left;
+
+        &:hover,
+        &.active {
+            background: $lilyWhiteToneHover;
+
+            .radio-button-inset {
+                border-top: 1px $lilyHeaderBg solid;
+            }
+        }
+
+        &:first-child {
+            border-top-left-radius: $baseBorderRadius;
+            border-bottom-left-radius: $baseBorderRadius;
+            border-left: 1px solid $baseBorderColor;
+
+            .radio-button-inset {
+                border-top-left-radius: $baseBorderRadius;
+            }
+        }
+
+        &:last-child {
+            border-top-right-radius: $baseBorderRadius;
+            border-bottom-right-radius: $baseBorderRadius;
+
+            .radio-button-inset {
+                border-top-right-radius: $baseBorderRadius;
+            }
+        }
+    }
+
+    .radio-button-inset {
+        cursor: pointer;
+        padding: 0 10px;
+        border-top: 1px white solid;
+        border-bottom: 3px transparent solid;
     }
 }

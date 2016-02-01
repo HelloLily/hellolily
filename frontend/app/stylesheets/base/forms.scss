@@ -24,3 +24,77 @@
         margin: 0;
     }
 }
+
+.hl-form-body {
+    background: white;
+    padding: 15px;
+    border: 1px solid $baseBorderColor;
+}
+
+.hl-form-section {
+    margin-bottom: 30px;
+}
+
+.hl-form-section-heading {
+    border-bottom: 1px $lilyBorderLight solid;
+    font-size: 18px;
+    font-weight: 600;
+    color: $lilyDarkBlue;
+    padding-bottom: 7px;
+    padding-top: 6px;
+    text-align: right;
+
+    @media(max-width: $breakpoint-tablet) {
+        text-align: left;
+    }
+}
+
+.hl-form-field {
+    margin: 10px 0;
+
+    label {
+        color: $lilyDarkBlue;
+        margin: 0 0 8px;
+        padding: 0;
+    }
+}
+
+.hl-form-table {
+    display: table;
+    width: 100%;
+}
+
+.hl-form-table-column {
+    height: 40px;
+    display: table-cell;
+    vertical-align: top;
+    padding: 0 5px;
+
+    &:first-child {
+        padding-left: 0;
+    }
+
+    &:last-child {
+        padding-right: 0;
+    }
+}
+
+@media (max-width: $breakpoint-tablet) {
+    .hl-form-table-column.on-small-screen {
+        width: 100%;
+        float: left;
+        padding: 0;
+    }
+}
+
+.small-cell {
+    width: 30px;
+}
+
+.supercard-form {
+    .hl-form-table-column.on-small-screen {
+        width: 100%;
+        float: left;
+        padding: 0;
+    }
+}

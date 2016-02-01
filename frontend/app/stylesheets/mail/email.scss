@@ -479,14 +479,14 @@
     background: $lilyWhiteTone;
     border: 1px solid $lilyBorderDark;
     border-top: none;
-}
-
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
+    overflow: hidden;
+    text-overflow: ellipsis;
 
     @media (max-width: $breakpoint-tablet){
         padding-left: 10px;
+    }
+}
+
 .email-pagination {
     margin: 0;
     padding: 0;

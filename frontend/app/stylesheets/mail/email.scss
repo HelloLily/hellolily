@@ -117,6 +117,10 @@
     tfoot {
         background-color: $lilyHeaderBg;
         border-top: 1px solid $lilyWhiteTone;
+
+        @media (max-width: $breakpoint-mobile){
+            display: block;
+        }
     }
 
     tbody {
@@ -160,12 +164,29 @@
                 background: $lilyWhiteToneHover;
             }
         }
+
+        @media (max-width: $breakpoint-mobile){
+            width: 100%;
+            overflow-x: scroll;
+            display: inline-block;
+        }
     }
 
     thead {
+        position: relative;
         border-top: 1px solid $lilyWhiteTone;
         tr th > label {
             width: 50px;
+
+            @media (max-width: $breakpoint-mobile){
+                position: absolute;
+                bottom: 5px;
+                left: 8px;
+            }
+        }
+
+        @media (max-width: $breakpoint-mobile){
+            display: inline-block;
         }
     }
 
@@ -175,6 +196,18 @@
         thead th {
             background: $lilyHeaderBg;
             border-bottom: 0;
+        }
+
+        @media (max-width: $breakpoint-mobile){
+            display: inline-block;
+            width: 100%;
+        }
+    }
+
+    @media (max-width: $breakpoint-mobile){
+
+        .table > thead > tr > th {
+            padding: 10px;
         }
     }
 }
@@ -278,6 +311,10 @@
 
 .email-inbox-actions-header {
     border-top: none;
+
+    @media (max-width: $breakpoint-mobile) {
+        padding: 10px;
+    }
 }
 
 .email-inbox-compose-options {
@@ -300,6 +337,12 @@
     position: absolute;
     right: 10px;
     top: 10px;
+
+    @media (max-width: $breakpoint-tablet) {
+        position: relative;
+        right: 0px;
+        margin-bottom: 10px;
+    }
 }
 
 .email-inbox-search-button {
@@ -320,6 +363,7 @@
     list-style-type: none;
     margin-right: 10px;
     display: inline-block;
+    vertical-align: top;
 
     li {
         display: inline-block;
@@ -387,6 +431,30 @@
             }
         }
     }
+
+    @media (max-width: $breakpoint-tablet){
+        margin-right: 2px;
+        margin-bottom: 10px;
+    }
+
+    @media (max-width: $breakpoint-mobile) {
+        &.is-full-mobile {
+            width: 100%;
+        }
+    }
+}
+
+.email-inbox-supercard-nav {
+    float: right;
+    margin-right: 0;
+
+    @media (max-width: $breakpoint-tablet) {
+        float: none;
+    }
+
+    @media (max-width: $breakpoint-mobile) {
+        margin-top: 10px;
+    }
 }
 
 .create-sidebar .portlet.light {
@@ -413,6 +481,12 @@
     border-top: none;
 }
 
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    @media (max-width: $breakpoint-tablet){
+        padding-left: 10px;
 .email-pagination {
     margin: 0;
     padding: 0;
@@ -473,6 +547,15 @@
     width: 100%;
 }
 
+
+.email-inbox-action-desc {
+    display: inline;
+
+    @media (max-width: $breakpoint-tablet){
+        display: none;
+    }
+}
+
 // Metronic overrides for this branch for now to make it a bit neater
 // and in line with the rest of the design before overhauling the reply
 // container and associated HTML/CSS.
@@ -493,6 +576,10 @@
 div.checker {
     margin-left: 10px;
     margin-right: 10px;
+
+    @media (max-width: $breakpoint-tablet){
+        margin-left: 0px;
+    }
 }
 
 .email-recipients span {

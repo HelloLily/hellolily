@@ -126,24 +126,4 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
             'stage': forms.Select(attrs={
                 'class': 'chzn-select-no-search',
             }),
-            'feedback_form_sent': forms.widgets.RadioSelect(renderer=BootstrapRadioFieldRenderer, attrs={
-                'data-skip-uniform': 'true',
-                'data-uniformed': 'true',
-            }),
-            'new_business': forms.widgets.RadioSelect(renderer=BootstrapRadioFieldRenderer, attrs={
-                'data-skip-uniform': 'true',
-                'data-uniformed': 'true',
-            }),
-            'is_checked': forms.widgets.RadioSelect(renderer=BootstrapRadioFieldRenderer, attrs={
-                'data-skip-uniform': 'true',
-                'data-uniformed': 'true',
-            }),
-            'twitter_checked': forms.widgets.RadioSelect(renderer=BootstrapRadioFieldRenderer, attrs={
-                'data-skip-uniform': 'true',
-                'data-uniformed': 'true',
-            }),
-            'card_sent': forms.widgets.RadioSelect(renderer=BootstrapRadioFieldRenderer, attrs={
-                'data-skip-uniform': 'true',
-                'data-uniformed': 'true',
-            }),
         }

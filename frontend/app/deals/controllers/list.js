@@ -144,10 +144,11 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
         Deal.nextSteps(function(nextSteps) {
             angular.forEach(nextSteps, function(nextStep) {
                 filterList.push({
-                    name: 'Next step ' + nextStep.name,
+                    name: nextStep.name,
                     value: 'next_step.id:' + nextStep.id,
                     selected: false,
                     isSpecialFilter: true,
+                    position: nextStep.position,
                 });
             });
 

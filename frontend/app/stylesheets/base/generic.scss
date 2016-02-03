@@ -382,6 +382,32 @@ table {
     white-space: nowrap !important;
 }
 
+.margin-left-5 {
+    margin-left: 5px;
+}
+
 .margin-left-10 {
     margin-left: 10px;
+}
+
+.checkbox-list {
+    line-height: 20px;
+
+    .checkbox-list-row {
+        padding: 2px;
+
+        .lily-checkbox {
+            display: inline-block;
+            border: 1px solid #c5c5c5;
+            height: 16px;
+            width: 16px;
+            top: 2px;
+            position: relative;
+
+            i {
+                position: relative;
+                top: -3px;
+            }
+        }
+    }
 }

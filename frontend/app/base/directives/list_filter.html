@@ -1,0 +1,16 @@
+<div class="btn-group">
+    <button class="btn btn-default btn-circle" data-toggle="dropdown">
+        <i class="fa fa-filter"></i>
+        <span>{{ vm.filterLabel }}</span>
+        <i class="fa fa-angle-down margin-left-5"></i>
+    </button>
+    <div class="dropdown-menu hold-on-click dropdown-checkboxes checkbox-list">
+        <div ng-repeat="filter in vm.viewModel.filterList" ng-click="vm.toggleFilter(filter)" class="checkbox-list-row">
+            <div class="lily-checkbox">
+                <i ng-class="{'fa fa-check': filter.selected}"></i>
+            </div>
+
+            {{ filter.name }}
+        </div>
+    </div>
+</div>

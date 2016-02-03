@@ -12,13 +12,16 @@ function unassignedCasesDirective() {
     };
 }
 
-UnassignedCasesController.$inject = ['$http', '$scope', '$state', 'Case', 'LocalStorage'];
-function UnassignedCasesController($http, $scope, $state, Case, LocalStorage) {
+UnassignedCasesController.$inject = ['$http', '$scope', '$state', 'Case', 'HLFilters', 'LocalStorage'];
+function UnassignedCasesController($http, $scope, $state, Case, HLFilters, LocalStorage) {
     var vm = this;
-    var storage = LocalStorage('unassignedCasesForTeam' + vm.team.id + 'Widget');
+
+    vm.storageName = 'unassignedCasesForTeam' + vm.team.id + 'Widget';
+    vm.storage = LocalStorage(vm.storageName);
+    vm.storedFilterList = vm.storage.get('filterListSelected', null);
     vm.highPrioCases = 0;
     vm.table = {
-        order: storage.get('order', {
+        order: vm.storage.get('order', {
             descending: true,
             column: 'created',  // string: current sorted column
         }),
@@ -26,6 +29,7 @@ function UnassignedCasesController($http, $scope, $state, Case, LocalStorage) {
     };
 
     vm.assignToMe = assignToMe;
+    vm.updateTable = updateTable;
 
     activate();
 
@@ -33,18 +37,38 @@ function UnassignedCasesController($http, $scope, $state, Case, LocalStorage) {
 
     function activate() {
         _watchTable();
+
+        Case.caseTypes(function(caseTypes) {
+            var filterList = [];
+
+            angular.forEach(caseTypes, function(caseType) {
+                filterList.push({
+                    name: caseType.type,
+                    value: 'casetype_id:' + caseType.id,
+                    selected: false,
+                    isSpecialFilter: true,
+                });
+            });
+
+            HLFilters.getStoredSelections(filterList, vm.storedFilterList);
+
+            vm.filterList = filterList;
+        });
     }
 
-    function _getUnassignedCases() {
-        Case.getUnassignedCasesForTeam(
-            vm.team.id,
-            vm.table.order.column,
-            vm.table.order.descending
-        ).then(function(cases) {
+    function updateTable() {
+        var filterQuery = 'archived:false AND _missing_:assigned_to_id AND assigned_to_groups:' + vm.team.id;
+
+        if (vm.table.filterQuery) {
+            filterQuery += ' AND ' + vm.table.filterQuery;
+        }
+
+        Case.getCases('', 1, 20, vm.table.order.column, vm.table.order.descending, filterQuery).then(function(cases) {
             vm.table.items = cases;
             vm.highPrioCases = 0;
+
             for (var i in cases) {
-                if (cases[i].priority == 3) {
+                if (cases[i].priority === 3) {
                     vm.highPrioCases++;
                 }
             }
@@ -69,8 +93,8 @@ function UnassignedCasesController($http, $scope, $state, Case, LocalStorage) {
 
     function _watchTable() {
         $scope.$watchGroup(['vm.table.order.descending', 'vm.table.order.column'], function() {
-            _getUnassignedCases();
-            storage.put('order', vm.table.order);
+            updateTable();
+            vm.storage.put('order', vm.table.order);
         });
     }
 }

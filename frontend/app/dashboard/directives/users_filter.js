@@ -6,6 +6,7 @@ function usersFilter() {
         scope: {
             usersStore: '=',
             storageName: '=',
+            allowEmpty: '=',
         },
         templateUrl: 'dashboard/directives/users_filter.html',
         controller: UsersFilterController,
@@ -143,9 +144,11 @@ function UsersFilterController(LocalStorage, UserTeams) {
             });
         }
 
-        // When everyone is unselected add the currentUser to the selection.
-        if (vm.usersSelection.length === 0) {
-            vm.usersSelection.unshift(currentUser.id);
+        if (!vm.allowEmpty) {
+            // When everyone is unselected add the currentUser to the selection.
+            if (vm.usersSelection.length === 0) {
+                vm.usersSelection.unshift(currentUser.id);
+            }
         }
 
         // Generate the names to display for the selected users.
@@ -168,6 +171,7 @@ function UsersFilterController(LocalStorage, UserTeams) {
         angular.forEach(vm.usersSelection, function(id) {
             selectedFilter.push('assigned_to_id:' + id);
         });
+
         filter = selectedFilter.join(' OR ');
 
         // Put stuff in the local storage.

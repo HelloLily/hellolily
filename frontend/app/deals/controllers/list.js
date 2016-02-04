@@ -21,7 +21,7 @@ angular.module('app.deals').controller('DealListController', DealListController)
 
 DealListController.$inject = ['$scope', '$timeout', 'Settings', 'LocalStorage', 'Deal', 'HLFilters'];
 function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFilters) {
-    var storage = LocalStorage('dealList');
+    var storage = LocalStorage('deals');
     var vm = this;
 
     Settings.page.setAllTitles('list', 'deals');
@@ -54,6 +54,7 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
             tags: true,
         }),
         dueDateFilter: storage.get('dueDateFilter', ''),
+        usersFilter: storage.get('usersFilter', ''),
         searchQuery: storage.get('searchQuery', ''),
     };
     vm.displayFilterClear = false;
@@ -225,8 +226,10 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
             updateFilterQuery();
         });
 
-        $scope.$watch('vm.table.dueDateFilter', function() {
+        $scope.$watchGroup(['vm.table.dueDateFilter', 'vm.table.usersFilter'], function() {
             updateFilterQuery();
+            storage.put('dueDateFilter', vm.table.dueDateFilter);
+            storage.put('usersFilter', vm.table.usersFilter);
         });
     }
 

@@ -37,6 +37,10 @@ function HLFilters() {
             filterStrings.push('(' + specialFilterStrings.join(' OR ') + ')');
         }
 
+        if (viewModel.table.usersFilter) {
+            filterStrings.push('(' + viewModel.table.usersFilter + ')');
+        }
+
         // Finally join all filters AND-wise.
         viewModel.table.filterQuery = filterStrings.join(' AND ');
     };

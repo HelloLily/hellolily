@@ -308,4 +308,3 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
         });
     }
 }
-

@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from bs4 import BeautifulSoup
 from collections import OrderedDict
 import urllib
 from datetime import datetime
@@ -201,3 +202,18 @@ def other_mailbox_folders(email_account, active_url):
                 </div>'''
 
     return html
+
+
+@register.filter(name='replace_mailto')
+def replace_mailto(value):
+    '''
+    Filter to replace mailto links with an url to compose new mail within HelloLily.
+    '''
+    soup = BeautifulSoup(value, 'lxml')
+    mailto_tags = soup.select('a[href^=mailto]')
+
+    for mailto_tag in mailto_tags:
+        mailto_tag['href'] = mailto_tag['href'].replace("mailto:", "/#/email/compose/")
+        mailto_tag['target'] = '_top'  # Break out of iframe.
+
+    return str(soup)

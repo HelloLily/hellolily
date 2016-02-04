@@ -1,1 +1,3 @@
-{{ body_html|safe }}
+{% load email %}
+
+{{ body_html|replace_mailto|safe }}

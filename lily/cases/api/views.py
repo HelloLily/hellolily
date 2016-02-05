@@ -71,7 +71,7 @@ class CaseViewSet(SetTenantUserMixin, viewsets.ModelViewSet):
     #Returns#
     * List of cases with related fields
     """
-    # Set the queryset, without .all() this filters on the tenant.
+    # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
     queryset = Case.objects
     # Set the serializer class for this viewset.
     serializer_class = CaseSerializer
@@ -88,6 +88,9 @@ class CaseViewSet(SetTenantUserMixin, viewsets.ModelViewSet):
     filter_class = CaseFilter
 
     def get_queryset(self):
+        """
+        Set the queryset here so it filters on tenant and works with pagination.
+        """
         queryset = super(CaseViewSet, self).get_queryset().filter(is_deleted=False)
         return queryset_filter(self.request, queryset)
 

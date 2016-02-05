@@ -21,7 +21,8 @@ class AccountViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
     #Returns#
     * List of accounts with related fields
     """
-    queryset = Account.objects  # Without .all() this filters on the tenant
+    # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
+    queryset = Account.objects
     serializer_class = AccountSerializer
     serializer_action_classes = {
         'create': AccountCreateSerializer,

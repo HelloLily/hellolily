@@ -2,11 +2,16 @@ angular.module('app.email.services').factory('TemplateVariable', TemplateVariabl
 
 TemplateVariable.$inject = ['$resource'];
 function TemplateVariable($resource) {
-    return $resource('/api/messaging/email/templatevariable/:id/', {}, {
-        query: {
-            method: 'GET',
-            // Because the API sends an object, we need this line
-            isArray: false
+    var _templateVariable = $resource(
+        '/api/messaging/email/templatevariable/:id/',
+        {},
+        {
+            query: {
+                method: 'GET',
+                isArray: false,
+            },
         }
-    });
+    );
+
+    return _templateVariable;
 }

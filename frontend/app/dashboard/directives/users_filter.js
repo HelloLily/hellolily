@@ -36,10 +36,10 @@ function UsersFilterController(LocalStorage, UserTeams) {
         var ownTeam;
         var teams;
 
-        UserTeams.all(function(userTeams) {
+        UserTeams.query(function(response) {
             teams = [];
 
-            angular.forEach(userTeams, function(team) {
+            angular.forEach(response.results, function(team) {
                 if (team && team.user_set.length) {
                     users = [];
                     ownTeam = false;

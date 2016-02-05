@@ -20,7 +20,7 @@ function CaseAssignModal($uibModalInstance, myCase, Case, User) {
 
     function _getUsers() {
         User.query({}, function(data) {
-            vm.users = data;
+            vm.users = data.results;
         });
     }
 

@@ -254,8 +254,8 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     function _getAssignOptions() {
         var assignOptions = [];
 
-        User.query().$promise.then(function(userList) {
-            angular.forEach(userList, function(user) {
+        User.query().$promise.then(function(response) {
+            angular.forEach(response.results, function(user) {
                 if (user.first_name !== '') {
                     assignOptions.push({
                         id: user.id,
@@ -270,8 +270,8 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     }
 
     function _getTeams() {
-        UserTeams.query().$promise.then(function(teams) {
-            vm.teams = teams;
+        UserTeams.query().$promise.then(function(response) {
+            vm.teams = response.results;
         });
     }
 

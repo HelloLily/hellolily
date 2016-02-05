@@ -1,46 +1,51 @@
 angular.module('app.deals.services').factory('DealDetail', DealDetail);
 
 DealDetail.$inject = ['$resource'];
-function DealDetail ($resource) {
-    return $resource(
+function DealDetail($resource) {
+    var _dealDetail = $resource(
         '/search/search/?type=deals_deal&filterquery=id\::id',
         {},
         {
             get: {
                 transformResponse: function(data) {
-                    data = angular.fromJson(data);
-                    if (data && data.hits && data.hits.length > 0) {
-                        var obj = data.hits[0];
-                        return obj;
+                    var jsonData = angular.fromJson(data);
+                    if (jsonData && jsonData.hits && jsonData.hits.length > 0) {
+                        return jsonData.hits[0];
                     }
                     return null;
-                }
+                },
             },
             query: {
                 url: '/search/search/?type=deals_deal&filterquery=:filterquery',
                 isArray: true,
                 transformResponse: function(data) {
-                    data = angular.fromJson(data);
+                    var jsonData = angular.fromJson(data);
                     var objects = [];
-                    if (data && data.hits && data.hits.length > 0) {
-                        data.hits.forEach(function(obj) {
-                            obj = $.extend(obj, {historyType: 'deal', color: 'blue', date: obj.modified});
-                            objects.push(obj)
+
+                    if (jsonData && jsonData.hits && jsonData.hits.length > 0) {
+                        jsonData.hits.forEach(function(obj) {
+                            var deal = $.extend(obj, {historyType: 'deal', color: 'blue', date: obj.modified});
+                            objects.push(deal);
                         });
                     }
+
                     return objects;
-                }
+                },
             },
             totalize: {
                 url: '/search/search/?type=deals_deal&size=0&filterquery=:filterquery',
                 transformResponse: function(data) {
-                    data = angular.fromJson(data);
-                    if (data && data.total) {
-                        return {total: data.total};
+                    var jsonData = angular.fromJson(data);
+
+                    if (jsonData && jsonData.total) {
+                        return {total: jsonData.total};
                     }
+
                     return {total: 0};
-                }
-            }
+                },
+            },
         }
     );
+
+    return _dealDetail;
 }

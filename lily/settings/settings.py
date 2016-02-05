@@ -568,9 +568,6 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated'
     ],
-    'DEFAULT_FILTER_BACKENDS': (
-        'rest_framework.filters.DjangoFilterBackend',
-    ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         # 'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
@@ -582,7 +579,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_METADATA_CLASS': 'lily.utils.api.metadata.ExtraFieldInfoMetaData',
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',  # Use application/json instead of multipart/form-data requests in tests.
-
+    'DEFAULT_PAGINATION_CLASS': 'lily.api.pagination.CustomPagination',
 }
 
 #######################################################################################################################

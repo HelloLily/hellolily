@@ -26,8 +26,8 @@
             formsets: [
                 'email_addresses',
                 'phone_numbers',
-                'addresses'
-            ]
+                'addresses',
+            ],
         },
 
         init: function(config) {
@@ -41,8 +41,8 @@
         },
 
         initListeners: function() {
-            var self = this,
-                cf = self.config;
+            var self = this;
+            var cf = self.config;
 
             $('body').on('click', cf.buttonDataProvider, function(event) {
                 // On button press

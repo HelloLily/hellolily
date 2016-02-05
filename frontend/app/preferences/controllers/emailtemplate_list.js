@@ -21,7 +21,7 @@ angular.module('app.preferences').controller('PreferencesEmailTemplatesList', Pr
 PreferencesEmailTemplatesList.$inject = ['$uibModal', '$scope', 'EmailTemplate'];
 function PreferencesEmailTemplatesList($uibModal, $scope, EmailTemplate) {
     EmailTemplate.query({}, function(data) {
-        $scope.emailTemplates = data;
+        $scope.emailTemplates = data.results;
     });
 
     $scope.makeDefault = function(emailTemplate) {

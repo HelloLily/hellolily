@@ -1,7 +1,6 @@
 angular.module('app.email.services').factory('SelectedEmailAccount', SelectedEmailAccount);
 
-function SelectedEmailAccount () {
-
+function SelectedEmailAccount() {
     var factory = {
         currentAccountId: null,
         setCurrentAccountId: setCurrentAccountId,
@@ -10,11 +9,11 @@ function SelectedEmailAccount () {
     };
     return factory;
 
-    function setCurrentAccountId (accountId) {
+    function setCurrentAccountId(accountId) {
         factory.currentAccountId = accountId;
     }
 
-    function setCurrentFolderId (folderId) {
+    function setCurrentFolderId(folderId) {
         factory.currentFolderId = folderId;
     }
 }

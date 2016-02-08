@@ -203,11 +203,10 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
         request = self.user.get(self.get_url(self.list_url))
 
         self.assertStatus(request, status.HTTP_200_OK)
-        request_data = json.loads(request.content)
-        self.assertEqual(len(obj_list), len(request_data))
+        self.assertEqual(len(obj_list), len(request.data.get('results')))
 
         for i, db_obj in enumerate(reversed(obj_list)):
-            api_obj = request_data[i]
+            api_obj = request.data.get('results')[i]
             self._compare_objects(db_obj, api_obj)
 
     def test_get_list_deleted_filter(self):
@@ -219,13 +218,14 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
 
         obj_to_delete = obj_list.pop()
         obj_to_delete.delete()
+
         request = self.user.get(self.get_url(self.list_url))
+
         self.assertStatus(request, status.HTTP_200_OK)
-        self.assertEqual(len(obj_list), len(request.data))
+        self.assertEqual(len(obj_list), len(request.data.get('results')))
 
         for i, db_obj in enumerate(reversed(obj_list)):
-            api_obj = request.data[i]
-            self._compare_objects(db_obj, api_obj)
+            self._compare_objects(db_obj, request.data.get('results')[i])
 
     def test_get_list_tenant_filter(self):
         """
@@ -239,11 +239,10 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
 
         request = self.other_tenant_user.get(self.get_url(self.list_url))
         self.assertStatus(request, status.HTTP_200_OK)
-        self.assertEqual(len(other_tenant_obj_list), len(request.data))
+        self.assertEqual(len(other_tenant_obj_list), len(request.data.get('results')))
 
         for i, db_obj in enumerate(reversed(other_tenant_obj_list)):
-            api_obj = request.data[i]
-            self._compare_objects(db_obj, api_obj)
+            self._compare_objects(db_obj, request.data.get('results')[i])
 
     def test_get_object_unauthenticated(self):
         """

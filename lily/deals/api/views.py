@@ -29,17 +29,29 @@ class DealNextStepList(APIView):
 
 
 class DealWhyCustomerViewSet(SetTenantUserMixin, ModelViewSet):
-    # Set the queryset, without .all() this filters on the tenant.
+    # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
     queryset = DealWhyCustomer.objects
     # Set the serializer class for this viewset.
     serializer_class = DealWhyCustomerSerializer
+    
+    def get_queryset(self):
+        """
+        Set the queryset here so it filters on tenant and works with pagination.
+        """
+        return super(DealWhyCustomerViewSet, self).get_queryset().all()
 
 
 class DealNextStepViewSet(SetTenantUserMixin, ModelViewSet):
-    # Set the queryset, without .all() this filters on the tenant.
+    # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
     queryset = DealNextStep.objects
     # Set the serializer class for this viewset.
     serializer_class = DealNextStepSerializer
+
+    def get_queryset(self):
+        """
+        Set the queryset here so it filters on tenant and works with pagination.
+        """
+        return super(DealNextStepViewSet, self).get_queryset().all()
 
 
 class DealFilter(django_filters.FilterSet):
@@ -100,7 +112,7 @@ class DealViewSet(SetTenantUserMixin, ModelViewSet):
     #Returns#
     * List of cases with related fields
     """
-    # Set the queryset, without .all() this filters on the tenant.
+    # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
     queryset = Deal.objects
     # Set the serializer class for this viewset.
     serializer_class = DealSerializer
@@ -117,4 +129,7 @@ class DealViewSet(SetTenantUserMixin, ModelViewSet):
     filter_class = DealFilter
 
     def get_queryset(self):
+        """
+        Set the queryset here so it filters on tenant and works with pagination.
+        """
         return super(DealViewSet, self).get_queryset().filter(is_deleted=False)

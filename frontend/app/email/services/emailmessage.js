@@ -1,52 +1,55 @@
 angular.module('app.email.services').factory('EmailMessage', EmailMessage);
 
 EmailMessage.$inject = ['$resource', '$q'];
-function EmailMessage ($resource, $q) {
-    var EmailMessage = $resource(
+function EmailMessage($resource, $q) {
+    var _emailMessage = $resource(
         '/api/messaging/email/email/:id/:actions',
         {},
         {
+            query: {
+                isArray: false,
+            },
             'update': {
                 method: 'PUT',
                 params: {
                     id: '@id',
-                    actions: ''
-                }
+                    actions: '',
+                },
             },
             'delete': {
                 method: 'DELETE',
                 params: {
                     id: '@id',
-                    actions: ''
-                }
+                    actions: '',
+                },
             },
             'archive': {
                 method: 'PUT',
                 params: {
                     id: '@id',
-                    actions: 'archive'
-                }
+                    actions: 'archive',
+                },
             },
             'trash': {
                 method: 'PUT',
                 params: {
                     id: '@id',
-                    actions: 'trash'
-                }
+                    actions: 'trash',
+                },
             },
             'get': {
                 method: 'GET',
                 params: {
                     id: '@id',
-                    actions: ''
-                }
+                    actions: '',
+                },
             },
             'move': {
                 method: 'PUT',
                 params: {
                     id: '@id',
-                    actions: 'move'
-                }
+                    actions: 'move',
+                },
             },
             'search': {
                 method: 'GET',
@@ -55,43 +58,43 @@ function EmailMessage ($resource, $q) {
                     user_email_related: 1,
                     type: 'email_emailmessage',
                     sort: '-sent_date',
-                    size: 20
-                }
+                    size: 20,
+                },
             },
             history: {
                 method: 'GET',
                 params: {
                     id: '@id',
-                    actions: 'history'
-                }
-            }
+                    actions: 'history',
+                },
+            },
         }
     );
 
-    EmailMessage.markAsRead = markAsRead;
-    EmailMessage.getDashboardMessages = getDashboardMessages;
+    _emailMessage.markAsRead = markAsRead;
+    _emailMessage.getDashboardMessages = getDashboardMessages;
 
     //////
 
-    function markAsRead (id, read) {
+    function markAsRead(id, read) {
         return this.update({id: id, read: read});
     }
 
-    function getDashboardMessages (field, sorting) {
+    function getDashboardMessages(field, sorting) {
         var filterQuery = ['read:false AND label_id:INBOX'];
         var sort = '';
-        sort += sorting ? '-': '';
+        sort += sorting ? '-' : '';
         sort += field;
 
         var deferred = $q.defer();
-        EmailMessage.search({
+        _emailMessage.search({
             filterquery: filterQuery,
-            sort: sort
-        }, function (data) {
+            sort: sort,
+        }, function(data) {
             deferred.resolve(data.hits);
         });
         return deferred.promise;
     }
 
-    return EmailMessage
+    return _emailMessage;
 }

@@ -44,7 +44,7 @@ class ContactViewSet(SetTenantUserMixin, viewsets.ModelViewSet):
     #Returns#
     * List of cases with related fields
     """
-    # Set the queryset, without .all() this filters on the tenant.
+    # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
     queryset = Contact.objects
     # Set the serializer class for this viewset.
     serializer_class = ContactSerializer
@@ -61,4 +61,7 @@ class ContactViewSet(SetTenantUserMixin, viewsets.ModelViewSet):
     ordering = ('last_name', 'first_name',)
 
     def get_queryset(self):
+        """
+        Set the queryset here so it filters on tenant and works with pagination.
+        """
         return super(ContactViewSet, self).get_queryset().filter(is_deleted=False)

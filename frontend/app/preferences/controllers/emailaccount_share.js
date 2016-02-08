@@ -8,7 +8,7 @@ function EmailAccountShareModalController ($uibModalInstance, $scope, EmailAccou
     User.query({}, function(data) {
         $scope.users = [];
         // Check if user has the emailaccount already shared
-        angular.forEach(data, function(user) {
+        angular.forEach(data.results, function(user) {
             if ($scope.currentAccount.shared_with_users.indexOf(user.id) !== -1) {
                 user.sharedWith = true;
             }

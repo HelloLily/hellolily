@@ -25,8 +25,8 @@ function emailConfig($stateProvider) {
 }
 
 angular.module('app.email').controller('EmailDetail', EmailDetailController);
-EmailDetailController.$inject = ['$scope', '$state', '$stateParams', '$http', 'Case', 'Settings', 'Account', 'EmailMessage', 'RecipientInformation', 'SelectedEmailAccount', 'message'];
-function EmailDetailController($scope, $state, $stateParams, $http, Case, Settings, Account, EmailMessage, RecipientInformation, SelectedEmailAccount, message) {
+EmailDetailController.$inject = ['$scope', '$state', '$stateParams', '$http', 'Case', 'Settings', 'Account', 'EmailMessage', 'RecipientInformation', 'SelectedEmailAccount', 'message', 'HLShortcuts'];
+function EmailDetailController($scope, $state, $stateParams, $http, Case, Settings, Account, EmailMessage, RecipientInformation, SelectedEmailAccount, message, HLShortcuts) {
     var vm = this;
     vm.displayAllRecipients = false;
     vm.message = message;
@@ -288,4 +288,14 @@ function EmailDetailController($scope, $state, $stateParams, $http, Case, Settin
             }
         });
     }
+
+    // Broadcast function to send e-mail to trash by HLShortcuts service.
+    $scope.$on('deleteMessageByShortCode', function() {
+        trashMessage();
+    });
+
+    // Broadcast function to archive a specific e-mail by HLShortcuts service.
+    $scope.$on('archiveMessageByShortCode', function() {
+        archiveMessage();
+    });
 }

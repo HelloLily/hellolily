@@ -61,8 +61,8 @@ function AccountCreateController($state, $stateParams, Settings, Account, User, 
     ////
 
     function activate() {
-        User.query().$promise.then(function(userList) {
-            angular.forEach(userList, function(user) {
+        User.query().$promise.then(function(response) {
+            angular.forEach(response.results, function(user) {
                 if (user.first_name !== '') {
                     vm.people.push({
                         id: user.id,

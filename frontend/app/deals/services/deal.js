@@ -2,7 +2,7 @@ angular.module('app.deals.services').factory('Deal', Deal);
 
 Deal.$inject = ['$resource', 'HLUtils'];
 function Deal($resource, HLUtils) {
-    var Deal = $resource(
+    var _deal = $resource(
         '/api/deals/deal/:id',
         null,
         {
@@ -26,20 +26,22 @@ function Deal($resource, HLUtils) {
                 },
                 isArray: true,
                 transformResponse: function(data) {
-                    data = angular.fromJson(data);
+                    var jsonData = angular.fromJson(data);
                     var objects = [];
-                    if (data && data.hits && data.hits.length > 0) {
-                        data.hits.forEach(function(obj) {
-                            obj = $.extend(obj, {
+
+                    if (jsonData && jsonData.hits && jsonData.hits.length > 0) {
+                        jsonData.hits.forEach(function(obj) {
+                            var deal = $.extend(obj, {
                                 historyType: 'deal',
                                 color: 'blue',
                                 date: obj.modified,
-                                total_size: data.total,
+                                total_size: jsonData.total,
                             });
 
-                            objects.push(obj);
+                            objects.push(deal);
                         });
                     }
+
                     return objects;
                 },
             },
@@ -50,9 +52,9 @@ function Deal($resource, HLUtils) {
         }
     );
 
-    Deal.getDeals = getDeals;
-    Deal.prototype.markDealAsChecked = markDealAsChecked;
-    Deal.prototype.feedbackFormSent = feedbackFormSent;
+    _deal.getDeals = getDeals;
+    _deal.prototype.markDealAsChecked = markDealAsChecked;
+    _deal.prototype.feedbackFormSent = feedbackFormSent;
 
     /////
 
@@ -80,7 +82,7 @@ function Deal($resource, HLUtils) {
 
         var sort = HLUtils.getSorting(orderColumn, orderedDesc);
 
-        return Deal.query({
+        return _deal.query({
             q: queryString,
             page: page - 1,
             size: pageSize,
@@ -108,5 +110,5 @@ function Deal($resource, HLUtils) {
         return deal.$update();
     }
 
-    return Deal;
+    return _deal;
 }

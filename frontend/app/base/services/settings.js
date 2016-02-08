@@ -2,7 +2,7 @@ angular.module('app.services').factory('Settings', Settings);
 
 Settings.$inject = [];
 function Settings() {
-    var Settings = {
+    var _settings = {
         page: {
             title: 'Welcome',
             setTitle: setTitle,  // unfortunately because of js + angular we must use ugly setters.
@@ -28,9 +28,9 @@ function Settings() {
 
     function setTitle(pageType, newTitle) {
         // Capitalize first letter of the new title.
-        Settings.page.title = newTitle.charAt(0).toUpperCase() + newTitle.slice(1);
+        _settings.page.title = newTitle.charAt(0).toUpperCase() + newTitle.slice(1);
 
-        return Settings.page.title;
+        return _settings.page.title;
     }
 
     function setMain(pageType, newHeader) {
@@ -42,13 +42,13 @@ function Settings() {
 
         if (pageType && newHeader) {
             if (formats[pageType]) {
-                Settings.page.header.main = formats[pageType] + newHeader;
+                _settings.page.header.main = formats[pageType] + newHeader;
             } else {
-                Settings.page.header.main = newHeader.charAt(0).toUpperCase() + newHeader.slice(1);
+                _settings.page.header.main = newHeader.charAt(0).toUpperCase() + newHeader.slice(1);
             }
         }
 
-        return Settings.page.header.main;
+        return _settings.page.header.main;
     }
 
     function setSub(pageType, newHeader) {
@@ -63,12 +63,12 @@ function Settings() {
         var _header = newHeader || '';
 
         if (pageType === 'custom') {
-            Settings.page.header.sub = _header;
+            _settings.page.header.sub = _header;
         } else {
-            Settings.page.header.sub = formats[pageType];
+            _settings.page.header.sub = formats[pageType];
         }
 
-        return Settings.page.header.sub;
+        return _settings.page.header.sub;
     }
 
     function setAllTitles(pageType, objectInfo) {
@@ -79,7 +79,7 @@ function Settings() {
 
     function resetEmailSettings() {
         // email.sidebar stores the state of sidebar panels (so hidden/closed).
-        Settings.email.sidebar = {
+        _settings.email.sidebar = {
             account: null,
             contact: null,
             form: null,
@@ -87,7 +87,7 @@ function Settings() {
         };
 
         // email.data stores the actual data which is used for the sidebars.
-        Settings.email.data = {
+        _settings.email.data = {
             website: null,
             account: null,
             contact: null,
@@ -95,5 +95,5 @@ function Settings() {
         };
     }
 
-    return Settings;
+    return _settings;
 }

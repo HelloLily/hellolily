@@ -2,21 +2,26 @@ angular.module('app.accounts.services').factory('Account', Account);
 
 Account.$inject = ['$http', '$q', '$resource', 'HLUtils'];
 function Account($http, $q, $resource, HLUtils) {
-    var Account = $resource(
+    var _account = $resource(
         '/api/accounts/account/:id/',
         null,
         {
+            query: {
+                isArray: false,
+            },
             search: {
                 url: '/search/search/?type=accounts_account&filterquery=:filterquery',
                 isArray: true,
                 transformResponse: function(data) {
-                    data = angular.fromJson(data);
+                    var jsonData = angular.fromJson(data);
                     var objects = [];
-                    if (data && data.hits && data.hits.length > 0) {
-                        data.hits.forEach(function(obj) {
+
+                    if (jsonData && jsonData.hits && jsonData.hits.length > 0) {
+                        jsonData.hits.forEach(function(obj) {
                             objects.push(obj);
                         });
                     }
+
                     return objects;
                 },
             },
@@ -38,13 +43,13 @@ function Account($http, $q, $resource, HLUtils) {
             },
         });
 
-    Account.getAccounts = getAccounts;
-    Account.create = create;
+    _account.getAccounts = getAccounts;
+    _account.create = create;
 
-    Account.prototype.getEmailAddress = getEmailAddress;
-    Account.prototype.getDataproviderInfo = getDataproviderInfo;
-    Account.prototype.addRelatedField = addRelatedField;
-    Account.prototype.removeRelatedField = removeRelatedField;
+    _account.prototype.getEmailAddress = getEmailAddress;
+    _account.prototype.getDataproviderInfo = getDataproviderInfo;
+    _account.prototype.addRelatedField = addRelatedField;
+    _account.prototype.removeRelatedField = removeRelatedField;
 
     //////
 
@@ -100,7 +105,7 @@ function Account($http, $q, $resource, HLUtils) {
     }
 
     function create() {
-        return new Account({
+        return new _account({
             name: '',
             primaryWebsite: '',
             email_addresses: [],
@@ -124,10 +129,11 @@ function Account($http, $q, $resource, HLUtils) {
     function getDataproviderInfo(url) {
         var account = this;
         var deferred = $q.defer();
-        url = _sanitizeDomain(url);
-        if (url.length > 1) {
+        var sanitizedUrl = _sanitizeDomain(url);
+
+        if (sanitizedUrl.length > 1) {
             $http({
-                url: '/provide/account/' + url,
+                url: '/provide/account/' + sanitizedUrl,
             }).success(function(response) {
                 if (response.error) {
                     deferred.reject('Failed to load data');
@@ -198,7 +204,7 @@ function Account($http, $q, $resource, HLUtils) {
         }
     }
 
-    Account.prototype._storeDataproviderInfo = function(data) {
+    _account.prototype._storeDataproviderInfo = function(data) {
         var account = this;
         angular.forEach(data, function(value, key) {
             // Only if value is defined & is not an array (than it is an related field)
@@ -213,7 +219,7 @@ function Account($http, $q, $resource, HLUtils) {
         account._addAddresses(data);
     };
 
-    Account.prototype._addEmailAddresses = function(data) {
+    _account.prototype._addEmailAddresses = function(data) {
         var account = this;
 
         angular.forEach(data.email_addresses, function(emailAddress) {
@@ -236,7 +242,7 @@ function Account($http, $q, $resource, HLUtils) {
         });
     };
 
-    Account.prototype._addPhoneNumbers = function(data) {
+    _account.prototype._addPhoneNumbers = function(data) {
         var account = this;
 
         angular.forEach(data.phone_numbers, function(phoneNumber) {
@@ -257,15 +263,14 @@ function Account($http, $q, $resource, HLUtils) {
         });
     };
 
-    Account.prototype._addAddresses = function(data) {
+    _account.prototype._addAddresses = function(data) {
         var account = this;
+        var add = true;
 
         angular.forEach(data.addresses, function(address) {
             if (!address.type) {
                 address.type = 'visiting';
             }
-
-            var add = true;
 
             angular.forEach(account.addresses, function(accountAddress) {
                 // Check if address already exists
@@ -280,5 +285,5 @@ function Account($http, $q, $resource, HLUtils) {
         });
     };
 
-    return Account;
+    return _account;
 }

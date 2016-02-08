@@ -2,7 +2,7 @@ angular.module('app.tags.services').factory('Tag', Tag);
 
 Tag.$inject = ['$resource'];
 function Tag($resource) {
-    var Tag = $resource(
+    var _tag = $resource(
         '/api/tags/tag/:id',
         {},
         {
@@ -26,5 +26,5 @@ function Tag($resource) {
         }
     );
 
-    return Tag;
+    return _tag;
 }

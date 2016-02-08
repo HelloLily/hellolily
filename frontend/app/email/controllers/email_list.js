@@ -274,9 +274,9 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
                 EmailLabel.query({
                     label_id: $stateParams.labelId,
                     account__id: $stateParams.accountId,
-                }, function(results) {
-                    if (results.length) {
-                        vm.label = results[0];
+                }, function(response) {
+                    if (response.results && response.results.length) {
+                        vm.label = response.results[0];
                         vm.label.name = vm.label.name.hlCapitalize();
                     } else {
                         vm.label = {id: $stateParams.labelId, name: $stateParams.labelId.hlCapitalize()};
@@ -308,4 +308,3 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
         });
     }
 }
-

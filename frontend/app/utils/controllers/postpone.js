@@ -1,7 +1,7 @@
 angular.module('app.cases').controller('PostponeModal', PostponeModal);
 
-PostponeModal.$inject = ['$filter', '$uibModalInstance', '$scope', 'data', '$injector'];
-function PostponeModal($filter, $uibModalInstance, $scope, data, $injector) {
+PostponeModal.$inject = ['$uibModalInstance', '$scope', 'data', '$injector'];
+function PostponeModal($uibModalInstance, $scope, data, $injector) {
     var vm = this;
 
     vm.type = data.type;

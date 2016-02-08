@@ -3,7 +3,6 @@
 
 <div class="row">
     <div class="col-md-8">
-
         <div class="case-info-heading" ng-class="vm.getPriorityDisplay()">
             <div class="case-info-heading-priority">{{ ::vm.case.priority_name }} Priority</div>
             <div class="case-info-heading-title">
@@ -35,122 +34,129 @@
 
     <div ng-if="vm.case.id" class="col-md-4">
         <dashboard-widget ng-if="vm.case.account" widget-name="'Account info'">
-            <div name="widget-title">
+            <widget-header>
                 <a ui-sref="base.accounts.detail({ id: vm.case.account })">
                     <i class="lilicon hl-company-icon"></i>
                     {{ vm.case.account_name }}
                 </a>
-            </div>
+            </widget-header>
 
-            <div name="portlet-body" class="widget-content">
-                <ul class="case-detail-block-list">
-                    <li ng-if="vm.account.email_addresses.length">
-                        <strong>E-mail addresses</strong>
-                        <div ng-repeat="email in vm.account.email_addresses">
-                            <a ui-sref="base.email.composeEmail({email: email.email_address})">{{ email.email_address }}</a> ({{ email.status_name }})
-                        </div>
-                    </li>
-                    <li ng-if="vm.account.phone_numbers.length">
-                        <strong>Phone numbers: </strong>
-                        <div ng-repeat="phonenumber in vm.account.phone_numbers">
-                            <a href="tel:{{ phonenumber.raw_input }}">{{ phonenumber.raw_input }}</a> ({{phonenumber.type}})
-                        </div>
-                    </li>
-                    <li ng-if="vm.account.addresses.length">
-                        <strong>Addresses: </strong>
-                        <div ng-repeat="address in vm.account.addresses">
-                            {{ address.street }} {{ address.street_number }}{{ address.complement }}
-                            <br />
-                            {{ address.postal_code }}, {{ address.city }}
-                            <br />
-                            {{ address.country_display }}
-                        </div>
-                    </li>
-                    <li ng-if="vm.account.websites.length">
-                        <strong>Websites: </strong>
-                        <div ng-repeat="website in vm.account.websites">
-                            <a target="_blank" href="{{website.website}}">{{ website.website | stripScheme }}</a>
-                        </div>
-                    </li>
-                    <li ng-if="vm.case.parcel_identifier">
-                        <strong>Shipment:</strong>
-                        <div><a href="{{ vm.case.parcel_link }}">Track this parcel</a></div>
-                    </li>
-                    <li ng-if="!vm.account.email_addresses.length && !vm.account.phone_numbers.length && !vm.account.addresses.length && !vm.account.websites.length && !vm.case.parcel_identifier" >
-                        No additional information
-                    </li>
-                </ul>
-
-            </div>
+            <widget-body>
+                <div class="widget-content">
+                    <ul class="case-detail-block-list">
+                        <li ng-if="vm.account.email_addresses.length">
+                            <strong>E-mail addresses</strong>
+                            <div ng-repeat="email in vm.account.email_addresses">
+                                <a ui-sref="base.email.composeEmail({email: email.email_address})">{{ email.email_address }}</a> ({{ email.status_name }})
+                            </div>
+                        </li>
+                        <li ng-if="vm.account.phone_numbers.length">
+                            <strong>Phone numbers: </strong>
+                            <div ng-repeat="phonenumber in vm.account.phone_numbers">
+                                <a href="tel:{{ phonenumber.raw_input }}">{{ phonenumber.raw_input }}</a> ({{phonenumber.type}})
+                            </div>
+                        </li>
+                        <li ng-if="vm.account.addresses.length">
+                            <strong>Addresses: </strong>
+                            <div ng-repeat="address in vm.account.addresses">
+                                {{ address.street }} {{ address.street_number }}{{ address.complement }}
+                                <br />
+                                {{ address.postal_code }}, {{ address.city }}
+                                <br />
+                                {{ address.country_display }}
+                            </div>
+                        </li>
+                        <li ng-if="vm.account.websites.length">
+                            <strong>Websites: </strong>
+                            <div ng-repeat="website in vm.account.websites">
+                                <a target="_blank" href="{{website.website}}">{{ website.website | stripScheme }}</a>
+                            </div>
+                        </li>
+                        <li ng-if="vm.case.parcel_identifier">
+                            <strong>Shipment:</strong>
+                            <div><a href="{{ vm.case.parcel_link }}">Track this parcel</a></div>
+                        </li>
+                        <li ng-if="!vm.account.email_addresses.length && !vm.account.phone_numbers.length && !vm.account.addresses.length && !vm.account.websites.length && !vm.case.parcel_identifier" >
+                            No additional information
+                        </li>
+                    </ul>
+                </div>
+            </widget-body>
         </dashboard-widget>
 
         <dashboard-widget ng-if="vm.case.contact" widget-name="'Contact info'">
-            <div name="widget-title">
+            <widget-header>
                 <a ui-sref="base.contacts.detail({ id: vm.case.contact })">
                     <i class="lilicon hl-user-icon"></i>
                     {{ vm.case.contact_name }}
                 </a>
-            </div>
+            </widget-header>
 
-            <div name="portlet-body" class="widget-content">
-                <ul class="case-detail-block-list">
-                    <li ng-if="vm.contact.email_addresses.length">
-                        <strong>E-mail addresses: </strong>
-                        <div ng-repeat="email in vm.contact.email_addresses">
-                            <a ui-sref="base.email.composeEmail({email: email.email_address})">{{ email.email_address }}</a> ({{ email.status_name }})
-                        </div>
-                    </li>
-                    <li ng-if="vm.contact.phone_numbers.length">
-                        <strong>Phone numbers: </strong>
-                        <div ng-repeat="phonenumber in vm.contact.phone_numbers">
-                            <a href="tel:{{ phonenumber.raw_input }}">{{ phonenumber.raw_input }}</a> ({{phonenumber.type}})
-                        </div>
-                    </li>
-                    <li ng-if="!vm.contact.email_addresses.length && !vm.contact.phone_numbers.length">
-                        No additional information
-                    </li>
-                </ul>
-            </div>
+            <widget-body>
+                <div class="widget-content">
+                    <ul class="case-detail-block-list">
+                        <li ng-if="vm.contact.email_addresses.length">
+                            <strong>E-mail addresses: </strong>
+                            <div ng-repeat="email in vm.contact.email_addresses">
+                                <a ui-sref="base.email.composeEmail({email: email.email_address})">{{ email.email_address }}</a> ({{ email.status_name }})
+                            </div>
+                        </li>
+                        <li ng-if="vm.contact.phone_numbers.length">
+                            <strong>Phone numbers: </strong>
+                            <div ng-repeat="phonenumber in vm.contact.phone_numbers">
+                                <a href="tel:{{ phonenumber.raw_input }}">{{ phonenumber.raw_input }}</a> ({{phonenumber.type}})
+                            </div>
+                        </li>
+                        <li ng-if="!vm.contact.email_addresses.length && !vm.contact.phone_numbers.length">
+                            No additional information
+                        </li>
+                    </ul>
+                </div>
+            </widget-body>
         </dashboard-widget>
 
         <dashboard-widget widget-name="'More info'">
-            <div name="widget-title">
+            <widget-header>
                 <i class="fa fa-info"></i>
                 More info
-            </div>
+            </widget-header>
 
-            <div name="portlet-body" class="widget-content">
-                <ul class="case-detail-block-list">
-                    <li>
-                        <strong>Assigned to:</strong>
-                        <span>{{ vm.case.assigned_to_name || 'Nobody' }}</span>
-                        <a ng-if="vm.case.assigned_to_id == currentUser.id" ng-click="vm.assignCase()">[remove assignee]</a>
-                        <a ng-if="vm.case.assigned_to_id != currentUser.id" ng-click="vm.assignCase()">[<i class="fa fa-anchor"></i> assign to me ]</a>
-                    </li>
-                    <li ng-if="vm.case.assigned_to_groups.length">
-                        <strong>Assigned to teams:</strong>
-                        <span>{{ vm.case.assigned_to_groups | join:'name' }}</span>
-                    </li>
-                    <li><strong>Created by:</strong> {{ vm.case.created_by || 'Unknown' }}</li>
-                    <li><strong>Created on:</strong> {{ vm.case.created | date:"dd MMMM y H:mm" }}</li>
-                    <li>
-                        <strong>Expires on:</strong>
-                        <span>{{ vm.case.expires | date:"d MMM y" }}</span>
-                    </li>
-                </ul>
-            </div>
+            <widget-body>
+                <div class="widget-content">
+                    <ul class="case-detail-block-list">
+                        <li>
+                            <strong>Assigned to:</strong>
+                            <span>{{ vm.case.assigned_to_name || 'Nobody' }}</span>
+                            <a ng-if="vm.case.assigned_to_id == currentUser.id" ng-click="vm.assignCase()">[remove assignee]</a>
+                            <a ng-if="vm.case.assigned_to_id != currentUser.id" ng-click="vm.assignCase()">[<i class="fa fa-anchor"></i> assign to me ]</a>
+                        </li>
+                        <li ng-if="vm.case.assigned_to_groups.length">
+                            <strong>Assigned to teams:</strong>
+                            <span>{{ vm.case.assigned_to_groups | join:'name' }}</span>
+                        </li>
+                        <li><strong>Created by:</strong> {{ vm.case.created_by || 'Unknown' }}</li>
+                        <li><strong>Created on:</strong> {{ vm.case.created | date:"dd MMMM y H:mm" }}</li>
+                        <li>
+                            <strong>Expires on:</strong>
+                            <postpone class="margin-left-5" type="'Case'" object="vm.case" date-field="'expires'" display-date="true"></postpone>
+                        </li>
+                    </ul>
+                </div>
+            </widget-body>
         </dashboard-widget>
 
         <dashboard-widget widget-name="'Tags'">
-            <div name="widget-title">
+            <widget-header>
                 <i class="fa fa-tag"></i>
                 Tags
-            </div>
+            </widget-header>
 
-            <div name="portlet-body" class="widget-content">
-                <span ng-if="vm.case.tag" class="case-detail-tag" ng-repeat="tag in vm.case.tag">{{ tag }}</span>
-                <span ng-if="!vm.case.tag">No tags</span>
-            </div>
+            <widget-body>
+                <div class="widget-content">
+                    <span ng-if="vm.case.tag" class="case-detail-tag" ng-repeat="tag in vm.case.tag">{{ tag }}</span>
+                    <span ng-if="!vm.case.tag">No tags</span>
+                </div>
+            </widget-body>
         </dashboard-widget>
     </div>
 </div>

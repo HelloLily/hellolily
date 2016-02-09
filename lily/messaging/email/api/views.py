@@ -2,6 +2,7 @@ import logging
 from django.db.models import Q
 from rest_framework import viewsets, mixins, status, filters
 from rest_framework.decorators import detail_route, list_route
+from rest_framework.filters import DjangoFilterBackend
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
@@ -23,6 +24,9 @@ logger = logging.getLogger(__name__)
 class EmailLabelViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = EmailLabel.objects.all()
     serializer_class = EmailLabelSerializer
+
+    # Set all filter backends that this viewset uses.
+    filter_backends = (DjangoFilterBackend,)
     filter_fields = ('account__id', 'label_id')
 
     def get_queryset(self):
@@ -32,6 +36,9 @@ class EmailLabelViewSet(viewsets.ReadOnlyModelViewSet):
 class SharedEmailConfigViewSet(viewsets.ModelViewSet):
     queryset = SharedEmailConfig.objects.all()
     serializer_class = SharedEmailConfigSerializer
+
+    # Set all filter backends that this viewset uses.
+    filter_backends = (DjangoFilterBackend,)
     filter_fields = {
         'email_account',
         'is_hidden',
@@ -61,6 +68,9 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
 
     queryset = EmailLabel.objects.all()
     serializer_class = EmailAccountSerializer
+
+    # Set all filter backends that this viewset uses.
+    filter_backends = (DjangoFilterBackend,)
     filter_fields = (
         'owner',
         'shared_with_users__id',

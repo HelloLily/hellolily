@@ -102,6 +102,3 @@ class DealSerializer(WritableNestedSerializer):
             'twitter_checked',
             'why_customer',
         )
-
-
-

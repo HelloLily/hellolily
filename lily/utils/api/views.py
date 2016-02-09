@@ -78,14 +78,16 @@ class CallerName(APIView):
         phone_number_end = phone_number[-9:]
 
         contact = Contact.objects.filter(
-            Q(phone_numbers__raw_input__endswith=phone_number_end) | Q(phone_numbers__number__endswith=phone_number_end)
+            Q(phone_numbers__raw_input__endswith=phone_number_end) |
+            Q(phone_numbers__number__endswith=phone_number_end)
         ).filter(is_deleted=False).first()
 
         if contact:
             name = contact.full_name()
         else:
             account = Account.objects.filter(
-                Q(phone_numbers__raw_input__endswith=phone_number_end) | Q(phone_numbers__number__endswith=phone_number_end)
+                Q(phone_numbers__raw_input__endswith=phone_number_end) |
+                Q(phone_numbers__number__endswith=phone_number_end)
             ).filter(is_deleted=False).first()
 
             if account:

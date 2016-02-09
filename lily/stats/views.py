@@ -79,8 +79,8 @@ class CasesPerTypeCountLastWeek(RawDatabaseView):
                 count(cases_case.id),
                 type,
                 date_trunc( 'week', now() - interval '1 week' ) as from,
-                (date_trunc('week', now() - interval '1 week' )+ interval '1 week' - interval '1 second') as to,
-            EXTRACT(WEEK FROM date_trunc( 'week', now() - interval '1 week' )) as weeknr
+                (date_trunc('week', now() - interval '1 week' ) + interval '1 week' - interval '1 second') as to,
+                EXTRACT(WEEK FROM date_trunc( 'week', now() - interval '1 week' )) as weeknr
             FROM
                 cases_case,
                 cases_casestatus,
@@ -109,7 +109,9 @@ class CasesWithTagsLastWeek(RawDatabaseView):
     def get_query(self, request, *args, **kwargs):
         return '''
             SELECT
-              count(DISTINCT(cases_case.id)), date_trunc( 'week', now() - interval '1 week' ) as start, date_trunc( 'week', now() - interval '1 week' )+ interval '1 week' - interval '1 second' as end
+                count(DISTINCT(cases_case.id)),
+                date_trunc( 'week', now() - interval '1 week' ) as start,
+                (date_trunc( 'week', now() - interval '1 week' ) + interval '1 week' - interval '1 second') as end
             FROM
                 cases_case,
                 cases_casestatus,
@@ -139,7 +141,7 @@ class CasesCountPerStatus(RawDatabaseView):
     def get_query(self, request, *args, **kwargs):
         return '''
             SELECT
-              count (cases_case.id), cases_casestatus.status
+                count (cases_case.id), cases_casestatus.status
             FROM
                 cases_case,
                 cases_casestatus,

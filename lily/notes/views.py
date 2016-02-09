@@ -41,9 +41,6 @@ class CreateNoteView(CreateView):
         else:
             return reverse('dashboard')
 
-from .forms import UpdateNoteForm, NoteForm, UpdateDateNoteForm
-from .models import Note
-
 
 class DeleteNoteView(DeleteView):
     model = Note

@@ -35,6 +35,7 @@ DELIMITER = ':'
 # 1 hour in seconds
 DEFAULT_TIMEOUT_SECS = 1*60*60
 
+
 @util.positional(2)
 def generate_token(key, user_id, action_id="", when=None):
     """Generates a URL-safe token for the given user, action, time tuple.

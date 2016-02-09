@@ -68,7 +68,8 @@ class GmailConnector(object):
                 except ValueError:
                     logger.exception('error %s' % e)
                     error = e
-                if error.get('code') == 403 and error.get('errors')[0].get('reason') in ['rateLimitExceeded', 'userRateLimitExceeded']:
+                if error.get('code') == 403 and error.get('errors')[0].get('reason') in ['rateLimitExceeded',
+                                                                                         'userRateLimitExceeded']:
                     # Apply exponential backoff.
                     sleep_time = (2 ** n) + random.randint(0, 1000) / 1000
                     logger.warning('Limit overrated, sleeping for %s seconds' % sleep_time)

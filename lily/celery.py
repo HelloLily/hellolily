@@ -2,12 +2,13 @@ from __future__ import absolute_import
 
 import os
 
-import iron_celery  # necessary for Celery to find iron_celery for transport ironmq://
+# Necessary for Celery to find iron_celery for transport ironmq://
+import iron_celery  # noqa
 from celery import Celery
 
 from django.conf import settings
 
-# set the default Django settings module
+# Set the default Django settings module.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'lily.settings')
 
 app = Celery('lily', broker=settings.BROKER_URL)

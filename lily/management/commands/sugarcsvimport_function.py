@@ -36,7 +36,6 @@ E.g.:
         contact_id = values.get('Contact ID')
         account_id = values.get('Account ID')
         is_deleted = values.get('Deleted')
-        title = values.get('Title') + " " + values.get("Department")
 
         try:
             contact = Contact.objects.get(tenant_id=self.tenant_pk, import_id=contact_id)

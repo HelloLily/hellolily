@@ -224,11 +224,7 @@ class UserAccountForm(HelloLilyModelForm):
     class Meta:
         model = LilyUser
         fieldsets = [
-            (_('Change your email address'), {
-                'fields': ['email', ],
-                }), (_('Change your password'), {
-                'fields': ['new_password1', 'new_password2', ],
-                }), (_('Confirm your password'), {
-                'fields': ['old_password', ],
-                })
+            (_('Change your email address'), {'fields': ['email', ], }),
+            (_('Change your password'), {'fields': ['new_password1', 'new_password2', ], }),
+            (_('Confirm your password'), {'fields': ['old_password', ], })
         ]

@@ -1,7 +1,8 @@
 from django.conf.urls import patterns, url
 
 from .views import (CasesTotalCountLastWeek, CasesPerTypeCountLastWeek, CasesWithTagsLastWeek, CasesCountPerStatus,
-                    CasesTopTags, DealsUnsentFeedbackForms, DealsUrgentFollowUp, DealsWon, DealsLost, DealsAmountRecurring)
+                    CasesTopTags, DealsUnsentFeedbackForms, DealsUrgentFollowUp, DealsWon, DealsLost,
+                    DealsAmountRecurring)
 
 urlpatterns = patterns(
     '',

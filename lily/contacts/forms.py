@@ -60,7 +60,8 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
     def __init__(self, *args, **kwargs):
         super(CreateUpdateContactForm, self).__init__(*args, **kwargs)
 
-        self.fields['account'].help_text = ''  # Fixed in django 1.8: now the help text is appended instead of overwritten
+        # Fixed in Django 1.8: now the help text is appended instead of overwritten.
+        self.fields['account'].help_text = ''
 
         if kwargs.get('initial', None):
             kwargs_initial = kwargs.get('initial', None)
@@ -165,7 +166,9 @@ class CreateUpdateContactForm(FormSetFormMixin, TagsFormMixin):
             linkedin_input = self.cleaned_data.get('linkedin')
 
             self.instance.functions.exclude(account__in=account_input).delete()
-            function_list = [Function.objects.get_or_create(contact=self.instance, account=account)[0] for account in account_input]
+            function_list = [
+                Function.objects.get_or_create(contact=self.instance, account=account)[0] for account in account_input
+            ]
             for function in function_list:
                 self.instance.functions.add(function)
 

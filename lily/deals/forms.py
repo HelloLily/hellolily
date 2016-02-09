@@ -12,7 +12,7 @@ from lily.tags.forms import TagsFormMixin
 from lily.tenant.middleware import get_current_user
 from lily.users.models import LilyUser
 from lily.utils.forms import HelloLilyModelForm
-from lily.utils.forms.widgets import DatePicker, AjaxSelect2Widget, BootstrapRadioFieldRenderer
+from lily.utils.forms.widgets import DatePicker, AjaxSelect2Widget
 
 from .models import Deal, DealNextStep, DealWhyCustomer
 

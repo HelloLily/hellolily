@@ -271,7 +271,7 @@ def delete_email_message(email_id):
         try:
             if removed is False or in_trash is True:
                 manager.delete_email_message(email_message)
-        except Exception, e:
+        except Exception:
             logger.exception('Failed deleting %s' % email_message)
         finally:
             manager.cleanup()

@@ -2,8 +2,8 @@ from django.conf.urls import patterns, url
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 from lily.utils.views import RedirectSetMessageView
-from .views import (AcceptInvitationView, RegistrationView, ActivationView, ActivationResendView,
-                    LoginView, SendInvitationView)
+from .views import (AcceptInvitationView, RegistrationView, ActivationView, ActivationResendView, LoginView,
+                    SendInvitationView)
 from .forms import CustomPasswordResetForm, CustomSetPasswordForm
 
 
@@ -33,10 +33,14 @@ urlpatterns = patterns(
         },
         name='password_reset'),
     url(r'^password_reset/done/$',
-        RedirectSetMessageView.as_view(url=reverse_lazy('login'), message_level='info', message=_('I\'ve sent you an email, please check it to reset your password.')),
+        RedirectSetMessageView.as_view(url=reverse_lazy('login'),
+                                       message_level='info',
+                                       message=_('I\'ve sent you an email, please check it to reset your password.')),
         name='password_reset_done'),
     url(r'^reset/complete/$',
-        RedirectSetMessageView.as_view(url=reverse_lazy('login'), message_level='info', message=_('I\'ve reset your password, please login.')),
+        RedirectSetMessageView.as_view(url=reverse_lazy('login'),
+                                       message_level='info',
+                                       message=_('I\'ve reset your password, please login.')),
         name='password_reset_complete'),
 
     # Login
@@ -44,7 +48,9 @@ urlpatterns = patterns(
 
     # Invitations
     url(r'^invitation/invite/$', SendInvitationView.as_view(), name='invitation_invite'),
-    url(r'^invitation/accept/(?P<first_name>.+)/(?P<email>.+)/(?P<tenant_id>[0-9]+)-(?P<date>[0-9]+)-(?P<hash>.+)/$', AcceptInvitationView.as_view(), name='invitation_accept'),
+    url(r'^invitation/accept/(?P<first_name>.+)/(?P<email>.+)/(?P<tenant_id>[0-9]+)-(?P<date>[0-9]+)-(?P<hash>.+)/$',
+        AcceptInvitationView.as_view(),
+        name='invitation_accept'),
 )
 
 # Views from django.contrib.auth.views

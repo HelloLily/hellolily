@@ -39,5 +39,3 @@ class EmailAddressFactory(DjangoModelFactory):
 
     class Meta:
         model = EmailAddress
-
-

@@ -28,6 +28,7 @@ class DealTests(GenericAPITestCase):
         kwargs['tenant'] = self.user_obj.tenant if not kwargs.get('tenant') else kwargs['tenant']
 
         object_list = []
+        account = AccountFactory(**kwargs)
         next_step = DealNextStepFactory(**kwargs)
         why_customer = DealWhyCustomerFactory(**kwargs)
 
@@ -36,6 +37,9 @@ class DealTests(GenericAPITestCase):
             del obj['tenant']
 
             # The minimum viable deal instance needs these relations, so always make them.
+            obj['account'] = {
+                'id': account.pk,
+            }
             obj['next_step'] = {
                 'id': next_step.pk,
             }
@@ -45,15 +49,12 @@ class DealTests(GenericAPITestCase):
 
             if with_relations:
                 # If relations are needed, override them, because a dict is needed instead of an instance.
-                obj['account'] = AccountFactory.stub().__dict__
-
                 obj['tags'] = [TagFactory.stub().__dict__, ]
                 obj['notes'] = [NoteFactory.stub().__dict__, ]
 
                 del obj['account']['tenant']
             else:
                 # Delete the related objects, since they can't be serialized.
-                del obj['account']
                 del obj['assigned_to']
 
             object_list.append(obj)

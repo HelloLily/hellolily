@@ -55,7 +55,7 @@ class DealSerializer(WritableNestedSerializer):
     content_type = ContentTypeSerializer(read_only=True)
 
     # Related fields.
-    account = RelatedAccountSerializer(required=False, allow_null=True)
+    account = RelatedAccountSerializer()
     assigned_to = RelatedLilyUserSerializer(required=False, allow_null=True, assign_only=True)
     next_step = RelatedDealNextStepSerializer(assign_only=True)
     tags = RelatedTagSerializer(many=True, required=False, create_only=True)

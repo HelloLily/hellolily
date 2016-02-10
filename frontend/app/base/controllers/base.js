@@ -13,8 +13,8 @@ function appConfig($stateProvider) {
 
 angular.module('app.base').controller('BaseController', BaseController);
 
-BaseController.$inject = ['$scope', '$state', 'Settings', 'Notifications', 'HLShortcuts'];
-function BaseController($scope, $state, Settings, Notifications, HLShortcuts) {
+BaseController.$inject = ['$scope', '$state', 'Settings', 'Notifications'];
+function BaseController($scope, $state, Settings, Notifications) {
     // Make sure the settings are available everywhere.
     $scope.settings = Settings;
 
@@ -52,6 +52,16 @@ function BaseController($scope, $state, Settings, Notifications, HLShortcuts) {
 
     function _setPreviousState(event, toState, toParams, fromState, fromParams) {
         $scope.previousState = $state.href(fromState, fromParams);
+
+        if (fromState.name === 'base.email.list' || fromState.name === 'base.email.accountList') {
+            var previousInbox = {
+                state: fromState.name,
+                params: fromParams,
+            };
+
+            Settings.email.setPreviousInbox(previousInbox);
+        }
+
         if (Settings.email.sidebar && fromState && fromState.name === 'base.email.detail') {
             Settings.email.resetEmailSettings();
 

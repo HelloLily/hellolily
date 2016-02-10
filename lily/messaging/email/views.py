@@ -521,7 +521,7 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
 
         # Send and archive was pressed, so start an archive task
         if task and form.data.get('archive', False) == 'true':
-            success_url = '/#/email/all/INBOX'  # Exception for archiving, go to inbox
+            success_url = '/#/email'  # Exception for archiving, go to inbox
             archive_email_message.apply_async(args=(self.object.id,))
 
         if is_ajax(self.request):

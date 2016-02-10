@@ -1,7 +1,16 @@
 angular.module('app.email').config(emailConfig);
 emailConfig.$inject = ['$stateProvider', '$urlRouterProvider'];
 function emailConfig($stateProvider, $urlRouterProvider) {
-    $urlRouterProvider.when('/email', '/email/all/INBOX');
+    $urlRouterProvider.when('/email',  ['$state', 'Settings', function($state, Settings) {
+        if (Settings.email.previousInbox) {
+            // If we previously selected a certain inbox, redirect to that inbox.
+            $state.transitionTo(Settings.email.previousInbox.state, Settings.email.previousInbox.params, false);
+        } else {
+            // Otherwise just go to the main inbox.
+            $state.transitionTo('base.email.list', {labelId: 'INBOX'});
+        }
+    }]);
+
     $stateProvider.state('base.email', {
         url: '/email',
         views: {

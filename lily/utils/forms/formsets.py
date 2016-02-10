@@ -44,6 +44,14 @@ class BaseFKFormSet(BaseModelFormSet):
         return super(BaseFKFormSet, self).save(commit)
 
 
-PhoneNumberFormSet = modelformset_factory(PhoneNumber, form=PhoneNumberBaseForm, formset=BaseM2MFormSet, can_delete=True, extra=0)
+PhoneNumberFormSet = modelformset_factory(PhoneNumber,
+                                          form=PhoneNumberBaseForm,
+                                          formset=BaseM2MFormSet,
+                                          can_delete=True,
+                                          extra=0)
 AddressFormSet = modelformset_factory(Address, form=AddressBaseForm, formset=BaseM2MFormSet, can_delete=True, extra=0)
-EmailAddressFormSet = modelformset_factory(EmailAddress, form=EmailAddressBaseForm, formset=BaseM2MFormSet, can_delete=True, extra=0)
+EmailAddressFormSet = modelformset_factory(EmailAddress,
+                                           form=EmailAddressBaseForm,
+                                           formset=BaseM2MFormSet,
+                                           can_delete=True,
+                                           extra=0)

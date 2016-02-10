@@ -34,7 +34,7 @@ class LabelBuilder(object):
                 label_id=label_dict['id'],
                 label_type=label_type,
             )
-        except IntegrityError as e:
+        except IntegrityError:
             self.label = EmailLabel.objects.get(
                 account=self.manager.email_account,
                 label_id=label_dict['id'],

@@ -11,7 +11,8 @@ BROKER_URL = os.environ.get('BROKER_URL')
 if not BROKER_URL:
     BROKER = os.environ.get('BROKER', 'DEV')
     if BROKER == 'IRONMQ':
-        BROKER_URL = 'ironmq://%s:%s@mq-aws-eu-west-1.iron.io' % (os.environ.get('IRON_MQ_PROJECT_ID'), os.environ.get('IRON_MQ_TOKEN'))
+        BROKER_URL = 'ironmq://%s:%s@mq-aws-eu-west-1.iron.io' % \
+                     (os.environ.get('IRON_MQ_PROJECT_ID'), os.environ.get('IRON_MQ_TOKEN'))
     elif BROKER == 'CLOUDAMQP':
         BROKER_URL = os.environ.get('CLOUDAMQP_URL')
     else:

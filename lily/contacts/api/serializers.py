@@ -8,7 +8,8 @@ from lily.api.serializers import ContentTypeSerializer
 from lily.socialmedia.api.serializers import RelatedSocialMediaSerializer
 from lily.utils.api.related.mixins import RelatedSerializerMixin
 from lily.utils.api.related.serializers import WritableNestedSerializer
-from lily.utils.api.serializers import RelatedPhoneNumberSerializer, RelatedAddressSerializer, RelatedEmailAddressSerializer, RelatedTagSerializer
+from lily.utils.api.serializers import (RelatedPhoneNumberSerializer, RelatedAddressSerializer,
+                                        RelatedEmailAddressSerializer, RelatedTagSerializer)
 from ..models import Contact, Function
 
 

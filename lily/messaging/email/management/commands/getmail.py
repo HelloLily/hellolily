@@ -24,10 +24,10 @@ class Command(BaseCommand):
         email_account = EmailAccount.objects.get(email_address=email_address)
 
         manager = GmailManager(email_account)
-        message, created = manager.message_builder.get_or_create_message({'id': message_id, 'threadId': message_id})
+        manager.message_builder.get_or_create_message({'id': message_id, 'threadId': message_id})
         message_info = manager.connector.get_message_info(message_id)
         manager.message_builder.store_message_info(message_info, message_id)
-        builder = manager.message_builder
+        manager.message_builder
 
         import pdb
         pdb.set_trace()

@@ -100,4 +100,3 @@ class TemplateVariableSerializer(serializers.ModelSerializer):
             'is_public',
             'owner',
         )
-

@@ -1,7 +1,6 @@
 import csv
 import gc
 import logging
-import os
 
 from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage

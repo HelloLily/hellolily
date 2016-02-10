@@ -62,4 +62,3 @@ class RelatedPrimaryKeyField(IntegerField):
             else:
                 # In the case of foreign key, the id is always required.
                 self.fail('invalid')
-

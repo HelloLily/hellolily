@@ -44,7 +44,8 @@ class Common(DeletedMixin, TenantMixin):
     social_media = models.ManyToManyField(SocialMedia, blank=True, verbose_name=_('list of social media'))
     addresses = AddressFormSetField(Address, blank=True, verbose_name=_('list of addresses'))
     email_addresses = EmailAddressFormSetField(EmailAddress, blank=True, verbose_name=_('list of e-mail addresses'))
-    notes = GenericRelation('notes.Note', content_type_field='content_type', object_id_field='object_id', verbose_name='list of notes')
+    notes = GenericRelation('notes.Note', content_type_field='content_type', object_id_field='object_id',
+                            verbose_name='list of notes')
 
     @property
     def twitter(self):

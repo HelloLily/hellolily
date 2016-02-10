@@ -1,7 +1,5 @@
-from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
-from rest_framework.fields import empty
 
 from lily.socialmedia.connectors import LinkedIn
 from lily.socialmedia.connectors import Twitter

@@ -349,7 +349,8 @@ class GmailManager(object):
                     logger.warning('trying to add label SENT: %s' % traceback.print_stack())
                 # UNREAD isn't added to the database as an available label, so do a separate check
                 if label not in existing_labels and label != settings.GMAIL_SENT_LABEL:
-                    if email_message.account.labels.filter(label_id=label).exists() or label == settings.GMAIL_UNREAD_LABEL:
+                    if (email_message.account.labels.filter(label_id=label).exists() or
+                            label == settings.GMAIL_UNREAD_LABEL):
                         labels.setdefault('addLabelIds', []).append(label)
 
             if labels:

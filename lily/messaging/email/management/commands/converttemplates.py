@@ -43,7 +43,8 @@ class Command(BaseCommand):
                     email_template.body_html = re.sub(variable_regex, replace_variable, email_template.body_html)
 
                 email_template.save()
-                print 'Removed non-breaking space (&nbsp;) from template ' + str(email_template.id) + ' (' + email_template.name + ')'
+                print 'Removed non-breaking space (&nbsp;) from template ' + str(email_template.id) + \
+                      ' (' + email_template.name + ')'
 
             if open_var and close_var:
                 # Setup regex to find any characters between the two current delimiters

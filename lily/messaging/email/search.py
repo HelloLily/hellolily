@@ -134,9 +134,11 @@ class EmailMessageMapping(BaseMapping):
             'label_name': [label.name for label in obj.labels.all() if label.name],
             'sender_email': obj.sender.email_address,
             'sender_name': obj.sender.name,
-            'received_by_email': [receiver.email_address for receiver in obj.received_by.all() if receiver.email_address],
+            'received_by_email':
+                [receiver.email_address for receiver in obj.received_by.all() if receiver.email_address],
             'received_by_name': [receiver.name for receiver in obj.received_by.all() if receiver.name],
-            'received_by_cc_email': [receiver.email_address for receiver in obj.received_by_cc.all() if receiver.email_address],
+            'received_by_cc_email':
+                [receiver.email_address for receiver in obj.received_by_cc.all() if receiver.email_address],
             'received_by_cc_name': [receiver.name for receiver in obj.received_by_cc.all() if receiver.name],
             'message_id': obj.message_id,
             'thread_id': obj.thread_id,

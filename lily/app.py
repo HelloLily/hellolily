@@ -45,7 +45,7 @@ class LilyConfig(AppConfig):
                 continue
             else:
                 forms_module = sys.modules['%s.forms' % app]
-                form_classes = inspect.getmembers(forms_module, lambda member: is_form(member))
+                form_classes = inspect.getmembers(forms_module, lambda member: self.is_form(member))
                 for form_name, form in form_classes:
                     # Wrap the reference to this form with a function that strips the input from whitespace.
                     if hasattr(form, 'base_fields'):

@@ -185,7 +185,8 @@ class TagSerializer(serializers.ModelSerializer):
     """
     Serializer used to serialize tags.
     """
-    content_type = serializers.PrimaryKeyRelatedField(queryset=ContentType.objects.filter(model__in=TAGABLE_MODELS), write_only=True)
+    content_type = serializers.PrimaryKeyRelatedField(queryset=ContentType.objects.filter(model__in=TAGABLE_MODELS),
+                                                      write_only=True)
     object_id = serializers.IntegerField(write_only=True)
 
     class Meta:

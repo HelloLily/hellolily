@@ -202,7 +202,6 @@ function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFil
             vm.table.pageSize,
             vm.table.order.column,
             vm.table.order.descending,
-            vm.table.archived,
             vm.table.filterQuery
         ).then(function(data) {
             vm.table.items = data.cases;
@@ -249,7 +248,7 @@ function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFil
     }
 
     function updateFilterQuery() {
-        HLFilters.updateFilterQuery(vm);
+        HLFilters.updateFilterQuery(vm, true);
     }
 
     function clearFilters(clearSpecial) {

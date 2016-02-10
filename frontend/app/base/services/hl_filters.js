@@ -1,14 +1,16 @@
 angular.module('app.services').service('HLFilters', HLFilters);
 
 function HLFilters() {
-    this.updateFilterQuery = function(viewModel) {
+    this.updateFilterQuery = function(viewModel, hasClearButtons) {
         // Update the filter based on the separate filters.
         var filterStrings = [];
         var specialFilterStrings = [];
 
         viewModel.table.filterQuery = '';
 
-        this._displayClearButtons(viewModel);
+        if (hasClearButtons) {
+            this._displayClearButtons(viewModel);
+        }
 
         viewModel.filterList.forEach(function(filter) {
             if (filter.id && filter.id === 'archived') {
@@ -68,5 +70,18 @@ function HLFilters() {
         }
 
         viewModel.updateFilterQuery();
+    };
+
+    this.getStoredSelections = function(filterList, storedFilterList) {
+        if (storedFilterList) {
+            // Stored filter list exists, merge the selections from with the stored values.
+            angular.forEach(storedFilterList, function(storedFilter) {
+                angular.forEach(filterList, function(filter) {
+                    if (storedFilter.name === filter.name) {
+                        filter.selected = storedFilter.selected;
+                    }
+                });
+            });
+        }
     };
 }

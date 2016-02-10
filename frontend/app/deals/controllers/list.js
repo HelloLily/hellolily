@@ -152,16 +152,7 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
                 });
             });
 
-            if (storedFilterList) {
-                // Stored filter list exists, merge the selections from with the stored values.
-                angular.forEach(storedFilterList, function(storedFilter) {
-                    angular.forEach(filterList, function(caseInList) {
-                        if (storedFilter.name === caseInList.name) {
-                            caseInList.selected = storedFilter.selected;
-                        }
-                    });
-                });
-            }
+            HLFilters.getStoredSelections(filterList, storedFilterList);
 
             // Update filterList once AJAX calls are done.
             vm.filterList = filterList;
@@ -249,7 +240,7 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
     }
 
     function updateFilterQuery() {
-        HLFilters.updateFilterQuery(vm);
+        HLFilters.updateFilterQuery(vm, true);
     }
 
     function clearFilters(clearSpecial) {

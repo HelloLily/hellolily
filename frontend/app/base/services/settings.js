@@ -1,7 +1,9 @@
 angular.module('app.services').factory('Settings', Settings);
 
-Settings.$inject = [];
-function Settings() {
+Settings.$inject = ['LocalStorage'];
+function Settings(LocalStorage) {
+    var storage = LocalStorage('generalSettings');
+
     var _settings = {
         page: {
             title: 'Welcome',
@@ -22,9 +24,13 @@ function Settings() {
                 form: null,
                 isVisible: false,
             },
+            previousInbox: null,
+            setPreviousInbox: setPreviousInbox,
             resetEmailSettings: resetEmailSettings,
         },
     };
+
+    _settings.email.previousInbox = storage.get('previousInbox', null);
 
     function setTitle(pageType, newTitle) {
         // Capitalize first letter of the new title.
@@ -82,6 +88,7 @@ function Settings() {
         _settings.email.sidebar = {
             account: null,
             contact: null,
+            cases: null,
             form: null,
             isVisible: false,
         };
@@ -93,6 +100,12 @@ function Settings() {
             contact: null,
             cases: null,
         };
+    }
+
+    function setPreviousInbox(previousInbox) {
+        storage.put('previousInbox', previousInbox);
+
+        _settings.email.previousInbox = previousInbox;
     }
 
     return _settings;

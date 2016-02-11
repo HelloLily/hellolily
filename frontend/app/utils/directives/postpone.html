@@ -1,5 +1,5 @@
 <span style="position: relative;">
-    <a class="no-text-decoration" ng-click="pp.openPostponeModal(pp.object)" uib-tooltip="Aaah, that's too soon!">
+    <a class="no-text-decoration" ng-click="pp.openPostponeModal(pp.object)" tooltip-placement="{{ pp.ttPlacement || 'top' }}" uib-tooltip="Aaah, that's too soon!">
         <i class="lilicon hl-postpone-icon"></i>
         <span ng-if="pp.displayDate">&nbsp;<date date="pp.object[pp.dateField]"></date></span>
     </a>

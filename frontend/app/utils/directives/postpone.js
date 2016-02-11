@@ -9,6 +9,7 @@ function postponeDirective() {
             dateField: '=',
             callback: '&',
             displayDate: '=',
+            ttPlacement: '@', // use tt instead of 'tooltip' for distinction.
         },
         templateUrl: 'utils/directives/postpone.html',
         controller: PostponeController,

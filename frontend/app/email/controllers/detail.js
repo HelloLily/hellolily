@@ -25,8 +25,8 @@ function emailConfig($stateProvider) {
 }
 
 angular.module('app.email').controller('EmailDetail', EmailDetailController);
-EmailDetailController.$inject = ['$scope', '$state', '$stateParams', '$http', 'Case', 'Settings', 'Account', 'EmailMessage', 'RecipientInformation', 'SelectedEmailAccount', 'message', 'HLShortcuts'];
-function EmailDetailController($scope, $state, $stateParams, $http, Case, Settings, Account, EmailMessage, RecipientInformation, SelectedEmailAccount, message, HLShortcuts) {
+EmailDetailController.$inject = ['$scope', '$state', '$stateParams', '$timeout', '$http', 'Case', 'Settings', 'Account', 'EmailMessage', 'RecipientInformation', 'SelectedEmailAccount', 'message', 'HLShortcuts'];
+function EmailDetailController($scope, $state, $stateParams, $timeout, $http, Case, Settings, Account, EmailMessage, RecipientInformation, SelectedEmailAccount, message, HLShortcuts) {
     var vm = this;
     vm.displayAllRecipients = false;
     vm.message = message;
@@ -152,6 +152,8 @@ function EmailDetailController($scope, $state, $stateParams, $http, Case, Settin
                     Settings.email.data.website = vm.message.sender.email_address.split('@').slice(-1)[0];
 
                     if (data && data.data) {
+                        var filterquery = '';
+
                         if (data.type === 'account') {
                             if (data.data.id) {
                                 Settings.email.data.account = data.data;
@@ -162,29 +164,57 @@ function EmailDetailController($scope, $state, $stateParams, $http, Case, Settin
                                     Settings.email.data.account = data.data;
                                 }
 
-                                var filterquery = 'account:' + data.data.id;
-                                _getCases(filterquery);
+                                filterquery = 'account:' + data.data.id;
                             }
                         } else if (data.type === 'contact') {
-                            if (data.data.id) {
-                                Settings.email.data.contact = data.data;
+                            var contact = data.data;
 
-                                // Check if the contact is linked to an account.
-                                Account.searchByEmail({email_address: '@' + Settings.email.data.website}).$promise.then(function(account) {
-                                    var filterquery = 'contact:' + data.data.id;
+                            if (contact.id) {
+                                Settings.email.data.contact = contact;
 
-                                    if (account.data && account.data.id) {
-                                        Settings.email.data.account = account.data;
+                                if (contact.accounts && contact.accounts.length) {
+                                    if (contact.accounts.length === 1) {
+                                        Settings.email.data.account = contact.accounts[0];
 
-                                        filterquery += ' OR account:' + account.data.id;
+                                        filterquery =  'contact:' + contact.id + ' OR account:' + contact.accounts[0].id;
                                     } else {
-                                        Settings.email.sidebar.form = 'account';
-                                    }
+                                        var accountIds = [];
 
-                                    _getCases(filterquery);
-                                });
+                                        angular.forEach(contact.accounts, function(account) {
+                                            accountIds.push('id:' + account.id);
+                                        });
+
+                                        var accountQuery = '(' + accountIds.join(' OR ') + ') AND email_addresses.email_address:' + Settings.email.data.website;
+
+                                        Account.search({filterquery: accountQuery}).$promise.then(function(accounts) {
+                                            if (accounts.length) {
+                                                // If we get multiple accounts, just pick the first one.
+                                                // Additional filter isn't really possible.
+                                                Settings.email.data.account = accounts[0];
+
+                                                filterquery =  'contact:' + contact.id + ' OR account:' + accounts[0].id;
+                                            }
+                                        });
+                                    }
+                                } else {
+                                    Settings.email.sidebar.form = 'account';
+                                }
                             }
                         }
+
+                        // We could add the _getCases call everywhere, but we'd be repeating ourselves.
+                        // Instead just wait until the filterquery is set and then load the cases.
+                        $timeout((function() {
+                            function checkFilterQuery() {
+                                if (!filterquery) {
+                                    $timeout(checkFilterQuery);
+                                } else {
+                                    _getCases(filterquery);
+                                }
+                            }
+
+                            return checkFilterQuery;
+                        })());
 
                         Settings.email.sidebar.case = true;
                     } else {

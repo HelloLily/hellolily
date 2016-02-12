@@ -205,7 +205,7 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, Ac
                         }
 
                         // We could add the _getCases call everywhere, but we'd be repeating ourselves.
-                        // Instead just wait until the filterquery is set and then load the cases.
+                        // Instead just wait until the filterquery is set and then load the cases/deals.
                         $timeout((function() {
                             function checkFilterQuery() {
                                 if (!filterquery) {

@@ -61,6 +61,11 @@
                 <i class="fa fa-eye"></i> Cases
             </a>
         </li>
+        <li ng-if="settings.email.data.account.id || settings.email.data.contact.accounts">
+            <a ng-click="vm.toggleSidebar('deals')">
+                <i class="fa fa-plus"></i> Deal
+            </a>
+        </li>
         <li ng-if="settings.email.data.deals">
             <a ng-click="vm.toggleSidebar('deals', true)">
                 <i class="fa fa-eye"></i> Deals

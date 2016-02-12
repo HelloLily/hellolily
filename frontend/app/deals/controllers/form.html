@@ -1,20 +1,21 @@
 <div class="row">
     <div class="col-md-12">
-        <div ng-if="settings.email.sidebar.form" class="inbox-header inbox-view-header">
+        <div ng-if="settings.email.sidebar.form" class="email-inbox-header inbox-view-header">
             <h1 class="pull-left">Add deal</h1>
         </div>
 
         <form novalidate class="hl-form-body" name="dealForm">
-            <form-portlet ng-if="!settings.email.sidebar.form" title="Who is it?">
-                <form-group label-title="Account" label-id="id_account" field="dealForm.account" required="true">
-                    <ui-select ng-model="vm.deal.account" theme="select2" class="form-control" name="account" append-to-body="true">
-                        <ui-select-match placeholder="Select an account" allow-clear="true">{{ $select.selected.name }}</ui-select-match>
-                        <ui-select-choices repeat="account in vm.accounts | propsFilter: {name: $select.search}" refresh="vm.refreshAccounts($select.search)" refresh-delay="150">
-                            <div ng-bind-html="account.name | highlight: $select.search"></div>
-                        </ui-select-choices>
-                    </ui-select>
-                    <span class="help-text text-muted">Please type at least 2 characters to begin the search</span>
-                </form-group>
+            <form-portlet title="Who is it?">
+                <div ng-if="!settings.email.sidebar.form">
+                    <form-group label-title="Account" label-id="id_account" field="dealForm.account" required="true">
+                        <ui-select ng-model="vm.deal.account" theme="select2" class="form-control" name="account" append-to-body="true">
+                            <ui-select-match placeholder="Select an account" allow-clear="true">{{ $select.selected.name }}</ui-select-match>
+                            <ui-select-choices repeat="account in vm.accounts | propsFilter: {name: $select.search}" refresh="vm.refreshAccounts($select.search)" refresh-delay="150">
+                                <div ng-bind-html="account.name | highlight: $select.search"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                        <span class="help-text text-muted">Please type at least 2 characters to begin the search</span>
+                    </form-group>
 
                     <form-group label-title="Contact" label-id="id_contact" field="dealForm.contact">
                         <ui-select ng-model="vm.deal.contact" theme="select2" class="form-control" name="contact" append-to-body="true">
@@ -25,32 +26,33 @@
                         </ui-select>
                         <span class="help-text text-muted">Please type at least 2 characters to begin the search</span>
                     </form-group>
+                </div>
 
-                    <form-radio-buttons options="['Existing', 'New']" label-title="Business"
-                                        input-name="new_business"
-                                        field="vm.deal.new_business" sidebar="settings.email.sidebar.form">
-                    </form-radio-buttons>
+                <form-radio-buttons options="['Existing', 'New']" label-title="Business"
+                                    input-name="new_business"
+                                    field="vm.deal.new_business" sidebar="settings.email.sidebar.form">
+                </form-radio-buttons>
 
-                    <form-group label-title="Found us through" label-id="id_found_through" field="dealForm.found_through" required="true">
-                        <select name="found_through" ng-model="vm.deal.found_through"
-                                ng-options="found_through.value as found_through.display_name for found_through in vm.foundThroughChoices" class="form-control">
-                            <option value="" hidden>---------</option>
-                        </select>
-                    </form-group>
+                <form-group label-title="Found us through" label-id="id_found_through" field="dealForm.found_through" required="true">
+                    <select name="found_through" ng-model="vm.deal.found_through"
+                            ng-options="found_through.value as found_through.display_name for found_through in vm.foundThroughChoices" class="form-control">
+                        <option value="" hidden>---------</option>
+                    </select>
+                </form-group>
 
-                    <form-group label-title="Contacted us by" label-id="id_contacted_by" field="dealForm.contacted_by" required="true">
-                        <select name="contacted_by" ng-model="vm.deal.contacted_by"
-                                ng-options="contacted_by.value as contacted_by.display_name for contacted_by in vm.contactedByChoices" class="form-control">
-                            <option value="" hidden>---------</option>
-                        </select>
-                    </form-group>
+                <form-group label-title="Contacted us by" label-id="id_contacted_by" field="dealForm.contacted_by" required="true">
+                    <select name="contacted_by" ng-model="vm.deal.contacted_by"
+                            ng-options="contacted_by.value as contacted_by.display_name for contacted_by in vm.contactedByChoices" class="form-control">
+                        <option value="" hidden>---------</option>
+                    </select>
+                </form-group>
 
-                    <form-group label-title="Why customer" label-id="id_why_customer" field="dealForm.why_customer" required="true">
-                        <select name="why_customer" ng-model="vm.deal.why_customer"
-                                ng-options="why_customer.id as why_customer.name for why_customer in vm.whyCustomer track by why_customer.id" class="form-control">
-                            <option value="" hidden>---------</option>
-                        </select>
-                    </form-group>
+                <form-group label-title="Why customer" label-id="id_why_customer" field="dealForm.why_customer" required="true">
+                    <select name="why_customer" ng-model="vm.deal.why_customer"
+                            ng-options="why_customer.id as why_customer.name for why_customer in vm.whyCustomer track by why_customer.id" class="form-control">
+                        <option value="" hidden>---------</option>
+                    </select>
+                </form-group>
             </form-portlet>
 
             <form-portlet title="What is it?">
@@ -170,9 +172,10 @@
                 </form-radio-buttons>
             </form-portlet>
 
-            <div class="hl-form-footer" ng-if="!settings.email.sidebar.form">
+            <div class="hl-form-footer">
                 <div class="row">
-                    <div class="col-md-offset-2 col-md-10">
+                    <div ng-class="{'hidden col-xs-12': settings.email.sidebar.form, 'col-xs-12 col-sm-3 col-md-2 col-lg-2': !settings.email.sidebar.form}"></div>
+                    <div ng-class="{'col-xs-12': settings.email.sidebar.form, 'col-xs-12 col-sm-9 col-md-8 col-md-7 col-lg-4': !settings.email.sidebar.form}">
                         <button type="button" class="btn blue" ng-click="vm.saveDeal(dealForm)">
                             <i class="fa fa-check"></i> Save
                         </button>

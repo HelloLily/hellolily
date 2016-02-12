@@ -28,12 +28,14 @@ function Deal($resource, HLUtils, HLForms) {
                     id: '@id',
                 },
                 transformRequest: function(data) {
+                    data = angular.copy(data);
                     return angular.toJson(HLForms.clean(data));
                 },
             },
             save: {
                 method: 'POST',
                 transformRequest: function(data) {
+                    data = angular.copy(data);
                     return angular.toJson(HLForms.clean(data));
                 },
             },
@@ -43,6 +45,7 @@ function Deal($resource, HLUtils, HLForms) {
                     id: '@id',
                 },
                 transformRequest: function(data) {
+                    data = angular.copy(data);
                     return angular.toJson(HLForms.clean(data));
                 },
             },

@@ -24,7 +24,10 @@
                 </thead>
                 <tbody ng-repeat="deal in vm.list" ng-if="vm.list.length">
                     <tr>
-                        <td><a ui-sref="base.deals.detail({id: deal.id})">{{ deal.name }} {{ deal.name }} {{ deal.name }}</a></td>
+                        <td>
+                            <strong ng-if="::deal.archived">(a)</strong>
+                            <a ui-sref="base.deals.detail({id: deal.id})">{{ deal.name }}</a>
+                        </td>
                         <td>{{ deal.stage_name }}</td>
                         <td>
                             <span ng-if="deal.next_step"

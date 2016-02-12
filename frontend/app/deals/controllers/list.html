@@ -92,6 +92,7 @@
                         </a>
                     </td>
                     <td ng-show="vm.table.visibility.name">
+                        <strong ng-if="::deal.archived">(a)</strong>
                         <a ui-sref="base.deals.detail({ id: deal.id })" title="{{ deal.name }}">{{ deal.name }}</a>
                     </td>
                     <td ng-show="vm.table.visibility.client">

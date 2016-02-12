@@ -30,6 +30,20 @@ function dealConfig($stateProvider) {
         },
     });
 
+    $stateProvider.state('base.deals.create.fromContact', {
+        url: '/contact/{contactId:[0-9]{1,}}',
+        views: {
+            '@': {
+                templateUrl: 'deals/controllers/form.html',
+                controller: DealCreateUpdateController,
+                controllerAs: 'vm',
+            },
+        },
+        ncyBreadcrumb: {
+            skip: true,
+        },
+    });
+
     $stateProvider.state('base.deals.detail.edit', {
         url: '/edit',
         views: {
@@ -47,9 +61,9 @@ function dealConfig($stateProvider) {
 
 angular.module('app.deals').controller('DealCreateUpdateController', DealCreateUpdateController);
 
-DealCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'Contact', 'Deal', 'HLForms',
-    'HLSearch', 'HLUtils', 'Settings', 'User'];
-function DealCreateUpdateController($scope, $state, $stateParams, Account, Contact, Deal, HLForms,
+DealCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'Contact', 'ContactDetail',
+    'Deal', 'HLForms', 'HLSearch', 'HLUtils', 'Settings', 'User'];
+function DealCreateUpdateController($scope, $state, $stateParams, Account, Contact, ContactDetail, Deal, HLForms,
                                     HLSearch, HLUtils, Settings, User) {
     var vm = this;
 
@@ -145,6 +159,34 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
                     }
                 });
             }
+
+            if (Settings.email.data && (Settings.email.data.account ||
+                (Settings.email.data.contact && Settings.email.data.contact.accounts))) {
+                // Auto fill data if it's available.
+                if (Settings.email.data.contact.id) {
+                    if (Settings.email.data && Settings.email.data.account) {
+                        var filterquery = 'accounts.id:' + Settings.email.data.account.id;
+
+                        ContactDetail.query({filterquery: filterquery}).$promise.then(function(colleagues) {
+                            var colleagueIds = [];
+                            angular.forEach(colleagues, function(colleague) {
+                                colleagueIds.push(colleague.id);
+                            });
+
+                            // Check if the contact actually works at the account.
+                            if (colleagueIds.indexOf(Settings.email.data.contact.id) > -1) {
+                                vm.deal.contact = Settings.email.data.contact.id;
+                            }
+                        });
+                    } else {
+                        vm.deal.contact = Settings.email.data.contact.id;
+                    }
+                }
+
+                if (Settings.email.data && Settings.email.data.account) {
+                    vm.deal.account = Settings.email.data.account.id;
+                }
+            }
         }
     }
 
@@ -238,9 +280,10 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
             vm.deal.$save(function() {
                 toastr.success('I\'ve saved the deal for you!', 'Yay');
 
-                if ($scope.settings.email.sidebar.form === 'createDeal') {
-                    $scope.settings.email.sidebar.form = null;
-                    $scope.settings.email.sidebar.deal = true;
+                if (Settings.email.sidebar.form === 'deals') {
+                    Settings.email.sidebar.form = null;
+
+                    Metronic.unblockUI();
                 } else {
                     $state.go('base.deals.detail', {id: vm.deal.id});
                 }

@@ -92,7 +92,8 @@ function Settings(LocalStorage) {
         _settings.email.sidebar = {
             account: null,
             contact: null,
-            cases: null,
+            case: null,
+            deal: null,
             form: null,
             isVisible: false,
         };

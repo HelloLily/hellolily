@@ -846,8 +846,7 @@ class EmailSyncLock(object):
         self.connection = self.get_connection()
 
     def get_connection(self):
-        redis_path = urlparse(os.environ.get('REDISTOGO_URL', 'redis://localhost:6379'))
-        return Redis(redis_path.hostname, port=redis_path.port, password=redis_path.password)
+        return Redis(settings.REDIS.hostname, port=settings.REDIS.port, password=settings.REDIS.password)
 
     def get(self):
         return self.connection.get(self.key)

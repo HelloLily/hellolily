@@ -12,7 +12,7 @@ from lily.messaging.email.api.views import (EmailLabelViewSet, EmailAccountViewS
                                             TemplateVariableViewSet)
 from lily.notes.api.views import NoteViewSet
 from lily.users.api.views import LilyUserViewSet, TeamViewSet
-from lily.utils.api.views import CountryViewSet, CallerName, Notifications, Queues
+from lily.utils.api.views import CountryViewSet, CallerName, Notifications
 
 from .routers import SimpleRouter, NestedSimpleRouter
 
@@ -63,7 +63,6 @@ urlpatterns = patterns(
     url(r'^deals/stages/$', DealStagesList.as_view()),
     url(r'^deals/nextsteps/$', DealNextStepList.as_view()),
 
-    url(r'^utils/queues/(?P<queue>[\w]+)/$', Queues.as_view()),
     url(r'^utils/notifications/$', Notifications.as_view()),
     url(r'^utils/callername/$', CallerName.as_view()),
 

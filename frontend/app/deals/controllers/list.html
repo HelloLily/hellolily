@@ -19,6 +19,7 @@
                     <checkbox model="vm.table.visibility.newBusiness">New business</checkbox>
                     <checkbox model="vm.table.visibility.feedbackFormSent">Feedback form sent</checkbox>
                     <checkbox model="vm.table.visibility.created">Created</checkbox>
+                    <checkbox model="vm.table.visibility.createdBy">Created by</checkbox>
                     <checkbox model="vm.table.visibility.tags">Tags</checkbox>
                 </div>
             </div>
@@ -82,6 +83,7 @@
                 <th ng-show="vm.table.visibility.newBusiness" sort-column="new_business" table="vm.table">Business</th>
                 <th ng-show="vm.table.visibility.feedbackFormSent" sort-column="feedback_form_sent" table="vm.table">Feedback form sent</th>
                 <th ng-show="vm.table.visibility.created" sort-column="created" table="vm.table" class="width-10">Created</th>
+                <th ng-show="vm.table.visibility.createdBy" sort-column="created_by" table="vm.table">Created by</th>
                 <th ng-show="vm.table.visibility.tags">Tags</th>
             </thead>
             <tbody>
@@ -133,6 +135,9 @@
                     </td>
                     <td ng-show="vm.table.visibility.created">
                         <date date="deal.created"></date>
+                    </td>
+                    <td ng-show="vm.table.visibility.createdBy">
+                        {{ ::deal.created_by }}
                     </td>
                     <td ng-show="vm.table.visibility.tags">
                         <span ng-repeat="tag in deal.tag">

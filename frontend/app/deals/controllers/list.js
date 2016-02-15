@@ -52,6 +52,7 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
             nextStepDate: true,
             feedbackFormSent: true,
             newBusiness: true,
+            createdBy: true,
             tags: true,
         }),
         dueDateFilter: storage.get('dueDateFilter', ''),

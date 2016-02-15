@@ -160,12 +160,7 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserT
             sort: HLUtils.getSorting(orderColumn, orderedAsc),
             filterquery: filterQuery,
         }, function(cases) {
-            if (cases.length) {
-                return {
-                    deals: cases,
-                    total: cases[0].total_size,
-                };
-            }
+            return cases;
         }).$promise;
     }
 

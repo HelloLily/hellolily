@@ -1,6 +1,6 @@
 <div class="hl-form-section" ng-class="{'no-bottom-margin': vm.sidebar}">
     <div class="row">
-        <div ng-class="{'hidden col-xs-12': vm.sidebar, 'col-xs-12 col-sm-3 col-md-2 col-lg-2': !vm.sidebar}">
+        <div ng-class="{'hidden col-xs-12': vm.sidebar, 'col-xs-12 col-sm-3 col-md-2 col-lg-2' : !vm.sidebar}">
             <div class="hl-form-section-heading">
                 {{ vm.title }}
             </div>
@@ -8,5 +8,6 @@
         <div ng-class="{'col-xs-12': vm.sidebar, 'col-xs-12 col-sm-9 col-md-8 col-md-7 col-lg-4': !vm.sidebar}">
             <ng-transclude class="hl-form-section-content"></ng-transclude>
         </div>
-    <div class="clearfix"></div>
+        <div class="clearfix"></div>
+    </div>
 </div>

@@ -2,7 +2,9 @@ class FormSetFormMixin(object):
     """
     Custom form mixin to allow easier use of formset fields.
 
-    With the setup of the formset fields the formset_form_attrs kwargs is translated to form_attrs on the specific fields.
+    With the setup of the formset fields the formset_form_attrs
+    kwargs is translated to form_attrs on the specific fields.
+
     Also there is custom save logic for each of the formset fields.
     """
     def __init__(self, *args, **kwargs):

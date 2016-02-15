@@ -156,7 +156,9 @@ def uri_detect(content):
     """
     return re.sub(
         r'(([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)',
-        lambda match: '<a href="%s">%s</a>' % ('http://%s' % match.group(1) if match.group(1).find('http://') != 0 else match.group(1), match.group(1)),
+        lambda match:
+            '<a href="%s">%s</a>' %
+            ('http://%s' % match.group(1) if match.group(1).find('http://') != 0 else match.group(1), match.group(1)),
         content)
 
 
@@ -167,5 +169,8 @@ def tags_to_uri(content):
     """
     return re.sub(
         r'(^|\s|\S)(?<!&)#([^\s]+)',
-        lambda match: '%s<a href="%s" title="%s">#%s</a>' % (match.group(1), reverse('dashboard_tag', kwargs={'tag': urlquote_plus(match.group(2))}), _('Show all posts with tag #%s') % match.group(2), match.group(2)),
+        lambda match: '%s<a href="%s" title="%s">#%s</a>' %
+                      (match.group(1), reverse('dashboard_tag',
+                                               kwargs={'tag': urlquote_plus(match.group(2))}),
+                       _('Show all posts with tag #%s') % match.group(2), match.group(2)),
         content)

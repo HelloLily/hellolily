@@ -13,6 +13,7 @@ from .models import LilyGroup, LilyUser
 
 
 faker = Factory.create('nl_NL')
+preposition_list = ['van der', 'vd', 'van', 'de', 'ten', 'von', 'van de', 'van den']
 
 
 class LilyUserFactory(DjangoModelFactory):
@@ -20,7 +21,7 @@ class LilyUserFactory(DjangoModelFactory):
     password = make_password('admin')
 
     first_name = LazyAttribute(lambda o: faker.first_name())
-    preposition = LazyAttribute(lambda o: choice(['van der', 'vd', 'van', 'de', 'ten', 'von', 'van de', 'van den']) if bool(randint(0, 1)) else '')
+    preposition = LazyAttribute(lambda o: choice(preposition_list) if bool(randint(0, 1)) else '')
     last_name = LazyAttribute(lambda o: faker.last_name())
     email = LazyAttribute(lambda o: faker.email())
     is_active = LazyAttribute(lambda o: bool(randint(0, 1)))

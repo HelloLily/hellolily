@@ -33,7 +33,7 @@ class DealWhyCustomerViewSet(SetTenantUserMixin, ModelViewSet):
     queryset = DealWhyCustomer.objects
     # Set the serializer class for this viewset.
     serializer_class = DealWhyCustomerSerializer
-    
+
     def get_queryset(self):
         """
         Set the queryset here so it filters on tenant and works with pagination.

@@ -3,7 +3,7 @@ from lily.tenant.models import TenantMixin
 
 
 class Parcel(TenantMixin):
-    DPD = 0 # When multiple A, B = range(2)
+    DPD = 0  # When multiple A, B = range(2)
     PROVIDERS = [
         (DPD, 'DPD'),
     ]

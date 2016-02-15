@@ -25,7 +25,10 @@
                 </thead>
                 <tbody ng-repeat="case in vm.list" ng-if="vm.list.length">
                     <tr>
-                        <td><a ui-sref="base.cases.detail({id: case.id})">{{ case.subject }}</a></td>
+                        <td>
+                            <strong ng-if="::case.archived">(a)</strong>
+                            <a ui-sref="base.cases.detail({id: case.id})">{{ case.subject }}</a>
+                        </td>
                         <td>{{ case.status }}</td>
                         <td style="width: 50px; text-align: center;">
                             <i tooltip-placement="left" uib-tooltip="{{ case.priority_name }} priority" class="lilicon" ng-class="{0: 'hl-low-prio-icon', 1: 'hl-normal-prio-icon', 2: 'hl-high-prio-icon', 3: 'hl-critical-prio-icon'}[case.priority]"></i>

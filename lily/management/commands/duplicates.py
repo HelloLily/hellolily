@@ -20,4 +20,3 @@ class Command(BaseCommand):
                     functions_flat.add(function_flat)
 
             print '%s > %s' % (i + 1, accounts_size)
-

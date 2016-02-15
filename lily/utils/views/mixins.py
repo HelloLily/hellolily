@@ -4,7 +4,6 @@ from datetime import datetime
 
 import anyjson
 from django.core.urlresolvers import reverse
-from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
@@ -105,7 +104,8 @@ class ExportListViewMixin(FilterQuerysetMixin):
             exportable_columns = {
                 'column_name_1': {
                     'headers': ['header_name_1',]  # Can be multiple columns.
-                    'columns_for_item': ['columns_for_item',]  # Can be multiple columns, must match 'headers' in length.
+                    'columns_for_item':
+                        ['columns_for_item',]  # Can be multiple columns, must match 'headers' in length.
                 },
             }
         search_fields (list of strings): The fields of the queryset where the queryset will be filtered on. The filter

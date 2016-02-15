@@ -259,7 +259,8 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
                 next_messages = [item for item in messages_after if item['sender_email'] != account_email]
                 if len(next_messages):
                     next_message = next_messages[0]
-                    email_addresses = next_message.get('received_by_email', []) + next_message.get('received_by_cc_email', [])
+                    email_addresses = next_message.get('received_by_email', []) + \
+                                      next_message.get('received_by_cc_email', [])
                     if email_addresses.count(email.account.email_address):
                         results['replied_with'] = next_message
             else:
@@ -267,7 +268,8 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
                 next_messages = [item for item in messages_after if item['sender_email'] == account_email]
                 if len(next_messages):
                     next_message = next_messages[0]
-                    email_addresses = next_message.get('received_by_email', []) + next_message.get('received_by_cc_email', [])
+                    email_addresses = next_message.get('received_by_email', []) + \
+                                      next_message.get('received_by_cc_email', [])
                     if email_addresses.count(email.sender.email_address):
                         results['replied_with'] = next_message
                     else:

@@ -23,7 +23,11 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserT
                 },
             },
             query: {
-                url: '/search/search/?type=cases_case&filterquery=:filterquery',
+                url: '/search/search/',
+                method: 'GET',
+                params: {
+                    type: 'cases_case',
+                },
                 isArray: true,
                 transformResponse: function(data) {
                     var jsonData = angular.fromJson(data);
@@ -64,8 +68,6 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserT
     _case.getCaseTypes = getCaseTypes;
     _case.getMyCasesWidget = getMyCasesWidget;
     _case.getCallbackRequests = getCallbackRequests;
-    _case.getUnassignedCasesForTeam = getUnassignedCasesForTeam;
-    _case.clean = clean;
 
     // Hardcoded because these are the only case priorities.
     _case.casePriorities = [
@@ -97,43 +99,6 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserT
     }
 
     /**
-     * Clean the case data.
-     * @param data (object): The case that's being created/updated.
-     */
-    function clean(data) {
-        var cleanedData = angular.copy(data);
-
-        angular.forEach(cleanedData, function(fieldValue, field) {
-            if (fieldValue) {
-                // We don't want to send whole objects to the API, because they're not accepted.
-                // So loop through all fields and extract IDs.
-                if (fieldValue.constructor === Array) {
-                    var ids = [];
-
-                    angular.forEach(fieldValue, function(item) {
-                        if (typeof item === 'object') {
-                            if (item.hasOwnProperty('id')) {
-                                ids.push(item.id);
-                            }
-                        } else if (typeof item === 'number') {
-                            // Seems to be an ID, so just add it to the ID array.
-                            ids.push(item);
-                        }
-                    });
-
-                    cleanedData[field] = ids;
-                } else if (typeof fieldValue === 'object') {
-                    if (fieldValue.hasOwnProperty('id')) {
-                        cleanedData[field] = fieldValue.id;
-                    }
-                }
-            }
-        });
-
-        return cleanedData;
-    }
-
-    /**
      * getCases() gets the cases from the search backend through a promise
      *
      * @param queryString string: current filter on the caselist
@@ -141,7 +106,6 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserT
      * @param pageSize int: current page size of pagination
      * @param orderColumn string: current sorting of cases
      * @param orderedAsc {boolean}: current ordering
-     * @param archived {boolean}: when true, only archived are fetched, if false, only active
      * @param filterQuery {string}: contains the filters which are used in ElasticSearch
      *
      * @returns Promise object: when promise is completed:
@@ -150,24 +114,16 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserT
      *          total int: total number of case objects
      *      }
      */
-    function getCases(queryString, page, pageSize, orderColumn, orderedAsc, archived, filterQuery) {
-        return $http({
-            url: '/search/search/',
-            method: 'GET',
-            params: {
-                type: 'cases_case',
-                q: queryString,
-                page: page - 1,
-                size: pageSize,
-                sort: HLUtils.getSorting(orderColumn, orderedAsc),
-                filterquery: filterQuery,
-            },
-        }).then(function(response) {
-            return {
-                cases: response.data.hits,
-                total: response.data.total,
-            };
-        });
+    function getCases(queryString, page, pageSize, orderColumn, orderedAsc, filterQuery) {
+        return _case.query({
+            q: queryString,
+            page: page - 1,
+            size: pageSize,
+            sort: HLUtils.getSorting(orderColumn, orderedAsc),
+            filterquery: filterQuery,
+        }, function(cases) {
+            return cases;
+        }).$promise;
     }
 
     function getCaseTypes() {
@@ -205,15 +161,6 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserT
         });
 
         return deferred.promise;
-    }
-
-    function getUnassignedCasesForTeam(teamId, field, descending) {
-        var filterQuery = 'archived:false AND _missing_:assigned_to_id AND assigned_to_groups:' + teamId;
-
-        return _case.query({
-            filterquery: filterQuery,
-            sort: HLUtils.getSorting(field, descending),
-        }).$promise;
     }
 
     /**

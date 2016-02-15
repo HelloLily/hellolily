@@ -1,7 +1,9 @@
 angular.module('app.services').factory('Settings', Settings);
 
-Settings.$inject = [];
-function Settings() {
+Settings.$inject = ['LocalStorage'];
+function Settings(LocalStorage) {
+    var storage = LocalStorage('generalSettings');
+
     var _settings = {
         page: {
             title: 'Welcome',
@@ -19,12 +21,17 @@ function Settings() {
                 account: null,
                 contact: null,
                 cases: null,
+                deals: null,
                 form: null,
                 isVisible: false,
             },
+            previousInbox: null,
+            setPreviousInbox: setPreviousInbox,
             resetEmailSettings: resetEmailSettings,
         },
     };
+
+    _settings.email.previousInbox = storage.get('previousInbox', null);
 
     function setTitle(pageType, newTitle) {
         // Capitalize first letter of the new title.
@@ -72,9 +79,12 @@ function Settings() {
     }
 
     function setAllTitles(pageType, objectInfo) {
-        setTitle(pageType, objectInfo);
-        setMain(pageType, objectInfo);
-        setSub(pageType, objectInfo);
+        // Make sure sidebar forms don't set the titles/headers.
+        if (!_settings.email.sidebar.form) {
+            setTitle(pageType, objectInfo);
+            setMain(pageType, objectInfo);
+            setSub(pageType, objectInfo);
+        }
     }
 
     function resetEmailSettings() {
@@ -82,6 +92,8 @@ function Settings() {
         _settings.email.sidebar = {
             account: null,
             contact: null,
+            case: null,
+            deal: null,
             form: null,
             isVisible: false,
         };
@@ -92,7 +104,14 @@ function Settings() {
             account: null,
             contact: null,
             cases: null,
+            deals: null,
         };
+    }
+
+    function setPreviousInbox(previousInbox) {
+        storage.put('previousInbox', previousInbox);
+
+        _settings.email.previousInbox = previousInbox;
     }
 
     return _settings;

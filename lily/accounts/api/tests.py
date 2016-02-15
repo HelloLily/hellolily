@@ -97,7 +97,7 @@ class AccountTests(APITestCase):
         """
         url = reverse('account-list')
 
-        account = self.create_account()
+        self.create_account()
 
         post_data = {
             'name': 'Test account'

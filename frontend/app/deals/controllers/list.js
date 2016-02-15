@@ -21,7 +21,7 @@ angular.module('app.deals').controller('DealListController', DealListController)
 
 DealListController.$inject = ['$scope', '$timeout', 'Settings', 'LocalStorage', 'Deal', 'HLFilters'];
 function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFilters) {
-    var storage = LocalStorage('dealList');
+    var storage = LocalStorage('deals');
     var vm = this;
 
     Settings.page.setAllTitles('list', 'deals');
@@ -41,6 +41,7 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
         }),
         visibility: storage.get('visibility', {
             deal: true,
+            client: true,
             stage: true,
             created: true,
             name: true,
@@ -51,9 +52,11 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
             nextStepDate: true,
             feedbackFormSent: true,
             newBusiness: true,
+            createdBy: true,
             tags: true,
         }),
         dueDateFilter: storage.get('dueDateFilter', ''),
+        usersFilter: storage.get('usersFilter', ''),
         searchQuery: storage.get('searchQuery', ''),
     };
     vm.displayFilterClear = false;
@@ -141,7 +144,7 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
             },
         ];
 
-        Deal.nextSteps(function(nextSteps) {
+        Deal.getNextSteps(function(nextSteps) {
             angular.forEach(nextSteps, function(nextStep) {
                 filterList.push({
                     name: nextStep.name,
@@ -152,16 +155,7 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
                 });
             });
 
-            if (storedFilterList) {
-                // Stored filter list exists, merge the selections from with the stored values.
-                angular.forEach(storedFilterList, function(storedFilter) {
-                    angular.forEach(filterList, function(caseInList) {
-                        if (storedFilter.name === caseInList.name) {
-                            caseInList.selected = storedFilter.selected;
-                        }
-                    });
-                });
-            }
+            HLFilters.getStoredSelections(filterList, storedFilterList);
 
             // Update filterList once AJAX calls are done.
             vm.filterList = filterList;
@@ -234,8 +228,10 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
             updateFilterQuery();
         });
 
-        $scope.$watch('vm.table.dueDateFilter', function() {
+        $scope.$watchGroup(['vm.table.dueDateFilter', 'vm.table.usersFilter'], function() {
             updateFilterQuery();
+            storage.put('dueDateFilter', vm.table.dueDateFilter);
+            storage.put('usersFilter', vm.table.usersFilter);
         });
     }
 
@@ -249,7 +245,7 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
     }
 
     function updateFilterQuery() {
-        HLFilters.updateFilterQuery(vm);
+        HLFilters.updateFilterQuery(vm, true);
     }
 
     function clearFilters(clearSpecial) {

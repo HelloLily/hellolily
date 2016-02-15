@@ -11,7 +11,7 @@ function myDealsDirective() {
 
 MyDealsController.$inject = ['$scope', 'Deal', 'HLUtils', 'LocalStorage', 'CaseDetail'];
 function MyDealsController($scope, Deal, HLUtils, LocalStorage, CaseDetail) {
-    var storage = LocalStorage('myDealsWidget');
+    var storage = LocalStorage('deals');
 
     var vm = this;
     vm.highPrioDeals = 0;

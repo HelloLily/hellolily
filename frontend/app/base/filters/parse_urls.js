@@ -12,6 +12,16 @@ angular.module('app.filters').filter('parseUrls', parseUrls);
 parseUrls.$inject = [];
 function parseUrls() {
     return function(text) {
-        return Autolinker.link(text);
+        return Autolinker.link( text, {
+          replaceFn : function( autolinker, match ) {
+              switch( match.getType() ) {
+                  case 'email' :
+                      var email = match.getEmail();
+                      return '<a href="#/email/compose/' + email + '">' + email + '</a>';
+                  default :
+                      return true;
+              }
+          }
+      } );
     };
 }

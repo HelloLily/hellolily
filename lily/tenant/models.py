@@ -39,7 +39,8 @@ class NullableTenantManager(models.Manager):
     def get_queryset(self):
         user = get_current_user()
         if user and user.is_authenticated():
-            return super(NullableTenantManager, self).get_queryset().filter(Q(tenant=user.tenant) | Q(tenant__isnull=True))
+            return super(NullableTenantManager, self).get_queryset().filter(Q(tenant=user.tenant) |
+                                                                            Q(tenant__isnull=True))
         else:
             return super(NullableTenantManager, self).get_queryset()
 

@@ -17,33 +17,6 @@ from .serializers import AddressSerializer, EmailAddressSerializer, PhoneNumberS
 from ..models.models import Address, EmailAddress, PhoneNumber
 
 
-class Queues(APIView):
-    """
-    List all cases for a tenant.
-    """
-
-    def get(self, request, format=None, *args, **kwargs):
-        if not request.user.is_superuser:
-            raise exceptions.AuthenticationFailed('No permission')
-
-        if not settings.IRONMQ_URL or not settings.IRONMQ_OAUTH:
-            raise exceptions.AuthenticationFailed('No permission')
-
-        url = '%s/queues/%s?oauth=%s' % (settings.IRONMQ_URL, kwargs['queue'], settings.IRONMQ_OAUTH)
-
-        resp = requests.get(url)
-        queue_info = resp.json()
-
-        if resp.status_code == 200:
-            return Response({
-                'total_messages': queue_info['total_messages'],
-                'size': queue_info['size'],
-                'name': queue_info['name'],
-            })
-        else:
-            return exceptions.NotAcceptable
-
-
 class Notifications(APIView):
     """
     List all notifications posted in request.messages
@@ -78,14 +51,16 @@ class CallerName(APIView):
         phone_number_end = phone_number[-9:]
 
         contact = Contact.objects.filter(
-            Q(phone_numbers__raw_input__endswith=phone_number_end) | Q(phone_numbers__number__endswith=phone_number_end)
+            Q(phone_numbers__raw_input__endswith=phone_number_end) |
+            Q(phone_numbers__number__endswith=phone_number_end)
         ).filter(is_deleted=False).first()
 
         if contact:
             name = contact.full_name()
         else:
             account = Account.objects.filter(
-                Q(phone_numbers__raw_input__endswith=phone_number_end) | Q(phone_numbers__number__endswith=phone_number_end)
+                Q(phone_numbers__raw_input__endswith=phone_number_end) |
+                Q(phone_numbers__number__endswith=phone_number_end)
             ).filter(is_deleted=False).first()
 
             if account:

@@ -462,6 +462,10 @@ else:
 #######################################################################################################################
 # CACHING CONFIG                                                                                                      #
 #######################################################################################################################
+REDIS_ENV = os.environ.get('REDIS_PROVIDER_ENV', 'REDIS_DEV_URL')
+REDIS_URL = os.environ.get(REDIS_ENV, 'redis://redis:6379')
+REDIS = urlparse(REDIS_URL)
+
 if DEBUG:
     CACHES = {
         'default': {
@@ -474,35 +478,34 @@ if DEBUG:
         }
     }
 else:
-    redis_url = urlparse(os.environ.get('REDISTOGO_URL', 'redis://localhost:6379'))
     CACHES = {
         'default': {
             'BACKEND': 'redis_cache.RedisCache',
-            'LOCATION': '%s:%s' % (redis_url.hostname, redis_url.port),
+            'LOCATION': '%s:%s' % (REDIS.hostname, REDIS.port),
             'TIMEOUT': 300,  # Default django value of 5 minutes
             'OPTIONS': {
                 'DB': 0,
-                'PASSWORD': redis_url.password,
+                'PASSWORD': REDIS.password,
                 'PARSER_CLASS': 'redis.connection.HiredisParser'
             },
         },
         'staticfiles': {
             'BACKEND': 'redis_cache.RedisCache',
-            'LOCATION': '%s:%s' % (redis_url.hostname, redis_url.port),
+            'LOCATION': '%s:%s' % (REDIS.hostname, REDIS.port),
             'TIMEOUT': None,
             'OPTIONS': {
                 'DB': 0,
-                'PASSWORD': redis_url.password,
+                'PASSWORD': REDIS.password,
                 'PARSER_CLASS': 'redis.connection.HiredisParser'
             },
         },
         'collectfast': {
             'BACKEND': 'redis_cache.RedisCache',
-            'LOCATION': '%s:%s' % (redis_url.hostname, redis_url.port),
+            'LOCATION': '%s:%s' % (REDIS.hostname, REDIS.port),
             'TIMEOUT': 900,  # 15 minutes should be enough for upload to amazon
             'OPTIONS': {
                 'DB': 0,
-                'PASSWORD': redis_url.password,
+                'PASSWORD': REDIS.password,
                 'PARSER_CLASS': 'redis.connection.HiredisParser'
             },
         },
@@ -531,8 +534,8 @@ def es_url_to_dict(url):
             'http_auth': '%s:%s' % (parse.username, parse.password)}
     return tuple(sorted(host.items()))
 
-ES_PROVIDER_ENV = os.environ.get('ES_PROVIDER_ENV', 'SEARCHBOX_SSL_URL')
-ES_URLS = [es_url_to_dict(os.environ.get(ES_PROVIDER_ENV, 'http://localhost:9200'))]
+ES_PROVIDER_ENV = os.environ.get('ES_PROVIDER_ENV', 'ES_DEV_URL')
+ES_URLS = [es_url_to_dict(os.environ.get(ES_PROVIDER_ENV, 'http://es:9200'))]
 
 # The index Elasticsearch uses (as a prefix).
 ES_INDEXES = {'default': 'main_index'}
@@ -627,10 +630,6 @@ DEBUG_TOOLBAR_PANELS = [
     'debug_toolbar.panels.profiling.ProfilingPanel',
     # 'debug_toolbar_line_profiler.panel.ProfilingPanel',  # requires Cython and debug_toolbar_line_profiler
 ]
-
-# IronMQ
-IRONMQ_URL = os.environ.get('IRONMQ_URL', None)
-IRONMQ_OAUTH = os.environ.get('IRONMQ_OAUTH', None)
 
 # Django Bootstrap
 # TODO: These settings can be removed once all forms are converted to Angular

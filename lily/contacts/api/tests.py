@@ -170,7 +170,3 @@ class ContactTests(GenericAPITestCase):
         # Partial updates should still validate the related objects
         # Partial updates should amend to the relations
         pass
-
-
-
-

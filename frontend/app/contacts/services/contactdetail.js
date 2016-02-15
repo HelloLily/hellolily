@@ -22,7 +22,7 @@ function ContactDetail($resource, HLObjectDetails) {
                 }
             },
             query: {
-                url: '/search/search/?type=contacts_contact&size=1000&filterquery=:filterquery',
+                url: '/search/search/?type=contacts_contact&size=1000&filterquery=:filterquery&sort=full_name',
                 isArray: true,
                 transformResponse: function (data) {
                     data = angular.fromJson(data);

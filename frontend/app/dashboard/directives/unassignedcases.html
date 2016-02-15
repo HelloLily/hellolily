@@ -4,6 +4,11 @@
         {{vm.team.name}} cases
         <span class="label-amount">{{ vm.table.items.length }}</span><span class="label-amount high-prio" ng-if="vm.highPrioCases" uib-tooltip="Critical priority">{{ vm.highPrioCases }}</span>
     </div>
+
+    <div name="widget-filters">
+        <list-filter filter-label="'Case type'" view-model="vm"></list-filter>
+    </div>
+
     <div name="portlet-body">
         <table class="widget-table">
             <thead>

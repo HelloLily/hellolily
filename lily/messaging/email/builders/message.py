@@ -330,7 +330,7 @@ class MessageBuilder(object):
         if encoding:
             try:
                 decoded_body = body.decode(encoding)
-            except (LookupError, UnicodeDecodeError) as e:
+            except (LookupError, UnicodeDecodeError):
                 pass
 
         # BS4 decoding second

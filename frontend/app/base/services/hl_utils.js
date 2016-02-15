@@ -84,14 +84,19 @@ function HLUtils() {
         return items;
     };
 
-    this.addBusinessDays = function(priority) {
-        var daysToAdd = [5, 3, 1, 0];
-
+    this.addBusinessDays = function(daysToAdd, date) {
         var i = 0;
-        var newDate = moment();
+        var newDate;
+
+        if (date) {
+            // Given date might not be a moment object, so just convert it.
+            newDate = moment(date);
+        } else {
+            newDate = moment();
+        }
 
         // Add days based on what the priority is. Skip weekends.
-        while (i < daysToAdd[priority]) {
+        while (i < daysToAdd) {
             newDate = newDate.add(1, 'day');
 
             if (newDate.day() !== 0 && newDate.day() !== 6) {

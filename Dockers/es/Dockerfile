@@ -1,7 +1,7 @@
 FROM ubuntu:14.04
 MAINTAINER HelloLily
 
-ENV ES_PKG_NAME elasticsearch-1.3.7
+ENV ES_PKG_NAME elasticsearch-1.7.2
 
 # Install Java
 RUN apt-get update && \

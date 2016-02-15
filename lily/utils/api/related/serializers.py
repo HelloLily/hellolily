@@ -48,7 +48,8 @@ class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializer
 
     def create(self, validated_data):
         # Prepare all data for saving.
-        non_related_data, many_related_data, fk_related_data, generic_related_data = self._separate_data(validated_data)
+        (non_related_data, many_related_data,
+         fk_related_data, generic_related_data) = self._separate_data(validated_data)
 
         with transaction.atomic():
             # Do save of foreign key related fields.
@@ -98,7 +99,8 @@ class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializer
 
     def update(self, instance, validated_data):
         # Prepare all data for saving.
-        non_related_data, many_related_data, fk_related_data, generic_related_data = self._separate_data(validated_data)
+        (non_related_data, many_related_data,
+         fk_related_data, generic_related_data) = self._separate_data(validated_data)
 
         with transaction.atomic():
             instance = super(WritableNestedSerializer, self).update(instance, non_related_data)

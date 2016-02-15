@@ -23,7 +23,7 @@ CaseListController.$inject = ['$q', '$scope', '$state', '$timeout', '$uibModal',
     'UserTeams'];
 function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFilters, LocalStorage, Settings,
                             UserTeams) {
-    var storage = LocalStorage('caseList');
+    var storage = LocalStorage('cases');
     var vm = this;
 
     Settings.page.setAllTitles('list', 'cases');
@@ -53,6 +53,7 @@ function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFil
             tags: true,
         }),
         dueDateFilter: storage.get('dueDateFilter', ''),
+        usersFilter: storage.get('usersFilter', ''),
         searchQuery: storage.get('searchQuery', ''),
     };
     vm.displayFilterClear = false;
@@ -202,11 +203,10 @@ function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFil
             vm.table.pageSize,
             vm.table.order.column,
             vm.table.order.descending,
-            vm.table.archived,
             vm.table.filterQuery
-        ).then(function(data) {
-            vm.table.items = data.cases;
-            vm.table.totalItems = data.total;
+        ).then(function(cases) {
+            vm.table.items = cases;
+            vm.table.totalItems = cases.length;
         });
     }
 
@@ -243,13 +243,15 @@ function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFil
             updateFilterQuery();
         });
 
-        $scope.$watch('vm.table.dueDateFilter', function() {
+        $scope.$watchGroup(['vm.table.dueDateFilter', 'vm.table.usersFilter'], function() {
             updateFilterQuery();
+            storage.put('dueDateFilter', vm.table.dueDateFilter);
+            storage.put('usersFilter', vm.table.usersFilter);
         });
     }
 
     function updateFilterQuery() {
-        HLFilters.updateFilterQuery(vm);
+        HLFilters.updateFilterQuery(vm, true);
     }
 
     function clearFilters(clearSpecial) {

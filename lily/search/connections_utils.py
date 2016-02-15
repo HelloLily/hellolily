@@ -30,8 +30,10 @@ def get_es_client_kwargs(**kwargs_overrides):
 
 
 def get_index_name(base_index_name, mapping):
-    """Returns the full index name, based on the base index name and mapping."""
-    return '%s.%s' % (base_index_name, mapping.get_mapping_type_name())
+    """Returns the full index name, based on the base index name and mapping or type."""
+    if 'get_mapping_type_name' in dir(mapping):
+        return '%s.%s' % (base_index_name, mapping.get_mapping_type_name())
+    return '%s.%s' % (base_index_name, mapping)
 
 
 class Urllib3HttpBlockingConnection(Urllib3HttpConnection):

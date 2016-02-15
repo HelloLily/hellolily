@@ -82,12 +82,7 @@
 
             <form-portlet title="When to do it?">
                 <form-group label-title="Priority" label-icon="info" label-id="id_priority" field="caseForm.priority" required="true">
-                    <div ng-if='!settings.email.sidebar.form'>
-                        <select ng-model="vm.case.priority" ng-options="priority.position as priority.name for priority in vm.casePriorities" class="form-control">
-                            <option value="" hidden>---------</option>
-                        </select>
-                    </div>
-                    <div ng-if="settings.email.sidebar.form">
+                    <div>
                         <label class="priority-button" ng-repeat="priority in vm.casePriorities"
                                ng-class="{0: 'low-priority-indicator', 1: 'medium-priority-indicator', 2: 'high-priority-indicator', 3: 'critical-priority-indicator'}[$index]">
                             {{ priority.name }}

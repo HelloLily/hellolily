@@ -25,8 +25,8 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseDetailController', CaseDetailController);
 
-CaseDetailController.$inject = ['$http', '$scope', '$stateParams', 'Settings', 'Case', 'Account', 'CaseStatuses', 'caseItem', 'Contact'];
-function CaseDetailController($http, $scope, $stateParams, Settings, Case, Account, CaseStatuses, caseItem, Contact) {
+CaseDetailController.$inject = ['$http', '$scope', '$stateParams', 'Settings', 'Account', 'CaseStatuses', 'caseItem', 'Contact', 'UserTeams'];
+function CaseDetailController($http, $scope, $stateParams, Settings, Account, CaseStatuses, caseItem, Contact, UserTeams) {
     var vm = this;
     var id = $stateParams.id;
 
@@ -40,7 +40,6 @@ function CaseDetailController($http, $scope, $stateParams, Settings, Case, Accou
     vm.assignCase = assignCase;
     vm.archive = archive;
     vm.unarchive = unarchive;
-    vm.openPostponeWidget = Case.openPostponeWidget;
 
     activate();
 
@@ -58,6 +57,16 @@ function CaseDetailController($http, $scope, $stateParams, Settings, Case, Accou
                 vm.contact = contact;
             });
         }
+
+        var assignedToGroups = [];
+
+        angular.forEach(vm.case.assigned_to_groups, function(groupId) {
+            UserTeams.get({id: groupId}).$promise.then(function(team) {
+                assignedToGroups.push(team);
+            });
+        });
+
+        vm.case.assigned_to_groups = assignedToGroups;
     }
 
     /**

@@ -127,6 +127,10 @@
                         <a ng-if="vm.case.assigned_to_id == currentUser.id" ng-click="vm.assignCase()">[remove assignee]</a>
                         <a ng-if="vm.case.assigned_to_id != currentUser.id" ng-click="vm.assignCase()">[<i class="fa fa-anchor"></i> assign to me ]</a>
                     </li>
+                    <li ng-if="vm.case.assigned_to_groups.length">
+                        <strong>Assigned to teams:</strong>
+                        <span>{{ vm.case.assigned_to_groups | join:'name' }}</span>
+                    </li>
                     <li><strong>Created by:</strong> {{ vm.case.created_by || 'Unknown' }}</li>
                     <li><strong>Created on:</strong> {{ vm.case.created | date:"dd MMMM y H:mm" }}</li>
                     <li>

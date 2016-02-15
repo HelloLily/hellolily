@@ -8,10 +8,12 @@ from elasticutils import S
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
 from lily.messaging.email.models.models import EmailAccount, SharedEmailConfig
-from lily.search.connections_utils import get_es_client_kwargs
+from lily.search.connections_utils import get_es_client_kwargs, get_index_name
 
 
 logger = logging.getLogger(__name__)
+
+main_index = settings.ES_INDEXES['default']
 
 
 class LilySearch(object):
@@ -74,6 +76,11 @@ class LilySearch(object):
 
         if self.model_type:
             self.search = self.search.doctypes(self.model_type)
+            # Also limit the search to just the index with the right type.
+            # This is faster than asking every index, also prevents some
+            # annoying "cannot find field" errors in the elasticsearch logs.
+            index_name = get_index_name(main_index, self.model_type)
+            self.search = self.search.indexes(index_name)
 
         if self.facet:
             facet_raw = {

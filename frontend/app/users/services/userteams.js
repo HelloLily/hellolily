@@ -3,7 +3,7 @@ angular.module('app.users.services').factory('UserTeams', UserTeams);
 UserTeams.$inject = ['$resource'];
 function UserTeams($resource) {
     var _userTeam = $resource(
-        '/api/users/team/',
+        '/api/users/team/:id/',
         null,
         {
             query: {

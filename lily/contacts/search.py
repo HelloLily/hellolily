@@ -36,6 +36,10 @@ class ContactMapping(BaseMapping):
                 'type': 'string',
                 'index_analyzer': 'normal_ngram_analyzer',
             },
+            'full_name': {
+                'type': 'string',
+                'index': 'not_analyzed',
+            },
             'description': {
                 'type': 'string',
                 'index_analyzer': 'normal_edge_analyzer',
@@ -145,6 +149,7 @@ class ContactMapping(BaseMapping):
         """
         doc = {
             'name': obj.full_name(),
+            'full_name': obj.full_name(),
             'last_name': obj.last_name,
             'created': obj.created,
             'modified': obj.modified,

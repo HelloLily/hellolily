@@ -104,6 +104,8 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
 
         Case.caseStatuses(function(data) {
             vm.caseStatuses = data;
+
+            vm.case.status = vm.caseStatuses[0];
         });
 
         vm.casePriorities = Case.casePriorities;

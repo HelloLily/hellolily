@@ -73,20 +73,6 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     vm.caseTypes = [];
     vm.caseStatuses = [];
     vm.casePriorities = [];
-    vm.formPortlets = {
-        0: {
-            fields: [],
-        },
-        1: {
-            fields: ['subject', 'type', 'status'],
-        },
-        2: {
-            fields: ['priority', 'expires'],
-        },
-        3: {
-            fields: [],
-        },
-    };
     vm.datepickerOptions = {
         startingDay: 1,
     };
@@ -95,63 +81,12 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     vm.assignToMe = assignToMe;
     vm.cancelCaseCreation = cancelCaseCreation;
     vm.saveCase = saveCase;
-    vm.openNextStep = openNextStep;
     vm.refreshAccounts = refreshAccounts;
     vm.refreshContacts = refreshContacts;
 
     $scope.$watch('vm.case.priority', function() {
         vm.case.expires = HLUtils.addBusinessDays(vm.case.priority);
     });
-
-    var watchGroup = [
-        'vm.case.type',
-        'vm.case.status',
-        'vm.case.priority',
-        'vm.case.expires',
-        'vm.case.account',
-        'vm.case.contact',
-    ];
-
-    $scope.$watchGroup(watchGroup, function(newValues, oldValues) {
-        if (newValues !== oldValues && !vm.case.id) {
-            openNextStep();
-        }
-    });
-
-    function openNextStep() {
-        for (var i = vm.startsAt; i < Object.keys(vm.formPortlets).length; i++) {
-            var fieldHasValue = true;
-            var portlet = vm.formPortlets[i];
-
-            // Check if all fields are set.
-            portlet.fields.forEach(function(field) {
-                // 0 is a valid input (selects), so allow it.
-                if (vm.case[field] === '' || vm.case[field] === null || vm.case[field] === undefined) {
-                    fieldHasValue = false;
-                }
-            });
-
-            if (!fieldHasValue) {
-                // Fields not completely filled in, so just stop checking the portlets.
-                break;
-            }
-
-            if (!portlet.portlet.isComplete) {
-                portlet.portlet.isComplete = true;
-                if (vm.formPortlets[i + 1]) {
-                    vm.formPortlets[i + 1].portlet.collapsed = false;
-                }
-
-                // TODO: Hacky way to open the last portlet when the second-to-last portlet is opened.
-                // The whole opening of portlets might need a rewrite anyway, so just do this the ugly way.
-                if (i + 1 === 2) {
-                    vm.formPortlets[3].portlet.collapsed = false;
-                }
-
-                return;
-            }
-        }
-    }
 
     activate();
 

@@ -5,181 +5,155 @@
         </div>
 
         <form novalidate class="hl-form-body" name="caseForm">
-            <form-portlet ng-if="!settings.email.sidebar.form" title="Who was it?" collapsable="true" position="0">
-                <div class="row">
-                    <div ng-class="{'col-xs-12' : settings.email.sidebar.form, 'col-md-6' : !settings.email.sidebar.form}">
-                        <form-group label-title="Account" label-icon="child" label-id="id_account" field="caseForm.account">
-                            <ui-select ng-model="vm.case.account" theme="select2" class="form-control" name="account" append-to-body="true">
-                                <ui-select-match placeholder="Select an account" allow-clear="true">{{ $select.selected.name }}</ui-select-match>
-                                <ui-select-choices repeat="account in vm.accounts | propsFilter: {name: $select.search}" refresh="vm.refreshAccounts($select.search)" refresh-delay="150">
-                                    <div ng-bind-html="account.name | highlight: $select.search"></div>
-                                </ui-select-choices>
-                            </ui-select>
-                            <span class="help-text text-muted">Please type at least 2 characters to begin the search</span>
-                        </form-group>
-                    </div>
-                </div>
+            <form-portlet ng-if="!settings.email.sidebar.form" title="Who was it?">
+                <form-group label-title="Account" label-icon="child" label-id="id_account" field="caseForm.account">
+                    <ui-select ng-model="vm.case.account" theme="select2" class="form-control" name="account" append-to-body="true">
+                        <ui-select-match placeholder="Select an account" allow-clear="true">{{ $select.selected.name }}</ui-select-match>
+                        <ui-select-choices repeat="account in vm.accounts | propsFilter: {name: $select.search}" refresh="vm.refreshAccounts($select.search)" refresh-delay="150">
+                            <div ng-bind-html="account.name | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                    <span class="help-text text-muted">Please type at least 2 characters to begin the search</span>
+                </form-group>
 
-                <div class="row">
-                    <div ng-class="{'col-xs-12' : settings.email.sidebar.form, 'col-md-6' : !settings.email.sidebar.form}">
-                        <form-group label-title="Contact" label-icon="child" label-id="id_contact" field="caseForm.contact">
-                            <ui-select ng-model="vm.case.contact" theme="select2" class="form-control" name="contact" append-to-body="true">
-                                <ui-select-match placeholder="Select an contact" allow-clear="true">{{ $select.selected.name }}</ui-select-match>
-                                <ui-select-choices repeat="contact in vm.contacts | propsFilter: {name: $select.search}" refresh="vm.refreshContacts($select.search)">
-                                    <div ng-bind-html="contact.name | highlight: $select.search"></div>
-                                </ui-select-choices>
-                            </ui-select>
-                            <span class="help-text text-muted">Please type at least 2 characters to begin the search</span>
-                        </form-group>
-                    </div>
+                <form-group label-title="Contact" label-icon="child" label-id="id_contact" field="caseForm.contact">
+                    <ui-select ng-model="vm.case.contact" theme="select2" class="form-control" name="contact" append-to-body="true">
+                        <ui-select-match placeholder="Select an contact" allow-clear="true">{{ $select.selected.name }}</ui-select-match>
+                        <ui-select-choices repeat="contact in vm.contacts | propsFilter: {name: $select.search}" refresh="vm.refreshContacts($select.search)">
+                            <div ng-bind-html="contact.name | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                    <span class="help-text text-muted">Please type at least 2 characters to begin the search</span>
+                </form-group>
+            </form-portlet>
+
+            <form-portlet title="What to do?">
+                <form-group label-title="Subject" label-icon="building-o" label-id="id_subject" field="caseForm.subject" required="true">
+                    <input class="form-control"
+                           id="id_subject"
+                           name="subject"
+                           maxlength="255"
+                           placeholder="Subject"
+                           type="text"
+                           ng-model="vm.case.subject" />
+                </form-group>
+
+                <form-group label-title="Description" label-icon="info" label-id="id_description" field="caseForm.description">
+                    <textarea class="form-control" cols="40" id="id_description" name="description" placeholder="Description" rows="3" ng-model="vm.case.description"></textarea>
+                </form-group>
+
+                <form-group label-title="Type" label-id="id_type" field="caseForm.type" required="true">
+                    <select ng-model="vm.case.type" ng-options="type.id as type.type for type in vm.caseTypes track by type.id" class="form-control">
+                        <option value="" hidden>---------</option>
+                    </select>
+                </form-group>
+
+                <form-group label-title="Status" label-id="id_status" field="caseForm.status" required="true">
+                    <select ng-model="vm.case.status" ng-options="status.id as status.status for status in vm.caseStatuses track by status.id" class="form-control">
+                        <option value="" hidden>---------</option>
+                    </select>
+                </form-group>
+
+                <div ng-if="!settings.email.sidebar.form && vm.case.type == vm.configCaseType">
+                    <form-radio-buttons options="['No', 'Yes']" label-title="Billing checked" input-name="billing_checked"
+                                        field="vm.case.billing_checked" sidebar="settings.email.sidebar.form">
+                    </form-radio-buttons>
+
+                    <form-group label-title="Parcel provider" label-icon="info" label-id="id_parcel_provider" field="caseForm.parcel_provider">
+                        <ui-select ng-model="vm.case.parcel_provider" theme="select2" class="form-control" name="parcel_provider" search-enabled="false">
+                            <ui-select-match placeholder="Select a parcel provider">{{ $select.selected.name }}</ui-select-match>
+                                <ui-select-choices repeat="parcel_provider.id as parcel_provider in vm.parcelProviders">
+                                <div ng-bind-html="parcel_provider.name"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </form-group>
+
+                    <form-group label-title="Parcel identifier" label-icon="tag" label-id="id_parcel_identifier" field="caseForm.parcel_identifier">
+                        <input class="form-control"
+                               id="id_parcel_identifier"
+                               maxlength="255"
+                               subject="parcel_identifier"
+                               placeholder="Parcel identifier"
+                               type="text"
+                               ng-model="vm.case.parcel_identifier">
+                    </form-group>
                 </div>
             </form-portlet>
 
-            <form-portlet title="What to do?" collapsable="true" position="1">
-                <div class="row">
-                    <div ng-class="{'col-xs-12' : settings.email.sidebar.form, 'col-md-6' : !settings.email.sidebar.form}">
-                        <form-group label-title="Subject" label-icon="building-o" label-id="id_subject" field="caseForm.subject" required="true">
-                            <input class="form-control"
-                                   id="id_subject"
-                                   name="subject"
-                                   maxlength="255"
-                                   placeholder="Subject"
-                                   type="text"
-                                   ng-model="vm.case.subject"
-                                   ng-blur="vm.openNextStep()" />
-                        </form-group>
-
-                        <form-group label-title="Description" label-icon="info" label-id="id_description" field="caseForm.description">
-                            <textarea class="form-control" cols="40" id="id_description" name="description" placeholder="Description" rows="3" ng-model="vm.case.description"></textarea>
-                        </form-group>
+            <form-portlet title="When to do it?">
+                <form-group label-title="Priority" label-icon="info" label-id="id_priority" field="caseForm.priority" required="true">
+                    <div ng-if='!settings.email.sidebar.form'>
+                        <select ng-model="vm.case.priority" ng-options="priority.position as priority.name for priority in vm.casePriorities" class="form-control">
+                            <option value="" hidden>---------</option>
+                        </select>
                     </div>
-                </div>
-
-                <div class="row">
-                    <div ng-class="{'col-xs-6' : settings.email.sidebar.form, 'col-xs-6 col-md-3' : !settings.email.sidebar.form}">
-                        <form-group label-title="Type" label-id="id_type" field="caseForm.type" required="true">
-                            <select ng-model="vm.case.type" ng-options="type.id as type.type for type in vm.caseTypes track by type.id" class="form-control">
-                                <option value="" hidden>---------</option>
-                            </select>
-                        </form-group>
+                    <div ng-if="settings.email.sidebar.form">
+                        <label class="priority-button" ng-repeat="priority in vm.casePriorities"
+                               ng-class="{0: 'low-priority-indicator', 1: 'medium-priority-indicator', 2: 'high-priority-indicator', 3: 'critical-priority-indicator'}[$index]">
+                            {{ priority.name }}
+                            <input id="id_priority-{{ $index }}"
+                                type="radio"
+                                ng-model="vm.case.priority"
+                                ng-value="$index"
+                                class="pull-right" />
+                        </label>
                     </div>
-                    <div ng-class="{'col-xs-6' : settings.email.sidebar.form, 'col-xs-6 col-md-3' : !settings.email.sidebar.form}">
-                        <form-group label-title="Status" label-id="id_status" field="caseForm.status" required="true">
-                            <select ng-model="vm.case.status" ng-options="status.id as status.status for status in vm.caseStatuses track by status.id" class="form-control">
-                                <option value="" hidden>---------</option>
-                            </select>
-                        </form-group>
+                </form-group>
+
+                <form-group label-title="Expiry date" label-icon="info" label-id="id_expires" field="caseForm.expires" required="true">
+                    <div class="input-group form-datepicker">
+                        <input type="text"
+                               class="form-control"
+                               ng-model="vm.case.expires"
+                               uib-datepicker-popup="dd/MM/yyyy"
+                               datepicker-options="vm.datepickerOptions"
+                               is-open="vm.pickerIsOpen"
+                               date-disabled="vm.disabledDates(date, mode)"
+                               datepicker-append-to-body="true" />
+                        <span class="input-group-btn">
+                            <button type="button" class="btn btn-default" ng-click="vm.pickerIsOpen = !vm.pickerIsOpen"><i class="glyphicon glyphicon-calendar"></i></button>
+                        </span>
                     </div>
-                </div>
-
-                <div class="row">
-                    <div ng-class="{'col-xs-12' : settings.email.sidebar.form, 'col-md-6' : !settings.email.sidebar.form}">
-                        <div ng-if="!settings.email.sidebar.form && vm.case.type == vm.configCaseType">
-                            <form-radio-buttons options="['No', 'Yes']" label-title="Billing checked" input-name="billing_checked"
-                                                field="vm.case.billing_checked" sidebar="settings.email.sidebar.form">
-                            </form-radio-buttons>
-
-                            <form-group label-title="Parcel provider" label-icon="info" label-id="id_parcel_provider" field="caseForm.parcel_provider">
-                                <ui-select ng-model="vm.case.parcel_provider" theme="select2" class="form-control" name="parcel_provider" search-enabled="false">
-                                    <ui-select-match placeholder="Select a parcel provider">{{ $select.selected.name }}</ui-select-match>
-                                        <ui-select-choices repeat="parcel_provider.id as parcel_provider in vm.parcelProviders">
-                                        <div ng-bind-html="parcel_provider.name"></div>
-                                    </ui-select-choices>
-                                </ui-select>
-                            </form-group>
-
-                            <form-group label-title="Parcel identifier" label-icon="tag" label-id="id_parcel_identifier" field="caseForm.parcel_identifier">
-                                <input class="form-control"
-                                       id="id_parcel_identifier"
-                                       maxlength="255"
-                                       subject="parcel_identifier"
-                                       placeholder="Parcel identifier"
-                                       type="text"
-                                       ng-model="vm.case.parcel_identifier">
-                            </form-group>
-                        </div>
-                    </div>
-                </div>
+                </form-group>
             </form-portlet>
 
-            <form-portlet title="When to do it?" collapsable="true" position="2">
-                <div class="row">
-                    <div ng-class="{'col-xs-12' : settings.email.sidebar.form, 'col-xs-6 col-md-3' : !settings.email.sidebar.form}">
-                        <form-group label-title="Priority" label-icon="info" label-id="id_priority" field="caseForm.priority" required="true">
-                            <div ng-if='!settings.email.sidebar.form'>
-                                <select ng-model="vm.case.priority" ng-options="priority.position as priority.name for priority in vm.casePriorities" class="form-control">
-                                    <option value="" hidden>---------</option>
-                                </select>
-                            </div>
-                            <div ng-if="settings.email.sidebar.form">
-                                <label class="priority-button" ng-repeat="priority in vm.casePriorities"
-                                       ng-class="{0: 'low-priority-indicator', 1: 'medium-priority-indicator', 2: 'high-priority-indicator', 3: 'critical-priority-indicator'}[$index]">
-                                    {{ priority.name }}
-                                    <input id="id_priority-{{ $index }}"
-                                        type="radio"
-                                        ng-model="vm.case.priority"
-                                        ng-value="$index"
-                                        class="pull-right" />
-                                </label>
-                            </div>
-                        </form-group>
-                    </div>
-                    <div ng-class="{'col-xs-12' : settings.email.sidebar.form, 'col-xs-6 col-md-3' : !settings.email.sidebar.form}">
-                        <form-group label-title="Expiry date" label-icon="info" label-id="id_expires" field="caseForm.expires" required="true">
-                            <div class="input-group form-datepicker">
-                                <input type="text"
-                                       class="form-control"
-                                       ng-model="vm.case.expires"
-                                       uib-datepicker-popup="dd/MM/yyyy"
-                                       datepicker-options="vm.datepickerOptions"
-                                       is-open="vm.pickerIsOpen"
-                                       date-disabled="vm.disabledDates(date, mode)"
-                                       datepicker-append-to-body="true"
-                                       ng-blur="vm.openNextStep()" />
-                                <span class="input-group-btn">
-                                    <button type="button" class="btn btn-default" ng-click="vm.pickerIsOpen = !vm.pickerIsOpen"><i class="glyphicon glyphicon-calendar"></i></button>
-                                </span>
-                            </div>
-                        </form-group>
-                    </div>
-                </div>
-            </form-portlet>
+            <form-portlet title="Who is going to do this?">
+                <form-group label-title="Assigned to teams" label-icon="child" label-id="id_assigned_to_groups" field="caseForm.assigned_to_groups">
+                    <ui-select multiple ng-model="vm.case.assigned_to_groups" theme="select2" class="form-control" name="assigned_to_groups" append-to-body="true">
+                        <ui-select-match placeholder="Select one or more account(s)">{{ $item.name }}</ui-select-match>
+                        <ui-select-choices repeat="team.id as team in vm.teams | propsFilter: {name: $select.search}">
+                            <div ng-bind-html="team.name | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </form-group>
 
-            <form-portlet title="Who is going to do this?" collapsable="true" position="3">
-                <div class="row">
-                    <div ng-class="{'col-xs-12' : settings.email.sidebar.form, 'col-md-6' : !settings.email.sidebar.form}">
-                        <form-group label-title="Assigned to teams" label-icon="child" label-id="id_assigned_to_groups" field="caseForm.assigned_to_groups">
-                            <ui-select multiple ng-model="vm.case.assigned_to_groups" theme="select2" class="form-control" name="assigned_to_groups" append-to-body="true">
-                                <ui-select-match placeholder="Select one or more account(s)">{{ $item.name }}</ui-select-match>
-                                <ui-select-choices repeat="team.id as team in vm.teams | propsFilter: {name: $select.search}">
-                                    <div ng-bind-html="team.name | highlight: $select.search"></div>
-                                </ui-select-choices>
-                            </ui-select>
-                        </form-group>
-
-                        <form-group label-title="Assigned to" label-icon="child" label-id="id_assigned_to" field="caseForm.assigned_to">
-                            <ui-select ng-model="vm.case.assigned_to" theme="select2" class="form-control" name="assigned_to" append-to-body="true">
-                                <ui-select-match placeholder="Assign to..." allow-clear="true">{{ $select.selected.name }}</ui-select-match>
-                                <ui-select-choices repeat="person.id as person in vm.assignOptions | propsFilter: {name: $select.search}">
-                                    <div ng-bind-html="person.name | highlight: $select.search"></div>
-                                </ui-select-choices>
-                            </ui-select>
-                            <button class="btn btn-link assign-me-btn" ng-click="vm.assignToMe()">Assign to me</button>
-                        </form-group>
-                    </div>
-                </div>
+                <form-group label-title="Assigned to" label-icon="child" label-id="id_assigned_to" field="caseForm.assigned_to">
+                    <ui-select ng-model="vm.case.assigned_to" theme="select2" class="form-control" name="assigned_to" append-to-body="true">
+                        <ui-select-match placeholder="Assign to..." allow-clear="true">{{ $select.selected.name }}</ui-select-match>
+                        <ui-select-choices repeat="person.id as person in vm.assignOptions | propsFilter: {name: $select.search}">
+                            <div ng-bind-html="person.name | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                    <button class="btn btn-link assign-me-btn" ng-click="vm.assignToMe()">Assign to me</button>
+                </form-group>
             </form-portlet>
 
             <div class="hl-form-footer">
-                <button type="button" class="btn blue" ng-click="vm.saveCase(caseForm)">
-                    <i class="fa fa-check"></i> Save
-                </button>
-                <button type="button" class="btn blue" ng-click="vm.saveCase(caseForm, true)">
-                    <i class="fa fa-check"></i> Save and archive
-                </button>
-                <button type="button" class="btn default" ng-click="vm.cancelCaseCreation()">
-                    Back
-                </button>
+                <div class="row">
+                    <div ng-class="{'hidden col-xs-12': settings.email.sidebar.form, 'col-xs-12 col-sm-3 col-md-2 col-lg-2': !settings.email.sidebar.form}"></div>
+                    <div ng-class="{'col-xs-12': settings.email.sidebar.form, 'col-xs-12 col-sm-9 col-md-8 col-md-7 col-lg-4': !settings.email.sidebar.form}">
+                        <button type="button" class="btn blue" ng-click="vm.saveCase(caseForm)">
+                            <i class="fa fa-check"></i> Save
+                        </button>
+                        <button type="button" class="btn blue" ng-click="vm.saveCase(caseForm, true)">
+                            <i class="fa fa-check"></i> Save and archive
+                        </button>
+                        <button type="button" class="btn default" ng-click="vm.cancelCaseCreation()">
+                            Back
+                        </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </form>
     </div>

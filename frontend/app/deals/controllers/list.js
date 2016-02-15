@@ -41,6 +41,7 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
         }),
         visibility: storage.get('visibility', {
             deal: true,
+            client: true,
             stage: true,
             created: true,
             name: true,
@@ -142,7 +143,7 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
             },
         ];
 
-        Deal.nextSteps(function(nextSteps) {
+        Deal.getNextSteps(function(nextSteps) {
             angular.forEach(nextSteps, function(nextStep) {
                 filterList.push({
                     name: nextStep.name,

@@ -45,6 +45,11 @@ function emailConfig($stateProvider, $urlRouterProvider) {
                 controller: 'CaseCreateUpdateController',
                 controllerAs: 'vm',
             },
+            'createDeal@base.email': {
+                templateUrl: 'deals/controllers/form.html',
+                controller: 'DealCreateUpdateController',
+                controllerAs: 'vm',
+            },
         },
         ncyBreadcrumb: {
             label: 'Email',

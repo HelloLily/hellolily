@@ -60,9 +60,9 @@ class Case(TenantMixin, TaggedObjectMixin, DeletedMixin, ArchivedMixin):
         blank=True,
     )
     assigned_to = models.ForeignKey(LilyUser, verbose_name=_('assigned to'),
-                                    related_name='assigned_to', null=True, blank=True)
+                                    related_name='assigned_cases', null=True, blank=True)
     created_by = models.ForeignKey(LilyUser, verbose_name=_('created by'),
-                                   related_name='created_by', null=True, blank=True)
+                                   related_name='created_cases', null=True, blank=True)
 
     account = models.ForeignKey(Account, verbose_name=_('account'), null=True, blank=True)
     contact = models.ForeignKey(Contact, verbose_name=_('contact'), null=True, blank=True)

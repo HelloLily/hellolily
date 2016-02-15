@@ -9,7 +9,7 @@
     </div>
     <div class="col-md-4">
         <list-widget title="Cases" list="caseList" height="91" add-link="base.cases.create.fromAccount({accountId: {{ account.id }}})" collapsable-items="true"></list-widget>
-        <list-widget title="Deals" list="dealList" height="91" add-link="base.deals.create.fromAccount({id: {{ account.id }}})"></list-widget>
+        <list-widget title="Deals" list="dealList" height="91" add-link="base.deals.create.fromAccount({accountId: {{ account.id }}})"></list-widget>
     </div>
 </div>
 <history-list ng-if="account.id" target="'account'" object="account"></history-list>

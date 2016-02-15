@@ -21,6 +21,7 @@ function Settings(LocalStorage) {
                 account: null,
                 contact: null,
                 cases: null,
+                deals: null,
                 form: null,
                 isVisible: false,
             },
@@ -78,9 +79,12 @@ function Settings(LocalStorage) {
     }
 
     function setAllTitles(pageType, objectInfo) {
-        setTitle(pageType, objectInfo);
-        setMain(pageType, objectInfo);
-        setSub(pageType, objectInfo);
+        // Make sure sidebar forms don't set the titles/headers.
+        if (!_settings.email.sidebar.form) {
+            setTitle(pageType, objectInfo);
+            setMain(pageType, objectInfo);
+            setSub(pageType, objectInfo);
+        }
     }
 
     function resetEmailSettings() {
@@ -88,7 +92,8 @@ function Settings(LocalStorage) {
         _settings.email.sidebar = {
             account: null,
             contact: null,
-            cases: null,
+            case: null,
+            deal: null,
             form: null,
             isVisible: false,
         };
@@ -99,6 +104,7 @@ function Settings(LocalStorage) {
             account: null,
             contact: null,
             cases: null,
+            deals: null,
         };
     }
 

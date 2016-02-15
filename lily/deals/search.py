@@ -36,11 +36,25 @@ class DealMapping(BaseMapping):
                 'type': 'string',
                 'index_analyzer': 'normal_edge_analyzer',
             },
+            'contact': {
+                'type': 'integer',
+            },
+            'contact_name': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
             'assigned_to_name': {
                 'type': 'string',
                 'index_analyzer': 'normal_edge_analyzer',
             },
             'assigned_to_id': {
+                'type': 'integer',
+            },
+            'created_by_name': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
+            'created_by_id': {
                 'type': 'integer',
             },
             'stage': {
@@ -152,8 +166,11 @@ class DealMapping(BaseMapping):
             'account': obj.account_id if obj.account else None,
             'account_customer_id': obj.account.customer_id if obj.account else None,
             'account_name': obj.account.name if obj.account else None,
+            'contact': obj.contact_id if obj.contact else None,
+            'contact_name': obj.contact.full_name() if obj.contact else None,
             'assigned_to_name': obj.assigned_to.get_full_name() if obj.assigned_to else None,
             'assigned_to_id': obj.assigned_to.id if obj.assigned_to else None,
+            'created_by': obj.created_by.get_full_name() if obj.created_by else None,
             'stage': obj.stage,
             'stage_name': obj.get_stage_display(),
             'amount_once': obj.amount_once,

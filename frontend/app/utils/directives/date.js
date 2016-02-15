@@ -20,7 +20,8 @@ function DateController() {
     var vm = this;
 
     if (vm.date) {
-        var date = moment(vm.date);
+        // new Date() to prevent deprecation warning of MomentJS.
+        var date = moment(new Date(vm.date));
 
         if (date.isSame(moment(), 'day') && vm.showTime) {
             // In certain cases we want to display the time if it's the same day.

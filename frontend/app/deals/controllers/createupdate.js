@@ -102,6 +102,10 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
             vm.whyCustomer = response.results;
         });
 
+        Deal.getWhyLost(function(response) {
+            vm.whyLost = response.results;
+        });
+
         Deal.getFormOptions(function(data) {
             var choiceData = data.actions.POST;
 
@@ -262,6 +266,10 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
 
         if (vm.deal.next_step_date) {
             vm.deal.next_step_date = moment(vm.deal.next_step_date).format('YYYY-MM-DD');
+        }
+
+        if (vm.deal.why_lost && vm.deal.stage !== 3) {
+            vm.deal.why_lost = null;
         }
 
         if (vm.deal.id) {

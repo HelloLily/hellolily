@@ -159,6 +159,14 @@
                                     <span ng-show="vm.deal.is_archived">- Archived</span>
                                 </td>
                             </tr>
+                            <tr ng-show="vm.deal.stage == 3 && vm.deal.why_lost">
+                                <td>Why lost</td>
+                                <td>
+                                     <editable-select field="why_lost" view-model="vm" type="Deal">
+                                        {{ vm.deal.why_lost.name }}
+                                    </editable-select>
+                                </td>
+                            </tr>
                             <tr>
                                 <td>Twitter checked</td>
                                 <td>

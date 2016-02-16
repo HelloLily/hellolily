@@ -1,4 +1,4 @@
- angular.module('app.deals').config(dealsConfig);
+angular.module('app.deals').config(dealsConfig);
 
 dealsConfig.$inject = ['$stateProvider'];
 function dealsConfig($stateProvider) {
@@ -25,8 +25,8 @@ function dealsConfig($stateProvider) {
 
 angular.module('app.deals').controller('DealDetailController', DealDetailController);
 
-DealDetailController.$inject = ['$scope', 'Deal', 'DealStages', 'HLResource', 'HLUtils', 'Settings', 'currentDeal'];
-function DealDetailController($scope, Deal, DealStages, HLResource, HLUtils, Settings, currentDeal) {
+DealDetailController.$inject = ['$scope', '$uibModal',  'Deal', 'DealStages', 'HLResource', 'HLUtils', 'Settings', 'currentDeal'];
+function DealDetailController($scope, $uibModal, Deal, DealStages, HLResource, HLUtils, Settings, currentDeal) {
     var vm = this;
 
     Settings.page.setAllTitles('detail', currentDeal.name);
@@ -53,10 +53,15 @@ function DealDetailController($scope, Deal, DealStages, HLResource, HLUtils, Set
         if (vm.deal.next_step_date) {
             vm.originalNextStepDate = vm.deal.next_step_date;
         }
+
+        Deal.getWhyLost(function(response) {
+            vm.whyLost = response.results;
+        });
     }
 
     function updateModel(data, field) {
         var args;
+        var nextStepDate;
 
         if (typeof data === 'object') {
             args = data;
@@ -75,7 +80,7 @@ function DealDetailController($scope, Deal, DealStages, HLResource, HLUtils, Set
         if (args.hasOwnProperty('next_step')) {
             if (vm.deal.next_step.date_increment !== 0) {
                 // Update next step date based on next step.
-                var nextStepDate = HLUtils.addBusinessDays(vm.deal.next_step.date_increment, vm.originalNextStepDate);
+                nextStepDate = HLUtils.addBusinessDays(vm.deal.next_step.date_increment, vm.originalNextStepDate);
                 nextStepDate = moment(nextStepDate).format('YYYY-MM-DD');
                 vm.deal.next_step_date = nextStepDate;
             } else if (angular.equals(vm.deal.next_step, vm.noneStep)) {
@@ -99,6 +104,8 @@ function DealDetailController($scope, Deal, DealStages, HLResource, HLUtils, Set
      * Change the state of a deal.
      */
     function changeState(stage) {
+        var args;
+
         // For now we'll use a separate function to update the stage,
         // since the buttons and the value in the list need to be equal.
         vm.deal.stage = stage[0]; // ID of the stage
@@ -111,13 +118,18 @@ function DealDetailController($scope, Deal, DealStages, HLResource, HLUtils, Set
             vm.deal.closed_date = null;
         }
 
-        var args = {
+        args = {
             id: vm.deal.id,
             stage: vm.deal.stage,
             closed_date: vm.deal.closed_date,
         };
 
-        return HLResource.patch('Deal', args).$promise;
+        if (vm.deal.stage === 3 && vm.whyLost.length > 0) {
+            // If the status is 'Lost' we want to provide a reason why the deal was lost.
+            whyLost(args);
+        } else {
+            return HLResource.patch('Deal', args).$promise;
+        }
     }
 
     $scope.$watch('vm.deal.is_archived', function(newValue, oldValue) {
@@ -125,4 +137,22 @@ function DealDetailController($scope, Deal, DealStages, HLResource, HLUtils, Set
             updateModel(vm.deal.is_archived, 'is_archived');
         }
     });
+
+    function whyLost(args) {
+        var modalInstance = $uibModal.open({
+            templateUrl: 'deals/controllers/whylost.html',
+            controller: 'WhyLostModal',
+            controllerAs: 'vm',
+            size: 'sm',
+        });
+
+        modalInstance.result.then(function(result) {
+            vm.deal.why_lost = result;
+            args.why_lost = result.id;
+
+            return HLResource.patch('Deal', args).$promise;
+        }, function() {
+            $state.go($state.current, {}, {reload: true});
+        });
+    }
 }

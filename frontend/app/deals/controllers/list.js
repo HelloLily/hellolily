@@ -144,8 +144,8 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
             },
         ];
 
-        Deal.getNextSteps(function(nextSteps) {
-            angular.forEach(nextSteps, function(nextStep) {
+        Deal.getNextSteps(function(response) {
+            angular.forEach(response.results, function(nextStep) {
                 filterList.push({
                     name: nextStep.name,
                     value: 'next_step.id:' + nextStep.id,

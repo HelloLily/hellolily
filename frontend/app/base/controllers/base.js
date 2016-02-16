@@ -13,8 +13,8 @@ function appConfig($stateProvider) {
 
 angular.module('app.base').controller('BaseController', BaseController);
 
-BaseController.$inject = ['$scope', '$state', 'Settings', 'Notifications'];
-function BaseController($scope, $state, Settings, Notifications) {
+BaseController.$inject = ['$scope', '$state', 'Settings', 'Notifications', 'HLShortcuts'];
+function BaseController($scope, $state, Settings, Notifications, HLShortcuts) {
     // Make sure the settings are available everywhere.
     $scope.settings = Settings;
 

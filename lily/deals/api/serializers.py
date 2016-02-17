@@ -74,6 +74,9 @@ class DealSerializer(WritableNestedSerializer):
     found_through_display = serializers.CharField(source='get_found_through_display', read_only=True)
     stage_display = serializers.CharField(source='get_stage_display', read_only=True)
 
+    amount_once = serializers.DecimalField(max_digits=19, decimal_places=2, required=True)
+    amount_recurring = serializers.DecimalField(max_digits=19, decimal_places=2, required=True)
+
     def validate(self, attrs):
         contact_id = attrs.get('contact', {})
         if isinstance(contact_id, dict):

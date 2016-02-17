@@ -22,6 +22,7 @@ from django.views.generic import UpdateView, DeleteView, CreateView, FormView
 from django.views.generic.base import View
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
+from newrelic.agent import function_trace
 from oauth2client.client import OAuth2WebServerFlow
 
 from lily.accounts.models import Account
@@ -643,6 +644,10 @@ class EmailMessageReplyAllView(EmailMessageReplyView):
 
 class EmailMessageForwardView(EmailMessageReplyOrForwardView):
     action = 'forward'
+
+    @function_trace()
+    def post(self, *args, **kwargs):
+        return super(EmailMessageForwardView, self).post(*args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super(EmailMessageComposeView, self).get_form_kwargs()

@@ -106,4 +106,28 @@ function HLUtils() {
 
         return newDate.format();
     };
+
+    /**
+     * The will block the interface for a specific element.
+     *
+     * @param target {string} the element to be blocked.
+     * @param animate {boolean} if there needs to be an animation on the element.
+     */
+    this.blockUI = function(target, animate) {
+        Metronic.blockUI(
+            {
+                target: target,
+                animate: animate,
+            }
+        );
+    };
+
+    /**
+     * Unblock the interface that was set with blockUI.
+     *
+     * @param target {string} the element that needs to be unblocked
+     */
+    this.unblockUI = function(target) {
+        Metronic.unblockUI(target);
+    };
 }

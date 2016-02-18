@@ -12,8 +12,8 @@ function unassignedCasesDirective() {
     };
 }
 
-UnassignedCasesController.$inject = ['$http', '$scope', '$state', 'Case', 'HLFilters', 'LocalStorage'];
-function UnassignedCasesController($http, $scope, $state, Case, HLFilters, LocalStorage) {
+UnassignedCasesController.$inject = ['$http', '$scope', '$state', 'Case', 'HLFilters', 'HLUtils', 'LocalStorage'];
+function UnassignedCasesController($http, $scope, $state, Case, HLFilters, HLUtils, LocalStorage) {
     var vm = this;
 
     vm.storageName = 'unassignedCasesForTeam' + vm.team.id + 'Widget';
@@ -59,6 +59,8 @@ function UnassignedCasesController($http, $scope, $state, Case, HLFilters, Local
     function updateTable() {
         var filterQuery = 'archived:false AND _missing_:assigned_to_id AND assigned_to_groups:' + vm.team.id;
 
+        HLUtils.blockUI('#unassignedCasesBlockTarget' + vm.team.id, true);
+
         if (vm.table.filterQuery) {
             filterQuery += ' AND ' + vm.table.filterQuery;
         }
@@ -72,6 +74,8 @@ function UnassignedCasesController($http, $scope, $state, Case, HLFilters, Local
                     vm.highPrioCases++;
                 }
             }
+
+            HLUtils.unblockUI('#unassignedCasesBlockTarget' + vm.team.id);
         });
     }
 

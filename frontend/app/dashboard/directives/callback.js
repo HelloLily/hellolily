@@ -9,8 +9,8 @@ function CallbackRequestsDirective () {
     };
 }
 
-CallbackRequestsController.$inject = ['$scope', 'Case', 'LocalStorage'];
-function CallbackRequestsController($scope, Case, LocalStorage) {
+CallbackRequestsController.$inject = ['$scope', 'Case', 'HLUtils', 'LocalStorage'];
+function CallbackRequestsController($scope, Case, HLUtils, LocalStorage) {
     var vm = this;
     var storage = LocalStorage('callbackWidget');
 
@@ -31,11 +31,14 @@ function CallbackRequestsController($scope, Case, LocalStorage) {
     }
 
     function _getCallbackRequests() {
+        HLUtils.blockUI('#callbackBlockTarget', true);
         Case.getCallbackRequests(
             vm.table.order.column,
             vm.table.order.descending
         ).then(function(callbackRequests) {
             vm.table.items = callbackRequests;
+
+            HLUtils.unblockUI('#callbackBlockTarget');
         });
     }
 

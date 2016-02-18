@@ -9,8 +9,8 @@ function unreadEmailDirective() {
     };
 }
 
-UnreadEmailController.$inject = ['$scope', 'EmailMessage', 'LocalStorage'];
-function UnreadEmailController($scope, EmailMessage, LocalStorage) {
+UnreadEmailController.$inject = ['$scope', 'EmailMessage', 'HLUtils', 'LocalStorage'];
+function UnreadEmailController($scope, EmailMessage, HLUtils, LocalStorage) {
     var storage = LocalStorage('unreadEmailWidget');
 
     var vm = this;
@@ -30,11 +30,15 @@ function UnreadEmailController($scope, EmailMessage, LocalStorage) {
     }
 
     function _getMessages() {
+        HLUtils.blockUI('#unreadEmailBlockTarget', true);
+
         EmailMessage.getDashboardMessages(
             vm.table.order.column,
             vm.table.order.descending
         ).then(function(messages) {
             vm.table.items = messages;
+
+            HLUtils.unblockUI('#unreadEmailBlockTarget');
         });
     }
 

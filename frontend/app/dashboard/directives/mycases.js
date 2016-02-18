@@ -41,6 +41,8 @@ function MyCasesController($filter, $scope, Case, HLUtils, LocalStorage) {
         var field = 'expires';
         var descending = false;
 
+        HLUtils.blockUI('#myCasesBlockTarget', true);
+
         if (vm.table.dueDateFilter !== '') {
             field = vm.table.order.column;
             descending = vm.table.order.descending;
@@ -71,6 +73,8 @@ function MyCasesController($filter, $scope, Case, HLUtils, LocalStorage) {
                     vm.highPrioCases++;
                 }
             }
+
+            HLUtils.unblockUI('#myCasesBlockTarget');
 
             vm.numOfCases = data.length;
         });

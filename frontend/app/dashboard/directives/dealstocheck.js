@@ -10,8 +10,8 @@ function dealsToCheckDirective() {
     };
 }
 
-DealsToCheckController.$inject = ['$scope', 'LocalStorage', 'Deal', 'UserTeams'];
-function DealsToCheckController($scope, LocalStorage, Deal, UserTeams) {
+DealsToCheckController.$inject = ['$scope', 'LocalStorage', 'Deal', 'HLUtils', 'UserTeams'];
+function DealsToCheckController($scope, LocalStorage, Deal, HLUtils, UserTeams) {
     var storage = LocalStorage('dealsToCheckkWidget');
     var vm = this;
 
@@ -37,6 +37,9 @@ function DealsToCheckController($scope, LocalStorage, Deal, UserTeams) {
 
     function _getDealsToCheck() {
         var filterQuery = 'stage:2 AND is_checked:false AND new_business:true AND archived:false';
+        var dealPromise;
+
+        HLUtils.blockUI('#dealsToCheckBlockTarget', true);
 
         if (vm.table.usersFilter) {
             filterQuery += ' AND (' + vm.table.usersFilter + ')';
@@ -44,9 +47,11 @@ function DealsToCheckController($scope, LocalStorage, Deal, UserTeams) {
             filterQuery += ' AND assigned_to_id:' + currentUser.id;
         }
 
-        var dealPromise = Deal.getDeals('', 1, 20, vm.table.order.column, vm.table.order.descending, filterQuery);
+        dealPromise = Deal.getDeals('', 1, 20, vm.table.order.column, vm.table.order.descending, filterQuery);
         dealPromise.then(function(deals) {
             vm.table.items = deals;
+
+            HLUtils.unblockUI('#dealsToCheckBlockTarget');
         });
     }
 

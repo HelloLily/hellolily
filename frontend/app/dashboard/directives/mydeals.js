@@ -40,8 +40,10 @@ function MyDealsController($scope, Deal, HLUtils, LocalStorage, CaseDetail) {
     function getMyDeals() {
         var field = 'next_step.position';
         var descending = false;
-
         var filterQuery = 'archived:false AND NOT next_step.name:"None"';
+        var dealPromise;
+
+        HLUtils.blockUI('#myDealsBlockTarget', true);
 
         if (vm.table.dueDateFilter) {
             filterQuery += ' AND ' + vm.table.dueDateFilter;
@@ -53,7 +55,7 @@ function MyDealsController($scope, Deal, HLUtils, LocalStorage, CaseDetail) {
             filterQuery += ' AND assigned_to_id:' + currentUser.id;
         }
 
-        var dealPromise = Deal.getDeals('', 1, 250, field, descending, filterQuery);
+        dealPromise = Deal.getDeals('', 1, 250, field, descending, filterQuery);
         dealPromise.then(function(data) {
             if (vm.table.dueDateFilter !== '') {
                 // Add empty key to prevent showing a header and to not crash the for loop.
@@ -71,6 +73,8 @@ function MyDealsController($scope, Deal, HLUtils, LocalStorage, CaseDetail) {
                     });
                 });
             }
+
+            HLUtils.unblockUI('#myDealsBlockTarget');
 
             vm.numOfDeals = data.length;
         });

@@ -6,8 +6,9 @@
         <div class="portlet-body">
             <ul class="list-group">
                 <li class="list-group-item" ng-repeat="account in vm.ownedAccounts">
-                    <i class="fa fa-star" ng-show="account.id == vm.currentUser.primary_email_account" uib-tooltip="Primary account"></i>
-                    <a ng-hide="account.id == vm.currentUser.primary_email_account" ng-click="vm.makePrimaryAccount(account)" uib-tooltip="Make primary"><i class="fa fa-star-o"></i></a>
+                    <a ng-click="vm.togglePrimaryAccount(account)" uib-tooltip="Toggle primary">
+                        <i ng-class="account.id == vm.currentUser.primary_email_account ? 'fa fa-star' : 'fa fa-star-o'"></i>
+                    </a>
                     {{ account.label }} <i>({{ account.email_address }})</i>
                     <span class="pull-right">
                         <button type="button" class="btn btn-xs default" title="Sharing is caring" ng-click="vm.openShareAccountModal(account)">
@@ -41,8 +42,9 @@
         <div class="portlet-body">
             <ul class="list-group">
                 <li class="list-group-item"  ng-repeat="account in vm.sharedAccounts">
-                    <i class="fa fa-star" ng-show="account.id == vm.currentUser.primary_email_account" uib-tooltip="Primary account"></i>
-                    <a ng-hide="account.id == vm.currentUser.primary_email_account" ng-click="vm.makePrimaryAccount(account)" uib-tooltip="Make primary"><i class="fa fa-star-o"></i></a>
+                    <a ng-click="vm.togglePrimaryAccount(account)" uib-tooltip="Toggle primary">
+                        <i ng-class="account.id == vm.currentUser.primary_email_account ? 'fa fa-star' : 'fa fa-star-o'"></i>
+                    </a>
                     {{ account.label }} <i>({{ account.email_address }})</i>
                     <span class="pull-right">
                         <div class="btn-group">
@@ -66,8 +68,9 @@
         <div class="portlet-body">
             <ul class="list-group">
                 <li class="list-group-item" ng-repeat="account in vm.publicAccounts">
-                    <i class="fa fa-star" ng-show="account.id == vm.currentUser.primary_email_account" uib-tooltip="Primary account"></i>
-                    <a ng-hide="account.id == vm.currentUser.primary_email_account" ng-click="vm.makePrimaryAccount(account)" tooltip="Make primary"><i class="fa fa-star-o"></i></a>
+                    <a ng-click="vm.togglePrimaryAccount(account)" uib-tooltip="Toggle primary">
+                        <i ng-class="account.id == vm.currentUser.primary_email_account ? 'fa fa-star' : 'fa fa-star-o'"></i>
+                    </a>
                     {{ account.label }} <i>({{ account.email_address }})</i>
                     <span class="pull-right">
                         <div class="btn-group">

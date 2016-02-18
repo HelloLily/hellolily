@@ -12,7 +12,7 @@ RUN apt-get update && \
     rm -f $ES_PKG_NAME.tar.gz && \
     mv $ES_PKG_NAME /elasticsearch && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ENV JAVA_HOME /usr/lib/jvm/java-7-openjdk-amd64
 

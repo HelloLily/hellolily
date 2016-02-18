@@ -39,7 +39,7 @@ from python_imap.folder import INBOX
 from python_imap.server import IMAP
 from taskmonitor.models import TaskStatus
 from taskmonitor.utils import resolve_annotations
-from oauth2client.django_orm import Storage
+from oauth2client.contrib.django_orm import Storage
 
 from .decorators import get_safe_template
 from .models.models import GmailCredentialsModel, EmailAccount, EmailMessage, EmailAttachment

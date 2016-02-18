@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import models, migrations
 from django.conf import settings
-import oauth2client.django_orm
+import oauth2client.contrib.django_orm
 
 
 class Migration(migrations.Migration):
@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
             name='FlowModel',
             fields=[
                 ('id', models.ForeignKey(primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL)),
-                ('flow', oauth2client.django_orm.FlowField(null=True)),
+                ('flow', oauth2client.contrib.django_orm.FlowField(null=True)),
             ],
             options={
             },

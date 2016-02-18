@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import models, migrations
 import lily.messaging.email.models.models
-import oauth2client.django_orm
+import oauth2client.contrib.django_orm
 import django.utils.timezone
 from django.conf import settings
 import django_extensions.db.fields
@@ -190,7 +190,7 @@ class Migration(migrations.Migration):
             name='GmailCredentialsModel',
             fields=[
                 ('id', models.ForeignKey(primary_key=True, serialize=False, to='email.EmailAccount')),
-                ('credentials', oauth2client.django_orm.CredentialsField(null=True)),
+                ('credentials', oauth2client.contrib.django_orm.CredentialsField(null=True)),
             ],
             options={
             },

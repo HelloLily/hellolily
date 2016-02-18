@@ -18,6 +18,16 @@ class DealStagesList(APIView):
         return Response(Deal.STAGE_CHOICES)
 
 
+class DealFoundThroughList(APIView):
+    def get(self, request, format=None):
+        return Response(Deal.FOUND_THROUGH_CHOICES)
+
+
+class DealContactedByList(APIView):
+    def get(self, request, format=None):
+        return Response(Deal.CONTACTED_BY_CHOICES)
+
+
 class DealNextStepList(APIView):
     model = DealNextStep
     serializer_class = DealNextStepSerializer

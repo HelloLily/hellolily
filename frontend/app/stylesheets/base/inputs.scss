@@ -1,0 +1,136 @@
+$inline-editable-field-height: 30px;
+
+.editable-click {
+    color: #333;
+    margin: 0 -5px;
+    padding: 0 5px;
+    line-height: $inline-editable-field-height - 2px;
+    display: inline-block;
+    position: relative;
+    border-top-left-radius: $baseBorderRadius;
+    border-bottom-left-radius: $baseBorderRadius;
+    border: 1px transparent solid;
+
+    &:after {
+        background: $lilyWhiteToneHover;
+        border: 1px $lilyGrey solid;
+        border-top-right-radius: $baseBorderRadius;
+        border-bottom-right-radius: $baseBorderRadius;
+        color: $lilyDarkBlue;
+        text-align: center;
+        float: left;
+        position: absolute;
+        top: -1px;
+        overflow: hidden;
+        font-family: "lilicon";
+        content: "\e922";
+        line-height: $inline-editable-field-height - 2px;
+        transition: all 0s;
+        visibility: hidden;
+        width: 0px;
+        right: 0px;
+    }
+
+    &:hover {
+        color: $lilyBlue;
+        border: 1px $lilyGrey solid;
+        cursor: pointer;
+
+        &:after {
+            transition: all ease-in-out 0.3s;
+            visibility: visible;
+            width: $inline-editable-field-height;
+            right: -$inline-editable-field-height;
+        }
+    }
+}
+
+.editable-buttons button {
+    color: $lilyDarkBlue;
+    background: $lilyWhiteToneHover;
+    border: 1px $lilyGrey solid;
+    border-right: none;
+    margin-left: 0;
+    border-radius: 0;
+    height: $inline-editable-field-height;
+    width: $inline-editable-field-height;
+    text-align: center;
+    padding: 0;
+    line-height: $inline-editable-field-height - 2px;
+
+    &:last-child {
+        border-top-right-radius: $baseBorderRadius;
+        border-bottom-right-radius: $baseBorderRadius;
+        border-right:1px $lilyGrey solid;
+    }
+
+    &:hover {
+        background: $lilyWhiteToneHover ;
+        border-color: $lilyGrey;
+        color: $lilyBlue;
+    }
+
+    &:active,
+    &:focus {
+        background: $lilyGrey !important;
+        color: darken($lilyBlue, 10) !important;
+        border-color: $lilyGrey;
+    }
+}
+
+.editable-has-buttons {
+    margin: 0 -5px;
+    padding: 0 5px;
+    line-height: $inline-editable-field-height - 2px;
+    height: $inline-editable-field-height;
+    border: 1px $lilyGrey solid;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+
+    &:focus {
+        border: 1px $lilyGrey solid;
+    }
+}
+
+.editable-input {
+    margin: 0 -5px;
+    padding: 0 5px;
+    line-height: $inline-editable-field-height;
+    height: $inline-editable-field-height;
+    border-color: $lilyGrey;
+    border-radius: $baseBorderRadius;
+
+    &:focus {
+        border-color: $lilyGrey;
+    }
+}
+
+.deal-detail-info {
+    div > label {
+        line-height: $inline-editable-field-height;
+    }
+}
+
+.editable-textarea {
+    position: relative;
+
+    textarea {
+        margin-right: -1px;
+        border-top-right-radius: 0;
+        margin-bottom: $inline-editable-field-height !important;
+    }
+
+    .editable-buttons {
+        position: absolute;
+        bottom: 1px;
+        right: 0;
+    }
+}
+
+.editable-empty {
+    &:hover {
+        color: #B5B5B5;
+    }
+
+    color: #B5B5B5;
+}

@@ -1,7 +1,7 @@
 angular.module('app.deals.services').factory('Deal', Deal);
 
-Deal.$inject = ['$resource', 'HLUtils', 'HLForms'];
-function Deal($resource, HLUtils, HLForms) {
+Deal.$inject = ['$resource', 'HLUtils', 'HLForms', 'User'];
+function Deal($resource, HLUtils, HLForms, User) {
     var _deal = $resource(
         '/api/deals/deal/:id/',
         null,
@@ -82,6 +82,21 @@ function Deal($resource, HLUtils, HLForms) {
             getWhyCustomer: {
                 url: 'api/deals/why-customer',
             },
+            getStages: {
+                url: '/api/deals/stages',
+                isArray: true,
+                transformResponse: _transformChoices,
+            },
+            getFoundThrough: {
+                url: '/api/deals/found-through',
+                isArray: true,
+                transformResponse: _transformChoices,
+            },
+            getContactedBy: {
+                url: '/api/deals/contacted-by',
+                isArray: true,
+                transformResponse: _transformChoices,
+            },
             getFormOptions: {
                 url: 'api/deals/deal',
                 method: 'OPTIONS',
@@ -158,6 +173,21 @@ function Deal($resource, HLUtils, HLForms) {
         var deal = this;
         deal.is_checked = true;
         return deal.$update();
+    }
+
+    function _transformChoices(data) {
+        data = angular.fromJson(data);
+        var choices = [];
+
+        // Convert the Django choices to a generic Array.
+        for (var i = 0; i < data.length; i++) {
+            choices.push({
+                id: data[i][0],
+                name: data[i][1],
+            });
+        }
+
+        return choices;
     }
 
     return _deal;

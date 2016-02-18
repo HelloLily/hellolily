@@ -399,19 +399,24 @@ table {
 
     .checkbox-list-row {
         padding: 2px;
-
-        .lily-checkbox {
-            display: inline-block;
-            border: 1px solid #c5c5c5;
-            height: 16px;
-            width: 16px;
-            top: 2px;
-            position: relative;
-
-            i {
-                position: relative;
-                top: -3px;
-            }
-        }
     }
+}
+
+.lily-checkbox {
+    display: inline-block;
+    border: 1px solid #c5c5c5;
+    height: 16px;
+    width: 16px;
+    top: 2px;
+    position: relative;
+
+    i {
+        position: relative;
+        top: -3px;
+    }
+}
+
+.editable-controls input[type="checkbox"] {
+    position: relative;
+    margin-left: 0;
 }

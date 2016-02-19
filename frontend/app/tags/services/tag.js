@@ -6,6 +6,23 @@ function Tag($resource) {
         '/api/tags/tag/:id',
         {},
         {
+            query: {
+                url: '/search/search/',
+                params: {
+                    type: 'tags_tag',
+                },
+                isArray: true,
+                transformResponse: function(data) {
+                    var jsonData = angular.fromJson(data);
+                    var objects = [];
+                    if (jsonData && jsonData.hits && jsonData.hits.length > 0) {
+                        jsonData.hits.forEach(function(obj) {
+                            objects.push(obj);
+                        });
+                    }
+                    return objects;
+                },
+            },
             search: {
                 url: '/search/search/?type=tags_tag&facet_field=name_flat&facet_filter=name::query&size=0',
                 isArray: true,

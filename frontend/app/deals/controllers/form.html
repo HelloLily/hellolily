@@ -172,6 +172,14 @@
                 </form-radio-buttons>
             </form-portlet>
 
+            <form-portlet title="Tags">
+                <form-portlet-body>
+                    <form-group label-title="Tags" label-id="id_tags" label-icon="tags" field="dealForm.tags">
+                        <tag-input ng-if="vm.deal" object="vm.deal"></tag-input>
+                    </form-group>
+                </form-portlet-body>
+            </form-portlet>
+
             <div class="hl-form-footer">
                 <div class="row">
                     <div ng-class="{'hidden col-xs-12': settings.email.sidebar.form, 'col-xs-12 col-sm-3 col-md-2 col-lg-2': !settings.email.sidebar.form}"></div>

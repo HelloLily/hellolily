@@ -92,6 +92,10 @@ Radio buttons can be used to offer the user a selection range.
     }
 
     .radio-button-inset {
+        input {
+            cursor: pointer;
+        }
+
         cursor: pointer;
         padding: 0 10px;
         border-top: 1px white solid;

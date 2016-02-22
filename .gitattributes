@@ -1,0 +1,6 @@
+# If git decides that the content is text, its line endings are normalized to
+# LF on checkin.
+* text=auto
+*.bin binary
+manage eol=lf
+

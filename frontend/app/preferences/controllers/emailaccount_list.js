@@ -36,7 +36,7 @@ function PreferencesEmailAccountList($uibModal, EmailAccount, User, user, $http)
     vm.hideShared = hideShared;
     vm.deleteAccount = deleteAccount;
     vm.openShareAccountModal = openShareAccountModal;
-    vm.makePrimaryAccount = makePrimaryAccount;
+    vm.togglePrimaryAccount = togglePrimaryAccount;
 
     activate();
 
@@ -128,8 +128,14 @@ function PreferencesEmailAccountList($uibModal, EmailAccount, User, user, $http)
         });
     }
 
-    function makePrimaryAccount(emailAccount) {
-        vm.currentUser.primary_email_account = emailAccount.id;
+    function togglePrimaryAccount(emailAccount) {
+        if (vm.currentUser.primary_email_account == emailAccount.id) {
+            // Unset primary email account.
+            vm.currentUser.primary_email_account = null;
+        } else {
+            // Set primary email account
+            vm.currentUser.primary_email_account = emailAccount.id;
+        }
         User.update({id: 'me'}, vm.currentUser);
     }
 }

@@ -322,6 +322,7 @@ def send_message(email_outbox_message_id, original_message_id=None):
                 attachment.size = template_attachment.size
                 attachment.email_outbox_message = email_outbox_message
                 attachment.attachment = template_attachment.attachment
+                attachment.tenant_id = template_attachment.tenant_id
                 attachment.save()
 
     #  Add attachment from original message (if mail is being forwarded)

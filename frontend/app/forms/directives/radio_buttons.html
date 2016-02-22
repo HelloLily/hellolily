@@ -1,9 +1,9 @@
 <form-group label-title="{{ vm.labelTitle }}" label-id="{{ vm.labelId }}" required="{{ vm.required }}">
     <div ng-class="{'has-error': field.$invalid}">
-        <div class="radio-button-group" ng-class="{'required':vm.required}" data-toggle="buttons">
-            <label ng-repeat="option in vm.options" class="radio-button" ng-class="{'active': vm.field == $index}" ng-click="vm.setValue($index, $event)">
+        <div class="radio-button-group" ng-class="{'required':vm.required}">
+            <label ng-repeat="option in vm.options" class="radio-button" ng-class="{'active': vm.field == $index}">
                 <div class="radio-button-inset">
-                    <input id="id_{{ vm.inputName }}-{{ $index }}" type="radio" ng-checked="vm.field == $index">
+                    <input id="id_{{ vm.inputName }}-{{ $index }}" name="{{ vm.inputName }}" ng-model="vm.field" type="radio" ng-value="$index">
                     {{ option }}
                 </div>
             </label>

@@ -57,3 +57,7 @@ To sync mail, set the following properties in your .env file (get the values fro
 - GA_CLIENT_ID
 - GA_CLIENT_SECRET
 - GMAIL_CALLBACK_URL
+
+## License
+
+For license details see the LICENSE file.

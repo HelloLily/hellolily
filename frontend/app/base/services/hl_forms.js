@@ -54,8 +54,11 @@ function HLForms() {
      * @param viewModel (object): The view model that's being created/updated.
      */
     this.clean = function(viewModel) {
+        // We don't want to clean certain fields.
+        var ignoredFields = ['tags'];
+
         angular.forEach(viewModel, function(fieldValue, field) {
-            if (fieldValue) {
+            if (ignoredFields.indexOf(field) < 0 && fieldValue) {
                 // We don't want to send whole objects to the API, because they're not accepted.
                 // So loop through all fields and extract IDs.
                 if (fieldValue.constructor === Array) {

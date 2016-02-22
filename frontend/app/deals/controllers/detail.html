@@ -104,6 +104,13 @@
                             <span ng-if="vm.deal.feedback_form_sent">&nbsp;<i class="fa fa-check"></i></span>
                             <span ng-if="!vm.deal.feedback_form_sent"> -</span><br/>
                         </div>
+                        <div ng-show="vm.deal.tag">
+                            <label>Tags</label>
+
+                            <span class="btn btn-xs btn-default margin-right-5" ng-repeat="tag in vm.deal.tag">
+                                {{ tag }}
+                            </span>
+                        </div>
                         <div ng-show="vm.deal.quote_id || vm.deal.account_customer_id">
                             <label>External</label>
                             <a ng-show="vm.deal.quote_id" ng-href="https://freedom.voys.nl/quotes/pdf/{{ vm.deal.quote_id }}/">Quote</a>

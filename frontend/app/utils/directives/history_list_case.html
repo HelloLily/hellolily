@@ -26,7 +26,7 @@
 
     <div class='history-item-body first'>
         <div class="pre-wrap" ng-bind-html="::vm.item.body | parseUrls"></div>
-        <div><strong>Status:</strong> {{ ::vm.item.status}} ({{ ::vm.item.archived ? 'active' : 'archived'}})</div>
+        <div><strong>Status:</strong> {{ ::vm.item.status}} ({{ ::vm.item.archived ? 'archived' : 'active' }})</div>
         <div><strong>Priority:</strong> {{ ::vm.item.priority_name }}</div>
         <div><strong>Type:</strong> {{ ::vm.item.casetype_name }}</div>
 

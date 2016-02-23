@@ -41,6 +41,10 @@ function Account($http, $q, $resource, HLUtils) {
             searchByEmail: {
                 url: '/search/emailaddress/:email_address',
             },
+            getFormOptions: {
+                url: 'api/accounts/account',
+                method: 'OPTIONS',
+            },
         });
 
     _account.getAccounts = getAccounts;
@@ -107,6 +111,7 @@ function Account($http, $q, $resource, HLUtils) {
     function create() {
         return new _account({
             name: '',
+            status: 'inactive',
             primaryWebsite: '',
             email_addresses: [],
             phone_numbers: [],

@@ -55,12 +55,15 @@ function AccountCreateController($state, $stateParams, Settings, Account, User, 
     vm.cancelAccountCreation = cancelAccountCreation;
     vm.addRelatedField = addRelatedField;
     vm.removeRelatedField = removeRelatedField;
+    vm.setStatusForCustomerId = setStatusForCustomerId;
 
     activate();
 
     ////
 
     function activate() {
+        var choiceFields = ['status'];
+
         User.query().$promise.then(function(response) {
             angular.forEach(response.results, function(user) {
                 if (user.first_name !== '') {
@@ -71,6 +74,27 @@ function AccountCreateController($state, $stateParams, Settings, Account, User, 
                     });
                 }
             });
+        });
+
+        Account.getFormOptions(function(data) {
+            var choiceData = data.actions.POST;
+
+            for (var i = 0; i < choiceFields.length; i++) {
+                var splitName = choiceFields[i].split('_');
+                var choiceVarName = splitName[0];
+
+                // Convert to camelCase.
+                if (splitName.length > 1) {
+                    for (var j = 1; j < splitName.length; j++) {
+                        choiceVarName += splitName[j].charAt(0).toUpperCase() + splitName[j].slice(1);
+                    }
+                }
+
+                // Make the variable name a bit more logical (e.g. vm.stageChoices vs vm.stage).
+                choiceVarName += 'Choices';
+
+                vm[choiceVarName] = choiceData[choiceFields[i]].choices;
+            }
         });
 
         _getAccount();
@@ -251,5 +275,12 @@ function AccountCreateController($state, $stateParams, Settings, Account, User, 
         HLForms.setErrors(form, response.data);
 
         toastr.error('Uh oh, there seems to be a problem', 'Oops!');
+    }
+
+    function setStatusForCustomerId() {
+        if (vm.account.status === '' || vm.account.status === 'inactive') {
+            console.log('asdf');
+            vm.account.status = 'active';
+        }
     }
 }

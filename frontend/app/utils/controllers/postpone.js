@@ -42,7 +42,6 @@ function PostponeModal($filter, $uibModalInstance, $scope, data, $injector) {
     function _watchCloseDatePicker() {
         $scope.$watch('vm.pickerIsOpen', function(newValue, oldValue) {
             if (!newValue && oldValue) {
-                vm.date = vm.pickerDate;
                 _updateDayAndCloseModal();
             }
         });

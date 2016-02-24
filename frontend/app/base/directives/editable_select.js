@@ -8,7 +8,7 @@ function editableSelect() {
             field: '@',
             type: '@',
             choiceField: '@',
-            selectOptions: '=', // contains any custom settings for the select
+            selectOptions: '=?', // contains any custom settings for the select
         },
         templateUrl: 'base/directives/editable_select.html',
         controller: EditableSelectController,
@@ -32,7 +32,7 @@ function EditableSelectController($filter, HLResource) {
     function activate() {
         if (!es.selectOptions) {
             // If it's undefined just set it to an empty object.
-            // Makes sure we don't need extra checks in the code.
+            // Ensures we don't need extra checks in the code.
             es.selectOptions = {};
         }
 

@@ -1,22 +1,22 @@
-<div ng-show="vm.widgetInfo.status" ng-multi-transclude-controller>
+<div ng-show="vm.widgetInfo.status">
     <div class="{{ vm.widgetClass }}">
         <div class="widget-container">
             <div class="widget-heading">
-                <div class="widget-title" ng-multi-transclude="widget-title"></div>
+                <div class="widget-title" ng-transclude="widgetHeader"></div>
                 <div class="widget-tools pull-right">
-                    <a class="widget-collapse" ng-click="vm.toggleCollapse()" ng-class="{1: 'portlet-open', 2:'portlet-closed'}[vm.widgetInfo.status]">
-                        <i class="lilicon" ng-class="{1: 'hl-toggle-down-icon', 2:'hl-toggle-left-icon'}[vm.widgetInfo.status]"></i>
+                    <a class="widget-collapse" ng-click="vm.toggleCollapse()" ng-class="{1: 'portlet-open', 2: 'portlet-closed'}[vm.widgetInfo.status]">
+                        <i class="lilicon" ng-class="{1: 'hl-toggle-down-icon', 2: 'hl-toggle-left-icon'}[vm.widgetInfo.status]"></i>
                     </a>
                     <a class="widget-close" ng-if="vm.widgetCloseable" ng-click="vm.removeWidget()">
                         <i class="lilicon hl-close-icon"></i>
                     </a>
                 </div>
-                <div class="widget-filters pull-right" ng-multi-transclude="widget-filters"></div>
+                <div class="widget-filters pull-right" ng-transclude="widgetFilters"></div>
                 <div class="clearfix"></div>
             </div>
             <div class="widget-body" ng-show="vm.widgetInfo.status == 1">
-                <div ng-if="vm.widgetScrollable" ng-class="{'max-height-400': vm.widgetDynamicHeight}" slimscroll="{height: {{ vm.height }}}" class="scroll-body" ng-multi-transclude="portlet-body"></div>
-                <div ng-if="!vm.widgetScrollable" ng-multi-transclude="portlet-body"></div>
+                <div ng-if="vm.widgetScrollable" ng-class="{'max-height-400': vm.widgetDynamicHeight}" slimscroll="{height: {{ vm.height }}}" class="scroll-body" ng-transclude="widgetBody"></div>
+                <div ng-if="!vm.widgetScrollable" ng-transclude="widgetBody"></div>
             </div>
         </div>
     </div>

@@ -1,0 +1,3 @@
+<span editable-select="es.selectModel" onshow="es.getChoices()" e-ng-options="item.id as item[es.optionDisplay] for item in es.choices" onbeforesave="es.updateViewModel($data)" buttons="no">
+    <ng-transclude></ng-transclude>
+</span>

@@ -10,6 +10,7 @@ angular.module('app', [
     'ngSanitize',
     'ncy-angular-breadcrumb',
     'multi-transclude',
+    'xeditable',
 
     // Controllers
     'app.accounts',
@@ -41,14 +42,14 @@ angular.module('app', [
     'app.services',
 
     // Filters
-    'app.filters'
+    'app.filters',
 ]);
 
 /* Setup global settings */
 angular.module('app').factory('settings', settings);
 
 settings.$inject = ['$rootScope'];
-function settings ($rootScope) {
+function settings($rootScope) {
     // supported languages
     var settings = {
         layout: {
@@ -69,13 +70,14 @@ appConfig.$inject = [
     '$controllerProvider',
     '$httpProvider',
     '$resourceProvider',
-    '$urlRouterProvider'
+    '$urlRouterProvider',
 ];
-function appConfig ($animateProvider, $breadcrumbProvider, $controllerProvider, $httpProvider, $resourceProvider, $urlRouterProvider){
+function appConfig($animateProvider, $breadcrumbProvider, $controllerProvider, $httpProvider,
+                   $resourceProvider, $urlRouterProvider) {
     // Don't strip trailing slashes from calculated URLs, because django needs them
     $breadcrumbProvider.setOptions({
         templateUrl: 'base/breadcrumbs.html',
-        includeAbstract: true
+        includeAbstract: true,
     });
     $controllerProvider.allowGlobals();
     $httpProvider.defaults.xsrfCookieName = 'csrftoken';
@@ -89,9 +91,11 @@ function appConfig ($animateProvider, $breadcrumbProvider, $controllerProvider, 
 /* Init global settings and run the app */
 angular.module('app').run(runApp);
 
-runApp.$inject = ['$rootScope', '$state', 'settings'];
-function runApp ($rootScope, $state, settings) {
+runApp.$inject = ['$rootScope', '$state', 'settings', 'editableOptions'];
+function runApp($rootScope, $state, settings, editableOptions) {
     $rootScope.$state = $state; // state to be accessed from view
     $rootScope.currentUser = currentUser;
     $rootScope.settings = settings;
+
+    editableOptions.theme = 'bs3';
 }

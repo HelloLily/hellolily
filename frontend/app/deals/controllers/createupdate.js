@@ -217,11 +217,7 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
         User.query().$promise.then(function(response) {
             angular.forEach(response.results, function(user) {
                 if (user.first_name !== '') {
-                    assignOptions.push({
-                        id: user.id,
-                        // Convert to single string so searching with spaces becomes possible.
-                        name: HLUtils.getFullName(user),
-                    });
+                    assignOptions.push(user);
                 }
             });
 

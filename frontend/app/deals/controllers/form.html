@@ -141,9 +141,9 @@
 
                 <form-group label-title="Assigned to" label-id="id_assigned_to" field="dealForm.assigned_to" required="true">
                     <ui-select ng-model="vm.deal.assigned_to" theme="select2" class="form-control" name="assigned_to" append-to-body="true">
-                        <ui-select-match placeholder="Assign to...">{{ $select.selected.name }}</ui-select-match>
-                        <ui-select-choices repeat="person.id as person in vm.assignOptions | propsFilter: {name: $select.search}">
-                            <div ng-bind-html="person.name | highlight: $select.search"></div>
+                        <ui-select-match placeholder="Assign to...">{{ $select.selected.full_name }}</ui-select-match>
+                        <ui-select-choices repeat="person.id as person in vm.assignOptions | propsFilter: {full_name: $select.search}">
+                            <div ng-bind-html="person.full_name | highlight: $select.search"></div>
                         </ui-select-choices>
                     </ui-select>
                     <button class="btn btn-link assign-me-btn" ng-click="vm.assignToMe()">Assign to me</button>

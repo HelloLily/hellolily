@@ -9,34 +9,62 @@ function unreadEmailDirective() {
     };
 }
 
-UnreadEmailController.$inject = ['$scope', 'EmailMessage', 'HLUtils', 'LocalStorage'];
-function UnreadEmailController($scope, EmailMessage, HLUtils, LocalStorage) {
-    var storage = LocalStorage('unreadEmailWidget');
-
+UnreadEmailController.$inject = ['$scope', 'EmailAccount', 'EmailMessage', 'HLFilters', 'HLUtils', 'LocalStorage'];
+function UnreadEmailController($scope, EmailAccount, EmailMessage, HLFilters, HLUtils, LocalStorage) {
     var vm = this;
+
+    vm.storage = LocalStorage('unreadEmailWidget');
+    vm.storedFilterList = vm.storage.get('filterListSelected', null);
     vm.table = {
-        order: storage.get('order', {
+        order: vm.storage.get('order', {
             descending: true,
             column: 'sent_date',  // string: current sorted column
         }),
         items: [],
     };
+
+    vm.updateTable = updateTable;
+
     activate();
 
     //////
 
     function activate() {
         _watchTable();
+
+        EmailAccount.mine(function(emailAccounts) {
+            var filterList = [];
+
+            angular.forEach(emailAccounts, function(account) {
+                filterList.push({
+                    name: account.label,
+                    value: 'account:' +  account.id,
+                    selected: false,
+                    isSpecialFilter: true,
+                });
+            });
+
+            HLFilters.getStoredSelections(filterList, vm.storedFilterList);
+
+            vm.filterList = filterList;
+        });
     }
 
-    function _getMessages() {
+    function updateTable() {
         HLUtils.blockUI('#unreadEmailBlockTarget', true);
 
-        EmailMessage.getDashboardMessages(
-            vm.table.order.column,
-            vm.table.order.descending
-        ).then(function(messages) {
-            vm.table.items = messages;
+        var sort = HLUtils.getSorting(vm.table.order.column, vm.table.order.descending);
+        var filterQuery = 'read:false AND label_id:INBOX';
+
+        if (vm.table.filterQuery) {
+            filterQuery += ' AND ' + vm.table.filterQuery;
+        }
+
+        EmailMessage.search({
+            filterquery: filterQuery,
+            sort: sort,
+        }, function(data) {
+            vm.table.items = data.hits;
 
             HLUtils.unblockUI('#unreadEmailBlockTarget');
         });
@@ -44,8 +72,8 @@ function UnreadEmailController($scope, EmailMessage, HLUtils, LocalStorage) {
 
     function _watchTable() {
         $scope.$watchGroup(['vm.table.order.descending', 'vm.table.order.column'], function() {
-            _getMessages();
-            storage.put('order', vm.table.order);
+            updateTable();
+            vm.storage.put('order', vm.table.order);
         });
     }
 }

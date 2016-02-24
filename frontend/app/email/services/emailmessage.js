@@ -9,49 +9,49 @@ function EmailMessage($resource, $q) {
             query: {
                 isArray: false,
             },
-            'update': {
+            update: {
                 method: 'PUT',
                 params: {
                     id: '@id',
                     actions: '',
                 },
             },
-            'delete': {
+            delete: {
                 method: 'DELETE',
                 params: {
                     id: '@id',
                     actions: '',
                 },
             },
-            'archive': {
+            archive: {
                 method: 'PUT',
                 params: {
                     id: '@id',
                     actions: 'archive',
                 },
             },
-            'trash': {
+            trash: {
                 method: 'PUT',
                 params: {
                     id: '@id',
                     actions: 'trash',
                 },
             },
-            'get': {
+            get: {
                 method: 'GET',
                 params: {
                     id: '@id',
                     actions: '',
                 },
             },
-            'move': {
+            move: {
                 method: 'PUT',
                 params: {
                     id: '@id',
                     actions: 'move',
                 },
             },
-            'search': {
+            search: {
                 method: 'GET',
                 url: '/search/search/',
                 params: {
@@ -72,28 +72,11 @@ function EmailMessage($resource, $q) {
     );
 
     _emailMessage.markAsRead = markAsRead;
-    _emailMessage.getDashboardMessages = getDashboardMessages;
 
     //////
 
     function markAsRead(id, read) {
         return this.update({id: id, read: read});
-    }
-
-    function getDashboardMessages(field, sorting) {
-        var filterQuery = ['read:false AND label_id:INBOX'];
-        var sort = '';
-        sort += sorting ? '-' : '';
-        sort += field;
-
-        var deferred = $q.defer();
-        _emailMessage.search({
-            filterquery: filterQuery,
-            sort: sort,
-        }, function(data) {
-            deferred.resolve(data.hits);
-        });
-        return deferred.promise;
     }
 
     return _emailMessage;

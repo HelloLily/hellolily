@@ -279,7 +279,6 @@ function AccountCreateController($state, $stateParams, Settings, Account, User, 
 
     function setStatusForCustomerId() {
         if (vm.account.status === '' || vm.account.status === 'inactive') {
-            console.log('asdf');
             vm.account.status = 'active';
         }
     }

@@ -16,19 +16,21 @@ function editableCheckbox() {
     };
 }
 
-EditableCheckboxController.$inject = ['HLResource'];
-function EditableCheckboxController(HLResource) {
+EditableCheckboxController.$inject = [];
+function EditableCheckboxController() {
     var ec = this;
+
+    ec.object = ec.viewModel[ec.type.toLowerCase()];
 
     ec.updateViewModel = updateViewModel;
 
     function updateViewModel() {
         var args = {
-            id: ec.viewModel.id,
+            id: ec.object.id,
         };
 
-        args[ec.field] = ec.viewModel[ec.field];
+        args[ec.field] = ec.object[ec.field];
 
-        return HLResource.patch(ec.type, args).$promise;
+        return ec.viewModel.updateModel(args);
     }
 }

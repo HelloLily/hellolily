@@ -24,25 +24,25 @@
                         </div>
                         <div>
                             <label>Found us through</label>
-                            <editable-select field="found_through" view-model="vm.deal" type="Deal" choice-field="true">
+                            <editable-select field="found_through" view-model="vm" type="Deal" choice-field="true">
                                 {{ vm.deal.found_through_display }}
                             </editable-select>
                         </div>
                         <div>
                             <label>Contacted us by</label>
-                            <editable-select field="contacted_by" view-model="vm.deal" type="Deal" choice-field="true">
+                            <editable-select field="contacted_by" view-model="vm" type="Deal" choice-field="true">
                                 {{ vm.deal.contacted_by_display }}
                             </editable-select>
                         </div>
                         <div>
                             <label>Why customer</label>
-                            <editable-select field="why_customer" view-model="vm.deal" type="Deal">
+                            <editable-select field="why_customer" view-model="vm" type="Deal">
                                 {{ vm.deal.why_customer.name }}
                             </editable-select>
                         </div>
                         <div>
                             <label>Next step</label>
-                            <editable-select field="next_step" view-model="vm.deal" type="Deal">
+                            <editable-select field="next_step" view-model="vm" type="Deal">
                                 <span class="step-type" id="next-step" ng-if="vm.deal.next_step" ng-class="{0: 'position-1', 1: 'position-2', 2: 'position-3', 3: 'position-4', 4: 'position-5', 5: 'position-6'}[vm.deal.next_step.position]">
                                     {{ vm.deal.next_step.name }}
                                 </span>
@@ -78,41 +78,41 @@
                     <div class="col-md-12 deal-detail-info">
                         <div>
                             <label>Assigned to</label>
-                            <editable-select field="assigned_to" view-model="vm.deal" type="Deal" select-options="{type: 'User', field: 'assignOptions', display: 'full_name'}">
+                            <editable-select field="assigned_to" view-model="vm" type="Deal" select-options="{type: 'User', field: 'assignOptions', display: 'full_name'}">
                                 {{ vm.deal.assigned_to.full_name }}
                             </editable-select>
                         </div>
                         <div>
                             <label>One-time cost</label>
-                            <span editable-text="vm.deal.amount_once" onbeforesave="vm.updateModel($data, 'amount_once')">{{ vm.deal.amount_once | currency:"€" }}</span>
+                            <span editable-text="vm.deal.amount_once" onbeforesave="vm.updateModel($data, 'amount_once')" blur="submit">{{ vm.deal.amount_once | currency:"€" }}</span>
                         </div>
                         <div>
                             <label>Recurring costs</label>
-                            <span editable-text="vm.deal.amount_recurring" onbeforesave="vm.updateModel($data, 'amount_recurring')">{{ vm.deal.amount_recurring | currency:"€" }}</span>
+                            <span editable-text="vm.deal.amount_recurring" onbeforesave="vm.updateModel($data, 'amount_recurring')" blur="submit">{{ vm.deal.amount_recurring | currency:"€" }}</span>
                         </div>
                         <div>
                             <label>Status</label>
                             <span ng-if="vm.deal.is_archived">{{ vm.deal.stage_display }}</span>
-                            <editable-select ng-if="!vm.deal.is_archived" field="stage" view-model="vm.deal" type="Deal" choice-field="true">
+                            <editable-select ng-if="!vm.deal.is_archived" field="stage" view-model="vm" type="Deal" choice-field="true">
                                 {{ vm.deal.stage_display }}
                             </editable-select>
                             <span ng-show="vm.deal.is_archived">- Archived</span>
                         </div>
                         <div>
                             <label>Twitter checked</label>
-                            <editable-checkbox view-model="vm.deal" type="Deal" field="twitter_checked"></editable-checkbox>
+                            <editable-checkbox view-model="vm" type="Deal" field="twitter_checked"></editable-checkbox>
                         </div>
                         <div ng-show="vm.deal.stage == 2">
                             <label>Quote checked</label>
-                            <editable-checkbox view-model="vm.deal" type="Deal" field="is_checked"></editable-checkbox>
+                            <editable-checkbox view-model="vm" type="Deal" field="is_checked"></editable-checkbox>
                         </div>
                         <div>
                             <label>Card sent</label>
-                            <editable-checkbox view-model="vm.deal" type="Deal" field="card_sent"></editable-checkbox>
+                            <editable-checkbox view-model="vm" type="Deal" field="card_sent"></editable-checkbox>
                         </div>
                         <div>
                             <label>Feedback form sent</label>
-                            <editable-checkbox view-model="vm.deal" type="Deal" field="feedback_form_sent"></editable-checkbox>
+                            <editable-checkbox view-model="vm" type="Deal" field="feedback_form_sent"></editable-checkbox>
                         </div>
                         <div ng-show="vm.deal.tag">
                             <label>Tags</label>

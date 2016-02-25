@@ -1,4 +1,4 @@
-angular.module('app.deals').config(dealsConfig);
+ angular.module('app.deals').config(dealsConfig);
 
 dealsConfig.$inject = ['$stateProvider'];
 function dealsConfig($stateProvider) {
@@ -25,8 +25,8 @@ function dealsConfig($stateProvider) {
 
 angular.module('app.deals').controller('DealDetailController', DealDetailController);
 
-DealDetailController.$inject = ['$scope', 'HLResource', 'Settings', 'Deal', 'DealStages', 'currentDeal'];
-function DealDetailController($scope, HLResource, Settings, Deal, DealStages, currentDeal) {
+DealDetailController.$inject = ['$scope', 'Deal', 'DealStages', 'HLResource', 'HLUtils', 'Settings', 'currentDeal'];
+function DealDetailController($scope, Deal, DealStages, HLResource, HLUtils, Settings, currentDeal) {
     var vm = this;
 
     Settings.page.setAllTitles('detail', currentDeal.name);
@@ -37,17 +37,59 @@ function DealDetailController($scope, HLResource, Settings, Deal, DealStages, cu
     vm.changeState = changeState;
     vm.updateModel = updateModel;
 
+    activate();
+
     //////
 
+    function activate() {
+        Deal.getNextSteps(function(response) {
+            angular.forEach(response.results, function(nextStep) {
+                if (nextStep.name === 'None') {
+                    vm.noneStep = nextStep;
+                }
+            });
+        });
+
+        if (vm.deal.next_step_date) {
+            vm.originalNextStepDate = vm.deal.next_step_date;
+        }
+    }
+
     function updateModel(data, field) {
-        var args = {
-            id: vm.deal.id,
-        };
+        var args;
 
-        args[field] = data;
+        if (typeof data === 'object') {
+            args = data;
+        } else {
+            args = {
+                id: vm.deal.id,
+            };
 
-        if (field === 'name') {
-            Settings.page.setAllTitles('detail', data);
+            args[field] = data;
+
+            if (field === 'name') {
+                Settings.page.setAllTitles('detail', data);
+            }
+        }
+
+        if (args.hasOwnProperty('next_step')) {
+            if (vm.deal.next_step.date_increment !== 0) {
+                // Update next step date based on next step.
+                var nextStepDate = HLUtils.addBusinessDays(vm.deal.next_step.date_increment, vm.originalNextStepDate);
+                nextStepDate = moment(nextStepDate).format('YYYY-MM-DD');
+                vm.deal.next_step_date = nextStepDate;
+            } else if (angular.equals(vm.deal.next_step, vm.noneStep)) {
+                // None step is selected, so clear the next step date.
+                vm.deal.next_step_date = null;
+            }
+        }
+
+        if (args.hasOwnProperty('stage')) {
+            if (vm.deal.stage === 3) {
+                // If the stage is 'Lost', set the next step to 'None'.
+                vm.deal.next_step = vm.noneStep;
+                vm.deal.next_step_date = null;
+            }
         }
 
         return HLResource.patch('Deal', args).$promise;

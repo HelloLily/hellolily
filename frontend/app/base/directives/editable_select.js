@@ -36,13 +36,15 @@ function EditableSelectController($filter, HLResource) {
             es.selectOptions = {};
         }
 
+        es.object = es.viewModel[es.type.toLowerCase()];
+
         // Certain values in the given view model are objects,
         // so the default value in the select won't always work.
         // So check if it's an object and add .id.
-        if (typeof es.viewModel[es.field] === 'object') {
-            es.selectModel = es.viewModel[es.field].id;
+        if (typeof es.object[es.field] === 'object') {
+            es.selectModel = es.object[es.field].id;
         } else {
-            es.selectModel = es.viewModel[es.field];
+            es.selectModel = es.object[es.field];
         }
 
         if (es.selectOptions.hasOwnProperty('display')) {
@@ -85,20 +87,20 @@ function EditableSelectController($filter, HLResource) {
         var selected = $filter('filter')(es.choices, {id: $data});
 
         if (es.choiceField) {
-            es.viewModel[es.field] = $data;
+            es.object[es.field] = $data;
             // Choice fields end with '_display',
             // so set the proper variable so front end changes are reflected properly.
-            es.viewModel[es.field + '_display'] = selected.length ? selected[0].name : null;
+            es.object[es.field + '_display'] = selected.length ? selected[0].name : null;
         } else {
-            es.viewModel[es.field] = selected.length ? selected[0] : null;
+            es.object[es.field] = selected.length ? selected[0] : null;
         }
 
         var args = {
-            id: es.viewModel.id,
+            id: es.object.id,
         };
 
         args[es.field] = $data;
 
-        return HLResource.patch(es.type, args).$promise;
+        return es.viewModel.updateModel(args);
     }
 }

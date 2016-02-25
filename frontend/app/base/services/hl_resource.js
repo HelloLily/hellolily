@@ -4,7 +4,7 @@ HLResource.$inject = ['$injector'];
 function HLResource($injector) {
     this.patch = function(model, args) {
         return $injector.get(model).patch(args, function() {
-            toastr.success('I\'ve updated the deal for you!', 'Done');
+            toastr.success('I\'ve updated the ' + model.toLowerCase() + ' for you!', 'Done');
         }, function() {
             toastr.error('Something went wrong while saving the field, please try again.', 'Oops!');
             // For now return an empty string, we'll implement proper errors later.

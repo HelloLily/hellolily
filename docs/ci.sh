@@ -25,7 +25,6 @@ sleep 5
 # Run the tests.
 set +e
 RESULT=0
-sudo docker run --rm -v $(pwd):/home/docker ferdynice/karmay karma start --single-run --reporters progress,junit
 if [ $? -ne 0 ]; then RESULT+=1; fi
 sudo docker-compose -f $COMPOSE_FILE run --rm --service-ports web python manage.py test -v2 \
     --with-coverage --cover-package=lily --cover-xml --cover-xml-file=coverage.xml \

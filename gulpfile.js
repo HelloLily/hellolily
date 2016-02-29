@@ -34,7 +34,6 @@ var config = {
             src: [
                 'frontend/app/**/module.js',
                 'frontend/app/**/*.js',
-                '!frontend/app/**/*Spec.js',
                 '!frontend/app/base/analytics.js',
             ],
             fileName: 'app.js',

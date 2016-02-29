@@ -19,7 +19,6 @@ module.exports = function(config) {
             'lily/static/app/app.js',
             'lily/static/templates.js',
             'frontend/vendor/**/angular-mocks.js',
-            'frontend/**/*Spec.js',
         ],
 
 

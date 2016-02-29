@@ -41,11 +41,12 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     CURRENCY_CHOICES = (
         ('EUR', _('Euro')),
         ('GBP', _('British pound')),
+        ('USD', _('United States dollar')),
+        ('ZAR', _('South African rand')),
         ('NOR', _('Norwegian krone')),
         ('DKK', _('Danish krone')),
         ('SEK', _('Swedish krone')),
         ('CHF', _('Swiss franc')),
-        ('USD', _('United States dollar')),
     )
 
     OPEN_STAGE, PENDING_STAGE, WON_STAGE, LOST_STAGE, CALLED_STAGE, EMAILED_STAGE = range(6)

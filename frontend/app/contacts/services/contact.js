@@ -25,7 +25,6 @@ function Contact($resource) {
             search: {
                 url: '/search/search/?type=contacts_contact&filterquery=:filterquery',
                 method: 'GET',
-                isArray: true,
                 transformResponse: function(data) {
                     var jsonData = angular.fromJson(data);
                     var objects = [];
@@ -36,7 +35,10 @@ function Contact($resource) {
                         });
                     }
 
-                    return objects;
+                    return {
+                        objects: objects,
+                        total: jsonData.total,
+                    };
                 },
             },
         }

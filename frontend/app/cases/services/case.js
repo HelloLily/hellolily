@@ -28,7 +28,6 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserT
                 params: {
                     type: 'cases_case',
                 },
-                isArray: true,
                 transformResponse: function(data) {
                     var jsonData = angular.fromJson(data);
                     var objects = [];
@@ -37,7 +36,11 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserT
                             objects.push(obj);
                         });
                     }
-                    return objects;
+
+                    return {
+                        objects: objects,
+                        total: jsonData.total,
+                    };
                 },
             },
             update: {
@@ -121,8 +124,8 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserT
             size: pageSize,
             sort: HLUtils.getSorting(orderColumn, orderedAsc),
             filterquery: filterQuery,
-        }, function(cases) {
-            return cases;
+        }, function(data) {
+            return data;
         }).$promise;
     }
 

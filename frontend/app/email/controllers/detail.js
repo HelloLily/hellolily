@@ -188,13 +188,13 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, Ac
 
                                         var accountQuery = '(' + accountIds.join(' OR ') + ') AND email_addresses.email_address:' + Settings.email.data.website;
 
-                                        Account.search({filterquery: accountQuery}).$promise.then(function(accounts) {
-                                            if (accounts.length) {
+                                        Account.search({filterquery: accountQuery}).$promise.then(function(accountData) {
+                                            if (accountData.objects.length) {
                                                 // If we get multiple accounts, just pick the first one.
                                                 // Additional filter isn't really possible.
-                                                Settings.email.data.account = accounts[0];
+                                                Settings.email.data.account = accountData.objects[0];
 
-                                                filterquery =  'contact:' + contact.id + ' OR account:' + accounts[0].id;
+                                                filterquery =  'contact:' + contact.id + ' OR account:' + accountData.objects[0].id;
                                             }
                                         });
                                     }
@@ -247,7 +247,7 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, Ac
         if (senderParts.length > 2) {
             var prepositionParts = [];
 
-            for(var i = 1; i < senderParts.length - 1; i++) {
+            for (var i = 1; i < senderParts.length - 1; i++) {
                 prepositionParts.push(senderParts[i]);
             }
 
@@ -319,17 +319,17 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, Ac
     }
 
     function _getCases(filterquery) {
-        Case.query({filterquery: filterquery, sort: '-created'}, function(cases) {
-            if (cases.length) {
-                Settings.email.data.cases = cases;
+        Case.query({filterquery: filterquery, sort: '-created'}, function(data) {
+            if (data.objects.length) {
+                Settings.email.data.cases = data.objects;
             }
         });
     }
 
     function _getDeals(filterquery) {
-        Deal.query({filterquery: filterquery, sort: '-created'}, function(deals) {
-            if (deals.length) {
-                Settings.email.data.deals = deals;
+        Deal.query({filterquery: filterquery, sort: '-created'}, function(data) {
+            if (data.objects.length) {
+                Settings.email.data.deals = data.objects;
             }
         });
     }

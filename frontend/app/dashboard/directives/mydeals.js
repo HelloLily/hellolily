@@ -60,12 +60,12 @@ function MyDealsController($scope, Deal, HLUtils, LocalStorage, CaseDetail) {
             if (vm.table.dueDateFilter !== '') {
                 // Add empty key to prevent showing a header and to not crash the for loop.
                 vm.table.items = {
-                    '': data,
+                    '': data.objects,
                 };
             } else {
-                vm.table.items = HLUtils.timeCategorizeObjects(data, 'next_step_date');
+                vm.table.items = HLUtils.timeCategorizeObjects(data.objects, 'next_step_date');
 
-                angular.forEach(data, function(deal) {
+                angular.forEach(data.objects, function(deal) {
                     CaseDetail.query({filterquery: 'account:' + deal.account + ' AND archived:false'}).$promise.then(function(caseList) {
                         if (caseList.length > 0) {
                             deal.hasUnarchivedCases = true;
@@ -76,7 +76,7 @@ function MyDealsController($scope, Deal, HLUtils, LocalStorage, CaseDetail) {
 
             HLUtils.unblockUI('#myDealsBlockTarget');
 
-            vm.numOfDeals = data.length;
+            vm.numOfDeals = data.objects.length;
         });
     }
 

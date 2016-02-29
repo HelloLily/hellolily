@@ -11,7 +11,6 @@ function Account($http, $q, $resource, HLUtils) {
             },
             search: {
                 url: '/search/search/?type=accounts_account&filterquery=:filterquery',
-                isArray: true,
                 transformResponse: function(data) {
                     var jsonData = angular.fromJson(data);
                     var objects = [];
@@ -22,7 +21,10 @@ function Account($http, $q, $resource, HLUtils) {
                         });
                     }
 
-                    return objects;
+                    return {
+                        objects: objects,
+                        total: jsonData.total,
+                    };
                 },
             },
             update: {

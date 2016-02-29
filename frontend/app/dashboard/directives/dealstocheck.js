@@ -48,8 +48,8 @@ function DealsToCheckController($scope, LocalStorage, Deal, HLUtils, UserTeams) 
         }
 
         dealPromise = Deal.getDeals('', 1, 20, vm.table.order.column, vm.table.order.descending, filterQuery);
-        dealPromise.then(function(deals) {
-            vm.table.items = deals;
+        dealPromise.then(function(data) {
+            vm.table.items = data.objects;
 
             HLUtils.unblockUI('#dealsToCheckBlockTarget');
         });

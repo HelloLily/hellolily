@@ -35,8 +35,8 @@ function CallbackRequestsController($scope, Case, HLUtils, LocalStorage) {
         Case.getCallbackRequests(
             vm.table.order.column,
             vm.table.order.descending
-        ).then(function(callbackRequests) {
-            vm.table.items = callbackRequests;
+        ).then(function(data) {
+            vm.table.items = data.objects;
 
             HLUtils.unblockUI('#callbackBlockTarget');
         });

@@ -17,7 +17,7 @@ function UnassignedCasesController($http, $scope, $state, Case, HLFilters, HLUti
     var vm = this;
 
     vm.storageName = 'unassignedCasesForTeam' + vm.team.id + 'Widget';
-    vm.storage = LocalStorage(vm.storageName);
+    vm.storage = new LocalStorage(vm.storageName);
     vm.storedFilterList = vm.storage.get('filterListSelected', null);
     vm.highPrioCases = 0;
     vm.table = {
@@ -57,6 +57,7 @@ function UnassignedCasesController($http, $scope, $state, Case, HLFilters, HLUti
     }
 
     function updateTable() {
+        var i;
         var filterQuery = 'archived:false AND _missing_:assigned_to_id AND assigned_to_groups:' + vm.team.id;
 
         HLUtils.blockUI('#unassignedCasesBlockTarget' + vm.team.id, true);
@@ -65,12 +66,12 @@ function UnassignedCasesController($http, $scope, $state, Case, HLFilters, HLUti
             filterQuery += ' AND ' + vm.table.filterQuery;
         }
 
-        Case.getCases('', 1, 20, vm.table.order.column, vm.table.order.descending, filterQuery).then(function(cases) {
-            vm.table.items = cases;
+        Case.getCases('', 1, 20, vm.table.order.column, vm.table.order.descending, filterQuery).then(function(data) {
+            vm.table.items = data.objects;
             vm.highPrioCases = 0;
 
-            for (var i in cases) {
-                if (cases[i].priority === 3) {
+            for (i in data.objects) {
+                if (data.objects[i].priority === 3) {
                     vm.highPrioCases++;
                 }
             }
@@ -80,8 +81,10 @@ function UnassignedCasesController($http, $scope, $state, Case, HLFilters, HLUti
     }
 
     function assignToMe(caseObj) {
+        var req;
+
         if (confirm('Assign this case to yourself?')) {
-            var req = {
+            req = {
                 method: 'POST',
                 url: '/cases/update/assigned_to/' + caseObj.id + '/',
                 data: 'assignee=' + currentUser.id,

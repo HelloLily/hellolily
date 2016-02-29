@@ -54,29 +54,30 @@ function MyCasesController($filter, $scope, Case, HLUtils, LocalStorage) {
             vm.table.dueDateFilter,
             vm.table.usersFilter
         ).then(function(data) {
+            var objects = data.objects;
             // Make sure the data is sorted by priority as well.
-            data = $filter('orderBy')(data, '-priority');
+            objects = $filter('orderBy')(objects, '-priority');
 
             if (vm.table.dueDateFilter !== '') {
                 // Add empty key to prevent showing a header and to not crash the for loop.
                 vm.table.items = {
-                    '': data,
+                    '': objects,
                 };
             } else {
-                vm.table.items = HLUtils.timeCategorizeObjects(data, 'expires');
+                vm.table.items = HLUtils.timeCategorizeObjects(objects, 'expires');
             }
 
             vm.highPrioCases = 0;
 
-            for (var i in data) {
-                if (data[i].priority === 3) {
+            for (var i in objects) {
+                if (objects[i].priority === 3) {
                     vm.highPrioCases++;
                 }
             }
 
             HLUtils.unblockUI('#myCasesBlockTarget');
 
-            vm.numOfCases = data.length;
+            vm.numOfCases = objects.length;
         });
     }
 

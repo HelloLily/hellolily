@@ -15,9 +15,9 @@ function caseConfig($stateProvider) {
             label: '{{ case.subject }}',
         },
         resolve: {
-            caseItem: ['CaseDetail', '$stateParams', function(CaseDetail, $stateParams) {
+            caseItem: ['Case', '$stateParams', function(Case, $stateParams) {
                 var id = $stateParams.id;
-                return CaseDetail.get({id: id}).$promise;
+                return Case.get({id: id}).$promise;
             }],
         },
     });
@@ -25,8 +25,8 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseDetailController', CaseDetailController);
 
-CaseDetailController.$inject = ['$http', '$scope', '$stateParams', 'Settings', 'Account', 'CaseStatuses', 'caseItem', 'Contact', 'UserTeams'];
-function CaseDetailController($http, $scope, $stateParams, Settings, Account, CaseStatuses, caseItem, Contact, UserTeams) {
+CaseDetailController.$inject = ['$http', '$scope', '$stateParams', 'Settings', 'Account', 'CaseStatuses', 'caseItem', 'Contact', 'UserTeams', 'User', 'HLUtils', 'HLResource'];
+function CaseDetailController($http, $scope, $stateParams, Settings, Account, CaseStatuses, caseItem, Contact, UserTeams, User, HLUtils, HLResource) {
     var vm = this;
     var id = $stateParams.id;
 
@@ -40,33 +40,36 @@ function CaseDetailController($http, $scope, $stateParams, Settings, Account, Ca
     vm.assignCase = assignCase;
     vm.archive = archive;
     vm.unarchive = unarchive;
+    vm.updateModel = updateModel;
 
     activate();
 
     //////
 
     function activate() {
+
         if (vm.case.account) {
-            Account.get({id: vm.case.account}).$promise.then(function(account) {
+            Account.get({id: vm.case.account.id}).$promise.then(function(account) {
                 vm.account = account;
             });
         }
 
         if (vm.case.contact) {
-            Contact.get({id: vm.case.contact}).$promise.then(function(contact) {
+            Contact.get({id: vm.case.contact.id}).$promise.then(function(contact) {
                 vm.contact = contact;
             });
         }
 
         var assignedToGroups = [];
 
-        angular.forEach(vm.case.assigned_to_groups, function(groupId) {
-            UserTeams.get({id: groupId}).$promise.then(function(team) {
+        angular.forEach(vm.case.assigned_to_groups, function(response) {
+            UserTeams.get({id: response.id}).$promise.then(function(team) {
                 assignedToGroups.push(team);
             });
         });
 
         vm.case.assigned_to_groups = assignedToGroups;
+
     }
 
     /**
@@ -92,13 +95,33 @@ function CaseDetailController($http, $scope, $stateParams, Settings, Account, Ca
         }
     }
 
+    function updateModel(data, field) {
+        var args;
+
+        if (typeof data === 'object') {
+            args = data;
+        } else {
+            args = {
+                id: vm.deal.id,
+            };
+
+            args[field] = data;
+
+            if (field === 'name') {
+                Settings.page.setAllTitles('detail', data);
+            }
+        }
+
+        return HLResource.patch('Case', args).$promise;
+    }
+
     function changeCaseStatus(status) {
         // TODO: LILY-XXX: Temporary call to change status of a case, will be replaced with an new API call later
         var req = {
             method: 'POST',
             url: '/cases/update/status/' + vm.case.id + '/',
             data: 'status=' + status,
-            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
+            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'},
         };
 
         $http(req).
@@ -142,7 +165,7 @@ function CaseDetailController($http, $scope, $stateParams, Settings, Account, Ca
     }
 
     /**
-     * Archive a deal.
+     * Archive a case.
      * TODO: LILY-XXX: Change to API based archiving
      */
     function archive(id) {
@@ -164,7 +187,7 @@ function CaseDetailController($http, $scope, $stateParams, Settings, Account, Ca
     }
 
     /**
-     * Unarchive a deal.
+     * Unarchive a case.
      * TODO: LILY-XXX: Change to API based unarchiving
      */
     function unarchive(id) {

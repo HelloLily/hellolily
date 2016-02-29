@@ -105,7 +105,8 @@ $inline-editable-field-height: 30px;
     }
 }
 
-.deal-detail-info {
+.deal-detail-info,
+.case-detail-info {
     div > label {
         line-height: $inline-editable-field-height;
     }

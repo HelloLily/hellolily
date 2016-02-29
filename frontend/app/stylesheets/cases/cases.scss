@@ -263,3 +263,10 @@ td .label-sm {
         @include case-priority-border-indicator($criticalPrioColor);
     }
 }
+
+.case-detail-info {
+    div > label {
+        width: 160px;
+        font-weight: bold;
+    }
+}

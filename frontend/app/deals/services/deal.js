@@ -120,6 +120,8 @@ function Deal($resource, HLUtils, HLForms, User) {
             feedback_form_sent: false,
             tags: [],
             currency: 'EUR',
+            amount_once: 0,
+            amount_recurring: 0,
         });
     }
 

@@ -84,8 +84,9 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     account = models.ForeignKey(Account, verbose_name=_('account'))
     contact = models.ForeignKey(Contact, verbose_name=_('contact'), null=True, blank=True)
     currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, verbose_name=_('currency'))
-    amount_once = models.DecimalField(max_digits=19, decimal_places=2, verbose_name=_('one-time cost'))
-    amount_recurring = models.DecimalField(max_digits=19, decimal_places=2, verbose_name=_('recurring costs'))
+    amount_once = models.DecimalField(default=0, max_digits=19, decimal_places=2, verbose_name=_('one-time cost'))
+    amount_recurring = models.DecimalField(default=0, max_digits=19, decimal_places=2,
+                                           verbose_name=_('recurring costs'))
     closed_date = models.DateTimeField(verbose_name=_('closed date'), blank=True, null=True)
     stage = models.IntegerField(choices=STAGE_CHOICES, verbose_name=_('status'))
     assigned_to = models.ForeignKey(LilyUser, verbose_name=_('assigned to'), null=True)

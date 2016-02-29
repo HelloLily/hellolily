@@ -30,6 +30,9 @@ function User($resource) {
                 method: 'POST',
                 url: '/api/users/user/token/',
             },
+            getAssignOptions: {
+                url: '/api/users/user',
+            },
         }
     );
 

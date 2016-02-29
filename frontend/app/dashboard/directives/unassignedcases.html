@@ -1,15 +1,17 @@
 <dashboard-widget widget-name="'Unassigned ' + vm.team.name + ' cases'" widget-class="'col-md-6'" widget-scrollable="true" widget-closeable="true">
-    <div class="widget-name" name="widget-title">
-        <i class="lilicon hl-case-icon"></i>
-        {{vm.team.name}} cases
-        <span class="label-amount">{{ vm.table.items.length }}</span><span class="label-amount high-prio" ng-if="vm.highPrioCases" uib-tooltip="Critical priority">{{ vm.highPrioCases }}</span>
-    </div>
+    <widget-header>
+        <div class="widget-name">
+            <i class="lilicon hl-case-icon"></i>
+            {{vm.team.name}} cases
+            <span class="label-amount">{{ vm.table.items.length }}</span><span class="label-amount high-prio" ng-if="vm.highPrioCases" uib-tooltip="Critical priority">{{ vm.highPrioCases }}</span>
+        </div>
+    </widget-header>
 
-    <div name="widget-filters">
+    <widget-filters>
         <list-filter filter-label="'Case type'" view-model="vm"></list-filter>
-    </div>
+    </widget-filters>
 
-    <div name="portlet-body">
+    <widget-body>
         <table id="unassignedCasesBlockTarget{{ vm.team.id }}" class="widget-table">
             <thead>
                 <tr>
@@ -39,5 +41,5 @@
                 </tr>
             </tbody>
         </table>
-    </div>
+    </widget-body>
 </dashboard-widget>

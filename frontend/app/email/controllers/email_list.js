@@ -38,7 +38,7 @@ angular.module('app.email').controller('EmailListController', EmailListControlle
 EmailListController.$inject = ['$scope', '$state', '$stateParams', 'Settings', 'EmailMessage', 'EmailLabel',
     'EmailAccount', 'HLText', 'LocalStorage', 'SelectedEmailAccount'];
 function EmailListController($scope, $state, $stateParams, Settings, EmailMessage, EmailLabel, EmailAccount, HLText, LocalStorage, SelectedEmailAccount) {
-    var storage = LocalStorage('inbox');
+    var storage = new LocalStorage('inbox');
     var vm = this;
 
     vm.emailMessages = [];
@@ -111,13 +111,17 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
     }
 
     function toggleCheckboxes() {
-        for(var i in vm.emailMessages) {
+        var i;
+
+        for (i in vm.emailMessages) {
             vm.emailMessages[i].checked = vm.opts.checkboxesAll;
         }
     }
 
     function _toggleReadMessages(read) {
-        for (var i in vm.emailMessages) {
+        var i;
+
+        for (i in vm.emailMessages) {
             if (vm.emailMessages[i].checked) {
                 EmailMessage.markAsRead(vm.emailMessages[i].id, read);
                 vm.emailMessages[i].read = read;
@@ -130,7 +134,9 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
      */
     function showReplyOrForwardButtons() {
         var number = 0;
-        for (var i in vm.emailMessages) {
+        var i;
+
+        for (i in vm.emailMessages) {
             if (vm.emailMessages[i].checked) {
                 number++;
                 if (number > 1) {
@@ -138,6 +144,7 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
                 }
             }
         }
+
         return number === 1;
     }
 
@@ -147,7 +154,9 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
      * @returns EmailMessage instance
      */
     function _selectedMessage() {
-        for (var i in vm.emailMessages) {
+        var i;
+
+        for (i in vm.emailMessages) {
             if (vm.emailMessages[i].checked) {
                 return vm.emailMessages[i];
             }
@@ -194,6 +203,7 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
 
     function _removeCheckedMessagesFromList() {
         var i = vm.emailMessages.length;
+
         while (i--) {
             if (vm.emailMessages[i].checked) {
                 vm.emailMessages.splice(i, 1);
@@ -202,7 +212,9 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
     }
 
     function archiveMessages() {
-        for (var i in vm.emailMessages) {
+        var i;
+
+        for (i in vm.emailMessages) {
             if (vm.emailMessages[i].checked) {
                 EmailMessage.archive({id: vm.emailMessages[i].id});
             }
@@ -211,7 +223,9 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
     }
 
     function trashMessages() {
-        for (var i in vm.emailMessages) {
+        var i;
+
+        for (i in vm.emailMessages) {
             if (vm.emailMessages[i].checked) {
                 EmailMessage.trash({id: vm.emailMessages[i].id});
             }
@@ -221,7 +235,9 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
     }
 
     function deleteMessages() {
-        for (var i in vm.emailMessages) {
+        var i;
+
+        for (i in vm.emailMessages) {
             if (vm.emailMessages[i].checked) {
                 EmailMessage.delete({id: vm.emailMessages[i].id});
             }
@@ -230,21 +246,27 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
     }
 
     function moveMessages(labelId) {
+        var addedLabels = [labelId];
         var removedLabels = [];
+        var i;
+        var data;
+
         if (vm.label.label_id) {
             removedLabels = [vm.label.label_id];
         }
-        var addedLabels = [labelId];
+
         // Gmail API needs to know the new labels as well as the old ones, so send them too
-        var data = {
+        data = {
             remove_labels: removedLabels,
             add_labels: addedLabels,
         };
-        for (var i in vm.emailMessages) {
+
+        for (i in vm.emailMessages) {
             if (vm.emailMessages[i].checked) {
                 EmailMessage.move({id: vm.emailMessages[i].id, data: data});
             }
         }
+
         _removeCheckedMessagesFromList();
     }
 

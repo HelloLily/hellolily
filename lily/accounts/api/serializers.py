@@ -137,6 +137,7 @@ class AccountCreateSerializer(serializers.ModelSerializer):
             'bic',
             'cocnumber',
             'customer_id',
+            'status',
             'description',
             'email_addresses',
             'iban',

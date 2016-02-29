@@ -41,11 +41,12 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     CURRENCY_CHOICES = (
         ('EUR', _('Euro')),
         ('GBP', _('British pound')),
+        ('USD', _('United States dollar')),
+        ('ZAR', _('South African rand')),
         ('NOR', _('Norwegian krone')),
         ('DKK', _('Danish krone')),
         ('SEK', _('Swedish krone')),
         ('CHF', _('Swiss franc')),
-        ('USD', _('United States dollar')),
     )
 
     OPEN_STAGE, PENDING_STAGE, WON_STAGE, LOST_STAGE, CALLED_STAGE, EMAILED_STAGE = range(6)
@@ -84,8 +85,9 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     account = models.ForeignKey(Account, verbose_name=_('account'))
     contact = models.ForeignKey(Contact, verbose_name=_('contact'), null=True, blank=True)
     currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, verbose_name=_('currency'))
-    amount_once = models.DecimalField(max_digits=19, decimal_places=2, verbose_name=_('one-time cost'))
-    amount_recurring = models.DecimalField(max_digits=19, decimal_places=2, verbose_name=_('recurring costs'))
+    amount_once = models.DecimalField(default=0, max_digits=19, decimal_places=2, verbose_name=_('one-time cost'))
+    amount_recurring = models.DecimalField(default=0, max_digits=19, decimal_places=2,
+                                           verbose_name=_('recurring costs'))
     closed_date = models.DateTimeField(verbose_name=_('closed date'), blank=True, null=True)
     stage = models.IntegerField(choices=STAGE_CHOICES, verbose_name=_('status'))
     assigned_to = models.ForeignKey(LilyUser, verbose_name=_('assigned to'), null=True)

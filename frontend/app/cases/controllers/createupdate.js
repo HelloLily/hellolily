@@ -317,7 +317,13 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         // Don't load if we selected a contact.
         // Because we want to display all accounts the contact works for.
         if (!vm.case.contact && (!vm.accounts || query.length)) {
-            vm.accounts = HLSearch.refreshList(query, 'Account');
+            var accountsPromise = HLSearch.refreshList(query, 'Account');
+
+            if (accountsPromise) {
+                accountsPromise.$promise.then(function(data) {
+                    vm.accounts = data.objects;
+                });
+            }
         }
     }
 
@@ -333,7 +339,13 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             accountQuery += 'accounts.id:' + vm.case.account.id;
         }
 
-        vm.contacts = HLSearch.refreshList(query, 'Contact', null, accountQuery);
+        var contactsPromise = HLSearch.refreshList(query, 'Contact', null, accountQuery);
+
+        if (contactsPromise) {
+            contactsPromise.$promise.then(function(data) {
+                vm.contacts = data.objects;
+            });
+        }
     }
 
     function _caseFormIsValid() {

@@ -62,7 +62,7 @@ class DealSerializer(WritableNestedSerializer):
     # Related fields.
     account = RelatedAccountSerializer()
     contact = RelatedContactSerializer(required=False, allow_null=True)
-    assigned_to = RelatedLilyUserSerializer(required=True, assign_only=True)
+    assigned_to = RelatedLilyUserSerializer(required=False, assign_only=True)
     next_step = RelatedDealNextStepSerializer(assign_only=True)
     tags = RelatedTagSerializer(many=True, required=False, create_only=True)
     notes = RelatedNoteSerializer(many=True, required=False, create_only=True)
@@ -73,6 +73,9 @@ class DealSerializer(WritableNestedSerializer):
     currency_display = serializers.CharField(source='get_currency_display', read_only=True)
     found_through_display = serializers.CharField(source='get_found_through_display', read_only=True)
     stage_display = serializers.CharField(source='get_stage_display', read_only=True)
+
+    amount_once = serializers.DecimalField(max_digits=19, decimal_places=2, required=True)
+    amount_recurring = serializers.DecimalField(max_digits=19, decimal_places=2, required=True)
 
     def validate(self, attrs):
         contact_id = attrs.get('contact', {})
@@ -95,6 +98,13 @@ class DealSerializer(WritableNestedSerializer):
         validated_data.update({
             'created_by_id': user.pk
         })
+
+        assigned_to = validated_data.get('assigned_to')
+        if assigned_to is None:
+            # Deal wasn't assigned to someone, so assign to current user.
+            validated_data.update({
+                    'assigned_to_id': user.pk
+                })
 
         return super(DealSerializer, self).create(validated_data)
 

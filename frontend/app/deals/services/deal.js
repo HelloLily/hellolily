@@ -1,7 +1,7 @@
 angular.module('app.deals.services').factory('Deal', Deal);
 
-Deal.$inject = ['$resource', 'HLUtils', 'HLForms'];
-function Deal($resource, HLUtils, HLForms) {
+Deal.$inject = ['$resource', 'HLUtils', 'HLForms', 'User'];
+function Deal($resource, HLUtils, HLForms, User) {
     var _deal = $resource(
         '/api/deals/deal/:id/',
         null,
@@ -55,7 +55,6 @@ function Deal($resource, HLUtils, HLForms) {
                 params: {
                     type: 'deals_deal',
                 },
-                isArray: true,
                 transformResponse: function(data) {
                     var jsonData = angular.fromJson(data);
                     var objects = [];
@@ -73,7 +72,10 @@ function Deal($resource, HLUtils, HLForms) {
                         });
                     }
 
-                    return objects;
+                    return {
+                        objects: objects,
+                        total: jsonData.total,
+                    };
                 },
             },
             getNextSteps: {
@@ -81,6 +83,21 @@ function Deal($resource, HLUtils, HLForms) {
             },
             getWhyCustomer: {
                 url: 'api/deals/why-customer',
+            },
+            getStages: {
+                url: '/api/deals/stages',
+                isArray: true,
+                transformResponse: _transformChoices,
+            },
+            getFoundThrough: {
+                url: '/api/deals/found-through',
+                isArray: true,
+                transformResponse: _transformChoices,
+            },
+            getContactedBy: {
+                url: '/api/deals/contacted-by',
+                isArray: true,
+                transformResponse: _transformChoices,
             },
             getFormOptions: {
                 url: 'api/deals/deal',
@@ -105,6 +122,9 @@ function Deal($resource, HLUtils, HLForms) {
             feedback_form_sent: false,
             tags: [],
             currency: 'EUR',
+            amount_once: 0,
+            amount_recurring: 0,
+            assigned_to: currentUser.id,
         });
     }
 
@@ -138,13 +158,8 @@ function Deal($resource, HLUtils, HLForms) {
             size: pageSize,
             sort: sort,
             filterquery: filterQuery,
-        }, function(deals) {
-            if (deals.length) {
-                return {
-                    deals: deals,
-                    total: deals[0].total_size,
-                };
-            }
+        }, function(data) {
+            return data;
         }).$promise;
     }
 
@@ -158,6 +173,21 @@ function Deal($resource, HLUtils, HLForms) {
         var deal = this;
         deal.is_checked = true;
         return deal.$update();
+    }
+
+    function _transformChoices(data) {
+        data = angular.fromJson(data);
+        var choices = [];
+
+        // Convert the Django choices to a generic Array.
+        for (var i = 0; i < data.length; i++) {
+            choices.push({
+                id: data[i][0],
+                name: data[i][1],
+            });
+        }
+
+        return choices;
     }
 
     return _deal;

@@ -217,11 +217,7 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
         User.query().$promise.then(function(response) {
             angular.forEach(response.results, function(user) {
                 if (user.first_name !== '') {
-                    assignOptions.push({
-                        id: user.id,
-                        // Convert to single string so searching with spaces becomes possible.
-                        name: HLUtils.getFullName(user),
-                    });
+                    assignOptions.push(user);
                 }
             });
 
@@ -311,7 +307,7 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
             // it doesn't have any deals; we mark it as a new business.
             if (accountCreated.isAfter(weekAgo)) {
                 Deal.query({filterquery: 'account:' + vm.deal.account.id}).$promise.then(function(response) {
-                    if (!response.length) {
+                    if (!response.objects.length) {
                         vm.deal.new_business = true;
                     }
                 });
@@ -336,7 +332,13 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
         // Don't load if we selected a contact.
         // Because we want to display all accounts the contact works for.
         if (!vm.deal.contact && (!vm.accounts || query.length)) {
-            vm.accounts = HLSearch.refreshList(query, 'Account');
+            var accountsPromise = HLSearch.refreshList(query, 'Account');
+
+            if (accountsPromise) {
+                accountsPromise.$promise.then(function(data) {
+                    vm.accounts = data.objects;
+                });
+            }
         }
     }
 
@@ -352,7 +354,13 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
             accountQuery += 'accounts.id:' + vm.deal.account.id;
         }
 
-        vm.contacts = HLSearch.refreshList(query, 'Contact', null, accountQuery);
+        var contactsPromise = HLSearch.refreshList(query, 'Contact', null, accountQuery);
+
+        if (contactsPromise) {
+            contactsPromise.$promise.then(function(data) {
+                vm.contacts = data.objects;
+            });
+        }
     }
 
     function _dealFormIsValid() {

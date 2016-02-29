@@ -204,9 +204,9 @@ function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFil
             vm.table.order.column,
             vm.table.order.descending,
             vm.table.filterQuery
-        ).then(function(cases) {
-            vm.table.items = cases;
-            vm.table.totalItems = cases.length;
+        ).then(function(data) {
+            vm.table.items = data.objects;
+            vm.table.totalItems = data.total;
         });
     }
 

@@ -54,8 +54,9 @@ function contactConfig($stateProvider) {
 angular.module('app.contacts').controller('ContactCreateUpdateController', ContactCreateUpdateController);
 
 ContactCreateUpdateController.$inject = ['$state', '$stateParams', 'Settings', 'Account', 'Contact', 'Tag',
-    'HLFields', 'HLForms'];
-function ContactCreateUpdateController($state, $stateParams, Settings, Account, Contact, Tag, HLFields, HLForms) {
+    'HLFields', 'HLForms', 'HLSearch'];
+function ContactCreateUpdateController($state, $stateParams, Settings, Account, Contact, Tag,
+                                       HLFields, HLForms, HLSearch) {
     var vm = this;
     vm.contact = {};
     vm.tags = [];
@@ -216,14 +217,13 @@ function ContactCreateUpdateController($state, $stateParams, Settings, Account, 
 
     function refreshAccounts(query) {
         if (query.length >= 2) {
-            var exclude = '';
+           var accountsPromise = HLSearch.refreshList(query, 'Account', vm.contact.accounts);
 
-            // Exclude accounts already selected
-            angular.forEach(vm.contact.accounts, function(account) {
-                exclude += ' AND NOT id:' + account.id;
-            });
-
-            vm.accounts = Account.search({filterquery: 'name:(' + query + ')' + exclude, size: 60, sort: '-modified'});
+            if (accountsPromise) {
+                accountsPromise.$promise.then(function(data) {
+                    vm.accounts = data.objects;
+                });
+            }
         }
     }
 

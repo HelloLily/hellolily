@@ -42,7 +42,18 @@
                 </form-group>
 
                 <form-group label-title="Customer ID" label-char="#" label-id="id_customer_id" field="costumer_id">
-                    <input class="form-control" id="id_customer_id" maxlength="32" name="customer_id" name="costumer_id" placeholder="Customer ID" type="text" ng-model="vm.account.customer_id">
+                    <input class="form-control" id="id_customer_id" maxlength="32" name="customer_id"
+                           name="costumer_id" placeholder="Customer ID" type="text"
+                           ng-model="vm.account.customer_id"
+                           ng-change="vm.setStatusForCustomerId()">
+                </form-group>
+
+                <form-group label-title="Status" label-id="id_status" field="accountForm.status">
+                    <select name="status" ng-model="vm.account.status"
+                            ng-options="status.value as status.display_name for status in vm.statusChoices"
+                            class="form-control">
+                        <option value="" hidden>---------</option>
+                    </select>
                 </form-group>
             </form-portlet>
 

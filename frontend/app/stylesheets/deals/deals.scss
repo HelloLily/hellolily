@@ -17,3 +17,27 @@
 .list-filters .checker {
     margin-left: 5px;
 }
+
+.inline-selectable-text {
+    margin-left: 1px;
+}
+
+.deal-detail-info-table {
+
+    td {
+        height: 30px;
+
+        label {
+            margin-bottom: 0;
+        }
+    }
+
+    td:first-child {
+        width: 160px;
+        font-weight: bold;
+    }
+
+    .checker {
+        margin: 0;
+    }
+}

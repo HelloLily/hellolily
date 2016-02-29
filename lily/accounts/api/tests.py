@@ -34,7 +34,8 @@ class AccountTests(APITestCase):
         'social_media': [],
         'tags': [],
         'taxnumber': '',
-        'websites': []
+        'websites': [],
+        'status': 'inactive',
     }
 
     @classmethod

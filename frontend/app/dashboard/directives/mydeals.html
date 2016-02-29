@@ -1,16 +1,18 @@
 <dashboard-widget widget-name="'My deals'" widget-class="'col-md-12'" widget-scrollable="true" widget-closeable="true" widget-dynamic-height="true">
-    <div class="widget-name" name="widget-title">
-        <i class="lilicon hl-deals-filled-icon"></i>
-        My deals
-        <span class="label-amount">{{ vm.numOfDeals }}</span><span class="label-amount high-prio" ng-if="vm.highPrioDeals" uib-tooltip="Critical priority">{{ vm.highPrioDeals }}</span>
-    </div>
+    <widget-header>
+        <div class="widget-name">
+            <i class="lilicon hl-deals-filled-icon"></i>
+            My deals
+            <span class="label-amount">{{ vm.numOfDeals }}</span><span class="label-amount high-prio" ng-if="vm.highPrioDeals" uib-tooltip="Critical priority">{{ vm.highPrioDeals }}</span>
+        </div>
+    </widget-header>
 
-    <div name="widget-filters">
+    <widget-filters>
         <due-date-filter filter-store="vm.table.dueDateFilter" filter-field="'next_step_date'" type="'deal'"></due-date-filter>
         <users-filter users-store="vm.table.usersFilter" storage-name="'dealUsersFilter'"></users-filter>
-    </div>
+    </widget-filters>
 
-    <div name="portlet-body">
+    <widget-body>
         <table id="myDealsBlockTarget" class="widget-table">
             <thead>
                 <tr>
@@ -65,5 +67,5 @@
                 </tr>
             </tbody>
         </table>
-    </div>
+    </widget-body>
 </dashboard-widget>

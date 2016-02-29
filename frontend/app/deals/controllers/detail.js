@@ -1,4 +1,4 @@
-angular.module('app.deals').config(dealsConfig);
+ angular.module('app.deals').config(dealsConfig);
 
 dealsConfig.$inject = ['$stateProvider'];
 function dealsConfig($stateProvider) {
@@ -15,9 +15,9 @@ function dealsConfig($stateProvider) {
             label: '{{ deal.name }}',
         },
         resolve: {
-            deal: ['DealDetail', '$stateParams', function(DealDetail, $stateParams) {
+            currentDeal: ['Deal', '$stateParams', function(Deal, $stateParams) {
                 var id = $stateParams.id;
-                return DealDetail.get({id: id}).$promise;
+                return Deal.get({id: id}).$promise;
             }],
         },
     });
@@ -25,84 +25,104 @@ function dealsConfig($stateProvider) {
 
 angular.module('app.deals').controller('DealDetailController', DealDetailController);
 
-DealDetailController.$inject = ['$http', '$scope', 'Settings', 'DealStages', 'deal'];
-function DealDetailController($http, $scope, Settings, DealStages, deal) {
-    $scope.deal = deal;
+DealDetailController.$inject = ['$scope', 'Deal', 'DealStages', 'HLResource', 'HLUtils', 'Settings', 'currentDeal'];
+function DealDetailController($scope, Deal, DealStages, HLResource, HLUtils, Settings, currentDeal) {
     var vm = this;
 
-    Settings.page.setAllTitles('detail', deal.name);
+    Settings.page.setAllTitles('detail', currentDeal.name);
 
-    vm.deal = deal;
+    vm.deal = currentDeal;
     vm.dealStages = DealStages.query();
 
     vm.changeState = changeState;
-    vm.archive = archive;
-    vm.unarchive = unarchive;
+    vm.updateModel = updateModel;
+
+    activate();
 
     //////
 
-    //
+    function activate() {
+        Deal.getNextSteps(function(response) {
+            angular.forEach(response.results, function(nextStep) {
+                if (nextStep.name === 'None') {
+                    vm.noneStep = nextStep;
+                }
+            });
+        });
+
+        if (vm.deal.next_step_date) {
+            vm.originalNextStepDate = vm.deal.next_step_date;
+        }
+    }
+
+    function updateModel(data, field) {
+        var args;
+
+        if (typeof data === 'object') {
+            args = data;
+        } else {
+            args = {
+                id: vm.deal.id,
+            };
+
+            args[field] = data;
+
+            if (field === 'name') {
+                Settings.page.setAllTitles('detail', data);
+            }
+        }
+
+        if (args.hasOwnProperty('next_step')) {
+            if (vm.deal.next_step.date_increment !== 0) {
+                // Update next step date based on next step.
+                var nextStepDate = HLUtils.addBusinessDays(vm.deal.next_step.date_increment, vm.originalNextStepDate);
+                nextStepDate = moment(nextStepDate).format('YYYY-MM-DD');
+                vm.deal.next_step_date = nextStepDate;
+            } else if (angular.equals(vm.deal.next_step, vm.noneStep)) {
+                // None step is selected, so clear the next step date.
+                vm.deal.next_step_date = null;
+            }
+        }
+
+        if (args.hasOwnProperty('stage')) {
+            if (vm.deal.stage === 3) {
+                // If the stage is 'Lost', set the next step to 'None'.
+                vm.deal.next_step = vm.noneStep;
+                vm.deal.next_step_date = null;
+            }
+        }
+
+        return HLResource.patch('Deal', args).$promise;
+    }
+
     /**
-     * Change the state of a deal
+     * Change the state of a deal.
      */
     function changeState(stage) {
-        var req = {
-            method: 'POST',
-            url: '/deals/update/stage/' + vm.deal.id + '/',
-            data: 'stage=' + stage,
-            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'},
+        // For now we'll use a separate function to update the stage,
+        // since the buttons and the value in the list need to be equal.
+        vm.deal.stage = stage[0]; // ID of the stage
+        vm.deal.stage_display = stage[1]; // Name of the stage
+
+        // TODO: Should this be done in the API?
+        if (['Won', 'Lost'].indexOf(stage[1]) > -1) {
+            vm.deal.closed_date = moment().format();
+        } else {
+            vm.deal.closed_date = null;
+        }
+
+        var args = {
+            id: vm.deal.id,
+            stage: vm.deal.stage,
+            closed_date: vm.deal.closed_date,
         };
 
-        $http(req).
-            success(function(data) {
-                vm.deal.stage = stage;
-                vm.deal.stage_name = data.stage;
-                vm.deal.closed_date = data.closed_date;
-
-                $scope.loadNotifications();
-            }).
-            error(function(data, status, headers, config) {
-                // Request failed propper error?
-            });
+        return HLResource.patch('Deal', args).$promise;
     }
 
-    /**
-     * Archive a deal
-     */
-    function archive(id) {
-        var req = {
-            method: 'POST',
-            url: '/deals/archive/',
-            data: 'id=' + id,
-            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'},
-        };
-
-        $http(req).
-            success(function(data, status, headers, config) {
-                vm.deal.archived = true;
-            }).
-            error(function(data, status, headers, config) {
-                // Request failed propper error?
-            });
-    }
-
-    /**
-     * Unarchive a deal
-     */
-    function unarchive(id) {
-        var req = {
-            method: 'POST',
-            url: '/deals/unarchive/',
-            data: 'id=' + id,
-            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'},
-        };
-
-        $http(req).
-            success(function(data, status, headers, config) {
-                vm.deal.archived = false;
-            }).
-            error(function(data, status, headers, config) {
-                // Request failed proper error?
-            });
-    }
+    $scope.$watch('vm.deal.is_archived', function(newValue, oldValue) {
+        if (newValue !== oldValue) {
+            updateModel(vm.deal.is_archived, 'is_archived');
+        }
+    });
 }

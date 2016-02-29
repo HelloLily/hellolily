@@ -173,6 +173,7 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
         self.get_object(request, **kwargs)
         return super(EmailMessageComposeView, self).post(request, *args, **kwargs)
 
+    @function_trace()
     def get_object(self, request, **kwargs):
         if 'pk' in kwargs:
             try:
@@ -187,6 +188,7 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
             except EmailMessage.DoesNotExist:
                 pass
 
+    @function_trace()
     def form_valid(self, form):
         """
         Process form to do either of these actions:
@@ -513,6 +515,7 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
                 break
         return u'%s%s' % (prefix, subject)
 
+    @function_trace()
     def form_valid(self, form):
         email_outbox_message = super(EmailMessageReplyOrForwardView, self).form_valid(form)
 
@@ -522,7 +525,6 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
 
         # Send and archive was pressed, so start an archive task
         if task and form.data.get('archive', False) == 'true':
-            success_url = '/#/email'  # Exception for archiving, go to inbox
             archive_email_message.apply_async(args=(self.object.id,))
 
         if is_ajax(self.request):
@@ -530,6 +532,7 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
         else:
             return HttpResponseRedirect(success_url)
 
+    @function_trace()
     def send_message(self, email_outbox_message):
         """
         Creates a task to asynchronously reply on an email message.
@@ -584,6 +587,12 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
         })
 
         return headers
+
+    def get_success_url(self):
+        """
+        Return to previous email box after send, send & archive or forward.
+        """
+        return '/#/email'
 
 
 class EmailMessageReplyView(EmailMessageReplyOrForwardView):
@@ -644,10 +653,6 @@ class EmailMessageReplyAllView(EmailMessageReplyView):
 
 class EmailMessageForwardView(EmailMessageReplyOrForwardView):
     action = 'forward'
-
-    @function_trace()
-    def post(self, request, *args, **kwargs):
-        return super(EmailMessageForwardView, self).post(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super(EmailMessageComposeView, self).get_form_kwargs()

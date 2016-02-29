@@ -22,7 +22,7 @@ function contactIcon($http) {
         link: function(scope, element, attrs) {
             // Do we have an associated account or contact?
             if (scope.message.sender_email) {
-                $http.get('/search/emailaddress/' + scope.message.sender_email)
+                $http.get('/search/emailaddress/' + scope.message.sender_email, {cache: true})
                     .success(function(data) {
                         scope.emailAddressResults = data;
                         if (data.type === 'contact') {

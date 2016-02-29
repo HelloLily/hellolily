@@ -5,7 +5,7 @@ function HLSearch($injector) {
     HLSearch.refreshList = refreshList;
 
     function refreshList(query, model, excludeItems, extraQuery) {
-        var items = [];
+        var items;
 
         if (!extraQuery) {
             extraQuery = '';
@@ -24,7 +24,7 @@ function HLSearch($injector) {
                 // Only exclude items if we have a multi-select field.
                 if (excludeItems) {
                     // Exclude items already selected.
-                    angular.forEach(items, function(item) {
+                    angular.forEach(excludeItems, function(item) {
                         exclude += ' AND NOT id:' + item.id;
                     });
                 }

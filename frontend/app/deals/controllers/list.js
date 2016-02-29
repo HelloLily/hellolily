@@ -189,9 +189,9 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
             vm.table.order.column,
             vm.table.order.descending,
             vm.table.filterQuery
-        ).then(function(deals) {
-            vm.table.items = deals;
-            vm.table.totalItems = deals.length ? deals[0].total_size : 0;
+        ).then(function(data) {
+            vm.table.items = data.objects;
+            vm.table.totalItems = data.total;
         });
     }
 

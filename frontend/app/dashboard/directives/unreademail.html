@@ -1,10 +1,17 @@
 <dashboard-widget widget-name="'Unread email'" widget-class="'col-md-6'" widget-scrollable="true" widget-closeable="true">
-    <div class="widget-name" name="widget-title">
-        <i class="lilicon hl-mail-icon"></i>
-        Unread e-mail
-        <span class="label-amount">{{ vm.table.items.length }}</span>
-    </div>
-    <div name="portlet-body">
+    <widget-header>
+        <div class="widget-name">
+            <i class="lilicon hl-mail-icon"></i>
+            Unread e-mail
+            <span class="label-amount">{{ vm.table.items.length }}</span>
+        </div>
+    </widget-header>
+
+    <widget-filters>
+        <list-filter filter-label="'Inbox'" view-model="vm"></list-filter>
+    </widget-filters>
+
+    <widget-body>
         <table id="unreadEmailBlockTarget" class="widget-table">
             <thead>
                 <tr>
@@ -31,5 +38,5 @@
                 </tr>
             </tbody>
         </table>
-    </div>
+    </widget-body>
 </dashboard-widget>

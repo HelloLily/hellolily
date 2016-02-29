@@ -24,8 +24,8 @@ function contactsConfig($stateProvider) {
 
 angular.module('app.contacts').controller('ContactDetailController', ContactDetailController);
 
-ContactDetailController.$inject = ['$scope', '$stateParams', 'Settings', 'ContactDetail', 'CaseDetail', 'contact', 'Deal'];
-function ContactDetailController($scope, $stateParams, Settings, ContactDetail, CaseDetail, contact, Deal) {
+ContactDetailController.$inject = ['$scope', '$stateParams', 'Settings', 'ContactDetail', 'Case', 'contact', 'Deal'];
+function ContactDetailController($scope, $stateParams, Settings, ContactDetail, Case, contact, Deal) {
     var id = $stateParams.id;
 
     $scope.contact = contact;
@@ -46,14 +46,6 @@ function ContactDetailController($scope, $stateParams, Settings, ContactDetail, 
         }
     }
 
-    $scope.caseList = CaseDetail.query({filterquery: 'contact:' + id, sort: '-created'});
-    $scope.caseList.$promise.then(function(caseList) {
-        $scope.caseList = caseList;
-    });
-
+    $scope.caseList = Case.query({filterquery: 'contact:' + id, sort: '-created'});
     $scope.dealList = Deal.query({filterquery: 'contact:' + id, sort: '-created'});
-    $scope.dealList.$promise.then(function(dealList) {
-        $scope.dealList = dealList;
-    });
-
 }

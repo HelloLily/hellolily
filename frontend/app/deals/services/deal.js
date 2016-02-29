@@ -55,7 +55,6 @@ function Deal($resource, HLUtils, HLForms, User) {
                 params: {
                     type: 'deals_deal',
                 },
-                isArray: true,
                 transformResponse: function(data) {
                     var jsonData = angular.fromJson(data);
                     var objects = [];
@@ -73,7 +72,10 @@ function Deal($resource, HLUtils, HLForms, User) {
                         });
                     }
 
-                    return objects;
+                    return {
+                        objects: objects,
+                        total: jsonData.total,
+                    };
                 },
             },
             getNextSteps: {
@@ -156,13 +158,8 @@ function Deal($resource, HLUtils, HLForms, User) {
             size: pageSize,
             sort: sort,
             filterquery: filterQuery,
-        }, function(deals) {
-            if (deals.length) {
-                return {
-                    deals: deals,
-                    total: deals[0].total_size,
-                };
-            }
+        }, function(data) {
+            return data;
         }).$promise;
     }
 

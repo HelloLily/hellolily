@@ -122,6 +122,7 @@ function Deal($resource, HLUtils, HLForms, User) {
             currency: 'EUR',
             amount_once: 0,
             amount_recurring: 0,
+            assigned_to: currentUser.id,
         });
     }
 

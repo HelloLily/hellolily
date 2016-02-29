@@ -6,66 +6,84 @@
             <div class="portlet-body">
                 <div class="row">
                     <div class="col-md-12 deal-detail-info">
-                        <div ng-if="vm.deal.account">
-                            <label>Account</label>
-                            <a ui-sref="base.accounts.detail({ id: vm.deal.account.id })">
-                                {{ vm.deal.account.name }}
-                            </a>
-                        </div>
-                        <div ng-if="vm.deal.contact">
-                            <label>Contact</label>
-                            <a ui-sref="base.contacts.detail({ id: vm.deal.contact.id })">
-                                {{ vm.deal.contact.name }}
-                            </a>
-                        </div>
-                        <div>
-                            <label>Deal name</label>
-                            <span editable-text="vm.deal.name" blur="submit" onbeforesave="vm.updateModel($data, 'name')">{{ vm.deal.name }}</span>
-                        </div>
-                        <div>
-                            <label>Found us through</label>
-                            <editable-select field="found_through" view-model="vm" type="Deal" choice-field="true">
-                                {{ vm.deal.found_through_display }}
-                            </editable-select>
-                        </div>
-                        <div>
-                            <label>Contacted us by</label>
-                            <editable-select field="contacted_by" view-model="vm" type="Deal" choice-field="true">
-                                {{ vm.deal.contacted_by_display }}
-                            </editable-select>
-                        </div>
-                        <div>
-                            <label>Why customer</label>
-                            <editable-select field="why_customer" view-model="vm" type="Deal">
-                                {{ vm.deal.why_customer.name }}
-                            </editable-select>
-                        </div>
-                        <div>
-                            <label>Next step</label>
-                            <editable-select field="next_step" view-model="vm" type="Deal">
-                                <span class="step-type" id="next-step" ng-if="vm.deal.next_step" ng-class="{0: 'position-1', 1: 'position-2', 2: 'position-3', 3: 'position-4', 4: 'position-5', 5: 'position-6'}[vm.deal.next_step.position]">
-                                    {{ vm.deal.next_step.name }}
-                                </span>
-                            </editable-select>
-                        </div>
-                        <div ng-if="vm.deal.next_step_date">
-                            <label>Next step date</label>
-                            <postpone type="'Deal'" object="vm.deal" date-field="'next_step_date'" tt-placement="bottom" display-date="true"></postpone>
-                        </div>
-                        <div ng-if="vm.deal.closed_date">
-                            <label>Closed date</label>
-                            <span id="closed-date">
-                                <date date="vm.deal.closed_date"></date>
-                            </span>
-                        </div>
-                        <div>
-                            <label>Created</label>
-                             <date date="vm.deal.created"></date>
-                        </div>
-                        <div>
-                            <label>Created by</label>
-                             {{ ::vm.deal.created_by.full_name }}
-                        </div>
+                        <table class="deal-detail-info-table">
+                            <tr ng-if="vm.deal.account">
+                                <td>Account</td>
+                                <td>
+                                    <a ui-sref="base.accounts.detail({ id: vm.deal.account.id })">
+                                        {{ vm.deal.account.name }}
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr ng-if="vm.deal.contact">
+                                <td>Contact</td>
+                                <td>
+                                    <a ui-sref="base.contacts.detail({ id: vm.deal.contact.id })">
+                                        {{ vm.deal.contact.name }}
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Deal name</td>
+                                <td><span editable-text="vm.deal.name" blur="submit" onbeforesave="vm.updateModel($data, 'name')">{{ vm.deal.name }}</span></td>
+                            </tr>
+                            <tr>
+                                <td>Found us through</td>
+                                <td>
+                                    <editable-select field="found_through" view-model="vm" type="Deal" choice-field="true">
+                                        {{ vm.deal.found_through_display }}
+                                    </editable-select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Contacted us by</td>
+                                <td>
+                                    <editable-select field="contacted_by" view-model="vm" type="Deal" choice-field="true">
+                                        {{ vm.deal.contacted_by_display }}
+                                    </editable-select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Why customer</td>
+                                <td>
+                                    <editable-select field="why_customer" view-model="vm" type="Deal">
+                                        {{ vm.deal.why_customer.name }}
+                                    </editable-select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Next step</td>
+                                <td>
+                                    <editable-select field="next_step" view-model="vm" type="Deal">
+                                        <span class="step-type" id="next-step" ng-if="vm.deal.next_step" ng-class="{0: 'position-1', 1: 'position-2', 2: 'position-3', 3: 'position-4', 4: 'position-5', 5: 'position-6'}[vm.deal.next_step.position]">
+                                            {{ vm.deal.next_step.name }}
+                                        </span>
+                                    </editable-select>
+                                </td>
+                            </tr>
+                            <tr ng-if="vm.deal.next_step_date">
+                                <td>Next step date</td>
+                                <td>
+                                    <postpone type="'Deal'" object="vm.deal" date-field="'next_step_date'" tt-placement="bottom" display-date="true"></postpone>
+                                </td>
+                            </tr>
+                            <tr ng-if="vm.deal.closed_date">
+                                <td>Closed date</td>
+                                <td>
+                                    <span id="closed-date">
+                                        <date date="vm.deal.closed_date"></date>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Created</td>
+                                <td><date date="vm.deal.created"></date></td>
+                            </tr>
+                            <tr>
+                                <td>Created by</td>
+                                <td>{{ vm.deal.created_by.full_name }}</td>
+                            </tr>
+                        </table>
                    </div>
                 </div>
             </div>
@@ -76,57 +94,83 @@
             <div class="portlet-body">
                 <div class="row">
                     <div class="col-md-12 deal-detail-info">
-                        <div>
-                            <label>Assigned to</label>
-                            <editable-select field="assigned_to" view-model="vm" type="Deal" select-options="{type: 'User', field: 'assignOptions', display: 'full_name'}">
-                                {{ vm.deal.assigned_to.full_name }}
-                            </editable-select>
-                        </div>
-                        <div>
-                            <label>One-time cost</label>
-                            <span editable-text="vm.deal.amount_once" onbeforesave="vm.updateModel($data, 'amount_once')" blur="submit">{{ vm.deal.amount_once | currency:"€" }}</span>
-                        </div>
-                        <div>
-                            <label>Recurring costs</label>
-                            <span editable-text="vm.deal.amount_recurring" onbeforesave="vm.updateModel($data, 'amount_recurring')" blur="submit">{{ vm.deal.amount_recurring | currency:"€" }}</span>
-                        </div>
-                        <div>
-                            <label>Status</label>
-                            <span ng-if="vm.deal.is_archived">{{ vm.deal.stage_display }}</span>
-                            <editable-select ng-if="!vm.deal.is_archived" field="stage" view-model="vm" type="Deal" choice-field="true">
-                                {{ vm.deal.stage_display }}
-                            </editable-select>
-                            <span ng-show="vm.deal.is_archived">- Archived</span>
-                        </div>
-                        <div>
-                            <label>Twitter checked</label>
-                            <editable-checkbox view-model="vm" type="Deal" field="twitter_checked"></editable-checkbox>
-                        </div>
-                        <div ng-show="vm.deal.stage == 2">
-                            <label>Quote checked</label>
-                            <editable-checkbox view-model="vm" type="Deal" field="is_checked"></editable-checkbox>
-                        </div>
-                        <div>
-                            <label>Card sent</label>
-                            <editable-checkbox view-model="vm" type="Deal" field="card_sent"></editable-checkbox>
-                        </div>
-                        <div>
-                            <label>Feedback form sent</label>
-                            <editable-checkbox view-model="vm" type="Deal" field="feedback_form_sent"></editable-checkbox>
-                        </div>
-                        <div ng-show="vm.deal.tag">
-                            <label>Tags</label>
 
-                            <span class="btn btn-xs btn-default margin-right-5" ng-repeat="tag in vm.deal.tag">
-                                {{ tag }}
-                            </span>
-                        </div>
-                        <div ng-show="vm.deal.quote_id || vm.deal.account_customer_id">
-                            <label>External</label>
-                            <a ng-show="vm.deal.quote_id" ng-href="https://freedom.voys.nl/quotes/pdf/{{ vm.deal.quote_id }}/">Quote</a>
-                            <span ng-show="vm.deal.quote_id && vm.deal.account_customer_id">|</span>
-                            <a ng-href="https://freedom.voys.nl/client/{{ vm.deal.account_customer_id }}" ng-if="vm.deal.account_customer_id">Environment</a>
-                        </div>
+                        <table class="deal-detail-info-table">
+                            <tr>
+                                <td>Assigned to</td>
+                                <td>
+                                    <editable-select field="assigned_to" view-model="vm" type="Deal" class="inline-selectable-text" select-options="{type: 'User', field: 'assignOptions', display: 'full_name'}">
+                                        {{ vm.deal.assigned_to.full_name }}
+                                    </editable-select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>One-time-cost</td>
+                                <td>
+                                    <span editable-text="vm.deal.amount_once" onbeforesave="vm.updateModel($data, 'amount_once')" blur="submit">{{ vm.deal.amount_once | currency:"€" }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Recurring costs
+                                </td>
+                                <td>
+                                    <span editable-text="vm.deal.amount_recurring" onbeforesave="vm.updateModel($data, 'amount_recurring')" blur="submit">{{ vm.deal.amount_recurring | currency:"€" }}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Status
+                                </td>
+                                <td>
+                                    <span ng-if="vm.deal.is_archived">{{ vm.deal.stage_display }}</span>
+                                    <editable-select ng-if="!vm.deal.is_archived" field="stage" view-model="vm" type="Deal" class="inline-selectable-text" choice-field="true">
+                                        {{ vm.deal.stage_display }}
+                                    </editable-select>
+                                    <span ng-show="vm.deal.is_archived">- Archived</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Twitter checked</td>
+                                <td>
+                                    <editable-checkbox view-model="vm" type="Deal" field="twitter_checked"></editable-checkbox>
+                                </td>
+                            </tr>
+                            <tr ng-show="vm.deal.stage == 2">
+                                <td>Quote checked</td>
+                                <td>
+                                    <editable-checkbox view-model="vm" type="Deal" field="is_checked"></editable-checkbox>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Card sent</td>
+                                <td>
+                                    <editable-checkbox view-model="vm" type="Deal" field="card_sent"></editable-checkbox>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Feedback form sent</td>
+                                <td>
+                                    <editable-checkbox view-model="vm" type="Deal" field="feedback_form_sent"></editable-checkbox>
+                                </td>
+                            </tr>
+                            <tr ng-show="vm.deal.tag">
+                                <td>Tags</td>
+                                <td>
+                                    <span class="btn btn-xs btn-default margin-right-5" ng-repeat="tag in vm.deal.tag">
+                                        {{ tag }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr ng-show="vm.deal.quote_id || vm.deal.account_customer_id">
+                                <td>External</td>
+                                <td>
+                                    <a ng-show="vm.deal.quote_id" ng-href="https://freedom.voys.nl/quotes/pdf/{{ vm.deal.quote_id }}/">Quote</a>
+                                    <span ng-show="vm.deal.quote_id && vm.deal.account_customer_id">|</span>
+                                    <a ng-href="https://freedom.voys.nl/client/{{ vm.deal.account_customer_id }}" ng-if="vm.deal.account_customer_id">Environment</a>
+                                </td>
+                            </tr>
+                        </table>
                    </div>
                 </div>
             </div>

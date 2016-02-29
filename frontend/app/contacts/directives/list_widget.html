@@ -1,19 +1,22 @@
-<div class="portlet light">
-    <div class="portlet-title">
-        <div class="caption">
-            <i class="fa fa-users"></i>
-            <span ng-show="vm.object.id">
-                Colleagues at
-                <a ui-sref="base.accounts.detail({id: vm.object.id })">{{ vm.object.name }}</a>
-            </span>
-            <span ng-hide="vm.object.id">
-                <span ng-show="$parent.contact">
-                    <a ui-sref="base.contacts.detail.edit({id: $parent.contact.id})">Edit</a> to link with an account
+<div class="widget-container">
+    <div class="widget-heading">
+        <div class="widget-title">
+            <div class="widget-name">
+                <i class="fa fa-users"></i>
+                <span ng-show="vm.object.id">
+                    Colleagues at
+                    <a ui-sref="base.accounts.detail({id: vm.object.id })">{{ vm.object.name }}</a>
                 </span>
-                <span ng-show="!$parent.contact">{{ vm.object.name }}</span>
-            </span>
+                <span ng-hide="vm.object.id">
+                    <span ng-show="$parent.contact">
+                        <a ui-sref="base.contacts.detail.edit({id: $parent.contact.id})">Edit</a> to link with an account
+                    </span>
+                    <span ng-show="!$parent.contact">{{ vm.object.name }}</span>
+                </span>
+            </div>
         </div>
-        <div ng-hide="$parent.contact" class="actions">
+
+        <div ng-hide="$parent.contact" class="widget-filters pull-right">
             <a ui-sref="{{ vm.addLink || 'base.contacts.create' }}" class="btn btn-circle btn-default" ng-hide="vm.object.id">
                 <i class="fa fa-plus"></i>
                 Add
@@ -23,39 +26,44 @@
                 Add
             </a>
         </div>
+
+        <div class="clearfix"></div>
     </div>
-    <div class="portlet-body">
-        <div class="scroll-body" slimscroll="{height: vm.height || 250}">
-            <div ng-show="vm.list.length">
-                <div class="row">
-                    <!-- Removing some right padding to make the gutters smaller -->
-                    <div class="header col-xs-4 no-padding-right">
-                        Name
+
+    <div class="widget-body">
+        <div class="widget-content">
+            <div class="scroll-body" slimscroll="{height: height}">
+                <div ng-show="vm.list.length">
+                    <div class="row">
+                        <!-- Removing some right padding to make the gutters smaller -->
+                        <div class="header col-xs-4 no-padding-right">
+                            Name
+                        </div>
+                        <div class="header col-xs-5 no-padding-right">
+                            Email
+                        </div>
+                        <div class="header col-xs-3">
+                            Phone
+                        </div>
                     </div>
-                    <div class="header col-xs-5 no-padding-right">
-                        Email
-                    </div>
-                    <div class="header col-xs-3">
-                        Phone
+                    <div class="row" ng-repeat="contact in vm.list">
+                        <div class="col-xs-4 no-padding-right break">
+                            <a ui-sref="base.contacts.detail({id: contact.id})">{{ contact.name }}</a>
+                        </div>
+                        <div class="col-xs-5 no-padding-right break">
+                            <a ui-sref="base.email.composeEmail({email: contact.email_addresses[0].email_address})" ng-show="contact.email_addresses[0]">
+                                {{ contact.email_addresses[0].email_address }}
+                            </a>
+                            <span ng-hide="contact.email_addresses[0]">-</span>
+                        </div>
+                        <div class="col-xs-3 break">
+                            <a href="tel:{{ contact.phones[0] || '' }}">{{ contact.phones[0] || '-' }}</a>
+                        </div>
                     </div>
                 </div>
-                <div class="row" ng-repeat="contact in vm.list">
-                    <div class="col-xs-4 no-padding-right break">
-                        <a ui-sref="base.contacts.detail({id: contact.id})">{{ contact.name }}</a>
-                    </div>
-                    <div class="col-xs-5 no-padding-right break">
-                        <a ui-sref="base.email.composeEmail({email: contact.email_addresses[0].email_address})" ng-show="contact.email_addresses[0]">
-                            {{ contact.email_addresses[0].email_address }}
-                        </a>
-                        <span ng-hide="contact.email_addresses[0]">-</span>
-                    </div>
-                    <div class="col-xs-3 break">
-                        <a href="tel:{{ contact.phones[0] || '' }}">{{ contact.phones[0] || '-' }}</a>
-                    </div>
+                <div ng-hide="vm.list.length">
+                    No contacts
                 </div>
-            </div>
-            <div ng-hide="vm.list.length">
-                No contacts
             </div>
         </div>
     </div>

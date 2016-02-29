@@ -36,9 +36,11 @@
         <dashboard-widget ng-if="vm.case.account" widget-name="'Account info'">
             <widget-header>
                 <a ui-sref="base.accounts.detail({ id: vm.case.account.id })">
-                    <i class="lilicon hl-company-icon"></i>
+                        <i class="lilicon hl-company-icon"></i>
+                        {{ vm.case.account_name }}
                     {{ vm.case.account.name }}
-                </a>
+                    </a>
+                </div>
             </widget-header>
 
             <widget-body>
@@ -87,9 +89,10 @@
         <dashboard-widget ng-if="vm.case.contact" widget-name="'Contact info'">
             <widget-header>
                 <a ui-sref="base.contacts.detail({ id: vm.case.contact.id })">
-                    <i class="lilicon hl-user-icon"></i>
+                        <i class="lilicon hl-user-icon"></i>
                     {{ vm.case.contact.name }}
-                </a>
+                    </a>
+                </div>
             </widget-header>
 
             <widget-body>
@@ -117,8 +120,10 @@
 
         <dashboard-widget widget-name="'More info'">
             <widget-header>
-                <i class="fa fa-info"></i>
-                More info
+                <div class="widget-name">
+                    <i class="fa fa-info"></i>
+                    More info
+                </div>
             </widget-header>
 
             <widget-body>
@@ -148,8 +153,10 @@
 
         <dashboard-widget widget-name="'Tags'">
             <widget-header>
-                <i class="fa fa-tag"></i>
-                Tags
+                <div class="widget-name">
+                    <i class="fa fa-tag"></i>
+                    Tags
+                </div>
             </widget-header>
 
             <widget-body>

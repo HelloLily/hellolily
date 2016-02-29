@@ -1,30 +1,30 @@
-<div class='portlet light'>
-    <div class="portlet-title">
-        <div class="caption">
+<dashboard-widget ng-if="account" widget-name="'Account info'">
+    <widget-header>
+        <div class="widget-name">
             <i class="lilicon hl-company-icon"></i>
             <span ng-show="$parent.settings.email.data.account.id">
                 <a ui-sref="base.accounts.detail({ id: $parent.settings.email.data.account.id })">{{ account.name }}</a>
             </span>
             <span ng-show="!$parent.settings.email.data.account">{{ account.name }}</span>
         </div>
-        <div class="actions">
-            <a ng-href="https://freedom.voys.nl/client/{{ account.customer_id }}" target="_blank" class="btn btn-circle btn-default" ng-show="account.customer_id">
-                <i class="fa fa-external-link fa-sm"></i>
-                Freedom
-            </a>
-            <a href="https://freedom.voys.nl/quotes/create/" target="_blank" class="btn btn-circle btn-default" ng-hide="account.customer_id">
-                <i class="fa fa-external-link fa-sm"></i>
-                Write quote
-            </a>
-        </div>
-    </div>
-    <div class="portlet-body">
-        <div>
-            <div class="scroll-body" slimscroll="{height: height/2}">
-            <p class="pre-wrap" ng-bind-html="account.description || 'No description' | parseUrls"></p>
-        </div>
-    </div>
-    <div class="scroll-body" slimscroll="{height: height/2}">
+    </widget-header>
+
+    <widget-filters>
+        <a ng-href="https://freedom.voys.nl/client/{{ account.customer_id }}" target="_blank" class="btn btn-circle btn-default" ng-show="account.customer_id">
+            <i class="fa fa-external-link fa-sm"></i>
+            Freedom
+        </a>
+        <a href="https://freedom.voys.nl/quotes/create/" target="_blank" class="btn btn-circle btn-default" ng-hide="account.customer_id">
+            <i class="fa fa-external-link fa-sm"></i>
+            Write quote
+        </a>
+    </widget-filters>
+
+    <widget-body>
+        <div class="widget-content">
+
+            <p ng-bind-html="account.description || 'No description' | parseUrls"></p>
+
             <table class="table table-hover no-margin">
                 <tr ng-show="(account.email_addresses | filter: {status: '!' + 0}).length">
                     <th>
@@ -106,5 +106,5 @@
                 </tr>
             </table>
         </div>
-    </div>
-</div>
+    </widget-body>
+</dashboard-widget>

@@ -1,6 +1,6 @@
-<div class='portlet light'>
-    <div class="portlet-title">
-        <div class="caption">
+<dashboard-widget ng-if="contact" widget-name="'Contact info'">
+    <widget-header>
+        <div class="widget-name">
             <i class="fa fa-user"></i>
             {{ contact.salutation }} / {{ contact.gender }}
             <span ng-show="$parent.settings.email.data.contact.id">
@@ -8,14 +8,12 @@
             </span>
             <span ng-show="!$parent.settings.email.data.contact.id"><b>{{ contact.name }}</b></span>
         </div>
-    </div>
-    <div class="portlet-body">
-        <div>
-            <div class="scroll-body" slimscroll="{height: height/2}">
-                <p class="pre-wrap" ng-bind-html="contact.description || 'No description' | parseUrls"></p>
-            </div>
-        </div>
-        <div class="scroll-body" slimscroll="{height: height/2}">
+    </widget-header>
+
+    <widget-body>
+        <div class="widget-content">
+            <p ng-bind-html="contact.description || 'No description' | parseUrls"></p>
+
             <table class="table table-hover no-margin">
                 <tr ng-show="(contact.email_addresses | filter: {status: '!' + 0}).length">
                     <th>
@@ -30,6 +28,7 @@
                         </div>
                     </td>
                 </tr>
+
                 <tr ng-show="contact.phones">
                     <th>
                         <i class="fa fa-phone"></i>
@@ -43,6 +42,7 @@
                         </div>
                     </td>
                 </tr>
+
                 <tr ng-show="contact.addresses">
                     <th>
                         <i class="fa fa-map-marker"></i>
@@ -75,5 +75,5 @@
                 </tr>
             </table>
         </div>
-    </div>
-</div>
+    </widget-body>
+</dashboard-widget>

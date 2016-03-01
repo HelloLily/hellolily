@@ -151,7 +151,11 @@ function CaseDetailController($http, $scope, $stateParams, Settings, Account, Ca
             success(function(data, status, headers, config) {
                 if (data.assignee) {
                     vm.case.assigned_to = data.assignee;
+                    vm.case.assigned_to.id = data.assignee.id;
                     vm.case.assigned_to.full_name = data.assignee.name;
+                    // Broadcast function to update model correctly after dynamically
+                    // changing the assignee by using the 'assign to me' link.
+                    $scope.$broadcast('activateEditableSelect', data.assignee.id);
                 } else {
                     vm.case.assigned_to_id = null;
                     vm.case.assigned_to_name = null;

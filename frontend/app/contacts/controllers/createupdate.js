@@ -154,16 +154,6 @@ function ContactCreateUpdateController($state, $stateParams, Settings, Account, 
     function saveContact(form) {
         HLForms.blockUI();
 
-        if (vm.contact.accounts && vm.contact.accounts.length) {
-            var accounts = [];
-
-            angular.forEach(vm.contact.accounts, function(account) {
-                if (account) {
-                    accounts.push({id: account.id});
-                }
-            });
-        }
-
         // Clear all errors of the form (in case of new errors)
         angular.forEach(form, function(value, key) {
             if (typeof value === 'object' && value.hasOwnProperty('$modelValue')) {
@@ -190,24 +180,38 @@ function ContactCreateUpdateController($state, $stateParams, Settings, Account, 
 
         vm.contact = HLFields.cleanRelatedFields(vm.contact, 'contact');
 
-        if (vm.contact.id) {
+        var copiedContact = angular.copy(vm.contact);
+
+        if (copiedContact.accounts && copiedContact.accounts.length) {
+            var accounts = [];
+
+            angular.forEach(copiedContact.accounts, function(account) {
+                if (account) {
+                    accounts.push({id: account.id});
+                }
+            });
+
+            copiedContact.accounts = accounts;
+        }
+
+        if (copiedContact.id) {
             // If there's an ID set it means we're dealing with an existing contact, so update it
-            vm.contact.$update(function() {
+            copiedContact.$update(function() {
                 toastr.success('I\'ve updated the contact for you!', 'Done');
-                $state.go('base.contacts.detail', {id: vm.contact.id}, {reload: true});
+                $state.go('base.contacts.detail', {id: copiedContact.id}, {reload: true});
             }, function(response) {
                 _handleBadResponse(response, form);
             });
         } else {
-            vm.contact.$save(function() {
+            copiedContact.$save(function() {
                 toastr.success('I\'ve saved the contact for you!', 'Yay');
 
                 if (Settings.email.sidebar.form === 'contact') {
                     Settings.email.sidebar.form = null;
                     Settings.email.sidebar.contact = true;
-                    Settings.email.data.contact = vm.contact;
+                    Settings.email.data.contact = copiedContact;
                 } else {
-                    $state.go('base.contacts.detail', {id: vm.contact.id});
+                    $state.go('base.contacts.detail', {id: copiedContact.id});
                 }
             }, function(response) {
                 _handleBadResponse(response, form);

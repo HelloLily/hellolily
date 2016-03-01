@@ -8,8 +8,8 @@
             <div class="case-info-heading-title">
                 #{{ vm.case.id }} - [ {{ vm.case.type.type }} ] - {{ vm.case.subject }}
             </div>
-            <div class="case-info-heading-description" ng-if="vm.case.id" ng-show="::vm.case.body">
-                <div class="pre-wrap" ng-bind-html="vm.case.body | parseUrls"></div>
+            <div class="case-info-heading-description" ng-if="vm.case.id" ng-show="vm.case.description">
+                <div class="pre-wrap" ng-bind-html="vm.case.description | parseUrls"></div>
             </div>
         </div>
 

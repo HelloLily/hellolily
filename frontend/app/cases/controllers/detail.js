@@ -150,8 +150,8 @@ function CaseDetailController($http, $scope, $stateParams, Settings, Account, Ca
         $http(req).
             success(function(data, status, headers, config) {
                 if (data.assignee) {
-                    vm.case.assigned_to_id = data.assignee.id;
-                    vm.case.assigned_to_name = data.assignee.name;
+                    vm.case.assigned_to = data.assignee;
+                    vm.case.assigned_to.full_name = data.assignee.name;
                 } else {
                     vm.case.assigned_to_id = null;
                     vm.case.assigned_to_name = null;

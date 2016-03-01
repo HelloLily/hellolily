@@ -42,7 +42,9 @@ function EditableSelectController($filter, HLResource) {
         // so the default value in the select won't always work.
         // So check if it's an object and add .id.
         if (typeof es.object[es.field] === 'object') {
-            es.selectModel = es.object[es.field].id;
+            if (es.object[es.field]) {
+                es.selectModel = es.object[es.field].id;
+            }
         } else {
             es.selectModel = es.object[es.field];
         }

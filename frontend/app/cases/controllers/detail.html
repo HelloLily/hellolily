@@ -125,9 +125,12 @@
                 <div class="widget-content case-detail-info">
                     <div>
                         <label>Assigned to:</label>
-                        <editable-select field="assigned_to" view-model="vm" type="Case" select-options="{type: 'User', field: 'assignOptions', display: 'full_name'}">
-                            {{ vm.case.assigned_to.full_name }}
-                        </editable-select>
+                            <editable-select field="assigned_to" view-model="vm" type="Case" select-options="{type: 'User', field: 'assignOptions', display: 'full_name'}">
+                                {{ vm.case.assigned_to.full_name || "Nobody"}}
+                            </editable-select>
+                        <span class="margin-left-10">
+                            <a ng-if="vm.case.assigned_to.id != currentUser.id" ng-click="vm.assignCase()"><i class="fa fa-anchor"></i> Assign to me</a>
+                        </span>
                     </div>
                     <div ng-if="vm.case.assigned_to_groups.length">
                         <label>Assigned to teams:</label>

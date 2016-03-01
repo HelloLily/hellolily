@@ -1,52 +1,68 @@
-<div class="email-history-item" ng-class="{'true':'history-item-right', 'false':'history-item-left'}[vm.item.right]">
+<div class="timeline-item-container">
+    <div class="timeline-avatar" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png');"></div>
 
-    <div class="history-item-badge">
-        <i class="fa fa-envelope-o"></i>
-    </div>
+    <div class="timeline-content-container has-email">
 
-    <div class='history-item-heading'>
-        <a ng-if="vm.item.subject" class="link-no-decoration" ui-sref="base.email.detail({ id: vm.item.id })">
-            {{ ::vm.item.subject | limitTo:50 }}
-        </a>
-        <span ng-if="::vm.item.subject.length >= 45">...</span>
-        <span ng-if="!vm.item.subject"><i>No Subject</i></span>
-        <div class="btn-group pull-right">
-            <a class="text-white" data-toggle="dropdown" aria-expanded="false">
-                <i class="fa fa-angle-down"></i>
-            </a>
-            <ul class="dropdown-menu pull-right">
+        <div class="timeline-content-header">
+
+            <div class="timeline-type">
+                <i class="lilicon hl-mail-icon"></i>
+            </div>
+
+            <div class="timeline-content">
+                <span ng-if="vm.item.subject"  class="timeline-content-title">
+                    <a ui-sref="base.email.detail({ id: vm.item.id })">
+                        {{ ::vm.item.subject | limitTo:50 }}
+                        <span ng-if="::vm.item.subject.length >= 45">...</span>
+                    </a>
+                </span>
+                <span class="timeline-content-title" ng-if="!vm.item.subject"><i>No Subject</i></span>
+                <ul class="timeline-content-details">
+                    <li ng-show="vm.item.sender_name">From:
+                        <a ui-sref="base.email.composeEmail({email: vm.item.sender_email})">
+                            {{ ::vm.item.sender_name }}
+                        </a>
+                    </li>
+                    <li ng-show="!vm.item.sender_name">From:
+                        <a ui-sref="base.email.composeEmail({email: vm.item.sender_email})">
+                            {{ ::vm.item.sender_email }}
+                        </a>
+                    </li>
+
+                    <li>To:
+                        <span ng-if="vm.item.received_by_email.length == 1" ng-repeat="recipient in vm.item.received_by_email">
+                            <a uib-tooltip="{{ recipient }}" ui-sref="base.email.composeEmail({email: recipient})">
+                                {{ recipient }}
+                            </a>
+                        </span>
+                        <span ng-if="vm.item.received_by_email.length > 1 ">
+                            <a ui-sref="base.email.detail({ id: vm.item.id })">
+                                {{ vm.item.received_by_email.length }} recipients
+                            </a>
+                        </span>
+                    </li>
+                </ul>
+
+                <div class="timeline-date">
+                    {{ ::vm.item.sent_date | date:'dd MMM - HH:mm' }}
+                </div>
+            </div>
+
+            <a class="timeline-toggle-details" ng-click="vm.item.shown = !vm.item.shown"><i class="lilicon hl-toggle-left-icon" ng-class="vm.item.shown ? 'hl-toggle-down-icon' : 'hl-toggle-left-icon'"></i></a>
+
+        </div>
+
+        <div class="content-details history-item-body" ng-show="vm.item.shown">
+            <p ng-bind-html="vm.item.body | limitTo:265 | parseUrls">
+                <span ng-if="::vm.item.body.length >= 265">...</span>
+            </p>
+
+
+            <ul class="content-details-actions">
                 <li><a ui-sref="base.email.detail({id: vm.item.id})"><i class="fa fa-eye"></i> View</a></li>
-                <li class='divider'></li>
                 <li><a ng-click="vm.replyOnEmail()"><i class="fa fa-mail-reply"></i> Reply</a></li>
                 <li><a ui-sref="base.email.forward({id: vm.item.id})"><i class="fa fa-mail-forward"></i> Forward</a></li>
             </ul>
         </div>
-    </div>
-
-    <div class="history-item-body">
-        <em class="pre-wrap" ng-bind-html="vm.item.body | limitTo:265 | parseUrls">
-            <span ng-if="::vm.item.body.length >= 265">...</span>
-        </em>
-        <ul class="list-inline list-justified">
-            <li>
-                <small class="text-muted" uib-tooltip="Sent on {{ ::vm.item.date | date:'dd MMMM yy' }} at {{ ::vm.item.date | date:'HH:mm' }}">
-                    <i class="fa fa-calendar"></i>
-                    {{ ::vm.item.date | date:'dd MMMM yy HH:mm' }}
-                </small>
-            </li>
-            <li>
-                <small class="text-muted" uib-tooltip="Sent by: {{ ::vm.item.sender_name }}">
-                    <i class="fa fa-user"></i>
-                    {{ ::vm.item.sender_name }}
-                </small>
-            </li>
-            <li>
-                <small class="text-muted" uib-tooltip="Sent by: {{ ::vm.item.sender_email }}">
-                    <i class="fa">@</i>
-                    {{ ::vm.item.sender_email }}
-                </small>
-            </li>
-            <li><small><thread-info message-id="vm.item.id"></thread-info></small></li>
-        </ul>
     </div>
 </div>

@@ -1,7 +1,9 @@
 angular.module('app.utils.directives').directive('historyList', HistoryListDirective);
 
-HistoryListDirective.$inject = ['$filter', '$http', '$uibModal', '$q', '$state', 'EmailAccount', 'Note', 'NoteDetail', 'CaseDetail', 'DealDetail', 'EmailDetail'];
-function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccount, Note, NoteDetail, CaseDetail, DealDetail, EmailDetail) {
+HistoryListDirective.$inject = ['$filter', '$http', '$uibModal', '$q', '$state', 'EmailAccount',
+'Note', 'NoteDetail', 'Case', 'DealDetail', 'EmailDetail'];
+function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccount,
+Note, NoteDetail, Case, DealDetail, EmailDetail) {
     return {
         restrict: 'E',
         replace: true,
@@ -93,6 +95,9 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
 
                     notePromise.then(function(results) {
                         results.forEach(function(note) {
+                            // Set notes shown property to true to have toggled open
+                            // as default.
+                            note.shown = true;
                             // If it's a contact's note, add extra attribute to the note
                             // so we can identify it in the template
                             if (scope.target === 'account' && note.content_type === 'contact') {
@@ -106,13 +111,14 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
 
                 // Check if we need to fetch cases
                 if (caseTargets.indexOf(scope.target) !== -1) {
-                    var casePromise = CaseDetail.query({filterquery: scope.target + ':' + obj.id, size: 100}).$promise;
+                    var casePromise = Case.query({filterquery: scope.target + ':' + obj.id, size: 100}).$promise;
                     promises.push(casePromise);  // Add promise to list of all promises for later handling
 
-                    casePromise.then(function(results) {
-                        results.forEach(function(caseItem) {
+                    casePromise.then(function(response) {
+                        response.objects.forEach(function(caseItem) {
+                            caseItem.historyType = 'case';
                             history.push(caseItem);
-                            NoteDetail.query({filterquery: 'content_type:case AND object_id:' + caseItem.id, size: 5})
+                            NoteDetail.query({filterquery: 'content_type:case AND object_id:' + caseItem.id, size: 15})
                                 .$promise.then(function(notes) {
                                     caseItem.notes = notes;
                                 });
@@ -168,44 +174,45 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
 
                 // Get all history types and add them to a common history
                 $q.all(promises).then(function() {
-                    var orderedHistoryList = [];
+                    var orderedHistoryList = {pinned: [], nonPinned: {}, totalItems: history.length};
 
-                    // Order our current historylist
-                    $filter('orderBy')(history, 'date', true).forEach(function(item) {
-                        // We have on of these items so we need to be able to filter on it
-                        scope.history.types[item.historyType].visible = true;
-
-                        var addNormal = true;
-
-                        if (item.historyType === 'note') {
-                            // Pinned notes should always be first in the list
-                            if (item.is_pinned) {
-                                orderedHistoryList.unshift(item);
-                                addNormal = false;
-                            }
+                    // To properly sort the history list we need to compare dates
+                    // because email doesn't have the modified key we decided
+                    // to add an extra key called historySortDate which the list
+                    // uses to sort properly. We add the sent_date of email to the
+                    // object, and the modified date for the other types.
+                    for (var i = 0; i < history.length; i++) {
+                        if (history[i].historyType === 'email') {
+                            history[i].historySortDate = history[i].sent_date;
+                        } else {
+                            history[i].historySortDate = history[i].modified;
                         }
-
-                        if (addNormal) {
-                            // Push our item to our ordered list
-                            orderedHistoryList.push(item);
-                        }
-                    });
-                    if (!orderedHistoryList) {
-                        // Make sure the max size of the list doesn't grow each click
-                        page -= 1;
-
-                        // Set the button text to inform the user what's happening
-                        scope.history.showMoreText = 'No history (refresh)';
-                    } else if (orderedHistoryList.length <= neededLength) {
-                        // Make sure the max size of the list doesn't grow each click
-                        page -= 1;
-
-                        // Set the button text to inform the user what's happening
-                        scope.history.showMoreText = 'End reached (refresh)';
                     }
 
-                    // Set the historylist to our new list
-                    scope.history.list = orderedHistoryList.slice(0, neededLength);
+                    $filter('orderBy')(history, 'historySortDate', true).forEach(function(item) {
+                        var date = '';
+                        var key = '';
+
+                        if (item.is_pinned) {
+                            orderedHistoryList.pinned.push(item);
+                        } else {
+                            if (item.hasOwnProperty('modified')) {
+                                date = item.modified;
+                            } else {
+                                date = item.sent_date;
+                            }
+
+                            key = moment(date).year() + '-' + (moment(date).month() + 1);
+
+                            if (!orderedHistoryList.nonPinned.hasOwnProperty(key)) {
+                                orderedHistoryList.nonPinned[key] = [];
+                            }
+
+                            orderedHistoryList.nonPinned[key].push(item);
+                        }
+                    });
+
+                    scope.history.list = orderedHistoryList;
                 });
             }
 
@@ -249,12 +256,21 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
             }
 
             function deleteNote(note) {
+                var month = moment(note.modified).format('M');
+                var year = moment(note.modified).format('YYYY');
+                var index;
+
                 if (confirm('Are you sure?')) {
                     Note.delete({
                         id: note.id,
                     }, function() {  // On success
-                        var index = scope.history.list.indexOf(note);
-                        scope.history.list.splice(index, 1);
+                        if (note.is_pinned) {
+                            index = scope.history.list.pinned.indexOf(note);
+                            scope.history.list.pinned.splice(index, 1);
+                        } else {
+                            index = scope.history.list.nonPinned[year + '-' + month].indexOf(note);
+                            scope.history.list.nonPinned[year + '-' + month].splice(index, 1);
+                        }
                     }, function(error) {  // On error
                         alert('something went wrong.');
                     });

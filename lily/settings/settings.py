@@ -120,6 +120,7 @@ FILE_UPLOAD_HANDLERS = (
 
 ACCOUNT_UPLOAD_TO = 'images/profile/account'
 CONTACT_UPLOAD_TO = 'images/profile/contact'
+USER_UPLOAD_TO = 'images/profile/user'
 EMAIL_ATTACHMENT_UPLOAD_TO = 'messaging/email/attachments/%(tenant_id)d/%(message_id)d/%(filename)s'
 EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO = ('messaging/email/templates/attachments'
                                        '/%(tenant_id)d/%(template_id)d/%(filename)s')

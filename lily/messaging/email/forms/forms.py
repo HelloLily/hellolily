@@ -11,6 +11,7 @@ from django.db.models import Q
 from django.forms.models import modelformset_factory
 from django.template.defaultfilters import linebreaksbr
 from django.utils.translation import ugettext_lazy as _
+from newrelic.api.function_trace import function_trace
 
 from lily.contacts.models import Contact
 
@@ -168,6 +169,7 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
         """
         return True
 
+    @function_trace()
     def clean(self):
         cleaned_data = super(ComposeEmailForm, self).clean()
 
@@ -188,6 +190,7 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
 
         return cleaned_data
 
+    @function_trace()
     def format_recipients(self, recipients):
         """
         Strips newlines and trailing spaces & commas from recipients.
@@ -215,6 +218,7 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
 
         return formatted_recipients
 
+    @function_trace()
     def clean_send_from(self):
         """
         Verify send_from is a valid account the user has access to.

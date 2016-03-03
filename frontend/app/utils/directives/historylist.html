@@ -71,9 +71,11 @@
 
         </div>
 
-        <div class="timeline-item-container has-date" ng-repeat="item in history.list">
+        <div ng-repeat="item in history.list">
 
-            <div class="timeline-avatar has-date" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png');"></div>
+            <history-list-item item="item" history="history" object="object"></history-list-item>
+
+            <!-- <div class="timeline-avatar has-date" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png');"></div>
 
             <div class="timeline-time">
                 February 2016
@@ -193,6 +195,6 @@
 
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
 </div>

@@ -1,4 +1,4 @@
-<div class="email-history-item" ng-class="{'true':'history-item-right', 'false':'history-item-left'}[vm.item.right]">
+<!-- <div class="email-history-item" ng-class="{'true':'history-item-right', 'false':'history-item-left'}[vm.item.right]">
 
     <div class="history-item-badge">
         <i class="fa fa-envelope-o"></i>
@@ -50,3 +50,59 @@
         </ul>
     </div>
 </div>
+ -->
+
+
+
+
+<div class="timeline-item-container">
+    <div class="timeline-avatar" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png');"></div>
+
+    <div class="timeline-content-container">
+
+        <div class="timeline-content-header">
+
+            <div class="timeline-type">
+                <i class="lilicon hl-mail-icon"></i>
+            </div>
+
+            <div class="timeline-content">
+                <span ng-if="vm.item.subject"  class="timeline-content-title">
+                    <a ui-sref="base.email.detail({ id: vm.item.id })">
+                        {{ ::vm.item.subject | limitTo:50 }}
+                    </a>
+                </span>
+                <span class="timeline-content-title" ng-if="::vm.item.subject.length >= 45">...</span>
+                <span class="timeline-content-title" ng-if="!vm.item.subject"><i>No Subject</i></span>
+                <ul class="timeline-content-details">
+                    <li>{{ ::vm.item.sender_name }}</li>
+                    <li>
+                        <i class="fa">@</i>
+                        {{ ::vm.item.sender_email }}
+                    </li>
+                </ul>
+            </div>
+
+            <div class="timeline-date">
+                {{ ::vm.item.date | date:'dd MMMM yy HH:mm' }}
+                <div class="btn-group">
+                    <a class="timeline-toggle-details" data-toggle="dropdown" aria-expanded="false"><i class="lilicon hl-toggle-down-icon"></i></a>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="content-details history-item-body">
+            <p ng-bind-html="vm.item.body | limitTo:265 | parseUrls">
+                <span ng-if="::vm.item.body.length >= 265">...</span>
+            </p>
+
+
+            <ul class="content-details-actions">
+                <li><a ui-sref="base.email.detail({id: vm.item.id})">View</a></li>
+                <li><a ng-click="vm.replyOnEmail()">Reply</a></li>
+                <li><a ui-sref="base.email.forward({id: vm.item.id})">Forward</a></li>
+            </ul>
+        </div>
+
+    </div>

@@ -52,6 +52,7 @@ class EmailMessageSerializer(serializers.ModelSerializer):
             'attachments',
             'read',
             'subject',
+            'is_starred',
         )
 
 

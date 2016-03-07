@@ -216,6 +216,14 @@ class EmailMessage(models.Model):
         else:
             return ''
 
+    @property
+    def is_starred(self):
+        for label in self.labels.all():
+            if label.label_id == 'STARRED':
+                return True
+
+        return False
+
     def get_message_id(self):
         header = self.headers.filter(name__icontains='message-id').first()
         if header:

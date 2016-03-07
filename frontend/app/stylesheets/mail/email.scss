@@ -593,3 +593,15 @@ div.checker {
 .email-content {
     width: 100%;
 }
+
+.email-info-top {
+    .fa-star,
+    .fa-star-o {
+        vertical-align: middle;
+        margin-right: 5px;
+    }
+}
+
+.fa-star {
+    color: $lilyBlue;
+}

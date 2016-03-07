@@ -213,10 +213,36 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         )
         return Response(serializer.data)
 
+    @detail_route(methods=['put'])
+    def star(self, request, pk=None):
+        """
+        Any modifications are passed through the manager and not directly on the db.
+
+        Star will happen async.
+        """
+        email = self.get_object()
+        serializer = self.get_serializer(email, partial=True)
+
+        add_labels = []
+        remove_labels = []
+
+        if request.data['starred']:
+            add_labels = ['STARRED']
+        else:
+            remove_labels = ['STARRED']
+
+        add_and_remove_labels_for_message.delay(
+            email.id,
+            add_labels=add_labels,
+            remove_labels=remove_labels,
+        )
+
+        return Response(serializer.data)
+
     @detail_route(methods=['get'])
     def history(self, request, pk):
         """
-        Returns what happend to an email
+        Returns what happened to an email.
         """
         email = self.get_object()
 

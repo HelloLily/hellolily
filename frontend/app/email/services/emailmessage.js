@@ -51,6 +51,13 @@ function EmailMessage($resource, $q) {
                     actions: 'move',
                 },
             },
+            star: {
+                method: 'PUT',
+                params: {
+                    id: '@id',
+                    actions: 'star',
+                },
+            },
             search: {
                 method: 'GET',
                 url: '/search/search/',

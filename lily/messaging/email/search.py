@@ -144,6 +144,7 @@ class EmailMessageMapping(BaseMapping):
             'thread_id': obj.thread_id,
             'body': obj.body_text or cls.body_html_parsed(obj),
             'is_removed': obj.is_removed,
+            'is_starred': obj.is_starred,
         }
 
     @classmethod

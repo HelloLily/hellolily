@@ -84,6 +84,9 @@ function Deal($resource, HLUtils, HLForms, User) {
             getWhyCustomer: {
                 url: 'api/deals/why-customer',
             },
+            getWhyLost: {
+                url: 'api/deals/why-lost',
+            },
             getStages: {
                 url: '/api/deals/stages',
                 isArray: true,

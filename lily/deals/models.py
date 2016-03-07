@@ -34,6 +34,17 @@ class DealWhyCustomer(TenantMixin):
         ordering = ['position']
 
 
+class DealWhyLost(TenantMixin):
+    name = models.CharField(max_length=255)
+    position = models.IntegerField(choices=[(i, i) for i in range(10)], default=9)
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['position']
+
+
 class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     """
     Deal model
@@ -109,6 +120,7 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     import_id = models.CharField(max_length=100, verbose_name=_('import id'), default='', blank=True, db_index=True)
     imported_from = models.CharField(max_length=50, verbose_name=_('imported from'), null=True, blank=True)
     why_customer = models.ForeignKey(DealWhyCustomer, verbose_name=_('why'), related_name='deals')
+    why_lost = models.ForeignKey(DealWhyLost, verbose_name=_('why lost'), related_name='deals', null=True)
 
     @property
     def content_type(self):

@@ -1,11 +1,52 @@
 <div ng-if="!vm.deal.id" ng-include="'utils/controllers/does_not_exist.html'" class="row">
 </div>
-<div ng-if="vm.deal.id" class="row">
-    <div class="col-md-6">
-      <div class="portlet light">
-            <div class="portlet-body">
-                <div class="row">
-                    <div class="col-md-12 deal-detail-info">
+
+<div class="row">
+    <div class="col-md-8">
+        <div ng-if="vm.deal.id" class="row">
+            <div class="summary-info text-center">
+                <div id="deal-stage" class="btn-group" data-toggle="buttons" data-object-id="{{ vm.deal.id }}">
+                        <label ng-repeat="stage in vm.dealStages" for="stage-{{ stage[1] | lowercase }}" ng-class="{'btn default': true, 'btn default active': vm.deal.stage == stage[0], 'btn default disabled': vm.deal.is_archived }" ng-click="vm.changeState(stage)">
+                            <input class="toggle" type="radio" id="stage-{{ stage[1] | lowercase }}" name="radio" value="{{ stage[0] }}" ng-checked="vm.deal.stage == stage[0]">
+                            {{ stage[1] }}
+                        </label>
+                    <div class="btn-group">
+                        <button class="btn default" ng-click="vm.deal.is_archived = !vm.deal.is_archived">
+                            <span ng-if="vm.deal.is_archived">Unarchive</span>
+                            <span ng-if="!vm.deal.is_archived">Archive</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div ng-if="vm.deal.id" class="row no-margin">
+            <div class="well well-md">
+                <h4>Description <i class="fa fa-pencil clickable margin-left-10" ng-click="descriptionForm.$show()" ng-hide="descriptionForm.$visible"></i></h4>
+                <p editable-textarea="vm.deal.description" e-rows="4" e-cols="100" e-form="descriptionForm" onbeforesave="vm.updateModel($data, 'description')"
+                   class="pre-wrap" ng-bind-html="(vm.deal.description | parseUrls) || 'No description'">
+                </p>
+            </div>
+        </div>
+
+        <history-list ng-if="vm.deal.id" target="'deal'" object="vm.deal"></history-list>
+    </div>
+
+    <div ng-if="vm.deal.id">
+        <div class="col-md-4">
+            <div class="widget-container">
+                <div class="widget-heading">
+                    <div class="widget-title">
+                        <div class="widget-name">
+                            Deal info
+                        </div>
+                    </div>
+
+                    <div class="clearfix"></div>
+                </div>
+
+                <div class="widget-body">
+                    <div class="widget-content deal-detail-info">
                         <table class="deal-detail-info-table">
                             <tr ng-if="vm.deal.account">
                                 <td>Account</td>
@@ -83,19 +124,7 @@
                                 <td>Created by</td>
                                 <td>{{ vm.deal.created_by.full_name }}</td>
                             </tr>
-                        </table>
-                   </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="portlet light">
-            <div class="portlet-body">
-                <div class="row">
-                    <div class="col-md-12 deal-detail-info">
 
-                        <table class="deal-detail-info-table">
                             <tr>
                                 <td>Assigned to</td>
                                 <td>
@@ -128,6 +157,14 @@
                                         {{ vm.deal.stage_display }}
                                     </editable-select>
                                     <span ng-show="vm.deal.is_archived">- Archived</span>
+                                </td>
+                            </tr>
+                            <tr ng-show="vm.deal.stage == 3 && vm.deal.why_lost">
+                                <td>Why lost</td>
+                                <td>
+                                     <editable-select field="why_lost" view-model="vm" type="Deal">
+                                        {{ vm.deal.why_lost.name }}
+                                    </editable-select>
                                 </td>
                             </tr>
                             <tr>
@@ -171,36 +208,9 @@
                                 </td>
                             </tr>
                         </table>
-                   </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<hr />
-<div ng-if="vm.deal.id" class="row">
-    <div class="col-md-12 summary-info text-center">
-        <div id="deal-stage" class="btn-group" data-toggle="buttons" data-object-id="{{ vm.deal.id }}">
-                <label ng-repeat="stage in vm.dealStages" for="stage-{{ stage[1] | lowercase }}" ng-class="{'btn default': true, 'btn default active': vm.deal.stage == stage[0], 'btn default disabled': vm.deal.is_archived }" ng-click="vm.changeState(stage)">
-                    <input class="toggle" type="radio" id="stage-{{ stage[1] | lowercase }}" name="radio" value="{{ stage[0] }}" ng-checked="vm.deal.stage == stage[0]">
-                    {{ stage[1] }}
-                </label>
-            <div class="btn-group">
-                <button class="btn default" ng-click="vm.deal.is_archived = !vm.deal.is_archived">
-                    <span ng-if="vm.deal.is_archived">Unarchive</span>
-                    <span ng-if="!vm.deal.is_archived">Archive</span>
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-<hr />
-<div ng-if="vm.deal.id" class="row no-margin">
-    <div class="well well-md">
-        <h4>Description <i class="fa fa-pencil clickable margin-left-10" ng-click="descriptionForm.$show()" ng-hide="descriptionForm.$visible"></i></h4>
-        <p editable-textarea="vm.deal.description" e-rows="4" e-cols="100" e-form="descriptionForm" onbeforesave="vm.updateModel($data, 'description')"
-           class="pre-wrap" ng-bind-html="(vm.deal.description | parseUrls) || 'No description'">
-        </p>
-    </div>
-</div>
-<history-list ng-if="vm.deal.id" target="'deal'" object="vm.deal"></history-list>

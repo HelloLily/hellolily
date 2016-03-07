@@ -11,7 +11,7 @@ from lily.utils.api.related.mixins import RelatedSerializerMixin
 from lily.utils.api.related.serializers import WritableNestedSerializer
 from lily.utils.api.serializers import RelatedTagSerializer
 
-from ..models import Deal, DealNextStep, DealWhyCustomer
+from ..models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost
 
 
 class DealNextStepSerializer(serializers.ModelSerializer):
@@ -49,6 +49,23 @@ class RelatedDealWhyCustomerSerializer(RelatedSerializerMixin, DealWhyCustomerSe
     pass
 
 
+class DealWhyLostSerializer(serializers.ModelSerializer):
+    """
+    Serializer for deal why customer model.
+    """
+    class Meta:
+        model = DealWhyLost
+        fields = (
+            'id',
+            'name',
+            'position',
+        )
+
+
+class RelatedDealWhyLostSerializer(RelatedSerializerMixin, DealWhyLostSerializer):
+    pass
+
+
 class DealSerializer(WritableNestedSerializer):
     """
     Serializer for the deal model.
@@ -67,6 +84,7 @@ class DealSerializer(WritableNestedSerializer):
     tags = RelatedTagSerializer(many=True, required=False, create_only=True)
     notes = RelatedNoteSerializer(many=True, required=False, create_only=True)
     why_customer = RelatedDealWhyCustomerSerializer(assign_only=True)
+    why_lost = RelatedDealWhyLostSerializer(assign_only=True, allow_null=True)
 
     # Show string versions of fields.
     contacted_by_display = serializers.CharField(source='get_contacted_by_display', read_only=True)
@@ -90,6 +108,17 @@ class DealSerializer(WritableNestedSerializer):
             if not Function.objects.filter(contact_id=contact_id, account_id=account_id).exists():
                 raise serializers.ValidationError({'contact': _('Given contact must work at the account.')})
 
+        stage_id = attrs.get('stage', {})
+        if isinstance(stage_id, dict):
+            stage_id = stage_id.get('id')
+
+        why_lost_id = attrs.get('why_lost', {})
+        if isinstance(why_lost_id, dict):
+            why_lost_id = why_lost_id.get('id')
+
+        if stage_id == 3 and why_lost_id is None and DealWhyLost.objects.exists():
+            raise serializers.ValidationError({'why_lost': _('This field may not be null.')})
+
         return super(DealSerializer, self).validate(attrs)
 
     def create(self, validated_data):
@@ -103,8 +132,8 @@ class DealSerializer(WritableNestedSerializer):
         if assigned_to is None:
             # Deal wasn't assigned to someone, so assign to current user.
             validated_data.update({
-                    'assigned_to_id': user.pk
-                })
+                'assigned_to_id': user.pk
+            })
 
         return super(DealSerializer, self).create(validated_data)
 
@@ -144,4 +173,5 @@ class DealSerializer(WritableNestedSerializer):
             'tags',
             'twitter_checked',
             'why_customer',
+            'why_lost',
         )

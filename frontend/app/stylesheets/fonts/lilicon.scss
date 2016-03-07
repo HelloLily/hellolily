@@ -24,111 +24,262 @@
     -moz-osx-font-smoothing: grayscale;
 }
 
-.hl-asterix-icon:before {
-    content: "\e921";
+$hl-deals-icon: "\e900";
+$hl-deals-filled-icon: "\e901";
+$hl-outgoing-icon: "\e902";
+$hl-incomming-icon: "\e903";
+$hl-incomming-down-icon: "\e904";
+$hl-outgoing-up-icon: "\e905";
+$hl-phone-icon: "\e906";
+$hl-asterix-icon: "\e907";
+$hl-edit-icon: "\e908";
+$hl-edit-line-icon: "\e909";
+$hl-trashcan-icon: "\e90a";
+$hl-calender-icon: "\e90b";
+$hl-firstday-icon: "\e90c";
+$hl-tomorrow-icon: "\e90d";
+$hl-cog-icon: "\e90e";
+$hl-postpone-icon: "\e90f";
+$hl-user-icon: "\e910";
+$hl-mail-icon: "\e911";
+$hl-case-icon: "\e912";
+$hl-person-icon: "\e913";
+$hl-note-icon: "\e914";
+$hl-home-icon: "\e915";
+$hl-company-icon: "\e916";
+$hl-stats-icon: "\e917";
+$hl-paperclip-icon: "\e918";
+$hl-options-icon: "\e919";
+$hl-low-prio-icon: "\e91a";
+$hl-normal-prio-icon: "\e91b";
+$hl-high-prio-icon: "\e91c";
+$hl-critical-prio-icon: "\e91d";
+$hl-toggle-right-icon: "\e91e";
+$hl-toggle-left-icon: "\e91f";
+$hl-toggle-up-icon: "\e920";
+$hl-toggle-down-icon: "\e921";
+$hl-close-icon: "\e922";
+$hl-arrow-right-icon: "\e923";
+$hl-arrow-left-icon: "\e924";
+$hl-arrow-up-icon: "\e925";
+$hl-arrow-down-icon: "\e926";
+$hl-arrow-right-smll-icon: "\e927";
+$hl-arrow-left-smll-icon: "\e928";
+$hl-arrow-up-smll-icon: "\e929";
+$hl-arrow-down-smll-icon: "\e92a";
+
+.hl-deals-icon {
+    &:before {
+        content: $hl-deals-icon;
+    }
 }
-.hl-edit-icon:before {
-    content: "\e922";
+.hl-deals-filled-icon {
+    &:before {
+        content: $hl-deals-filled-icon;
+    }
 }
-.hl-edit-line-icon:before {
-    content: "\e923";
+.hl-outgoing-icon {
+    &:before {
+        content: $hl-outgoing-icon;
+    }
 }
-.hl-trashcan-icon:before {
-    content: "\e909";
+.hl-incomming-icon {
+    &:before {
+        content: $hl-incomming-icon;
+    }
 }
-.hl-deals-filled-icon:before {
-    content: "\e91c";
+.hl-incomming-down-icon {
+    &:before {
+        content: $hl-incomming-down-icon;
+    }
 }
-.hl-arrow-down-smll-icon:before {
-    content: "\e91d";
+.hl-outgoing-up-icon {
+    &:before {
+        content: $hl-outgoing-up-icon;
+    }
 }
-.hl-arrow-left-smll-icon:before {
-    content: "\e91e";
+.hl-phone-icon {
+    &:before {
+        content: $hl-phone-icon;
+    }
 }
-.hl-arrow-right-smll-icon:before {
-    content: "\e91f";
+.hl-asterix-icon {
+    &:before {
+        content: $hl-asterix-icon;
+    }
 }
-.hl-arrow-up-smll-icon:before {
-    content: "\e920";
+.hl-edit-icon {
+    &:before {
+        content: $hl-edit-icon;
+    }
 }
-.hl-company-icon:before {
-    content: "\e914";
+.hl-edit-line-icon {
+    &:before {
+        content: $hl-edit-line-icon;
+    }
 }
-.hl-cog-icon:before {
-    content: "\e915";
+.hl-trashcan-icon {
+    &:before {
+        content: $hl-trashcan-icon;
+    }
 }
-.hl-postpone-icon:before {
-    content: "\e916";
+.hl-calender-icon {
+    &:before {
+        content: $hl-calender-icon;
+    }
 }
-.hl-low-prio-icon:before {
-    content: "\e917";
+.hl-firstday-icon {
+    &:before {
+        content: $hl-firstday-icon;
+    }
 }
-.hl-normal-prio-icon:before {
-    content: "\e918";
+.hl-tomorrow-icon {
+    &:before {
+        content: $hl-tomorrow-icon;
+    }
 }
-.hl-high-prio-icon:before {
-    content: "\e919";
+.hl-cog-icon {
+    &:before {
+        content: $hl-cog-icon;
+    }
 }
-.hl-critical-prio-icon:before {
-    content: "\e91a";
+.hl-postpone-icon {
+    &:before {
+        content: $hl-postpone-icon;
+    }
 }
-.hl-user-icon:before {
-    content: "\e91b";
+.hl-user-icon {
+    &:before {
+        content: $hl-user-icon;
+    }
 }
-.hl-stats-icon:before {
-    content: "\e900";
+.hl-mail-icon {
+    &:before {
+        content: $hl-mail-icon;
+    }
 }
-.hl-deals-icon:before {
-    content: "\e901";
+.hl-case-icon {
+    &:before {
+        content: $hl-case-icon;
+    }
 }
-.hl-calender-icon:before {
-    content: "\e902";
+.hl-person-icon {
+    &:before {
+        content: $hl-person-icon;
+    }
 }
-.hl-case-icon:before {
-    content: "\e903";
+.hl-note-icon {
+    &:before {
+        content: $hl-note-icon;
+    }
 }
-.hl-person-icon:before {
-    content: "\e904";
+.hl-home-icon {
+    &:before {
+        content: $hl-home-icon;
+    }
 }
-.hl-note-icon:before {
-    content: "\e905";
+.hl-company-icon {
+    &:before {
+        content: $hl-company-icon;
+    }
 }
-.hl-home-icon:before {
-    content: "\e906";
+.hl-stats-icon {
+    &:before {
+        content: $hl-stats-icon;
+    }
 }
-.hl-mail-icon:before {
-    content: "\e907";
+.hl-paperclip-icon {
+    &:before {
+        content: $hl-paperclip-icon;
+    }
 }
-.hl-paperclip-icon:before {
-    content: "\e908";
+.hl-options-icon {
+    &:before {
+        content: $hl-options-icon;
+    }
 }
-.hl-options-icon:before {
-    content: "\e90a";
+.hl-low-prio-icon {
+    &:before {
+        content: $hl-low-prio-icon;
+    }
 }
-.hl-close-icon:before {
-    content: "\e90b";
+.hl-normal-prio-icon {
+    &:before {
+        content: $hl-normal-prio-icon;
+    }
 }
-.hl-toggle-left-icon:before {
-    content: "\e90c";
+.hl-high-prio-icon {
+    &:before {
+        content: $hl-high-prio-icon;
+    }
 }
-.hl-toggle-up-icon:before {
-    content: "\e90d";
+.hl-critical-prio-icon {
+    &:before {
+        content: $hl-critical-prio-icon;
+    }
 }
-.hl-toggle-right-icon:before {
-    content: "\e90e";
+.hl-toggle-right-icon {
+    &:before {
+        content: $hl-toggle-right-icon;
+    }
 }
-.hl-toggle-down-icon:before {
-    content: "\e90f";
+.hl-toggle-left-icon {
+    &:before {
+        content: $hl-toggle-left-icon;
+    }
 }
-.hl-arrow-right-icon:before {
-    content: "\e910";
+.hl-toggle-up-icon {
+    &:before {
+        content: $hl-toggle-up-icon;
+    }
 }
-.hl-arrow-left-icon:before {
-    content: "\e911";
+.hl-toggle-down-icon {
+    &:before {
+        content: $hl-toggle-down-icon;
+    }
 }
-.hl-arrow-up-icon:before {
-    content: "\e912";
+.hl-close-icon {
+    &:before {
+        content: $hl-close-icon;
+    }
 }
-.hl-arrow-down-icon:before {
-    content: "\e913";
+.hl-arrow-right-icon {
+    &:before {
+        content: $hl-arrow-right-icon;
+    }
+}
+.hl-arrow-left-icon {
+    &:before {
+        content: $hl-arrow-left-icon;
+    }
+}
+.hl-arrow-up-icon {
+    &:before {
+        content: $hl-arrow-up-icon;
+    }
+}
+.hl-arrow-down-icon {
+    &:before {
+        content: $hl-arrow-down-icon;
+    }
+}
+.hl-arrow-right-smll-icon {
+    &:before {
+        content: $hl-arrow-right-smll-icon;
+    }
+}
+.hl-arrow-left-smll-icon {
+    &:before {
+        content: $hl-arrow-left-smll-icon;
+    }
+}
+.hl-arrow-up-smll-icon {
+    &:before {
+        content: $hl-arrow-up-smll-icon;
+    }
+}
+.hl-arrow-down-smll-icon {
+    &:before {
+        content: $hl-arrow-down-smll-icon;
+    }
 }

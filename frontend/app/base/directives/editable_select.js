@@ -18,14 +18,21 @@ function editableSelect() {
     };
 }
 
-EditableSelectController.$inject = ['$filter', 'HLResource'];
-function EditableSelectController($filter, HLResource) {
+EditableSelectController.$inject = ['$scope', '$filter', 'HLResource'];
+function EditableSelectController($scope, $filter, HLResource) {
     var es = this;
 
     es.getChoices = getChoices;
     es.updateViewModel = updateViewModel;
 
     activate();
+
+    // Broadcast function that executes the activate() function when somebody
+    // dynamically changes the inline select edit by using the 'assign to me'
+    // link, instead of selecting a person with the selectbox.
+    $scope.$on('activateEditableSelect', function(){
+        activate();
+    });
 
     /////
 

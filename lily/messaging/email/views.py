@@ -654,6 +654,21 @@ class EmailMessageReplyAllView(EmailMessageReplyView):
 class EmailMessageForwardView(EmailMessageReplyOrForwardView):
     action = 'forward'
 
+    @function_trace()
+    def post(self, request, *args, **kwargs):
+        """
+        TODO: temporary override for logging purposes.
+        """
+        self.get_object(request, **kwargs)
+
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    @function_trace()
     def get_form_kwargs(self):
         kwargs = super(EmailMessageComposeView, self).get_form_kwargs()
         kwargs['message_type'] = self.action

@@ -6,7 +6,8 @@ from lily.accounts.api.views import (AccountViewSet, AccountAddressViewSet, Acco
 from lily.cases.api.views import CaseViewSet, CaseStatusList, CaseTypeList
 from lily.contacts.api.views import ContactViewSet
 from lily.deals.api.views import (DealViewSet, DealStagesList, DealNextStepList, DealNextStepViewSet,
-                                  DealWhyCustomerViewSet, DealContactedByList, DealFoundThroughList, DealWhyLostViewSet)
+                                  DealWhyCustomerViewSet, DealContactedByList, DealFoundThroughList,
+                                  DealWhyLostViewSet)
 from lily.messaging.email.api.views import (EmailLabelViewSet, EmailAccountViewSet, EmailMessageViewSet,
                                             EmailTemplateViewSet, SharedEmailConfigViewSet,
                                             TemplateVariableViewSet)

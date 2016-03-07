@@ -1,21 +1,25 @@
 <div ng-if="!contact.id" ng-include="'utils/controllers/does_not_exist.html'" class="row">
 </div>
-<div ng-if="contact.id" class="row">
-    <div class="col-md-4">
-        <contact-detail-widget contact="contact" height="300"></contact-detail-widget>
+
+<div class="row">
+    <div class="col-md-8">
+        <history-list ng-if="contact.id" target="'contact'" object="contact"></history-list>
     </div>
-    <div class="col-md-4">
+
+    <div ng-if="contact.id" class="col-md-4">
+
+        <contact-detail-widget contact="contact" height="300"></contact-detail-widget>
+
         <div ng-if="contact.accounts.length" ng-repeat="account in contact.accounts">
             <list-widget title="Contacts" object="account" add-link="base.contacts.create.fromAccount({id: {{ account.id }}})" list="account.colleagueList" height="height"></list-widget>
         </div>
+
         <div ng-hide="contact.accounts.length">
             <list-widget title="Contacts" height="300"></list-widget>
         </div>
-    </div>
-    <div class="col-md-4">
+
         <list-widget title="Cases" list="caseList" height="91" add-link="base.cases.create.fromContact({contactId: {{ contact.id }}})" collapsable-items="true"></list-widget>
         <list-widget title="Deals" list="dealList" height="91" add-link="base.deals.create.fromContact({contactId: {{ contact.id }}})" collapsable-items="true"></list-widget>
+
     </div>
 </div>
-
-<history-list ng-if="contact.id" target="'contact'" object="contact"></history-list>

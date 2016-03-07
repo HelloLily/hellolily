@@ -37,21 +37,31 @@ function ListWidgetController() {
 
     if (vm.collapsableItems) {
         // Certain list widgets have collapsable cells, so set the default state to collapsed.
-        vm.list.$promise.then(function(response) {
-            var list;
-
-            if (response.hasOwnProperty('objects')) {
-                list = response.objects;
-            } else {
-                list = response;
-            }
-
-            angular.forEach(list, function(item) {
-                item.collapsed = true;
+        if (vm.list.constructor === Array) {
+            // Array was passed, so just pass the list.
+            _setCollapsed(vm.list);
+        } else {
+            vm.list.$promise.then(function(response) {
+                // List hasn't fully loaded, so wait and pass the response.
+                _setCollapsed(response);
             });
+        }
+    }
 
-            vm.list = list;
+    function _setCollapsed(items) {
+        var list;
+
+        if (items.hasOwnProperty('objects')) {
+            list = items.objects;
+        } else {
+            list = items;
+        }
+
+        angular.forEach(list, function(item) {
+            item.collapsed = true;
         });
+
+        vm.list = list;
     }
 }
 

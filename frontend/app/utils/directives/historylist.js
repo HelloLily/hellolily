@@ -33,7 +33,7 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
             scope.history.reloadHistory = reloadHistory;
             scope.history.addNote = addNote;
             scope.history.editNote = editNote;
-            scope.history.toggleNote = toggleNote;
+            scope.history.toggleContent = toggleContent;
             scope.history.pinNote = pinNote;
             scope.history.deleteNote = deleteNote;
 
@@ -243,8 +243,16 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
                 });
             }
 
-            function toggleNote(note) {
-                console.log(note);
+            function toggleContent(item) {
+                if(item.shown === undefined) {
+                    item.shown = true;
+                } else {
+                    if(item.shown === true) {
+                        item.shown = false;
+                    } else if(item.shown === false) {
+                        item.shown = true;
+                    }
+                }
             }
 
             function pinNote(note, isPinned) {

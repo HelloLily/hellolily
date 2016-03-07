@@ -76,12 +76,11 @@
             <div class="timeline-date">
                 {{ ::vm.item.date | date:'dd MMMM yy HH:mm' }}
 
-                <a class="timeline-toggle-details" ng-click="vm.history.toggleNote(vm.item);"><i class="lilicon hl-toggle-down-icon"></i></a>
+                <a class="timeline-toggle-details" ng-click="vm.history.toggleContent(vm.item);"><i class="lilicon hl-toggle-left-icon" ng-class="vm.item.shown ? 'hl-toggle-down-icon' : 'hl-toggle-left-icon'"></i></a>
             </div>
 
         </div>
-
-        <div class="content-details history-item-body is-hidden">
+        <div class="content-details history-item-body" ng-show="vm.item.shown">
             <p ng-bind-html="::vm.item.content | parseUrls"></p>
 
             <ul class="content-details-actions">

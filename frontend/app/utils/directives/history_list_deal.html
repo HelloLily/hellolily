@@ -84,9 +84,9 @@
 <div class="timeline-item-container">
     <div class="timeline-avatar" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png');"></div>
 
-    <div class="timeline-content-container">
+    <div class="timeline-content-container has-deal">
 
-        <div class="timeline-content-header has-deal">
+        <div class="timeline-content-header">
 
             <div class="timeline-type">
                 <i class="lilicon hl-deals-filled-icon"></i>
@@ -95,53 +95,49 @@
             <div class="timeline-content">
                 <span class="timeline-content-title"><a class="link-no-decoration" ui-sref="base.deals.detail({ id: vm.item.id })">{{ ::vm.item.name }}</a></span>
                 <ul class="timeline-content-details">
-                    <li>Next step: {{ ::vm.item.next_step_date | date:'dd MMMM yy HH:mm' }}</li>
-                    <li>Assigned to: {{ ::vm.item.assigned_to_name || "Nobody" }}</li>
-                    <li>Created by: {{ ::vm.item.created_by || "Nobody" }}</li>
-
-                    <li>Last changed: {{ ::vm.item.modified | date:'dd MMMM yy HH:mm' }}</li>
-                    <li>{{ ::vm.item.new_business ? 'New business' : 'Existing business'}}</li>
-                    <li>Status: {{ ::vm.item.feedback_form_sent ? 'Feedback form sent' : 'Feedback form not sent'}}</li>
                     <li>Stage: {{ ::vm.item.stage_name}} ({{ ::vm.item.archived ? 'archived' : 'active'}})</li>
                     <li>Amount once: &euro; {{ ::vm.item.amount_once }}</li>
                     <li>Amount recurring: &euro; {{ ::vm.item.amount_recurring}}</li>
+                    <li>Status: {{ ::vm.item.feedback_form_sent ? 'Feedback form sent' : 'Feedback form not sent'}}</li>
                 </ul>
             </div>
 
             <div class="timeline-date">
                 {{ ::vm.item.created | date:'dd MMM yy HH:mm' }}
                 <div class="btn-group">
-                    <a class="timeline-toggle-details" data-toggle="dropdown" aria-expanded="false"><i class="lilicon hl-toggle-down-icon"></i></a>
+                    <a class="timeline-toggle-details" ng-click="vm.history.toggleContent(vm.item);"><i class="lilicon hl-toggle-left-icon" ng-class="vm.item.shown ? 'hl-toggle-down-icon' : 'hl-toggle-left-icon'"></i></a>
                 </div>
             </div>
 
         </div>
 
-        <div class="content-details history-item-body">
-            <p ng-bind-html="::vm.item.body | parseUrls"></p>
+        <div ng-show="vm.item.shown">
+            <div class="content-details history-item-body">
+                <p ng-bind-html="::vm.item.body | parseUrls"></p>
 
-            <ul class="content-details-actions">
-                <li><a ui-sref="base.deals.detail({ id: vm.item.id })">View</a></li>
-                <li><a ui-sref="base.deals.detail.edit({ id: vm.item.id })">Edit</a></li>
-                <li><a ng-href="/deals/delete/{{ ::vm.item.id }}/" data-target="#confirm-delete" data-source="/cases/delete/{{ ::vm.item.id }}/">Delete</a></li>
-            </ul>
-        </div>
+                <ul class="content-details-actions">
+                    <li><a ui-sref="base.deals.detail({ id: vm.item.id })">View</a></li>
+                    <li><a ui-sref="base.deals.detail.edit({ id: vm.item.id })">Edit</a></li>
+                    <li><a ng-href="/deals/delete/{{ ::vm.item.id }}/" data-target="#confirm-delete" data-source="/cases/delete/{{ ::vm.item.id }}/">Delete</a></li>
+                </ul>
+            </div>
 
-        <div class="content-history-container">
-            <history-add-note item="vm.item"></history-add-note>
-        </div>
+            <div class="content-history-container">
+                <history-add-note item="vm.item"></history-add-note>
+            </div>
 
-        <div class="content-history-container">
-            <ul class="content-history-list">
-                <li ng-repeat="note in vm.item.notes">
-                    <div class="content-history-avatar" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png'); "></div>
-                    <div class="content-history-desc">
-                        <p>{{ ::note.content }}</p>
-                    </div>
-                    <div class="content-history-date">Posted on {{ ::note.date | date:'dd MMMM yy HH:mm' }} by {{ ::note.author }}</div>
-                </li>
-            </ul>
+            <div class="content-history-container">
+                <ul class="content-history-list">
+                    <li ng-repeat="note in vm.item.notes">
+                        <div class="content-history-avatar" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png'); "></div>
+                        <div class="content-history-desc">
+                            <p>{{ ::note.content }}</p>
+                        </div>
+                        <div class="content-history-date">Posted on {{ ::note.date | date:'dd MMMM yy HH:mm' }} by {{ ::note.author }}</div>
+                    </li>
+                </ul>
 
+            </div>
         </div>
     </div>
 </div>

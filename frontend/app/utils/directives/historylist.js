@@ -33,6 +33,7 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
             scope.history.reloadHistory = reloadHistory;
             scope.history.addNote = addNote;
             scope.history.editNote = editNote;
+            scope.history.toggleNote = toggleNote;
             scope.history.pinNote = pinNote;
             scope.history.deleteNote = deleteNote;
 
@@ -240,6 +241,10 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
                 modalInstance.result.then(function() {
                     $state.go($state.current, {}, {reload: true});
                 });
+            }
+
+            function toggleNote(note) {
+                console.log(note);
             }
 
             function pinNote(note, isPinned) {

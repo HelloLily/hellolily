@@ -104,11 +104,14 @@
     left: 47px;
 }
 
+.history-list-item {
+    margin-bottom: 20px;
+}
+
 
 .timeline-item-container {
     width: 100%;
     box-sizing: border-box;
-    margin-bottom: 20px;
     min-height: 70px;
     position: relative;
 
@@ -264,6 +267,10 @@
     border-top: 1px solid $lilyBorderDark;
     background-color: white;
     padding: 20px;
+
+    &.is-hidden {
+        display: none;
+    }
 }
 
 .content-history-container {

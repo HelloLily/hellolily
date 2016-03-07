@@ -35,10 +35,10 @@
     <div ng-if="vm.case.id" class="col-md-4">
         <dashboard-widget ng-if="vm.case.account" widget-name="'Account info'">
             <widget-header>
-                <a ui-sref="base.accounts.detail({ id: vm.case.account.id })">
+                <div class="widget-name">
+                    <a ui-sref="base.accounts.detail({ id: vm.case.account.id })">
                         <i class="lilicon hl-company-icon"></i>
-                        {{ vm.case.account_name }}
-                    {{ vm.case.account.name }}
+                        {{ vm.case.account.name }}
                     </a>
                 </div>
             </widget-header>
@@ -88,9 +88,10 @@
 
         <dashboard-widget ng-if="vm.case.contact" widget-name="'Contact info'">
             <widget-header>
-                <a ui-sref="base.contacts.detail({ id: vm.case.contact.id })">
+                <div class="widget-name">
+                    <a ui-sref="base.contacts.detail({ id: vm.case.contact.id })">
                         <i class="lilicon hl-user-icon"></i>
-                    {{ vm.case.contact.name }}
+                        {{ vm.case.contact.name }}
                     </a>
                 </div>
             </widget-header>

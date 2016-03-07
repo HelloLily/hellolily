@@ -49,7 +49,7 @@
 
                 <form-group label-title="Why customer" label-id="id_why_customer" field="dealForm.why_customer" required="true">
                     <select name="why_customer" ng-model="vm.deal.why_customer"
-                            ng-options="why_customer.id as why_customer.name for why_customer in vm.whyCustomer track by why_customer.id" class="form-control">
+                            ng-options="why_customer.name for why_customer in vm.whyCustomer track by why_customer.id" class="form-control">
                         <option value="" hidden>---------</option>
                     </select>
                 </form-group>
@@ -112,6 +112,13 @@
                 <form-group label-title="Status" label-id="id_status" field="dealForm.status" required="true">
                     <select name="stage" ng-model="vm.deal.stage"
                             ng-options="status.value as status.display_name for status in vm.stageChoices" class="form-control">
+                        <option value="" hidden>---------</option>
+                    </select>
+                </form-group>
+
+                <form-group label-title="Why lost" label-id="id_why_lost" field="dealForm.why_lost" ng-show="vm.deal.stage == 3 && vm.whyLost.length" required="vm.deal.stage && vm.whyLost.length == 3 ? true : false">
+                    <select name="why_lost" ng-model="vm.deal.why_lost"
+                            ng-options="why_lost.name for why_lost in vm.whyLost track by why_lost.id" class="form-control">
                         <option value="" hidden>---------</option>
                     </select>
                 </form-group>

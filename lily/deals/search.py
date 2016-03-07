@@ -131,6 +131,10 @@ class DealMapping(BaseMapping):
                 'type': 'string',
                 'index_analyzer': 'normal_edge_analyzer',
             },
+            'why_lost': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            }
         })
         return mapping
 
@@ -198,4 +202,5 @@ class DealMapping(BaseMapping):
             } if obj.next_step else None,
             'next_step_date': obj.next_step_date,
             'why_customer': obj.why_customer.name if obj.why_customer else None,
+            'why_lost': obj.why_lost.name if obj.why_lost else None,
         }

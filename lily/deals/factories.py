@@ -1,6 +1,7 @@
 import datetime
 
-from factory.declarations import SubFactory, LazyAttribute, SelfAttribute, Iterator
+from factory import post_generation
+from factory.declarations import SubFactory, LazyAttribute, SelfAttribute, Iterator, Sequence
 from factory.django import DjangoModelFactory
 from factory.fuzzy import FuzzyDecimal, FuzzyChoice, FuzzyDate
 from faker.factory import Factory
@@ -9,7 +10,7 @@ from lily.accounts.factories import AccountFactory
 from lily.users.factories import LilyUserFactory
 from lily.tenant.factories import TenantFactory
 
-from .models import Deal, DealNextStep, DealWhyCustomer
+from .models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost
 
 faker = Factory.create('nl_NL')
 past_date = datetime.date.today() - datetime.timedelta(days=10)
@@ -42,6 +43,16 @@ class DealWhyCustomerFactory(DjangoModelFactory):
         model = DealWhyCustomer
 
 
+class DealWhyLostFactory(DjangoModelFactory):
+    position = Sequence(int)
+    name = LazyAttribute(lambda o: faker.word())
+    tenant = SubFactory(TenantFactory)
+
+    class Meta:
+        model = DealWhyLost
+        django_get_or_create = ('tenant', 'name')
+
+
 class DealFactory(DjangoModelFactory):
     tenant = SubFactory(TenantFactory)
     account = SubFactory(AccountFactory, tenant=SelfAttribute('..tenant'))
@@ -61,6 +72,13 @@ class DealFactory(DjangoModelFactory):
     stage = FuzzyChoice(dict(Deal.STAGE_CHOICES).keys())
     twitter_checked = FuzzyChoice([True, False])
     why_customer = SubFactory(DealWhyCustomerFactory, tenant=SelfAttribute('..tenant'))
+    why_lost = None
+
+    @post_generation
+    def why_lost(self, create, extracted, **kwargs):
+        # If a deal was created with the 'Lost' status we want to set a lost reason.
+        if self.stage == 3:
+            self.why_lost = DealWhyLostFactory(tenant=self.tenant)
 
     class Meta:
         model = Deal

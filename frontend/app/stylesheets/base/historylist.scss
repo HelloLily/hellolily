@@ -122,6 +122,20 @@
     }
 }
 
+.timeline-item-form-container {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 70px;
+    position: relative;
+    margin-bottom: 20px;
+
+    &.has-date {
+        .timeline-avatar {
+            top: 40px;
+        }
+    }
+}
+
 .timeline-avatar {
     position: absolute;
     width: 70px;
@@ -160,24 +174,51 @@
     min-height: 70px;
     position: relative;
 
-    &:after {
-        content:" ";
-        border-style: solid;
-        border-width: 12px 18px 12px 0;
-        border-color: transparent white transparent transparent;
+    // &:after {
+    //     content:" ";
+    //     border-style: solid;
+    //     border-width: 12px 18px 12px 0;
+    //     border-color: transparent white transparent transparent;
+    //     position: absolute;
+    //     left: -16px;
+    //     top: 22px;
+    // }
+    //
+    &:before {
+        content: " ";
+        width: 5px;
+        background-color: $noteColor;
         position: absolute;
-        left: -16px;
-        top: 22px;
+        left: -5px;
+        height: 72px;
+        border-top-left-radius: 5px;
+        border-bottom-left-radius: 5px;
+        top: -1px;
     }
 
-    &:before {
-        content:" ";
-        border-style: solid;
-        border-width: 12px 18px 12px 0;
-        border-color: transparent $lilyBorderDark transparent transparent;
-        position: absolute;
-        left: -18px;
-        top: 22px;
+
+    &.has-note {
+        &:before {
+            background-color: $noteColor;
+        }
+    }
+
+    &.has-deal {
+        &:before {
+            background-color: $dealColor;
+        }
+    }
+
+    &.has-case {
+        &:before {
+            background-color: $caseColor;
+        }
+    }
+
+    &.has-email {
+        &:before {
+            background-color: $emailColor;
+        }
     }
 }
 

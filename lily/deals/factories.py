@@ -10,7 +10,7 @@ from lily.accounts.factories import AccountFactory
 from lily.users.factories import LilyUserFactory
 from lily.tenant.factories import TenantFactory
 
-from .models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost
+from .models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost, DealFoundThrough
 
 faker = Factory.create('nl_NL')
 past_date = datetime.date.today() - datetime.timedelta(days=10)
@@ -53,6 +53,27 @@ class DealWhyLostFactory(DjangoModelFactory):
         django_get_or_create = ('tenant', 'name')
 
 
+FOUND_THROUGH_NAMES = [
+    'Search engine',
+    'Social media',
+    'Talk with employee',
+    'Existing customer',
+    'Other',
+    'Radio',
+    'Public speaking',
+    'Press and articles',
+]
+
+
+class DealFoundThroughFactory(DjangoModelFactory):
+    tenant = SubFactory(TenantFactory)
+    name = Iterator(FOUND_THROUGH_NAMES)
+
+    class Meta:
+        model = DealFoundThrough
+        django_get_or_create = ('tenant', 'name')
+
+
 class DealFactory(DjangoModelFactory):
     tenant = SubFactory(TenantFactory)
     account = SubFactory(AccountFactory, tenant=SelfAttribute('..tenant'))
@@ -63,7 +84,7 @@ class DealFactory(DjangoModelFactory):
     contacted_by = FuzzyChoice(dict(Deal.CONTACTED_BY_CHOICES).keys())
     currency = FuzzyChoice(dict(Deal.CURRENCY_CHOICES).keys())
     feedback_form_sent = FuzzyChoice([True, False])
-    found_through = FuzzyChoice(dict(Deal.FOUND_THROUGH_CHOICES).keys())
+    found_through = SubFactory(DealFoundThroughFactory, tenant=SelfAttribute('..tenant'))
     is_checked = FuzzyChoice([True, False])
     name = LazyAttribute(lambda o: faker.word())
     new_business = FuzzyChoice([True, False])

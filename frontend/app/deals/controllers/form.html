@@ -35,7 +35,7 @@
 
                 <form-group label-title="Found us through" label-id="id_found_through" field="dealForm.found_through" required="true">
                     <select name="found_through" ng-model="vm.deal.found_through"
-                            ng-options="found_through.value as found_through.display_name for found_through in vm.foundThroughChoices" class="form-control">
+                            ng-options="found_through.name for found_through in vm.foundThroughChoices track by found_through.id" class="form-control">
                         <option value="" hidden>---------</option>
                     </select>
                 </form-group>

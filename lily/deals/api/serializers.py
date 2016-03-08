@@ -11,7 +11,7 @@ from lily.utils.api.related.mixins import RelatedSerializerMixin
 from lily.utils.api.related.serializers import WritableNestedSerializer
 from lily.utils.api.serializers import RelatedTagSerializer
 
-from ..models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost
+from ..models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost, DealFoundThrough
 
 
 class DealNextStepSerializer(serializers.ModelSerializer):
@@ -51,7 +51,7 @@ class RelatedDealWhyCustomerSerializer(RelatedSerializerMixin, DealWhyCustomerSe
 
 class DealWhyLostSerializer(serializers.ModelSerializer):
     """
-    Serializer for deal why customer model.
+    Serializer for deal why lost model.
     """
     class Meta:
         model = DealWhyLost
@@ -63,6 +63,23 @@ class DealWhyLostSerializer(serializers.ModelSerializer):
 
 
 class RelatedDealWhyLostSerializer(RelatedSerializerMixin, DealWhyLostSerializer):
+    pass
+    
+    
+class DealFoundThroughSerializer(serializers.ModelSerializer):
+    """
+    Serializer for deal found through model.
+    """
+    class Meta:
+        model = DealFoundThrough
+        fields = (
+            'id',
+            'name',
+            'position',
+        )
+
+
+class RelatedDealFoundThroughSerializer(RelatedSerializerMixin, DealFoundThroughSerializer):
     pass
 
 
@@ -85,11 +102,11 @@ class DealSerializer(WritableNestedSerializer):
     notes = RelatedNoteSerializer(many=True, required=False, create_only=True)
     why_customer = RelatedDealWhyCustomerSerializer(assign_only=True)
     why_lost = RelatedDealWhyLostSerializer(assign_only=True, allow_null=True, required=False)
+    found_through = RelatedDealFoundThroughSerializer(assign_only=True)
 
     # Show string versions of fields.
     contacted_by_display = serializers.CharField(source='get_contacted_by_display', read_only=True)
     currency_display = serializers.CharField(source='get_currency_display', read_only=True)
-    found_through_display = serializers.CharField(source='get_found_through_display', read_only=True)
     stage_display = serializers.CharField(source='get_stage_display', read_only=True)
 
     amount_once = serializers.DecimalField(max_digits=19, decimal_places=2, required=True)
@@ -158,7 +175,6 @@ class DealSerializer(WritableNestedSerializer):
             'description',
             'feedback_form_sent',
             'found_through',
-            'found_through_display',
             'is_archived',
             'is_checked',
             'modified',

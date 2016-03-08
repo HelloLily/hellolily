@@ -51,7 +51,21 @@
 
                 <div class="timeline-content-header">
                     <form role="form">
-                        <div class="form-body text-center">
+                        <div class="form-body">
+                            <ul class="timeline-content-type-buttons">
+                                <li ng-model="note.type" btn-radio="0">
+                                    <i class="lilicon hl-note-icon"></i>
+                                    Note
+                                </li>
+                               <li ng-model="note.type" btn-radio="1">
+                                   <i class="fa fa-phone"></i>
+                                   Call
+                               </li>
+                               <li ng-model="note.type" btn-radio="2">
+                                   <i class="lilicon hl-calender-icon"></i>
+                                   Meetup
+                               </li>
+                           </ul>
                             <div class="form-group">
                                 <textarea required class="form-control" id="id_content" ng-model="note.content" name="content" rows="4" placeholder="Write your note here"></textarea>
                             </div>

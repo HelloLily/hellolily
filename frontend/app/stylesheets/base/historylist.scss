@@ -106,6 +106,10 @@
 
 .history-list-item {
     margin-bottom: 20px;
+
+    &:last-of-type {
+        margin-bottom: 0;
+    }
 }
 
 
@@ -306,6 +310,7 @@
 .content-details {
     width: 100%;
     border-top: 1px solid $lilyBorderDark;
+    border-bottom: 1px solid $lilyBorderDark;
     background-color: white;
     padding: 20px;
 
@@ -316,9 +321,12 @@
 
 .content-history-container {
     width: 100%;
-    border-top: 1px solid #F2F3F7;
     background-color: white;
     padding: 20px;
+
+    &.content-history-add-note-form {
+        padding-left: 70px;
+    }
 }
 
 .content-history-list {
@@ -329,31 +337,49 @@
         list-style-type: none;
         margin-bottom: 20px;
         position: relative;
-        line-height: 30px;
-        height: 30px;
     }
 }
 
 .content-history-desc {
     float: left;
+    color: $lilyDarkBlue;
 }
 
 .content-history-date {
     float: right;
-    margin-right: 38px;
     color: #AFB5C2;
 }
 
 .content-history-avatar {
-    height: 30px;
-    width: 30px;
-    margin-right: 20px;
+    height: 40px;
+    width: 40px;
+    margin-right: 11px;
     overflow: hidden;
     border-radius: 50%;
     background-size: cover;
     background-repeat: no-repeat;
     display: inline-block;
     float: left;
+    text-align: center;
+
+    i {
+        font-size: 20px;
+        color: #ffffff;
+        line-height: 40px;
+    }
+
+    &.is-case {
+        background: $caseColor;
+    }
+
+    &.is-note {
+        background: $noteColor;
+    }
+
+    &.is-deal {
+        background: $dealColor;
+    }
+
 }
 
 .content-details-actions {
@@ -365,4 +391,107 @@
         list-style-type: none;
         margin-right: 20px;
     }
+}
+
+.content-details-additional {
+    position: relative;
+}
+
+.content-history-divider {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    top: 0;
+    width: 40px;
+    border-right: 1px solid $lilyBorderDark;
+}
+
+.content-history-note-header {
+    line-height: 40px;
+}
+
+.content-history-note-body {
+    background-color: $lilyWhiteToneHover;
+    margin-left: 50px;
+    border-radius: $baseBorderRadius;
+    padding: 10px;
+
+    &.has-form {
+        background-color: #ffffff;
+        padding-top: 0;
+    }
+}
+
+.timeline-content-type-buttons {
+    margin: 0;
+    padding: 0;
+    margin-top: 10px;
+    margin-bottom: 10px;
+
+    li {
+        list-style-type: none;
+        display: inline-block;
+        background: $lilyHeaderBg;
+        padding: 7px 10px;
+        padding-right: 20px;
+        position: relative;
+        border: 1px solid $baseBorderColor;
+        color: $lilyDarkBlue;
+        font-size: 14px;
+        margin-bottom: 0;
+
+
+        &:first-child {
+            border-top-left-radius: $baseBorderRadius;
+            border-bottom-left-radius: $baseBorderRadius;
+            border-right: 0;
+        }
+
+        &:last-child {
+            border-top-right-radius: $baseBorderRadius;
+            border-bottom-right-radius: $baseBorderRadius;
+            border-left: 0;
+        }
+
+        &:hover {
+            background: $lilyWhiteToneHover;
+            cursor: pointer;
+        }
+
+        &.active {
+            background: $lilyWhiteToneHover;
+
+            &:after {
+                content: " ";
+                width: 0;
+            	height: 0;
+            	border-left: 10px solid transparent;
+            	border-right: 10px solid transparent;
+            	border-top: 10px solid $lilyWhiteToneHover;
+                position: absolute;
+                bottom: -10px;
+                margin-left: auto;
+                margin-right: auto;
+                left: 0;
+                right: 0;
+                top: auto;
+            }
+
+            &:before {
+                content: " ";
+                width: 0;
+            	height: 0;
+            	border-left: 10px solid transparent;
+            	border-right: 10px solid transparent;
+            	border-top: 10px solid $baseBorderColor;
+                position: absolute;
+                bottom: -11px;
+                margin-left: auto;
+                margin-right: auto;
+                left: 0;
+                right: 0;
+            }
+        }
+    }
+
 }

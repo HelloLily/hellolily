@@ -18,6 +18,7 @@ function HistoryAddNoteController ($http, $state) {
     var vm = this;
 
     vm.addNote = addNote;
+    vm.type = 0;
 
     //////
 
@@ -28,7 +29,7 @@ function HistoryAddNoteController ($http, $state) {
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             data: $.param({
                 content: vm.note,
-                type: 0,
+                type: vm.type,
                 content_type: vm.item.historyType,
                 object_id: vm.item.id
             })

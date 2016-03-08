@@ -125,21 +125,43 @@
                 </ul>
             </div>
 
-            <div class="content-history-container">
-                <history-add-note item="vm.item"></history-add-note>
-            </div>
+            <div class="content-details-additional">
+                <div class="content-history-divider"></div>
 
-            <div class="content-history-container">
-                <ul class="content-history-list">
-                    <li ng-repeat="note in vm.item.notes">
-                        <div class="content-history-avatar" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png'); "></div>
-                        <div class="content-history-desc">
-                            <p>{{ ::note.content }}</p>
-                        </div>
-                        <div class="content-history-date">Posted on {{ ::note.date | date:'dd MMMM yy HH:mm' }} by {{ ::note.author }}</div>
-                    </li>
-                </ul>
+                <div class="content-history-container">
+                    <ul class="content-history-list">
+                        <li>
+                            <div class="content-history-note-header">
+                                <div class="content-history-avatar is-note">
+                                    <i class="lilicon hl-note-icon"></i>
+                                </div>
+                            </div>
+                            <div class="content-history-note-body has-form">
+                                <history-add-note item="vm.item"></history-add-note>
+                            </div>
+                        </li>
+                    </ul>
 
+                </div>
+
+                <div class="content-history-container">
+                    <ul class="content-history-list">
+                        <li ng-repeat="note in vm.item.notes">
+                            <div class="content-history-note-header">
+                                <div class="content-history-avatar" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png'); "></div>
+                                <div class="content-history-desc">
+                                    Added a note <span ng-if="note.type === 1">(callback)</span> <span ng-if="note.type === 2">(meetup)</span>
+                                </div>
+
+                                <div class="content-history-date">{{ ::note.date | date:'dd MMMM yy HH:mm' }}</div>
+                                <div class="clearfix"></div>
+                            </div>
+                            <div class="content-history-note-body">
+                                {{ note.content }}
+                            </div>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>

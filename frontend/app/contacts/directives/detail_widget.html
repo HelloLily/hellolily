@@ -4,7 +4,7 @@
             <i class="fa fa-user"></i>
             {{ contact.salutation }} / {{ contact.gender }}
             <span ng-show="settings.email.data.contact.id">
-                <a ui-sref="base.contacts.detail({ id: $parent.settings.email.data.contact.id })"><b>{{ contact.name }}</b></a>
+                <a ui-sref="base.contacts.detail({ id: settings.email.data.contact.id })"><b>{{ contact.name }}</b></a>
             </span>
             <span ng-show="!settings.email.data.contact.id"><b>{{ contact.name }}</b></span>
         </div>

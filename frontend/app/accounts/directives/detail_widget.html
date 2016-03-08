@@ -3,7 +3,7 @@
         <div class="widget-name">
             <i class="lilicon hl-company-icon"></i>
             <span ng-show="settings.email.data.account.id">
-                <a ui-sref="base.accounts.detail({ id: $parent.settings.email.data.account.id })">{{ account.name }}</a>
+                <a ui-sref="base.accounts.detail({ id: settings.email.data.account.id })">{{ account.name }}</a>
             </span>
             <span ng-show="!settings.email.data.account">{{ account.name }}</span>
         </div>

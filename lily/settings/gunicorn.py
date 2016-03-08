@@ -15,7 +15,8 @@ def boolean(value):
 preload_app = boolean(os.environ.get('WEB_PRELOAD_APP', 0))
 
 # Bind to specified ip and port.
-bind = '%s:%s' % (os.environ.get('IP_ADDRESS', '0.0.0.0'), os.environ.get('PORT', '8000'))
+# bind = '%s:%s' % (os.environ.get('IP_ADDRESS', '0.0.0.0'), os.environ.get('PORT', '8000'))
+bind = 'unix:///tmp/nginx.socket'
 
 # Use this worker class
 worker_class = '%s' % os.environ.get('WORKER_CLASS', 'gevent')
@@ -46,3 +47,7 @@ def post_fork(server, worker):
     """
     # Random needs to know when it's being run inside a fork, otherwise it throws exceptions.
     Random.atfork()
+
+def when_ready(server):
+    # Touch app-initialized when ready, for nginx.
+    open('/tmp/app-initialized', 'w').close()

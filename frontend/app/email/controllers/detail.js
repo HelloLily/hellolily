@@ -90,8 +90,8 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, Ac
 
     function archiveMessage() {
         EmailMessage.archive({id: vm.message.id}).$promise.then(function() {
-            if ($scope.previousState) {
-                window.location = $scope.previousState;
+            if (Settings.email.previousInbox) {
+                $state.transitionTo(Settings.email.previousInbox.state, Settings.email.previousInbox.params, false);
             } else {
                 $state.go('base.email.list', {labelId: 'INBOX'});
             }
@@ -100,8 +100,8 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, Ac
 
     function trashMessage() {
         EmailMessage.trash({id: vm.message.id}).$promise.then(function() {
-            if ($scope.previousState) {
-                window.location = $scope.previousState;
+            if (Settings.email.previousInbox) {
+                $state.transitionTo(Settings.email.previousInbox.state, Settings.email.previousInbox.params, false);
             } else {
                 $state.go('base.email.list', {labelId: 'INBOX'});
             }
@@ -110,8 +110,8 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, Ac
 
     function deleteMessage() {
         EmailMessage.delete({id: vm.message.id}).$promise.then(function() {
-            if ($scope.previousState) {
-                window.location = $scope.previousState;
+            if (Settings.email.previousInbox) {
+                $state.transitionTo(Settings.email.previousInbox.state, Settings.email.previousInbox.params, false);
             } else {
                 $state.go('base.email.list', {labelId: 'INBOX'});
             }

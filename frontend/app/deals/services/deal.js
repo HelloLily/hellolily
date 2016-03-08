@@ -97,8 +97,6 @@ function Deal($resource, HLUtils, HLForms, User) {
             },
             getContactedBy: {
                 url: '/api/deals/contacted-by/',
-                isArray: true,
-                transformResponse: _transformChoices,
             },
             getFormOptions: {
                 url: 'api/deals/deal',

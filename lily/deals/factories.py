@@ -10,7 +10,7 @@ from lily.accounts.factories import AccountFactory
 from lily.users.factories import LilyUserFactory
 from lily.tenant.factories import TenantFactory
 
-from .models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost, DealFoundThrough
+from .models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost, DealFoundThrough, DealContactedBy
 
 faker = Factory.create('nl_NL')
 past_date = datetime.date.today() - datetime.timedelta(days=10)
@@ -74,6 +74,26 @@ class DealFoundThroughFactory(DjangoModelFactory):
         django_get_or_create = ('tenant', 'name')
 
 
+CONTACTED_BY_NAMES = [
+    'Quote',
+    'Contact form',
+    'Phone',
+    'Web chat',
+    'E-mail',
+    'Instant connect',
+    'Other',
+]
+
+
+class DealContactedByFactory(DjangoModelFactory):
+    tenant = SubFactory(TenantFactory)
+    name = Iterator(CONTACTED_BY_NAMES)
+
+    class Meta:
+        model = DealContactedBy
+        django_get_or_create = ('tenant', 'name')
+
+
 class DealFactory(DjangoModelFactory):
     tenant = SubFactory(TenantFactory)
     account = SubFactory(AccountFactory, tenant=SelfAttribute('..tenant'))
@@ -81,7 +101,7 @@ class DealFactory(DjangoModelFactory):
     amount_recurring = FuzzyDecimal(42.7)
     assigned_to = SubFactory(LilyUserFactory, tenant=SelfAttribute('..tenant'))
     card_sent = FuzzyChoice([True, False])
-    contacted_by = FuzzyChoice(dict(Deal.CONTACTED_BY_CHOICES).keys())
+    contacted_by = SubFactory(DealContactedByFactory, tenant=SelfAttribute('..tenant'))
     currency = FuzzyChoice(dict(Deal.CURRENCY_CHOICES).keys())
     feedback_form_sent = FuzzyChoice([True, False])
     found_through = SubFactory(DealFoundThroughFactory, tenant=SelfAttribute('..tenant'))

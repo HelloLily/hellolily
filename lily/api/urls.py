@@ -6,7 +6,7 @@ from lily.accounts.api.views import (AccountViewSet, AccountAddressViewSet, Acco
 from lily.cases.api.views import CaseViewSet, CaseStatusList, CaseTypeList
 from lily.contacts.api.views import ContactViewSet
 from lily.deals.api.views import (DealViewSet, DealStagesList, DealNextStepList, DealNextStepViewSet,
-                                  DealWhyCustomerViewSet, DealContactedByList, DealWhyLostViewSet,
+                                  DealWhyCustomerViewSet, DealContactedByViewSet, DealWhyLostViewSet,
                                   DealFoundThroughViewSet)
 from lily.messaging.email.api.views import (EmailLabelViewSet, EmailAccountViewSet, EmailMessageViewSet,
                                             EmailTemplateViewSet, SharedEmailConfigViewSet,
@@ -41,6 +41,7 @@ router.register(r'deals/next-steps', DealNextStepViewSet)
 router.register(r'deals/why-customer', DealWhyCustomerViewSet)
 router.register(r'deals/why-lost', DealWhyLostViewSet)
 router.register(r'deals/found-through', DealFoundThroughViewSet)
+router.register(r'deals/contacted-by', DealContactedByViewSet)
 
 router.register(r'messaging/email/label', EmailLabelViewSet)
 router.register(r'messaging/email/account', EmailAccountViewSet)
@@ -64,7 +65,6 @@ urlpatterns = patterns(
     url(r'^cases/types/$', CaseTypeList.as_view()),
 
     url(r'^deals/stages/$', DealStagesList.as_view()),
-    url(r'^deals/contacted-by/$', DealContactedByList.as_view()),
     url(r'^deals/nextsteps/$', DealNextStepList.as_view()),
 
     url(r'^utils/notifications/$', Notifications.as_view()),

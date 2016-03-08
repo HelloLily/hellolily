@@ -11,7 +11,7 @@ from lily.utils.api.related.mixins import RelatedSerializerMixin
 from lily.utils.api.related.serializers import WritableNestedSerializer
 from lily.utils.api.serializers import RelatedTagSerializer
 
-from ..models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost, DealFoundThrough
+from ..models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost, DealFoundThrough, DealContactedBy
 
 
 class DealNextStepSerializer(serializers.ModelSerializer):
@@ -82,6 +82,23 @@ class DealFoundThroughSerializer(serializers.ModelSerializer):
 class RelatedDealFoundThroughSerializer(RelatedSerializerMixin, DealFoundThroughSerializer):
     pass
 
+    
+class DealContactedBySerializer(serializers.ModelSerializer):
+    """
+    Serializer for deal contacted by model.
+    """
+    class Meta:
+        model = DealContactedBy
+        fields = (
+            'id',
+            'name',
+            'position',
+        )
+
+
+class RelatedDealContactedBySerializer(RelatedSerializerMixin, DealContactedBySerializer):
+    pass
+
 
 class DealSerializer(WritableNestedSerializer):
     """
@@ -103,9 +120,9 @@ class DealSerializer(WritableNestedSerializer):
     why_customer = RelatedDealWhyCustomerSerializer(assign_only=True)
     why_lost = RelatedDealWhyLostSerializer(assign_only=True, allow_null=True, required=False)
     found_through = RelatedDealFoundThroughSerializer(assign_only=True)
+    contacted_by = RelatedDealContactedBySerializer(assign_only=True)
 
     # Show string versions of fields.
-    contacted_by_display = serializers.CharField(source='get_contacted_by_display', read_only=True)
     currency_display = serializers.CharField(source='get_currency_display', read_only=True)
     stage_display = serializers.CharField(source='get_stage_display', read_only=True)
 
@@ -166,7 +183,6 @@ class DealSerializer(WritableNestedSerializer):
             'closed_date',
             'contact',
             'contacted_by',
-            'contacted_by_display',
             'content_type',
             'created',
             'created_by',

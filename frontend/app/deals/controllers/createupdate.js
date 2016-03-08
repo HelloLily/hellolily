@@ -88,7 +88,7 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
         var j;
         var splitName = '';
         var choiceVarName = '';
-        var choiceFields = ['contacted_by', 'currency', 'stage'];
+        var choiceFields = ['currency', 'stage'];
 
         _setAssignOptions();
 
@@ -112,6 +112,10 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
 
         Deal.getFoundThrough(function(response) {
             vm.foundThroughChoices = response.results;
+        });
+
+        Deal.getContactedBy(function(response) {
+            vm.contactedByChoices = response.results;
         });
 
         Deal.getFormOptions(function(data) {

@@ -2,8 +2,6 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-from lily.tenant.models import Tenant
-
 
 # Current hard coded values for the found us through field.
 found_through_choices = [

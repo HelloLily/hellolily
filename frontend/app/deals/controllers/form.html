@@ -42,7 +42,7 @@
 
                 <form-group label-title="Contacted us by" label-id="id_contacted_by" field="dealForm.contacted_by" required="true">
                     <select name="contacted_by" ng-model="vm.deal.contacted_by"
-                            ng-options="contacted_by.value as contacted_by.display_name for contacted_by in vm.contactedByChoices" class="form-control">
+                            ng-options="contacted_by.name for contacted_by in vm.contactedByChoices track by contacted_by.id" class="form-control">
                         <option value="" hidden>---------</option>
                     </select>
                 </form-group>

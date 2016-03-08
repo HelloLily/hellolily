@@ -190,8 +190,8 @@ class DealMapping(BaseMapping):
             'card_sent': obj.card_sent,
             'found_through': obj.found_through.id,
             'found_through_name': obj.found_through.name,
-            'contacted_by': obj.contacted_by,
-            'contacted_by_name': obj.get_contacted_by_display(),
+            'contacted_by': obj.contacted_by.id,
+            'contacted_by_name': obj.contacted_by.name,
             'new_business': obj.new_business,
             'quote_id': obj.quote_id,
             'next_step': {

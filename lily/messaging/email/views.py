@@ -670,7 +670,18 @@ class EmailMessageForwardView(EmailMessageReplyOrForwardView):
 
     @function_trace()
     def get_form_kwargs(self):
-        kwargs = super(EmailMessageComposeView, self).get_form_kwargs()
+        # TODO: the super code is put here for logging purposes, remove when done.
+        kwargs = {
+            'initial': self.get_initial(),
+            'prefix': self.get_prefix(),
+        }
+
+        if self.request.method in ('POST', 'PUT'):
+            kwargs.update({
+                'data': self.request.POST,
+                'files': self.request.FILES,
+            })
+
         kwargs['message_type'] = self.action
 
         forward_header_to = []

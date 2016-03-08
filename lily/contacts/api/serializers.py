@@ -61,6 +61,9 @@ class ContactSerializer(WritableNestedSerializer):
         )
 
     def validate(self, data):
+        if not isinstance(data, dict):
+            data = {'id': data}
+
         # Check if we are related and if we only passed in the id, which means user just wants new reference.
         if not (len(data) == 1 and 'id' in data and hasattr(self, 'is_related_serializer')):
             # Not just a new reference, so validate if contact is set properly.

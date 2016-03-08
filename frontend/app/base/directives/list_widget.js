@@ -37,7 +37,7 @@ function ListWidgetController() {
 
     if (vm.collapsableItems) {
         // Certain list widgets have collapsable cells, so set the default state to collapsed.
-        if (vm.list.constructor === Array) {
+        if (!vm.list.hasOwnProperty('$promise')) {
             // Array was passed, so just pass the list.
             _setCollapsed(vm.list);
         } else {

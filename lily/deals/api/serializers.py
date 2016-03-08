@@ -64,8 +64,8 @@ class DealWhyLostSerializer(serializers.ModelSerializer):
 
 class RelatedDealWhyLostSerializer(RelatedSerializerMixin, DealWhyLostSerializer):
     pass
-    
-    
+
+
 class DealFoundThroughSerializer(serializers.ModelSerializer):
     """
     Serializer for deal found through model.
@@ -82,7 +82,7 @@ class DealFoundThroughSerializer(serializers.ModelSerializer):
 class RelatedDealFoundThroughSerializer(RelatedSerializerMixin, DealFoundThroughSerializer):
     pass
 
-    
+
 class DealContactedBySerializer(serializers.ModelSerializer):
     """
     Serializer for deal contacted by model.

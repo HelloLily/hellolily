@@ -83,8 +83,8 @@ class DealFoundThroughViewSet(SetTenantUserMixin, ModelViewSet):
         Set the queryset here so it filters on tenant and works with pagination.
         """
         return super(DealFoundThroughViewSet, self).get_queryset().all()
-    
-    
+
+
 class DealContactedByViewSet(SetTenantUserMixin, ModelViewSet):
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
     queryset = DealContactedBy.objects

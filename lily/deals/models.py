@@ -43,7 +43,7 @@ class DealWhyLost(TenantMixin):
 
     class Meta:
         ordering = ['position']
-        
+
 
 class DealFoundThrough(TenantMixin):
     name = models.CharField(max_length=255)

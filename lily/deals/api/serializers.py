@@ -84,7 +84,7 @@ class DealSerializer(WritableNestedSerializer):
     tags = RelatedTagSerializer(many=True, required=False, create_only=True)
     notes = RelatedNoteSerializer(many=True, required=False, create_only=True)
     why_customer = RelatedDealWhyCustomerSerializer(assign_only=True)
-    why_lost = RelatedDealWhyLostSerializer(assign_only=True, allow_null=True)
+    why_lost = RelatedDealWhyLostSerializer(assign_only=True, allow_null=True, required=False)
 
     # Show string versions of fields.
     contacted_by_display = serializers.CharField(source='get_contacted_by_display', read_only=True)
@@ -117,7 +117,7 @@ class DealSerializer(WritableNestedSerializer):
             why_lost_id = why_lost_id.get('id')
 
         if stage_id == 3 and why_lost_id is None and DealWhyLost.objects.exists():
-            raise serializers.ValidationError({'why_lost': _('This field may not be null.')})
+            raise serializers.ValidationError({'why_lost': _('This field may not be empty.')})
 
         return super(DealSerializer, self).validate(attrs)
 

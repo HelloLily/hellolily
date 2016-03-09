@@ -53,15 +53,15 @@
                     <form role="form">
                         <div class="form-body">
                             <ul class="timeline-content-type-buttons">
-                                <li ng-model="note.type" btn-radio="0">
+                                <li ng-model="note.type" uib-btn-radio="0">
                                     <i class="lilicon hl-note-icon"></i>
                                     Note
                                 </li>
-                               <li ng-model="note.type" btn-radio="1">
+                               <li ng-model="note.type" uib-btn-radio="1">
                                    <i class="fa fa-phone"></i>
                                    Call
                                </li>
-                               <li ng-model="note.type" btn-radio="2">
+                               <li ng-model="note.type" uib-btn-radio="2">
                                    <i class="lilicon hl-calender-icon"></i>
                                    Meetup
                                </li>
@@ -85,130 +85,21 @@
 
         </div>
 
-        <div ng-repeat="item in history.list" class="history-list-item">
+        <div ng-repeat="item in history.list.pinned" class="history-list-item">
+            <div class="timeline-time">
+                Pinned
+            </div>
 
             <history-list-item item="item" history="history" object="object"></history-list-item>
-
-            <!-- <div class="timeline-avatar has-date" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png');"></div>
-
-            <div class="timeline-time">
-                February 2016
-            </div>
-
-            <div class="timeline-content-container">
-
-                <div class="timeline-content-header">
-
-                    <div class="timeline-type">
-                        <i class="lilicon hl-case-icon"></i>
-                    </div>
-
-                    <div class="timeline-content">
-                        <span class="timeline-content-title">Mobiel gaat over nadat het gesprek is opgenomen</span>
-                        <ul class="timeline-content-details">
-                            <li>Type: Other</li>
-                            <li>Priority: <i class="lilicon hl-high-prio-icon"></i> High</li>
-                            <li>Status: new</li>
-                        </ul>
-                    </div>
-
-                    <div class="timeline-date">
-                        08-10-2015 10:01
-
-                        <a class="timeline-toggle-details" href="#"><i class="lilicon hl-toggle-down-icon"></i></a>
-                    </div>
-
-                </div>
-
-                <div class="content-details">
-                    <p>Stel ik bel hem, hij neemt op zijn voip toestel en we praten 2 minuten. Vervolgens gaat zijn mobiel over met mijn nummer en als hij dan opneemt hoort hij niks. Komt ook niet bij ons in de CDR’s te staan. Ook geen doorschakeling op toestel zelf en in de sip logging ook niks te vinden. </p>
-                </div>
-
-                <div class="content-history-container">
-                    <ul class="content-history-list">
-                        <li>
-                            <div class="content-history-avatar" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png'); "></div>
-                            <div class="content-history-desc">Created the priority to high &nbsp; <i class="lilicon hl-high-prio-icon"></i> </div>
-                            <div class="content-history-date">10/02/2016 13:34</div>
-                        </li>
-                        <li>
-                            <div class="content-history-avatar" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png'); "></div>
-                            <div class="content-history-desc">Created the case <a href="#">Mobiel gaat over nadat het gesprek is opgenomen</a></div>
-                            <div class="content-history-date">10/02/2016 13:34</div>
-                        </li>
-                    </ul>
-                </div>
-
-
-            </div>
-
         </div>
 
-        <div class="timeline-item-container">
-
-            <div class="timeline-avatar has-date" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png');"></div>
-
-            <div class="timeline-content-container">
-
-                <div class="timeline-content-header">
-
-                    <div class="timeline-type">
-                        <i class="lilicon hl-deals-filled-icon"></i>
-                    </div>
-
-                    <div class="timeline-content">
-                        <span class="timeline-content-title">VoIP oplossing voor Leo’s Pretshop</span>
-                        <ul class="timeline-content-details">
-                            <li>Stage: Won (archived)</li>
-                            <li>Amount once: &euro; 151</li>
-                            <li>Recurring amount: &euro; 0</li>
-                            <li>Feedback form: Not Sent</li>
-                        </ul>
-                    </div>
-
-                    <div class="timeline-date">
-                        08-10-2015 10:01
-
-                        <a class="timeline-toggle-details" href="#"><i class="lilicon hl-toggle-left-icon"></i></a>
-                    </div>
-
-                </div>
-            </div>
-
-        </div>
-
-        <div class="timeline-item-container has-date">
-
-            <div class="timeline-avatar has-date" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png');"></div>
-
+        <div ng-repeat="(key, value) in history.list.nonPinned" class="history-list-item">
             <div class="timeline-time">
-                February 2016
+                <date date="key" date-format="MMMM yyyy"></date>
             </div>
 
-            <div class="timeline-content-container">
-
-                <div class="timeline-content-header">
-
-                    <div class="timeline-type">
-                        <i class="lilicon hl-mail-icon"></i>
-                    </div>
-
-                    <div class="timeline-content">
-                        <span class="timeline-content-title">Informatie aanvraag</span>
-                        <ul class="timeline-content-details">
-                            <li>From: <a href="#">Super Tom</a></li>
-                            <li>To: <a href="#">John Doe</a></li>
-                        </ul>
-                    </div>
-
-                    <div class="timeline-date">
-                        08-10-2015 10:01
-
-                        <a class="timeline-toggle-details" href="#"><i class="lilicon hl-toggle-left-icon"></i></a>
-                    </div>
-
-                </div>
+            <div ng-repeat="item in value" class="history-item">
+                <history-list-item item="item" history="history" object="object"></history-list-item>
             </div>
-        </div> -->
-    </div>
+        </div>
 </div>

@@ -130,6 +130,7 @@ class CaseMapping(BaseMapping):
             'casetype_id': obj.type.id if obj.type else None,
             'expires': obj.expires,
             'created': obj.created,
+            'modified': obj.modified,
             'archived': obj.is_archived,
             'parcel_provider': obj.parcel.get_provider_display() if obj.parcel else None,
             'parcel_identifier': obj.parcel.identifier if obj.parcel else None,

@@ -50,12 +50,8 @@
 </div>
 
  -->
-<div class="timeline-item-container has-date">
+<div class="timeline-item-container">
     <div class="timeline-avatar has-date" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png');"></div>
-
-    <div class="timeline-time">
-        February 2016
-    </div>
 
     <div class="timeline-content-container has-note">
 
@@ -74,9 +70,9 @@
             </div>
 
             <div class="timeline-date">
-                {{ ::vm.item.date | date:'dd MMMM yy HH:mm' }}
+                {{ ::vm.item.modified | date:'dd MMMM yy HH:mm' }}
 
-                <a class="timeline-toggle-details" ng-click="vm.history.toggleContent(vm.item);"><i class="lilicon hl-toggle-left-icon" ng-class="vm.item.shown ? 'hl-toggle-down-icon' : 'hl-toggle-left-icon'"></i></a>
+                <a class="timeline-toggle-details" ng-click="vm.item.shown = !vm.item.shown"><i class="lilicon hl-toggle-left-icon" ng-class="vm.item.shown ? 'hl-toggle-down-icon' : 'hl-toggle-left-icon'"></i></a>
             </div>
 
         </div>

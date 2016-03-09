@@ -103,9 +103,9 @@
             </div>
 
             <div class="timeline-date">
-                {{ ::vm.item.created | date:'dd MMM yy HH:mm' }}
+                {{ ::vm.item.modified | date:'dd MMMM yy HH:mm' }}
                 <div class="btn-group">
-                    <a class="timeline-toggle-details" ng-click="vm.history.toggleContent(vm.item);"><i class="lilicon hl-toggle-left-icon" ng-class="vm.item.shown ? 'hl-toggle-down-icon' : 'hl-toggle-left-icon'"></i></a>
+                    <a class="timeline-toggle-details" ng-click="vm.item.shown = !vm.item.shown"><i class="lilicon hl-toggle-left-icon" ng-class="vm.item.shown ? 'hl-toggle-down-icon' : 'hl-toggle-left-icon'"></i></a>
                 </div>
             </div>
 

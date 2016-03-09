@@ -7,6 +7,7 @@ function dateDirective() {
             date: '=',
             showTime: '=',
             addTime: '=',
+            dateFormat: '@',
         },
         templateUrl: 'utils/directives/date.html',
         controller: DateController,
@@ -23,15 +24,20 @@ function DateController() {
         // new Date() to prevent deprecation warning of MomentJS.
         var date = moment(new Date(vm.date));
 
-        if (date.isSame(moment(), 'day') && vm.showTime) {
-            // In certain cases we want to display the time if it's the same day.
-            vm.dateFormat = 'HH:mm';
-        } else {
-            if (vm.addTime) {
-                vm.dateFormat = 'dd MMM. yyyy - HH:mm'; // Renders as 29 Dec. - 2015 12:15
+        if(!vm.dateFormat){
+            if (date.isSame(moment(), 'day') && vm.showTime) {
+                // In certain cases we want to display the time if it's the same day.
+                vm.dateFormat = 'HH:mm';
             } else {
-                vm.dateFormat = 'dd MMM. yyyy'; // Renders as 29 Dec. 2015
+                if (vm.addTime) {
+                    vm.dateFormat = 'dd MMM. yyyy - HH:mm'; // Renders as 29 Dec. - 2015 12:15
+                } else {
+                    vm.dateFormat = 'dd MMM. yyyy'; // Renders as 29 Dec. 2015
+                }
             }
+        } else {
+
+            vm.date = date.format();
         }
     }
 }

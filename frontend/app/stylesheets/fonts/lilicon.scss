@@ -49,6 +49,7 @@ $hl-home-icon: "\e915";
 $hl-company-icon: "\e916";
 $hl-stats-icon: "\e917";
 $hl-paperclip-icon: "\e918";
+$hl-pin-icon: "\e92b";
 $hl-options-icon: "\e919";
 $hl-low-prio-icon: "\e91a";
 $hl-normal-prio-icon: "\e91b";
@@ -281,5 +282,11 @@ $hl-arrow-down-smll-icon: "\e92a";
 .hl-arrow-down-smll-icon {
     &:before {
         content: $hl-arrow-down-smll-icon;
+    }
+}
+
+.hl-pin-icon {
+    &:before {
+        content: $hl-pin-icon;
     }
 }

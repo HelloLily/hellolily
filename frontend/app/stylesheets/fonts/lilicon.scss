@@ -30,7 +30,8 @@ $hl-outgoing-icon: "\e902";
 $hl-incomming-icon: "\e903";
 $hl-incomming-down-icon: "\e904";
 $hl-outgoing-up-icon: "\e905";
-$hl-phone-icon: "\e906";
+$hl-phone-filled-icon: "\e906";
+$hl-phone-icon: "\e92c";
 $hl-asterix-icon: "\e907";
 $hl-edit-icon: "\e908";
 $hl-edit-line-icon: "\e909";
@@ -97,6 +98,11 @@ $hl-arrow-down-smll-icon: "\e92a";
 .hl-outgoing-up-icon {
     &:before {
         content: $hl-outgoing-up-icon;
+    }
+}
+.hl-phone-filled-icon {
+    &:before {
+        content: $hl-phone-filled-icon;
     }
 }
 .hl-phone-icon {

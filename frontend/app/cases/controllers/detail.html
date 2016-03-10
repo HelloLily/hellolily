@@ -4,7 +4,7 @@
 <div class="row">
     <div class="col-md-8">
         <div class="case-info-heading" ng-class="vm.getPriorityDisplay()">
-            <div class="case-info-heading-priority">{{ ::vm.case.priority_name }} Priority</div>
+            <div class="case-info-heading-priority">{{ vm.case.priority_display }} Priority</div>
             <div class="case-info-heading-title">
                 #{{ vm.case.id }} - [ {{ vm.case.type.type }} ] - {{ vm.case.subject }}
             </div>

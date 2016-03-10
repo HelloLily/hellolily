@@ -10,13 +10,8 @@ from lily.api.filters import ElasticSearchFilter
 from lily.tenant.api.mixins import SetTenantUserMixin
 
 from .serializers import (DealSerializer, DealNextStepSerializer, DealWhyCustomerSerializer, DealWhyLostSerializer,
-                          DealFoundThroughSerializer, DealContactedBySerializer)
-from ..models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost, DealFoundThrough, DealContactedBy
-
-
-class DealStagesList(APIView):
-    def get(self, request, format=None):
-        return Response(Deal.STAGE_CHOICES)
+                          DealFoundThroughSerializer, DealContactedBySerializer, DealStatusSerializer)
+from ..models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost, DealFoundThrough, DealContactedBy, DealStatus
 
 
 class DealContactedByList(APIView):
@@ -98,6 +93,19 @@ class DealContactedByViewSet(SetTenantUserMixin, ModelViewSet):
         return super(DealContactedByViewSet, self).get_queryset().all()
 
 
+class DealStatusViewSet(SetTenantUserMixin, ModelViewSet):
+    # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
+    queryset = DealStatus.objects
+    # Set the serializer class for this viewset.
+    serializer_class = DealStatusSerializer
+
+    def get_queryset(self):
+        """
+        Set the queryset here so it filters on tenant and works with pagination.
+        """
+        return super(DealStatusViewSet, self).get_queryset().all()
+
+
 class DealFilter(django_filters.FilterSet):
     class Meta:
         model = Deal
@@ -120,7 +128,7 @@ class DealFilter(django_filters.FilterSet):
             'next_step': ['exact', ],
             'next_step_date': ['exact', 'lt', 'lte', 'gt', 'gte', ],
             'quote_id': ['exact', ],
-            'stage': ['exact', ],
+            'status': ['exact', ],
             'twitter_checked': ['exact', ],
             'why_customer': ['exact', ],
             'why_lost': ['exact', ],

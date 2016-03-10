@@ -67,6 +67,17 @@ class DealContactedBy(TenantMixin):
         ordering = ['position']
 
 
+class DealStatus(TenantMixin):
+    name = models.CharField(max_length=255)
+    position = models.IntegerField(max_length=2, default=0)
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['position']
+
+
 class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     """
     Deal model
@@ -83,14 +94,6 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     )
 
     OPEN_STAGE, PENDING_STAGE, WON_STAGE, LOST_STAGE, CALLED_STAGE, EMAILED_STAGE = range(6)
-    STAGE_CHOICES = (
-        (OPEN_STAGE, _('Open')),
-        (PENDING_STAGE, _('Proposal sent')),
-        (WON_STAGE, _('Won')),
-        (LOST_STAGE, _('Lost')),
-        (CALLED_STAGE, _('Called')),
-        (EMAILED_STAGE, _('Emailed')),
-    )
 
     name = models.CharField(max_length=255, verbose_name=_('name'))
     description = models.TextField(verbose_name=_('description'), blank=True)
@@ -101,7 +104,7 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     amount_recurring = models.DecimalField(default=0, max_digits=19, decimal_places=2,
                                            verbose_name=_('recurring costs'))
     closed_date = models.DateTimeField(verbose_name=_('closed date'), blank=True, null=True)
-    stage = models.IntegerField(choices=STAGE_CHOICES, verbose_name=_('status'))
+    status = models.ForeignKey(DealStatus, verbose_name=_('status'), related_name='deals')
     assigned_to = models.ForeignKey(LilyUser, verbose_name=_('assigned to'), null=True)
     created_by = models.ForeignKey(LilyUser, verbose_name=_('created by'),
                                    related_name='created_deals', null=True, blank=True)

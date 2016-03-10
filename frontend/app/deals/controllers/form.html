@@ -110,13 +110,13 @@
 
             <form-portlet title="What's the status?">
                 <form-group label-title="Status" label-id="id_status" field="dealForm.status" required="true">
-                    <select name="stage" ng-model="vm.deal.stage"
-                            ng-options="status.value as status.display_name for status in vm.stageChoices" class="form-control">
+                    <select name="status" ng-model="vm.deal.status"
+                            ng-options="status.name for status in vm.statusChoices track by status.id" class="form-control">
                         <option value="" hidden>---------</option>
                     </select>
                 </form-group>
 
-                <form-group label-title="Why lost" label-id="id_why_lost" field="dealForm.why_lost" ng-show="vm.deal.stage == 3 && vm.whyLost.length" required="vm.deal.stage && vm.whyLost.length == 3 ? true : false">
+                <form-group label-title="Why lost" label-id="id_why_lost" field="dealForm.why_lost" ng-show="vm.deal.status.id == vm.lostStatus.id && vm.whyLost.length" required="vm.deal.status && vm.whyLost.length == 3 ? true : false">
                     <select name="why_lost" ng-model="vm.deal.why_lost"
                             ng-options="why_lost.name for why_lost in vm.whyLost track by why_lost.id" class="form-control">
                         <option value="" hidden>---------</option>

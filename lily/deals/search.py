@@ -57,10 +57,10 @@ class DealMapping(BaseMapping):
             'created_by_id': {
                 'type': 'integer',
             },
-            'stage': {
+            'status': {
                 'type': 'integer',
             },
-            'stage_name': {
+            'status_name': {
                 'type': 'string',
                 'index_analyzer': 'normal_edge_analyzer',
             },
@@ -175,8 +175,8 @@ class DealMapping(BaseMapping):
             'assigned_to_name': obj.assigned_to.get_full_name() if obj.assigned_to else None,
             'assigned_to_id': obj.assigned_to.id if obj.assigned_to else None,
             'created_by': obj.created_by.get_full_name() if obj.created_by else None,
-            'stage': obj.stage,
-            'stage_name': obj.get_stage_display(),
+            'status': obj.status.id,
+            'status_name': obj.status.name,
             'amount_once': obj.amount_once,
             'amount_recurring': obj.amount_recurring,
             'tag': [tag.name for tag in obj.tags.all() if tag.name],

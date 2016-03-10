@@ -24,7 +24,7 @@
             Last changed: {{ ::vm.item.modified | date:'dd MMMM yy HH:mm' }}<br/>
             {{ ::vm.item.new_business ? 'New business' : 'Existing business'}}<br/>
             {{ ::vm.item.feedback_form_sent ? 'Feedback form sent' : 'Feedback form not sent'}}<br/>
-            Stage: {{ ::vm.item.stage_name}} ({{ ::vm.item.archived ? 'archived' : 'active'}})<br/>
+            Status: {{ ::vm.item.status.name }} ({{ ::vm.item.archived ? 'archived' : 'active'}})<br/>
             Amount once: &euro; {{ ::vm.item.amount_once }}<br/>
             Amount recurring: &euro; {{ ::vm.item.amount_recurring}}<br/><br/>
         </div>

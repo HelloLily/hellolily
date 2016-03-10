@@ -161,24 +161,12 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
     def get_other_addresses(self):
         return self.get_addresses(type='other')
 
-    def get_deals(self, stage=None):
+    def get_deals(self, status=None):
         deal_list = self.deal_set.all()
-        if stage:
-            deal_list = deal_list.filter(stage=stage)
+        if status:
+            deal_list = deal_list.filter(status=status)
 
         return deal_list
-
-    def get_deals_new(self):
-        return self.get_deals(stage=0)
-
-    def get_deals_lost(self):
-        return self.get_deals(stage=1)
-
-    def get_deals_pending(self):
-        return self.get_deals(stage=2)
-
-    def get_deals_won(self):
-        return self.get_deals(stage=3)
 
     def get_contact_details(self):
         try:

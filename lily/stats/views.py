@@ -213,7 +213,7 @@ class DealsUnsentFeedbackForms(RawDatabaseView):
                 users_lilyuser
             WHERE
                 deals_deal.assigned_to_id = users_lilyuser.id AND
-                deals_deal.stage = 2 AND
+                deals_deal.status = 2 AND
                 deals_deal.new_business = true AND
                 deals_deal.closed_date BETWEEN (now() - interval '120 day') AND (now() - interval '30 day') AND
                 deals_deal.feedback_form_sent = false AND
@@ -242,7 +242,7 @@ class DealsUrgentFollowUp(RawDatabaseView):
                 deals_deal.next_step_date > now() - interval '60 days' AND
                 deals_deal.tenant_id = {tenant_id} AND
                 deals_deal.is_deleted = false AND
-                (deals_deal.stage = 0 or deals_deal.stage = 1)
+                (deals_deal.status = 0 or deals_deal.status = 1)
             GROUP BY
                users_lilyuser.first_name, users_lilyuser.last_name
             ORDER BY
@@ -269,7 +269,7 @@ class DealsWon(RawDatabaseView):
                 deals_deal.tenant_id = {tenant_id} AND
                 deals_deal.is_deleted = false AND
                 deals_deal.new_business = true AND
-                deals_deal.stage = 2
+                deals_deal.status = 2
             GROUP BY
                 users_lilyuser.last_name
             ORDER BY
@@ -294,7 +294,7 @@ class DealsLost(RawDatabaseView):
                 deals_deal.assigned_to_id = users_lilyuser.id AND
                 deals_deal.closed_date > now() - interval '30 days month' AND
                 deals_deal.tenant_id = {tenant_id} AND
-                deals_deal.stage = 3 AND
+                deals_deal.status = 3 AND
                 deals_deal.is_deleted = false AND
                 deals_deal.new_business = true
             GROUP BY
@@ -324,7 +324,7 @@ class DealsAmountRecurring(RawDatabaseView):
                 deals_deal.is_deleted = false AND
                 deals_deal.tenant_id = {tenant_id} AND
                 deals_deal.new_business = false AND
-                deals_deal.stage = 2
+                deals_deal.status = 2
             GROUP BY
                 users_lilyuser.last_name,deals_deal.new_business
             ORDER BY

@@ -100,14 +100,14 @@
                     </li>
                     <li>Type: {{ ::vm.item.casetype_name }}</li>
                 </ul>
-            </div>
-
-            <div class="timeline-date">
-                {{ ::vm.item.modified | date:'dd MMMM yy HH:mm' }}
-                <div class="btn-group">
-                    <a class="timeline-toggle-details" ng-click="vm.item.shown = !vm.item.shown"><i class="lilicon hl-toggle-left-icon" ng-class="vm.item.shown ? 'hl-toggle-down-icon' : 'hl-toggle-left-icon'"></i></a>
+                <div class="timeline-date">
+                    {{ ::vm.item.modified | date:'dd MMMM yy HH:mm' }}
                 </div>
             </div>
+
+
+
+            <a class="timeline-toggle-details" ng-click="vm.item.shown = !vm.item.shown"><i class="lilicon hl-toggle-left-icon" ng-class="vm.item.shown ? 'hl-toggle-down-icon' : 'hl-toggle-left-icon'"></i></a>
 
         </div>
         <div ng-show="vm.item.shown">
@@ -158,6 +158,17 @@
                             </div>
                             <div class="content-history-note-body">
                                 {{ note.content }}
+                            </div>
+                        </li>
+                        <li>
+                            <div class="content-history-note-header">
+                                <div class="content-history-avatar" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png'); "></div>
+                                <div class="content-history-desc">
+                                    Created the case <a ui-sref="base.cases.detail({ id: vm.item.id })">{{ ::vm.item.subject }}</a>
+                                </div>
+
+                                <div class="content-history-date">{{ ::vm.item.created | date:'dd MMMM yy HH:mm' }}</div>
+                                <div class="clearfix"></div>
                             </div>
                         </li>
                     </ul>

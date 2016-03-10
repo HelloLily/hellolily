@@ -171,6 +171,8 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
                 $q.all(promises).then(function() {
                     var orderedHistoryList = {pinned: [], nonPinned: {}};
 
+                    console.log(history);
+
                     for (var i = 0; i < history.length; i++) {
                         if (history[i].historyType === 'email') {
                             history[i].historySortDate = history[i].sent_date;
@@ -207,6 +209,9 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
             }
 
             function addNote(note) {
+                console.log(scope);
+                console.log(note.type);
+                console.log(scope.object.id)
                 $http({
                     method: 'POST',
                     url: '/notes/create/',

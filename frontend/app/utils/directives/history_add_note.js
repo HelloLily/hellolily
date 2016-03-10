@@ -19,10 +19,12 @@ function HistoryAddNoteController ($http, $state) {
 
     vm.addNote = addNote;
     vm.type = 0;
-
     //////
 
     function addNote () {
+
+
+
         $http({
             method: 'POST',
             url: '/notes/create/',

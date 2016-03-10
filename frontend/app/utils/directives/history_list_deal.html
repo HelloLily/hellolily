@@ -93,21 +93,21 @@
             </div>
 
             <div class="timeline-content">
-                <span class="timeline-content-title"><a class="link-no-decoration" ui-sref="base.deals.detail({ id: vm.item.id })">{{ ::vm.item.name }}</a></span>
+                <span class="timeline-content-title"><a ui-sref="base.deals.detail({ id: vm.item.id })">{{ ::vm.item.name }}</a></span>
                 <ul class="timeline-content-details">
                     <li>Stage: {{ ::vm.item.stage_name}} ({{ ::vm.item.archived ? 'archived' : 'active'}})</li>
                     <li>Amount once: &euro; {{ ::vm.item.amount_once }}</li>
                     <li>Amount recurring: &euro; {{ ::vm.item.amount_recurring}}</li>
                     <li>Status: {{ ::vm.item.feedback_form_sent ? 'Feedback form sent' : 'Feedback form not sent'}}</li>
                 </ul>
-            </div>
-
-            <div class="timeline-date">
-                {{ ::vm.item.modified | date:'dd MMMM yy HH:mm' }}
-                <div class="btn-group">
-                    <a class="timeline-toggle-details" ng-click="vm.item.shown = !vm.item.shown"><i class="lilicon hl-toggle-left-icon" ng-class="vm.item.shown ? 'hl-toggle-down-icon' : 'hl-toggle-left-icon'"></i></a>
+                <div class="timeline-date">
+                    {{ ::vm.item.modified | date:'dd MMMM yy HH:mm' }}
                 </div>
             </div>
+
+
+
+            <a class="timeline-toggle-details" ng-click="vm.item.shown = !vm.item.shown"><i class="lilicon hl-toggle-left-icon" ng-class="vm.item.shown ? 'hl-toggle-down-icon' : 'hl-toggle-left-icon'"></i></a>
 
         </div>
 
@@ -153,6 +153,17 @@
                             </div>
                             <div class="content-history-note-body">
                                 {{ note.content }}
+                            </div>
+                        </li>
+                        <li>
+                            <div class="content-history-note-header">
+                                <div class="content-history-avatar" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png'); "></div>
+                                <div class="content-history-desc">
+                                    Created the deal <a ui-sref="base.deals.detail({ id: vm.item.id })">{{ ::vm.item.name }}</a>
+                                </div>
+
+                                <div class="content-history-date">{{ ::vm.item.created | date:'dd MMMM yy HH:mm' }}</div>
+                                <div class="clearfix"></div>
                             </div>
                         </li>
                     </ul>

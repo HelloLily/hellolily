@@ -67,13 +67,13 @@
                 <ul class="timeline-content-details">
                     <li>Created by: {{ ::vm.item.author }}</li>
                 </ul>
+
+                <div class="timeline-date">
+                    {{ ::vm.item.modified | date:'dd MMMM yy HH:mm' }}
+                </div>
             </div>
 
-            <div class="timeline-date">
-                {{ ::vm.item.modified | date:'dd MMMM yy HH:mm' }}
-
-                <a class="timeline-toggle-details" ng-click="vm.item.shown = !vm.item.shown"><i class="lilicon hl-toggle-left-icon" ng-class="vm.item.shown ? 'hl-toggle-down-icon' : 'hl-toggle-left-icon'"></i></a>
-            </div>
+            <a class="timeline-toggle-details" ng-click="vm.item.shown = !vm.item.shown"><i class="lilicon hl-toggle-left-icon" ng-class="vm.item.shown ? 'hl-toggle-down-icon' : 'hl-toggle-left-icon'"></i></a>
 
         </div>
         <div class="content-details history-item-body" ng-show="vm.item.shown">

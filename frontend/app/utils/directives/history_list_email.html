@@ -75,20 +75,15 @@
                 <span class="timeline-content-title" ng-if="::vm.item.subject.length >= 45">...</span>
                 <span class="timeline-content-title" ng-if="!vm.item.subject"><i>No Subject</i></span>
                 <ul class="timeline-content-details">
-                    <li>{{ ::vm.item.sender_name }}</li>
-                    <li>
-                        <i class="fa">@</i>
-                        {{ ::vm.item.sender_email }}
-                    </li>
+                    <li>From: {{ ::vm.item.sender_name }}</li>
+                    <li>To: {{ ::vm.item.sender_email }}</li>
                 </ul>
-            </div>
-
-            <div class="timeline-date">
-                {{ ::vm.item.sent_date | date:'dd MMMM yy HH:mm' }}
-                <div class="btn-group">
-                    <a class="timeline-toggle-details" ng-click="vm.item.shown = !vm.item.shown"><i class="lilicon hl-toggle-left-icon" ng-class="vm.item.shown ? 'hl-toggle-down-icon' : 'hl-toggle-left-icon'"></i></a>
+                <div class="timeline-date">
+                    {{ ::vm.item.sent_date | date:'dd MMMM yy HH:mm' }}
                 </div>
             </div>
+
+            <a class="timeline-toggle-details" ng-click="vm.item.shown = !vm.item.shown"><i class="lilicon hl-toggle-left-icon" ng-class="vm.item.shown ? 'hl-toggle-down-icon' : 'hl-toggle-left-icon'"></i></a>
 
         </div>
 

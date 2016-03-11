@@ -154,9 +154,10 @@ function UsersFilterController(LocalStorage, UserTeams) {
         // Generate the names to display for the selected users.
         vm.usersDisplayNames = [];
         angular.forEach(vm.teams, function(teams) {
-            angular.forEach(teams.users, function(users) {
-                if (vm.usersSelection.indexOf(users.id) > -1) {
-                    vm.usersDisplayNames.push(users.full_name);
+            angular.forEach(teams.users, function(user) {
+                // User is selected, but hasn't been added to the displayed names yet.
+                if (vm.usersSelection.indexOf(user.id) > -1 && vm.usersDisplayNames.indexOf(user.full_name) === -1) {
+                    vm.usersDisplayNames.push(user.full_name);
                 }
             });
         });
@@ -170,6 +171,10 @@ function UsersFilterController(LocalStorage, UserTeams) {
         // Generate elastic search string.
         angular.forEach(vm.usersSelection, function(id) {
             selectedFilter.push('assigned_to_id:' + id);
+        });
+
+        angular.forEach(vm.teamsSelection, function(id) {
+            selectedFilter.push('assigned_to_groups:' + id);
         });
 
         filter = selectedFilter.join(' OR ');

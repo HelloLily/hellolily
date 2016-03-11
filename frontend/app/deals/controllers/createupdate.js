@@ -318,27 +318,14 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
     }
 
     $scope.$watch('vm.deal.account', function() {
-        var accountCreated;
-        var weekAgo;
-
         // Get contacts that work for the selected account.
         refreshContacts('');
 
         if (vm.deal.account) {
-            accountCreated = moment(vm.deal.account.created);
-            weekAgo = moment().subtract(7, 'days');
-
-            // If the account was created less than 7 days ago and
-            // it doesn't have any deals; we mark it as a new business.
-            if (accountCreated.isAfter(weekAgo)) {
-                Deal.query({filterquery: 'account:' + vm.deal.account.id}).$promise.then(function(response) {
-                    if (!response.objects.length) {
-                        vm.deal.new_business = true;
-                    }
-                });
-            } else {
-                vm.deal.new_business = false;
-            }
+            // Mark as new business if the given account doesn't have any deals yet.
+            Deal.query({filterquery: 'account:' + vm.deal.account.id}).$promise.then(function(response) {
+                vm.deal.new_business = !response.objects.length;
+            });
         }
     });
 

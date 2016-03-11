@@ -65,6 +65,8 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
     vm.trashMessages = trashMessages;
     vm.deleteMessages = deleteMessages;
     vm.moveMessages = moveMessages;
+    vm.toggleStarred = toggleStarred;
+    vm.starMessages = starMessages;
     vm.reloadMessages = reloadMessages;
     vm.goToDraft = goToDraft;
 
@@ -268,6 +270,23 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
         }
 
         _removeCheckedMessagesFromList();
+    }
+
+    function toggleStarred(message) {
+        message.is_starred = !message.is_starred;
+
+        EmailMessage.star({id: message.id, starred: message.is_starred});
+    }
+
+    function starMessages() {
+        var i;
+
+        for (i in vm.emailMessages) {
+            if (vm.emailMessages[i].checked) {
+                vm.emailMessages[i].label_id.push('STARRED');
+                EmailMessage.star({id: vm.emailMessages[i].id});
+            }
+        }
     }
 
     function reloadMessages() {

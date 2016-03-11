@@ -85,6 +85,7 @@
                 <span class="bold">{{ vm.message.sender.name }}</span>&nbsp;<span>&lt;{{ vm.message.sender.email_address }}&gt;</span>
 
                 <div class="pull-right">
+                    <i class="clickable" ng-class="{'fa fa-star': (vm.message.is_starred), 'fa fa-star-o': !vm.message.is_starred}" ng-click="vm.toggleStarred()"></i>
                     <span class="bold"><date date="vm.message.sent_date" add-time="true"></date></span>
                 </div>
             </div>

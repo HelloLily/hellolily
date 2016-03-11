@@ -19,7 +19,7 @@
     <table class="table table-striped table-hover">
         <thead>
             <tr>
-                <th colspan="7">
+                <th colspan="8">
                     <checkbox model="vm.opts.checkboxesAll" ng-click="vm.toggleCheckboxes()"></checkbox>
 
                     <ul class="email-inbox-actions btn-group" ng-if="::vm.account">
@@ -33,6 +33,9 @@
                                 </li>
                                 <li ng-repeat="accountLabel in vm.account.labels" ng-if="accountLabel.label_type != 0 && accountLabel.label_id != vm.label.label_id">
                                     <a href="javascript:void(0)" ng-click="vm.moveMessages(accountLabel.label_id)">{{ accountLabel.name }}</a>
+                                </li>
+                                <li>
+                                    <a href="javascript:void(0)" ng-click="vm.starMessages()">Star messages</a>
                                 </li>
                             </ul>
                         </li>
@@ -116,6 +119,9 @@
             <tr ng-repeat="message in vm.emailMessages" style="cursor: pointer;" ng-class="{'unread': !message.read}">
                 <td class="inbox-small-cells">
                     <checkbox model="message.checked"></checkbox>
+                </td>
+                <td class="inbox-small-cells">
+                    <i ng-class="{'fa fa-star': message.is_starred, 'fa fa-star-o': !message.is_starred}" ng-click="vm.toggleStarred(message)"></i>
                 </td>
                 <td contact-icon message="message"></td>
                 <td class="view-message hidden-xs" ng-show="vm.label.name != 'Sent' && vm.label.name != 'Draft'" ui-sref="base.email.detail({id: message.id})">

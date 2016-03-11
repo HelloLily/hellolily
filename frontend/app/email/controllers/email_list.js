@@ -278,13 +278,13 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
         EmailMessage.star({id: message.id, starred: message.is_starred});
     }
 
-    function starMessages() {
+    function starMessages(starred) {
         var i;
 
         for (i in vm.emailMessages) {
             if (vm.emailMessages[i].checked) {
-                vm.emailMessages[i].label_id.push('STARRED');
-                EmailMessage.star({id: vm.emailMessages[i].id});
+                vm.emailMessages[i].is_starred = starred;
+                EmailMessage.star({id: vm.emailMessages[i].id, starred: starred});
             }
         }
     }

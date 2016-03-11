@@ -34,9 +34,6 @@
                                 <li ng-repeat="accountLabel in vm.account.labels" ng-if="accountLabel.label_type != 0 && accountLabel.label_id != vm.label.label_id">
                                     <a href="javascript:void(0)" ng-click="vm.moveMessages(accountLabel.label_id)">{{ accountLabel.name }}</a>
                                 </li>
-                                <li>
-                                    <a href="javascript:void(0)" ng-click="vm.starMessages()">Star messages</a>
-                                </li>
                             </ul>
                         </li>
                     </ul>
@@ -56,6 +53,15 @@
                             <a ng-click="vm.deleteMessages()">
                                 <i class="lilicon hl-trashcan-icon"></i> <span class="email-inbox-action-desc">Delete</span>
                             </a>
+                        </li>
+                    </ul>
+
+                    <ul class="email-inbox-actions">
+                        <li>
+                            <a ng-click="vm.starMessages(true)"><i class="fa fa-star"></i></a>
+                        </li>
+                        <li>
+                            <a ng-click="vm.starMessages(false)"><i class="fa fa-star-o"></i></a>
                         </li>
                     </ul>
 

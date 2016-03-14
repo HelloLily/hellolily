@@ -22,89 +22,90 @@
 
     <widget-body>
         <div class="widget-content">
+            <div class="scroll-body" slimscroll="{height: 200 }">
+                <p ng-bind-html="account.description || 'No description' | parseUrls"></p>
 
-            <p ng-bind-html="account.description || 'No description' | parseUrls"></p>
-
-            <table class="table table-hover no-margin">
-                <tr ng-show="(account.email_addresses | filter: {status: '!' + 0}).length">
-                    <th>
-                        <i class="fa">@</i>
-                        Email
-                    </th>
-                    <td>
-                        <div ng-repeat="email in account.email_addresses | filter: {status: '!' + 0}">
-                            <a ui-sref="base.email.composeEmail({email: email.email_address})">
-                                {{ email.email_address }}
+                <table class="table table-hover no-margin">
+                    <tr ng-show="(account.email_addresses | filter: {status: '!' + 0}).length">
+                        <th>
+                            <i class="fa">@</i>
+                            Email
+                        </th>
+                        <td>
+                            <div ng-repeat="email in account.email_addresses | filter: {status: '!' + 0}">
+                                <a ui-sref="base.email.composeEmail({email: email.email_address})">
+                                    {{ email.email_address }}
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr ng-show="account.phones">
+                        <th>
+                            <i class="fa fa-phone"></i>
+                            Phone
+                        </th>
+                        <td>
+                            <div ng-repeat="phone in account.phones">
+                                 <a href="tel:{{ phone }}">
+                                    {{ phone }}
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr ng-show="account.website">
+                        <th>
+                            <i class="fa fa-globe"></i>
+                            Website
+                        </th>
+                        <td>
+                            <div ng-repeat="site in account.website">
+                                <a href="{{ site }}" target="_blank">
+                                    {{ site | stripScheme }}
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr ng-show="account.assigned_to">
+                        <th>
+                            <i class="fa fa-child"></i>
+                            Assigned to
+                        </th>
+                        <td>
+                            {{ account.assigned_to }}
+                        </td>
+                    </tr>
+                    <tr ng-show="account.address">
+                        <th>
+                            <i class="fa fa-map-marker"></i>
+                            Address
+                        </th>
+                        <td>
+                            <div ng-repeat="address in account.address">
+                                {{ address.address_street }} {{ address.address_street_number }}{{ address.address_complement }}
+                                <br />
+                                {{ address.address_postal_code }}, {{ address.address_city }}
+                                <br />
+                                {{ address.address_country }}
+                            </div>
+                        </td>
+                    </tr>
+                    <tr ng-show="account.social" ng-repeat="social in account.social">
+                        <th><i class="fa fa-{{ social.social_name | lowercase }}"></i> {{ social.social_name }}</th>
+                        <td><a ng-href="{{ social.social_url }}" target="_blank">{{ social.social_profile }}</a></td>
+                    </tr>
+                    <tr ng-show="account.tag">
+                        <th>
+                            <i class="fa fa-tag"></i>
+                            Tags
+                        </th>
+                        <td>
+                            <a class="btn btn-xs btn-default" ng-repeat="tag in account.tag">
+                                {{ tag }}
                             </a>
-                        </div>
-                    </td>
-                </tr>
-                <tr ng-show="account.phones">
-                    <th>
-                        <i class="fa fa-phone"></i>
-                        Phone
-                    </th>
-                    <td>
-                        <div ng-repeat="phone in account.phones">
-                             <a href="tel:{{ phone }}">
-                                {{ phone }}
-                            </a>
-                        </div>
-                    </td>
-                </tr>
-                <tr ng-show="account.website">
-                    <th>
-                        <i class="fa fa-globe"></i>
-                        Website
-                    </th>
-                    <td>
-                        <div ng-repeat="site in account.website">
-                            <a href="{{ site }}" target="_blank">
-                                {{ site | stripScheme }}
-                            </a>
-                        </div>
-                    </td>
-                </tr>
-                <tr ng-show="account.assigned_to">
-                    <th>
-                        <i class="fa fa-child"></i>
-                        Assigned to
-                    </th>
-                    <td>
-                        {{ account.assigned_to }}
-                    </td>
-                </tr>
-                <tr ng-show="account.address">
-                    <th>
-                        <i class="fa fa-map-marker"></i>
-                        Address
-                    </th>
-                    <td>
-                        <div ng-repeat="address in account.address">
-                            {{ address.address_street }} {{ address.address_street_number }}{{ address.address_complement }}
-                            <br />
-                            {{ address.address_postal_code }}, {{ address.address_city }}
-                            <br />
-                            {{ address.address_country }}
-                        </div>
-                    </td>
-                </tr>
-                <tr ng-show="account.social" ng-repeat="social in account.social">
-                    <th><i class="fa fa-{{ social.social_name | lowercase }}"></i> {{ social.social_name }}</th>
-                    <td><a ng-href="{{ social.social_url }}" target="_blank">{{ social.social_profile }}</a></td>
-                </tr>
-                <tr ng-show="account.tag">
-                    <th>
-                        <i class="fa fa-tag"></i>
-                        Tags
-                    </th>
-                    <td>
-                        <a class="btn btn-xs btn-default" ng-repeat="tag in account.tag">
-                            {{ tag }}
-                        </a>
-                    </td>
-                </tr>
-            </table>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </widget-body>
 </dashboard-widget>

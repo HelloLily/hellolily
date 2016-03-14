@@ -12,68 +12,70 @@
 
     <widget-body>
         <div class="widget-content">
-            <p ng-bind-html="contact.description || 'No description' | parseUrls"></p>
+            <div class="scroll-body" slimscroll="{height: height}">
+                <p ng-bind-html="contact.description || 'No description' | parseUrls"></p>
 
-            <table class="table table-hover no-margin">
-                <tr ng-show="(contact.email_addresses | filter: {status: '!' + 0}).length">
-                    <th>
-                        <i class="fa">@</i>
-                        Email
-                    </th>
-                    <td>
-                        <div ng-repeat="email in contact.email_addresses | filter: {status: '!' + 0}">
-                            <a ui-sref="base.email.composeEmail({email: email.email_address})">
-                                {{ email.email_address }}
+                <table class="table table-hover no-margin">
+                    <tr ng-show="(contact.email_addresses | filter: {status: '!' + 0}).length">
+                        <th>
+                            <i class="fa">@</i>
+                            Email
+                        </th>
+                        <td>
+                            <div ng-repeat="email in contact.email_addresses | filter: {status: '!' + 0}">
+                                <a ui-sref="base.email.composeEmail({email: email.email_address})">
+                                    {{ email.email_address }}
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr ng-show="contact.phones">
+                        <th>
+                            <i class="fa fa-phone"></i>
+                            Phone
+                        </th>
+                        <td>
+                            <div ng-repeat="phone in contact.phones">
+                                <a href="tel:{{ phone }}">
+                                    {{ phone }}
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr ng-show="contact.addresses">
+                        <th>
+                            <i class="fa fa-map-marker"></i>
+                            Address
+                        </th>
+                        <td>
+                            <div ng-repeat="address in contact.addresses">
+                                {{ address.street }} {{ address.street_number }}{{ address.complement }}
+                                <br />
+                                {{ address.postal_code }}, {{ address.city }}
+                                <br />
+                                {{ address.country }}
+                            </div>
+                        </td>
+                    </tr>
+                    <tr ng-show="contact.social" ng-repeat="social in contact.social">
+                        <th><i class="fa fa-{{ social.social_name | lowercase }}"></i> {{ social.social_name }}</th>
+                        <td><a ng-href="{{ social.social_url }}" target="_blank">{{ social.social_profile }}</a></td>
+                    </tr>
+                    <tr ng-show="contact.tag">
+                        <th>
+                            <i class="fa fa-tag"></i>
+                            Tags
+                        </th>
+                        <td>
+                            <a class="btn btn-xs btn-default" ng-repeat="tag in contact.tag">
+                                {{ tag }}
                             </a>
-                        </div>
-                    </td>
-                </tr>
-
-                <tr ng-show="contact.phones">
-                    <th>
-                        <i class="fa fa-phone"></i>
-                        Phone
-                    </th>
-                    <td>
-                        <div ng-repeat="phone in contact.phones">
-                            <a href="tel:{{ phone }}">
-                                {{ phone }}
-                            </a>
-                        </div>
-                    </td>
-                </tr>
-
-                <tr ng-show="contact.addresses">
-                    <th>
-                        <i class="fa fa-map-marker"></i>
-                        Address
-                    </th>
-                    <td>
-                        <div ng-repeat="address in contact.addresses">
-                            {{ address.street }} {{ address.street_number }}{{ address.complement }}
-                            <br />
-                            {{ address.postal_code }}, {{ address.city }}
-                            <br />
-                            {{ address.country }}
-                        </div>
-                    </td>
-                </tr>
-                <tr ng-show="contact.social" ng-repeat="social in contact.social">
-                    <th><i class="fa fa-{{ social.social_name | lowercase }}"></i> {{ social.social_name }}</th>
-                    <td><a ng-href="{{ social.social_url }}" target="_blank">{{ social.social_profile }}</a></td>
-                </tr>
-                <tr ng-show="contact.tag">
-                    <th>
-                        <i class="fa fa-tag"></i>
-                        Tags
-                    </th>
-                    <td>
-                        <a class="btn btn-xs btn-default" ng-repeat="tag in contact.tag">
-                            {{ tag }}
-                        </a>
-                    </td>
-                </tr>
-            </table>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </widget-body>
 </dashboard-widget>

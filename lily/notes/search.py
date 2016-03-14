@@ -73,6 +73,6 @@ class NoteMapping(BaseMapping):
             'object_id': obj.object_id,
             'subject_repr': str(obj.subject),
             'date': obj.sort_by_date,
-            'modified': obj.modified
+            'modified': obj.modified,
             'is_pinned': obj.is_pinned,
         }

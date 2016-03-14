@@ -169,9 +169,7 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
 
                 // Get all history types and add them to a common history
                 $q.all(promises).then(function() {
-                    var orderedHistoryList = {pinned: [], nonPinned: {}};
-
-                    console.log(history);
+                    var orderedHistoryList = {pinned: [], nonPinned: {}, totalItems: history.length};
 
                     for (var i = 0; i < history.length; i++) {
                         if (history[i].historyType === 'email') {
@@ -209,9 +207,6 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
             }
 
             function addNote(note) {
-                console.log(scope);
-                console.log(note.type);
-                console.log(scope.object.id)
                 $http({
                     method: 'POST',
                     url: '/notes/create/',

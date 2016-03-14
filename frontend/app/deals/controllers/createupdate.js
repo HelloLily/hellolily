@@ -244,7 +244,8 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
     }
 
     function assignToMe() {
-        vm.deal.assigned_to = currentUser.id;
+        // Bit of a hacky way to assign the current user, but we'll clean this up later.
+        vm.deal.assigned_to = {id: currentUser.id, full_name: currentUser.fullName};
     }
 
     function cancelDealCreation() {

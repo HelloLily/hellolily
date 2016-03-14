@@ -89,7 +89,10 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     ////
 
     function activate() {
-        _getAssignOptions();
+        User.query(function(response) {
+            vm.assignOptions = response.results;
+        });
+
         _getTeams();
 
         Case.caseTypes(function(data) {
@@ -119,6 +122,8 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     }
 
     function _getCase() {
+        var filterquery = '';
+
         // Fetch the case or create an empty one.
         if ($stateParams.id) {
             Case.get({id: $stateParams.id}).$promise.then(function(lilyCase) {
@@ -153,7 +158,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
                 // Auto fill data if it's available.
                 if (Settings.email.data.contact.id) {
                     if (Settings.email.data && Settings.email.data.account) {
-                        var filterquery = 'accounts.id:' + Settings.email.data.account.id;
+                        filterquery = 'accounts.id:' + Settings.email.data.account.id;
 
                         ContactDetail.query({filterquery: filterquery}).$promise.then(function(colleagues) {
                             var colleagueIds = [];
@@ -189,24 +194,6 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         vm.case.expires = HLUtils.addBusinessDays(daysToAdd[vm.case.priority]);
     });
 
-    function _getAssignOptions() {
-        var assignOptions = [];
-
-        User.query().$promise.then(function(response) {
-            angular.forEach(response.results, function(user) {
-                if (user.first_name !== '') {
-                    assignOptions.push({
-                        id: user.id,
-                        // Convert to single string so searching with spaces becomes possible.
-                        name: HLUtils.getFullName(user),
-                    });
-                }
-            });
-
-            vm.assignOptions = assignOptions;
-        });
-    }
-
     function _getTeams() {
         UserTeams.query().$promise.then(function(response) {
             vm.teams = response.results;
@@ -214,7 +201,8 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     }
 
     function assignToMe() {
-        vm.case.assigned_to = currentUser.id;
+        // Bit of a hacky way to assign the current user, but we'll clean this up later.
+        vm.case.assigned_to = {id: currentUser.id, full_name: currentUser.fullName};
     }
 
     function cancelCaseCreation() {
@@ -227,6 +215,8 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     }
 
     function saveCase(form, archive) {
+        var cleanedCase;
+
         if (!_caseFormIsValid()) {
             return false;
         }
@@ -264,7 +254,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         vm.case.expires = moment(vm.case.expires).format('YYYY-MM-DD');
 
         // clean modifies the object, so preserve the state by copying the object (in case of errors).
-        var cleanedCase = HLForms.clean(angular.copy(vm.case));
+        cleanedCase = HLForms.clean(angular.copy(vm.case));
 
         if (cleanedCase.id) {
             // If there's an ID set it means we're dealing with an existing contact, so update it.
@@ -314,10 +304,12 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     });
 
     function refreshAccounts(query) {
+        var accountsPromise;
+
         // Don't load if we selected a contact.
         // Because we want to display all accounts the contact works for.
         if (!vm.case.contact && (!vm.accounts || query.length)) {
-            var accountsPromise = HLSearch.refreshList(query, 'Account');
+            accountsPromise = HLSearch.refreshList(query, 'Account');
 
             if (accountsPromise) {
                 accountsPromise.$promise.then(function(data) {
@@ -329,6 +321,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
 
     function refreshContacts(query) {
         var accountQuery = '';
+        var contactsPromise;
 
         if (vm.case.account) {
             if (query.length >= 2) {
@@ -339,7 +332,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             accountQuery += 'accounts.id:' + vm.case.account.id;
         }
 
-        var contactsPromise = HLSearch.refreshList(query, 'Contact', null, accountQuery);
+        contactsPromise = HLSearch.refreshList(query, 'Contact', null, accountQuery);
 
         if (contactsPromise) {
             contactsPromise.$promise.then(function(data) {

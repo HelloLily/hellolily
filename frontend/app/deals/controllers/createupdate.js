@@ -84,9 +84,13 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
     ////
 
     function activate() {
-        _setAssignOptions();
+        var i;
+        var j;
+        var splitName = '';
+        var choiceVarName = '';
+        var choiceFields = ['currency', 'stage'];
 
-        var choiceFields = ['found_through', 'contacted_by', 'currency', 'stage'];
+        _setAssignOptions();
 
         Deal.getNextSteps(function(response) {
             vm.nextSteps = response.results;
@@ -106,16 +110,24 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
             vm.whyLost = response.results;
         });
 
+        Deal.getFoundThrough(function(response) {
+            vm.foundThroughChoices = response.results;
+        });
+
+        Deal.getContactedBy(function(response) {
+            vm.contactedByChoices = response.results;
+        });
+
         Deal.getFormOptions(function(data) {
             var choiceData = data.actions.POST;
 
-            for (var i = 0; i < choiceFields.length; i++) {
-                var splitName = choiceFields[i].split('_');
-                var choiceVarName = splitName[0];
+            for (i = 0; i < choiceFields.length; i++) {
+                splitName = choiceFields[i].split('_');
+                choiceVarName = splitName[0];
 
                 // Convert to camelCase.
                 if (splitName.length > 1) {
-                    for (var j = 1; j < splitName.length; j++) {
+                    for (j = 1; j < splitName.length; j++) {
                         choiceVarName += splitName[j].charAt(0).toUpperCase() + splitName[j].slice(1);
                     }
                 }
@@ -131,6 +143,8 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
     }
 
     function _getDeal() {
+        var filterquery = '';
+
         // Fetch the contact or create empty contact.
         if ($stateParams.id) {
             Deal.get({id: $stateParams.id}).$promise.then(function(deal) {
@@ -169,7 +183,7 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
                 // Auto fill data if it's available.
                 if (Settings.email.data.contact.id) {
                     if (Settings.email.data && Settings.email.data.account) {
-                        var filterquery = 'accounts.id:' + Settings.email.data.account.id;
+                        filterquery = 'accounts.id:' + Settings.email.data.account.id;
 
                         ContactDetail.query({filterquery: filterquery}).$promise.then(function(colleagues) {
                             var colleagueIds = [];
@@ -230,7 +244,8 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
     }
 
     function assignToMe() {
-        vm.deal.assigned_to = currentUser.id;
+        // Bit of a hacky way to assign the current user, but we'll clean this up later.
+        vm.deal.assigned_to = {id: currentUser.id, full_name: currentUser.fullName};
     }
 
     function cancelDealCreation() {
@@ -308,20 +323,10 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
         refreshContacts('');
 
         if (vm.deal.account) {
-            var accountCreated = moment(vm.deal.account.created);
-            var weekAgo = moment().subtract(7, 'days');
-
-            // If the account was created less than 7 days ago and
-            // it doesn't have any deals; we mark it as a new business.
-            if (accountCreated.isAfter(weekAgo)) {
-                Deal.query({filterquery: 'account:' + vm.deal.account.id}).$promise.then(function(response) {
-                    if (!response.objects.length) {
-                        vm.deal.new_business = true;
-                    }
-                });
-            } else {
-                vm.deal.new_business = false;
-            }
+            // Mark as new business if the given account doesn't have any deals yet.
+            Deal.query({filterquery: 'account:' + vm.deal.account.id}).$promise.then(function(response) {
+                vm.deal.new_business = !response.objects.length;
+            });
         }
     });
 
@@ -337,10 +342,12 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
     });
 
     function refreshAccounts(query) {
+        var accountsPromise;
+
         // Don't load if we selected a contact.
         // Because we want to display all accounts the contact works for.
         if (!vm.deal.contact && (!vm.accounts || query.length)) {
-            var accountsPromise = HLSearch.refreshList(query, 'Account');
+            accountsPromise = HLSearch.refreshList(query, 'Account');
 
             if (accountsPromise) {
                 accountsPromise.$promise.then(function(data) {
@@ -352,6 +359,7 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
 
     function refreshContacts(query) {
         var accountQuery = '';
+        var contactsPromise;
 
         if (vm.deal.account) {
             if (query.length >= 2) {
@@ -362,7 +370,7 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
             accountQuery += 'accounts.id:' + vm.deal.account.id;
         }
 
-        var contactsPromise = HLSearch.refreshList(query, 'Contact', null, accountQuery);
+        contactsPromise = HLSearch.refreshList(query, 'Contact', null, accountQuery);
 
         if (contactsPromise) {
             contactsPromise.$promise.then(function(data) {

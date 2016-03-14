@@ -29,7 +29,7 @@ function ContactDetailController($scope, $stateParams, Settings, ContactDetail, 
     var id = $stateParams.id;
 
     $scope.contact = contact;
-    $scope.height = 300;
+    $scope.height = 200;
 
     Settings.page.setAllTitles('detail', contact.name);
 

@@ -188,10 +188,6 @@ elif DEBUG:
     MIDDLEWARE_CLASSES += (
         'debug_toolbar.middleware.DebugToolbarMiddleware',
     )
-else:
-    MIDDLEWARE_CLASSES += (
-        'django.middleware.gzip.GZipMiddleware',
-    )
 
 #######################################################################################################################
 # TEMPLATE SETTINGS                                                                                                   #

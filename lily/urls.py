@@ -27,8 +27,9 @@ urlpatterns = patterns(
     url(r'^preferences/', include('lily.preferences.urls')),
 
     # Django admin urls
+    url(r'^admin/login/$', RedirectView.as_view(pattern_name='login', permanent=True, query_string=True)),
+    url(r'^admin/logout/$', RedirectView.as_view(pattern_name='logout', permanent=True, query_string=True)),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
     # Django rest
     url(r'^api/', include('lily.api.urls')),

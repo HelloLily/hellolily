@@ -9,18 +9,14 @@ from rest_framework.viewsets import ModelViewSet
 from lily.api.filters import ElasticSearchFilter
 from lily.tenant.api.mixins import SetTenantUserMixin
 
-from .serializers import DealSerializer, DealNextStepSerializer, DealWhyCustomerSerializer, DealWhyLostSerializer
-from ..models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost
+from .serializers import (DealSerializer, DealNextStepSerializer, DealWhyCustomerSerializer, DealWhyLostSerializer,
+                          DealFoundThroughSerializer, DealContactedBySerializer)
+from ..models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost, DealFoundThrough, DealContactedBy
 
 
 class DealStagesList(APIView):
     def get(self, request, format=None):
         return Response(Deal.STAGE_CHOICES)
-
-
-class DealFoundThroughList(APIView):
-    def get(self, request, format=None):
-        return Response(Deal.FOUND_THROUGH_CHOICES)
 
 
 class DealContactedByList(APIView):
@@ -74,6 +70,32 @@ class DealNextStepViewSet(SetTenantUserMixin, ModelViewSet):
         Set the queryset here so it filters on tenant and works with pagination.
         """
         return super(DealNextStepViewSet, self).get_queryset().all()
+
+
+class DealFoundThroughViewSet(SetTenantUserMixin, ModelViewSet):
+    # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
+    queryset = DealFoundThrough.objects
+    # Set the serializer class for this viewset.
+    serializer_class = DealFoundThroughSerializer
+
+    def get_queryset(self):
+        """
+        Set the queryset here so it filters on tenant and works with pagination.
+        """
+        return super(DealFoundThroughViewSet, self).get_queryset().all()
+
+
+class DealContactedByViewSet(SetTenantUserMixin, ModelViewSet):
+    # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
+    queryset = DealContactedBy.objects
+    # Set the serializer class for this viewset.
+    serializer_class = DealContactedBySerializer
+
+    def get_queryset(self):
+        """
+        Set the queryset here so it filters on tenant and works with pagination.
+        """
+        return super(DealContactedByViewSet, self).get_queryset().all()
 
 
 class DealFilter(django_filters.FilterSet):

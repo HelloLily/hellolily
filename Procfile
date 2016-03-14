@@ -1,5 +1,5 @@
 ### Django runs on this
-web: bin/start-pgbouncer-stunnel newrelic-admin run-program gunicorn --config=lily/settings/gunicorn.py lily.wsgi:application
+web: bin/start-nginx bin/start-pgbouncer-stunnel newrelic-admin run-program gunicorn --config=lily/settings/gunicorn.py lily.wsgi:application
 
 ### Celery workers
 

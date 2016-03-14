@@ -45,6 +45,28 @@ class DealWhyLost(TenantMixin):
         ordering = ['position']
 
 
+class DealFoundThrough(TenantMixin):
+    name = models.CharField(max_length=255)
+    position = models.IntegerField(max_length=2, default=0)
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['position']
+
+
+class DealContactedBy(TenantMixin):
+    name = models.CharField(max_length=255)
+    position = models.IntegerField(max_length=2, default=0)
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['position']
+
+
 class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     """
     Deal model
@@ -70,27 +92,6 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
         (EMAILED_STAGE, _('Emailed')),
     )
 
-    FOUND_THROUGH_CHOICES = (
-        (0, _('Search engine')),
-        (1, _('Social media')),
-        (2, _('Talk with employee')),
-        (3, _('Existing customer')),
-        (5, _('Radio')),
-        (6, _('Public speaking')),
-        (7, _('Press and articles')),
-        (4, _('Other')),
-    )
-
-    CONTACTED_BY_CHOICES = (
-        (0, _('Quote')),
-        (1, _('Contact form')),
-        (2, _('Phone')),
-        (3, _('Web chat')),
-        (4, _('E-mail')),
-        (6, _('Instant connect')),
-        (5, _('Other')),
-    )
-
     name = models.CharField(max_length=255, verbose_name=_('name'))
     description = models.TextField(verbose_name=_('description'), blank=True)
     account = models.ForeignKey(Account, verbose_name=_('account'))
@@ -112,9 +113,8 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     twitter_checked = models.BooleanField(default=False)
     card_sent = models.BooleanField(default=False)
     quote_id = models.CharField(max_length=255, verbose_name=_('freedom quote id'), blank=True)
-    found_through = models.IntegerField(max_length=255, choices=FOUND_THROUGH_CHOICES,
-                                        verbose_name=_('found us through'))
-    contacted_by = models.IntegerField(max_length=255, choices=CONTACTED_BY_CHOICES, verbose_name=_('contacted us by'))
+    found_through = models.ForeignKey(DealFoundThrough, verbose_name=_('found us through'), related_name='deals')
+    contacted_by = models.ForeignKey(DealContactedBy, verbose_name=_('contacted us by'), related_name='deals')
     next_step = models.ForeignKey(DealNextStep, verbose_name=_('next step'), related_name='deals')
     next_step_date = models.DateField(verbose_name=_('next step date'), null=True, blank=True)
     import_id = models.CharField(max_length=100, verbose_name=_('import id'), default='', blank=True, db_index=True)

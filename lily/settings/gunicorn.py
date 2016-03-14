@@ -14,8 +14,8 @@ def boolean(value):
 # code easily by restarting workers.
 preload_app = boolean(os.environ.get('WEB_PRELOAD_APP', 0))
 
-# Bind to specified ip and port.
-bind = '%s:%s' % (os.environ.get('IP_ADDRESS', '0.0.0.0'), os.environ.get('PORT', '8000'))
+# Bind to nginx socket, only upon binding will it start accepting requests.
+bind = os.environ.get('NGINX_SOCKET')
 
 # Use this worker class
 worker_class = '%s' % os.environ.get('WORKER_CLASS', 'gevent')

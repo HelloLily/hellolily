@@ -79,28 +79,24 @@ function Deal($resource, HLUtils, HLForms, User) {
                 },
             },
             getNextSteps: {
-                url: 'api/deals/next-steps',
+                url: 'api/deals/next-steps/',
             },
             getWhyCustomer: {
-                url: 'api/deals/why-customer',
+                url: 'api/deals/why-customer/',
             },
             getWhyLost: {
                 url: 'api/deals/why-lost',
             },
             getStages: {
-                url: '/api/deals/stages',
+                url: '/api/deals/stages/',
                 isArray: true,
                 transformResponse: _transformChoices,
             },
             getFoundThrough: {
-                url: '/api/deals/found-through',
-                isArray: true,
-                transformResponse: _transformChoices,
+                url: '/api/deals/found-through/',
             },
             getContactedBy: {
-                url: '/api/deals/contacted-by',
-                isArray: true,
-                transformResponse: _transformChoices,
+                url: '/api/deals/contacted-by/',
             },
             getFormOptions: {
                 url: 'api/deals/deal',
@@ -127,7 +123,7 @@ function Deal($resource, HLUtils, HLForms, User) {
             currency: 'EUR',
             amount_once: 0,
             amount_recurring: 0,
-            assigned_to: currentUser.id,
+            assigned_to: {id: currentUser.id, full_name: currentUser.fullName},
         });
     }
 

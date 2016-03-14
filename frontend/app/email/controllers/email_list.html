@@ -19,7 +19,7 @@
     <table class="table table-striped table-hover">
         <thead>
             <tr>
-                <th colspan="7">
+                <th colspan="8">
                     <checkbox model="vm.opts.checkboxesAll" ng-click="vm.toggleCheckboxes()"></checkbox>
 
                     <ul class="email-inbox-actions btn-group" ng-if="::vm.account">
@@ -53,6 +53,15 @@
                             <a ng-click="vm.deleteMessages()">
                                 <i class="lilicon hl-trashcan-icon"></i> <span class="email-inbox-action-desc">Delete</span>
                             </a>
+                        </li>
+                    </ul>
+
+                    <ul class="email-inbox-actions">
+                        <li>
+                            <a ng-click="vm.starMessages(true)"><i class="fa fa-star"></i></a>
+                        </li>
+                        <li>
+                            <a ng-click="vm.starMessages(false)"><i class="fa fa-star-o"></i></a>
                         </li>
                     </ul>
 
@@ -116,6 +125,9 @@
             <tr ng-repeat="message in vm.emailMessages" style="cursor: pointer;" ng-class="{'unread': !message.read}">
                 <td class="inbox-small-cells">
                     <checkbox model="message.checked"></checkbox>
+                </td>
+                <td class="inbox-small-cells">
+                    <i ng-class="{'fa fa-star': message.is_starred, 'fa fa-star-o': !message.is_starred}" ng-click="vm.toggleStarred(message)"></i>
                 </td>
                 <td contact-icon message="message"></td>
                 <td class="view-message hidden-xs" ng-show="vm.label.name != 'Sent' && vm.label.name != 'Draft'" ui-sref="base.email.detail({id: message.id})">

@@ -1,7 +1,7 @@
 angular.module('app.cases.services').factory('Case', Case);
 
-Case.$inject = ['$http', '$resource', '$q', 'AccountDetail', 'ContactDetail', 'HLUtils', 'UserTeams'];
-function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserTeams) {
+Case.$inject = ['$http', '$resource', '$q', 'AccountDetail', 'ContactDetail', 'HLUtils'];
+function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils) {
     var _case = $resource(
         '/api/cases/case/:id/',
         {},
@@ -84,17 +84,9 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils, UserT
 
     function create() {
         var expires = moment().add(1, 'week').format();  // default expiry date is a week from now
-        var teams = [];
-
-        UserTeams.mine().$promise.then(function(userTeams) {
-            angular.forEach(userTeams, function(team) {
-                teams.push(team.id);
-            });
-        });
 
         return new _case({
             billing_checked: false,
-            assigned_to_groups: teams,
             priority: 0,
             expires: expires,
             tags: [],

@@ -71,16 +71,16 @@
                             <tr>
                                 <td>Found us through</td>
                                 <td>
-                                    <editable-select field="found_through" view-model="vm" type="Deal" choice-field="true">
-                                        {{ vm.deal.found_through_display }}
+                                    <editable-select field="found_through" view-model="vm" type="Deal">
+                                        {{ vm.deal.found_through.name }}
                                     </editable-select>
                                 </td>
                             </tr>
                             <tr>
                                 <td>Contacted us by</td>
                                 <td>
-                                    <editable-select field="contacted_by" view-model="vm" type="Deal" choice-field="true">
-                                        {{ vm.deal.contacted_by_display }}
+                                    <editable-select field="contacted_by" view-model="vm" type="Deal">
+                                        {{ vm.deal.contacted_by.name }}
                                     </editable-select>
                                 </td>
                             </tr>

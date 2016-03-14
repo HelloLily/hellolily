@@ -30,6 +30,7 @@ EmailDetailController.$inject = ['$http', '$scope', '$state', '$stateParams', '$
 function EmailDetailController($http, $scope, $state, $stateParams, $timeout, Account, Case, Deal, EmailMessage,
                                Settings, RecipientInformation, SelectedEmailAccount, message) {
     var vm = this;
+
     vm.displayAllRecipients = false;
     vm.message = message;
     vm.onlyPlainText = false;
@@ -42,6 +43,7 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, Ac
     vm.toggleEmailVariant = toggleEmailVariant;
     vm.showSidebar = showSidebar;
     vm.toggleSidebar = toggleSidebar;
+    vm.toggleStarred = toggleStarred;
 
     Settings.page.setTitle('custom', 'Email message');
     Settings.page.header.setMain('custom', 'Email message');
@@ -90,8 +92,8 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, Ac
 
     function archiveMessage() {
         EmailMessage.archive({id: vm.message.id}).$promise.then(function() {
-            if ($scope.previousState) {
-                window.location = $scope.previousState;
+            if (Settings.email.previousInbox) {
+                $state.transitionTo(Settings.email.previousInbox.state, Settings.email.previousInbox.params, false);
             } else {
                 $state.go('base.email.list', {labelId: 'INBOX'});
             }
@@ -100,8 +102,8 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, Ac
 
     function trashMessage() {
         EmailMessage.trash({id: vm.message.id}).$promise.then(function() {
-            if ($scope.previousState) {
-                window.location = $scope.previousState;
+            if (Settings.email.previousInbox) {
+                $state.transitionTo(Settings.email.previousInbox.state, Settings.email.previousInbox.params, false);
             } else {
                 $state.go('base.email.list', {labelId: 'INBOX'});
             }
@@ -110,8 +112,8 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, Ac
 
     function deleteMessage() {
         EmailMessage.delete({id: vm.message.id}).$promise.then(function() {
-            if ($scope.previousState) {
-                window.location = $scope.previousState;
+            if (Settings.email.previousInbox) {
+                $state.transitionTo(Settings.email.previousInbox.state, Settings.email.previousInbox.params, false);
             } else {
                 $state.go('base.email.list', {labelId: 'INBOX'});
             }
@@ -291,6 +293,12 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, Ac
             // Form is open, so close it.
             Settings.email.sidebar.form = null;
         }
+    }
+
+    function toggleStarred() {
+        vm.message.is_starred = !vm.message.is_starred;
+
+        EmailMessage.star({id: vm.message.id, starred: vm.message.is_starred});
     }
 
     function _toggleListWidget(modelName, toggleList) {

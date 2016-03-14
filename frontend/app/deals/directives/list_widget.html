@@ -1,20 +1,22 @@
 <div class="widget-container">
-    <div class="widget-heading">
-        <div class="widget-title">
-            <div class="widget-name">
-                <i class="lilicon hl-deals-filled-icon"></i>
-                {{ vm.title }}
+    <div class="widget-head">
+        <div class="widget-heading">
+            <div class="widget-title">
+                <div class="widget-name">
+                    <i class="lilicon hl-deals-filled-icon"></i>
+                    {{ vm.title }}
+                </div>
             </div>
-        </div>
 
-        <div class="widget-filters pull-right" ng-if="!$parent.settings.email.sidebar.deal">
-            <a ui-sref="{{ vm.addLink || 'base.deals.create' }}"  class="btn btn-circle btn-default">
-                <i class="fa fa-plus"></i>
-                Add
-            </a>
-        </div>
+            <div class="widget-filters pull-right" ng-if="!$parent.settings.email.sidebar.deal">
+                <a ui-sref="{{ vm.addLink || 'base.deals.create' }}"  class="btn btn-circle btn-default">
+                    <i class="fa fa-plus"></i>
+                    Add
+                </a>
+            </div>
 
-        <div class="clearfix"></div>
+            <div class="clearfix"></div>
+        </div>
     </div>
 
     <div class="widget-body">

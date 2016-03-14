@@ -10,6 +10,15 @@
     }
 }
 
+.deal-detail-involved-table-avatar {
+    width: 40px;
+    height: 40px;
+    float: left;
+    border-radius: 20px;
+    overflow: hidden;
+    margin: 5px 10px 5px 0;
+}
+
 .list-filters .step-type {
     margin-left: 10px;
 }
@@ -20,9 +29,11 @@
 
 .inline-selectable-text {
     margin-left: 1px;
+    margin-right: 5px;
 }
 
 .deal-detail-info-table {
+    width: 100%;
 
     td {
         height: 30px;

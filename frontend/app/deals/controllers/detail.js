@@ -25,9 +25,8 @@ function dealsConfig($stateProvider) {
 
 angular.module('app.deals').controller('DealDetailController', DealDetailController);
 
-DealDetailController.$inject = ['$scope', '$uibModal',  'Deal', 'HLResource', 'HLUtils', 'Settings', 'currentDeal',
-                                'Tenant'];
-function DealDetailController($scope, $uibModal, Deal, HLResource, HLUtils, Settings, currentDeal, Tenant) {
+DealDetailController.$inject = ['$scope', '$uibModal', 'Account', 'Contact', 'Deal', 'HLResource', 'HLUtils', 'Settings', 'currentDeal', 'Tenant'];
+function DealDetailController($scope, $uibModal, Account, Contact, Deal, HLResource, HLUtils, Settings, currentDeal, Tenant) {
     var vm = this;
 
     Settings.page.setAllTitles('detail', currentDeal.name);
@@ -42,6 +41,18 @@ function DealDetailController($scope, $uibModal, Deal, HLResource, HLUtils, Sett
     //////
 
     function activate() {
+        if (vm.deal.account) {
+            Account.get({id: vm.deal.account.id}).$promise.then(function(account) {
+                vm.account = account;
+            });
+        }
+
+        if (vm.deal.contact) {
+            Contact.get({id: vm.deal.contact.id}).$promise.then(function(contact) {
+                vm.contact = contact;
+            });
+        }
+
         Deal.getNextSteps(function(response) {
             angular.forEach(response.results, function(nextStep) {
                 if (nextStep.name === 'None') {

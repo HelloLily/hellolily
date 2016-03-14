@@ -3,29 +3,41 @@
 
 <div class="row">
     <div class="col-md-8">
-        <div class="case-info-heading" ng-class="vm.getPriorityDisplay()">
-            <div class="case-info-heading-priority">{{ vm.case.priority_display }} Priority</div>
-            <div class="case-info-heading-title">
-                #{{ vm.case.id }} - [ {{ vm.case.type.type }} ] - {{ vm.case.subject }}
-            </div>
-            <div class="case-info-heading-description" ng-if="vm.case.id" ng-show="vm.case.description">
-                <div class="pre-wrap" ng-bind-html="vm.case.description | parseUrls"></div>
-            </div>
-        </div>
-
-        <div ng-if="vm.case.id">
-            <div class="col-md-12 text-center">
-                <div id="case-status" class="btn-group" data-toggle="buttons" data-object-id="{{ ::vm.case.id }}">
-                    <label ng-repeat="status in vm.caseStatuses" for="status-{{ status.id }}" ng-class="{'btn default': true, 'btn default active': vm.case.status.status == status.status, 'btn default disabled': vm.case.archived }" ng-click="vm.changeCaseStatus(status.id)">
-                        <input class="toggle" type="radio" id="status-{{ status.id }}" name="radio" value="{{ status.id }}" ng-checked="vm.case.status == status.id">
-                        {{ status.status }}
+        <div class="widget-container" ng-if="vm.case.id">
+            <div class="widget-heading">
+                <div class="pull-left radio-button-group" data-toggle="buttons" data-object-id="{{ ::vm.case.id }}">
+                    <label class="no-radio-bullets" ng-repeat="status in vm.caseStatuses" for="status-{{ status.id }}" ng-class="{'radio-button': true, 'radio-button active': vm.case.status == status.status, 'radio-button disabled': vm.case.archived }" ng-click="vm.changeCaseStatus(status.status)">
+                        <div class="radio-button-inset">
+                            <input class="toggle" type="radio" id="status-{{ status.id }}" name="radio" value="{{ status.id }}" ng-checked="vm.case.status == status.id">
+                            {{ status.status }}
+                        </div>
                     </label>
-                    <div class="btn-group">
-                        <a class="btn default" ng-click="vm.unarchive(vm.case.id)" ng-show="vm.case.archived">Unarchive</a>
-                        <a class="btn default" ng-click="vm.archive(vm.case.id)" ng-hide="vm.case.archived">Archive</a>
-                    </div>
+
+                    <label class="radio-button">
+                        <div class="radio-button-inset" ng-click="vm.case.archived = !vm.case.archived">
+                            <span ng-if="vm.case.archived">Unarchive</span>
+                            <span ng-if="!vm.case.archived">Archive</span>
+                        </div>
+                    </label>
                 </div>
+
                 <div class="clearfix"></div>
+            </div>
+            <div class="widget-body">
+                <table class="widget-table">
+                    <tbody>
+                        <tr>
+                            <td><strong>Case ID:</strong> #{{ vm.case.id }}</td>
+                            <td><strong>Case Type:</strong> {{ vm.case.type.type }}</td>
+                            <td><strong>Priority:</strong><i class="margin-left-5 lilicon" ng-class="{0: 'hl-low-prio-icon', 1: 'hl-normal-prio-icon', 2: 'hl-high-prio-icon', 3: 'hl-critical-prio-icon'}[vm.case.priority]"></i> {{ vm.case.priority_display }} priority</td>
+                            <td><strong>Expires on:</strong> <postpone class="margin-left-5" type="'Case'" object="vm.case" date-field="'expires'" display-date="true"></postpone></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="widget-content" ng-show="vm.case.description">
+                    <strong>Description:</strong>
+                    <div class="pre-wrap" ng-bind-html="vm.case.description | parseUrls"></div>
+                </div>
             </div>
         </div>
 

@@ -382,6 +382,9 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
         if (contactsPromise) {
             contactsPromise.$promise.then(function(data) {
                 vm.contacts = data.objects;
+                if (vm.contacts.length === 1) {
+                    vm.deal.contact = vm.contacts[0];
+                }
             });
         }
     }

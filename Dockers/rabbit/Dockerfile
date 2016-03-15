@@ -1,10 +1,10 @@
 FROM ubuntu:14.04
 MAINTAINER HelloLily
 
-RUN apt-get update
-
-RUN apt-get install -y \
-    rabbitmq-server
+RUN apt-get update && \
+    apt-get install -y rabbitmq-server && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 EXPOSE 5672
 

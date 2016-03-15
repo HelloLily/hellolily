@@ -16,11 +16,8 @@ selenium:
     - 4443:4444
 web:
   build: .
-  command: python manage.py runserver 0:8000
   environment:
     - DJANGO_LIVE_TEST_SERVER_ADDRESS=0:8081
-  volumes:
-    - .:/home/docker/hellolily
   ports:
     - 8003:8000
     - 8083:8081
@@ -39,15 +36,12 @@ rabbit:
 beat:
   build: .
   command: celery worker -B --app=lily.celery --loglevel=info -Q celery -n beat.%h -c 1
-  volumes: [".:/home/docker/hellolily"]
   links: [rabbit, db, redis, es]
 worker1:
   build: .
   command: celery worker --loglevel=info --app=lily.celery -Q queue1 -n worker1.%h -c 12 -P eventlet
-  volumes: [".:/home/docker/hellolily"]
   links: [rabbit, db, redis, es]
 worker2:
   build: .
   command: celery worker --loglevel=info --app=lily.celery -Q queue2 -n worker2.%h -c 12 -P eventlet
-  volumes: [".:/home/docker/hellolily"]
   links: [rabbit, db, redis, es]

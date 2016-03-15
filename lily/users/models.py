@@ -71,6 +71,7 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
     preposition = models.CharField(_('preposition'), max_length=100, blank=True)
     last_name = models.CharField(_('last name'), max_length=45)
     email = models.EmailField(_('email address'), max_length=255, unique=True)
+    position = models.CharField(_('position'), max_length=255, blank=True)
     is_staff = models.BooleanField(
         _('staff status'),
         default=False,
@@ -101,8 +102,8 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
 
     objects = LilyUserManager()
 
-    EMAIL_TEMPLATE_PARAMETERS = ['first_name', 'preposition', 'last_name', 'full_name', 'twitter', 'linkedin',
-                                 'phone_number', 'current_email_address', 'user_group']
+    EMAIL_TEMPLATE_PARAMETERS = ['first_name', 'preposition', 'last_name', 'full_name', 'position', 'twitter',
+                                 'linkedin', 'phone_number', 'current_email_address', 'user_group']
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name', ]

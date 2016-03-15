@@ -669,6 +669,13 @@ class EmailMessageForwardView(EmailMessageReplyOrForwardView):
             return self.form_invalid(form)
 
     @function_trace()
+    def get_form(self, form_class):
+        """
+        TODO: temporary override for logging purposes.
+        """
+        return super(EmailMessageForwardView, self).get_form(form_class)
+
+    @function_trace()
     def get_form_kwargs(self):
         # TODO: the super code is put here for logging purposes, remove when done.
         kwargs = {

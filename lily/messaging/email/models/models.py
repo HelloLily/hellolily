@@ -19,7 +19,7 @@ from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from django_extensions.db.models import TimeStampedModel
 from django.utils.translation import ugettext_lazy as _
-from oauth2client.django_orm import CredentialsField
+from oauth2client.contrib.django_orm import CredentialsField
 
 from lily.tenant.models import TenantMixin
 from lily.users.models import LilyUser

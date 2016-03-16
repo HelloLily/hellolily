@@ -3,13 +3,217 @@
 
 <div ng-if="account.id" class="row">
     <div class="col-md-4">
-        <account-detail-widget account="account" height="300" collapsable-items="true"></account-detail-widget>
+        <dashboard-widget widget-name="'Account detail'" widget-scrollable="true">
+            <widget-header>
+                <div class="widget-name"><i class="lilicon hl-company-icon"></i> {{ account.name }}</div>
+            </widget-header>
+
+            <widget-filters>
+                <a ng-href="https://freedom.voys.nl/client/{{ account.customer_id }}" target="_blank" class="btn btn-circle btn-default" ng-show="account.customer_id">
+                    <i class="fa fa-external-link fa-sm"></i>
+                    Freedom
+                </a>
+                <a href="https://freedom.voys.nl/quotes/create/" target="_blank" class="btn btn-circle btn-default" ng-hide="account.customer_id">
+                    <i class="fa fa-external-link fa-sm"></i>
+                    Write quote
+                </a>
+            </widget-filters>
+
+            <widget-body>
+                <table class="widget-table">
+                    <tbody>
+                        <tr ng-show="(account.email_addresses | filter: {status: '!' + 0}).length">
+                            <td><i class="lilicon hl-mail-icon"></i> <strong>Email</strong></td>
+                            <td>
+                                <div ng-repeat="email in account.email_addresses | filter: {status: '!' + 0}">
+                                    <a ui-sref="base.email.composeEmail({email: email.email_address})">
+                                        {{ email.email_address }}
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr ng-if="account.phone">
+                            <td><i class="lilicon hl-phone-icon"></i> <strong>Phone</strong></td>
+                            <td>
+                                <div ng-repeat="phone in account.phones">
+                                     <a href="tel:{{ phone }}">
+                                        {{ phone }}
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr ng-show="account.website">
+                            <td><i class="fa fa-globe"></i> <strong>Website</strong></td>
+                            <td>
+                                <div ng-repeat="site in account.website">
+                                    <a href="{{ site }}" target="_blank">
+                                        {{ site | stripScheme }}
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr ng-show="account.assigned_to">
+                            <td><i class="lilicon hl-user-icon"></i> <strong>Assigned to</strong></td>
+                            <td>{{ account.assigned_to }}</td>
+                        </tr>
+
+                        <tr ng-show="account.address">
+                            <td><i class="fa fa-map-marker"></i> <strong>Address</strong></td>
+                            <td>
+                                <div ng-repeat="address in account.address">
+                                    <div>{{ address.address_street }} {{ address.address_street_number }}{{ address.address_complement }}</div>
+                                    <div>{{ address.address_postal_code }}, {{ address.address_city }}</div>
+                                    <div>{{ address.address_country }}</div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr ng-show="account.social" ng-repeat="social in account.social">
+                            <td><i class="fa fa-{{ social.social_name | lowercase }}"></i> <strong>{{ social.social_name }}</strong></td>
+                            <td><a ng-href="{{ social.social_url }}" target="_blank">{{ social.social_profile }}</a></td>
+                        </tr>
+
+                        <tr ng-show="account.tag">
+                            <td><i class="fa fa-tag"></i> <strong>Tags</strong></td>
+                            <td>
+                                <a class="btn btn-xs btn-default" ng-repeat="tag in account.tag">
+                                    {{ tag }}
+                                </a>
+                            </td>
+                        </tr>
+
+                        <tr ng-hide="account.phone || account.tag || account.address || account.assigned_to || account.website || (account.email_addresses | filter: {status: '!' + 0}).length">
+                            <td colspan="2">No account information</td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </widget-body>
+        </dashboard-widget>
     </div>
+
+
     <div class="col-md-4">
-        <list-widget title="Cases" list="caseList" height="200" add-link="base.cases.create.fromAccount({accountId: {{ account.id }}})" collapsable-items="true"></list-widget>
+        <dashboard-widget widget-name="'Cases'" widget-scrollable="true">
+            <widget-header>
+                <div class="widget-name"><i class="lilicon hl-case-icon"></i> Cases</div>
+            </widget-header>
+
+            <widget-filters>
+                <a ui-sref="base.cases.create.fromAccount({accountId: {{ account.id }}})" class="btn btn-circle btn-default">
+                    <i class="fa fa-plus"></i> Add
+                </a>
+            </widget-filters>
+
+            <widget-body>
+                <table class="widget-table">
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Status</th>
+                            <th class="align-center">Prio</th>
+                            <th>Expires</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody ng-repeat="case in caseList" ng-if="caseList.length">
+                        <tr>
+                            <td>
+                                <strong ng-if="::case.archived">(a)</strong>
+                                <a ui-sref="base.cases.detail({id: case.id})">{{ case.subject }}</a>
+                            </td>
+                            <td>{{ case.status }}</td>
+                            <td class="align-center">
+                                <i tooltip-placement="left" uib-tooltip="{{ case.priority_name }} priority" class="lilicon" ng-class="{0: 'hl-low-prio-icon', 1: 'hl-normal-prio-icon', 2: 'hl-high-prio-icon', 3: 'hl-critical-prio-icon'}[case.priority]"></i>
+                            </td>
+                            <td><postpone type="'Case'" object="case" date-field="'expires'" display-date="true"></postpone></td>
+                            <td class="clickable" style="width: 40px;" ng-click="case.collapsed = !case.collapsed">
+                                <div class="collapse-indicator no-padding">
+                                    <i class="fa fa-angle-down" ng-class="{'rotate': !case.collapsed}"></i>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr ng-show="case.collapsed" class="collapse-content" class="collapsable-cell">
+                            <td colspan="5">
+                                <div ng-if="case.body.length">
+                                    <div class="margin-bottom-5"><strong>Description:</strong></div>
+                                    <div class="margin-bottom-20">{{ case.body }}</div>
+                                </div>
+                                <div class="margin-bottom-5"><strong>Type:</strong> {{ case.casetype_name }}</div>
+                                <div class="margin-bottom-5"><strong>Assigned to:</strong> {{ case.assigned_to_name || "Nobody" }}</div>
+                                <div><strong>Created by:</strong> <span class="margin-right-5">{{ case.created_by || "Nobody" }} on</span><date date="case.created"></date></div>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tbody ng-hide="caseList.length">
+                        <tr>
+                            <td colspan="5">No cases</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </widget-body>
+        </dashboard-widget>
     </div>
+
+
     <div class="col-md-4">
-        <list-widget title="Deals" list="dealList" height="200" add-link="base.deals.create.fromAccount({accountId: {{ account.id }}})" collapsable-items="true"></list-widget>
+        <dashboard-widget widget-name="'Deals'" widget-scrollable="true">
+            <widget-header>
+                <div class="widget-name"><i class="lilicon hl-deals-icon"></i> Deals</div>
+            </widget-header>
+            <widget-filters>
+                <a ng-if="!$parent.settings.email.sidebar.case" ui-sref="base.deals.create.fromAccount({accountId: {{ account.id }}})" class="btn btn-circle btn-default">
+                    <i class="fa fa-plus"></i> Add
+                </a>
+            </widget-filters>
+            <widget-body>
+                <table class="widget-table">
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Stage</th>
+                            <th>Next Step</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody ng-repeat="deal in dealList" ng-if="dealList.length">
+                        <tr>
+                            <td>
+                                <strong ng-if="::deal.archived">(a)</strong>
+                                <a ui-sref="base.deals.detail({id: deal.id})">{{ deal.name }}</a>
+                            </td>
+                            <td>{{ deal.stage_name }}</td>
+                            <td>
+                                <span ng-if="deal.next_step" class="step-type" tooltip-placement="left" uib-tooltip="{{ deal.next_step.name }}" ng-class="{0: 'position-1', 1: 'position-2', 2: 'position-3', 3: 'position-4', 4: 'position-5', 5: 'position-6'}[deal.next_step.position]">
+                                </span>
+                                {{ deal.next_step_date | date:'dd MMMM yy' }}
+                            </td>
+                            <td class="clickable" style="width: 40px;" ng-click="deal.collapsed = !deal.collapsed">
+                                <div class="collapse-indicator no-padding">
+                                    <i class="fa fa-angle-down" ng-class="{'rotate': !deal.collapsed}"></i>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr ng-show="deal.collapsed" class="collapse-content" class="collapsable-cell">
+                            <td colspan="4">
+                                <div class="margin-bottom-5"><strong>Assigned to:</strong> {{ deal.assigned_to_name || "Nobody" }}</div>
+                                <div class="margin-bottom-5"><strong>Amount once:</strong> &euro; {{ deal.amount_once }}</div>
+                                <div class="margin-bottom-5"><strong>Recurring amount:</strong> &euro; {{ deal.amount_recurring }} per month</div>
+                                <div><strong>Created by:</strong> <span class="margin-right-5">{{ deal.created_by || "Nobody" }} on</span><date date="deal.created"></date></div>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tbody ng-hide="dealList.length">
+                        <tr>
+                            <td colspan="4">No deals</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </widget-body>
+        </dashboard-widget>
     </div>
 </div>
 
@@ -19,6 +223,49 @@
     </div>
 
     <div ng-if="account.id" class="col-md-4">
-        <list-widget title="Contacts" list="contactList" height="300" object="account" add-link="base.contacts.create.fromAccount({accountId: {{ account.id }}})"></list-widget>
+        <dashboard-widget widget-name="'Colleagues'">
+            <widget-header>
+                <div class="widget-name">
+                    <i class="fa fa-users"></i>
+                    Colleagues at
+                    <a ui-sref="base.accounts.detail({id: account.id })">{{ account.name }}</a>
+                </div>
+            </widget-header>
+
+            <widget-filters>
+                <a ui-sref="base.contacts.create.fromAccount({accountId: account.id})" class="btn btn-circle btn-default">
+                    <i class="fa fa-plus"></i> Add
+                </a>
+            </widget-filters>
+
+            <widget-body>
+                <table class="widget-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr ng-repeat="contact in contactList">
+                            <td><a ui-sref="base.contacts.detail({id: contact.id})">{{ contact.name }}</a></td>
+                            <td>
+                                <a ui-sref="base.email.composeEmail({email: contact.email_addresses[0].email_address})" ng-show="contact.email_addresses[0]">
+                                {{ contact.email_addresses[0].email_address }}
+                                </a>
+                                <span ng-hide="contact.email_addresses[0]">-</span>
+                            </td>
+                            <td><a href="tel:{{ contact.phones[0] || '' }}">{{ contact.phones[0] || '-' }}</a></td>
+                        </tr>
+                        <tr ng-hide="contactList.length">
+                            <td colspan="3">No colleagues</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </widget-body>
+
+        </dashboard-widget>
     </div>
 </div>

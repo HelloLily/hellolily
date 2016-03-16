@@ -7,7 +7,7 @@
                 {{ vm.usersDisplayNames.length }} selected
             </span>
             <span ng-show="vm.usersDisplayNames.length < 3" ng-repeat="display in vm.usersDisplayNames">
-                {{ display }} {{ $last ? '' : ', '}}
+                {{ display }}{{ $last ? '' : ', '}}
             </span>
         </span>
 

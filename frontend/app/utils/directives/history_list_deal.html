@@ -148,7 +148,7 @@
                                 <div class="content-history-desc">
                                     Added a note <span ng-if="note.type === 1">(Callback)</span> <span ng-if="note.type === 2">(Meetup)</span>
                                 </div>
-                                <div class="content-history-date">{{ ::note.date | date:'dd MMMM yy HH:mm' }}</div>
+                                <div class="content-history-date">{{ ::note.modified | date:'dd MMMM yy HH:mm' }}</div>
                                 <div class="clearfix"></div>
                             </div>
                             <div class="content-history-note-body">

@@ -93,6 +93,9 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
 
                     notePromise.then(function(results) {
                         results.forEach(function(note) {
+                            // Set notes shown property to true to have toggled open
+                            // as default.
+                            note.shown = true;
                             // If it's a contact's note, add extra attribute to the note
                             // so we can identify it in the template
                             if (scope.target === 'account' && note.content_type === 'contact') {
@@ -246,12 +249,21 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
             }
 
             function deleteNote(note) {
+                var month = moment(note.modified).format('M');
+                var year = moment(note.modified).format('YYYY');
+                var index;
+
                 if (confirm('Are you sure?')) {
                     Note.delete({
                         id: note.id,
                     }, function() {  // On success
-                        var index = scope.history.list.indexOf(note);
-                        scope.history.list.splice(index, 1);
+                        if (note.is_pinned) {
+                            index = scope.history.list.pinned.indexOf(note);
+                            scope.history.list.pinned.splice(index, 1);
+                        } else {
+                            index = scope.history.list.nonPinned[year + '-' + month].indexOf(note);
+                            scope.history.list.nonPinned[year + '-' + month].splice(index, 1);
+                        }
                     }, function(error) {  // On error
                         alert('something went wrong.');
                     });

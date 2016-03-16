@@ -202,5 +202,5 @@ class DealMapping(BaseMapping):
             } if obj.next_step else None,
             'next_step_date': obj.next_step_date,
             'why_customer': obj.why_customer.name if obj.why_customer else None,
-            'why_lost': obj.why_lost.name if obj.why_lost else None,
+            'content_type': obj.content_type.id,
         }

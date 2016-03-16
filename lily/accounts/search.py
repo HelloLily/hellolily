@@ -179,6 +179,7 @@ class AccountMapping(BaseMapping):
                 'social_url': soc.profile_url
             } for soc in obj.social_media.all()],
             'address_full': [address.full() for address in obj.addresses.all()],
+            'content_type': obj.content_type.id,
         }
 
         phones = obj.phone_numbers.all()

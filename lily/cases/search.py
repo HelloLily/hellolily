@@ -135,4 +135,5 @@ class CaseMapping(BaseMapping):
             'parcel_provider': obj.parcel.get_provider_display() if obj.parcel else None,
             'parcel_identifier': obj.parcel.identifier if obj.parcel else None,
             'parcel_link': obj.parcel.get_link() if obj.parcel else None,
+            'content_type': obj.content_type.id,
         }

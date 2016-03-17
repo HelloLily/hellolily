@@ -33,23 +33,23 @@
                             </td>
                         </tr>
 
-                        <tr ng-if="account.phone">
+                        <tr ng-if="account.phone_numbers.length">
                             <td><i class="lilicon hl-phone-icon"></i> <strong>Phone</strong></td>
                             <td>
-                                <div ng-repeat="phone in account.phones">
-                                     <a href="tel:{{ phone }}">
-                                        {{ phone }}
+                                <div ng-repeat="phone in account.phone_numbers">
+                                     <a href="tel:{{ phone.number }}">
+                                        {{ phone.number }}
                                     </a>
                                 </div>
                             </td>
                         </tr>
 
-                        <tr ng-show="account.website">
+                        <tr ng-show="account.websites.length">
                             <td><i class="fa fa-globe"></i> <strong>Website</strong></td>
                             <td>
-                                <div ng-repeat="site in account.website">
-                                    <a href="{{ site }}" target="_blank">
-                                        {{ site | stripScheme }}
+                                <div ng-repeat="site in account.websites">
+                                    <a href="{{ site.website }}" target="_blank">
+                                        {{ site.website | stripScheme }}
                                     </a>
                                 </div>
                             </td>
@@ -57,16 +57,16 @@
 
                         <tr ng-show="account.assigned_to">
                             <td><i class="lilicon hl-user-icon"></i> <strong>Assigned to</strong></td>
-                            <td>{{ account.assigned_to }}</td>
+                            <td>{{ account.assigned_to.full_name }}</td>
                         </tr>
 
-                        <tr ng-show="account.address">
+                        <tr ng-show="account.addresses.length">
                             <td><i class="fa fa-map-marker"></i> <strong>Address</strong></td>
                             <td>
-                                <div ng-repeat="address in account.address">
-                                    <div>{{ address.address_street }} {{ address.address_street_number }}{{ address.address_complement }}</div>
-                                    <div>{{ address.address_postal_code }}, {{ address.address_city }}</div>
-                                    <div>{{ address.address_country }}</div>
+                                <div ng-repeat="address in account.addresses">
+                                    <div>{{ address.street }} {{ address.street_number }}{{ address.complement }}</div>
+                                    <div>{{ address.postal_code }}, {{ address.city }}</div>
+                                    <div>{{ address.country_display }}</div>
                                 </div>
                             </td>
                         </tr>
@@ -76,16 +76,16 @@
                             <td><a ng-href="{{ social.social_url }}" target="_blank">{{ social.social_profile }}</a></td>
                         </tr>
 
-                        <tr ng-show="account.tag">
+                        <tr ng-show="account.tags.length">
                             <td><i class="fa fa-tag"></i> <strong>Tags</strong></td>
                             <td>
-                                <a class="btn btn-xs btn-default" ng-repeat="tag in account.tag">
-                                    {{ tag }}
+                                <a class="btn btn-xs btn-default" ng-repeat="tag in account.tags">
+                                    {{ tag.name }}
                                 </a>
                             </td>
                         </tr>
 
-                        <tr ng-hide="account.phone || account.tag || account.address || account.assigned_to || account.website || (account.email_addresses | filter: {status: '!' + 0}).length">
+                        <tr ng-hide="account.phone_numbers.length || account.tags.length || account.addresses.length || account.assigned_to || account.websites.length || (account.email_addresses | filter: {status: '!' + 0}).length">
                             <td colspan="2">No account information</td>
                         </tr>
 

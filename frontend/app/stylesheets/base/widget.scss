@@ -75,3 +75,55 @@
         background: #f3565d;
     }
 }
+
+.widget-content-table {
+
+    background: none;
+
+    td {
+        width: 160px;
+        vertical-align: top;
+
+        &:first-child {
+            font-weight: bold;
+            width: 160px;
+        }
+
+
+    }
+
+    tr {
+        margin-bottom: 20px;
+        display: block;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+
+        &.has-no-info {
+            td {
+                width: 100%;
+            }
+        }
+
+    }
+
+    ul {
+        padding: 0;
+        margin: 0;
+        list-style-type: none;
+        margin-bottom: 10px;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+
+    @media (max-width: $breakpoint-mobile) {
+        td {
+            width: 100%;
+            display: inline;
+        }
+    }
+}

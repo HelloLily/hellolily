@@ -126,7 +126,7 @@ class AddressSerializer(serializers.ModelSerializer):
     """
     street = serializers.CharField(required=True)
     street_number = serializers.IntegerField(required=True, error_messages={'invalid': 'Please enter a number.'})
-    country_display = serializers.CharField(source='get_country_display', read_only=True)
+    country_display = serializers.CharField(read_only=True)
 
     class Meta:
         model = Address

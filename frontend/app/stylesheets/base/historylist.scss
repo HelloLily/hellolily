@@ -134,8 +134,7 @@
     margin-bottom: 20px;
 
     .timeline-content-header {
-        padding: 15px;
-        padding-top: 10px;
+        padding: 10px 15px 15px;
     }
 }
 
@@ -152,28 +151,23 @@
     text-align: center;
     overflow: hidden;
     background: #FFD66F;
-    text-align: center;
     background-size: cover;
     background-repeat: no-repeat;
 
-    &.is-type {
-        i {
-            font-size: 25px;
-            color: white;
-            line-height: 60px;
-        }
+    &.is-type i {
+        font-size: 25px;
+        color: white;
+        line-height: 60px;
     }
 
     @media (max-width: $breakpoint-mobile) {
         width: 50px;
         height: 50px;
 
-        &.is-type {
-            i {
-                font-size: 20px;
-                color: white;
-                line-height: 40px;
-            }
+        &.is-type i {
+            font-size: 20px;
+            color: white;
+            line-height: 40px;
         }
     }
 }
@@ -195,11 +189,11 @@
         width: 5px;
         background-color: $noteColor;
         position: absolute;
-        left: -5px;
-        height: 72px;
-        border-top-left-radius: 5px;
-        border-bottom-left-radius: 5px;
         top: -1px;
+        bottom: -1px;
+        left: -5px;
+        border-top-left-radius: 4px;
+        border-bottom-left-radius: 4px;
     }
 
 
@@ -229,10 +223,6 @@
 
     @media (max-width: $breakpoint-mobile) {
         margin-left: 65px;
-
-        &:before {
-            height: 50px;
-        }
     }
 
 }
@@ -248,7 +238,7 @@
         display: block;
         background-color: white;
         border-radius: 50%;
-        border: 4px solid #e9ecf3;
+        border: 4px solid $lilyGrey;
         width: 16px;
         height: 16px;
         position: absolute;
@@ -266,7 +256,7 @@
 }
 
 .timeline-type {
-    font-size: 20px;
+    font-size: 23px;
     width: 55px;
     position: absolute;
     left: 0;
@@ -291,9 +281,16 @@
 
 .timeline-content-title {
     font-size: 16px;
+    font-weight: 600;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     color: $lilyDarkBlue;
     margin-bottom: 10px;
     display: block;
+
+    a {
+        color: $lilyDarkBlue;
+    }
 
     @media (max-width: $breakpoint-mobile) {
         position: relative;
@@ -315,7 +312,8 @@
         display: inline-block;
         margin-right: 40px;
         color: $lilyDarkBlue;
-        width: 150px;
+        width: 15%;
+        min-width: 150px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -335,14 +333,15 @@
 .timeline-date {
     position: absolute;
     line-height: 22px;
-    top: 0px;
+    font-size: 12px;
+    top: 0;
     bottom: 0;
     right: 50px;
     color: #afb5c2;
 
     @media (max-width: $breakpoint-mobile) {
         position: relative;
-        right: 0px;
+        right: 0;
     }
 }
 
@@ -362,7 +361,7 @@
 
     @media (max-width: $breakpoint-mobile) {
         right: 0;
-        line-height: 0px;
+        line-height: 0;
         top: 10px;
         right: 10px;
     }
@@ -371,9 +370,13 @@
 .content-details {
     width: 100%;
     border-top: 1px solid $lilyBorderDark;
-    border-bottom: 1px solid $lilyBorderDark;
+    border-bottom: 1px solid lighten($lilyBorderDark, 10);
     background-color: white;
-    padding: 20px;
+    padding: 15px;
+
+    p {
+        line-height: 24px;
+    }
 
     &.is-hidden {
         display: none;
@@ -411,6 +414,7 @@
 }
 
 .content-history-date {
+    font-size: 12px;
     float: right;
     color: #AFB5C2;
 }
@@ -468,7 +472,7 @@
     bottom: 0;
     top: 0;
     width: 40px;
-    border-right: 1px solid $lilyBorderDark;
+    border-right: 2px solid lighten($lilyBorderDark, 10);
 }
 
 .content-history-note-header {
@@ -488,17 +492,14 @@
 }
 
 .timeline-content-type-buttons {
-    margin: 0;
+    margin: 10px 0;
     padding: 0;
-    margin-top: 10px;
-    margin-bottom: 10px;
 
     li {
         list-style-type: none;
         display: inline-block;
         background: $lilyHeaderBg;
-        padding: 7px 10px;
-        padding-right: 20px;
+        padding: 7px 20px 7px 10px;
         position: relative;
         border: 1px solid $baseBorderColor;
         color: $lilyDarkBlue;

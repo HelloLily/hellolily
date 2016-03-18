@@ -69,7 +69,7 @@
                 </ul>
 
                 <div class="timeline-date">
-                    {{ ::vm.item.modified | date:'dd MMMM yy HH:mm' }}
+                    {{ ::vm.item.modified | date:'dd MMM - HH:mm' }}
                 </div>
             </div>
 
@@ -80,10 +80,10 @@
             <p ng-bind-html="::vm.item.content | parseUrls"></p>
 
             <ul class="content-details-actions">
-                <li><a ng-click="vm.history.editNote(vm.item)"><i class="fa fa-edit"></i>Edit</a></li>
-                <li ng-if="!vm.item.is_pinned"><a ng-click="vm.history.pinNote(vm.item, true)"><i class="fa fa-thumb-tack"></i>Pin note</a></li>
+                <li><a ng-click="vm.history.editNote(vm.item)"><i class="lilicon hl-edit-icon"></i> Edit</a></li>
+                <li ng-if="!vm.item.is_pinned"><a ng-click="vm.history.pinNote(vm.item, true)"><i class="lilicon hl-pin-icon"></i> Pin note</a></li>
                 <li ng-if="vm.item.is_pinned"><a ng-click="vm.history.pinNote(vm.item, false)"><i class="fa fa-times"></i>Unpin note</a></li>
-                <li><a ng-click="vm.history.deleteNote(vm.item)"><i class="fa fa-trash"></i>Delete</a></li>
+                <li><a ng-click="vm.history.deleteNote(vm.item)"><i class="lilicon hl-trashcan-icon"></i> Delete</a></li>
             </ul>
         </div>
     </div>

@@ -70,16 +70,38 @@
                 <span ng-if="vm.item.subject"  class="timeline-content-title">
                     <a ui-sref="base.email.detail({ id: vm.item.id })">
                         {{ ::vm.item.subject | limitTo:50 }}
+                        <span ng-if="::vm.item.subject.length >= 45">...</span>
                     </a>
                 </span>
-                <span class="timeline-content-title" ng-if="::vm.item.subject.length >= 45">...</span>
                 <span class="timeline-content-title" ng-if="!vm.item.subject"><i>No Subject</i></span>
                 <ul class="timeline-content-details">
-                    <li>From: {{ ::vm.item.sender_name }}</li>
-                    <li>To: {{ ::vm.item.sender_email }}</li>
+                    <li ng-show="vm.item.sender_name">From:
+                        <a ui-sref="base.email.composeEmail({email: vm.item.sender_email})">
+                            {{ ::vm.item.sender_name }}
+                        </a>
+                    </li>
+                    <li ng-show="!vm.item.sender_name">From:
+                        <a ui-sref="base.email.composeEmail({email: vm.item.sender_email})">
+                            {{ ::vm.item.sender_email }}
+                        </a>
+                    </li>
+
+                    <li>To:
+                        <span ng-if="vm.item.received_by_email.length == 1" ng-repeat="recipient in vm.item.received_by_email">
+                            <a uib-tooltip="{{ recipient }}" ui-sref="base.email.composeEmail({email: recipient})">
+                                {{ recipient }}
+                            </a>
+                        </span>
+                        <span ng-if="vm.item.received_by_email.length > 1 ">
+                            <a ui-sref="base.email.detail({ id: vm.item.id })">
+                                {{ vm.item.received_by_email.length }} recipients
+                            </a>
+                        </span>
+                    </li>
                 </ul>
+
                 <div class="timeline-date">
-                    {{ ::vm.item.sent_date | date:'dd MMMM yy HH:mm' }}
+                    {{ ::vm.item.sent_date | date:'dd MMM - HH:mm' }}
                 </div>
             </div>
 
@@ -94,9 +116,9 @@
 
 
             <ul class="content-details-actions">
-                <li><a ui-sref="base.email.detail({id: vm.item.id})">View</a></li>
-                <li><a ng-click="vm.replyOnEmail()">Reply</a></li>
-                <li><a ui-sref="base.email.forward({id: vm.item.id})">Forward</a></li>
+                <li><a ui-sref="base.email.detail({id: vm.item.id})"><i class="fa fa-eye"></i> View</a></li>
+                <li><a ng-click="vm.replyOnEmail()"><i class="fa fa-mail-reply"></i> Reply</a></li>
+                <li><a ui-sref="base.email.forward({id: vm.item.id})"><i class="fa fa-mail-forward"></i> Forward</a></li>
             </ul>
         </div>
 

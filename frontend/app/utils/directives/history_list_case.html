@@ -93,15 +93,16 @@
             <div class="timeline-content">
                 <span class="timeline-content-title"><a ui-sref="base.cases.detail({ id: vm.item.id })">{{ ::vm.item.subject }}</a></span>
                 <ul class="timeline-content-details">
-                    <li>Status: {{ ::vm.item.status}} ({{ ::vm.item.archived ? 'archived' : 'active' }})</li>
+                    <li>Status: <strong>{{ ::vm.item.status}} ({{ ::vm.item.archived ? 'archived' : 'active' }})</strong></li>
                     <li>
-                        Priority: {{ ::vm.item.priority_name }}
+                        Priority:
                         <i class="lilicon" ng-class="{0: 'hl-low-prio-icon', 1: 'hl-normal-prio-icon', 2: 'hl-high-prio-icon', 3: 'hl-critical-prio-icon'}[vm.item.priority]"></i>
+                        <strong>{{ ::vm.item.priority_name }}</strong>
                     </li>
-                    <li>Type: {{ ::vm.item.casetype_name }}</li>
+                    <li>Type: <strong>{{ ::vm.item.casetype_name }}</strong></li>
                 </ul>
                 <div class="timeline-date">
-                    {{ ::vm.item.modified | date:'dd MMMM yy HH:mm' }}
+                    {{ ::vm.item.modified | date:'dd MMM - HH:mm' }}
                 </div>
             </div>
 
@@ -112,14 +113,14 @@
         </div>
         <div ng-show="vm.item.shown">
             <div class="content-details history-item-body">
-                <p ng-bind-html="::vm.item.body | parseUrls"></p>
+                <p ng-if="vm.item.body" ng-bind-html="::vm.item.body | parseUrls"></p>
 
                 <ul class="content-details-actions">
-                    <li><a ui-sref="base.cases.detail({ id: vm.item.id })">View</a></li>
-                    <li><a ui-sref="base.cases.detail.edit({ id: vm.item.id })">Edit</a></li>
+                    <li><a ui-sref="base.cases.detail({ id: vm.item.id })"><i class="fa fa-eye"></i> View</a></li>
+                    <li><a ui-sref="base.cases.detail.edit({ id: vm.item.id })"><i class="lilicon hl-edit-icon"></i> Edit</a></li>
                     <li>
                         <a ng-href="/cases/delete/{{ ::vm.item.id }}/" data-target="#confirm-delete" data-source="/cases/delete/{{ ::vm.item.id }}/">
-                            Delete
+                            <i class="lilicon hl-trashcan-icon"></i> Delete
                         </a>
                     </li>
                 </ul>
@@ -150,13 +151,13 @@
                             <div class="content-history-note-header">
                                 <div class="content-history-avatar" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png'); "></div>
                                 <div class="content-history-desc">
-                                    Added a note <span ng-if="note.type === 1">(callback)</span> <span ng-if="note.type === 2">(meetup)</span>
+                                    {{ note.author }} added a note <span ng-if="note.type === 1">(callback)</span> <span ng-if="note.type === 2">(meetup)</span>
                                 </div>
 
-                                <div class="content-history-date">{{ ::note.date | date:'dd MMMM yy HH:mm' }}</div>
+                                <div class="content-history-date">{{ ::note.date | date:'dd MMM - HH:mm' }}</div>
                                 <div class="clearfix"></div>
                             </div>
-                            <div class="content-history-note-body">
+                            <div ng-if="note.content" class="content-history-note-body">
                                 {{ note.content }}
                             </div>
                         </li>
@@ -164,10 +165,10 @@
                             <div class="content-history-note-header">
                                 <div class="content-history-avatar" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png'); "></div>
                                 <div class="content-history-desc">
-                                    Created the case <a ui-sref="base.cases.detail({ id: vm.item.id })">{{ ::vm.item.subject }}</a>
+                                    {{ ::vm.item.created_by }} created the case <a ui-sref="base.cases.detail({ id: vm.item.id })">{{ ::vm.item.subject }}</a>
                                 </div>
 
-                                <div class="content-history-date">{{ ::vm.item.created | date:'dd MMMM yy HH:mm' }}</div>
+                                <div class="content-history-date">{{ ::vm.item.created | date:'dd MMM - HH:mm' }}</div>
                                 <div class="clearfix"></div>
                             </div>
                         </li>

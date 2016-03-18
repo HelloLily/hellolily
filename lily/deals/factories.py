@@ -95,12 +95,12 @@ class DealContactedByFactory(DjangoModelFactory):
 
 
 STATUS_NAMES = [
-   'Open',
-   'Proposal sent',
-   'Won',
-   'Lost',
-   'Called',
-   'Emailed',
+    'Open',
+    'Proposal sent',
+    'Won',
+    'Lost',
+    'Called',
+    'Emailed',
 ]
 
 

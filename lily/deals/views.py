@@ -1,19 +1,14 @@
-import datetime
 from datetime import date, timedelta
 
 import anyjson
-from django.conf import settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.http import Http404, HttpResponse
-from django.utils.timezone import utc
+from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from pytz import timezone
 
 from lily.accounts.models import Account
 from lily.utils.functions import is_ajax
-from lily.utils.views import AjaxUpdateView
 from lily.utils.views.mixins import LoginRequiredMixin
 
 from .forms import CreateUpdateDealForm

@@ -100,6 +100,7 @@
                         <strong>{{ ::vm.item.priority_name }}</strong>
                     </li>
                     <li>Type: <strong>{{ ::vm.item.casetype_name }}</strong></li>
+                    <li>Expires: <strong class="margin-left-5"><date date="vm.item.expires"></date></strong></li>
                 </ul>
                 <div class="timeline-date">
                     {{ ::vm.item.modified | date:'dd MMM - HH:mm' }}

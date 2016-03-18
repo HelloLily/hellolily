@@ -87,10 +87,21 @@ function Deal($resource, HLUtils, HLForms, User) {
             getWhyLost: {
                 url: 'api/deals/why-lost',
             },
-            getStages: {
-                url: '/api/deals/stages/',
-                isArray: true,
-                transformResponse: _transformChoices,
+            getStatuses: {
+                url: '/api/deals/statuses/',
+                transformResponse: function(data) {
+                    var statusData = angular.fromJson(data);
+
+                    angular.forEach(statusData.results, function(status) {
+                        if (status.name === 'Lost') {
+                            _deal.lostStatus = status;
+                        } else if (status.name === 'Won') {
+                            _deal.wonStatus = status;
+                        }
+                    });
+
+                    return statusData;
+                },
             },
             getFoundThrough: {
                 url: '/api/deals/found-through/',
@@ -172,21 +183,6 @@ function Deal($resource, HLUtils, HLForms, User) {
         var deal = this;
         deal.is_checked = true;
         return deal.$update();
-    }
-
-    function _transformChoices(data) {
-        data = angular.fromJson(data);
-        var choices = [];
-
-        // Convert the Django choices to a generic Array.
-        for (var i = 0; i < data.length; i++) {
-            choices.push({
-                id: data[i][0],
-                name: data[i][1],
-            });
-        }
-
-        return choices;
     }
 
     return _deal;

@@ -10,7 +10,7 @@
                 <div class="dropdown-menu hold-on-click dropdown-checkboxes">
                     <checkbox model="vm.table.visibility.name">Subject</checkbox>
                     <checkbox model="vm.table.visibility.client">Client</checkbox>
-                    <checkbox model="vm.table.visibility.stage">Stage</checkbox>
+                    <checkbox model="vm.table.visibility.status">Status</checkbox>
                     <checkbox model="vm.table.visibility.nextStep">Next step</checkbox>
                     <checkbox model="vm.table.visibility.nextStepDate">Next step date</checkbox>
                     <checkbox model="vm.table.visibility.assignedTo">Assigned to</checkbox>
@@ -74,7 +74,7 @@
                 <th>Edit</th>
                 <th ng-show="vm.table.visibility.name" table="vm.table" class="width-20">Subject</th>
                 <th ng-show="vm.table.visibility.client" class="width-10">Client</th>
-                <th ng-show="vm.table.visibility.stage" sort-column="stage" table="vm.table">Stage</th>
+                <th ng-show="vm.table.visibility.status" sort-column="status" table="vm.table">Status</th>
                 <th ng-show="vm.table.visibility.nextStep" sort-column="next_step.name" table="vm.table">Next step</th>
                 <th ng-show="vm.table.visibility.nextStepDate" sort-column="next_step_date" table="vm.table">Next step date</th>
                 <th ng-show="vm.table.visibility.assignedTo" sort-column="assigned_to_name" table="vm.table">Assigned to</th>
@@ -102,8 +102,8 @@
                         <span ng-if="deal.contact && deal.account"> at </span>
                         <a ui-sref="base.accounts.detail({ id: deal.account })">{{ ::deal.account_name }}</a>
                     </td>
-                    <td ng-show="vm.table.visibility.stage">
-                        {{ deal.stage_name }}
+                    <td ng-show="vm.table.visibility.status">
+                        {{ deal.status.name }}
                     </td>
                     <td ng-show="vm.table.visibility.nextStep">
                         <span class="step-type" ng-class="{0: 'position-1', 1: 'position-2', 2: 'position-3', 3: 'position-4', 4: 'position-5', 5: 'position-6'}[deal.next_step.position]">

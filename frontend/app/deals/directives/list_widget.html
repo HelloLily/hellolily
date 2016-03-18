@@ -35,7 +35,7 @@
                                 <strong ng-if="::deal.archived">(a)</strong>
                                 <a ui-sref="base.deals.detail({id: deal.id})">{{ deal.name }}</a>
                             </td>
-                            <td>{{ deal.stage_name }}</td>
+                        <td>{{ deal.status.name }}</td>
                             <td>
                                 <span ng-if="deal.next_step"
                                       class="step-type"

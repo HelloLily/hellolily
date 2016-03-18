@@ -87,8 +87,8 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
     def save(self, commit=True):
         instance = super(CreateUpdateDealForm, self).save(commit=commit)
 
-        # Set closed_date after changing stage to lost/won and reset it when it's new/pending
-        if instance.stage in [Deal.WON_STAGE, Deal.LOST_STAGE]:
+        # Set closed_date after changing status to lost/won and reset it when it's new/pending.
+        if instance.status.name in ['Won', 'Lost']:
             if not instance.closed_date:
                 instance.closed_date = datetime.datetime.utcnow().replace(tzinfo=utc)
         else:
@@ -109,7 +109,7 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
                 'fields': ('name', 'amount_once', 'amount_recurring', 'currency', 'description', 'quote_id'),
             }),
             (_('What\'s the status?'), {
-                'fields': ('stage', 'next_step', 'next_step_date', 'assigned_to'),
+                'fields': ('status', 'next_step', 'next_step_date', 'assigned_to'),
             }),
             (_('Action checklist'), {
                 'fields': ('twitter_checked', 'is_checked', 'card_sent', 'feedback_form_sent'),
@@ -123,7 +123,7 @@ class CreateUpdateDealForm(TagsFormMixin, HelloLilyModelForm):
             'currency': forms.Select(attrs={
                 'class': 'chzn-select-no-search',
             }),
-            'stage': forms.Select(attrs={
+            'status': forms.Select(attrs={
                 'class': 'chzn-select-no-search',
             }),
         }

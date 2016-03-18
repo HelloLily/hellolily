@@ -11,7 +11,7 @@ from lily.utils.api.related.mixins import RelatedSerializerMixin
 from lily.utils.api.related.serializers import WritableNestedSerializer
 from lily.utils.api.serializers import RelatedTagSerializer
 
-from ..models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost, DealFoundThrough, DealContactedBy
+from ..models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost, DealFoundThrough, DealContactedBy, DealStatus
 
 
 class DealNextStepSerializer(serializers.ModelSerializer):
@@ -100,6 +100,23 @@ class RelatedDealContactedBySerializer(RelatedSerializerMixin, DealContactedBySe
     pass
 
 
+class DealStatusSerializer(serializers.ModelSerializer):
+    """
+    Serializer for deal status model.
+    """
+    class Meta:
+        model = DealStatus
+        fields = (
+            'id',
+            'name',
+            'position',
+        )
+
+
+class RelatedDealStatusSerializer(RelatedSerializerMixin, DealStatusSerializer):
+    pass
+
+
 class DealSerializer(WritableNestedSerializer):
     """
     Serializer for the deal model.
@@ -121,10 +138,10 @@ class DealSerializer(WritableNestedSerializer):
     why_lost = RelatedDealWhyLostSerializer(assign_only=True, allow_null=True, required=False)
     found_through = RelatedDealFoundThroughSerializer(assign_only=True)
     contacted_by = RelatedDealContactedBySerializer(assign_only=True)
+    status = RelatedDealStatusSerializer(assign_only=True)
 
     # Show string versions of fields.
     currency_display = serializers.CharField(source='get_currency_display', read_only=True)
-    stage_display = serializers.CharField(source='get_stage_display', read_only=True)
 
     amount_once = serializers.DecimalField(max_digits=19, decimal_places=2, required=True)
     amount_recurring = serializers.DecimalField(max_digits=19, decimal_places=2, required=True)
@@ -142,15 +159,15 @@ class DealSerializer(WritableNestedSerializer):
             if not Function.objects.filter(contact_id=contact_id, account_id=account_id).exists():
                 raise serializers.ValidationError({'contact': _('Given contact must work at the account.')})
 
-        stage_id = attrs.get('stage', {})
-        if isinstance(stage_id, dict):
-            stage_id = stage_id.get('id')
+        status_id = attrs.get('status', {})
+        if isinstance(status_id, dict):
+            status_id = status_id.get('id')
 
         why_lost_id = attrs.get('why_lost', {})
         if isinstance(why_lost_id, dict):
             why_lost_id = why_lost_id.get('id')
 
-        if stage_id == 3 and why_lost_id is None and DealWhyLost.objects.exists():
+        if status_id == 3 and why_lost_id is None and DealWhyLost.objects.exists():
             raise serializers.ValidationError({'why_lost': _('This field may not be empty.')})
 
         return super(DealSerializer, self).validate(attrs)
@@ -200,8 +217,7 @@ class DealSerializer(WritableNestedSerializer):
             'next_step_date',
             'notes',
             'quote_id',
-            'stage',
-            'stage_display',
+            'status',
             'tags',
             'twitter_checked',
             'why_customer',

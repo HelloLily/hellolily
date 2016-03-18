@@ -5,10 +5,10 @@
     <div class="col-md-8">
         <div ng-if="vm.deal.id" class="row">
             <div class="summary-info text-center">
-                <div id="deal-stage" class="btn-group" data-toggle="buttons" data-object-id="{{ vm.deal.id }}">
-                        <label ng-repeat="stage in vm.dealStages" for="stage-{{ stage[1] | lowercase }}" ng-class="{'btn default': true, 'btn default active': vm.deal.stage == stage[0], 'btn default disabled': vm.deal.is_archived }" ng-click="vm.changeState(stage)">
-                            <input class="toggle" type="radio" id="stage-{{ stage[1] | lowercase }}" name="radio" value="{{ stage[0] }}" ng-checked="vm.deal.stage == stage[0]">
-                            {{ stage[1] }}
+                <div id="deal-status" class="btn-group" data-toggle="buttons" data-object-id="{{ vm.deal.id }}">
+                        <label ng-repeat="status in vm.statusChoices" for="status-{{ status.name | lowercase }}" ng-class="{'btn default': true, 'btn default active': vm.deal.status.id == status.id, 'btn default disabled': vm.deal.is_archived }" ng-click="vm.changeState(status)">
+                            <input class="toggle" type="radio" id="status-{{ status.name | lowercase }}" name="radio" value="{{ status.id }}" ng-checked="vm.deal.status.id == status.id">
+                            {{ status.name }}
                         </label>
                     <div class="btn-group">
                         <button class="btn default" ng-click="vm.deal.is_archived = !vm.deal.is_archived">
@@ -152,14 +152,14 @@
                                     Status
                                 </td>
                                 <td>
-                                    <span ng-if="vm.deal.is_archived">{{ vm.deal.stage_display }}</span>
-                                    <editable-select ng-if="!vm.deal.is_archived" field="stage" view-model="vm" type="Deal" class="inline-selectable-text" choice-field="true">
-                                        {{ vm.deal.stage_display }}
+                                    <span ng-if="vm.deal.is_archived">{{ vm.deal.status.name }}</span>
+                                    <editable-select ng-if="!vm.deal.is_archived" field="status" view-model="vm" type="Deal" class="inline-selectable-text">
+                                        {{ vm.deal.status.name }}
                                     </editable-select>
                                     <span ng-show="vm.deal.is_archived">- Archived</span>
                                 </td>
                             </tr>
-                            <tr ng-show="vm.deal.stage == 3 && vm.deal.why_lost">
+                            <tr ng-show="vm.deal.why_lost">
                                 <td>Why lost</td>
                                 <td>
                                      <editable-select field="why_lost" view-model="vm" type="Deal">
@@ -173,7 +173,7 @@
                                     <editable-checkbox view-model="vm" type="Deal" field="twitter_checked"></editable-checkbox>
                                 </td>
                             </tr>
-                            <tr ng-show="vm.deal.stage == 2">
+                            <tr ng-show="vm.deal.status.id == vm.wonStatus.id">
                                 <td>Quote checked</td>
                                 <td>
                                     <editable-checkbox view-model="vm" type="Deal" field="is_checked"></editable-checkbox>

@@ -90,7 +90,7 @@ function AccountCreateController($state, $stateParams, Settings, Account, User, 
                     }
                 }
 
-                // Make the variable name a bit more logical (e.g. vm.stageChoices vs vm.stage).
+                // Make the variable name a bit more logical (e.g. vm.currencyChoices vs vm.currency).
                 choiceVarName += 'Choices';
 
                 vm[choiceVarName] = choiceData[choiceFields[i]].choices;

@@ -36,7 +36,7 @@ function DealsToCheckController($scope, LocalStorage, Deal, HLUtils, UserTeams) 
     }
 
     function _getDealsToCheck() {
-        var filterQuery = 'stage:2 AND is_checked:false AND new_business:true AND archived:false';
+        var filterQuery = 'status:2 AND is_checked:false AND new_business:true AND archived:false';
         var dealPromise;
 
         HLUtils.blockUI('#dealsToCheckBlockTarget', true);

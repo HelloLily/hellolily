@@ -149,3 +149,17 @@ $inline-editable-field-height: 30px;
 .checker {
     margin: 0!important;
 }
+
+.editable-related-actions {
+    background: $lilyWhiteToneHover;
+    border: 1px $lilyGrey solid;
+    border-bottom-left-radius: $baseBorderRadius;
+    border-bottom-right-radius: $baseBorderRadius;
+    height: $inline-editable-field-height;
+
+    .btn {
+        background: inherit;
+        height: $inline-editable-field-height - 2;
+        color: $lilyDarkBlue;
+    }
+}

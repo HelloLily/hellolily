@@ -2,13 +2,15 @@ angular.module('app.services').service('HLUtils', HLUtils);
 
 function HLUtils() {
     this.formatPhoneNumber = function(phoneNumber) {
+        var newNumber;
+
         if (!phoneNumber.raw_input || phoneNumber.raw_input.match(/[a-z]/i)) {
-            // If letters are found, skip formatting: it may not be a phone field after all
+            // If letters are found, skip formatting: it may not be a phone field after all.
             return false;
         }
 
         // Format phone number
-        var newNumber = phoneNumber.raw_input
+        newNumber = phoneNumber.raw_input
             .replace('(0)', '')
             .replace(/\s|\(|\-|\)|\.|\\|\/|\–|x|:|\*/g, '')
             .replace(/^00/, '+');
@@ -17,9 +19,9 @@ function HLUtils() {
             return false;
         }
 
-        // Check if it's a mobile phone number
+        // Check if it's a mobile phone number.
         if (newNumber.match(/^\+31([\(0\)]+)?6|^06/)) {
-            // Set phone number type to mobile
+            // Set phone number type to mobile.
             phoneNumber.type = 'mobile';
         }
 
@@ -40,6 +42,18 @@ function HLUtils() {
         return phoneNumber;
     };
 
+    this.setPrimaryEmailAddress = function(emailAddress, emailAddresses) {
+        // Check if the status of an email address is 'Primary'.
+        if (emailAddress.status === 2) {
+            angular.forEach(emailAddresses, function(email) {
+                // Set the status of the other (active) email addresses to 'Other'.
+                if (emailAddress !== email && email.status !== 0) {
+                    email.status = 1;
+                }
+            });
+        }
+    };
+
     this.getFullName = function(user) {
         // Join strings in array while ignoring empty values.
         return [user.first_name, user.preposition, user.last_name].filter(function(val) { return val; }).join(' ');
@@ -49,12 +63,14 @@ function HLUtils() {
         var sort = '';
         sort += descending ? '-' : '';
         sort += field;
+
         return sort;
     };
 
     this.timeCategorizeObjects = function(data, field) {
         var now = moment();
         var tomorrow = moment().add('1', 'day');
+        var day;
 
         var items = {
             expired: [],
@@ -65,7 +81,7 @@ function HLUtils() {
 
         angular.forEach(data, function(item) {
             if (item[field]) {
-                var day = moment(item[field]);
+                day = moment(item[field]);
 
                 if (day.isBefore(now, 'day')) {
                     items.expired.push(item);

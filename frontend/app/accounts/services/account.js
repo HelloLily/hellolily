@@ -33,6 +33,12 @@ function Account($http, $q, $resource, HLUtils) {
                     id: '@id',
                 },
             },
+            patch: {
+                method: 'PATCH',
+                params: {
+                    id: '@id',
+                },
+            },
             delete: {
                 method: 'DELETE',
             },
@@ -213,6 +219,7 @@ function Account($http, $q, $resource, HLUtils) {
 
     _account.prototype._storeDataproviderInfo = function(data) {
         var account = this;
+
         angular.forEach(data, function(value, key) {
             // Only if value is defined & is not an array (than it is an related field)
             if (value && !(value instanceof Array)) {

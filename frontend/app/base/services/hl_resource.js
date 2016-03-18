@@ -3,7 +3,7 @@ angular.module('app.services').service('HLResource', HLResource);
 HLResource.$inject = ['$injector'];
 function HLResource($injector) {
     this.patch = function(model, args) {
-        return $injector.get(model).patch(args, function() {
+        return $injector.get(model).patch(args, function(response) {
             toastr.success('I\'ve updated the ' + model.toLowerCase() + ' for you!', 'Done');
         }, function() {
             toastr.error('Something went wrong while saving the field, please try again.', 'Oops!');

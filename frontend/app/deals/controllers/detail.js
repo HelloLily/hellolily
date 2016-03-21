@@ -25,8 +25,9 @@ function dealsConfig($stateProvider) {
 
 angular.module('app.deals').controller('DealDetailController', DealDetailController);
 
-DealDetailController.$inject = ['$scope', '$uibModal',  'Deal', 'HLResource', 'HLUtils', 'Settings', 'currentDeal'];
-function DealDetailController($scope, $uibModal, Deal, HLResource, HLUtils, Settings, currentDeal) {
+DealDetailController.$inject = ['$scope', '$uibModal',  'Deal', 'HLResource', 'HLUtils', 'Settings', 'currentDeal',
+                                'Tenant'];
+function DealDetailController($scope, $uibModal, Deal, HLResource, HLUtils, Settings, currentDeal, Tenant) {
     var vm = this;
 
     Settings.page.setAllTitles('detail', currentDeal.name);
@@ -62,6 +63,10 @@ function DealDetailController($scope, $uibModal, Deal, HLResource, HLUtils, Sett
 
             vm.lostStatus = Deal.lostStatus;
             vm.wonStatus = Deal.wonStatus;
+        });
+
+        Tenant.query({}, function(tenant) {
+            vm.tenant = tenant;
         });
     }
 

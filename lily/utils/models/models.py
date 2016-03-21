@@ -395,11 +395,25 @@ class EmailAddress(TenantMixin):
 
 class HistoryListItem(PolymorphicTenantMixin):
     """
-    An base model for all items that can appear in a History List
+    A base model for all items that can appear in a History List.
     """
     sort_by_date = models.DateTimeField(verbose_name='date to sort by')
 
     objects = PolymorphicTenantManager()
+
+    class Meta:
+        app_label = 'utils'
+
+
+class ExternalAppLink(TenantMixin):
+    """
+    A link to an external app.
+    """
+    url = models.URLField(max_length=255)
+    name = models.CharField(max_length=255)
+
+    def __unicode__(self):
+        return self.name
 
     class Meta:
         app_label = 'utils'

@@ -63,6 +63,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('deals', '0010_auto_20151127_1146'),
+        ('tenant', '0002_tenant_name'),
     ]
 
     operations = [

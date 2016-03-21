@@ -3,4 +3,5 @@ angular.module('app.dashboard', [
     'app.users.services',
     'chart.js',
     'ui.slimscroll',
+    'app.tenants.services',
 ]);

@@ -12,6 +12,7 @@ from lily.messaging.email.api.views import (EmailLabelViewSet, EmailAccountViewS
                                             EmailTemplateViewSet, SharedEmailConfigViewSet,
                                             TemplateVariableViewSet)
 from lily.notes.api.views import NoteViewSet
+from lily.tenant.api.views import TenantViewSet
 from lily.users.api.views import LilyUserViewSet, TeamViewSet
 from lily.utils.api.views import CountryViewSet, CallerName, Notifications
 
@@ -33,6 +34,7 @@ accounts_router.register(r'tags', AccountTagViewSet)
 # Define routes, using the default router so the API is browsable.
 router = DefaultRouter()
 
+router.register(r'tenants/tenant', TenantViewSet)
 router.register(r'cases/case', CaseViewSet)
 router.register(r'contacts/contact', ContactViewSet)
 
@@ -56,7 +58,6 @@ router.register(r'users/team', TeamViewSet)
 
 router.register(r'notes', NoteViewSet)
 router.register(r'utils/countries', CountryViewSet)
-
 
 urlpatterns = patterns(
     '',

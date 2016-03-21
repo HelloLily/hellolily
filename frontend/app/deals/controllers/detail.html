@@ -199,12 +199,14 @@
                                     </span>
                                 </td>
                             </tr>
-                            <tr ng-show="vm.deal.quote_id || vm.deal.account_customer_id">
+                            <tr ng-show="vm.deal.quote_id || vm.deal.account.customer_id">
                                 <td>External</td>
                                 <td>
-                                    <a ng-show="vm.deal.quote_id" ng-href="https://freedom.voys.nl/quotes/pdf/{{ vm.deal.quote_id }}/">Quote</a>
-                                    <span ng-show="vm.deal.quote_id && vm.deal.account_customer_id">|</span>
-                                    <a ng-href="https://freedom.voys.nl/client/{{ vm.deal.account_customer_id }}" ng-if="vm.deal.account_customer_id">Environment</a>
+                                    <a ng-if="vm.deal.quote_id && vm.tenant.isVoysNL()" ng-href="https://freedom.voys.nl/quotes/pdf/{{ vm.deal.quote_id }}/">Quote</a>
+                                    <span ng-if="vm.deal.quote_id && vm.deal.account.customer_id && vm.tenant.isVoysNL()">|</span>
+                                    <a ng-href="{{ vm.tenant.primary_external_app_link.getUrl(vm.deal.account.customer_id) }}" target="_blank" ng-if="vm.deal.account.customer_id && vm.tenant.primary_external_app_link">
+                                        Environment
+                                    </a>
                                 </td>
                             </tr>
                         </table>

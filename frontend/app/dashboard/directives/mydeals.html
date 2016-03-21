@@ -55,7 +55,7 @@
                         <date date="myDeal.next_step_date"></date>
                     </td>
                     <td style="width: 75px;">
-                        <a ng-href="https://freedom.voys.nl/client/{{ myDeal.account_customer_id }}" target="_blank" ng-if="myDeal.account_customer_id">
+                        <a ng-href="{{ vm.tenant.primary_external_app_link.getUrl(myDeal.account_customer_id) }}" target="_blank" ng-if="myDeal.account_customer_id && vm.tenant.primary_external_app_link">
                             <i class="fa fa-cloud-upload"></i>
                         </a>
                     </td>

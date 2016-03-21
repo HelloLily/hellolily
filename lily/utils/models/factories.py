@@ -5,7 +5,7 @@ from factory.django import DjangoModelFactory
 from factory.fuzzy import FuzzyChoice
 from faker.factory import Factory
 
-from .models import EmailAddress, PhoneNumber, Address, COUNTRIES, PHONE_TYPE_CHOICES
+from .models import EmailAddress, PhoneNumber, Address, COUNTRIES, PHONE_TYPE_CHOICES, ExternalAppLink
 
 faker = Factory.create('nl_NL')
 
@@ -39,3 +39,11 @@ class EmailAddressFactory(DjangoModelFactory):
 
     class Meta:
         model = EmailAddress
+
+
+class ExternalAppLinkFactory(DjangoModelFactory):
+    name = LazyAttribute(lambda o: faker.company())
+    url = LazyAttribute(lambda o: faker.url())
+
+    class Meta:
+        model = ExternalAppLink

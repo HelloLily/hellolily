@@ -21,6 +21,8 @@ class UserBasedTest(object):
     """
     Baseclass that provides functionality for tests that require a logged in user.
     """
+    factory_cls = None
+
     @classmethod
     def setUpClass(cls):
         """
@@ -65,25 +67,43 @@ class UserBasedTest(object):
         LilyUser.objects.all().delete()
         Tenant.objects.all().delete()
 
-
-class GenericAPITestCase(UserBasedTest, APITestCase):
-    list_url = None
-    detail_url = None
-    factory_cls = None
-    model_cls = None
-    serializer_cls = None
-    ordering = ('-id', )  # Default ordering field
-
-    def setUp(self):
+    def _create_object(self, with_relations=False, size=1, **kwargs):
         """
-        Skip these tests if they are not run as a mixin.
-
-        For some reason the testrunner recognizes these tests outside of a tests.py as well.
-        But we don't want to run these if there is no serializer/model set.
+        Default implentation for the creation of objects, this doesn't do anything with relations other than
+        what the factory does by default.
         """
-        if not self.model_cls or not self.serializer_cls:
-            raise SkipTest
+        # Set a default tenant of the user.
+        kwargs['tenant'] = self.user_obj.tenant if not kwargs.get('tenant') else kwargs['tenant']
 
+        object_list = self.factory_cls.create_batch(size=size, **kwargs)
+
+        if size > 1:
+            return object_list
+        else:
+            # If required size is 1, just give the object instead of a list.
+            return object_list[0]
+
+    def _create_object_stub(self, with_relations=False, size=1, **kwargs):
+        """
+        Default implentation for the creation of stubs, this doesn't do anything with relations other than
+        what the factory does by default.
+        """
+        # Set a default tenant of the user.
+        kwargs['tenant'] = None
+
+        object_list = self.factory_cls.stub_batch(size=size, **kwargs)
+
+        if size > 1:
+            return [obj.__dict__ for obj in object_list]
+        else:
+            # If required size is 1, just give the object instead of a list.
+            return object_list[0].__dict__
+
+
+class CompareObjectsMixin(object):
+    """
+    Baseclass that provides functionality for tests that compare objects.
+    """
     def assertStatus(self, request, desired_code):
         """
         Helper function to assert that the response of the API is what is expected.
@@ -148,37 +168,24 @@ class GenericAPITestCase(UserBasedTest, APITestCase):
                 # Make sure the field value matches that of the factory object
                 self.assertEqual(api_value, db_value)
 
-    def _create_object(self, with_relations=False, size=1, **kwargs):
+
+class GenericAPITestCase(CompareObjectsMixin, UserBasedTest, APITestCase):
+    list_url = None
+    detail_url = None
+    factory_cls = None
+    model_cls = None
+    serializer_cls = None
+    ordering = ('-id', )  # Default ordering field
+
+    def setUp(self):
         """
-        Default implentation for the creation of objects, this doesn't do anything with relations other than
-        what the factory does by default.
+        Skip these tests if they are not run as a mixin.
+
+        For some reason the testrunner recognizes these tests outside of a tests.py as well.
+        But we don't want to run these if there is no serializer/model set.
         """
-        # Set a default tenant of the user.
-        kwargs['tenant'] = self.user_obj.tenant if not kwargs.get('tenant') else kwargs['tenant']
-
-        object_list = self.factory_cls.create_batch(size=size, **kwargs)
-
-        if size > 1:
-            return object_list
-        else:
-            # If required size is 1, just give the object instead of a list.
-            return object_list[0]
-
-    def _create_object_stub(self, with_relations=False, size=1, **kwargs):
-        """
-        Default implentation for the creation of stubs, this doesn't do anything with relations other than
-        what the factory does by default.
-        """
-        # Set a default tenant of the user.
-        kwargs['tenant'] = None
-
-        object_list = self.factory_cls.stub_batch(size=size, **kwargs)
-
-        if size > 1:
-            return [obj.__dict__ for obj in object_list]
-        else:
-            # If required size is 1, just give the object instead of a list.
-            return object_list[0].__dict__
+        if not self.model_cls or not self.serializer_cls:
+            raise SkipTest
 
     def get_url(self, name, ordering=None, *args, **kwargs):
         return '%s?%s' % (reverse(name, *args, **kwargs), urlencode({

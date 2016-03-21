@@ -9,8 +9,8 @@ function myDealsDirective() {
     };
 }
 
-MyDealsController.$inject = ['$scope', 'Deal', 'HLUtils', 'LocalStorage', 'CaseDetail'];
-function MyDealsController($scope, Deal, HLUtils, LocalStorage, CaseDetail) {
+MyDealsController.$inject = ['$scope', 'Deal', 'HLUtils', 'LocalStorage', 'CaseDetail', 'Tenant'];
+function MyDealsController($scope, Deal, HLUtils, LocalStorage, CaseDetail, Tenant) {
     var storage = LocalStorage('deals');
 
     var vm = this;
@@ -77,6 +77,10 @@ function MyDealsController($scope, Deal, HLUtils, LocalStorage, CaseDetail) {
             HLUtils.unblockUI('#myDealsBlockTarget');
 
             vm.numOfDeals = data.objects.length;
+        });
+
+        Tenant.query({}, function(tenant) {
+            vm.tenant = tenant;
         });
     }
 

@@ -1,9 +1,44 @@
 from django.contrib import admin
 
+from lily.tenant.admin import TenantFilter
+from lily.tenant.admin import TenantFilteredChoicesMixin
 from .models import LilyUser, LilyGroup
 
 
-class LilyUserAdmin(admin.ModelAdmin):
+@admin.register(LilyUser)
+class LilyUserAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
+    list_select_related = (
+        'tenant',
+    )
+    list_display = (
+        'id',
+        'full_name',
+        'email',
+        'is_staff',
+        'is_superuser',
+        'is_active',
+        'tenant',
+    )
+    search_fields = (
+        'first_name',
+        'last_name',
+        'email',
+    )
+    list_filter = (
+        'is_staff',
+        'is_superuser',
+        'is_active',
+        TenantFilter,
+    )
+    tenant_filtered_fields = (
+        'lily_groups',
+        'social_media',
+    )
+    filter_horizontal = (
+        'lily_groups',
+        'user_permissions',
+        'social_media',
+    )
 
     def save_model(self, request, obj, form, change):
         """
@@ -22,5 +57,19 @@ class LilyUserAdmin(admin.ModelAdmin):
         obj.save()
 
 
-admin.site.register(LilyUser, LilyUserAdmin)
-admin.site.register(LilyGroup)
+@admin.register(LilyGroup)
+class LilyGroupAdmin(admin.ModelAdmin):
+    list_select_related = (
+        'tenant',
+    )
+    list_display = (
+        'id',
+        'name',
+        'tenant',
+    )
+    search_fields = (
+        'name',
+    )
+    list_filter = (
+        TenantFilter,
+    )

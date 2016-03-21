@@ -54,10 +54,13 @@ class LilyGroup(TenantMixin):
     """
     A group with a Tenant.
     """
-    name = models.CharField(_('name'), max_length=80, unique=True)
+    name = models.CharField(_('name'), max_length=80)
 
     def __unicode__(self):
         return self.name
+
+    class Meta:
+        unique_together = ('tenant', 'name')
 
 
 class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):

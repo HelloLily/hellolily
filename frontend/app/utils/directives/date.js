@@ -36,7 +36,7 @@ function DateController() {
                 }
             }
         } else {
-
+            // Setting format to date to correctly use in the historylist.
             vm.date = date.format();
         }
     }

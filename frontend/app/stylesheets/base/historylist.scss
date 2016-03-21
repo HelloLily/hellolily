@@ -117,7 +117,6 @@
     }
 }
 
-
 .timeline-item-container {
     width: 100%;
     box-sizing: border-box;
@@ -196,7 +195,6 @@
         border-bottom-left-radius: 4px;
     }
 
-
     &.has-note {
         &:before {
             background-color: $noteColor;
@@ -224,7 +222,6 @@
     @media (max-width: $breakpoint-mobile) {
         margin-left: 65px;
     }
-
 }
 
 .timeline-time {
@@ -448,7 +445,6 @@
     &.is-deal {
         background: $dealColor;
     }
-
 }
 
 .content-details-actions {
@@ -506,7 +502,6 @@
         font-size: 14px;
         margin-bottom: 0;
 
-
         &:first-child {
             border-top-left-radius: $baseBorderRadius;
             border-bottom-left-radius: $baseBorderRadius;
@@ -530,10 +525,10 @@
             &:after {
                 content: " ";
                 width: 0;
-            	height: 0;
-            	border-left: 10px solid transparent;
-            	border-right: 10px solid transparent;
-            	border-top: 10px solid $lilyWhiteToneHover;
+                height: 0;
+                border-left: 10px solid transparent;
+                border-right: 10px solid transparent;
+                border-top: 10px solid $lilyWhiteToneHover;
                 position: absolute;
                 bottom: -10px;
                 margin-left: auto;
@@ -546,10 +541,10 @@
             &:before {
                 content: " ";
                 width: 0;
-            	height: 0;
-            	border-left: 10px solid transparent;
-            	border-right: 10px solid transparent;
-            	border-top: 10px solid $baseBorderColor;
+                height: 0;
+                border-left: 10px solid transparent;
+                border-right: 10px solid transparent;
+                border-top: 10px solid $baseBorderColor;
                 position: absolute;
                 bottom: -11px;
                 margin-left: auto;

@@ -1,86 +1,3 @@
-<!-- <div class="deal-history-item history-item-right">
-    <div class="history-item-badge">
-        <i class="lilicon hl-deals-filled-icon"></i>
-    </div>
-
-    <div class='history-item-heading'>
-        <a class="link-no-decoration" ui-sref="base.deals.detail({ id: vm.item.id })">{{ ::vm.item.name }}</a>
-        <div class="btn-group pull-right">
-            <a class="text-white" data-toggle="dropdown" aria-expanded="false">
-                <i class="fa fa-angle-down"></i>
-            </a>
-            <ul class="dropdown-menu pull-right">
-                <li><a ui-sref="base.deals.detail({ id: vm.item.id })"><i class="fa fa-eye"></i>View</a></li>
-                <li><a ui-sref="base.deals.detail.edit({ id: vm.item.id })"><i class="fa fa-edit"></i>Edit</a></li>
-                <li class='divider'></li>
-                <li><a ng-href="/deals/delete/{{ ::vm.item.id }}/" data-target="#confirm-delete" data-source="/cases/delete/{{ ::vm.item.id }}/"><i class="fa fa-trash"></i>Delete</a></li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="history-item-body first">
-        <em class="pre-wrap" ng-bind-html="::vm.item.body | parseUrls"></em>
-        <div class="timeline-footer">
-            Last changed: {{ ::vm.item.modified | date:'dd MMMM yy HH:mm' }}<br/>
-            {{ ::vm.item.new_business ? 'New business' : 'Existing business'}}<br/>
-            {{ ::vm.item.feedback_form_sent ? 'Feedback form sent' : 'Feedback form not sent'}}<br/>
-            Stage: {{ ::vm.item.stage_name}} ({{ ::vm.item.archived ? 'archived' : 'active'}})<br/>
-            Amount once: &euro; {{ ::vm.item.amount_once }}<br/>
-            Amount recurring: &euro; {{ ::vm.item.amount_recurring}}<br/><br/>
-        </div>
-        <ul class="list-inline list-justified">
-            <li>
-                <small class="text-muted" uib-tooltip="Created on {{ ::vm.item.created| date:'dd MMMM yy' }} at {{ ::vm.item.created| date:'HH:mm' }}">
-                    <i class="fa fa-calendar"></i>
-                    {{ ::vm.item.created | date:'dd MMM yy HH:mm' }}
-                </small>
-                <small ng-if="vm.item.next_step_date" class="text-muted margin-left-10" uib-tooltip="Next step on {{ ::vm.item.next_step_date | date:'dd MMMM yy' }} at {{ ::vm.item.next_step_date | date:'HH:mm' }}">
-                    <i class="lilicon hl-postpone-icon"></i>
-                    {{ ::vm.item.next_step_date | date:'dd MMMM yy HH:mm' }}
-                </small>
-            </li>
-            <li>
-                <small class="text-muted" uib-tooltip="Assigned to: {{ ::vm.item.assigned_to_name }}">
-                    <i class="fa fa-child"></i>
-                    {{ ::vm.item.assigned_to_name || "Nobody" }}
-                </small>
-            </li>
-            <li>
-                <small class="text-muted" uib-tooltip="Created by: {{ ::vm.item.created_by }}">
-                    <i class="fa fa-user"></i>
-                    {{ ::vm.item.created_by || "Nobody" }}
-                </small>
-            </li>
-        </ul>
-    </div>
-    <history-add-note item="vm.item"></history-add-note>
-
-    <div class='history-item-body next' ng-repeat="note in vm.item.notes">
-        <p class='inline-header'><i class="fa fa-sticky-note"></i> Note</p>
-        <p>{{ ::note.content }}</p>
-        <ul class="list-inline list-justified">
-            <li>
-                <small class="text-muted" uib-tooltip="Created on {{ ::note.date | date:'dd MMMM yy' }} at {{ ::note.date | date:'HH:mm' }}">
-                    <i class="fa fa-calendar"></i>
-                    {{ ::note.date | date:'dd MMMM yy HH:mm' }}
-                </small>
-            </li>
-            <li>
-                <small class="text-muted" uib-tooltip="Created by: {{ ::note.author }}">
-                    <i class="fa fa-user"></i>
-                    {{ ::note.author }}
-                </small>
-            </li>
-        </ul>
-    </div>
-</div>
- -->
-
-
-
-
-
-
 <div class="timeline-item-container">
     <div class="timeline-avatar" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png');"></div>
 
@@ -109,8 +26,6 @@
                     {{ ::vm.item.modified | date:'dd MMM - HH:mm' }}
                 </div>
             </div>
-
-
 
             <a class="timeline-toggle-details" ng-click="vm.item.shown = !vm.item.shown"><i class="lilicon hl-toggle-left-icon" ng-class="vm.item.shown ? 'hl-toggle-down-icon' : 'hl-toggle-left-icon'"></i></a>
 

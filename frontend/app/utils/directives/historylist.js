@@ -1,7 +1,9 @@
 angular.module('app.utils.directives').directive('historyList', HistoryListDirective);
 
-HistoryListDirective.$inject = ['$filter', '$http', '$uibModal', '$q', '$state', 'EmailAccount', 'Note', 'NoteDetail', 'Case', 'DealDetail', 'EmailDetail'];
-function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccount, Note, NoteDetail, Case, DealDetail, EmailDetail) {
+HistoryListDirective.$inject = ['$filter', '$http', '$uibModal', '$q', '$state', 'EmailAccount',
+'Note', 'NoteDetail', 'Case', 'DealDetail', 'EmailDetail'];
+function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccount,
+Note, NoteDetail, Case, DealDetail, EmailDetail) {
     return {
         restrict: 'E',
         replace: true,
@@ -174,6 +176,11 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
                 $q.all(promises).then(function() {
                     var orderedHistoryList = {pinned: [], nonPinned: {}, totalItems: history.length};
 
+                    // To properly sort the history list we need to compare dates
+                    // because email doesn't have the modified key we decided
+                    // to add an extra key called historySortDate which the list
+                    // uses to sort properly. We add the sent_date of email to the
+                    // object, and the modified date for the other types.
                     for (var i = 0; i < history.length; i++) {
                         if (history[i].historyType === 'email') {
                             history[i].historySortDate = history[i].sent_date;

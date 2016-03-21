@@ -349,6 +349,9 @@ class Address(TenantMixin):
     def __unicode__(self):
         return u'%s %s %s' % (self.street or '', self.street_number or '', self.complement or '')
 
+    def country_display(self):
+        return self.get_country_display() if self.country else ''
+
     def full(self):
         return u'%s %s %s %s %s' % (
             self.street or '',

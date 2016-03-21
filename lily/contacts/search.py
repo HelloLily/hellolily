@@ -175,7 +175,7 @@ class ContactMapping(BaseMapping):
                 'postal_code': address.postal_code,
                 'city': address.city,
                 'state_province': address.state_province,
-                'country': address.get_country_display(),
+                'country': address.get_country_display() if address.country else None,
                 'type': address.get_type_display(),
             } for address in obj.addresses.all()],
         }

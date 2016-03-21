@@ -11,8 +11,9 @@ angular.module('app', [
     'ncy-angular-breadcrumb',
     'multi-transclude',
     'xeditable',
+    'angular-cache',
 
-    // Controllers
+    // Modules
     'app.accounts',
     'app.base',
     'app.cases',
@@ -25,6 +26,7 @@ angular.module('app', [
     'app.tags',
     'app.templates',
     'app.utils',
+    'app.tenants',
 
     // Directives
     'app.directives',
@@ -72,9 +74,9 @@ appConfig.$inject = [
     '$resourceProvider',
     '$urlRouterProvider',
 ];
-function appConfig($animateProvider, $breadcrumbProvider, $controllerProvider, $httpProvider,
-                   $resourceProvider, $urlRouterProvider) {
-    // Don't strip trailing slashes from calculated URLs, because django needs them
+function appConfig($animateProvider, $breadcrumbProvider, $controllerProvider, $httpProvider, $resourceProvider,
+                   $urlRouterProvider) {
+    // Don't strip trailing slashes from calculated URLs, because django needs them.
     $breadcrumbProvider.setOptions({
         templateUrl: 'base/breadcrumbs.html',
         includeAbstract: true,
@@ -84,18 +86,26 @@ function appConfig($animateProvider, $breadcrumbProvider, $controllerProvider, $
     $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
     $resourceProvider.defaults.stripTrailingSlashes = false;
     $urlRouterProvider.otherwise('/');
-    // prevent ng-animation on fa-spinner
+    // Prevent ng-animation on fa-spinner.
     $animateProvider.classNameFilter(/^((?!(fa-spin)).)*$/);
 }
 
-/* Init global settings and run the app */
+/* Init global settings and run the app. */
 angular.module('app').run(runApp);
 
-runApp.$inject = ['$rootScope', '$state', 'settings', 'editableOptions'];
-function runApp($rootScope, $state, settings, editableOptions) {
-    $rootScope.$state = $state; // state to be accessed from view
+runApp.$inject = ['$rootScope', '$state', 'settings', 'editableOptions', '$http', 'CacheFactory'];
+function runApp($rootScope, $state, settings, editableOptions, $http, CacheFactory) {
+    $rootScope.$state = $state; // State to be accessed from view.
     $rootScope.currentUser = currentUser;
     $rootScope.settings = settings;
 
     editableOptions.theme = 'bs3';
+
+    // Set the default cache for every http request, if cache is true.
+    $http.defaults.cache = CacheFactory('defaultCache', {
+        // Items added to this cache expire after 5 minutes.
+        maxAge: 5 * 60 * 1000,
+        // Expired items will remain in the cache until requested, at which point they are removed.
+        deleteOnExpire: 'passive',
+    });
 }

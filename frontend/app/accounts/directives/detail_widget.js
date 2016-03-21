@@ -12,5 +12,17 @@ function AccountDetailWidget() {
             height: '=',
         },
         templateUrl: 'accounts/directives/detail_widget.html',
+        controller: AccountDetailWidgetController,
+        controllerAs: 'vm',
+        bindToController: true,
     };
+}
+
+AccountDetailWidgetController.$inject = ['Tenant'];
+function AccountDetailWidgetController(Tenant) {
+    var vm = this;
+
+    Tenant.query({}, function(tenant) {
+        vm.tenant = tenant;
+    });
 }

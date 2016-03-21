@@ -26,9 +26,12 @@ class PolymorphicTenantManager(TenantManager, PolymorphicManager):
 
 
 class Tenant(models.Model):
-    pass
+    name = models.CharField(max_length=255, blank=True)
 
     def __unicode__(self):
+        if self.name:
+            return self.name
+
         return unicode("%s %s" % (self._meta.verbose_name.title(), self.pk))
 
 

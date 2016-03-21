@@ -10,7 +10,7 @@ from rest_framework.fields import empty
 from lily.tags.models import Tag, TAGABLE_MODELS
 from lily.utils.api.related.mixins import RelatedSerializerMixin
 
-from ..models.models import Address, EmailAddress, PhoneNumber
+from ..models.models import Address, EmailAddress, PhoneNumber, ExternalAppLink
 
 
 # TODO: Delete this serializer
@@ -205,3 +205,19 @@ class RelatedTagSerializer(RelatedSerializerMixin, TagSerializer):
     class Meta:
         model = Tag
         fields = ('id', 'name', 'content_type', 'object_id',)
+
+
+class ExternalAppLinkSerializer(serializers.ModelSerializer):
+    tenant_id = serializers.IntegerField()
+
+    class Meta:
+        model = ExternalAppLink
+        fields = (
+            'url',
+            'name',
+            'tenant_id',
+        )
+
+
+class RelatedExternalAppLinkSerializer(RelatedSerializerMixin, ExternalAppLinkSerializer):
+    pass

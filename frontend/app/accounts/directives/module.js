@@ -1,1 +1,3 @@
-angular.module('app.accounts.directives', []);
+angular.module('app.accounts.directives', [
+    'app.tenants.services',
+]);

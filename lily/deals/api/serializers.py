@@ -1,3 +1,5 @@
+import datetime
+from django.utils.timezone import utc
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
@@ -167,8 +169,11 @@ class DealSerializer(WritableNestedSerializer):
         if isinstance(why_lost_id, dict):
             why_lost_id = why_lost_id.get('id')
 
-        if status_id == 3 and why_lost_id is None and DealWhyLost.objects.exists():
-            raise serializers.ValidationError({'why_lost': _('This field may not be empty.')})
+        if status_id:
+            status = DealStatus.objects.get(pk=status_id)
+
+            if status.is_lost and why_lost_id is None and DealWhyLost.objects.exists():
+                raise serializers.ValidationError({'why_lost': _('This field may not be empty.')})
 
         return super(DealSerializer, self).validate(attrs)
 
@@ -187,6 +192,26 @@ class DealSerializer(WritableNestedSerializer):
             })
 
         return super(DealSerializer, self).create(validated_data)
+
+    def update(self, instance, validated_data):
+        status_id = validated_data.get('status', instance.status_id)
+        if isinstance(status_id, dict):
+            status_id = status_id.get('id')
+        status = DealStatus.objects.get(pk=status_id)
+        closed_date = validated_data.get('closed_date', instance.closed_date)
+
+        # Set closed_date after changing stage to lost/won and reset it when it's new/pending
+        if status.is_won or status.is_lost:
+            if not closed_date:
+                closed_date = datetime.datetime.utcnow().replace(tzinfo=utc)
+        else:
+            closed_date = None
+
+        validated_data.update({
+            'closed_date': closed_date,
+        })
+
+        return super(DealSerializer, self).update(instance, validated_data)
 
     class Meta:
         model = Deal

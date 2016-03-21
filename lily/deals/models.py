@@ -71,6 +71,14 @@ class DealStatus(TenantMixin):
     name = models.CharField(max_length=255)
     position = models.IntegerField(max_length=2, default=0)
 
+    @property
+    def is_won(self):
+        return self.name == 'Won'
+
+    @property
+    def is_lost(self):
+        return self.name == 'Lost'
+
     def __unicode__(self):
         return self.name
 

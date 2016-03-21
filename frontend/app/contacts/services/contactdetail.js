@@ -22,7 +22,6 @@ function ContactDetail($resource, HLObjectDetails) {
 
                     return null;
                 },
-                cache: false,
             },
             query: {
                 url: '/search/search/?type=contacts_contact&size=1000&filterquery=:filterquery&sort=full_name',
@@ -42,7 +41,6 @@ function ContactDetail($resource, HLObjectDetails) {
 
                     return contacts;
                 },
-                cache: false,
             },
         }
     );

@@ -55,7 +55,7 @@ function settings($rootScope) {
     // supported languages
     var settings = {
         layout: {
-            pageSidebarClosed: false // sidebar state
+            pageSidebarClosed: false, // sidebar state
         },
     };
 
@@ -93,8 +93,8 @@ function appConfig($animateProvider, $breadcrumbProvider, $controllerProvider, $
 /* Init global settings and run the app. */
 angular.module('app').run(runApp);
 
-runApp.$inject = ['$rootScope', '$state', 'settings', 'editableOptions', '$http', 'CacheFactory'];
-function runApp($rootScope, $state, settings, editableOptions, $http, CacheFactory) {
+runApp.$inject = ['$rootScope', '$state', 'settings', 'editableOptions'];
+function runApp($rootScope, $state, settings, editableOptions) {
     $rootScope.$state = $state; // State to be accessed from view.
     $rootScope.currentUser = currentUser;
     $rootScope.settings = settings;
@@ -102,10 +102,11 @@ function runApp($rootScope, $state, settings, editableOptions, $http, CacheFacto
     editableOptions.theme = 'bs3';
 
     // Set the default cache for every http request, if cache is true.
-    $http.defaults.cache = CacheFactory('defaultCache', {
-        // Items added to this cache expire after 5 minutes.
-        maxAge: 5 * 60 * 1000,
-        // Expired items will remain in the cache until requested, at which point they are removed.
-        deleteOnExpire: 'passive',
-    });
+    // TODO: LILY-1529: Implement proper caching.
+    //$http.defaults.cache = CacheFactory('defaultCache', {
+    //    // Items added to this cache expire after 5 minutes.
+    //    maxAge: 5 * 60 * 1000,
+    //    // Expired items will remain in the cache until requested, at which point they are removed.
+    //    deleteOnExpire: 'passive',
+    //});
 }

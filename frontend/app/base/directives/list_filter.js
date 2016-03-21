@@ -20,6 +20,7 @@ function ListFilterController($timeout, HLFilters) {
 
     vm.toggleFilter = toggleFilter;
     vm.updateFilterQuery = updateFilterQuery;
+    vm.filterDisplayName = vm.filterLabel;
 
     $timeout(activate);
 
@@ -30,6 +31,7 @@ function ListFilterController($timeout, HLFilters) {
             vm.viewModel.filterList = vm.viewModel.storedFilterList;
 
             updateFilterQuery();
+            updateFilterDisplayName();
         }
     }
 
@@ -38,6 +40,7 @@ function ListFilterController($timeout, HLFilters) {
         filter.selected = !filter.selected;
 
         updateFilterQuery();
+        updateFilterDisplayName();
     }
 
     function updateFilterQuery() {
@@ -46,5 +49,20 @@ function ListFilterController($timeout, HLFilters) {
         vm.viewModel.updateTable();
 
         vm.viewModel.storage.put('filterListSelected', vm.viewModel.filterList);
+    }
+
+    function updateFilterDisplayName() {
+        var count = 0;
+        vm.filterDisplayName = vm.filterLabel;
+        angular.forEach(vm.viewModel.filterList, function(item){
+            if(item.selected === true) {
+                count += 1;
+                if (count === 1) {
+                    vm.filterDisplayName = item.name + ' selected';
+                } else if (count > 1) {
+                    vm.filterDisplayName = count + ' Types selected';
+                }
+            }
+        });
     }
 }

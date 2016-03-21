@@ -15,6 +15,16 @@ class NoteSerializer(serializers.ModelSerializer):
                                                       write_only=True)
     object_id = serializers.IntegerField(write_only=True)
 
+    def create(self, validated_data):
+        user = self.context.get('request').user
+
+        validated_data.update({
+            'author_id': user.pk
+        })
+
+        return super(NoteSerializer, self).create(validated_data)
+
+
     class Meta:
         model = Note
         fields = (
@@ -22,6 +32,7 @@ class NoteSerializer(serializers.ModelSerializer):
             'author',
             'content',
             'content_type',
+            'type',
             'created',
             'is_pinned',
             'modified',
@@ -44,6 +55,7 @@ class RelatedNoteSerializer(RelatedSerializerMixin, NoteSerializer):
             'author',
             'content',
             'content_type',
+            'type',
             'created',
             'is_pinned',
             'modified',

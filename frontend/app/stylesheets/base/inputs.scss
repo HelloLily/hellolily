@@ -112,7 +112,17 @@ $inline-editable-field-height: 30px;
     }
 }
 
+.editable-textarea .editable-controls {
+    width: 100%;
+
+    .editable-input {
+        width: 100%;
+        margin: 0;
+    }
+}
+
 .editable-textarea {
+    width: 100%;
     position: relative;
 
     textarea {
@@ -134,4 +144,8 @@ $inline-editable-field-height: 30px;
     }
 
     color: #B5B5B5;
+}
+
+.checker {
+    margin: 0!important;
 }

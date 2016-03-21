@@ -167,6 +167,7 @@ class ContactMapping(BaseMapping):
             'salutation': obj.get_salutation_display(),
             'gender': obj.get_gender_display(),
             'address': [address.full() for address in obj.addresses.all()],
+            'content_type': obj.content_type.id,
             'addresses': [{
                 'street': address.street,
                 'street_number': address.street_number,
@@ -174,7 +175,7 @@ class ContactMapping(BaseMapping):
                 'postal_code': address.postal_code,
                 'city': address.city,
                 'state_province': address.state_province,
-                'country': address.get_country_display(),
+                'country': address.get_country_display() if address.country else None,
                 'type': address.get_type_display(),
             } for address in obj.addresses.all()],
         }

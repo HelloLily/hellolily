@@ -10,11 +10,11 @@
     </widget-header>
 
     <widget-filters>
-        <a ng-href="https://freedom.voys.nl/client/{{ account.customer_id }}" target="_blank" class="btn btn-circle btn-default" ng-show="account.customer_id">
+        <a ng-href="{{ vm.tenant.primary_external_app_link.getUrl(account.customer_id) }}" target="_blank" class="btn btn-circle btn-default" ng-if="account.customer_id && vm.tenant.primary_external_app_link">
             <i class="fa fa-external-link fa-sm"></i>
-            Freedom
+            {{ vm.tenant.primary_external_app_link.name }}
         </a>
-        <a href="https://freedom.voys.nl/quotes/create/" target="_blank" class="btn btn-circle btn-default" ng-hide="account.customer_id">
+        <a href="https://freedom.voys.nl/quotes/create/" target="_blank" class="btn btn-circle btn-default" ng-if="!account.customer_id && vm.tenant.isVoysNL()">
             <i class="fa fa-external-link fa-sm"></i>
             Write quote
         </a>

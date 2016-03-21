@@ -16,4 +16,5 @@ angular.module('app.accounts', [
     'app.forms.directives',
     'app.notes',
     'app.services',
+    'app.tenants.services',
 ]);

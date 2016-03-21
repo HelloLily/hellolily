@@ -211,7 +211,12 @@ function ContactCreateUpdateController($state, $stateParams, Settings, Account, 
                     Settings.email.sidebar.contact = true;
                     Settings.email.data.contact = copiedContact;
                 } else {
-                    $state.go('base.contacts.detail', {id: copiedContact.id});
+                    if ($stateParams.accountId) {
+                        // Redirect back to account if contact was created from the account page.
+                        $state.go('base.accounts.detail', {id: $stateParams.accountId}, {reload: true});
+                    } else {
+                        $state.go('base.contacts.detail', {id: copiedContact.id}, {reload: true});
+                    }
                 }
             }, function(response) {
                 _handleBadResponse(response, form);

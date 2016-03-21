@@ -171,7 +171,7 @@ class AccountMapping(BaseMapping):
                 'address_complement': address.complement,
                 'address_postal_code': address.postal_code,
                 'address_city': address.city,
-                'address_country': address.get_country_display()
+                'address_country': address.get_country_display() if address.country else None,
             } for address in obj.addresses.all()],
             'social': [{
                 'social_name': soc.get_name_display(),
@@ -179,6 +179,7 @@ class AccountMapping(BaseMapping):
                 'social_url': soc.profile_url
             } for soc in obj.social_media.all()],
             'address_full': [address.full() for address in obj.addresses.all()],
+            'content_type': obj.content_type.id,
         }
 
         phones = obj.phone_numbers.all()

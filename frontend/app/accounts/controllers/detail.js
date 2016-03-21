@@ -17,9 +17,9 @@ function accountConfig($stateProvider) {
             label: '{{ account.name }}',
         },
         resolve: {
-            account: ['AccountDetail', '$stateParams', function(AccountDetail, $stateParams) {
+            account: ['Account', '$stateParams', function(Account, $stateParams) {
                 var accountId = $stateParams.id;
-                return AccountDetail.get({id: accountId}).$promise;
+                return Account.get({id: accountId}).$promise;
             }],
         },
     });

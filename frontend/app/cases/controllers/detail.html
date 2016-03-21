@@ -3,29 +3,41 @@
 
 <div class="row">
     <div class="col-md-8">
-        <div class="case-info-heading" ng-class="vm.getPriorityDisplay()">
-            <div class="case-info-heading-priority">{{ vm.case.priority_display }} Priority</div>
-            <div class="case-info-heading-title">
-                #{{ vm.case.id }} - [ {{ vm.case.type.type }} ] - {{ vm.case.subject }}
-            </div>
-            <div class="case-info-heading-description" ng-if="vm.case.id" ng-show="vm.case.description">
-                <div class="pre-wrap" ng-bind-html="vm.case.description | parseUrls"></div>
-            </div>
-        </div>
-
-        <div ng-if="vm.case.id">
-            <div class="col-md-12 text-center">
-                <div id="case-status" class="btn-group" data-toggle="buttons" data-object-id="{{ ::vm.case.id }}">
-                    <label ng-repeat="status in vm.caseStatuses" for="status-{{ status.id }}" ng-class="{'btn default': true, 'btn default active': vm.case.status.status == status.status, 'btn default disabled': vm.case.archived }" ng-click="vm.changeCaseStatus(status.id)">
-                        <input class="toggle" type="radio" id="status-{{ status.id }}" name="radio" value="{{ status.id }}" ng-checked="vm.case.status == status.id">
-                        {{ status.status }}
+        <div class="widget-container" ng-if="vm.case.id">
+            <div class="widget-heading">
+                <div class="pull-left radio-button-group" data-toggle="buttons" data-object-id="{{ ::vm.case.id }}">
+                    <label class="no-radio-bullets" ng-repeat="status in vm.caseStatuses" for="status-{{ status.id }}" ng-class="{'radio-button': true, 'radio-button active': vm.case.status.status == status.status, 'radio-button disabled': vm.case.archived }" ng-click="vm.changeCaseStatus(status.id)">
+                        <div class="radio-button-inset">
+                            <input class="toggle" type="radio" id="status-{{ status.id }}" name="radio" value="{{ status.id }}" ng-checked="vm.case.status == status.id">
+                            {{ status.status }}
+                        </div>
                     </label>
-                    <div class="btn-group">
-                        <a class="btn default" ng-click="vm.unarchive(vm.case.id)" ng-show="vm.case.archived">Unarchive</a>
-                        <a class="btn default" ng-click="vm.archive(vm.case.id)" ng-hide="vm.case.archived">Archive</a>
-                    </div>
+
+                    <label class="radio-button">
+                        <div class="radio-button-inset" ng-click="vm.case.archived = !vm.case.archived">
+                            <span ng-if="vm.case.archived">Unarchive</span>
+                            <span ng-if="!vm.case.archived">Archive</span>
+                        </div>
+                    </label>
                 </div>
+
                 <div class="clearfix"></div>
+            </div>
+            <div class="widget-body">
+                <table class="widget-table">
+                    <tbody>
+                        <tr>
+                            <td><strong>Case ID:</strong> #{{ vm.case.id }}</td>
+                            <td><strong>Case Type:</strong> {{ vm.case.type.type }}</td>
+                            <td><strong>Priority:</strong><i class="margin-left-5 lilicon" ng-class="{0: 'hl-low-prio-icon', 1: 'hl-normal-prio-icon', 2: 'hl-high-prio-icon', 3: 'hl-critical-prio-icon'}[vm.case.priority]"></i> {{ vm.case.priority_display }} priority</td>
+                            <td><strong>Expires on:</strong> <postpone class="margin-left-5" type="'Case'" object="vm.case" date-field="'expires'" display-date="true"></postpone></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="widget-content" ng-show="vm.case.description">
+                    <strong>Description:</strong>
+                    <div class="pre-wrap" ng-bind-html="vm.case.description | parseUrls"></div>
+                </div>
             </div>
         </div>
 
@@ -45,43 +57,63 @@
 
             <widget-body>
                 <div class="widget-content">
-                    <ul class="case-detail-block-list">
-                        <li ng-if="vm.account.email_addresses.length">
-                            <strong>E-mail addresses</strong>
-                            <div ng-repeat="email in vm.account.email_addresses">
-                                <a ui-sref="base.email.composeEmail({email: email.email_address})">{{ email.email_address }}</a> ({{ email.status_name }})
-                            </div>
-                        </li>
-                        <li ng-if="vm.account.phone_numbers.length">
-                            <strong>Phone numbers: </strong>
-                            <div ng-repeat="phonenumber in vm.account.phone_numbers">
-                                <a href="tel:{{ phonenumber.raw_input }}">{{ phonenumber.raw_input }}</a> ({{phonenumber.type}})
-                            </div>
-                        </li>
-                        <li ng-if="vm.account.addresses.length">
-                            <strong>Addresses: </strong>
-                            <div ng-repeat="address in vm.account.addresses">
-                                {{ address.street }} {{ address.street_number }}{{ address.complement }}
-                                <br />
-                                {{ address.postal_code }}, {{ address.city }}
-                                <br />
-                                {{ address.country_display }}
-                            </div>
-                        </li>
-                        <li ng-if="vm.account.websites.length">
-                            <strong>Websites: </strong>
-                            <div ng-repeat="website in vm.account.websites">
-                                <a target="_blank" href="{{website.website}}">{{ website.website | stripScheme }}</a>
-                            </div>
-                        </li>
-                        <li ng-if="vm.case.parcel_identifier">
-                            <strong>Shipment:</strong>
-                            <div><a href="{{ vm.case.parcel_link }}">Track this parcel</a></div>
-                        </li>
-                        <li ng-if="!vm.account.email_addresses.length && !vm.account.phone_numbers.length && !vm.account.addresses.length && !vm.account.websites.length && !vm.case.parcel_identifier" >
-                            No additional information
-                        </li>
-                    </ul>
+                    <table class="widget-content-table">
+                        <tbody>
+                            <tr ng-if="vm.account.email_addresses.length">
+                                <td>E-mail</td>
+                                <td>
+                                    <ul>
+                                        <li ng-repeat="email in vm.account.email_addresses">
+                                            <a ui-sref="base.email.composeEmail({email: email.email_address})">{{ email.email_address }}</a> ({{ email.status_name }})
+                                        </li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr ng-if="vm.account.phone_numbers.length">
+                                <td>Phone numbers</td>
+                                <td>
+                                    <ul>
+                                        <li ng-repeat="phonenumber in vm.account.phone_numbers">
+                                            <a href="tel:{{ phonenumber.raw_input }}">{{ phonenumber.raw_input }}</a> ({{phonenumber.type}})
+                                        </li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr ng-if="vm.account.addresses.length">
+                                <td>Addresses</td>
+                                <td>
+                                    <ul ng-repeat="address in vm.account.addresses">
+                                        <li>
+                                            {{ address.street }} {{ address.street_number }}{{ address.complement }}
+                                        </li>
+                                        <li>
+                                            {{ address.postal_code }}, {{ address.city }}
+                                        </li>
+                                        <li>
+                                            {{ address.country_display }}
+                                        </li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr ng-if="vm.account.websites.length">
+                                <td>Websites</td>
+                                <td>
+                                    <ul>
+                                        <li ng-repeat="website in vm.account.websites">
+                                            <a target="_blank" href="{{website.website}}">{{ website.website | stripScheme }}</a>
+                                        </li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr ng-if="vm.case.parcel_identifier">
+                                <td>Shipment</td>
+                                <td><a href="{{ vm.case.parcel_link }}">Track this parcel</a></td>
+                            </tr>
+                            <tr class="has-no-info" ng-if="!vm.account.email_addresses.length && !vm.account.phone_numbers.length && !vm.account.addresses.length && !vm.account.websites.length && !vm.case.parcel_identifier" >
+                                <td>No additional information</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </widget-body>
         </dashboard-widget>
@@ -98,23 +130,34 @@
 
             <widget-body>
                 <div class="widget-content">
-                    <ul class="case-detail-block-list">
-                        <li ng-if="vm.contact.email_addresses.length">
-                            <strong>E-mail addresses: </strong>
-                            <div ng-repeat="email in vm.contact.email_addresses">
-                                <a ui-sref="base.email.composeEmail({email: email.email_address})">{{ email.email_address }}</a> ({{ email.status_name }})
-                            </div>
-                        </li>
-                        <li ng-if="vm.contact.phone_numbers.length">
-                            <strong>Phone numbers: </strong>
-                            <div ng-repeat="phonenumber in vm.contact.phone_numbers">
-                                <a href="tel:{{ phonenumber.raw_input }}">{{ phonenumber.raw_input }}</a> ({{phonenumber.type}})
-                            </div>
-                        </li>
-                        <li ng-if="!vm.contact.email_addresses.length && !vm.contact.phone_numbers.length">
-                            No additional information
-                        </li>
-                    </ul>
+                    <table class="widget-content-table">
+                        <tbody>
+                            <tr ng-if="vm.contact.email_addresses.length">
+                                <td>E-mail addresses</td>
+                                <td>
+                                    <ul>
+                                        <li ng-repeat="email in vm.contact.email_addresses">
+                                            <a ui-sref="base.email.composeEmail({email: email.email_address})">{{ email.email_address }}</a> ({{ email.status_name }})
+                                        </li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr ng-if="vm.contact.email_addresses.length">
+                                <td>Phone numbers</td>
+                                <td>
+                                    <ul>
+                                        <li ng-repeat="phonenumber in vm.contact.phone_numbers">
+                                            <a href="tel:{{ phonenumber.raw_input }}">{{ phonenumber.raw_input }}</a> ({{phonenumber.type}})
+                                        </li>
+                                    </ul>
+                                </td>
+                            </tr>
+
+                            <tr class="has-no-info" ng-if="!vm.contact.email_addresses.length && !vm.contact.phone_numbers.length">
+                                <td>No additional information</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </widget-body>
         </dashboard-widget>
@@ -129,25 +172,37 @@
 
             <widget-body>
                 <div class="widget-content case-detail-info">
-                    <div>
-                        <label>Assigned to:</label>
-                            <editable-select field="assigned_to" view-model="vm" type="Case" select-options="{type: 'User', field: 'assignOptions', display: 'full_name'}">
-                                {{ vm.case.assigned_to.full_name || "Nobody"}}
-                            </editable-select>
-                        <span class="margin-left-10">
-                            <a ng-if="vm.case.assigned_to.id != currentUser.id" ng-click="vm.assignCase()"><i class="fa fa-anchor"></i> Assign to me</a>
-                        </span>
-                    </div>
-                    <div ng-if="vm.case.assigned_to_groups.length">
-                        <label>Assigned to teams:</label>
-                        <span>{{ vm.case.assigned_to_groups | join:'name' }}</span>
-                    </div>
-                    <div><label>Created by:</label> {{ vm.case.created_by.full_name || 'Unknown' }}</div>
-                    <div><label>Created on:</label> {{ vm.case.created | date:"dd MMMM y H:mm" }}</div>
-                    <div>
-                        <label>Expires on:</label>
-                        <postpone class="margin-left-5" type="'Case'" object="vm.case" date-field="'expires'" display-date="true"></postpone>
-                    </div>
+                    <table class="widget-content-table">
+                        <tbody>
+                            <tr>
+                                <td>Assigned to</td>
+                                <td>
+                                    <ul>
+                                        <li>
+                                            <editable-select field="assigned_to" view-model="vm" type="Case" select-options="{type: 'User', field: 'assignOptions', display: 'full_name'}">
+                                                {{ vm.case.assigned_to.full_name || "Nobody"}}
+                                            </editable-select>
+                                        </li>
+                                        <li>
+                                            <a ng-if="vm.case.assigned_to.id != currentUser.id" ng-click="vm.assignCase()"><i class="fa fa-anchor"></i> Assign to me</a>
+                                        </li>
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr ng-if="vm.case.assigned_to_groups.length">
+                                <td>Assigned to teams:</td>
+                                <td>{{ vm.case.assigned_to_groups | join:'name' }}</td>
+                            </tr>
+
+                            <tr><td>Created by</td> <td>{{ vm.case.created_by.full_name || 'Unknown' }}</td></tr>
+                            <tr><td>Created on</td> <td>{{ vm.case.created | date:"dd MMMM y H:mm" }}</td></tr>
+
+                            <tr>
+                                <td>Expires on</td>
+                                <td><postpone type="'Case'" object="vm.case" date-field="'expires'" display-date="true"></postpone></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </widget-body>
         </dashboard-widget>

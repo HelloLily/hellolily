@@ -1,39 +1,31 @@
 angular.module('app.utils.directives').directive('historyAddNote', historyAddNoteDirective);
 
-function historyAddNoteDirective () {
+function historyAddNoteDirective() {
     return {
         restrict: 'E',
         scope: {
-            item: '='
+            item: '=',
         },
         templateUrl: 'utils/directives/history_add_note.html',
         controller: HistoryAddNoteController,
         controllerAs: 'vm',
-        bindToController: true
-    }
+        bindToController: true,
+    };
 }
 
-HistoryAddNoteController.$inject = ['$http', '$state'];
-function HistoryAddNoteController ($http, $state) {
+HistoryAddNoteController.$inject = ['$http', '$state', 'Note'];
+function HistoryAddNoteController($http, $state, Note) {
     var vm = this;
+    vm.note = new Note({content_type: vm.item.content_type, object_id: vm.item.id, type: 0});
 
     vm.addNote = addNote;
 
-    //////
-
-    function addNote () {
-        $http({
-            method: 'POST',
-            url: '/notes/create/',
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-            data: $.param({
-                content: vm.note,
-                type: 0,
-                content_type: vm.item.historyType,
-                object_id: vm.item.id
-            })
-        }).success(function() {
-            $state.go($state.current, {}, {reload: true});
+    function addNote() {
+        vm.note.$save(function(response) {
+            vm.item.notes.unshift(response);
+            // 'Empty' the note object to be able to continue posting another
+            // note without having to refresh the page.
+            vm.note = new Note({content_type: vm.item.content_type, object_id: vm.item.id, type: 0});
         });
     }
 }

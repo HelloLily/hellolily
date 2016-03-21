@@ -337,7 +337,7 @@ class Address(TenantMixin):
     )
 
     street = models.CharField(max_length=255, verbose_name=_('street'), blank=True)
-    street_number = models.SmallIntegerField(verbose_name=_('street number'), blank=True, null=True)
+    street_number = models.IntegerField(verbose_name=_('street number'), blank=True, null=True)
     complement = models.CharField(max_length=255, verbose_name=_('complement'), blank=True, null=True)
     postal_code = models.CharField(max_length=10, verbose_name=_('postal code'), blank=True)
     city = models.CharField(max_length=100, verbose_name=_('city'), blank=True)
@@ -348,6 +348,9 @@ class Address(TenantMixin):
 
     def __unicode__(self):
         return u'%s %s %s' % (self.street or '', self.street_number or '', self.complement or '')
+
+    def country_display(self):
+        return self.get_country_display() if self.country else ''
 
     def full(self):
         return u'%s %s %s %s %s' % (
@@ -395,11 +398,25 @@ class EmailAddress(TenantMixin):
 
 class HistoryListItem(PolymorphicTenantMixin):
     """
-    An base model for all items that can appear in a History List
+    A base model for all items that can appear in a History List.
     """
     sort_by_date = models.DateTimeField(verbose_name='date to sort by')
 
     objects = PolymorphicTenantManager()
+
+    class Meta:
+        app_label = 'utils'
+
+
+class ExternalAppLink(TenantMixin):
+    """
+    A link to an external app.
+    """
+    url = models.URLField(max_length=255)
+    name = models.CharField(max_length=255)
+
+    def __unicode__(self):
+        return self.name
 
     class Meta:
         app_label = 'utils'

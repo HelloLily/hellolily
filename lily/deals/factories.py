@@ -10,7 +10,7 @@ from lily.accounts.factories import AccountFactory
 from lily.users.factories import LilyUserFactory
 from lily.tenant.factories import TenantFactory
 
-from .models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost, DealFoundThrough, DealContactedBy
+from .models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost, DealFoundThrough, DealContactedBy, DealStatus
 
 faker = Factory.create('nl_NL')
 past_date = datetime.date.today() - datetime.timedelta(days=10)
@@ -94,6 +94,25 @@ class DealContactedByFactory(DjangoModelFactory):
         django_get_or_create = ('tenant', 'name')
 
 
+STATUS_NAMES = [
+    'Open',
+    'Proposal sent',
+    'Won',
+    'Lost',
+    'Called',
+    'Emailed',
+]
+
+
+class DealStatusFactory(DjangoModelFactory):
+    tenant = SubFactory(TenantFactory)
+    name = Iterator(STATUS_NAMES)
+
+    class Meta:
+        model = DealStatus
+        django_get_or_create = ('tenant', 'name')
+
+
 class DealFactory(DjangoModelFactory):
     tenant = SubFactory(TenantFactory)
     account = SubFactory(AccountFactory, tenant=SelfAttribute('..tenant'))
@@ -110,7 +129,7 @@ class DealFactory(DjangoModelFactory):
     new_business = FuzzyChoice([True, False])
     next_step = SubFactory(DealNextStepFactory, tenant=SelfAttribute('..tenant'))
     next_step_date = FuzzyDate(past_date, future_date)
-    stage = FuzzyChoice(dict(Deal.STAGE_CHOICES).keys())
+    status = SubFactory(DealStatusFactory, tenant=SelfAttribute('..tenant'))
     twitter_checked = FuzzyChoice([True, False])
     why_customer = SubFactory(DealWhyCustomerFactory, tenant=SelfAttribute('..tenant'))
     why_lost = None
@@ -118,7 +137,7 @@ class DealFactory(DjangoModelFactory):
     @post_generation
     def why_lost(self, create, extracted, **kwargs):
         # If a deal was created with the 'Lost' status we want to set a lost reason.
-        if self.stage == 3:
+        if self.status.name == 'Lost':
             self.why_lost = DealWhyLostFactory(tenant=self.tenant)
 
     class Meta:

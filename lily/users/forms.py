@@ -178,6 +178,7 @@ class RegistrationForm(HelloLilyForm):
     first_name = forms.CharField(label=_('First name'), max_length=255)
     preposition = forms.CharField(label=_('Preposition'), max_length=100, required=False)
     last_name = forms.CharField(label=_('Last name'), max_length=255)
+    position = forms.CharField(label=_('Position'), max_length=255, required=False)
 
     def clean_email(self):
         if LilyUser.objects.filter(email__iexact=self.cleaned_data['email']).exists():

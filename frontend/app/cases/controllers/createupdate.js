@@ -337,6 +337,9 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         if (contactsPromise) {
             contactsPromise.$promise.then(function(data) {
                 vm.contacts = data.objects;
+                if (vm.contacts.length === 1) {
+                    vm.case.contact = vm.contacts[0];
+                }
             });
         }
     }

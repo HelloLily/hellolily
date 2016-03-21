@@ -88,7 +88,7 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
         var j;
         var splitName = '';
         var choiceVarName = '';
-        var choiceFields = ['currency', 'stage'];
+        var choiceFields = ['currency'];
 
         _setAssignOptions();
 
@@ -118,6 +118,13 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
             vm.contactedByChoices = response.results;
         });
 
+        Deal.getStatuses(function(response) {
+            vm.statusChoices = response.results;
+
+            vm.lostStatus = Deal.lostStatus;
+            vm.wonStatus = Deal.wonStatus;
+        });
+
         Deal.getFormOptions(function(data) {
             var choiceData = data.actions.POST;
 
@@ -132,7 +139,7 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
                     }
                 }
 
-                // Make the variable name a bit more logical (e.g. vm.stageChoices vs vm.stage).
+                // Make the variable name a bit more logical (e.g. vm.currencyChoices vs vm.currency).
                 choiceVarName += 'Choices';
 
                 vm[choiceVarName] = choiceData[choiceFields[i]].choices;
@@ -219,10 +226,10 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
         }
     });
 
-    $scope.$watch('vm.deal.stage', function() {
-        if (vm.deal.id && vm.deal.stage === 3) {
+    $scope.$watch('vm.deal.status', function() {
+        if (vm.deal.id && vm.deal.status === vm.lostStatus.id) {
             if (vm.noneStep) {
-                // If the stage is 'Lost', set the next step to 'None'.
+                // If the status is 'Lost', set the next step to 'None'.
                 vm.deal.next_step = vm.noneStep;
                 vm.deal.next_step_date = null;
             }
@@ -283,7 +290,7 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
             vm.deal.next_step_date = moment(vm.deal.next_step_date).format('YYYY-MM-DD');
         }
 
-        if (vm.deal.why_lost && vm.deal.stage !== 3) {
+        if (vm.deal.why_lost && vm.deal.status.id !== vm.lostStatus.id) {
             vm.deal.why_lost = null;
         }
 
@@ -375,6 +382,9 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
         if (contactsPromise) {
             contactsPromise.$promise.then(function(data) {
                 vm.contacts = data.objects;
+                if (vm.contacts.length === 1) {
+                    vm.deal.contact = vm.contacts[0];
+                }
             });
         }
     }

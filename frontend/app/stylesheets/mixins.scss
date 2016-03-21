@@ -16,6 +16,7 @@ Yourself) and maintainable.
 
 @mixin colored-bullet($size, $color) {
     margin-left: 5px;
+    padding-left: 3px;
 
     &:before {
         content: "";

@@ -25,14 +25,13 @@ function dealsConfig($stateProvider) {
 
 angular.module('app.deals').controller('DealDetailController', DealDetailController);
 
-DealDetailController.$inject = ['$scope', '$uibModal',  'Deal', 'DealStages', 'HLResource', 'HLUtils', 'Settings', 'currentDeal'];
-function DealDetailController($scope, $uibModal, Deal, DealStages, HLResource, HLUtils, Settings, currentDeal) {
+DealDetailController.$inject = ['$scope', '$uibModal', 'Account', 'Contact', 'Deal', 'HLResource', 'HLUtils', 'Settings', 'currentDeal', 'Tenant'];
+function DealDetailController($scope, $uibModal, Account, Contact, Deal, HLResource, HLUtils, Settings, currentDeal, Tenant) {
     var vm = this;
 
     Settings.page.setAllTitles('detail', currentDeal.name);
 
     vm.deal = currentDeal;
-    vm.dealStages = DealStages.query();
 
     vm.changeState = changeState;
     vm.updateModel = updateModel;
@@ -42,6 +41,18 @@ function DealDetailController($scope, $uibModal, Deal, DealStages, HLResource, H
     //////
 
     function activate() {
+        if (vm.deal.account) {
+            Account.get({id: vm.deal.account.id}).$promise.then(function(account) {
+                vm.account = account;
+            });
+        }
+
+        if (vm.deal.contact) {
+            Contact.get({id: vm.deal.contact.id}).$promise.then(function(contact) {
+                vm.contact = contact;
+            });
+        }
+
         Deal.getNextSteps(function(response) {
             angular.forEach(response.results, function(nextStep) {
                 if (nextStep.name === 'None') {
@@ -56,6 +67,17 @@ function DealDetailController($scope, $uibModal, Deal, DealStages, HLResource, H
 
         Deal.getWhyLost(function(response) {
             vm.whyLost = response.results;
+        });
+
+        Deal.getStatuses(function(response) {
+            vm.statusChoices = response.results;
+
+            vm.lostStatus = Deal.lostStatus;
+            vm.wonStatus = Deal.wonStatus;
+        });
+
+        Tenant.query({}, function(tenant) {
+            vm.tenant = tenant;
         });
     }
 
@@ -89,9 +111,9 @@ function DealDetailController($scope, $uibModal, Deal, DealStages, HLResource, H
             }
         }
 
-        if (args.hasOwnProperty('stage')) {
-            if (vm.deal.stage === 3) {
-                // If the stage is 'Lost', set the next step to 'None'.
+        if (args.hasOwnProperty('status')) {
+            if (vm.deal.status === vm.lostStatus.id) {
+                // If the status is 'Lost', set the next step to 'None'.
                 vm.deal.next_step = vm.noneStep;
                 vm.deal.next_step_date = null;
             }
@@ -103,16 +125,15 @@ function DealDetailController($scope, $uibModal, Deal, DealStages, HLResource, H
     /**
      * Change the state of a deal.
      */
-    function changeState(stage) {
+    function changeState(status) {
         var args;
 
-        // For now we'll use a separate function to update the stage,
+        // For now we'll use a separate function to update the status,
         // since the buttons and the value in the list need to be equal.
-        vm.deal.stage = stage[0]; // ID of the stage
-        vm.deal.stage_display = stage[1]; // Name of the stage
+        vm.deal.status = status;
 
         // TODO: Should this be done in the API?
-        if (['Won', 'Lost'].indexOf(stage[1]) > -1) {
+        if (['Won', 'Lost'].indexOf(status[1]) > -1) {
             vm.deal.closed_date = moment().format();
         } else {
             vm.deal.closed_date = null;
@@ -120,11 +141,11 @@ function DealDetailController($scope, $uibModal, Deal, DealStages, HLResource, H
 
         args = {
             id: vm.deal.id,
-            stage: vm.deal.stage,
+            status: vm.deal.status,
             closed_date: vm.deal.closed_date,
         };
 
-        if (vm.deal.stage === 3 && vm.whyLost.length > 0) {
+        if (vm.deal.status === vm.lostStatus.id && vm.whyLost.length > 0) {
             // If the status is 'Lost' we want to provide a reason why the deal was lost.
             whyLost(args);
         } else {

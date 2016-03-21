@@ -1,216 +1,274 @@
 <div ng-if="!vm.deal.id" ng-include="'utils/controllers/does_not_exist.html'" class="row">
 </div>
 
-<div class="row">
+<div ng-if="vm.deal.id" class="row">
     <div class="col-md-8">
-        <div ng-if="vm.deal.id" class="row">
-            <div class="summary-info text-center">
-                <div id="deal-stage" class="btn-group" data-toggle="buttons" data-object-id="{{ vm.deal.id }}">
-                        <label ng-repeat="stage in vm.dealStages" for="stage-{{ stage[1] | lowercase }}" ng-class="{'btn default': true, 'btn default active': vm.deal.stage == stage[0], 'btn default disabled': vm.deal.is_archived }" ng-click="vm.changeState(stage)">
-                            <input class="toggle" type="radio" id="stage-{{ stage[1] | lowercase }}" name="radio" value="{{ stage[0] }}" ng-checked="vm.deal.stage == stage[0]">
-                            {{ stage[1] }}
-                        </label>
-                    <div class="btn-group">
-                        <button class="btn default" ng-click="vm.deal.is_archived = !vm.deal.is_archived">
+        <div class="widget-container">
+            <div class="widget-heading">
+                <div class="pull-left radio-button-group" data-toggle="buttons" data-object-id="{{ vm.deal.id }}">
+                    <label class="no-radio-bullets" ng-repeat="status in vm.statusChoices" for="status-{{ status.name | lowercase }}" ng-class="{'radio-button': true, 'radio-button active': vm.deal.status.id == status.id, 'radio-button disabled': vm.deal.is_archived }" ng-click="vm.changeState(status)">
+                        <div class="radio-button-inset">
+                            <input class="toggle" type="radio" id="status-{{ status.name | lowercase }}" name="radio" value="{{ status.id }}" ng-checked="vm.deal.status.id == status.id">
+                            {{ status.name }}
+                        </div>
+                    </label>
+
+
+                    <label class="radio-button">
+                        <div class="radio-button-inset" ng-click="vm.deal.is_archived = !vm.deal.is_archived">
                             <span ng-if="vm.deal.is_archived">Unarchive</span>
                             <span ng-if="!vm.deal.is_archived">Archive</span>
-                        </button>
-                    </div>
+                        </div>
+                    </label>
                 </div>
+
+                <div class="pull-right">
+                    <strong class="margin-right-5">Last edited:</strong><date add-time="true" date="vm.deal.modified"></date>
+                </div>
+
+                <div class="clearfix"></div>
             </div>
-        </div>
 
-        <div ng-if="vm.deal.id" class="row no-margin">
-            <div class="well well-md">
-                <h4>Description <i class="fa fa-pencil clickable margin-left-10" ng-click="descriptionForm.$show()" ng-hide="descriptionForm.$visible"></i></h4>
-                <p editable-textarea="vm.deal.description" e-rows="4" e-cols="100" e-form="descriptionForm" onbeforesave="vm.updateModel($data, 'description')"
-                   class="pre-wrap" ng-bind-html="(vm.deal.description | parseUrls) || 'No description'">
-                </p>
-            </div>
-        </div>
+            <div class="widget-body">
+                <table class="widget-table">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <strong class="margin-right-10">Next step:</strong>
+                                <editable-select field="next_step" view-model="vm" type="Deal">
+                                    <span class="step-type" id="next-step" ng-if="vm.deal.next_step" ng-class="{0: 'position-1', 1: 'position-2', 2: 'position-3', 3: 'position-4', 4: 'position-5', 5: 'position-6'}[vm.deal.next_step.position]">
+                                        {{ vm.deal.next_step.name }}
+                                    </span>
+                                </editable-select>
+                            </td>
+                            <td ng-if="vm.deal.next_step_date">
+                                <strong class="margin-right-10">Next step date:</strong>
+                                <postpone type="'Deal'" object="vm.deal" date-field="'next_step_date'" tt-placement="bottom" display-date="true"></postpone>
+                            </td>
+                    </tr>
+                    </tbody>
+                </table>
 
-        <history-list ng-if="vm.deal.id" target="'deal'" object="vm.deal"></history-list>
-    </div>
+                <div class="widget-content">
+                    <div class="widget-content-section">
+                        <strong>Description <i class="lilicon hl-edit-icon clickable margin-left-10" ng-click="descriptionForm.$show()" ng-hide="descriptionForm.$visible"></i></strong>
+                        <div editable-textarea="vm.deal.description" e-rows="4" e-cols="100" e-form="descriptionForm" onbeforesave="vm.updateModel($data, 'description')" ng-bind-html="(vm.deal.description | parseUrls) || 'No description'"></div>
 
-    <div ng-if="vm.deal.id">
-        <div class="col-md-4">
-            <div class="widget-container">
-                <div class="widget-heading">
-                    <div class="widget-title">
-                        <div class="widget-name">
-                            Deal info
+                        <div class="clearfix"></div>
+                    </div>
+
+                    <div class="widget-content-section" ng-if="vm.deal.tags.length">
+                        <div style="margin-bottom: 5px;"><strong>Tags</strong></div>
+                        <div>
+                            <span class="btn btn-xs btn-default margin-right-5" ng-repeat="tag in vm.deal.tags">
+                                {{ tag.name }}
+                            </span>
                         </div>
                     </div>
 
-                    <div class="clearfix"></div>
                 </div>
+            </div>
+        </div>
 
-                <div class="widget-body">
-                    <div class="widget-content deal-detail-info">
-                        <table class="deal-detail-info-table">
-                            <tr ng-if="vm.deal.account">
-                                <td>Account</td>
-                                <td>
-                                    <a ui-sref="base.accounts.detail({ id: vm.deal.account.id })">
-                                        {{ vm.deal.account.name }}
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr ng-if="vm.deal.contact">
-                                <td>Contact</td>
-                                <td>
-                                    <a ui-sref="base.contacts.detail({ id: vm.deal.contact.id })">
-                                        {{ vm.deal.contact.name }}
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Deal name</td>
-                                <td><span editable-text="vm.deal.name" blur="submit" onbeforesave="vm.updateModel($data, 'name')">{{ vm.deal.name }}</span></td>
-                            </tr>
-                            <tr>
-                                <td>Found us through</td>
-                                <td>
-                                    <editable-select field="found_through" view-model="vm" type="Deal">
-                                        {{ vm.deal.found_through.name }}
-                                    </editable-select>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Contacted us by</td>
-                                <td>
-                                    <editable-select field="contacted_by" view-model="vm" type="Deal">
-                                        {{ vm.deal.contacted_by.name }}
-                                    </editable-select>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Why customer</td>
-                                <td>
-                                    <editable-select field="why_customer" view-model="vm" type="Deal">
-                                        {{ vm.deal.why_customer.name }}
-                                    </editable-select>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Next step</td>
-                                <td>
-                                    <editable-select field="next_step" view-model="vm" type="Deal">
-                                        <span class="step-type" id="next-step" ng-if="vm.deal.next_step" ng-class="{0: 'position-1', 1: 'position-2', 2: 'position-3', 3: 'position-4', 4: 'position-5', 5: 'position-6'}[vm.deal.next_step.position]">
-                                            {{ vm.deal.next_step.name }}
-                                        </span>
-                                    </editable-select>
-                                </td>
-                            </tr>
-                            <tr ng-if="vm.deal.next_step_date">
-                                <td>Next step date</td>
-                                <td>
-                                    <postpone type="'Deal'" object="vm.deal" date-field="'next_step_date'" tt-placement="bottom" display-date="true"></postpone>
-                                </td>
-                            </tr>
-                            <tr ng-if="vm.deal.closed_date">
-                                <td>Closed date</td>
-                                <td>
-                                    <span id="closed-date">
-                                        <date date="vm.deal.closed_date"></date>
-                                    </span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Created</td>
-                                <td><date date="vm.deal.created"></date></td>
-                            </tr>
-                            <tr>
-                                <td>Created by</td>
-                                <td>{{ vm.deal.created_by.full_name }}</td>
-                            </tr>
+        <history-list target="'deal'" object="vm.deal"></history-list>
+    </div>
 
-                            <tr>
-                                <td>Assigned to</td>
-                                <td>
+    <div>
+        <div class="col-md-4">
+            <dashboard-widget widget-name="'Detail'">
+                <widget-header>
+                    <div class="widget-name">Deal details</div>
+                </widget-header>
+                <widget-body>
+                    <div class="widget-content">
+                        <table class="widget-info-table">
+                            <tbody>
+                                <tr>
+                                    <td><strong>Dealname</strong></td>
+                                    <td><span editable-text="vm.deal.name" blur="submit" onbeforesave="vm.updateModel($data, 'name')">{{ vm.deal.name }}</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>One-time-cost</strong></td>
+                                    <td><span editable-text="vm.deal.amount_once" onbeforesave="vm.updateModel($data, 'amount_once')" blur="submit">{{ vm.deal.amount_once | currency:"€" }}</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Recurring costs</strong></td>
+                                    <td><span editable-text="vm.deal.amount_recurring" onbeforesave="vm.updateModel($data, 'amount_recurring')" blur="submit">{{ vm.deal.amount_recurring | currency:"€" }}</span></td>
+                                </tr>
+
+                                <tr ng-show="vm.deal.why_lost">
+                                    <td><strong>Why lost</strong></td>
+                                    <td><editable-select field="why_lost" view-model="vm" type="Deal">{{ vm.deal.why_lost.name }}</editable-select></td>
+                                </tr>
+
+                                <tr ng-if="vm.deal.closed_date">
+                                    <td><strong>Closed date</strong></td>
+                                    <td><date date="vm.deal.closed_date"></date></td>
+                                </tr>
+
+                                <tr><td colspan="2"><hr></td></tr>
+
+                                <tr>
+                                    <td><strong>Found us through</strong></td>
+                                    <td><editable-select field="found_through" view-model="vm" type="Deal">{{ vm.deal.found_through.name }}</editable-select></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Contacted us by</strong></td>
+                                    <td><editable-select field="contacted_by" view-model="vm" type="Deal">{{ vm.deal.contacted_by.name }}</editable-select></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Why customer</strong></td>
+                                    <td><editable-select field="why_customer" view-model="vm" type="Deal">{{ vm.deal.why_customer.name }}</editable-select></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Twitter checked</strong></td>
+                                    <td><editable-checkbox view-model="vm" type="Deal" field="twitter_checked"></editable-checkbox></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Card sent</strong></td>
+                                    <td><editable-checkbox view-model="vm" type="Deal" field="card_sent"></editable-checkbox></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Feedback form sent</strong></td>
+                                    <td><editable-checkbox view-model="vm" type="Deal" field="feedback_form_sent"></editable-checkbox></td>
+                                </tr>
+
+                                <tr ng-if="vm.deal.quote_id || vm.deal.account.customer_id"><td colspan="2"><hr></td></tr>
+
+                                <tr ng-show="vm.deal.status.id == vm.wonStatus.id">
+                                    <td><strong>Quote checked</strong></td>
+                                    <td>
+                                        <editable-checkbox view-model="vm" type="Deal" field="is_checked"></editable-checkbox>
+                                    </td>
+                                </tr>
+
+                                <tr ng-show="vm.deal.quote_id || vm.deal.account.customer_id">
+                                    <td><strong>External</strong></td>
+                                    <td>
+                                        <div ng-if="vm.deal.quote_id" class="margin-bottom-10">
+                                            <a ng-href="https://freedom.voys.nl/quotes/pdf/{{ vm.deal.quote_id }}/">
+                                                Quote: {{ vm.deal.quote_id }}
+                                            </a>
+                                        </div>
+                                        <div ng-if="vm.deal.account.customer_id">
+                                            <a ng-href="https://freedom.voys.nl/client/{{ vm.deal.account.customer_id }}">
+                                                Customer: {{ vm.deal.account.customer_id }}
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </widget-body>
+            </dashboard-widget>
+
+            <dashboard-widget widget-name="'Involved'">
+                <widget-header>
+                    <div class="widget-name">Involved</div>
+                </widget-header>
+
+                <widget-body>
+                    <div class="widget-content">
+                        <ul class="case-detail-block-list">
+                            <li>
+                                <strong>Assignee: </strong>
+                                <div>
                                     <editable-select field="assigned_to" view-model="vm" type="Deal" class="inline-selectable-text" select-options="{type: 'User', field: 'assignOptions', display: 'full_name'}">
                                         {{ vm.deal.assigned_to.full_name }}
                                     </editable-select>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>One-time-cost</td>
-                                <td>
-                                    <span editable-text="vm.deal.amount_once" onbeforesave="vm.updateModel($data, 'amount_once')" blur="submit">{{ vm.deal.amount_once | currency:"€" }}</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    Recurring costs
-                                </td>
-                                <td>
-                                    <span editable-text="vm.deal.amount_recurring" onbeforesave="vm.updateModel($data, 'amount_recurring')" blur="submit">{{ vm.deal.amount_recurring | currency:"€" }}</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    Status
-                                </td>
-                                <td>
-                                    <span ng-if="vm.deal.is_archived">{{ vm.deal.stage_display }}</span>
-                                    <editable-select ng-if="!vm.deal.is_archived" field="stage" view-model="vm" type="Deal" class="inline-selectable-text" choice-field="true">
-                                        {{ vm.deal.stage_display }}
-                                    </editable-select>
-                                    <span ng-show="vm.deal.is_archived">- Archived</span>
-                                </td>
-                            </tr>
-                            <tr ng-show="vm.deal.stage == 3 && vm.deal.why_lost">
-                                <td>Why lost</td>
-                                <td>
-                                     <editable-select field="why_lost" view-model="vm" type="Deal">
-                                        {{ vm.deal.why_lost.name }}
-                                    </editable-select>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Twitter checked</td>
-                                <td>
-                                    <editable-checkbox view-model="vm" type="Deal" field="twitter_checked"></editable-checkbox>
-                                </td>
-                            </tr>
-                            <tr ng-show="vm.deal.stage == 2">
-                                <td>Quote checked</td>
-                                <td>
-                                    <editable-checkbox view-model="vm" type="Deal" field="is_checked"></editable-checkbox>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Card sent</td>
-                                <td>
-                                    <editable-checkbox view-model="vm" type="Deal" field="card_sent"></editable-checkbox>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Feedback form sent</td>
-                                <td>
-                                    <editable-checkbox view-model="vm" type="Deal" field="feedback_form_sent"></editable-checkbox>
-                                </td>
-                            </tr>
-                            <tr ng-show="vm.deal.tag">
-                                <td>Tags</td>
-                                <td>
-                                    <span class="btn btn-xs btn-default margin-right-5" ng-repeat="tag in vm.deal.tag">
-                                        {{ tag }}
-                                    </span>
-                                </td>
-                            </tr>
-                            <tr ng-show="vm.deal.quote_id || vm.deal.account_customer_id">
-                                <td>External</td>
-                                <td>
-                                    <a ng-show="vm.deal.quote_id" ng-href="https://freedom.voys.nl/quotes/pdf/{{ vm.deal.quote_id }}/">Quote</a>
-                                    <span ng-show="vm.deal.quote_id && vm.deal.account_customer_id">|</span>
-                                    <a ng-href="https://freedom.voys.nl/client/{{ vm.deal.account_customer_id }}" ng-if="vm.deal.account_customer_id">Environment</a>
-                                </td>
-                            </tr>
-                        </table>
+                                </div>
+                            </li>
+                            <li>
+                                <strong>Created by: </strong>
+                                <div><span class="margin-right-5">{{ vm.deal.created_by.full_name }} on </span><date date="vm.deal.created"></date></div>
+                            </li>
+                        </ul>
                     </div>
-                </div>
-            </div>
+                </widget-body>
+            </dashboard-widget>
+
+            <dashboard-widget ng-if="vm.deal.account" widget-name="'Account info'">
+                <widget-header>
+                    <div class="widget-name">
+                        <a ui-sref="base.accounts.detail({ id: vm.deal.account.id })">
+                            <i class="lilicon hl-company-icon"></i>
+                            {{ vm.deal.account.name }}
+                        </a>
+                    </div>
+                </widget-header>
+
+                <widget-body>
+                    <div class="widget-content">
+                        <ul class="case-detail-block-list">
+                            <li ng-if="vm.account.email_addresses.length">
+                                <strong>E-mail addresses</strong>
+                                <div ng-repeat="email in vm.account.email_addresses">
+                                    <a ui-sref="base.email.composeEmail({email: email.email_address})">{{ email.email_address }}</a> ({{ email.status_name }})
+                                </div>
+                            </li>
+                            <li ng-if="vm.account.phone_numbers.length">
+                                <strong>Phone numbers: </strong>
+                                <div ng-repeat="phonenumber in vm.account.phone_numbers">
+                                    <a href="tel:{{ phonenumber.raw_input }}">{{ phonenumber.raw_input }}</a> ({{phonenumber.type}})
+                                </div>
+                            </li>
+                            <li ng-if="vm.account.addresses.length">
+                                <strong>Addresses: </strong>
+                                <div ng-repeat="address in vm.account.addresses">
+                                    {{ address.street }} {{ address.street_number }}{{ address.complement }}
+                                    <br />
+                                    {{ address.postal_code }}, {{ address.city }}
+                                    <br />
+                                    {{ address.country_display }}
+                                </div>
+                            </li>
+                            <li ng-if="vm.account.websites.length">
+                                <strong>Websites: </strong>
+                                <div ng-repeat="website in vm.account.websites">
+                                    <a target="_blank" href="{{website.website}}">{{ website.website | stripScheme }}</a>
+                                </div>
+                            </li>
+                            <li ng-if="!vm.account.email_addresses.length && !vm.account.phone_numbers.length && !vm.account.addresses.length && !vm.account.websites.length" >
+                                No additional information
+                            </li>
+                        </ul>
+                    </div>
+                </widget-body>
+            </dashboard-widget>
+
+            <dashboard-widget ng-if="vm.deal.contact" widget-name="'Contact info'">
+                <widget-header>
+                    <div class="widget-name">
+                        <a ui-sref="base.contacts.detail({ id: vm.deal.contact.id })">
+                            <i class="lilicon hl-user-icon"></i>
+                            {{ vm.deal.contact.name }}
+                        </a>
+                    </div>
+                </widget-header>
+
+                <widget-body>
+                    <div class="widget-content">
+                        <ul class="case-detail-block-list">
+                            <li ng-if="vm.contact.email_addresses.length">
+                                <strong>E-mail addresses: </strong>
+                                <div ng-repeat="email in vm.contact.email_addresses">
+                                    <a ui-sref="base.email.composeEmail({email: email.email_address})">{{ email.email_address }}</a> ({{ email.status_name }})
+                                </div>
+                            </li>
+                            <li ng-if="vm.contact.phone_numbers.length">
+                                <strong>Phone numbers: </strong>
+                                <div ng-repeat="phonenumber in vm.contact.phone_numbers">
+                                    <a href="tel:{{ phonenumber.raw_input }}">{{ phonenumber.raw_input }}</a> ({{phonenumber.type}})
+                                </div>
+                            </li>
+                            <li ng-if="!vm.contact.email_addresses.length && !vm.contact.phone_numbers.length">
+                                No additional information
+                            </li>
+                        </ul>
+                    </div>
+                </widget-body>
+            </dashboard-widget>
         </div>
     </div>
 </div>

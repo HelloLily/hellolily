@@ -42,7 +42,7 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
         visibility: storage.get('visibility', {
             deal: true,
             client: true,
-            stage: true,
+            status: true,
             created: true,
             name: true,
             amountOnce: true,
@@ -102,26 +102,6 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
                 selected: false,
             },
             {
-                name: 'Proposal stage',
-                value: 'stage:1',
-                selected: false,
-            },
-            {
-                name: 'Won stage',
-                value: 'stage:2',
-                selected: false,
-            },
-            {
-                name: 'Called',
-                value: 'stage:4',
-                selected: false,
-            },
-            {
-                name: 'Emailed',
-                value: 'stage:5',
-                selected: false,
-            },
-            {
                 name: 'Feedback form not sent',
                 value: 'feedback_form_sent:false',
                 selected: false,
@@ -143,6 +123,16 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
                 id: 'archived',
             },
         ];
+
+        Deal.getStatuses(function(response) {
+            angular.forEach(response.results, function(status) {
+                filterList.push({
+                    name: status.name,
+                    value: 'status:' + status.id,
+                    selected: false,
+                });
+            });
+        });
 
         Deal.getNextSteps(function(response) {
             angular.forEach(response.results, function(nextStep) {

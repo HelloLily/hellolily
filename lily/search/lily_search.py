@@ -171,7 +171,7 @@ class LilySearch(object):
                         'created_by',
                         'subject',
                         'name',
-                        'stage_name',
+                        'status_name',
                         'status',
                         'type',
                         'phone_*',

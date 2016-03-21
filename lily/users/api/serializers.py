@@ -19,6 +19,7 @@ class LilyUserSerializer(serializers.ModelSerializer):
             'last_name',
             'full_name',
             'primary_email_account',
+            'position',
         )
 
 

@@ -126,7 +126,7 @@ function CaseDetailController($http, $scope, $stateParams, Settings, Account, Ca
 
         $http(req).
             success(function(data, status, headers, config) {
-                vm.case.status = data.status;
+                vm.case.status.status = data.status;
             }).
             error(function(data, status, headers, config) {
                 // Request failed proper error?

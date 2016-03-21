@@ -121,6 +121,7 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
     subject = forms.CharField(required=False)
     body_html = forms.CharField(widget=Wysihtml5Input(), required=False)
 
+    @function_trace()
     def __init__(self, *args, **kwargs):
         self.message_type = kwargs.pop('message_type', 'reply')
         super(ComposeEmailForm, self).__init__(*args, **kwargs)
@@ -168,6 +169,14 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
         Return True since file uploads are possible.
         """
         return True
+
+    @function_trace()
+    def is_valid(self):
+        return super(ComposeEmailForm, self).is_valid()
+
+    @function_trace()
+    def save(self, commit=True):
+        return super(ComposeEmailForm, self).save(commit)
 
     @function_trace()
     def clean(self):

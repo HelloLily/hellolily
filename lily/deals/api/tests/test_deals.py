@@ -1,7 +1,7 @@
 from lily.accounts.factories import AccountFactory
 from lily.deals.api.serializers import DealSerializer
 from lily.deals.factories import DealFactory, DealWhyCustomerFactory, DealNextStepFactory, DealFoundThroughFactory, \
-    DealContactedByFactory
+    DealContactedByFactory, DealStatusFactory
 from lily.deals.models import Deal
 from lily.notes.factories import NoteFactory
 from lily.tags.factories import TagFactory
@@ -36,6 +36,7 @@ class DealTests(GenericAPITestCase):
         why_customer = DealWhyCustomerFactory(**kwargs)
         found_through = DealFoundThroughFactory(**kwargs)
         contacted_by = DealContactedByFactory(**kwargs)
+        status = DealStatusFactory(**kwargs)
 
         for iteration in range(0, size):
             obj = self.factory_cls.stub(**kwargs).__dict__
@@ -59,6 +60,9 @@ class DealTests(GenericAPITestCase):
             }
             obj['contacted_by'] = {
                 'id': contacted_by.pk,
+            }
+            obj['status'] = {
+                'id': status.pk,
             }
 
             if with_relations:

@@ -59,6 +59,7 @@ class RegistrationView(FormView):
             first_name=form.cleaned_data['first_name'],
             preposition=form.cleaned_data['preposition'],
             last_name=form.cleaned_data['last_name'],
+            position=form.cleaned_data['position'],
         )
 
         user.is_active = False
@@ -439,6 +440,7 @@ class AcceptInvitationView(FormView):
         user.first_name = form.cleaned_data['first_name']
         user.preposition = form.cleaned_data['preposition']
         user.last_name = form.cleaned_data['last_name']
+        user.position = form.cleaned_data['position']
         user.set_password(form.cleaned_data['password'])
         user.tenant_id = self.tenant_id
         user.save()

@@ -11,8 +11,6 @@ function HLSearch($injector) {
             extraQuery = '';
         }
 
-        query = escape(query);
-
         // Dynamically get the model.
         model = $injector.get(model);
 

@@ -156,6 +156,7 @@ class UserProfileForm(HelloLilyModelForm):
                     'first_name',
                     'preposition',
                     'last_name',
+                    'position',
                 ],
             }),
             (_('Contact information'), {

@@ -5,28 +5,36 @@
                 {{ typeVal.name }}
             </li>
         </ul>
+    </div>
 
-        <div class="portlet light">
-            <ul class="history-timeline">
-                <li class="history-timeline-list-item">
+    <div class="col-md-12">
+        <div ng-if="history.list.totalItems" class="vertical-line"></div>
+
+        <div class="timeline-item-form-container">
+
+            <div class="timeline-avatar is-type">
+                <i class="lilicon hl-note-icon"></i>
+            </div>
+
+            <div class="timeline-content-container">
+
+                <div class="timeline-content-header">
                     <form role="form">
-                        <div class="form-body text-center">
-                            <!--<div class="form-group">-->
-                                <!--<div class="btn-group">-->
-                                    <!--<label class="btn btn-default" ng-model="note.type" btn-radio="1">-->
-                                        <!--<i class="fa fa-phone"></i>-->
-                                        <!--Call-->
-                                    <!--</label>-->
-                                    <!--<label class="btn btn-default" ng-model="note.type" btn-radio="2">-->
-                                        <!--<i class="fa fa-calendar"></i>-->
-                                        <!--Meetup-->
-                                    <!--</label>-->
-                                    <!--<label class="btn btn-default" ng-model="note.type" btn-radio="0">-->
-                                        <!--<i class="fa fa-sticky-note"></i>-->
-                                        <!--Note-->
-                                    <!--</label>-->
-                                <!--</div>-->
-                            <!--</div>-->
+                        <div class="form-body">
+                            <ul class="timeline-content-type-buttons">
+                                <li ng-model="note.type" uib-btn-radio="0">
+                                    <i class="lilicon hl-note-icon"></i>
+                                    Note
+                                </li>
+                               <li ng-model="note.type" uib-btn-radio="1">
+                                   <i class="fa fa-phone"></i>
+                                   Call
+                               </li>
+                               <li ng-model="note.type" uib-btn-radio="2">
+                                   <i class="lilicon hl-calender-icon"></i>
+                                   Meetup
+                               </li>
+                           </ul>
                             <div class="form-group">
                                 <textarea required class="form-control" id="id_content" ng-model="note.content" name="content" rows="4" placeholder="Write your note here"></textarea>
                             </div>
@@ -41,15 +49,26 @@
                             </button>
                         </div>
                     </form>
-                </li>
-                <li class="history-timeline-list-item" ng-class="{'timeline-inverted': item.historyType != 'email' || item.right}" ng-repeat="item in history.list" ng-show="!history.activeFilter || history.activeFilter == item.historyType">
-                    <history-list-item item="item" history="history" object="object"></history-list-item>
-                </li>
-            </ul>
+                </div>
+            </div>
+
         </div>
 
-        <p class="text-center">
-            <button ng-click="history.loadMore()" class="btn btn-primary margin-top-20">{{ history.showMoreText }}</button>
-        </p>
-    </div>
+        <div ng-repeat="item in history.list.pinned" class="history-list-item">
+            <div class="timeline-time">
+                Pinned
+            </div>
+
+            <history-list-item item="item" history="history" object="object"></history-list-item>
+        </div>
+
+        <div ng-repeat="(key, value) in history.list.nonPinned" class="history-list-item">
+            <div class="timeline-time">
+                <date date="key" date-format="MMMM yyyy"></date>
+            </div>
+
+            <div ng-repeat="item in value" class="history-item">
+                <history-list-item item="item" history="history" object="object"></history-list-item>
+            </div>
+        </div>
 </div>

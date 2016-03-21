@@ -34,7 +34,7 @@ Radio buttons can be used to offer the user a selection range.
         </div>
     </label>
 
-    <label class="radio-button">
+    <label class="radio-button no-radio-bullets">
         <div class="radio-button-inset">
             <input type="radio">
             Option 2
@@ -49,6 +49,8 @@ Radio buttons can be used to offer the user a selection range.
     </label>
 </div>
 ```
+
+By adding the class *.no-radio-bullets* the radio bullets are not being shown.
 */
 
 .radio-button-group {
@@ -60,7 +62,7 @@ Radio buttons can be used to offer the user a selection range.
         border-left: none;
         background: $lilyHeaderBg;
         margin: 0;
-        float: left;
+        display: inline-block;
 
         &:hover,
         &.active {
@@ -68,6 +70,17 @@ Radio buttons can be used to offer the user a selection range.
 
             .radio-button-inset {
                 border-top: 1px $lilyHeaderBg solid;
+            }
+        }
+
+        &.disabled {
+            background: darken($lilyHeaderBg, 3);
+            pointer-events: none;
+
+            .radio-button-inset {
+                border-top: 1px transparent solid;
+                color: darken($lilyHeaderBg, 10);
+                cursor: not-allowed;
             }
         }
 
@@ -87,6 +100,12 @@ Radio buttons can be used to offer the user a selection range.
 
             .radio-button-inset {
                 border-top-right-radius: $baseBorderRadius;
+            }
+        }
+
+        &.no-radio-bullets {
+            input[type="radio"]{
+                display: none;
             }
         }
     }

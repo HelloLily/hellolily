@@ -22,7 +22,6 @@ function HistoryAddNoteController($http, $state, Note) {
 
     function addNote() {
         vm.note.$save(function(response) {
-            console.log(response);
             vm.item.notes.unshift(response);
             // 'Empty' the note object to be able to continue posting another
             // note without having to refresh the page.

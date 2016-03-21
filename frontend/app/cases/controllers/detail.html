@@ -6,7 +6,7 @@
         <div class="widget-container" ng-if="vm.case.id">
             <div class="widget-heading">
                 <div class="pull-left radio-button-group" data-toggle="buttons" data-object-id="{{ ::vm.case.id }}">
-                    <label class="no-radio-bullets" ng-repeat="status in vm.caseStatuses" for="status-{{ status.id }}" ng-class="{'radio-button': true, 'radio-button active': vm.case.status == status.status, 'radio-button disabled': vm.case.archived }" ng-click="vm.changeCaseStatus(status.status)">
+                    <label class="no-radio-bullets" ng-repeat="status in vm.caseStatuses" for="status-{{ status.id }}" ng-class="{'radio-button': true, 'radio-button active': vm.case.status.status == status.status, 'radio-button disabled': vm.case.archived }" ng-click="vm.changeCaseStatus(status.id)">
                         <div class="radio-button-inset">
                             <input class="toggle" type="radio" id="status-{{ status.id }}" name="radio" value="{{ status.id }}" ng-checked="vm.case.status == status.id">
                             {{ status.status }}

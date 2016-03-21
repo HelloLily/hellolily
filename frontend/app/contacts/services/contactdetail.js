@@ -7,10 +7,12 @@ function ContactDetail($resource, HLObjectDetails) {
         {},
         {
             get: {
-                transformResponse: function (data) {
-                    data = angular.fromJson(data);
-                    if (data && data.hits && data.hits.length > 0) {
-                        var contact = data.hits[0];
+                transformResponse: function(data) {
+                    var contact;
+                    var jsonData = angular.fromJson(data);
+
+                    if (jsonData && jsonData.hits && jsonData.hits.length > 0) {
+                        contact = jsonData.hits[0];
                         contact.phones = HLObjectDetails.getPhones(contact);
                         contact.phone = HLObjectDetails.getPhone(contact);
                         contact.email_addresses = HLObjectDetails.getEmailAddresses(contact);
@@ -19,16 +21,18 @@ function ContactDetail($resource, HLObjectDetails) {
                     }
 
                     return null;
-                }
+                },
+                cache: false,
             },
             query: {
                 url: '/search/search/?type=contacts_contact&size=1000&filterquery=:filterquery&sort=full_name',
                 isArray: true,
-                transformResponse: function (data) {
-                    data = angular.fromJson(data);
+                transformResponse: function(data) {
                     var contacts = [];
-                    if (data && data.hits && data.hits.length > 0) {
-                        data.hits.forEach(function (contact) {
+                    var jsonData = angular.fromJson(data);
+
+                    if (jsonData && jsonData.hits && jsonData.hits.length > 0) {
+                        jsonData.hits.forEach(function(contact) {
                             contact.phones = HLObjectDetails.getPhones(contact);
                             contact.phone = HLObjectDetails.getPhone(contact);
                             contact.email_addresses = HLObjectDetails.getEmailAddresses(contact);
@@ -37,10 +41,11 @@ function ContactDetail($resource, HLObjectDetails) {
                     }
 
                     return contacts;
-                }
-            }
+                },
+                cache: false,
+            },
         }
-    )
+    );
 
     return _contactDetail;
 }

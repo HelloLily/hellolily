@@ -6,6 +6,8 @@
         <div class="timeline-content-header">
 
             <div class="timeline-type">
+                <span ng-if="vm.item.right" class="timeline-mail-type-outgoing"><i class="lilicon hl-outgoing-icon"></i></span>
+                <span ng-if="!vm.item.right" class="timeline-mail-type-incoming"><i class="lilicon hl-incomming-icon"></i></span>
                 <i class="lilicon hl-mail-icon"></i>
             </div>
 

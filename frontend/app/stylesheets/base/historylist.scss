@@ -562,3 +562,27 @@
         }
     }
 }
+
+.timeline-mail-type-incoming,
+.timeline-mail-type-outgoing {
+    position: absolute;
+    top: -8px;
+    left: 15px;
+
+    -ms-transform: rotate(-45deg); /* IE 9 */
+    -webkit-transform: rotate(-45deg); /* Chrome, Safari, Opera */
+    transform: rotate(-45deg);
+
+    @media (max-width: $breakpoint-mobile) {
+        top: -5px;
+        left: 10px;
+    }
+}
+
+.timeline-mail-type-incoming i {
+    color: #01B55F;
+}
+
+.timeline-mail-type-outgoing i {
+    color: #5B9BD1;
+}

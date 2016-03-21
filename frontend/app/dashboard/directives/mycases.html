@@ -60,7 +60,7 @@
                     </td>
                     <td style="width: 130px; min-width: 130px;">
                         <span>
-                            <postpone type="'Case'" object="myCase" date-field="'expires'" callback="vm.getMyCases()" display-date="false"></postpone>
+                            <postpone type="'Case'" object="myCase" date-field="'expires'" callback="vm.getMyCases()" display-date="false" ng-click="ga('send', 'event', 'accounts', 'create', 'topnav');"></postpone>
                         </span>
                         <span><date date="myCase.expires"></date></span>
                     </td>

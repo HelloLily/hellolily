@@ -265,6 +265,18 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
     }
 
     function saveDeal(form, archive) {
+        // Check if a deal is being saved (and archived) via the + deal page
+        // or via a supercard.
+        if (Settings.email.sidebar.isVisible && archive) {
+            ga('send', 'event', 'Deal', 'Save and archive', 'Email SC');
+        } else if (Settings.email.sidebar.isVisible && !archive) {
+            ga('send', 'event', 'Deal', 'Save', 'Email SC');
+        } else if (!Settings.email.sidebar.isVisible && archive) {
+            ga('send', 'event', 'Deal', 'Save and archive', 'Deal');
+        } else {
+            ga('send', 'event', 'Deal', 'Save', 'Deal');
+        }
+
         if (!_dealFormIsValid()) {
             return false;
         }

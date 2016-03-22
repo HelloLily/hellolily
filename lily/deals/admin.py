@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from lily.tenant.admin import TenantFilteredChoicesMixin, TenantFilter
-from .models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost, DealFoundThrough, DealContactedBy
+from .models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost, DealFoundThrough, DealContactedBy, DealStatus
 
 
 @admin.register(Deal)
@@ -142,6 +142,26 @@ class DealFoundThroughAdmin(admin.ModelAdmin):
 
 @admin.register(DealContactedBy)
 class DealContactedByAdmin(admin.ModelAdmin):
+    list_select_related = (
+        'tenant',
+    )
+    list_display = (
+        'id',
+        'name',
+        'position',
+        'tenant',
+    )
+    search_fields = (
+        'name',
+    )
+    list_filter = (
+        'position',
+        TenantFilter,
+    )
+
+
+@admin.register(DealStatus)
+class DealStatusAdmin(admin.ModelAdmin):
     list_select_related = (
         'tenant',
     )

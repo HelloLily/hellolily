@@ -200,7 +200,7 @@ class DealSerializer(WritableNestedSerializer):
         status = DealStatus.objects.get(pk=status_id)
         closed_date = validated_data.get('closed_date', instance.closed_date)
 
-        # Set closed_date after changing stage to lost/won and reset it when it's new/pending
+        # Set closed_date after changing status to lost/won and reset it when it's any other status.
         if status.is_won or status.is_lost:
             if not closed_date:
                 closed_date = datetime.datetime.utcnow().replace(tzinfo=utc)

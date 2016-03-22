@@ -145,7 +145,7 @@ function DealDetailController($scope, $uibModal, Account, Contact, Deal, HLResou
             closed_date: vm.deal.closed_date,
         };
 
-        if (vm.deal.status === vm.lostStatus.id && vm.whyLost.length > 0) {
+        if (vm.deal.status.id === vm.lostStatus.id && vm.whyLost.length > 0) {
             // If the status is 'Lost' we want to provide a reason why the deal was lost.
             whyLost(args);
         } else {

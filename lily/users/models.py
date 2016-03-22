@@ -1,9 +1,11 @@
+import hashlib
+import urllib
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import UserManager, AbstractBaseUser, PermissionsMixin, Group
 from django.contrib.auth.signals import user_logged_out
 from django.core.mail import send_mail
-from django.core.urlresolvers import reverse
 from django.db import models
 from django.dispatch import receiver
 from django.utils import timezone
@@ -73,6 +75,7 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
     first_name = models.CharField(_('first name'), max_length=45)
     preposition = models.CharField(_('preposition'), max_length=100, blank=True)
     last_name = models.CharField(_('last name'), max_length=45)
+    picture = models.ImageField(upload_to=settings.USER_UPLOAD_TO, verbose_name=_('picture'), blank=True)
     email = models.EmailField(_('email address'), max_length=255, unique=True)
     position = models.CharField(_('position'), max_length=255, blank=True)
     is_staff = models.BooleanField(
@@ -135,6 +138,18 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
         Sends an email to this User.
         """
         send_mail(subject, message, from_email, [self.email])
+
+    @property
+    def profile_picture(self):
+        if self.picture:
+            return 'media/' + self.picture.name
+        else:
+            gravatar_hash = hashlib.md5(self.email.lower()).hexdigest()
+            # Try to get the Gravatar or show a default image if not available.
+            gravatar_url = 'https://secure.gravatar.com/avatar/' + gravatar_hash + '?'
+            gravatar_url += urllib.quote(urllib.urlencode({'d': 'mm', 's': str(200)}))
+
+            return gravatar_url
 
     @property
     def twitter(self):

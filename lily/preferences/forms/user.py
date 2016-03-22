@@ -83,6 +83,14 @@ class UserProfileForm(HelloLilyModelForm):
 
         return linkedin
 
+    def clean_picture(self):
+        picture = self.cleaned_data['picture']
+
+        if picture.size > 300 * 1024:
+            raise ValidationError(_('File too large. Size should not exceed 300 KB.'), code='invalid')
+
+        return picture
+
     def save(self, commit=True):
         """
         Save contact to instance, and to database if commit is True.
@@ -157,6 +165,7 @@ class UserProfileForm(HelloLilyModelForm):
                     'preposition',
                     'last_name',
                     'position',
+                    'picture',
                 ],
             }),
             (_('Contact information'), {

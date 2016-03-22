@@ -112,10 +112,13 @@ function DealDetailController($scope, $uibModal, Account, Contact, Deal, HLResou
         }
 
         if (args.hasOwnProperty('status')) {
-            if (vm.deal.status === vm.lostStatus.id) {
+            if (vm.deal.status.id === vm.lostStatus.id) {
                 // If the status is 'Lost', set the next step to 'None'.
                 vm.deal.next_step = vm.noneStep;
                 vm.deal.next_step_date = null;
+
+                args.next_step = vm.noneStep;
+                args.next_step_date = null;
             }
         }
 
@@ -171,7 +174,7 @@ function DealDetailController($scope, $uibModal, Account, Contact, Deal, HLResou
             vm.deal.why_lost = result;
             args.why_lost = result.id;
 
-            return HLResource.patch('Deal', args).$promise;
+            updateModel(args);
         }, function() {
             $state.go($state.current, {}, {reload: true});
         });

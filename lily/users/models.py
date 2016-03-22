@@ -108,12 +108,6 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name', ]
 
-    def get_absolute_url(self):
-        """
-        Get the url to the user page
-        """
-        return reverse('dashboard')
-
     @property
     def full_name(self):
         return self.get_full_name()

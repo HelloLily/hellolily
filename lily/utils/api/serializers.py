@@ -189,6 +189,9 @@ class TagSerializer(serializers.ModelSerializer):
                                                       write_only=True)
     object_id = serializers.IntegerField(write_only=True)
 
+    def validate_name(self, value):
+        return value.lower()
+
     class Meta:
         model = Tag
         fields = ('id', 'name', 'content_type', 'object_id', )

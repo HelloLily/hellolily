@@ -14,4 +14,3 @@ try:
                 os.environ[key] = value
 except:
     pass
-from .settings import *

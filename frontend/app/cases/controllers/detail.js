@@ -38,7 +38,6 @@ function CaseDetailController($http, $scope, $stateParams, Settings, Account, Ca
     vm.getPriorityDisplay = getPriorityDisplay;
     vm.changeCaseStatus = changeCaseStatus;
     vm.assignCase = assignCase;
-    vm.archive = archive;
     vm.unarchive = unarchive;
     vm.updateModel = updateModel;
 
@@ -47,7 +46,6 @@ function CaseDetailController($http, $scope, $stateParams, Settings, Account, Ca
     //////
 
     function activate() {
-
         if (vm.case.account) {
             Account.get({id: vm.case.account.id}).$promise.then(function(account) {
                 vm.account = account;
@@ -69,7 +67,6 @@ function CaseDetailController($http, $scope, $stateParams, Settings, Account, Ca
         });
 
         vm.case.assigned_to_groups = assignedToGroups;
-
     }
 
     /**
@@ -102,7 +99,7 @@ function CaseDetailController($http, $scope, $stateParams, Settings, Account, Ca
             args = data;
         } else {
             args = {
-                id: vm.deal.id,
+                id: vm.case.id,
             };
 
             args[field] = data;
@@ -168,27 +165,11 @@ function CaseDetailController($http, $scope, $stateParams, Settings, Account, Ca
             });
     }
 
-    /**
-     * Archive a case.
-     * TODO: LILY-XXX: Change to API based archiving
-     */
-    function archive(id) {
-        var req = {
-            method: 'POST',
-            url: '/cases/archive/',
-            data: 'id=' + id,
-            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
-        };
-
-        $http(req).
-            success(function(data, status, headers, config) {
-                vm.case.status = data.status;
-                vm.case.archived = true;
-            }).
-            error(function(data, status, headers, config) {
-                // Request failed propper error?
-            });
-    }
+    $scope.$watch('vm.case.is_archived', function(newValue, oldValue) {
+        if (newValue !== oldValue) {
+            updateModel(vm.case.is_archived, 'is_archived');
+        }
+    });
 
     /**
      * Unarchive a case.

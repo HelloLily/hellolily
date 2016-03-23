@@ -287,6 +287,11 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, Ac
         }
 
         if (!hasData && form !== modelName) {
+            // Send Google Analytics event when adding new contact/account
+            // via email supercards. Use the toggleSidebar function because
+            // opening/adding is the same button thus we can differentiate
+            // the open and adding actions.
+            ga('send', 'event', modelName, 'Open SC', 'Email SC');
             // No data yet and no form open, so open the form.
             Settings.email.sidebar.form = modelName;
         } else if (form === modelName) {

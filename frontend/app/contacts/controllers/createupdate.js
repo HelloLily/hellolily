@@ -152,6 +152,14 @@ function ContactCreateUpdateController($state, $stateParams, Settings, Account, 
     }
 
     function saveContact(form) {
+        // Check if a contact is being added via the + contact page or via
+        // a supercard.
+        if (Settings.email.sidebar.isVisible) {
+            ga('send', 'event', 'Contact', 'Save', 'Email SC');
+        } else {
+            ga('send', 'event', 'Contact', 'Save', 'Account');
+        }
+
         HLForms.blockUI();
 
         // Clear all errors of the form (in case of new errors)

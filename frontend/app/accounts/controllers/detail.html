@@ -108,7 +108,7 @@
                 <div class="widget-name"><i class="lilicon hl-deals-icon"></i> Deals</div>
             </widget-header>
             <widget-filters>
-                <a ng-if="!$parent.settings.email.sidebar.case" ui-sref="base.deals.create.fromAccount({accountId: {{ account.id }}})" class="btn btn-circle btn-default">
+                <a ng-if="!$parent.settings.email.sidebar.case" ui-sref="base.deals.create.fromAccount({accountId: {{ account.id }}})" class="btn btn-circle btn-default" ng-click="ga('send', 'event', 'Deal', 'Create', 'Account widget');">
                     <i class="fa fa-plus"></i> Add
                 </a>
             </widget-filters>
@@ -170,7 +170,7 @@
             </widget-header>
 
             <widget-filters>
-                <a ui-sref="base.cases.create.fromAccount({accountId: {{ account.id }}})" class="btn btn-circle btn-default">
+                <a ui-sref="base.cases.create.fromAccount({accountId: {{ account.id }}})" class="btn btn-circle btn-default" ng-click="ga('send', 'event', 'Case', 'Create', 'Account widget');">
                     <i class="fa fa-plus"></i> Add
                 </a>
             </widget-filters>

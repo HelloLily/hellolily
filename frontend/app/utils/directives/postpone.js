@@ -25,7 +25,35 @@ function PostponeController($state, $uibModal) {
     pp.openPostponeModal = openPostponeModal;
 
     function openPostponeModal() {
-        var modalInstance = $uibModal.open({
+        var modalInstance;
+
+        // Google Analytics events per page to track where users use the
+        // postpone functionality.
+        if ($state.current.name === 'base.dashboard') {
+            ga('send', 'event', pp.type, 'Open postpone modal', 'Dashboard');
+        }
+
+        if ($state.current.name === 'base.cases.detail') {
+            ga('send', 'event', 'Case', 'Open postpone modal', 'Case detail');
+        }
+
+        if ($state.current.name === 'base.cases') {
+            ga('send', 'event', 'Case', 'Open postpone modal', 'Cases list');
+        }
+
+        if ($state.current.name === 'base.deals.detail') {
+            ga('send', 'event', 'Deal', 'Open postpone modal', 'Deal detail');
+        }
+
+        if ($state.current.name === 'base.accounts.detail') {
+            ga('send', 'event', pp.type, 'Open postpone modal', 'Account detail');
+        }
+
+        if ($state.current.name === 'base.contacts.detail') {
+            ga('send', 'event', pp.type, 'Open postpone modal', 'Deal detail');
+        }
+
+        modalInstance = $uibModal.open({
             templateUrl: 'utils/controllers/postpone.html',
             controller: 'PostponeModal',
             controllerAs: 'vm',

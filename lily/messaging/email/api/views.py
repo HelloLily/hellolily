@@ -8,6 +8,7 @@ from rest_framework.viewsets import GenericViewSet
 
 from lily.messaging.email.utils import get_email_parameter_api_dict
 from lily.search.lily_search import LilySearch
+from lily.tenant.api.mixins import SetTenantUserMixin
 from lily.users.models import LilyUser
 
 from .serializers import (EmailLabelSerializer, EmailAccountSerializer, EmailMessageSerializer,
@@ -304,17 +305,29 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         return Response(results)
 
 
-class EmailTemplateViewSet(mixins.DestroyModelMixin,
+class EmailTemplateViewSet(SetTenantUserMixin,
+                           mixins.DestroyModelMixin,
                            mixins.RetrieveModelMixin,
                            mixins.ListModelMixin,
                            GenericViewSet):
     """
     EmailTemplate API.
     """
+    # Set the queryset, this takes care of setting the `base_name`.
     queryset = EmailTemplate.objects
+    # Set the serializer class for this viewset.
     serializer_class = EmailTemplateSerializer
-    filter_backends = (filters.OrderingFilter,)
+    # Set all filter backends that this viewset uses.
+    filter_backends = (filters.OrderingFilter, )
+
+    # OrderingFilter: set the default ordering fields.
     ordering = ('name', )
+
+    def get_queryset(self):
+        """
+        Set the queryset here so it filters on tenant.
+        """
+        return super(EmailTemplateViewSet, self).get_queryset().all()
 
 
 class TemplateVariableViewSet(mixins.DestroyModelMixin,

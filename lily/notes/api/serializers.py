@@ -24,7 +24,6 @@ class NoteSerializer(serializers.ModelSerializer):
 
         return super(NoteSerializer, self).create(validated_data)
 
-
     class Meta:
         model = Note
         fields = (

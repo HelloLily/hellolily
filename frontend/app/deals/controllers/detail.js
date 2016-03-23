@@ -25,8 +25,8 @@ function dealsConfig($stateProvider) {
 
 angular.module('app.deals').controller('DealDetailController', DealDetailController);
 
-DealDetailController.$inject = ['$scope', '$uibModal', 'Account', 'Contact', 'Deal', 'HLResource', 'HLUtils', 'Settings', 'currentDeal', 'Tenant'];
-function DealDetailController($scope, $uibModal, Account, Contact, Deal, HLResource, HLUtils, Settings, currentDeal, Tenant) {
+DealDetailController.$inject = ['$scope', '$state', '$uibModal', 'Account', 'Contact', 'Deal', 'HLResource', 'HLUtils', 'Settings', 'currentDeal', 'Tenant'];
+function DealDetailController($scope, $state, $uibModal, Account, Contact, Deal, HLResource, HLUtils, Settings, currentDeal, Tenant) {
     var vm = this;
 
     Settings.page.setAllTitles('detail', currentDeal.name);
@@ -122,7 +122,11 @@ function DealDetailController($scope, $uibModal, Account, Contact, Deal, HLResou
             }
         }
 
-        return HLResource.patch('Deal', args).$promise;
+        return HLResource.patch('Deal', args).$promise.then(function() {
+            if (args.hasOwnProperty('amount_once') || args.hasOwnProperty('amount_recurring')) {
+                $state.go($state.current, {}, {reload: true});
+            }
+        });
     }
 
     /**

@@ -61,9 +61,9 @@ function dealConfig($stateProvider) {
 
 angular.module('app.deals').controller('DealCreateUpdateController', DealCreateUpdateController);
 
-DealCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'Contact', 'ContactDetail',
+DealCreateUpdateController.$inject = ['$filter', '$scope', '$state', '$stateParams', 'Account', 'Contact', 'ContactDetail',
     'Deal', 'HLForms', 'HLSearch', 'HLUtils', 'Settings', 'User'];
-function DealCreateUpdateController($scope, $state, $stateParams, Account, Contact, ContactDetail, Deal, HLForms,
+function DealCreateUpdateController($filter, $scope, $state, $stateParams, Account, Contact, ContactDetail, Deal, HLForms,
                                     HLSearch, HLUtils, Settings, User) {
     var vm = this;
 
@@ -146,6 +146,9 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
             }
         });
 
+        // Regex to determine if the given amount is valid.
+        vm.currencyRegex = /^[0-9]{1,3}(?:[0-9]*(?:[.,][0-9]{2})?|(?:,[0-9]{3})*(?:\.[0-9]{2})?|(?:\.[0-9]{3})*(?:,[0-9]{2})?)$/;
+
         _getDeal();
     }
 
@@ -156,6 +159,10 @@ function DealCreateUpdateController($scope, $state, $stateParams, Account, Conta
         if ($stateParams.id) {
             Deal.get({id: $stateParams.id}).$promise.then(function(deal) {
                 vm.deal = deal;
+
+                vm.deal.amount_once = $filter('currency')(vm.deal.amount_once, '');
+                vm.deal.amount_recurring = $filter('currency')(vm.deal.amount_recurring, '');
+
                 Settings.page.setAllTitles('edit', deal.name);
 
                 if (deal.next_step_date) {

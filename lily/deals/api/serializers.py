@@ -1,6 +1,8 @@
 import datetime
+
 from django.utils.timezone import utc
 from django.utils.translation import ugettext_lazy as _
+from lily.utils.api.related.fields import RegexDecimalField
 from rest_framework import serializers
 
 from lily.accounts.api.serializers import RelatedAccountSerializer
@@ -145,8 +147,8 @@ class DealSerializer(WritableNestedSerializer):
     # Show string versions of fields.
     currency_display = serializers.CharField(source='get_currency_display', read_only=True)
 
-    amount_once = serializers.DecimalField(max_digits=19, decimal_places=2, required=True)
-    amount_recurring = serializers.DecimalField(max_digits=19, decimal_places=2, required=True)
+    amount_once = RegexDecimalField(max_digits=19, decimal_places=2, required=True)
+    amount_recurring = RegexDecimalField(max_digits=19, decimal_places=2, required=True)
 
     def validate(self, attrs):
         contact_id = attrs.get('contact', {})

@@ -1,20 +1,20 @@
-<dashboard-widget ng-if="account" widget-name="'Account info'">
+<dashboard-widget ng-if="vm.account" widget-name="'Account info'">
     <widget-header>
         <div class="widget-name">
             <i class="lilicon hl-company-icon"></i>
             <span ng-show="settings.email.data.account.id">
-                <a ui-sref="base.accounts.detail({ id: settings.email.data.account.id })">{{ account.name }}</a>
+                <a ui-sref="base.accounts.detail({ id: settings.email.data.account.id })">{{ vm.account.name }}</a>
             </span>
-            <span ng-show="!settings.email.data.account">{{ account.name }}</span>
+            <span ng-show="!settings.email.data.account">{{ vm.account.name }}</span>
         </div>
     </widget-header>
 
     <widget-filters>
-        <a ng-href="{{ vm.tenant.primary_external_app_link.getUrl(account.customer_id) }}" target="_blank" class="btn btn-circle btn-default" ng-if="account.customer_id && vm.tenant.primary_external_app_link">
+        <a ng-href="{{ vm.tenant.primary_external_app_link.getUrl(vm.account.customer_id) }}" target="_blank" class="btn btn-circle btn-default" ng-if="vm.account.customer_id && vm.tenant.primary_external_app_link">
             <i class="fa fa-external-link fa-sm"></i>
             {{ vm.tenant.primary_external_app_link.name }}
         </a>
-        <a href="https://freedom.voys.nl/quotes/create/" target="_blank" class="btn btn-circle btn-default" ng-if="!account.customer_id && vm.tenant.isVoysNL()">
+        <a href="https://freedom.voys.nl/quotes/create/" target="_blank" class="btn btn-circle btn-default" ng-if="!vm.account.customer_id && vm.tenant.isVoysNL()">
             <i class="fa fa-external-link fa-sm"></i>
             Write quote
         </a>
@@ -23,64 +23,64 @@
     <widget-body>
         <div class="widget-content">
             <div class="scroll-body" slimscroll="{height: 200 }">
-                <p ng-bind-html="account.description || 'No description' | parseUrls"></p>
+                <p ng-bind-html="vm.account.description || 'No description' | parseUrls"></p>
 
                 <table class="table table-hover no-margin">
-                    <tr ng-show="(account.email_addresses | filter: {status: '!' + 0}).length">
+                    <tr ng-show="(vm.account.email_addresses | filter: {status: '!' + 0}).length">
                         <th>
                             <i class="fa">@</i>
                             Email
                         </th>
                         <td>
-                            <div ng-repeat="email in account.email_addresses | filter: {status: '!' + 0}">
+                            <div ng-repeat="email in vm.account.email_addresses | filter: {status: '!' + 0}">
                                 <a ui-sref="base.email.composeEmail({email: email.email_address})">
                                     {{ email.email_address }}
                                 </a>
                             </div>
                         </td>
                     </tr>
-                    <tr ng-show="account.phones">
+                    <tr ng-show="vm.account.phones">
                         <th>
                             <i class="fa fa-phone"></i>
                             Phone
                         </th>
                         <td>
-                            <div ng-repeat="phone in account.phones">
+                            <div ng-repeat="phone in vm.account.phones">
                                  <a href="tel:{{ phone }}">
                                     {{ phone }}
                                 </a>
                             </div>
                         </td>
                     </tr>
-                    <tr ng-show="account.website">
+                    <tr ng-show="vm.account.website">
                         <th>
                             <i class="fa fa-globe"></i>
                             Website
                         </th>
                         <td>
-                            <div ng-repeat="site in account.website">
+                            <div ng-repeat="site in vm.account.website">
                                 <a href="{{ site }}" target="_blank">
                                     {{ site | stripScheme }}
                                 </a>
                             </div>
                         </td>
                     </tr>
-                    <tr ng-show="account.assigned_to">
+                    <tr ng-show="vm.account.assigned_to">
                         <th>
                             <i class="fa fa-child"></i>
                             Assigned to
                         </th>
                         <td>
-                            {{ account.assigned_to }}
+                            {{ vm.account.assigned_to }}
                         </td>
                     </tr>
-                    <tr ng-show="account.address">
+                    <tr ng-show="vm.account.address">
                         <th>
                             <i class="fa fa-map-marker"></i>
                             Address
                         </th>
                         <td>
-                            <div ng-repeat="address in account.address">
+                            <div ng-repeat="address in vm.account.address">
                                 {{ address.address_street }} {{ address.address_street_number }}{{ address.address_complement }}
                                 <br />
                                 {{ address.address_postal_code }}, {{ address.address_city }}
@@ -89,17 +89,17 @@
                             </div>
                         </td>
                     </tr>
-                    <tr ng-show="account.social" ng-repeat="social in account.social">
+                    <tr ng-show="vm.account.social" ng-repeat="social in vm.account.social">
                         <th><i class="fa fa-{{ social.social_name | lowercase }}"></i> {{ social.social_name }}</th>
                         <td><a ng-href="{{ social.social_url }}" target="_blank">{{ social.social_profile }}</a></td>
                     </tr>
-                    <tr ng-show="account.tag">
+                    <tr ng-show="vm.account.tag">
                         <th>
                             <i class="fa fa-tag"></i>
                             Tags
                         </th>
                         <td>
-                            <a class="btn btn-xs btn-default" ng-repeat="tag in account.tag">
+                            <a class="btn btn-xs btn-default" ng-repeat="tag in vm.account.tag">
                                 {{ tag }}
                             </a>
                         </td>

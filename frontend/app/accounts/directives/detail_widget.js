@@ -6,7 +6,6 @@ angular.module('app.accounts.directives').directive('accountDetailWidget', Accou
 function AccountDetailWidget() {
     return {
         restrict: 'E',
-        replace: true,
         scope: {
             account: '=',
             height: '=',

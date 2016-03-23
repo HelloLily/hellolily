@@ -5,6 +5,7 @@ function HLFilters() {
         // Update the filter based on the separate filters.
         var filterStrings = [];
         var specialFilterStrings = [];
+        var filterList = viewModel.filterList;
 
         viewModel.table.filterQuery = '';
 
@@ -12,7 +13,11 @@ function HLFilters() {
             this._displayClearButtons(viewModel);
         }
 
-        viewModel.filterList.forEach(function(filter) {
+        if (viewModel.filterCaseTypeList) {
+            filterList = filterList.concat(viewModel.filterCaseTypeList);
+        }
+
+        filterList.forEach(function(filter) {
             if (filter.id && filter.id === 'archived') {
                 if (!filter.selected) {
                     filterStrings.push('archived:false');
@@ -51,26 +56,28 @@ function HLFilters() {
 
         viewModel.filterList.forEach(function(filter) {
             if (filter.selected) {
-                if (filter.isSpecialFilter) {
-                    viewModel.displaySpecialFilterClear = true;
-                } else {
-                    viewModel.displayFilterClear = true;
-                }
+                viewModel.displayFilterClear = true;
             }
         });
+
+        if (viewModel.filterCaseTypeList) {
+            viewModel.filterCaseTypeList.forEach(function(filter) {
+                if (filter.selected) {
+                    viewModel.displaySpecialFilterClear = true;
+                }
+            });
+        }
     };
 
     this.clearFilters = function(viewModel, clearSpecial) {
-        for (var i = 0; i < viewModel.filterList.length; i++) {
-            if (clearSpecial) {
-                if (viewModel.filterList[i].isSpecialFilter) {
-                    // Clear special filters.
-                    viewModel.filterList[i].selected = false;
-                }
-            } else {
-                // Otherwise clear the standard filters.
-                viewModel.filterList[i].selected = false;
-            }
+        if (clearSpecial) {
+            viewModel.filterCaseTypeList.forEach(function(filter) {
+               filter.selected = false;
+            });
+        } else {
+            viewModel.filterList.forEach(function(filter) {
+               filter.selected = false;
+            });
         }
 
         viewModel.updateFilterQuery();

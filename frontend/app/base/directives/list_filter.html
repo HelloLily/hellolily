@@ -5,6 +5,14 @@
         <i class="fa fa-angle-down margin-left-5"></i>
     </button>
     <div class="dropdown-menu hold-on-click dropdown-checkboxes checkbox-list">
+        <div class="checkbox-list-row">
+            <div class="lily-checkbox" ng-click="vm.toggleAll()">
+                <i ng-class="{'fa fa-check': vm.allSelected}"></i>
+            </div>
+            <span ng-show="vm.allSelected" >All selected</span>
+            <span ng-hide="vm.allSelected" >Select all</span>
+        </div>
+
         <div ng-repeat="filter in vm.viewModel.filterList" ng-click="vm.toggleFilter(filter)" class="checkbox-list-row">
             <div class="lily-checkbox">
                 <i ng-class="{'fa fa-check': filter.selected}"></i>

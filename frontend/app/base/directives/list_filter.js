@@ -19,7 +19,9 @@ function ListFilterController($timeout, HLFilters) {
     var vm = this;
 
     vm.toggleFilter = toggleFilter;
+    vm.toggleAll = toggleAll;
     vm.updateFilterQuery = updateFilterQuery;
+    vm.allSelected = false;
     vm.filterDisplayName = vm.filterLabel;
 
     $timeout(activate);
@@ -30,17 +32,41 @@ function ListFilterController($timeout, HLFilters) {
         if (vm.viewModel.storedFilterList) {
             vm.viewModel.filterList = vm.viewModel.storedFilterList;
 
+            updateAllSelected();
             updateFilterQuery();
             updateFilterDisplayName();
         }
+    }
+
+    function toggleAll() {
+        vm.allSelected = !vm.allSelected;
+
+        // Deselect / Select all items
+        angular.forEach(vm.viewModel.filterList, function(item) {
+            item.selected = vm.allSelected;
+        });
+
+        updateFilterQuery();
+        updateFilterDisplayName();
     }
 
     function toggleFilter(filter) {
         // ngModel on a checkbox seems to load really slow, so doing the toggling this way.
         filter.selected = !filter.selected;
 
+        updateAllSelected();
         updateFilterQuery();
         updateFilterDisplayName();
+    }
+
+    function updateAllSelected() {
+        // Keep the All selected checkbox in sync whether or not all items are selected
+        vm.allSelected = true;
+        angular.forEach(vm.viewModel.filterList, function(item) {
+            if(!item.selected){
+                vm.allSelected = false;
+            }
+        });
     }
 
     function updateFilterQuery() {

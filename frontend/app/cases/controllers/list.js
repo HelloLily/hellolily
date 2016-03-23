@@ -19,8 +19,8 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseListController', CaseListController);
 
-CaseListController.$inject = ['$q', '$scope', '$state', '$timeout', '$uibModal', 'Case', 'HLFilters', 'LocalStorage', 'Settings',
-    'UserTeams'];
+CaseListController.$inject = ['$q', '$scope', '$state', '$timeout', '$uibModal', 'Case', 'HLFilters', 'LocalStorage',
+    'Settings', 'UserTeams'];
 function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFilters, LocalStorage, Settings,
                             UserTeams) {
     var storage = LocalStorage('cases');
@@ -29,15 +29,15 @@ function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFil
     Settings.page.setAllTitles('list', 'cases');
 
     /**
-     * table object: stores all the information to correctly display the table
+     * Table object: stores all the information to correctly display the table.
      */
     vm.table = {
-        page: 1,  // current page of pagination: 1-index
-        pageSize: 60,  // number of items per page
-        totalItems: 0, // total number of items
+        page: 1,  // Current page of pagination: 1-index.
+        pageSize: 60,  // Number of items per page.
+        totalItems: 0, // Total number of items.
         order: storage.get('order', {
             descending: true,
-            column: 'expires',  // string: current sorted column
+            column: 'expires',  // String: current sorted column.
         }),
         visibility: storage.get('visibility', {
             caseId: true,
@@ -59,6 +59,7 @@ function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFil
     vm.displayFilterClear = false;
     vm.displaySpecialFilterClear = false;
     vm.filterList = [];
+    vm.filterCaseTypeList = [];
 
     vm.updateFilterQuery = updateFilterQuery;
     vm.setSearchQuery = setSearchQuery;
@@ -70,32 +71,62 @@ function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFil
     //////
 
     function activate() {
-        // This timeout is needed because by loading from LocalStorage isn't fast enough
+        // This timeout is needed because by loading from LocalStorage isn't fast enough.
         $timeout(function() {
-            _getFilterList();
+            _getFilterOnList();
+            _getFilterCaseTypeList();
             _setupWatchers();
         }, 50);
     }
 
     /**
-     * setSearchQuery() sets the search query of the table
+     * setSearchQuery() sets the search query of the table.
      *
-     * @param queryString string: string that will be set as the new search query on the table
+     * @param queryString string: string that will be set as the new search query on the table.
      */
     function setSearchQuery(queryString) {
         vm.table.searchQuery = queryString;
     }
 
     /**
+     * Gets the case type filter list. Merges selections with locally stored values.
+     *
+     * @returns filterCaseTypeList (object): object containing the filter list.
+     */
+    function _getFilterCaseTypeList() {
+        var storedFilterList = storage.get('filterCaseTypeListSelected', null);
+
+        Case.caseTypes(function(caseTypes) {
+            var filterList = [];
+
+            // Get a list with all case types and add each one as a filter.
+            angular.forEach(caseTypes, function(caseType) {
+                filterList.push({
+                    name: caseType.type,
+                    value: 'casetype_id:' + caseType.id,
+                    selected: false,
+                    isSpecialFilter: true,
+                });
+            });
+
+            // Merge previous stored selection with new filters.
+            HLFilters.getStoredSelections(filterList, storedFilterList);
+
+            vm.filterCaseTypeList = filterList;
+
+            // Watch doesn't get triggered here, so manually call _updateTableSettings.
+            _updateTableSettings();
+        });
+    }
+
+    /**
      * Gets the filter list. Merges selections with locally stored values.
      *
-     * @returns filterList (object): object containing the filter list
+     * @returns filterList (object): object containing the filter list.
      */
-    function _getFilterList() {
+    function _getFilterOnList() {
         var storedFilterList = storage.get('filterListSelected', null);
         var filterList;
-        var teamsCall;
-        var casesCall;
 
         // Use the value from storage first.
         // (Because it is faster; loading the list uses AJAX requests).
@@ -103,7 +134,7 @@ function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFil
             vm.filterList = storedFilterList;
         }
 
-        // But we still update the list afterwards (in case a filter was changed)
+        // But we still update the list afterwards (in case a filter was changed).
         filterList = [
             {
                 name: 'Assigned to me',
@@ -123,56 +154,25 @@ function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFil
             },
         ];
 
-        teamsCall = UserTeams.mine().$promise.then(function(teams) {
+        UserTeams.mine(function(teams) {
             var myTeamIds = [];
             var filters = [];
+
+            // Get a list with id's of all my teams.
             teams.forEach(function(team) {
                 myTeamIds.push(team.id);
             });
 
-            filters.push({
+            // Create a filter for case assigned to one of my teams.
+            filterList.push({
                 name: 'My teams cases',
                 value: 'assigned_to_groups:(' + myTeamIds.join(' OR ') + ')',
                 selected: false,
             });
 
-            return filters;
-        });
+            // Merge previous stored selection with new filters.
+            HLFilters.getStoredSelections(filterList, storedFilterList);
 
-        casesCall = Case.getCaseTypes().then(function(cases) {
-            var filters = [];
-            angular.forEach(cases, function(caseName, caseId) {
-                filters.push({
-                    name: caseName,
-                    value: 'casetype_id:' + caseId,
-                    selected: false,
-                    isSpecialFilter: true,
-                });
-            });
-
-            return filters;
-        });
-
-        // Wait for all promises.
-        $q.all([teamsCall, casesCall]).then(function(subFilterLists) {
-            subFilterLists.forEach(function(subFilterList) {
-                subFilterList.forEach(function(filter) {
-                    filterList.push(filter);
-                });
-            });
-
-            if (storedFilterList) {
-                // Stored filter list exists, merge the selections from with the stored values.
-                angular.forEach(storedFilterList, function(storedFilter) {
-                    angular.forEach(filterList, function(caseInList) {
-                        if (storedFilter.name === caseInList.name) {
-                            caseInList.selected = storedFilter.selected;
-                        }
-                    });
-                });
-            }
-
-            // Update filterList once AJAX calls are done.
             vm.filterList = filterList;
 
             // Watch doesn't get triggered here, so manually call _updateTableSettings.
@@ -189,6 +189,7 @@ function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFil
         storage.put('order', vm.table.order);
         storage.put('visibility', vm.table.visibility);
         storage.put('filterListSelected', vm.filterList);
+        storage.put('filterCaseTypeListSelected', vm.filterCaseTypeList);
     }
 
     /**
@@ -213,7 +214,7 @@ function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFil
     function _setupWatchers() {
         /**
          * Watches the model info from the table that, when changed,
-         * needs a new set of cases
+         * needs a new set of cases.
          */
         $scope.$watchGroup([
             'vm.table.page',
@@ -229,7 +230,7 @@ function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFil
 
         /**
          * Watches the model info from the table that, when changed,
-         * needs to store the info to the cache
+         * needs to store the info to the cache.
          */
         $scope.$watchCollection('vm.table.visibility', function() {
             _updateTableSettings();
@@ -237,9 +238,13 @@ function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFil
 
         /**
          * Watches the filters so when the stored values are loaded,
-         * the filterQuery changes and a new set of deals is fetched
+         * the filterQuery changes and a new set of deals is fetched.
          */
         $scope.$watchCollection('vm.filterList', function() {
+            updateFilterQuery();
+        });
+
+        $scope.$watchCollection('vm.filterCaseTypeList', function() {
             updateFilterQuery();
         });
 

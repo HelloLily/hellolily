@@ -19,8 +19,8 @@ function dashboardConfig($stateProvider) {
 
 angular.module('app.dashboard').controller('DashboardController', DashboardController);
 
-DashboardController.$inject = ['$uibModal', '$state', 'Settings'];
-function DashboardController($uibModal, $state, Settings) {
+DashboardController.$inject = ['$uibModal', '$state', 'Settings', 'Tenant'];
+function DashboardController($uibModal, $state, Settings, Tenant) {
     var db = this;
 
     db.openWidgetSettingsModal = openWidgetSettingsModal;
@@ -28,6 +28,10 @@ function DashboardController($uibModal, $state, Settings) {
     Settings.page.setTitle('custom', 'Dashboard');
     Settings.page.header.setMain('custom', 'Dashboard');
     Settings.page.header.setSub('custom', 'statistics and usage');
+
+    Tenant.query({}, function(tenant) {
+        db.tenant = tenant;
+    });
 
     ////////////
 

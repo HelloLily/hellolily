@@ -3,6 +3,7 @@ import re
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from rest_framework.fields import IntegerField, empty, SkipField
 
 
@@ -69,6 +70,9 @@ class RelatedPrimaryKeyField(IntegerField):
 
 class RegexDecimalField(serializers.DecimalField):
     def to_internal_value(self, data):
+        if not data:
+            raise ValidationError(_('This field is required'))
+
         # Regex to get the decimal value.
         currency_regex = '([.,][0-9]{2}$)'
         costs_split = re.split(currency_regex, data)

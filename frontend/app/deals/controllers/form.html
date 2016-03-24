@@ -83,7 +83,7 @@
                            maxlength="255"
                            type="text"
                            autocomplete="off"
-                           ng-pattern="/^[0-9]+([.,][0-9]{1,2})?$/"
+                           ng-pattern="vm.currencyRegex"
                            ng-model="vm.deal.amount_once" />
                 </form-group>
 
@@ -94,7 +94,7 @@
                            maxlength="255"
                            type="text"
                            autocomplete="off"
-                           ng-pattern="/^[0-9]+([.,][0-9]{1,2})?$/"
+                           ng-pattern="vm.currencyRegex"
                            ng-model="vm.deal.amount_recurring" />
                 </form-group>
 

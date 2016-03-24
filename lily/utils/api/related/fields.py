@@ -1,5 +1,8 @@
+import re
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
+from rest_framework import serializers
 from rest_framework.fields import IntegerField, empty, SkipField
 
 
@@ -62,3 +65,19 @@ class RelatedPrimaryKeyField(IntegerField):
             else:
                 # In the case of foreign key, the id is always required.
                 self.fail('invalid')
+
+
+class RegexDecimalField(serializers.DecimalField):
+    def to_internal_value(self, data):
+        # Regex to get the decimal value.
+        currency_regex = '([.,][0-9]{2}$)'
+        costs_split = re.split(currency_regex, data)
+
+        # Remove commas and periods.
+        costs = costs_split[0].replace('.', '').replace(',', '')
+
+        if len(costs_split) >= 2:
+            # Change comma to period for decimal separator.
+            costs += costs_split[1].replace(',', '.')
+
+        return costs

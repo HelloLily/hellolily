@@ -30,7 +30,7 @@
                             <td><strong>Case ID:</strong> #{{ vm.case.id }}</td>
                             <td><strong>Case Type:</strong> {{ vm.case.type.type }}</td>
                             <td><strong>Priority:</strong><i class="margin-left-5 lilicon" ng-class="{0: 'hl-low-prio-icon', 1: 'hl-normal-prio-icon', 2: 'hl-high-prio-icon', 3: 'hl-critical-prio-icon'}[vm.case.priority]"></i> {{ vm.case.priority_display }} priority</td>
-                            <td><strong>Expires on:</strong> <postpone class="margin-left-5" type="'Case'" object="vm.case" date-field="'expires'" display-date="true"></postpone></td>
+                            <td><strong>Expires on:</strong> <postpone class="margin-left-5" type="'Case'" object="vm.case" date-field="'expires'"></postpone></td>
                         </tr>
                     </tbody>
                 </table>
@@ -199,7 +199,7 @@
 
                             <tr>
                                 <td>Expires on</td>
-                                <td><postpone type="'Case'" object="vm.case" date-field="'expires'" display-date="true"></postpone></td>
+                                <td><postpone type="'Case'" object="vm.case" date-field="'expires'"></postpone></td>
                             </tr>
                         </tbody>
                     </table>

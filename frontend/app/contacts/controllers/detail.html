@@ -171,7 +171,7 @@
                             <td class="align-center">
                                 <i tooltip-placement="left" uib-tooltip="{{ case.priority_name }} priority" class="lilicon" ng-class="{0: 'hl-low-prio-icon', 1: 'hl-normal-prio-icon', 2: 'hl-high-prio-icon', 3: 'hl-critical-prio-icon'}[case.priority]"></i>
                             </td>
-                            <td><postpone type="'Case'" object="case" date-field="'expires'" display-date="true"></postpone></td>
+                            <td><postpone type="'Case'" object="case" date-field="'expires'"></postpone></td>
                             <td class="clickable" style="width: 40px;" ng-click="case.collapsed = !case.collapsed">
                                 <div class="collapse-indicator no-padding">
                                     <i class="fa fa-angle-down" ng-class="{'rotate': !case.collapsed}"></i>

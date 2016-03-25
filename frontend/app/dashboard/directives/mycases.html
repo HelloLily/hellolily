@@ -59,10 +59,7 @@
                         <i class="lilicon" tooltip-placement="left" uib-tooltip="{{ myCase.priority_name }} priority" ng-class="{0: 'hl-low-prio-icon', 1: 'hl-normal-prio-icon', 2: 'hl-high-prio-icon', 3: 'hl-critical-prio-icon'}[myCase.priority]"></i>
                     </td>
                     <td style="width: 130px; min-width: 130px;">
-                        <span>
-                            <postpone type="'Case'" object="myCase" date-field="'expires'" callback="vm.getMyCases()" display-date="false"></postpone>
-                        </span>
-                        <span><date date="myCase.expires"></date></span>
+                        <postpone type="'Case'" object="myCase" date-field="'expires'" callback="vm.getMyCases()"></postpone>
                     </td>
                 </tr>
             </tbody>

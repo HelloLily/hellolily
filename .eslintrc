@@ -87,7 +87,7 @@
         "no-sequences": 2,                              // http://eslint.org/docs/rules/no-sequences
         "no-throw-literal": 2,                          // http://eslint.org/docs/rules/no-throw-literal
         "no-with": 2,                                   // http://eslint.org/docs/rules/no-with
-        "radix": 2,                                     // http://eslint.org/docs/rules/radix
+        "radix": [2, "as-needed"],                      // http://eslint.org/docs/rules/radix
         "vars-on-top": 2,                               // http://eslint.org/docs/rules/vars-on-top
         "wrap-iife": [2, "any"],                        // http://eslint.org/docs/rules/wrap-iife
         "yoda": 2,                                      // http://eslint.org/docs/rules/yoda

@@ -74,14 +74,14 @@ class RegexDecimalField(serializers.DecimalField):
             raise ValidationError(_('This field is required'))
 
         # Regex to get the decimal value.
-        currency_regex = '([.,][0-9]{2}$)'
-        costs_split = re.split(currency_regex, data)
+        regex = '([.,][0-9]{2}$)'
+        data_split = re.split(regex, str(data))
 
         # Remove commas and periods.
-        costs = costs_split[0].replace('.', '').replace(',', '')
+        data = data_split[0].replace('.', '').replace(',', '')
 
-        if len(costs_split) >= 2:
+        if len(data_split) >= 2:
             # Change comma to period for decimal separator.
-            costs += costs_split[1].replace(',', '.')
+            data += data_split[1].replace(',', '.')
 
-        return costs
+        return data

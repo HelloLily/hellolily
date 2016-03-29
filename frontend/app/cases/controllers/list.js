@@ -23,8 +23,10 @@ CaseListController.$inject = ['$q', '$scope', '$state', '$timeout', '$uibModal',
     'Settings', 'UserTeams'];
 function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFilters, LocalStorage, Settings,
                             UserTeams) {
-    var storage = LocalStorage('cases');
     var vm = this;
+    vm.storage = LocalStorage('cases');
+    vm.storedFilterSpecialList = vm.storage.get('filterSpecialListSelected', null);
+    vm.updateTable = updateTable;
 
     Settings.page.setAllTitles('list', 'cases');
 
@@ -35,11 +37,11 @@ function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFil
         page: 1,  // Current page of pagination: 1-index.
         pageSize: 60,  // Number of items per page.
         totalItems: 0, // Total number of items.
-        order: storage.get('order', {
+        order: vm.storage.get('order', {
             descending: true,
             column: 'expires',  // String: current sorted column.
         }),
-        visibility: storage.get('visibility', {
+        visibility: vm.storage.get('visibility', {
             caseId: true,
             client: true,
             subject: true,
@@ -52,14 +54,14 @@ function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFil
             createdBy: true,
             tags: true,
         }),
-        dueDateFilter: storage.get('dueDateFilter', ''),
-        usersFilter: storage.get('usersFilter', ''),
-        searchQuery: storage.get('searchQuery', ''),
+        dueDateFilter: vm.storage.get('dueDateFilter', ''),
+        usersFilter: vm.storage.get('usersFilter', ''),
+        searchQuery: vm.storage.get('searchQuery', ''),
     };
     vm.displayFilterClear = false;
     vm.displaySpecialFilterClear = false;
     vm.filterList = [];
-    vm.filterCaseTypeList = [];
+    vm.filterSpecialList = [];
 
     vm.updateFilterQuery = updateFilterQuery;
     vm.setSearchQuery = setSearchQuery;
@@ -74,7 +76,7 @@ function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFil
         // This timeout is needed because by loading from LocalStorage isn't fast enough.
         $timeout(function() {
             _getFilterOnList();
-            _getFilterCaseTypeList();
+            _getFilterSpecialList();
             _setupWatchers();
         }, 50);
     }
@@ -91,10 +93,10 @@ function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFil
     /**
      * Gets the case type filter list. Merges selections with locally stored values.
      *
-     * @returns filterCaseTypeList (object): object containing the filter list.
+     * @returns filterSpecialList (object): object containing the filter list.
      */
-    function _getFilterCaseTypeList() {
-        var storedFilterList = storage.get('filterCaseTypeListSelected', null);
+    function _getFilterSpecialList() {
+        var storedFilterSpecialList = vm.storage.get('filterSpecialListSelected', null);
 
         Case.caseTypes(function(caseTypes) {
             var filterList = [];
@@ -110,9 +112,9 @@ function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFil
             });
 
             // Merge previous stored selection with new filters.
-            HLFilters.getStoredSelections(filterList, storedFilterList);
+            HLFilters.getStoredSelections(filterList, storedFilterSpecialList);
 
-            vm.filterCaseTypeList = filterList;
+            vm.filterSpecialList = filterList;
 
             // Watch doesn't get triggered here, so manually call _updateTableSettings.
             _updateTableSettings();
@@ -125,7 +127,7 @@ function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFil
      * @returns filterList (object): object containing the filter list.
      */
     function _getFilterOnList() {
-        var storedFilterList = storage.get('filterListSelected', null);
+        var storedFilterList = vm.storage.get('filterListSelected', null);
         var filterList;
 
         // Use the value from storage first.
@@ -156,14 +158,13 @@ function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFil
 
         UserTeams.mine(function(teams) {
             var myTeamIds = [];
-            var filters = [];
 
             // Get a list with id's of all my teams.
             teams.forEach(function(team) {
                 myTeamIds.push(team.id);
             });
 
-            // Create a filter for case assigned to one of my teams.
+            // Create a filter for cases assigned to one of my teams.
             filterList.push({
                 name: 'My teams cases',
                 value: 'assigned_to_groups:(' + myTeamIds.join(' OR ') + ')',
@@ -181,21 +182,21 @@ function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFil
     }
 
     /**
-     * _updateTableSettings() puts the scope variables in local storage
+     * _updateTableSettings() puts the scope variables in local storage.
      */
     function _updateTableSettings() {
-        storage.put('searchQuery', vm.table.searchQuery);
-        storage.put('archived', vm.table.archived);
-        storage.put('order', vm.table.order);
-        storage.put('visibility', vm.table.visibility);
-        storage.put('filterListSelected', vm.filterList);
-        storage.put('filterCaseTypeListSelected', vm.filterCaseTypeList);
+        vm.storage.put('searchQuery', vm.table.searchQuery);
+        vm.storage.put('archived', vm.table.archived);
+        vm.storage.put('order', vm.table.order);
+        vm.storage.put('visibility', vm.table.visibility);
+        vm.storage.put('filterListSelected', vm.filterList);
+        vm.storage.put('filterSpecialSelected', vm.filterSpecialList);
     }
 
     /**
-     * _updateCases() reloads the cases through a service
+     * _updateCases() reloads the cases through a service.
      *
-     * Updates table.items and table.totalItems
+     * Updates table.items and table.totalItems.
      */
     function _updateCases() {
         Case.getCases(
@@ -244,14 +245,14 @@ function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFil
             updateFilterQuery();
         });
 
-        $scope.$watchCollection('vm.filterCaseTypeList', function() {
+        $scope.$watchCollection('vm.filterSpecialList', function() {
             updateFilterQuery();
         });
 
         $scope.$watchGroup(['vm.table.dueDateFilter', 'vm.table.usersFilter'], function() {
             updateFilterQuery();
-            storage.put('dueDateFilter', vm.table.dueDateFilter);
-            storage.put('usersFilter', vm.table.usersFilter);
+            vm.storage.put('dueDateFilter', vm.table.dueDateFilter);
+            vm.storage.put('usersFilter', vm.table.usersFilter);
         });
     }
 
@@ -279,5 +280,9 @@ function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFil
         modalInstance.result.then(function() {
             $state.go($state.current, {}, {reload: true});
         });
+    }
+
+    function updateTable() {
+        // Updates are handled by watchers, but generic list filter expects this function, so it's left empty.
     }
 }

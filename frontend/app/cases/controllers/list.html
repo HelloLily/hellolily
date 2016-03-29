@@ -34,19 +34,9 @@
                     </div>
                 </div>
             </div>
-            <div class="btn-group">
-                <button class="btn dropdown-toggle" data-toggle="dropdown">
-                    <i class="fa fa-filter"></i>
-                    Case type
-                    <i class="fa fa-angle-down"></i>
-                </button>
-                <button class="btn red-pink" ng-click="vm.clearFilters(true)" ng-show="vm.displaySpecialFilterClear"><i class="fa fa-remove"></i></button>
-                <div class="dropdown-menu hold-on-click dropdown-checkboxes list-filters">
-                    <div ng-repeat="filter in vm.filterCaseTypeList">
-                        <checkbox model="filter.selected" ng-click="vm.updateFilterQuery()">{{filter.name}}</checkbox>
-                    </div>
-                </div>
-            </div>
+            <widget-filters>
+                <list-filter filter-label="'Case type'" view-model="vm"></list-filter>
+            </widget-filters>
         </div>
         <div class="tools col-xs-12 col-md-6">
             <form class="form-inline pull-right">

@@ -13,8 +13,8 @@ function HLFilters() {
             this._displayClearButtons(viewModel);
         }
 
-        if (viewModel.filterCaseTypeList) {
-            filterList = filterList.concat(viewModel.filterCaseTypeList);
+        if (viewModel.filterSpecialList) {
+            filterList = filterList.concat(viewModel.filterSpecialList);
         }
 
         filterList.forEach(function(filter) {
@@ -60,8 +60,8 @@ function HLFilters() {
             }
         });
 
-        if (viewModel.filterCaseTypeList) {
-            viewModel.filterCaseTypeList.forEach(function(filter) {
+        if (viewModel.filterSpecialList) {
+            viewModel.filterSpecialList.forEach(function(filter) {
                 if (filter.selected) {
                     viewModel.displaySpecialFilterClear = true;
                 }
@@ -71,12 +71,12 @@ function HLFilters() {
 
     this.clearFilters = function(viewModel, clearSpecial) {
         if (clearSpecial) {
-            viewModel.filterCaseTypeList.forEach(function(filter) {
-               filter.selected = false;
+            viewModel.filterSpecialList.forEach(function(filter) {
+                filter.selected = false;
             });
         } else {
             viewModel.filterList.forEach(function(filter) {
-               filter.selected = false;
+                filter.selected = false;
             });
         }
 

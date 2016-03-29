@@ -18,7 +18,7 @@ Note, NoteDetail, Case, DealDetail, EmailDetail) {
             var dealTargets = ['account'];
             var emailTargets = ['account', 'contact'];
             var page = 0;
-            var pageSize = 15;
+            var pageSize = 50;
 
             scope.history = {};
             scope.history.list = [];
@@ -27,7 +27,7 @@ Note, NoteDetail, Case, DealDetail, EmailDetail) {
                 'note': {name: 'Notes', visible: false},
                 'case': {name: 'Cases', visible: false},
                 'deal': {name: 'Deals', visible: false},
-                'email': {name: 'Emails', visible: false}
+                'email': {name: 'Emails', visible: false},
             };
             scope.history.activeFilter = '';
             scope.history.showMoreText = 'Show more';
@@ -37,6 +37,7 @@ Note, NoteDetail, Case, DealDetail, EmailDetail) {
             scope.history.editNote = editNote;
             scope.history.pinNote = pinNote;
             scope.history.deleteNote = deleteNote;
+            scope.history.filterType = filterType;
 
             scope.note = {};
             scope.note.type = 0;
@@ -50,6 +51,20 @@ Note, NoteDetail, Case, DealDetail, EmailDetail) {
                 // in the historylist.
                 autosize($('textarea'));
                 loadMore();
+            }
+
+            function filterType(value) {
+                var key;
+                var selectedCount;
+
+                scope.history.activeFilter = value;
+                // Loop through the months to hide the monthname when there
+                // aren't any items in that month that are shown due to
+                // the filter that is being selected. 
+                for (key in scope.history.list.nonPinned) {
+                    selectedCount = $filter('filter')(scope.history.list.nonPinned[key].items, {historyType: value}).length;
+                    scope.history.list.nonPinned[key].isVisible = !!selectedCount;
+                }
             }
 
             function loadMore() {
@@ -88,7 +103,7 @@ Note, NoteDetail, Case, DealDetail, EmailDetail) {
 
                         notePromise = NoteDetail.query({filterquery: filterquery, size: requestLength}).$promise;
                     } else {
-                        notePromise = NoteDetail.query({filterquery: 'content_type:' + scope.target + ' AND object_id:' + obj.id, size: requestLength }).$promise;
+                        notePromise = NoteDetail.query({filterquery: 'content_type:' + scope.target + ' AND object_id:' + obj.id, size: requestLength}).$promise;
                     }
 
                     promises.push(notePromise);  // Add promise to list of all promises for later handling
@@ -190,6 +205,8 @@ Note, NoteDetail, Case, DealDetail, EmailDetail) {
                     }
 
                     $filter('orderBy')(history, 'historySortDate', true).forEach(function(item) {
+                        scope.history.types[item.historyType].visible = true;
+
                         var date = '';
                         var key = '';
 
@@ -205,10 +222,10 @@ Note, NoteDetail, Case, DealDetail, EmailDetail) {
                             key = moment(date).year() + '-' + (moment(date).month() + 1);
 
                             if (!orderedHistoryList.nonPinned.hasOwnProperty(key)) {
-                                orderedHistoryList.nonPinned[key] = [];
+                                orderedHistoryList.nonPinned[key] = {isVisible: true, items: []};
                             }
 
-                            orderedHistoryList.nonPinned[key].push(item);
+                            orderedHistoryList.nonPinned[key].items.push(item);
                         }
                     });
 

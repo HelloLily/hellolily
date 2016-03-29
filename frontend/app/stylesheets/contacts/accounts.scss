@@ -4,16 +4,39 @@
     padding: 0;
 
     li {
-        color: #555;
+        border: 1px solid $baseBorderColor;
+        border-left: none;
+
+        color: $lilyDarkBlue;
+        background: $lilyHeaderBg;
         cursor: pointer;
         padding: 6px 15px;
-        margin-right: 2px;
         margin-bottom: 5px;
+        line-height: 25px;
         display: inline-block;
+        font-size: 14px;
+
+        &:first-child {
+            border-top-left-radius: $baseBorderRadius;
+            border-bottom-left-radius: $baseBorderRadius;
+            border-left: 1px solid $baseBorderColor;
+
+            .radio-button-inset {
+                border-top-left-radius: $baseBorderRadius;
+            }
+        }
+
+        &:last-child {
+            border-top-right-radius: $baseBorderRadius;
+            border-bottom-right-radius: $baseBorderRadius;
+
+            .radio-button-inset {
+                border-top-right-radius: $baseBorderRadius;
+            }
+        }
 
         &:hover, &.active {
-            color: #fff;
-            background: #0da3e2;
+            background: $lilyWhiteToneHover;
         }
     }
 }

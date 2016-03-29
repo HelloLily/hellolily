@@ -1,9 +1,7 @@
 <div class="row">
     <div class="col-md-12">
         <ul class="mix-filter text-center">
-            <li ng-repeat="(typeKey, typeVal) in history.types" ng-show="typeVal.visible" ng-class="{'active': history.activeFilter == typeKey}" ng-click="history.activeFilter = typeKey">
-                {{ typeVal.name }}
-            </li>
+            <li ng-repeat="(typeKey, typeVal) in history.types" ng-if="typeVal.visible" ng-class="{'active': history.activeFilter == typeKey}" ng-click="history.filterType(typeKey)">{{ typeVal.name }}</li>
         </ul>
     </div>
 
@@ -62,12 +60,12 @@
             <history-list-item item="item" history="history" object="object"></history-list-item>
         </div>
 
-        <div ng-repeat="(key, value) in history.list.nonPinned" class="history-list-item">
+        <div ng-repeat="(key, value) in history.list.nonPinned" class="history-list-item" ng-show="value.isVisible">
             <div class="timeline-time">
                 <date date="key" date-format="MMMM yyyy"></date>
             </div>
 
-            <div ng-repeat="item in value" class="history-item">
+            <div ng-repeat="item in value.items" class="history-item" ng-show="!history.activeFilter || history.activeFilter == item.historyType">
                 <history-list-item item="item" history="history" object="object"></history-list-item>
             </div>
         </div>

@@ -1,0 +1,72 @@
+<span ng-show="!er.formVisible" class="editable editable-click">
+    <div ng-repeat="address in er.items">
+        {{ address.street }} {{ address.street_number }}{{ address.complement }}
+        <br />
+        {{ address.postal_code }}, {{ address.city }}
+        <br />
+        {{ address.country }}
+    </div>
+    <div ng-if="!er.items.length">No addresses</div>
+</span>
+
+<form name="{{ er.formName }}" ng-show="er.formVisible" class="form-inline">
+    <div ng-repeat="address in er.items">
+        <input class="form-control"
+               maxlength="255"
+               placeholder="Address"
+               type="text"
+               ng-model="address.street"
+               ng-readonly="address.is_deleted">
+
+        <input class="form-control"
+               maxlength="255"
+               placeholder="Street number"
+               type="text"
+               ng-model="address.street_number"
+               ng-readonly="address.is_deleted">
+
+        <input class="form-control"
+               maxlength="255"
+               placeholder="Complement"
+               type="text"
+               ng-model="address.complement"
+               ng-readonly="address.is_deleted">
+
+        <input class="form-control"
+               maxlength="255"
+               placeholder="Postal code"
+               type="text"
+               ng-model="address.postal_code"
+               ng-readonly="address.is_deleted">
+
+        <input class="form-control"
+               maxlength="255"
+               placeholder="City"
+               type="text"
+               ng-model="address.city"
+               ng-readonly="address.is_deleted">
+
+        <country-selector address="address"></country-selector>
+
+        <select class="form-control"
+                ng-model="address.type"
+                ng-options="type.key as type.value for type in er.addressTypes"
+                ng-readonly="address.is_deleted">
+        </select>
+
+        <div class="form-group">
+            <i class="margin-left-5 clickable"
+               ng-class="{'fa fa-minus-circle': !address.is_deleted, 'fa fa-undo': address.is_deleted}"
+               ng-click="er.removeRelatedField(address)"></i>
+        </div>
+    </div>
+
+    <div class="editable-related-actions">
+        <button class="btn" ng-click="er.addRelatedField()"><i class="fa fa-plus"></i></button>
+
+        <div class="pull-right">
+            <button class="btn" ng-click="er.submit()"><i class="fa fa-check"></i></button>
+            <button class="btn" type="button" ng-click="er.closeForm()"><i class="fa fa-close"></i></button>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,35 @@
+<span ng-show="!er.formVisible" class="editable editable-click">
+    <div ng-repeat="website in er.items">
+        <a href="{{ website }}" target="_blank">
+            {{ website.website | stripScheme }}
+        </a>
+    </div>
+    <div ng-if="!er.items.length">No websites</div>
+</span>
+
+<form name="{{ er.formName }}" ng-show="er.formVisible" class="form-inline">
+    <div ng-repeat="website in er.items">
+        <div class="form-group">
+            <input class="form-control"
+                   maxlength="255"
+                   placeholder="www.example.com"
+                   ng-readonly="website.is_deleted"
+                   ng-model="website.website" />
+        </div>
+
+        <div class="form-group">
+            <i class="margin-left-5 clickable"
+               ng-class="{'fa fa-minus-circle': !website.is_deleted, 'fa fa-undo': website.is_deleted}"
+               ng-click="er.removeRelatedField(website)"></i>
+        </div>
+    </div>
+
+    <div class="editable-related-actions">
+        <button class="btn" ng-click="er.addRelatedField()"><i class="fa fa-plus"></i></button>
+
+        <div class="pull-right">
+            <button class="btn" ng-click="er.submit()"><i class="fa fa-check"></i></button>
+            <button class="btn" type="button" ng-click="er.closeForm()"><i class="fa fa-close"></i></button>
+        </div>
+    </div>
+</form>

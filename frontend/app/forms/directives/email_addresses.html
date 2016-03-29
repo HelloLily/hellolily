@@ -28,7 +28,7 @@
                             ng-model="emailAddress.status"
                             ng-options="o.v as o.n for o in [{ n: 'Primary', v: 2 }, { n: 'Other', v: 1 }, { n: 'Inactive', v: 0}]"
                             ng-readonly="emailAddress.is_deleted"
-                            ng-change="vm.setPrimaryEmailAddress(emailAddress)">
+                            ng-change="vm.setPrimaryEmailAddress(emailAddress, vm.emailAddresses)">
                     </select>
                 </td>
 

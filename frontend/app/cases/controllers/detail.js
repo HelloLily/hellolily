@@ -25,8 +25,10 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseDetailController', CaseDetailController);
 
-CaseDetailController.$inject = ['$http', '$scope', '$stateParams', 'Settings', 'Account', 'CaseStatuses', 'caseItem', 'Contact', 'UserTeams', 'User', 'HLUtils', 'HLResource'];
-function CaseDetailController($http, $scope, $stateParams, Settings, Account, CaseStatuses, caseItem, Contact, UserTeams, User, HLUtils, HLResource) {
+CaseDetailController.$inject = ['$http', '$scope', '$stateParams', 'Settings', 'Account', 'CaseStatuses', 'caseItem',
+    'Contact', 'UserTeams', 'HLResource', 'Tenant'];
+function CaseDetailController($http, $scope, $stateParams, Settings, Account, CaseStatuses, caseItem,
+                              Contact, UserTeams, HLResource, Tenant) {
     var vm = this;
     var id = $stateParams.id;
 
@@ -64,6 +66,10 @@ function CaseDetailController($http, $scope, $stateParams, Settings, Account, Ca
             UserTeams.get({id: response.id}).$promise.then(function(team) {
                 assignedToGroups.push(team);
             });
+        });
+
+        Tenant.query({}, function(tenant) {
+            vm.tenant = tenant;
         });
 
         vm.case.assigned_to_groups = assignedToGroups;

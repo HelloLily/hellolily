@@ -17,11 +17,11 @@
         </div>
 
         <div ng-hide="$parent.contact" class="widget-filters pull-right">
-            <a ui-sref="{{ vm.addLink || 'base.contacts.create' }}" class="btn btn-circle btn-default" ng-hide="vm.object.id">
+            <a ui-sref="{{ vm.addLink || 'base.contacts.create' }}" class="btn btn-circle btn-default" ng-hide="vm.object.id" ng-click="ga('send', 'event', 'Contact', 'Create', 'Contacts widget');">
                 <i class="fa fa-plus"></i>
                 Add
             </a>
-            <a ui-sref="base.contacts.create.fromAccount({accountId: vm.object.id})" class="btn btn-circle btn-default" ng-show="vm.object.id">
+            <a ui-sref="base.contacts.create.fromAccount({accountId: vm.object.id})" class="btn btn-circle btn-default" ng-show="vm.object.id" ng-click="ga('send', 'event', 'Contact', 'Create', 'Contacts widget');">
                 <i class="fa fa-plus"></i>
                 Add
             </a>

@@ -1,4 +1,5 @@
 import anyjson
+import freemail
 from django.http.response import HttpResponse
 from django.views.generic.base import View
 
@@ -97,14 +98,15 @@ class EmailAddressSearchView(LoginRequiredMixin, View):
 
         results = {}
 
-        # Only search for contacts if a full email is given.
-        if email_address.split('@')[0]:
-            # 1: Search for contact with given email address.
-            results = self._search_contact(email_address)
+        if not freemail.is_free(email_address):
+            # Only search for contacts if a full email is given.
+            if email_address.split('@')[0]:
+                # 1: Search for contact with given email address.
+                results = self._search_contact(email_address)
 
-        # 2: Search for account with given email address.
-        if not results:
-            results = self._search_account(email_address)
+            # 2: Search for account with given email address.
+            if not results:
+                results = self._search_account(email_address)
 
         return HttpResponse(anyjson.dumps(results), content_type='application/json; charset=utf-8')
 

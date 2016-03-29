@@ -121,8 +121,8 @@
                                         term = '*';
                                     }
                                     // search for contacts and accounts containing the search term, but only those with an email address
-                                    var filterQuery = '((_type:contacts_contact AND (name:' + term + ' OR email_addresses.email_address:' + term + ')) ' +
-                                        'OR (_type:accounts_account AND (name:' + term + ' OR email_addresses.email_address:' + term + '))) ' +
+                                    var filterQuery = '((_type:contacts_contact AND (name:(' + term + ') OR email_addresses.email_address:(' + term + '))) ' +
+                                        'OR (_type:accounts_account AND (name:(' + term + ') OR email_addresses.email_address:(' + term + ')))) ' +
                                         'AND email_addresses.email_address:*';
 
                                     data = {

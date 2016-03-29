@@ -31,9 +31,31 @@ function ListWidget() {
     };
 }
 
-ListWidgetController.$inject = [];
-function ListWidgetController() {
+ListWidgetController.$inject = ['$state'];
+function ListWidgetController($state) {
     var vm = this;
+
+    vm.googleAnalyticsEvent = googleAnalyticsEvent;
+
+    // Google Analytics function to set labels to differentiate in Analytics
+    // which widget the user used to add a case or deal.
+    function googleAnalyticsEvent() {
+        if ($state.current === 'base.contacts.detail' && vm.title === 'Cases') {
+            ga('send', 'event', 'Case', 'Create', 'Contact detail');
+        }
+
+        if ($state.current === 'base.accounts.detail' && vm.title === 'Cases') {
+            ga('send', 'event', 'Case', 'Create', 'Account detail');
+        }
+
+        if ($state.current === 'base.contacts.detail' && vm.title === 'Deals') {
+            ga('send', 'event', 'Deal', 'Create', 'Contact detail');
+        }
+
+        if ($state.current === 'base.accounts.detail' && vm.title === 'Deals') {
+            ga('send', 'event', 'Deal', 'Create', 'Account detail');
+        }
+    }
 
     if (vm.collapsableItems) {
         // Certain list widgets have collapsable cells, so set the default state to collapsed.
@@ -64,4 +86,3 @@ function ListWidgetController() {
         vm.list = list;
     }
 }
-

@@ -30,7 +30,7 @@
                             <td><strong>Case ID:</strong> #{{ vm.case.id }}</td>
                             <td><strong>Case Type:</strong> {{ vm.case.type.type }}</td>
                             <td><strong>Priority:</strong><i class="margin-left-5 lilicon" ng-class="{0: 'hl-low-prio-icon', 1: 'hl-normal-prio-icon', 2: 'hl-high-prio-icon', 3: 'hl-critical-prio-icon'}[vm.case.priority]"></i> {{ vm.case.priority_display }} priority</td>
-                            <td><strong>Expires on:</strong> <postpone class="margin-left-5" type="'Case'" object="vm.case" date-field="'expires'" display-date="true"></postpone></td>
+                            <td><strong>Expires on:</strong> <postpone class="margin-left-5" type="'Case'" object="vm.case" date-field="'expires'"></postpone></td>
                         </tr>
                     </tbody>
                 </table>
@@ -108,6 +108,15 @@
                             <tr ng-if="vm.case.parcel_identifier">
                                 <td>Shipment</td>
                                 <td><a href="{{ vm.case.parcel_link }}">Track this parcel</a></td>
+                            </tr>
+                            <tr ng-if="vm.case.account.customer_id && vm.tenant.primary_external_app_link">
+                                <td>External</td>
+                                <td>
+                                    <a ng-href="{{ vm.tenant.primary_external_app_link.getUrl(vm.case.account.customer_id) }}" target="_blank">
+                                        <i class="fa fa-external-link fa-sm"></i>
+                                        {{ vm.tenant.primary_external_app_link.name }}
+                                    </a>
+                                </td>
                             </tr>
                             <tr class="has-no-info" ng-if="!vm.account.email_addresses.length && !vm.account.phone_numbers.length && !vm.account.addresses.length && !vm.account.websites.length && !vm.case.parcel_identifier" >
                                 <td>No additional information</td>
@@ -199,7 +208,7 @@
 
                             <tr>
                                 <td>Expires on</td>
-                                <td><postpone type="'Case'" object="vm.case" date-field="'expires'" display-date="true"></postpone></td>
+                                <td><postpone type="'Case'" object="vm.case" date-field="'expires'"></postpone></td>
                             </tr>
                         </tbody>
                     </table>

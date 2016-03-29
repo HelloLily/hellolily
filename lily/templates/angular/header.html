@@ -19,7 +19,7 @@
 
         <!-- BEGIN PAGE TOP -->
             <ul class="drop-down pull-right">
-                <li class="header-user-menu drop-down-item" data-toggle="drop-down" data-hover="dropdown" data-close-others="true">
+                <li class="header-user-menu drop-down-item" data-toggle="dropdown" data-close-others="true">
                     <a href="#">
                         <i class="lilicon hl-user-icon"></i>
                         <div class="header-user-menu-username-container">
@@ -129,10 +129,10 @@
         <div class="pull-right">
             <!-- BEGIN LARGE ACTIONS -->
             <div class="hidden-sm hidden-xs">
-                <a class="btn blue btn-sm" ui-sref="base.accounts.create" role="button"><i class="fa fa-plus"></i> Account</a>
-                <a class="btn blue btn-sm" ui-sref="base.contacts.create" role="button"><i class="fa fa-plus"></i> Contact</a>
-                <a class="btn blue btn-sm" ui-sref="base.deals.create" role="button"><i class="fa fa-plus"></i> Deal</a>
-                <a class="btn blue btn-sm" ui-sref="base.cases.create" role="button"><i class="fa fa-plus"></i> Case</a>
+                <a class="btn blue btn-sm" ui-sref="base.accounts.create" role="button" onclick="ga('send', 'event', 'accounts', 'create', 'topnav');"><i class="fa fa-plus"></i> Account</a>
+                <a class="btn blue btn-sm" ui-sref="base.contacts.create" role="button" onclick="ga('send', 'event', 'contacts', 'create', 'topnav');"><i class="fa fa-plus"></i> Contact</a>
+                <a class="btn blue btn-sm" ui-sref="base.deals.create" role="button" onclick="ga('send', 'event', 'deals', 'create', 'topnav');"><i class="fa fa-plus"></i> Deal</a>
+                <a class="btn blue btn-sm" ui-sref="base.cases.create" role="button" onclick="ga('send', 'event', 'cases', 'create', 'topnav');"><i class="fa fa-plus"></i> Case</a>
             </div>
             <!-- END LARGE ACTIONS -->
 
@@ -144,16 +144,16 @@
 
                 <ul class="sub-header-action-submenu drop-down-sub-menu right-aligned white-menu">
                     <li class="sub-header-action-menu-item drop-down-sub-menu-item">
-                        <a ui-sref="base.accounts.create"><i class="fa fa-plus"></i> Account</a>
+                        <a ui-sref="base.accounts.create" onclick="ga('send', 'event', 'accounts', 'create', 'topnav mobile');"><i class="fa fa-plus"></i> Account</a>
                     </li>
                     <li class="sub-header-action-menu-item drop-down-sub-menu-item">
-                        <a ui-sref="base.contacts.create"><i class="fa fa-plus"></i> Contact</a>
+                        <a ui-sref="base.contacts.create" onclick="ga('send', 'event', 'contacts', 'create', 'topnav mobile');"><i class="fa fa-plus"></i> Contact</a>
                     </li>
                     <li class="sub-header-action-menu-item drop-down-sub-menu-item">
-                        <a ui-sref="base.deals.create"><i class="fa fa-plus"></i> Deal</a>
+                        <a ui-sref="base.deals.create" onclick="ga('send', 'event', 'deals', 'create', 'topnav mobile');"><i class="fa fa-plus"></i> Deal</a>
                     </li>
                     <li class="sub-header-action-menu-item drop-down-sub-menu-item">
-                        <a ui-sref="base.cases.create"><i class="fa fa-plus"></i> Case</a>
+                        <a ui-sref="base.cases.create" onclick="ga('send', 'event', 'cases', 'create', 'topnav mobile');"><i class="fa fa-plus"></i> Case</a>
                     </li>
                 </ul>
             </div>

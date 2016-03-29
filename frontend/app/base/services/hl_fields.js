@@ -2,13 +2,13 @@ angular.module('app.services').service('HLFields', HLFields);
 
 function HLFields() {
     /**
-     * cleanRelatedFields() cleans the related fields of the given objects
-     * For now it only removes fields that have the is_deleted flag set to true
+     * cleanRelatedFields() cleans the related fields of the given objects.
+     * For now it only removes fields that have the is_deleted flag set to true.
      *
-     * @param object (object): the object to clean
-     * @param model (string): contains the type of model
+     * @param object (object): the object to clean.
+     * @param model (string): contains the type of model.
      *
-     * @returns (object): returns the object with the related fields cleaned
+     * @returns (object): returns the object with the related fields cleaned.
      */
     this.cleanRelatedFields = function(object, model) {
         var relatedFields = ['email_addresses', 'phone_numbers', 'websites', 'addresses'];
@@ -16,9 +16,9 @@ function HLFields() {
         angular.forEach(object, function(fieldValues, field) {
             var cleanedValues = [];
 
-            // We only want to clean the related fields, so check if the field is a related field
+            // We only want to clean the related fields, so check if the field is a related field.
             if (relatedFields.indexOf(field) > -1) {
-                // Loop through each array element
+                // Loop through each array element.
                 angular.forEach(fieldValues, function(fieldValue) {
                     if (model === 'account' || (model === 'contact' && !fieldValue.hasOwnProperty('is_deleted'))) {
                         if (fieldValue.email_address) {
@@ -52,15 +52,41 @@ function HLFields() {
         return object;
     };
 
+    this.cleanInlineRelatedFields = function(model, items) {
+        var cleanedValues = [];
+
+        angular.forEach(items, function(item) {
+            if (model === 'account' || (model === 'contact' && !item.hasOwnProperty('is_deleted'))) {
+                if (item.email_address) {
+                    cleanedValues.push(item);
+                }
+
+                if (item.raw_input) {
+                    cleanedValues.push(item);
+                }
+
+                if (item.city || item.postal_code || item.street || item.street_number) {
+                    cleanedValues.push(item);
+                }
+
+                if (item.website) {
+                    cleanedValues.push(item);
+                }
+            }
+        });
+
+        return cleanedValues;
+    };
+
     this.addRelatedField = function(object, field) {
+        // Default status is 'Other'.
+        var status = 1;
+        var isPrimary = false;
+
         switch (field) {
             case 'emailAddress':
-                // Default status is 'Other'
-                var status = 1;
-                var isPrimary = false;
-
                 if (object.email_addresses.length === 0) {
-                    // No email addresses added yet, so first one is primary
+                    // No email addresses added yet, so first one is primary.
                     status = 2;
                     isPrimary = true;
                 }

@@ -43,7 +43,7 @@
                 </form-group>
 
                 <form-group label-title="Type" label-id="id_type" field="caseForm.type" required="true">
-                    <select ng-model="vm.case.type" ng-options="type.id as type.type for type in vm.caseTypes track by type.id" class="form-control">
+                    <select ng-model="vm.case.type" ng-options="type.type for type in vm.caseTypes track by type.id" class="form-control" name="type">
                         <option value="" hidden>---------</option>
                     </select>
                 </form-group>

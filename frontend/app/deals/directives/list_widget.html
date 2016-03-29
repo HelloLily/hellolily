@@ -9,7 +9,7 @@
             </div>
 
             <div class="widget-filters pull-right" ng-if="!$parent.settings.email.sidebar.deal">
-                <a ui-sref="{{ vm.addLink || 'base.deals.create' }}"  class="btn btn-circle btn-default">
+                <a ui-sref="{{ vm.addLink || 'base.deals.create' }}"  class="btn btn-circle btn-default" ng-click="vm.googleAnalyticsEvent()">
                     <i class="fa fa-plus"></i>
                     Add
                 </a>

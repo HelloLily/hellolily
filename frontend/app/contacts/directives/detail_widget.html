@@ -1,28 +1,28 @@
-<dashboard-widget ng-if="contact" widget-name="'Contact info'">
+<dashboard-widget ng-if="vm.contact" widget-name="'Contact info'">
     <widget-header>
         <div class="widget-name">
             <i class="fa fa-user"></i>
-            {{ contact.salutation }} / {{ contact.gender }}
+            {{ vm.contact.salutation }} / {{ vm.contact.gender }}
             <span ng-show="settings.email.data.contact.id">
-                <a ui-sref="base.contacts.detail({ id: settings.email.data.contact.id })"><b>{{ contact.name }}</b></a>
+                <a ui-sref="base.contacts.detail({ id: settings.email.data.contact.id })"><b>{{ vm.contact.name }}</b></a>
             </span>
-            <span ng-show="!settings.email.data.contact.id"><b>{{ contact.name }}</b></span>
+            <span ng-show="!settings.email.data.contact.id"><b>{{ vm.contact.name }}</b></span>
         </div>
     </widget-header>
 
     <widget-body>
         <div class="widget-content">
             <div class="scroll-body" slimscroll="{height: height}">
-                <p ng-bind-html="contact.description || 'No description' | parseUrls"></p>
+                <p ng-bind-html="vm.contact.description || 'No description' | parseUrls"></p>
 
                 <table class="table table-hover no-margin">
-                    <tr ng-show="(contact.email_addresses | filter: {status: '!' + 0}).length">
+                    <tr ng-show="(vm.contact.email_addresses | filter: {status: '!' + 0}).length">
                         <th>
                             <i class="fa">@</i>
                             Email
                         </th>
                         <td>
-                            <div ng-repeat="email in contact.email_addresses | filter: {status: '!' + 0}">
+                            <div ng-repeat="email in vm.contact.email_addresses | filter: {status: '!' + 0}">
                                 <a ui-sref="base.email.composeEmail({email: email.email_address})">
                                     {{ email.email_address }}
                                 </a>
@@ -30,13 +30,13 @@
                         </td>
                     </tr>
 
-                    <tr ng-show="contact.phones">
+                    <tr ng-show="vm.contact.phones">
                         <th>
                             <i class="fa fa-phone"></i>
                             Phone
                         </th>
                         <td>
-                            <div ng-repeat="phone in contact.phones">
+                            <div ng-repeat="phone in vm.contact.phones">
                                 <a href="tel:{{ phone }}">
                                     {{ phone }}
                                 </a>
@@ -44,13 +44,13 @@
                         </td>
                     </tr>
 
-                    <tr ng-show="contact.addresses">
+                    <tr ng-show="vm.contact.addresses">
                         <th>
                             <i class="fa fa-map-marker"></i>
                             Address
                         </th>
                         <td>
-                            <div ng-repeat="address in contact.addresses">
+                            <div ng-repeat="address in vm.contact.addresses">
                                 {{ address.street }} {{ address.street_number }}{{ address.complement }}
                                 <br />
                                 {{ address.postal_code }}, {{ address.city }}
@@ -59,17 +59,17 @@
                             </div>
                         </td>
                     </tr>
-                    <tr ng-show="contact.social" ng-repeat="social in contact.social">
+                    <tr ng-show="vm.contact.social" ng-repeat="social in vm.contact.social">
                         <th><i class="fa fa-{{ social.social_name | lowercase }}"></i> {{ social.social_name }}</th>
                         <td><a ng-href="{{ social.social_url }}" target="_blank">{{ social.social_profile }}</a></td>
                     </tr>
-                    <tr ng-show="contact.tag">
+                    <tr ng-show="vm.contact.tag">
                         <th>
                             <i class="fa fa-tag"></i>
                             Tags
                         </th>
                         <td>
-                            <a class="btn btn-xs btn-default" ng-repeat="tag in contact.tag">
+                            <a class="btn btn-xs btn-default" ng-repeat="tag in vm.contact.tag">
                                 {{ tag }}
                             </a>
                         </td>

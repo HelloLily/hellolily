@@ -8,7 +8,7 @@
         </div>
 
         <div class="widget-filters pull-right" ng-if="!$parent.settings.email.sidebar.case">
-            <a ui-sref="{{ vm.addLink || 'base.cases.create' }}" class="btn btn-circle btn-default">
+            <a ui-sref="{{ vm.addLink || 'base.cases.create' }}" class="btn btn-circle btn-default" ng-click="vm.googleAnalyticsEvent()">
                 <i class="fa fa-plus"></i>
                 Add
             </a>
@@ -42,7 +42,7 @@
                                 <i tooltip-placement="left" uib-tooltip="{{ case.priority_name }} priority" class="lilicon" ng-class="{0: 'hl-low-prio-icon', 1: 'hl-normal-prio-icon', 2: 'hl-high-prio-icon', 3: 'hl-critical-prio-icon'}[case.priority]"></i>
                             </td>
                             <td style="width: 130px">
-                                <postpone type="'Case'" object="case" date-field="'expires'" display-date="true"></postpone>
+                                <postpone type="'Case'" object="case" date-field="'expires'"></postpone>
                             </td>
                             <td class="clickable" style="width: 40px;" ng-click="case.collapsed = !case.collapsed">
                                 <div class="collapse-indicator no-padding">

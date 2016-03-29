@@ -20,12 +20,12 @@ function formEmailAddresses() {
     };
 }
 
-FormEmailAddressesController.$inject = ['$rootScope'];
-function FormEmailAddressesController($rootScope) {
+FormEmailAddressesController.$inject = ['$rootScope', 'HLUtils'];
+function FormEmailAddressesController($rootScope, HLUtils) {
     var vm = this;
     vm.sidebar = $rootScope.$$childHead.settings.email.sidebar.form;
 
-    vm.setPrimaryEmailAddress = setPrimaryEmailAddress;
+    vm.setPrimaryEmailAddress = HLUtils.setPrimaryEmailAddress;
 
     activate();
 
@@ -36,18 +36,6 @@ function FormEmailAddressesController($rootScope) {
             vm.emailLabel = 'Email';
         } else {
             vm.emailLabel = 'Company email';
-        }
-    }
-
-    function setPrimaryEmailAddress(emailAddress) {
-        // Check if the status of an email address is 'Primary'
-        if (emailAddress.status === 2) {
-            angular.forEach(vm.emailAddresses, function(email) {
-                // Set the status of the other email addresses to 'Other'
-                if (emailAddress !== email) {
-                    email.status = 1;
-                }
-            });
         }
     }
 }

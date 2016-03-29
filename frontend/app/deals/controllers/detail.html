@@ -13,7 +13,6 @@
                         </div>
                     </label>
 
-
                     <label class="radio-button">
                         <div class="radio-button-inset" ng-click="vm.deal.is_archived = !vm.deal.is_archived">
                             <span ng-if="vm.deal.is_archived">Unarchive</span>
@@ -43,7 +42,7 @@
                             </td>
                             <td ng-if="vm.deal.next_step_date">
                                 <strong class="margin-right-10">Next step date:</strong>
-                                <postpone type="'Deal'" object="vm.deal" date-field="'next_step_date'" tt-placement="bottom" display-date="true"></postpone>
+                                <postpone type="'Deal'" object="vm.deal" date-field="'next_step_date'" tt-placement="bottom"></postpone>
                             </td>
                     </tr>
                     </tbody>
@@ -84,7 +83,7 @@
                         <table class="widget-info-table">
                             <tbody>
                                 <tr>
-                                    <td><strong>Dealname</strong></td>
+                                    <td><strong>Name</strong></td>
                                     <td><span editable-text="vm.deal.name" blur="submit" onbeforesave="vm.updateModel($data, 'name')">{{ vm.deal.name }}</span></td>
                                 </tr>
                                 <tr>

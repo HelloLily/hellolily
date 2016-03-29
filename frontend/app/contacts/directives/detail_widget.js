@@ -1,13 +1,21 @@
-angular.module('app.contacts.directives').directive('contactDetailWidget', ContactDetailWidget);
+angular.module('app.contacts.directives').directive('contactDetailWidget', contactDetailWidget);
 
-function ContactDetailWidget() {
+function contactDetailWidget() {
     return {
         restrict: 'E',
-        replace: true,
         scope: {
             contact: '=',
-            height: '='
+            height: '=',
         },
-        templateUrl: 'contacts/directives/detail_widget.html'
-    }
+        templateUrl: 'contacts/directives/detail_widget.html',
+        controller: ContactDetailWidgetController,
+        controllerAs: 'vm',
+        bindToController: true,
+    };
 }
+
+ContactDetailWidgetController.$inject = [];
+function ContactDetailWidgetController() {
+    var vm = this;
+}
+

@@ -30,7 +30,7 @@ class DealNextStepList(APIView):
 
 
 class DealWhyCustomerViewSet(SetTenantUserMixin, ModelViewSet):
-    # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
+    # Set the queryset, this takes care of setting the `base_name`.
     queryset = DealWhyCustomer.objects
     # Set the serializer class for this viewset.
     serializer_class = DealWhyCustomerSerializer
@@ -170,7 +170,7 @@ class DealViewSet(SetTenantUserMixin, ModelViewSet):
     # Set the serializer class for this viewset.
     serializer_class = DealSerializer
     # Set all filter backends that this viewset uses.
-    filter_backends = (ElasticSearchFilter, OrderingFilter, DjangoFilterBackend,)
+    filter_backends = (ElasticSearchFilter, OrderingFilter, DjangoFilterBackend, )
 
     # ElasticSearchFilter: set the model type.
     model_type = 'deals_deal'

@@ -53,6 +53,7 @@ RUN sudo npm install -g protractor@2.2.0
 # Expose to Selenium.
 EXPOSE 8081
 
+ENV DJANGO_SETTINGS_MODULE lily.settings.settings
 ENV DEBUG 1
 ENV SECRET_KEY abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn
 ENV DATABASE_URL postgres://hellolily:@db/hellolily

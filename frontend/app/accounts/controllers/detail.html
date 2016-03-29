@@ -108,7 +108,7 @@
                 <div class="widget-name"><i class="lilicon hl-deals-icon"></i> Deals</div>
             </widget-header>
             <widget-filters>
-                <a ng-if="!$parent.settings.email.sidebar.case" ui-sref="base.deals.create.fromAccount({accountId: {{ account.id }}})" class="btn btn-circle btn-default">
+                <a ng-if="!$parent.settings.email.sidebar.case" ui-sref="base.deals.create.fromAccount({accountId: {{ account.id }}})" class="btn btn-circle btn-default" ng-click="ga('send', 'event', 'Deal', 'Create', 'Account widget');">
                     <i class="fa fa-plus"></i> Add
                 </a>
             </widget-filters>
@@ -170,7 +170,7 @@
             </widget-header>
 
             <widget-filters>
-                <a ui-sref="base.cases.create.fromAccount({accountId: {{ account.id }}})" class="btn btn-circle btn-default">
+                <a ui-sref="base.cases.create.fromAccount({accountId: {{ account.id }}})" class="btn btn-circle btn-default" ng-click="ga('send', 'event', 'Case', 'Create', 'Account widget');">
                     <i class="fa fa-plus"></i> Add
                 </a>
             </widget-filters>
@@ -196,7 +196,7 @@
                             <td class="align-center">
                                 <i tooltip-placement="left" uib-tooltip="{{ case.priority_name }} priority" class="lilicon" ng-class="{0: 'hl-low-prio-icon', 1: 'hl-normal-prio-icon', 2: 'hl-high-prio-icon', 3: 'hl-critical-prio-icon'}[case.priority]"></i>
                             </td>
-                            <td><postpone type="'Case'" object="case" date-field="'expires'" display-date="true"></postpone></td>
+                            <td><postpone type="'Case'" object="case" date-field="'expires'"</postpone></td>
                             <td class="clickable" style="width: 40px;" ng-click="case.collapsed = !case.collapsed">
                                 <div class="collapse-indicator no-padding">
                                     <i class="fa fa-angle-down" ng-class="{'rotate': !case.collapsed}"></i>

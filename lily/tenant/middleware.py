@@ -1,10 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 
-try:
-    from threading import local
-except ImportError:
-    from django.utils._threading_local import local
+from threading import local
 
 
 _thread_locals = local()

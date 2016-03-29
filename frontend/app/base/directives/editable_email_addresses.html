@@ -1,0 +1,44 @@
+<span ng-show="!er.formVisible" class="editable editable-click">
+    <div ng-repeat="email in er.items | filter: {status: '!' + 0}">
+        <a ui-sref="base.email.composeEmail({email: email.email_address})">
+            {{ email.email_address }}
+        </a>
+    </div>
+    <div ng-if="!er.items.length">No email addresses</div>
+</span>
+
+<form name="{{ er.formName }}" ng-show="er.formVisible" class="form-inline">
+    <div ng-repeat="email in er.items">
+        <div class="form-group">
+            <input class="form-control"
+                   maxlength="255"
+                   placeholder="Email address"
+                   ng-readonly="email.is_deleted"
+                   ng-model="email.email_address" />
+        </div>
+
+        <div class="form-group">
+            <select class="form-control"
+                    ng-readonly="email.is_deleted"
+                    ng-model="email.status"
+                    ng-options="o.v as o.n for o in [{ n: 'Primary', v: 2 }, { n: 'Other', v: 1 }, { n: 'Inactive', v: 0}]"
+                    ng-change="er.setPrimaryEmailAddress(email, er.items)">
+            </select>
+        </div>
+
+        <div class="form-group">
+            <i class="margin-left-5 clickable"
+               ng-class="{'fa fa-minus-circle': !email.is_deleted, 'fa fa-undo': email.is_deleted}"
+               ng-click="er.removeRelatedField(email)"></i>
+        </div>
+    </div>
+
+    <div class="editable-related-actions">
+        <button class="btn" ng-click="er.addRelatedField()"><i class="fa fa-plus"></i></button>
+
+        <div class="pull-right">
+            <button class="btn" ng-click="er.submit()"><i class="fa fa-check"></i></button>
+            <button class="btn" ng-click="er.closeForm()"><i class="fa fa-close"></i></button>
+        </div>
+    </div>
+</form>

@@ -1,12 +1,8 @@
-/**
- * Account detail widget
- */
-angular.module('app.accounts.directives').directive('accountDetailWidget', AccountDetailWidget);
+angular.module('app.accounts.directives').directive('accountDetailWidget', accountDetailWidget);
 
-function AccountDetailWidget() {
+function accountDetailWidget() {
     return {
         restrict: 'E',
-        replace: true,
         scope: {
             account: '=',
             height: '=',

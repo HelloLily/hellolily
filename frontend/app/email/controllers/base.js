@@ -84,8 +84,8 @@ function EmailBaseController(Settings) {
 }
 
 angular.module('app.email').controller('EmailShowAccountController', EmailShowAccountController);
-EmailShowAccountController.$inject = ['$scope', 'AccountDetail', 'ContactDetail', 'Settings'];
-function EmailShowAccountController($scope, AccountDetail, ContactDetail, Settings) {
+EmailShowAccountController.$inject = ['$scope', 'Account', 'ContactDetail', 'Settings'];
+function EmailShowAccountController($scope, Account, ContactDetail, Settings) {
     $scope.$watch('settings.email.sidebar.account', function(newValue, oldValue) {
         if (oldValue === 'showAccount' && newValue === 'checkAccount' && Settings.email.data.account.id) {
             activate();
@@ -95,7 +95,7 @@ function EmailShowAccountController($scope, AccountDetail, ContactDetail, Settin
     activate();
 
     function activate() {
-        AccountDetail.get({id: Settings.email.data.account.id}).$promise.then(function(account) {
+        Account.get({id: Settings.email.data.account.id}).$promise.then(function(account) {
             $scope.account = account;
             $scope.contactList = ContactDetail.query({filterquery: 'accounts.id:' + Settings.email.data.account.id});
             $scope.contactList.$promise.then(function(contactList) {

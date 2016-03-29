@@ -217,6 +217,18 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     function saveCase(form, archive) {
         var cleanedCase;
 
+        // Check if a case is being saved (and archived) via the + case page
+        // or via a supercard.
+        if (Settings.email.sidebar.isVisible && archive) {
+            ga('send', 'event', 'Case', 'Save and archive', 'Email SC');
+        } else if (Settings.email.sidebar.isVisible && !archive) {
+            ga('send', 'event', 'Case', 'Save', 'Email SC');
+        } else if (!Settings.email.sidebar.isVisible && archive) {
+            ga('send', 'event', 'Case', 'Save and archive', 'Case');
+        } else {
+            ga('send', 'event', 'Case', 'Save', 'Case');
+        }
+
         if (!_caseFormIsValid()) {
             return false;
         }

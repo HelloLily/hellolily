@@ -4,7 +4,7 @@
     </div>
     <div class="portlet-body">
         <ul class="list-group">
-            <li class="list-group-item" ng-repeat="template in emailTemplates">
+            <li class="list-group-item" ng-repeat="template in vm.emailTemplates track by template.id">
                 {{ template.name }}
                 <span class="pull-right">
                     <a class="btn btn-xs default" ng-click="makeDefault(template)">
@@ -18,7 +18,7 @@
                     </a>
                 </span>
             </li>
-            <li class="list-group-item" ng-hide="emailTemplates.length">
+            <li class="list-group-item" ng-hide="vm.emailTemplates.length">
                 No templates yet. You should create one!
             </li>
             <li class="list-group-item">

@@ -23,10 +23,8 @@ class WebsiteSerializer(RelatedFieldSerializer):
     id = serializers.IntegerField(required=False)
     website = serializers.CharField(required=True, max_length=255, validators=[HostnameValidator()])
 
-    def save(self):
-        self.website = clean_website(self.website)
-
-        return super(WebsiteSerializer, self).save()
+    def validate_website(self, value):
+        return clean_website(value)
 
     class Meta:
         model = Website
@@ -172,7 +170,7 @@ class AccountCreateSerializer(serializers.ModelSerializer):
         for tag in tags_data:
             # Create relationship with Tag if it's a new tag
             tag_object, created = Tag.objects.get_or_create(
-                name=tag['name'],
+                name=tag['name'].lower(),
                 object_id=account.pk,
                 content_type_id=ContentType.objects.get_for_model(account.__class__).id
             )
@@ -198,7 +196,7 @@ class AccountCreateSerializer(serializers.ModelSerializer):
 
         for tag in tags_data:
             tag_object, created = Tag.objects.get_or_create(
-                name=tag['name'],
+                name=tag['name'].lower(),
                 object_id=instance.pk,
                 content_type_id=ContentType.objects.get_for_model(instance.__class__).id
             )

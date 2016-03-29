@@ -175,8 +175,28 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
         return super(ComposeEmailForm, self).is_valid()
 
     @function_trace()
+    def _clean_fields(self):
+        super(ComposeEmailForm, self)._clean_fields()
+
+    @function_trace()
+    def _clean_form(self):
+        super(ComposeEmailForm, self)._clean_form()
+
+    @function_trace()
+    def _post_clean(self):
+        super(ComposeEmailForm, self)._post_clean()
+
+    @function_trace()
+    def has_changed(self):
+        return super(ComposeEmailForm, self).has_changed()
+
+    @function_trace()
     def save(self, commit=True):
         return super(ComposeEmailForm, self).save(commit)
+
+    @function_trace()
+    def full_clean(self):
+        super(ComposeEmailForm, self).full_clean()
 
     @function_trace()
     def clean(self):

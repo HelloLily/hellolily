@@ -83,7 +83,7 @@ function emailConfig($stateProvider) {
         // Maybe we can save the action in the scope?
         url: '/replyall/{id:[0-9]{1,}}',
         params: {
-            messageType: 'reply-all'
+            messageType: 'reply-all',
         },
         views: {
             '@base.email': {
@@ -134,7 +134,7 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
 
         if ($stateParams.messageType === 'reply') {
             // If it's a reply, load the email message first
-            EmailMessage.get({id: $stateParams.id}).$promise.then(function (emailMessage) {
+            EmailMessage.get({id: $stateParams.id}).$promise.then(function(emailMessage) {
                 _initEmailCompose(emailMessage);
             });
         } else {
@@ -168,9 +168,13 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
         // Once all promises are done, continue
         $q.all(promises).then(function(results) {
             var templates;
+            var contact;
+            var usedText;
+            var displayedText;
+
             // This part should only be executed if we've loaded a contact
             if (contactPromise) {
-                var contact = results[0][0];
+                contact = results[0][0];
                 templates = results[1];
 
                 if (emailMessage && !email) {
@@ -179,13 +183,13 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
 
                 if (contact) {
                     // The text which is actually used in the application/select2
-                    var used_text = '"' + contact.name + '" <' + email + '>';
+                    usedText = '"' + contact.name + '" <' + email + '>';
                     // The text shown in the recipient input
-                    var displayed_text = contact.name + ' <' + email + '>';
+                    displayedText = contact.name + ' <' + email + '>';
 
                     recipient = {
-                        id: used_text,
-                        text: displayed_text,
+                        id: usedText,
+                        text: displayedText,
                         object_id: contact.id,
                     };
                 } else {
@@ -201,7 +205,7 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
 
             template = $stateParams.template;
             // Determine whether the default template should be loaded or not
-            loadDefaultTemplate = template == undefined;
+            loadDefaultTemplate = template === undefined;
 
             // Set message type to given message type if available, otherwise set to message type 'new'
             messageType = $stateParams.messageType ? $stateParams.messageType : 'new';

@@ -23,7 +23,8 @@
     <widget-body>
         <div class="widget-content">
             <div class="scroll-body" slimscroll="{height: 200}">
-                <p ng-bind-html="(vm.account.description | parseUrls) || 'No description'"></p>
+                <!--<p ng-bind-html="(vm.account.description | parseUrls) || 'No description'"></p>-->
+                <p editable-textarea="vm.account.description" e-rows="4" e-cols="100" onbeforesave="vm.updateModel($data, 'description')">{{ (vm.account.description | parseUrls) || 'No description' }}</p>
 
                 <table class="table table-hover no-margin">
                     <tr ng-show="(vm.account.email_addresses | filter: {status: '!' + 0}).length">
@@ -59,7 +60,9 @@
                             Assigned to
                         </th>
                         <td>
-                            {{ vm.account.assigned_to.full_name }}
+                            <editable-select field="assigned_to" view-model="vm" type="Account" class="inline-selectable-text" select-options="{type: 'User', field: 'assignOptions', display: 'full_name'}">
+                                {{ vm.account.assigned_to.full_name }}
+                            </editable-select>
                         </td>
                     </tr>
                     <tr>

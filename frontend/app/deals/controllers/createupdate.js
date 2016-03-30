@@ -147,7 +147,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
         });
 
         // Regex to determine if the given amount is valid.
-        vm.currencyRegex = /^[0-9]{1,3}(?:[0-9]*(?:[.,][0-9]{2})?|(?:,[0-9]{3})*(?:\.[0-9]{2})?|(?:\.[0-9]{3})*(?:,[0-9]{2})?)$/;
+        vm.currencyRegex = /^[0-9]{1,3}(?:[0-9]*(?:[.,][0-9]{2})?|(?:,[0-9]{3})*(?:\.[0-9]{1,2})?|(?:\.[0-9]{3})*(?:,[0-9]{1,2})?)$/;
 
         _getDeal();
     }

@@ -74,7 +74,7 @@ class RegexDecimalField(serializers.DecimalField):
             raise ValidationError(_('This field is required'))
 
         # Regex to get the decimal value.
-        regex = '([.,][0-9]{2}$)'
+        regex = '([.,][0-9]{1,2}$)'
         data_split = re.split(regex, str(data))
 
         # Remove commas and periods.

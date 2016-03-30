@@ -20,6 +20,14 @@ except ImportError:
     from lily.utils.functions import dummy_function as add_tenant
 
 
+def get_account_logo_upload_path(instance, filename):
+    return settings.ACCOUNT_LOGO_UPLOAD_TO % {
+        'tenant_id': instance.tenant_id,
+        'account_id': instance.pk,
+        'filename': filename
+    }
+
+
 class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
     """
     Account model, this is a company's profile. May have relations with contacts.
@@ -54,7 +62,7 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
         verbose_name=_('company size'),
         blank=True
     )
-    logo = models.ImageField(upload_to=settings.ACCOUNT_UPLOAD_TO, verbose_name=_('logo'), blank=True)
+    logo = models.ImageField(upload_to=get_account_logo_upload_path, verbose_name=_('logo'), blank=True)
     description = models.TextField(verbose_name=_('description'), blank=True)
     legalentity = models.CharField(max_length=20, verbose_name=_('legal entity'), blank=True)
     taxnumber = models.CharField(max_length=20, verbose_name=_('tax number'), blank=True)

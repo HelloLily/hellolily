@@ -130,7 +130,7 @@
                 <strong>{{ attachment.name }}</strong>
                 <span>
                 {{ attachment.size / 1024 | number: 0}} KB </span>
-                <a href="/messaging/email/attachment/{{ attachment.id }}/" target="_blank">
+                <a ng-href="{{ attachment.url }}" target="_blank">
                     Download
                 </a>
             </div>
@@ -150,7 +150,7 @@
                         <strong>{{ attachment.name }}</strong>
                     <span>
                     {{ attachment.size / 1024 | number: 0}} KB </span>
-                        <a href="/messaging/email/attachment/{{ attachment.id }}/" target="_blank">
+                        <a ng-href="{{ attachment.url }}" target="_blank">
                             Download
                         </a>
                     </div>

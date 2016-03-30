@@ -118,9 +118,9 @@ FILE_UPLOAD_HANDLERS = (
     'django.core.files.uploadhandler.TemporaryFileUploadHandler',
 )
 
-ACCOUNT_UPLOAD_TO = 'images/profile/account'
-CONTACT_UPLOAD_TO = 'images/profile/contact'
-USER_UPLOAD_TO = 'images/profile/user'
+ACCOUNT_LOGO_UPLOAD_TO = 'accounts/account/%(tenant_id)d/%(account_id)d/%(filename)s'
+CONTACT_PICTURE_UPLOAD_TO = 'contacts/contact/%(tenant_id)d/%(contact_id)d/%(filename)s'
+LILYUSER_PICTURE_UPLOAD_TO = 'users/lilyuser/%(tenant_id)d/%(user_id)d/%(filename)s'
 EMAIL_ATTACHMENT_UPLOAD_TO = 'messaging/email/attachments/%(tenant_id)d/%(message_id)d/%(filename)s'
 EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO = ('messaging/email/templates/attachments'
                                        '/%(tenant_id)d/%(template_id)d/%(filename)s')
@@ -137,7 +137,6 @@ STATICFILES_FINDERS = (
 
 AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
 AWS_S3_SECURE_URLS = True
 AWS_PRELOAD_METADATA = True
 

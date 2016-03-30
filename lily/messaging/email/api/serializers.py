@@ -23,9 +23,11 @@ class RecipientSerializer(serializers.ModelSerializer):
 
 
 class EmailAttachmentSerializer(serializers.ModelSerializer):
+    url = serializers.URLField(source='attachment.url', read_only=True)
+
     class Meta:
         model = EmailAttachment
-        fields = ('id', 'inline', 'size', 'message', 'cid', 'name')
+        fields = ('id', 'inline', 'size', 'message', 'cid', 'name', 'url', )
 
 
 class EmailMessageSerializer(serializers.ModelSerializer):

@@ -27,6 +27,7 @@
             templateAttachmentRow: '.template-attachment-row',
             currentTemplate: null,
             previousSendToNormalLength: 0,
+            firstLoad: true,
         },
 
         init: function(config) {
@@ -37,8 +38,11 @@
                 $.extend(this.config, config);
             }
 
-            self.initListeners();
-            Metronic.initUniform();
+            if (self.config.firstLoad) {
+                self.config.firstLoad = false;
+                self.initListeners();
+                Metronic.initUniform();
+            }
         },
 
         initListeners: function() {

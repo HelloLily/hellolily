@@ -2,10 +2,10 @@
     <widget-header>
         <div class="widget-name">
             <i class="lilicon hl-company-icon"></i>
-            <span ng-show="settings.email.data.account.id">
-                <a ui-sref="base.accounts.detail({ id: settings.email.data.account.id })">{{ vm.account.name }}</a>
+            <span ng-show="vm.settings.email.data.account.id">
+                <a ui-sref="base.accounts.detail({ id: vm.settings.email.data.account.id })">{{ vm.account.name }}</a>
             </span>
-            <span ng-show="!settings.email.data.account">{{ vm.account.name }}</span>
+            <span ng-show="!vm.settings.email.data.account">{{ vm.account.name }}</span>
         </div>
     </widget-header>
 

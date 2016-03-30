@@ -5,6 +5,7 @@ function listFilter() {
         restrict: 'E',
         scope: {
             filterLabel: '=',
+            filterLabelPlural: '=',
             viewModel: '=',
         },
         templateUrl: 'base/directives/list_filter.html',
@@ -23,6 +24,7 @@ function ListFilterController($timeout, HLFilters) {
     vm.updateFilterQuery = updateFilterQuery;
     vm.allSelected = false;
     vm.filterDisplayName = vm.filterLabel;
+    vm.filterPlural = vm.filterLabelPlural;
 
     $timeout(activate);
 
@@ -97,9 +99,14 @@ function ListFilterController($timeout, HLFilters) {
 
     function updateFilterDisplayName() {
         var count = 0;
+        var label = '';
         var filterList = vm.viewModel.filterList;
         if (vm.viewModel.filterSpecialList) {
             filterList = vm.viewModel.filterSpecialList;
+        }
+
+        if (vm.filterPlural) {
+            label = vm.filterPlural;
         }
         vm.filterDisplayName = vm.filterLabel;
 
@@ -109,7 +116,7 @@ function ListFilterController($timeout, HLFilters) {
                 if (count === 1) {
                     vm.filterDisplayName = item.name + ' selected';
                 } else if (count > 1) {
-                    vm.filterDisplayName = count + ' Types selected';
+                    vm.filterDisplayName = count + ' ' + label + ' selected';
                 }
             }
         });

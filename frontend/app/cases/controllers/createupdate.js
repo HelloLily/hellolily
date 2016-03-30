@@ -224,9 +224,9 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         } else if (Settings.email.sidebar.isVisible && !archive) {
             ga('send', 'event', 'Case', 'Save', 'Email SC');
         } else if (!Settings.email.sidebar.isVisible && archive) {
-            ga('send', 'event', 'Case', 'Save and archive', 'Case');
+            ga('send', 'event', 'Case', 'Save and archive', 'Default');
         } else {
-            ga('send', 'event', 'Case', 'Save', 'Case');
+            ga('send', 'event', 'Case', 'Save', 'Default');
         }
 
         if (!_caseFormIsValid()) {

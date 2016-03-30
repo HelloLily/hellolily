@@ -189,7 +189,7 @@ function AccountCreateController($state, $stateParams, Settings, Account, User, 
         if (Settings.email.sidebar.isVisible) {
             ga('send', 'event', 'Account', 'Save', 'Email SC');
         } else {
-            ga('send', 'event', 'Account', 'Save', 'Account');
+            ga('send', 'event', 'Account', 'Save', 'Default');
         }
 
         HLForms.blockUI();

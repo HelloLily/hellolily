@@ -3,10 +3,10 @@
         <div class="widget-name">
             <i class="fa fa-user"></i>
             {{ vm.contact.salutation }} / {{ vm.contact.gender }}
-            <span ng-show="settings.email.data.contact.id">
-                <a ui-sref="base.contacts.detail({ id: settings.email.data.contact.id })"><b>{{ vm.contact.name }}</b></a>
+            <span ng-show="vm.settings.email.data.contact.id">
+                <a ui-sref="base.contacts.detail({ id: vm.settings.email.data.contact.id })"><b>{{ vm.contact.name }}</b></a>
             </span>
-            <span ng-show="!settings.email.data.contact.id"><b>{{ vm.contact.name }}</b></span>
+            <span ng-show="!vm.settings.email.data.contact.id"><b>{{ vm.contact.name }}</b></span>
         </div>
     </widget-header>
 

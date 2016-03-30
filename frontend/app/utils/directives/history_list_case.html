@@ -1,5 +1,5 @@
 <div class="timeline-item-container">
-    <div class="timeline-avatar" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png');"></div>
+    <div class="timeline-avatar" style="background-image: url('{{ vm.item.assigned_to.profile_picture }}');"></div>
 
     <div class="timeline-content-container has-case">
 
@@ -66,9 +66,9 @@
                     <ul class="content-history-list">
                         <li ng-repeat="note in vm.item.notes">
                             <div class="content-history-note-header">
-                                <div class="content-history-avatar" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png'); "></div>
+                                <div class="content-history-avatar" style="background-image: url('{{ note.author.profile_picture }}'); "></div>
                                 <div class="content-history-desc">
-                                    {{ note.author }} added a note <span ng-if="note.type === 1">(callback)</span> <span ng-if="note.type === 2">(meetup)</span>
+                                    {{ note.author.full_name }} added a note <span ng-if="note.type === 1">(callback)</span> <span ng-if="note.type === 2">(meetup)</span>
                                 </div>
 
                                 <div class="content-history-date">{{ ::note.date | date:'dd MMM - HH:mm' }}</div>
@@ -80,9 +80,9 @@
                         </li>
                         <li>
                             <div class="content-history-note-header">
-                                <div class="content-history-avatar" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png'); "></div>
+                                <div class="content-history-avatar" style="background-image: url('{{ vm.item.created_by.profile_picture }}'); "></div>
                                 <div class="content-history-desc">
-                                    {{ ::vm.item.created_by }} created the case <a ui-sref="base.cases.detail({ id: vm.item.id })">{{ ::vm.item.subject }}</a>
+                                    {{ ::vm.item.created_by.full_name }} created the case <a ui-sref="base.cases.detail({ id: vm.item.id })">{{ ::vm.item.subject }}</a>
                                 </div>
 
                                 <div class="content-history-date">{{ ::vm.item.created | date:'dd MMM - HH:mm' }}</div>

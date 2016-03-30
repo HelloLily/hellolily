@@ -21,8 +21,14 @@ class NoteMapping(BaseMapping):
                 'index_analyzer': 'normal_analyzer',
             },
             'author': {
-                'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'full_name': {
+                        'type': 'string',
+                        'analyzer': 'normal_edge_analyzer',
+                    },
+                },
             },
             'content_type': {
                 'type': 'string',
@@ -68,7 +74,10 @@ class NoteMapping(BaseMapping):
             'type': obj.type,
             'type_name': obj.get_type_display(),
             'content': obj.content,
-            'author': obj.author.get_full_name(),
+            'author': {
+                'full_name': obj.author.get_full_name(),
+                'id': obj.author.id,
+            },
             'content_type': obj.content_type.name,
             'object_id': obj.object_id,
             'subject_repr': str(obj.subject),

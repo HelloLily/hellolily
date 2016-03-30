@@ -3,9 +3,17 @@ angular.module('app.users.services').factory('User', User);
 User.$inject = ['$resource'];
 function User($resource) {
     var _user = $resource(
-        '/api/users/user/',
+        '/api/users/user/:id/',
         null,
         {
+            get: {
+                transformResponse: function(data) {
+                    var user = angular.fromJson(data);
+
+                    user.profile_picture = decodeURIComponent(user.profile_picture);
+                    return user;
+                },
+            },
             query: {
                 isArray: false,
             },

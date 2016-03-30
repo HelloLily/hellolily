@@ -1,9 +1,9 @@
 angular.module('app.utils.directives').directive('historyList', HistoryListDirective);
 
 HistoryListDirective.$inject = ['$filter', '$http', '$uibModal', '$q', '$state', 'EmailAccount',
-'Note', 'NoteDetail', 'Case', 'DealDetail', 'EmailDetail'];
+'Note', 'NoteDetail', 'Case', 'DealDetail', 'EmailDetail', 'User', 'HLGravatar'];
 function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccount,
-Note, NoteDetail, Case, DealDetail, EmailDetail) {
+Note, NoteDetail, Case, DealDetail, EmailDetail, User, HLGravatar) {
     return {
         restrict: 'E',
         replace: true,
@@ -110,9 +110,17 @@ Note, NoteDetail, Case, DealDetail, EmailDetail) {
 
                     notePromise.then(function(results) {
                         results.forEach(function(note) {
+                            // Get user for notes to show profile picture correctly.
+                            User.get({id: note.author.id}, function(userObject) {
+                                note.author = userObject;
+                            });
+
                             // Set notes shown property to true to have toggled open
                             // as default.
-                            note.shown = true;
+                            if (note.is_pinned) {
+                                note.shown = true;
+                            }
+
                             // If it's a contact's note, add extra attribute to the note
                             // so we can identify it in the template
                             if (scope.target === 'account' && note.content_type === 'contact') {
@@ -131,10 +139,28 @@ Note, NoteDetail, Case, DealDetail, EmailDetail) {
 
                     casePromise.then(function(response) {
                         response.objects.forEach(function(caseItem) {
+                            // Get user object for the assigned to user.
+                            User.get({id: caseItem.assigned_to_id}, function(userObject) {
+                                caseItem.assigned_to = userObject;
+                            });
+
+                            // Get user object for the created by user.
+                            User.get({id: caseItem.created_by.id}, function(userObject) {
+                                caseItem.created_by = userObject;
+                            });
+
                             caseItem.historyType = 'case';
+
                             history.push(caseItem);
                             NoteDetail.query({filterquery: 'content_type:case AND object_id:' + caseItem.id, size: 15})
                                 .$promise.then(function(notes) {
+                                    angular.forEach(notes, function(note) {
+                                        // Get user for notes to show profile picture correctly.
+                                        User.get({id: note.author.id}, function(author) {
+                                            note.author = author;
+                                        });
+                                    });
+
                                     caseItem.notes = notes;
                                 });
                         });
@@ -148,10 +174,26 @@ Note, NoteDetail, Case, DealDetail, EmailDetail) {
 
                     dealPromise.then(function(results) {
                         results.forEach(function(deal) {
+                            // Get user object for the assigned to user.
+                            User.get({id: deal.assigned_to_id}, function(userObject) {
+                                deal.assigned_to = userObject;
+                            });
+
+                            // Get user object to show profile picture correctly.
+                            User.get({id: deal.created_by.id}, function(userObject) {
+                                deal.created_by = userObject;
+                            });
+
                             NoteDetail.query({
                                 filterquery: 'content_type:deal AND object_id:' + deal.id,
                                 size: 5,
                             }).$promise.then(function(notes) {
+                                angular.forEach(notes, function(note) {
+                                    // Get user for notes to show profile picture correctly.
+                                    User.get({id: note.author.id}, function(author) {
+                                        note.author = author;
+                                    });
+                                });
                                 deal.notes = notes;
                             });
                             history.push(deal);
@@ -177,6 +219,8 @@ Note, NoteDetail, Case, DealDetail, EmailDetail) {
                         var emailMessageList = results[1];
 
                         emailMessageList.forEach(function(email) {
+                            email.gravatar = HLGravatar.getGravatar(email.sender_email);
+
                             tenantEmailAccountList.forEach(function(emailAddress) {
                                 if (emailAddress.email_address === email.sender_email) {
                                     email.right = true;

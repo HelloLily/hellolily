@@ -14,8 +14,10 @@ function contactDetailWidget() {
     };
 }
 
-ContactDetailWidgetController.$inject = [];
-function ContactDetailWidgetController() {
+ContactDetailWidgetController.$inject = ['Settings'];
+function ContactDetailWidgetController(Settings) {
     var vm = this;
+
+    vm.settings = Settings;
 }
 

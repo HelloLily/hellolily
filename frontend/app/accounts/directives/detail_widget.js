@@ -14,9 +14,10 @@ function accountDetailWidget() {
     };
 }
 
-AccountDetailWidgetController.$inject = ['Tenant'];
-function AccountDetailWidgetController(Tenant) {
+AccountDetailWidgetController.$inject = ['Settings', 'Tenant'];
+function AccountDetailWidgetController(Settings, Tenant) {
     var vm = this;
+    vm.settings = Settings;
 
     Tenant.query({}, function(tenant) {
         vm.tenant = tenant;

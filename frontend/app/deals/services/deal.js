@@ -132,8 +132,8 @@ function Deal($resource, HLUtils, HLForms, User) {
             feedback_form_sent: false,
             tags: [],
             currency: 'EUR',
-            amount_once: 0,
-            amount_recurring: 0,
+            amount_once: '0',
+            amount_recurring: '0',
             assigned_to: {id: currentUser.id, full_name: currentUser.fullName},
         });
     }

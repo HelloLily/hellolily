@@ -183,7 +183,11 @@
                             </li>
                             <li>
                                 <strong>Created by: </strong>
-                                <div><span class="margin-right-5">{{ vm.deal.created_by.full_name }} on </span><date date="vm.deal.created"></date></div>
+                                <div>
+                                    <span ng-show="vm.deal.created_by" class="margin-right-5">{{ vm.deal.created_by.full_name }} on</span>
+                                    <span ng-show="!vm.deal.created_by" class="margin-right-5">An unknown entity on</span>
+                                    <date date="vm.deal.created"></date>
+                                </div>
                             </li>
                         </ul>
                     </div>

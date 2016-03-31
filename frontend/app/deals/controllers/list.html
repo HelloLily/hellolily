@@ -138,6 +138,7 @@
                     </td>
                     <td ng-show="vm.table.visibility.createdBy">
                         {{ ::deal.created_by.full_name }}
+                        <span ng-hide="deal.created_by.full_name">Unknown</span>
                     </td>
                     <td ng-show="vm.table.visibility.tags">
                         <span ng-repeat="tag in deal.tag">

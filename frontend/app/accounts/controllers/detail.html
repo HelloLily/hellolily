@@ -117,8 +117,8 @@
                     <thead>
                         <tr>
                             <th>Subject</th>
-                            <th>Stage</th>
-                            <th>Next Step</th>
+                            <th>Status</th>
+                            <th>Next step</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -128,7 +128,7 @@
                                 <strong ng-if="::deal.archived">(a)</strong>
                                 <a ui-sref="base.deals.detail({id: deal.id})">{{ deal.name }}</a>
                             </td>
-                            <td>{{ deal.stage_name }}</td>
+                            <td>{{ deal.status_name }}</td>
                             <td>
                                 <span ng-if="deal.next_step" class="step-type" tooltip-placement="left" uib-tooltip="{{ deal.next_step.name }}" ng-class="{0: 'position-1', 1: 'position-2', 2: 'position-3', 3: 'position-4', 4: 'position-5', 5: 'position-6'}[deal.next_step.position]">
                                 </span>

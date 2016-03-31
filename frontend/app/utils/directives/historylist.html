@@ -1,21 +1,19 @@
 <div class="row">
-    <div class="col-md-12">
+    <div class="col-md-12" ng-if="!parentObject">
         <ul class="mix-filter text-center">
             <li ng-repeat="(typeKey, typeVal) in history.types" ng-if="typeVal.visible" ng-class="{'active': history.activeFilter == typeKey}" ng-click="history.filterType(typeKey)">{{ typeVal.name }}</li>
         </ul>
     </div>
 
     <div class="col-md-12">
-        <div ng-if="history.list.totalItems" class="vertical-line"></div>
+        <div class="vertical-line"></div>
 
-        <div class="timeline-item-form-container">
-
+        <div class="timeline-item-form-container" ng-if="!parentObject">
             <div class="timeline-avatar is-type">
                 <i class="lilicon hl-note-icon"></i>
             </div>
 
             <div class="timeline-content-container">
-
                 <div class="timeline-content-header">
                     <form role="form">
                         <div class="form-body">
@@ -32,7 +30,7 @@
                                    <i class="lilicon hl-calender-icon"></i>
                                    Meetup
                                </li>
-                           </ul>
+                            </ul>
                             <div class="form-group">
                                 <textarea required class="form-control" id="id_content" ng-model="note.content" name="content" rows="4" placeholder="Write your note here"></textarea>
                             </div>
@@ -49,7 +47,6 @@
                     </form>
                 </div>
             </div>
-
         </div>
 
         <div ng-show="history.list.pinned.length">
@@ -62,6 +59,10 @@
             <history-list-item item="item" history="history" object="object"></history-list-item>
         </div>
 
+        <div class="timeline-info-header" ng-if="history.list.totalItems && parentObject">
+            <h3>Latest {{ target }} history</h3>
+        </div>
+
         <div ng-repeat="(key, value) in history.list.nonPinned" class="history-list-item" ng-show="value.isVisible">
             <div class="timeline-time">
                 <date date="key" date-format="MMMM yyyy"></date>
@@ -71,4 +72,5 @@
                 <history-list-item item="item" history="history" object="object"></history-list-item>
             </div>
         </div>
+    </div>
 </div>

@@ -28,7 +28,7 @@
                     <tbody>
                         <tr>
                             <td><strong>Case ID:</strong> #{{ vm.case.id }}</td>
-                            <td><strong>Case Type:</strong> {{ vm.case.type.type }}</td>
+                            <td><strong>Type:</strong> {{ vm.case.type.type }}</td>
                             <td><strong>Priority:</strong><i class="margin-left-5 lilicon" ng-class="{0: 'hl-low-prio-icon', 1: 'hl-normal-prio-icon', 2: 'hl-high-prio-icon', 3: 'hl-critical-prio-icon'}[vm.case.priority]"></i> {{ vm.case.priority_display }} priority</td>
                             <td><strong>Expires on:</strong> <postpone class="margin-left-5" type="'Case'" object="vm.case" date-field="'expires'"></postpone></td>
                         </tr>
@@ -42,6 +42,8 @@
         </div>
 
         <history-list ng-if="vm.case.id" target="'case'" object="vm.case"></history-list>
+
+        <history-list ng-if="vm.account.id" target="'account'" object="vm.account" date-start="vm.caseStart" date-end="vm.caseEnd" parent-object="vm.case"></history-list>
     </div>
 
     <div ng-if="vm.case.id" class="col-md-4">

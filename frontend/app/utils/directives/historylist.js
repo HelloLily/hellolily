@@ -1,15 +1,18 @@
 angular.module('app.utils.directives').directive('historyList', HistoryListDirective);
 
 HistoryListDirective.$inject = ['$filter', '$http', '$uibModal', '$q', '$state', 'EmailAccount',
-'Note', 'NoteDetail', 'Case', 'DealDetail', 'EmailDetail', 'User', 'HLGravatar'];
+    'Note', 'NoteDetail', 'Case', 'DealDetail', 'EmailDetail', 'User', 'HLGravatar'];
 function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccount,
-Note, NoteDetail, Case, DealDetail, EmailDetail, User, HLGravatar) {
+                              Note, NoteDetail, Case, DealDetail, EmailDetail, User, HLGravatar) {
     return {
         restrict: 'E',
         replace: true,
         scope: {
             target: '=',
             object: '=',
+            dateStart: '=?',
+            dateEnd: '=?',
+            parentObject: '=?',
         },
         templateUrl: 'utils/directives/historylist.html',
         link: function(scope, element, attrs) {
@@ -85,19 +88,22 @@ Note, NoteDetail, Case, DealDetail, EmailDetail, User, HLGravatar) {
             function _fetchHistory(obj) {
                 var history = [];
                 var promises = [];
-                page += 1;
-                var neededLength = page * pageSize;
+                var neededLength = (page + 1) * pageSize;
                 var requestLength = neededLength + 1;
+                var notePromise;
+                var filterquery;
+                var i;
+                var dateFilteredList;
+
+                page += 1;
 
                 // Check if we need to fetch notes
                 if (noteTargets.indexOf(scope.target) !== -1) {
-                    var notePromise;
-
                     if (scope.target === 'account' && obj.contact && obj.contact.length) {
-                        var filterquery = '(content_type:' + scope.target + ' AND object_id:' + obj.id + ')';
+                        filterquery = '(content_type:' + scope.target + ' AND object_id:' + obj.id + ')';
 
                         // Show all notes of contacts linked to the account
-                        for (var i = 0; i < obj.contact.length; i++) {
+                        for (i = 0; i < obj.contact.length; i++) {
                             filterquery += ' OR (content_type:contact AND object_id:' + obj.contact[i] + ')';
                         }
 
@@ -234,7 +240,7 @@ Note, NoteDetail, Case, DealDetail, EmailDetail, User, HLGravatar) {
                     });
                 }
 
-                // Get all history types and add them to a common history
+                // Get all history types and add them to a common history.
                 $q.all(promises).then(function() {
                     var orderedHistoryList = {pinned: [], nonPinned: {}, totalItems: history.length};
 
@@ -243,7 +249,7 @@ Note, NoteDetail, Case, DealDetail, EmailDetail, User, HLGravatar) {
                     // to add an extra key called historySortDate which the list
                     // uses to sort properly. We add the sent_date of email to the
                     // object, and the modified date for the other types.
-                    for (var i = 0; i < history.length; i++) {
+                    for (i = 0; i < history.length; i++) {
                         if (history[i].historyType === 'email') {
                             history[i].historySortDate = history[i].sent_date;
                         } else {
@@ -251,28 +257,48 @@ Note, NoteDetail, Case, DealDetail, EmailDetail, User, HLGravatar) {
                         }
                     }
 
-                    $filter('orderBy')(history, 'historySortDate', true).forEach(function(item) {
-                        scope.history.types[item.historyType].visible = true;
+                    if (scope.dateStart && scope.dateEnd) {
+                        dateFilteredList = [];
 
+                        for (i = 0; i < history.length; i++) {
+                            if (moment(history[i].historySortDate).isBetween(scope.dateStart, scope.dateEnd)) {
+                                dateFilteredList.push(history[i]);
+                            }
+                        }
+                    }
+
+                    if (dateFilteredList) {
+                        history = dateFilteredList;
+                    }
+
+                    $filter('orderBy')(history, 'historySortDate', true).forEach(function(item) {
                         var date = '';
                         var key = '';
+
+                        scope.history.types[item.historyType].visible = true;
 
                         if (item.is_pinned) {
                             orderedHistoryList.pinned.push(item);
                         } else {
-                            if (item.hasOwnProperty('modified')) {
-                                date = item.modified;
+                            // If it's an 'extra' history list we want to
+                            // exclude the item that's being viewed.
+                            if (!scope.parentObject || item.id !== scope.parentObject.id) {
+                                if (item.hasOwnProperty('modified')) {
+                                    date = item.modified;
+                                } else {
+                                    date = item.sent_date;
+                                }
+
+                                key = moment(date).year() + '-' + (moment(date).month() + 1);
+
+                                if (!orderedHistoryList.nonPinned.hasOwnProperty(key)) {
+                                    orderedHistoryList.nonPinned[key] = {isVisible: true, items: []};
+                                }
+
+                                orderedHistoryList.nonPinned[key].items.push(item);
                             } else {
-                                date = item.sent_date;
+                                orderedHistoryList.totalItems -= 1;
                             }
-
-                            key = moment(date).year() + '-' + (moment(date).month() + 1);
-
-                            if (!orderedHistoryList.nonPinned.hasOwnProperty(key)) {
-                                orderedHistoryList.nonPinned[key] = {isVisible: true, items: []};
-                            }
-
-                            orderedHistoryList.nonPinned[key].items.push(item);
                         }
                     });
 

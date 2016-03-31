@@ -12,7 +12,7 @@
             <div class="timeline-content">
                 <span class="timeline-content-title"><a ui-sref="base.deals.detail({ id: vm.item.id })">{{ ::vm.item.name }}</a></span>
                 <ul class="timeline-content-details">
-                    <li>Stage: <strong>{{ ::vm.item.stage_name}} ({{ ::vm.item.archived ? 'archived' : 'active'}})</strong></li>
+                    <li>Status: <strong>{{ ::vm.item.stage_name}} ({{ ::vm.item.archived ? 'archived' : 'active'}})</strong></li>
                     <li>Next step:
                         <span uib-tooltip="{{ vm.item.next_step.name }}" tooltip-placement="left" class="step-type" id="next-step" ng-if="vm.item.next_step" ng-class="{0: 'position-1', 1: 'position-2', 2: 'position-3', 3: 'position-4', 4: 'position-5', 5: 'position-6'}[vm.item.next_step.position]">
                             <strong ng-show="vm.item.next_step_date"><date date="vm.item.next_step_date"></date></strong>

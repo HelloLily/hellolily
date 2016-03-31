@@ -60,7 +60,7 @@ Note, NoteDetail, Case, DealDetail, EmailDetail, User, HLGravatar) {
                 scope.history.activeFilter = value;
                 // Loop through the months to hide the monthname when there
                 // aren't any items in that month that are shown due to
-                // the filter that is being selected. 
+                // the filter that is being selected.
                 for (key in scope.history.list.nonPinned) {
                     selectedCount = $filter('filter')(scope.history.list.nonPinned[key].items, {historyType: value}).length;
                     scope.history.list.nonPinned[key].isVisible = !!selectedCount;
@@ -220,6 +220,9 @@ Note, NoteDetail, Case, DealDetail, EmailDetail, User, HLGravatar) {
 
                         emailMessageList.forEach(function(email) {
                             email.gravatar = HLGravatar.getGravatar(email.sender_email);
+
+                            // Foldout email on default in the historylist.
+                            email.shown = true;
 
                             tenantEmailAccountList.forEach(function(emailAddress) {
                                 if (emailAddress.email_address === email.sender_email) {

@@ -119,7 +119,7 @@
                     <a ng-if="!case.assigned_to_id" ng-click="vm.assignTo(case)">Assign case</a>
                 </td>
                 <td ng-show="vm.table.visibility.createdBy">
-                    {{ ::case.created_by }}
+                    {{ ::case.created_by.full_name }}
                 </td>
                 <td ng-show="vm.table.visibility.tags">
                     <span ng-repeat="tag in case.tag">

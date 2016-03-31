@@ -137,7 +137,7 @@
                         <date date="deal.created"></date>
                     </td>
                     <td ng-show="vm.table.visibility.createdBy">
-                        {{ ::deal.created_by }}
+                        {{ ::deal.created_by.full_name }}
                     </td>
                     <td ng-show="vm.table.visibility.tags">
                         <span ng-repeat="tag in deal.tag">

@@ -52,11 +52,13 @@
 
         </div>
 
-        <div ng-repeat="item in history.list.pinned" class="history-list-item">
+        <div ng-show="history.list.pinned.length">
             <div class="timeline-time">
                 Pinned
             </div>
+        </div>
 
+        <div ng-repeat="item in history.list.pinned" class="history-list-item">
             <history-list-item item="item" history="history" object="object"></history-list-item>
         </div>
 

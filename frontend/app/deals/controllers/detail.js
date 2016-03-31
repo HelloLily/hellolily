@@ -82,22 +82,8 @@ function DealDetailController($scope, $state, $uibModal, Account, Contact, Deal,
     }
 
     function updateModel(data, field) {
-        var args;
         var nextStepDate;
-
-        if (typeof data === 'object') {
-            args = data;
-        } else {
-            args = {
-                id: vm.deal.id,
-            };
-
-            args[field] = data;
-
-            if (field === 'name') {
-                Settings.page.setAllTitles('detail', data);
-            }
-        }
+        var args = HLResource.createArgs(data, field, vm.deal);
 
         if (args.hasOwnProperty('next_step')) {
             if (vm.deal.next_step.date_increment !== 0) {

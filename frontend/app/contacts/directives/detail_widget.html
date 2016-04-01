@@ -1,81 +1,71 @@
-<dashboard-widget ng-if="vm.contact" widget-name="'Contact info'">
+<dashboard-widget ng-if="vm.contact" widget-name="'Contact info'" widget-scrollable="true">
     <widget-header>
         <div class="widget-name">
-            <i class="fa fa-user"></i>
-            {{ vm.contact.salutation }} / {{ vm.contact.gender }}
+            <i class="lilicon hl-user-icon"></i>
             <span ng-show="vm.settings.email.data.contact.id">
-                <a ui-sref="base.contacts.detail({ id: vm.settings.email.data.contact.id })"><b>{{ vm.contact.name }}</b></a>
+                <a ui-sref="base.contacts.detail({ id: vm.settings.email.data.contact.id })">{{ vm.contact.full_name }}</a>
             </span>
-            <span ng-show="!vm.settings.email.data.contact.id"><b>{{ vm.contact.name }}</b></span>
+            <span ng-show="!vm.settings.email.data.contact.id">{{ vm.contact.full_name }}</span>
         </div>
     </widget-header>
 
     <widget-body>
-        <div class="widget-content">
-            <div class="scroll-body" slimscroll="{height: height}">
-                <p ng-bind-html="vm.contact.description || 'No description' | parseUrls"></p>
+        <table class="widget-table">
+            <tr>
+                <td><strong>Salutation</strong></td>
+                <td>({{ vm.contact.salutation_display || vm.contact.salutation }} / {{ vm.contact.gender_display || vm.contact.gender }})</td>
+            </tr>
 
-                <table class="table table-hover no-margin">
-                    <tr ng-show="(vm.contact.email_addresses | filter: {status: '!' + 0}).length">
-                        <th>
-                            <i class="fa">@</i>
-                            Email
-                        </th>
-                        <td>
-                            <div ng-repeat="email in vm.contact.email_addresses | filter: {status: '!' + 0}">
-                                <a ui-sref="base.email.composeEmail({email: email.email_address})">
-                                    {{ email.email_address }}
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
+            <tr>
+                <td><i class="lilicon hl-mail-icon"></i> <strong>Email</strong></td>
+                <td>
+                    <editable-related model="vm.contact" type="Contact" field="email_addresses"></editable-related>
+                </td>
+            </tr>
 
-                    <tr ng-show="vm.contact.phones">
-                        <th>
-                            <i class="fa fa-phone"></i>
-                            Phone
-                        </th>
-                        <td>
-                            <div ng-repeat="phone in vm.contact.phones">
-                                <a href="tel:{{ phone }}">
-                                    {{ phone }}
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
+            <tr>
+                <td><i class="lilicon hl-phone-icon"></i> <strong>Phone</strong></td>
+                <td>
+                    <editable-related model="vm.contact" type="Contact" field="phone_numbers"></editable-related>
+                </td>
+            </tr>
 
-                    <tr ng-show="vm.contact.addresses">
-                        <th>
-                            <i class="fa fa-map-marker"></i>
-                            Address
-                        </th>
-                        <td>
-                            <div ng-repeat="address in vm.contact.addresses">
-                                {{ address.street }} {{ address.street_number }}{{ address.complement }}
-                                <br />
-                                {{ address.postal_code }}, {{ address.city }}
-                                <br />
-                                {{ address.country }}
-                            </div>
-                        </td>
-                    </tr>
-                    <tr ng-show="vm.contact.social" ng-repeat="social in vm.contact.social">
-                        <th><i class="fa fa-{{ social.social_name | lowercase }}"></i> {{ social.social_name }}</th>
-                        <td><a ng-href="{{ social.social_url }}" target="_blank">{{ social.social_profile }}</a></td>
-                    </tr>
-                    <tr ng-show="vm.contact.tag">
-                        <th>
-                            <i class="fa fa-tag"></i>
-                            Tags
-                        </th>
-                        <td>
-                            <a class="btn btn-xs btn-default" ng-repeat="tag in vm.contact.tag">
-                                {{ tag }}
-                            </a>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-        </div>
+            <tr>
+                <td><i class="fa fa-map-marker"></i> <strong>Address</strong></td>
+                <td>
+                    <editable-related model="vm.contact" type="Contact" field="addresses"></editable-related>
+                </td>
+            </tr>
+
+            <tr ng-show="vm.contact.accounts.length">
+                <td><i class="lilicon hl-company-icon"></i> <strong>Works at</strong></td>
+                <td>
+                    <div ng-repeat="account in vm.contact.accounts">
+                        <a ui-sref="base.accounts.detail({id: account.id })">{{ account.name }}</a>
+                    </div>
+                </td>
+            </tr>
+
+            <tr ng-show="vm.contact.social" ng-repeat="social in vm.contact.social">
+                <td><i class="fa fa-{{ social.social_name | lowercase }}"></i> <strong>{{ social.social_name }}</strong></td>
+                <td><a ng-href="{{ social.social_url }}" target="_blank">{{ social.social_profile }}</a></td>
+            </tr>
+
+            <tr ng-show="vm.contact.tag">
+                <td><i class="fa fa-tag"></i> <strong>Tags</strong></td>
+                <td>
+                    <a class="btn btn-xs btn-default" ng-repeat="tag in vm.contact.tag">
+                        {{ tag }}
+                    </a>
+                </td>
+            </tr>
+
+            <tr ng-show="vm.contact.description">
+                <td colspan="2">
+                    <strong class="margin-bottom-5">Description</strong>
+                    <div ng-bind-html="vm.contact.description | parseUrls"></div>
+                </td>
+            </tr>
+        </table>
     </widget-body>
 </dashboard-widget>

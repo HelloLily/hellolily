@@ -95,6 +95,7 @@
 
     td {
         padding: 3px 0;
+        width: 50%;
     }
 
     hr {
@@ -103,19 +104,15 @@
 }
 
 .widget-content-table {
-
     background: none;
 
     td {
-        width: 160px;
         vertical-align: top;
 
         &:first-child {
             font-weight: bold;
             width: 160px;
         }
-
-
     }
 
     tr {
@@ -131,7 +128,6 @@
                 width: 100%;
             }
         }
-
     }
 
     ul {
@@ -144,7 +140,6 @@
             margin-bottom: 0;
         }
     }
-
 
     @media (max-width: $breakpoint-mobile) {
         td {

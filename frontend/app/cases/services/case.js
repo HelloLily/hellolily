@@ -55,7 +55,7 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils) {
                     id: '@id',
                 },
             },
-            caseTypes: {
+            getCaseTypes: {
                 isArray: true,
                 url: '/api/cases/types/',
             },
@@ -68,17 +68,9 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils) {
 
     _case.create = create;
     _case.getCases = getCases;
-    _case.getCaseTypes = getCaseTypes;
     _case.getMyCasesWidget = getMyCasesWidget;
     _case.getCallbackRequests = getCallbackRequests;
-
-    // Hardcoded because these are the only case priorities.
-    _case.casePriorities = [
-        {position: 0, name: 'Low'},
-        {position: 1, name: 'Medium'},
-        {position: 2, name: 'High'},
-        {position: 3, name: 'Critical'},
-    ];
+    _case.getCasePriorities = getCasePriorities;
 
     /////////
 
@@ -119,15 +111,6 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils) {
         }, function(data) {
             return data;
         }).$promise;
-    }
-
-    function getCaseTypes() {
-        return $http({
-            url: '/cases/casetypes/',
-            method: 'GET',
-        }).then(function(response) {
-            return response.data.casetypes;
-        });
     }
 
     /**
@@ -187,6 +170,16 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils) {
         });
 
         return deferred.promise;
+    }
+
+    function getCasePriorities() {
+        // Hardcoded because these are the only case priorities.
+        return [
+            {id: 0, name: 'Low'},
+            {id: 1, name: 'Medium'},
+            {id: 2, name: 'High'},
+            {id: 3, name: 'Critical'},
+        ];
     }
 
     return _case;

@@ -32,6 +32,26 @@
                 background: lighten($skyGrey, 2);
             }
         }
+
+        /* Set width of the table cells based on the amount of cells. */
+        td:first-child:nth-last-child(1) {
+            width: 100%;
+        }
+
+        td:first-child:nth-last-child(2),
+        td:first-child:nth-last-child(2) ~ td {
+            width: 50%;
+        }
+
+        td:first-child:nth-last-child(3),
+        td:first-child:nth-last-child(3) ~ td {
+            width: 33.3333%;
+        }
+
+        td:first-child:nth-last-child(4),
+        td:first-child:nth-last-child(4) ~ td {
+            width: 25%;
+        }
     }
 
     .widget-table-priority-cell {

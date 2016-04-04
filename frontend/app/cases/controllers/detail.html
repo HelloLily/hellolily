@@ -6,7 +6,7 @@
         <div class="widget-container" ng-if="vm.case.id">
             <div class="widget-heading">
                 <div class="pull-left radio-button-group" data-toggle="buttons" data-object-id="{{ ::vm.case.id }}">
-                    <label class="no-radio-bullets" ng-repeat="status in vm.caseStatuses" for="status-{{ status.id }}" ng-class="{'radio-button': true, 'radio-button active': vm.case.status.status == status.status, 'radio-button disabled': vm.case.is_archived }" ng-click="vm.changeCaseStatus(status.id)">
+                    <label class="no-radio-bullets" ng-repeat="status in vm.caseStatuses" for="status-{{ status.id }}" ng-class="{'radio-button': true, 'radio-button active': vm.case.status.status == status.status, 'radio-button disabled': vm.case.is_archived }" ng-click="vm.changeCaseStatus(status)">
                         <div class="radio-button-inset">
                             <input class="toggle" type="radio" id="status-{{ status.id }}" name="radio" value="{{ status.id }}" ng-checked="vm.case.status == status.id">
                             {{ status.status }}
@@ -28,15 +28,26 @@
                     <tbody>
                         <tr>
                             <td><strong>Case ID:</strong> #{{ vm.case.id }}</td>
-                            <td><strong>Type:</strong> {{ vm.case.type.type }}</td>
-                            <td><strong>Priority:</strong><i class="margin-left-5 lilicon" ng-class="{0: 'hl-low-prio-icon', 1: 'hl-normal-prio-icon', 2: 'hl-high-prio-icon', 3: 'hl-critical-prio-icon'}[vm.case.priority]"></i> {{ vm.case.priority_display }} priority</td>
+                            <td>
+                                <strong>Type:</strong>
+                                <editable-select class="margin-left-10" field="type" view-model="vm" type="Case" select-options="{field: 'caseTypes', display: 'type'}">
+                                    {{ vm.case.type.type }}
+                                </editable-select>
+                            </td>
+                            <td>
+                                <strong>Priority:</strong>
+                                <editable-select class="margin-left-10" field="priority" view-model="vm" type="Case" choice-field="true" select-options="{field: 'casePriorities'}">
+                                    <span class="lilicon" ng-class="{0: 'hl-low-prio-icon', 1: 'hl-normal-prio-icon', 2: 'hl-high-prio-icon', 3: 'hl-critical-prio-icon'}[vm.case.priority]"></span>
+                                    {{ vm.case.priority_display }} priority
+                                </editable-select>
+                            </td>
                             <td><strong>Expires on:</strong> <postpone class="margin-left-5" type="'Case'" object="vm.case" date-field="'expires'"></postpone></td>
                         </tr>
                     </tbody>
                 </table>
-                <div class="widget-content" ng-show="vm.case.description">
-                    <strong>Description:</strong>
-                    <div class="pre-wrap" ng-bind-html="vm.case.description | parseUrls"></div>
+                <div class="widget-content">
+                    <strong>Description <i class="lilicon hl-edit-icon clickable margin-left-10" ng-click="descriptionForm.$show()" ng-hide="descriptionForm.$visible"></i></strong>
+                    <div editable-textarea="vm.case.description" e-rows="4" e-cols="100" e-form="descriptionForm" onbeforesave="vm.updateModel($data, 'description')" ng-bind-html="(vm.case.description | parseUrls) || 'No description'"></div>
                 </div>
             </div>
         </div>
@@ -186,18 +197,16 @@
                     <table class="widget-content-table">
                         <tbody>
                             <tr>
+                                <td>Name</td>
+                                <td><span editable-text="vm.case.subject" blur="submit" onbeforesave="vm.updateModel($data, 'subject')">{{ vm.case.subject }}</span></td>
+                            </tr>
+                            <tr>
                                 <td>Assigned to</td>
                                 <td>
-                                    <ul>
-                                        <li>
-                                            <editable-select field="assigned_to" view-model="vm" type="Case" select-options="{type: 'User', field: 'assignOptions', display: 'full_name'}">
-                                                {{ vm.case.assigned_to.full_name || "Nobody"}}
-                                            </editable-select>
-                                        </li>
-                                        <li>
-                                            <a ng-if="vm.case.assigned_to.id != currentUser.id" ng-click="vm.assignCase()"><i class="fa fa-anchor"></i> Assign to me</a>
-                                        </li>
-                                    </ul>
+                                    <editable-select field="assigned_to" view-model="vm" type="Case" select-options="{type: 'User', field: 'assignOptions', display: 'full_name'}">
+                                        {{ vm.case.assigned_to.full_name || 'Nobody'}}
+                                    </editable-select>
+                                    <a ng-if="vm.case.assigned_to.id != currentUser.id" ng-click="vm.assignCase()"><i class="fa fa-anchor margin-left-5"></i> Assign to me</a>
                                 </td>
                             </tr>
                             <tr ng-if="vm.case.assigned_to_groups.length">

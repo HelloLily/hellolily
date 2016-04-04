@@ -98,7 +98,7 @@ function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFil
     function _getFilterSpecialList() {
         var storedFilterSpecialList = vm.storage.get('filterSpecialListSelected', null);
 
-        Case.caseTypes(function(caseTypes) {
+        Case.getCaseTypes(function(caseTypes) {
             var filterList = [];
 
             // Get a list with all case types and add each one as a filter.

@@ -59,7 +59,7 @@ function HLResource($injector, Settings) {
 
             args[field] = data;
 
-            if (field === 'name') {
+            if (field === 'name' || field === 'subject') {
                 Settings.page.setAllTitles('detail', data);
             }
         }

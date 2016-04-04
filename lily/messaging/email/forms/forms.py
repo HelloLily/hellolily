@@ -6,7 +6,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse_lazy
 from django.core.validators import validate_email
-from django.db.models.fields.files import FieldFile
+from django.db.models.fields.files import FieldFile, FileField
 from django.db.models import Q
 from django.forms.models import modelformset_factory
 from django.template.defaultfilters import linebreaksbr
@@ -171,34 +171,52 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
         return True
 
     @function_trace()
-    def is_valid(self):
-        return super(ComposeEmailForm, self).is_valid()
-
-    @function_trace()
     def _clean_fields(self):
-        super(ComposeEmailForm, self)._clean_fields()
+        for name, field in self.fields.items():
+            self.temp_field_clean(name, field)
 
     @function_trace()
-    def _clean_form(self):
-        super(ComposeEmailForm, self)._clean_form()
+    def temp_field_clean(self, name, field):
+        # value_from_datadict() gets the data from the data dictionaries.
+        # Each widget type knows how to retrieve its own data, because some
+        # widgets split data over several HTML fields.
+        value = self.temp_get_value_from_datadict(name, field)
+        try:
+            if isinstance(field, FileField):
+                initial = self.temp_get_initial(name, field)
+                value = self.temp_clean_file_field_with_initial(value, field, initial)
+            else:
+                value = self.temp_clean_file_field(value, field)
+            self.cleaned_data[name] = value
+            if hasattr(self, 'clean_%s' % name):
+                value = getattr(self, 'clean_%s' % name)()
+                self.cleaned_data[name] = value
+        except ValidationError as e:
+            self.add_error(name, e)
 
     @function_trace()
-    def _post_clean(self):
-        super(ComposeEmailForm, self)._post_clean()
+    def temp_get_value_from_datadict(self, name, field):
+        # value_from_datadict() gets the data from the data dictionaries.
+        # Each widget type knows how to retrieve its own data, because some
+        # widgets split data over several HTML fields.
+        return field.widget.value_from_datadict(self.data, self.files, self.add_prefix(name))
 
     @function_trace()
-    def has_changed(self):
-        return super(ComposeEmailForm, self).has_changed()
+    def temp_get_initial(self, name, field):
+        return self.initial.get(name, field.initial)
 
     @function_trace()
-    def save(self, commit=True):
-        return super(ComposeEmailForm, self).save(commit)
+    def temp_clean_file_field_with_initial(self, value, field, initial):
+        return field.clean(value, initial)
 
     @function_trace()
-    def full_clean(self):
-        super(ComposeEmailForm, self).full_clean()
+    def temp_clean_file_field(self, value, field):
+        return field.clean(value)
 
     @function_trace()
+    def add_error(self, field, error):
+        super(ComposeEmailForm, self).add_error(field, error)
+
     def clean(self):
         cleaned_data = super(ComposeEmailForm, self).clean()
 
@@ -219,7 +237,6 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
 
         return cleaned_data
 
-    @function_trace()
     def format_recipients(self, recipients):
         """
         Strips newlines and trailing spaces & commas from recipients.
@@ -247,7 +264,6 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
 
         return formatted_recipients
 
-    @function_trace()
     def clean_send_from(self):
         """
         Verify send_from is a valid account the user has access to.

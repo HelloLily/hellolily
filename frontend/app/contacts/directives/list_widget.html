@@ -1,68 +1,48 @@
-<div class="widget-container">
-    <div class="widget-heading">
-        <div class="widget-title">
-            <div class="widget-name">
-                <i class="fa fa-users"></i>
-                <span ng-show="vm.object.id">
-                    Colleagues at
-                    <a ui-sref="base.accounts.detail({id: vm.object.id })">{{ vm.object.name }}</a>
-                </span>
-                <span ng-hide="vm.object.id">
-                    <span ng-show="$parent.contact">
-                        <a ui-sref="base.contacts.detail.edit({id: $parent.contact.id})">Edit</a> to link with an account
-                    </span>
-                    <span ng-show="!$parent.contact">{{ vm.object.name }}</span>
-                </span>
-            </div>
+<dashboard-widget widget-name="'Colleagues'">
+    <widget-header>
+        <div class="widget-name">
+            <i class="fa fa-users"></i>
+            <span ng-if="vm.object.id && vm.list">
+                Colleagues at
+                <a ui-sref="base.accounts.detail({id: vm.object.id })">{{ vm.object.name }}</a>
+            </span>
+            <span ng-if="vm.object.id && !vm.list">
+                <a ui-sref="base.contacts.detail.edit({id: vm.object.id})">Edit</a> to link with an account
+            </span>
         </div>
+    </widget-header>
 
-        <div ng-hide="$parent.contact" class="widget-filters pull-right">
-            <a ui-sref="{{ vm.addLink || 'base.contacts.create' }}" class="btn btn-circle btn-default" ng-hide="vm.object.id" ng-click="ga('send', 'event', 'Contact', 'Create', 'Contacts widget');">
-                <i class="fa fa-plus"></i>
-                Add
-            </a>
-            <a ui-sref="base.contacts.create.fromAccount({accountId: vm.object.id})" class="btn btn-circle btn-default" ng-show="vm.object.id" ng-click="ga('send', 'event', 'Contact', 'Create', 'Contacts widget');">
-                <i class="fa fa-plus"></i>
-                Add
-            </a>
-        </div>
+    <widget-filters>
+        <a ng-if="!vm.settings.email.sidebar.deal" ui-sref="{{ vm.addLink || 'base.contacts.create' }}" class="btn btn-circle btn-default">
+            <i class="fa fa-plus"></i> Add
+        </a>
+    </widget-filters>
 
-        <div class="clearfix"></div>
-    </div>
+    <widget-body>
+        <table class="widget-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                </tr>
+            </thead>
 
-    <div class="widget-body">
-        <div class="widget-content">
-                <div ng-show="vm.list.length">
-                    <div class="row">
-                        <!-- Removing some right padding to make the gutters smaller -->
-                        <div class="header col-xs-4 no-padding-right">
-                            Name
-                        </div>
-                        <div class="header col-xs-5 no-padding-right">
-                            Email
-                        </div>
-                        <div class="header col-xs-3">
-                            Phone
-                        </div>
-                    </div>
-                    <div class="row" ng-repeat="contact in vm.list">
-                        <div class="col-xs-4 no-padding-right break">
-                            <a ui-sref="base.contacts.detail({id: contact.id})">{{ contact.name }}</a>
-                        </div>
-                        <div class="col-xs-5 no-padding-right break">
-                            <a ui-sref="base.email.composeEmail({email: contact.email_addresses[0].email_address})" ng-show="contact.email_addresses[0]">
-                                {{ contact.email_addresses[0].email_address }}
-                            </a>
-                            <span ng-hide="contact.email_addresses[0]">-</span>
-                        </div>
-                        <div class="col-xs-3 break">
-                            <a href="tel:{{ contact.phones[0] || '' }}">{{ contact.phones[0] || '-' }}</a>
-                        </div>
-                    </div>
-                </div>
-                <div ng-hide="vm.list.length">
-                    No contacts
-                </div>
-        </div>
-    </div>
-</div>
+            <tbody>
+                <tr ng-repeat="contact in vm.list">
+                    <td><a ui-sref="base.contacts.detail({id: contact.id})">{{ contact.name }}</a></td>
+                    <td>
+                        <a ui-sref="base.email.composeEmail({email: contact.email_addresses[0].email_address})" ng-show="contact.email_addresses[0]">
+                        {{ contact.email_addresses[0].email_address }}
+                        </a>
+                        <span ng-hide="contact.email_addresses[0]">-</span>
+                    </td>
+                    <td><a href="tel:{{ contact.phones[0] || '' }}">{{ contact.phones[0] || '-' }}</a></td>
+                </tr>
+                <tr ng-hide="vm.list.length">
+                    <td colspan="3">No colleagues</td>
+                </tr>
+            </tbody>
+        </table>
+    </widget-body>
+</dashboard-widget>

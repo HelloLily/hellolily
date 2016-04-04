@@ -44,7 +44,7 @@
                                 <strong class="margin-right-10">Next step date:</strong>
                                 <postpone type="'Deal'" object="vm.deal" date-field="'next_step_date'" tt-placement="bottom"></postpone>
                             </td>
-                    </tr>
+                        </tr>
                     </tbody>
                 </table>
 
@@ -105,6 +105,22 @@
                                     <td><date date="vm.deal.closed_date"></date></td>
                                 </tr>
 
+                                <tr ng-show="vm.deal.quote_id || vm.deal.account.customer_id">
+                                    <td><strong>External</strong></td>
+                                    <td>
+                                        <div ng-if="vm.deal.quote_id" class="margin-bottom-10">
+                                            <a ng-href="https://freedom.voys.nl/quotes/pdf/{{ vm.deal.quote_id }}/">
+                                                Quote: {{ vm.deal.quote_id }}
+                                            </a>
+                                        </div>
+                                        <div ng-if="vm.deal.account.customer_id">
+                                            <a ng-href="https://freedom.voys.nl/client/{{ vm.deal.account.customer_id }}">
+                                                Customer: {{ vm.deal.account.customer_id }}
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+
                                 <tr><td colspan="2"><hr></td></tr>
 
                                 <tr>
@@ -119,6 +135,9 @@
                                     <td><strong>Why customer</strong></td>
                                     <td><editable-select field="why_customer" view-model="vm" type="Deal">{{ vm.deal.why_customer.name }}</editable-select></td>
                                 </tr>
+
+                                <tr><td colspan="2"><hr></td></tr>
+
                                 <tr>
                                     <td><strong>Twitter checked</strong></td>
                                     <td><editable-checkbox view-model="vm" type="Deal" field="twitter_checked"></editable-checkbox></td>
@@ -138,22 +157,6 @@
                                     <td><strong>Quote checked</strong></td>
                                     <td>
                                         <editable-checkbox view-model="vm" type="Deal" field="is_checked"></editable-checkbox>
-                                    </td>
-                                </tr>
-
-                                <tr ng-show="vm.deal.quote_id || vm.deal.account.customer_id">
-                                    <td><strong>External</strong></td>
-                                    <td>
-                                        <div ng-if="vm.deal.quote_id" class="margin-bottom-10">
-                                            <a ng-href="https://freedom.voys.nl/quotes/pdf/{{ vm.deal.quote_id }}/">
-                                                Quote: {{ vm.deal.quote_id }}
-                                            </a>
-                                        </div>
-                                        <div ng-if="vm.deal.account.customer_id">
-                                            <a ng-href="https://freedom.voys.nl/client/{{ vm.deal.account.customer_id }}">
-                                                Customer: {{ vm.deal.account.customer_id }}
-                                            </a>
-                                        </div>
                                     </td>
                                 </tr>
                             </tbody>
@@ -180,7 +183,11 @@
                             </li>
                             <li>
                                 <strong>Created by: </strong>
-                                <div><span class="margin-right-5">{{ vm.deal.created_by.full_name }} on </span><date date="vm.deal.created"></date></div>
+                                <div>
+                                    <span ng-show="vm.deal.created_by" class="margin-right-5">{{ vm.deal.created_by.full_name }} on</span>
+                                    <span ng-show="!vm.deal.created_by" class="margin-right-5">An unknown entity on</span>
+                                    <date date="vm.deal.created"></date>
+                                </div>
                             </li>
                         </ul>
                     </div>

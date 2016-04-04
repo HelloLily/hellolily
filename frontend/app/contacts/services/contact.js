@@ -15,6 +15,12 @@ function Contact($resource) {
                     id: '@id',
                 },
             },
+            patch: {
+                method: 'PATCH',
+                params: {
+                    id: '@id',
+                },
+            },
             delete: {
                 method: 'DELETE',
             },

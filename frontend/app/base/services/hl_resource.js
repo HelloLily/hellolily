@@ -1,9 +1,9 @@
 angular.module('app.services').service('HLResource', HLResource);
 
-HLResource.$inject = ['$injector'];
-function HLResource($injector) {
+HLResource.$inject = ['$injector', 'Settings'];
+function HLResource($injector, Settings) {
     this.patch = function(model, args) {
-        return $injector.get(model).patch(args, function(response) {
+        return $injector.get(model).patch(args, function() {
             toastr.success('I\'ve updated the ' + model.toLowerCase() + ' for you!', 'Done');
         }, function() {
             toastr.error('Something went wrong while saving the field, please try again.', 'Oops!');
@@ -22,21 +22,49 @@ function HLResource($injector) {
     this.getChoicesForField = function(model, field) {
         // Dynamically get resource.
         var resource = $injector.get(model);
+        var convertedField = _convertVariableName(field);
+        var key;
 
-        field = _convertVariableName(field);
-
-        if (!resource.hasOwnProperty(field)) {
+        if (!resource.hasOwnProperty(convertedField)) {
             // Resource doesn't contain the given field.
             // So the field is probably a plural version of the given field or whatever.
-            for (var key in resource) {
-                if (key.indexOf(field) > -1) {
+            for (key in resource) {
+                if (key.indexOf(convertedField) > -1) {
                     return resource[key]();
                 }
             }
         } else {
             // Call the proper endpoint/field.
-            return resource[field]();
+            return resource[convertedField]();
         }
+    };
+
+    /**
+     * Creates an object with the data the object will be patched with.
+     * @param data: The changed data. Can be an object or just a value.
+     * @param [field] {string}: What field the data will be set to.
+     * @param [model] {Object}: The model from which data can be retrieved.
+     *
+     * @returns args {Object}: The data the object will be patched with.
+     */
+    this.createArgs = function(data, field, model) {
+        var args;
+
+        if (typeof data === 'object') {
+            args = data;
+        } else {
+            args = {
+                id: model.id,
+            };
+
+            args[field] = data;
+
+            if (field === 'name' || field === 'subject') {
+                Settings.page.setAllTitles('detail', data);
+            }
+        }
+
+        return args;
     };
 
     /**
@@ -48,9 +76,10 @@ function HLResource($injector) {
     function _convertVariableName(name) {
         var splitName = name.split('_');
         var convertedName = 'get';
+        var i;
 
         // Convert to title case.
-        for (var i = 0; i < splitName.length; i++) {
+        for (i = 0; i < splitName.length; i++) {
             convertedName += splitName[i].charAt(0).toUpperCase() + splitName[i].slice(1);
         }
 

@@ -86,7 +86,7 @@ class UserProfileForm(HelloLilyModelForm):
     def clean_picture(self):
         picture = self.cleaned_data['picture']
 
-        if picture.size > 300 * 1024:
+        if picture and picture.size > 300 * 1024:
             raise ValidationError(_('File too large. Size should not exceed 300 KB.'), code='invalid')
 
         return picture

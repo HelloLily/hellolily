@@ -3,7 +3,6 @@ angular.module('app.directives').directive('listWidget', ListWidget);
 function ListWidget() {
     return {
         restrict: 'E',
-        replace: true,
         scope: {
             title: '@',
             module: '=',
@@ -31,9 +30,11 @@ function ListWidget() {
     };
 }
 
-ListWidgetController.$inject = ['$state'];
-function ListWidgetController($state) {
+ListWidgetController.$inject = ['$state', 'Settings'];
+function ListWidgetController($state, Settings) {
     var vm = this;
+
+    vm.settings = Settings;
 
     vm.googleAnalyticsEvent = googleAnalyticsEvent;
 
@@ -41,19 +42,19 @@ function ListWidgetController($state) {
     // which widget the user used to add a case or deal.
     function googleAnalyticsEvent() {
         if ($state.current === 'base.contacts.detail' && vm.title === 'Cases') {
-            ga('send', 'event', 'Case', 'Create', 'Contact detail');
+            ga('send', 'event', 'Case', 'Open', 'Contact widget');
         }
 
         if ($state.current === 'base.accounts.detail' && vm.title === 'Cases') {
-            ga('send', 'event', 'Case', 'Create', 'Account detail');
+            ga('send', 'event', 'Case', 'Open', 'Account widget');
         }
 
         if ($state.current === 'base.contacts.detail' && vm.title === 'Deals') {
-            ga('send', 'event', 'Deal', 'Create', 'Contact detail');
+            ga('send', 'event', 'Deal', 'Open', 'Contact widget');
         }
 
         if ($state.current === 'base.accounts.detail' && vm.title === 'Deals') {
-            ga('send', 'event', 'Deal', 'Create', 'Account detail');
+            ga('send', 'event', 'Deal', 'Open', 'Account widget');
         }
     }
 

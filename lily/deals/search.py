@@ -57,6 +57,16 @@ class DealMapping(BaseMapping):
             'created_by_id': {
                 'type': 'integer',
             },
+            'created_by': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'full_name': {
+                        'type': 'string',
+                        'analyzer': 'normal_edge_analyzer',
+                    },
+                },
+            },
             'status': {
                 'type': 'integer',
             },
@@ -174,7 +184,10 @@ class DealMapping(BaseMapping):
             'contact_name': obj.contact.full_name() if obj.contact else None,
             'assigned_to_name': obj.assigned_to.get_full_name() if obj.assigned_to else None,
             'assigned_to_id': obj.assigned_to.id if obj.assigned_to else None,
-            'created_by': obj.created_by.get_full_name() if obj.created_by else None,
+            'created_by': {
+                'full_name': obj.created_by.get_full_name() if obj.created_by else None,
+                'id': obj.created_by.id if obj.created_by else None,
+            },
             'status': obj.status.id,
             'status_name': obj.status.name,
             'amount_once': obj.amount_once,

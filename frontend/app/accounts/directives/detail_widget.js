@@ -14,12 +14,21 @@ function accountDetailWidget() {
     };
 }
 
-AccountDetailWidgetController.$inject = ['Settings', 'Tenant'];
-function AccountDetailWidgetController(Settings, Tenant) {
+AccountDetailWidgetController.$inject = ['HLResource', 'Settings', 'Tenant'];
+function AccountDetailWidgetController(HLResource, Settings, Tenant) {
     var vm = this;
+
     vm.settings = Settings;
+
+    vm.updateModel = updateModel;
 
     Tenant.query({}, function(tenant) {
         vm.tenant = tenant;
     });
+
+    function updateModel(data, field) {
+        var args = HLResource.createArgs(data, field, vm.account);
+
+        return HLResource.patch('Account', args).$promise;
+    }
 }

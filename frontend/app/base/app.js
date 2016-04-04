@@ -93,11 +93,23 @@ function appConfig($animateProvider, $breadcrumbProvider, $controllerProvider, $
 /* Init global settings and run the app. */
 angular.module('app').run(runApp);
 
-runApp.$inject = ['$rootScope', '$state', 'settings', 'editableOptions'];
-function runApp($rootScope, $state, settings, editableOptions) {
+runApp.$inject = ['$rootScope', '$state', 'settings', 'editableOptions', 'Tenant', 'UserTeams'];
+function runApp($rootScope, $state, settings, editableOptions, Tenant, UserTeams) {
     $rootScope.$state = $state; // State to be accessed from view.
     $rootScope.currentUser = currentUser;
     $rootScope.settings = settings;
+
+    // Get tenant name to set custom dimension for GA.
+    Tenant.query({}, function(tenant) {
+        ga('set', 'dimension1', tenant.name);
+    });
+
+    // Get team name to set custom dimension for GA.
+    UserTeams.mine(function(teams) {
+        if (teams[0]) {
+            ga('set', 'dimension2', teams[0].name);
+        }
+    });
 
     editableOptions.theme = 'bs3';
 

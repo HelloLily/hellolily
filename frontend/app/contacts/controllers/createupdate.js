@@ -157,7 +157,7 @@ function ContactCreateUpdateController($state, $stateParams, Settings, Account, 
         if (Settings.email.sidebar.isVisible) {
             ga('send', 'event', 'Contact', 'Save', 'Email SC');
         } else {
-            ga('send', 'event', 'Contact', 'Save', 'Account');
+            ga('send', 'event', 'Contact', 'Save', 'Default');
         }
 
         HLForms.blockUI();

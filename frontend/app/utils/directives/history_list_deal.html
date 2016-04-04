@@ -1,5 +1,5 @@
 <div class="timeline-item-container">
-    <div class="timeline-avatar" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png');"></div>
+    <div class="timeline-avatar" style="background-image: url('{{ vm.item.assigned_to.profile_picture }} ');"></div>
 
     <div class="timeline-content-container has-deal">
 
@@ -12,7 +12,7 @@
             <div class="timeline-content">
                 <span class="timeline-content-title"><a ui-sref="base.deals.detail({ id: vm.item.id })">{{ ::vm.item.name }}</a></span>
                 <ul class="timeline-content-details">
-                    <li>Stage: <strong>{{ ::vm.item.stage_name}} ({{ ::vm.item.archived ? 'archived' : 'active'}})</strong></li>
+                    <li>Status: <strong>{{ ::vm.item.stage_name}} ({{ ::vm.item.archived ? 'archived' : 'active'}})</strong></li>
                     <li>Next step:
                         <span uib-tooltip="{{ vm.item.next_step.name }}" tooltip-placement="left" class="step-type" id="next-step" ng-if="vm.item.next_step" ng-class="{0: 'position-1', 1: 'position-2', 2: 'position-3', 3: 'position-4', 4: 'position-5', 5: 'position-6'}[vm.item.next_step.position]">
                             <strong ng-show="vm.item.next_step_date"><date date="vm.item.next_step_date"></date></strong>
@@ -64,9 +64,9 @@
                     <ul class="content-history-list">
                         <li ng-repeat="note in vm.item.notes">
                             <div class="content-history-note-header">
-                                <div class="content-history-avatar" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png'); "></div>
+                                <div class="content-history-avatar" style="background-image: url('{{ note.author.profile_picture }}'); "></div>
                                 <div class="content-history-desc">
-                                    {{ note.author }} added a note <span ng-if="note.type === 1">(Callback)</span> <span ng-if="note.type === 2">(Meetup)</span>
+                                    {{ note.author.full_name }} added a note <span ng-if="note.type === 1">(Callback)</span> <span ng-if="note.type === 2">(Meetup)</span>
                                 </div>
                                 <div class="content-history-date">{{ ::note.modified | date:'dd MMM - HH:mm' }}</div>
                                 <div class="clearfix"></div>
@@ -77,9 +77,9 @@
                         </li>
                         <li>
                             <div class="content-history-note-header">
-                                <div class="content-history-avatar" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png'); "></div>
+                                <div class="content-history-avatar" style="background-image: url('{{ vm.item.created_by.profile_picture }}'); "></div>
                                 <div class="content-history-desc">
-                                    {{ ::vm.item.created_by }} created the deal <a ui-sref="base.deals.detail({ id: vm.item.id })">{{ ::vm.item.name }}</a>
+                                    {{ ::vm.item.created_by.full_name }} created the deal <a ui-sref="base.deals.detail({ id: vm.item.id })">{{ ::vm.item.name }}</a>
                                 </div>
 
                                 <div class="content-history-date">{{ ::vm.item.created | date:'dd MMM - HH:mm' }}</div>

@@ -30,7 +30,7 @@ function EditableSelectController($scope, $filter, HLResource) {
     // Broadcast function that executes the activate() function when somebody
     // dynamically changes the inline select edit by using the 'assign to me'
     // link, instead of selecting a person with the selectbox.
-    $scope.$on('activateEditableSelect', function(){
+    $scope.$on('activateEditableSelect', function() {
         activate();
     });
 
@@ -66,6 +66,7 @@ function EditableSelectController($scope, $filter, HLResource) {
     function getChoices() {
         var type;
         var field;
+        var resourceCall;
 
         if (es.selectOptions.hasOwnProperty('type')) {
             type = es.selectOptions.type;
@@ -79,19 +80,27 @@ function EditableSelectController($scope, $filter, HLResource) {
             field = es.field;
         }
 
-        var resourceCall = HLResource.getChoicesForField(type, field);
+        resourceCall = HLResource.getChoicesForField(type, field);
 
-        // Add a return here so the select gets disabled while loading the options.
-        return resourceCall.$promise.then(function(data) {
-            if (data.hasOwnProperty('results')) {
-                es.choices = data.results;
-            } else {
-                es.choices = data;
-            }
-        });
+        if (!resourceCall.hasOwnProperty('$promise')) {
+            es.choices = resourceCall;
+        } else {
+            // Add a return here so the select gets disabled while loading the options.
+            return resourceCall.$promise.then(function(data) {
+                if (data.hasOwnProperty('results')) {
+                    es.choices = data.results;
+                } else {
+                    es.choices = data;
+                }
+            });
+        }
     }
 
     function updateViewModel($data) {
+        var args = {
+            id: es.object.id,
+        };
+
         // $data only contains the ID, so get the name from the choices in the scope.
         var selected = $filter('filter')(es.choices, {id: $data});
 
@@ -103,10 +112,6 @@ function EditableSelectController($scope, $filter, HLResource) {
         } else {
             es.object[es.field] = selected.length ? selected[0] : null;
         }
-
-        var args = {
-            id: es.object.id,
-        };
 
         args[es.field] = $data;
 

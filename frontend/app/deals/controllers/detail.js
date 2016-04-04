@@ -82,32 +82,21 @@ function DealDetailController($scope, $state, $uibModal, Account, Contact, Deal,
     }
 
     function updateModel(data, field) {
-        var args;
         var nextStepDate;
-
-        if (typeof data === 'object') {
-            args = data;
-        } else {
-            args = {
-                id: vm.deal.id,
-            };
-
-            args[field] = data;
-
-            if (field === 'name') {
-                Settings.page.setAllTitles('detail', data);
-            }
-        }
+        var args = HLResource.createArgs(data, field, vm.deal);
 
         if (args.hasOwnProperty('next_step')) {
             if (vm.deal.next_step.date_increment !== 0) {
                 // Update next step date based on next step.
                 nextStepDate = HLUtils.addBusinessDays(vm.deal.next_step.date_increment, vm.originalNextStepDate);
                 nextStepDate = moment(nextStepDate).format('YYYY-MM-DD');
+
                 vm.deal.next_step_date = nextStepDate;
+                args.next_step_date = nextStepDate;
             } else if (angular.equals(vm.deal.next_step, vm.noneStep)) {
                 // None step is selected, so clear the next step date.
                 vm.deal.next_step_date = null;
+                args.next_step_date = null;
             }
         }
 

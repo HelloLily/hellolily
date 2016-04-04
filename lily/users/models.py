@@ -65,6 +65,14 @@ class LilyGroup(TenantMixin):
         unique_together = ('tenant', 'name')
 
 
+def get_lilyuser_picture_upload_path(instance, filename):
+    return settings.LILYUSER_PICTURE_UPLOAD_TO % {
+        'tenant_id': instance.tenant_id,
+        'user_id': instance.pk,
+        'filename': filename
+    }
+
+
 class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
     """
     A custom user class implementing a fully featured User model with
@@ -75,7 +83,7 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
     first_name = models.CharField(_('first name'), max_length=45)
     preposition = models.CharField(_('preposition'), max_length=100, blank=True)
     last_name = models.CharField(_('last name'), max_length=45)
-    picture = models.ImageField(upload_to=settings.USER_UPLOAD_TO, verbose_name=_('picture'), blank=True)
+    picture = models.ImageField(upload_to=get_lilyuser_picture_upload_path, verbose_name=_('picture'), blank=True)
     email = models.EmailField(_('email address'), max_length=255, unique=True)
     position = models.CharField(_('position'), max_length=255, blank=True)
     is_staff = models.BooleanField(
@@ -142,7 +150,7 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
     @property
     def profile_picture(self):
         if self.picture:
-            return 'media/' + self.picture.name
+            return self.picture.url
         else:
             gravatar_hash = hashlib.md5(self.email.lower()).hexdigest()
             # Try to get the Gravatar or show a default image if not available.

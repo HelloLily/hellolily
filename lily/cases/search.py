@@ -40,6 +40,16 @@ class CaseMapping(BaseMapping):
                 'type': 'string',
                 'index_analyzer': 'normal_edge_analyzer',
             },
+            'created_by': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'full_name': {
+                        'type': 'string',
+                        'analyzer': 'normal_edge_analyzer',
+                    },
+                },
+            },
             'assigned_to_name': {
                 'type': 'string',
                 'index_analyzer': 'normal_edge_analyzer',
@@ -121,7 +131,10 @@ class CaseMapping(BaseMapping):
             'assigned_to_name': obj.assigned_to.get_full_name() if obj.assigned_to else None,
             'assigned_to_groups': [group.id for group in obj.assigned_to_groups.all()],
             'assigned_to_id': obj.assigned_to.id if obj.assigned_to else None,
-            'created_by': obj.created_by.get_full_name() if obj.created_by else None,
+            'created_by': {
+                'full_name': obj.created_by.get_full_name() if obj.created_by else None,
+                'id': obj.created_by.id if obj.created_by else None,
+            },
             'priority': obj.priority,
             'priority_name': obj.get_priority_display(),
             'status': obj.status.status,

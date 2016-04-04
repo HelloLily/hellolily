@@ -1,4 +1,4 @@
-<dashboard-widget ng-if="vm.account" widget-name="'Account info'">
+<dashboard-widget ng-if="vm.account" widget-name="'Account info'" widget-scrollable="true">
     <widget-header>
         <div class="widget-name">
             <i class="lilicon hl-company-icon"></i>
@@ -21,73 +21,68 @@
     </widget-filters>
 
     <widget-body>
-        <div class="widget-content">
-            <div class="scroll-body" slimscroll="{height: 200}">
-                <p ng-bind-html="(vm.account.description | parseUrls) || 'No description'"></p>
+        <table class="widget-table">
+            <tbody>
+                <tr ng-show="(vm.account.email_addresses | filter: {status: '!' + 0}).length">
+                    <td><i class="lilicon hl-mail-icon"></i> <strong>Email</strong></td>
+                    <td>
+                        <editable-related model="vm.account" type="Account" field="email_addresses"></editable-related>
+                    </td>
+                </tr>
 
-                <table class="table table-hover no-margin">
-                    <tr ng-show="(vm.account.email_addresses | filter: {status: '!' + 0}).length">
-                        <th>
-                            <i class="fa">@</i>
-                            Email
-                        </th>
-                        <td>
-                            <editable-related model="vm.account" type="Account" field="email_addresses"></editable-related>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>
-                            <i class="fa fa-phone"></i>
-                            Phone
-                        </th>
-                        <td>
-                            <editable-related model="vm.account" type="Account" field="phone_numbers"></editable-related>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>
-                            <i class="fa fa-globe"></i>
-                            Website
-                        </th>
-                        <td>
-                            <editable-related model="vm.account" type="Account" field="websites"></editable-related>
-                        </td>
-                    </tr>
-                    <tr ng-show="vm.account.assigned_to">
-                        <th>
-                            <i class="fa fa-child"></i>
-                            Assigned to
-                        </th>
-                        <td>
+                <tr>
+                    <td><i class="lilicon hl-phone-icon"></i> <strong>Phone</strong></td>
+                    <td>
+                        <editable-related model="vm.account" type="Account" field="phone_numbers"></editable-related>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><i class="fa fa-globe"></i> <strong>Website</strong></td>
+                    <td>
+                        <editable-related model="vm.account" type="Account" field="websites"></editable-related>
+                    </td>
+                </tr>
+
+                <tr ng-show="vm.account.assigned_to">
+                    <td><i class="lilicon hl-user-icon"></i> <strong>Assigned to</strong></td>
+                    <td>
+                        <editable-select field="assigned_to" view-model="vm" type="Account" class="inline-selectable-text" select-options="{type: 'User', field: 'assignOptions', display: 'full_name'}">
                             {{ vm.account.assigned_to.full_name }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>
-                            <i class="fa fa-map-marker"></i>
-                            Address
-                        </th>
-                        <td>
-                            <editable-related model="vm.account" type="Account" field="addresses"></editable-related>
-                        </td>
-                    </tr>
-                    <tr ng-show="vm.account.social" ng-repeat="social in vm.account.social">
-                        <th><i class="fa fa-{{ social.social_name | lowercase }}"></i> {{ social.social_name }}</th>
-                        <td><a ng-href="{{ social.social_url }}" target="_blank">{{ social.social_profile }}</a></td>
-                    </tr>
-                    <tr ng-show="vm.account.tag">
-                        <th>
-                            <i class="fa fa-tag"></i>
-                            Tags
-                        </th>
-                        <td>
-                            <a class="btn btn-xs btn-default" ng-repeat="tag in vm.account.tag">
-                                {{ tag }}
-                            </a>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-        </div>
+                        </editable-select>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><i class="fa fa-map-marker"></i> <strong>Address</strong></td>
+                    <td>
+                        <editable-related model="vm.account" type="Account" field="addresses"></editable-related>
+                    </td>
+                </tr>
+
+                <tr ng-show="vm.account.social" ng-repeat="social in vm.account.social">
+                    <td><i class="fa fa-{{ social.social_name | lowercase }}"></i> <strong>{{ social.social_name }}</strong></td>
+                    <td><a ng-href="{{ social.social_url }}" target="_blank">{{ social.social_profile }}</a></td>
+                </tr>
+
+                <tr ng-show="vm.account.tag">
+                    <td><i class="fa fa-tag"></i> <strong>Tags</strong></td>
+                    <td>
+                        <a class="btn btn-xs btn-default" ng-repeat="tag in vm.account.tags">
+                            {{ tag }}
+                        </a>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td colspan="2">
+                        <strong class="margin-bottom-5">Description</strong>
+                        <div>
+                            <p editable-textarea="vm.account.description" e-rows="4" e-cols="100" onbeforesave="vm.updateModel($data, 'description')">{{ (vm.account.description | parseUrls) || 'No description' }}</p>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </widget-body>
 </dashboard-widget>

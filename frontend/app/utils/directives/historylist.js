@@ -1,15 +1,18 @@
 angular.module('app.utils.directives').directive('historyList', HistoryListDirective);
 
 HistoryListDirective.$inject = ['$filter', '$http', '$uibModal', '$q', '$state', 'EmailAccount',
-'Note', 'NoteDetail', 'Case', 'DealDetail', 'EmailDetail'];
+    'Note', 'NoteDetail', 'Case', 'DealDetail', 'EmailDetail', 'User', 'HLGravatar'];
 function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccount,
-Note, NoteDetail, Case, DealDetail, EmailDetail) {
+                              Note, NoteDetail, Case, DealDetail, EmailDetail, User, HLGravatar) {
     return {
         restrict: 'E',
         replace: true,
         scope: {
             target: '=',
             object: '=',
+            dateStart: '=?',
+            dateEnd: '=?',
+            parentObject: '=?',
         },
         templateUrl: 'utils/directives/historylist.html',
         link: function(scope, element, attrs) {
@@ -60,7 +63,7 @@ Note, NoteDetail, Case, DealDetail, EmailDetail) {
                 scope.history.activeFilter = value;
                 // Loop through the months to hide the monthname when there
                 // aren't any items in that month that are shown due to
-                // the filter that is being selected. 
+                // the filter that is being selected.
                 for (key in scope.history.list.nonPinned) {
                     selectedCount = $filter('filter')(scope.history.list.nonPinned[key].items, {historyType: value}).length;
                     scope.history.list.nonPinned[key].isVisible = !!selectedCount;
@@ -85,19 +88,22 @@ Note, NoteDetail, Case, DealDetail, EmailDetail) {
             function _fetchHistory(obj) {
                 var history = [];
                 var promises = [];
-                page += 1;
-                var neededLength = page * pageSize;
+                var neededLength = (page + 1) * pageSize;
                 var requestLength = neededLength + 1;
+                var notePromise;
+                var filterquery;
+                var i;
+                var dateFilteredList;
+
+                page += 1;
 
                 // Check if we need to fetch notes
                 if (noteTargets.indexOf(scope.target) !== -1) {
-                    var notePromise;
-
                     if (scope.target === 'account' && obj.contact && obj.contact.length) {
-                        var filterquery = '(content_type:' + scope.target + ' AND object_id:' + obj.id + ')';
+                        filterquery = '(content_type:' + scope.target + ' AND object_id:' + obj.id + ')';
 
                         // Show all notes of contacts linked to the account
-                        for (var i = 0; i < obj.contact.length; i++) {
+                        for (i = 0; i < obj.contact.length; i++) {
                             filterquery += ' OR (content_type:contact AND object_id:' + obj.contact[i] + ')';
                         }
 
@@ -110,9 +116,17 @@ Note, NoteDetail, Case, DealDetail, EmailDetail) {
 
                     notePromise.then(function(results) {
                         results.forEach(function(note) {
+                            // Get user for notes to show profile picture correctly.
+                            User.get({id: note.author.id}, function(userObject) {
+                                note.author = userObject;
+                            });
+
                             // Set notes shown property to true to have toggled open
                             // as default.
-                            note.shown = true;
+                            if (note.is_pinned) {
+                                note.shown = true;
+                            }
+
                             // If it's a contact's note, add extra attribute to the note
                             // so we can identify it in the template
                             if (scope.target === 'account' && note.content_type === 'contact') {
@@ -131,10 +145,28 @@ Note, NoteDetail, Case, DealDetail, EmailDetail) {
 
                     casePromise.then(function(response) {
                         response.objects.forEach(function(caseItem) {
+                            // Get user object for the assigned to user.
+                            User.get({id: caseItem.assigned_to_id}, function(userObject) {
+                                caseItem.assigned_to = userObject;
+                            });
+
+                            // Get user object for the created by user.
+                            User.get({id: caseItem.created_by.id}, function(userObject) {
+                                caseItem.created_by = userObject;
+                            });
+
                             caseItem.historyType = 'case';
+
                             history.push(caseItem);
                             NoteDetail.query({filterquery: 'content_type:case AND object_id:' + caseItem.id, size: 15})
                                 .$promise.then(function(notes) {
+                                    angular.forEach(notes, function(note) {
+                                        // Get user for notes to show profile picture correctly.
+                                        User.get({id: note.author.id}, function(author) {
+                                            note.author = author;
+                                        });
+                                    });
+
                                     caseItem.notes = notes;
                                 });
                         });
@@ -148,10 +180,26 @@ Note, NoteDetail, Case, DealDetail, EmailDetail) {
 
                     dealPromise.then(function(results) {
                         results.forEach(function(deal) {
+                            // Get user object for the assigned to user.
+                            User.get({id: deal.assigned_to_id}, function(userObject) {
+                                deal.assigned_to = userObject;
+                            });
+
+                            // Get user object to show profile picture correctly.
+                            User.get({id: deal.created_by.id}, function(userObject) {
+                                deal.created_by = userObject;
+                            });
+
                             NoteDetail.query({
                                 filterquery: 'content_type:deal AND object_id:' + deal.id,
                                 size: 5,
                             }).$promise.then(function(notes) {
+                                angular.forEach(notes, function(note) {
+                                    // Get user for notes to show profile picture correctly.
+                                    User.get({id: note.author.id}, function(author) {
+                                        note.author = author;
+                                    });
+                                });
                                 deal.notes = notes;
                             });
                             history.push(deal);
@@ -177,6 +225,11 @@ Note, NoteDetail, Case, DealDetail, EmailDetail) {
                         var emailMessageList = results[1];
 
                         emailMessageList.forEach(function(email) {
+                            email.gravatar = HLGravatar.getGravatar(email.sender_email);
+
+                            // Foldout email on default in the historylist.
+                            email.shown = true;
+
                             tenantEmailAccountList.forEach(function(emailAddress) {
                                 if (emailAddress.email_address === email.sender_email) {
                                     email.right = true;
@@ -187,7 +240,7 @@ Note, NoteDetail, Case, DealDetail, EmailDetail) {
                     });
                 }
 
-                // Get all history types and add them to a common history
+                // Get all history types and add them to a common history.
                 $q.all(promises).then(function() {
                     var orderedHistoryList = {pinned: [], nonPinned: {}, totalItems: history.length};
 
@@ -196,7 +249,7 @@ Note, NoteDetail, Case, DealDetail, EmailDetail) {
                     // to add an extra key called historySortDate which the list
                     // uses to sort properly. We add the sent_date of email to the
                     // object, and the modified date for the other types.
-                    for (var i = 0; i < history.length; i++) {
+                    for (i = 0; i < history.length; i++) {
                         if (history[i].historyType === 'email') {
                             history[i].historySortDate = history[i].sent_date;
                         } else {
@@ -204,30 +257,57 @@ Note, NoteDetail, Case, DealDetail, EmailDetail) {
                         }
                     }
 
-                    $filter('orderBy')(history, 'historySortDate', true).forEach(function(item) {
-                        scope.history.types[item.historyType].visible = true;
+                    if (scope.dateStart && scope.dateEnd) {
+                        dateFilteredList = [];
 
+                        for (i = 0; i < history.length; i++) {
+                            if (moment(history[i].historySortDate).isBetween(scope.dateStart, scope.dateEnd)) {
+                                dateFilteredList.push(history[i]);
+                            }
+                        }
+                    }
+
+                    if (dateFilteredList) {
+                        history = dateFilteredList;
+                    }
+
+                    $filter('orderBy')(history, 'historySortDate', true).forEach(function(item) {
                         var date = '';
                         var key = '';
+
+                        scope.history.types[item.historyType].visible = true;
 
                         if (item.is_pinned) {
                             orderedHistoryList.pinned.push(item);
                         } else {
-                            if (item.hasOwnProperty('modified')) {
-                                date = item.modified;
+                            // If it's an 'extra' history list we want to
+                            // exclude the item that's being viewed.
+                            if (!scope.parentObject || item.id !== scope.parentObject.id) {
+                                if (item.hasOwnProperty('modified')) {
+                                    date = item.modified;
+                                } else {
+                                    date = item.sent_date;
+                                }
+
+                                key = moment(date).year() + '-' + (moment(date).month() + 1);
+
+                                if (!orderedHistoryList.nonPinned.hasOwnProperty(key)) {
+                                    orderedHistoryList.nonPinned[key] = {isVisible: true, items: []};
+                                }
+
+                                orderedHistoryList.nonPinned[key].items.push(item);
                             } else {
-                                date = item.sent_date;
+                                orderedHistoryList.totalItems -= 1;
                             }
-
-                            key = moment(date).year() + '-' + (moment(date).month() + 1);
-
-                            if (!orderedHistoryList.nonPinned.hasOwnProperty(key)) {
-                                orderedHistoryList.nonPinned[key] = {isVisible: true, items: []};
-                            }
-
-                            orderedHistoryList.nonPinned[key].items.push(item);
                         }
                     });
+
+                    // Get first key in the nonPinned list to target the first
+                    // item in the history items to set the property to shown.
+                    for(var key in orderedHistoryList.nonPinned) break;
+                    if (orderedHistoryList.nonPinned[key]) {
+                        orderedHistoryList.nonPinned[key].items[0].shown = true;
+                    }
 
                     scope.history.list = orderedHistoryList;
                 });
@@ -285,8 +365,8 @@ Note, NoteDetail, Case, DealDetail, EmailDetail) {
                             index = scope.history.list.pinned.indexOf(note);
                             scope.history.list.pinned.splice(index, 1);
                         } else {
-                            index = scope.history.list.nonPinned[year + '-' + month].indexOf(note);
-                            scope.history.list.nonPinned[year + '-' + month].splice(index, 1);
+                            index = scope.history.list.nonPinned[year + '-' + month].items.indexOf(note);
+                            scope.history.list.nonPinned[year + '-' + month].items.splice(index, 1);
                         }
                     }, function(error) {  // On error
                         alert('something went wrong.');

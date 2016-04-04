@@ -17,13 +17,19 @@ function editableRelated() {
         bindToController: true,
         link: function(scope, element, attr) {
             // Bind click event to the current directive.
-            element.on('click', '.editable-click', function() {
+            element.on('click', '.hl-edit-icon', function() {
                 scope.er.formVisible = true;
 
                 if (!scope.er.items.length) {
                     scope.er.addRelatedField();
                 }
 
+                scope.$apply();
+            });
+
+            element.on('click', '.fa-plus', function() {
+                scope.er.formVisible = true;
+                scope.er.addRelatedField();
                 scope.$apply();
             });
         },

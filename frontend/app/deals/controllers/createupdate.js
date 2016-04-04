@@ -279,9 +279,9 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
         } else if (Settings.email.sidebar.isVisible && !archive) {
             ga('send', 'event', 'Deal', 'Save', 'Email SC');
         } else if (!Settings.email.sidebar.isVisible && archive) {
-            ga('send', 'event', 'Deal', 'Save and archive', 'Deal');
+            ga('send', 'event', 'Deal', 'Save and archive', 'Default');
         } else {
-            ga('send', 'event', 'Deal', 'Save', 'Deal');
+            ga('send', 'event', 'Deal', 'Save', 'Default');
         }
 
         if (!_dealFormIsValid()) {

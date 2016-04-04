@@ -1,10 +1,15 @@
-<span ng-show="!er.formVisible" class="editable editable-click">
+<span ng-show="!er.formVisible" class="editable editable-click addable-click">
     <div ng-repeat="email in er.items | filter: {status: '!' + 0}">
         <a ui-sref="base.email.composeEmail({email: email.email_address})">
             {{ email.email_address }}
         </a>
     </div>
     <div ng-if="!er.items.length">No email addresses</div>
+
+    <div class="editable-icons">
+        <span ng-if="er.items.length" class="editable-icon"><i class="lilicon hl-edit-icon"></i></span>
+        <span class="editable-icon"><i class="fa fa-plus"></i></span>
+    </div>
 </span>
 
 <form name="{{ er.formName }}" ng-show="er.formVisible" class="form-inline">

@@ -19,5 +19,13 @@ function ContactDetailWidgetController(Settings) {
     var vm = this;
 
     vm.settings = Settings;
+
+    vm.updateModel = updateModel;
+
+    function updateModel(data, field) {
+        var args = HLResource.createArgs(data, field, vm.contact);
+
+        return HLResource.patch('Contact', args).$promise;
+    }
 }
 

@@ -14,9 +14,9 @@ function contactsConfig($stateProvider) {
             label: '{{ contact.name }}',
         },
         resolve: {
-            contact: ['ContactDetail', '$stateParams', function(ContactDetail, $stateParams) {
+            currentContact: ['Contact', '$stateParams', function(Contact, $stateParams) {
                 var contactId = $stateParams.id;
-                return ContactDetail.get({id: contactId}).$promise;
+                return Contact.get({id: contactId}).$promise;
             }],
         },
     });
@@ -24,20 +24,20 @@ function contactsConfig($stateProvider) {
 
 angular.module('app.contacts').controller('ContactDetailController', ContactDetailController);
 
-ContactDetailController.$inject = ['$scope', '$stateParams', 'Settings', 'ContactDetail', 'Case', 'contact', 'Deal'];
-function ContactDetailController($scope, $stateParams, Settings, ContactDetail, Case, contact, Deal) {
+ContactDetailController.$inject = ['$scope', '$stateParams', 'Settings', 'Contact', 'Case', 'Deal', 'currentContact'];
+function ContactDetailController($scope, $stateParams, Settings, Contact, Case, Deal, currentContact) {
     var id = $stateParams.id;
 
-    $scope.contact = contact;
+    $scope.contact = currentContact;
     $scope.height = 200;
 
-    Settings.page.setAllTitles('detail', contact.name);
+    Settings.page.setAllTitles('detail', currentContact.full_name);
 
     if ($scope.contact.accounts) {
         $scope.contact.accounts.forEach(function(account) {
-            var colleagueList = ContactDetail.query({filterquery: 'NOT(id:' + id + ') AND accounts.id:' + account.id});
-            colleagueList.$promise.then(function(colleagues) {
-                account.colleagueList = colleagues;
+            var colleagueList = Contact.search({filterquery: 'NOT(id:' + id + ') AND accounts.id:' + account.id});
+            colleagueList.$promise.then(function(response) {
+                account.colleagueList = response.objects;
             });
         });
 
@@ -46,10 +46,13 @@ function ContactDetailController($scope, $stateParams, Settings, ContactDetail, 
         }
     }
 
-    Case.query({filterquery: 'contact:' + id, sort: '-created'}, function(response) {
-        $scope.caseList = response.objects;
+    $scope.caseList = Case.query({filterquery: 'contact:' + id, sort: '-created', size: 100});
+    $scope.caseList.$promise.then(function(caseList) {
+        $scope.caseList = caseList;
     });
-    Deal.query({filterquery: 'contact:' + id, sort: '-created'}, function(response) {
-        $scope.dealList = response.objects;
+
+    $scope.dealList = Deal.query({filterquery: 'contact:' + id, sort: '-created'});
+    $scope.dealList.$promise.then(function(dealList) {
+        $scope.dealList = dealList;
     });
 }

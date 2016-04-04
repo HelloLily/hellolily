@@ -27,26 +27,16 @@
                     Filter on
                     <i class="fa fa-angle-down"></i>
                 </button>
-                <button class="btn red-pink" ng-click="vm.clearFilters()" ng-show="vm.displayFilterClear"><i class="fa fa-remove"></i></button>
+                <button class="btn red-pink" ng-click="vm.clearFilters(false)" ng-show="vm.displayFilterClear"><i class="fa fa-remove"></i></button>
                 <div class="dropdown-menu hold-on-click dropdown-checkboxes list-filters">
                     <div ng-repeat="filter in vm.filterList">
-                        <checkbox model="filter.selected" ng-if="!filter.isSpecialFilter" ng-click="vm.updateFilterQuery()">{{filter.name}}</checkbox>
+                        <checkbox model="filter.selected" ng-click="vm.updateFilterQuery()">{{filter.name}}</checkbox>
                     </div>
                 </div>
             </div>
-            <div class="btn-group">
-                <button class="btn dropdown-toggle" data-toggle="dropdown">
-                    <i class="fa fa-filter"></i>
-                    Case type
-                    <i class="fa fa-angle-down"></i>
-                </button>
-                <button class="btn red-pink" ng-click="vm.clearFilters(true)" ng-show="vm.displaySpecialFilterClear"><i class="fa fa-remove"></i></button>
-                <div class="dropdown-menu hold-on-click dropdown-checkboxes list-filters">
-                    <div ng-repeat="filter in vm.filterList">
-                        <checkbox model="filter.selected" ng-if="filter.isSpecialFilter" ng-click="vm.updateFilterQuery()">{{filter.name}}</checkbox>
-                    </div>
-                </div>
-            </div>
+            <widget-filters>
+                <list-filter filter-label="'Case type'" filter-label-plural="'types'" view-model="vm"></list-filter>
+            </widget-filters>
         </div>
         <div class="tools col-xs-12 col-md-6">
             <form class="form-inline pull-right">
@@ -119,7 +109,7 @@
                     <a ng-if="!case.assigned_to_id" ng-click="vm.assignTo(case)">Assign case</a>
                 </td>
                 <td ng-show="vm.table.visibility.createdBy">
-                    {{ ::case.created_by }}
+                    {{ ::case.created_by.full_name }}
                 </td>
                 <td ng-show="vm.table.visibility.tags">
                     <span ng-repeat="tag in case.tag">

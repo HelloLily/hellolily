@@ -25,12 +25,11 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseDetailController', CaseDetailController);
 
-CaseDetailController.$inject = ['$http', '$scope', '$stateParams', 'Settings', 'Account', 'CaseStatuses', 'caseItem',
-    'Contact', 'UserTeams', 'HLResource', 'Tenant'];
-function CaseDetailController($http, $scope, $stateParams, Settings, Account, CaseStatuses, caseItem,
-                              Contact, UserTeams, HLResource, Tenant) {
+CaseDetailController.$inject = ['$scope', 'Settings', 'Account', 'CaseStatuses', 'caseItem', 'Contact',
+    'UserTeams', 'HLResource', 'Tenant'];
+function CaseDetailController($scope, Settings, Account, CaseStatuses, caseItem, Contact,
+                              UserTeams, HLResource, Tenant) {
     var vm = this;
-    var id = $stateParams.id;
 
     Settings.page.setAllTitles('detail', caseItem.subject);
 
@@ -40,7 +39,6 @@ function CaseDetailController($http, $scope, $stateParams, Settings, Account, Ca
     vm.getPriorityDisplay = getPriorityDisplay;
     vm.changeCaseStatus = changeCaseStatus;
     vm.assignCase = assignCase;
-    vm.unarchive = unarchive;
     vm.updateModel = updateModel;
 
     activate();
@@ -48,6 +46,9 @@ function CaseDetailController($http, $scope, $stateParams, Settings, Account, Ca
     //////
 
     function activate() {
+        var assignedToGroups = [];
+        var caseEnd;
+
         if (vm.case.account) {
             Account.get({id: vm.case.account.id}).$promise.then(function(account) {
                 vm.account = account;
@@ -60,8 +61,6 @@ function CaseDetailController($http, $scope, $stateParams, Settings, Account, Ca
             });
         }
 
-        var assignedToGroups = [];
-
         angular.forEach(vm.case.assigned_to_groups, function(response) {
             UserTeams.get({id: response.id}).$promise.then(function(team) {
                 assignedToGroups.push(team);
@@ -73,6 +72,16 @@ function CaseDetailController($http, $scope, $stateParams, Settings, Account, Ca
         });
 
         vm.case.assigned_to_groups = assignedToGroups;
+
+        vm.caseStart = moment(vm.case.created).subtract(2, 'days').format('YYYY-MM-DD');
+
+        if (vm.case.status.status === 'Closed') {
+            caseEnd = moment(vm.case.modified);
+        } else {
+            caseEnd = moment();
+        }
+
+        vm.caseEnd = caseEnd.add(2, 'days').format('YYYY-MM-DD');
     }
 
     /**
@@ -80,95 +89,50 @@ function CaseDetailController($http, $scope, $stateParams, Settings, Account, Ca
      * @returns {string}: A string which states what label should be displayed
      */
     function getPriorityDisplay() {
+        var label = '';
+
         if (vm.case.is_archived) {
-            return 'label-default';
+            label = 'label-default';
         } else {
             switch (vm.case.priority) {
                 case 0:
-                    return 'label-success';
+                    label = 'label-success';
+                    break;
                 case 1:
-                    return 'label-info';
+                    label = 'label-info';
+                    break;
                 case 2:
-                    return 'label-warning';
+                    label = 'label-warning';
+                    break;
                 case 3:
-                    return 'label-danger';
+                    label = 'label-danger';
+                    break;
                 default :
-                    return 'label-info';
+                    label = 'label-info';
+                    break;
             }
         }
+
+        return label;
     }
 
     function updateModel(data, field) {
-        var args;
-
-        if (typeof data === 'object') {
-            args = data;
-        } else {
-            args = {
-                id: vm.case.id,
-            };
-
-            args[field] = data;
-
-            if (field === 'name') {
-                Settings.page.setAllTitles('detail', data);
-            }
-        }
+        var args = HLResource.createArgs(data, field, vm.case);
 
         return HLResource.patch('Case', args).$promise;
     }
 
     function changeCaseStatus(status) {
-        // TODO: LILY-XXX: Temporary call to change status of a case, will be replaced with an new API call later
-        var req = {
-            method: 'POST',
-            url: '/cases/update/status/' + vm.case.id + '/',
-            data: 'status=' + status,
-            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'},
-        };
+        vm.case.status = status;
 
-        $http(req).
-            success(function(data, status, headers, config) {
-                vm.case.status.status = data.status;
-            }).
-            error(function(data, status, headers, config) {
-                // Request failed proper error?
-            });
+        return updateModel(status.id, 'status');
     }
 
     function assignCase() {
-        var assignee = '';
+        vm.case.assigned_to = currentUser;
+        vm.case.assigned_to.full_name = currentUser.fullName;
 
-        if (vm.case.assigned_to_id !== currentUser.id) {
-            assignee = currentUser.id;
-        }
-
-        var req = {
-            method: 'POST',
-            url: '/cases/update/assigned_to/' + vm.case.id + '/',
-            data: 'assignee=' + assignee,
-            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
-        };
-
-        $http(req).
-            success(function(data, status, headers, config) {
-                if (data.assignee) {
-                    vm.case.assigned_to = data.assignee;
-                    vm.case.assigned_to.id = data.assignee.id;
-                    vm.case.assigned_to.full_name = data.assignee.name;
-                    // Broadcast function to update model correctly after dynamically
-                    // changing the assignee by using the 'assign to me' link.
-                    $scope.$broadcast('activateEditableSelect', data.assignee.id);
-                } else {
-                    vm.case.assigned_to_id = null;
-                    vm.case.assigned_to_name = null;
-                }
-
-                $scope.loadNotifications();
-            }).
-            error(function(data, status, headers, config) {
-                // Request failed propper error?
-            });
+        return updateModel(currentUser.id, 'assigned_to');
     }
 
     $scope.$watch('vm.case.is_archived', function(newValue, oldValue) {
@@ -176,25 +140,4 @@ function CaseDetailController($http, $scope, $stateParams, Settings, Account, Ca
             updateModel(vm.case.is_archived, 'is_archived');
         }
     });
-
-    /**
-     * Unarchive a case.
-     * TODO: LILY-XXX: Change to API based unarchiving
-     */
-    function unarchive(id) {
-        var req = {
-            method: 'POST',
-            url: '/cases/unarchive/',
-            data: 'id=' + id,
-            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
-        };
-
-        $http(req).
-            success(function(data, status, headers, config) {
-                vm.case.archived = false;
-            }).
-            error(function(data, status, headers, config) {
-                // Request failed proper error?
-            });
-    }
 }

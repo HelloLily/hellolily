@@ -276,6 +276,13 @@ Note, NoteDetail, Case, DealDetail, EmailDetail, User, HLGravatar) {
                         }
                     });
 
+                    // Get first key in the nonPinned list to target the first
+                    // item in the history items to set the property to shown.
+                    for(var key in orderedHistoryList.nonPinned) break;
+                    if (orderedHistoryList.nonPinned[key]) {
+                        orderedHistoryList.nonPinned[key].items[0].shown = true;
+                    }
+
                     scope.history.list = orderedHistoryList;
                 });
             }
@@ -332,8 +339,8 @@ Note, NoteDetail, Case, DealDetail, EmailDetail, User, HLGravatar) {
                             index = scope.history.list.pinned.indexOf(note);
                             scope.history.list.pinned.splice(index, 1);
                         } else {
-                            index = scope.history.list.nonPinned[year + '-' + month].indexOf(note);
-                            scope.history.list.nonPinned[year + '-' + month].splice(index, 1);
+                            index = scope.history.list.nonPinned[year + '-' + month].items.indexOf(note);
+                            scope.history.list.nonPinned[year + '-' + month].items.splice(index, 1);
                         }
                     }, function(error) {  // On error
                         alert('something went wrong.');

@@ -95,7 +95,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
 
         _getTeams();
 
-        Case.caseTypes(function(data) {
+        Case.getCaseTypes(function(data) {
             vm.caseTypes = data;
 
             angular.forEach(data, function(caseType) {
@@ -111,7 +111,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             vm.case.status = vm.caseStatuses[0];
         });
 
-        vm.casePriorities = Case.casePriorities;
+        vm.casePriorities = Case.getCasePriorities();
 
         //TODO: This should be an API call.
         vm.parcelProviders = [

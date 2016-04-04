@@ -38,7 +38,7 @@ function UnassignedCasesController($http, $scope, $state, Case, HLFilters, HLUti
     function activate() {
         _watchTable();
 
-        Case.caseTypes(function(caseTypes) {
+        Case.getCaseTypes(function(caseTypes) {
             var filterList = [];
 
             angular.forEach(caseTypes, function(caseType) {

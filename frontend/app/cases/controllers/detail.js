@@ -25,9 +25,9 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseDetailController', CaseDetailController);
 
-CaseDetailController.$inject = ['$http', '$scope', 'Settings', 'Account', 'CaseStatuses', 'caseItem', 'Contact',
+CaseDetailController.$inject = ['$scope', 'Settings', 'Account', 'CaseStatuses', 'caseItem', 'Contact',
     'UserTeams', 'HLResource', 'Tenant'];
-function CaseDetailController($http, $scope, Settings, Account, CaseStatuses, caseItem, Contact,
+function CaseDetailController($scope, Settings, Account, CaseStatuses, caseItem, Contact,
                               UserTeams, HLResource, Tenant) {
     var vm = this;
 
@@ -117,76 +117,22 @@ function CaseDetailController($http, $scope, Settings, Account, CaseStatuses, ca
     }
 
     function updateModel(data, field) {
-        var args;
-
-        if (typeof data === 'object') {
-            args = data;
-        } else {
-            args = {
-                id: vm.case.id,
-            };
-
-            args[field] = data;
-
-            if (field === 'name') {
-                Settings.page.setAllTitles('detail', data);
-            }
-        }
+        var args = HLResource.createArgs(data, field, vm.case);
 
         return HLResource.patch('Case', args).$promise;
     }
 
     function changeCaseStatus(status) {
-        // TODO: LILY-XXX: Temporary call to change status of a case, will be replaced with an new API call later
-        var req = {
-            method: 'POST',
-            url: '/cases/update/status/' + vm.case.id + '/',
-            data: 'status=' + status,
-            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'},
-        };
+        vm.case.status = status;
 
-        $http(req).
-            success(function(data, status, headers, config) {
-                vm.case.status.status = data.status;
-            }).
-            error(function(data, status, headers, config) {
-                // Request failed proper error?
-            });
+        return updateModel(status.id, 'status');
     }
 
     function assignCase() {
-        var assignee = '';
+        vm.case.assigned_to = currentUser;
+        vm.case.assigned_to.full_name = currentUser.fullName;
 
-        if (vm.case.assigned_to_id !== currentUser.id) {
-            assignee = currentUser.id;
-        }
-
-        var req = {
-            method: 'POST',
-            url: '/cases/update/assigned_to/' + vm.case.id + '/',
-            data: 'assignee=' + assignee,
-            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'}
-        };
-
-        $http(req).
-            success(function(data, status, headers, config) {
-                if (data.assignee) {
-                    vm.case.assigned_to = data.assignee;
-                    vm.case.assigned_to.id = data.assignee.id;
-                    vm.case.assigned_to.full_name = data.assignee.name;
-                    // Broadcast function to update model correctly after dynamically
-                    // changing the assignee by using the 'assign to me' link.
-                    $scope.$broadcast('activateEditableSelect', data.assignee.id);
-                } else {
-                    vm.case.assigned_to_id = null;
-                    vm.case.assigned_to_name = null;
-                }
-
-                $scope.loadNotifications();
-            }).
-            error(function(data, status, headers, config) {
-                // Request failed propper error?
-            });
+        return updateModel(currentUser.id, 'assigned_to');
     }
 
     $scope.$watch('vm.case.is_archived', function(newValue, oldValue) {

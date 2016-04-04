@@ -90,10 +90,13 @@ function DealDetailController($scope, $state, $uibModal, Account, Contact, Deal,
                 // Update next step date based on next step.
                 nextStepDate = HLUtils.addBusinessDays(vm.deal.next_step.date_increment, vm.originalNextStepDate);
                 nextStepDate = moment(nextStepDate).format('YYYY-MM-DD');
+
                 vm.deal.next_step_date = nextStepDate;
+                args.next_step_date = nextStepDate;
             } else if (angular.equals(vm.deal.next_step, vm.noneStep)) {
                 // None step is selected, so clear the next step date.
                 vm.deal.next_step_date = null;
+                args.next_step_date = null;
             }
         }
 

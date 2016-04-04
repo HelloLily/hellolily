@@ -82,14 +82,18 @@ function EditableSelectController($scope, $filter, HLResource) {
 
         resourceCall = HLResource.getChoicesForField(type, field);
 
-        // Add a return here so the select gets disabled while loading the options.
-        return resourceCall.$promise.then(function(data) {
-            if (data.hasOwnProperty('results')) {
-                es.choices = data.results;
-            } else {
-                es.choices = data;
-            }
-        });
+        if (!resourceCall.hasOwnProperty('$promise')) {
+            es.choices = resourceCall;
+        } else {
+            // Add a return here so the select gets disabled while loading the options.
+            return resourceCall.$promise.then(function(data) {
+                if (data.hasOwnProperty('results')) {
+                    es.choices = data.results;
+                } else {
+                    es.choices = data;
+                }
+            });
+        }
     }
 
     function updateViewModel($data) {

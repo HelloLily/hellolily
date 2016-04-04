@@ -1,7 +1,13 @@
+import logging
+
 from django.forms import Field, CharField, ValidationError
 from django.utils.translation import ugettext_lazy as _
+from newrelic.api.function_trace import function_trace
 
 from .widgets import TagInput, FormSetWidget
+
+
+logger = logging.getLogger(__name__)
 
 
 class TagsField(CharField):
@@ -44,6 +50,7 @@ class FormSetField(Field):
 
         super(FormSetField, self).__init__(widget=widget, *args, **kwargs)
 
+    @function_trace()
     def validate(self, value):
         if not value.is_valid():
             if self.error_messages and 'invalid' in self.error_messages:
@@ -51,6 +58,7 @@ class FormSetField(Field):
             else:
                 raise ValidationError(code='invalid', message=_('Invalid input'))
 
+    @function_trace()
     def clean(self, value):
         return super(FormSetField, self).clean(value)
 

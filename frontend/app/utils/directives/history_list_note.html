@@ -24,7 +24,7 @@
 
         </div>
         <div class="content-details history-item-body" ng-show="vm.item.shown">
-            <p ng-bind-html="::vm.item.content | parseUrls"></p>
+            <p>{{ ::vm.item.content | parseUrls | customSanitize }} </p>
 
             <ul class="content-details-actions">
                 <li><a ng-click="vm.history.editNote(vm.item)"><i class="lilicon hl-edit-icon"></i> Edit</a></li>

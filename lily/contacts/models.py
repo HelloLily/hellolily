@@ -15,6 +15,14 @@ except ImportError:
     from lily.utils.functions import dummy_function as add_tenant
 
 
+def get_contact_picture_upload_path(instance, filename):
+    return settings.CONTACT_PICTURE_UPLOAD_TO % {
+        'tenant_id': instance.tenant_id,
+        'contact_id': instance.pk,
+        'filename': filename
+    }
+
+
 class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
     """
     Contact model, this is a person's profile. Has an optional relation to an account through
@@ -47,7 +55,7 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
     title = models.CharField(max_length=20, verbose_name=_('title'), blank=True)
     status = models.IntegerField(choices=CONTACT_STATUS_CHOICES, default=ACTIVE_STATUS,
                                  verbose_name=_('status'))
-    picture = models.ImageField(upload_to=settings.CONTACT_UPLOAD_TO, verbose_name=_('picture'), blank=True)
+    picture = models.ImageField(upload_to=get_contact_picture_upload_path, verbose_name=_('picture'), blank=True)
     description = models.TextField(verbose_name=_('description'), blank=True)
     salutation = models.IntegerField(choices=SALUTATION_CHOICES, default=INFORMAL, verbose_name=_('salutation'))
 

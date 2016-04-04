@@ -22,7 +22,8 @@ class MediaFilesStorage(S3BotoStorage):
 
     def __init__(self, *args, **kwargs):
         kwargs['bucket'] = settings.MEDIA_ROOT
-        kwargs['custom_domain'] = domain(settings.MEDIA_URL)
+        kwargs['acl'] = 'private'
+        kwargs['querystring_expire'] = 60
         super(MediaFilesStorage, self).__init__(*args, **kwargs)
 
 
@@ -34,6 +35,7 @@ class StaticFilesStorage(CachedFilesMixin, S3BotoStorage):
     def __init__(self, *args, **kwargs):
         kwargs['bucket'] = settings.STATIC_ROOT
         kwargs['custom_domain'] = domain(settings.STATIC_URL)
+        kwargs['acl'] = 'private'
         super(StaticFilesStorage, self).__init__(*args, **kwargs)
 
     def hashed_name(self, name, content=None):

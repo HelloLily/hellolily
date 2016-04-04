@@ -27,8 +27,8 @@ $inline-editable-field-height: 30px;
         line-height: $inline-editable-field-height - 2px;
         transition: all 0s;
         visibility: hidden;
-        width: 0px;
-        right: 0px;
+        width: 0;
+        right: 0;
     }
 
     &:hover {

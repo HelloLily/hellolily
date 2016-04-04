@@ -17,7 +17,7 @@ function accountConfig($stateProvider) {
             label: '{{ account.name }}',
         },
         resolve: {
-            account: ['Account', '$stateParams', function(Account, $stateParams) {
+            currentAccount: ['Account', '$stateParams', function(Account, $stateParams) {
                 var accountId = $stateParams.id;
                 return Account.get({id: accountId}).$promise;
             }],
@@ -27,28 +27,25 @@ function accountConfig($stateProvider) {
 
 angular.module('app.accounts').controller('AccountDetailController', AccountDetailController);
 
-AccountDetailController.$inject = ['$scope', '$stateParams', 'Settings', 'CaseDetail', 'ContactDetail', 'DealDetail', 'account'];
-function AccountDetailController($scope, $stateParams, Settings, CaseDetail, ContactDetail, DealDetail, account) {
-    /**
-     * Details page with historylist and more detailed account information.
-     */
+AccountDetailController.$inject = ['$scope', '$stateParams', 'Settings', 'Case', 'Contact', 'Deal', 'currentAccount'];
+function AccountDetailController($scope, $stateParams, Settings, Case, Contact, Deal, currentAccount) {
     var id = $stateParams.id;
 
-    $scope.account = account;
-    Settings.page.setAllTitles('detail', account.name);
+    $scope.account = currentAccount;
+    Settings.page.setAllTitles('detail', currentAccount.name);
 
-    $scope.caseList = CaseDetail.query({filterquery: 'account:' + id, sort: '-created', size: 100});
+    $scope.caseList = Case.query({filterquery: 'account:' + id, sort: '-created', size: 100});
     $scope.caseList.$promise.then(function(caseList) {
         $scope.caseList = caseList;
     });
 
-    $scope.dealList = DealDetail.query({filterquery: 'account:' + id, sort: '-created'});
+    $scope.dealList = Deal.query({filterquery: 'account:' + id, sort: '-created'});
     $scope.dealList.$promise.then(function(dealList) {
         $scope.dealList = dealList;
     });
 
-    $scope.contactList = ContactDetail.query({filterquery: 'accounts.id:' + id});
+    $scope.contactList = Contact.search({filterquery: 'accounts.id:' + id});
     $scope.contactList.$promise.then(function(contactList) {
-        $scope.contactList = contactList;
+        $scope.contactList = contactList.objects;
     });
 }

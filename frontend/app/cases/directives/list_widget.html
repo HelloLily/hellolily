@@ -1,91 +1,59 @@
-<div class="widget-container">
-    <div class="widget-heading">
-        <div class="widget-title">
-            <div class="widget-name">
-                <i class="lilicon hl-case-icon"></i>
-                {{ vm.title }}
-            </div>
-        </div>
+<dashboard-widget widget-name="'Cases'" widget-scrollable="true">
+    <widget-header>
+        <div class="widget-name"><i class="lilicon hl-case-icon"></i> {{ vm.title }}</div>
+    </widget-header>
 
-        <div class="widget-filters pull-right" ng-if="!$parent.settings.email.sidebar.case">
-            <a ui-sref="{{ vm.addLink || 'base.cases.create' }}" class="btn btn-circle btn-default" ng-click="vm.googleAnalyticsEvent()">
-                <i class="fa fa-plus"></i>
-                Add
-            </a>
-        </div>
+    <widget-filters>
+        <a ng-if="!vm.settings.email.sidebar.case" ui-sref="{{ vm.addLink || 'base.cases.create' }}" class="btn btn-circle btn-default" ng-click="vm.googleAnalyticsEvent()">
+            <i class="fa fa-plus"></i> Add
+        </a>
+    </widget-filters>
 
-        <div class="clearfix"></div>
-    </div>
-
-    <div class="widget-body">
-        <div class="widget-content">
-
-            <div class="scroll-body" slimscroll="{height: vm.height}">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Subject</th>
-                            <th>Status</th>
-                            <th style="text-align: center;">Prio</th>
-                            <th>Expires</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody ng-repeat="case in vm.list" ng-if="vm.list.length">
-                        <tr>
-                            <td>
-                                <strong ng-if="::case.archived">(a)</strong>
-                                <a ui-sref="base.cases.detail({id: case.id})">{{ case.subject }}</a>
-                            </td>
-                            <td>{{ case.status }}</td>
-                            <td style="width: 50px; text-align: center;">
-                                <i tooltip-placement="left" uib-tooltip="{{ case.priority_name }} priority" class="lilicon" ng-class="{0: 'hl-low-prio-icon', 1: 'hl-normal-prio-icon', 2: 'hl-high-prio-icon', 3: 'hl-critical-prio-icon'}[case.priority]"></i>
-                            </td>
-                            <td style="width: 130px">
-                                <postpone type="'Case'" object="case" date-field="'expires'"></postpone>
-                            </td>
-                            <td class="clickable" style="width: 40px;" ng-click="case.collapsed = !case.collapsed">
-                                <div class="collapse-indicator no-padding">
-                                    <i class="fa fa-angle-down" ng-class="{'rotate': case.collapsed}"></i>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="5" class="collapsable-cell">
-                                <div ng-show="!case.collapsed" class="collapse-content">
-                                    {{ case.body }}
-
-                                    <ul class="list-inline list-justified">
-                                        <li>
-                                            <small class="text-muted">
-                                                <i class="fa fa-circle"></i>
-                                                {{ case.casetype_name }}
-                                            </small>
-                                        </li>
-                                        <li ng-if="case.assigned_to_name">
-                                            <small class="text-muted" uib-tooltip="Assigned to: {{ case.assigned_to_name }}">
-                                                <i class="fa fa-child"></i>
-                                                {{ case.assigned_to_name || "Nobody" }}
-                                            </small>
-                                        </li>
-                                        <li>
-                                            <small class="text-muted" uib-tooltip="Created by: {{ case.created_by }}">
-                                                <i class="fa fa-user"></i>
-                                                {{ case.created_by || "Nobody" }}
-                                            </small>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                    <tbody ng-if="!vm.list.length">
-                        <tr>
-                            <td colspan="5">No cases</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
+    <widget-body>
+        <table class="widget-table">
+            <thead>
+                <tr>
+                    <th>Subject</th>
+                    <th>Status</th>
+                    <th class="align-center">Priority</th>
+                    <th>Expires</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody ng-repeat="case in vm.list" ng-if="vm.list.length">
+                <tr>
+                    <td>
+                        <strong ng-if="::case.archived">(a)</strong>
+                        <a ui-sref="base.cases.detail({id: case.id})">{{ case.subject }}</a>
+                    </td>
+                    <td>{{ case.status }}</td>
+                    <td class="align-center">
+                        <i tooltip-placement="left" uib-tooltip="{{ case.priority_name }} priority" class="lilicon" ng-class="{0: 'hl-low-prio-icon', 1: 'hl-normal-prio-icon', 2: 'hl-high-prio-icon', 3: 'hl-critical-prio-icon'}[case.priority]"></i>
+                    </td>
+                    <td><postpone type="'Case'" object="case" date-field="'expires'"</postpone></td>
+                    <td class="clickable" style="width: 40px;" ng-click="case.collapsed = !case.collapsed">
+                        <div class="collapse-indicator no-padding">
+                            <i class="fa fa-angle-down" ng-class="{'rotate': case.collapsed}"></i>
+                        </div>
+                    </td>
+                </tr>
+                <tr ng-show="!case.collapsed" class="collapse-content" class="collapsable-cell">
+                    <td colspan="5">
+                        <div class="margin-bottom-5" ng-if="case.casetype_name"><strong>Type:</strong> {{ case.casetype_name }}</div>
+                        <div class="margin-bottom-5"><strong>Assigned to:</strong> {{ case.assigned_to.full_name || "Nobody" }}</div>
+                        <div class="margin-bottom-5"><strong>Created by:</strong> <span class="margin-right-5">{{ case.created_by.full_name || "Nobody" }} on</span><date date="case.created"></date></div>
+                        <div class="margin-top-20" ng-if="case.body.length">
+                            <strong class="margin-bottom-5">Description:</strong>
+                            <div>{{ case.body }}</div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+            <tbody ng-hide="vm.list.length">
+                <tr>
+                    <td colspan="5">No cases</td>
+                </tr>
+            </tbody>
+        </table>
+    </widget-body>
+</dashboard-widget>

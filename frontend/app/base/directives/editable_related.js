@@ -26,6 +26,12 @@ function editableRelated() {
 
                 scope.$apply();
             });
+
+            element.on('click', '.editable-related', function() {
+                scope.er.formVisible = true;
+                scope.er.addRelatedField();
+                scope.$apply();
+            });
         },
     };
 }

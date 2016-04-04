@@ -3,7 +3,6 @@ angular.module('app.directives').directive('listWidget', ListWidget);
 function ListWidget() {
     return {
         restrict: 'E',
-        replace: true,
         scope: {
             title: '@',
             module: '=',
@@ -31,9 +30,11 @@ function ListWidget() {
     };
 }
 
-ListWidgetController.$inject = ['$state'];
-function ListWidgetController($state) {
+ListWidgetController.$inject = ['$state', 'Settings'];
+function ListWidgetController($state, Settings) {
     var vm = this;
+
+    vm.settings = Settings;
 
     vm.googleAnalyticsEvent = googleAnalyticsEvent;
 

@@ -12,8 +12,11 @@
     <widget-body>
         <table class="widget-table vertical-top-align">
             <tr>
-                <td><strong>Salutation</strong></td>
-                <td>({{ vm.contact.salutation_display || vm.contact.salutation }} / {{ vm.contact.gender_display || vm.contact.gender }})</td>
+                <td><i class="fa fa-comment-o"></i> <strong>Salutation</strong></td>
+                <td>
+                    <editable-select field="salutation" view-model="vm" type="Contact" choice-field="true" select-options="{field: 'salutationOptions'}">{{ vm.contact.salutation_display || vm.contact.salutation }}</editable-select><span class="margin-left-5 margin-right-5">/</span>
+                    <editable-select field="gender" view-model="vm" type="Contact" choice-field="true" select-options="{field: 'genderOptions'}">{{ vm.contact.gender_display || vm.contact.gender }}</editable-select>
+                </td>
             </tr>
 
             <tr>
@@ -60,10 +63,12 @@
                 </td>
             </tr>
 
-            <tr ng-show="vm.contact.description">
+            <tr>
                 <td colspan="2">
                     <strong class="margin-bottom-5">Description</strong>
-                    <div ng-bind-html="vm.contact.description | parseUrls"></div>
+                    <div>
+                        <div class="pre-wrap" editable-textarea="vm.contact.description" e-rows="4" e-cols="100" onbeforesave="vm.updateModel($data, 'description')">{{ (vm.contact.description | parseUrls) || 'No description' }}</div>
+                    </div>
                 </td>
             </tr>
         </table>

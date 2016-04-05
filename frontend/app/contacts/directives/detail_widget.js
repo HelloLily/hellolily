@@ -14,8 +14,8 @@ function contactDetailWidget() {
     };
 }
 
-ContactDetailWidgetController.$inject = ['Settings'];
-function ContactDetailWidgetController(Settings) {
+ContactDetailWidgetController.$inject = ['HLResource', 'Settings'];
+function ContactDetailWidgetController(HLResource, Settings) {
     var vm = this;
 
     vm.settings = Settings;

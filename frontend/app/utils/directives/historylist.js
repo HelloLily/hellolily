@@ -227,9 +227,6 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
                         emailMessageList.forEach(function(email) {
                             email.gravatar = HLGravatar.getGravatar(email.sender_email);
 
-                            // Foldout email on default in the historylist.
-                            email.shown = true;
-
                             tenantEmailAccountList.forEach(function(emailAddress) {
                                 if (emailAddress.email_address === email.sender_email) {
                                     email.right = true;

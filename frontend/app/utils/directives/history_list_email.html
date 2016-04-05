@@ -55,9 +55,7 @@
         </div>
 
         <div class="content-details history-item-body" ng-show="vm.item.shown">
-            <p ng-bind-html="vm.item.body | limitTo:265 | parseUrls">
-                <span ng-if="::vm.item.body.length >= 265">...</span>
-            </p>
+            <p class="detail-plain-text" ng-bind-html="vm.item.body | parseUrls"></p>
 
 
             <ul class="content-details-actions">

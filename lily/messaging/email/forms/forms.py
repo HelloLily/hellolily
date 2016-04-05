@@ -6,8 +6,9 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse_lazy
 from django.core.validators import validate_email
-from django.db.models.fields.files import FieldFile, FileField
+from django.db.models.fields.files import FieldFile
 from django.db.models import Q
+from django.forms.fields import FileField
 from django.forms.models import modelformset_factory
 from django.template.defaultfilters import linebreaksbr
 from django.utils.translation import ugettext_lazy as _
@@ -59,6 +60,77 @@ class AttachmentBaseForm(HelloLilyModelForm):
         widgets = {
             'attachment': EmailAttachmentWidget(),
         }
+
+    @function_trace()
+    def is_valid(self):
+        return super(AttachmentBaseForm, self).is_valid()
+
+    @function_trace()
+    def full_clean(self):
+        super(AttachmentBaseForm, self).full_clean()
+
+    @function_trace()
+    def clean(self):
+        return super(AttachmentBaseForm, self).clean()
+
+    @function_trace()
+    def _clean_form(self):
+        super(AttachmentBaseForm, self)._clean_form()
+
+    @function_trace()
+    def _post_clean(self):
+        super(AttachmentBaseForm, self)._post_clean()
+
+    @function_trace()
+    def has_changed(self):
+        return super(AttachmentBaseForm, self).has_changed()
+
+    @function_trace()
+    def _clean_fields(self):
+        for name, field in self.fields.items():
+            self.temp_field_clean(name, field)
+
+    @function_trace()
+    def temp_field_clean(self, name, field):
+        # value_from_datadict() gets the data from the data dictionaries.
+        # Each widget type knows how to retrieve its own data, because some
+        # widgets split data over several HTML fields.
+        value = self.temp_get_value_from_datadict(name, field)
+        try:
+            if isinstance(field, FileField):
+                initial = self.temp_get_initial(name, field)
+                value = self.temp_clean_file_field_with_initial(value, field, initial)
+            else:
+                value = self.temp_clean_file_field(value, field)
+            self.cleaned_data[name] = value
+            if hasattr(self, 'clean_%s' % name):
+                value = getattr(self, 'clean_%s' % name)()
+                self.cleaned_data[name] = value
+        except ValidationError as e:
+            self.add_error(name, e)
+
+    @function_trace()
+    def temp_field_clean(self, name, field):
+        # value_from_datadict() gets the data from the data dictionaries.
+        # Each widget type knows how to retrieve its own data, because some
+        # widgets split data over several HTML fields.
+        value = field.widget.value_from_datadict(self.data, self.files, self.add_prefix(name))
+        try:
+            if isinstance(field, FileField):
+                initial = self.initial.get(name, field.initial)
+                value = field.clean(value, initial)
+            else:
+                value = field.clean(value)
+            self.cleaned_data[name] = value
+            if hasattr(self, 'clean_%s' % name):
+                value = getattr(self, 'clean_%s' % name)()
+                self.cleaned_data[name] = value
+        except ValidationError as e:
+            self.add_error(name, e)
+
+    @function_trace()
+    def add_error(self, field, error):
+        super(AttachmentBaseForm, self).add_error(field, error)
 
 
 class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
@@ -121,7 +193,6 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
     subject = forms.CharField(required=False)
     body_html = forms.CharField(widget=Wysihtml5Input(), required=False)
 
-    @function_trace()
     def __init__(self, *args, **kwargs):
         self.message_type = kwargs.pop('message_type', 'reply')
         super(ComposeEmailForm, self).__init__(*args, **kwargs)
@@ -169,53 +240,6 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
         Return True since file uploads are possible.
         """
         return True
-
-    @function_trace()
-    def _clean_fields(self):
-        for name, field in self.fields.items():
-            self.temp_field_clean(name, field)
-
-    @function_trace()
-    def temp_field_clean(self, name, field):
-        # value_from_datadict() gets the data from the data dictionaries.
-        # Each widget type knows how to retrieve its own data, because some
-        # widgets split data over several HTML fields.
-        value = self.temp_get_value_from_datadict(name, field)
-        try:
-            if isinstance(field, FileField):
-                initial = self.temp_get_initial(name, field)
-                value = self.temp_clean_file_field_with_initial(value, field, initial)
-            else:
-                value = self.temp_clean_file_field(value, field)
-            self.cleaned_data[name] = value
-            if hasattr(self, 'clean_%s' % name):
-                value = getattr(self, 'clean_%s' % name)()
-                self.cleaned_data[name] = value
-        except ValidationError as e:
-            self.add_error(name, e)
-
-    @function_trace()
-    def temp_get_value_from_datadict(self, name, field):
-        # value_from_datadict() gets the data from the data dictionaries.
-        # Each widget type knows how to retrieve its own data, because some
-        # widgets split data over several HTML fields.
-        return field.widget.value_from_datadict(self.data, self.files, self.add_prefix(name))
-
-    @function_trace()
-    def temp_get_initial(self, name, field):
-        return self.initial.get(name, field.initial)
-
-    @function_trace()
-    def temp_clean_file_field_with_initial(self, value, field, initial):
-        return field.clean(value, initial)
-
-    @function_trace()
-    def temp_clean_file_field(self, value, field):
-        return field.clean(value)
-
-    @function_trace()
-    def add_error(self, field, error):
-        super(ComposeEmailForm, self).add_error(field, error)
 
     def clean(self):
         cleaned_data = super(ComposeEmailForm, self).clean()

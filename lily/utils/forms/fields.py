@@ -50,7 +50,6 @@ class FormSetField(Field):
 
         super(FormSetField, self).__init__(widget=widget, *args, **kwargs)
 
-    @function_trace()
     def validate(self, value):
         if not value.is_valid():
             if self.error_messages and 'invalid' in self.error_messages:
@@ -58,7 +57,6 @@ class FormSetField(Field):
             else:
                 raise ValidationError(code='invalid', message=_('Invalid input'))
 
-    @function_trace()
     def clean(self, value):
         return super(FormSetField, self).clean(value)
 

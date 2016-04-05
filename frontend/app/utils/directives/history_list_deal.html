@@ -79,7 +79,7 @@
                             <div class="content-history-note-header">
                                 <div class="content-history-avatar" style="background-image: url('{{ vm.item.created_by.profile_picture }}'); "></div>
                                 <div class="content-history-desc">
-                                    {{ ::vm.item.created_by.full_name }} created the deal <a ui-sref="base.deals.detail({ id: vm.item.id })">{{ ::vm.item.name }}</a>
+                                    {{ ::vm.item.created_by.full_name || 'An unknown entity' }} created the deal <a ui-sref="base.deals.detail({ id: vm.item.id })">{{ ::vm.item.name }}</a>
                                 </div>
 
                                 <div class="content-history-date">{{ ::vm.item.created | date:'dd MMM - HH:mm' }}</div>

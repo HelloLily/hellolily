@@ -218,5 +218,7 @@ $inline-editable-field-height: 30px;
         background: inherit;
         height: $inline-editable-field-height - 2;
         color: $lilyDarkBlue;
+        padding-top: 0;
+        line-height: 28px;
     }
 }

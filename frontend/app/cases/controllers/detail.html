@@ -47,7 +47,7 @@
                 </table>
                 <div class="widget-content">
                     <strong>Description <i class="lilicon hl-edit-icon clickable margin-left-10" ng-click="descriptionForm.$show()" ng-hide="descriptionForm.$visible"></i></strong>
-                    <div editable-textarea="vm.case.description" e-rows="4" e-cols="100" e-form="descriptionForm" onbeforesave="vm.updateModel($data, 'description')" ng-bind-html="(vm.case.description | parseUrls) || 'No description'"></div>
+                    <div class="pre-wrap" editable-textarea="vm.case.description" e-rows="4" e-cols="100" e-form="descriptionForm" onbeforesave="vm.updateModel($data, 'description')" ng-bind-html="(vm.case.description | parseUrls) || 'No description'"></div>
                 </div>
             </div>
         </div>

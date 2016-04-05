@@ -1,4 +1,4 @@
-<span ng-show="!er.formVisible" class="editable editable-click">
+<span ng-show="!er.formVisible" class="editable editable-click addable-click">
     <div ng-repeat="address in er.items">
         {{ address.street }} {{ address.street_number }}{{ address.complement }}
         <br />
@@ -7,6 +7,11 @@
         {{ address.country }}
     </div>
     <div ng-if="!er.items.length">No addresses</div>
+
+    <div class="editable-icons">
+        <span ng-if="er.items.length" class="editable-icon"><i class="lilicon hl-edit-icon"></i></span>
+        <span class="editable-icon"><i class="fa fa-plus"></i></span>
+    </div>
 </span>
 
 <form name="{{ er.formName }}" ng-show="er.formVisible" class="form-inline">

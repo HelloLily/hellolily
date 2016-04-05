@@ -51,7 +51,7 @@
                 <div class="widget-content">
                     <div class="widget-content-section">
                         <strong>Description <i class="lilicon hl-edit-icon clickable margin-left-10" ng-click="descriptionForm.$show()" ng-hide="descriptionForm.$visible"></i></strong>
-                        <div editable-textarea="vm.deal.description" e-rows="4" e-cols="100" e-form="descriptionForm" onbeforesave="vm.updateModel($data, 'description')" ng-bind-html="(vm.deal.description | parseUrls) || 'No description'"></div>
+                        <div class="pre-wrap" editable-textarea="vm.deal.description" e-rows="4" e-cols="100" e-form="descriptionForm" onbeforesave="vm.updateModel($data, 'description')" ng-bind-html="(vm.deal.description | parseUrls) || 'No description'"></div>
 
                         <div class="clearfix"></div>
                     </div>
@@ -105,17 +105,17 @@
                                     <td><date date="vm.deal.closed_date"></date></td>
                                 </tr>
 
-                                <tr ng-show="vm.deal.quote_id || vm.deal.account.customer_id">
+                                <tr ng-if="(vm.deal.quote_id && vm.tenant.isVoysNL()) || (vm.deal.account.customer_id && vm.tenant.primary_external_app_link)">
                                     <td><strong>External</strong></td>
                                     <td>
-                                        <div ng-if="vm.deal.quote_id" class="margin-bottom-10">
+                                        <div ng-if="vm.deal.quote_id && vm.tenant.isVoysNL()" class="margin-bottom-10">
                                             <a ng-href="https://freedom.voys.nl/quotes/pdf/{{ vm.deal.quote_id }}/">
-                                                Quote: {{ vm.deal.quote_id }}
+                                                Quote
                                             </a>
                                         </div>
-                                        <div ng-if="vm.deal.account.customer_id">
-                                            <a ng-href="https://freedom.voys.nl/client/{{ vm.deal.account.customer_id }}">
-                                                Customer: {{ vm.deal.account.customer_id }}
+                                        <div ng-if="vm.deal.account.customer_id && vm.tenant.primary_external_app_link">
+                                            <a ng-href="{{ vm.tenant.primary_external_app_link.getUrl(vm.deal.account.customer_id) }}">
+                                                {{ vm.tenant.primary_external_app_link.name }}
                                             </a>
                                         </div>
                                     </td>

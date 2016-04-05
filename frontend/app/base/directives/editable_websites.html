@@ -1,10 +1,15 @@
-<span ng-show="!er.formVisible" class="editable editable-click">
+<span ng-show="!er.formVisible" class="editable editable-click addable-click">
     <div ng-repeat="website in er.items">
         <a href="{{ website.website }}" target="_blank">
             {{ website.website | stripScheme }}
         </a>
     </div>
     <div ng-if="!er.items.length">No websites</div>
+
+    <div class="editable-icons">
+        <span ng-if="er.items.length" class="editable-icon"><i class="lilicon hl-edit-icon"></i></span>
+        <span class="editable-icon"><i class="fa fa-plus"></i></span>
+    </div>
 </span>
 
 <form name="{{ er.formName }}" ng-show="er.formVisible" class="form-inline">

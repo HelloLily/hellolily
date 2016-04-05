@@ -15,6 +15,8 @@ function Settings(LocalStorage) {
                 setSub: setSub,
             },
             setAllTitles: setAllTitles,
+            account: null,
+            contact: null,
         },
         email: {
             sidebar: {
@@ -78,12 +80,14 @@ function Settings(LocalStorage) {
         return _settings.page.header.sub;
     }
 
-    function setAllTitles(pageType, objectInfo) {
+    function setAllTitles(pageType, objectInfo, contact, account) {
         // Make sure sidebar forms don't set the titles/headers.
         if (!_settings.email.sidebar.form) {
             setTitle(pageType, objectInfo);
             setMain(pageType, objectInfo);
             setSub(pageType, objectInfo);
+            _settings.page.contact = contact;
+            _settings.page.account = account;
         }
     }
 

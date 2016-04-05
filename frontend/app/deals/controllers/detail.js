@@ -29,7 +29,7 @@ DealDetailController.$inject = ['$scope', '$state', '$uibModal', 'Account', 'Con
 function DealDetailController($scope, $state, $uibModal, Account, Contact, Deal, HLResource, HLUtils, Settings, currentDeal, Tenant) {
     var vm = this;
 
-    Settings.page.setAllTitles('detail', currentDeal.name);
+    Settings.page.setAllTitles('detail', currentDeal.name, currentDeal.contact, currentDeal.account);
 
     vm.deal = currentDeal;
 

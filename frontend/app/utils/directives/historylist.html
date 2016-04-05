@@ -1,5 +1,5 @@
 <div class="row">
-    <div class="col-md-12" ng-if="!parentObject">
+    <div class="col-md-12">
         <ul class="mix-filter text-center">
             <li ng-repeat="(typeKey, typeVal) in history.types" ng-if="typeVal.visible" ng-class="{'active': history.activeFilter == typeKey}" ng-click="history.filterType(typeKey)">{{ typeVal.name }}</li>
         </ul>

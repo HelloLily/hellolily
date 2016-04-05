@@ -92,6 +92,10 @@ $inline-editable-field-height: 30px;
                 transition: right ease-in-out 0.3s;
                 visibility: visible;
                 right: -61px;
+
+                &.no-edit {
+                    right: -31px;
+                }
             }
 
             .editable-icon {

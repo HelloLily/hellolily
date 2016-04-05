@@ -3,7 +3,7 @@ angular.module('app.email.services').factory('EmailMessage', EmailMessage);
 EmailMessage.$inject = ['$resource', '$q'];
 function EmailMessage($resource, $q) {
     var _emailMessage = $resource(
-        '/api/messaging/email/email/:id/:actions',
+        '/api/messaging/email/email/:id/',
         {},
         {
             query: {
@@ -13,49 +13,46 @@ function EmailMessage($resource, $q) {
                 method: 'PUT',
                 params: {
                     id: '@id',
-                    actions: '',
                 },
             },
             delete: {
                 method: 'DELETE',
                 params: {
                     id: '@id',
-                    actions: '',
                 },
             },
             archive: {
                 method: 'PUT',
+                url: '/api/messaging/email/email/:id/archive/',
                 params: {
                     id: '@id',
-                    actions: 'archive',
                 },
             },
             trash: {
                 method: 'PUT',
+                url: '/api/messaging/email/email/:id/trash/',
                 params: {
                     id: '@id',
-                    actions: 'trash',
                 },
             },
             get: {
                 method: 'GET',
                 params: {
                     id: '@id',
-                    actions: '',
                 },
             },
             move: {
                 method: 'PUT',
+                url: '/api/messaging/email/email/:id/move/',
                 params: {
                     id: '@id',
-                    actions: 'move',
                 },
             },
             star: {
                 method: 'PUT',
+                url: '/api/messaging/email/email/:id/star/',
                 params: {
                     id: '@id',
-                    actions: 'star',
                 },
             },
             search: {
@@ -70,9 +67,9 @@ function EmailMessage($resource, $q) {
             },
             history: {
                 method: 'GET',
+                url: '/api/messaging/email/email/:id/history/',
                 params: {
                     id: '@id',
-                    actions: 'history',
                 },
             },
         }

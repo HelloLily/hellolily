@@ -1,5 +1,5 @@
 <div class="row">
-    <div class="col-md-12">
+    <div class="col-md-12" ng-if="!parentObject">
         <ul class="mix-filter text-center">
             <li ng-repeat="(typeKey, typeVal) in history.types" ng-if="typeVal.visible" ng-class="{'active': history.activeFilter == typeKey}" ng-click="history.filterType(typeKey)">{{ typeVal.name }}</li>
         </ul>
@@ -60,7 +60,11 @@
         </div>
 
         <div class="timeline-info-header" ng-if="history.list.totalItems && parentObject">
-            <h3>Latest {{ target }} history</h3>
+            <h3 class="text-center">Latest {{ target }} history</h3>
+
+            <ul class="mix-filter text-center">
+                <li ng-repeat="(typeKey, typeVal) in history.types" ng-if="typeVal.visible" ng-class="{'active': history.activeFilter == typeKey}" ng-click="history.filterType(typeKey)">{{ typeVal.name }}</li>
+            </ul>
         </div>
 
         <div ng-repeat="(key, value) in history.list.nonPinned" class="history-list-item" ng-show="value.isVisible">

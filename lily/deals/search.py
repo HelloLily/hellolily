@@ -185,9 +185,9 @@ class DealMapping(BaseMapping):
             'assigned_to_name': obj.assigned_to.get_full_name() if obj.assigned_to else None,
             'assigned_to_id': obj.assigned_to.id if obj.assigned_to else None,
             'created_by': {
-                'full_name': obj.created_by.get_full_name() if obj.created_by else None,
-                'id': obj.created_by.id if obj.created_by else None,
-            },
+                'full_name': obj.created_by.get_full_name(),
+                'id': obj.created_by.id,
+            } if obj.created_by else None,
             'status': obj.status.id,
             'status_name': obj.status.name,
             'amount_once': obj.amount_once,

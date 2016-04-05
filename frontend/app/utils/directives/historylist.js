@@ -146,14 +146,18 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
                     casePromise.then(function(response) {
                         response.objects.forEach(function(caseItem) {
                             // Get user object for the assigned to user.
-                            User.get({id: caseItem.assigned_to_id}, function(userObject) {
-                                caseItem.assigned_to = userObject;
-                            });
+                            if (caseItem.assigned_to_id) {
+                                User.get({id: caseItem.assigned_to_id}, function(userObject) {
+                                    caseItem.assigned_to = userObject;
+                                });
+                            }
 
-                            // Get user object for the created by user.
-                            User.get({id: caseItem.created_by.id}, function(userObject) {
-                                caseItem.created_by = userObject;
-                            });
+                            if (caseItem.created_by) {
+                                // Get user object for the created by user.
+                                User.get({id: caseItem.created_by.id}, function(userObject) {
+                                    caseItem.created_by = userObject;
+                                });
+                            }
 
                             caseItem.historyType = 'case';
 
@@ -180,15 +184,19 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
 
                     dealPromise.then(function(results) {
                         results.forEach(function(deal) {
-                            // Get user object for the assigned to user.
-                            User.get({id: deal.assigned_to_id}, function(userObject) {
-                                deal.assigned_to = userObject;
-                            });
+                            if (deal.assigned_to_id) {
+                                // Get user object for the assigned to user.
+                                User.get({id: deal.assigned_to_id}, function(userObject) {
+                                    deal.assigned_to = userObject;
+                                });
+                            }
 
-                            // Get user object to show profile picture correctly.
-                            User.get({id: deal.created_by.id}, function(userObject) {
-                                deal.created_by = userObject;
-                            });
+                            if (deal.created_by) {
+                                // Get user object to show profile picture correctly.
+                                User.get({id: deal.created_by.id}, function(userObject) {
+                                    deal.created_by = userObject;
+                                });
+                            }
 
                             NoteDetail.query({
                                 filterquery: 'content_type:deal AND object_id:' + deal.id,

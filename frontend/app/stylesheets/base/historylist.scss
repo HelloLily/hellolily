@@ -174,6 +174,11 @@
 .timeline-info-header {
     font-size: 1.5em;
     margin-left: 90px;
+
+    h3 {
+        margin-top: 50px;
+        margin-bottom: 20px;
+    }
 }
 
 .timeline-content-header {
@@ -463,6 +468,12 @@
     }
 }
 
+.history-item-body {
+    p {
+        white-space: pre-wrap;
+    }
+}
+
 .content-details-additional {
     position: relative;
 }
@@ -485,6 +496,7 @@
     margin-left: 50px;
     border-radius: $baseBorderRadius;
     padding: 10px;
+    white-space: pre-wrap;
 
     &.has-form {
         background-color: #ffffff;

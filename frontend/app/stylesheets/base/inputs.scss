@@ -45,6 +45,7 @@ $inline-editable-field-height: 30px;
             visibility: visible;
             width: $inline-editable-field-height;
             right: -$inline-editable-field-height;
+            z-index: 99;
         }
     }
 

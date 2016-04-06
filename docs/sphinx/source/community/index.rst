@@ -10,3 +10,4 @@ keep getting better.
 
     development
     code_of_conduct
+    angular_styleguide

@@ -31,7 +31,7 @@ function CaseDetailController($scope, Settings, Account, CaseStatuses, caseItem,
                               UserTeams, HLResource, Tenant) {
     var vm = this;
 
-    Settings.page.setAllTitles('detail', caseItem.subject);
+    Settings.page.setAllTitles('detail', caseItem.subject, caseItem.contact, caseItem.account);
 
     vm.case = caseItem;
     vm.caseStatuses = CaseStatuses.query();

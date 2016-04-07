@@ -73,6 +73,11 @@
                     Trash <span class="unread-count" ng-if="vm.hasUnreadLabel(account, 'TRASH')">{{ vm.unreadCountForLabel(account, 'TRASH') }}</span>
                 </a>
             </li>
+            <li ui-sref-active="active">
+                <a class="email-nav-item" ui-sref="base.email.accountList({labelId:'SPAM', accountId: account.id})">
+                    Spam <span class="unread-count" ng-if="vm.hasUnreadLabel(account, 'SPAM')">{{ vm.unreadCountForLabel(account, 'SPAM') }}</span>
+                </a>
+            </li>
             <li ng-repeat="label in account.labels | orderBy:'name'" ng-if="label.label_type != 0" ui-sref-active="active">
                 <a class="email-nav-item" ui-sref="base.email.accountList({labelId: label.label_id, accountId: account.id})">
                     {{ label.name }}<span class="unread-count" ng-show="label.unread">{{ label.unread }}</span></a>

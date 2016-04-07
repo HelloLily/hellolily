@@ -4,7 +4,7 @@ function formPortlet() {
     return {
         restrict: 'E',
         scope: {
-            title: '@',
+            portletTitle: '@',
             collapsable: '=',
             position: '=',
         },

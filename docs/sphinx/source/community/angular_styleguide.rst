@@ -4,11 +4,11 @@ Lily Angular style guide
 
 The Angular part of Lily was built with the `John Papa Angular style guide <https://github.com/johnpapa/angular-styleguide>`_ serving as the basis and the `Airbnb JavaScript style guide <https://github.com/airbnb/javascript>`_ for the JavaScript part. This Lily Angular (& JavaScript) style guide will give you an overview of how we use various Angular components and the coding style in Lily. Not all examples might be representative of the actual code and some code might be missing to highlight the important bits. Any improvements are welcome of course.
 
-Note: This isn't meant as a full Angular tutorial/guide, so I assume you have at least know the basics of Angular.
+**Note:** This isn't meant as a full Angular tutorial/guide, so I assume you have at least know the basics of Angular.
 
 Basics
 ******
-Let's start with the basics. Our coding style. If you're a Spindle employee you can find a complete document of our coding style in the wiki or you can check our ESLint rules in the ``.eslintrc`` file and the scss-lint rules in the ``.sass-lint.yml`` file. Both located in the root of the Lily app. Here's a small excerpt of some general coding style rules.
+Let's start with the basics; the coding style. You can check our ESLint rules in the ``.eslintrc`` file and the scss-lint rules in the ``.sass-lint.yml`` file. Both located in the root of the Lily app. Here's a small excerpt of some general coding style rules.
 
 Naming conventions
 ==================
@@ -20,9 +20,9 @@ Our naming conventions differ slightly from the one used in the John Papa guide.
 +-------------+------------------------------+----------------------+
 | Controllers | Functionality + 'Controller' | ListWidgetController |
 +-------------+------------------------------+----------------------+
-| Directives  | lowerCamelCase               | listWidget           |
+| Directives  | camelCase                    | listWidget           |
 +-------------+------------------------------+----------------------+
-| Filters     | lowerCamelCase               | customSanitize       |
+| Filters     | camelCase                    | customSanitize       |
 +-------------+------------------------------+----------------------+
 | Services    | PascalCase                   | HLResource           |
 +-------------+------------------------------+----------------------+
@@ -137,7 +137,7 @@ The directive then knows what controller to use and calls that controller (``Edi
 
 The rest of this directive's code isn't relevant and won't be covered.
 
-There's one more thing we need, to create a directive: the template. The template for the above controller isn't very complicated and contains everything a normal template contains.
+There's one more thing we need to create a directive: the template. The template for the above controller isn't very complicated and contains everything a normal template contains.
 
 .. code-block:: html
 
@@ -146,14 +146,15 @@ There's one more thing we need, to create a directive: the template. The templat
         <ng-transclude></ng-transclude>
     </span>
 
-This template might be confusing, but you can pretty much ignore all the attributes in the ``span`` tag. They are there to call a third party library (Angular x-editable), but you can see how the controller's variables and function get used to set up the template. The ``ng-transclude`` you see is where I referred to in the intro to this directive. The ``{{ vm.deal.next_step.name }}`` is what will be put in the place of the ``ng-transclude``. This transclusion allows you to have generic templates (like we do with the ``dashboardWidget`` directive).
+This template might be confusing, but you can pretty much ignore all the attributes in the ``span`` tag. They are there to call a third party library (Angular x-editable), but you can see how the controller's variables and function get used to set up the template.
+The ``ng-transclude`` you see is what I referred to in the intro to this directive. The ``{{ vm.deal.next_step.name }}`` is what will be put in the place of the ``ng-transclude``. This transclusion allows you to have generic templates (like we do with the ``dashboardWidget`` directive).
 
 **Note:** Yes, another ``editableSelect`` directive gets called here, but this is the ``editableSelect`` provided by the Angular x-editable library.
 
 Services
 ********
 
-We use services to provide generic code to the app. Below is the HLResource service, which provides some useful functions related to resources.
+We use services to provide generic code to the app. Below is the ``HLResource`` service, which provides some useful functions related to resources.
 
 .. code-block:: javascript
 

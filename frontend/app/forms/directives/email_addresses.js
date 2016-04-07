@@ -5,14 +5,17 @@ function formEmailAddresses() {
         restrict: 'E',
         require: '^form',
         scope: {
+            label: '@?',
             emailAddresses: '=',
             addRelatedField: '&',
             removeRelatedField: '&',
+            showIcon: '=',
         },
         templateUrl: 'forms/directives/email_addresses.html',
         controller: FormEmailAddressesController,
         controllerAs: 'vm',
         bindToController: true,
+        transclude: true,
         link: function(scope, element, attrs, form) {
             // Set parent form on the scope
             scope.form = form;
@@ -20,22 +23,13 @@ function formEmailAddresses() {
     };
 }
 
-FormEmailAddressesController.$inject = ['$rootScope', 'HLUtils'];
-function FormEmailAddressesController($rootScope, HLUtils) {
+FormEmailAddressesController.$inject = ['HLUtils'];
+function FormEmailAddressesController(HLUtils) {
     var vm = this;
-    vm.sidebar = $rootScope.$$childHead.settings.email.sidebar.form;
 
     vm.setPrimaryEmailAddress = HLUtils.setPrimaryEmailAddress;
 
-    activate();
-
-    /////
-
-    function activate() {
-        if (vm.sidebar === 'contact') {
-            vm.emailLabel = 'Email';
-        } else {
-            vm.emailLabel = 'Company email';
-        }
+    if (!vm.label) {
+        vm.label = 'Company email';
     }
 }

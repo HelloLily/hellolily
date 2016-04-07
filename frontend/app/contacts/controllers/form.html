@@ -5,7 +5,7 @@
         </div>
 
         <form novalidate class="hl-form-body" name="contactForm">
-            <form-portlet title="Who was it?">
+            <form-portlet portlet-title="Who was it?">
                 <form-radio-buttons options="['Formal', 'Informal']" label-title="Salutation" input-name="salutation" required="true" field="vm.contact.salutation" sidebar="settings.email.sidebar.form"></form-radio-buttons>
                 <form-radio-buttons options="['Male', 'Female', 'Unknown/Other']" label-title="Gender" input-name="gender" required="true" field="vm.contact.gender" sidebar="settings.email.sidebar.form"></form-radio-buttons>
 
@@ -50,7 +50,7 @@
                 </div>
 
                 <form-group label-title="Works at" label-icon="child" label-id="id_account" field="contactForm.accounts">
-                    <ui-select multiple ng-model="vm.contact.accounts" theme="bootstrap" class="form-control" name="accounts">
+                    <ui-select multiple ng-model="vm.contact.accounts" theme="select2" class="form-control" name="accounts">
                         <ui-select-match placeholder="Select one or more account(s)">{{ $item.name }}</ui-select-match>
                         <ui-select-choices repeat="account in vm.accounts" refresh="vm.refreshAccounts($select.search)" refresh-delay="150">
                             <div ng-bind-html="account.name | highlight: $select.search"></div>
@@ -64,24 +64,84 @@
                 </form-group>
             </form-portlet>
 
-            <form-portlet title="Contact information">
-                <form-portlet-body>
-                    <form-email-addresses email-addresses="vm.contact.email_addresses"
-                                          add-related-field="vm.addRelatedField(field)"
-                                          remove-related-field="vm.removeRelatedField(field, index, remove)">
-                    </form-email-addresses>
-                    <form-phone-numbers phone-numbers="vm.contact.phone_numbers"
+            <form-portlet portlet-title="Contact information">
+                    <form-group label-title="Email">
+                        <table class="hl-form-table hl-form-fixed-data" ng-if="vm.account.email_addresses">
+                            <tbody>
+                                <tr ng-repeat="emailAddress in vm.account.email_addresses">
+                                    <td class="hl-form-table-column entity-icon-container">
+                                        <i class="lilicon hl-company-icon" ng-if="$first" uib-tooltip="{{ $root.messages.contact.accountInfoTooltip }}"></i>
+                                    </td>
+                                    <td class="hl-form-table-column">
+                                        <span>{{ emailAddress.email_address }}</span>
+                                        <span>({{ emailAddress.status_name }})</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <form-email-addresses email-addresses="vm.contact.email_addresses"
+                                              add-related-field="vm.addRelatedField(field)"
+                                              remove-related-field="vm.removeRelatedField(field, index, remove)"
+                                              show-icon="vm.account.email_addresses.length">
+                            <i class="lilicon hl-user-icon"></i>
+                        </form-email-addresses>
+                    </form-group>
+
+                    <form-group label-title="Phone number">
+                        <table class="hl-form-table hl-form-fixed-data" ng-if="vm.account.phone_numbers">
+                            <tbody>
+                                <tr ng-repeat="phoneNumber in vm.account.phone_numbers">
+                                    <td class="hl-form-table-column entity-icon-container">
+                                        <i class="lilicon hl-company-icon" ng-if="$first" uib-tooltip="{{ $root.messages.contact.accountInfoTooltip }}"></i>
+                                    </td>
+                                    <td class="hl-form-table-column">
+                                        <span>{{ phoneNumber.raw_input }}</span>
+                                        <span>({{ phoneNumber.type | ucfirst }})</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <form-phone-numbers phone-numbers="vm.contact.phone_numbers"
+                                            add-related-field="vm.addRelatedField(field)"
+                                            remove-related-field="vm.removeRelatedField(field, index, remove)"
+                                            show-icon="vm.account.phone_numbers.length">
+                            <i class="lilicon hl-user-icon"></i>
+                        </form-phone-numbers>
+                    </form-group>
+
+                    <form-group label-title="Address">
+                        <table class="hl-form-table hl-form-fixed-data" ng-if="vm.account.addresses">
+                            <tbody ng-repeat="address in vm.account.addresses">
+                                <tr>
+                                    <td class="hl-form-table-column entity-icon-container" rowspan="3">
+                                        <i class="lilicon hl-company-icon" ng-if="$first" uib-tooltip="{{ $root.messages.contact.accountInfoTooltip }}"></i>
+                                    </td>
+                                    <td class="hl-form-table-column">
+                                        {{ address.street }} {{ address.street_number }} {{ address.complement }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="hl-form-table-column">{{ address.postal_code }} {{ address.city }}, {{ address.country_display }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="hl-form-table-column">{{ address.type | ucfirst }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <form-addresses addresses="vm.contact.addresses"
                                         add-related-field="vm.addRelatedField(field)"
-                                        remove-related-field="vm.removeRelatedField(field, index, remove)">
-                    </form-phone-numbers>
-                    <form-addresses addresses="vm.contact.addresses"
-                                    add-related-field="vm.addRelatedField(field)"
-                                    remove-related-field="vm.removeRelatedField(field, index, remove)">
-                    </form-addresses>
+                                        remove-related-field="vm.removeRelatedField(field, index, remove)"
+                                        show-icon="vm.account.addresses.length">
+                             <i class="lilicon hl-user-icon"></i>
+                        </form-addresses>
+                    </form-group>
                 </form-portlet-body>
             </form-portlet>
 
-            <form-portlet title="Tags">
+            <form-portlet portlet-title="Tags">
                 <form-portlet-body>
                     <form-group label-title="Tags" label-id="id_tags" label-icon="tags" field="contactForm.tags">
                         <div class="show-and-hide-input">
@@ -110,7 +170,7 @@
                 </form-portlet-body>
             </form-portlet>
 
-            <form-portlet title="Social media">
+            <form-portlet portlet-title="Social media">
                 <form-portlet-body>
                     <form-group label-title="Twitter" label-icon="twitter" label-id="twitter" field="contactForm.twitter">
                         <div class="input-group">

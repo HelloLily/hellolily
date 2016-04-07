@@ -8,11 +8,13 @@ function formPhoneNumbers() {
             phoneNumbers: '=',
             addRelatedField: '&',
             removeRelatedField: '&',
+            showIcon: '=',
         },
         templateUrl: 'forms/directives/phone_numbers.html',
         controller: FormPhoneNumbersController,
         controllerAs: 'vm',
         bindToController: true,
+        transclude: true,
         link: function(scope, element, attrs, form) {
             // Set parent form on the scope
             scope.form = form;
@@ -20,9 +22,10 @@ function formPhoneNumbers() {
     };
 }
 
-FormPhoneNumbersController.$inject = ['$rootScope', 'HLUtils'];
-function FormPhoneNumbersController($rootScope, HLUtils) {
+FormPhoneNumbersController.$inject = ['HLUtils'];
+function FormPhoneNumbersController(HLUtils) {
     var vm = this;
+
     vm.telephoneTypes = [
         {key: 'work', value: 'Work'},
         {key: 'mobile', value: 'Mobile'},
@@ -30,7 +33,6 @@ function FormPhoneNumbersController($rootScope, HLUtils) {
         {key: 'fax', value: 'Fax'},
         {key: 'other', value: 'Other'},
     ];
-    vm.sidebar = $rootScope.$$childHead.settings.email.sidebar.form;
 
     vm.formatPhoneNumber = HLUtils.formatPhoneNumber;
 }

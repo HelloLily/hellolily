@@ -17,6 +17,7 @@
 .v8flags.*
 dist-packages/
 /styleguide/styleguide.html
+.overcommit.yml
 
 celerybeat-schedule
 celeryev.pid

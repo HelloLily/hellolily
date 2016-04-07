@@ -18,3 +18,11 @@
         background: #5b9bd1;
     }
 }
+
+// Fix to make sure the filters in the widgets don't reposition because of the
+// 50% width their parent col-md-6 has.
+.tools {
+    @media (min-width: 992px) {
+        width: 65%;
+    }
+}

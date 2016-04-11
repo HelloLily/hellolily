@@ -23,7 +23,7 @@ class RecipientSerializer(serializers.ModelSerializer):
 
 
 class EmailAttachmentSerializer(serializers.ModelSerializer):
-    url = serializers.URLField(source='attachment.url', read_only=True)
+    url = serializers.URLField(source='download_url', read_only=True)
 
     class Meta:
         model = EmailAttachment

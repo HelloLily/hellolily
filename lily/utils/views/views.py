@@ -10,6 +10,7 @@ from django.core.urlresolvers import resolve, reverse_lazy
 from django.db.models import Q
 from django.db.models.loading import get_model
 from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.template import Context
 from django.template.loader import get_template
 from django.utils.encoding import smart_str
@@ -18,6 +19,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, FormView
 from django.views.generic.base import View, TemplateView, RedirectView
 
+from lily.messaging.email.models.models import EmailAttachment
+from lily.users.models import LilyUser
 from lily.utils.models.models import PhoneNumber
 from ..forms import SugarCsvImportForm
 from ..functions import is_ajax
@@ -638,6 +641,37 @@ class RedirectAccountContactView(LoginRequiredMixin, RedirectView):
 
         return None
 
+
+class DownloadRedirectView(LoginRequiredMixin, RedirectView):
+    permanent = False
+    mapping = {
+        'email': {
+            'model_cls': EmailAttachment,
+            'fields': ('attachment', ),
+        },
+        'profile': {
+            'model_cls': LilyUser,
+            'fields': ('picture', ),
+        },
+    }
+
+    def get_redirect_url(self, *args, **kwargs):
+        field = getattr(self.instance, self.field_name)
+        return field.url  # Let the storage backend generate an url for us.
+
+    def get(self, request, *args, **kwargs):
+        self.model_name = kwargs.pop('model_name')
+        self.field_name = kwargs.pop('field_name')
+        self.object_id = kwargs.pop('object_id')
+
+        if self.model_name not in self.mapping.keys():
+            return Http404()
+        if self.field_name not in self.mapping[self.model_name]['fields']:
+            return Http404()
+
+        self.instance = get_object_or_404(self.mapping[self.model_name]['model_cls'], pk=self.object_id)
+
+        return super(DownloadRedirectView, self).get(request, *args, **kwargs)
 
 # Perform logic here instead of in urls.py
 ajax_update_view = login_required(AjaxUpdateView.as_view())

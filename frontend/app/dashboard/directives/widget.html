@@ -1,6 +1,7 @@
 <div ng-show="vm.widgetInfo.status">
     <div class="{{ vm.widgetClass }}">
         <div class="widget-container">
+            <div ng-if="vm.showFade" class="is-scrollable-fadeout"></div>
             <div class="widget-heading">
                 <div class="widget-title" ng-transclude="widgetHeader"></div>
                 <div class="widget-tools pull-right">
@@ -15,9 +16,8 @@
                 <div class="clearfix"></div>
             </div>
 
-
             <div class="widget-body" ng-show="vm.widgetInfo.status == 1">
-                <div ng-if="vm.widgetScrollable" ng-class="{'max-height-400': vm.widgetDynamicHeight}" slimscroll="{height: {{ vm.height }}}" class="scroll-body" ng-transclude="widgetBody"></div>
+                <div ng-if="vm.widgetScrollable" ng-class="{'max-height-400': vm.widgetDynamicHeight}" slimscroll="{height: {{ vm.height }}}" ng-mouseenter="vm.hideScrollingIndicator()" ng-mouseleave="vm.showScrollingIndicator()" class="scroll-body" ng-transclude="widgetBody"></div>
                 <div ng-if="!vm.widgetScrollable" ng-transclude="widgetBody"></div>
             </div>
         </div>

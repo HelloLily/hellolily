@@ -45,6 +45,7 @@ $inline-editable-field-height: 30px;
             visibility: visible;
             width: $inline-editable-field-height;
             right: -$inline-editable-field-height;
+            z-index: 99;
         }
     }
 
@@ -92,6 +93,10 @@ $inline-editable-field-height: 30px;
                 transition: right ease-in-out 0.3s;
                 visibility: visible;
                 right: -61px;
+
+                &.no-edit {
+                    right: -31px;
+                }
             }
 
             .editable-icon {

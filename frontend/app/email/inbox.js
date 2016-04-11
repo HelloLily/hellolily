@@ -19,12 +19,12 @@
             reloadTemplateConfirm: 'Do you want to reload the template? This will load the template variables, but will put your text at the bottom of the email.',
             emptyTemplateAttachmentRow: '#empty-template-attachment-row',
             templateAttachmentDeleteButton: '#template-attachments [data-formset-delete-button]',
-            templateAttachmentUndoDeleteButton: '#template-attachments [data-formset-undo-delete]',
             templateAttachmentsDiv: '#template-attachments',
             templateAttachmentName: '.template-attachment-name',
             templateAttachmentIds: '#template-attachment-ids',
             templateAttachmentId: '.template-attachment-id',
             templateAttachmentRow: '.template-attachment-row',
+            templateAttachmentUpload: '#fileupload',
             currentTemplate: null,
             previousSendToNormalLength: 0,
             firstLoad: true,
@@ -93,9 +93,10 @@
                     var attachmentRow = $(this).closest('.form-group');
                     self.handleTemplateAttachmentsChange(attachmentRow);
                 })
-                .on('click', cf.templateAttachmentUndoDeleteButton, function() {
-                    var attachmentRow = $(this).closest('.form-group');
-                    self.handleTemplateAttachmentsChange(attachmentRow);
+                .on('formDeleted', cf.templateAttachmentUpload, function() {
+                    // Hide instead of remove upload form element,
+                    // removing breaks with attachment id's when forwarding email with attachements.
+                    $('[data-formset-form-deleted]').hide();
                 });
 
             $('.inbox-compose input').on('keydown keyup keypress', function(event) {

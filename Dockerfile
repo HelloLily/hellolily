@@ -11,7 +11,8 @@ RUN apt-get update && apt-get install -y \
     libncurses5-dev \
     rsync \
     nodejs \
-    npm
+    npm \
+    git
 
 RUN useradd docker
 RUN echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
@@ -46,9 +47,6 @@ RUN sudo rm -rf /usr/local/lib/python2.7/dist-packages/requests* && sudo easy_in
 RUN mkdir -p $HOME/.config/pudb
 RUN sudo pip install pudb
 RUN sudo chown -R docker:docker $HOME/
-
-# Workaround for https://github.com/angular/protractor/issues/2588
-RUN sudo npm install -g protractor@2.2.0
 
 # Expose to Selenium.
 EXPOSE 8081

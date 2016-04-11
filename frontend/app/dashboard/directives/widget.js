@@ -1,6 +1,7 @@
 angular.module('app.dashboard.directives').directive('dashboardWidget', dashboardWidget);
 
-function dashboardWidget() {
+dashboardWidget.$inject = ['$timeout'];
+function dashboardWidget($timeout) {
     return {
         restrict: 'E',
         scope: {
@@ -18,6 +19,22 @@ function dashboardWidget() {
             widgetHeader: 'widgetHeader',
             widgetFilters: '?widgetFilters',
             widgetBody: 'widgetBody',
+        },
+        link: function(scope, element, attrs) {
+            // Timeout function to wait for elements to fully load in DOM.
+            // This function checks if the scrollheight is higher than 250px
+            // to indicate that the widget is scrollable.
+            $timeout(function() {
+                var height = (scope.vm.widgetDynamicHeight ? 401 : 252);
+                if(scope.vm.widgetScrollable === true){
+                    var rawDomElement = element.parent().find('.widget-table')[0];
+                    if (rawDomElement && rawDomElement.scrollHeight > height) {
+                        if(!scope.vm.showFade){
+                            scope.vm.showFade = true;
+                        }
+                    }
+                }
+            });
         },
     };
 }
@@ -37,6 +54,8 @@ function DashboardWidgetController(LocalStorage, $scope) {
 
     vm.toggleCollapse = toggleCollapse;
     vm.removeWidget = removeWidget;
+    vm.hideScrollingIndicator = hideScrollingIndicator;
+    vm.showScrollingIndicator = showScrollingIndicator;
 
     activate();
 
@@ -59,6 +78,25 @@ function DashboardWidgetController(LocalStorage, $scope) {
 
         if (vm.widgetDynamicHeight) {
             vm.height = 'auto';
+        }
+    }
+
+    // Event triggered by ng-mouseenter to remove the scrolling indicator
+    // when a user has his mouse in the widget.
+    function hideScrollingIndicator() {
+        if ($scope.vm.showFade) {
+            $scope.vm.showFade = false;
+        }
+    }
+
+    function showScrollingIndicator() {
+        // Specifically check if the value is set to false, because the
+        // false value only gets set after the removeFade function has been
+        // triggered by an ng-mouseenter event on the element.
+        // This prevents the showFade value becoming true on elements that
+        // are not scrollable.
+        if ($scope.vm.showFade === false) {
+            $scope.vm.showFade = true;
         }
     }
 
@@ -85,8 +123,16 @@ function DashboardWidgetController(LocalStorage, $scope) {
 
     function toggleCollapse() {
         if (vm.widgetInfo.status === 1) {
+            // Check if the fade is initially set to prevent it from showing up
+            // when the widget isn't scrollable.
+            if ($scope.vm.showFade) {
+                $scope.vm.showFade = false;
+            }
             vm.widgetInfo.status = widgetStatus.collapsed;
         } else {
+            if($scope.vm.showFade === false){
+                $scope.vm.showFade = true;
+            }
             vm.widgetInfo.status = widgetStatus.visible;
         }
     }

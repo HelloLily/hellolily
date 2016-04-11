@@ -11,7 +11,9 @@
     .drop-down-sub-menu {
         display: none;
     }
+}
 
+.drop-down > .header-user-menu {
     &.open {
         .drop-down-sub-menu {
             position: absolute;

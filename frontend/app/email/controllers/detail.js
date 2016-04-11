@@ -25,9 +25,9 @@ function emailConfig($stateProvider) {
 }
 
 angular.module('app.email').controller('EmailDetail', EmailDetailController);
-EmailDetailController.$inject = ['$http', '$scope', '$state', '$stateParams', '$timeout', 'Account', 'Case', 'Deal',
+EmailDetailController.$inject = ['$http', '$scope', '$state', '$stateParams', '$timeout', '$filter', 'Account', 'Case', 'Deal',
     'EmailMessage', 'Settings', 'RecipientInformation', 'SelectedEmailAccount', 'message'];
-function EmailDetailController($http, $scope, $state, $stateParams, $timeout, Account, Case, Deal, EmailMessage,
+function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $filter, Account, Case, Deal, EmailMessage,
                                Settings, RecipientInformation, SelectedEmailAccount, message) {
     var vm = this;
 
@@ -265,6 +265,8 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, Ac
     }
 
     function toggleSidebar(modelName, toggleList) {
+        var gaModelName;
+
         // TODO: This is a temporary workaround until we fix the 'Add' button in the list widget.
         // Also remove the toggleList param once we fix it and refactor this.
         if (modelName === 'cases' || modelName === 'deals') {
@@ -291,7 +293,8 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, Ac
             // via email supercards. Use the toggleSidebar function because
             // opening/adding is the same button thus we can differentiate
             // the open and adding actions.
-            ga('send', 'event', modelName, 'Open SC', 'Email SC');
+            gaModelName = $filter('ucfirst')(modelName);
+            ga('send', 'event', gaModelName, 'Open SC', 'Email SC');
             // No data yet and no form open, so open the form.
             Settings.email.sidebar.form = modelName;
         } else if (form === modelName) {

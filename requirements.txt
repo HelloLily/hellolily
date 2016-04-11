@@ -4,7 +4,8 @@
 
 Django==1.7.9
 django-appconf==1.0.1
-django-extensions==1.5.5
+#django-extensions==1.5.5  # Revert this back once the pull request has been accepted, also delete git from dockerfile.
+git+https://github.com/wearespindle/django-extensions.git#egg=django_extensions
 django-filter==0.10.0
 django-sslify==0.2.7
 djangorestframework==3.1.3

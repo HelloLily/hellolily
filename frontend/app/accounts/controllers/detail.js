@@ -27,8 +27,8 @@ function accountConfig($stateProvider) {
 
 angular.module('app.accounts').controller('AccountDetailController', AccountDetailController);
 
-AccountDetailController.$inject = ['$scope', '$stateParams', 'Settings', 'Case', 'Contact', 'Deal', 'currentAccount'];
-function AccountDetailController($scope, $stateParams, Settings, Case, Contact, Deal, currentAccount) {
+AccountDetailController.$inject = ['$scope', '$stateParams', 'HLObjectDetails', 'Settings', 'Case', 'Contact', 'Deal', 'currentAccount'];
+function AccountDetailController($scope, $stateParams, HLObjectDetails, Settings, Case, Contact, Deal, currentAccount) {
     var id = $stateParams.id;
 
     $scope.account = currentAccount;
@@ -46,6 +46,13 @@ function AccountDetailController($scope, $stateParams, Settings, Case, Contact, 
 
     $scope.contactList = Contact.search({filterquery: 'accounts.id:' + id});
     $scope.contactList.$promise.then(function(contactList) {
-        $scope.contactList = contactList.objects;
+        var contacts = contactList.objects;
+        var i;
+
+        for (i = 0; i < contacts.length; i++) {
+            contacts[i].phones = HLObjectDetails.getPhones(contacts[i]);
+        }
+
+        $scope.contactList = contacts;
     });
 }

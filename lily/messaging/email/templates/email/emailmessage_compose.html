@@ -91,6 +91,26 @@
 
         {% bootstrap_field form.body_html layout="horizontal" field_class="email-compose" form_group_class="inbox-form-group" label_class="hidden" %}
 
+        {% if forwarded_attachments %}
+            <div class="inbox-form-group mail-attachments">
+                <label class="control-label">Existing Attachments:</label>
+                <div class="controls">
+                    <div class="col-md-12">
+                        <div class="formset">
+                            <div class="form-group">
+                                <div class="template-attachment-row">
+                                    <div class="col-md-4 form-control-static">
+                                        {% for attachment in forwarded_attachments %}
+                                            {{ attachment }} <br/>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
         {{ form.attachments }}
 
         <div class="email-reply-actions-header">

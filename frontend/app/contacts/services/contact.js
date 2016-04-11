@@ -51,6 +51,23 @@ function Contact($resource) {
     );
 
     _contact.create = create;
+    _contact.getSalutationOptions = getSalutationOptions;
+    _contact.getGenderOptions = getGenderOptions;
+
+    function getSalutationOptions() {
+        return [
+            {id: 0, name: 'Formal'},
+            {id: 1, name: 'Informal'},
+        ];
+    }
+
+    function getGenderOptions() {
+        return [
+            {id: 0, name: 'Male'},
+            {id: 1, name: 'Female'},
+            {id: 2, name: 'Unknown/Other'},
+        ];
+    }
 
     //////
 

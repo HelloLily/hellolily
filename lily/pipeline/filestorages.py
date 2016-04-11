@@ -23,7 +23,7 @@ class MediaFilesStorage(S3BotoStorage):
     def __init__(self, *args, **kwargs):
         kwargs['bucket'] = settings.MEDIA_ROOT
         kwargs['acl'] = 'private'
-        kwargs['querystring_expire'] = 60
+        kwargs['querystring_expire'] = 300
         super(MediaFilesStorage, self).__init__(*args, **kwargs)
 
 

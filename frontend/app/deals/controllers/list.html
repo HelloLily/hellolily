@@ -111,7 +111,7 @@
                         </span>
                     </td>
                     <td ng-show="vm.table.visibility.nextStepDate">
-                        {{ deal.next_step_date | date:'dd MMMM y' }}
+                        <postpone ng-if="deal.next_step_date" type="'Deal'" object="deal" date-field="'next_step_date'"></postpone>
                     </td>
                     <td ng-show="vm.table.visibility.assignedTo">
                         {{ deal.assigned_to_name }}

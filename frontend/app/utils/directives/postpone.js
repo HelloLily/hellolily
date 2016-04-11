@@ -44,6 +44,10 @@ function PostponeController($state, $uibModal) {
             ga('send', 'event', 'Deal', 'Open postpone modal', 'Deal detail');
         }
 
+        if ($state.current.name === 'base.deals') {
+            ga('send', 'event', 'Deal', 'Open postpone modal', 'Deal list view');
+        }
+
         if ($state.current.name === 'base.accounts.detail') {
             ga('send', 'event', pp.type, 'Open postpone modal', 'Account detail');
         }

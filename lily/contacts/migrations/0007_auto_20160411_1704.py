@@ -2,37 +2,48 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-import lily.accounts.models
 import django_extensions.db.fields
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0007_auto_20160224_1540'),
+        ('contacts', '0006_auto_20160406_1122'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='account',
+            model_name='contact',
             name='created',
             field=django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created'),
             preserve_default=True,
         ),
         migrations.AlterField(
-            model_name='account',
+            model_name='contact',
             name='deleted',
             field=django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='deleted'),
             preserve_default=True,
         ),
         migrations.AlterField(
-            model_name='account',
-            name='logo',
-            field=models.ImageField(upload_to=lily.accounts.models.get_account_logo_upload_path, verbose_name='logo', blank=True),
+            model_name='contact',
+            name='modified',
+            field=django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified'),
             preserve_default=True,
         ),
         migrations.AlterField(
-            model_name='account',
+            model_name='function',
+            name='created',
+            field=django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, verbose_name='created'),
+            preserve_default=True,
+        ),
+        migrations.AlterField(
+            model_name='function',
+            name='deleted',
+            field=django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='deleted'),
+            preserve_default=True,
+        ),
+        migrations.AlterField(
+            model_name='function',
             name='modified',
             field=django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified'),
             preserve_default=True,

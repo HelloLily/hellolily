@@ -294,18 +294,20 @@
     color: $lilyDarkBlue;
     margin-bottom: 10px;
     display: block;
+    padding-right: 140px;
 
     a {
         color: $lilyDarkBlue;
     }
 
-    @media (max-width: $breakpoint-mobile) {
+    @media (max-width: $breakpoint-tablet) {
         position: relative;
         width: 150px;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
         margin-bottom: 20px;
+        padding-right: 0;
     }
 }
 

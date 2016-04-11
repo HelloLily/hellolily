@@ -111,6 +111,17 @@ function DealDetailController($scope, $state, $uibModal, Account, Contact, Deal,
             }
         }
 
+        if (args.hasOwnProperty('customer_id')) {
+            vm.deal.account.customer_id = args.customer_id;
+
+            // Updating an object through another object (e.g. account through deal) is ugly.
+            // So just do a separate Account.patch. Not using the HLResource.patch because we want to display
+            // a custom message.
+            return Account.patch(args, function() {
+                toastr.success('I\'ve updated the customer ID for you!', 'Done');
+            });
+        }
+
         return HLResource.patch('Deal', args).$promise.then(function() {
             if (args.hasOwnProperty('amount_once') || args.hasOwnProperty('amount_recurring')) {
                 $state.go($state.current, {}, {reload: true});

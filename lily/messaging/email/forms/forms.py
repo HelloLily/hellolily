@@ -8,21 +8,18 @@ from django.core.urlresolvers import reverse_lazy
 from django.core.validators import validate_email
 from django.db.models.fields.files import FieldFile
 from django.db.models import Q
-from django.forms.fields import FileField
 from django.forms.models import modelformset_factory
 from django.template.defaultfilters import linebreaksbr
 from django.utils.translation import ugettext_lazy as _
-from newrelic.api.function_trace import function_trace
 
 from lily.contacts.models import Contact
-
 from lily.tenant.middleware import get_current_user
 from lily.utils.forms import HelloLilyForm, HelloLilyModelForm
 from lily.utils.forms.fields import TagsField, FormSetField
 from lily.utils.forms.mixins import FormSetFormMixin
 from lily.utils.forms.widgets import Wysihtml5Input, AjaxSelect2Widget, BootstrapRadioFieldRenderer
 
-from ..models.models import (EmailAccount, EmailTemplate, EmailAttachment, EmailOutboxAttachment, DefaultEmailTemplate,
+from ..models.models import (EmailAccount, EmailTemplate, EmailOutboxAttachment, DefaultEmailTemplate,
                              EmailTemplateAttachment, TemplateVariable)
 from .widgets import EmailAttachmentWidget
 from ..utils import get_email_parameter_choices, TemplateParser
@@ -60,77 +57,6 @@ class AttachmentBaseForm(HelloLilyModelForm):
         widgets = {
             'attachment': EmailAttachmentWidget(),
         }
-
-    @function_trace()
-    def is_valid(self):
-        return super(AttachmentBaseForm, self).is_valid()
-
-    @function_trace()
-    def full_clean(self):
-        super(AttachmentBaseForm, self).full_clean()
-
-    @function_trace()
-    def clean(self):
-        return super(AttachmentBaseForm, self).clean()
-
-    @function_trace()
-    def _clean_form(self):
-        super(AttachmentBaseForm, self)._clean_form()
-
-    @function_trace()
-    def _post_clean(self):
-        super(AttachmentBaseForm, self)._post_clean()
-
-    @function_trace()
-    def has_changed(self):
-        return super(AttachmentBaseForm, self).has_changed()
-
-    @function_trace()
-    def _clean_fields(self):
-        for name, field in self.fields.items():
-            self.temp_field_clean(name, field)
-
-    @function_trace()
-    def temp_field_clean(self, name, field):
-        # value_from_datadict() gets the data from the data dictionaries.
-        # Each widget type knows how to retrieve its own data, because some
-        # widgets split data over several HTML fields.
-        value = self.temp_get_value_from_datadict(name, field)
-        try:
-            if isinstance(field, FileField):
-                initial = self.temp_get_initial(name, field)
-                value = self.temp_clean_file_field_with_initial(value, field, initial)
-            else:
-                value = self.temp_clean_file_field(value, field)
-            self.cleaned_data[name] = value
-            if hasattr(self, 'clean_%s' % name):
-                value = getattr(self, 'clean_%s' % name)()
-                self.cleaned_data[name] = value
-        except ValidationError as e:
-            self.add_error(name, e)
-
-    @function_trace()
-    def temp_field_clean(self, name, field):
-        # value_from_datadict() gets the data from the data dictionaries.
-        # Each widget type knows how to retrieve its own data, because some
-        # widgets split data over several HTML fields.
-        value = field.widget.value_from_datadict(self.data, self.files, self.add_prefix(name))
-        try:
-            if isinstance(field, FileField):
-                initial = self.initial.get(name, field.initial)
-                value = field.clean(value, initial)
-            else:
-                value = field.clean(value)
-            self.cleaned_data[name] = value
-            if hasattr(self, 'clean_%s' % name):
-                value = getattr(self, 'clean_%s' % name)()
-                self.cleaned_data[name] = value
-        except ValidationError as e:
-            self.add_error(name, e)
-
-    @function_trace()
-    def add_error(self, field, error):
-        super(AttachmentBaseForm, self).add_error(field, error)
 
 
 class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
@@ -186,7 +112,7 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
 
     attachments = FormSetField(
         queryset=EmailOutboxAttachment.objects,
-        formset_class=modelformset_factory(EmailAttachment, form=AttachmentBaseForm, can_delete=True, extra=0),
+        formset_class=modelformset_factory(EmailOutboxAttachment, form=AttachmentBaseForm, can_delete=True, extra=0),
         template='email/formset_attachment.html',
     )
 
@@ -196,13 +122,6 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
     def __init__(self, *args, **kwargs):
         self.message_type = kwargs.pop('message_type', 'reply')
         super(ComposeEmailForm, self).__init__(*args, **kwargs)
-
-        if 'initial' in kwargs and 'draft_pk' in kwargs['initial']:
-            if self.message_type is not 'reply':
-                self.initial['attachments'] = EmailAttachment.objects.filter(
-                    message_id=kwargs['initial']['draft_pk'],
-                    inline=False
-                )
 
         self.fields['template'].queryset = EmailTemplate.objects.order_by('name')
 

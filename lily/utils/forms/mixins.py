@@ -1,6 +1,3 @@
-from newrelic.api.function_trace import function_trace
-
-
 class FormSetFormMixin(object):
     """
     Custom form mixin to allow easier use of formset fields.
@@ -11,7 +8,6 @@ class FormSetFormMixin(object):
     Also there is custom save logic for each of the formset fields.
     """
 
-    @function_trace()
     def __init__(self, *args, **kwargs):
         """
         Custom init function to set the form_attrs on each formset field specified in formset_form_attrs.
@@ -36,7 +32,6 @@ class FormSetFormMixin(object):
             for key, value in formset_form_attrs.items():
                 self.fields[key].form_attrs = value
 
-    @function_trace()
     def save(self, commit=True):
         """
         Custom save to call the save function on formset fields declared on this form

@@ -10,10 +10,6 @@ redis:
   image: redis:2.8
   ports:
     - 6373:6379
-selenium:
-  image: selenium/standalone-chrome
-  ports:
-    - 4443:4444
 web:
   build: .
   command: python manage.py runserver 0:8000
@@ -33,7 +29,6 @@ web:
     - beat
     - worker1
     - worker2
-    - selenium
 rabbit:
   build: Dockers/rabbit
 beat:

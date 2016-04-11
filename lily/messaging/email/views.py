@@ -22,7 +22,6 @@ from django.views.generic import UpdateView, DeleteView, CreateView, FormView
 from django.views.generic.base import View
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
-from newrelic.agent import function_trace
 from oauth2client.client import OAuth2WebServerFlow
 
 from lily.accounts.models import Account
@@ -173,7 +172,6 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
         self.get_object(request, **kwargs)
         return super(EmailMessageComposeView, self).post(request, *args, **kwargs)
 
-    @function_trace()
     def get_object(self, request, **kwargs):
         if 'pk' in kwargs:
             try:
@@ -188,7 +186,6 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
             except EmailMessage.DoesNotExist:
                 pass
 
-    @function_trace()
     def form_valid(self, form):
         """
         Process form to do either of these actions:
@@ -215,14 +212,10 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
             original_message_id=self.kwargs.get('pk')
         )
 
-        original_attachment_ids = set()
         for attachment_form in form.cleaned_data.get('attachments'):
             if attachment_form.cleaned_data and not attachment_form.cleaned_data['DELETE']:
                 form_attachment = attachment_form.cleaned_data
-                if form_attachment['id']:
-                    # Only store attachment id for now
-                    original_attachment_ids.add('%s' % form_attachment['id'].id)
-                else:
+                if not form_attachment['id']:
                     # Uploaded file, add it to email_outbox_message
                     outbox_attachment = EmailOutboxAttachment()
                     outbox_attachment.attachment = form_attachment['attachment']
@@ -232,6 +225,7 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
                     outbox_attachment.save()
 
         # Store the ids of the original message attachments
+        original_attachment_ids = self.get_original_attachment_ids(form)
         email_outbox_message.original_attachment_ids = ','.join(original_attachment_ids)
         email_outbox_message.save()
 
@@ -240,6 +234,25 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
             self.remove_draft()
 
         return email_outbox_message
+
+    def get_original_attachment_ids(self, form):
+        """
+        Retrieves ids of EmailAttachment ids that should be sent along with the email.
+
+        Args:
+            form (instance): ComposeEmailForm instance.
+
+        Returns:
+            A set containing EmailAttachment ids.
+        """
+        attachment_ids = set()
+        for attachment_form in form.cleaned_data.get('attachments'):
+            if attachment_form.cleaned_data and not attachment_form.cleaned_data['DELETE']:
+                form_attachment = attachment_form.cleaned_data
+                if form_attachment['id']:
+                    # Only store attachment id for now
+                    attachment_ids.add('%s' % form_attachment['id'].id)
+        return attachment_ids
 
     def get_context_data(self, **kwargs):
         """
@@ -500,7 +513,7 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
     action = None
 
     def get_form_kwargs(self):
-        kwargs = super(EmailMessageComposeView, self).get_form_kwargs()
+        kwargs = super(EmailMessageReplyOrForwardView, self).get_form_kwargs()
         kwargs['message_type'] = self.action
         return kwargs
 
@@ -515,7 +528,6 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
                 break
         return u'%s%s' % (prefix, subject)
 
-    @function_trace()
     def form_valid(self, form):
         email_outbox_message = super(EmailMessageReplyOrForwardView, self).form_valid(form)
 
@@ -532,7 +544,6 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
         else:
             return HttpResponseRedirect(success_url)
 
-    @function_trace()
     def send_message(self, email_outbox_message):
         """
         Creates a task to asynchronously reply on an email message.
@@ -594,7 +605,6 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
         """
         return '/#/email'
 
-
 class EmailMessageReplyView(EmailMessageReplyOrForwardView):
     action = 'reply'
 
@@ -654,7 +664,6 @@ class EmailMessageReplyAllView(EmailMessageReplyView):
 class EmailMessageForwardView(EmailMessageReplyOrForwardView):
     action = 'forward'
 
-    @function_trace()
     def post(self, request, *args, **kwargs):
         """
         TODO: temporary override for logging purposes.
@@ -668,27 +677,8 @@ class EmailMessageForwardView(EmailMessageReplyOrForwardView):
         else:
             return self.form_invalid(form)
 
-    @function_trace()
-    def get_form(self, form_class):
-        """
-        TODO: temporary override for logging purposes.
-        """
-        return super(EmailMessageForwardView, self).get_form(form_class)
-
-    @function_trace()
     def get_form_kwargs(self):
-        # TODO: the super code is put here for logging purposes, remove when done.
-        kwargs = {
-            'initial': self.get_initial(),
-            'prefix': self.get_prefix(),
-        }
-
-        if self.request.method in ('POST', 'PUT'):
-            kwargs.update({
-                'data': self.request.POST,
-                'files': self.request.FILES,
-            })
-
+        kwargs = super(EmailMessageForwardView, self).get_form_kwargs()
         kwargs['message_type'] = self.action
 
         forward_header_to = []
@@ -719,6 +709,25 @@ class EmailMessageForwardView(EmailMessageReplyOrForwardView):
         })
 
         return kwargs
+
+    def get_context_data(self, **kwargs):
+        kwargs.update({'forwarded_attachments': self.object.attachments.exclude(inline=True)})
+        return super(EmailMessageForwardView, self).get_context_data(**kwargs)
+
+    def get_original_attachment_ids(self, form):
+        """
+        Add the original EmailAttachments from original message.
+
+        Args:
+            form (instance): ComposeEmailForm instance.
+
+        Returns:
+            A set containing EmailAttachment ids.
+        """
+        attachment_ids = super(EmailMessageReplyOrForwardView, self).get_original_attachment_ids(form)
+        for attachment in self.object.attachments.all():
+            attachment_ids.add(str(attachment.id))
+        return attachment_ids
 
 
 #

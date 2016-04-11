@@ -98,3 +98,28 @@
         padding: 0;
     }
 }
+
+.user-field-image {
+    width: 60px;
+    height: 60px;
+    margin-right: 10px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 50%;
+}
+
+.user-field-image-clear {
+    position: absolute;
+    top: 20px;
+    left: 85px;
+}
+
+.user-field-image-change {
+    display: block;
+    margin-top: 10px;
+
+    input {
+        display: inline;
+    }
+}

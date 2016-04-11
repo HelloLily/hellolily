@@ -9,7 +9,7 @@ from lily.socialmedia.models import SocialMedia
 from lily.tenant.middleware import get_current_user
 from lily.users.models import LilyUser
 from lily.utils.forms import HelloLilyModelForm
-from lily.utils.forms.widgets import AddonTextInput
+from lily.utils.forms.widgets import AddonTextInput, AvatarInput
 
 
 class UserProfileForm(HelloLilyModelForm):
@@ -40,6 +40,7 @@ class UserProfileForm(HelloLilyModelForm):
     def __init__(self, *args, **kwargs):
         super(UserProfileForm, self).__init__(*args, **kwargs)
 
+        self.fields['picture'].help_text = 'Maximum picture size is 300kb.'
         if self.instance.pk:
             twitter = self.instance.social_media.filter(name='twitter').first()
             self.fields['twitter'].initial = twitter.username if twitter else ''
@@ -182,6 +183,8 @@ class UserProfileForm(HelloLilyModelForm):
                 ],
             }),
         ]
+
+        widgets = {'picture': AvatarInput()}
 
 
 class UserAccountForm(HelloLilyModelForm):

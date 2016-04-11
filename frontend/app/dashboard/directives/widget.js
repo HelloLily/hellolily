@@ -1,5 +1,6 @@
 angular.module('app.dashboard.directives').directive('dashboardWidget', dashboardWidget);
 
+dashboardWidget.$inject = ['$timeout'];
 function dashboardWidget($timeout) {
     return {
         restrict: 'E',

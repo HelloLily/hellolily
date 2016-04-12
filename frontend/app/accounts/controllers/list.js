@@ -69,7 +69,6 @@ function AccountList($scope, $window, Settings, Account, LocalStorage) {
 
     Settings.page.setAllTitles('list', 'accounts');
 
-
     function deleteAccount(account) {
         if (confirm('Are you sure?')) {
             Account.delete({

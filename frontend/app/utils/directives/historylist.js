@@ -1,9 +1,9 @@
 angular.module('app.utils.directives').directive('historyList', HistoryListDirective);
 
 HistoryListDirective.$inject = ['$filter', '$http', '$uibModal', '$q', '$state', 'EmailAccount',
-    'Note', 'NoteDetail', 'Case', 'DealDetail', 'EmailDetail', 'User', 'HLGravatar'];
+    'Note', 'NoteDetail', 'Case', 'DealDetail', 'EmailDetail', 'User', 'HLGravatar', 'HLUtils'];
 function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccount,
-                              Note, NoteDetail, Case, DealDetail, EmailDetail, User, HLGravatar) {
+                              Note, NoteDetail, Case, DealDetail, EmailDetail, User, HLGravatar, HLUtils) {
     return {
         restrict: 'E',
         replace: true,
@@ -50,6 +50,7 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
             ////////
 
             function activate() {
+                HLUtils.blockUI('#historyListBlockTarget', true);
                 // Somehow calling autosize on page content load does not work
                 // in the historylist.
                 autosize($('textarea'));
@@ -315,6 +316,8 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
                     }
 
                     scope.history.list = orderedHistoryList;
+
+                    HLUtils.unblockUI('#historyListBlockTarget');
                 });
             }
 

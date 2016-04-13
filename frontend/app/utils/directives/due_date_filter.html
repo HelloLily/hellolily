@@ -1,17 +1,20 @@
- <div class="filter-group">
-    <label class="filter-group-option" ng-model="vm.dueDateFilter" uib-btn-radio="4">
-        Expired
-    </label>
-    <label class="filter-group-option" ng-model="vm.dueDateFilter" uib-btn-radio="1">
-        Today
-    </label>
-    <label class="filter-group-option" ng-model="vm.dueDateFilter" uib-btn-radio="2">
-        Tomorrow
-    </label>
-    <label class="filter-group-option" ng-model="vm.dueDateFilter" uib-btn-radio="3">
-        Next 6 days
-    </label>
-    <label class="filter-group-option" ng-model="vm.dueDateFilter" uib-btn-radio="0">
-        All
-    </label>
+<div class="filter-group">
+    <a class="due-date-filter-toggle" ng-click="vm.openDueDateFilter($event)"><i class="lilicon hl-calender-icon"></i><i class="fa fa-angle-down"></i></a>
+    <div class="due-date-filter-container">
+        <label class="filter-group-option" ng-model="vm.dueDateFilter" uib-btn-radio="4">
+            Expired
+        </label>
+        <label class="filter-group-option" ng-model="vm.dueDateFilter" uib-btn-radio="1">
+            Today
+        </label>
+        <label class="filter-group-option" ng-model="vm.dueDateFilter" uib-btn-radio="2">
+            Tomorrow
+        </label>
+        <label class="filter-group-option" ng-model="vm.dueDateFilter" uib-btn-radio="3">
+            Next 6 days
+        </label>
+        <label class="filter-group-option" ng-model="vm.dueDateFilter" uib-btn-radio="0">
+            All
+        </label>
+    </div>
 </div>

@@ -22,6 +22,7 @@ function DueDateFilterWidgetController(LocalStorage, $scope) {
 
     // Get the stored value or set to 'All' if it doesn't exist
     vm.dueDateFilter = storage.get('dueDateFilter', 0);
+    vm.openDueDateFilter = openDueDateFilter;
 
     activate();
 
@@ -31,11 +32,20 @@ function DueDateFilterWidgetController(LocalStorage, $scope) {
         _watchDueDateFilter();
     }
 
+    // Open Due Date Filter for right element. This function gets used
+    // when the breakpoints are > tablet.
+    function openDueDateFilter($event) {
+        angular.element($event.srcElement).next().toggleClass('is-open');
+    }
+
     function _watchDueDateFilter() {
         $scope.$watch('vm.dueDateFilter', function() {
             var filter = '';
             var filterField = vm.filterField ? vm.filterField : 'expires';
             filterField += ': ';
+
+            // Find element with .is-open class to close when clicking a filter.
+            angular.element('.due-date-filter-container.is-open').removeClass('is-open');
 
             switch (vm.dueDateFilter) {
                 case 0:

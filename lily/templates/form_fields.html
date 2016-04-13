@@ -1,4 +1,4 @@
-{% load bootstrap3 i18n %}
+{% load bootstrap3 i18n utils %}
 
 {% for field in form.hidden_fields %}
     {{ field }}
@@ -45,9 +45,17 @@
                             {{ field }}
                         {% else %}
                             {% if field.field.required %}
-                                {% bootstrap_field field field_class=field_class|default:"col-md-4" label_class=label_class|default:"col-md-2"|add:" control-label required" %}
+                                {% if field.field.widget|classname == 'checkboxinput' %}
+                                    {% bootstrap_field field field_class=field_class|default:"col-md-4" label_class=label_class|default:"col-md-2"|add:" control-label required" form_group_class=form_group_class|default:"form-group"|add:" form-group-checkbox-field" %}
+                                {% else %}
+                                    {% bootstrap_field field field_class=field_class|default:"col-md-4" label_class=label_class|default:"col-md-2"|add:" control-label required" %}
+                                {% endif %}
                             {% else %}
-                                {% bootstrap_field field field_class=field_class|default:"col-md-4" label_class=label_class|default:"col-md-2"|add:" control-label" %}
+                                {% if field.field.widget|classname == 'checkboxinput' %}
+                                    {% bootstrap_field field field_class=field_class|default:"col-md-4" label_class=label_class|default:"col-md-2"|add:" control-label" form_group_class=form_group_class|default:"form-group"|add:" form-group-checkbox-field" %}
+                                {% else %}
+                                    {% bootstrap_field field field_class=field_class|default:"col-md-4" label_class=label_class|default:"col-md-2"|add:" control-label" %}
+                                {% endif %}
                             {% endif %}
                         {% endif %}
                     {% endif %}

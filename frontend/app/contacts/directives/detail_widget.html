@@ -22,6 +22,14 @@
             <tr>
                 <td><i class="lilicon hl-mail-icon"></i> <strong>Email</strong></td>
                 <td>
+                    <div ng-if="!vm.contact.email_addresses.length" ng-repeat="account in vm.contact.accounts">
+                        <div ng-repeat="email in account.email_addresses">
+                            <i class="lilicon hl-company-icon margin-right-10" uib-tooltip="{{ $root.messages.contact.accountInfoTooltip }}"></i>
+                            <a ui-sref="base.email.composeEmail({email: email.email_address})">
+                                {{ email.email_address }}
+                            </a>
+                        </div>
+                    </div>
                     <editable-related model="vm.contact" type="Contact" field="email_addresses"></editable-related>
                 </td>
             </tr>
@@ -29,6 +37,14 @@
             <tr>
                 <td><i class="lilicon hl-phone-icon"></i> <strong>Phone</strong></td>
                 <td>
+                    <div ng-if="!vm.contact.phone_numbers.length" ng-repeat="account in vm.contact.accounts">
+                        <div ng-repeat="phone in account.phone_numbers">
+                            <i class="lilicon hl-company-icon margin-right-10" uib-tooltip="{{ $root.messages.contact.accountInfoTooltip }}"></i>
+                            <a href="tel:{{ phone.raw_input }}">
+                                {{ phone.raw_input }}
+                            </a>
+                        </div>
+                    </div>
                     <editable-related model="vm.contact" type="Contact" field="phone_numbers"></editable-related>
                 </td>
             </tr>
@@ -36,6 +52,20 @@
             <tr>
                 <td><i class="fa fa-map-marker"></i> <strong>Address</strong></td>
                 <td>
+                    <div ng-if="!vm.contact.addresses.length" ng-repeat="account in vm.contact.accounts">
+                        <div ng-repeat="address in account.addresses">
+                            <div class="display-inline-block">
+                                <i class="lilicon hl-company-icon margin-right-10" uib-tooltip="{{ $root.messages.contact.accountInfoTooltip }}"></i>
+                            </div>
+                            <div class="display-inline-block vertical-align-top">
+                                {{ address.street }} {{ address.street_number }}{{ address.complement }}
+                                <br/>
+                                {{ address.postal_code }}, {{ address.city }}
+                                <br/>
+                                {{ address.country }}
+                            </div>
+                        </div>
+                    </div>
                     <editable-related model="vm.contact" type="Contact" field="addresses"></editable-related>
                 </td>
             </tr>

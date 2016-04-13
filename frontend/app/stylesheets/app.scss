@@ -58,3 +58,12 @@ a {
         }
     }
 }
+
+// Overwrite bootstrap class for specific checkbox fields
+.form-horizontal .form-group {
+    &.form-group-checkbox-field {
+        @media (min-width: $breakpoint-laptop){
+            margin-left: 17.2%;
+        }
+    }
+}

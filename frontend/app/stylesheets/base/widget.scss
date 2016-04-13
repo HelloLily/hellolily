@@ -1,3 +1,30 @@
+/* SG
+# Widget with cq-prolyfill #
+
+This file contains all styling for our widgets. A specific example is included that shows how the cq-prolyfill
+is used to enable container queries and show different styling based upon the width of the element rather than the
+width of the entire viewport.
+
+To use the cq-prolyfill you can add a class to the toplevel container of an element and its parent container with
+container-queries.
+
+`.js-cq-widget-container:container("width < 500px") {
+    display: none;
+}`
+
+This CSS example shows how the element gets a `display: none;` when the element is less than 500px wide.
+
+The example down below shows the class added to a div, cq-prolyfill targets the container of the element which the
+class is applied to, so be sure it has a wrapping container.
+
+```
+<div>
+    <div class="js-cq-widget-container">This div has display none if the parent element is smaller than 500px.</div>
+</div>
+```
+
+*/
+
 .widget-container {
   background: white;
   margin-bottom: 30px;
@@ -68,6 +95,11 @@
   font-size: 18px;
   font-weight: 400;
   color: $lilyDarkBlue;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    display: inline-block;
+    position: absolute;
 }
 
 .widget-name-meta {
@@ -196,4 +228,42 @@
   &.ng-enter.ng-enter-active {
     opacity: 0.8;
   }
+}
+
+@media (max-width: $breakpoint-desktop){
+    .js-cq-widget-container:container("width < 900px") {
+        .external-link-name {
+            display: none;
+        }
+
+        .widget-name {
+            width: 60%;
+        }
+    }
+}
+
+@media (min-width: $breakpoint-desktop){
+    .js-cq-widget-container:container("width < 500px") {
+        .external-link-name {
+            display: none;
+        }
+
+        .widget-name {
+            width: 60%;
+        }
+    }
+
+    .js-cq-widget-container:container("width < 800px > 500px") {
+
+        .widget-name {
+            width: 60%;
+        }
+    }
+
+    .js-cq-widget-container:container("width > 800px") {
+
+        .widget-name {
+            width: 75%;
+        }
+    }
 }

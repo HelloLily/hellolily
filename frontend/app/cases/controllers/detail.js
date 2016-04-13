@@ -19,22 +19,34 @@ function caseConfig($stateProvider) {
                 var id = $stateParams.id;
                 return Case.get({id: id}).$promise;
             }],
+            caseAccount: ['Account', 'caseItem', function(Account, caseItem) {
+                if (caseItem.account) {
+                    return Account.get({id: caseItem.account.id}).$promise;
+                }
+            }],
+            caseContact: ['Contact', 'caseItem', function(Contact, caseItem) {
+                if (caseItem.contact) {
+                    return Contact.get({id: caseItem.contact.id}).$promise;
+                }
+            }],
         },
     });
 }
 
 angular.module('app.cases').controller('CaseDetailController', CaseDetailController);
 
-CaseDetailController.$inject = ['$scope', 'Settings', 'Account', 'CaseStatuses', 'caseItem', 'Contact',
-    'UserTeams', 'HLResource', 'Tenant'];
-function CaseDetailController($scope, Settings, Account, CaseStatuses, caseItem, Contact,
-                              UserTeams, HLResource, Tenant) {
+CaseDetailController.$inject = ['$scope', 'Settings', 'CaseStatuses', 'HLResource', 'LocalStorage', 'Tenant', 'UserTeams', 'caseItem', 'caseAccount', 'caseContact'];
+function CaseDetailController($scope, Settings, CaseStatuses, HLResource, LocalStorage, Tenant, UserTeams, caseItem, caseAccount, caseContact) {
     var vm = this;
+    var storage = new LocalStorage('caseDetail');
 
     Settings.page.setAllTitles('detail', caseItem.subject, caseItem.contact, caseItem.account);
 
     vm.case = caseItem;
+    vm.case.account = caseAccount;
+    vm.case.contact = caseContact;
     vm.caseStatuses = CaseStatuses.query();
+    vm.mergeHistory = storage.get('mergeHistory', false);
 
     vm.getPriorityDisplay = getPriorityDisplay;
     vm.changeCaseStatus = changeCaseStatus;
@@ -48,18 +60,6 @@ function CaseDetailController($scope, Settings, Account, CaseStatuses, caseItem,
     function activate() {
         var assignedToGroups = [];
         var caseEnd;
-
-        if (vm.case.account) {
-            Account.get({id: vm.case.account.id}).$promise.then(function(account) {
-                vm.account = account;
-            });
-        }
-
-        if (vm.case.contact) {
-            Contact.get({id: vm.case.contact.id}).$promise.then(function(contact) {
-                vm.contact = contact;
-            });
-        }
 
         angular.forEach(vm.case.assigned_to_groups, function(response) {
             UserTeams.get({id: response.id}).$promise.then(function(team) {
@@ -139,5 +139,9 @@ function CaseDetailController($scope, Settings, Account, CaseStatuses, caseItem,
         if (newValue !== oldValue) {
             updateModel(vm.case.is_archived, 'is_archived');
         }
+    });
+
+    $scope.$watch('vm.mergeHistory', function() {
+        storage.put('mergeHistory', vm.mergeHistory);
     });
 }

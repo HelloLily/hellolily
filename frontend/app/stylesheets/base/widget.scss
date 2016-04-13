@@ -154,13 +154,45 @@
 
 .is-scrollable-fadeout {
     position: absolute;
-    height: 25%;
-    background: -moz-linear-gradient(top,  rgba(255,255,255,0) 0%, rgba(255,255,255,0.01) 1%, rgba(255,255,255,0.12) 12%, rgba(255,255,255,0.98) 98%, rgba(255,255,255,1) 100%);
-    background: -webkit-linear-gradient(top,  rgba(255,255,255,0) 0%,rgba(255,255,255,0.01) 1%,rgba(255,255,255,0.12) 12%,rgba(255,255,255,0.98) 98%,rgba(255,255,255,1) 100%);
-    background: linear-gradient(to bottom,  rgba(255,255,255,0) 0%,rgba(255,255,255,0.01) 1%,rgba(255,255,255,0.12) 12%,rgba(255,255,255,0.98) 98%,rgba(255,255,255,1) 100%);
+    height: 14px;
+    background-color: lighten($skyGrey, 3);
+    opacity: 0.8;
+    border-top: 1px solid $lilyBorderDark;
     bottom: 1px;
     left: 1px;
     right: 1px;
     z-index: 999;
     pointer-events: none;
+    text-align: center;
+
+    &:before {
+        content: " ";
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: #ffffff;
+    }
+
+    i {
+        color: $lilyBorderDark;
+        font-size: 10px;
+        position: absolute;
+        top: 2px;
+    }
+
+    &.ng-enter,
+    &.ng-leave {
+      transition: all linear 0.3s;
+    }
+
+    &.ng-enter,
+    &.ng-leave.ng-leave-active {
+      opacity: 0;
+    }
+
+    &.ng-leave,
+    &.ng-enter.ng-enter-active {
+      opacity: 0.8;
+    }
 }

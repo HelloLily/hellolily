@@ -1,7 +1,5 @@
 import random
-from datetime import datetime
 
-import pytz
 import factory
 from factory.declarations import SubFactory, SelfAttribute, LazyAttribute
 from factory.django import DjangoModelFactory
@@ -20,7 +18,6 @@ faker = Factory.create('nl_NL')
 class NoteFactory(DjangoModelFactory):
     content = LazyAttribute(lambda o: faker.text())
     author = SubFactory(LilyUserFactory, tenant=SelfAttribute('..tenant'))
-    sort_by_date = LazyAttribute(lambda o: datetime.now(tz=pytz.utc))
 
     @factory.lazy_attribute
     def subject(self):

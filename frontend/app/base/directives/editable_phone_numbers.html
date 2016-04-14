@@ -1,3 +1,4 @@
+<i class="lilicon hl-user-icon margin-right-10" ng-if="!er.items.length" uib-tooltip="{{ $root.messages.contact.contactInfoTooltip }}"></i>
 <span ng-show="!er.formVisible" class="editable editable-click addable-click">
     <div ng-repeat="phone in er.items">
         <a href="tel:{{ phone.raw_input }}">
@@ -7,8 +8,8 @@
     <div ng-if="!er.items.length">No phone numbers</div>
 
     <div class="editable-icons" ng-class="{'no-edit': !er.items.length}">
-        <span ng-if="er.items.length" class="editable-icon"><i class="lilicon hl-edit-icon"></i></span>
-        <span class="editable-icon"><i class="fa fa-plus"></i></span>
+        <span ng-if="er.items.length" class="editable-icon js-edit"><i class="lilicon hl-edit-icon"></i></span>
+        <span class="editable-icon js-add"><i class="fa fa-plus"></i></span>
     </div>
 </span>
 
@@ -18,6 +19,7 @@
             <input class="form-control"
                    maxlength="255"
                    placeholder="Phone number"
+                   ng-readonly="phone.is_deleted"
                    ng-blur="er.formatPhoneNumber(phone)"
                    ng-model="phone.raw_input" />
         </div>
@@ -25,6 +27,7 @@
         <div class="form-group">
             <select class="form-control"
                     ng-model="phone.type"
+                    ng-readonly="phone.is_deleted"
                     ng-options="type.key as type.value for type in er.telephoneTypes">
             </select>
         </div>

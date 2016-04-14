@@ -47,23 +47,6 @@ angular.module('app', [
     'app.filters',
 ]);
 
-/* Setup global settings */
-angular.module('app').factory('settings', settings);
-
-settings.$inject = ['$rootScope'];
-function settings($rootScope) {
-    // supported languages
-    var settings = {
-        layout: {
-            pageSidebarClosed: false, // sidebar state
-        },
-    };
-
-    $rootScope.settings = settings;
-
-    return settings;
-}
-
 angular.module('app').config(appConfig);
 
 appConfig.$inject = [
@@ -76,7 +59,7 @@ appConfig.$inject = [
 ];
 function appConfig($animateProvider, $breadcrumbProvider, $controllerProvider, $httpProvider, $resourceProvider,
                    $urlRouterProvider) {
-    // Don't strip trailing slashes from calculated URLs, because django needs them.
+    // Don't strip trailing slashes from calculated URLs, because Django needs them.
     $breadcrumbProvider.setOptions({
         templateUrl: 'base/breadcrumbs.html',
         includeAbstract: true,
@@ -93,11 +76,11 @@ function appConfig($animateProvider, $breadcrumbProvider, $controllerProvider, $
 /* Init global settings and run the app. */
 angular.module('app').run(runApp);
 
-runApp.$inject = ['$rootScope', '$state', 'settings', 'editableOptions', 'Tenant', 'UserTeams'];
-function runApp($rootScope, $state, settings, editableOptions, Tenant, UserTeams) {
+runApp.$inject = ['$rootScope', '$state', 'editableOptions', 'HLMessages', 'Tenant', 'UserTeams'];
+function runApp($rootScope, $state, editableOptions, HLMessages, Tenant, UserTeams) {
     $rootScope.$state = $state; // State to be accessed from view.
     $rootScope.currentUser = currentUser;
-    $rootScope.settings = settings;
+    $rootScope.messages = HLMessages;
 
     // Get tenant name to set custom dimension for GA.
     Tenant.query({}, function(tenant) {

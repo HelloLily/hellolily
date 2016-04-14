@@ -185,3 +185,31 @@ class EmailAddressSearchView(LoginRequiredMixin, View):
                 }
 
         return {}
+
+
+class WebsiteSearchView(LoginRequiredMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        website = kwargs.get('website', None)
+        results = self._search_website(website)
+
+        return HttpResponse(anyjson.dumps(results), content_type='application/json; charset=utf-8')
+
+    def _search_website(self, website):
+        search = LilySearch(
+            tenant_id=self.request.user.tenant_id,
+            model_type='accounts_account',
+            size=1,
+        )
+        # Try to find an account with the full email address
+        search.like_filter_query(website)
+
+        hits, facets, total, took = search.do_search()
+        if hits:
+            return {
+                'type': 'website',
+                'data': hits[0],
+                'complete': True,
+            }
+
+        return {}

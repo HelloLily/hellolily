@@ -179,60 +179,59 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
             website = vm.account.primaryWebsite;
         }
 
-        if (website) {
+        if (!vm.useDuplicateWebsite && website) {
             domain = getDomain(website);
 
-            if (vm.useDuplicateWebsite) {
-                if (form) {
-                    vm.saveAccount(form);
-                } else {
-                    vm.loadDataproviderData();
-                }
-            } else {
-                Account.searchByWebsite({website: domain}).$promise.then(function(result) {
-                    if (result.data && result.data.id !== $stateParams.id) {
-                        bootbox.dialog({
-                            message: 'This website has already been added to an existing account: <br />' +
-                            result.data.name + '<br />' +
-                            'Are you sure you want to use: <br />' +
-                            website,
-                            title: 'Website already exists',
-                            buttons: {
-                                danger: {
-                                    label: 'No, clear the field.',
-                                    className: 'btn-danger',
-                                    callback: function() {
-                                        if (isExtraWebsite) {
-                                            vm.account.websites[index].website = null;
-                                        } else {
-                                            vm.account.primaryWebsite = null;
-                                        }
-                                        vm.useDuplicateWebsite = false;
-                                        $scope.$apply();
-                                    },
-                                },
-                                success: {
-                                    label: 'Yes',
-                                    className: 'btn-success',
-                                    callback: function() {
-                                        if (form) {
-                                            vm.saveAccount(form);
-                                        } else {
-                                            vm.loadDataproviderData();
-                                            vm.useDuplicateWebsite = true;
-                                        }
-                                    },
+            Account.searchByWebsite({website: domain}).$promise.then(function(result) {
+                if (result.data && result.data.id !== $stateParams.id) {
+                    bootbox.dialog({
+                        message: 'This website has already been added to an existing account: <br />' +
+                        result.data.name + '<br />' +
+                        'Are you sure you want to use: <br />' +
+                        website,
+                        title: 'Website already exists',
+                        buttons: {
+                            danger: {
+                                label: 'No, clear the field.',
+                                className: 'btn-danger',
+                                callback: function() {
+                                    if (isExtraWebsite) {
+                                        vm.account.websites[index].website = null;
+                                    } else {
+                                        vm.account.primaryWebsite = null;
+                                    }
+                                    vm.useDuplicateWebsite = false;
+                                    $scope.$apply();
                                 },
                             },
-                        });
-                    } else {
-                        if (form) {
-                            vm.saveAccount(form);
-                        } else {
-                            vm.loadDataproviderData();
-                        }
-                    }
-                });
+                            success: {
+                                label: 'Yes',
+                                className: 'btn-success',
+                                callback: function() {
+                                    _processAccountCheck(form, isExtraWebsite);
+
+                                    if (!form) {
+                                        vm.useDuplicateWebsite = true;
+                                    }
+                                },
+                            },
+                        },
+                    });
+                } else {
+                    _processAccountCheck(form, isExtraWebsite);
+                }
+            });
+        } else {
+            _processAccountCheck(form, isExtraWebsite);
+        }
+    }
+
+    function _processAccountCheck(form, isExtraWebsite) {
+        if (form) {
+            vm.saveAccount(form);
+        } else {
+            if (!isExtraWebsite) {
+                vm.loadDataproviderData();
             }
         }
     }

@@ -2,7 +2,6 @@ import logging
 
 from django.forms import Field, CharField, ValidationError
 from django.utils.translation import ugettext_lazy as _
-from newrelic.api.function_trace import function_trace
 
 from .widgets import TagInput, FormSetWidget
 

@@ -14,6 +14,7 @@ from django.conf import settings
 from django.core.files.uploadedfile import InMemoryUploadedFile, TemporaryUploadedFile
 from django.core.files.storage import default_storage
 from django.core.mail import SafeMIMEText, SafeMIMEMultipart
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
@@ -269,6 +270,13 @@ class EmailAttachment(models.Model):
     @property
     def name(self):
         return self.attachment.name.split('/')[-1]
+
+    def download_url(self):
+        return reverse('download', kwargs={
+            'model_name': 'email',
+            'field_name': 'attachment',
+            'object_id': self.id,
+        })
 
     class Meta:
         app_label = 'email'

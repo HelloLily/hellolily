@@ -69,7 +69,6 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
 
     vm.case = {};
     vm.teams = [];
-    vm.assignOptions = [];
     vm.caseTypes = [];
     vm.caseStatuses = [];
     vm.casePriorities = [];
@@ -83,16 +82,13 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     vm.saveCase = saveCase;
     vm.refreshAccounts = refreshAccounts;
     vm.refreshContacts = refreshContacts;
+    vm.refreshUsers = refreshUsers;
 
     activate();
 
     ////
 
     function activate() {
-        User.query(function(response) {
-            vm.assignOptions = response.results;
-        });
-
         _getTeams();
 
         Case.getCaseTypes(function(data) {
@@ -353,6 +349,20 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
                     vm.case.contact = vm.contacts[0];
                 }
             });
+        }
+    }
+
+    function refreshUsers(query) {
+        var usersPromise;
+
+        if (!vm.assigned_to && (!vm.users || query.length)) {
+            usersPromise = HLSearch.refreshList(query, 'User');
+
+            if (usersPromise) {
+                usersPromise.$promise.then(function(data) {
+                    vm.users = data.objects;
+                });
+            }
         }
     }
 

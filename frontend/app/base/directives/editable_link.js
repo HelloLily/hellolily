@@ -8,6 +8,7 @@ function editableLink() {
             type: '@',
             field: '@',
             object: '=?',
+            isSocialMedia: '@?',
         },
         templateUrl: 'base/directives/editable_link.html',
         controller: EditableLinkController,
@@ -46,6 +47,10 @@ function EditableLinkController() {
 
         args[el.field] = $data;
 
-        return el.viewModel.updateModel(args);
+        if (el.isSocialMedia) {
+            return el.viewModel.updateModel(args, el.object.name);
+        } else {
+            return el.viewModel.updateModel(args);
+        }
     }
 }

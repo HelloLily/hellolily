@@ -1,11 +1,20 @@
 angular.module('app.contacts.services').factory('Contact', Contact);
 
-Contact.$inject = ['$resource'];
-function Contact($resource) {
+Contact.$inject = ['$resource', 'HLResource'];
+function Contact($resource, HLResource) {
     var _contact = $resource(
         '/api/contacts/contact/:id/',
         null,
         {
+            get: {
+                transformResponse: function(data) {
+                    var jsonData = angular.fromJson(data);
+
+                    HLResource.setSocialMediaFields(jsonData);
+
+                    return jsonData;
+                },
+            },
             query: {
                 isArray: false,
             },

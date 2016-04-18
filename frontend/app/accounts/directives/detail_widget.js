@@ -29,6 +29,13 @@ function AccountDetailWidgetController(HLResource, Settings, Tenant) {
     function updateModel(data, field) {
         var args = HLResource.createArgs(data, field, vm.account);
 
+        if (field === 'twitter') {
+            args = {
+                id: vm.account.id,
+                social_media: [args],
+            };
+        }
+
         return HLResource.patch('Account', args).$promise;
     }
 }

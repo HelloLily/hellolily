@@ -25,6 +25,13 @@ function ContactDetailWidgetController(HLResource, Settings) {
     function updateModel(data, field) {
         var args = HLResource.createArgs(data, field, vm.contact);
 
+        if (field === 'twitter' || field === 'linkedin') {
+            args = {
+                id: vm.contact.id,
+                social_media: [args],
+            };
+        }
+
         return HLResource.patch('Contact', args).$promise;
     }
 }

@@ -60,9 +60,14 @@
                     </td>
                 </tr>
 
-                <tr ng-show="vm.account.social" ng-repeat="social in vm.account.social">
-                    <td><i class="fa fa-{{ social.social_name | lowercase }}"></i> <strong>{{ social.social_name }}</strong></td>
-                    <td><a ng-href="{{ social.social_url }}" target="_blank">{{ social.social_profile }}</a></td>
+                <tr>
+                    <td><i class="fa fa-twitter"></i> <strong>Twitter</strong></td>
+                    <td>
+                        <editable-link view-model="vm" type="Account" object="vm.account.twitter" field="username" is-social-media="true">
+                            <a ng-if="vm.account.twitter" ng-href="{{ vm.account.twitter.profile_url }}" target="_blank">{{ vm.account.twitter.username }}</a>
+                            <span ng-if="!vm.account.twitter">No Twitter profile</span>
+                        </editable-link>
+                    </td>
                 </tr>
 
                 <tr ng-show="vm.account.tag">
@@ -77,7 +82,9 @@
                 <tr>
                     <td colspan="2">
                         <strong class="margin-bottom-5">Description</strong>
-                        <div class="pre-wrap" editable-textarea="vm.account.description" e-rows="4" e-cols="100" onbeforesave="vm.updateModel($data, 'description')">{{ (vm.account.description | parseUrls) || 'No description' }}</div>
+                        <div>
+                            <div class="pre-wrap" editable-textarea="vm.account.description" e-rows="4" e-cols="100" onbeforesave="vm.updateModel($data, 'description')">{{ (vm.account.description | parseUrls) || 'No description' }}</div>
+                        </div>
                     </td>
                 </tr>
             </tbody>

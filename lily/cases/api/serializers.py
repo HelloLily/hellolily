@@ -90,6 +90,22 @@ class CaseSerializer(WritableNestedSerializer):
 
         return super(CaseSerializer, self).create(validated_data)
 
+    def update(self, instance, validated_data):
+        status_id = validated_data.get('status', instance.status_id)
+
+        if isinstance(status_id, dict):
+            status_id = status_id.get('id')
+
+        status = CaseStatus.objects.get(pk=status_id)
+
+        # Automatically archive the case if the status is set to 'Closed'.
+        if status.status == 'Closed':
+            validated_data.update({
+                'is_archived': True
+            })
+
+        return super(CaseSerializer, self).update(instance, validated_data)
+
     class Meta:
         model = Case
         fields = (

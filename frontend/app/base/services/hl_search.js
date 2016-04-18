@@ -4,21 +4,29 @@ HLSearch.$inject = ['$injector'];
 function HLSearch($injector) {
     HLSearch.refreshList = refreshList;
 
-    function refreshList(query, model, excludeItems, extraQuery) {
+    function refreshList(query, modelName, excludeItems, extraFilterQuery) {
         var items;
-
-        if (!extraQuery) {
-            extraQuery = '';
-        }
+        var sort;
+        var nameFilter;
+        var exclude = '';
 
         // Dynamically get the model.
-        model = $injector.get(model);
+        var model = $injector.get(modelName);
+        var extraQuery = extraFilterQuery ? extraFilterQuery : '';
+
+        // User model is filtered differently, so check if we're dealing with
+        // the User model or not.
+        if (modelName === 'User') {
+            sort = 'full_name';
+            nameFilter = 'full_name';
+        } else {
+            sort = '-modified';
+            nameFilter = 'name';
+        }
 
         if (query.length) {
             // At least 2 characters need to be entered.
             if (query.length >= 2) {
-                var exclude = '';
-
                 // Only exclude items if we have a multi-select field.
                 if (excludeItems) {
                     // Exclude items already selected.
@@ -27,11 +35,11 @@ function HLSearch($injector) {
                     });
                 }
 
-                items = model.search({filterquery: 'name:(' + query + ')' + exclude + extraQuery, size: 60, sort: '-modified'});
+                items = model.search({filterquery: nameFilter + ':(' + query + ')' + exclude + extraQuery, size: 60, sort: sort});
             }
         } else {
             // No query yet, so just get the last 60 items of the given model.
-            items = model.search({filterquery: extraQuery, size: 60, sort: '-modified'});
+            items = model.search({filterquery: extraQuery, size: 60, sort: sort});
         }
 
         return items;

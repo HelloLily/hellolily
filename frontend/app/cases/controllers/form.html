@@ -125,10 +125,12 @@
                 <form-group label-title="Assigned to" label-icon="child" label-id="id_assigned_to" field="caseForm.assigned_to">
                     <ui-select ng-model="vm.case.assigned_to" theme="select2" class="form-control" name="assigned_to" append-to-body="true">
                         <ui-select-match placeholder="Assign to..." allow-clear="true">{{ $select.selected.full_name }}</ui-select-match>
-                        <ui-select-choices repeat="person.id as person in vm.assignOptions | propsFilter: {full_name: $select.search}">
-                            <div ng-bind-html="person.full_name | highlight: $select.search"></div>
+                        <ui-select-choices repeat="user in vm.users | propsFilter: {full_name: $select.search}" refresh="vm.refreshUsers($select.search)" refresh-delay="150">
+                            <div ng-bind-html="user.full_name | highlight: $select.search"></div>
                         </ui-select-choices>
                     </ui-select>
+                    <span class="help-text text-muted">Please type at least 2 characters to begin the search</span>
+
                     <button class="btn btn-link assign-me-btn" ng-click="vm.assignToMe()">Assign to me</button>
                 </form-group>
             </form-portlet>

@@ -105,19 +105,27 @@
                                     <td><date date="vm.deal.closed_date"></date></td>
                                 </tr>
 
-                                <tr ng-if="(vm.deal.quote_id && vm.tenant.isVoysNL()) || (vm.deal.account.customer_id && vm.tenant.primary_external_app_link)">
-                                    <td><strong>External</strong></td>
+                                <tr ng-if="vm.tenant.isVoysNL()">
+                                    <td><strong>Quote</strong></td>
                                     <td>
-                                        <div ng-if="vm.deal.quote_id && vm.tenant.isVoysNL()" class="margin-bottom-10">
-                                            <a ng-href="https://freedom.voys.nl/quotes/pdf/{{ vm.deal.quote_id }}/">
-                                                Quote
+                                        <editable-link view-model="vm" type="Deal" field="quote_id">
+                                            <a ng-if="vm.deal.quote_id" ng-href="https://freedom.voys.nl/quotes/pdf/{{ vm.deal.quote_id }}/">
+                                                {{ vm.deal.quote_id }}
                                             </a>
-                                        </div>
-                                        <div ng-if="vm.deal.account.customer_id && vm.tenant.primary_external_app_link">
-                                            <a ng-href="{{ vm.tenant.primary_external_app_link.getUrl(vm.deal.account.customer_id) }}">
-                                                {{ vm.tenant.primary_external_app_link.name }}
+                                            <span ng-if="!vm.deal.quote_id">No quote ID</span>
+                                        </editable-link>
+                                    </td>
+                                </tr>
+
+                               <tr ng-if="vm.deal.account.customer_id && vm.tenant.primary_external_app_link">
+                                    <td><strong>{{ vm.tenant.primary_external_app_link.name }}</strong></td>
+                                    <td>
+                                        <editable-link view-model="vm" type="Account" object="vm.deal.account" field="customer_id">
+                                            <a ng-if="vm.deal.account.customer_id" ng-href="{{ vm.tenant.primary_external_app_link.getUrl(vm.deal.account.customer_id) }}">
+                                                {{ vm.deal.account.customer_id }}
                                             </a>
-                                        </div>
+                                            <span ng-if="!vm.deal.account.customer_id">No customer ID</span>
+                                        </editable-link>
                                     </td>
                                 </tr>
 

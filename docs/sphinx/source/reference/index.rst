@@ -8,3 +8,4 @@ Technical reference material.
     :maxdepth: 2
 
     configuration
+    migrations

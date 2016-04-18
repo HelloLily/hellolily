@@ -49,31 +49,33 @@
             </div>
         </div>
 
-        <div class="timeline-info-header" ng-if="history.list.totalItems && parentObject">
-            <h3 class="text-center">Latest {{ target }} history</h3>
+        <div id="historyListBlockTarget">
+            <div class="timeline-info-header" ng-if="history.list.totalItems && parentObject">
+                <h3 class="text-center">Latest {{ target }} history</h3>
 
-            <ul class="mix-filter text-center">
-                <li ng-repeat="(typeKey, typeVal) in history.types" ng-if="typeVal.visible" ng-class="{'active': history.activeFilter == typeKey}" ng-click="history.filterType(typeKey)">{{ typeVal.name }}</li>
-            </ul>
-        </div>
-
-        <div ng-show="history.list.pinned.length">
-            <div class="timeline-time">
-                Pinned
-            </div>
-        </div>
-
-        <div ng-repeat="item in history.list.pinned" class="history-list-item">
-            <history-list-item item="item" history="history" object="object"></history-list-item>
-        </div>
-
-        <div ng-repeat="(key, value) in history.list.nonPinned" class="history-list-item" ng-show="value.isVisible">
-            <div class="timeline-time">
-                <date date="key" date-format="MMMM yyyy"></date>
+                <ul class="mix-filter text-center">
+                    <li ng-repeat="(typeKey, typeVal) in history.types" ng-if="typeVal.visible" ng-class="{'active': history.activeFilter == typeKey}" ng-click="history.filterType(typeKey)">{{ typeVal.name }}</li>
+                </ul>
             </div>
 
-            <div ng-repeat="item in value.items" class="history-item" ng-show="!history.activeFilter || history.activeFilter == item.historyType">
+            <div ng-show="history.list.pinned.length">
+                <div class="timeline-time">
+                    Pinned
+                </div>
+            </div>
+
+            <div ng-repeat="item in history.list.pinned" class="history-list-item">
                 <history-list-item item="item" history="history" object="object"></history-list-item>
+            </div>
+
+            <div ng-repeat="(key, value) in history.list.nonPinned" class="history-list-item" ng-show="value.isVisible">
+                <div class="timeline-time">
+                    <date date="key" date-format="MMMM yyyy"></date>
+                </div>
+
+                <div ng-repeat="item in value.items" class="history-item" ng-show="!history.activeFilter || history.activeFilter == item.historyType">
+                    <history-list-item item="item" history="history" object="object"></history-list-item>
+                </div>
             </div>
         </div>
     </div>

@@ -17,7 +17,7 @@ function editableRelated() {
         bindToController: true,
         link: function(scope, element, attr) {
             // Bind click event to the current directive.
-            element.on('click', '.hl-edit-icon', function() {
+            element.on('click', '.js-edit', function() {
                 scope.er.formVisible = true;
 
                 if (!scope.er.items.length) {
@@ -27,7 +27,7 @@ function editableRelated() {
                 scope.$apply();
             });
 
-            element.on('click', '.fa-plus', function() {
+            element.on('click', '.js-add', function() {
                 scope.er.formVisible = true;
                 scope.er.addRelatedField();
                 scope.$apply();
@@ -130,6 +130,8 @@ function EditableRelatedController(HLFields, HLResource, HLUtils) {
 
     function closeForm() {
         er.items = HLFields.cleanInlineRelatedFields(er.type.toLowerCase(), er.items);
+        er.model[er.field] = er.items;
+
         er.formVisible = false;
     }
 }

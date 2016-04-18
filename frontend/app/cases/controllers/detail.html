@@ -52,9 +52,16 @@
             </div>
         </div>
 
-        <history-list ng-if="vm.case.id" target="'case'" object="vm.case"></history-list>
+        <checkbox model="vm.mergeHistory" class="pull-right">Merge history lists</checkbox>
 
-        <history-list ng-if="vm.account.id" target="'account'" object="vm.account" date-start="vm.caseStart" date-end="vm.caseEnd" parent-object="vm.case"></history-list>
+        <span ng-if="vm.mergeHistory">
+            <history-list ng-if="vm.case.id" target="'case'" object="vm.case" extra-object="{object: vm.case.account, target: 'account'}" date-start="vm.caseStart" date-end="vm.caseEnd"></history-list>
+        </span>
+
+        <span ng-if="!vm.mergeHistory">
+            <history-list ng-if="vm.case.id" target="'case'" object="vm.case"></history-list>
+            <history-list ng-if="vm.case.account.id" target="'account'" object="vm.case.account" date-start="vm.caseStart" date-end="vm.caseEnd" parent-object="vm.case"></history-list>
+        </span>
     </div>
 
     <div ng-if="vm.case.id" class="col-md-4">
@@ -72,30 +79,30 @@
                 <div class="widget-content">
                     <table class="widget-content-table">
                         <tbody>
-                            <tr ng-if="vm.account.email_addresses.length">
+                            <tr ng-if="vm.case.account.email_addresses.length">
                                 <td>E-mail</td>
                                 <td>
                                     <ul>
-                                        <li ng-repeat="email in vm.account.email_addresses">
+                                        <li ng-repeat="email in vm.case.account.email_addresses">
                                             <a ui-sref="base.email.composeEmail({email: email.email_address})">{{ email.email_address }}</a> ({{ email.status_name }})
                                         </li>
                                     </ul>
                                 </td>
                             </tr>
-                            <tr ng-if="vm.account.phone_numbers.length">
+                            <tr ng-if="vm.case.account.phone_numbers.length">
                                 <td>Phone numbers</td>
                                 <td>
                                     <ul>
-                                        <li ng-repeat="phonenumber in vm.account.phone_numbers">
+                                        <li ng-repeat="phonenumber in vm.case.account.phone_numbers">
                                             <a href="tel:{{ phonenumber.raw_input }}">{{ phonenumber.raw_input }}</a> ({{phonenumber.type}})
                                         </li>
                                     </ul>
                                 </td>
                             </tr>
-                            <tr ng-if="vm.account.addresses.length">
+                            <tr ng-if="vm.case.account.addresses.length">
                                 <td>Addresses</td>
                                 <td>
-                                    <ul ng-repeat="address in vm.account.addresses">
+                                    <ul ng-repeat="address in vm.case.account.addresses">
                                         <li>
                                             {{ address.street }} {{ address.street_number }}{{ address.complement }}
                                         </li>
@@ -108,11 +115,11 @@
                                     </ul>
                                 </td>
                             </tr>
-                            <tr ng-if="vm.account.websites.length">
+                            <tr ng-if="vm.case.account.websites.length">
                                 <td>Websites</td>
                                 <td>
                                     <ul>
-                                        <li ng-repeat="website in vm.account.websites">
+                                        <li ng-repeat="website in vm.case.account.websites">
                                             <a target="_blank" href="{{website.website}}">{{ website.website | stripScheme }}</a>
                                         </li>
                                     </ul>
@@ -131,7 +138,7 @@
                                     </a>
                                 </td>
                             </tr>
-                            <tr class="has-no-info" ng-if="!vm.account.email_addresses.length && !vm.account.phone_numbers.length && !vm.account.addresses.length && !vm.account.websites.length && !vm.case.parcel_identifier" >
+                            <tr class="has-no-info" ng-if="!vm.case.account.email_addresses.length && !vm.case.account.phone_numbers.length && !vm.case.account.addresses.length && !vm.case.account.websites.length && !vm.case.parcel_identifier" >
                                 <td>No additional information</td>
                             </tr>
                         </tbody>
@@ -145,7 +152,7 @@
                 <div class="widget-name">
                     <a ui-sref="base.contacts.detail({ id: vm.case.contact.id })">
                         <i class="lilicon hl-user-icon"></i>
-                        {{ vm.case.contact.name }}
+                        {{ vm.case.contact.full_name }}
                     </a>
                 </div>
             </widget-header>
@@ -154,28 +161,28 @@
                 <div class="widget-content">
                     <table class="widget-content-table">
                         <tbody>
-                            <tr ng-if="vm.contact.email_addresses.length">
+                            <tr ng-if="vm.case.contact.email_addresses.length">
                                 <td>E-mail addresses</td>
                                 <td>
                                     <ul>
-                                        <li ng-repeat="email in vm.contact.email_addresses">
+                                        <li ng-repeat="email in vm.case.contact.email_addresses">
                                             <a ui-sref="base.email.composeEmail({email: email.email_address})">{{ email.email_address }}</a> ({{ email.status_name }})
                                         </li>
                                     </ul>
                                 </td>
                             </tr>
-                            <tr ng-if="vm.contact.phone_numbers.length">
+                            <tr ng-if="vm.case.contact.phone_numbers.length">
                                 <td>Phone numbers</td>
                                 <td>
                                     <ul>
-                                        <li ng-repeat="phonenumber in vm.contact.phone_numbers">
+                                        <li ng-repeat="phonenumber in vm.case.contact.phone_numbers">
                                             <a href="tel:{{ phonenumber.raw_input }}">{{ phonenumber.raw_input }}</a> ({{phonenumber.type}})
                                         </li>
                                     </ul>
                                 </td>
                             </tr>
 
-                            <tr class="has-no-info" ng-if="!vm.contact.email_addresses.length && !vm.contact.phone_numbers.length">
+                            <tr class="has-no-info" ng-if="!vm.case.contact.email_addresses.length && !vm.case.contact.phone_numbers.length">
                                 <td>No additional information</td>
                             </tr>
                         </tbody>

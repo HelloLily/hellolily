@@ -67,6 +67,12 @@ function HLResource($injector, Settings) {
         return args;
     };
 
+    this.setSocialMediaFields = function(object) {
+        object.social_media.forEach(function(profile) {
+            object[profile.name] = profile;
+        });
+    };
+
     /**
      * Converts the given variable name so it can be used to retrieve a field of the given resource.
      * @param name {string}: The string that will be converted to camelCase.

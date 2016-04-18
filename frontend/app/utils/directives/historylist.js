@@ -1,9 +1,9 @@
 angular.module('app.utils.directives').directive('historyList', HistoryListDirective);
 
 HistoryListDirective.$inject = ['$filter', '$http', '$uibModal', '$q', '$state', 'EmailAccount',
-    'Note', 'NoteDetail', 'Case', 'DealDetail', 'EmailDetail', 'User', 'HLGravatar'];
+    'Note', 'NoteDetail', 'Case', 'DealDetail', 'EmailDetail', 'User', 'HLGravatar', 'HLUtils'];
 function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccount,
-                              Note, NoteDetail, Case, DealDetail, EmailDetail, User, HLGravatar) {
+                              Note, NoteDetail, Case, DealDetail, EmailDetail, User, HLGravatar, HLUtils) {
     return {
         restrict: 'E',
         replace: true,
@@ -12,14 +12,11 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
             object: '=',
             dateStart: '=?',
             dateEnd: '=?',
+            extraObject: '=?',
             parentObject: '=?',
         },
         templateUrl: 'utils/directives/historylist.html',
         link: function(scope, element, attrs) {
-            var noteTargets = ['account', 'contact', 'deal', 'case'];
-            var caseTargets = ['account', 'contact'];
-            var dealTargets = ['account'];
-            var emailTargets = ['account', 'contact'];
             var page = 0;
             var pageSize = 50;
 
@@ -50,6 +47,7 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
             ////////
 
             function activate() {
+                HLUtils.blockUI('#historyListBlockTarget', true);
                 // Somehow calling autosize on page content load does not work
                 // in the historylist.
                 autosize($('textarea'));
@@ -91,56 +89,78 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
                 var neededLength = (page + 1) * pageSize;
                 var requestLength = neededLength + 1;
                 var notePromise;
-                var filterquery;
+                var dateQuery = '';
+                var emailDateQuery = '';
+                var casePromise;
+                var dealPromise;
+                var tenantEmailAccountPromise;
+                var emailPromise;
                 var i;
-                var dateFilteredList;
+                var filterquery;
+                var currentObject = obj;
+                var contentType = scope.target;
+
+                if (scope.dateStart && scope.dateEnd) {
+                    dateQuery = ' AND modified:[' + scope.dateStart + ' TO ' + scope.dateEnd + ']';
+                    emailDateQuery = 'sent_date:[' + scope.dateStart + ' TO ' + scope.dateEnd + ']';
+                }
 
                 page += 1;
 
-                // Check if we need to fetch notes
-                if (noteTargets.indexOf(scope.target) !== -1) {
-                    if (scope.target === 'account' && obj.contact && obj.contact.length) {
-                        filterquery = '(content_type:' + scope.target + ' AND object_id:' + obj.id + ')';
+                filterquery = '(content_type:' + contentType + ' AND object_id:' + currentObject.id + ')';
 
-                        // Show all notes of contacts linked to the account
-                        for (i = 0; i < obj.contact.length; i++) {
-                            filterquery += ' OR (content_type:contact AND object_id:' + obj.contact[i] + ')';
-                        }
-
-                        notePromise = NoteDetail.query({filterquery: filterquery, size: requestLength}).$promise;
-                    } else {
-                        notePromise = NoteDetail.query({filterquery: 'content_type:' + scope.target + ' AND object_id:' + obj.id, size: requestLength}).$promise;
+                if (contentType === 'account' && currentObject.contact) {
+                    // Show all notes of contacts linked to the account.
+                    for (i = 0; i < currentObject.contact.length; i++) {
+                        filterquery += ' OR (content_type:contact AND object_id:' + currentObject.contact[i] + ')';
                     }
-
-                    promises.push(notePromise);  // Add promise to list of all promises for later handling
-
-                    notePromise.then(function(results) {
-                        results.forEach(function(note) {
-                            // Get user for notes to show profile picture correctly.
-                            User.get({id: note.author.id}, function(userObject) {
-                                note.author = userObject;
-                            });
-
-                            // Set notes shown property to true to have toggled open
-                            // as default.
-                            if (note.is_pinned) {
-                                note.shown = true;
-                            }
-
-                            // If it's a contact's note, add extra attribute to the note
-                            // so we can identify it in the template
-                            if (scope.target === 'account' && note.content_type === 'contact') {
-                                note.showContact = true;
-                            }
-
-                            history.push(note);
-                        });
-                    });
                 }
 
-                // Check if we need to fetch cases
-                if (caseTargets.indexOf(scope.target) !== -1) {
-                    var casePromise = Case.query({filterquery: scope.target + ':' + obj.id, size: 100}).$promise;
+                if (scope.extraObject) {
+                    filterquery += ' OR (content_type:' + scope.extraObject.target + ' AND object_id:' + scope.extraObject.object.id + ')';
+                }
+
+                filterquery = '(' + filterquery + ')';
+
+                notePromise = NoteDetail.query({filterquery: filterquery + dateQuery, size: requestLength}).$promise;
+
+                promises.push(notePromise);  // Add promise to list of all promises for later handling
+
+                notePromise.then(function(results) {
+                    results.forEach(function(note) {
+                        // Get user for notes to show profile picture correctly.
+                        User.get({id: note.author.id}, function(userObject) {
+                            note.author = userObject;
+                        });
+
+                        // Set notes shown property to true to have toggled open as default.
+                        if (note.is_pinned) {
+                            note.shown = true;
+                        }
+
+                        // If it's a contact's note, add extra attribute to the note
+                        // so we can identify it in the template
+                        if (scope.target === 'account' && note.content_type === 'contact') {
+                            note.showContact = true;
+                        }
+
+                        history.push(note);
+                    });
+                });
+
+                if (scope.extraObject) {
+                    currentObject = scope.extraObject.object;
+                    contentType = scope.extraObject.target;
+                }
+
+                // We don't have to fetch extra objects for the case or deal
+                // history list. So continue if we have an extra object or if
+                // we're dealing with something else than a case or deal.
+                if (contentType !== 'case' && contentType !== 'deal') {
+                    filterquery = contentType + ':' + currentObject.id;
+
+                    casePromise = Case.query({filterquery: filterquery + dateQuery, size: 100}).$promise;
+
                     promises.push(casePromise);  // Add promise to list of all promises for later handling
 
                     casePromise.then(function(response) {
@@ -175,11 +195,8 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
                                 });
                         });
                     });
-                }
 
-                // Check if we need to fetch deals
-                if (dealTargets.indexOf(scope.target) !== -1) {
-                    var dealPromise = DealDetail.query({filterquery: scope.target + ':' + obj.id, size: requestLength}).$promise;
+                    dealPromise = DealDetail.query({filterquery: filterquery + dateQuery, size: requestLength}).$promise;
                     promises.push(dealPromise);  // Add promise to list of all promises for later handling
 
                     dealPromise.then(function(results) {
@@ -208,25 +225,24 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
                                         note.author = author;
                                     });
                                 });
+
                                 deal.notes = notes;
                             });
+
                             history.push(deal);
                         });
                     });
-                }
 
-                // Check if we need to fetch emails
-                if (emailTargets.indexOf(scope.target) !== -1) {
-                    var tenantEmailAccountPromise = EmailAccount.query().$promise;
-                    promises.push(tenantEmailAccountPromise); // Add tenant email query to promises list
+                    tenantEmailAccountPromise = EmailAccount.query().$promise;
+                    promises.push(tenantEmailAccountPromise);
 
-                    var emailPromise;
-                    if (scope.target === 'account') {
-                        emailPromise = EmailDetail.query({account_related: obj.id, size: requestLength}).$promise;
+                    if (contentType === 'account') {
+                        emailPromise = EmailDetail.query({account_related: currentObject.id, filterquery: emailDateQuery, size: requestLength}).$promise;
                     } else {
-                        emailPromise = EmailDetail.query({contact_related: obj.id, size: requestLength}).$promise;
+                        emailPromise = EmailDetail.query({contact_related: currentObject.id, filterquery: emailDateQuery, size: requestLength}).$promise;
                     }
-                    promises.push(emailPromise);  // Add promise to list of all promises for later handling
+
+                    promises.push(emailPromise);
 
                     $q.all([tenantEmailAccountPromise, emailPromise]).then(function(results) {
                         var tenantEmailAccountList = results[0].results;
@@ -240,6 +256,7 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
                                     email.right = true;
                                 }
                             });
+
                             history.push(email);
                         });
                     });
@@ -262,20 +279,6 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
                         }
                     }
 
-                    if (scope.dateStart && scope.dateEnd) {
-                        dateFilteredList = [];
-
-                        for (i = 0; i < history.length; i++) {
-                            if (moment(history[i].historySortDate).isBetween(scope.dateStart, scope.dateEnd)) {
-                                dateFilteredList.push(history[i]);
-                            }
-                        }
-                    }
-
-                    if (dateFilteredList) {
-                        history = dateFilteredList;
-                    }
-
                     $filter('orderBy')(history, 'historySortDate', true).forEach(function(item) {
                         var date = '';
                         var key = '';
@@ -285,9 +288,8 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
                         if (item.is_pinned) {
                             orderedHistoryList.pinned.push(item);
                         } else {
-                            // If it's an 'extra' history list we want to
-                            // exclude the item that's being viewed.
-                            if (!scope.parentObject || item.id !== scope.parentObject.id) {
+                            // Exclude the current item from the history list.
+                            if (item.id !== scope.object.id) {
                                 if (item.hasOwnProperty('modified')) {
                                     date = item.modified;
                                 } else {
@@ -300,6 +302,10 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
                                     orderedHistoryList.nonPinned[key] = {isVisible: true, items: []};
                                 }
 
+                                if (scope.target === 'case' && item.historyType === 'note' && item.content_type === 'case') {
+                                    item.shown = true;
+                                }
+
                                 orderedHistoryList.nonPinned[key].items.push(item);
                             } else {
                                 orderedHistoryList.totalItems -= 1;
@@ -309,12 +315,13 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
 
                     // Get first key in the nonPinned list to target the first
                     // item in the history items to set the property to shown.
-                    for(var key in orderedHistoryList.nonPinned) break;
-                    if (orderedHistoryList.nonPinned[key]) {
-                        orderedHistoryList.nonPinned[key].items[0].shown = true;
+                    if (scope.target !== 'case' && orderedHistoryList.totalItems) {
+                        orderedHistoryList.nonPinned[Object.keys(orderedHistoryList.nonPinned)[0]].items[0].shown = true;
                     }
 
                     scope.history.list = orderedHistoryList;
+
+                    HLUtils.unblockUI('#historyListBlockTarget');
                 });
             }
 

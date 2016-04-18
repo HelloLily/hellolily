@@ -17,6 +17,25 @@ function User($resource) {
             query: {
                 isArray: false,
             },
+            search: {
+                url: '/search/search/?type=users_lilyuser&filterquery=:filterquery',
+                method: 'GET',
+                transformResponse: function(data) {
+                    var jsonData = angular.fromJson(data);
+                    var objects = [];
+
+                    if (jsonData && jsonData.hits && jsonData.hits.length > 0) {
+                        jsonData.hits.forEach(function(obj) {
+                            objects.push(obj);
+                        });
+                    }
+
+                    return {
+                        objects: objects,
+                        total: jsonData.total,
+                    };
+                },
+            },
             me: {
                 method: 'GET',
                 url: '/api/users/user/me/',

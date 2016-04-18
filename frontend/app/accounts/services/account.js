@@ -1,11 +1,20 @@
 angular.module('app.accounts.services').factory('Account', Account);
 
-Account.$inject = ['$http', '$q', '$resource', 'HLUtils'];
-function Account($http, $q, $resource, HLUtils) {
+Account.$inject = ['$http', '$q', '$resource', 'HLResource', 'HLUtils'];
+function Account($http, $q, $resource, HLResource, HLUtils) {
     var _account = $resource(
         '/api/accounts/account/:id/',
         null,
         {
+            get: {
+                transformResponse: function(data) {
+                    var jsonData = angular.fromJson(data);
+
+                    HLResource.setSocialMediaFields(jsonData);
+
+                    return jsonData;
+                },
+            },
             query: {
                 isArray: false,
             },
@@ -52,6 +61,9 @@ function Account($http, $q, $resource, HLUtils) {
             getFormOptions: {
                 url: 'api/accounts/account',
                 method: 'OPTIONS',
+            },
+            searchByWebsite: {
+                url: '/search/website/:website',
             },
         });
 

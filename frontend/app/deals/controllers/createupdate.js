@@ -78,6 +78,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
     vm.saveDeal = saveDeal;
     vm.refreshAccounts = refreshAccounts;
     vm.refreshContacts = refreshContacts;
+    vm.refreshUsers = refreshUsers;
 
     activate();
 
@@ -89,8 +90,6 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
         var splitName = '';
         var choiceVarName = '';
         var choiceFields = ['currency'];
-
-        _setAssignOptions();
 
         Deal.getNextSteps(function(response) {
             vm.nextSteps = response.results;
@@ -243,20 +242,6 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
         }
     });
 
-    function _setAssignOptions() {
-        var assignOptions = [];
-
-        User.query().$promise.then(function(response) {
-            angular.forEach(response.results, function(user) {
-                if (user.first_name !== '') {
-                    assignOptions.push(user);
-                }
-            });
-
-            vm.assignOptions = assignOptions;
-        });
-    }
-
     function assignToMe() {
         // Bit of a hacky way to assign the current user, but we'll clean this up later.
         vm.deal.assigned_to = {id: currentUser.id, full_name: currentUser.fullName};
@@ -405,6 +390,20 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
                     vm.deal.contact = vm.contacts[0];
                 }
             });
+        }
+    }
+
+    function refreshUsers(query) {
+        var usersPromise;
+
+        if (!vm.assigned_to && (!vm.users || query.length)) {
+            usersPromise = HLSearch.refreshList(query, 'User');
+
+            if (usersPromise) {
+                usersPromise.$promise.then(function(data) {
+                    vm.users = data.objects;
+                });
+            }
         }
     }
 

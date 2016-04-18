@@ -133,7 +133,7 @@
                 id: parseInt('{{ user.id }}'),
                 firstName: '{{ user.first_name }}',
                 lastName: '{{ user.last_name }}',
-                picture: '{{ user.profile_picture }}',
+                picture: '{{ user.profile_picture|safe }}',
                 email: '{{ user.email }}',
                 fullName: '{{ user.full_name }}',
                 isSuperUser: '{{ user.is_superuser }}' == 'True'

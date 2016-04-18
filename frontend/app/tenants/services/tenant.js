@@ -1,7 +1,7 @@
 angular.module('app.tenants.services').factory('Tenant', Tenant);
 
-Tenant.$inject = ['$resource', '$compile', '$interpolate'];
-function Tenant($resource, $compile, $interpolate) {
+Tenant.$inject = ['$resource', '$interpolate'];
+function Tenant($resource, $interpolate) {
     var _tenant = $resource(
         '/api/tenants/tenant/:id/',
         {},
@@ -23,7 +23,7 @@ function Tenant($resource, $compile, $interpolate) {
                             return $interpolate(externalAppLink.url)({'customer_id': customerId});
                         };
 
-                        externalAppLinkList.push(externalAppLink)
+                        externalAppLinkList.push(externalAppLink);
                     });
 
                     if (externalAppLinkList.length) {
@@ -33,7 +33,7 @@ function Tenant($resource, $compile, $interpolate) {
                     }
 
                     tenant.isVoysNL = function() {
-                        return tenant.id === 50;
+                        return tenant.id === 50 || tenant.id === 2;
                     };
 
                     return tenant;
@@ -43,4 +43,4 @@ function Tenant($resource, $compile, $interpolate) {
     );
 
     return _tenant;
-};
+}

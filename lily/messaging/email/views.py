@@ -605,6 +605,7 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
         """
         return '/#/email'
 
+
 class EmailMessageReplyView(EmailMessageReplyOrForwardView):
     action = 'reply'
 

@@ -228,4 +228,7 @@ class RelatedAccountSerializer(RelatedSerializerMixin, AccountCreateSerializer):
             'name',
             'status',
             'taxnumber',
+            'email_addresses',
+            'phone_numbers',
+            'addresses',
         )

@@ -22,6 +22,14 @@
             <tr>
                 <td><i class="lilicon hl-mail-icon"></i> <strong>Email</strong></td>
                 <td>
+                    <div ng-if="!vm.contact.email_addresses.length" ng-repeat="account in vm.contact.accounts">
+                        <div ng-repeat="email in account.email_addresses">
+                            <i class="lilicon hl-company-icon margin-right-10" uib-tooltip="{{ $root.messages.contact.accountInfoTooltip }}"></i>
+                            <a ui-sref="base.email.composeEmail({email: email.email_address})">
+                                {{ email.email_address }}
+                            </a>
+                        </div>
+                    </div>
                     <editable-related model="vm.contact" type="Contact" field="email_addresses"></editable-related>
                 </td>
             </tr>
@@ -29,6 +37,14 @@
             <tr>
                 <td><i class="lilicon hl-phone-icon"></i> <strong>Phone</strong></td>
                 <td>
+                    <div ng-if="!vm.contact.phone_numbers.length" ng-repeat="account in vm.contact.accounts">
+                        <div ng-repeat="phone in account.phone_numbers">
+                            <i class="lilicon hl-company-icon margin-right-10" uib-tooltip="{{ $root.messages.contact.accountInfoTooltip }}"></i>
+                            <a href="tel:{{ phone.raw_input }}">
+                                {{ phone.raw_input }}
+                            </a>
+                        </div>
+                    </div>
                     <editable-related model="vm.contact" type="Contact" field="phone_numbers"></editable-related>
                 </td>
             </tr>
@@ -36,6 +52,20 @@
             <tr>
                 <td><i class="fa fa-map-marker"></i> <strong>Address</strong></td>
                 <td>
+                    <div ng-if="!vm.contact.addresses.length" ng-repeat="account in vm.contact.accounts">
+                        <div ng-repeat="address in account.addresses">
+                            <div class="display-inline-block">
+                                <i class="lilicon hl-company-icon margin-right-10" uib-tooltip="{{ $root.messages.contact.accountInfoTooltip }}"></i>
+                            </div>
+                            <div class="display-inline-block vertical-align-top">
+                                {{ address.street }} {{ address.street_number }}{{ address.complement }}
+                                <br/>
+                                {{ address.postal_code }}, {{ address.city }}
+                                <br/>
+                                {{ address.country }}
+                            </div>
+                        </div>
+                    </div>
                     <editable-related model="vm.contact" type="Contact" field="addresses"></editable-related>
                 </td>
             </tr>
@@ -49,9 +79,24 @@
                 </td>
             </tr>
 
-            <tr ng-show="vm.contact.social" ng-repeat="social in vm.contact.social">
-                <td><i class="fa fa-{{ social.social_name | lowercase }}"></i> <strong>{{ social.social_name }}</strong></td>
-                <td><a ng-href="{{ social.social_url }}" target="_blank">{{ social.social_profile }}</a></td>
+            <tr>
+                <td><i class="fa fa-twitter"></i> <strong>Twitter</strong></td>
+                <td>
+                    <!--<editable-link view-model="vm" type="Contact" object="vm.contact.twitter" field="username" is-social-media="true">-->
+                        <a ng-if="vm.contact.twitter" ng-href="{{ vm.contact.twitter.profile_url }}" target="_blank">{{ vm.contact.twitter.username }}</a>
+                        <span ng-if="!vm.contact.twitter">No Twitter profile</span>
+                    <!--</editable-link>-->
+                </td>
+            </tr>
+
+            <tr>
+                <td><i class="fa fa-linkedin"></i> <strong>LinkedIn</strong></td>
+                <td>
+                    <!--<editable-link view-model="vm" type="Contact" object="vm.contact.linkedin" field="username" is-social-media="true">-->
+                        <a ng-if="vm.contact.linkedin" ng-href="{{ vm.contact.linkedin.profile_url }}" target="_blank">{{ vm.contact.linkedin.username }}</a>
+                        <span ng-if="!vm.contact.linkedin">No LinkedIn profile</span>
+                    <!--</editable-link>-->
+                </td>
             </tr>
 
             <tr ng-show="vm.contact.tag">

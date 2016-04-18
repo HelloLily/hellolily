@@ -11,6 +11,14 @@
     .drop-down-sub-menu {
         display: none;
     }
+
+    &.open {
+        .drop-down-sub-menu {
+            position: absolute;
+            z-index: 1000;
+            display: block;
+        }
+    }
 }
 
 .drop-down > .header-user-menu {

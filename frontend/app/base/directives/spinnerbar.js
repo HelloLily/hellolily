@@ -1,37 +1,32 @@
 angular.module('app.directives').directive('ngSpinnerBar', ngSpinnerBar);
 
 ngSpinnerBar.$inject = ['$rootScope'];
-function ngSpinnerBar ($rootScope) {
+function ngSpinnerBar($rootScope) {
     return {
         link: function(scope, element, attrs) {
-            // by defult hide the spinner bar
-            element.addClass('hide'); // hide spinner bar by default
+            // By default hide the spinner bar.
+            element.addClass('hide');
 
-            // display the spinner bar whenever the route changes(the content part started loading)
+            // Display the spinner bar whenever the route changes (the content part started loading).
             $rootScope.$on('$stateChangeStart', function() {
-                element.removeClass('hide'); // show spinner bar
+                element.removeClass('hide');
             });
 
-            // hide the spinner bar on rounte change success(after the content loaded)
+            // Hide the spinner bar on route change success (after the content loaded).
             $rootScope.$on('$stateChangeSuccess', function() {
-                element.addClass('hide'); // hide spinner bar
-                $('body').removeClass('page-on-load'); // remove page loading indicator
-
-                // auto scroll to page top
-                setTimeout(function () {
-                    Metronic.scrollTop(); // scroll to the top on content load
-                }, $rootScope.settings.layout.pageAutoScrollOnLoad);
+                element.addClass('hide');
+                // Remove page loading indicator.
+                $('body').removeClass('page-on-load');
             });
 
-            // handle errors
+            // Handle errors.
             $rootScope.$on('$stateNotFound', function() {
-                element.addClass('hide'); // hide spinner bar
+                element.addClass('hide');
             });
 
-            // handle errors
             $rootScope.$on('$stateChangeError', function() {
-                element.addClass('hide'); // hide spinner bar
+                element.addClass('hide');
             });
-        }
+        },
     };
 }

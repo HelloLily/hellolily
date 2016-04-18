@@ -14,12 +14,13 @@
                                maxlength="255"
                                placeholder="www.example.com"
                                type="text"
+                               ng-blur="vm.checkDomainForDuplicates()"
                                ng-model="vm.account.primaryWebsite" />
                             <span class="input-group-btn">
                                 <button autocomplete="off"
                                         class="btn default"
                                         type="button"
-                                        ng-click="vm.loadDataproviderData(accountForm)"
+                                        ng-click="vm.checkDomainForDuplicates()"
                                         ng-disabled="!accountForm.primaryWebsite.$valid">
                                     <i class="fa fa-magic"></i>
                                 </button>
@@ -87,6 +88,7 @@
                     </form-addresses>
 
                     <form-websites websites="vm.account.websites"
+                                   double-account-check="vm.checkDomainForDuplicates(form, index)"
                                    add-related-field="vm.addRelatedField(field)"
                                    remove-related-field="vm.removeRelatedField(field, index, remove)">
                     </form-websites>
@@ -143,7 +145,7 @@
                 <div class="row">
                     <div ng-class="{'hidden col-xs-12': settings.email.sidebar.form, 'col-xs-12 col-sm-3 col-md-2 col-lg-2': !settings.email.sidebar.form}"></div>
                     <div ng-class="{'col-xs-12': settings.email.sidebar.form, 'col-xs-12 col-sm-9 col-md-8 col-md-7 col-lg-4': !settings.email.sidebar.form}">
-                        <button type="button" class="btn blue" ng-click="vm.saveAccount(accountForm)">
+                	    <button type="button" class="btn blue" ng-click="vm.checkDomainForDuplicates(accountForm)">
                             <i class="fa fa-check"></i> Save
                         </button>
                         <button type="button" class="btn default" ng-click="vm.cancelAccountCreation()">

@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from lily.utils.models.models import HistoryListItem
@@ -44,7 +45,7 @@ class Note(HistoryListItem, DeletedMixin):
 
     def save(self, *args, **kwargs):
         if self.sort_by_date is None:
-            self.sort_by_date = self.created
+            self.sort_by_date = timezone.now()
         return super(Note, self).save()
 
     def __unicode__(self):

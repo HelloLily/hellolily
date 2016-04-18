@@ -16,6 +16,7 @@ def archive_closed_cases(apps, schema_editor):
 
         for case in Case.objects.filter(status=closed_status, tenant=tenant, is_archived=False):
             case.is_archived = True
+            case.update_modified = False
             case.save()
     except Tenant.DoesNotExist:
         pass

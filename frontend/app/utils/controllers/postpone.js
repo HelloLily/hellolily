@@ -1,7 +1,7 @@
 angular.module('app.cases').controller('PostponeModal', PostponeModal);
 
-PostponeModal.$inject = ['$uibModalInstance', '$scope', 'data', '$injector'];
-function PostponeModal($uibModalInstance, $scope, data, $injector) {
+PostponeModal.$inject = ['$uibModalInstance', '$scope', 'data', '$injector', 'HLUtils'];
+function PostponeModal($uibModalInstance, $scope, data, $injector, HLUtils) {
     var vm = this;
 
     vm.type = data.type;
@@ -35,7 +35,7 @@ function PostponeModal($uibModalInstance, $scope, data, $injector) {
     }
 
     /**
-     * When the datepicker popup is closed, update model and close modal
+     * When the datepicker popup is closed, update model and close modal.
      *
      * @private
      */
@@ -48,11 +48,14 @@ function PostponeModal($uibModalInstance, $scope, data, $injector) {
     }
 
     function _updateDayAndCloseModal() {
+        var newDate;
+        var args;
+
         if (!moment(vm.date).isSame(moment(vm.object[vm.dateField]))) {
             // Update the due date for this case.
-            var newDate = moment(vm.date).format('YYYY-MM-DD');
+            newDate = moment(vm.date).format('YYYY-MM-DD');
 
-            var args = {
+            args = {
                 id: vm.object.id,
             };
 
@@ -69,10 +72,8 @@ function PostponeModal($uibModalInstance, $scope, data, $injector) {
         }
     }
 
-    function disabledDates(date, mode) {
-        if (!moment.isMoment(date)) {
-            date = moment(date);
-        }
+    function disabledDates(currentDate, mode) {
+        var date = moment.isMoment(currentDate) ? currentDate : moment(currentDate);
 
         // Disable Saturday and Sunday.
         return ( mode === 'day' && ( date.day() === 6 || date.day() === 0 ) );
@@ -97,17 +98,13 @@ function PostponeModal($uibModalInstance, $scope, data, $injector) {
             futureDate = moment(vm.date);
         }
 
-        // Only skip weekends if we're postponing by 1 or 2 days.
-        if (days !== 7 && futureDate.day() >= 5) {
-            // Day is Saturday, so get the next monday and add the amount of days.
-            futureDate = futureDate.add(1, 'week').day(days);
-        } else if (days !== 7 && futureDate.day() === 0) {
-            // Day is Sunday, which is a new week, so get the Monday and add the amount of days.
-            futureDate = futureDate.day(1).day(days);
+        if (days !== 7) {
+            // Only skip weekends if we're postponing by 1 or 2 days.
+            futureDate = HLUtils.addBusinessDays(days, futureDate);
         } else {
-            futureDate = futureDate.add(days, 'days');
+            futureDate = futureDate.add(days, 'days').format('YYYY-MM-DD');
         }
 
-        return futureDate.format('YYYY-MM-DD');
+        return futureDate;
     }
 }

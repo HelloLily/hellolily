@@ -9,13 +9,16 @@ def archive_closed_cases(apps, schema_editor):
     Case = apps.get_model('cases', 'Case')
     Tenant = apps.get_model('tenant', 'Tenant')
 
-    tenant = Tenant.objects.get(pk=50)
+    try:
+        tenant = Tenant.objects.get(pk=50)
 
-    closed_status = CaseStatus.objects.get(status='Closed', tenant=tenant)
+        closed_status = CaseStatus.objects.get(status='Closed', tenant=tenant)
 
-    for case in Case.objects.filter(status=closed_status, tenant=tenant, is_archived=False):
-        case.is_archived = True
-        case.save()
+        for case in Case.objects.filter(status=closed_status, tenant=tenant, is_archived=False):
+            case.is_archived = True
+            case.save()
+    except Tenant.DoesNotExist:
+        pass
 
 
 def do_nothing(apps, schema_editor):

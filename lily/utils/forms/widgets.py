@@ -426,8 +426,12 @@ class AvatarInput(ClearableFileInput):
     """
 
     input_text = 'Change avatar'
-    template_with_initial = u'%(initial)s %(clear_template)s<span class="user-field-image-change"><label>%(input_text)s</label>: %(input)s</span>'
-    template_with_clear = '<span class="user-field-image-clear">%(clear)s <label for="%(clear_checkbox_id)s">%(clear_checkbox_label)s</label></span>'
+    template_with_initial = u'%(initial)s %(clear_template)s<span class="user-field-image-change">' \
+                            u'<label>%(input_text)s</label>: %(input)s' \
+                            u'</span>'
+    template_with_clear = '<span class="user-field-image-clear">' \
+                          '%(clear)s <label for="%(clear_checkbox_id)s">%(clear_checkbox_label)s</label>' \
+                          '</span>'
     url_markup_template = '<div style="background-image:url({0});" class="user-field-image"/>'
     clear_checkbox_label = 'Remove avatar'
 

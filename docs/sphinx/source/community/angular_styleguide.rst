@@ -1,5 +1,6 @@
-Introduction
-############
+========================
+Lily Angular style guide
+========================
 
 The Angular part of Lily was built with the `John Papa Angular style guide <https://github.com/johnpapa/angular-styleguide>`_ serving as the basis and the `Airbnb JavaScript style guide <https://github.com/airbnb/javascript>`_ for the JavaScript part. This Lily Angular (& JavaScript) style guide will give you an overview of how we use various Angular components and the coding style in Lily. Not all examples might be representative of the actual code and some code might be missing to highlight the important bits. Any improvements are welcome of course.
 
@@ -80,7 +81,15 @@ Let's start at the top.
 
     angular.module('app.directives').directive('editableSelect', editableSelect);
 
-We set up the module and say what name the directive has and what function we call to invoke the directive. The directive can then be used like this (as seen on the ``deals/controllers/detail.html`` page) ``<editable-select field="next_step" view-model="vm" type="Deal">{{ vm.deal.next_step.name }}</editable-select>``. Once the directive is called it invokes the ``function editableSelect()``. Let's take the contents of that function and break it down (see comments).
+We set up the module and say what name the directive has and what function we call to invoke the directive. The directive can then be used like this (as seen on the ``deals/controllers/detail.html`` page)
+
+.. code-block:: javascript
+
+    <editable-select field="next_step" view-model="vm" type="Deal">
+        {{ vm.deal.next_step.name }}
+    </editable-select>
+
+Once the directive is called it invokes the ``function editableSelect()``. Let's take the contents of that function and break it down (see comments).
 
 .. code-block:: javascript
 

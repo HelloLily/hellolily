@@ -20,7 +20,7 @@ from lily.utils.forms.mixins import FormSetFormMixin
 from lily.utils.forms.widgets import Wysihtml5Input, AjaxSelect2Widget, BootstrapRadioFieldRenderer
 
 from ..models.models import (EmailAccount, EmailTemplate, EmailOutboxAttachment, DefaultEmailTemplate,
-                             EmailTemplateAttachment, TemplateVariable)
+                             EmailTemplateAttachment, TemplateVariable, EmailAttachment)
 from .widgets import EmailAttachmentWidget
 from ..utils import get_email_parameter_choices, TemplateParser
 
@@ -122,6 +122,19 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
     def __init__(self, *args, **kwargs):
         self.message_type = kwargs.pop('message_type', 'reply')
         super(ComposeEmailForm, self).__init__(*args, **kwargs)
+
+        # Only show the checkbox for existing attachments if we have a pk and if we forward.
+        if 'initial' in kwargs and 'draft_pk' in kwargs['initial'] and self.message_type == 'forward':
+            existing_attachment_list = EmailAttachment.objects.filter(
+                message_id=kwargs['initial']['draft_pk'],
+                inline=False
+            )
+            choices = [(attachment.id, attachment.name) for attachment in existing_attachment_list]
+            self.fields['existing_attachments'] = forms.MultipleChoiceField(
+                choices=choices,
+                widget=forms.CheckboxSelectMultiple,
+                initial=[a.id for a in existing_attachment_list]
+            )
 
         self.fields['template'].queryset = EmailTemplate.objects.order_by('name')
 

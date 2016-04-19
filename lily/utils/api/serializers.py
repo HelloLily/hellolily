@@ -100,16 +100,13 @@ class RelatedPhoneNumberSerializer(RelatedSerializerMixin, PhoneNumberSerializer
 
 class OldAddressSerializer(RelatedFieldSerializer):
     id = serializers.IntegerField(required=False)
-    street = serializers.CharField(required=True)
-    street_number = serializers.IntegerField(required=True, error_messages={'invalid': 'Please enter a number.'})
+    address = serializers.CharField(required=True)
 
     class Meta:
         model = Address
         fields = (
             'id',
-            'street',
-            'street_number',
-            'complement',
+            'address',
             'postal_code',
             'city',
             'state_province',
@@ -122,17 +119,13 @@ class AddressSerializer(serializers.ModelSerializer):
     """
     Serializer used to serialize addresses.
     """
-    street = serializers.CharField(required=True)
-    street_number = serializers.IntegerField(required=True, error_messages={'invalid': 'Please enter a number.'})
-    country_display = serializers.CharField(read_only=True)
+    address = serializers.CharField(required=True)
 
     class Meta:
         model = Address
         fields = (
             'id',
-            'street',
-            'street_number',
-            'complement',
+            'address',
             'postal_code',
             'city',
             'state_province',

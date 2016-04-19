@@ -113,11 +113,15 @@ class AddressBaseForm(HelloLilyModelForm):
                     del choices[i]
             self.fields['type'].choices = choices
 
-        self.fields['street'].label = _('Address')
-
     class Meta:
         model = Address
-        fields = ('street', 'street_number', 'complement', 'postal_code', 'city', 'country', 'type')
+        fields = (
+            'address',
+            'postal_code',
+            'city',
+            'country',
+            'type'
+        )
 
 
 class SugarCsvImportForm(HelloLilyForm):

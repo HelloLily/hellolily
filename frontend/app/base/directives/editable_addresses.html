@@ -1,7 +1,7 @@
 <i class="lilicon hl-user-icon margin-right-10" ng-if="!er.items.length" uib-tooltip="{{ $root.messages.contact.contactInfoTooltip }}"></i>
 <span ng-show="!er.formVisible" class="editable editable-click addable-click">
     <div ng-repeat="address in er.items">
-        {{ address.street }} {{ address.street_number }}{{ address.complement }}
+        {{ address.address }}
         <br />
         {{ address.postal_code }}, {{ address.city }}
         <br />
@@ -21,21 +21,7 @@
                maxlength="255"
                placeholder="Address"
                type="text"
-               ng-model="address.street"
-               ng-readonly="address.is_deleted">
-
-        <input class="form-control"
-               maxlength="255"
-               placeholder="Street number"
-               type="text"
-               ng-model="address.street_number"
-               ng-readonly="address.is_deleted">
-
-        <input class="form-control"
-               maxlength="255"
-               placeholder="Complement"
-               type="text"
-               ng-model="address.complement"
+               ng-model="address.address"
                ng-readonly="address.is_deleted">
 
         <input class="form-control"

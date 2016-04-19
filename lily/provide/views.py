@@ -114,102 +114,107 @@ class DataproviderView(ProvideBaseView):
         email_limit = 5
         address_limit = 3
 
-        # Expected api output is json
+        # Expected api output is json.
         self.api_output = json.loads(self.api_output)
 
-        # Return 404 when the api returned an error
+        # Return 404 when the api returned an error.
         if self.api_output.get('error'):
             raise Http404()
 
-        # Return error message when nothing was found
+        # Return error message when nothing was found.
         if self.api_output.get('total') == 0:
             raise Exception(_('I\'m so sorry, I couldn\'t find any data for this website.'))
 
-        # Filter useful data
+        # Filter useful data.
         result = self.api_output['data'][0]
 
-        # Get company name
+        # Get company name.
         company = result.get('company')
 
-        # Get website description
+        # Get website description.
         description = result.get('description')
 
-        # Get the keywords and convert to list
+        # Get the keywords and convert to list.
         tags = result.get('keywords')
         if tags:
             tags = result.get('keywords').strip().rstrip(',').split(',')
 
-        # Get email addresses and convert to a list if needed
+        # Get email addresses and convert to a list if needed.
         emails = result.get('emailaddresses', []) or []
         if not isinstance(emails, list):
             emails = [emails]
 
-        # Determine primary email since Dataprovider doesn't provide it
+        # Determine primary email since Dataprovider doesn't provide it.
         primary_email = None
         if emails:
             primary_email = self._get_primary_email(emails)
 
-            # Set primary email to the first in the list
+            # Set primary email to the first in the list.
             emails.index(primary_email)
             emails.remove(primary_email)
             emails.insert(0, primary_email)
 
-        # Limit number of emails
+        # Limit number of emails.
         emails = emails[:email_limit]
 
         phone_numbers = []
 
-        # Get primary phone number and convert to a nicer representation
+        # Get primary phone number and convert to a nicer representation.
         phone_number = result.get('phonenumber')
 
         if phone_number:
             phone_number = parse_phone_number(phone_number)
             phone_numbers.append(phone_number)
 
-        # Get phone numbers and convert to list if needed
+        # Get phone numbers and convert to list if needed.
         raw_phone_numbers = result.get('phonenumbers', []) or []
         if not isinstance(raw_phone_numbers, list):
             raw_phone_numbers = [raw_phone_numbers]
 
-        # Convert all phone numbers to a nicer representation
+        # Convert all phone numbers to a nicer representation.
         for raw_phone_number in raw_phone_numbers:
             phone_numbers.append(parse_phone_number(raw_phone_number))
 
-        # Limit number of phonenumbers
+        # Limit number of phonenumbers.
         phone_numbers = phone_numbers[:phone_number_limit]
 
-        # Get what kind of company it is (e.g. LLC)
+        # Get what kind of company it is (e.g. LLC).
         legalentity = result.get('legalentity')
 
-        # Get the VAT (Value Added Tax) identifaction number
+        # Get the VAT (Value Added Tax) identifaction number.
         taxnumber = result.get('taxnumber')
 
-        # Get bank account number
+        # Get bank account number.
         bankaccountnumber = result.get('bankaccountnumber')
 
-        # Get the CoC (Chamber of Commerce) number
+        # Get the CoC (Chamber of Commerce) number.
         cocnumber = result.get('cocnumber')
 
-        # Get the IBAN (Internation Bank Account Number)
+        # Get the IBAN (Internation Bank Account Number).
         iban = result.get('iban')
 
-        # Get the BIC (Bank Identifier Code)
+        # Get the BIC (Bank Identifier Code).
         bic = result.get('bic')
 
-        # Try to parse the address
+        # Try to parse the address.
         address = result.get('address')
+        address_line = ''
         if address:
+            # Construct address_line, instead of assigning address to address_line directly,
+            # because parse_address() also santizes the result.
             street, street_number, complement = parse_address(address)
-        else:
-            street, street_number, complement = None, None, None
+            if street:
+                address_line = street
+            if street_number:
+                address_line += ' ' + street_number
+            if complement:
+                address_line += complement
 
-        # Make the full address
+        # Make the full address.
         addresses = []
         if address or result.get('city') or result.get('zipcode') or result.get('country'):
             addresses = [{
-                'street': street,
-                'street_number': street_number,
-                'complement': complement,
+                'address': address_line,
                 'city': result.get('city'),
                 'country': result.get('country'),
                 'postal_code': result.get('zipcode'),
@@ -217,7 +222,7 @@ class DataproviderView(ProvideBaseView):
 
         addresses = addresses[:address_limit]
 
-        # Build dict with account information
+        # Build dict with account information.
         self.view_output = {
             'name': company,
             'description': description,
@@ -243,9 +248,9 @@ class DataproviderView(ProvideBaseView):
     def _get_primary_email(self, emails):
         if len(emails) > 1:
             for email in emails:
-                # The main email address of a company usually starts with info@ or contact@ so check if that exists
+                # The main email address of a company usually starts with info@ or contact@ so check if that exists.
                 if email.startswith('info') or email.startswith('contact'):
                     return email
 
-        # Return the first email address in the list if no info@ or contact@ email could be found
+        # Return the first email address in the list if no info@ or contact@ email could be found.
         return emails[0]

@@ -29,7 +29,7 @@ function HLFields() {
                             cleanedValues.push(fieldValue);
                         }
 
-                        if (fieldValue.city || fieldValue.postal_code || fieldValue.street || fieldValue.street_number) {
+                        if (fieldValue.city || fieldValue.postal_code || fieldValue.address) {
                             cleanedValues.push(fieldValue);
                         }
 
@@ -65,7 +65,7 @@ function HLFields() {
                     cleanedValues.push(item);
                 }
 
-                if (item.city || item.postal_code || item.street || item.street_number) {
+                if (item.city || item.postal_code || item.address) {
                     cleanedValues.push(item);
                 }
 

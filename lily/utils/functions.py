@@ -98,7 +98,7 @@ def parse_phone_number(raw_number):
 
 def parse_address(address):
     """
-    Parse an address string and return street, number and complement
+    Parse an address string and return street, number and complement.
     """
     street = None
     street_number = None

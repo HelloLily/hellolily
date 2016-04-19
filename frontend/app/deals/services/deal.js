@@ -44,6 +44,10 @@ function Deal($resource, HLUtils, HLForms, User) {
                 params: {
                     id: '@id',
                 },
+                transformRequest: function(data) {
+                    data = angular.copy(data);
+                    return angular.toJson(HLForms.clean(data));
+                },
             },
             query: {
                 url: '/search/search/',

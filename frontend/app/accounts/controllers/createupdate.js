@@ -65,46 +65,30 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
     ////
 
     function activate() {
-        var choiceFields = ['status'];
-
         User.query().$promise.then(function(response) {
             angular.forEach(response.results, function(user) {
                 if (user.first_name !== '') {
                     vm.people.push({
                         id: user.id,
-                        // Convert to single string so searching with spaces becomes possible
+                        // Convert to single string so searching with spaces becomes possible.
                         name: HLUtils.getFullName(user),
                     });
                 }
             });
         });
 
-        Account.getFormOptions(function(data) {
-            var splitName;
-            var choiceVarName;
-            var i;
-            var j;
-            var choiceData = data.actions.POST;
+        Account.getStatuses(function(response) {
+            vm.statusChoices = response.results;
+            vm.defaultNewStatus = Account.defaultNewStatus;
+            vm.relationStatus = Account.relationStatus;
+            vm.activeStatus = Account.activeStatus;
 
-            for (i = 0; i < choiceFields.length; i++) {
-                splitName = choiceFields[i].split('_');
-                choiceVarName = splitName[0];
-
-                // Convert to camelCase.
-                if (splitName.length > 1) {
-                    for (j = 1; j < splitName.length; j++) {
-                        choiceVarName += splitName[j].charAt(0).toUpperCase() + splitName[j].slice(1);
-                    }
-                }
-
-                // Make the variable name a bit more logical (e.g. vm.currencyChoices vs vm.currency).
-                choiceVarName += 'Choices';
-
-                vm[choiceVarName] = choiceData[choiceFields[i]].choices;
-            }
+            // Getting the statusses includes which status is the default for a new account,
+            // so get (or create) the account afterwards.
+            _getAccount();
         });
 
-        _getAccount();
+
     }
 
     function _getAccount() {
@@ -148,6 +132,7 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
             Settings.page.setAllTitles('create', 'account');
 
             vm.account = Account.create();
+            vm.account.status = vm.defaultNewStatus;
 
             User.me().$promise.then(function(user) {
                 vm.account.assigned_to = user.id;
@@ -267,8 +252,7 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
         var primaryWebsite = vm.account.primaryWebsite;
         var exists;
 
-        // Check if an account is being added via the + account page or via
-        // a supercard.
+        // Check if an account is being added via the + account page or via a supercard.
         if (Settings.email.sidebar.isVisible) {
             ga('send', 'event', 'Account', 'Save', 'Email SC');
         } else {
@@ -293,10 +277,15 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
             }
         }
 
-        // If the account is edited and the assigned to isn't changed, it's an object
-        // So if that's the case get the id and set 'assigned_to' to that value
+        // If the account is edited and the 'assigned_to' isn't changed, it's an object.
+        // So if that's the case get the id and set 'assigned_to' to that value.
         if (typeof vm.account.assigned_to === 'object' && vm.account.assigned_to && vm.account.assigned_to.id) {
             vm.account.assigned_to = vm.account.assigned_to.id;
+        }
+
+        // Rewrite submit so that it isn't sending the whole status object, but only its id.
+        if (typeof vm.account.status === 'object' && vm.account.status && vm.account.status.id) {
+            vm.account.status = {id: vm.account.status.id};
         }
 
         if (vm.account.tags && vm.account.tags.length) {
@@ -308,7 +297,7 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
             });
         }
 
-        // Clear all errors of the form (in case of new errors)
+        // Clear all errors of the form (in case of new errors).
         angular.forEach(form, function(value, key) {
             if (typeof value === 'object' && value.hasOwnProperty('$modelValue')) {
                 form[key].$error = {};
@@ -326,7 +315,7 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
         vm.account = HLFields.cleanRelatedFields(vm.account, 'account');
 
         if (vm.account.id) {
-            // If there's an ID set it means we're dealing with an existing account, so update it
+            // If there's an ID set it means we're dealing with an existing account, so update it.
             vm.account.$update(function() {
                 toastr.success('I\'ve updated the account for you!', 'Done');
                 $state.go('base.accounts.detail', {id: vm.account.id}, {reload: true});
@@ -357,7 +346,7 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
     }
 
     function _handleBadResponse(response, form) {
-        // Set error of the first website as the primary website error
+        // Set error of the first website as the primary website error.
         if (vm.account.primaryWebsite && response.data.websites && response.data.websites.length) {
             response.data.primaryWebsite = response.data.websites.shift().website;
         }
@@ -368,8 +357,8 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
     }
 
     function setStatusForCustomerId() {
-        if (vm.account.status === '' || vm.account.status === 'inactive') {
-            vm.account.status = 'active';
+        if (vm.account.status === undefined || vm.account.status === vm.relationStatus) {
+            vm.account.status = vm.activeStatus;
         }
     }
 

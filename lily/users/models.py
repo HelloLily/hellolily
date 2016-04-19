@@ -27,9 +27,11 @@ class LilyUserManager(UserManager):
             raise ValueError('The given email address must be set')
         email = self.normalize_email(email)
 
-        # Find or create a tenant
+        # Find or create a tenant.
         if tenant_id:
-            tenant = Tenant.objects.get_or_create(pk=tenant_id)[0]
+            # Don't use get_or_create.
+            # Creating a tenant with the provided id collides with tenants created for the users in our test cases.
+            tenant = Tenant.objects.get(pk=tenant_id)
         else:
             tenant = Tenant.objects.create()
 

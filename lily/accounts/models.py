@@ -28,19 +28,22 @@ def get_account_logo_upload_path(instance, filename):
     }
 
 
+class AccountStatus(TenantMixin):
+    name = models.CharField(max_length=255)
+    position = models.IntegerField(max_length=2, default=0)
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = _('account statuses')
+        ordering = ['position']
+
+
 class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
     """
     Account model, this is a company's profile. May have relations with contacts.
     """
-    STATUS_CHOICES = (
-        ('inactive', _('Inactive')),
-        ('active', _('Active')),
-        ('pending', _('Pending')),
-        ('prev_customer', _('Previous customer')),
-        ('bankrupt', _('Bankrupt')),
-        ('unknown', _('Unknown')),
-    )
-
     ACCOUNT_SIZE_CHOICES = (
         ('1', u'1'),
         ('2', u'2-10'),
@@ -55,7 +58,7 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
     customer_id = models.CharField(max_length=32, verbose_name=_('customer id'), blank=True)
     name = models.CharField(max_length=255, verbose_name=_('company name'))
     flatname = models.CharField(max_length=255, blank=True)
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES, verbose_name=_('status'), default='inactive')
+    status = models.ForeignKey(AccountStatus, verbose_name=_('status'), related_name='accounts')
     company_size = models.CharField(
         max_length=15,
         choices=ACCOUNT_SIZE_CHOICES,

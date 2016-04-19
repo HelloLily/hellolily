@@ -15,7 +15,7 @@ from lily.utils.api.serializers import (AddressSerializer, EmailAddressSerialize
                                         OldAddressSerializer)
 from lily.tags.models import Tag
 
-from ..models import Account, Website
+from ..models import Account, Website, AccountStatus
 from ..validators import DuplicateAccountName
 
 
@@ -54,6 +54,23 @@ class ContactForAccountSerializer(RelatedModelSerializer):
         )
 
 
+class AccountStatusSerializer(serializers.ModelSerializer):
+    """
+    Serializer for account status model.
+    """
+    class Meta:
+        model = AccountStatus
+        fields = (
+            'id',
+            'name',
+            'position',
+        )
+
+
+class RelatedAccountStatusSerializer(RelatedSerializerMixin, AccountStatusSerializer):
+    pass
+
+
 class AccountSerializer(serializers.ModelSerializer):
     """
     Serializer for the account model.
@@ -71,6 +88,7 @@ class AccountSerializer(serializers.ModelSerializer):
     websites = WebsiteSerializer(many=True)
     tags = TagSerializer(many=True)
     content_type = ContentTypeSerializer()
+    status = RelatedAccountStatusSerializer(assign_only=True)
 
     class Meta:
         model = Account
@@ -115,6 +133,7 @@ class AccountCreateSerializer(serializers.ModelSerializer):
     tags = OldTagSerializer(many=True, required=False)
     websites = WebsiteSerializer(many=True, required=False)
     social_media = SocialMediaSerializer(many=True, required=False)
+    status = RelatedAccountStatusSerializer(assign_only=True)
 
     # Dict used when creating/updating the related fields of the account
     related_fields = [
@@ -151,7 +170,7 @@ class AccountCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         tags_data = validated_data.pop('tags', {})
 
-        # We need to pop the related fields otherwise Account's __init__ won't accept it
+        # We need to pop the related fields otherwise Account's __init__ won't accept it.
         related_fields_data = {
             'websites': validated_data.pop('websites', {}),
             'email_addresses': validated_data.pop('email_addresses', {}),
@@ -160,11 +179,15 @@ class AccountCreateSerializer(serializers.ModelSerializer):
             'social_media': validated_data.pop('social_media', {}),
         }
 
-        # TODO: Make sure that errors in related fields raise an error and don't save the account
+        validated_data.update({
+            'status': AccountStatus.objects.get(pk=validated_data.get('status').get('id'))
+        })
+
+        # TODO: Make sure that errors in related fields raise an error and don't save the account.
         account = Account(**validated_data)
         account.save()
 
-        # Create related fields
+        # Create related fields.
         create_related_fields(account, self.related_fields, related_fields_data)
 
         for tag in tags_data:
@@ -180,13 +203,19 @@ class AccountCreateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         tags_data = validated_data.pop('tags', {})
 
-        # Create/update/delete related fields
+        # Create/update/delete related fields.
         update_related_fields(instance, self.related_fields, validated_data)
 
+        status = validated_data.get('status')
+        if status:
+            validated_data.update({
+                'status': AccountStatus.objects.get(pk=validated_data.get('status').get('id'))
+            })
+
         # TODO: Test if changing ID's of existing objects does something
-        # Example: Account has website with ID 1
-        # ID 2 is given, does this update website 2 or?
-        # After a bit of testing this doesn't seem to be the case, but someone else should test just in case
+        # Example: Account has website with ID 1.
+        # ID 2 is given, does this update website 2 or ?
+        # After a bit of testing this doesn't seem to be the case, but someone else should test just in case.
 
         for (key, value) in validated_data.items():
             setattr(instance, key, value)
@@ -212,7 +241,7 @@ class RelatedAccountSerializer(RelatedSerializerMixin, AccountCreateSerializer):
     """
     class Meta:
         model = Account
-        fields = (  # No related fields in this serializer
+        fields = (  # No related fields in this serializer.
             'id',
             'bankaccountnumber',
             'bic',

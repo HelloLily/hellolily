@@ -58,9 +58,22 @@ function Account($http, $q, $resource, HLResource, HLUtils) {
             searchByEmail: {
                 url: '/search/emailaddress/:email_address',
             },
-            getFormOptions: {
-                url: 'api/accounts/account',
-                method: 'OPTIONS',
+            getStatuses: {
+                url: '/api/accounts/statuses/',
+                transformResponse: function(data) {
+                    var statusData = angular.fromJson(data);
+
+                    angular.forEach(statusData.results, function(status) {
+                        if (status.name === 'Relation') {
+                            _account.relationStatus = status;
+                            _account.defaultNewStatus = _account.relationStatus;
+                        } else if (status.name === 'Active') {
+                            _account.activeStatus = status;
+                        }
+                    });
+
+                    return statusData;
+                },
             },
             searchByWebsite: {
                 url: '/search/website/:website',
@@ -131,7 +144,6 @@ function Account($http, $q, $resource, HLResource, HLUtils) {
     function create() {
         return new _account({
             name: '',
-            status: 'inactive',
             primaryWebsite: '',
             email_addresses: [],
             phone_numbers: [],

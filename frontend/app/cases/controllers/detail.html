@@ -94,7 +94,7 @@
                                 <td>
                                     <ul>
                                         <li ng-repeat="phonenumber in vm.case.account.phone_numbers">
-                                            <a href="tel:{{ phonenumber.raw_input }}">{{ phonenumber.raw_input }}</a> ({{phonenumber.type}})
+                                            <a href="tel:{{ phonenumber.number }}">{{ phonenumber.number }}</a> ({{phonenumber.type}})
                                         </li>
                                     </ul>
                                 </td>
@@ -176,7 +176,7 @@
                                 <td>
                                     <ul>
                                         <li ng-repeat="phonenumber in vm.case.contact.phone_numbers">
-                                            <a href="tel:{{ phonenumber.raw_input }}">{{ phonenumber.raw_input }}</a> ({{phonenumber.type}})
+                                            <a href="tel:{{ phonenumber.number }}">{{ phonenumber.number }}</a> ({{phonenumber.type}})
                                         </li>
                                     </ul>
                                 </td>

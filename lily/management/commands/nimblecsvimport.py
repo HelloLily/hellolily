@@ -165,7 +165,7 @@ class Command(BaseCommand):
                     if number:
                         number = self.clean_phone(number)
                         phone = PhoneNumber.objects.get_or_create(
-                            tenant=tenant, type=number_type, raw_input=number)[0]
+                            tenant=tenant, type=number_type, number=number)[0]
                         account_instance.phone_numbers.add(phone)
 
                 if primary_email:
@@ -304,7 +304,7 @@ class Command(BaseCommand):
                     if number:
                         number = self.clean_phone(number)
                         phone = PhoneNumber.objects.get_or_create(
-                            tenant=tenant, type=number_type, raw_input=number)[0]
+                            tenant=tenant, type=number_type, number=number)[0]
                         contact_instance.phone_numbers.add(phone)
 
                 if account_instance:

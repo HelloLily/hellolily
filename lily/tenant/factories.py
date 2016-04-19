@@ -1,4 +1,4 @@
-from factory import LazyAttribute, SubFactory, SelfAttribute, post_generation
+from factory import LazyAttribute, post_generation
 from factory.django import DjangoModelFactory
 from faker.factory import Factory
 

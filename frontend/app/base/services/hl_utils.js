@@ -4,13 +4,13 @@ function HLUtils() {
     this.formatPhoneNumber = function(phoneNumber) {
         var newNumber;
 
-        if (!phoneNumber.raw_input || phoneNumber.raw_input.match(/[a-z]/i)) {
+        if (!phoneNumber.number || phoneNumber.number.match(/[a-z]/i)) {
             // If letters are found, skip formatting: it may not be a phone field after all.
             return false;
         }
 
         // Format phone number
-        newNumber = phoneNumber.raw_input
+        newNumber = phoneNumber.number
             .replace('(0)', '')
             .replace(/\s|\(|\-|\)|\.|\\|\/|\–|x|:|\*/g, '')
             .replace(/^00/, '+');
@@ -37,7 +37,7 @@ function HLUtils() {
             newNumber = '+31' + newNumber.substring(4);
         }
 
-        phoneNumber.raw_input = newNumber;
+        phoneNumber.number = newNumber;
 
         return phoneNumber;
     };

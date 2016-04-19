@@ -178,7 +178,7 @@ class AccountTests(APITestCase):
                 'email_address': 'test1@account.com'
             }],
             'phone_numbers': [{
-                'raw_input': '0612345678',
+                'number': '0612345678',
                 'type': 'mobile'
             }],
             'websites': [{
@@ -209,7 +209,6 @@ class AccountTests(APITestCase):
             }],
             'phone_numbers': [{
                 'number': '+31612345678',
-                'raw_input': '+31612345678',
                 'status': 1,
                 'status_name': 'Active',
                 'type': 'mobile',
@@ -367,11 +366,11 @@ class AccountTests(APITestCase):
             'name': 'Test account',
             'phone_numbers': [
                 {
-                    'raw_input': '0501112222',
+                    'number': '0501112222',
                     'type': 'work'
                 },
                 {
-                    'raw_input': '0612345678',
+                    'number': '0612345678',
                     'type': 'mobile'
                 }
             ],
@@ -384,7 +383,6 @@ class AccountTests(APITestCase):
             'phone_numbers': [
                 {
                     'number': '+31501112222',
-                    'raw_input': '+31501112222',
                     'status': 1,
                     'status_name': 'Active',
                     'type': 'work',
@@ -392,7 +390,6 @@ class AccountTests(APITestCase):
                 },
                 {
                     'number': '+31612345678',
-                    'raw_input': '+31612345678',
                     'status': 1,
                     'status_name': 'Active',
                     'type': 'mobile',
@@ -402,9 +399,6 @@ class AccountTests(APITestCase):
         })
 
         response = AccountTests.client.post(url, post_data, format='json')
-
-        # The data is in a reverse order (order in which it was added?), so reverse the list
-        response.data['phone_numbers'].reverse()
 
         self.assertGreater(response.data.get('id', 0), 0)
         del response.data['id']

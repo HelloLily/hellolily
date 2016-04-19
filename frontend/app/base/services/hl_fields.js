@@ -25,7 +25,7 @@ function HLFields() {
                             cleanedValues.push(fieldValue);
                         }
 
-                        if (fieldValue.raw_input) {
+                        if (fieldValue.number) {
                             cleanedValues.push(fieldValue);
                         }
 
@@ -61,7 +61,7 @@ function HLFields() {
                     cleanedValues.push(item);
                 }
 
-                if (item.raw_input) {
+                if (item.number) {
                     cleanedValues.push(item);
                 }
 

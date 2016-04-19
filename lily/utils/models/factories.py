@@ -12,7 +12,7 @@ faker = Factory.create('nl_NL')
 
 
 class PhoneNumberFactory(DjangoModelFactory):
-    raw_input = LazyAttribute(lambda o: faker.phone_number())
+    number = LazyAttribute(lambda o: faker.phone_number())
     type = FuzzyChoice(dict(PHONE_TYPE_CHOICES).keys())
 
     class Meta:

@@ -1,11 +1,11 @@
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
-from django.utils.translation import ugettext_lazy as _
 from polymorphic import PolymorphicManager, PolymorphicModel
 from lily.utils.countries import COUNTRIES
 
 from .middleware import get_current_user
+
 
 class TenantManager(models.Manager):
     use_for_related_fields = True

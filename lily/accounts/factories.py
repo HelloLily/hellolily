@@ -37,7 +37,7 @@ class AccountFactory(DjangoModelFactory):
     def phone_numbers(self, create, extracted, **kwargs):
         phone_str = faker.phone_number()
         if create:
-            phone_number = PhoneNumberFactory(tenant=self.tenant, raw_input=phone_str)
+            phone_number = PhoneNumberFactory(tenant=self.tenant, number=phone_str)
             self.phone_numbers.add(phone_number)
 
     class Meta:

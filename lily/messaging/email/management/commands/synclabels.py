@@ -15,7 +15,7 @@ class Command(BaseCommand):
     """
 
     def handle(self, **options):
-        email_accounts = EmailAccount.objects.filter(is_deleted=False)
+        email_accounts = EmailAccount.objects.filter(is_deleted=False, is_authorized=True)
 
         number_of_accounts = email_accounts.count()
         for index, email_account in enumerate(email_accounts):

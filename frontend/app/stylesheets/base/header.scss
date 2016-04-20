@@ -230,3 +230,54 @@
 .sub-header-action-submenu {
     margin-top: 7px !important;
 }
+
+.notification-container {
+    height: 30px;
+    width: 100%;
+    text-align: center;
+    color: #ffffff;
+    line-height: 30px;
+    font-weight: bold;
+    position: relative;
+
+    a {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        color: white;
+    }
+
+    &.is-error {
+        background-color: $criticalPrioColor;
+    }
+
+    &.is-alert {
+        background-color: $bulletColor4;
+    }
+
+    &.is-success {
+        background-color: $lilyGreen;
+    }
+}
+
+.notification-inline {
+    padding: 0px 5px;
+    background: #ffd66f;
+    color: white;
+    border-radius: 4px;
+    display: block;
+    margin-bottom: 10px;
+    width: auto;
+    text-align: center;
+    margin-top: 10px;
+    min-height: 21px;
+    line-height: 21px;
+
+    i,
+    &:hover {
+        color: white;
+
+    }
+}

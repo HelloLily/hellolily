@@ -136,7 +136,8 @@
                 picture: '{{ user.profile_picture|safe }}',
                 email: '{{ user.email }}',
                 fullName: '{{ user.full_name }}',
-                isSuperUser: '{{ user.is_superuser }}' == 'True'
+                isSuperUser: '{{ user.is_superuser }}' == 'True',
+                displayEmailWarning: '{{ user.display_email_warning }}' == 'True'
             };
         </script>
         {% verbatim %}

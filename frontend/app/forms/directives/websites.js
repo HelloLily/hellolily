@@ -21,9 +21,7 @@ function formWebsites() {
     };
 }
 
-FormWebsitesController.$inject = ['$rootScope'];
-function FormWebsitesController($rootScope) {
-    var vm = this;
+FormWebsitesController.$inject = [];
+function FormWebsitesController() {
 
-    vm.sidebar = $rootScope.$$childHead.settings.email.sidebar.form;
 }

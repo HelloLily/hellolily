@@ -20,13 +20,31 @@ function dashboardWidget($timeout) {
             widgetFilters: '?widgetFilters',
             widgetBody: 'widgetBody',
         },
+        link: function(scope, element, attrs) {
+            // Timeout function to wait for elements to fully load in DOM.
+            // This function checks if the scrollheight is higher than 250px
+            // to indicate that the widget is scrollable.
+            $timeout(function() {
+                var rawDomElement;
+                var height = (scope.vm.widgetDynamicHeight ? 401 : 252);
+
+                if (scope.vm.widgetScrollable === true) {
+                    rawDomElement = element.parent().find('.widget-table')[0];
+                    if (rawDomElement && rawDomElement.scrollHeight > height) {
+                        if (!scope.vm.showFade) {
+                            scope.vm.showFade = true;
+                        }
+                    }
+                }
+            });
+        },
     };
 }
 
 DashboardWidgetController.$inject = ['LocalStorage', '$scope'];
 function DashboardWidgetController(LocalStorage, $scope) {
     var vm = this;
-    var storage = LocalStorage('widgetInfo');
+    var storage = new LocalStorage('widgetInfo');
     var widgetStatus = {
         hidden: 0,
         visible: 1,
@@ -93,7 +111,7 @@ function DashboardWidgetController(LocalStorage, $scope) {
             }
             vm.widgetInfo.status = widgetStatus.collapsed;
         } else {
-            if($scope.vm.showFade === false){
+            if ($scope.vm.showFade === false) {
                 $scope.vm.showFade = true;
             }
             vm.widgetInfo.status = widgetStatus.visible;

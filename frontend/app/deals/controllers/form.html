@@ -5,7 +5,7 @@
         </div>
 
         <form novalidate class="hl-form-body" name="dealForm">
-            <form-portlet title="Who is it?">
+            <form-portlet portlet-title="Who is it?">
                 <div ng-if="!settings.email.sidebar.form">
                     <form-group label-title="Account" label-id="id_account" field="dealForm.account" required="true">
                         <ui-select ng-model="vm.deal.account" theme="select2" class="form-control" name="account" append-to-body="true">
@@ -55,7 +55,7 @@
                 </form-group>
             </form-portlet>
 
-            <form-portlet title="What is it?">
+            <form-portlet portlet-title="What is it?">
                 <form-group label-title="Subject" label-id="id_name" field="dealForm.name" required="true">
                     <input class="form-control"
                            id="id_name"
@@ -108,7 +108,7 @@
                 </form-group>
             </form-portlet>
 
-            <form-portlet title="What's the status?">
+            <form-portlet portlet-title="What's the status?">
                 <form-group label-title="Status" label-id="id_status" field="dealForm.status" required="true">
                     <select name="status" ng-model="vm.deal.status"
                             ng-options="status.name for status in vm.statusChoices track by status.id" class="form-control">
@@ -159,7 +159,7 @@
                 </form-group>
             </form-portlet>
 
-            <form-portlet title="Action checklist">
+            <form-portlet portlet-title="Action checklist">
                 <form-radio-buttons options="['Nearly', 'Done']" label-title="Twitter checked"
                                     input-name="twitter_checked"
                                     field="vm.deal.twitter_checked" sidebar="settings.email.sidebar.form">
@@ -181,7 +181,7 @@
                 </form-radio-buttons>
             </form-portlet>
 
-            <form-portlet title="Tags">
+            <form-portlet portlet-title="Tags">
                 <form-portlet-body>
                     <form-group label-title="Tags" label-id="id_tags" label-icon="tags" field="dealForm.tags">
                         <tag-input ng-if="vm.deal" object="vm.deal"></tag-input>

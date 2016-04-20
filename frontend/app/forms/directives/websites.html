@@ -32,8 +32,8 @@
 </div>
 
 <div class="hl-form-field">
-    <label ng-hide="(vm.websites|filter:{is_primary:false}).length" class="col-xs-12">
+    <label ng-hide="(vm.websites|filter:{is_primary:false}).length">
         Extra website
     </label>
-    <a ng-click="vm.addRelatedField({field:'website'})" class="form-control-static">Add a website</a>
+    <div><a ng-click="vm.addRelatedField({field:'website'})" class="form-control-static">Add a website</a></div>
 </div>

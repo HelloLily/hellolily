@@ -23,6 +23,11 @@
                             <i class="fa fa-trash"></i>
                         </a>
                     </span>
+
+                    <a ng-if="!account.is_authorized" href="/messaging/email/setup/" class="notification-inline">
+                        <i class="lilicon hl-critical-prio-icon"></i>
+                         Sorry, unable to retrieve your email. Please click here, select this address on the Gmail page and press Save. Thanks for helping out!
+                    </a>
                 </li>
                 <li class="list-group-item"  ng-hide="vm.ownedAccounts.length">
                     No email accounts setup yet

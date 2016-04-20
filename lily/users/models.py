@@ -186,6 +186,10 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
 
         return user_group
 
+    @property
+    def display_email_warning(self):
+        return self.email_accounts_owned.filter(is_authorized=False).exists()
+
     def __unicode__(self):
         return self.get_full_name() or unicode(self.get_username())
 

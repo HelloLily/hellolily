@@ -165,6 +165,18 @@ $inline-editable-field-height: 30px;
     &:focus {
         border-color: $lilyGrey;
     }
+
+    .select2-search {
+        margin: 5px 0;
+    }
+
+    .ui-select-choices-row {
+        line-height: initial;
+    }
+
+    &.editable-select2 {
+        min-width: 300px;
+    }
 }
 
 .deal-detail-info,

@@ -282,6 +282,7 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
                     $filter('orderBy')(history, 'historySortDate', true).forEach(function(item) {
                         var date = '';
                         var key = '';
+                        var parentObjectId = scope.parentObject ? scope.parentObject.id : null;
 
                         scope.history.types[item.historyType].visible = true;
 
@@ -289,7 +290,7 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
                             orderedHistoryList.pinned.push(item);
                         } else {
                             // Exclude the current item from the history list.
-                            if (item.id !== scope.object.id) {
+                            if (item.id !== scope.object.id && item.id !== parentObjectId) {
                                 if (item.hasOwnProperty('modified')) {
                                     date = item.modified;
                                 } else {

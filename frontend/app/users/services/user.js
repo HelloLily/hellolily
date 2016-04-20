@@ -8,10 +8,7 @@ function User($resource) {
         {
             get: {
                 transformResponse: function(data) {
-                    var user = angular.fromJson(data);
-
-                    user.profile_picture = decodeURIComponent(user.profile_picture);
-                    return user;
+                    return angular.fromJson(data);
                 },
             },
             query: {

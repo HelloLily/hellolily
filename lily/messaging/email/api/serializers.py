@@ -74,6 +74,7 @@ class EmailAccountSerializer(serializers.ModelSerializer):
             'label',
             'public',
             'shared_with_users',
+            'is_authorized',
         )
 
 

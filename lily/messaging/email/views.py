@@ -50,6 +50,8 @@ FLOW = OAuth2WebServerFlow(
     redirect_uri=settings.GMAIL_CALLBACK_URL,
     scope='https://mail.google.com/',
     approval_prompt='force',
+    prompt='consent',
+    access_type='offline',
 )
 
 

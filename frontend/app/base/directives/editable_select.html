@@ -1,3 +1,20 @@
-<span editable-select="es.selectModel" onshow="es.getChoices()" e-ng-options="item.id as item[es.optionDisplay] for item in es.choices" onbeforesave="es.updateViewModel($data)" buttons="no">
+<span ng-if="!es.search" editable-select="es.selectModel" onshow="es.getChoices()" e-ng-options="item.id as item[es.optionDisplay] for item in es.choices" onbeforesave="es.updateViewModel($data)" buttons="no">
     <ng-transclude></ng-transclude>
+</span>
+
+<span ng-if="es.search">
+    <form data-editable-form name="es.uiSelectForm" blur="cancel" class="display-inline-block margin-right-10">
+        <div editable-ui-select="es.selectModel" data-e-on-select="es.updateViewModel($data.id)"
+             data-e-form="uiSelectForm" data-e-theme="select2" data-e-class="form-control editable-select2"
+             data-e-ng-model="es.selectModel" class="editable editable-click">
+            <ng-transclude></ng-transclude>
+
+            <editable-ui-select-match placeholder="{{ es.placeholder }}">
+                {{ $select.selected[es.optionDisplay] }}
+            </editable-ui-select-match>
+            <editable-ui-select-choices repeat="item in es.choices" refresh="es.refreshChoices($select.search)" refresh-delay="150">
+                <div ng-bind-html="item[es.optionDisplay] | highlight: $select.search"></div>
+            </editable-ui-select-choices>
+        </div>
+    </form>
 </span>

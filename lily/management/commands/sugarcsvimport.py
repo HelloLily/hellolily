@@ -14,7 +14,8 @@ from lily.contacts.models import Contact, Function
 from lily.socialmedia.models import SocialMedia
 from lily.users.models import LilyUser
 from lily.utils.functions import parse_address, _isint, parse_phone_number
-from lily.utils.models.models import Address, PhoneNumber, EmailAddress, COUNTRIES
+from lily.utils.models.models import Address, PhoneNumber, EmailAddress
+from lily.utils.countries import COUNTRIES
 
 
 logger = logging.getLogger(__name__)

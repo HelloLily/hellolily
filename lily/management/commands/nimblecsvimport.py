@@ -12,7 +12,8 @@ from lily.deals.models import Deal
 from lily.socialmedia.models import SocialMedia
 from lily.tags.models import Tag
 from lily.tenant.models import Tenant
-from lily.utils.models.models import Address, EmailAddress, PhoneNumber, COUNTRIES
+from lily.utils.models.models import Address, EmailAddress, PhoneNumber
+from lily.utils.countries import COUNTRIES
 
 
 class Command(BaseCommand):

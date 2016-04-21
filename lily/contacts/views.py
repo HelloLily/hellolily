@@ -22,6 +22,10 @@ class ExportContactView(LoginRequiredMixin, ExportListViewMixin, View):
             'headers': [_('ID')],
             'columns_for_item': ['id']
         },
+        'url': {
+            'headers': [_('url')],
+            'columns_for_item': ['url']
+        },
         'name': {
             'headers': [_('Name')],
             'columns_for_item': ['name']
@@ -59,7 +63,9 @@ class ExportContactView(LoginRequiredMixin, ExportListViewMixin, View):
     # ExportListViewMixin
     def value_for_column(self, contact, column):
         try:
-            if column == 'accounts':
+            if column == 'url':
+                return '/#/contacts/%s' % contact['id']
+            elif column == 'accounts':
                 # 'accounts' is a dict, so we need to process it differently
                 value = []
                 for account in contact.get('accounts', []):

@@ -143,6 +143,7 @@ class ExportListViewMixin(FilterQuerysetMixin):
         if export_columns:
             # Always insert id
             export_columns.insert(0, 'id')
+            export_columns.insert(1, 'url')
             # There were columns in GET, check if they match self.exportable_columns.
             for column in export_columns:
                 if self.exportable_columns.get(column, None):

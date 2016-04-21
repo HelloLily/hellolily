@@ -1,9 +1,8 @@
 .. _howto/install:
 
-############################
-Installing |project| by hand
-############################
-
+###################
+Manual installation
+###################
 :ref:`Installing <intro/install>` |project| with docker is recommended for most installations, but
 there may be cases where you find Docker not suitable. This installation describes how to install
 |project| without Docker.
@@ -19,10 +18,9 @@ Prerequisites
 * you have rabbitmq up and running
 
 
-============
-Installation
-============
-
+==================
+Django environment
+==================
 1. Make a virtualenv, checkout the |project| project and install gulp dependencies.
 
 .. code:: bash
@@ -115,10 +113,6 @@ Installation
 
     ./manage.py runserver 0:8000
 
-Open http://localhost:8000 in your browser to see the running |project| instance. You can login
-using user **superuser1@lily.com** and **admin** as password. Congratulations, you now have the first part of |project| running!
-
-Head over to the next topic to complete your Hellolily installation.
-
-
-.. rubric:: Footnotes
+Open http://localhost:8000 in your browser to see |project|. You can login using user
+**superuser1@lily.com** and **admin** as password. Congratulations, you just completed
+the basic |project| installation!

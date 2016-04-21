@@ -2,10 +2,9 @@
 Running and debugging Celery tasks
 ##################################
 
-Celery is a distributed task queue in Python that's being used to perform several queued
-tasked from within the |project| platform. Think of tasks like syncing email and
-updating ElasticSearch indexes. Celery is already installed if you completed
-:ref:`the manual installation <howto/install>`.
+Celery is a distributed task queue in Python that's being used to perform several
+queued tasks from within |project|. These are mostly tasking like syncing email
+and updating ElasticSearch indexes.
 
 
 =======
@@ -20,7 +19,8 @@ Running
 =========
 Debugging
 =========
-Code that's being executed by a Celery worker can be PDB'ed with RDB. Add the following to your Celery code:
+Code that's being executed by a Celery worker can be PDB'ed with RDB. Add the following
+to your Celery code:
 
 .. code:: bash
 

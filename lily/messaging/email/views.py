@@ -712,10 +712,6 @@ class EmailMessageForwardView(EmailMessageReplyOrForwardView):
 
         return kwargs
 
-    def get_context_data(self, **kwargs):
-        kwargs.update({'forwarded_attachments': self.object.attachments.exclude(inline=True)})
-        return super(EmailMessageForwardView, self).get_context_data(**kwargs)
-
     def get_original_attachment_ids(self, form):
         """
         Add the original EmailAttachments from original message.
@@ -727,8 +723,10 @@ class EmailMessageForwardView(EmailMessageReplyOrForwardView):
             A set containing EmailAttachment ids.
         """
         attachment_ids = super(EmailMessageReplyOrForwardView, self).get_original_attachment_ids(form)
-        for attachment in self.object.attachments.all():
-            attachment_ids.add(str(attachment.id))
+
+        for id in form.cleaned_data.get('existing_attachments', []):
+            attachment_ids.add(id)
+
         return attachment_ids
 
 

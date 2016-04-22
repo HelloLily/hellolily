@@ -54,6 +54,9 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     //////
 
     function activate() {
+        var recipients = [];
+        var i;
+
         // Load email body after page resolve has finished,
         // so we can already see email headers before the body is loaded.
         if (message.id) {
@@ -73,8 +76,7 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
                     EmailMessage.markAsRead($stateParams.id, true);
                 }
 
-                var recipients = [];
-                for (var i = 0; i < vm.message.all_recipients.length; i++) {
+                for (i = 0; i < vm.message.all_recipients.length; i++) {
                     recipients.push(vm.message.all_recipients[i].email_address);
                 }
 
@@ -125,9 +127,9 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     }
 
     function toggleOverlay() {
-        vm.displayAllRecipients = !vm.displayAllRecipients;
-
         var $emailRecipients = $('.email-recipients');
+
+        vm.displayAllRecipients = !vm.displayAllRecipients;
 
         if (vm.displayAllRecipients) {
             $emailRecipients.height($emailRecipients[0].scrollHeight);
@@ -143,6 +145,11 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     }
 
     function showSidebar() {
+        var filterquery = '';
+        var accountQuery = '';
+        var accountIds = [];
+        var contact;
+
         if (vm.message.sender && vm.message.sender.email_address) {
             $http.get('/search/emailaddress/' + vm.message.sender.email_address)
                 .success(function(data) {
@@ -156,8 +163,6 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
                     Settings.email.data.website = vm.message.sender.email_address.split('@').slice(-1)[0];
 
                     if (data && data.data) {
-                        var filterquery = '';
-
                         if (data.type === 'account') {
                             if (data.data.id) {
                                 Settings.email.data.account = data.data;
@@ -171,7 +176,7 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
                                 filterquery = 'account:' + data.data.id;
                             }
                         } else if (data.type === 'contact') {
-                            var contact = data.data;
+                            contact = data.data;
 
                             if (contact.id) {
                                 Settings.email.data.contact = contact;
@@ -182,13 +187,11 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
 
                                         filterquery =  'contact:' + contact.id + ' OR account:' + contact.accounts[0].id;
                                     } else {
-                                        var accountIds = [];
-
                                         angular.forEach(contact.accounts, function(account) {
                                             accountIds.push('id:' + account.id);
                                         });
 
-                                        var accountQuery = '(' + accountIds.join(' OR ') + ') AND email_addresses.email_address:' + Settings.email.data.website;
+                                        accountQuery = '(' + accountIds.join(' OR ') + ') AND email_addresses.email_address:' + Settings.email.data.website;
 
                                         Account.search({filterquery: accountQuery}).$promise.then(function(accountData) {
                                             if (accountData.objects.length) {
@@ -238,6 +241,9 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     }
 
     function _setupContactInfo() {
+        var prepositionParts = [];
+        var i;
+
         // Setup contact name as follows:
         // 1. Split sender name by space
         // 2. First name is always the first element
@@ -247,9 +253,7 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
         var preposition = '';
 
         if (senderParts.length > 2) {
-            var prepositionParts = [];
-
-            for (var i = 1; i < senderParts.length - 1; i++) {
+            for (i = 1; i < senderParts.length - 1; i++) {
                 prepositionParts.push(senderParts[i]);
             }
 
@@ -266,19 +270,18 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
 
     function toggleSidebar(modelName, toggleList) {
         var gaModelName;
+        var form = Settings.email.sidebar.form;
+        var data = Settings.email.data[modelName];
+        var hasData = false;
 
         // TODO: This is a temporary workaround until we fix the 'Add' button in the list widget.
         // Also remove the toggleList param once we fix it and refactor this.
         if (modelName === 'cases' || modelName === 'deals') {
             _toggleListWidget(modelName, toggleList);
-            return false;
+            return;
         }
 
         Settings.email.sidebar[modelName] = !Settings.email.sidebar[modelName];
-
-        var form = Settings.email.sidebar.form;
-        var data = Settings.email.data[modelName];
-        var hasData = false;
 
         if (data !== null) {
             if (typeof data === 'object' && data.id) {
@@ -311,10 +314,10 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
 
     function _toggleListWidget(modelName, toggleList) {
         var modelNamePlural = modelName;
-        modelName = modelName.slice(0, 4);
+        var slicedModelName = modelName.slice(0, 4);
 
         if (toggleList) {
-            Settings.email.sidebar[modelName] = !Settings.email.sidebar[modelName];
+            Settings.email.sidebar[slicedModelName] = !Settings.email.sidebar[slicedModelName];
         } else {
             if (Settings.email.sidebar.form !== modelNamePlural) {
                 // No data yet and no form open, so open the form.

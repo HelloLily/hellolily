@@ -9,9 +9,9 @@ function myDealsDirective() {
     };
 }
 
-MyDealsController.$inject = ['$scope', 'Deal', 'HLUtils', 'LocalStorage', 'CaseDetail', 'Tenant'];
-function MyDealsController($scope, Deal, HLUtils, LocalStorage, CaseDetail, Tenant) {
-    var storage = LocalStorage('deals');
+MyDealsController.$inject = ['$scope', 'Deal', 'HLUtils', 'LocalStorage', 'Case', 'Tenant'];
+function MyDealsController($scope, Deal, HLUtils, LocalStorage, Case, Tenant) {
+    var storage = new LocalStorage('deals');
 
     var vm = this;
     vm.highPrioDeals = 0;
@@ -66,8 +66,8 @@ function MyDealsController($scope, Deal, HLUtils, LocalStorage, CaseDetail, Tena
                 vm.table.items = HLUtils.timeCategorizeObjects(data.objects, 'next_step_date');
 
                 angular.forEach(data.objects, function(deal) {
-                    CaseDetail.query({filterquery: 'account:' + deal.account + ' AND archived:false'}).$promise.then(function(caseList) {
-                        if (caseList.length > 0) {
+                    Case.query({filterquery: 'account:' + deal.account + ' AND archived:false'}).$promise.then(function(caseList) {
+                        if (caseList.objects.length > 0) {
                             deal.hasUnarchivedCases = true;
                         }
                     });

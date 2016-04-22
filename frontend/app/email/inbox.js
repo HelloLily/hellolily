@@ -1,4 +1,4 @@
-(function($, window, document, undefined) {
+(function($, window, document) {
     var editor;
 
     window.HLInbox = {
@@ -73,7 +73,7 @@
                     // Don't do anything if it's just an extra recipient being added/removed
                     // or the last recipient is removed.
                     if (inputLength > 1 || inputLength < previousSendToNormalLength) {
-                        return false;
+                        return;
                     }
 
                     self.changeTemplateField.call(self, cf.templateField, false);
@@ -233,7 +233,7 @@
             var url;
             var recipient;
 
-            if (self.config.templateList) {
+            if (self.config.templateList.length) {
                 selectedTemplate = parseInt($(templateField).val());
                 emailAccountId = $(self.config.emailAccountInput).val();
 

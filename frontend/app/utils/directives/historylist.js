@@ -1,9 +1,9 @@
 angular.module('app.utils.directives').directive('historyList', HistoryListDirective);
 
 HistoryListDirective.$inject = ['$filter', '$http', '$uibModal', '$q', '$state', 'EmailAccount',
-    'Note', 'NoteDetail', 'Case', 'DealDetail', 'EmailDetail', 'User', 'HLGravatar', 'HLUtils'];
+    'Note', 'NoteDetail', 'Case', 'Deal', 'EmailDetail', 'User', 'HLGravatar', 'HLUtils'];
 function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccount,
-                              Note, NoteDetail, Case, DealDetail, EmailDetail, User, HLGravatar, HLUtils) {
+                              Note, NoteDetail, Case, Deal, EmailDetail, User, HLGravatar, HLUtils) {
     return {
         restrict: 'E',
         replace: true,
@@ -196,11 +196,11 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
                         });
                     });
 
-                    dealPromise = DealDetail.query({filterquery: filterquery + dateQuery, size: requestLength}).$promise;
+                    dealPromise = Deal.query({filterquery: filterquery + dateQuery, size: requestLength}).$promise;
                     promises.push(dealPromise);  // Add promise to list of all promises for later handling
 
                     dealPromise.then(function(results) {
-                        results.forEach(function(deal) {
+                        results.objects.forEach(function(deal) {
                             if (deal.assigned_to_id) {
                                 // Get user object for the assigned to user.
                                 User.get({id: deal.assigned_to_id}, function(userObject) {

@@ -11,8 +11,6 @@ function Settings(LocalStorage) {
             header: {
                 main: 'Hellolily',
                 setMain: setMain,
-                sub: 'welcome to my humble abode',
-                setSub: setSub,
             },
             setAllTitles: setAllTitles,
             account: null,
@@ -60,32 +58,12 @@ function Settings(LocalStorage) {
         return _settings.page.header.main;
     }
 
-    function setSub(pageType, newHeader) {
-        var formats = {
-            list: 'do all your lookin\' here',
-            detail: 'the devil is in the details',
-            create: 'everything has to start somewhere',
-            edit: 'change is natural',
-            email: 'sending love through the world',
-            custom: '',
-        };
-        var _header = newHeader || '';
-
-        if (pageType === 'custom') {
-            _settings.page.header.sub = _header;
-        } else {
-            _settings.page.header.sub = formats[pageType];
-        }
-
-        return _settings.page.header.sub;
-    }
 
     function setAllTitles(pageType, objectInfo, contact, account) {
         // Make sure sidebar forms don't set the titles/headers.
         if (!_settings.email.sidebar.form) {
             setTitle(pageType, objectInfo);
             setMain(pageType, objectInfo);
-            setSub(pageType, objectInfo);
             _settings.page.contact = contact;
             _settings.page.account = account;
         }

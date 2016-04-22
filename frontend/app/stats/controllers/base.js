@@ -30,7 +30,6 @@ function StatsBaseController(Settings, Stats) {
 
     Settings.page.setTitle('custom', 'Stats');
     Settings.page.header.setMain('custom', 'Stats');
-    Settings.page.header.setSub('custom', 'All you can stat');
 
     activate();
 

@@ -72,7 +72,6 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
 
     Settings.page.setTitle('custom', 'Email');
     Settings.page.header.setMain('custom', 'Email');
-    Settings.page.header.setSub('email');
 
     activate();
 

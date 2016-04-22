@@ -47,7 +47,6 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
 
     Settings.page.setTitle('custom', 'Email message');
     Settings.page.header.setMain('custom', 'Email message');
-    Settings.page.header.setSub('email');
 
     activate();
 

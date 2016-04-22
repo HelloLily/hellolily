@@ -27,7 +27,6 @@ function DashboardController($uibModal, $state, Settings, Tenant) {
 
     Settings.page.setTitle('custom', 'Dashboard');
     Settings.page.header.setMain('custom', 'Dashboard');
-    Settings.page.header.setSub('custom', 'statistics and usage');
 
     Tenant.query({}, function(tenant) {
         db.tenant = tenant;

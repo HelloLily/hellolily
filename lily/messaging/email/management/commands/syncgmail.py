@@ -1,4 +1,3 @@
-import logging
 from django.core.management import BaseCommand
 
 from lily.messaging.email.manager import GmailManager

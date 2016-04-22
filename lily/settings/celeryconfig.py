@@ -33,9 +33,12 @@ CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_TASK_RESULT_EXPIRES = 300
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_QUEUES = (
-    Queue('email_async_tasks', routing_key='email_async_tasks'),  # User initiated mutations on email like Archive, sent, move
-    Queue('email_scheduled_tasks', routing_key='email_scheduled_tasks'),  # Periodic synchronization of EmailAccounts
-    Queue('email_first_sync', routing_key='email_first_sync'),  # Initial fetch of messages
+    # User initiated mutations on email like Archive, sent, move.
+    Queue('email_async_tasks', routing_key='email_async_tasks'),
+    # Periodic synchronization of EmailAccounts.
+    Queue('email_scheduled_tasks', routing_key='email_scheduled_tasks'),
+    # Initial fetch of messages.
+    Queue('email_first_sync', routing_key='email_first_sync'),
 )
 CELERY_ROUTES = (
     {'synchronize_email_account_scheduler': {
@@ -45,13 +48,16 @@ CELERY_ROUTES = (
         'queue': 'email_scheduled_tasks'
     }},
     {'first_synchronize_email_account': {
-        'queue': 'email_scheduled_tasks'  # Task created by this task, will be routed to queue3
+        # Task created by this task, will be routed to queue3.
+        'queue': 'email_scheduled_tasks'
     }},
     {'download_email_message': {
-        'queue': 'email_scheduled_tasks'  # When task is created in first sync, this task will be routed to email_first_sync
+        # When task is created in first sync, this task will be routed to email_first_sync.
+        'queue': 'email_scheduled_tasks'
     }},
     {'update_labels_for_message': {
-        'queue': 'email_scheduled_tasks'  # When task is created in first sync, this task will be routed to email_first_sync
+        # When task is created in first sync, this task will be routed to email_first_sync.
+        'queue': 'email_scheduled_tasks'
     }},
 )
 CELERYBEAT_SCHEDULE = {

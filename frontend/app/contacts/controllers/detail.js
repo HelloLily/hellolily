@@ -33,7 +33,7 @@ function ContactDetailController($scope, $stateParams, Settings, Contact, Case, 
 
     Settings.page.setAllTitles('detail', currentContact.full_name);
 
-    if ($scope.contact.accounts) {
+    $scope.$watchCollection('contact.accounts', function() {
         $scope.contact.accounts.forEach(function(account) {
             var colleagueList = Contact.search({filterquery: 'NOT(id:' + id + ') AND accounts.id:' + account.id});
             colleagueList.$promise.then(function(response) {
@@ -44,7 +44,7 @@ function ContactDetailController($scope, $stateParams, Settings, Contact, Case, 
         if ($scope.contact.accounts.length >= 2) {
             $scope.height = 91;
         }
-    }
+    });
 
     $scope.caseList = Case.query({filterquery: 'contact:' + id, sort: '-created', size: 100});
     $scope.caseList.$promise.then(function(caseList) {

@@ -96,7 +96,6 @@ var config = {
             src: [
                 'frontend/vendor/metronic/assets/global/plugins/bootstrap/css/bootstrap.css',
                 'frontend/vendor/metronic/assets/global/plugins/select2/select2.css',
-                'frontend/vendor/metronic/assets/global/plugins/select2/select2-bootstrap.css',
                 'frontend/vendor/**/*.css',
             ],
             fileName: 'vendor.css',

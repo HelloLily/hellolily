@@ -9,6 +9,7 @@ function editableSelect() {
             type: '@',
             choiceField: '@',
             search: '@?',
+            multiple: '@?',
             selectOptions: '=?', // contains any custom settings for the select
         },
         templateUrl: 'base/directives/editable_select.html',
@@ -20,6 +21,7 @@ function editableSelect() {
             // Bind click event to the current directive.
             element.on('click', '.editable-click', function() {
                 if (scope.es.search) {
+                    //scope.es.formVisible = true;
                     scope.es.uiSelectForm.$show();
 
                     scope.$apply();
@@ -29,8 +31,8 @@ function editableSelect() {
     };
 }
 
-EditableSelectController.$inject = ['$scope', 'HLResource', 'HLSearch'];
-function EditableSelectController($scope, HLResource, HLSearch) {
+EditableSelectController.$inject = ['$scope', 'HLResource', 'HLSearch', 'HLUtils'];
+function EditableSelectController($scope, HLResource, HLSearch, HLUtils) {
     var es = this;
 
     es.getChoices = getChoices;
@@ -59,7 +61,7 @@ function EditableSelectController($scope, HLResource, HLSearch) {
 
         // Certain values in the given view model are objects,
         // so the default value in the select won't always work.
-        // If we're not dealing with a inline editable search select check
+        // If we're not dealing with an inline editable search select check
         // if it's an object and add .id.
         if (!es.search && typeof es.object[es.field] === 'object') {
             if (es.object[es.field]) {
@@ -142,27 +144,39 @@ function EditableSelectController($scope, HLResource, HLSearch) {
             id: es.object.id,
         };
 
-        // $data only contains the ID, so get the name from the choices in the scope.
-        for (i = 0; i < es.choices.length; i++) {
-            if (es.choices[i].id === $data) {
-                selected = es.choices[i];
+        if (!es.multiple) {
+            // $data only contains the ID, so get the name from the choices in the scope.
+            for (i = 0; i < es.choices.length; i++) {
+                if (es.choices[i].id === $data) {
+                    selected = es.choices[i];
+                }
             }
+        } else {
+            HLUtils.blockUI('[name="es.uiSelectForm"]', true);
         }
 
-        if (es.choiceField) {
-            es.object[es.field] = $data;
-            // Choice fields end with '_display',
-            // so set the proper variable so front end changes are reflected properly.
-            es.object[es.field + '_display'] = selected.name;
-        } else {
-            es.object[es.field] = selected;
+        if (!es.multiple) {
+            if (es.choiceField) {
+                es.object[es.field] = $data;
+                // Choice fields end with '_display',
+                // so set the proper variable so front end changes are reflected properly.
+                es.object[es.field + '_display'] = selected.name;
+            } else {
+                es.object[es.field] = selected;
+            }
         }
 
         args[es.field] = $data;
 
         return es.viewModel.updateModel(args).then(function() {
             if (es.search) {
+                HLUtils.unblockUI('[name="es.uiSelectForm"]');
                 es.uiSelectForm.$hide();
+
+                if (es.multiple) {
+                    es.object[es.field] = $data;
+                }
+
                 // Inline editable select2 field doesn't properly update
                 // es.selectModel, so update it manually.
                 es.selectModel = es.object[es.field];

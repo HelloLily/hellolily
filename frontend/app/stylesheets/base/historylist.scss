@@ -434,6 +434,10 @@
 .content-history-desc {
     float: left;
     color: $lilyDarkBlue;
+    max-width: 75%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .content-history-date {

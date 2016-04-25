@@ -1,10 +1,11 @@
 .. _intro/install:
 
-####################
-Installing |project|
-####################
+############
+Installation
+############
 
-Getting up and running a |project| instance is straightforward using our docker-compose setup.
+Getting |project| up and running is straightforward using the included docker-compose setup.
+
 
 =============
 Prerequisites
@@ -13,10 +14,10 @@ Prerequisites
 * you have git installed
 * you have nodejs, npm and gulp installed
 
-============
-Installation
-============
 
+==================
+Docker environment
+==================
 1. Checkout the |project| project and install gulp dependencies.
 
 .. code:: bash
@@ -27,7 +28,7 @@ Installation
     npm install
     gulp build
 
-2. Build the docker image. This takes a while the first time. [#f1]_
+2. Build the docker image. This takes a while the first time.
 
 .. code:: bash
 
@@ -60,12 +61,57 @@ Installation
 
     docker-compose run --service-ports web
 
+Open http://localhost:8003 in your browser to see |project|. You can login using user
+**superuser1@lily.com** and **admin** as password. Congratulations, you just completed
+the basic |project| installation!
 
-Open http://localhost:8000 in your browser to see the running |project| instance. You can login
-using user **superuser1@lily.com** and **admin** as password. Congratulations, you now have |project| running!
 
+=================
+Email integration
+=================
+HelloLily uses Google email accounts(Gmail) and it's Gmail API to send email messages
+with. Customer emails are stored locally and indexed using ElasticSearch. This allows
+HelloLily users to search and find their customer's data very fast,
+using extended search queries.
 
+In order to enable email in HelloLily, you first need to enable the Gmail API and create
+an OAuth 2.0 client ID for a web application. This sounds harder than it is; just proceed as following:
 
-.. rubric:: Footnotes
+ * Login to the `Google APIs website <https://console.developers.google.com>`_
+ * From the *Overview* screen, fill in *Gmail API* in the Search bar and select it from the search results
+ * Click on the *Enable* button
+ * Now you need to create Credentials. Click on the *Go to Credentials* button
+ * Check if the following options are selected in the credentials form:
+   * Which API are you using? *Gmail API*
+   * Where will you be calling the API from? *Web server*
+   * What data will you be accessing? *User data*
+ * Click on the *What credentials do i need?* button
+ * Give the credentials a name, e.g. *HelloLily*
+ * In *Authorized redirect URIs* fill in your development url, e.g. http://localhost:8003/messaging/email/callback/
+ * The restriction options can be kept empty. Just click on the *Create client ID* button
+ * You can skip step 3. Just click on the *Done* button at the bottom of the form
+ * The current screen should be the Credentials overview; click on *HelloLily*
 
-.. [#f1] You might experience connectiviy issues duing build. Checkout `this post <http://serverfault.com/questions/642981/docker-containers-cant-resolve-dns-on-ubuntu-14-04-desktop-host>`_ for more info.
+The Credentials are needed for our HelloLily GMail setup. Let's add them to the appropriate file.
+Open the environment settings file with an editor:
+
+.. code:: bash
+
+    vim /path/to/hellolily/.env
+
+Add the following settings and fill *Client ID* and *Client secret* as GA_CLIENT_ID and GA_CLIENT_SECRET:
+
+.. code:: bash
+
+    GA_CLIENT_ID=your_client_id
+    GA_CLIENT_SECRET=your_client_secret
+    GMAIL_CALLBACK_URL=http://localhost:8003/messaging/email/callback/
+
+That's it! Hellolily is now able to manage Gmail accounts. To test if Gmail integration works, go back
+to your running HelloLily instance and visit http://localhost:8003/#/preferences/emailaccounts
+
+ * Select *add an email account*
+
+You should now be redirected to the Google OAuth login screen. Allow Hellolily to access your Gmail account.
+After that, fill in *From name* and *Label* and press the *Save* button. Your email account will now
+get synced to Hellolily.

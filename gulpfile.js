@@ -3,28 +3,34 @@
 // Imports
 var cached = require('gulp-cached');  // Only work on changed files
 var cdnizer = require('gulp-cdnizer'); // Prepend CDN url to resources
-var cleanhtml = require('gulp-cleanhtml');  // strip whitespace eg.
-var concat = require('gulp-concat');  // merge file stream to one file
-var del = require('del');  // remove files/dirs
-var ifElse = require('gulp-if-else');  // conditional gulp steps
-var gulp = require('gulp');  // base module
-var gutil = require('gulp-util');  // various utils
+var cleanhtml = require('gulp-cleanhtml');  // Strip whitespace eg.
+var concat = require('gulp-concat');  // Merge file stream to one file
+var connect = require('gulp-connect');  // Simple static server for sphinx
+var del = require('del');  // Remove files/dirs
+var ifElse = require('gulp-if-else');  // Conditional gulp steps
+var gulp = require('gulp');  // Base module
+var gutil = require('gulp-util');  // Various utils
 var imagemin = require('gulp-imagemin');  // Minify/optimize images
-var livereload = require('gulp-livereload');  // live reload server (needs plugin install in Chrome)
-var plumber = require('gulp-plumber');  // for error handling
+var livereload = require('gulp-livereload');  // Live reload server (needs plugin install in Chrome)
+var path = require('path');
+var plumber = require('gulp-plumber');  // For error handling
 var rebaseUrls = require('gulp-css-rebase-urls');  // Make relative paths absolute
 var remember = require('gulp-remember');  // Remember all files after a cached call
-var rename = require('gulp-rename');  // rename current file stream
+var rename = require('gulp-rename');  // Rename current file stream
 var sass = require('gulp-sass');  // Sass compilation
 var sasslint = require('gulp-sass-lint');
 var shell = require('gulp-shell'); // For running shell commands
-var size = require('gulp-size');  // notify about filesize
-var sourcemaps = require('gulp-sourcemaps');  // create sourcemaps from original files and create a .map file
-var templateCache = require('gulp-angular-templatecache');  // create out of html files Angular templates in one js file/stream
-var uglify = require('gulp-uglify');  // minify javascript file
-var uglifyCss = require('gulp-uglifycss');  // minify css file
+var size = require('gulp-size');  // Notify about filesize
+var sourcemaps = require('gulp-sourcemaps');  // Create sourcemaps from original files and create a .map file
+var templateCache = require('gulp-angular-templatecache');  // Create out of html files Angular templates in one js file/stream
+var uglify = require('gulp-uglify');  // Minify javascript file
+var uglifyCss = require('gulp-uglifycss');  // Minify css file
 var watch = require('gulp-watch');  // Optimized file change watcher
-var wrap = require('gulp-wrap');  // surround current file(s) with other content (IIFE eg.)
+var wrap = require('gulp-wrap');  // Surround current file(s) with other content (IIFE eg.)
+var run = require('gulp-run');  // Used for our Sphinx autoreload handler
+
+var verbosity = parseInt((process.env.VERBOSITY || 0));
+
 /**
  * Config for Gulp.
  */
@@ -119,6 +125,11 @@ var config = {
             multipass: true,
         },
     },
+    sphinx: [
+        './docs/sphinx/source/**/*.rst',
+        '!./docs/sphinx/source/modules/*.rst',
+        './lily/**/*.py',
+    ],
     env: process.env.NODE_ENV || 'production',
 };
 
@@ -310,11 +321,65 @@ gulp.task('sass-lint', function() {
 gulp.task('build', ['app-js', 'app-css', 'app-templates', 'app-assets', 'vendor-js', 'vendor-css', 'vendor-assets', 'analytics', 'ie-fixes'], function() {});
 
 /**
+ * This is a custom gulp watch change trigger that builds changed
+ * Sphinx documentation and reloads the page.
+ * @param {String} file The full path to the changed file from gulp.watch
+ */
+function buildSphinx(file) {
+    var extname = path.extname(file);
+    var absolutePath;
+    var moduleName;
+    var rstName;
+    gutil.log('Starting \'' + gutil.colors.cyan('sphinx-build') + '\'...');
+    if (extname === '.py') {
+        // Figure out module name of python file.
+        absolutePath = path.dirname(file.path);
+        moduleName = absolutePath.replace(__dirname + '/', '').split('/').join('.');
+        gutil.log('Building apidoc for \'' + gutil.colors.cyan(moduleName) + '\'...');
+        rstName = moduleName + '.rst';
+        new run.Command('make apidoc', {
+            verbosity: verbosity,
+            cwd: path.join(__dirname, 'docs/sphinx'),
+        }).exec('', function() {
+            new run.Command('find . -type f -not -name ' + rstName + ' | xargs rm', {
+                verbosity: verbosity,
+                cwd: path.join(__dirname, 'docs/sphinx/source/modules'),
+            }).exec('', function() {
+                new run.Command('make html', {
+                    verbosity: verbosity,
+                    cwd: path.join(__dirname, 'docs/sphinx'),
+                }).exec('', function() {
+                    gutil.log('Finished \'' + gutil.colors.cyan('sphinx-build') + '\'');
+                    livereload.reload();
+                });
+            });
+        });
+    } else if (extname === '.rst') {
+        new run.Command('make clean', {
+            verbosity: verbosity,
+            cwd: path.join(__dirname, 'docs/sphinx'),
+        }).exec('', function() {
+            new run.Command('make html', {
+                verbosity: verbosity,
+                cwd: path.join(__dirname, 'docs/sphinx'),
+            }).exec('', function() {
+                gutil.log('Finished \'' + gutil.colors.cyan('sphinx-build') + '\'');
+                livereload.reload();
+            });
+        });
+    }
+}
+
+/**
  * Watch for changes
  */
 gulp.task('watch', [], function() {
     isWatcher = true;
     livereload.listen();
+    // Simple static server to test Sphinx documentation.
+    connect.server({
+        root: path.join(__dirname, 'docs/sphinx/build/html'),
+    });
 
     // Watch for changes in app javascript.
     watch(config.app.js.src, function() {
@@ -360,6 +425,8 @@ gulp.task('watch', [], function() {
     watch(config.vendor.js.IEFixes.src, function() {
         gulp.start('ie-fixes');
     });
+
+    watch(config.sphinx, '').on('change', buildSphinx);
 });
 
 /**

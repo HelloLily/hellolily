@@ -19,12 +19,13 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseListController', CaseListController);
 
-CaseListController.$inject = ['$q', '$scope', '$state', '$timeout', '$uibModal', 'Case', 'HLFilters', 'LocalStorage',
+CaseListController.$inject = ['$scope', '$state', '$timeout', '$uibModal', 'Case', 'HLFilters', 'LocalStorage',
     'Settings', 'UserTeams'];
-function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFilters, LocalStorage, Settings,
+function CaseListController($scope, $state, $timeout, $uibModal, Case, HLFilters, LocalStorage, Settings,
                             UserTeams) {
     var vm = this;
-    vm.storage = LocalStorage('cases');
+
+    vm.storage = new LocalStorage('cases');
     vm.storedFilterSpecialList = vm.storage.get('filterSpecialListSelected', null);
     vm.updateTable = updateTable;
 
@@ -78,7 +79,7 @@ function CaseListController($q, $scope, $state, $timeout, $uibModal, Case, HLFil
             _getFilterOnList();
             _getFilterSpecialList();
             _setupWatchers();
-        }, 50);
+        });
     }
 
     /**

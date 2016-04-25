@@ -58,11 +58,3 @@ class Command(BaseCommand):
         # Close the threadpool.
         pool.close()
         pool.join()
-
-
-
-
-
-
-
-

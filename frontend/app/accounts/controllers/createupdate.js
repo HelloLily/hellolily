@@ -87,8 +87,6 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
             // so get (or create) the account afterwards.
             _getAccount();
         });
-
-
     }
 
     function _getAccount() {

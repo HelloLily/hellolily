@@ -70,7 +70,7 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
     legalentity = models.CharField(max_length=20, verbose_name=_('legal entity'), blank=True)
     taxnumber = models.CharField(max_length=20, verbose_name=_('tax number'), blank=True)
     bankaccountnumber = models.CharField(max_length=20, verbose_name=_('bank account number'), blank=True)
-    cocnumber = models.CharField(max_length=10, verbose_name=_('coc number'), blank=True)
+    cocnumber = models.CharField(max_length=20, verbose_name=_('coc number'), blank=True)
     iban = models.CharField(max_length=40, verbose_name=_('iban'), blank=True)
     bic = models.CharField(max_length=20, verbose_name=_('bic'), blank=True)
     assigned_to = models.ForeignKey(LilyUser, verbose_name=_('assigned to'), null=True, blank=True)

@@ -5,7 +5,7 @@ import time
 import anyjson
 from django.conf import settings
 from googleapiclient.errors import HttpError
-from googleapiclient.http import BatchHttpRequest, MediaInMemoryUpload
+from googleapiclient.http import MediaInMemoryUpload
 
 from .credentials import get_credentials, InvalidCredentialsError
 from .services import build_gmail_service
@@ -60,10 +60,10 @@ class GmailConnector(object):
         for n in range(0, 6):
             try:
                 return service.execute()
-            except HttpError, e:
+            except HttpError as e:
                 try:
                     error = anyjson.loads(e.content)
-                    # Error could be nested, so unwrap if nessecary
+                    # Error could be nested, so unwrap if necessary
                     error = error.get('error', error)
                 except ValueError:
                     logger.exception('error %s' % e)
@@ -189,23 +189,22 @@ class GmailConnector(object):
             quotaUser=self.email_account.id,
         ))
 
-    def get_message_label_list(self, message_id):
+    def get_short_message_info(self, message_id):
         """
-        Fetch labels for given message
+        Fetch labels & threadId for given message
 
         Args:
             message_id (string): id of the message
 
         Returns:
-            list with labels given message_id
+            dict with message info, with threadId & labels
         """
-        labels = self.execute_service_call(self.service.users().messages().get(
+        return self.execute_service_call(self.service.users().messages().get(
             userId='me',
             id=message_id,
-            fields='labelIds',
+            fields='labelIds,threadId',
             quotaUser=self.email_account.id,
         ))
-        return labels.get('labelIds', [])
 
     def save_history_id(self):
         """
@@ -213,83 +212,6 @@ class GmailConnector(object):
         """
         self.email_account.history_id = self.history_id
         self.email_account.save()
-
-    def get_message_list_info(self, message_ids):
-        """
-        Batch fetch message info given message_ids
-
-        Args:
-            message_ids (list): of message_ids
-
-        Returns:
-            dict with messages info
-        """
-        messages_info = {}
-
-        # Callback function for every service request
-        def get_message_info(request_id, response, exception):
-            if response:
-                messages_info[response['id']] = response
-            if exception:
-                # If 404, message no longer exists, otherwise raise error
-                if exception.resp.status != 404:
-                    raise exception
-                else:
-                    logger.error('404 error: %s' % exception)
-
-        # Setup batch
-        batch = BatchHttpRequest(callback=get_message_info)
-        for message_id in message_ids:
-            batch.add(self.service.users().messages().get(
-                userId='me',
-                id=message_id,
-                quotaUser=self.email_account.id,
-            ))
-
-        self.execute_service_call(batch)
-
-        return messages_info
-
-    def get_label_list_info(self, messages_ids):
-        """
-        Batch fetch label info given message_ids
-
-        Args:
-            message_ids (list): of message_ids
-
-        Returns:
-            dict with label info
-        """
-        label_info_dict = {}
-
-        # Callback function for every service request
-        def get_label_info(request_id, response, exception):
-            if response:
-                label_info_dict[response['id']] = response
-            if exception:
-                # If 404, message no longer exists, otherwise raise error
-                if exception.resp.status != 404:
-                    raise exception
-
-        batch = BatchHttpRequest(callback=get_label_info)
-
-        for message_id in messages_ids:
-            # Temporary add snippet
-            # TODO: remove snippet
-            batch.add(self.service.users().messages().get(
-                userId='me',
-                id=message_id,
-                fields='labelIds,id,threadId,snippet',
-                quotaUser=self.email_account.id,
-            ))
-
-        self.execute_service_call(batch)
-
-        return label_info_dict
-
-    def get_labels_from_message(self, message_id):
-        label_info = self.get_label_list_info([message_id])
-        return label_info[message_id].get('labelIds', [])
 
     def get_attachment(self, message_id, attachment_id):
         """

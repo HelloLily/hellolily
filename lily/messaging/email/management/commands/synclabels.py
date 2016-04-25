@@ -26,7 +26,7 @@ class Command(BaseCommand):
             ))
             try:
                 manager = GmailManager(email_account)
-                manager.synchronize(full_sync=True)
+                manager.synchronize()
             except ManagerError, e:
                 logger.error(traceback.format_exc(e))
                 raise

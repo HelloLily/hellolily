@@ -14,7 +14,7 @@ gevent==1.1rc3
 greenlet==0.4.9
 gunicorn==19.4.5
 python-dateutil==2.4.2
-pytz==2015.4
+pytz==2015.7
 wsgiref==0.1.2
 
 #######################################################
@@ -148,5 +148,5 @@ backports.ssl-match-hostname==3.5.0.1
 pathtools==0.1.2
 singledispatch==3.4.0.3
 snowballstemmer==1.2.1
-tornado==4.3
+tornado==4.2
 watchdog==0.8.3

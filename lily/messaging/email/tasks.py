@@ -2,16 +2,12 @@ import logging
 import traceback
 
 from celery.task import task
-from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
-from taskmonitor.decorators import monitor_task
-from taskmonitor.utils import lock_task
 
-from .manager import GmailManager, ManagerError, SyncLimitReached
+from .manager import GmailManager, ManagerError
 from .models.models import (EmailAccount, EmailMessage, EmailOutboxMessage, EmailTemplateAttachment,
                             EmailOutboxAttachment, EmailAttachment)
-from .utils import EmailSyncLock
 
 
 logger = logging.getLogger(__name__)
@@ -22,45 +18,28 @@ def synchronize_email_account_scheduler():
     """
     Start new tasks for every active mailbox to start synchronizing.
     """
-    delay_timer = 0
     for email_account in EmailAccount.objects.filter(is_authorized=True, is_deleted=False):
         logger.debug('Scheduling sync for %s', email_account.email_address)
 
         if not email_account.history_id:
             # First synchronize
-            # Lock the task to prevent multiple tasks
-            locked, status = lock_task('first_synchronize_email_account', email_account.pk)
-            if locked:
-                logger.debug('Adding task for first sync for %s', email_account.email_address)
-
-                first_synchronize_email_account.apply_async(
-                    args=(email_account.pk,),
-                    max_retries=1,
-                    default_retry_delay=100,
-                    kwargs={'status_id': status.pk},
-                )
-            else:
-                logger.debug('Skipping task first sync for %s, already scheduled', email_account.email_address)
+            logger.debug('Adding task for first sync for %s', email_account.email_address)
+            first_synchronize_email_account.apply_async(
+                args=(email_account.pk,),
+                max_retries=1,
+                default_retry_delay=100,
+            )
         else:
-            logger.debug('Adding task for sync for %s', email_account.email_address)
-
-            lock = EmailSyncLock(email_account.pk)
-
-            if not lock.is_set():
-                # Set the lock for this email account
-                lock.acquire()
-                logger.info('Starting sync for: %s', email_account.email_address)
-                synchronize_email_account.apply_async(
-                    args=(email_account.pk,),
-                    max_retries=1,
-                    default_retry_delay=100,
-                    countdown=delay_timer,
-                )
-                delay_timer += settings.GMAIL_SYNC_DELAY_INTERVAL
+            # Incremental synchronize
+            logger.info('Adding task for sync for: %s', email_account.email_address)
+            synchronize_email_account.apply_async(
+                args=(email_account.pk,),
+                max_retries=1,
+                default_retry_delay=100,
+            )
 
 
-@task(name='synchronize_email_account', bind=True)
-@task(logger=logger)
+@task(name='synchronize_email_account', logger=logger)
 def synchronize_email_account(account_id):
     """
     Synchronize task for all email accounts that are connected with gmail api.
@@ -68,9 +47,6 @@ def synchronize_email_account(account_id):
     Args:
         account_id (int): id of the EmailAccount
     """
-    succes = False
-    # Create lock object for account
-    lock = EmailSyncLock(account_id)
     try:
         email_account = EmailAccount.objects.get(pk=account_id, is_deleted=False)
     except EmailAccount.DoesNotExist:
@@ -78,45 +54,22 @@ def synchronize_email_account(account_id):
         return False
 
     if email_account.is_authorized:
-        # Set the lock for this email account
-        lock.acquire()
         manager = GmailManager(email_account)
         try:
-            history = manager.connector.get_history()
-            if len(history):
-                manager.sync_by_history(history)
-                manager.update_unread_count()
-                synchronize_email_account.apply_async(
-                    args=(account_id,),
-                    max_retries=1,
-                    default_retry_delay=100,
-                    countdown=1,
-                )
-                logger.info('History page sync done for: %s', email_account)
-            else:
-                # Done syncing
-                # Release the lock for this account
-                lock.release()
-                logger.info('Sync done for: %s', email_account)
-
-            succes = True
+            manager.sync_by_history()
+            manager.update_unread_count()
+            logger.info('History page sync done for: %s', email_account)
         except ManagerError:
             pass
         except Exception:
             logger.exception('No sync for account %s' % email_account)
         finally:
             manager.cleanup()
-            return succes
     else:
         logger.info('Not syncing, no authorization for: %s', email_account.email_address)
 
-    # If we get this far something went wrong so release the lock
-    lock.release()
-    return succes
 
-
-@task(name='first_synchronize_email_account', bind=True)
-@monitor_task(logger=logger)
+@task(name='first_synchronize_email_account', logger=logger)
 def first_synchronize_email_account(account_id):
     """
     First Synchronize task for all email accounts that are connected with gmail api.
@@ -132,17 +85,64 @@ def first_synchronize_email_account(account_id):
         manager = GmailManager(email_account)
         try:
             logger.debug('First sync for: %s', email_account)
-            manager.synchronize(limit=int(settings.GMAIL_PARTIAL_SYNC_LIMIT))
-        except SyncLimitReached:
-            logger.debug('Finished partial sync')
+            manager.full_synchronize()
         except Exception:
             logger.exception('No sync for account %s' % email_account)
         finally:
             manager.cleanup()
 
 
-@task(name='toggle_read_email_message', bind=True)
-@task(logger=logger)
+@task(name='download_email_message', logger=logger, acks_late=True, bind=True)
+def download_email_message(self, account_id, message_id):
+    """
+    Download message.
+
+    Args:
+        account_id (int): id of the EmailMessage
+        message_id (str): google id of EmailMessage
+    """
+    try:
+        email_account = EmailAccount.objects.get(pk=account_id, is_deleted=False)
+    except EmailAccount.DoesNotExist:
+        logger.warning('EmailAccount no longer exists: %s', account_id)
+    else:
+        manager = GmailManager(email_account)
+        try:
+            logger.debug('Fetch message %s for: %s' % (message_id, email_account))
+            manager.download_message(message_id)
+        except Exception:
+            logger.exception('Fetch message %s for: %s failed' % (message_id, email_account))
+            raise self.retry()
+        finally:
+            manager.cleanup()
+
+
+@task(name='update_labels_for_message', logger=logger, bind=True)
+def update_labels_for_message(self, account_id, email_id):
+    """
+    Add and/or removes labels for the EmailMessage.
+
+    Args:
+        account_id (id): EmailAccount id
+        email_id (str): Google hash of their id
+    """
+    try:
+        account = EmailAccount.objects.get(pk=account_id)
+    except EmailAccount.DoesNotExist:
+        logger.warning('EmailAccount no longer exists: %s', email_id)
+    else:
+        manager = GmailManager(account)
+        try:
+            logger.debug('Changing labels for: %s', email_id)
+            manager.update_labels_for_message(email_id)
+        except Exception:
+            logger.exception('Failed changing labels for %s' % email_id)
+            raise self.retry()
+        finally:
+            manager.cleanup()
+
+
+@task(name='toggle_read_email_message', logger=logger, acks_late=True)
 def toggle_read_email_message(email_id, read=True):
     """
     Mark message as read or unread.
@@ -168,8 +168,7 @@ def toggle_read_email_message(email_id, read=True):
             manager.cleanup()
 
 
-@task(name='archive_email_message', bind=True)
-@task(logger=logger)
+@task(name='archive_email_message', logger=logger)
 def archive_email_message(email_id):
     """
     Archive message.
@@ -193,8 +192,7 @@ def archive_email_message(email_id):
             manager.cleanup()
 
 
-@task(name='trash_email_message', bind=True)
-@task(logger=logger)
+@task(name='trash_email_message', logger=logger)
 def trash_email_message(email_id):
     """
     Trash message.
@@ -219,14 +217,13 @@ def trash_email_message(email_id):
             manager.cleanup()
 
 
-@task(name='add_and_remove_labels_for_message', bind=True)
-@task(logger=logger)
+@task(name='add_and_remove_labels_for_message', logger=logger)
 def add_and_remove_labels_for_message(email_id, add_labels=None, remove_labels=None):
     """
     Add and/or removes labels for the EmailMessage.
 
     Args:
-        email_message (instance): EmailMessage instance
+        email_id (id): EmailMessage id
         add_labels (list, optional): list of label_ids to add
         remove_labels (list, optional): list of label_ids to remove
     """
@@ -245,8 +242,7 @@ def add_and_remove_labels_for_message(email_id, add_labels=None, remove_labels=N
             manager.cleanup()
 
 
-@task(name='delete_email_message', bind=True)
-@task(logger=logger)
+@task(name='delete_email_message', logger=logger)
 def delete_email_message(email_id):
     """
     Delete message.
@@ -277,8 +273,7 @@ def delete_email_message(email_id):
             manager.cleanup()
 
 
-@task(name='send_message', bind=True)
-@task(logger=logger)
+@task(name='send_message', logger=logger)
 def send_message(email_outbox_message_id, original_message_id=None):
     """
     Send EmailOutboxMessage.
@@ -361,10 +356,10 @@ def send_message(email_outbox_message_id, original_message_id=None):
             # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more
             email_outbox_message.delete()
             sent_success = True
-        except ManagerError, e:
+        except ManagerError as e:
             logger.error(traceback.format_exc(e))
             raise
-        except Exception, e:
+        except Exception as e:
             logger.error(traceback.format_exc(e))
             raise
         finally:
@@ -375,8 +370,7 @@ def send_message(email_outbox_message_id, original_message_id=None):
     return sent_success
 
 
-@task(name='create_draft_email_message', bind=True)
-@task(logger=logger)
+@task(name='create_draft_email_message', logger=logger)
 def create_draft_email_message(email_outbox_message_id):
     """
     Send EmailOutboxMessage.
@@ -412,8 +406,7 @@ def create_draft_email_message(email_outbox_message_id):
     return draft_success
 
 
-@task(name='update_draft_email_message', bind=True)
-@task(logger=logger)
+@task(name='update_draft_email_message', logger=logger)
 def update_draft_email_message(email_outbox_message_id, current_draft_pk):
     """
     Send EmailOutboxMessage.

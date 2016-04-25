@@ -7,11 +7,10 @@
 .widget-heading {
     background: $skyGrey;
     border: 1px $baseBorderColor solid;
-    line-height: 60px;
-    padding: 0 15px;
+    padding: 10px 15px;
 
     &:before {
-        top: 0;
+        top: -10px;
         margin: 0 -15px;
         position: relative;
         height: 1px;
@@ -44,6 +43,7 @@
 }
 
 .widget-tools {
+    line-height: $button-height;
     margin-left: 15px;
 }
 
@@ -64,6 +64,7 @@
 }
 
 .widget-name {
+    line-height: $button-height;
     font-size: 18px;
     font-weight: 400;
     color: $lilyDarkBlue;

@@ -1,23 +1,31 @@
 <div class="portlet light">
     <div class="portlet-title">
-        <div class="caption">
-            <div class="btn-group">
-                <button class="btn dropdown-toggle" data-toggle="dropdown">
+
+        <ul class="hl-button-group">
+            <li class="hl-button-group-btn">
+                <a class="hl-button-group-btn-link" href="javascript:;" data-toggle="dropdown">
                     <i class="fa fa-columns"></i>
                     Columns
-                    <i class="fa fa-angle-down"></i>
-                </button>
-                <div class="dropdown-menu hold-on-click dropdown-checkboxes">
-                    <checkbox model="table.visibility.name">Name</checkbox>
-                    <checkbox model="table.visibility.contactInformation">Contact information</checkbox>
-                    <checkbox model="table.visibility.worksAt">Works at</checkbox>
-                    <checkbox model="table.visibility.created">Created</checkbox>
-                    <checkbox model="table.visibility.modified">Modified</checkbox>
-                    <checkbox model="table.visibility.tags">Tags</checkbox>
-                </div>
-            </div>
-            <button ng-click="exportToCsv()" class="btn btn-default">Export contacts</button>
-        </div>
+                    <i class="margin-left-5 small-icon lilicon hl-toggle-down-icon"></i>
+                </a>
+
+                <ul class="hl-dropdown js-hold-on-click">
+                    <li class="hl-dropdown-item"><checkbox model="table.visibility.name">Name</checkbox></li>
+                    <li class="hl-dropdown-item"><checkbox model="table.visibility.contactInformation">Contact information</checkbox></li>
+                    <li class="hl-dropdown-item"><checkbox model="table.visibility.worksAt">Works at</checkbox></li>
+                    <li class="hl-dropdown-item"><checkbox model="table.visibility.created">Created</checkbox></li>
+                    <li class="hl-dropdown-item"><checkbox model="table.visibility.modified">Modified</checkbox></li>
+                    <li class="hl-dropdown-item"><checkbox model="table.visibility.tags">Tags</checkbox></li>
+                </ul>
+            </li>
+        </ul>
+
+        <ul class="hl-button-group">
+            <li class="hl-button-group-btn">
+                <span class="hl-button-group-btn-link" ng-click="exportToCsv()">Export contacts</span>
+            </li>
+        </ul>
+
         <div class="tools col-xs-12 col-md-6">
             <form class="form-inline pull-right">
                 <div class="input-group">

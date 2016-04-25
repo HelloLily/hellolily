@@ -1,33 +1,27 @@
-<div class="btn-group">
-    <button class="btn btn-default btn-circle" data-toggle="dropdown">
-        <i class="fa fa-filter"></i>
-        <span>{{ vm.filterDisplayName }}</span>
-        <i class="fa fa-angle-down margin-left-5"></i>
-    </button>
-    <div class="dropdown-menu hold-on-click dropdown-checkboxes checkbox-list">
-        <div class="checkbox-list-row">
-            <div class="lily-checkbox" ng-click="vm.toggleAll()">
-                <i ng-class="{'fa fa-check': vm.allSelected}"></i>
-            </div>
-            <span ng-show="vm.allSelected" >All selected</span>
-            <span ng-hide="vm.allSelected" >Select all</span>
-        </div>
+<ul class="hl-button-group">
+    <li class="hl-button-group-btn">
+        <a class="hl-button-group-btn-link" href="javascript:;" data-toggle="dropdown">
+            <i class="fa fa-filter"></i>
+            {{ vm.filterDisplayName }}
+            <i class="margin-left-5 small-icon lilicon hl-toggle-down-icon"></i>
+        </a>
 
-        <div ng-if="!vm.viewModel.filterSpecialList" ng-repeat="filter in vm.viewModel.filterList" ng-click="vm.toggleFilter(filter)" class="checkbox-list-row">
-            <div class="lily-checkbox">
-                <i ng-class="{'fa fa-check': filter.selected}"></i>
-            </div>
+        <ul class="hl-dropdown js-hold-on-click">
+            <li class="hl-dropdown-item" ng-click="vm.toggleAll()">
+                <div class="hl-checkbox" ng-class="{'checked': vm.allSelected}"></div>
+                <span ng-show="vm.allSelected" >All selected</span>
+                <span ng-hide="vm.allSelected" >Select all</span>
+            </li>
 
-            {{ filter.name }}
-        </div>
+            <li class="hl-dropdown-item" ng-if="!vm.viewModel.filterSpecialList" ng-repeat="filter in vm.viewModel.filterList" ng-click="vm.toggleFilter(filter)">
+                <div class="hl-checkbox" ng-class="{'checked': filter.selected}"></div>
+                {{ filter.name }}
+            </li>
 
-        <div ng-if="vm.viewModel.filterSpecialList" ng-repeat="filter in vm.viewModel.filterSpecialList" ng-click="vm.toggleFilter(filter)" class="checkbox-list-row">
-            <div class="lily-checkbox">
-                <i ng-class="{'fa fa-check': filter.selected}"></i>
-            </div>
-
-            {{ filter.name }}
-        </div>
-
-    </div>
-</div>
+            <li class="hl-dropdown-item" ng-if="vm.viewModel.filterSpecialList" ng-repeat="filter in vm.viewModel.filterSpecialList" ng-click="vm.toggleFilter(filter)">
+                <div class="hl-checkbox" ng-class="{'checked': filter.selected}"></div>
+                {{ filter.name }}
+            </li>
+        </ul>
+    </li>
+</ul>

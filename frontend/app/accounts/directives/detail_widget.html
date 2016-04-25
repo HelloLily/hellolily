@@ -23,6 +23,12 @@
     <widget-body>
         <table class="widget-table vertical-top-align">
             <tbody>
+                <tr>
+                    <td><i class="lilicon hl-status-icon"></i> <strong>Status</strong></td>
+                    <td>
+                        <editable-select field="status" view-model="vm" type="Account">{{ vm.account.status.name }}</editable-select>
+                    </td>
+                </tr>
                 <tr ng-show="(vm.account.email_addresses | filter: {status: '!' + 0}).length">
                     <td><i class="lilicon hl-mail-icon"></i> <strong>Email</strong></td>
                     <td>

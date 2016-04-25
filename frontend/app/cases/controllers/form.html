@@ -9,7 +9,7 @@
                 <form-group label-title="Account" label-icon="child" label-id="id_account" field="caseForm.account">
                     <ui-select ng-model="vm.case.account" theme="select2" class="form-control" name="account" append-to-body="true">
                         <ui-select-match placeholder="Select an account" allow-clear="true">{{ $select.selected.name }}</ui-select-match>
-                        <ui-select-choices repeat="account in vm.accounts | propsFilter: {name: $select.search}" refresh="vm.refreshAccounts($select.search)" refresh-delay="150">
+                        <ui-select-choices repeat="account in vm.accounts track by $index" refresh="vm.refreshAccounts($select.search)" refresh-delay="0">
                             <div ng-bind-html="account.name | highlight: $select.search"></div>
                         </ui-select-choices>
                     </ui-select>

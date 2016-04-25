@@ -29,7 +29,6 @@ class PhoneNumber(TenantMixin):
         (ACTIVE_STATUS, _('Active')),
     )
 
-    raw_input = models.CharField(max_length=40, verbose_name=_('phone number'))
     number = models.CharField(max_length=40)
     type = models.CharField(
         max_length=15,
@@ -50,11 +49,7 @@ class PhoneNumber(TenantMixin):
 
     def save(self, *args, **kwargs):
         # Save raw input as number only (for searching)
-        self.number = parse_phone_number(self.raw_input)
-
-        if len(self.number) > 0:
-            # Overwrite user input
-            self.raw_input = self.number  # reserved field for future display based on locale
+        self.number = parse_phone_number(self.number)
 
         return super(PhoneNumber, self).save(*args, **kwargs)
 

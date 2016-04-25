@@ -69,18 +69,18 @@ class PhoneNumberBaseForm(HelloLilyModelForm):
     """
     type = forms.ChoiceField(choices=PHONE_TYPE_CHOICES, initial='work', required=False)
 
-    # Make raw_input not required to prevent the form from demanding input when only type
+    # Make number not required to prevent the form from demanding input when only type
     # has been changed.
-    raw_input = forms.CharField(label=_('Phone number'), required=False)
+    number = forms.CharField(label=_('Phone number'), required=False)
 
     def __init__(self, *args, **kwargs):
         super(PhoneNumberBaseForm, self).__init__(*args, **kwargs)
 
-        self.fields['raw_input'].label = _('Phone Number')
+        self.fields['number'].label = _('Phone number')
 
     class Meta:
         model = PhoneNumber
-        fields = ('raw_input', 'type', 'other_type', )
+        fields = ('number', 'type', 'other_type', )
         widgets = {
             'other_type': forms.TextInput(attrs={
                 'class': 'other hidden',

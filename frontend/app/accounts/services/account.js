@@ -282,21 +282,22 @@ function Account($http, $q, $resource, HLResource, HLUtils) {
 
     _account.prototype._addPhoneNumbers = function(data) {
         var account = this;
+        var formattedPhoneNumber;
 
         angular.forEach(data.phone_numbers, function(phoneNumber) {
             var add = true;
 
             angular.forEach(account.phone_numbers, function(accountPhoneNumber) {
                 // Check if phone number already exists
-                if (phoneNumber === accountPhoneNumber.raw_input) {
+                if (phoneNumber === accountPhoneNumber.number) {
                     add = false;
                 }
             });
 
             if (add) {
-                phoneNumber = HLUtils.formatPhoneNumber({raw_input: phoneNumber, type: 'work'});
+                formattedPhoneNumber = HLUtils.formatPhoneNumber({number: phoneNumber, type: 'work'});
 
-                account.phone_numbers.push(phoneNumber);
+                account.phone_numbers.push(formattedPhoneNumber);
             }
         });
     };

@@ -4,7 +4,6 @@ import datetime
 
 from django.db import migrations
 from lily.deals import models
-from lily.tenant.models import Tenant
 
 
 def update_next_step(apps, schema_editor):
@@ -38,7 +37,7 @@ def update_next_step(apps, schema_editor):
                             if deal.stage == open_stage:
                                 deal.next_step = next_step_follow_up
                                 deal.next_step_date = deal.modified + datetime.timedelta(days=2)
-                            elif deal.stage == pending_stage or deal.stage == called_stage or deal.stage == emailed_stage:
+                            elif deal.stage in [pending_stage, called_stage, emailed_stage]:
                                 deal.next_step = next_step_follow_up
                                 deal.next_step_date = deal.modified + datetime.timedelta(days=7)
                             elif deal.stage == won_stage and not deal.feedback_form_sent:

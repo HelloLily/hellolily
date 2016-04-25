@@ -297,7 +297,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
                     next_message = next_messages[0]
                     email_addresses = next_message.get('received_by_email', []) + \
                         next_message.get('received_by_cc_email', [])
-                    if email_addresses.count(email4.sender.email_address):
+                    if email_addresses.count(email.sender.email_address):
                         results['replied_with'] = next_message
                     else:
                         results['forwarded_with'] = next_message

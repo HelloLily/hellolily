@@ -8,16 +8,17 @@ from lily.tenant.models import Tenant
 
 
 def update_next_step(apps, schema_editor):
-    tenants = Tenant.objects.all()
-
     open_stage = models.Deal.OPEN_STAGE
     pending_stage = models.Deal.PENDING_STAGE
     called_stage = models.Deal.CALLED_STAGE
     emailed_stage = models.Deal.EMAILED_STAGE
     won_stage = models.Deal.WON_STAGE
 
+    Tenant = apps.get_model('tenant', 'Tenant')
     Deal = apps.get_model('deals', 'Deal')
     DealNextStep = apps.get_model('deals', 'DealNextStep')
+
+    tenants = Tenant.objects.all()
 
     for tenant in tenants:
         deals = Deal.objects.filter(tenant=tenant)

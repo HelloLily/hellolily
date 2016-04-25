@@ -8,11 +8,13 @@ function formAddresses() {
             addresses: '=',
             addRelatedField: '&',
             removeRelatedField: '&',
+            showIcon: '=',
         },
         templateUrl: 'forms/directives/addresses.html',
         controller: FormAddressesController,
         controllerAs: 'vm',
         bindToController: true,
+        transclude: true,
         link: function(scope, element, attrs, form) {
             // Set parent form on the scope
             scope.form = form;
@@ -20,9 +22,10 @@ function formAddresses() {
     };
 }
 
-FormAddressesController.$inject = ['$rootScope'];
-function FormAddressesController($rootScope) {
+FormAddressesController.$inject = [];
+function FormAddressesController() {
     var vm = this;
+
     vm.addressTypes = [
         {key: 'visiting', value: 'Visiting address'},
         {key: 'billing', value: 'Billing address'},
@@ -30,6 +33,4 @@ function FormAddressesController($rootScope) {
         {key: 'home', value: 'Home address'},
         {key: 'other', value: 'Other'},
     ];
-
-    vm.sidebar = $rootScope.$$childHead.settings.email.sidebar.form;
 }

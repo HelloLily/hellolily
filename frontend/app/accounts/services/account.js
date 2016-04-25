@@ -58,9 +58,22 @@ function Account($http, $q, $resource, HLResource, HLUtils) {
             searchByEmail: {
                 url: '/search/emailaddress/:email_address',
             },
-            getFormOptions: {
-                url: 'api/accounts/account',
-                method: 'OPTIONS',
+            getStatuses: {
+                url: '/api/accounts/statuses/',
+                transformResponse: function(data) {
+                    var statusData = angular.fromJson(data);
+
+                    angular.forEach(statusData.results, function(status) {
+                        if (status.name === 'Relation') {
+                            _account.relationStatus = status;
+                            _account.defaultNewStatus = _account.relationStatus;
+                        } else if (status.name === 'Active') {
+                            _account.activeStatus = status;
+                        }
+                    });
+
+                    return statusData;
+                },
             },
             searchByWebsite: {
                 url: '/search/website/:website',
@@ -131,7 +144,6 @@ function Account($http, $q, $resource, HLResource, HLUtils) {
     function create() {
         return new _account({
             name: '',
-            status: 'inactive',
             primaryWebsite: '',
             email_addresses: [],
             phone_numbers: [],
@@ -270,21 +282,22 @@ function Account($http, $q, $resource, HLResource, HLUtils) {
 
     _account.prototype._addPhoneNumbers = function(data) {
         var account = this;
+        var formattedPhoneNumber;
 
         angular.forEach(data.phone_numbers, function(phoneNumber) {
             var add = true;
 
             angular.forEach(account.phone_numbers, function(accountPhoneNumber) {
                 // Check if phone number already exists
-                if (phoneNumber === accountPhoneNumber.raw_input) {
+                if (phoneNumber === accountPhoneNumber.number) {
                     add = false;
                 }
             });
 
             if (add) {
-                phoneNumber = HLUtils.formatPhoneNumber({raw_input: phoneNumber, type: 'work'});
+                formattedPhoneNumber = HLUtils.formatPhoneNumber({number: phoneNumber, type: 'work'});
 
-                account.phone_numbers.push(phoneNumber);
+                account.phone_numbers.push(formattedPhoneNumber);
             }
         });
     };

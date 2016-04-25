@@ -1,11 +1,8 @@
 <div class="hl-form-field" ng-repeat="emailAddress in vm.emailAddresses">
-    <label for="id_email_addresses-email_address-{{ $index }}" ng-show="$first">
-        {{ vm.emailLabel }}
-    </label>
-
     <table class="hl-form-table">
         <tbody>
             <tr>
+                <td class="hl-form-table-column entity-icon-container" ng-if="vm.showIcon" ng-transclude uib-tooltip="{{ $root.messages.contact.contactInfoTooltip }}"></td>
                 <td class="hl-form-table-column" ng-class="{'has-error': form['email_addresses-email_address-' + $index].$invalid }">
                     <input class="form-control"
                            id="id_email_addresses-email_address-{{ $index }}"
@@ -48,9 +45,6 @@
 </div>
 
 <div class="hl-form-field">
-    <label ng-hide="vm.emailAddresses.length">
-        {{ vm.emailLabel }}
-    </label>
     <div>
         <a ng-click="vm.addRelatedField({field: 'emailAddress'})" class="form-control-static">Add an email address</a>
     </div>

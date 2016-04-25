@@ -458,19 +458,6 @@ class AjaxUpdateView(View):
         return HttpResponse(json.dumps({}), content_type='application/json')
 
 
-class NotificationsView(TemplateView):
-    """
-    Renders template with javascript to show messages from django.contrib.
-    messages as notifications.
-    """
-    http_method_names = ['get']
-    template_name = 'utils/notifications.js'
-
-    def get(self, request, *args, **kwargs):
-        response = super(NotificationsView, self).get(request, *args, **kwargs)
-        return HttpResponse(response.rendered_content, content_type='application/javascript')
-
-
 class JsonListView(FilterQuerysetMixin, ListView):
     """
     Attributes:
@@ -675,4 +662,3 @@ class DownloadRedirectView(LoginRequiredMixin, RedirectView):
 
 # Perform logic here instead of in urls.py
 ajax_update_view = login_required(AjaxUpdateView.as_view())
-notifications_view = NotificationsView.as_view()

@@ -13,7 +13,7 @@ UnreadEmailController.$inject = ['$scope', 'EmailAccount', 'EmailMessage', 'HLFi
 function UnreadEmailController($scope, EmailAccount, EmailMessage, HLFilters, HLUtils, LocalStorage) {
     var vm = this;
 
-    vm.storage = LocalStorage('unreadEmailWidget');
+    vm.storage = new LocalStorage('unreadEmailWidget');
     vm.storedFilterList = vm.storage.get('filterListSelected', null);
     vm.table = {
         order: vm.storage.get('order', {
@@ -51,10 +51,10 @@ function UnreadEmailController($scope, EmailAccount, EmailMessage, HLFilters, HL
     }
 
     function updateTable() {
-        HLUtils.blockUI('#unreadEmailBlockTarget', true);
-
         var sort = HLUtils.getSorting(vm.table.order.column, vm.table.order.descending);
         var filterQuery = 'read:false AND label_id:INBOX';
+
+        HLUtils.blockUI('#unreadEmailBlockTarget', true);
 
         if (vm.table.filterQuery) {
             filterQuery += ' AND ' + vm.table.filterQuery;

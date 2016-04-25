@@ -58,6 +58,3 @@ In some cases it is possible to combine the two, but you still shouldn't do it.
     because it has pending trigger events.
 
 As can be read on the `Django docs <https://docs.djangoproject.com/en/1.9/ref/migration-operations/#runpython>`_ somewhat near the end of the block.
-
-
-<input value='asfdsdf' />

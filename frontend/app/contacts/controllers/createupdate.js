@@ -53,17 +53,16 @@ function contactConfig($stateProvider) {
  */
 angular.module('app.contacts').controller('ContactCreateUpdateController', ContactCreateUpdateController);
 
-ContactCreateUpdateController.$inject = ['$state', '$stateParams', 'Settings', 'Account', 'Contact', 'Tag',
+ContactCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', 'Settings', 'Account', 'Contact', 'Tag',
     'HLFields', 'HLForms', 'HLSearch'];
-function ContactCreateUpdateController($state, $stateParams, Settings, Account, Contact, Tag,
-                                       HLFields, HLForms, HLSearch) {
+function ContactCreateUpdateController($scope, $state, $stateParams, Settings, Account, Contact,
+                                       Tag, HLFields, HLForms, HLSearch) {
     var vm = this;
     vm.contact = {};
     vm.tags = [];
     vm.errors = {
         name: [],
     };
-    vm.accounts = [];
     vm.tag_choices = [];
 
     vm.saveContact = saveContact;
@@ -83,7 +82,7 @@ function ContactCreateUpdateController($state, $stateParams, Settings, Account, 
     }
 
     function _getContact() {
-        // Fetch the contact or create empty contact
+        // Fetch the contact or create empty contact.
         if ($stateParams.id) {
             Contact.get({id: $stateParams.id}).$promise.then(function(contact) {
                 vm.contact = contact;
@@ -100,8 +99,10 @@ function ContactCreateUpdateController($state, $stateParams, Settings, Account, 
             vm.contact = Contact.create();
 
             if ($stateParams.accountId) {
-                var account = Account.get({id: $stateParams.accountId});
-                vm.contact.accounts.push(account);
+                Account.get({id: $stateParams.accountId}, function(account) {
+                    vm.contact.accounts.push(account);
+                    vm.account = account;
+                });
             }
 
             if (Settings.email.data) {
@@ -152,6 +153,9 @@ function ContactCreateUpdateController($state, $stateParams, Settings, Account, 
     }
 
     function saveContact(form) {
+        var accounts = [];
+        var copiedContact;
+
         // Check if a contact is being added via the + contact page or via
         // a supercard.
         if (Settings.email.sidebar.isVisible) {
@@ -188,11 +192,9 @@ function ContactCreateUpdateController($state, $stateParams, Settings, Account, 
 
         vm.contact = HLFields.cleanRelatedFields(vm.contact, 'contact');
 
-        var copiedContact = angular.copy(vm.contact);
+        copiedContact = angular.copy(vm.contact);
 
         if (copiedContact.accounts && copiedContact.accounts.length) {
-            var accounts = [];
-
             angular.forEach(copiedContact.accounts, function(account) {
                 if (account) {
                     accounts.push({id: account.id});
@@ -233,8 +235,10 @@ function ContactCreateUpdateController($state, $stateParams, Settings, Account, 
     }
 
     function refreshAccounts(query) {
-        if (query.length >= 2) {
-           var accountsPromise = HLSearch.refreshList(query, 'Account', vm.contact.accounts);
+        var accountsPromise;
+
+        if (!vm.accounts || query.length) {
+            accountsPromise = HLSearch.refreshList(query, 'Account');
 
             if (accountsPromise) {
                 accountsPromise.$promise.then(function(data) {
@@ -244,10 +248,24 @@ function ContactCreateUpdateController($state, $stateParams, Settings, Account, 
         }
     }
 
-    function refreshTags(query) {
-        if (query.length >= 1) {
-            var exclude = '';
+    $scope.$watch('vm.contact.accounts', function() {
+        if (vm.contact.accounts) {
+            if (vm.contact.accounts.length === 1) {
+                Account.get({id: vm.contact.accounts[0].id}, function(account) {
+                    if (!vm.account || vm.account.id !== account.id) {
+                        vm.account = account;
+                    }
+                });
+            } else if (vm.contact.accounts.length === 0) {
+                vm.account = null;
+            }
+        }
+    }, true);
 
+    function refreshTags(query) {
+        var exclude = '';
+
+        if (query.length >= 1) {
             // Exclude accounts already selected
             angular.forEach(vm.contact.tags, function(tag) {
                 exclude += ' AND NOT name_flat:' + tag.name;

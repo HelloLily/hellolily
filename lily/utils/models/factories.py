@@ -5,13 +5,14 @@ from factory.django import DjangoModelFactory
 from factory.fuzzy import FuzzyChoice
 from faker.factory import Factory
 
-from .models import EmailAddress, PhoneNumber, Address, COUNTRIES, PHONE_TYPE_CHOICES, ExternalAppLink
+from .models import EmailAddress, PhoneNumber, Address, PHONE_TYPE_CHOICES, ExternalAppLink
+from lily.utils.countries import COUNTRIES
 
 faker = Factory.create('nl_NL')
 
 
 class PhoneNumberFactory(DjangoModelFactory):
-    raw_input = LazyAttribute(lambda o: faker.phone_number())
+    number = LazyAttribute(lambda o: faker.phone_number())
     type = FuzzyChoice(dict(PHONE_TYPE_CHOICES).keys())
 
     class Meta:

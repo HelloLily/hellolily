@@ -18,6 +18,10 @@ class ExportAccountView(ExportListViewMixin, View):
             'headers': [_('ID')],
             'columns_for_item': ['id']
         },
+        'url': {
+            'headers': [_('url')],
+            'columns_for_item': ['url']
+        },
         'name': {
             'headers': [_('Account')],
             'columns_for_item': ['name']
@@ -61,7 +65,9 @@ class ExportAccountView(ExportListViewMixin, View):
     # ExportListViewMixin
     def value_for_column(self, account, column):
         try:
-            if column == 'email_addresses':
+            if column == 'url':
+                return '/#/accounts/%s' % account['id']
+            elif column == 'email_addresses':
                 # 'email_addresses' is a dict, so we need to process it differently
                 value = []
                 for account in account.get('email_addresses', []):

@@ -1,5 +1,4 @@
 import logging
-import os
 import re
 import socket
 import mimetypes
@@ -7,7 +6,6 @@ import mimetypes
 from datetime import datetime, timedelta
 from smtplib import SMTPAuthenticationError
 from urllib import unquote
-from urlparse import urlparse
 
 from bs4 import BeautifulSoup
 from celery import signature
@@ -479,8 +477,8 @@ def create_reply_body_header(email_message):
             'sender': email_message.sender.name,
             'email_address': email_message.sender.email_address
         }
-    reply_header = ('<br /><br />'
-                    + reply_string +
+    reply_header = ('<br /><br />' +
+                    reply_string +
                     '<hr />')
 
     return reply_header

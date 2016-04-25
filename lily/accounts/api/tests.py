@@ -2,7 +2,9 @@ from django.contrib.auth.hashers import make_password
 from django.core.urlresolvers import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
-from lily.accounts.models import Account
+
+from lily.accounts.factories import AccountStatusFactory
+from lily.accounts.models import Account, AccountStatus
 from lily.tenant.middleware import set_current_user
 from lily.tenant.models import Tenant
 from lily.users.factories import LilyUserFactory
@@ -35,8 +37,10 @@ class AccountTests(APITestCase):
         'tags': [],
         'taxnumber': '',
         'websites': [],
-        'status': 'inactive',
+        'status': {'id': 3, 'name': 'Relation', 'position': 0},
     }
+
+    status_relation = None
 
     @classmethod
     def setUpClass(cls):
@@ -47,22 +51,29 @@ class AccountTests(APITestCase):
         # Remove leftovers from previous tests
         LilyUser.objects.all().delete()
         Tenant.objects.all().delete()
+        AccountStatus.objects.all().delete()
 
         cls.user = LilyUserFactory.create(is_active=True, email='user1@lily.com', password=make_password('test'))
-
         cls.client = APIClient()
         cls.client.login(email='user1@lily.com', password='test')
+
+        AccountStatusFactory.create(id=1, name='Previous customer', position=0, tenant=cls.user.tenant)
+        AccountStatusFactory.create(id=2, name='Active', position=0, tenant=cls.user.tenant)
+        cls.status_relation = AccountStatusFactory.create(id=3, name='Relation', position=0, tenant=cls.user.tenant)
+        AccountStatusFactory.create(id=4, name='Prospect', position=0, tenant=cls.user.tenant)
 
     @classmethod
     def tearDownClass(cls):
         set_current_user(None)
         LilyUser.objects.all().delete()
         Tenant.objects.all().delete()
+        AccountStatus.objects.all().delete()
 
     def create_account(self, extra_data=None):
         data = {
             'name': 'Test account',
-            'description': ''
+            'description': '',
+            'status': {'id': self.status_relation.id}
         }
 
         if extra_data:
@@ -81,7 +92,8 @@ class AccountTests(APITestCase):
         url = reverse('account-list')
 
         post_data = {
-            'name': 'Test account'
+            'name': 'Test account',
+            'status': {'id': self.status_relation.id}
         }
 
         response = AccountTests.client.post(url, post_data, format='json')
@@ -101,7 +113,8 @@ class AccountTests(APITestCase):
         self.create_account()
 
         post_data = {
-            'name': 'Test account'
+            'name': 'Test account',
+            'status': {'id': self.status_relation.id}
         }
 
         compare_data = {
@@ -120,7 +133,8 @@ class AccountTests(APITestCase):
         url = reverse('account-list')
 
         compare_data = {
-            'name': ['This field is required.']
+            'name': ['This field is required.'],
+            'status': ['This field is required.']
         }
 
         response = AccountTests.client.post(url, {}, format='json')
@@ -136,7 +150,8 @@ class AccountTests(APITestCase):
 
         post_data = {
             'name': 'Test account',
-            'assigned_to': 123
+            'assigned_to': 123,
+            'status': {'id': self.status_relation.id}
         }
 
         compare_data = {
@@ -163,7 +178,7 @@ class AccountTests(APITestCase):
                 'email_address': 'test1@account.com'
             }],
             'phone_numbers': [{
-                'raw_input': '0612345678',
+                'number': '0612345678',
                 'type': 'mobile'
             }],
             'websites': [{
@@ -177,7 +192,8 @@ class AccountTests(APITestCase):
                 'city': 'Somewhere',
                 'country': 'NL',
                 'type': 'visiting',
-            }]
+            }],
+            'status': {'id': self.status_relation.id}
         }
 
         compare_data = self.default_compare_data.copy()
@@ -193,7 +209,6 @@ class AccountTests(APITestCase):
             }],
             'phone_numbers': [{
                 'number': '+31612345678',
-                'raw_input': '+31612345678',
                 'status': 1,
                 'status_name': 'Active',
                 'type': 'mobile',
@@ -218,7 +233,6 @@ class AccountTests(APITestCase):
         })
 
         response = AccountTests.client.post(url, post_data, format='json')
-
         self.assertGreater(response.data.get('id', 0), 0)
         self.assertGreater(response.data.get('assigned_to', 0), 0)
 
@@ -241,7 +255,8 @@ class AccountTests(APITestCase):
             'name': 'Test account',
             'email_addresses': [{
                 'email_address': 'test1@account.com'
-            }]
+            }],
+            'status': {'id': self.status_relation.id}
         }
 
         compare_data = self.default_compare_data.copy()
@@ -351,14 +366,15 @@ class AccountTests(APITestCase):
             'name': 'Test account',
             'phone_numbers': [
                 {
-                    'raw_input': '0501112222',
+                    'number': '0501112222',
                     'type': 'work'
                 },
                 {
-                    'raw_input': '0612345678',
+                    'number': '0612345678',
                     'type': 'mobile'
                 }
-            ]
+            ],
+            'status': {'id': self.status_relation.id}
         }
 
         compare_data = self.default_compare_data.copy()
@@ -367,7 +383,6 @@ class AccountTests(APITestCase):
             'phone_numbers': [
                 {
                     'number': '+31501112222',
-                    'raw_input': '+31501112222',
                     'status': 1,
                     'status_name': 'Active',
                     'type': 'work',
@@ -375,7 +390,6 @@ class AccountTests(APITestCase):
                 },
                 {
                     'number': '+31612345678',
-                    'raw_input': '+31612345678',
                     'status': 1,
                     'status_name': 'Active',
                     'type': 'mobile',
@@ -385,9 +399,6 @@ class AccountTests(APITestCase):
         })
 
         response = AccountTests.client.post(url, post_data, format='json')
-
-        # The data is in a reverse order (order in which it was added?), so reverse the list
-        response.data['phone_numbers'].reverse()
 
         self.assertGreater(response.data.get('id', 0), 0)
         del response.data['id']
@@ -413,7 +424,8 @@ class AccountTests(APITestCase):
                 {
                     'website': 'http://www.otherdomain.com'
                 }
-            ]
+            ],
+            'status': {'id': self.status_relation.id}
         }
 
         compare_data = self.default_compare_data.copy()
@@ -463,7 +475,8 @@ class AccountTests(APITestCase):
                     'type': 'visiting',
                     'state_province': ''
                 }
-            ]
+            ],
+            'status': {'id': self.status_relation.id}
         }
 
         compare_data = self.default_compare_data.copy()
@@ -506,7 +519,8 @@ class AccountTests(APITestCase):
                     'street_number': '123',  # Post string on purpose to make sure it gets saved as an integer
                     'type': 'visiting'
                 }
-            ]
+            ],
+            'status': {'id': self.status_relation.id}
         }
 
         compare_data = self.default_compare_data.copy()
@@ -551,7 +565,8 @@ class AccountTests(APITestCase):
                     'country': 'DE',
                     'type': 'visiting',
                 }
-            ]
+            ],
+            'status': {'id': self.status_relation.id}
         }
 
         compare_data = self.default_compare_data.copy()
@@ -590,6 +605,7 @@ class AccountTests(APITestCase):
         post_data = {
             'name': 'Test account 1',
             'email_addresses': [{'email_address': 'invalidemail'}],
+            'status': {'id': self.status_relation.id}
         }
 
         compare_data = {
@@ -650,7 +666,6 @@ class AccountTests(APITestCase):
         """
         Ensure removing a non-existant related field does nothing.
         """
-
         account = self.create_account({
             'email_addresses': [{'email_address': 'test1@account.com'}, {'email_address': 'test2@account.com'}]
         })

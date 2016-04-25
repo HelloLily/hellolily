@@ -1,22 +1,18 @@
 <div class="hl-form-field" ng-repeat="phoneNumber in vm.phoneNumbers">
-    <label for="id_phone_numbers-type-{{ $index }}" ng-show="$first">
-        Phone number
-    </label>
-
     <table class="hl-form-table">
         <tbody>
             <tr>
-                <td class="hl-form-table-column" ng-class="{'has-error': form['phone_numbers-raw_input-' + $index].$invalid }">
+                <td class="hl-form-table-column entity-icon-container" ng-if="vm.showIcon" ng-transclude uib-tooltip="{{ $root.messages.contact.contactInfoTooltip }}"></td>
                     <input class="form-control"
-                           id="id_phone_numbers-raw_input-{{ $index }}"
+                           id="id_phone_numbers-number-{{ $index }}"
                            maxlength="255"
-                           name="phone_numbers-raw_input-{{ $index }}"
+                           name="phone_numbers-number-{{ $index }}"
                            placeholder="Phone number"
                            type="text"
-                           ng-model="phoneNumber.raw_input"
+                           ng-model="phoneNumber.number"
                            ng-readonly="phoneNumber.is_deleted"
                            ng-blur="vm.formatPhoneNumber(phoneNumber)">
-                    <field-error form="form" field="phone_numbers-raw_input" index="$index"></field-error>
+                    <field-error form="form" field="phone_numbers-number" index="$index"></field-error>
                 </td>
 
                 <label class="hidden control-label" for="id_phone_numbers-type-{{ $index }}">
@@ -47,6 +43,5 @@
 </div>
 
 <div class="hl-form-field">
-    <label ng-hide="vm.phoneNumbers.length">Phone number</label>
     <div><a ng-click="vm.addRelatedField({field:'phoneNumber'})" class="form-control-static">Add a phone number</a></div>
 </div>

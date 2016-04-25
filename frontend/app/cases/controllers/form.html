@@ -9,7 +9,7 @@
                 <form-group label-title="Account" label-icon="child" label-id="id_account" field="caseForm.account">
                     <ui-select ng-model="vm.case.account" theme="select2" class="form-control" name="account" append-to-body="true">
                         <ui-select-match placeholder="Select an account" allow-clear="true">{{ $select.selected.name }}</ui-select-match>
-                        <ui-select-choices repeat="account in vm.accounts | propsFilter: {name: $select.search}" refresh="vm.refreshAccounts($select.search)" refresh-delay="150">
+                        <ui-select-choices repeat="account in vm.accounts track by $index" refresh="vm.refreshAccounts($select.search)" refresh-delay="0">
                             <div ng-bind-html="account.name | highlight: $select.search"></div>
                         </ui-select-choices>
                     </ui-select>
@@ -27,7 +27,7 @@
                 </form-group>
             </form-portlet>
 
-            <form-portlet title="What to do?">
+            <form-portlet portlet-title="What to do?">
                 <form-group label-title="Subject" label-icon="building-o" label-id="id_subject" field="caseForm.subject" required="true">
                     <input class="form-control"
                            id="id_subject"
@@ -80,7 +80,7 @@
                 </div>
             </form-portlet>
 
-            <form-portlet title="When to do it?">
+            <form-portlet portlet-title="When to do it?">
                 <form-group label-title="Priority" label-icon="info" label-id="id_priority" field="caseForm.priority" required="true">
                     <div>
                         <label class="priority-button" ng-repeat="priority in vm.casePriorities"
@@ -112,7 +112,7 @@
                 </form-group>
             </form-portlet>
 
-            <form-portlet title="Who is going to do this?">
+            <form-portlet portlet-title="Who is going to do this?">
                 <form-group label-title="Assigned to teams" label-icon="child" label-id="id_assigned_to_groups" field="caseForm.assigned_to_groups">
                     <ui-select multiple ng-model="vm.case.assigned_to_groups" theme="select2" class="form-control" name="assigned_to_groups" append-to-body="true">
                         <ui-select-match placeholder="Select one or more team(s)">{{ $item.name }}</ui-select-match>

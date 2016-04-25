@@ -14,7 +14,8 @@ from lily.contacts.models import Contact, Function
 from lily.socialmedia.models import SocialMedia
 from lily.users.models import LilyUser
 from lily.utils.functions import parse_address, _isint, parse_phone_number
-from lily.utils.models.models import Address, PhoneNumber, EmailAddress, COUNTRIES
+from lily.utils.models.models import Address, PhoneNumber, EmailAddress
+from lily.utils.countries import COUNTRIES
 
 
 logger = logging.getLogger(__name__)
@@ -539,21 +540,21 @@ E.g.:
                 email_address = EmailAddress.objects.create(**email_address_kwargs)
                 instance.email_addresses.add(email_address)
 
-    def _create_phone(self, instance, type, raw_input, other_type=None):
+    def _create_phone(self, instance, type, number, other_type=None):
         """
         Creates PhoneNumber for given instance
 
         Arguments:
             instance (instance): instance to add PhoneNumber to
             type (str): kind of phone number
-            raw_input (str): unformatted phone number
+            number (str): unformatted phone number
             other_type (str) optional: given if not default phone number type
         """
-        if raw_input and len(raw_input) > 2:
+        if number and len(number) > 2:
             phone_kwargs = dict()
             phone_kwargs['type'] = type
             phone_kwargs['other_type'] = other_type
-            phone_kwargs['raw_input'] = parse_phone_number(raw_input)
+            phone_kwargs['number'] = parse_phone_number(number)
             phone_kwargs['tenant_id'] = self.tenant_pk
 
             phone_number_list = instance.phone_numbers.filter(**phone_kwargs)

@@ -91,25 +91,20 @@
 
         {% bootstrap_field form.body_html layout="horizontal" field_class="email-compose" form_group_class="inbox-form-group" label_class="hidden" %}
 
-        {% if forwarded_attachments %}
+        {% if form.existing_attachments %}
             <div class="inbox-form-group mail-attachments">
-                <label class="control-label">Existing Attachments:</label>
+                <label class="control-label">Forward attachments:</label>
                 <div class="controls">
-                    <div class="col-md-12">
-                        <div class="formset">
-                            <div class="form-group">
-                                <div class="template-attachment-row">
-                                    <div class="col-md-4 form-control-static">
-                                        {% for attachment in forwarded_attachments %}
-                                            {{ attachment }} <br/>
-                                        {% endfor %}
-                                    </div>
-                                </div>
+                    <div class="col-md-10">
+                        <div class="template-attachment-row">
+                            <div class="col-md-4 form-control-static">
+                                {% bootstrap_field form.existing_attachments form_group_class="" field_class=field_class|default:"col-md-12" label_class="hidden" %}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            <div class="clearfix"></div>
         {% endif %}
         {{ form.attachments }}
 

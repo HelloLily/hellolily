@@ -132,6 +132,10 @@ function CaseDetailController($scope, Settings, CaseStatuses, HLResource, LocalS
         vm.case.assigned_to = currentUser;
         vm.case.assigned_to.full_name = currentUser.fullName;
 
+        // Broadcast function to update model correctly after dynamically
+        // changing the assignee by using the 'assign to me' link.
+        $scope.$broadcast('activateEditableSelect', currentUser.id);
+
         return updateModel(currentUser.id, 'assigned_to');
     }
 

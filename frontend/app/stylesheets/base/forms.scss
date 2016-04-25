@@ -62,10 +62,16 @@
 .hl-form-table {
     display: table;
     width: 100%;
+
+    &.hl-form-fixed-data {
+        background: $skyGrey;
+        border-radius: $baseBorderRadius;
+    }
 }
 
 .hl-form-table-column {
     height: 40px;
+    line-height: 40px;
     display: table-cell;
     vertical-align: top;
     padding: 0 5px;
@@ -76,6 +82,11 @@
 
     &:last-child {
         padding-right: 0;
+    }
+
+    &.entity-icon-container {
+        width: 20px;
+        padding: 0 10px;
     }
 }
 
@@ -96,5 +107,36 @@
         width: 100%;
         float: left;
         padding: 0;
+    }
+}
+
+.hl-form-input {
+    float: left;
+    width: 100%;
+    margin: 5px 0;
+}
+
+.user-field-image {
+    width: 60px;
+    height: 60px;
+    margin-right: 10px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 50%;
+}
+
+.user-field-image-clear {
+    position: absolute;
+    top: 20px;
+    left: 85px;
+}
+
+.user-field-image-change {
+    display: block;
+    margin-top: 10px;
+
+    input {
+        display: inline;
     }
 }

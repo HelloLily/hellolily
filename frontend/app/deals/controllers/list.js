@@ -21,7 +21,7 @@ angular.module('app.deals').controller('DealListController', DealListController)
 
 DealListController.$inject = ['$scope', '$timeout', 'Settings', 'LocalStorage', 'Deal', 'HLFilters'];
 function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFilters) {
-    var storage = LocalStorage('deals');
+    var storage = new LocalStorage('deals');
     var vm = this;
 
     Settings.page.setAllTitles('list', 'deals');

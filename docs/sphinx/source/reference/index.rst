@@ -1,11 +1,11 @@
 #########
 Reference
 #########
-
-Technical reference material.
+Available reference documentation:
 
 .. toctree::
     :maxdepth: 2
 
-    configuration
+    install
     migrations
+    celery

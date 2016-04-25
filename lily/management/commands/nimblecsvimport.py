@@ -12,7 +12,8 @@ from lily.deals.models import Deal
 from lily.socialmedia.models import SocialMedia
 from lily.tags.models import Tag
 from lily.tenant.models import Tenant
-from lily.utils.models.models import Address, EmailAddress, PhoneNumber, COUNTRIES
+from lily.utils.models.models import Address, EmailAddress, PhoneNumber
+from lily.utils.countries import COUNTRIES
 
 
 class Command(BaseCommand):
@@ -164,7 +165,7 @@ class Command(BaseCommand):
                     if number:
                         number = self.clean_phone(number)
                         phone = PhoneNumber.objects.get_or_create(
-                            tenant=tenant, type=number_type, raw_input=number)[0]
+                            tenant=tenant, type=number_type, number=number)[0]
                         account_instance.phone_numbers.add(phone)
 
                 if primary_email:
@@ -303,7 +304,7 @@ class Command(BaseCommand):
                     if number:
                         number = self.clean_phone(number)
                         phone = PhoneNumber.objects.get_or_create(
-                            tenant=tenant, type=number_type, raw_input=number)[0]
+                            tenant=tenant, type=number_type, number=number)[0]
                         contact_instance.phone_numbers.add(phone)
 
                 if account_instance:

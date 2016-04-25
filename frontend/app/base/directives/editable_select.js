@@ -8,6 +8,7 @@ function editableSelect() {
             field: '@',
             type: '@',
             choiceField: '@',
+            search: '@?',
             selectOptions: '=?', // contains any custom settings for the select
         },
         templateUrl: 'base/directives/editable_select.html',
@@ -15,14 +16,25 @@ function editableSelect() {
         controllerAs: 'es',
         transclude: true,
         bindToController: true,
+        link: function(scope, element, attr) {
+            // Bind click event to the current directive.
+            element.on('click', '.editable-click', function() {
+                if (scope.es.search) {
+                    scope.es.uiSelectForm.$show();
+
+                    scope.$apply();
+                }
+            });
+        },
     };
 }
 
-EditableSelectController.$inject = ['$scope', '$filter', 'HLResource'];
-function EditableSelectController($scope, $filter, HLResource) {
+EditableSelectController.$inject = ['$scope', 'HLResource', 'HLSearch'];
+function EditableSelectController($scope, HLResource, HLSearch) {
     var es = this;
 
     es.getChoices = getChoices;
+    es.refreshChoices = refreshChoices;
     es.updateViewModel = updateViewModel;
 
     activate();
@@ -47,8 +59,9 @@ function EditableSelectController($scope, $filter, HLResource) {
 
         // Certain values in the given view model are objects,
         // so the default value in the select won't always work.
-        // So check if it's an object and add .id.
-        if (typeof es.object[es.field] === 'object') {
+        // If we're not dealing with a inline editable search select check
+        // if it's an object and add .id.
+        if (!es.search && typeof es.object[es.field] === 'object') {
             if (es.object[es.field]) {
                 es.selectModel = es.object[es.field].id;
             }
@@ -60,6 +73,12 @@ function EditableSelectController($scope, $filter, HLResource) {
             es.optionDisplay = es.selectOptions.display;
         } else {
             es.optionDisplay = 'name';
+        }
+
+        if (es.search) {
+            if (es.selectOptions.hasOwnProperty('placeholder')) {
+                es.placeholder = es.selectOptions.placeholder;
+            }
         }
     }
 
@@ -96,25 +115,58 @@ function EditableSelectController($scope, $filter, HLResource) {
         }
     }
 
+    function refreshChoices(query) {
+        var type;
+        var searchPromise;
+
+        if (es.selectOptions.hasOwnProperty('type')) {
+            type = es.selectOptions.type;
+        } else {
+            type = es.type;
+        }
+
+        searchPromise = HLSearch.refreshList(query, type);
+
+        if (searchPromise) {
+            searchPromise.$promise.then(function(data) {
+                es.choices = data.objects;
+            });
+        }
+    }
+
     function updateViewModel($data) {
+        var selected;
+        var i;
+
         var args = {
             id: es.object.id,
         };
 
         // $data only contains the ID, so get the name from the choices in the scope.
-        var selected = $filter('filter')(es.choices, {id: $data});
+        for (i = 0; i < es.choices.length; i++) {
+            if (es.choices[i].id === $data) {
+                selected = es.choices[i];
+            }
+        }
 
         if (es.choiceField) {
             es.object[es.field] = $data;
             // Choice fields end with '_display',
             // so set the proper variable so front end changes are reflected properly.
-            es.object[es.field + '_display'] = selected.length ? selected[0].name : null;
+            es.object[es.field + '_display'] = selected.name;
         } else {
-            es.object[es.field] = selected.length ? selected[0] : null;
+            es.object[es.field] = selected;
         }
 
         args[es.field] = $data;
 
-        return es.viewModel.updateModel(args);
+        return es.viewModel.updateModel(args).then(function() {
+            if (es.search) {
+                es.uiSelectForm.$hide();
+                // Inline editable select2 field doesn't properly update
+                // es.selectModel, so update it manually.
+                es.selectModel = es.object[es.field];
+            }
+        });
     }
 }

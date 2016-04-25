@@ -47,13 +47,12 @@ class RelatedFieldSerializer(serializers.ModelSerializer):
 class OldPhoneNumberSerializer(RelatedFieldSerializer):
     id = serializers.IntegerField(required=False)
     status_name = serializers.CharField(source='get_status_display', read_only=True)
-    number = serializers.CharField(read_only=True)
 
-    def validate_raw_input(self, value):
+    def validate_number(self, value):
         phone_number = value
 
         if phone_number:
-            # Strip plus sign, parentheses and whitespace
+            # Strip plus sign, parentheses and whitespace.
             phone_number = re.sub('[\+\(\)\s]', '', phone_number)
 
             if not phone_number.isdigit():
@@ -65,7 +64,7 @@ class OldPhoneNumberSerializer(RelatedFieldSerializer):
 
     class Meta:
         model = PhoneNumber
-        fields = ('id', 'status_name', 'number', 'raw_input', 'type', 'other_type', 'status',)
+        fields = ('id', 'status_name', 'number', 'type', 'other_type', 'status',)
 
 
 class PhoneNumberSerializer(serializers.ModelSerializer):
@@ -73,9 +72,8 @@ class PhoneNumberSerializer(serializers.ModelSerializer):
     Serializer used to serialize phone numbers.
     """
     status_name = serializers.CharField(source='get_status_display', read_only=True)
-    number = serializers.CharField(read_only=True)
 
-    def validate_raw_input(self, value):
+    def validate_number(self, value):
         phone_number = value
 
         if phone_number:
@@ -90,7 +88,7 @@ class PhoneNumberSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PhoneNumber
-        fields = ('id', 'status_name', 'number', 'raw_input', 'type', 'other_type', 'status',)
+        fields = ('id', 'status_name', 'number', 'type', 'other_type', 'status',)
 
 
 class RelatedPhoneNumberSerializer(RelatedSerializerMixin, PhoneNumberSerializer):

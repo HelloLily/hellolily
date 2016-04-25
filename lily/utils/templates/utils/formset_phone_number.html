@@ -13,10 +13,10 @@
                     {% endfor %}
                     <div class="form-group">
                         {% if forloop.first %}
-                            {% bootstrap_field form.raw_input layout="horizontal" form_group_class="form-group-inline" %}
+                            {% bootstrap_field form.number layout="horizontal" form_group_class="form-group-inline" %}
                             {% bootstrap_field form.type layout="horizontal" form_group_class="form-group-inline" field_class="col-md-3" label_class="hidden" %}
                         {% else %}
-                            {% bootstrap_field form.raw_input layout="horizontal" form_group_class="form-group-inline" field_class="col-md-4 col-md-offset-2" label_class="hidden" %}
+                            {% bootstrap_field form.number layout="horizontal" form_group_class="form-group-inline" field_class="col-md-4 col-md-offset-2" label_class="hidden" %}
                             {% bootstrap_field form.type layout="horizontal" form_group_class="form-group-inline" field_class="col-md-3" label_class="hidden" %}
                         {% endif %}
                         {% if formset.can_delete %}
@@ -36,7 +36,7 @@
         </div>
         <div class="form-group add-link">
             <label class="col-md-2 control-label{% if formset|length %} hide{% endif %}">
-                {{ formset.empty_form.raw_input.label }}
+                {{ formset.empty_form.number.label }}
             </label>
             <div class="col-md-10 {% if formset|length %} col-md-offset-2{% else %} form-control-static{% endif %}">
                 <a href="javascript:void(0)" data-formset-add>{% trans 'Add a phone number' %}</a>
@@ -46,7 +46,7 @@
         <script type="form-template" data-formset-empty-form>
             <div data-formset-form>
                 <div class="form-group">
-                    {% bootstrap_field formset.empty_form.raw_input layout="horizontal" form_group_class="form-group-inline" field_class="col-md-4 col-md-offset-2 field_wrapper" label_class="col-md-2 control-label hide" %}
+                    {% bootstrap_field formset.empty_form.number layout="horizontal" form_group_class="form-group-inline" field_class="col-md-4 col-md-offset-2 field_wrapper" label_class="col-md-2 control-label hide" %}
                     {% bootstrap_field formset.empty_form.type layout="horizontal" form_group_class="form-group-inline" field_class="col-md-3" label_class="hidden" %}
                     <div class="col-md-1">
                         <a href="javascript:void(0)" data-formset-undo-delete class="btn btn-sm default hidden" title="{% trans 'Undo the deletion of this row' %}">

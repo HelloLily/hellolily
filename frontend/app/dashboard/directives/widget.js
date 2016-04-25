@@ -1,7 +1,6 @@
 angular.module('app.dashboard.directives').directive('dashboardWidget', dashboardWidget);
 
-dashboardWidget.$inject = ['$timeout'];
-function dashboardWidget($timeout) {
+function dashboardWidget() {
     return {
         restrict: 'E',
         scope: {
@@ -26,7 +25,7 @@ function dashboardWidget($timeout) {
 DashboardWidgetController.$inject = ['LocalStorage', '$scope'];
 function DashboardWidgetController(LocalStorage, $scope) {
     var vm = this;
-    var storage = LocalStorage('widgetInfo');
+    var storage = new LocalStorage('widgetInfo');
     var widgetStatus = {
         hidden: 0,
         visible: 1,
@@ -93,7 +92,7 @@ function DashboardWidgetController(LocalStorage, $scope) {
             }
             vm.widgetInfo.status = widgetStatus.collapsed;
         } else {
-            if($scope.vm.showFade === false){
+            if ($scope.vm.showFade === false) {
                 $scope.vm.showFade = true;
             }
             vm.widgetInfo.status = widgetStatus.visible;

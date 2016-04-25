@@ -1,7 +1,7 @@
 angular.module('app.cases.services').factory('Case', Case);
 
-Case.$inject = ['$http', '$resource', '$q', 'AccountDetail', 'ContactDetail', 'HLUtils'];
-function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils) {
+Case.$inject = ['$resource', '$q', 'Account', 'Contact', 'HLUtils'];
+function Case($resource, $q, Account, Contact, HLUtils) {
     var _case = $resource(
         '/api/cases/case/:id/',
         {},
@@ -153,20 +153,26 @@ function Case($http, $resource, $q, AccountDetail, ContactDetail, HLUtils) {
         _case.query({
             filterquery: filterQuery,
             sort: HLUtils.getSorting(field, descending),
-        }, function(cases) {
-            angular.forEach(cases, function(callbackCase) {
+        }, function(results) {
+            angular.forEach(results.objects, function(callbackCase) {
                 if (callbackCase.account) {
-                    AccountDetail.get({id: callbackCase.account}, function(account) {
-                        callbackCase.accountPhone = account.phone;
+                    Account.get({id: callbackCase.account}, function(account) {
+                        if (account.phone_numbers.length) {
+                            callbackCase.accountPhone = account.phone_numbers[0].number;
+                        }
                     });
                 }
+
                 if (callbackCase.contact) {
-                    ContactDetail.get({id: callbackCase.contact}, function(contact) {
-                        callbackCase.contactPhone = contact.phone;
+                    Contact.get({id: callbackCase.contact}, function(contact) {
+                        if (contact.phone_numbers.length) {
+                            callbackCase.contactPhone = contact.phone_numbers[0].number;
+                        }
                     });
                 }
             });
-            deferred.resolve(cases);
+
+            deferred.resolve(results);
         });
 
         return deferred.promise;

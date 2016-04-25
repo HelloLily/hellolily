@@ -84,8 +84,8 @@ function EmailBaseController(Settings) {
 }
 
 angular.module('app.email').controller('EmailShowAccountController', EmailShowAccountController);
-EmailShowAccountController.$inject = ['$scope', 'Account', 'ContactDetail', 'Settings'];
-function EmailShowAccountController($scope, Account, ContactDetail, Settings) {
+EmailShowAccountController.$inject = ['$scope', 'Account', 'Contact', 'Settings'];
+function EmailShowAccountController($scope, Account, Contact, Settings) {
     $scope.$watch('settings.email.sidebar.account', function(newValue, oldValue) {
         if (oldValue === 'showAccount' && newValue === 'checkAccount' && Settings.email.data.account.id) {
             activate();
@@ -97,17 +97,17 @@ function EmailShowAccountController($scope, Account, ContactDetail, Settings) {
     function activate() {
         Account.get({id: Settings.email.data.account.id}).$promise.then(function(account) {
             $scope.account = account;
-            $scope.contactList = ContactDetail.query({filterquery: 'accounts.id:' + Settings.email.data.account.id});
+            $scope.contactList = Contact.search({filterquery: 'accounts.id:' + Settings.email.data.account.id});
             $scope.contactList.$promise.then(function(contactList) {
-                $scope.contactList = contactList;
+                $scope.contactList = contactList.objects;
             });
         });
     }
 }
 
 angular.module('app.email').controller('EmailShowContactController', EmailShowContactController);
-EmailShowContactController.$inject = ['$scope', 'ContactDetail', 'Settings'];
-function EmailShowContactController($scope, ContactDetail, Settings) {
+EmailShowContactController.$inject = ['$scope', 'Contact', 'Settings'];
+function EmailShowContactController($scope, Contact, Settings) {
     $scope.$watch('settings.email.sidebar.contact', function(newValue, oldValue) {
         if (oldValue === 'showContact' && newValue === 'checkContact' && Settings.email.data.contact.id) {
             activate();
@@ -117,15 +117,15 @@ function EmailShowContactController($scope, ContactDetail, Settings) {
     activate();
 
     function activate() {
-        ContactDetail.get({id: Settings.email.data.contact.id}).$promise.then(function(contact) {
+        Contact.get({id: Settings.email.data.contact.id}).$promise.then(function(contact) {
             $scope.contact = contact;
             $scope.height = 300;
 
             if ($scope.contact.accounts) {
                 $scope.contact.accounts.forEach(function(account) {
-                    var colleagueList = ContactDetail.query({filterquery: 'NOT(id:' + $scope.contact.id + ') AND accounts.id:' + account.id});
+                    var colleagueList = Contact.search({filterquery: 'NOT(id:' + $scope.contact.id + ') AND accounts.id:' + account.id});
                     colleagueList.$promise.then(function(colleagues) {
-                        account.colleagueList = colleagues;
+                        account.colleagueList = colleagues.objects;
                     });
                 });
 

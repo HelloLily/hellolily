@@ -9,6 +9,7 @@ class TenantAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'name',
+        'country',
     )
     search_fields = (
         'name',

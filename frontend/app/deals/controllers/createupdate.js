@@ -61,9 +61,9 @@ function dealConfig($stateProvider) {
 
 angular.module('app.deals').controller('DealCreateUpdateController', DealCreateUpdateController);
 
-DealCreateUpdateController.$inject = ['$filter', '$scope', '$state', '$stateParams', 'Account', 'Contact', 'ContactDetail',
-    'Deal', 'HLForms', 'HLSearch', 'HLUtils', 'Settings', 'User'];
-function DealCreateUpdateController($filter, $scope, $state, $stateParams, Account, Contact, ContactDetail, Deal, HLForms,
+DealCreateUpdateController.$inject = ['$filter', '$scope', '$state', '$stateParams', 'Account', 'Contact', 'Deal',
+    'HLForms', 'HLSearch', 'HLUtils', 'Settings', 'User'];
+function DealCreateUpdateController($filter, $scope, $state, $stateParams, Account, Contact, Deal, HLForms,
                                     HLSearch, HLUtils, Settings, User) {
     var vm = this;
 
@@ -153,6 +153,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
 
     function _getDeal() {
         var filterquery = '';
+        var i;
 
         // Fetch the contact or create empty contact.
         if ($stateParams.id) {
@@ -198,15 +199,11 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
                     if (Settings.email.data && Settings.email.data.account) {
                         filterquery = 'accounts.id:' + Settings.email.data.account.id;
 
-                        ContactDetail.query({filterquery: filterquery}).$promise.then(function(colleagues) {
-                            var colleagueIds = [];
-                            angular.forEach(colleagues, function(colleague) {
-                                colleagueIds.push(colleague.id);
-                            });
-
-                            // Check if the contact actually works at the account.
-                            if (colleagueIds.indexOf(Settings.email.data.contact.id) > -1) {
-                                vm.deal.contact = Settings.email.data.contact.id;
+                        Contact.search({filterquery: filterquery}).$promise.then(function(colleagues) {
+                            for (i = 0; i < colleagues.objects.length; i++) {
+                                if (colleagues.objects[i].id === Settings.email.data.contact.id) {
+                                    vm.case.contact = Settings.email.data.contact.id;
+                                }
                             }
                         });
                     } else {
@@ -270,7 +267,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
         }
 
         if (!_dealFormIsValid()) {
-            return false;
+            return;
         }
 
         HLForms.blockUI();

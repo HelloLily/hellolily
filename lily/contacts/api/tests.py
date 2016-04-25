@@ -1,6 +1,6 @@
 from rest_framework import status
 
-from lily.accounts.factories import AccountFactory
+from lily.accounts.factories import AccountFactory, AccountStatusFactory
 from lily.accounts.models import Account
 from lily.contacts.api.serializers import ContactSerializer
 from lily.contacts.factories import ContactFactory, FunctionFactory
@@ -67,6 +67,7 @@ class ContactTests(GenericAPITestCase):
                 obj['addresses'] = [AddressFactory.stub().__dict__, ]
                 obj['email_addresses'] = [EmailAddressFactory.stub().__dict__, ]
                 obj['accounts'] = [AccountFactory.stub().__dict__, ]
+                obj['accounts'][0]['status'] = {'id': AccountStatusFactory.create(tenant=self.user_obj.tenant).id}
                 obj['tags'] = [TagFactory.stub().__dict__, ]
 
                 del obj['accounts'][0]['tenant']

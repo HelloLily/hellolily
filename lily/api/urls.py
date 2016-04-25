@@ -2,7 +2,8 @@ from django.conf.urls import url, include, patterns
 from rest_framework.routers import DefaultRouter
 
 from lily.accounts.api.views import (AccountViewSet, AccountAddressViewSet, AccountEmailAddressViewSet,
-                                     AccountPhoneNumberViewSet, AccountTagViewSet, WebsiteViewSet)
+                                     AccountPhoneNumberViewSet, AccountTagViewSet, WebsiteViewSet,
+                                     AccountStatusViewSet)
 from lily.cases.api.views import CaseViewSet, CaseStatusList, CaseTypeList
 from lily.contacts.api.views import ContactViewSet
 from lily.deals.api.views import (DealViewSet, DealStatusViewSet, DealNextStepList, DealNextStepViewSet,
@@ -33,6 +34,8 @@ accounts_router.register(r'tags', AccountTagViewSet)
 
 # Define routes, using the default router so the API is browsable.
 router = DefaultRouter()
+
+router.register(r'accounts/statuses', AccountStatusViewSet)
 
 router.register(r'tenants/tenant', TenantViewSet)
 router.register(r'cases/case', CaseViewSet)

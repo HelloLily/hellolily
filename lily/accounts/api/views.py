@@ -1,11 +1,13 @@
 from rest_framework import viewsets
+from rest_framework.viewsets import ModelViewSet
 
 from lily.api.filters import ElasticSearchFilter
 from lily.api.mixins import MultiSerializerViewSetMixin
 from lily.utils.api.views import (AddressViewSet, EmailAddressViewSet, PhoneNumberViewSet, RelatedModelViewSet,
                                   TagViewSet)
-from .serializers import AccountSerializer, AccountCreateSerializer, WebsiteSerializer
-from ..models import Account, Website
+from lily.tenant.api.mixins import SetTenantUserMixin
+from .serializers import AccountSerializer, AccountCreateSerializer, WebsiteSerializer, AccountStatusSerializer
+from ..models import Account, Website, AccountStatus
 
 
 class AccountViewSet(MultiSerializerViewSetMixin, viewsets.ModelViewSet):
@@ -60,3 +62,16 @@ class AccountEmailAddressViewSet(EmailAddressViewSet):
 
 class AccountTagViewSet(TagViewSet):
     related_model = Account
+
+
+class AccountStatusViewSet(SetTenantUserMixin, ModelViewSet):
+    # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
+    queryset = AccountStatus.objects
+    # Set the serializer class for this viewset.
+    serializer_class = AccountStatusSerializer
+
+    def get_queryset(self):
+        """
+        Set the queryset here so it filters on tenant and works with pagination.
+        """
+        return super(AccountStatusViewSet, self).get_queryset().all()

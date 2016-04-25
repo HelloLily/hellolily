@@ -12,6 +12,7 @@ from rest_framework.reverse import reverse
 from rest_framework.test import APIClient, APITestCase
 from rest_framework.utils import model_meta
 
+from lily.tenant.factories import TenantFactory
 from lily.tenant.middleware import set_current_user
 from lily.tenant.models import Tenant
 from lily.users.models import LilyUser
@@ -31,29 +32,32 @@ class UserBasedTest(object):
         password = 'password'
         set_current_user(None)
 
-        # Set the anonymous user on the class
+        # Set the anonymous user on the class.
         cls.anonymous_user_obj = AnonymousUser()
         cls.anonymous_user = APIClient()
 
-        # Set the authenticated user on the class
-        cls.user_obj = LilyUser.objects.create_user(email='user1@lily.com', password=password, tenant_id=1)
+        tenant_1 = TenantFactory.create()
+        tenant_2 = TenantFactory.create()
+
+        # Set the authenticated user on the class.
+        cls.user_obj = LilyUser.objects.create_user(email='user1@lily.com', password=password, tenant_id=tenant_1.id)
         cls.user = APIClient()
         cls.user.login(email=cls.user_obj.email, password=password)
 
-        # Set the superuser on the class
+        # Set the superuser on the class.
         cls.superuser_obj = LilyUser.objects.create_superuser(
             email='superuser1@lily.com',
             password=password,
-            tenant_id=1
+            tenant_id=tenant_1.id
         )
         cls.superuser = APIClient()
         cls.superuser.login(email=cls.superuser_obj.email, password=password)
 
-        # Set the authenticated user from another tenant on the class
+        # Set the authenticated user from another tenant on the class.
         cls.other_tenant_user_obj = LilyUser.objects.create_user(
             email='user2@lily.com',
             password=password,
-            tenant_id=2
+            tenant_id=tenant_2.id
         )
         cls.other_tenant_user = APIClient()
         cls.other_tenant_user.login(email=cls.other_tenant_user_obj.email, password=password)
@@ -61,7 +65,7 @@ class UserBasedTest(object):
     @classmethod
     def tearDownClass(cls):
         """
-        Remove the users after the tests
+        Remove the users after the tests.
         """
         set_current_user(None)
         LilyUser.objects.all().delete()
@@ -70,7 +74,7 @@ class UserBasedTest(object):
     def _create_object(self, with_relations=False, size=1, **kwargs):
         """
         Default implentation for the creation of objects, this doesn't do anything with relations other than
-        what the factory does by default.
+        what the factory does by default..
         """
         # Set a default tenant of the user.
         kwargs['tenant'] = self.user_obj.tenant if not kwargs.get('tenant') else kwargs['tenant']
@@ -153,7 +157,7 @@ class CompareObjectsMixin(object):
 
         for field in serializer_field_list:
             if field in model_field_list:
-                # Make sure the field is in the response
+                # Make sure the field is in the response.
                 self.assertIn(field, api_obj)
 
                 db_value = getattr(db_obj, field)
@@ -165,7 +169,7 @@ class CompareObjectsMixin(object):
                     # Relationships can't be checked generically
                     continue
 
-                # Make sure the field value matches that of the factory object
+                # Make sure the field value matches that of the factory object.
                 self.assertEqual(api_value, db_value)
 
 

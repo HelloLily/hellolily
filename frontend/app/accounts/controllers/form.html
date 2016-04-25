@@ -51,11 +51,12 @@
 
                 <form-group label-title="Status" label-id="id_status" field="accountForm.status">
                     <select name="status" ng-model="vm.account.status"
-                            ng-options="status.value as status.display_name for status in vm.statusChoices"
+                            ng-options="status.name for status in vm.statusChoices track by status.id"
                             class="form-control">
                         <option value="" hidden>---------</option>
                     </select>
                 </form-group>
+
             </form-portlet>
 
             <form-portlet portlet-title="Who is handling the account?">

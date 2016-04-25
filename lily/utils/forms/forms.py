@@ -4,7 +4,8 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 from form_utils.forms import BetterForm, BetterModelForm, FieldsetCollection
 
-from ..models.models import EmailAddress, PhoneNumber, Address, COUNTRIES, PHONE_TYPE_CHOICES
+from ..models.models import EmailAddress, PhoneNumber, Address, PHONE_TYPE_CHOICES
+from lily.utils.countries import COUNTRIES
 
 
 class HellolilyFieldsetCollection(FieldsetCollection):

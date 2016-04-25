@@ -61,9 +61,9 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseCreateUpdateController', CaseCreateUpdateController);
 
-CaseCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'Case', 'Contact', 'ContactDetail',
-    'HLForms', 'HLSearch', 'HLUtils', 'Settings', 'UserTeams', 'User'];
-function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case, Contact, ContactDetail, HLForms,
+CaseCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'Case', 'Contact', 'HLForms',
+    'HLSearch', 'HLUtils', 'Settings', 'UserTeams', 'User'];
+function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case, Contact, HLForms,
                                     HLSearch, HLUtils, Settings, UserTeams, User) {
     var vm = this;
 
@@ -119,6 +119,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
 
     function _getCase() {
         var filterquery = '';
+        var i;
 
         // Fetch the case or create an empty one.
         if ($stateParams.id) {
@@ -152,19 +153,16 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
 
             if (Settings.email.data && (Settings.email.data.account || Settings.email.data.contact)) {
                 // Auto fill data if it's available.
-                if (Settings.email.data.contact.id) {
+                if (Settings.email.data.contact && Settings.email.data.contact.id) {
                     if (Settings.email.data && Settings.email.data.account) {
+                        // Check if the contact actually works at the account.
                         filterquery = 'accounts.id:' + Settings.email.data.account.id;
 
-                        ContactDetail.query({filterquery: filterquery}).$promise.then(function(colleagues) {
-                            var colleagueIds = [];
-                            angular.forEach(colleagues, function(colleague) {
-                                colleagueIds.push(colleague.id);
-                            });
-
-                            // Check if the contact actually works at the account.
-                            if (colleagueIds.indexOf(Settings.email.data.contact.id) > -1) {
-                                vm.case.contact = Settings.email.data.contact.id;
+                        Contact.search({filterquery: filterquery}).$promise.then(function(colleagues) {
+                            for (i = 0; i < colleagues.objects.length; i++) {
+                                if (colleagues.objects[i].id === Settings.email.data.contact.id) {
+                                    vm.case.contact = Settings.email.data.contact.id;
+                                }
                             }
                         });
                     } else {
@@ -226,7 +224,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         }
 
         if (!_caseFormIsValid()) {
-            return false;
+            return;
         }
 
         HLForms.blockUI();

@@ -114,8 +114,10 @@ function emailConfig($stateProvider) {
 
 angular.module('app.email').controller('EmailComposeController', EmailComposeController);
 
-EmailComposeController.$inject = ['$scope', '$state', '$stateParams', '$templateCache', '$q', 'Settings', 'ContactDetail', 'EmailMessage', 'EmailTemplate', 'SelectedEmailAccount'];
-function EmailComposeController($scope, $state, $stateParams, $templateCache, $q, Settings, ContactDetail, EmailMessage, EmailTemplate, SelectedEmailAccount) {
+EmailComposeController.$inject = ['$scope', '$state', '$stateParams', '$templateCache', '$q', 'Settings', 'Contact',
+    'EmailMessage', 'EmailTemplate', 'SelectedEmailAccount'];
+function EmailComposeController($scope, $state, $stateParams, $templateCache, $q, Settings, Contact, EmailMessage,
+                                EmailTemplate, SelectedEmailAccount) {
     var vm = this;
 
     Settings.page.setTitle('custom', 'Compose email');
@@ -129,16 +131,16 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
     //////////
 
     function activate() {
-        // Remove cache so new compose will always hit the server
+        // Remove cache so new compose will always hit the server.
         $templateCache.remove('/messaging/email/compose/');
 
         if ($stateParams.messageType === 'reply') {
-            // If it's a reply, load the email message first
+            // If it's a reply, load the email message first.
             EmailMessage.get({id: $stateParams.id}).$promise.then(function(emailMessage) {
                 _initEmailCompose(emailMessage);
             });
         } else {
-            // Otherwise just initialize the email compose
+            // Otherwise just initialize the email compose.
             _initEmailCompose();
         }
     }
@@ -152,12 +154,16 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
         var template;
         var loadDefaultTemplate;
         var messageType;
+        var filterquery;
 
         if (emailMessage) {
-            contactPromise = ContactDetail.query({filterquery: 'email_addresses.email_address:' + emailMessage.sender.email_address}).$promise;
-            promises.push(contactPromise);
+            filterquery = 'email_addresses.email_address:' + emailMessage.sender.email_address;
         } else if (email) {
-            contactPromise = ContactDetail.query({filterquery: 'email_addresses.email_address:' + email}).$promise;
+            filterquery = 'email_addresses.email_address:' + email;
+        }
+
+        if (filterquery) {
+            contactPromise = Contact.search({filterquery: filterquery}).$promise;
             promises.push(contactPromise);
         }
 
@@ -165,26 +171,26 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
         promises.push(emailTemplatePromise);
 
         // TODO: LILY-XXX: Check if this can be cleaned up
-        // Once all promises are done, continue
+        // Continue once all promises are done.
         $q.all(promises).then(function(results) {
             var templates;
             var contact;
             var usedText;
             var displayedText;
 
-            // This part should only be executed if we've loaded a contact
+            // This part should only be executed if we've loaded a contact.
             if (contactPromise) {
-                contact = results[0][0];
-                templates = results[1];
+                contact = results[0].objects[0];
+                templates = results[1].results;
 
                 if (emailMessage && !email) {
                     email = emailMessage.sender.email_address;
                 }
 
                 if (contact) {
-                    // The text which is actually used in the application/select2
+                    // The text which is actually used in the application/select2.
                     usedText = '"' + contact.name + '" <' + email + '>';
-                    // The text shown in the recipient input
+                    // The text shown in the recipient input.
                     displayedText = contact.name + ' <' + email + '>';
 
                     recipient = {
@@ -204,10 +210,10 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
             }
 
             template = $stateParams.template;
-            // Determine whether the default template should be loaded or not
+            // Determine whether the default template should be loaded or not.
             loadDefaultTemplate = template === undefined;
 
-            // Set message type to given message type if available, otherwise set to message type 'new'
+            // Set message type to given message type if available, otherwise set to message type 'new'.
             messageType = $stateParams.messageType ? $stateParams.messageType : 'new';
 
             HLInbox.init();

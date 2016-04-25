@@ -1,7 +1,7 @@
 angular.module('app.deals.services').factory('Deal', Deal);
 
-Deal.$inject = ['$resource', 'HLUtils', 'HLForms', 'User'];
-function Deal($resource, HLUtils, HLForms, User) {
+Deal.$inject = ['$resource', 'HLUtils', 'HLForms'];
+function Deal($resource, HLUtils, HLForms) {
     var _deal = $resource(
         '/api/deals/deal/:id/',
         null,
@@ -28,15 +28,15 @@ function Deal($resource, HLUtils, HLForms, User) {
                     id: '@id',
                 },
                 transformRequest: function(data) {
-                    data = angular.copy(data);
-                    return angular.toJson(HLForms.clean(data));
+                    var jsonData = angular.copy(data);
+                    return angular.toJson(HLForms.clean(jsonData));
                 },
             },
             save: {
                 method: 'POST',
                 transformRequest: function(data) {
-                    data = angular.copy(data);
-                    return angular.toJson(HLForms.clean(data));
+                    var jsonData = angular.copy(data);
+                    return angular.toJson(HLForms.clean(jsonData));
                 },
             },
             patch: {
@@ -45,8 +45,8 @@ function Deal($resource, HLUtils, HLForms, User) {
                     id: '@id',
                 },
                 transformRequest: function(data) {
-                    data = angular.copy(data);
-                    return angular.toJson(HLForms.clean(data));
+                    var jsonData = angular.copy(data);
+                    return angular.toJson(HLForms.clean(jsonData));
                 },
             },
             query: {
@@ -155,11 +155,6 @@ function Deal($resource, HLUtils, HLForms, User) {
      *      }
      */
     function getDeals(queryString, page, pageSize, orderColumn, orderedDesc, filterQuery) {
-        // Temporary fix to ensure the app doesn't break because of a non-existent column.
-        if (orderColumn === 'closing_date') {
-            orderColumn = 'next_step_date';
-        }
-
         var sort = HLUtils.getSorting(orderColumn, orderedDesc);
 
         return _deal.query({

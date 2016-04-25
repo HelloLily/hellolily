@@ -20,14 +20,17 @@ class Migration(migrations.Migration):
                 ('position', models.IntegerField(default=0, max_length=2)),
                 ('tenant', models.ForeignKey(to='tenant.Tenant', blank=True)),
             ],
-            options={
-                'ordering': ['position'],
-            },
+            options={'ordering': ['position'], 'verbose_name_plural': 'account statuses'},
             bases=(models.Model,),
+        ),
+        migrations.RenameField(
+            model_name='account',
+            old_name='status',
+            new_name='status_old',
         ),
         migrations.AddField(
             model_name='account',
-            name='status_id',
+            name='status',
             # default=3 Corresponds with the new status Relation, which was the old default value 'inactive'.
             # This value is overwritten by the follow-up migration, but IntegerField expect a default value.
             field=models.IntegerField(verbose_name='status', default=3, max_length=1),

@@ -20,25 +20,25 @@ def fix_empty_status(apps, schema_editor):
     DealStatus = apps.get_model('deals', 'DealStatus')
     Account = apps.get_model('accounts', 'Account')
 
-    accounts = Account.objects.filter(status='')
+    accounts = Account.objects.filter(status_old='')
 
     for account in accounts:
         account.update_modified = False
 
         if account.customer_id != '':
-            account.status = 'active'
+            account.status_old = 'active'
         else:
             deals = Deal.objects.filter(account=account)
             deal_status_won = DealStatus.objects.get(name='Won', tenant=account.tenant)
             deals_won = Deal.objects.filter(account=account, status=deal_status_won)
             if not deals:
-                account.status = 'inactive'  # Is mapped to Relation after link_status_entries.
+                account.status_old = 'inactive'  # Is mapped to Relation after link_status_entries.
             else:
                 if deals_won:
-                    account.status = 'active'
+                    account.status_old = 'active'
                 else:
                     # Account has deals, but no deals won.
-                    account.status = 'pending'  # Is mapped to Prospect after link_status_entries.
+                    account.status_old = 'pending'  # Is mapped to Prospect after link_status_entries.
 
         account.save()
 
@@ -62,8 +62,8 @@ def link_status_entries(apps, schema_editor):
 
     for account in accounts:
         account.update_modified = False
-        status_object = AccountStatus.objects.get(name=status_mapping[account.status], tenant=account.tenant)
-        account.status_id = status_object.id
+        status_object = AccountStatus.objects.get(name=status_mapping[account.status_old], tenant=account.tenant)
+        account.status = status_object.id
         account.save()
 
 

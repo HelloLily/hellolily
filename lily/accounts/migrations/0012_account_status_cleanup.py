@@ -13,14 +13,12 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RemoveField(
             model_name='account',
-            name='status',
+            name='status_old',
         ),
         migrations.AlterField(
             model_name='account',
-            name='status_id',
-            # Set db_column, so Django doens't add _id when changing the column to a foreign key.
-            field=models.ForeignKey(related_name='accounts', verbose_name='status', to='accounts.AccountStatus',
-                                    db_column='status_id'),
+            name='status',
+            field=models.ForeignKey(related_name='accounts', verbose_name='status', to='accounts.AccountStatus'),
             preserve_default=True,
         )
     ]

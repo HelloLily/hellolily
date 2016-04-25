@@ -7,7 +7,7 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0009_auto_20160411_1704'),
+        ('accounts', '0012_account_status_cleanup'),
     ]
 
     operations = [

@@ -91,26 +91,6 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
         return self._primary_email
 
     @property
-    def any_email_address(self):
-        """
-        Will return any email address set to this contact if one exists.
-
-        Check if there is a primary email address, if none are found,
-        grab the first of the email address set.
-
-        Returns:
-            EmailAddress or empty string.
-        """
-        if not hasattr(self, '_any_email_address'):
-            self._any_email_address = self.primary_email
-            if self._any_email_address is None:
-                try:
-                    self._any_email_address = self.email_addresses.all()[0]
-                except IndexError:
-                    self._any_email_address = ''
-        return self._any_email_address
-
-    @property
     def account_city(self):
         city = ''
         account = self.accounts.first()
@@ -155,36 +135,6 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
         except:
             return None
 
-    def get_address(self, type=None):
-        try:
-            if not type:
-                return self.addresses.all()[0]
-            else:
-                return self.addresses.filter(type=type)[0]
-        except:
-            return None
-
-    def get_addresses(self, type=None):
-        try:
-            if not type:
-                return self.addresses.all()
-            else:
-                return self.addresses.filter(type=type)
-        except:
-            return None
-
-    def get_billing_addresses(self):
-        return self.get_addresses(type='billing')
-
-    def get_shipping_addresses(self):
-        return self.get_addresses(type='shipping')
-
-    def get_home_addresses(self):
-        return self.get_addresses(type='home')
-
-    def get_other_addresses(self):
-        return self.get_addresses(type='other')
-
     def full_name(self):
         """
         Return full name of this contact without unnecessary white space.
@@ -193,14 +143,6 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
             return ' '.join([self.first_name, self.preposition, self.last_name]).strip()
 
         return ' '.join([self.first_name, self.last_name]).strip()
-
-    def get_primary_function(self):
-        if not hasattr(self, '_primary_function'):
-            try:
-                self._primary_function = self.functions.all().order_by('-created')[0]
-            except IndexError:
-                self._primary_function = self.functions.none()
-        return self._primary_function
 
     def __unicode__(self):
         return self.full_name()

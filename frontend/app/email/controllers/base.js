@@ -72,7 +72,6 @@ EmailBaseController.$inject = ['Settings'];
 function EmailBaseController(Settings) {
     Settings.page.setTitle('custom', 'Email');
     Settings.page.header.setMain('custom', 'Email');
-    Settings.page.header.setSub('email');
 
     activate();
 

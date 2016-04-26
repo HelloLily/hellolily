@@ -185,9 +185,7 @@ class AccountTests(APITestCase):
                 'website': 'www.domain.com'
             }],
             'addresses': [{
-                'street': 'Street',
-                'street_number': '123',  # Post string on purpose to make sure it gets saved as an integer
-                'complement': 'a',
+                'address': 'Street 123a',
                 'postal_code': '1234AB',
                 'city': 'Somewhere',
                 'country': 'NL',
@@ -220,9 +218,7 @@ class AccountTests(APITestCase):
             }],
             'addresses': [
                 {
-                    'street': 'Street',
-                    'street_number': 123,
-                    'complement': 'a',
+                    'address': 'Street 123a',
                     'postal_code': '1234AB',
                     'city': 'Somewhere',
                     'country': 'NL',
@@ -466,9 +462,7 @@ class AccountTests(APITestCase):
             'name': 'Test account',
             'addresses': [
                 {
-                    'street': 'Street',
-                    'street_number': '123',  # Post string on purpose to make sure it gets saved as an integer
-                    'complement': 'a',
+                    'address': 'Street 123a',
                     'postal_code': '1234AB',
                     'city': 'Somewhere',
                     'country': 'NL',
@@ -484,9 +478,7 @@ class AccountTests(APITestCase):
         compare_data.update({
             'addresses': [
                 {
-                    'street': 'Street',
-                    'street_number': 123,
-                    'complement': 'a',
+                    'address': 'Street 123a',
                     'postal_code': '1234AB',
                     'city': 'Somewhere',
                     'country': 'NL',
@@ -515,8 +507,7 @@ class AccountTests(APITestCase):
             'name': 'Test account',
             'addresses': [
                 {
-                    'street': 'Partial Street',
-                    'street_number': '123',  # Post string on purpose to make sure it gets saved as an integer
+                    'address': 'Street 123',
                     'type': 'visiting'
                 }
             ],
@@ -528,9 +519,7 @@ class AccountTests(APITestCase):
         compare_data.update({
             'addresses': [
                 {
-                    'street': 'Partial Street',
-                    'street_number': 123,
-                    'complement': None,
+                    'address': 'Street 123',
                     'postal_code': '',
                     'city': '',
                     'country': '',
@@ -559,9 +548,7 @@ class AccountTests(APITestCase):
             'name': 'Test account',
             'addresses': [
                 {
-                    'street': 'Street',
-                    'street_number': '123',  # Post string on purpose to make sure it gets saved as an integer
-                    'complement': 'a',
+                    'address': 'Street 123a',
                     'country': 'DE',
                     'type': 'visiting',
                 }
@@ -574,9 +561,7 @@ class AccountTests(APITestCase):
         compare_data.update({
             'addresses': [
                 {
-                    'street': 'Street',
-                    'street_number': 123,
-                    'complement': 'a',
+                    'address': 'Street 123a',
                     'postal_code': '',
                     'city': '',
                     'country': 'DE',

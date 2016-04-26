@@ -90,9 +90,7 @@ class AccountMapping(BaseMapping):
                 'type': 'object',
                 'index': 'no',
                 'properties': {
-                    'address_street': {'type': 'string'},
-                    'address_street_number': {'type': 'integer'},
-                    'address_complement': {'type': 'string'},
+                    'address_address': {'type': 'string'},
                     'address_postal_code': {'type': 'string'},
                     'address_city': {'type': 'string'},
                     'address_country': {'type': 'string'},
@@ -166,9 +164,7 @@ class AccountMapping(BaseMapping):
             'domain': [website.full_domain for website in obj.websites.all()],
             'second_level_domain': [website.second_level for website in obj.websites.all()],
             'address': [{
-                'address_street': address.street,
-                'address_street_number': address.street_number,
-                'address_complement': address.complement,
+                'address_address': address.address,
                 'address_postal_code': address.postal_code,
                 'address_city': address.city,
                 'address_country': address.get_country_display() if address.country else None,

@@ -169,9 +169,7 @@ class ContactMapping(BaseMapping):
             'address': [address.full() for address in obj.addresses.all()],
             'content_type': obj.content_type.id,
             'addresses': [{
-                'street': address.street,
-                'street_number': address.street_number,
-                'complement': address.complement,
+                'address_address': address.address,
                 'postal_code': address.postal_code,
                 'city': address.city,
                 'state_province': address.state_province,

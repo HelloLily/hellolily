@@ -7,50 +7,20 @@
                         <td class="hl-form-table-column entity-icon-container" ng-if="vm.showIcon" ng-transclude uib-tooltip="{{ $root.messages.contact.contactInfoTooltip }}"></td>
                         <td>
                             <div class="row">
-                                <div class="col-md-4">
-                                    <div style="float:left; width: 100%;" ng-class="{'has-error': form['addresses-street-' + $index].$invalid }">
+                                <div class="col-md-6">
+                                    <div style="float:left; width: 100%;" ng-class="{'has-error': form['addresses-address-' + $index].$invalid }">
                                         <input class="form-control hl-form-input"
-                                               id="id_addresses-street-{{ $index }}"
+                                               id="id_addresses-address-{{ $index }}"
                                                maxlength="255"
-                                               name="addresses-street-{{ $index }}"
+                                               name="addresses-address-{{ $index }}"
                                                placeholder="Address"
                                                type="text"
-                                               ng-model="address.street"
+                                               ng-model="address.address"
                                                ng-readonly="address.is_deleted">
-                                        <field-error form="form" field="addresses-street" index="$index"></field-error>
+                                        <field-error form="form" field="addresses-address" index="$index"></field-error>
                                     </div>
                                 </div>
-
-                                <div class="col-md-4">
-                                    <div style="float: left; width: 100%;" ng-class="{ 'has-error': form['addresses-street_number-{{ $index }}'].$invalid }">
-                                        <label class="hidden control-label" for="id_addresses-street_number-{{ $index }}">Street number</label>
-
-                                        <input class="form-control hl-form-input"
-                                               id="id_addresses-street_number-{{ $index }}"
-                                               maxlength="255"
-                                               name="addresses-street_number-{{ $index }}"
-                                               placeholder="Street Number"
-                                               type="text"
-                                               ng-model="address.street_number"
-                                               ng-readonly="address.is_deleted">
-                                        <field-error form="form" field="addresses-street_number" index="$index"></field-error>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-4">
-                                    <label class="hidden control-label" for="id_addresses-complement-{{ $index }}">Complement</label>
-                                    <input class="form-control hl-form-input"
-                                           id="id_addresses-complement-{{ $index }}"
-                                           maxlength="255"
-                                           name="addresses-complement-{{ $index }}"
-                                           placeholder="Complement"
-                                           type="text"
-                                           ng-model="address.complement"
-                                           ng-readonly="address.is_deleted">
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <label class="hidden control-label" for="id_addresses-postal_code-{{ $index }}">Postal code</label>
                                     <input class="form-control hl-form-input"
                                            id="id_addresses-postal_code-{{ $index }}"
@@ -61,8 +31,9 @@
                                            ng-model="address.postal_code"
                                            ng-readonly="address.is_deleted">
                                 </div>
-
-                                <div class="col-md-4">
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
                                     <label class="hidden control-label" for="id_addresses-city-{{ $index }}">City</label>
                                         <input class="form-control hl-form-input"
                                                id="id_addresses-city-{{ $index }}"
@@ -73,15 +44,11 @@
                                                ng-model="address.city"
                                                ng-readonly="address.is_deleted">
                                 </div>
-
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label class="hidden control-label" for="id_addresses-country-{{ $index }}">Country</label>
                                     <country-selector class="hl-form-input" address="address"></country-selector>
                                 </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <select class="form-control hl-form-input"
                                             id="id_addresses-type-{{ $index }}"
                                             name="addresses-type-{{ $index }}"
@@ -90,8 +57,7 @@
                                             ng-readonly="address.is_deleted">
                                     </select>
                                 </div>
-
-                                <div class="col-md-8">
+                                <div class="col-md-3">
                                     <a ng-click="vm.removeRelatedField({field: 'address', index: $index, remove: false})" class="btn btn-sm default" title="Undo the deletion of this row" ng-show="address.is_deleted">
                                         <i class="fa fa-undo"></i>
                                     </a>
@@ -99,6 +65,7 @@
                                         <i class="lilicon hl-trashcan-icon"></i>
                                     </a>
                                 </div>
+                            </div>
                         </td>
                     </tr>
                 </table>

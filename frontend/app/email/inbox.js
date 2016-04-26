@@ -233,7 +233,7 @@
             var url;
             var recipient;
 
-            if (self.config.templateList.length) {
+            if (self.config.templateList) {
                 selectedTemplate = parseInt($(templateField).val());
                 emailAccountId = $(self.config.emailAccountInput).val();
 

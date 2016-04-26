@@ -41,11 +41,11 @@ function UsersFilterController(LocalStorage, UserTeams) {
             teams = [];
 
             angular.forEach(response.results, function(team) {
-                if (team && team.user_set.length) {
+                if (team && team.users.length) {
                     users = [];
                     ownTeam = false;
 
-                    angular.forEach(team.user_set, function(user) {
+                    angular.forEach(team.users, function(user) {
                         // Create a user object.
                         userObj = {
                             id: user.id,

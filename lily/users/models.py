@@ -63,6 +63,9 @@ class LilyGroup(TenantMixin):
     def __unicode__(self):
         return self.name
 
+    def active_users(self):
+        return self.user_set.filter(is_active=True)
+
     class Meta:
         unique_together = ('tenant', 'name')
 

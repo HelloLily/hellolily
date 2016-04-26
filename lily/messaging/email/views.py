@@ -4,9 +4,11 @@ import HTMLParser
 import logging
 import mimetypes
 import re
+import urllib
 
 from braces.views import StaticContextMixin
 from bs4 import BeautifulSoup
+from base64 import b64encode, b64decode
 from celery.states import FAILURE
 from django.conf import settings
 from django.contrib import messages
@@ -56,19 +58,36 @@ FLOW = OAuth2WebServerFlow(
 
 class SetupEmailAuth(LoginRequiredMixin, View):
     def get(self, request):
-        FLOW.params['state'] = generate_token(settings.SECRET_KEY, request.user.pk)
-        authorize_url = FLOW.step1_get_authorize_url()
+        public = request.GET.get('public', 0)
+
+        state = b64encode(anyjson.serialize({
+            'token': generate_token(settings.SECRET_KEY, request.user.pk),
+            'public': public,
+        }))
+
+        authorize_url = FLOW.step1_get_authorize_url(state=state)
 
         return HttpResponseRedirect(authorize_url)
 
 
 class OAuth2Callback(LoginRequiredMixin, View):
     def get(self, request):
-        if not validate_token(settings.SECRET_KEY, str(request.GET.get('state')), request.user.pk):
+        # Get the state param from the request.
+        state = str(request.GET.get('state'))
+        # Replace %xx characters with single quotes and UTF8 decode the string.
+        state = urllib.unquote(state).decode('utf8')
+        # Deserialize the JSON string.
+        state = anyjson.deserialize(b64decode(state))
+
+        if not validate_token(settings.SECRET_KEY, state.get('token'), request.user.pk):
             return HttpResponseBadRequest()
         credentials = FLOW.step2_exchange(code=request.GET.get('code'))
 
         account = create_account(credentials, request.user)
+        set_to_public = bool(int(state.get('public')))
+        if account.public is not set_to_public:
+            account.public = set_to_public
+            account.save()
 
         return HttpResponseRedirect('/#/preferences/emailaccounts/edit/%s' % account.pk)
 

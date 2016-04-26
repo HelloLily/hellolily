@@ -1,25 +1,20 @@
 from lily.utils.functions import clean_website
 from rest_framework import serializers
-from django.contrib.contenttypes.models import ContentType
 
 from lily.api.serializers import ContentTypeSerializer
 from lily.contacts.models import Contact
-from lily.socialmedia.api.serializers import SocialMediaSerializer
-from lily.users.api.serializers import LilyUserSerializer
+from lily.socialmedia.api.serializers import RelatedSocialMediaSerializer
+from lily.users.api.serializers import RelatedLilyUserSerializer
 from lily.utils.api.related.mixins import RelatedSerializerMixin
-from lily.utils.api.utils import update_related_fields, create_related_fields
-from lily.utils.api.serializers import (AddressSerializer, EmailAddressSerializer, PhoneNumberSerializer,
-                                        RelatedModelSerializer, RelatedFieldSerializer, TagSerializer,
-                                        OldEmailAddressSerializer, OldPhoneNumberSerializer, OldTagSerializer,
-                                        OldAddressSerializer)
-from lily.tags.models import Tag
+from lily.utils.api.related.serializers import WritableNestedSerializer
+from lily.utils.api.serializers import (RelatedAddressSerializer, RelatedEmailAddressSerializer,
+                                        RelatedPhoneNumberSerializer, RelatedModelSerializer, RelatedTagSerializer)
 
 from ..models import Account, Website, AccountStatus
 from .validators import DuplicateAccountName, HostnameValidator
 
 
-class WebsiteSerializer(RelatedFieldSerializer):
-    id = serializers.IntegerField(required=False)
+class WebsiteSerializer(serializers.ModelSerializer):
     website = serializers.CharField(required=True, max_length=255, validators=[HostnameValidator()])
 
     def validate_website(self, value):
@@ -32,6 +27,10 @@ class WebsiteSerializer(RelatedFieldSerializer):
             'is_primary',
             'website',
         )
+
+
+class RelatedWebsiteSerializer(RelatedSerializerMixin, WebsiteSerializer):
+    pass
 
 
 class ContactForAccountSerializer(RelatedModelSerializer):
@@ -70,171 +69,99 @@ class RelatedAccountStatusSerializer(RelatedSerializerMixin, AccountStatusSerial
     pass
 
 
-class AccountSerializer(serializers.ModelSerializer):
+class AccountSerializer(WritableNestedSerializer):
     """
     Serializer for the account model.
     """
+    content_type = ContentTypeSerializer(read_only=True)
     flatname = serializers.CharField(read_only=True)
     name = serializers.CharField(validators=[DuplicateAccountName()])
 
     # Related fields
-    addresses = AddressSerializer(many=True)
-    assigned_to = LilyUserSerializer()
+    addresses = RelatedAddressSerializer(many=True, required=False, create_only=True)
+    assigned_to = RelatedLilyUserSerializer(required=False, assign_only=True)
     contacts = ContactForAccountSerializer(many=True, read_only=True)
-    phone_numbers = PhoneNumberSerializer(many=True)
-    social_media = SocialMediaSerializer(many=True)
-    email_addresses = EmailAddressSerializer(many=True)
-    websites = WebsiteSerializer(many=True)
-    tags = TagSerializer(many=True)
-    content_type = ContentTypeSerializer()
+    email_addresses = RelatedEmailAddressSerializer(many=True, required=False, create_only=True)
+    phone_numbers = RelatedPhoneNumberSerializer(many=True, required=False, create_only=True)
+    social_media = RelatedSocialMediaSerializer(many=True, required=False, create_only=True)
     status = RelatedAccountStatusSerializer(assign_only=True)
+    tags = RelatedTagSerializer(many=True, required=False, create_only=True)
+    websites = RelatedWebsiteSerializer(many=True, required=False, create_only=True)
+
+    def create(self, validated_data):
+        """
+        Reverse foreign key relations don't work yet with
+        WritableNestedSerializer, so we manually create them.
+
+        Args:
+            validated_data (dict): The validated deserialized data.
+        """
+        websites = validated_data.pop('websites', {})
+        account = super(AccountSerializer, self).create(validated_data)
+
+        for website in websites:
+            website['account'] = account
+            Website.objects.create(**website)
+
+        return account
+
+    def update(self, instance, validated_data):
+        """
+        Reverse foreign key relations don't work yet with
+        WritableNestedSerializer, so we manually update them.
+
+        Args:
+            validated_data (dict): The validated deserialized data.
+        """
+        websites_data = validated_data.pop('websites', {})
+        account = super(AccountSerializer, self).update(instance, validated_data)
+        if self.partial:
+            # For a PATCH we only apply a delta to existing resources.
+            for website in websites_data:
+                if 'id' in website:
+                    Website.objects.filter(pk=website.pop('id')).update(**website)
+                else:
+                    website['account'] = account
+                    Website.objects.create(**website)
+        else:
+            # For a PUT we replace the whole resource.
+            account.websites.all().delete()
+            for website in websites_data:
+                website['account'] = account
+                Website.objects.create(**website)
+
+        return account
 
     class Meta:
         model = Account
         fields = (
-            'id',
             'addresses',
             'assigned_to',
             'bankaccountnumber',
             'bic',
             'cocnumber',
-            'company_size',
             'contacts',
             'content_type',
-            'created',
             'customer_id',
             'description',
             'email_addresses',
             'flatname',
             'iban',
             'legalentity',
-            'logo',
+            # 'logo',
+            'id',
             'modified',
             'name',
             'phone_numbers',
-            'status',
             'social_media',
+            'status',
             'tags',
             'taxnumber',
             'websites',
         )
 
 
-class AccountCreateSerializer(serializers.ModelSerializer):
-    """
-    Serializer for the creating and updating an account.
-    """
-    addresses = OldAddressSerializer(many=True, required=False)
-    # assigned_to = LilyPrimaryKeyRelatedField(queryset=LilyUser.objects, required=False)
-    email_addresses = OldEmailAddressSerializer(many=True, required=False)
-    name = serializers.CharField(validators=[DuplicateAccountName()])
-    phone_numbers = OldPhoneNumberSerializer(many=True, required=False)
-    tags = OldTagSerializer(many=True, required=False)
-    websites = WebsiteSerializer(many=True, required=False)
-    social_media = SocialMediaSerializer(many=True, required=False)
-    status = RelatedAccountStatusSerializer(assign_only=True)
-
-    # Dict used when creating/updating the related fields of the account
-    related_fields = [
-        {'data_string': 'websites', 'model': 'Website'},
-        {'data_string': 'email_addresses', 'model': 'EmailAddress'},
-        {'data_string': 'addresses', 'model': 'Address'},
-        {'data_string': 'phone_numbers', 'model': 'PhoneNumber'},
-        {'data_string': 'social_media', 'model': 'SocialMedia'},
-    ]
-
-    class Meta:
-        model = Account
-        fields = (
-            'id',
-            'addresses',
-            'assigned_to',
-            'bankaccountnumber',
-            'bic',
-            'cocnumber',
-            'customer_id',
-            'status',
-            'description',
-            'email_addresses',
-            'iban',
-            'legalentity',
-            'name',
-            'phone_numbers',
-            'social_media',
-            'tags',
-            'taxnumber',
-            'websites',
-        )
-
-    def create(self, validated_data):
-        tags_data = validated_data.pop('tags', {})
-
-        # We need to pop the related fields otherwise Account's __init__ won't accept it.
-        related_fields_data = {
-            'websites': validated_data.pop('websites', {}),
-            'email_addresses': validated_data.pop('email_addresses', {}),
-            'addresses': validated_data.pop('addresses', {}),
-            'phone_numbers': validated_data.pop('phone_numbers', {}),
-            'social_media': validated_data.pop('social_media', {}),
-        }
-
-        validated_data.update({
-            'status': AccountStatus.objects.get(pk=validated_data.get('status').get('id'))
-        })
-
-        # TODO: Make sure that errors in related fields raise an error and don't save the account.
-        account = Account(**validated_data)
-        account.save()
-
-        # Create related fields.
-        create_related_fields(account, self.related_fields, related_fields_data)
-
-        for tag in tags_data:
-            # Create relationship with Tag if it's a new tag
-            tag_object, created = Tag.objects.get_or_create(
-                name=tag['name'].lower(),
-                object_id=account.pk,
-                content_type_id=ContentType.objects.get_for_model(account.__class__).id
-            )
-
-        return account
-
-    def update(self, instance, validated_data):
-        tags_data = validated_data.pop('tags', {})
-
-        # Create/update/delete related fields.
-        update_related_fields(instance, self.related_fields, validated_data)
-
-        status = validated_data.get('status')
-        if status:
-            validated_data.update({
-                'status': AccountStatus.objects.get(pk=validated_data.get('status').get('id'))
-            })
-
-        # TODO: Test if changing ID's of existing objects does something
-        # Example: Account has website with ID 1.
-        # ID 2 is given, does this update website 2 or ?
-        # After a bit of testing this doesn't seem to be the case, but someone else should test just in case.
-
-        for (key, value) in validated_data.items():
-            setattr(instance, key, value)
-
-        tags_to_remove = Tag.objects.filter(object_id=instance.pk)
-        tags_to_remove.delete()
-
-        for tag in tags_data:
-            tag_object, created = Tag.objects.get_or_create(
-                name=tag['name'].lower(),
-                object_id=instance.pk,
-                content_type_id=ContentType.objects.get_for_model(instance.__class__).id
-            )
-
-        instance.save()
-
-        return instance
-
-
-class RelatedAccountSerializer(RelatedSerializerMixin, AccountCreateSerializer):
+class RelatedAccountSerializer(RelatedSerializerMixin, AccountSerializer):
     """
     Serializer for the account model when used as a relation.
     """

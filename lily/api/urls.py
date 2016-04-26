@@ -17,24 +17,9 @@ from lily.tenant.api.views import TenantViewSet
 from lily.users.api.views import LilyUserViewSet, TeamViewSet
 from lily.utils.api.views import CountryViewSet, CallerName, Notifications
 
-from .routers import SimpleRouter, NestedSimpleRouter
-
-
-# Define the account routes, using the simple router with support for nested routes.
-# TODO: make the account api relational so this can be refactored.
-simple_router = SimpleRouter()
-
-simple_router.register(r'accounts/account', AccountViewSet)
-accounts_router = NestedSimpleRouter(simple_router, r'accounts/account', lookup='object')
-accounts_router.register(r'phone_numbers', AccountPhoneNumberViewSet)
-accounts_router.register(r'addresses', AccountAddressViewSet)
-accounts_router.register(r'email_addresses', AccountEmailAddressViewSet)
-accounts_router.register(r'websites', WebsiteViewSet)
-accounts_router.register(r'tags', AccountTagViewSet)
-
 # Define routes, using the default router so the API is browsable.
 router = DefaultRouter()
-
+router.register(r'accounts/account', AccountViewSet)
 router.register(r'accounts/statuses', AccountStatusViewSet)
 
 router.register(r'tenants/tenant', TenantViewSet)
@@ -73,6 +58,4 @@ urlpatterns = patterns(
     url(r'^utils/callername/$', CallerName.as_view()),
 
     url(r'^', include(router.urls)),
-    url(r'^', include(simple_router.urls)),
-    url(r'^', include(accounts_router.urls)),
 )

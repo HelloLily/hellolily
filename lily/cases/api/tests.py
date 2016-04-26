@@ -67,7 +67,7 @@ class CaseTests(GenericAPITestCase):
 
     def test_create_object_with_relations(self):
         """
-        Test that the creation of a case is successfull with relations.
+        Test that the creation of a case is successful with relations.
         """
         pass
 
@@ -79,7 +79,7 @@ class CaseTests(GenericAPITestCase):
 
     def test_update_object_with_relations(self):
         """
-        Test that the update of a case is successfull with relations.
+        Test that the update of a case is successful with relations.
         """
         pass
 

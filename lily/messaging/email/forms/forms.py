@@ -133,7 +133,8 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
             self.fields['existing_attachments'] = forms.MultipleChoiceField(
                 choices=choices,
                 widget=forms.CheckboxSelectMultiple,
-                initial=[a.id for a in existing_attachment_list]
+                initial=[a.id for a in existing_attachment_list],
+                required=False,
             )
 
         self.fields['template'].queryset = EmailTemplate.objects.order_by('name')

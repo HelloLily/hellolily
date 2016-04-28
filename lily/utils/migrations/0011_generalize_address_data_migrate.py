@@ -15,7 +15,10 @@ def generalize_address_line(apps, schema_editor):
         if address.street_number:
             address_line += ' ' + str(address.street_number)
         if address.complement:
-            address_line += address.complement
+            if address.complement[:1].isdigit():
+                address_line = address_line + ' - ' + address.complement
+            else:
+                address_line += address.complement
 
         address.address = address_line.strip()
         address.save()

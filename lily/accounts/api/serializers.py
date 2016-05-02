@@ -1,7 +1,6 @@
 from lily.utils.functions import clean_website
 from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
-from lily.accounts.api.validators import HostnameValidator
 
 from lily.api.serializers import ContentTypeSerializer
 from lily.contacts.models import Contact
@@ -16,7 +15,7 @@ from lily.utils.api.serializers import (AddressSerializer, EmailAddressSerialize
 from lily.tags.models import Tag
 
 from ..models import Account, Website, AccountStatus
-from ..validators import DuplicateAccountName
+from .validators import DuplicateAccountName, HostnameValidator
 
 
 class WebsiteSerializer(RelatedFieldSerializer):

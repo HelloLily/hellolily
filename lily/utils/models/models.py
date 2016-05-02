@@ -73,9 +73,7 @@ class Address(TenantMixin):
         ('other', _('Other')),
     )
 
-    street = models.CharField(max_length=255, verbose_name=_('street'), blank=True)
-    street_number = models.IntegerField(verbose_name=_('street number'), blank=True, null=True)
-    complement = models.CharField(max_length=255, verbose_name=_('complement'), blank=True, null=True)
+    address = models.CharField(max_length=255, verbose_name=_('address'), blank=True)
     postal_code = models.CharField(max_length=10, verbose_name=_('postal code'), blank=True)
     city = models.CharField(max_length=100, verbose_name=_('city'), blank=True)
     state_province = models.CharField(max_length=50, verbose_name=_('state/province'), blank=True)
@@ -84,16 +82,14 @@ class Address(TenantMixin):
     type = models.CharField(max_length=20, choices=ADDRESS_TYPE_CHOICES, verbose_name=_('type'))
 
     def __unicode__(self):
-        return u'%s %s %s' % (self.street or '', self.street_number or '', self.complement or '')
+        return u'%s' % (self.address or '')
 
     def country_display(self):
         return self.get_country_display() if self.country else ''
 
     def full(self):
-        return u'%s %s %s %s %s' % (
-            self.street or '',
-            self.street_number or '',
-            self.postal_code or '',
+        return u'%s %s %s' % (
+            self.address or '',
             self.city or '',
             self.get_country_display() if self.country else '',
         )

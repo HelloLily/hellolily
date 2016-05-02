@@ -142,60 +142,6 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
         except:
             return None
 
-    def get_addresses(self, type=None):
-        try:
-            if type is None:
-                return self.addresses.all()
-            else:
-                return self.addresses.filter(type=type)
-        except:
-            return None
-
-    def get_billing_addresses(self):
-        return self.get_addresses(type='billing')
-
-    def get_shipping_addresses(self):
-        return self.get_addresses(type='shipping')
-
-    def get_visiting_addresses(self):
-        return self.get_addresses(type='visiting')
-
-    @property
-    def main_address(self):
-        addresses = self.get_addresses(type='visiting')
-
-        if len(addresses):
-            return addresses[0]
-        else:
-            return None
-
-    def get_other_addresses(self):
-        return self.get_addresses(type='other')
-
-    def get_deals(self, status=None):
-        deal_list = self.deal_set.all()
-        if status:
-            deal_list = deal_list.filter(status=status)
-
-        return deal_list
-
-    def get_contact_details(self):
-        try:
-            phone = self.phone_numbers.filter(status=1)[0]
-            phone = phone.number
-        except:
-            phone = None
-
-        try:
-            email = self.primary_email
-        except:
-            email = None
-
-        return {
-            'phone': phone,
-            'mail': email,
-        }
-
     def get_contacts(self):
         if not hasattr(self, '_contacts'):
             functions = self.functions.all()

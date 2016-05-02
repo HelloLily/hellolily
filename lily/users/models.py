@@ -154,7 +154,9 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
         if self.picture:
             return self.picture.url
         else:
-            gravatar_hash = hashlib.md5(self.email.lower()).hexdigest()
+            gravatar_hash = self.email.lower().encode('utf-8', errors='replace')
+            gravatar_hash = hashlib.md5(gravatar_hash).hexdigest()
+
             # Try to get the Gravatar or show a default image if not available.
             gravatar_url = 'https://secure.gravatar.com/avatar/' + gravatar_hash + '?'
             gravatar_url += urllib.quote(urllib.urlencode({'d': 'mm', 's': str(200)}))

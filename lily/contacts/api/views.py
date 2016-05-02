@@ -12,20 +12,6 @@ class ContactViewSet(SetTenantUserMixin, viewsets.ModelViewSet):
     """
     Returns a list of all **active** contacts in the system.
 
-
-    #Search#
-    Searching is enabled on this API.
-
-    Example:
-    `/api/contacts/contact/?search=name:CompanyA`
-
-    #Returns#
-    * List of contacts with related fields
-    """
-
-    """
-    Returns a list of all **active** contacts in the system.
-
     #Search#
     Searching is enabled on this API.
 

@@ -25,15 +25,11 @@ function DashboardController($uibModal, $state, Settings, Tenant) {
 
     db.openWidgetSettingsModal = openWidgetSettingsModal;
 
-    Settings.page.setTitle('custom', 'Dashboard');
-    Settings.page.header.setMain('custom', 'Dashboard');
-    Settings.page.header.setSub('custom', 'statistics and usage');
+    Settings.page.setAllTitles('custom', 'Dashboard');
 
     Tenant.query({}, function(tenant) {
         db.tenant = tenant;
     });
-
-    ////////////
 
     function openWidgetSettingsModal() {
         var modalInstance = $uibModal.open({

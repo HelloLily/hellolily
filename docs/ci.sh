@@ -22,6 +22,9 @@ sudo docker run --rm -v $(pwd):/home/docker ferdynice/gulpy gulp build
 sudo docker-compose run --rm web ls
 sleep 5
 
+# Clear pyc files, they may contain old code.
+find . -type f -name '*.pyc' -ls -delete
+
 # Run the tests.
 set +e
 RESULT=0

@@ -1,5 +1,3 @@
-import random
-
 from factory.declarations import LazyAttribute
 from factory.django import DjangoModelFactory
 from factory.fuzzy import FuzzyChoice
@@ -20,10 +18,7 @@ class PhoneNumberFactory(DjangoModelFactory):
 
 
 class AddressFactory(DjangoModelFactory):
-    street = LazyAttribute(lambda o: faker.street_name())
-    street_number = LazyAttribute(lambda o: faker.building_number())
-
-    complement = LazyAttribute(lambda o: 'a' if random.randint(0, 100) < 40 else None)  # 40% chance of complement
+    address = LazyAttribute(lambda o: faker.street_address())
     postal_code = LazyAttribute(lambda o: faker.postcode())
     city = LazyAttribute(lambda o: faker.city())
     state_province = LazyAttribute(lambda o: faker.province())

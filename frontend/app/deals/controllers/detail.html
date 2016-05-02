@@ -109,7 +109,7 @@
                                     <td><strong>Quote</strong></td>
                                     <td>
                                         <editable-link view-model="vm" type="Deal" field="quote_id">
-                                            <a ng-if="vm.deal.quote_id" ng-href="https://freedom.voys.nl/quotes/pdf/{{ vm.deal.quote_id }}/">
+                                            <a ng-if="vm.deal.quote_id" target="_blank" ng-href="https://freedom.voys.nl/quotes/pdf/{{ vm.deal.quote_id }}/">
                                                 {{ vm.deal.quote_id }}
                                             </a>
                                             <span ng-if="!vm.deal.quote_id">No quote ID</span>
@@ -121,7 +121,7 @@
                                     <td><strong>{{ vm.tenant.primary_external_app_link.name }}</strong></td>
                                     <td>
                                         <editable-link view-model="vm" type="Account" object="vm.deal.account" field="customer_id">
-                                            <a ng-if="vm.deal.account.customer_id" ng-href="{{ vm.tenant.primary_external_app_link.getUrl(vm.deal.account.customer_id) }}">
+                                            <a ng-if="vm.deal.account.customer_id" target="_blank" ng-href="{{ vm.tenant.primary_external_app_link.getUrl(vm.deal.account.customer_id) }}">
                                                 {{ vm.deal.account.customer_id }}
                                             </a>
                                             <span ng-if="!vm.deal.account.customer_id">No customer ID</span>
@@ -228,7 +228,7 @@
                             <li ng-if="vm.account.addresses.length">
                                 <strong>Addresses: </strong>
                                 <div ng-repeat="address in vm.account.addresses">
-                                    {{ address.street }} {{ address.street_number }}{{ address.complement }}
+                                    {{ address.address }}
                                     <br />
                                     {{ address.postal_code }}, {{ address.city }}
                                     <br />

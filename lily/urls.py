@@ -19,7 +19,6 @@ urlpatterns = patterns(
     url(r'^messaging/', include('lily.messaging.urls')),
     url(r'^provide/', include('lily.provide.urls')),
     url(r'^stats/', include('lily.stats.urls')),
-    url(r'^updates/', include('lily.updates.urls')),
     url(r'^', include('lily.users.urls')),
     url(r'^', include('lily.utils.urls')),
     url(r'^taskmonitor/', include('taskmonitor.urls')),

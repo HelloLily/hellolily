@@ -52,6 +52,13 @@ class AccountMapping(BaseMapping):
                     'status': {'type': 'integer'},
                 }
             },
+            'status': {
+                'type': 'integer',
+            },
+            'status_name': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
             'tag': {
                 'type': 'string',
                 'index_analyzer': 'normal_edge_analyzer',
@@ -90,9 +97,7 @@ class AccountMapping(BaseMapping):
                 'type': 'object',
                 'index': 'no',
                 'properties': {
-                    'address_street': {'type': 'string'},
-                    'address_street_number': {'type': 'integer'},
-                    'address_complement': {'type': 'string'},
+                    'address_address': {'type': 'string'},
                     'address_postal_code': {'type': 'string'},
                     'address_city': {'type': 'string'},
                     'address_country': {'type': 'string'},
@@ -161,14 +166,14 @@ class AccountMapping(BaseMapping):
                 'email_address': email.email_address,
                 'status': email.status,
             } for email in obj.email_addresses.all()],
+            'status': obj.status.id if obj.status.id else None,
+            'status_name': obj.status.name if obj.status.name else None,
             'description': obj.description,
             'website': [website.website for website in obj.websites.all()],
             'domain': [website.full_domain for website in obj.websites.all()],
             'second_level_domain': [website.second_level for website in obj.websites.all()],
             'address': [{
-                'address_street': address.street,
-                'address_street_number': address.street_number,
-                'address_complement': address.complement,
+                'address_address': address.address,
                 'address_postal_code': address.postal_code,
                 'address_city': address.city,
                 'address_country': address.get_country_display() if address.country else None,

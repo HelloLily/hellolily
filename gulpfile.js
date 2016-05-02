@@ -1,6 +1,7 @@
 'use strict';
 
 // Imports
+var babel = require('gulp-babel');  // Transpiler for es6 syntax
 var cached = require('gulp-cached');  // Only work on changed files
 var cdnizer = require('gulp-cdnizer'); // Prepend CDN url to resources
 var cleanhtml = require('gulp-cleanhtml');  // Strip whitespace eg.
@@ -162,12 +163,11 @@ gulp.task('app-js', [], function() {
         .pipe(ifElse(!isProduction, function() {
             return sourcemaps.init();
         }))
-
         .pipe(cached('app-js'))
+        .pipe(babel({presets: ['es2015']}))
         .pipe(wrap('(function(angular){\'use strict\';<%= contents %>})(angular);'))
         .pipe(ifElse(isProduction, uglify))
         .pipe(remember('app-js'))
-
         .pipe(concat(config.app.js.fileName))
         .pipe(ifElse(!isProduction, function() {
             return sourcemaps.write('.');

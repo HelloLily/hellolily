@@ -1,5 +1,7 @@
 {
-    "ecmaFeatures": {},
+    "parserOptions": {
+        "ecmaVersion": 6,
+    },
     "parser": "espree",
     "env": {
         "amd": false,

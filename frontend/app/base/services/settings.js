@@ -1,77 +1,58 @@
-angular.module('app.services').factory('Settings', Settings);
-
-Settings.$inject = ['LocalStorage'];
-function Settings(LocalStorage) {
-    var storage = LocalStorage('generalSettings');
-
-    var _settings = {
-        page: {
-            title: 'Welcome',
-            setTitle: setTitle,  // unfortunately because of js + angular we must use ugly setters.
-            header: {
-                main: 'Hellolily',
-                setMain: setMain,
-            },
-            setAllTitles: setAllTitles,
-            account: null,
-            contact: null,
-        },
-        email: {
-            sidebar: {
-                account: null,
-                contact: null,
-                cases: null,
-                deals: null,
-                form: null,
-                isVisible: false,
-            },
-            previousInbox: null,
-            setPreviousInbox: setPreviousInbox,
-            resetEmailSettings: resetEmailSettings,
-        },
+angular.module('app.services').factory('Settings', ['LocalStorage', function() {
+    let page = new Page(...arguments);
+    return {
+        page: page,
+        email: page.email,
     };
+}]);
 
-    _settings.email.previousInbox = storage.get('previousInbox', null);
 
-    function setTitle(pageType, newTitle) {
-        // Capitalize first letter of the new title.
-        _settings.page.title = newTitle.charAt(0).toUpperCase() + newTitle.slice(1);
+/**
+ * Class representing the main settings object for the email sidebar layout.
+ */
+class Sidebar {
+    constructor() {
+        this.account = null;
+        this.contact = null;
+        this.cases = null;
+        this.deals = null;
+        this.form = null;
+        this.isVisible = false;
+    }
+}
 
-        return _settings.page.title;
+
+/**
+ * Class representing the main settings object for email layout.
+ */
+class Email {
+
+    /**
+     * Initialize email layout.
+     * @param {LocalStorage} storage - LocalStorage instance.
+     */
+    constructor(storage) {
+        this.sidebar = new Sidebar();
+        this.storage = storage;
+        this.title = 'Welcome';
+        this.previousInbox = this.storage.get('previousInbox', null);
     }
 
-    function setMain(pageType, newHeader) {
-        var formats = {
-            create: 'New ',
-            edit: 'Edit ',
-            custom: '',
-        };
-
-        if (pageType && newHeader) {
-            if (formats[pageType]) {
-                _settings.page.header.main = formats[pageType] + newHeader;
-            } else {
-                _settings.page.header.main = newHeader.charAt(0).toUpperCase() + newHeader.slice(1);
-            }
-        }
-
-        return _settings.page.header.main;
+    /**
+     * Set previous email state.
+     * @param {Object} previousInbox - Email state object.
+     */
+    setPreviousInbox(previousInbox) {
+        this.storage.put('previousInbox', previousInbox);
+        this.previousInbox = previousInbox;
     }
 
-
-    function setAllTitles(pageType, objectInfo, contact, account) {
-        // Make sure sidebar forms don't set the titles/headers.
-        if (!_settings.email.sidebar.form) {
-            setTitle(pageType, objectInfo);
-            setMain(pageType, objectInfo);
-            _settings.page.contact = contact;
-            _settings.page.account = account;
-        }
-    }
-
-    function resetEmailSettings() {
+    /**
+     * Reset all the data properties that concern the email layout.
+     */
+    resetEmailSettings() {
         // email.sidebar stores the state of sidebar panels (so hidden/closed).
-        _settings.email.sidebar = {
+        this.sidebar = {
             account: null,
             contact: null,
             case: null,
@@ -81,7 +62,7 @@ function Settings(LocalStorage) {
         };
 
         // email.data stores the actual data which is used for the sidebars.
-        _settings.email.data = {
+        this.data = {
             website: null,
             account: null,
             contact: null,
@@ -89,12 +70,82 @@ function Settings(LocalStorage) {
             deals: null,
         };
     }
+}
 
-    function setPreviousInbox(previousInbox) {
-        storage.put('previousInbox', previousInbox);
 
-        _settings.email.previousInbox = previousInbox;
+/**
+ * Class representing the main settings object for page header layout.
+ */
+class Header {
+
+    constructor() {
+        this.main = 'Hellolily';
     }
 
-    return _settings;
+    /**
+     * Sets the header's main title.
+     * @param {String} pageType - The page category/type, e.g. `custom`/list`/`create`.
+     * @param {String} newHeader - The new name to use in the title.
+     * @return {String} The new title.
+     */
+    setMain(pageType, newHeader) {
+        var formats = {
+            create: 'New ',
+            edit: 'Edit ',
+            custom: '',
+        };
+
+        if (pageType && newHeader) {
+            if (formats[pageType]) {
+                this.main = formats[pageType] + newHeader;
+            } else {
+                this.main = newHeader.charAt(0).toUpperCase() + newHeader.slice(1);
+            }
+        }
+    }
+}
+
+
+/**
+ * Class representing the main settings object for page layout.
+ */
+class Page {
+
+    constructor(localStorage) {
+        this.storage = localStorage('generalSettings');
+        this.title = 'Welcome';
+
+        this.email = new Email(this.storage);
+        this.header = new Header();
+    }
+
+    /**
+     * Sets the title of the document, as shown in the tab and window border.
+     * @param {String} pageType - The page category/type.
+     * @param {String} newTitle - The page category/type.
+     * @return {String} The new title.
+     */
+    setTitle(pageType, newTitle) {
+        // Capitalize first letter of the new title.
+        this.title = newTitle.charAt(0).toUpperCase() + newTitle.slice(1);
+        return this.title;
+    }
+
+    /**
+     * Sets tab/window border title, but also the header's title and (optional)
+     * context of contact/account.
+     * @param {String} pageType - The page category/type, e.g. `custom`/list`/`create`.
+     * @param {String} objectInfo - The type of objects the page shows, e.g. `accounts`/`contacts`.
+     * @param {Contact} contact - A contact object to set the page context to.
+     * @param {Account} account - An account object to set the page context to.
+     */
+    setAllTitles(pageType, objectInfo, contact, account) {
+        // Make sure sidebar forms don't set the titles/headers.
+        if (!this.email.sidebar.form) {
+            this.setTitle(pageType, objectInfo);
+            this.header.setMain(pageType, objectInfo);
+            this.contact = contact;
+            this.account = account;
+        }
+    }
 }

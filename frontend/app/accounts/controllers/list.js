@@ -51,6 +51,7 @@ function AccountList($scope, $window, Settings, Account, LocalStorage) {
             assignedTo: true,
             created: true,
             modified: true,
+            status: true,
             tags: true,
             customerId: true,
         }),

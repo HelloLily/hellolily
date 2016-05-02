@@ -13,6 +13,7 @@
                     <checkbox model="vm.table.visibility.assignedTo">Assigned to</checkbox>
                     <checkbox model="vm.table.visibility.created">Created</checkbox>
                     <checkbox model="vm.table.visibility.modified">Modified</checkbox>
+                    <checkbox model="vm.table.visibility.status">Status</checkbox>
                     <checkbox model="vm.table.visibility.tags">Tags</checkbox>
                     <checkbox model="vm.table.visibility.customerId">Customer ID</checkbox>
                 </div>
@@ -54,6 +55,9 @@
                     </th>
                     <th ng-show="vm.table.visibility.modified" sort-column="modified" table="vm.table" class="width-10">
                         <span class="text-nowrap">Modified</span>
+                    </th>
+                    <th ng-show="vm.table.visibility.status" sort-column="status" table="vm.table" class="width-10">
+                        <span class="text-nowrap">Status</span>
                     </th>
                     <th ng-show="vm.table.visibility.tags" sort-column="tag" table="vm.table" class="width-10">
                         <span class="text-nowrap">Tags</span>
@@ -102,6 +106,7 @@
                     </td>
                     <td ng-show="vm.table.visibility.created"><date date="account.created"></date></td>
                     <td ng-show="vm.table.visibility.modified"><date date="account.modified"></date></td>
+                    <td ng-show="vm.table.visibility.status">{{ account.status_name }}</date></td>
                     <td ng-show="vm.table.visibility.tags">
                         <span ng-repeat="tag in account.tag">
                             <a href="javascript:void(0)" ng-click="vm.setFilter(tag)">{{ ::tag }}</a>

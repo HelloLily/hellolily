@@ -52,6 +52,13 @@ class AccountMapping(BaseMapping):
                     'status': {'type': 'integer'},
                 }
             },
+            'status': {
+                'type': 'integer',
+            },
+            'status_name': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
             'tag': {
                 'type': 'string',
                 'index_analyzer': 'normal_edge_analyzer',
@@ -159,6 +166,8 @@ class AccountMapping(BaseMapping):
                 'email_address': email.email_address,
                 'status': email.status,
             } for email in obj.email_addresses.all()],
+            'status': obj.status.id if obj.status.id else None,
+            'status_name': obj.status.name if obj.status.name else None,
             'description': obj.description,
             'website': [website.website for website in obj.websites.all()],
             'domain': [website.full_domain for website in obj.websites.all()],

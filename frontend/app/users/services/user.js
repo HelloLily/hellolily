@@ -1,17 +1,19 @@
 angular.module('app.users.services').factory('User', User);
 
-User.$inject = ['$resource'];
-function User($resource) {
+User.$inject = ['$resource', 'HLCache', 'CacheFactory'];
+function User($resource, HLCache, CacheFactory) {
     var _user = $resource(
         '/api/users/user/:id/',
         null,
         {
             get: {
+                cache: CacheFactory.get('dataCache'),
                 transformResponse: function(data) {
                     return angular.fromJson(data);
                 },
             },
             query: {
+                cache: CacheFactory.get('dataCache'),
                 isArray: false,
             },
             search: {

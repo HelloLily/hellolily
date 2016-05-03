@@ -5,9 +5,8 @@
 
 HLCache.$inject = ['CacheFactory'];
 function HLCache(CacheFactory) {
-
     // Create the cache.
-    CacheFactory('dataCache', {
+    new CacheFactory('dataCache', {
         // Items added to this cache expire after 5 minutes.
         maxAge: 5 * 60 * 1000,
         // Expired items will remain in the cache until requested, at which point they are removed.

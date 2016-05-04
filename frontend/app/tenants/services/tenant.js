@@ -1,14 +1,14 @@
 angular.module('app.tenants.services').factory('Tenant', Tenant);
 
-Tenant.$inject = ['$resource', '$interpolate'];
-function Tenant($resource, $interpolate) {
+Tenant.$inject = ['$resource', '$interpolate', 'HLCache', 'CacheFactory'];
+function Tenant($resource, $interpolate, HLCache, CacheFactory) {
     var _tenant = $resource(
         '/api/tenants/tenant/:id/',
         {},
         {
             query: {
                 isArray: false,
-                cache: true,
+                cache: CacheFactory.get('dataCache'),
                 transformResponse: function(data) {
                     var tenant = angular.fromJson(data);
                     var externalAppLinkList = [];

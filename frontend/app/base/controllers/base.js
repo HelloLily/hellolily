@@ -43,7 +43,6 @@ function BaseController($scope, $state, Settings, Notifications, HLShortcuts) {
         Metronic.unblockUI();
         Metronic.initComponents(); // init core components
         HLSelect2.init();
-        HLFormsets.init();
         HLShowAndHide.init();
         autosize($('textarea'));
 
@@ -51,10 +50,12 @@ function BaseController($scope, $state, Settings, Notifications, HLShortcuts) {
     }
 
     function _setPreviousState(event, toState, toParams, fromState, fromParams) {
+        var previousInbox;
+
         $scope.previousState = $state.href(fromState, fromParams);
 
         if (fromState.name === 'base.email.list' || fromState.name === 'base.email.accountList') {
-            var previousInbox = {
+            previousInbox = {
                 state: fromState.name,
                 params: fromParams,
             };

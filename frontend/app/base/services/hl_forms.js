@@ -9,18 +9,23 @@ function HLForms() {
      *
      */
     this.setErrors = function(form, data) {
+        var field;
+        var i;
+        var key;
+        var formField;
+
         // Unblock the UI so user can retry filling in the form.
         Metronic.unblockUI();
 
         // We don't want to continue if the returned errors aren't properly formatted.
         if (typeof data === 'object') {
-            for (var field in data) {
+            for (field in data) {
                 // Errors are always in the <field>: Array format, so iterate over the array.
-                for (var i = 0; i < data[field].length; i++) {
+                for (i = 0; i < data[field].length; i++) {
                     // Related fields are always an object, so check for that.
                     if (typeof data[field][i] === 'object') {
-                        for (var key in data[field][i]) {
-                            var formField = [field, key, i].join('-');
+                        for (key in data[field][i]) {
+                            formField = [field, key, i].join('-');
 
                             // The error is always the first element, so get it and set as the error message.
                             form[formField].$error = {message: data[field][i][key][0]};
@@ -56,14 +61,13 @@ function HLForms() {
     this.clean = function(viewModel) {
         // We don't want to clean certain fields.
         var ignoredFields = ['tags'];
+        var ids = [];
 
         angular.forEach(viewModel, function(fieldValue, field) {
             if (ignoredFields.indexOf(field) < 0 && fieldValue) {
                 // We don't want to send whole objects to the API, because they're not accepted.
                 // So loop through all fields and extract IDs.
                 if (fieldValue.constructor === Array) {
-                    var ids = [];
-
                     angular.forEach(fieldValue, function(item) {
                         if (typeof item === 'object') {
                             if (item.hasOwnProperty('id')) {

@@ -5,7 +5,7 @@
         </div>
 
         <form novalidate class="hl-form-body" name="caseForm">
-            <form-portlet ng-if="!settings.email.sidebar.form" title="Who was it?">
+            <form-portlet ng-if="!settings.email.sidebar.form" portlet-title="Who was it?">
                 <form-group label-title="Account" label-icon="child" label-id="id_account" field="caseForm.account">
                     <ui-select ng-model="vm.case.account" theme="select2" class="form-control" name="account" append-to-body="true">
                         <ui-select-match placeholder="Select an account" allow-clear="true">{{ $select.selected.name }}</ui-select-match>

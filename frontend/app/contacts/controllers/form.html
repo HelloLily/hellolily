@@ -52,7 +52,7 @@
                 <form-group label-title="Works at" label-icon="child" label-id="id_account" field="contactForm.accounts">
                     <ui-select multiple ng-model="vm.contact.accounts" theme="select2" class="form-control" name="accounts">
                         <ui-select-match placeholder="Select one or more account(s)">{{ $item.name }}</ui-select-match>
-                        <ui-select-choices repeat="account in vm.accounts" refresh="vm.refreshAccounts($select.search)" refresh-delay="150">
+                        <ui-select-choices repeat="account in vm.accounts | filterItems:vm.contact.accounts" refresh="vm.refreshAccounts($select.search)" refresh-delay="150">
                             <div ng-bind-html="account.name | highlight: $select.search"></div>
                         </ui-select-choices>
                     </ui-select>

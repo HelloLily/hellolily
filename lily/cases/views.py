@@ -2,7 +2,6 @@ import anyjson
 from django.contrib import messages
 from django.http import Http404, HttpResponse
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic.base import View
 from django.views.generic.edit import DeleteView
 
 from lily.tenant.middleware import get_current_user
@@ -10,7 +9,7 @@ from lily.users.models import LilyUser
 from lily.utils.views import AjaxUpdateView
 from lily.utils.views.mixins import LoginRequiredMixin
 
-from .models import Case, CaseStatus, CaseType
+from .models import Case, CaseStatus
 
 
 class DeleteCaseView(LoginRequiredMixin, DeleteView):

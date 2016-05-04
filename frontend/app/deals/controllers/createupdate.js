@@ -376,7 +376,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
             accountQuery += 'accounts.id:' + vm.deal.account.id;
         }
 
-        contactsPromise = HLSearch.refreshList(query, 'Contact', null, accountQuery);
+        contactsPromise = HLSearch.refreshList(query, 'Contact', accountQuery);
 
         if (contactsPromise) {
             contactsPromise.$promise.then(function(data) {

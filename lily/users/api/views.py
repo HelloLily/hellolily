@@ -53,7 +53,9 @@ class LilyUserViewSet(mixins.UpdateModelMixin,
     queryset = LilyUser.objects
 
     def get_queryset(self):
-        queryset = self.model.objects.filter(tenant_id=self.request.user.tenant_id).exclude(first_name='')
+        queryset = (self.model.objects
+                        .filter(is_active=True, tenant_id=self.request.user.tenant_id)
+                        .exclude(first_name=''))
         return queryset
 
     def get_object(self):

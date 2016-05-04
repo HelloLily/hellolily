@@ -25,8 +25,10 @@ class LilyUserSerializer(serializers.ModelSerializer):
 
 
 class RelatedLilyUserSerializer(RelatedSerializerMixin, LilyUserSerializer):
+
     class Meta:
         model = LilyUser
+
         fields = (
             'id',
             'first_name',
@@ -40,14 +42,14 @@ class LilyGroupSerializer(serializers.ModelSerializer):
     """
     Serializer for the contact model.
     """
-    user_set = RelatedLilyUserSerializer(many=True, read_only=True)
+    users = RelatedLilyUserSerializer(many=True, source='active_users')
 
     class Meta:
         model = LilyGroup
         fields = (
             'id',
             'name',
-            'user_set',
+            'users',
         )
 
 

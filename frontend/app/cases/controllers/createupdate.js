@@ -141,8 +141,6 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             if ($stateParams.contactId) {
                 Contact.get({id: $stateParams.contactId}).$promise.then(function(contact) {
                     vm.case.contact = contact;
-                    // API returns 'full_name' but ES returns 'name'. So get the full name and set the name.
-                    vm.case.contact.name = contact.full_name;
 
                     if (vm.case.contact.accounts && vm.case.contact.accounts.length === 1) {
                         // Automatically fill in the account the contact works at.

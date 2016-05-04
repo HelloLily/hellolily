@@ -11,7 +11,7 @@ function contactsConfig($stateProvider) {
             },
         },
         ncyBreadcrumb: {
-            label: '{{ contact.name }}',
+            label: '{{ contact.full_name }}',
         },
         resolve: {
             currentContact: ['Contact', '$stateParams', function(Contact, $stateParams) {

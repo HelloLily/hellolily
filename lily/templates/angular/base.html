@@ -88,7 +88,7 @@
                             <h1>
                                 {{ settings.page.header.main }}
                                 <span ng-if="settings.page.contact">
-                                    for <a ui-sref="base.contacts.detail({ id: settings.page.contact.id })">{{ settings.page.contact.name }}</a>
+                                    for <a ui-sref="base.contacts.detail({ id: settings.page.contact.id })">{{ settings.page.contact.full_name }}</a>
                                 </span>
                                 <span ng-if="settings.page.account">
                                     at <a ui-sref="base.accounts.detail({ id: settings.page.account.id })">{{ settings.page.account.name }}</a>

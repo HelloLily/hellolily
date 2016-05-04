@@ -30,7 +30,7 @@
 
             <tbody>
                 <tr ng-repeat="contact in vm.list">
-                    <td><a ui-sref="base.contacts.detail({id: contact.id})">{{ contact.name }}</a></td>
+                    <td><a ui-sref="base.contacts.detail({id: contact.id})">{{ contact.full_name }}</a></td>
                     <td>
                         <a ui-sref="base.email.composeEmail({email: contact.email_addresses[0].email_address})" ng-show="contact.email_addresses[0]">
                         {{ contact.email_addresses[0].email_address }}

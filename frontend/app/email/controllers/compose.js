@@ -188,9 +188,9 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
 
                 if (contact) {
                     // The text which is actually used in the application/select2.
-                    usedText = '"' + contact.name + '" <' + email + '>';
+                    usedText = '"' + contact.full_name + '" <' + email + '>';
                     // The text shown in the recipient input.
-                    displayedText = contact.name + ' <' + email + '>';
+                    displayedText = contact.full_name + ' <' + email + '>';
 
                     recipient = {
                         id: usedText,

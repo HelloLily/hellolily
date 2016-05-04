@@ -32,10 +32,6 @@ class ContactMapping(BaseMapping):
             }],
         })
         mapping['properties'].update({
-            'name': {
-                'type': 'string',
-                'index_analyzer': 'normal_ngram_analyzer',
-            },
             'full_name': {
                 'type': 'string',
                 'index': 'not_analyzed',
@@ -148,7 +144,6 @@ class ContactMapping(BaseMapping):
         Translate an object to an index document.
         """
         doc = {
-            'name': obj.full_name(),
             'full_name': obj.full_name(),
             'last_name': obj.last_name,
             'created': obj.created,

@@ -10,11 +10,6 @@ function Deal($resource, HLUtils, HLForms) {
                 transformResponse: function(data) {
                     var deal = angular.fromJson(data);
 
-                    if (deal.contact) {
-                        // API returns 'full_name' but ES returns 'name'. So get the full name and set the name.
-                        deal.contact.name = deal.contact.full_name;
-                    }
-
                     if (deal.assigned_to) {
                         deal.assigned_to.name = deal.assigned_to.full_name;
                     }

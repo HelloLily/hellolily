@@ -10,11 +10,6 @@ function Case($resource, $q, Account, Contact, HLUtils) {
                 transformResponse: function(data) {
                     var lilyCase = angular.fromJson(data);
 
-                    if (lilyCase.contact) {
-                        // API returns 'full_name' but ES returns 'name'. So get the full name and set the name.
-                        lilyCase.contact.name = lilyCase.contact.full_name;
-                    }
-
                     if (lilyCase.assigned_to) {
                         lilyCase.assigned_to.name = HLUtils.getFullName(lilyCase.assigned_to);
                     }

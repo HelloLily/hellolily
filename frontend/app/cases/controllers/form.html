@@ -15,12 +15,11 @@
                     </ui-select>
                     <span class="help-text text-muted">Please type at least 2 characters to begin the search</span>
                 </form-group>
-
                 <form-group label-title="Contact" label-icon="child" label-id="id_contact" field="caseForm.contact">
                     <ui-select ng-model="vm.case.contact" theme="select2" class="form-control" name="contact" append-to-body="true">
-                        <ui-select-match placeholder="Select an contact" allow-clear="true">{{ $select.selected.name }}</ui-select-match>
-                        <ui-select-choices repeat="contact in vm.contacts | propsFilter: {name: $select.search}" refresh="vm.refreshContacts($select.search)">
-                            <div ng-bind-html="contact.name | highlight: $select.search"></div>
+                        <ui-select-match placeholder="Select an contact" allow-clear="true">{{ $select.selected.full_name }}</ui-select-match>
+                        <ui-select-choices repeat="contact in vm.contacts | propsFilter: {full_name: $select.search}" refresh="vm.refreshContacts($select.search)">
+                            <div ng-bind-html="contact.full_name | highlight: $select.search"></div>
                         </ui-select-choices>
                     </ui-select>
                     <span class="help-text text-muted">Please type at least 2 characters to begin the search</span>

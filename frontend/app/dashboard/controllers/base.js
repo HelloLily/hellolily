@@ -33,7 +33,7 @@ function DashboardController($uibModal, $state, Settings, Tenant) {
 
     function openWidgetSettingsModal() {
         var modalInstance = $uibModal.open({
-            templateUrl: 'dashboard/controllers/widget_settings.html',
+            templateUrl: 'base/controllers/widget_settings.html',
             controller: 'WidgetSettingsModal',
             controllerAs: 'vm',
             size: 'md',

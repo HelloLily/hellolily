@@ -40,7 +40,7 @@
                 <tr ng-show="!case.collapsed" class="collapse-content" class="collapsable-cell">
                     <td colspan="5">
                         <div class="margin-bottom-5" ng-if="case.casetype_name"><strong>Type:</strong> {{ case.casetype_name }}</div>
-                        <div class="margin-bottom-5"><strong>Assigned to:</strong> {{ case.assigned_to.full_name || "Nobody" }}</div>
+                        <div class="margin-bottom-5"><strong>Assigned to:</strong> {{ case.assigned_to_name || "Nobody" }}</div>
                         <div class="margin-bottom-5"><strong>Created by:</strong> <span class="margin-right-5">{{ case.created_by.full_name || "Nobody" }} on</span><date date="case.created"></date></div>
                         <div class="margin-top-20" ng-if="case.body.length">
                             <strong class="margin-bottom-5">Description:</strong>

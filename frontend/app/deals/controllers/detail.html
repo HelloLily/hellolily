@@ -74,7 +74,7 @@
 
     <div>
         <div class="col-md-4">
-            <dashboard-widget widget-name="'Detail'">
+            <widget widget-name="'Detail'">
                 <widget-header>
                     <div class="widget-name">Deal details</div>
                 </widget-header>
@@ -169,9 +169,9 @@
                         </table>
                     </div>
                 </widget-body>
-            </dashboard-widget>
+            </widget>
 
-            <dashboard-widget widget-name="'Involved'">
+            <widget widget-name="'Involved'">
                 <widget-header>
                     <div class="widget-name">Involved</div>
                 </widget-header>
@@ -198,9 +198,9 @@
                         </ul>
                     </div>
                 </widget-body>
-            </dashboard-widget>
+            </widget>
 
-            <dashboard-widget ng-if="vm.deal.account" widget-name="'Account info'">
+            <widget ng-if="vm.deal.account" widget-name="'Account info'">
                 <widget-header>
                     <div class="widget-name">
                         <a ui-sref="base.accounts.detail({ id: vm.deal.account.id })">
@@ -247,9 +247,9 @@
                         </ul>
                     </div>
                 </widget-body>
-            </dashboard-widget>
+            </widget>
 
-            <dashboard-widget ng-if="vm.deal.contact" widget-name="'Contact info'">
+            <widget ng-if="vm.deal.contact" widget-name="'Contact info'">
                 <widget-header>
                     <div class="widget-name">
                         <a ui-sref="base.contacts.detail({ id: vm.deal.contact.id })">
@@ -280,7 +280,7 @@
                         </ul>
                     </div>
                 </widget-body>
-            </dashboard-widget>
+            </widget>
         </div>
     </div>
 </div>

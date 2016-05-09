@@ -147,7 +147,7 @@ There's one more thing we need to create a directive: the template. The template
     </span>
 
 This template might be confusing, but you can pretty much ignore all the attributes in the ``span`` tag. They are there to call a third party library (Angular x-editable), but you can see how the controller's variables and function get used to set up the template.
-The ``ng-transclude`` you see is what I referred to in the intro to this directive. The ``{{ vm.deal.next_step.name }}`` is what will be put in the place of the ``ng-transclude``. This transclusion allows you to have generic templates (like we do with the ``dashboardWidget`` directive).
+The ``ng-transclude`` you see is what I referred to in the intro to this directive. The ``{{ vm.deal.next_step.name }}`` is what will be put in the place of the ``ng-transclude``. This transclusion allows you to have generic templates (like we do with the ``widget`` directive).
 
 **Note:** Yes, another ``editableSelect`` directive gets called here, but this is the ``editableSelect`` provided by the Angular x-editable library.
 

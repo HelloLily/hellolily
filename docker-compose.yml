@@ -1,3 +1,13 @@
+flower:
+  build: .
+  command: flower --app=lily.celery
+  volumes:
+    - .:/home/docker/hellolily
+  ports:
+    - 5555:5555
+  links:
+    - rabbit
+    - db
 db:
   build: Dockers/db
   ports:
@@ -26,11 +36,10 @@ web:
     - es
     - rabbit
     - redis
-    - beat
-    - worker1
-    - worker2
 rabbit:
   build: Dockers/rabbit
+  ports:
+    - 5672:5672
 beat:
   build: .
   command: celery worker -B --app=lily.celery --loglevel=info -Q celery -n beat.%h -c 1
@@ -38,11 +47,11 @@ beat:
   links: [rabbit, db, redis, es]
 worker1:
   build: .
-  command: celery worker --loglevel=info --app=lily.celery -Q queue1 -n worker1.%h -c 12 -P eventlet
+  command: celery worker --loglevel=info --app=lily.celery -Q email_async_tasks -n worker1.%h -c 12 -P eventlet
   volumes: [".:/home/docker/hellolily"]
   links: [rabbit, db, redis, es]
 worker2:
   build: .
-  command: celery worker --loglevel=info --app=lily.celery -Q queue2 -n worker2.%h -c 12 -P eventlet
+  command: celery worker --loglevel=info --app=lily.celery -Q email_scheduled_tasks,email_first_sync -n worker2.%h -c 12 -P eventlet
   volumes: [".:/home/docker/hellolily"]
   links: [rabbit, db, redis, es]

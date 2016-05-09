@@ -1,7 +1,7 @@
 angular.module('app.contacts.services').factory('Contact', Contact);
 
-Contact.$inject = ['$resource', 'HLResource'];
-function Contact($resource, HLResource) {
+Contact.$inject = ['$resource', 'HLForms', 'HLResource'];
+function Contact($resource, HLForms, HLResource) {
     var _contact = $resource(
         '/api/contacts/contact/:id/',
         null,
@@ -28,6 +28,10 @@ function Contact($resource, HLResource) {
                 method: 'PATCH',
                 params: {
                     id: '@id',
+                },
+                transformRequest: function(data) {
+                    var jsonData = angular.copy(data);
+                    return angular.toJson(HLForms.clean(jsonData));
                 },
             },
             delete: {

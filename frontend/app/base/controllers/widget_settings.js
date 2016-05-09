@@ -1,9 +1,9 @@
 angular.module('app.dashboard').controller('WidgetSettingsModal', WidgetSettingsModalController);
 
-WidgetSettingsModalController.$inject = ['$uibModalInstance', 'LocalStorage'];
-function WidgetSettingsModalController($uibModalInstance, LocalStorage) {
+WidgetSettingsModalController.$inject = ['$state', '$uibModalInstance', 'LocalStorage'];
+function WidgetSettingsModalController($state, $uibModalInstance, LocalStorage) {
     var vm = this;
-    var storage = LocalStorage('widgetInfo');
+    var storage = new LocalStorage($state.current.name + 'widgetInfo');
 
     vm.widgetSettings = storage.get('', {});
 

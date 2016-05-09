@@ -7,5 +7,5 @@ angular.module('app.deals', [
     'ui.select',
 
     // Lily dependencies
-    'app.deals.services'
+    'app.deals.services',
 ]);

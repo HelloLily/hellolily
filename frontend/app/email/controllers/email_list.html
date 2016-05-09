@@ -20,102 +20,101 @@
         <thead>
             <tr>
                 <th colspan="8">
-                    <checkbox model="vm.opts.checkboxesAll" ng-click="vm.toggleCheckboxes()"></checkbox>
+                    <div class="pull-left margin-right-10 lineheight-30">
+                        <checkbox model="vm.opts.checkboxesAll" ng-click="vm.toggleCheckboxes()"></checkbox>
+                    </div>
 
-                    <ul class="email-inbox-actions btn-group" ng-if="::vm.account">
-                        <li>
-                            <a class="dropdown-toggle" href="javascript:void(0)" data-toggle="dropdown">
-                                <i class="fa fa-folder"></i> <span class="email-inbox-action-desc">Move to</span> <i class="fa fa-angle-down"></i>
+                    <ul class="hl-button-group">
+                        <li class="hl-button-group-btn">
+                            <a class="hl-button-group-btn-link" ng-click="vm.archiveMessages()" ng-show="vm.label">
+                                <i class="fa fa-archive"></i> <span class="email-inbox-action-desc">Archive</span>
                             </a>
-                            <ul class="dropdown-menu labels">
-                                <li ng-hide="vm.label.label_id == 'INBOX'">
-                                    <a href="javascript:void(0)" ng-click="vm.moveMessages('INBOX')">Inbox</a>
+                        </li>
+                        <li class="hl-button-group-btn" ng-if="vm.label.id != 'TRASH'">
+                            <a class="hl-button-group-btn-link" ng-click="vm.trashMessages()">
+                                <i class="lilicon hl-trashcan-icon"></i> <span class="email-inbox-action-desc">Delete</span>
+                            </a>
+                        </li>
+                        <li class="hl-button-group-btn" ng-if="vm.label.id == 'TRASH'">
+                            <a class="hl-button-group-btn-link" ng-click="vm.deleteMessages()">
+                                <i class="lilicon hl-trashcan-icon"></i> <span class="email-inbox-action-desc">Delete</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <ul class="hl-button-group" ng-if="::vm.account">
+                        <li class="hl-button-group-btn">
+                            <a class="hl-button-group-btn-link" href="javascript:void(0)" data-toggle="dropdown">
+                                <i class="fa fa-folder"></i> Move to <i class="margin-left-5 small-icon lilicon hl-toggle-down-icon"></i>
+                            </a>
+
+                            <ul class="hl-dropdown">
+                                <li class="hl-dropdown-item" ng-if="!vm.label.label_id == 'INBOX'">
+                                    <a class="hl-dropdown-item-link" href="javascript:void(0)" ng-click="vm.moveMessages('INBOX')">Inbox</a>
                                 </li>
-                                <li ng-repeat="accountLabel in vm.account.labels" ng-if="accountLabel.label_type != 0 && accountLabel.label_id != vm.label.label_id">
-                                    <a href="javascript:void(0)" ng-click="vm.moveMessages(accountLabel.label_id)">{{ accountLabel.name }}</a>
+                                <li class="hl-dropdown-item" ng-repeat="accountLabel in vm.account.labels" ng-if="accountLabel.label_type != 0 && accountLabel.label_id != vm.label.label_id">
+                                    <a class="hl-dropdown-item-link" href="javascript:void(0)" ng-click="vm.moveMessages(accountLabel.label_id)">{{ accountLabel.name }}</a>
                                 </li>
                             </ul>
                         </li>
                     </ul>
 
-                    <ul class="email-inbox-actions">
-                        <li>
-                            <a ng-click="vm.archiveMessages()" ng-show="vm.label">
-                                <i class="fa fa-archive"></i> <span class="email-inbox-action-desc">Archive</span>
-                            </a>
-                        </li>
-                        <li ng-if="vm.label.id != 'TRASH'">
-                            <a ng-click="vm.trashMessages()">
-                                <i class="lilicon hl-trashcan-icon"></i> <span class="email-inbox-action-desc">Delete</span>
-                            </a>
-                        </li>
-                        <li ng-if="vm.label.id == 'TRASH'">
-                            <a ng-click="vm.deleteMessages()">
-                                <i class="lilicon hl-trashcan-icon"></i> <span class="email-inbox-action-desc">Delete</span>
-                            </a>
-                        </li>
-                    </ul>
-
-                    <ul class="email-inbox-actions">
-                        <li>
-                            <a ng-click="vm.starMessages(true)"><i class="fa fa-star"></i></a>
-                        </li>
-                        <li>
-                            <a ng-click="vm.starMessages(false)"><i class="fa fa-star-o"></i></a>
-                        </li>
-                    </ul>
-
-                    <ul class="email-inbox-actions">
-                        <li>
-                            <a ng-click="vm.markAsRead()">
+                    <ul class="hl-button-group">
+                        <li class="hl-button-group-btn">
+                            <a class="hl-button-group-btn-link" ng-click="vm.markAsRead()">
                                 <i class="fa fa-eye"></i> <span class="email-inbox-action-desc">Mark as read</span>
                             </a>
                         </li>
-                        <li>
-                            <a ng-click="vm.markAsUnread()">
+                        <li class="hl-button-group-btn">
+                            <a class="hl-button-group-btn-link" ng-click="vm.markAsUnread()">
                                 <i class="fa fa-eye-slash"></i> <span class="email-inbox-action-desc">Mark as unread</span>
                             </a>
                         </li>
                     </ul>
 
-                    <ul class="email-inbox-actions">
-                        <li>
-                            <a ng-click="vm.reloadMessages()">
+                    <ul class="hl-button-group">
+                        <li class="hl-button-group-btn">
+                            <a class="hl-button-group-btn-link" ng-click="vm.reloadMessages()">
                                 <i class="fa fa-refresh"></i> <span class="email-inbox-action-desc">Refresh</span>
                             </a>
                         </li>
                     </ul>
 
-                    <ul ng-show="vm.showReplyOrForwardButtons()" class="email-inbox-actions is-full-mobile">
-                        <li>
-                            <a ng-click="vm.replyOnMessage()">
+                    <ul class="hl-button-group" ng-show="vm.showReplyOrForwardButtons()">
+                        <li class="hl-button-group-btn">
+                            <a class="hl-button-group-btn-link" ng-click="vm.replyOnMessage()">
                                 <i class="fa fa-mail-reply"></i> <span class="email-inbox-action-desc">Reply</span></a>
                         </li>
-                        <li>
-                            <a ng-click="vm.replyAllOnMessage()">
+                        <li class="hl-button-group-btn">
+                            <a class="hl-button-group-btn-link" ng-click="vm.replyAllOnMessage()">
                                 <i class="fa fa-mail-reply-all"></i> <span class="email-inbox-action-desc">Reply all</span></a>
                         </li>
-                        <li>
-                            <a ng-click="vm.forwardOnMessage()">
+                        <li class="hl-button-group-btn">
+                            <a class="hl-button-group-btn-link" ng-click="vm.forwardOnMessage()">
                                 <i class="fa fa-mail-forward"></i> <span class="email-inbox-action-desc">Forward</span></a>
                         </li>
                     </ul>
 
-                    <ul class="email-pagination">
-                        <li class="email-pagination-page-info">
-                            {{ vm.table.page * vm.table.pageSize + 1}}-{{ [(vm.table.page + 1) * vm.table.pageSize, vm.table.totalItems] | minValue }} of {{ vm.table.totalItems | number }}
-                        </li>
-                        <li class="email-pagination-arrow left">
-                            <a ng-click="vm.setPage(vm.table.page - 1)">
-                                <i class="fa fa-caret-left"></i>
-                            </a>
-                        </li>
-                        <li class="email-pagination-arrow right">
-                            <a ng-click="vm.setPage(vm.table.page + 1)">
-                                <i class="fa fa-caret-right"></i>
-                            </a>
-                        </li>
-                    </ul>
+                    <div class="pull-right">
+                        <ul class="email-pagination">
+                            <li class="email-pagination-info">
+                                {{ vm.table.page * vm.table.pageSize + 1}}-{{ [(vm.table.page + 1) * vm.table.pageSize, vm.table.totalItems] | minValue }} of {{ vm.table.totalItems | number }}
+                            </li>
+                        </ul>
+
+                        <ul class="hl-button-group pull-right">
+                            <li class="hl-button-group-btn">
+                                <a class="hl-button-group-btn-link" ng-click="vm.setPage(vm.table.page - 1)">
+                                    <i class="fa fa-caret-left"></i>
+                                </a>
+                            </li>
+                            <li class="hl-button-group-btn">
+                                <a class="hl-button-group-btn-link" ng-click="vm.setPage(vm.table.page + 1)">
+                                    <i class="fa fa-caret-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </th>
                 <div class="clearfix"></div>
             </tr>
@@ -162,21 +161,25 @@
         <tfoot>
             <tr>
                 <td colspan="8">
-                    <ul class="email-pagination">
-                        <li class="email-pagination-page-info">
-                            {{ vm.table.page * vm.table.pageSize + 1}}-{{ [(vm.table.page + 1) * vm.table.pageSize, vm.table.totalItems] | minValue }} of {{ vm.table.totalItems | number }}
-                        </li>
-                        <li class="email-pagination-arrow left">
-                            <a ng-click="vm.setPage(vm.table.page - 1)">
-                                <i class="fa fa-caret-left"></i>
-                            </a>
-                        </li>
-                        <li class="email-pagination-arrow right">
-                            <a ng-click="vm.setPage(vm.table.page + 1)">
-                                <i class="fa fa-caret-right"></i>
-                            </a>
-                        </li>
-                    </ul>
+                    <div class="pull-right">
+                        <ul class="email-pagination">
+                            <li class="email-pagination-page-info">
+                                {{ vm.table.page * vm.table.pageSize + 1}}-{{ [(vm.table.page + 1) * vm.table.pageSize, vm.table.totalItems] | minValue }} of {{ vm.table.totalItems | number }}
+                            </li>
+                        </ul>
+                        <ul class="hl-button-group">
+                            <li class="hl-button-group-btn">
+                                <a class="hl-button-group-btn-link" ng-click="vm.setPage(vm.table.page - 1)">
+                                    <i class="fa fa-caret-left"></i>
+                                </a>
+                            </li>
+                            <li class="hl-button-group-btn">
+                                <a class="hl-button-group-btn-link" ng-click="vm.setPage(vm.table.page + 1)">
+                                    <i class="fa fa-caret-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </td>
             </tr>
         </tfoot>

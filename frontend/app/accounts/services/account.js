@@ -1,12 +1,14 @@
 angular.module('app.accounts.services').factory('Account', Account);
 
-Account.$inject = ['$http', '$q', '$resource', 'HLResource', 'HLUtils'];
-function Account($http, $q, $resource, HLResource, HLUtils) {
+Account.$inject = ['$http', '$q', '$resource', 'HLResource', 'HLUtils', 'HLCache', 'CacheFactory'];
+function Account($http, $q, $resource, HLResource, HLUtils, HLCache, CacheFactory) {
     var _account = $resource(
         '/api/accounts/account/:id/',
         null,
         {
             get: {
+                // TODO: LILY-1659: Apply caching on User Account.
+                //cache: CacheFactory.get('dataCache'),
                 transformResponse: function(data) {
                     var jsonData = angular.fromJson(data);
 
@@ -16,6 +18,8 @@ function Account($http, $q, $resource, HLResource, HLUtils) {
                 },
             },
             query: {
+                // TODO: LILY-1659: Apply caching on User Account.
+                //cache: CacheFactory.get('dataCache'),
                 isArray: false,
             },
             search: {
@@ -52,6 +56,7 @@ function Account($http, $q, $resource, HLResource, HLUtils) {
                 method: 'DELETE',
             },
             addressOptions: {
+                cache: CacheFactory.get('dataCache'),
                 url: '/api/utils/countries/',
                 method: 'OPTIONS',
             },

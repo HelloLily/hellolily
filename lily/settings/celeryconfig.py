@@ -23,7 +23,7 @@ CELERY_ANNOTATIONS = {
         'time_limit': 3600.0,
     },
 }
-CELERY_DEFAULT_QUEUE = 'queue1'
+CELERY_DEFAULT_QUEUE = 'email_async_tasks'
 CELERY_ENABLE_UTC = True
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_SEND_TASK_ERROR_EMAILS = not DEBUG
@@ -33,18 +33,31 @@ CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_TASK_RESULT_EXPIRES = 300
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_QUEUES = (
-    Queue('queue1', routing_key='email_async_tasks'),
-    Queue('queue2', routing_key='email_scheduled_tasks'),
+    # User initiated mutations on email like Archive, sent, move.
+    Queue('email_async_tasks', routing_key='email_async_tasks'),
+    # Periodic synchronization of EmailAccounts.
+    Queue('email_scheduled_tasks', routing_key='email_scheduled_tasks'),
+    # Initial fetch of messages.
+    Queue('email_first_sync', routing_key='email_first_sync'),
 )
 CELERY_ROUTES = (
-    {'synchronize_email_account_scheduler': {  # schedule priority email tasks without interference
-        'queue': 'queue2'
+    {'synchronize_email_account_scheduler': {
+        'queue': 'email_scheduled_tasks'
     }},
-    {'synchronize_email_account': {  # schedule priority email tasks without interference
-        'queue': 'queue2'
+    {'synchronize_email_account': {
+        'queue': 'email_scheduled_tasks'
     }},
-    {'first_synchronize_email_account': {  # schedule priority email tasks without interference
-        'queue': 'queue2'
+    {'first_synchronize_email_account': {
+        # Task created by this task, will be routed to queue3.
+        'queue': 'email_scheduled_tasks'
+    }},
+    {'download_email_message': {
+        # When task is created in first sync, this task will be routed to email_first_sync.
+        'queue': 'email_scheduled_tasks'
+    }},
+    {'update_labels_for_message': {
+        # When task is created in first sync, this task will be routed to email_first_sync.
+        'queue': 'email_scheduled_tasks'
     }},
 )
 CELERYBEAT_SCHEDULE = {

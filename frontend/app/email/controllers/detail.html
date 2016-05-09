@@ -5,69 +5,76 @@
 </div>
 
 <div class="email-inbox-actions-header">
-    <ul class="email-inbox-actions btn-group">
-        <li>
-            <a ui-sref="base.email.reply({ id: vm.message.id })" class="reply-btn">
+    <ul class="hl-button-group">
+        <li class="hl-button-group-btn">
+            <a class="hl-button-group-btn-link" ui-sref="base.email.reply({ id: vm.message.id })">
                 <i class="fa fa-mail-reply"></i> Reply
             </a>
         </li>
-        <li>
-            <a class="dropdown-toggle no-primary-icon" data-toggle="dropdown">
+        <li class="hl-button-group-btn">
+            <a class="hl-button-group-btn-link" data-toggle="dropdown">
                 <i class="fa fa-angle-down"></i>
             </a>
-            <ul class="dropdown-menu labels">
-                <li>
-                    <a ui-sref="base.email.replyAll({ id: vm.message.id })"><i class="fa fa-reply-all reply-btn"></i> Reply all </a>
+            <ul class="hl-dropdown">
+                <li class="hl-dropdown-item">
+                    <a class="hl-dropdown-item-link" ui-sref="base.email.replyAll({ id: vm.message.id })">
+                        <i class="fa fa-reply-all reply-btn"></i> Reply all
+                    </a>
                 </li>
-                <li>
-                    <a ui-sref="base.email.forward({ id: vm.message.id })"><i class="fa fa-mail-forward reply-btn"></i> Forward </a>
+
+                <li class="hl-dropdown-item">
+                    <a class="hl-dropdown-item-link" ui-sref="base.email.forward({ id: vm.message.id })">
+                        <i class="fa fa-mail-forward reply-btn"></i> Forward
+                    </a>
                 </li>
-                <li class="divider">
-                </li>
-                <li>
-                    <a ng-click="vm.markAsUnread()"><i class="fa fa-envelope reply-btn"></i> Mark as unread </a>
+                <li class="hl-dropdown-item">
+                    <a class="hl-dropdown-item-link" ng-click="vm.markAsUnread()">
+                        <i class="fa fa-envelope reply-btn"></i> Mark as unread
+                    </a>
                 </li>
             </ul>
         </li>
     </ul>
 
-    <ul class="email-inbox-actions">
-        <li>
-            <a ng-click="vm.archiveMessage()"><i class="fa fa-archive"></i> Archive</a>
+    <ul class="hl-button-group">
+        <li class="hl-button-group-btn">
+            <a class="hl-button-group-btn-link" ng-click="vm.archiveMessage()">
+                <i class="fa fa-archive"></i> Archive
+            </a>
         </li>
-        <li>
-            <a ng-click="vm.trashMessage()"><i class="lilicon hl-trashcan-icon"></i> Delete </a>
+        <li class="hl-button-group-btn">
+            <a class="hl-button-group-btn-link" ng-click="vm.trashMessage()"><i class="lilicon hl-trashcan-icon"></i> Delete </a>
         </li>
     </ul>
 
-    <ul class="email-inbox-actions email-inbox-supercard-nav" ng-if="settings.email.sidebar">
-        <li>
-            <a ng-click="vm.toggleSidebar('account')">
+    <ul class="hl-button-group pull-right" ng-if="settings.email.sidebar">
+        <li class="hl-button-group-btn">
+            <a class="hl-button-group-btn-link" ng-click="vm.toggleSidebar('account')">
                 <i ng-class="{'fa fa-eye': settings.email.data.account.id, 'fa fa-plus': !settings.email.data.account.id}"></i> Account
             </a>
         </li>
-        <li>
-            <a ng-click="vm.toggleSidebar('contact')">
+        <li class="hl-button-group-btn">
+            <a class="hl-button-group-btn-link" ng-click="vm.toggleSidebar('contact')">
                 <i ng-class="{'fa fa-eye': settings.email.data.contact.id, 'fa fa-plus': !settings.email.data.contact.id}"></i> Contact
             </a>
         </li>
-        <li ng-if="settings.email.data.account.id || settings.email.data.contact.id">
-            <a ng-click="vm.toggleSidebar('cases')">
+        <li class="hl-button-group-btn" ng-if="settings.email.data.account.id || settings.email.data.contact.id">
+            <a class="hl-button-group-btn-link" ng-click="vm.toggleSidebar('cases')">
                 <i class="fa fa-plus"></i> Case
             </a>
         </li>
-        <li ng-if="settings.email.data.cases">
-            <a ng-click="vm.toggleSidebar('cases', true)">
+        <li class="hl-button-group-btn" ng-if="settings.email.data.cases">
+            <a class="hl-button-group-btn-link" ng-click="vm.toggleSidebar('cases', true)">
                 <i class="fa fa-eye"></i> Cases
             </a>
         </li>
-        <li ng-if="settings.email.data.account.id || settings.email.data.contact.accounts">
-            <a ng-click="vm.toggleSidebar('deals')">
+        <li class="hl-button-group-btn" ng-if="settings.email.data.account.id || settings.email.data.contact.accounts">
+            <a class="hl-button-group-btn-link" ng-click="vm.toggleSidebar('deals')">
                 <i class="fa fa-plus"></i> Deal
             </a>
         </li>
-        <li ng-if="settings.email.data.deals">
-            <a ng-click="vm.toggleSidebar('deals', true)">
+        <li class="hl-button-group-btn" ng-if="settings.email.data.deals">
+            <a class="hl-button-group-btn-link" ng-click="vm.toggleSidebar('deals', true)">
                 <i class="fa fa-eye"></i> Deals
             </a>
         </li>

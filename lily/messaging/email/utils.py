@@ -1,46 +1,26 @@
 import logging
 import re
-import socket
 import mimetypes
 
-from datetime import datetime, timedelta
-from smtplib import SMTPAuthenticationError
+from bs4 import BeautifulSoup
+import html2text
 from urllib import unquote
 
-from bs4 import BeautifulSoup
-from celery import signature
-from celery.states import PENDING
-from dateutil.tz import tzutc
-import html2text
-
-from django.conf import settings
-from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
-from django.core.mail import EmailMultiAlternatives, SafeMIMEMultipart, get_connection
 from django.core.urlresolvers import reverse
-from django.contrib.contenttypes.models import ContentType
 from django.db import models
-
-from django.template.defaultfilters import truncatechars
 from django.template import Context, TemplateSyntaxError, VARIABLE_TAG_START, VARIABLE_TAG_END
 from django.template.loader import get_template_from_string
 from django.template.loader_tags import BlockNode, ExtendsNode
 from django.utils.translation import ugettext_lazy as _
 
-from redis import Redis
-
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
 
-from python_imap.errors import IMAPConnectionError
-from python_imap.folder import INBOX
-from python_imap.server import IMAP
-from taskmonitor.models import TaskStatus
-from taskmonitor.utils import resolve_annotations
 from oauth2client.contrib.django_orm import Storage
 
 from .decorators import get_safe_template
-from .models.models import GmailCredentialsModel, EmailAccount, EmailMessage, EmailAttachment
+from .models.models import GmailCredentialsModel, EmailAccount, EmailAttachment
 from .services import build_gmail_service
 from .sanitize import sanitize_html_email
 
@@ -51,10 +31,6 @@ _EMAIL_PARAMETER_CHOICES = {}
 
 logger = logging.getLogger(__name__)
 
-
-#######################################################################################################################
-# NEW                                                                                                                 #
-#######################################################################################################################
 
 def create_account(credentials, user):
     # Setup service to retrieve email address
@@ -114,7 +90,7 @@ def get_email_parameter_dict():
 def get_email_parameter_api_dict():
     """
     If there is no e-mail parameter dict yet, construct it and return it.
-    The e-mail parameter dict consists of all posible variables for e-mail templates.
+    The e-mail parameter dict consists of all possible variables for e-mail templates.
 
     This function returns parameters organized by variable name for easy parsing.
     """
@@ -176,7 +152,7 @@ class TemplateParser(object):
         try:
             self.template = safe_get_template_from_string(text)
             self.error = None
-        except TemplateSyntaxError, e:
+        except TemplateSyntaxError as e:
             self.template = None
             self.error = e
 
@@ -484,291 +460,6 @@ def create_reply_body_header(email_message):
     return reply_header
 
 
-def smtp_connect(account, fail_silently=True):
-    kwargs = {
-        'host': account.provider.smtp_host,
-        'port': account.provider.smtp_port,
-        'username': account.username,
-        'password': account.password,
-        'use_tls': account.provider.smtp_ssl,
-    }
-
-    return get_connection('django.core.mail.backends.smtp.EmailBackend', fail_silently=fail_silently, **kwargs)
-
-
-class EmailMultiRelated(EmailMultiAlternatives):
-    """
-    A version of EmailMessage that makes it easy to send multipart/related
-    messages. For example, including text and HTML versions with inline images.
-
-    A Utility class for sending HTML emails with inline images
-    http://hunterford.me/html-emails-with-inline-images-in-django/
-    """
-    related_subtype = 'related'
-
-    def __init__(self, subject='', body='', from_email=None, to=None, bcc=None,
-                 connection=None, attachments=None, headers=None, alternatives=None, cc=None):
-        self.related_attachments = []
-        super(EmailMultiRelated, self).__init__(
-            subject, body, from_email, to, bcc, connection, attachments, headers, alternatives, cc
-        )
-
-    def attach_related(self, filename=None, content=None, mimetype=None):
-        """
-        Attaches a file with the given filename and content. The filename can
-        be omitted and the mimetype is guessed, if not provided.
-        """
-        self.related_attachments.append((filename, content, mimetype))
-
-    def _create_message(self, msg):
-        return self._create_attachments(self._create_related_attachments(self._create_alternatives(msg)))
-
-    def _create_alternatives(self, msg):
-        for i, (content, mimetype) in enumerate(self.alternatives):
-            if mimetype == 'text/html':
-                self.alternatives[i] = (content, mimetype)
-
-        return super(EmailMultiRelated, self)._create_alternatives(msg)
-
-    def _create_related_attachments(self, msg):
-        encoding = self.encoding or settings.DEFAULT_CHARSET
-        if self.related_attachments:
-            body_msg = msg
-            msg = SafeMIMEMultipart(_subtype=self.related_subtype, encoding=encoding)
-            if self.body:
-                msg.attach(body_msg)
-            for related in self.related_attachments:
-                msg.attach(self._create_related_attachment(*related))
-        return msg
-
-    def _create_related_attachment(self, filename, content, mimetype=None):
-        """
-        Convert the filename, content, mimetype triple into a MIME attachment
-        object. Adjust headers to use Content-ID where applicable.
-        Taken from http://code.djangoproject.com/ticket/4771
-        """
-        attachment = super(EmailMultiRelated, self)._create_attachment(filename, content, mimetype)
-        if filename:
-            mimetype = attachment['Content-Type']
-            del attachment['Content-Type']
-            del attachment['Content-Disposition']
-            attachment.add_header('Content-Disposition', 'inline', filename=filename)
-            attachment.add_header('Content-Type', mimetype, name=filename)
-            attachment.add_header('Content-ID', '<%s>' % filename)
-        return attachment
-
-
-def get_full_folder_name_by_identifier(identifier, folder_data):
-    folder_data = folder_data.items()
-
-    for folder, values in folder_data:  # pylint: disable=W0612
-        flags = values.get('flags')
-
-        # Check if current flags contain identifier
-        if identifier in flags:
-            # Return folder name if found
-            return values.get('full_name')
-
-        # Otherwise check if the current folder has sub folders
-        if values.get('is_parent'):
-            # If folder has sub folders, recursive call to this function and check sub folders
-            return get_full_folder_name_by_identifier(identifier, values.get('children'))
-
-    return None
-
-
-class LilyIMAP(IMAP):
-    """
-    Wrapper for `IMAP` to increase ease of use.
-    """
-    def __init__(self, account):
-        host = account.provider.imap_host
-        port = account.provider.imap_port
-        ssl = account.provider.imap_ssl
-        super(LilyIMAP, self).__init__(host, port=port, ssl=ssl, silent_fail=True)
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, type, value, traceback):
-        self.logout()
-
-
-def verify_imap_credentials(imap_host, imap_port, imap_ssl, username, password):
-    """
-    Verify IMAP connection and credentials.
-
-    Arguments:
-        imap_host (str): address of host
-        imap_port (int): port to connect to
-        imap_ssl (boolean): True if ssl should be used
-        username (str): username for login to IMAP client
-        password (str): password for login to IMAP client
-
-    Raises:
-        ValidationError: If connection or login failed
-    """
-    # Resolve host name
-    try:
-        socket.gethostbyname(imap_host)
-    except Exception:
-        raise ValidationError(
-            _('Could not resolve %(imap_host)s'),
-            code='invalid_host',
-            params={'imap_host': imap_host}
-        )
-
-    # Try connecting
-    try:
-        imap = IMAP(imap_host, imap_port, imap_ssl)
-    except IMAPConnectionError:
-        raise ValidationError(
-            _('Could not connect to %(imap_host)s:%(imap_port)s'),
-            code='invalid_connection',
-            params={'imap_host': imap_host, 'imap_port': imap_port}
-        )
-
-    # Try login
-    if not imap.login(username, password):
-        raise ValidationError(
-            _('Unable to login with provided username and password on the IMAP host'),
-            code='invalid_credentials'
-        )
-
-
-def verify_smtp_credentials(smtp_host, smtp_port, use_tls, username, password):
-    """
-    Verify SMTP connection and credentials.
-
-    Arguments:
-        smtp_host (str): address of host
-        smtp_port (int): port to connect to
-        use_tls (boolean): True if tls should be used
-        username (str): username for login to SMTP client
-        password (str): password for login to SMTP client
-
-    Raises:
-        ValidationError: If connection or login failed
-    """
-    # Resolve SMTP server
-    try:
-        socket.gethostbyname(smtp_host)
-    except Exception:
-        raise ValidationError(
-            _('Could not resolve %(smtp_host)s'),
-            code='invalid_host',
-            params={'smtp_host': smtp_host}
-        )
-
-    # Try connecting and login
-    try:
-        kwargs = {
-            'host': smtp_host,
-            'port': smtp_port,
-            'use_tls': use_tls,
-            'username': username,
-            'password': password,
-        }
-        smtp_server = get_connection('django.core.mail.backends.smtp.EmailBackend', fail_silently=False, **kwargs)
-        smtp_server.open()
-        smtp_server.close()
-    except SMTPAuthenticationError:
-        # Failed login
-        raise ValidationError(
-            _('Unable to login with provided username and password on the SMTP host'),
-            code='invalid_credentials'
-        )
-    except Exception:
-        # Failed connection
-        raise ValidationError(
-            _('Could not connect to %(smtp_host)s:%(smtp_port)s'),
-            code='invalid_connection',
-            params={'smtp_host': smtp_host, 'smtp_port': smtp_port}
-        )
-
-
-def email_auth_update(user):
-    """
-    Check if there is an email account for the user that needs a new password.
-    """
-    should_update = EmailAccount.objects.filter(
-        is_authorized=False,
-        tenant=user.tenant,
-    ).exists()
-
-    return should_update
-
-
-def unread_emails(user):
-    """
-    Returns a list of unread e-mails.
-    Limit results with bodies to 10.
-    Limit total results to 30.
-    """
-    limit_list = 10
-    limit_excerpt = 5
-    unread_emails_list = []
-
-    # Look up the last few unread e-mail messages for owned accounts
-    ctype = ContentType.objects.get_for_model(EmailAccount)
-    email_accounts = list(user.messages_accounts_owned.filter(polymorphic_ctype=ctype))
-    email_messages = EmailMessage.objects.filter(
-        folder_identifier=INBOX,
-        account__in=email_accounts,
-        is_seen=False,
-    ).order_by('-sort_by_date')
-    unread_count = email_messages.count()
-
-    email_messages = email_messages[:limit_list]  # eval slice
-
-    # show excerpt for limit_excerpt messages
-    for email_message in email_messages[:limit_excerpt]:
-        unread_emails_list.append({
-            'id': email_message.pk,
-            'from': email_message.from_name,
-            'time': email_message.sent_date,
-            'message_excerpt': truncatechars(email_message.textify().lstrip('&nbsp;\n\r\n '), 100),
-        })
-
-    if len(email_messages) > limit_excerpt:
-        # for more messages up to limit_list don't show excerpt
-        for email_message in email_messages[limit_excerpt:]:
-            unread_emails_list.append({
-                'id': email_message.pk,
-                'from': email_message.from_name,
-                'time': email_message.sent_date,
-            })
-
-    return {
-        'count': unread_count,
-        'count_more': unread_count - len(unread_emails_list),
-        'object_list': unread_emails_list,
-    }
-
-
-def create_task_status(task_name, args=None, kwargs=None):
-    sig = str(signature(task_name, args=args, kwargs=kwargs))  # args and kwargs required?
-
-    # Set status to PENDING since it's not running yet
-    init_status = PENDING
-
-    # Check for timelimit
-    annotations_for_task = resolve_annotations(task_name)
-    timelimit = annotations_for_task.get('time_limit')
-
-    # Determine when this task should expire
-    utc_before = datetime.now(tzutc())
-    expires_at = utc_before + timedelta(seconds=timelimit)
-
-    status = TaskStatus.objects.create(
-        status=init_status,
-        signature=sig,
-        expires_at=expires_at,
-    )
-
-    return status
-
-
 def create_recipients(receivers, filter_emails=[]):
     """
     Converts Select2 ready recipients based on the received_by and/or received_by_cc of an email
@@ -822,40 +513,3 @@ def create_recipients(receivers, filter_emails=[]):
         email_addresses.append(receiver.email_address)
 
     return recipients
-
-
-class EmailSyncLock(object):
-    """
-    Class to create locks that expire in redis with key as lock id.
-
-    key: Name of the lock
-    value: Extra information about the lock
-    expires: Lifetime of task in seconds (default 300sec)
-    prefix: Prefix for the key
-    """
-
-    DEFAULT_PREFIX = 'SYNC_'
-    FIRST_SYNC_PREFIX = 'FIRST_SYNC_'
-
-    def __init__(self, key, value=None, expires=settings.GMAIL_SYNC_LOCK_LIFETIME, prefix=DEFAULT_PREFIX):
-        self.key = prefix + str(key)
-        self.value = value
-        self.expires = expires
-        self.connection = self.get_connection()
-
-    def get_connection(self):
-        return Redis(settings.REDIS.hostname, port=settings.REDIS.port, password=settings.REDIS.password)
-
-    def get(self):
-        return self.connection.get(self.key)
-
-    def acquire(self):
-        # If the lock already exists it overrides and extends the expire time
-        self.connection.set(self.key, self.value)
-        self.connection.expire(self.key, self.expires)
-
-    def release(self):
-        self.connection.delete(self.key)
-
-    def is_set(self):
-        return bool(self.get())

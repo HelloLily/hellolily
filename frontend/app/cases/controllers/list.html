@@ -1,43 +1,52 @@
 <div class="portlet light">
     <div class="portlet-title">
-        <div class="caption">
-            <div class="btn-group">
-                <button class="btn dropdown-toggle" data-toggle="dropdown">
+        <ul class="hl-button-group">
+            <li class="hl-button-group-btn">
+                <a class="hl-button-group-btn-link" href="javascript:;" data-toggle="dropdown">
                     <i class="fa fa-columns"></i>
                     Columns
-                    <i class="fa fa-angle-down"></i>
-                </button>
-                <div class="dropdown-menu hold-on-click dropdown-checkboxes">
-                    <checkbox model="vm.table.visibility.caseId">No.</checkbox>
-                    <checkbox model="vm.table.visibility.subject">Subject</checkbox>
-                    <checkbox model="vm.table.visibility.client">Client</checkbox>
-                    <checkbox model="vm.table.visibility.type">Type</checkbox>
-                    <checkbox model="vm.table.visibility.status">Status</checkbox>
-                    <checkbox model="vm.table.visibility.priority">Priority</checkbox>
-                    <checkbox model="vm.table.visibility.created">Created</checkbox>
-                    <checkbox model="vm.table.visibility.expires">Expires</checkbox>
-                    <checkbox model="vm.table.visibility.assignedTo">Assigned to</checkbox>
-                    <checkbox model="vm.table.visibility.createdBy">Created by</checkbox>
-                    <checkbox model="vm.table.visibility.tags">Tags</checkbox>
-                </div>
-            </div>
-            <div class="btn-group">
-                <button class="btn dropdown-toggle" data-toggle="dropdown">
+                    <i class="margin-left-5 small-icon lilicon hl-toggle-down-icon"></i>
+                </a>
+
+                <ul class="hl-dropdown js-hold-on-click">
+                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.caseId">No.</checkbox></li>
+                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.subject">Subject</checkbox></li>
+                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.client">Client</checkbox></li>
+                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.type">Type</checkbox></li>
+                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.status">Status</checkbox></li>
+                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.priority">Priority</checkbox></li>
+                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.created">Created</checkbox></li>
+                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.expires">Expires</checkbox></li>
+                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.assignedTo">Assigned to</checkbox></li>
+                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.createdBy">Created by</checkbox></li>
+                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.tags">Tags</checkbox></li>
+                </ul>
+            </li>
+        </ul>
+
+        <ul class="hl-button-group">
+            <li class="hl-button-group-btn">
+                <a class="hl-button-group-btn-link" href="javascript:;" data-toggle="dropdown">
                     <i class="fa fa-filter"></i>
                     Filter on
-                    <i class="fa fa-angle-down"></i>
-                </button>
-                <button class="btn red-pink" ng-click="vm.clearFilters(false)" ng-show="vm.displayFilterClear"><i class="fa fa-remove"></i></button>
-                <div class="dropdown-menu hold-on-click dropdown-checkboxes list-filters">
-                    <div ng-repeat="filter in vm.filterList">
+                    <i class="margin-left-5 small-icon lilicon hl-toggle-down-icon"></i>
+                </a>
+
+                <span class="hl-button-group-btn-clear" ng-click="vm.clearFilters(false)" ng-show="vm.displayFilterClear">
+                    <i class="fa fa-remove"></i>
+                </span>
+
+                <ul class="hl-dropdown js-hold-on-click">
+                    <li class="hl-dropdown-item" ng-repeat="filter in vm.filterList">
                         <checkbox model="filter.selected" ng-click="vm.updateFilterQuery()">{{filter.name}}</checkbox>
-                    </div>
-                </div>
-            </div>
-            <widget-filters>
-                <list-filter filter-label="'Case type'" filter-label-plural="'types'" view-model="vm"></list-filter>
-            </widget-filters>
-        </div>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+
+        <list-filter filter-label="'Case type'" filter-label-plural="'types'" view-model="vm"></list-filter>
+
+
         <div class="tools col-xs-12 col-md-6">
             <form class="form-inline pull-right">
                 <div class="input-group">

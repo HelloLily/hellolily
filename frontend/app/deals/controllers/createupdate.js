@@ -182,8 +182,6 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
             if ($stateParams.contactId) {
                 Contact.get({id: $stateParams.contactId}).$promise.then(function(contact) {
                     vm.deal.contact = contact;
-                    // API returns 'full_name' but ES returns 'name'. So get the full name and set the name.
-                    vm.deal.contact.name = contact.full_name;
 
                     if (vm.deal.contact.accounts && vm.deal.contact.accounts.length === 1) {
                         // Automatically fill in the account the contact works at.
@@ -378,7 +376,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
             accountQuery += 'accounts.id:' + vm.deal.account.id;
         }
 
-        contactsPromise = HLSearch.refreshList(query, 'Contact', null, accountQuery);
+        contactsPromise = HLSearch.refreshList(query, 'Contact', accountQuery);
 
         if (contactsPromise) {
             contactsPromise.$promise.then(function(data) {

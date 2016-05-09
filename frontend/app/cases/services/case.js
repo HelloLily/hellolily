@@ -1,7 +1,7 @@
 angular.module('app.cases.services').factory('Case', Case);
 
-Case.$inject = ['$resource', '$q', 'Account', 'Contact', 'HLUtils'];
-function Case($resource, $q, Account, Contact, HLUtils) {
+Case.$inject = ['$resource', '$q', 'Account', 'Contact', 'HLUtils', 'HLCache', 'CacheFactory'];
+function Case($resource, $q, Account, Contact, HLUtils, HLCache, CacheFactory) {
     var _case = $resource(
         '/api/cases/case/:id/',
         {},
@@ -9,11 +9,6 @@ function Case($resource, $q, Account, Contact, HLUtils) {
             get: {
                 transformResponse: function(data) {
                     var lilyCase = angular.fromJson(data);
-
-                    if (lilyCase.contact) {
-                        // API returns 'full_name' but ES returns 'name'. So get the full name and set the name.
-                        lilyCase.contact.name = lilyCase.contact.full_name;
-                    }
 
                     if (lilyCase.assigned_to) {
                         lilyCase.assigned_to.name = HLUtils.getFullName(lilyCase.assigned_to);
@@ -57,10 +52,12 @@ function Case($resource, $q, Account, Contact, HLUtils) {
             },
             getCaseTypes: {
                 isArray: true,
+                cache: CacheFactory.get('dataCache'),
                 url: '/api/cases/types/',
             },
             caseStatuses: {
                 isArray: true,
+                cache: CacheFactory.get('dataCache'),
                 url: '/api/cases/statuses/',
             },
         }

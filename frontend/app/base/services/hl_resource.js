@@ -50,7 +50,7 @@ function HLResource($injector, Settings) {
     this.createArgs = function(data, field, model) {
         var args;
 
-        if (typeof data === 'object') {
+        if (data && typeof data === 'object') {
             args = data;
         } else {
             args = {

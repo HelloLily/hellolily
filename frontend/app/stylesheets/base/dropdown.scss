@@ -1,3 +1,93 @@
+/* SG
+
+# Dropdown #
+
+Dropdown menu's are frequently used user interface elements. We would like to use the same ones consistently.
+
+*/
+
+$dropdown-arrow-size: 8px;
+
+.hl-dropdown {
+    list-style: none;
+    min-width: 200px;
+    margin: 10px 0;
+    padding: 0;
+    background: white;
+    border: 1px $baseBorderColor solid;
+    border-radius: $baseBorderRadius;
+    display: none;
+    position: absolute;
+    left: -1px;
+    z-index: 100;
+    -webkit-box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.15);
+    -moz-box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.15);
+    box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.15);
+
+    &:before {
+        content: "";
+        position: absolute;
+        z-index: 20;
+        left: 10px;
+        top: -$dropdown-arrow-size;
+        width: 0;
+        height: 0;
+        border-width: 0 $dropdown-arrow-size $dropdown-arrow-size $dropdown-arrow-size;
+        border-color: transparent transparent #fff transparent;
+        border-style: solid;
+    }
+
+    &:after {
+        content: "";
+        z-index: 19;
+        position: absolute;
+        top: - ($dropdown-arrow-size + 1px);
+        left: 10px;
+        border-width: 0 $dropdown-arrow-size $dropdown-arrow-size $dropdown-arrow-size;
+        border-color: transparent transparent $baseBorderColor transparent;
+        border-style: solid;
+    }
+}
+
+.hl-dropdown-item {
+    cursor: pointer;
+    line-height: 20px;
+    padding: 5px 10px;
+    white-space: nowrap;
+    position: relative;
+    border-bottom: 1px lighten($baseBorderColor,10) solid;
+
+    &:first-child {
+        .hl-dropdown-item-link {
+            border-top-left-radius: $baseBorderRadius;
+            border-top-right-radius: $baseBorderRadius;
+        }
+    }
+
+    &:last-child {
+        border-bottom: none;
+
+        .hl-dropdown-item-link {
+            border-bottom-left-radius: $baseBorderRadius;
+            border-bottom-right-radius: $baseBorderRadius;
+        }
+    }
+
+    .hl-dropdown-item-link {
+        text-decoration: none;
+        display: block;
+        margin: -5px -10px;
+        padding: 5px 10px;
+
+        &:hover {
+            background: $skyGrey;
+        }
+    }
+}
+
+/* OLD STUFF */
+
+
 .drop-down {
     position: relative;
     list-style: none;

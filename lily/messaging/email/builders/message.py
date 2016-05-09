@@ -95,16 +95,16 @@ class MessageBuilder(object):
             message_id (string): message_id of email
         """
         # Save labels
-        self.store_labels_for_message(message_info, message_id)
+        self.store_labels_and_thread_for_message(message_info, message_id)
 
         self.message.snippet = message_info['snippet']
 
         # Save the payload
         self._save_message_payload(message_info['payload'])
 
-    def store_labels_for_message(self, message_info, message_id):
+    def store_labels_and_thread_for_message(self, message_info, message_id):
         """
-        Handle the labels for current Message
+        Handle the labels and thread_id for current EmailMessage
 
         Args:
             message_info (dict): message info dict
@@ -112,10 +112,6 @@ class MessageBuilder(object):
         """
         self.get_or_create_message({'id': message_id})
         self.message.thread_id = message_info['threadId']
-
-        # clear current labels
-        if self.message.pk and self.message.labels:
-            self.message.labels.clear()
 
         # UNREAD identifier check to see if message is read
         self.message.read = settings.GMAIL_UNREAD_LABEL not in message_info.get('labelIds', [])
@@ -432,16 +428,17 @@ class MessageBuilder(object):
             if self.attachments or self.inline_attachments:
                 self.message.has_attachment = True
 
-            # Save before we can add many to many and foreign keys
-            try:
-                self.message.save()
-            except IntegrityError:
-                existing_message = EmailMessage.objects.get(
-                    account_id=self.message.account_id,
-                    message_id=self.message.message_id,
-                )
-                self.message.id = existing_message.id
-                self.message.save()
+            if not self.message.pk:
+                # Save before we can add many to many and foreign keys
+                try:
+                    self.message.save()
+                except IntegrityError:
+                    existing_message = EmailMessage.objects.get(
+                        account_id=self.message.account_id,
+                        message_id=self.message.message_id,
+                    )
+                    self.message.id = existing_message.id
+                    self.message.save()
 
             # Save recipients
             self.message.received_by.add(*self.received_by)
@@ -450,25 +447,24 @@ class MessageBuilder(object):
             # Save labels
             if len(self.labels):
                 with transaction.atomic():
-                    self.message.labels.clear()
-                    self.labels = list(set(self.labels))
-                    for label in self.labels:
-                        label.save()
-                        self.message.labels.add(label)
+                    if self.message.pk:
+                        self.message.labels.clear()
+                    self.message.labels.add(*self.labels)
+            elif self.message.labels:
+                self.message.labels.clear()
 
             # Save headers
             if len(self.headers):
                 self.message.headers.all().delete()
-            for header in self.headers:
-                self.message.headers.add(header)
+                self.message.headers.add(*self.headers)
 
             # Save attachments
             if len(self.attachments):
                 self.message.attachments.all().delete()
 
-            for attachment in self.attachments:
-                self.message.attachments.add(attachment)
+            self.message.attachments.add(*self.attachments)
 
+            self.message.save()
         else:
             logger.debug('No emailmessage, storing empty ID')
             NoEmailMessageId.objects.get_or_create(

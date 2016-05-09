@@ -19,9 +19,9 @@
 
                     <form-group label-title="Contact" label-id="id_contact" field="dealForm.contact">
                         <ui-select ng-model="vm.deal.contact" theme="select2" class="form-control" name="contact" append-to-body="true">
-                            <ui-select-match placeholder="Select an contact" allow-clear="true">{{ $select.selected.name }}</ui-select-match>
-                            <ui-select-choices repeat="contact in vm.contacts | propsFilter: {name: $select.search}" refresh="vm.refreshContacts($select.search)">
-                                <div ng-bind-html="contact.name | highlight: $select.search"></div>
+                            <ui-select-match placeholder="Select an contact" allow-clear="true">{{ $select.selected.full_name }}</ui-select-match>
+                            <ui-select-choices repeat="contact in vm.contacts | propsFilter: {full_name: $select.search}" refresh="vm.refreshContacts($select.search)">
+                                <div ng-bind-html="contact.full_name | highlight: $select.search"></div>
                             </ui-select-choices>
                         </ui-select>
                         <span class="help-text text-muted">Please type at least 2 characters to begin the search</span>
@@ -39,6 +39,13 @@
                         <option value="" hidden>---------</option>
                     </select>
                 </form-group>
+
+                <ui-select ng-model="vm.deal.found_through" theme="bootstrap" style="min-width: 300px;" title="Choose a person">
+                    <ui-select-match placeholder="Select a person in the list or search his name/age...">{{$select.selected.name}}</ui-select-match>
+                    <ui-select-choices repeat="found_through in vm.foundThroughChoices">
+                      <div ng-bind-html="found_through.name | highlight: $select.search"></div>
+                    </ui-select-choices>
+                </ui-select>
 
                 <form-group label-title="Contacted us by" label-id="id_contacted_by" field="dealForm.contacted_by" required="true">
                     <select name="contacted_by" ng-model="vm.deal.contacted_by"

@@ -1,7 +1,7 @@
 angular.module('app.deals.services').factory('Deal', Deal);
 
-Deal.$inject = ['$resource', 'HLUtils', 'HLForms'];
-function Deal($resource, HLUtils, HLForms) {
+Deal.$inject = ['$resource', 'HLUtils', 'HLForms', 'HLCache', 'CacheFactory'];
+function Deal($resource, HLUtils, HLForms, HLCache, CacheFactory) {
     var _deal = $resource(
         '/api/deals/deal/:id/',
         null,
@@ -9,11 +9,6 @@ function Deal($resource, HLUtils, HLForms) {
             get: {
                 transformResponse: function(data) {
                     var deal = angular.fromJson(data);
-
-                    if (deal.contact) {
-                        // API returns 'full_name' but ES returns 'name'. So get the full name and set the name.
-                        deal.contact.name = deal.contact.full_name;
-                    }
 
                     if (deal.assigned_to) {
                         deal.assigned_to.name = deal.assigned_to.full_name;
@@ -79,16 +74,20 @@ function Deal($resource, HLUtils, HLForms) {
                 },
             },
             getNextSteps: {
+                cache: CacheFactory.get('dataCache'),
                 url: 'api/deals/next-steps/',
             },
             getWhyCustomer: {
+                cache: CacheFactory.get('dataCache'),
                 url: 'api/deals/why-customer/',
             },
             getWhyLost: {
+                cache: CacheFactory.get('dataCache'),
                 url: 'api/deals/why-lost',
             },
             getStatuses: {
                 url: '/api/deals/statuses/',
+                cache: CacheFactory.get('dataCache'),
                 transformResponse: function(data) {
                     var statusData = angular.fromJson(data);
 
@@ -104,9 +103,11 @@ function Deal($resource, HLUtils, HLForms) {
                 },
             },
             getFoundThrough: {
+                cache: CacheFactory.get('dataCache'),
                 url: '/api/deals/found-through/',
             },
             getContactedBy: {
+                cache: CacheFactory.get('dataCache'),
                 url: '/api/deals/contacted-by/',
             },
             getFormOptions: {

@@ -95,32 +95,38 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
                 name: 'Assigned to me',
                 value: 'assigned_to_id:' + currentUser.id,
                 selected: false,
+                isSpecialFilter: false,
             },
             {
                 name: 'New business',
                 value: 'new_business:true',
                 selected: false,
+                isSpecialFilter: false,
             },
             {
                 name: 'Feedback form not sent',
                 value: 'feedback_form_sent:false',
                 selected: false,
+                isSpecialFilter: false,
             },
             {
                 name: 'Age between 7 and 30 days',
                 value: 'created:[' + moment().subtract(30, 'd').format('YYYY-MM-DD') + ' TO ' + moment().subtract(7, 'd').format('YYYY-MM-DD') + ']',
                 selected: false,
+                isSpecialFilter: false,
             },
             {
                 name: 'Age between 30 and 120 days',
                 value: 'created:[' + moment().subtract(120, 'd').format('YYYY-MM-DD') + ' TO ' + moment().subtract(30, 'd').format('YYYY-MM-DD') + ']',
                 selected: false,
+                isSpecialFilter: false,
             },
             {
                 name: 'Archived',
                 value: '',
                 selected: false,
                 id: 'archived',
+                isSpecialFilter: false,
             },
         ];
 
@@ -130,6 +136,7 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
                     name: status.name,
                     value: 'status:' + status.id,
                     selected: false,
+                    isSpecialFilter: false,
                 });
             });
         });

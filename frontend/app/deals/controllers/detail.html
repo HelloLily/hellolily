@@ -5,21 +5,20 @@
     <div class="col-md-8">
         <div class="widget-container">
             <div class="widget-heading">
-                <div class="pull-left radio-button-group" data-toggle="buttons" data-object-id="{{ vm.deal.id }}">
-                    <label class="no-radio-bullets" ng-repeat="status in vm.statusChoices" for="status-{{ status.name | lowercase }}" ng-class="{'radio-button': true, 'radio-button active': vm.deal.status.id == status.id, 'radio-button disabled': vm.deal.is_archived }" ng-click="vm.changeState(status)">
-                        <div class="radio-button-inset">
-                            <input class="toggle" type="radio" id="status-{{ status.name | lowercase }}" name="radio" value="{{ status.id }}" ng-checked="vm.deal.status.id == status.id">
+                <ul class="hl-button-group">
+                    <li class="hl-button-group-btn" ng-repeat="status in vm.statusChoices" ng-click="vm.changeState(status)" ng-class="{'selected': vm.deal.status.id == status.id, 'radio-button disabled': vm.deal.is_archived }">
+                        <span class="hl-button-group-btn-link">
                             {{ status.name }}
-                        </div>
-                    </label>
+                        </span>
+                    </li>
 
-                    <label class="radio-button">
-                        <div class="radio-button-inset" ng-click="vm.deal.is_archived = !vm.deal.is_archived">
+                    <li class="hl-button-group-btn">
+                        <span class="hl-button-group-btn-link" ng-click="vm.deal.is_archived = !vm.deal.is_archived">
                             <span ng-if="vm.deal.is_archived">Unarchive</span>
                             <span ng-if="!vm.deal.is_archived">Archive</span>
-                        </div>
-                    </label>
-                </div>
+                        </span>
+                    </li>
+                </ul>
 
                 <div class="pull-right">
                     <strong class="margin-right-5">Last edited:</strong><date add-time="true" date="vm.deal.modified"></date>
@@ -74,7 +73,7 @@
 
     <div>
         <div class="col-md-4">
-            <dashboard-widget widget-name="'Detail'">
+            <widget widget-name="'Detail'">
                 <widget-header>
                     <div class="widget-name">Deal details</div>
                 </widget-header>
@@ -169,9 +168,9 @@
                         </table>
                     </div>
                 </widget-body>
-            </dashboard-widget>
+            </widget>
 
-            <dashboard-widget widget-name="'Involved'">
+            <widget widget-name="'Involved'">
                 <widget-header>
                     <div class="widget-name">Involved</div>
                 </widget-header>
@@ -198,9 +197,9 @@
                         </ul>
                     </div>
                 </widget-body>
-            </dashboard-widget>
+            </widget>
 
-            <dashboard-widget ng-if="vm.deal.account" widget-name="'Account info'">
+            <widget ng-if="vm.deal.account" widget-name="'Account info'">
                 <widget-header>
                     <div class="widget-name">
                         <a ui-sref="base.accounts.detail({ id: vm.deal.account.id })">
@@ -247,14 +246,14 @@
                         </ul>
                     </div>
                 </widget-body>
-            </dashboard-widget>
+            </widget>
 
-            <dashboard-widget ng-if="vm.deal.contact" widget-name="'Contact info'">
+            <widget ng-if="vm.deal.contact" widget-name="'Contact info'">
                 <widget-header>
                     <div class="widget-name">
                         <a ui-sref="base.contacts.detail({ id: vm.deal.contact.id })">
                             <i class="lilicon hl-user-icon"></i>
-                            {{ vm.deal.contact.name }}
+                            {{ vm.deal.contact.full_name }}
                         </a>
                     </div>
                 </widget-header>
@@ -280,7 +279,7 @@
                         </ul>
                     </div>
                 </widget-body>
-            </dashboard-widget>
+            </widget>
         </div>
     </div>
 </div>

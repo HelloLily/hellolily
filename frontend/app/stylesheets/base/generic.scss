@@ -222,10 +222,6 @@ label.required {
     background: #eeeeee;
 }
 
-input.ui-select-search {
-    width: 100% !important;
-}
-
 ul[uib-datepicker-popup-wrap] {
     padding: 10px;
 
@@ -387,6 +383,14 @@ table {
     margin-left: 10px;
 }
 
+.margin-left-15 {
+    margin-left: 15px;
+}
+
+.padding-left-30 {
+    padding-left: 30px;
+}
+
 .margin-right-5 {
     margin-right: 5px;
 }
@@ -397,6 +401,14 @@ table {
     .checkbox-list-row {
         padding: 2px;
     }
+}
+
+.pull-right {
+    float: right;
+}
+
+.pull-left {
+    float: left;
 }
 
 .lily-checkbox {
@@ -428,4 +440,12 @@ table {
 
 .fa {
     margin-top: 0;
+}
+
+.lineheight-30 {
+    line-height: 30px;
+}
+
+.small-icon {
+    font-size: 10px;
 }

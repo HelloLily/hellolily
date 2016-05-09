@@ -1,17 +1,21 @@
 angular.module('app.filters').filter('propsFilter', propsFilter);
 
-function propsFilter () {
+function propsFilter() {
     return function(items, props) {
         var out = [];
 
         if (angular.isArray(items)) {
             items.forEach(function(item) {
+                var i;
+                var prop;
+                var text;
                 var itemMatches = false;
-
                 var keys = Object.keys(props);
-                for (var i = 0; i < keys.length; i++) {
-                    var prop = keys[i];
-                    var text = props[prop].toLowerCase();
+
+                for (i = 0; i < keys.length; i++) {
+                    prop = keys[i];
+                    text = props[prop].toLowerCase();
+
                     if (item[prop].toString().toLowerCase().indexOf(text) !== -1) {
                         itemMatches = true;
                         break;
@@ -23,10 +27,10 @@ function propsFilter () {
                 }
             });
         } else {
-            // Let the output be the input untouched
+            // Let the output be the input untouched.
             out = items;
         }
 
         return out;
-    }
+    };
 }

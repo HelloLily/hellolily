@@ -491,7 +491,8 @@
     margin: 0;
     padding: 0;
     list-style-type: none;
-    float: right;
+    float: left;
+    line-height: $button-height;
 
     li {
         display: inline-block;

@@ -1,51 +1,36 @@
-<div class="btn-group cases-btn-group-person-selector-padding-left-5">
-    <a class="btn btn-default btn-circle" href="javascript:;" data-toggle="dropdown" ng-click="vm.loadTeams()">
-        <i class="fa fa-user"></i>
+<ul class="hl-button-group pull-right">
+    <li class="hl-button-group-btn">
+        <a class="hl-button-group-btn-link" href="javascript:;" data-toggle="dropdown" ng-click="vm.loadTeams()">
+            <i class="lilicon hl-user-icon"></i>
 
-        <span class="hidden-480">
-            <span ng-show="vm.usersDisplayNames.length >= 3">
-                {{ vm.usersDisplayNames.length }} selected
+            <span class="hidden-480">
+                <span ng-show="vm.usersDisplayNames.length >= 3">
+                    {{ vm.usersDisplayNames.length }} selected
+                </span>
+                <span ng-show="vm.usersDisplayNames.length < 3" ng-repeat="display in vm.usersDisplayNames">
+                    {{ display }}{{ $last ? '' : ', '}}
+                </span>
             </span>
-            <span ng-show="vm.usersDisplayNames.length < 3" ng-repeat="display in vm.usersDisplayNames">
-                {{ display }}{{ $last ? '' : ', '}}
-            </span>
-        </span>
 
-        <i class="fa fa-angle-down"></i>
-    </a>
+            <i class="margin-left-5 small-icon lilicon hl-toggle-down-icon"></i>
+        </a>
 
-    <div class="pull-right hold-on-click dropdown-checkboxes dropdown-menu">
-        <div class="cases-person-selector-dropdown">
-            <div class="cases-person-selector-dropdown-option" ng-click="vm.toggleUser('', vm.currentUser.id)">
-                <div class="team-option">
-                    <div class="cases-person-selector-dropdown-selection-box">
-                        <i ng-class="{'fa fa-check': vm.usersSelection.indexOf(vm.currentUser.id) > -1}"></i>
-                    </div>
-                    <span> {{ vm.currentUser.fullName }} </span>
-                </div>
-            </div>
-
+        <ul class="hl-dropdown js-hold-on-click">
+            <li class="hl-dropdown-item" ng-click="vm.toggleUser('', vm.currentUser.id)">
+                <div class="hl-checkbox" ng-class="{'checked': vm.usersSelection.indexOf(vm.currentUser.id) > -1}"></div>
+                {{ vm.currentUser.fullName }}
+            </li>
             <div ng-repeat="team in vm.teams">
-                <div class="cases-person-selector-dropdown-option" ng-click="vm.toggleUser(team)">
-                    <div class="team-option">
-                        <div class="cases-person-selector-dropdown-selection-box">
-                            <i ng-class="{'fa fa-check': vm.teamsSelection.indexOf(team.id) > -1}"></i>
-                        </div>
-                        <span> {{ team.name }} </span>
-                    </div>
-                </div>
+                <li class="hl-dropdown-item" ng-click="vm.toggleUser(team)">
+                    <div class="hl-checkbox" ng-class="{'checked': vm.teamsSelection.indexOf(team.id) > -1}"></div>
+                    {{ team.name }}
+                </li>
 
-                <div ng-repeat="user in team.users">
-                    <div class="cases-person-selector-dropdown-option" ng-click="vm.toggleUser(team, user.id)">
-                        <div class="user-option">
-                            <div class="cases-person-selector-dropdown-selection-box">
-                                <i ng-class="{'fa fa-check': vm.usersSelection.indexOf(user.id) > -1}"></i>
-                            </div>
-                            <span> {{ user.full_name }} </span>
-                        </div>
-                    </div>
-                </div>
+                <li class="hl-dropdown-item padding-left-30" ng-repeat="user in team.users" ng-click="vm.toggleUser(team, user.id)">
+                    <div class="hl-checkbox" ng-class="{'checked': vm.usersSelection.indexOf(user.id) > -1}"></div>
+                    {{ user.full_name }}
+                </li>
             </div>
-        </div>
-    </div>
-</div>
+        </ul>
+    </li>
+</ul>

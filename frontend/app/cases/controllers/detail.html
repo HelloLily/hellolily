@@ -5,20 +5,21 @@
     <div class="col-md-8">
         <div class="widget-container" ng-if="vm.case.id">
             <div class="widget-heading">
-                <div class="pull-left radio-button-group" data-toggle="buttons" data-object-id="{{ ::vm.case.id }}">
-                    <label class="no-radio-bullets" ng-repeat="status in vm.caseStatuses" for="status-{{ status.id }}" ng-class="{'radio-button': true, 'radio-button active': vm.case.status.status == status.status, 'radio-button disabled': vm.case.is_archived }" ng-click="vm.changeCaseStatus(status)">
-                        <div class="radio-button-inset">
-                            <input class="toggle" type="radio" id="status-{{ status.id }}" name="radio" value="{{ status.id }}" ng-checked="vm.case.status == status.id">
-                            {{ status.status }}
-                        </div>
-                    </label>
+                <div class="hl-button-group-container">
+                    <ul class="hl-button-group" data-toggle="buttons" data-object-id="{{ ::vm.case.id }}">
+                        <li class="hl-button-group-btn" ng-repeat="status in vm.caseStatuses" ng-click="vm.changeCaseStatus(status)" ng-class="{'selected': vm.case.status.status == status.status, 'disabled': vm.case.is_archived }">
+                            <span class="hl-button-group-btn-link">
+                                {{ status.status }}
+                            </span>
+                        </li>
 
-                    <label class="radio-button">
-                        <div class="radio-button-inset" ng-click="vm.case.is_archived = !vm.case.is_archived">
-                            <span ng-if="vm.case.is_archived">Unarchive</span>
-                            <span ng-if="!vm.case.is_archived">Archive</span>
-                        </div>
-                    </label>
+                        <li class="hl-button-group-btn">
+                            <span class="hl-button-group-btn-link" ng-click="vm.case.is_archived = !vm.case.is_archived">
+                                <span ng-if="vm.case.is_archived">Unarchive</span>
+                                <span ng-if="!vm.case.is_archived">Archive</span>
+                            </span>
+                        </li>
+                    </ul>
                 </div>
 
                 <div class="clearfix"></div>

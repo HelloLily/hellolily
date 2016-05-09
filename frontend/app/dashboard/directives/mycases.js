@@ -11,7 +11,7 @@ function myCasesDirective() {
 
 MyCasesController.$inject = ['$filter', '$scope', 'Case', 'HLUtils', 'LocalStorage'];
 function MyCasesController($filter, $scope, Case, HLUtils, LocalStorage) {
-    var storage = LocalStorage('myCasesWidget');
+    var storage = new LocalStorage('myCasesWidget');
     var vm = this;
 
     vm.highPrioCases = 0;
@@ -24,7 +24,6 @@ function MyCasesController($filter, $scope, Case, HLUtils, LocalStorage) {
         dueDateFilter: storage.get('dueDateFilter', ''),
         usersFilter: storage.get('usersFilter', ''),
     };
-
     vm.numOfCases = 0;
 
     vm.getMyCases = getMyCases;
@@ -41,6 +40,18 @@ function MyCasesController($filter, $scope, Case, HLUtils, LocalStorage) {
         var field = 'expires';
         var descending = false;
 
+        var filterQuery = 'archived:false AND NOT casetype_name:Callback';
+
+        if (vm.table.dueDateFilter) {
+            filterQuery += ' AND ' + vm.table.dueDateFilter;
+        }
+
+        if (vm.table.usersFilter) {
+            filterQuery += ' AND (' + vm.table.usersFilter + ')';
+        } else {
+            filterQuery += ' AND assigned_to_id:' + currentUser.id;
+        }
+
         HLUtils.blockUI('#myCasesBlockTarget', true);
 
         if (vm.table.dueDateFilter !== '') {
@@ -48,12 +59,8 @@ function MyCasesController($filter, $scope, Case, HLUtils, LocalStorage) {
             descending = vm.table.order.descending;
         }
 
-        Case.getMyCasesWidget(
-            field,
-            descending,
-            vm.table.dueDateFilter,
-            vm.table.usersFilter
-        ).then(function(data) {
+        Case.getCases(field, descending, filterQuery).then(function(data) {
+            var i;
             var objects = data.objects;
             // Make sure the data is sorted by priority as well.
             objects = $filter('orderBy')(objects, '-priority');
@@ -69,7 +76,7 @@ function MyCasesController($filter, $scope, Case, HLUtils, LocalStorage) {
 
             vm.highPrioCases = 0;
 
-            for (var i in objects) {
+            for (i in objects) {
                 if (objects[i].priority === 3) {
                     vm.highPrioCases++;
                 }

@@ -12,7 +12,7 @@ function dealsToCheckDirective() {
 
 DealsToCheckController.$inject = ['$scope', 'LocalStorage', 'Deal', 'HLUtils', 'UserTeams'];
 function DealsToCheckController($scope, LocalStorage, Deal, HLUtils, UserTeams) {
-    var storage = LocalStorage('dealsToCheckkWidget');
+    var storage = new LocalStorage('dealsToCheckkWidget');
     var vm = this;
 
     vm.users = [];
@@ -38,7 +38,6 @@ function DealsToCheckController($scope, LocalStorage, Deal, HLUtils, UserTeams) 
     function _getDealsToCheck() {
         Deal.getStatuses(function() {
             var filterQuery = 'status:' + Deal.wonStatus.id + ' AND is_checked:false AND new_business:true AND archived:false';
-            var dealPromise;
 
             HLUtils.blockUI('#dealsToCheckBlockTarget', true);
 
@@ -48,13 +47,12 @@ function DealsToCheckController($scope, LocalStorage, Deal, HLUtils, UserTeams) 
                 filterQuery += ' AND assigned_to_id:' + currentUser.id;
             }
 
-            dealPromise = Deal.getDeals('', 1, 20, vm.table.order.column, vm.table.order.descending, filterQuery);
-            dealPromise.then(function(data) {
+            Deal.getDeals(vm.table.order.column, vm.table.order.descending, filterQuery).then(function(data) {
                 vm.table.items = data.objects;
 
                 HLUtils.unblockUI('#dealsToCheckBlockTarget');
             });
-        })
+        });
     }
 
     function _getUsers() {

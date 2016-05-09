@@ -305,11 +305,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         return Response(results)
 
 
-class EmailTemplateViewSet(SetTenantUserMixin,
-                           mixins.DestroyModelMixin,
-                           mixins.RetrieveModelMixin,
-                           mixins.ListModelMixin,
-                           GenericViewSet):
+class EmailTemplateViewSet(SetTenantUserMixin, viewsets.ModelViewSet):
     """
     EmailTemplate API.
     """

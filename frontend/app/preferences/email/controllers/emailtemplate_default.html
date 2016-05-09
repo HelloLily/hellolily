@@ -1,0 +1,21 @@
+<form name="defaultForForm">
+    <div class="modal-header">
+        <h3 class="modal-title">
+            Set {{ vm.emailTemplate.name }} as default for
+        </h3>
+    </div>
+    <div class="modal-body">
+        <label ng-repeat="emailAccount in vm.emailAccountList">
+            <input type="checkbox"
+                   name="default_for"
+                   value="{{ emailAccount.id }}"
+                   ng-model="emailAccount.selected" />
+            {{ emailAccount.email_address }}
+        </label>
+        <field-error form="defaultForForm" field="default_for"></field-error>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" type="button" ng-click="vm.ok(defaultForForm)">OK</button>
+        <button class="btn btn-default" type="button" ng-click="vm.cancel()">Cancel</button>
+    </div>
+</form>

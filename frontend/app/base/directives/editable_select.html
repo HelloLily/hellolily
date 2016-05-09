@@ -9,7 +9,7 @@
              data-e-ng-model="es.selectModel" class="editable editable-click">
             <ng-transclude></ng-transclude>
 
-            <editable-ui-select-match placeholder="{{ es.placeholder }}">
+            <editable-ui-select-match placeholder="{{ es.placeholder }}" allow-clear="{{ es.selectOptions.allowClear }}">
                 {{ $select.selected[es.optionDisplay] }}
             </editable-ui-select-match>
             <editable-ui-select-choices repeat="item in es.choices" refresh="es.refreshChoices($select.search)" refresh-delay="150">

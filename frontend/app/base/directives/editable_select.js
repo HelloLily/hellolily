@@ -166,7 +166,12 @@ function EditableSelectController($scope, HLResource, HLSearch, HLUtils) {
             }
         }
 
-        args[es.field] = $data;
+        if (typeof $data === 'undefined') {
+            // We're probably clearing a select field, which produces undefined.
+            args[es.field] = null;
+        } else {
+            args[es.field] = $data;
+        }
 
         return es.viewModel.updateModel(args).then(function() {
             if (es.search) {

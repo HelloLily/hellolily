@@ -211,10 +211,12 @@
                             <tr>
                                 <td>Assigned to</td>
                                 <td>
-                                    <editable-select field="assigned_to" view-model="vm" type="Case" search="true" select-options="{type: 'User', display: 'full_name', placeholder: 'Assign to...'}">
+                                    <editable-select field="assigned_to" view-model="vm" type="Case" search="true" select-options="{type: 'User', display: 'full_name', placeholder: 'Assign to...', allowClear: true}">
                                         {{ vm.case.assigned_to.full_name || 'Nobody'}}
                                     </editable-select>
-                                    <a ng-if="vm.case.assigned_to.id != currentUser.id" ng-click="vm.assignCase()"><i class="fa fa-anchor margin-left-5"></i> Assign to me</a>
+                                    <a ng-if="vm.case.assigned_to.id != currentUser.id" ng-click="vm.assignCase()">
+                                        <i class="fa fa-anchor margin-left-5"></i> Assign to me
+                                    </a>
                                 </td>
                             </tr>
                             <tr ng-if="vm.case.assigned_to_groups.length">

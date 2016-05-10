@@ -204,7 +204,7 @@ class GmailManager(object):
             message_id (string): message_id of the message
         """
         try:
-            email_message = EmailMessage.objects.get(message_id=message_id)
+            email_message = EmailMessage.objects.get(message_id=message_id, account=self.email_account)
         except EmailMessage.DoesNotExist:
             self.download_message(message_id)
             return

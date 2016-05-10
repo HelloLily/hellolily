@@ -171,6 +171,7 @@ class LilySearch(object):
                         'created_by',
                         'subject',
                         'name',
+                        'full_name',
                         'status_name',
                         'status',
                         'type',

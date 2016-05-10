@@ -40,13 +40,6 @@
                     </select>
                 </form-group>
 
-                <ui-select ng-model="vm.deal.found_through" theme="bootstrap" style="min-width: 300px;" title="Choose a person">
-                    <ui-select-match placeholder="Select a person in the list or search his name/age...">{{$select.selected.name}}</ui-select-match>
-                    <ui-select-choices repeat="found_through in vm.foundThroughChoices">
-                      <div ng-bind-html="found_through.name | highlight: $select.search"></div>
-                    </ui-select-choices>
-                </ui-select>
-
                 <form-group label-title="Contacted us by" label-id="id_contacted_by" field="dealForm.contacted_by" required="true">
                     <select name="contacted_by" ng-model="vm.deal.contacted_by"
                             ng-options="contacted_by.name for contacted_by in vm.contactedByChoices track by contacted_by.id" class="form-control">

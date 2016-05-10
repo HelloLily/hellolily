@@ -46,12 +46,12 @@ function ContactDetailController($scope, $stateParams, Settings, Contact, Case, 
         }
     });
 
-    $scope.caseList = Case.query({filterquery: 'contact:' + id, sort: '-created', size: 100});
+    $scope.caseList = Case.query({filterquery: 'contact.id:' + id, sort: '-created', size: 100});
     $scope.caseList.$promise.then(function(caseList) {
         $scope.caseList = caseList;
     });
 
-    $scope.dealList = Deal.query({filterquery: 'contact:' + id, sort: '-created'});
+    $scope.dealList = Deal.query({filterquery: 'contact.id:' + id, sort: '-created'});
     $scope.dealList.$promise.then(function(dealList) {
         $scope.dealList = dealList;
     });

@@ -19,27 +19,34 @@ class AccountMapping(BaseMapping):
         Returns an Elasticsearch mapping for this MappingType.
         """
         mapping = super(AccountMapping, cls).get_mapping()
-        mapping.update({
-            'dynamic_templates': [{
-                'phone': {
-                    'match': 'phone_*',
-                    'mapping': {
-                        'type': 'string',
-                        'index_analyzer': 'normal_ngram_analyzer'
-                    },
-                },
-            }],
-        })
         mapping['properties'].update({
+            'address_full': {
+                'type': 'string',
+                'index': 'no',
+            },
+            'addresses': {
+                'type': 'object',
+                'index': 'no',
+                'properties': {
+                    'address': {'type': 'string'},
+                    'postal_code': {'type': 'string'},
+                    'city': {'type': 'string'},
+                    'country': {'type': 'string'},
+                },
+            },
+            'assigned_to': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
             'customer_id': {
                 'type': 'string',
             },
-            'name': {
-                'type': 'string',
-                'index_analyzer': 'normal_ngram_analyzer',
+            'created': {
+                'type': 'date',
             },
-            'contact': {
-                'type': 'integer'
+            'description': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
             },
             'email_addresses': {
                 'type': 'object',
@@ -52,34 +59,66 @@ class AccountMapping(BaseMapping):
                     'status': {'type': 'integer'},
                 }
             },
-            'status': {
-                'type': 'integer',
-            },
-            'status_name': {
-                'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
-            },
-            'tag': {
-                'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
-            },
-            'assigned_to': {
-                'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
-            },
-            'created': {
-                'type': 'date',
-            },
             'modified': {
                 'type': 'date',
             },
-            'description': {
+            'name': {
                 'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
+                'index_analyzer': 'normal_ngram_analyzer',
             },
-            'website': {
-                'type': 'string',
-                'index': 'not_analyzed',
+            'phone_numbers': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'number': {
+                        'type': 'string',
+                        'index_analyzer': 'normal_ngram_analyzer',
+                    },
+                    'type': {'type': 'string'},
+                    'status': {'type': 'integer'},
+                    'status_name': {'type': 'string'},
+                }
+            },
+            'status': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'name': {
+                        'type': 'string',
+                        'index_analyzer': 'normal_edge_analyzer'
+                    },
+                },
+            },
+            'tags': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'name': {
+                        'type': 'string',
+                        'index_analyzer': 'normal_edge_analyzer',
+                    },
+                    'object_id': {'type': 'integer'},
+                },
+            },
+            'websites': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'website': {
+                        'type': 'string',
+                        'index': 'not_analyzed',
+                    },
+                    'is_primary': {'type': 'boolean'},
+                }
+            },
+            'social_media': {
+                'type': 'object',
+                'index': 'no',
+                'properties': {
+                    'name': {'type': 'string'},
+                    'url': {'type': 'string'},
+                    'profile': {'type': 'string'},
+                },
             },
             'domain': {
                 'type': 'string',
@@ -88,29 +127,6 @@ class AccountMapping(BaseMapping):
             'second_level_domain': {
                 'type': 'string',
                 'index': 'not_analyzed',
-            },
-            'address_full': {
-                'type': 'string',
-                'index': 'no',
-            },
-            'address': {
-                'type': 'object',
-                'index': 'no',
-                'properties': {
-                    'address_address': {'type': 'string'},
-                    'address_postal_code': {'type': 'string'},
-                    'address_city': {'type': 'string'},
-                    'address_country': {'type': 'string'},
-                },
-            },
-            'social': {
-                'type': 'object',
-                'index': 'no',
-                'properties': {
-                    'social_name': {'type': 'string'},
-                    'social_url': {'type': 'string'},
-                    'social_profile': {'type': 'string'},
-                },
             },
         })
         return mapping
@@ -154,46 +170,56 @@ class AccountMapping(BaseMapping):
         Translate an object to an index document.
         """
         doc = {
-            'customer_id': obj.customer_id,
-            'name': obj.name,
-            'modified': obj.modified,
+            'address_full': [address.full() for address in obj.addresses.all()],
+            'addresses': [{
+                'address': address.address,
+                'postal_code': address.postal_code,
+                'city': address.city,
+                'country': address.get_country_display() if address.country else None,
+            } for address in obj.addresses.all()],
+            'assigned_to': obj.assigned_to.full_name if obj.assigned_to else None,
+            'content_type': obj.content_type.id,
             'created': obj.created,
-            'assigned_to': obj.assigned_to.get_full_name() if obj.assigned_to else None,
-            'contact': [contact.id for contact in obj.get_contacts()],
-            'tag': [tag.name for tag in obj.tags.all() if tag.name],
+            'customer_id': obj.customer_id,
+            'description': obj.description,
             'email_addresses': [{
                 'id': email.id,
                 'email_address': email.email_address,
                 'status': email.status,
             } for email in obj.email_addresses.all()],
-            'status': obj.status.id if obj.status.id else None,
-            'status_name': obj.status.name if obj.status.name else None,
-            'description': obj.description,
-            'website': [website.website for website in obj.websites.all()],
+            'modified': obj.modified,
+            'name': obj.name,
+            'phone_numbers': [{
+                'id': phone_number.id,
+                'number': phone_number.number,
+                'type': phone_number.type,
+                'status': phone_number.status,
+                'status_name': phone_number.get_status_display(),
+            } for phone_number in obj.phone_numbers.all()],
+            'status': {
+                'id': obj.status.id,
+                'name': obj.status.name,
+            } if obj.status else None,
+            'social_media': [{
+                'id': soc.id,
+                'name': soc.get_name_display(),
+                'username': soc.username,
+                'profile_url': soc.profile_url
+            } for soc in obj.social_media.all()],
+            'tags': [{
+                'id': tag.id,
+                'name': tag.name,
+                'object_id': tag.object_id,
+            } for tag in obj.tags.all()],
+            'websites': [{
+                'id': website.id,
+                'website': website.website,
+                'is_primary': website.is_primary,
+            } for website in obj.websites.all()],
+
+            # Fields not returned by the serializer.
             'domain': [website.full_domain for website in obj.websites.all()],
             'second_level_domain': [website.second_level for website in obj.websites.all()],
-            'address': [{
-                'address_address': address.address,
-                'address_postal_code': address.postal_code,
-                'address_city': address.city,
-                'address_country': address.get_country_display() if address.country else None,
-            } for address in obj.addresses.all()],
-            'social': [{
-                'social_name': soc.get_name_display(),
-                'social_profile': soc.username,
-                'social_url': soc.profile_url
-            } for soc in obj.social_media.all()],
-            'address_full': [address.full() for address in obj.addresses.all()],
-            'content_type': obj.content_type.id,
         }
-
-        phones = obj.phone_numbers.all()
-        dedup_phones = set()
-        for phone in phones:
-            if phone.number not in dedup_phones:
-                dedup_phones.add(phone.number)
-                if 'phone_' + phone.type not in doc:
-                    doc['phone_' + phone.type] = []
-                doc['phone_' + phone.type].append(phone.number)
 
         return doc

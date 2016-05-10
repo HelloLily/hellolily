@@ -17,9 +17,9 @@
                     <li>
                         Priority:
                         <i class="lilicon" ng-class="{0: 'hl-low-prio-icon', 1: 'hl-normal-prio-icon', 2: 'hl-high-prio-icon', 3: 'hl-critical-prio-icon'}[vm.item.priority]"></i>
-                        <strong>{{ ::vm.item.priority_name }}</strong>
+                        <strong>{{ ::vm.item.priority_display }}</strong>
                     </li>
-                    <li>Type: <strong>{{ ::vm.item.casetype_name }}</strong></li>
+                    <li>Type: <strong>{{ ::vm.item.type.name }}</strong></li>
                     <li>Expires: <strong class="margin-left-5"><date date="vm.item.expires"></date></strong></li>
                 </ul>
                 <div class="timeline-date">

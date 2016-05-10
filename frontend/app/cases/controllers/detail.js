@@ -20,14 +20,22 @@ function caseConfig($stateProvider) {
                 return Case.get({id: id}).$promise;
             }],
             caseAccount: ['Account', 'caseItem', function(Account, caseItem) {
+                var account;
+
                 if (caseItem.account) {
-                    return Account.get({id: caseItem.account.id}).$promise;
+                    account = Account.get({id: caseItem.account.id}).$promise;
                 }
+
+                return account;
             }],
             caseContact: ['Contact', 'caseItem', function(Contact, caseItem) {
+                var contact;
+
                 if (caseItem.contact) {
-                    return Contact.get({id: caseItem.contact.id}).$promise;
+                    contact = Contact.get({id: caseItem.contact.id}).$promise;
                 }
+
+                return contact;
             }],
         },
     });
@@ -75,7 +83,7 @@ function CaseDetailController($scope, Settings, CaseStatuses, HLResource, LocalS
 
         vm.caseStart = moment(vm.case.created).subtract(2, 'days').format('YYYY-MM-DD');
 
-        if (vm.case.status.status === 'Closed') {
+        if (vm.case.status.name === 'Closed') {
             caseEnd = moment(vm.case.modified);
         } else {
             caseEnd = moment();

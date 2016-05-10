@@ -6,17 +6,6 @@ function Case($resource, HLUtils, HLCache, CacheFactory) {
         '/api/cases/case/:id/',
         {},
         {
-            get: {
-                transformResponse: function(data) {
-                    var lilyCase = angular.fromJson(data);
-
-                    if (lilyCase.assigned_to) {
-                        lilyCase.assigned_to.name = HLUtils.getFullName(lilyCase.assigned_to);
-                    }
-
-                    return lilyCase;
-                },
-            },
             query: {
                 url: '/search/search/',
                 method: 'GET',

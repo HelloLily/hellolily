@@ -31,11 +31,11 @@ class NoteSerializer(serializers.ModelSerializer):
             'author',
             'content',
             'content_type',
-            'type',
             'created',
             'is_pinned',
             'modified',
             'object_id',
+            'type',
         )
 
 
@@ -54,9 +54,9 @@ class RelatedNoteSerializer(RelatedSerializerMixin, NoteSerializer):
             'author',
             'content',
             'content_type',
-            'type',
             'created',
             'is_pinned',
             'modified',
             'object_id',
+            'type',
         )

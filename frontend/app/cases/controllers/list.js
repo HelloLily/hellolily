@@ -105,8 +105,8 @@ function CaseListController($scope, $state, $timeout, $uibModal, Case, HLFilters
             // Get a list with all case types and add each one as a filter.
             angular.forEach(caseTypes, function(caseType) {
                 filterList.push({
-                    name: caseType.type,
-                    value: 'casetype_id:' + caseType.id,
+                    name: caseType.name,
+                    value: 'type.id:' + caseType.id,
                     selected: false,
                     isSpecialFilter: true,
                 });
@@ -141,19 +141,19 @@ function CaseListController($scope, $state, $timeout, $uibModal, Case, HLFilters
         filterList = [
             {
                 name: 'Assigned to me',
-                value: 'assigned_to_id:' + $scope.currentUser.id,
+                value: 'assigned_to.id:' + $scope.currentUser.id,
                 selected: false,
             },
             {
                 name: 'Assigned to nobody',
-                value: 'NOT(assigned_to_id:*)',
+                value: 'NOT(assigned_to.id:*)',
                 selected: false,
             },
             {
                 name: 'Archived',
                 value: '',
                 selected: false,
-                id: 'archived',
+                id: 'is_archived',
             },
         ];
 

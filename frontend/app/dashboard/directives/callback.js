@@ -31,7 +31,7 @@ function CallbackRequestsController($scope, Account, Case, Contact, HLUtils, Loc
     }
 
     function _getCallbackRequests() {
-        var filterQuery = 'archived:false AND casetype_name:Callback AND assigned_to_id:' + currentUser.id;
+        var filterQuery = 'is_archived:false AND type.name:Callback AND assigned_to.id:' + currentUser.id;
 
         HLUtils.blockUI('#callbackBlockTarget', true);
 

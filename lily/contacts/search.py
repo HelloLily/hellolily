@@ -19,19 +19,19 @@ class ContactMapping(BaseMapping):
         Returns an Elasticsearch mapping for this MappingType.
         """
         mapping = super(ContactMapping, cls).get_mapping()
-        mapping.update({
-            'dynamic_templates': [{
-                'phone': {
-                    'match': 'phone_*',
-                    'mapping': {
-                        'type': 'string',
-                        'index': 'analyzed',
-                        'index_analyzer': 'normal_ngram_analyzer'
-                    },
-                },
-            }],
-        })
         mapping['properties'].update({
+            'accounts': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'name': {
+                        'type': 'string',
+                        'analyzer': 'normal_edge_analyzer',
+                    },
+                    'customer_id': {'type': 'string'},
+                    'function': {'type': 'string'}
+                }
+            },
             'full_name': {
                 'type': 'string',
                 'index_analyzer': 'normal_ngram_analyzer',
@@ -84,27 +84,35 @@ class ContactMapping(BaseMapping):
                     'status': {'type': 'integer'},
                 }
             },
-            'tag': {
-                'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
+            'phone_numbers': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'number': {
+                        'type': 'string',
+                        'index_analyzer': 'normal_ngram_analyzer',
+                    },
+                    'type': {'type': 'string'},
+                    'status': {'type': 'integer'},
+                    'status_name': {'type': 'string'},
+                }
+            },
+            'tags': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'name': {
+                        'type': 'string',
+                        'index_analyzer': 'normal_edge_analyzer',
+                    },
+                    'object_id': {'type': 'integer'},
+                },
             },
             'created': {
                 'type': 'date',
             },
             'modified': {
                 'type': 'date',
-            },
-            'accounts': {
-                'type': 'object',
-                'properties': {
-                    'id': {'type': 'integer'},
-                    'name': {
-                        'type': 'string',
-                        'analyzer': 'normal_edge_analyzer',
-                    },
-                    'customer_id': {'type': 'string'},
-                    'function': {'type': 'string'}
-                }
             },
         })
         return mapping
@@ -144,33 +152,48 @@ class ContactMapping(BaseMapping):
         Translate an object to an index document.
         """
         doc = {
-            'full_name': obj.full_name(),
-            'last_name': obj.last_name,
-            'created': obj.created,
-            'modified': obj.modified,
-            'tag': [tag.name for tag in obj.tags.all() if tag.name],
-            'email_addresses': [{
-                'id': email.id,
-                'email_address': email.email_address,
-                'status': email.status,
-            } for email in obj.email_addresses.all()],
-            'description': obj.description,
-            'social': [{'social_name': soc.get_name_display(),
-                        'social_profile': soc.username,
-                        'social_url': soc.profile_url} for soc in obj.social_media.all()],
-            'title': obj.title,
-            'salutation': obj.get_salutation_display(),
-            'gender': obj.get_gender_display(),
-            'address': [address.full() for address in obj.addresses.all()],
-            'content_type': obj.content_type.id,
             'addresses': [{
-                'address_address': address.address,
+                'address': address.address,
                 'postal_code': address.postal_code,
                 'city': address.city,
                 'state_province': address.state_province,
                 'country': address.get_country_display() if address.country else None,
                 'type': address.get_type_display(),
             } for address in obj.addresses.all()],
+            'content_type': obj.content_type.id,
+            'created': obj.created,
+            'description': obj.description,
+            'email_addresses': [{
+                'id': email.id,
+                'email_address': email.email_address,
+                'status': email.status,
+            } for email in obj.email_addresses.all()],
+            'first_name': obj.first_name,
+            'full_name': obj.full_name,
+            'gender': obj.get_gender_display(),
+            'last_name': obj.last_name,
+            'modified': obj.modified,
+            'phone_numbers': [{
+                'id': phone_number.id,
+                'number': phone_number.number,
+                'type': phone_number.type,
+                'status': phone_number.status,
+                'status_name': phone_number.get_status_display(),
+            } for phone_number in obj.phone_numbers.all()],
+            'preposition': obj.preposition,
+            'salutation': obj.get_salutation_display(),
+            'social_media': [{
+                'id': soc.id,
+                'name': soc.get_name_display(),
+                'username': soc.username,
+                'profile_url': soc.profile_url
+            } for soc in obj.social_media.all()],
+            'tags': [{
+                'id': tag.id,
+                'name': tag.name,
+                'object_id': tag.object_id,
+            } for tag in obj.tags.all()],
+            'title': obj.title,
         }
 
         functions = obj.functions.filter(account__is_deleted=False)
@@ -184,14 +207,5 @@ class ContactMapping(BaseMapping):
             }
 
             doc.setdefault('accounts', []).append(account)
-
-        phones = obj.phone_numbers.all()
-        dedup_phones = set()
-        for phone in phones:
-            if phone.number not in dedup_phones:
-                dedup_phones.add(phone.number)
-                if 'phone_' + phone.type not in doc:
-                    doc['phone_' + phone.type] = []
-                doc['phone_' + phone.type].append(phone.number)
 
         return doc

@@ -9,8 +9,8 @@
             </div>
 
             <div class="timeline-content">
-                <span ng-if="vm.item.showContact" class="timeline-content-title"><a ui-sref="base.contacts.detail({id: vm.item.object_id})">{{ ::vm.item.subject_repr }}</a></span>
-                <span ng-if="!vm.item.showContact" class="timeline-content-title">{{ ::vm.item.subject_repr }}</span>
+                <span ng-if="vm.item.showContact" class="timeline-content-title"><a ui-sref="base.contacts.detail({id: vm.item.object_id})">{{ ::vm.item.subject }}</a></span>
+                <span ng-if="!vm.item.showContact" class="timeline-content-title">{{ ::vm.item.subject }}</span>
                 <ul class="timeline-content-details">
                     <li>Created by: {{ ::vm.item.author.full_name }}</li>
                 </ul>

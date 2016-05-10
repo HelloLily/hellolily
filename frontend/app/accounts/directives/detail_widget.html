@@ -76,11 +76,11 @@
                     </td>
                 </tr>
 
-                <tr ng-show="vm.account.tag">
+                <tr ng-show="vm.account.tags">
                     <td><i class="fa fa-tag"></i> <strong>Tags</strong></td>
                     <td>
                         <a class="btn btn-xs btn-default" ng-repeat="tag in vm.account.tags">
-                            {{ tag }}
+                            {{ tag.name }}
                         </a>
                     </td>
                 </tr>

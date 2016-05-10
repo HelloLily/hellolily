@@ -58,13 +58,13 @@ class CaseTypeAdmin(admin.ModelAdmin):
     )
     list_display = (
         'id',
-        'type',
+        'name',
         'use_as_filter',
         'is_archived',
         'tenant',
     )
     search_fields = (
-        'type',
+        'name',
     )
     list_filter = (
         'use_as_filter',
@@ -81,11 +81,11 @@ class CaseStatusAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'position',
-        'status',
+        'name',
         'tenant',
     )
     search_fields = (
-        'status',
+        'name',
     )
     list_filter = (
         'position',

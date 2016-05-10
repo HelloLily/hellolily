@@ -52,7 +52,7 @@ class CallerName(APIView):
         ).filter(is_deleted=False).first()
 
         if contact:
-            name = contact.full_name()
+            name = contact.full_name
         else:
             account = Account.objects.filter(
                 Q(phone_numbers__number__endswith=phone_number_end)

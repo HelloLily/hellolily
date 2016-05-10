@@ -27,13 +27,11 @@ class ExportContactView(LoginRequiredMixin, ExportListViewMixin, View):
         'contactInformation': {
             'headers': [
                 _('Email'),
-                _('Work Phone'),
-                _('Mobile Phone'),
+                _('Phone numbers'),
             ],
             'columns_for_item': [
-                'email',
-                'phone_work',
-                'phone_mobile',
+                'email_addresses',
+                'phone_numbers',
             ]
         },
         'worksAt': {
@@ -60,10 +58,20 @@ class ExportContactView(LoginRequiredMixin, ExportListViewMixin, View):
             if column == 'url':
                 return '/#/contacts/%s' % contact['id']
             elif column == 'accounts':
-                # 'accounts' is a dict, so we need to process it differently
+                # 'accounts' is a dict, so we need to process it differently.
                 value = []
                 for account in contact.get('accounts', []):
                     value.append(account['name'])
+            elif column == 'email_addresses':
+                # 'email_addresses' is a dict, so we need to process it differently.
+                value = []
+                for email in contact.get('email_addresses', []):
+                    value.append(email['email_address'])
+            elif column == 'phone_numbers':
+                # 'phone_numbers' is a dict, so we need to process it differently.
+                value = []
+                for phone_number in contact.get('phone_numbers', []):
+                    value.append(phone_number['number'])
             else:
                 value = contact[column]
 

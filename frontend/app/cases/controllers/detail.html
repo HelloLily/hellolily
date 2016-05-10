@@ -7,9 +7,9 @@
             <div class="widget-heading">
                 <div class="hl-button-group-container">
                     <ul class="hl-button-group" data-toggle="buttons" data-object-id="{{ ::vm.case.id }}">
-                        <li class="hl-button-group-btn" ng-repeat="status in vm.caseStatuses" ng-click="vm.changeCaseStatus(status)" ng-class="{'selected': vm.case.status.status == status.status, 'disabled': vm.case.is_archived }">
+                        <li class="hl-button-group-btn" ng-repeat="status in vm.caseStatuses" ng-click="vm.changeCaseStatus(status)" ng-class="{'selected': vm.case.status.name == status.name, 'disabled': vm.case.is_archived }">
                             <span class="hl-button-group-btn-link">
-                                {{ status.status }}
+                                {{ status.name }}
                             </span>
                         </li>
 
@@ -31,8 +31,8 @@
                             <td><strong>Case ID:</strong> #{{ vm.case.id }}</td>
                             <td>
                                 <strong>Type:</strong>
-                                <editable-select class="margin-left-10" field="type" view-model="vm" type="Case" select-options="{field: 'caseTypes', display: 'type'}">
-                                    {{ vm.case.type.type }}
+                                <editable-select class="margin-left-10" field="type" view-model="vm" type="Case" select-options="{field: 'caseTypes'}">
+                                    {{ vm.case.type.name }}
                                 </editable-select>
                             </td>
                             <td>

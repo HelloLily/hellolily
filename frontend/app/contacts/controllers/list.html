@@ -103,16 +103,10 @@
                                 {{ email.email_address }}
                             </a>
                         </div>
-                        <div ng-repeat="phone in contact.phone_work track by $index">
+                        <div ng-repeat="phone in contact.phone_numbers track by $index" ng-if="phone.type == 'mobile' || phone.type == 'work'">
                             <a href="tel:{{ ::phone }}">
-                                <i class="fa fa-phone"></i>
-                                {{ phone }}
-                            </a>
-                        </div>
-                        <div ng-repeat="phone in contact.phone_mobile track by $index">
-                            <a href="tel:{{ ::phone }}">
-                                <i class="fa fa-mobile-phone"></i>
-                                {{ phone }}
+                                <i ng-class="{work: 'fa fa-phone', mobile: 'fa fa-mobile-phone'}[phone.type]"></i>
+                                {{ phone.number }}
                             </a>
                         </div>
                     </td>
@@ -128,8 +122,8 @@
                         <date date="contact.modified"></date>
                     </td>
                     <td ng-show="table.visibility.tags">
-                        <span ng-repeat="tag in contact.tag">
-                            <a href="javascript:void(0)" ng-click="setFilter(tag)">{{ ::tag }}</a>
+                        <span ng-repeat="tag in contact.tags">
+                            <a href="javascript:void(0)" ng-click="setFilter(tag.name)">{{ ::tag.name }}</a>
                             <br>
                         </span>
                     </td>

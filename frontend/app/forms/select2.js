@@ -175,12 +175,20 @@
                                     var parsed_data = [];
 
                                     data.hits.forEach(function (hit) {
+                                        var displayedName;
+
                                         // Only display contacts with an e-mail address
                                         for (var i = 0; i < hit.email_addresses.length; i++) {
+                                            if (hit.hasOwnProperty('full_name')) {
+                                                displayedName = hit.full_name;
+                                            } else {
+                                                displayedName = hit.name;
+                                            }
+
                                             // The text which is actually used in the application
-                                            var used_text = '"' + hit.name + '" <' + hit.email_addresses[i].email_address + '>';
+                                            var used_text = '"' + displayedName + '" <' + hit.email_addresses[i].email_address + '>';
                                             // The displayed text
-                                            var displayed_text = hit.name + ' <' + hit.email_addresses[i].email_address + '>';
+                                            var displayed_text = displayedName + ' <' + hit.email_addresses[i].email_address + '>';
                                             // Select2 sends 'id' as the value, but we want to use the email
                                             // So store the actual id (hit.id) under a different name
                                             parsed_data.push({

@@ -21,7 +21,6 @@ function editableSelect() {
             // Bind click event to the current directive.
             element.on('click', '.editable-click', function() {
                 if (scope.es.search) {
-                    //scope.es.formVisible = true;
                     scope.es.uiSelectForm.$show();
 
                     scope.$apply();

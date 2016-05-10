@@ -29,10 +29,6 @@ function Contact($resource, HLForms, HLResource) {
                 params: {
                     id: '@id',
                 },
-                transformRequest: function(data) {
-                    var jsonData = angular.copy(data);
-                    return angular.toJson(HLForms.clean(jsonData));
-                },
             },
             delete: {
                 method: 'DELETE',

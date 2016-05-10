@@ -43,6 +43,7 @@ function BaseController($scope, $state, Settings, Notifications, HLShortcuts) {
         Metronic.unblockUI();
         Metronic.initComponents(); // init core components
         HLSelect2.init();
+        HLFormsets.init();
         HLShowAndHide.init();
         autosize($('textarea'));
 

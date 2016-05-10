@@ -23,6 +23,7 @@ function ContactDetailWidgetController(HLResource, Settings) {
     vm.updateModel = updateModel;
 
     function updateModel(data, field) {
+        var accounts = [];
         var args = HLResource.createArgs(data, field, vm.contact);
 
         if (field === 'twitter' || field === 'linkedin') {
@@ -30,6 +31,14 @@ function ContactDetailWidgetController(HLResource, Settings) {
                 id: vm.contact.id,
                 social_media: [args],
             };
+        }
+
+        if (data.hasOwnProperty('accounts')) {
+            data.accounts.forEach(function(account) {
+                accounts.push(account.id);
+            });
+
+            data.accounts = accounts;
         }
 
         return HLResource.patch('Contact', args).$promise;

@@ -32,6 +32,9 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_TASK_RESULT_EXPIRES = 300
 CELERY_TIMEZONE = TIME_ZONE
+
+# WARNING! When changing routes/queues, make sure you deleted them
+# on the message broker to prevent routing to old queues.
 CELERY_QUEUES = (
     # User initiated mutations on email like Archive, sent, move.
     Queue('email_async_tasks', routing_key='email_async_tasks'),

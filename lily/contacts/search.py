@@ -34,7 +34,7 @@ class ContactMapping(BaseMapping):
         mapping['properties'].update({
             'full_name': {
                 'type': 'string',
-                'index': 'not_analyzed',
+                'index_analyzer': 'normal_ngram_analyzer',
             },
             'description': {
                 'type': 'string',

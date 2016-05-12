@@ -110,9 +110,9 @@ def download_email_message(self, account_id, message_id):
         try:
             logger.debug('Fetch message %s for: %s' % (message_id, email_account))
             manager.download_message(message_id)
-        except Exception:
+        except Exception as exc:
             logger.exception('Fetch message %s for: %s failed' % (message_id, email_account))
-            raise self.retry()
+            raise self.retry(exc=exc)
         finally:
             manager.cleanup()
 
@@ -135,9 +135,9 @@ def update_labels_for_message(self, account_id, email_id):
         try:
             logger.debug('Changing labels for: %s', email_id)
             manager.update_labels_for_message(email_id)
-        except Exception:
+        except Exception as exc:
             logger.exception('Failed changing labels for %s' % email_id)
-            raise self.retry()
+            raise self.retry(exc=exc)
         finally:
             manager.cleanup()
 

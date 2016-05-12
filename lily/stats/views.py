@@ -3,6 +3,7 @@ from django.db import connection
 from django.http import HttpResponse
 from django.views.generic import View
 
+from lily.deals.models import DealStatus
 from lily.utils.views import LoginRequiredMixin
 
 
@@ -23,10 +24,13 @@ class RawDatabaseView(LoginRequiredMixin, View):
 
         query = self.get_query(request, *args, **kwargs)
 
-        cursor = connection.cursor()
-        cursor.execute(query)
+        if query:
+            cursor = connection.cursor()
+            cursor.execute(query)
 
-        results = self.parse_results(dictfetchall(cursor))
+            results = self.parse_results(dictfetchall(cursor))
+        else:
+            results = []
 
         return HttpResponse(anyjson.dumps(results))
 
@@ -204,6 +208,11 @@ class CasesTopTags(RawDatabaseView):
 
 class DealsUnsentFeedbackForms(RawDatabaseView):
     def get_query(self, request, *args, **kwargs):
+        try:
+            deal_status = DealStatus.objects.get(name='Won')
+        except DealStatus.DoesNotExist:
+            return ''
+
         return '''
             SELECT
                 users_lilyuser.last_name,
@@ -213,7 +222,7 @@ class DealsUnsentFeedbackForms(RawDatabaseView):
                 users_lilyuser
             WHERE
                 deals_deal.assigned_to_id = users_lilyuser.id AND
-                deals_deal.status = 2 AND
+                deals_deal.status_id = {status_id} AND
                 deals_deal.new_business = true AND
                 deals_deal.closed_date BETWEEN (now() - interval '120 day') AND (now() - interval '30 day') AND
                 deals_deal.feedback_form_sent = false AND
@@ -223,12 +232,19 @@ class DealsUnsentFeedbackForms(RawDatabaseView):
             GROUP BY
                 users_lilyuser.last_name;
         '''.format(
+            status_id=deal_status.pk,
             tenant_id=request.user.tenant_id
         )
 
 
 class DealsUrgentFollowUp(RawDatabaseView):
     def get_query(self, request, *args, **kwargs):
+        try:
+            deal_status_open = DealStatus.objects.get(name='Open')
+            deal_status_proposal_sent = DealStatus.objects.get(name='Proposal sent')
+        except DealStatus.DoesNotExist:
+            return ''
+
         return '''
             SELECT
                 users_lilyuser.last_name,
@@ -242,18 +258,25 @@ class DealsUrgentFollowUp(RawDatabaseView):
                 deals_deal.next_step_date > now() - interval '60 days' AND
                 deals_deal.tenant_id = {tenant_id} AND
                 deals_deal.is_deleted = false AND
-                (deals_deal.status = 0 or deals_deal.status = 1)
+                (deals_deal.status_id = {status_id_open} or deals_deal.status_id = {status_id_proposal_sent})
             GROUP BY
                users_lilyuser.first_name, users_lilyuser.last_name
             ORDER BY
                users_lilyuser.last_name;
         '''.format(
-            tenant_id=request.user.tenant_id
+            tenant_id=request.user.tenant_id,
+            status_id_open=deal_status_open.pk,
+            status_id_proposal_sent=deal_status_proposal_sent.pk
         )
 
 
 class DealsWon(RawDatabaseView):
     def get_query(self, request, *args, **kwargs):
+        try:
+            deal_status = DealStatus.objects.get(name='Won')
+        except DealStatus.DoesNotExist:
+            return ''
+
         return '''
             SELECT
                 users_lilyuser.last_name,
@@ -269,18 +292,24 @@ class DealsWon(RawDatabaseView):
                 deals_deal.tenant_id = {tenant_id} AND
                 deals_deal.is_deleted = false AND
                 deals_deal.new_business = true AND
-                deals_deal.status = 2
+                deals_deal.status_id = {status_id}
             GROUP BY
                 users_lilyuser.last_name
             ORDER BY
                 users_lilyuser.last_name;
         '''.format(
-            tenant_id=request.user.tenant_id
+            tenant_id=request.user.tenant_id,
+            status_id=deal_status.pk
         )
 
 
 class DealsLost(RawDatabaseView):
     def get_query(self, request, *args, **kwargs):
+        try:
+            deal_status = DealStatus.objects.get(name='Lost')
+        except DealStatus.DoesNotExist:
+            return ''
+
         return '''
             SELECT
                 users_lilyuser.last_name,
@@ -294,7 +323,7 @@ class DealsLost(RawDatabaseView):
                 deals_deal.assigned_to_id = users_lilyuser.id AND
                 deals_deal.closed_date > now() - interval '30 days month' AND
                 deals_deal.tenant_id = {tenant_id} AND
-                deals_deal.status = 3 AND
+                deals_deal.status_id = {status_id} AND
                 deals_deal.is_deleted = false AND
                 deals_deal.new_business = true
             GROUP BY
@@ -302,12 +331,18 @@ class DealsLost(RawDatabaseView):
             ORDER BY
                 users_lilyuser.last_name;
         '''.format(
-            tenant_id=request.user.tenant_id
+            tenant_id=request.user.tenant_id,
+            status_id=deal_status.pk
         )
 
 
 class DealsAmountRecurring(RawDatabaseView):
     def get_query(self, request, *args, **kwargs):
+        try:
+            deal_status = DealStatus.objects.get(name='Won')
+        except DealStatus.DoesNotExist:
+            return ''
+
         return '''
             SELECT
                 users_lilyuser.last_name,
@@ -324,11 +359,12 @@ class DealsAmountRecurring(RawDatabaseView):
                 deals_deal.is_deleted = false AND
                 deals_deal.tenant_id = {tenant_id} AND
                 deals_deal.new_business = false AND
-                deals_deal.status = 2
+                deals_deal.status_id = {status_id}
             GROUP BY
                 users_lilyuser.last_name,deals_deal.new_business
             ORDER BY
                 users_lilyuser.last_name,deals_deal.new_business;
         '''.format(
-            tenant_id=request.user.tenant_id
+            tenant_id=request.user.tenant_id,
+            status_id=deal_status.pk
         )

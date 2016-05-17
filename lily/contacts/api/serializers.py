@@ -106,7 +106,6 @@ class ContactSerializer(WritableNestedSerializer):
         return instance
 
     def update(self, instance, validated_data):
-        print validated_data
         account_list = validated_data.pop('accounts', None)
 
         with transaction.atomic():

@@ -107,12 +107,7 @@
                             </div>
 
                             <div class="original-form-widget hide">
-                                <ui-select multiple tagging ng-model="vm.account.tags" theme="bootstrap" tagging-label="(new tag)" style="width: 100%;">
-                                    <ui-select-match placeholder="Add tags...">{{ $item }}</ui-select-match>
-                                    <ui-select-choices repeat="tag in vm.tags | filter:$select.search">
-                                        {{ tag }}
-                                    </ui-select-choices>
-                                </ui-select>
+                                <tag-input object="vm.account"></tag-input>
                             </div>
 
                             <div class="form-control-static hide">

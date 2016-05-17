@@ -146,7 +146,7 @@ class CompareObjectsMixin(object):
 
     def _compare_objects(self, db_obj, api_obj, serializer=None):
         """
-        Compare two objects with eachother based on the fields of the API serializer.
+        Compare two objects with each other based on the fields of the API serializer.
         """
         serializer = serializer if serializer else self.serializer_cls()
         serializer_field_list = serializer.get_field_names(
@@ -181,15 +181,16 @@ class GenericAPITestCase(CompareObjectsMixin, UserBasedTest, APITestCase):
     serializer_cls = None
     ordering = ('-id', )  # Default ordering field
 
-    def setUp(self):
+    def __call__(self, nosetest):
         """
-        Skip these tests if they are not run as a mixin.
+        Skip the GenericAPITestCase base class tests that nose mistakenly
+        finds.
 
-        For some reason the testrunner recognizes these tests outside of a tests.py as well.
-        But we don't want to run these if there is no serializer/model set.
+        Args:
+            nose_testresult (TextTestResult): A nose TextTestResult instance.
         """
-        if not self.model_cls or not self.serializer_cls:
-            raise SkipTest
+        if 'GenericAPITestCase' not in str(type(self)):
+            return super(GenericAPITestCase, self).__call__(nosetest)
 
     def get_url(self, name, ordering=None, *args, **kwargs):
         return '%s?%s' % (reverse(name, *args, **kwargs), urlencode({
@@ -240,7 +241,7 @@ class GenericAPITestCase(CompareObjectsMixin, UserBasedTest, APITestCase):
 
     def test_get_list_tenant_filter(self):
         """
-        Test that users from different tenants can't access eachothers data.
+        Test that users from different tenants can't access each other's data.
         """
         set_current_user(self.other_tenant_user_obj)
         other_tenant_obj_list = self._create_object(size=3, tenant=self.other_tenant_user_obj.tenant)
@@ -291,7 +292,7 @@ class GenericAPITestCase(CompareObjectsMixin, UserBasedTest, APITestCase):
 
     def test_get_object_tenant_filter(self):
         """
-        Test that users from different tenants can't access eachothers data.
+        Test that users from different tenants can't access each other's data.
         """
         set_current_user(self.user_obj)
         db_obj = self._create_object()
@@ -385,7 +386,7 @@ class GenericAPITestCase(CompareObjectsMixin, UserBasedTest, APITestCase):
 
     def test_update_object_tenant_filter(self):
         """
-        Test that users from different tenants can't update eachothers data.
+        Test that users from different tenants can't update each other's data.
         """
         set_current_user(self.user_obj)
         db_obj = self._create_object()
@@ -433,7 +434,7 @@ class GenericAPITestCase(CompareObjectsMixin, UserBasedTest, APITestCase):
 
     def test_delete_object_tenant_filter(self):
         """
-        Test that users from different tenants can't delete eachothers data.
+        Test that users from different tenants can't delete each other's data.
         """
         set_current_user(self.user_obj)
         db_obj = self._create_object()

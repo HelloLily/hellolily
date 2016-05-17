@@ -16,6 +16,7 @@
                     <th>Subject</th>
                     <th>Status</th>
                     <th>Next step</th>
+                    <th>Next step date</th>
                     <th></th>
                 </tr>
             </thead>
@@ -32,7 +33,9 @@
                               ng-class="{0: 'position-1', 1: 'position-2', 2: 'position-3', 3: 'position-4', 4: 'position-5', 5: 'position-6'}[deal.next_step.position]">
                             {{ deal.next_step.name }}
                         </span>
-                        {{ deal.next_step_date | date:'dd MMMM yy' }}
+                    </td>
+                    <td>
+                        <postpone ng-if="deal.next_step_date" type="'Deal'" object="deal" date-field="'next_step_date'"></postpone>
                     </td>
                     <td class="clickable" style="width: 40px;" ng-click="deal.collapsed = !deal.collapsed">
                         <div class="collapse-indicator no-padding">

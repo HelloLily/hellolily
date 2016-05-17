@@ -14,7 +14,7 @@ echo "$print_count print statements found"
 
 # js checks
 clog_count=$($diff | grep "console.log" -c)
-echo "$print_count console.log statements found"
+echo "$clog_count console.log statements found"
 
 debugger_count=$($diff | grep "debugger" -c)
 echo "$debugger_count debugger statements found"

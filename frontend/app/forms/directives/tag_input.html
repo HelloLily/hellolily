@@ -1,5 +1,10 @@
+<!--
+    Tagging-label isn't working, see open issue https://github.com/angular-ui/ui-select/pull/972 .
+-->
 <ui-select multiple ng-model="vm.object.tags" theme="select2" class="form-control" name="tags" tagging="vm.addTagChoice" tagging-label="(new tag)" append-to-body="true">
-    <ui-select-match placeholder="Add tags...">{{ $item.name }}</ui-select-match>
+    <ui-select-match placeholder="Add tags...">
+        {{ $item.name }}
+    </ui-select-match>
     <ui-select-choices repeat="tag in vm.tagChoices" refresh="vm.refreshTags($select.search)" refresh-delay="150">
         <div ng-bind-html="tag.name | highlight: $select.search"></div>
     </ui-select-choices>

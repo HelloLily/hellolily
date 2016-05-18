@@ -23,19 +23,14 @@ function TagInputController(Tag) {
     vm.addTagChoice = addTagChoice;
 
     function refreshTags(query) {
+        var exclude = '';
         if (query.length >= 1) {
-            var exclude = '';
-
             // Exclude tags already selected.
             angular.forEach(vm.object.tags, function(tag) {
-                exclude += ' AND NOT name:' + tag.name;
+                exclude += ' AND NOT name_flat:' + tag.name;
             });
 
-            Tag.search({query: query + exclude}, function(response) {
-                vm.tagChoices = response;
-            });
-        } else {
-            vm.tagChoices = Tag.query({filterquery: 'name:* AND object_id:' + vm.object.id, size: 50});
+            vm.tagChoices = Tag.search({query: query + exclude});
         }
     }
 

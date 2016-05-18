@@ -252,3 +252,8 @@ $inline-editable-field-height: 30px;
         padding: 0;
     }
 }
+
+.select2-container-multi .select2-choices .select2-search-choice-focus {
+    background: $lilyBlue;
+    color: #fff;
+}

@@ -46,7 +46,7 @@ class Note(HistoryListItem, DeletedMixin):
     def save(self, *args, **kwargs):
         if self.sort_by_date is None:
             self.sort_by_date = timezone.now()
-        return super(Note, self).save()
+        return super(Note, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return self.content

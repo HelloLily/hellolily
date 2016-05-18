@@ -18,7 +18,7 @@ function usersFilter() {
 UsersFilterController.$inject = ['LocalStorage', 'UserTeams'];
 function UsersFilterController(LocalStorage, UserTeams) {
     var vm = this;
-    var storage = LocalStorage(vm.storageName);
+    var storage = new LocalStorage(vm.storageName);
 
     vm.usersSelection = storage.get('usersFilter', [currentUser.id]);
     vm.usersDisplayNames = storage.get('usersDisplayFilter', [currentUser.firstName]);
@@ -170,7 +170,7 @@ function UsersFilterController(LocalStorage, UserTeams) {
 
         // Generate elastic search string.
         angular.forEach(vm.usersSelection, function(id) {
-            selectedFilter.push('assigned_to_id:' + id);
+            selectedFilter.push('assigned_to.id:' + id);
         });
 
         angular.forEach(vm.teamsSelection, function(id) {

@@ -17,45 +17,64 @@ class DealMapping(BaseMapping):
         """
         mapping = super(DealMapping, cls).get_mapping()
         mapping['properties'].update({
-            'name': {
-                'type': 'string',
-                'index_analyzer': 'normal_ngram_analyzer',
-            },
-            'body': {
-                'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
-            },
             'account': {
-                'type': 'integer',
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'customer_id': {
+                        'type': 'string',
+                        'index_analyzer': 'normal_edge_analyzer'
+                    },
+                    'name': {
+                        'type': 'string',
+                        'index_analyzer': 'normal_edge_analyzer',
+                    },
+                }
             },
-            'account_customer_id': {
-                'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
+            'amount_once': {
+                'type': 'float',
             },
-            'account_name': {
-                'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
+            'amount_recurring': {
+                'type': 'float',
+            },
+            'assigned_to': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'full_name': {
+                        'type': 'string',
+                        'analyzer': 'normal_edge_analyzer',
+                    },
+                },
+            },
+            'card_sent': {
+                'type': 'boolean',
+            },
+            'closed_date': {
+                'type': 'date',
             },
             'contact': {
-                'type': 'integer',
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'full_name': {
+                        'type': 'string',
+                        'analyzer': 'normal_edge_analyzer',
+                    },
+                },
             },
-            'contact_name': {
-                'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
+            'contacted_by': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'full_name': {
+                        'type': 'string',
+                        'analyzer': 'normal_edge_analyzer',
+                    },
+                },
             },
-            'assigned_to_name': {
-                'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
-            },
-            'assigned_to_id': {
-                'type': 'integer',
-            },
-            'created_by_name': {
-                'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
-            },
-            'created_by_id': {
-                'type': 'integer',
+            'created': {
+                'type': 'date',
             },
             'created_by': {
                 'type': 'object',
@@ -67,60 +86,44 @@ class DealMapping(BaseMapping):
                     },
                 },
             },
-            'status': {
-                'type': 'integer',
+            'currency': {
+                'type': 'string',
             },
-            'status_name': {
+            'currency_display': {
+                'type': 'string',
+            },
+            'description': {
                 'type': 'string',
                 'index_analyzer': 'normal_edge_analyzer',
-            },
-            'tag': {
-                'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
-            },
-            'amount_once': {
-                'type': 'float',
-            },
-            'amount_recurring': {
-                'type': 'float',
-            },
-            'modified': {
-                'type': 'date',
-            },
-            'closed_date': {
-                'type': 'date',
-            },
-            'is_checked': {
-                'type': 'boolean',
-            },
-            'archived': {
-                'type': 'boolean',
             },
             'feedback_form_sent': {
                 'type': 'boolean',
             },
-            'twitter_checked': {
-                'type': 'boolean',
-            },
-            'card_sent': {
-                'type': 'boolean',
-            },
             'found_through': {
-                'type': 'integer',
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'name': {
+                        'type': 'string',
+                        'analyzer': 'normal_edge_analyzer',
+                    },
+                },
             },
-            'found_through_name': {
+            'is_archived': {
+                'type': 'boolean',
+            },
+            'is_checked': {
+                'type': 'boolean',
+            },
+            'modified': {
+                'type': 'date',
+            },
+            'name': {
                 'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
+                'index_analyzer': 'normal_ngram_analyzer',
             },
-            'contacted_by': {
-                'type': 'integer',
-            },
-            'contacted_by_name': {
-                'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
-            },
-            'quote_id': {
-                'type': 'string'
+            'new_business': {
+                'type': 'boolean',
             },
             'next_step': {
                 'type': 'object',
@@ -136,6 +139,33 @@ class DealMapping(BaseMapping):
             },
             'next_step_date': {
                 'type': 'date',
+            },
+            'quote_id': {
+                'type': 'string'
+            },
+            'status': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'name': {
+                        'type': 'string',
+                        'analyzer': 'normal_edge_analyzer',
+                    },
+                },
+            },
+            'tags': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'name': {
+                        'type': 'string',
+                        'index_analyzer': 'normal_edge_analyzer',
+                    },
+                    'object_id': {'type': 'integer'},
+                },
+            },
+            'twitter_checked': {
+                'type': 'boolean',
             },
             'why_customer': {
                 'type': 'string',
@@ -175,38 +205,46 @@ class DealMapping(BaseMapping):
         Translate an object to an index document.
         """
         return {
-            'name': obj.name,
-            'body': obj.description,
-            'account': obj.account_id if obj.account else None,
-            'account_customer_id': obj.account.customer_id if obj.account else None,
-            'account_name': obj.account.name if obj.account else None,
-            'contact': obj.contact_id if obj.contact else None,
-            'contact_name': obj.contact.full_name() if obj.contact else None,
-            'assigned_to_name': obj.assigned_to.get_full_name() if obj.assigned_to else None,
-            'assigned_to_id': obj.assigned_to.id if obj.assigned_to else None,
-            'created_by': {
-                'full_name': obj.created_by.get_full_name(),
-                'id': obj.created_by.id,
-            } if obj.created_by else None,
-            'status': obj.status.id,
-            'status_name': obj.status.name,
+            'account': {
+                'id': obj.account.id,
+                'name': obj.account.name,
+                'customer_id': obj.account.customer_id,
+            } if obj.account else None,
             'amount_once': obj.amount_once,
             'amount_recurring': obj.amount_recurring,
-            'tag': [tag.name for tag in obj.tags.all() if tag.name],
-            'created': obj.created,
-            'modified': obj.modified,
-            'closed_date': obj.closed_date,
-            'is_checked': obj.is_checked,
-            'archived': obj.is_archived,
-            'feedback_form_sent': obj.feedback_form_sent,
-            'twitter_checked': obj.twitter_checked,
+            'assigned_to': {
+                'id': obj.assigned_to.id,
+                'full_name': obj.assigned_to.full_name,
+            } if obj.assigned_to else None,
             'card_sent': obj.card_sent,
-            'found_through': obj.found_through.id,
-            'found_through_name': obj.found_through.name,
-            'contacted_by': obj.contacted_by.id,
-            'contacted_by_name': obj.contacted_by.name,
+            'closed_date': obj.closed_date,
+            'contact': {
+                'id': obj.contact.id,
+                'full_name': obj.contact.full_name,
+            } if obj.contact else None,
+            'contacted_by': {
+                'id': obj.contacted_by.id,
+                'name': obj.contacted_by.name,
+            } if obj.contacted_by else None,
+            'content_type': obj.content_type.id,
+            'created': obj.created,
+            'created_by': {
+                'id': obj.created_by.id,
+                'full_name': obj.created_by.full_name,
+            } if obj.created_by else None,
+            'currency': obj.currency,
+            'currency_display': obj.get_currency_display(),
+            'description': obj.description,
+            'feedback_form_sent': obj.feedback_form_sent,
+            'found_through': {
+                'id': obj.found_through.id,
+                'name': obj.found_through.name,
+            },
+            'is_archived': obj.is_archived,
+            'is_checked': obj.is_checked,
+            'modified': obj.modified,
+            'name': obj.name,
             'new_business': obj.new_business,
-            'quote_id': obj.quote_id,
             'next_step': {
                 'id': obj.next_step.id,
                 'name': obj.next_step.name,
@@ -214,6 +252,17 @@ class DealMapping(BaseMapping):
                 'position': obj.next_step.position,
             } if obj.next_step else None,
             'next_step_date': obj.next_step_date,
+            'quote_id': obj.quote_id,
+            'status': {
+                'id': obj.status.id,
+                'name': obj.status.name,
+            },
+            'tags': [{
+                'id': tag.id,
+                'name': tag.name,
+                'object_id': tag.object_id,
+            } for tag in obj.tags.all()],
+            'twitter_checked': obj.twitter_checked,
             'why_customer': obj.why_customer.name if obj.why_customer else None,
-            'content_type': obj.content_type.id,
+            'why_lost': obj.why_lost.name if obj.why_lost else None,
         }

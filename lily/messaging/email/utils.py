@@ -488,7 +488,7 @@ def create_recipients(receivers, filter_emails=[]):
 
             if recipient:
                 # If contact exists, set contact's full name as name
-                name = recipient.full_name()
+                name = recipient.full_name
             else:
                 recipient = Account.objects.filter(email_addresses__email_address=receiver.email_address).order_by(
                     'created').first()

@@ -37,7 +37,9 @@
                         </a>
                         <span ng-hide="contact.email_addresses[0]">-</span>
                     </td>
-                    <td><a href="tel:{{ contact.phones[0] || '' }}">{{ contact.phones[0] || '-' }}</a></td>
+                    <td>
+                        <a href="tel:{{ contact.phone_numbers[0].number || '' }}">{{ contact.phone_numbers[0].number || '-' }}</a>
+                    </td>
                 </tr>
                 <tr ng-hide="vm.list.length">
                     <td colspan="3">No colleagues</td>

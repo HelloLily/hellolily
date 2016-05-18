@@ -6,17 +6,6 @@ function Deal($resource, HLUtils, HLForms, HLCache, CacheFactory) {
         '/api/deals/deal/:id/',
         null,
         {
-            get: {
-                transformResponse: function(data) {
-                    var deal = angular.fromJson(data);
-
-                    if (deal.assigned_to) {
-                        deal.assigned_to.name = deal.assigned_to.full_name;
-                    }
-
-                    return deal;
-                },
-            },
             update: {
                 method: 'PUT',
                 params: {

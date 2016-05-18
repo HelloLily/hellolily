@@ -16,10 +16,6 @@ class NoteMapping(BaseMapping):
 
         mapping = super(NoteMapping, cls).get_mapping()
         mapping['properties'].update({
-            'name': {
-                'type': 'string',
-                'index_analyzer': 'normal_analyzer',
-            },
             'author': {
                 'type': 'object',
                 'properties': {
@@ -30,16 +26,12 @@ class NoteMapping(BaseMapping):
                     },
                 },
             },
+            'content': {
+                'type': 'string',
+            },
             'content_type': {
                 'type': 'string',
                 'index_analyzer': 'keyword',
-            },
-            'object_id': {
-                'type': 'integer',
-            },
-            'subject_repr': {
-                'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
             },
             'date': {
                 'type': 'date',
@@ -47,6 +39,22 @@ class NoteMapping(BaseMapping):
             'is_pinned': {
                 'type': 'boolean',
             },
+            'modified': {
+                'type': 'date',
+            },
+            'object_id': {
+                'type': 'integer',
+            },
+            'subject': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
+            'type': {
+                'type': 'integer',
+            },
+            'type_display': {
+                'type': 'string',
+            }
         })
         return mapping
 
@@ -71,17 +79,17 @@ class NoteMapping(BaseMapping):
         Translate an object to an index document.
         """
         return {
-            'type': obj.type,
-            'type_name': obj.get_type_display(),
-            'content': obj.content,
             'author': {
-                'full_name': obj.author.get_full_name(),
+                'full_name': obj.author.full_name,
                 'id': obj.author.id,
             },
+            'content': obj.content,
             'content_type': obj.content_type.name,
-            'object_id': obj.object_id,
-            'subject_repr': str(obj.subject),
             'date': obj.sort_by_date,
-            'modified': obj.modified,
             'is_pinned': obj.is_pinned,
+            'modified': obj.modified,
+            'object_id': obj.object_id,
+            'subject': str(obj.subject),
+            'type': obj.type,
+            'type_display': obj.get_type_display(),
         }

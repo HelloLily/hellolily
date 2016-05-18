@@ -40,21 +40,21 @@ CASETYPE_CHOICES = (
 
 class CaseTypeFactory(DjangoModelFactory):
     tenant = SubFactory(TenantFactory)
-    type = Iterator(CASETYPE_CHOICES)
+    name = Iterator(CASETYPE_CHOICES)
 
     class Meta:
         model = CaseType
-        django_get_or_create = ('tenant', 'type')
+        django_get_or_create = ('tenant', 'name')
 
 
 class CaseStatusFactory(DjangoModelFactory):
     position = Sequence(int)
-    status = Iterator(CASESTATUS_CHOICES)
+    name = Iterator(CASESTATUS_CHOICES)
     tenant = SubFactory(TenantFactory)
 
     class Meta:
         model = CaseStatus
-        django_get_or_create = ('tenant', 'status')
+        django_get_or_create = ('tenant', 'name')
 
 
 class CaseFactory(DjangoModelFactory):

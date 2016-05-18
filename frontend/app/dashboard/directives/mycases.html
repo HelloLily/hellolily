@@ -41,22 +41,22 @@
                         </a>
                     </td>
                     <td>
-                        <a ui-sref="base.contacts.detail({ id: myCase.contact })" ng-if="myCase.contact">
-                            {{ myCase.contact_name }}
+                        <a ui-sref="base.contacts.detail({ id: myCase.contact.id })" ng-if="myCase.contact">
+                            {{ myCase.contact.full_name }}
                         </a>
                         <span ng-if="myCase.contact && myCase.account"> at </span>
-                        <a ui-sref="base.accounts.detail({ id: myCase.account })" ng-if="myCase.account">
-                            {{ myCase.account_name }}
+                        <a ui-sref="base.accounts.detail({ id: myCase.account.id })" ng-if="myCase.account">
+                            {{ myCase.account.name }}
                         </a>
                     </td>
                     <td>
-                        {{ myCase.casetype_name }}
+                        {{ myCase.type.name }}
                     </td>
                     <td>
-                        {{ myCase.status }}
+                        {{ myCase.status.name }}
                     </td>
                     <td class="widget-table-priority-cell" style="width: 30px;">
-                        <i class="lilicon" tooltip-placement="left" uib-tooltip="{{ myCase.priority_name }} priority" ng-class="{0: 'hl-low-prio-icon', 1: 'hl-normal-prio-icon', 2: 'hl-high-prio-icon', 3: 'hl-critical-prio-icon'}[myCase.priority]"></i>
+                        <i class="lilicon" tooltip-placement="left" uib-tooltip="{{ myCase.priority_display }} priority" ng-class="{0: 'hl-low-prio-icon', 1: 'hl-normal-prio-icon', 2: 'hl-high-prio-icon', 3: 'hl-critical-prio-icon'}[myCase.priority]"></i>
                     </td>
                     <td style="width: 130px; min-width: 130px;">
                         <postpone type="'Case'" object="myCase" date-field="'expires'" callback="vm.getMyCases()"></postpone>

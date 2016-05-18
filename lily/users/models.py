@@ -129,9 +129,6 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
 
     @property
     def full_name(self):
-        return self.get_full_name()
-
-    def get_full_name(self):
         """
         Return full name of this user without unnecessary white space.
         """
@@ -198,7 +195,7 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
         return self.email_accounts_owned.filter(is_authorized=False, is_deleted=False).exists()
 
     def __unicode__(self):
-        return self.get_full_name() or unicode(self.get_username())
+        return self.full_name
 
     class Meta:
         verbose_name = _('user')

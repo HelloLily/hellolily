@@ -40,7 +40,7 @@ function MyDealsController($scope, Deal, HLUtils, LocalStorage, Case, Tenant) {
     function getMyDeals() {
         var field = 'next_step.position';
         var descending = false;
-        var filterQuery = 'archived:false AND NOT next_step.name:"None"';
+        var filterQuery = 'is_archived:false AND NOT next_step.name:"None"';
 
         HLUtils.blockUI('#myDealsBlockTarget', true);
 
@@ -51,7 +51,7 @@ function MyDealsController($scope, Deal, HLUtils, LocalStorage, Case, Tenant) {
         if (vm.table.usersFilter) {
             filterQuery += ' AND (' + vm.table.usersFilter + ')';
         } else {
-            filterQuery += ' AND assigned_to_id:' + currentUser.id;
+            filterQuery += ' AND assigned_to.id:' + currentUser.id;
         }
 
         Deal.getDeals(field, descending, filterQuery).then(function(data) {
@@ -64,7 +64,7 @@ function MyDealsController($scope, Deal, HLUtils, LocalStorage, Case, Tenant) {
                 vm.table.items = HLUtils.timeCategorizeObjects(data.objects, 'next_step_date');
 
                 angular.forEach(data.objects, function(deal) {
-                    Case.query({filterquery: 'account:' + deal.account + ' AND archived:false'}).$promise.then(function(caseList) {
+                    Case.query({filterquery: 'account.id:' + deal.account.id + ' AND is_archived:false'}).$promise.then(function(caseList) {
                         if (caseList.objects.length > 0) {
                             deal.hasUnarchivedCases = true;
                         }

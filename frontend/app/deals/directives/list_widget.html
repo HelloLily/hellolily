@@ -23,10 +23,10 @@
             <tbody ng-repeat="deal in vm.list" ng-if="vm.list.length">
                 <tr>
                     <td>
-                        <strong ng-if="::deal.archived">(a)</strong>
+                        <strong ng-if="::deal.is_archived">(a)</strong>
                         <a ui-sref="base.deals.detail({id: deal.id})">{{ deal.name }}</a>
                     </td>
-                    <td>{{ deal.status_name }}</td>
+                    <td>{{ deal.status.name }}</td>
                     <td>
                         <span ng-if="deal.next_step" class="step-type" tooltip-placement="left"
                               uib-tooltip="{{ deal.next_step.name }}"
@@ -45,13 +45,13 @@
                 </tr>
                 <tr ng-show="!deal.collapsed" class="collapse-content" class="collapsable-cell">
                     <td colspan="4">
-                        <div class="margin-bottom-5"><strong>Assigned to:</strong> {{ deal.assigned_to_name || "Nobody" }}</div>
+                        <div class="margin-bottom-5"><strong>Assigned to:</strong> {{ deal.assigned_to.full_name || "Nobody" }}</div>
                         <div class="margin-bottom-5"><strong>Amount once:</strong> &euro; {{ deal.amount_once }}</div>
                         <div class="margin-bottom-5"><strong>Recurring amount:</strong> &euro; {{ deal.amount_recurring }} per month</div>
                         <div class="margin-bottom-5"><strong>Created by:</strong> <span class="margin-right-5">{{ deal.created_by.full_name || "Nobody" }} on</span><date date="deal.created"></date></div>
-                        <div class="margin-top-20" ng-if="deal.body">
+                        <div class="margin-top-20" ng-if="deal.description">
                             <strong class="margin-bottom-5">Description:</strong>
-                            <div>{{ deal.body }}</div>
+                            <div>{{ deal.description }}</div>
                         </div>
                     </td>
                 </tr>

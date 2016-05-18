@@ -176,7 +176,6 @@ class LilySearch(object):
                         'status',
                         'type',
                         'phone_*',
-                        'contact_name',
                         'account_email',
                         'sender_email_address',
                         'sender_name',

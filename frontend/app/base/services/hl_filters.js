@@ -18,9 +18,9 @@ function HLFilters() {
         }
 
         filterList.forEach(function(filter) {
-            if (filter.id && filter.id === 'archived') {
+            if (filter.id && filter.id === 'is_archived') {
                 if (!filter.selected) {
-                    filterStrings.push('archived:false');
+                    filterStrings.push('is_archived:false');
                 }
             } else {
                 if (filter.selected) {

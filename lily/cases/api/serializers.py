@@ -21,7 +21,7 @@ class CaseStatusSerializer(serializers.ModelSerializer):
         model = CaseStatus
         fields = (
             'id',
-            'status',
+            'name',
         )
 
 
@@ -37,7 +37,7 @@ class CaseTypeSerializer(serializers.ModelSerializer):
         model = CaseType
         fields = (
             'id',
-            'type',
+            'name',
             'use_as_filter',
         )
 
@@ -101,7 +101,7 @@ class CaseSerializer(WritableNestedSerializer):
         status = CaseStatus.objects.get(pk=status_id)
 
         # Automatically archive the case if the status is set to 'Closed'.
-        if status.status == 'Closed':
+        if status.name == 'Closed':
             validated_data.update({
                 'is_archived': True
             })

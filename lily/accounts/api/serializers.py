@@ -80,7 +80,6 @@ class AccountSerializer(WritableNestedSerializer):
     # Related fields
     addresses = RelatedAddressSerializer(many=True, required=False, create_only=True)
     assigned_to = RelatedLilyUserSerializer(required=False, assign_only=True)
-    contacts = ContactForAccountSerializer(many=True, read_only=True)
     email_addresses = RelatedEmailAddressSerializer(many=True, required=False, create_only=True)
     phone_numbers = RelatedPhoneNumberSerializer(many=True, required=False, create_only=True)
     social_media = RelatedSocialMediaSerializer(many=True, required=False, create_only=True)

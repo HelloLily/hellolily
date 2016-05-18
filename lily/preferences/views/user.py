@@ -13,7 +13,7 @@ class UserProfileView(LoginRequiredMixin, SuccessMessageMixin, StaticContextMixi
     static_context = {'form_prevent_autofill': True}
 
     def get_success_message(self, cleaned_data):
-        return _('%(name)s has been updated' % {'name': self.object.get_full_name()})
+        return _('%(name)s has been updated' % {'name': self.object.full_name})
 
     def get_object(self, queryset=None):
         return self.request.user
@@ -28,7 +28,7 @@ class UserAccountView(LoginRequiredMixin, SuccessMessageMixin, StaticContextMixi
     static_context = {'form_prevent_autofill': True}
 
     def get_success_message(self, cleaned_data):
-        return _('%(name)s has been updated' % {'name': self.object.get_full_name()})
+        return _('%(name)s has been updated' % {'name': self.object.full_name})
 
     def get_object(self, queryset=None):
         return self.request.user

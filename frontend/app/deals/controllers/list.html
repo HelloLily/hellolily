@@ -93,7 +93,7 @@
                 <th ng-show="vm.table.visibility.status" sort-column="status" table="vm.table">Status</th>
                 <th ng-show="vm.table.visibility.nextStep" sort-column="next_step.name" table="vm.table">Next step</th>
                 <th ng-show="vm.table.visibility.nextStepDate" sort-column="next_step_date" table="vm.table">Next step date</th>
-                <th ng-show="vm.table.visibility.assignedTo" sort-column="assigned_to_name" table="vm.table">Assigned to</th>
+                <th ng-show="vm.table.visibility.assignedTo" sort-column="assigned_to.full_name" table="vm.table">Assigned to</th>
                 <th ng-show="vm.table.visibility.amountOnce" sort-column="amount_once" table="vm.table">One-time cost</th>
                 <th ng-show="vm.table.visibility.amountRecurring" sort-column="amount_recurring" table="vm.table">Recurring costs</th>
                 <th ng-show="vm.table.visibility.newBusiness" sort-column="new_business" table="vm.table">Business</th>
@@ -110,13 +110,13 @@
                         </a>
                     </td>
                     <td ng-show="vm.table.visibility.name">
-                        <strong ng-if="::deal.archived">(a)</strong>
+                        <strong ng-if="::deal.is_archived">(a)</strong>
                         <a ui-sref="base.deals.detail({ id: deal.id })" title="{{ deal.name }}">{{ deal.name }}</a>
                     </td>
                     <td ng-show="vm.table.visibility.client">
-                        <a ui-sref="base.contacts.detail({ id: deal.contact })" ng-if="::deal.contact">{{ ::deal.contact_name }}</a>
+                        <a ui-sref="base.contacts.detail({ id: deal.contact.id })" ng-if="::deal.contact">{{ ::deal.contact.full_name }}</a>
                         <span ng-if="deal.contact && deal.account"> at </span>
-                        <a ui-sref="base.accounts.detail({ id: deal.account })">{{ ::deal.account_name }}</a>
+                        <a ui-sref="base.accounts.detail({ id: deal.account.id })">{{ ::deal.account.name }}</a>
                     </td>
                     <td ng-show="vm.table.visibility.status">
                         {{ deal.status.name }}
@@ -130,7 +130,7 @@
                         <postpone ng-if="deal.next_step_date" type="'Deal'" object="deal" date-field="'next_step_date'"></postpone>
                     </td>
                     <td ng-show="vm.table.visibility.assignedTo">
-                        {{ deal.assigned_to_name }}
+                        {{ deal.assigned_to.full_name }}
                     </td>
                     <td ng-show="vm.table.visibility.amountOnce">
                         {{ deal.amount_once |currency:'&euro; ' }}
@@ -157,8 +157,8 @@
                         <span ng-hide="deal.created_by.full_name">Unknown</span>
                     </td>
                     <td ng-show="vm.table.visibility.tags">
-                        <span ng-repeat="tag in deal.tag">
-                            <a href="javascript:void(0)" ng-click="vm.setSearchQuery(tag)">{{ tag }}</a>
+                        <span ng-repeat="tag in deal.tags">
+                            <a href="javascript:void(0)" ng-click="vm.setSearchQuery(tag.name)">{{ ::tag.name }}</a>
                             <br>
                         </span>
                     </td>

@@ -95,7 +95,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             vm.caseTypes = data;
 
             angular.forEach(data, function(caseType) {
-                if (caseType.type.indexOf('Config') > -1) {
+                if (caseType.name.indexOf('Config') > -1) {
                     vm.configCaseType = caseType.id;
                 }
             });

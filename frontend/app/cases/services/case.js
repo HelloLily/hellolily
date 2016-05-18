@@ -100,10 +100,10 @@ function Case($resource, HLUtils, HLCache, CacheFactory) {
     function getCasePriorities() {
         // Hardcoded because these are the only case priorities.
         return [
-            {id: 0, name: 'Low'},
-            {id: 1, name: 'Medium'},
-            {id: 2, name: 'High'},
-            {id: 3, name: 'Critical'},
+            {id: 0, name: 'Low', dateIncrement: 5},
+            {id: 1, name: 'Medium', dateIncrement: 3},
+            {id: 2, name: 'High', dateIncrement: 1},
+            {id: 3, name: 'Critical', dateIncrement: 0},
         ];
     }
 

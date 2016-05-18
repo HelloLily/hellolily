@@ -66,7 +66,7 @@ function UnassignedCasesController($http, $scope, $state, Case, HLFilters, HLUti
             filterQuery += ' AND ' + vm.table.filterQuery;
         }
 
-        Case.getCases('', 1, 20, vm.table.order.column, vm.table.order.descending, filterQuery).then(function(data) {
+        Case.getCases(vm.table.order.column, vm.table.order.descending, filterQuery).then(function(data) {
             vm.table.items = data.objects;
             vm.highPrioCases = 0;
 

@@ -41,7 +41,6 @@ function MyDealsController($scope, Deal, HLUtils, LocalStorage, Case, Tenant) {
         var field = 'next_step.position';
         var descending = false;
         var filterQuery = 'archived:false AND NOT next_step.name:"None"';
-        var dealPromise;
 
         HLUtils.blockUI('#myDealsBlockTarget', true);
 
@@ -55,8 +54,7 @@ function MyDealsController($scope, Deal, HLUtils, LocalStorage, Case, Tenant) {
             filterQuery += ' AND assigned_to_id:' + currentUser.id;
         }
 
-        dealPromise = Deal.getDeals('', 1, 250, field, descending, filterQuery);
-        dealPromise.then(function(data) {
+        Deal.getDeals(field, descending, filterQuery).then(function(data) {
             if (vm.table.dueDateFilter !== '') {
                 // Add empty key to prevent showing a header and to not crash the for loop.
                 vm.table.items = {

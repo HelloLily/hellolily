@@ -140,26 +140,26 @@ function Deal($resource, HLUtils, HLForms, HLCache, CacheFactory) {
     }
 
     /**
-     * getDeals() gets the deals from the search backend through a promise
+     * Get the deals from the search backend through a promise.
      *
-     * @param queryString {string}: current search query on the deallist
-     * @param page {int}: current page of pagination
-     * @param pageSize {int}: current page size of pagination
-     * @param orderColumn {string}: current sorting of deals
-     * @param orderedDesc {boolean}: current ordering
-     * @param filterQuery {string}: contains the filters which are used in ElasticSearch
+     * @param orderColumn {string}: Current sorting of deals.
+     * @param orderedDesc {boolean}: Current ordering.
+     * @param filterQuery {string}: Contains the filters which are used in Elasticsearch.
+     * @param searchQuery {string}: Current search query on the deal list.
+     * @param page {number=1}: Current page of pagination.
+     * @param pageSize {number=100}: Current page size of pagination.
      *
      * @returns Promise object: when promise is completed:
      *      {
-     *          deals {list}: paginated deals objects
-     *          total {int}: total number of deal objects
+     *          deals {list}: Paginated deals objects.
+     *          total {number}: Total number of deal objects.
      *      }
      */
-    function getDeals(queryString, page, pageSize, orderColumn, orderedDesc, filterQuery) {
+    function getDeals(orderColumn, orderedDesc, filterQuery, searchQuery = '', page = 1, pageSize = 100) {
         var sort = HLUtils.getSorting(orderColumn, orderedDesc);
 
         return _deal.query({
-            q: queryString,
+            q: searchQuery,
             page: page - 1,
             size: pageSize,
             sort: sort,

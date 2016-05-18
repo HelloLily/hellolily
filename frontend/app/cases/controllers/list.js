@@ -201,12 +201,12 @@ function CaseListController($scope, $state, $timeout, $uibModal, Case, HLFilters
      */
     function _updateCases() {
         Case.getCases(
-            vm.table.searchQuery,
-            vm.table.page,
-            vm.table.pageSize,
             vm.table.order.column,
             vm.table.order.descending,
-            vm.table.filterQuery
+            vm.table.filterQuery,
+            vm.table.searchQuery,
+            vm.table.page,
+            vm.table.pageSize
         ).then(function(data) {
             vm.table.items = data.objects;
             vm.table.totalItems = data.total;

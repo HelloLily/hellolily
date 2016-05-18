@@ -47,6 +47,7 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
     vm.account = {};
     vm.people = [];
     vm.tags = [];
+    vm.tag_choices = [];
     vm.errors = {
         name: [],
     };
@@ -59,6 +60,8 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
     vm.addRelatedField = addRelatedField;
     vm.removeRelatedField = removeRelatedField;
     vm.setStatusForCustomerId = setStatusForCustomerId;
+    vm.refreshTags = refreshTags;
+    vm.addTagChoice = addTagChoice;
 
     activate();
 
@@ -90,7 +93,6 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
     }
 
     function _getAccount() {
-        var tags = [];
         var company;
 
         // Fetch the account or create empty account
@@ -107,13 +109,6 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
                 });
                 if (!vm.account.primaryWebsite || vm.account.primaryWebsite === '') {
                     vm.account.primaryWebsite = '';
-                }
-
-                if (vm.account.tags.length) {
-                    angular.forEach(account.tags, function(tag) {
-                        tags.push(tag.name);
-                    });
-                    vm.account.tags = tags;
                 }
 
                 if (vm.account.assigned_to) {
@@ -246,7 +241,6 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
     }
 
     function saveAccount(form) {
-        var tags = [];
         var primaryWebsite = vm.account.primaryWebsite;
         var exists;
 
@@ -284,15 +278,6 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
         // Rewrite submit so that it isn't sending the whole status object, but only its id.
         if (typeof vm.account.status === 'object' && vm.account.status && vm.account.status.id) {
             vm.account.status = {id: vm.account.status.id};
-        }
-
-        if (vm.account.tags && vm.account.tags.length) {
-            angular.forEach(vm.account.tags, function(tag) {
-                if (tag) {
-                    tags.push({name: (tag.name) ? tag.name : tag});
-                }
-                vm.account.tags = tags;
-            });
         }
 
         // Clear all errors of the form (in case of new errors).
@@ -391,5 +376,26 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
         }
 
         return domain;
+    }
+
+    function refreshTags(query) {
+        var exclude = '';
+
+        if (query.length >= 1) {
+            // Exclude accounts already selected
+            angular.forEach(vm.contact.tags, function(tag) {
+                exclude += ' AND NOT name_flat:' + tag.name;
+            });
+
+            Tag.search({query: query + exclude}, function(response) {
+                vm.tag_choices = response;
+            });
+        }
+    }
+
+    function addTagChoice(tag) {
+        return {
+            'name': tag,
+        };
     }
 }

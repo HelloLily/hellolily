@@ -257,7 +257,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
 
         vm.case.expires = moment(vm.case.expires).format('YYYY-MM-DD');
 
-        // clean modifies the object, so preserve the state by copying the object (in case of errors).
+        // Clean modifies the object, so preserve the state by copying the object (in case of errors).
         cleanedCase = HLForms.clean(angular.copy(vm.case));
 
         if (cleanedCase.id) {

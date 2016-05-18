@@ -90,7 +90,6 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
     }
 
     function _getAccount() {
-        var tags = [];
         var company;
 
         // Fetch the account or create empty account
@@ -107,13 +106,6 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
                 });
                 if (!vm.account.primaryWebsite || vm.account.primaryWebsite === '') {
                     vm.account.primaryWebsite = '';
-                }
-
-                if (vm.account.tags.length) {
-                    angular.forEach(account.tags, function(tag) {
-                        tags.push(tag.name);
-                    });
-                    vm.account.tags = tags;
                 }
 
                 if (vm.account.assigned_to) {
@@ -246,7 +238,6 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
     }
 
     function saveAccount(form) {
-        var tags = [];
         var primaryWebsite = vm.account.primaryWebsite;
         var exists;
 
@@ -284,15 +275,6 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
         // Rewrite submit so that it isn't sending the whole status object, but only its id.
         if (typeof vm.account.status === 'object' && vm.account.status && vm.account.status.id) {
             vm.account.status = {id: vm.account.status.id};
-        }
-
-        if (vm.account.tags && vm.account.tags.length) {
-            angular.forEach(vm.account.tags, function(tag) {
-                if (tag) {
-                    tags.push({name: (tag.name) ? tag.name : tag});
-                }
-                vm.account.tags = tags;
-            });
         }
 
         // Clear all errors of the form (in case of new errors).

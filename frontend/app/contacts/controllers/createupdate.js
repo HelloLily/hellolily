@@ -53,25 +53,21 @@ function contactConfig($stateProvider) {
  */
 angular.module('app.contacts').controller('ContactCreateUpdateController', ContactCreateUpdateController);
 
-ContactCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', 'Settings', 'Account', 'Contact', 'Tag',
+ContactCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', 'Settings', 'Account', 'Contact',
     'HLFields', 'HLForms', 'HLSearch'];
-function ContactCreateUpdateController($scope, $state, $stateParams, Settings, Account, Contact,
-                                       Tag, HLFields, HLForms, HLSearch) {
+function ContactCreateUpdateController($scope, $state, $stateParams, Settings, Account, Contact, HLFields, HLForms,
+                                       HLSearch) {
     var vm = this;
     vm.contact = {};
-    vm.tags = [];
     vm.errors = {
         name: [],
     };
-    vm.tag_choices = [];
 
     vm.saveContact = saveContact;
     vm.cancelContactCreation = cancelContactCreation;
     vm.addRelatedField = addRelatedField;
     vm.removeRelatedField = removeRelatedField;
     vm.refreshAccounts = refreshAccounts;
-    vm.refreshTags = refreshTags;
-    vm.addTagChoice = addTagChoice;
 
     activate();
 
@@ -261,27 +257,6 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Settings, A
             }
         }
     }, true);
-
-    function refreshTags(query) {
-        var exclude = '';
-
-        if (query.length >= 1) {
-            // Exclude accounts already selected
-            angular.forEach(vm.contact.tags, function(tag) {
-                exclude += ' AND NOT name_flat:' + tag.name;
-            });
-
-            Tag.search({query: query + exclude}, function(response) {
-                vm.tag_choices = response;
-            });
-        }
-    }
-
-    function addTagChoice(tag) {
-        return {
-            'name': tag,
-        };
-    }
 
     function _handleBadResponse(response, form) {
         HLForms.setErrors(form, response.data);

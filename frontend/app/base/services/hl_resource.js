@@ -12,6 +12,10 @@ function HLResource($injector, Settings) {
         });
     };
 
+    this.delete = function(model, object) {
+        return $injector.get(model).delete({id: object.id}).$promise;
+    };
+
     /**
      * Gets the options for the given field which can be used for selects.
      * @param model {string}: The model that's loaded.

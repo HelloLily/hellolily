@@ -25,7 +25,7 @@ function PreferencesEmailTemplatesList($uibModal, $scope, $state, EmailTemplate,
     var vm = this;
 
     vm.makeDefault = makeDefault;
-    vm.deleteEmailTemplate = deleteEmailTemplate;
+    vm.removeFromList = removeFromList;
 
     activate();
 
@@ -60,16 +60,10 @@ function PreferencesEmailTemplatesList($uibModal, $scope, $state, EmailTemplate,
         });
     }
 
-    function deleteEmailTemplate(emailtemplate) {
-        if (confirm('Are you sure?')) {
-            EmailTemplate.delete({
-                id: emailtemplate.id,
-            }, function() {  // On success
-                var index = $scope.emailTemplates.indexOf(emailtemplate);
-                $scope.emailTemplates.splice(index, 1);
-            }, function(error) {  // On error
-                alert('something went wrong.');
-            });
-        }
+    function removeFromList(emailtemplate) {
+        var index = vm.emailTemplates.indexOf(emailtemplate);
+        vm.emailTemplates.splice(index, 1);
+
+        $scope.$apply();
     }
 }

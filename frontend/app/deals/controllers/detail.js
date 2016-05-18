@@ -3,6 +3,7 @@ angular.module('app.deals').config(dealsConfig);
 dealsConfig.$inject = ['$stateProvider'];
 function dealsConfig($stateProvider) {
     $stateProvider.state('base.deals.detail', {
+        parent: 'base.deals',
         url: '/{id:[0-9]{1,}}',
         views: {
             '@': {
@@ -30,6 +31,10 @@ function DealDetailController($scope, $state, $uibModal, Account, Contact, Deal,
     var vm = this;
 
     Settings.page.setAllTitles('detail', currentDeal.name, currentDeal.contact, currentDeal.account);
+    Settings.page.toolbar.data = {
+        model: 'Deal',
+        object: currentDeal,
+    };
 
     vm.deal = currentDeal;
 

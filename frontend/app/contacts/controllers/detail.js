@@ -3,6 +3,7 @@ angular.module('app.contacts').config(contactsConfig);
 contactsConfig.$inject = ['$stateProvider'];
 function contactsConfig($stateProvider) {
     $stateProvider.state('base.contacts.detail', {
+        parent: 'base.contacts',
         url: '/{id:[0-9]{1,}}',
         views: {
             '@': {
@@ -32,6 +33,10 @@ function ContactDetailController($scope, $stateParams, Settings, Contact, Case, 
     $scope.height = 200;
 
     Settings.page.setAllTitles('detail', currentContact.full_name);
+    Settings.page.toolbar.data = {
+        model: 'Contact',
+        object: currentContact,
+    };
 
     $scope.$watchCollection('contact.accounts', function() {
         $scope.contact.accounts.forEach(function(account) {

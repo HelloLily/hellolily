@@ -8,6 +8,7 @@ function HistoryListItemDirective($compile, $http, $templateCache) {
             item: '=',
             history: '=',
             object: '=',
+            deleteCallback: '&?',
         },
         link: function(scope, element, attrs) {
             var getTemplate = function(historyType) {

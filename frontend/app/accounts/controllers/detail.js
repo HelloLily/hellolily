@@ -6,6 +6,7 @@ angular.module('app.accounts').config(accountConfig);
 accountConfig.$inject = ['$stateProvider'];
 function accountConfig($stateProvider) {
     $stateProvider.state('base.accounts.detail', {
+        parent: 'base.accounts',
         url: '/{id:[0-9]{1,}}',
         views: {
             '@': {
@@ -33,6 +34,10 @@ function AccountDetailController($scope, $stateParams, Settings, Case, Contact, 
 
     $scope.account = currentAccount;
     Settings.page.setAllTitles('detail', currentAccount.name);
+    Settings.page.toolbar.data = {
+        model: 'Account',
+        object: currentAccount,
+    };
 
     $scope.caseList = Case.query({filterquery: 'account.id:' + id, sort: '-created', size: 100});
     $scope.caseList.$promise.then(function(caseList) {

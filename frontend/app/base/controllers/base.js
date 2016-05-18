@@ -69,5 +69,7 @@ function BaseController($scope, $state, Settings, Notifications, HLShortcuts) {
 
             $scope.$$phase || $scope.apply();
         }
+
+        Settings.page.toolbar.data = null;
     }
 }

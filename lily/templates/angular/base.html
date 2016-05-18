@@ -96,10 +96,10 @@
                             </h1>
                         </div>
 
-                        <div class="page-toolbar">
+                        <div ng-if="settings.page.toolbar.data" class="page-toolbar">
                             <div class="btn-group btn-theme-panel">
-                                <a ng-show="$state.current.name.indexOf('detail') > -1 && $state.current.name.indexOf('email') == -1 && !($state.current.name | endsWith: 'edit')" ng-click="$state.go('.edit')" class="btn"><i class="fa fa-edit"></i></a>
-                                <a ng-show="$state.current.name.indexOf('detail') > -1 && $state.current.name.indexOf('email') == -1 && !($state.current.name | endsWith: 'edit')" detail-delete class="btn" data-target="#confirm-delete"><i class="fa fa-trash"></i></a>
+                                <a ng-click="$state.go('.edit')" class="btn"><i class="lilicon hl-edit-icon"></i></a>
+                                <delete-confirmation model="{{ settings.page.toolbar.data.model }}" object="settings.page.toolbar.data.object" button-class="no-background"></delete-confirmation>
                             </div>
                         </div>
                         <!-- END PAGE TITLE -->

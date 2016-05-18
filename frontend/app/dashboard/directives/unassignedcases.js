@@ -81,21 +81,18 @@ function UnassignedCasesController($http, $scope, $state, Case, HLFilters, HLUti
     }
 
     function assignToMe(caseObj) {
-        var req;
-
-        if (confirm('Assign this case to yourself?')) {
-            req = {
-                method: 'POST',
-                url: '/cases/update/assigned_to/' + caseObj.id + '/',
-                data: 'assignee=' + currentUser.id,
-                headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'},
-            };
-
-            $http(req).success(function() {
-                vm.table.items.splice(vm.table.items.indexOf(caseObj), 1);
-                $state.go($state.current, {}, {reload: true});
-            });
-        }
+        swal({
+            text: HLMessages.alerts.assignTo.questionText,
+            type: 'question',
+            showCancelButton: true,
+        }).then(function(isConfirm) {
+            if (isConfirm) {
+                Case.patch({id: caseObj.id, assigned_to: currentUser.id}).$promise.then(function() {
+                    var index = vm.table.items.indexOf(caseObj);
+                    vm.table.items.splice(index, 1);
+                });
+            }
+        });
     }
 
     function _watchTable() {

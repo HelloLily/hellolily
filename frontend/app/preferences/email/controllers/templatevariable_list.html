@@ -11,11 +11,11 @@
                         <span><i class="fa fa-eye"></i> Preview</span>
                     </a>
                     <a ui-sref="base.preferences.templatevariables.edit({id: variable.id})" class="btn btn-xs default">
-                        <span><i class="fa fa-edit"></i> Edit</span>
+                        <span><i class="lilicon hl-edit-icon"></i> Edit</span>
                     </a>
-                    <a class="btn btn-xs default" ng-click="vm.deleteTemplateVariable(variable)">
-                        <span><i class="fa fa-trash"></i> Delete</span>
-                    </a>
+                    <delete-confirmation model="TemplateVariable" object="variable" callback="vm.removeFromList(variable)" button-class="btn-xs">
+                        Delete
+                    </delete-confirmation>
                 </span>
             </li>
             <li class="list-group-item" ng-hide="vm.templateVariables.length">

@@ -31,7 +31,7 @@ function PreferencesEmailTemplatesList(TemplateVariable, user) {
     vm.templateVariables = [];
     vm.publicTemplateVariables = [];
 
-    vm.deleteTemplateVariable = deleteTemplateVariable;
+    vm.removeFromList = removeFromList;
     vm.previewTemplateVariable = previewTemplateVariable;
     vm.currentUser = user;
 
@@ -57,20 +57,14 @@ function PreferencesEmailTemplatesList(TemplateVariable, user) {
         });
     }
 
-    function deleteTemplateVariable(templateVariable) {
-        if (confirm('Are you sure?')) {
-            TemplateVariable.delete({
-                id: templateVariable.id,
-            }, function() {  // On success
-                var index = vm.templateVariables.indexOf(templateVariable);
-                vm.templateVariables.splice(index, 1);
-            }, function(error) {  // On error
-                alert('Something went wrong.');
-            });
-        }
+    function removeFromList(templateVariable) {
+        var index = vm.templateVariables.indexOf(templateVariable);
+        vm.templateVariables.splice(index, 1);
+
+        $scope.$apply();
     }
 
     function previewTemplateVariable(templateVariable) {
-        bootbox.alert(templateVariable.text);
+        swal('Preview', templateVariable.text);
     }
 }

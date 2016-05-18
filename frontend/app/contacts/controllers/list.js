@@ -18,9 +18,9 @@ function contactsConfig($stateProvider) {
 
 angular.module('app.contacts').controller('ContactListController', ContactListController);
 
-ContactListController.$inject = ['$scope', '$window', 'Settings', 'Contact', 'LocalStorage', 'ContactTest'];
-function ContactListController($scope, $window, Settings, Contact, LocalStorage, ContactTest) {
-    var storage = LocalStorage('contactList');
+ContactListController.$inject = ['$scope', '$window', 'Settings', 'Contact', 'LocalStorage'];
+function ContactListController($scope, $window, Settings, Contact, LocalStorage) {
+    var storage = new LocalStorage('contactList');
 
     Settings.page.setAllTitles('list', 'contacts');
 
@@ -45,17 +45,10 @@ function ContactListController($scope, $window, Settings, Contact, LocalStorage,
             tags: true,
         })};
 
-    $scope.deleteContact = function(contact) {
-        if (confirm('Are you sure?')) {
-            ContactTest.delete({
-                id: contact.id,
-            }, function() {  // On success
-                var index = $scope.table.items.indexOf(contact);
-                $scope.table.items.splice(index, 1);
-            }, function() {  // On error
-                alert('something went wrong.');
-            });
-        }
+    $scope.removeFromList = function(contact) {
+        var index = $scope.table.items.indexOf(contact);
+        $scope.table.items.splice(index, 1);
+        $scope.$apply();
     };
 
     /**
@@ -83,7 +76,7 @@ function ContactListController($scope, $window, Settings, Contact, LocalStorage,
             page: $scope.table.page - 1,
             size: $scope.table.pageSize,
             sort: sort,
-        }, function(data) {  // On success
+        }, function(data) {
             $scope.table.items = data.objects;
             $scope.table.totalItems = data.total;
         });
@@ -126,25 +119,26 @@ function ContactListController($scope, $window, Settings, Contact, LocalStorage,
     $scope.exportToCsv = function() {
         var getParams = '';
 
-        // If there is a filter, add it
+        // Setup url.
+        var url = '/contacts/export/';
+
+        // If there is a filter, add it.
         if ($scope.table.filter) {
             getParams += '&export_filter=' + $scope.table.filter;
         }
 
-        // Add all visible columns
+        // Add all visible columns.
         angular.forEach($scope.table.visibility, function(value, key) {
             if (value) {
                 getParams += '&export_columns=' + key;
             }
         });
 
-        // Setup url
-        var url = '/contacts/export/';
         if (getParams) {
             url += '?' + getParams.substr(1);
         }
 
-        // Open url
+        // Open url.
         $window.open(url);
     };
 }

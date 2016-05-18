@@ -34,7 +34,7 @@ function PreferencesEmailAccountList($uibModal, EmailAccount, User, user, $http)
     vm.activate = activate;
     vm.followShared = followShared;
     vm.hideShared = hideShared;
-    vm.deleteAccount = deleteAccount;
+    vm.loadAccounts = loadAccounts;
     vm.openShareAccountModal = openShareAccountModal;
     vm.togglePrimaryAccount = togglePrimaryAccount;
 
@@ -46,9 +46,9 @@ function PreferencesEmailAccountList($uibModal, EmailAccount, User, user, $http)
         loadAccounts();
     }
 
-    // Get relevant accounts
+    // Get relevant accounts.
     function loadAccounts() {
-        // Accounts owned
+        // Accounts owned.
         EmailAccount.query({owner: vm.currentUser.id}, function(data) {
             vm.ownedAccounts = data.results;
         });
@@ -65,7 +65,7 @@ function PreferencesEmailAccountList($uibModal, EmailAccount, User, user, $http)
             });
         }
 
-        // Accounts shared with user
+        // Accounts shared with user.
         EmailAccount.query({shared_with_users__id: vm.currentUser.id}, function(data) {
             vm.sharedAccounts = data.results;
             data.results.forEach(function(account) {
@@ -73,7 +73,7 @@ function PreferencesEmailAccountList($uibModal, EmailAccount, User, user, $http)
             });
         });
 
-        // Accounts public
+        // Accounts public.
         EmailAccount.query({public: 'True'}, function(data) {
             vm.publicAccounts = data.results;
             data.results.forEach(function(account) {
@@ -100,15 +100,6 @@ function PreferencesEmailAccountList($uibModal, EmailAccount, User, user, $http)
         updateSharedEmailSetting(account.id, true);
     }
 
-    function deleteAccount(accountId) {
-        if (confirm('sure to delete?')) {
-            EmailAccount.delete({id: accountId}, function() {
-                // Reload accounts
-                loadAccounts();
-            });
-        }
-    }
-
     function openShareAccountModal(emailAccount) {
         var modalInstance = $uibModal.open({
             templateUrl: 'preferences/email/controllers/emailaccount_share.html',
@@ -123,7 +114,7 @@ function PreferencesEmailAccountList($uibModal, EmailAccount, User, user, $http)
             },
         });
 
-        modalInstance.result.then(function () {
+        modalInstance.result.then(function() {
             loadAccounts();
         }, function() {
             loadAccounts();
@@ -131,11 +122,11 @@ function PreferencesEmailAccountList($uibModal, EmailAccount, User, user, $http)
     }
 
     function togglePrimaryAccount(emailAccount) {
-        if (vm.currentUser.primary_email_account == emailAccount.id) {
-            // Unset primary email account.
+        if (vm.currentUser.primary_email_account === emailAccount.id) {
+            // Unset primary email account..
             vm.currentUser.primary_email_account = null;
         } else {
-            // Set primary email account
+            // Set primary email account.
             vm.currentUser.primary_email_account = emailAccount.id;
         }
         User.update({id: 'me'}, vm.currentUser);

@@ -58,7 +58,19 @@ function DeleteConfirmationController($state, HLMessages, HLResource) {
             confirmButtonText: HLMessages.alerts.delete.confirmButtonText,
             preConfirm: function() {
                 swal.enableLoading();
-                return HLResource.delete(vm.model, vm.object);
+                return new Promise(function(resolve) {
+                    HLResource.delete(vm.model, vm.object).then(function() {
+                        // Delete was successful, so continue.
+                        resolve();
+                    }, function(error) {
+                        // Otherwise show error alert.
+                        swal({
+                            title: HLMessages.alerts.delete.errorTitle,
+                            html: HLMessages.alerts.delete.errorText,
+                            type: 'error',
+                        });
+                    });
+                });
             },
         }).then(function(isConfirm) {
             if (isConfirm) {

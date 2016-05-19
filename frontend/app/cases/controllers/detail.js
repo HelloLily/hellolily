@@ -44,10 +44,10 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseDetailController', CaseDetailController);
 
-CaseDetailController.$inject = ['$scope', 'Settings', 'CaseStatuses', 'HLResource', 'LocalStorage', 'Tenant',
-    'UserTeams', 'caseItem', 'caseAccount', 'caseContact', 'Case', 'HLUtils'];
-function CaseDetailController($scope, Settings, CaseStatuses, HLResource, LocalStorage, Tenant, UserTeams, caseItem,
-                              caseAccount, caseContact, Case, HLUtils) {
+CaseDetailController.$inject = ['$scope', 'Settings', 'CaseStatuses', 'HLResource', 'HLUtils', 'LocalStorage', 'Tenant',
+    'UserTeams', 'currentCase', 'caseAccount', 'caseContact', 'Case'];
+function CaseDetailController($scope, Settings, CaseStatuses, HLResource, HLUtils, LocalStorage, Tenant, UserTeams,
+                              currentCase, caseAccount, caseContact, Case) {
     var vm = this;
     var storage = new LocalStorage('caseDetail');
 
@@ -55,6 +55,8 @@ function CaseDetailController($scope, Settings, CaseStatuses, HLResource, LocalS
     Settings.page.toolbar.data = {
         model: 'Case',
         object: currentCase,
+        field: 'subject',
+        updateCallback: updateModel,
     };
 
     vm.case = currentCase;
@@ -135,6 +137,10 @@ function CaseDetailController($scope, Settings, CaseStatuses, HLResource, LocalS
         var args = HLResource.createArgs(data, field, vm.case);
         var casePriorities = Case.getCasePriorities();
         var expireDate;
+
+        if (field === 'subject') {
+            Settings.page.setAllTitles('detail', data, vm.case.contact, vm.case.account);
+        }
 
         if (args.hasOwnProperty('priority')) {
             expireDate = HLUtils.addBusinessDays(casePriorities[vm.case.priority].dateIncrement);

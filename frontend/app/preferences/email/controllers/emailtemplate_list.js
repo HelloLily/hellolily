@@ -20,8 +20,8 @@ function preferencesConfig($stateProvider) {
 
 angular.module('app.preferences').controller('PreferencesEmailTemplatesList', PreferencesEmailTemplatesList);
 
-PreferencesEmailTemplatesList.$inject = ['$uibModal', '$scope', '$state', 'EmailTemplate', 'EmailAccount'];
-function PreferencesEmailTemplatesList($uibModal, $scope, $state, EmailTemplate, EmailAccount) {
+PreferencesEmailTemplatesList.$inject = ['$scope', '$state', '$uibModal', 'EmailAccount', 'EmailTemplate'];
+function PreferencesEmailTemplatesList($scope, $state, $uibModal, EmailAccount, EmailTemplate) {
     var vm = this;
 
     vm.makeDefault = makeDefault;

@@ -1,7 +1,7 @@
 angular.module('app.services').service('HLResource', HLResource);
 
-HLResource.$inject = ['$injector', 'Settings'];
-function HLResource($injector, Settings) {
+HLResource.$inject = ['$injector'];
+function HLResource($injector) {
     this.patch = function(model, args) {
         return $injector.get(model).patch(args, function() {
             toastr.success('I\'ve updated the ' + model.toLowerCase() + ' for you!', 'Done');
@@ -62,10 +62,6 @@ function HLResource($injector, Settings) {
             };
 
             args[field] = data;
-
-            if (field === 'name' || field === 'subject') {
-                Settings.page.setAllTitles('detail', data);
-            }
         }
 
         return args;

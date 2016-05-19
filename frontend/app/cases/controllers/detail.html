@@ -205,10 +205,6 @@
                     <table class="widget-content-table">
                         <tbody>
                             <tr>
-                                <td>Name</td>
-                                <td><span editable-text="vm.case.subject" blur="submit" onbeforesave="vm.updateModel($data, 'subject')">{{ vm.case.subject }}</span></td>
-                            </tr>
-                            <tr>
                                 <td>Assigned to</td>
                                 <td>
                                     <editable-select field="assigned_to" view-model="vm" type="Case" search="true" select-options="{type: 'User', display: 'full_name', placeholder: 'Assign to...', allowClear: true}">

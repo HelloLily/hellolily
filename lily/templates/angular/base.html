@@ -86,7 +86,36 @@
                         <!-- BEGIN PAGE TITLE -->
                         <div class="page-title">
                             <h1>
-                                {{ settings.page.header.main }}
+                                <span ng-if="toolbar.updateCallback">
+                                    <span ng-if="toolbar.field" editable-text="toolbar.object[toolbar.field]" onbeforesave="toolbar.updateCallback($data, toolbar.field)" blur="submit">
+                                        <span>{{ settings.page.header.main }}</span>
+                                    </span>
+                                    <form ng-if="toolbar.fields" editable-form name="headerForm"
+                                          ng-class="{'editable editable-click addable-click': !headerForm.$visible}"
+                                          onbeforesave="toolbar.updateCallback($data, toolbar.fields)" blur="submit">
+                                        <span ng-if="!headerForm.$visible" ng-click="headerForm.$show()">
+                                            {{ settings.page.header.main }}
+
+                                            <span ng-if="!headerForm.$visible" class="editable-icons no-edit">
+                                                <span class="editable-icon"><i class="lilicon hl-edit-icon"></i></span>
+                                            </span>
+                                        </span>
+                                        <span ng-if="headerForm.$visible" ng-repeat="field in toolbar.fields">
+                                            <span e-name="{{ field }}" editable-text="toolbar.object[field]"></span>
+                                        </span>
+                                        <span ng-if="headerForm.$visible">
+                                            <button type="submit" class="btn" ng-disabled="headerForm.$waiting">
+                                                <i class="fa fa-check"></i>
+                                            </button>
+                                            <button class="btn" ng-click="headerForm.$cancel()" ng-disabled="headerForm.$waiting">
+                                                <i class="fa fa-close"></i>
+                                            </button>
+                                        </span>
+                                    </form>
+                                </span>
+                                <span ng-if="!toolbar.updateCallback">
+                                    {{ settings.page.header.main }}
+                                </span>
                                 <span ng-if="settings.page.contact">
                                     for <a ui-sref="base.contacts.detail({ id: settings.page.contact.id })">{{ settings.page.contact.full_name }}</a>
                                 </span>
@@ -96,10 +125,10 @@
                             </h1>
                         </div>
 
-                        <div ng-if="settings.page.toolbar.data" class="page-toolbar">
+                        <div ng-if="toolbar" class="page-toolbar">
                             <div class="btn-group btn-theme-panel">
-                                <a ng-click="$state.go('.edit')" class="btn"><i class="lilicon hl-edit-icon"></i></a>
-                                <delete-confirmation model="{{ settings.page.toolbar.data.model }}" object="settings.page.toolbar.data.object" button-class="no-background"></delete-confirmation>
+                                <a ng-click="$state.go('.edit')" class="btn" title="Edit"><i class="lilicon hl-edit-icon"></i></a>
+                                <delete-confirmation model="{{ toolbar.model }}" object="toolbar.object" display-field="{{ toolbar.field }}" button-class="no-background"></delete-confirmation>
                             </div>
                         </div>
                         <!-- END PAGE TITLE -->

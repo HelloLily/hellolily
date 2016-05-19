@@ -34,6 +34,8 @@ function DealDetailController($scope, $state, $uibModal, Account, Contact, Deal,
     Settings.page.toolbar.data = {
         model: 'Deal',
         object: currentDeal,
+        field: 'name',
+        updateCallback: updateModel,
     };
 
     vm.deal = currentDeal;
@@ -125,6 +127,10 @@ function DealDetailController($scope, $state, $uibModal, Account, Contact, Deal,
             return Account.patch(args, function() {
                 toastr.success('I\'ve updated the customer ID for you!', 'Done');
             });
+        }
+
+        if (field === 'name') {
+            Settings.page.setAllTitles('detail', data, vm.deal.contact, vm.deal.account);
         }
 
         return HLResource.patch('Deal', args).$promise.then(function() {

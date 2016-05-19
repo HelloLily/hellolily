@@ -6,6 +6,7 @@ function contactDetailWidget() {
         scope: {
             contact: '=',
             height: '=',
+            updateCallback: '&',
         },
         templateUrl: 'contacts/directives/detail_widget.html',
         controller: ContactDetailWidgetController,
@@ -14,8 +15,8 @@ function contactDetailWidget() {
     };
 }
 
-ContactDetailWidgetController.$inject = ['HLResource', 'Settings'];
-function ContactDetailWidgetController(HLResource, Settings) {
+ContactDetailWidgetController.$inject = ['Settings'];
+function ContactDetailWidgetController(Settings) {
     var vm = this;
 
     vm.settings = Settings;
@@ -23,25 +24,7 @@ function ContactDetailWidgetController(HLResource, Settings) {
     vm.updateModel = updateModel;
 
     function updateModel(data, field) {
-        var accounts = [];
-        var args = HLResource.createArgs(data, field, vm.contact);
-
-        if (field === 'twitter' || field === 'linkedin') {
-            args = {
-                id: vm.contact.id,
-                social_media: [args],
-            };
-        }
-
-        if (data.hasOwnProperty('accounts')) {
-            data.accounts.forEach(function(account) {
-                accounts.push(account.id);
-            });
-
-            data.accounts = accounts;
-        }
-
-        return HLResource.patch('Contact', args).$promise;
+        return vm.updateCallback()(data, field);
     }
 }
 

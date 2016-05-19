@@ -12,6 +12,7 @@ function accountConfig($stateProvider) {
             '@': {
                 templateUrl: 'accounts/controllers/detail.html',
                 controller: AccountDetailController,
+                controllerAs: 'vm',
             },
         },
         ncyBreadcrumb: {
@@ -28,29 +29,58 @@ function accountConfig($stateProvider) {
 
 angular.module('app.accounts').controller('AccountDetailController', AccountDetailController);
 
-AccountDetailController.$inject = ['$scope', '$stateParams', 'Settings', 'Case', 'Contact', 'Deal', 'currentAccount'];
-function AccountDetailController($scope, $stateParams, Settings, Case, Contact, Deal, currentAccount) {
+AccountDetailController.$inject = ['$stateParams', 'Case', 'Contact', 'Deal', 'HLResource', 'Settings', 'currentAccount'];
+function AccountDetailController($stateParams, Case, Contact, Deal, HLResource, Settings, currentAccount) {
+    var vm = this;
     var id = $stateParams.id;
 
-    $scope.account = currentAccount;
     Settings.page.setAllTitles('detail', currentAccount.name);
     Settings.page.toolbar.data = {
         model: 'Account',
         object: currentAccount,
+        field: 'name',
+        updateCallback: updateModel,
     };
 
-    $scope.caseList = Case.query({filterquery: 'account.id:' + id, sort: '-created', size: 100});
-    $scope.caseList.$promise.then(function(caseList) {
-        $scope.caseList = caseList;
-    });
+    vm.account = currentAccount;
 
-    $scope.dealList = Deal.query({filterquery: 'account.id:' + id, sort: '-created'});
-    $scope.dealList.$promise.then(function(dealList) {
-        $scope.dealList = dealList;
-    });
+    vm.updateModel = updateModel;
 
-    $scope.contactList = Contact.search({filterquery: 'accounts.id:' + id});
-    $scope.contactList.$promise.then(function(results) {
-        $scope.contactList = results.objects;
-    });
+    activate();
+
+    ////
+
+    function activate() {
+        vm.caseList = Case.query({filterquery: 'account.id:' + id, sort: '-created', size: 100});
+        vm.caseList.$promise.then(function(caseList) {
+            vm.caseList = caseList;
+        });
+
+        vm.dealList = Deal.query({filterquery: 'account.id:' + id, sort: '-created'});
+        vm.dealList.$promise.then(function(dealList) {
+            vm.dealList = dealList;
+        });
+
+        vm.contactList = Contact.search({filterquery: 'accounts.id:' + id});
+        vm.contactList.$promise.then(function(results) {
+            vm.contactList = results.objects;
+        });
+    }
+
+    function updateModel(data, field) {
+        var args = HLResource.createArgs(data, field, vm.account);
+
+        if (field === 'twitter') {
+            args = {
+                id: vm.account.id,
+                social_media: [args],
+            };
+        }
+
+        if (field === 'name') {
+            Settings.page.setAllTitles('detail', data);
+        }
+
+        return HLResource.patch('Account', args).$promise;
+    }
 }

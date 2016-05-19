@@ -43,8 +43,10 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseDetailController', CaseDetailController);
 
-CaseDetailController.$inject = ['$scope', 'Settings', 'CaseStatuses', 'HLResource', 'LocalStorage', 'Tenant', 'UserTeams', 'caseItem', 'caseAccount', 'caseContact'];
-function CaseDetailController($scope, Settings, CaseStatuses, HLResource, LocalStorage, Tenant, UserTeams, caseItem, caseAccount, caseContact) {
+CaseDetailController.$inject = ['$scope', 'Settings', 'CaseStatuses', 'HLResource', 'LocalStorage', 'Tenant',
+    'UserTeams', 'caseItem', 'caseAccount', 'caseContact', 'Case', 'HLUtils'];
+function CaseDetailController($scope, Settings, CaseStatuses, HLResource, LocalStorage, Tenant, UserTeams, caseItem,
+                              caseAccount, caseContact, Case, HLUtils) {
     var vm = this;
     var storage = new LocalStorage('caseDetail');
 
@@ -126,6 +128,16 @@ function CaseDetailController($scope, Settings, CaseStatuses, HLResource, LocalS
 
     function updateModel(data, field) {
         var args = HLResource.createArgs(data, field, vm.case);
+        var casePriorities = Case.getCasePriorities();
+        var expireDate;
+
+        if (args.hasOwnProperty('priority')) {
+            expireDate = HLUtils.addBusinessDays(casePriorities[vm.case.priority].dateIncrement);
+            expireDate = moment(expireDate).format('YYYY-MM-DD');
+
+            vm.case.expires = expireDate;
+            args.expires = vm.case.expires;
+        }
 
         return HLResource.patch('Case', args).$promise;
     }

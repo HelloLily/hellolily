@@ -182,8 +182,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     }
 
     $scope.$watch('vm.case.priority', function() {
-        var daysToAdd = [5, 3, 1, 0];
-        vm.case.expires = HLUtils.addBusinessDays(daysToAdd[vm.case.priority]);
+        vm.case.expires = HLUtils.addBusinessDays(vm.casePriorities[vm.case.priority].dateIncrement);
     });
 
     function _getTeams() {

@@ -7,27 +7,27 @@ function preferencesConfig($stateProvider) {
         views: {
             '@base.preferences': {
                 templateUrl: function(elem, attr) {
-                    return '/messaging/email/templates/update/' + elem.id +'/';
+                    return '/messaging/email/templates/update/' + elem.id + '/';
                 },
-                controller: PreferencesEmailTemplatesEdit
-            }
+                controller: PreferencesEmailTemplatesEdit,
+            },
         },
         ncyBreadcrumb: {
-            label: 'Email template edit'
-        }
+            label: 'Email template edit',
+        },
     });
 }
 
 angular.module('app.preferences').controller('PreferencesEmailTemplatesEdit', PreferencesEmailTemplatesEdit);
 
 // TODO: LILY-XXX: Try to change the openVariable and closeVariable to curly braces, so it's consistent with other templating engines
-function PreferencesEmailTemplatesEdit () {
+function PreferencesEmailTemplatesEdit() {
     HLInbox.init();
     HLInbox.initWysihtml5();
     HLEmailTemplates.init({
         parseEmailTemplateUrl: '',
         openVariable: '[[',
-        closeVariable: ']]'
+        closeVariable: ']]',
     });
 }
 

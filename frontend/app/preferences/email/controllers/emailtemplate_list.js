@@ -6,7 +6,7 @@ function preferencesConfig($stateProvider) {
         url: '/emailtemplates',
         views: {
             '@base.preferences': {
-                templateUrl: 'preferences/controllers/emailtemplate_list.html',
+                templateUrl: 'preferences/email/controllers/emailtemplate_list.html',
                 controller: PreferencesEmailTemplatesList,
                 controllerAs: 'vm',
                 bindToController: true,
@@ -20,8 +20,8 @@ function preferencesConfig($stateProvider) {
 
 angular.module('app.preferences').controller('PreferencesEmailTemplatesList', PreferencesEmailTemplatesList);
 
-PreferencesEmailTemplatesList.$inject = ['$uibModal', '$scope', 'EmailTemplate'];
-function PreferencesEmailTemplatesList($uibModal, $scope, EmailTemplate) {
+PreferencesEmailTemplatesList.$inject = ['$uibModal', '$scope', '$state', 'EmailTemplate', 'EmailAccount'];
+function PreferencesEmailTemplatesList($uibModal, $scope, $state, EmailTemplate, EmailAccount) {
     var vm = this;
 
     vm.makeDefault = makeDefault;
@@ -37,15 +37,19 @@ function PreferencesEmailTemplatesList($uibModal, $scope, EmailTemplate) {
         });
     }
 
-    function makeDefault(emailTemplate) {
-        // TODO: LILY-756: Make this controller more Angular
+    function makeDefault(emailTemplateId) {
         var modalInstance = $uibModal.open({
-            templateUrl: '/messaging/email/templates/set-default/' + emailTemplate.id + '/',
+            templateUrl: 'preferences/email/controllers/emailtemplate_default.html',
             controller: 'PreferencesSetTemplateDefaultModal',
-            size: 'lg',
+            controllerAs: 'vm',
+            bindToController: true,
+            size: 'md',
             resolve: {
                 emailTemplate: function() {
-                    return emailTemplate;
+                    return EmailTemplate.get({id: emailTemplateId}).$promise;
+                },
+                emailAccountList: function() {
+                    return EmailAccount.query().$promise;
                 },
             },
         });

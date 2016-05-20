@@ -6,7 +6,7 @@ function emailPreferencesStates($stateProvider) {
         url: '/emailaccounts',
         views: {
             '@base.preferences': {
-                templateUrl: 'preferences/controllers/emailaccount_list.html',
+                templateUrl: 'preferences/email/controllers/emailaccount_list.html',
                 controller: PreferencesEmailAccountList,
                 controllerAs: 'vm',
             },
@@ -111,9 +111,11 @@ function PreferencesEmailAccountList($uibModal, EmailAccount, User, user, $http)
 
     function openShareAccountModal(emailAccount) {
         var modalInstance = $uibModal.open({
-            templateUrl: 'preferences/controllers/emailaccount_share.html',
+            templateUrl: 'preferences/email/controllers/emailaccount_share.html',
             controller: 'EmailAccountShareModalController',
             size: 'lg',
+            controllerAs: 'vm',
+            bindToController: true,
             resolve: {
                 currentAccount: function() {
                     return emailAccount;

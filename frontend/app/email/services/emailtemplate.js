@@ -9,6 +9,12 @@ function EmailTemplate($resource) {
             query: {
                 isArray: false,
             },
+            update: {
+                method: 'PUT',
+                params: {
+                    id: '@id',
+                },
+            },
         }
     );
     return _emailTemplate;

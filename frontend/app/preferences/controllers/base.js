@@ -1,7 +1,7 @@
 angular.module('app.preferences').config(preferencesConfig);
 
 preferencesConfig.$inject = ['$stateProvider'];
-function preferencesConfig ($stateProvider) {
+function preferencesConfig($stateProvider) {
     $stateProvider.state('base.preferences', {
         url: '/preferences',
         abstract: true,
@@ -9,19 +9,19 @@ function preferencesConfig ($stateProvider) {
             '@': {
                 templateUrl: 'preferences/controllers/base.html',
                 controller: PreferencesBase,
-                controllerAs: 'vm'
-            }
+                controllerAs: 'vm',
+            },
         },
         ncyBreadcrumb: {
-            label: 'Preferences'
-        }
+            label: 'Preferences',
+        },
     });
 }
 
 angular.module('app.preferences').controller('PreferencesBase', PreferencesBase);
 
 PreferencesBase.$inject = ['Settings'];
-function PreferencesBase (Settings) {
+function PreferencesBase(Settings) {
     Settings.page.setTitle('custom', 'Preferences');
     Settings.page.header.setMain('custom', 'Preferences');
 }

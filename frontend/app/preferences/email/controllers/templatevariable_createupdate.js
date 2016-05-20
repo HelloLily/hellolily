@@ -7,12 +7,12 @@ function preferencesConfig($stateProvider) {
         views: {
             '@base.preferences': {
                 templateUrl: '/messaging/email/templatevariables/create/',
-                controller: PreferencesTemplateVariablesCreateUpdate
-            }
+                controller: PreferencesTemplateVariablesCreateUpdate,
+            },
         },
         ncyBreadcrumb: {
-            label: 'Template variable create'
-        }
+            label: 'Template variable create',
+        },
     });
 
     $stateProvider.state('base.preferences.templatevariables.edit', {
@@ -20,27 +20,27 @@ function preferencesConfig($stateProvider) {
         views: {
             '@base.preferences': {
                 templateUrl: function(elem, attr) {
-                    return '/messaging/email/templatevariables/update/' + elem.id +'/';
+                    return '/messaging/email/templatevariables/update/' + elem.id + '/';
                 },
                 controller: PreferencesTemplateVariablesCreateUpdate,
-                controllerAs: 'vm'
-            }
+                controllerAs: 'vm',
+            },
         },
         ncyBreadcrumb: {
-            label: 'Template variable edit'
-        }
+            label: 'Template variable edit',
+        },
     });
 }
 
 angular.module('app.preferences').controller('PreferencesTemplateVariablesCreateUpdate', PreferencesTemplateVariablesCreateUpdate);
 
-function PreferencesTemplateVariablesCreateUpdate () {
+function PreferencesTemplateVariablesCreateUpdate() {
     HLInbox.init({textEditorId: 'id_text'});
     HLInbox.initWysihtml5();
     HLEmailTemplates.init({
         parseEmailTemplateUrl: '',
         openVariable: '[[',
         closeVariable: ']]',
-        textEditorId: '#id_text'
+        textEditorId: '#id_text',
     });
 }

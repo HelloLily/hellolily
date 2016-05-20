@@ -16,6 +16,12 @@ from .validators import CreateOnlyValidator, AssignOnlyValidator
 class RelatedSerializerMixin(ValidateEverythingSimultaneouslyMixin):
     """
     Mixin used for related model serializers.
+
+    Args:
+        create_only (boolean):  Only able to create new objects and update existing related objects.
+                                This means non related existing objects are not a valid reference.
+        assign_only (boolean):  Only able to assign existing objects.
+                                This means every existing object is a valid reference.
     """
     is_related_serializer = True  # Some serializers behave differently in the save of a related object
     create_only = False

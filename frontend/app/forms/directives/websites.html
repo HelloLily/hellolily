@@ -19,10 +19,10 @@
                 </td>
 
                 <td class="hl-form-table-column small-cell">
-                    <a ng-click="vm.removeRelatedField({field: 'website', index: website, remove: false})" class="btn btn-sm default" title="Undo the deletion of this row" ng-show="website.is_deleted">
+                    <a ng-click="vm.removeRelatedField({field: 'website', index: $index, remove: false})" class="btn btn-sm default" title="Undo the deletion of this row" ng-show="website.is_deleted">
                         <i class="fa fa-undo"></i>
                     </a>
-                    <a ng-click="vm.removeRelatedField({field: 'website', index: website, remove: true})" class="btn btn-sm default" title="Delete this row" ng-hide="website.is_deleted">
+                    <a ng-click="vm.removeRelatedField({field: 'website', index: $index, remove: true})" class="btn btn-sm default" title="Delete this row" ng-hide="website.is_deleted">
                         <i class="fa fa-trash"></i>
                     </a>
                 </td>

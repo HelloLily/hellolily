@@ -116,7 +116,7 @@ function EditableRelatedController(HLFields, HLResource, HLUtils) {
             id: er.model.id,
         };
 
-        args[er.field] = HLFields.cleanInlineRelatedFields(er.type.toLowerCase(), er.items);
+        args[er.field] = HLFields.cleanInlineRelatedFields(er.items);
 
         HLUtils.blockUI(element, true);
 
@@ -129,7 +129,7 @@ function EditableRelatedController(HLFields, HLResource, HLUtils) {
     }
 
     function closeForm() {
-        er.items = HLFields.cleanInlineRelatedFields(er.type.toLowerCase(), er.items);
+        er.items = HLFields.cleanInlineRelatedFields(er.items);
         er.model[er.field] = er.items;
 
         er.formVisible = false;

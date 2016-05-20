@@ -6,11 +6,10 @@ function HLFields() {
      * For now it only removes fields that have the is_deleted flag set to true.
      *
      * @param object (object): the object to clean.
-     * @param model (string): contains the type of model.
      *
      * @returns (object): returns the object with the related fields cleaned.
      */
-    this.cleanRelatedFields = function(object, model) {
+    this.cleanRelatedFields = function(object) {
         var relatedFields = ['email_addresses', 'phone_numbers', 'websites', 'addresses'];
 
         angular.forEach(object, function(fieldValues, field) {
@@ -20,7 +19,7 @@ function HLFields() {
             if (relatedFields.indexOf(field) > -1) {
                 // Loop through each array element.
                 angular.forEach(fieldValues, function(fieldValue) {
-                    if (model === 'account' || (model === 'contact' && !fieldValue.hasOwnProperty('is_deleted'))) {
+                    if (!fieldValue.hasOwnProperty('is_deleted')) {
                         if (fieldValue.email_address) {
                             cleanedValues.push(fieldValue);
                         }
@@ -29,7 +28,7 @@ function HLFields() {
                             cleanedValues.push(fieldValue);
                         }
 
-                        if (fieldValue.city || fieldValue.postal_code || fieldValue.address) {
+                        if (fieldValue.address && (fieldValue.city || fieldValue.postal_code)) {
                             cleanedValues.push(fieldValue);
                         }
 
@@ -52,11 +51,11 @@ function HLFields() {
         return object;
     };
 
-    this.cleanInlineRelatedFields = function(model, items) {
+    this.cleanInlineRelatedFields = function(items) {
         var cleanedValues = [];
 
         angular.forEach(items, function(item) {
-            if (model === 'account' || (model === 'contact' && !item.hasOwnProperty('is_deleted'))) {
+            if (!item.hasOwnProperty('is_deleted')) {
                 if (item.email_address) {
                     cleanedValues.push(item);
                 }
@@ -65,7 +64,7 @@ function HLFields() {
                     cleanedValues.push(item);
                 }
 
-                if (item.city || item.postal_code || item.address) {
+                if (item.address && (item.city || item.postal_code)) {
                     cleanedValues.push(item);
                 }
 
@@ -119,10 +118,7 @@ function HLFields() {
                 object.addresses[index].is_deleted = remove;
                 break;
             case 'website':
-                index = object.websites.indexOf(index);
-                if (index !== -1) {
-                    object.websites[index].is_deleted = remove;
-                }
+                object.websites[index].is_deleted = remove;
                 break;
             default:
                 break;

@@ -186,7 +186,7 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Settings, A
             });
         }
 
-        vm.contact = HLFields.cleanRelatedFields(vm.contact, 'contact');
+        vm.contact = HLFields.cleanRelatedFields(vm.contact);
 
         copiedContact = angular.copy(vm.contact);
 

@@ -9,7 +9,7 @@ from googleapiclient.errors import HttpError
 from lily.celery import app
 from .builders.label import LabelBuilder
 from .builders.message import MessageBuilder
-from .connector import GmailConnector
+from .connector import GmailConnector, MessageNotFoundError
 from .credentials import InvalidCredentialsError
 from .models.models import EmailLabel, EmailMessage, NoEmailMessageId
 
@@ -95,11 +95,18 @@ class GmailManager(object):
         Arguments:
             message_id (str): message_id of the message
         """
-        try:
-            EmailMessage.objects.get(account=self.email_account, message_id=message_id)
+
+        # If message if already downloaded, only update it
+        if EmailMessage.objects.filter(account=self.email_account, message_id=message_id).exists():
             self.update_labels_for_message(message_id)
-        except EmailMessage.DoesNotExist:
+            return
+
+        # Fetch the info from the connector and only store it if it is still out there.
+        try:
             message_info = self.connector.get_message_info(message_id)
+        except MessageNotFoundError:
+            logger.debug('Message already deleted from remote')
+        else:
             self.message_builder.store_message_info(message_info, message_id)
             self.message_builder.save()
 
@@ -330,12 +337,16 @@ class GmailManager(object):
             email_message (instance): EmailMessage instance
         """
         message_dict = self.connector.trash_email_message(email_message.message_id)
-        full_message_dict = self.connector.get_message_info(message_dict['id'])
 
-        # Store updated message
-        self.message_builder.store_message_info(full_message_dict, message_dict['id'])
-        self.message_builder.save()
-        self.update_unread_count()
+        try:
+            full_message_dict = self.connector.get_message_info(message_dict['id'])
+        except MessageNotFoundError:
+            logger.debug('Message already deleted from remote')
+        else:
+            # Store updated message
+            self.message_builder.store_message_info(full_message_dict, message_dict['id'])
+            self.message_builder.save()
+            self.update_unread_count()
 
     def delete_email_message(self, email_message):
         """
@@ -357,12 +368,16 @@ class GmailManager(object):
         """
         # Send message
         message_dict = self.connector.send_email_message(email_message.as_string(), thread_id)
-        full_message_dict = self.connector.get_message_info(message_dict['id'])
 
-        # Store updated message
-        self.message_builder.store_message_info(full_message_dict, message_dict['id'])
-        self.message_builder.save()
-        self.update_unread_count()
+        try:
+            full_message_dict = self.connector.get_message_info(message_dict['id'])
+        except MessageNotFoundError:
+            logger.debug('Message already deleted from remote')
+        else:
+            # Store updated message
+            self.message_builder.store_message_info(full_message_dict, message_dict['id'])
+            self.message_builder.save()
+            self.update_unread_count()
 
     def create_draft_email_message(self, email_message):
         """
@@ -373,13 +388,17 @@ class GmailManager(object):
         """
         # Send message
         message_dict = self.connector.create_draft_email_message(email_message.as_string())
-        full_message_dict = self.connector.get_message_info(message_dict['message']['id'])
 
-        # Store updated message
-        self.message_builder.store_message_info(full_message_dict, message_dict['id'])
-        self.message_builder.message.draft_id = message_dict.get('id', '')
-        self.message_builder.save()
-        self.update_unread_count()
+        try:
+            full_message_dict = self.connector.get_message_info(message_dict['message']['id'])
+        except MessageNotFoundError:
+            logger.debug('Message already deleted from remote')
+        else:
+            # Store updated message
+            self.message_builder.store_message_info(full_message_dict, message_dict['id'])
+            self.message_builder.message.draft_id = message_dict.get('id', '')
+            self.message_builder.save()
+            self.update_unread_count()
 
     def update_draft_email_message(self, email_message, draft_id):
         """
@@ -391,13 +410,17 @@ class GmailManager(object):
         """
         # Send message
         message_dict = self.connector.update_draft_email_message(email_message.as_string(), draft_id)
-        full_message_dict = self.connector.get_message_info(message_dict['message']['id'])
 
-        # Store updated message
-        self.message_builder.store_message_info(full_message_dict, message_dict['id'])
-        self.message_builder.message.draft_id = message_dict.get('id', '')
-        self.message_builder.save()
-        self.update_unread_count()
+        try:
+            full_message_dict = self.connector.get_message_info(message_dict['message']['id'])
+        except MessageNotFoundError:
+            logger.debug('Message already deleted from remote')
+        else:
+            # Store updated message
+            self.message_builder.store_message_info(full_message_dict, message_dict['id'])
+            self.message_builder.message.draft_id = message_dict.get('id', '')
+            self.message_builder.save()
+            self.update_unread_count()
 
     def cleanup(self):
         """

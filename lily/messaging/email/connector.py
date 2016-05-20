@@ -25,6 +25,10 @@ class AuthError(ConnectorError):
     pass
 
 
+class MessageNotFoundError(ConnectorError):
+    pass
+
+
 class GmailConnector(object):
     service = None
 
@@ -107,8 +111,7 @@ class GmailConnector(object):
         # Get the messageIds.
         history = response.get('history', [])
 
-        if len(history) and self.history_id < history[-1]['id']:
-            self.history_id = history[-1]['id']
+        self.history_id = response.get('historyId', self.history_id)
 
         return history
 
@@ -155,11 +158,18 @@ class GmailConnector(object):
         Returns:
             dict with message info
         """
-        return self.execute_service_call(self.service.users().messages().get(
-            userId='me',
-            id=message_id,
-            quotaUser=self.email_account.id,
-        ))
+        try:
+            return self.execute_service_call(self.service.users().messages().get(
+                userId='me',
+                id=message_id,
+                quotaUser=self.email_account.id,
+            ))
+        except HttpError as e:
+            content = anyjson.loads(e.content)
+            if content.get('error', {}).get('code') == 404:
+                raise MessageNotFoundError
+            else:
+                raise ConnectorError
 
     def get_label_list(self):
         """

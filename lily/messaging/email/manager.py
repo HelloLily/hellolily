@@ -81,7 +81,11 @@ class GmailManager(object):
 
             else:
                 # We only need to update the labels for this message
-                app.send_task('update_labels_for_message', args=[self.email_account.id, message_dict['id']])
+                app.send_task(
+                    'update_labels_for_message',
+                    args=[self.email_account.id, message_dict['id']],
+                    queue='email_first_sync'
+                )
 
         self.connector.save_history_id()
 

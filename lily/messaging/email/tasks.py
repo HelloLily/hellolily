@@ -98,7 +98,7 @@ def download_email_message(self, account_id, message_id):
     Download message.
 
     Args:
-        account_id (int): id of the EmailMessage
+        account_id (int): id of the EmailAccount
         message_id (str): google id of EmailMessage
     """
     try:

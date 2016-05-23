@@ -42,7 +42,7 @@ function CallbackRequestsController($scope, Account, Case, Contact, HLUtils, Loc
         ).then(function(data) {
             angular.forEach(data.objects, function(callbackCase) {
                 if (callbackCase.account) {
-                    Account.get({id: callbackCase.account}, function(account) {
+                    Account.get({id: callbackCase.account.id}, function(account) {
                         if (account.phone_numbers.length) {
                             callbackCase.accountPhone = account.phone_numbers[0].number;
                         }
@@ -50,7 +50,7 @@ function CallbackRequestsController($scope, Account, Case, Contact, HLUtils, Loc
                 }
 
                 if (callbackCase.contact) {
-                    Contact.get({id: callbackCase.contact}, function(contact) {
+                    Contact.get({id: callbackCase.contact.id}, function(contact) {
                         if (contact.phone_numbers.length) {
                             callbackCase.contactPhone = contact.phone_numbers[0].number;
                         }

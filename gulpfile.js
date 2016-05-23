@@ -29,6 +29,9 @@ var uglifyCss = require('gulp-uglifycss');  // Minify css file
 var watch = require('gulp-watch');  // Optimized file change watcher
 var wrap = require('gulp-wrap');  // Surround current file(s) with other content (IIFE eg.)
 var run = require('gulp-run');  // Used for our Sphinx autoreload handler
+var browserify = require('browserify');
+var tap = require('gulp-tap');
+var buffer = require('gulp-buffer');
 
 var verbosity = parseInt((process.env.VERBOSITY || 0));
 
@@ -158,7 +161,16 @@ gulp.task('clean', [], function() {
 });
 
 gulp.task('app-js', [], function() {
-    return gulp.src(config.app.js.src)
+    return gulp.src(config.app.js.src, {read: false})
+        .pipe(tap(function(file) {
+            //gutil.log('bundling ' + file.path);
+
+            // Replace file contents with browserify's bundle stream.
+            file.contents = browserify(file.path, {debug: true}).bundle();
+        }))
+        // Transform streaming contents into buffer contents
+        // (because gulp-sourcemaps does not support streaming contents).
+        .pipe(buffer())
         .pipe(ifElse(!isProduction, function() {
             return sourcemaps.init();
         }))
@@ -181,7 +193,7 @@ gulp.task('app-css', [], function() {
         .pipe(ifElse(!isProduction, function() {
             return sourcemaps.init();
         }))
-        .pipe(sass())
+        .pipe(sass({includePaths: ['./node_modules/']}))
         .pipe(rebaseUrls({root: config.cdn.root}))
         .pipe(cdnizer({
             defaultCDNBase: config.cdn.defaultBase,
@@ -376,9 +388,9 @@ gulp.task('watch', [], function() {
     isWatcher = true;
     livereload.listen();
     // Simple static server to test Sphinx documentation.
-    connect.server({
-        root: path.join(__dirname, 'docs/sphinx/build/html'),
-    });
+    //connect.server({
+    //    root: path.join(__dirname, 'docs/sphinx/build/html'),
+    //});
 
     // Watch for changes in app javascript.
     watch(config.app.js.src, function() {
@@ -425,7 +437,7 @@ gulp.task('watch', [], function() {
         gulp.start('ie-fixes');
     });
 
-    watch(config.sphinx, '').on('change', buildSphinx);
+    //watch(config.sphinx, '').on('change', buildSphinx);
 });
 
 /**

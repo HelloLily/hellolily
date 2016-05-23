@@ -32,9 +32,9 @@ angular.module('app.accounts').controller('AccountList', AccountList);
 AccountList.$inject = ['$scope', '$window', 'Settings', 'Account', 'LocalStorage'];
 function AccountList($scope, $window, Settings, Account, LocalStorage) {
     var vm = this;
-    var storage = LocalStorage('accountList');
+    var storage = new LocalStorage('accountList');
     /**
-     * table object: stores all the information to correctly display the table
+     * Stores all the information to correctly display the table.
      */
     vm.table = {
         page: 1,  // current page of pagination: 1-index
@@ -56,7 +56,8 @@ function AccountList($scope, $window, Settings, Account, LocalStorage) {
             customerId: true,
         }),
     };
-    vm.deleteAccount = deleteAccount;
+
+    vm.removeFromList = removeFromList;
     vm.setFilter = setFilter;
     vm.exportToCsv = exportToCsv;
 
@@ -70,17 +71,10 @@ function AccountList($scope, $window, Settings, Account, LocalStorage) {
 
     Settings.page.setAllTitles('list', 'accounts');
 
-    function deleteAccount(account) {
-        if (confirm('Are you sure?')) {
-            Account.delete({
-                id: account.id,
-            }, function() {  // On success
-                var index = vm.table.items.indexOf(account);
-                vm.table.items.splice(index, 1);
-            }, function() {  // On error
-                alert('something went wrong.');
-            });
-        }
+    function removeFromList(account) {
+        var index = vm.table.items.indexOf(account);
+        vm.table.items.splice(index, 1);
+        $scope.$apply();
     }
 
     /**

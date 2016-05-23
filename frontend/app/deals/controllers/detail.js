@@ -3,6 +3,7 @@ angular.module('app.deals').config(dealsConfig);
 dealsConfig.$inject = ['$stateProvider'];
 function dealsConfig($stateProvider) {
     $stateProvider.state('base.deals.detail', {
+        parent: 'base.deals',
         url: '/{id:[0-9]{1,}}',
         views: {
             '@': {
@@ -30,6 +31,12 @@ function DealDetailController($scope, $state, $uibModal, Account, Contact, Deal,
     var vm = this;
 
     Settings.page.setAllTitles('detail', currentDeal.name, currentDeal.contact, currentDeal.account);
+    Settings.page.toolbar.data = {
+        model: 'Deal',
+        object: currentDeal,
+        field: 'name',
+        updateCallback: updateModel,
+    };
 
     vm.deal = currentDeal;
 
@@ -120,6 +127,10 @@ function DealDetailController($scope, $state, $uibModal, Account, Contact, Deal,
             return Account.patch(args, function() {
                 toastr.success('I\'ve updated the customer ID for you!', 'Done');
             });
+        }
+
+        if (field === 'name') {
+            Settings.page.setAllTitles('detail', data, vm.deal.contact, vm.deal.account);
         }
 
         return HLResource.patch('Deal', args).$promise.then(function() {

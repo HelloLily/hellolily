@@ -3,7 +3,6 @@ angular.module('app.base').config(appConfig);
 appConfig.$inject = ['$stateProvider'];
 function appConfig($stateProvider) {
     $stateProvider.state('base', {
-        abstract: true,
         controller: BaseController,
         ncyBreadcrumb: {
             label: 'Lily',
@@ -48,6 +47,7 @@ function BaseController($scope, $state, Settings, Notifications, HLShortcuts) {
         autosize($('textarea'));
 
         $scope.loadNotifications();
+        $scope.toolbar = Settings.page.toolbar.data;
     }
 
     function _setPreviousState(event, toState, toParams, fromState, fromParams) {
@@ -69,5 +69,7 @@ function BaseController($scope, $state, Settings, Notifications, HLShortcuts) {
 
             $scope.$$phase || $scope.apply();
         }
+
+        Settings.page.toolbar.data = null;
     }
 }

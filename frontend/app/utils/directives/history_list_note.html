@@ -30,7 +30,11 @@
                 <li><a ng-click="vm.history.editNote(vm.item)"><i class="lilicon hl-edit-icon"></i> Edit</a></li>
                 <li ng-if="!vm.item.is_pinned"><a ng-click="vm.history.pinNote(vm.item, true)"><i class="lilicon hl-pin-icon"></i> Pin note</a></li>
                 <li ng-if="vm.item.is_pinned"><a ng-click="vm.history.pinNote(vm.item, false)"><i class="fa fa-times"></i>Unpin note</a></li>
-                <li><a ng-click="vm.history.deleteNote(vm.item)"><i class="lilicon hl-trashcan-icon"></i> Delete</a></li>
+                <li>
+                    <delete-confirmation model="Note" object="vm.item" callback="vm.history.removeFromList(vm.item)" button-class="btn-link no-background no-padding">
+                        Delete
+                    </delete-confirmation>
+                </li>
             </ul>
         </div>
     </div>

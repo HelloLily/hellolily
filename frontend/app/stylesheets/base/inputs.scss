@@ -13,7 +13,7 @@ $inline-editable-field-height: 30px;
 
     &:after {
         background: $lilyWhiteToneHover;
-        border: 1px $lilyGrey solid;
+        border: 1px $baseBorderColor solid;
         border-top-right-radius: $baseBorderRadius;
         border-bottom-right-radius: $baseBorderRadius;
         color: $lilyDarkBlue;
@@ -23,6 +23,7 @@ $inline-editable-field-height: 30px;
         top: -1px;
         overflow: hidden;
         font-family: "lilicon";
+        font-size: 1.5rem;
         content: $hl-edit-icon;
         line-height: $inline-editable-field-height - 2px;
         transition: all 0s;
@@ -37,7 +38,7 @@ $inline-editable-field-height: 30px;
 
     &:hover {
         color: $lilyBlue;
-        border: 1px $lilyGrey solid;
+        border: 1px $baseBorderColor solid;
         cursor: pointer;
 
         &:after {
@@ -50,16 +51,15 @@ $inline-editable-field-height: 30px;
     }
 
     &.addable-click {
-
         &:after {
             display: none;
         }
 
         .editable-icons {
             background: $lilyWhiteToneHover;
-            border-top: 1px $lilyGrey solid;
-            border-bottom: 1px $lilyGrey solid;
-            border-right: 1px $lilyGrey solid;
+            border-top: 1px $baseBorderColor solid;
+            border-bottom: 1px $baseBorderColor solid;
+            border-right: 1px $baseBorderColor solid;
             border-left: 0;
             border-top-right-radius: $baseBorderRadius;
             border-bottom-right-radius: $baseBorderRadius;
@@ -74,10 +74,11 @@ $inline-editable-field-height: 30px;
         .editable-icon {
             width: 0;
             overflow: hidden;
-            border-left: 1px $lilyGrey solid;
+            border-left: 1px $baseBorderColor solid;
             float: left;
             color: $lilyDarkBlue;
             text-align: center;
+            font-size: 1.5rem;
 
             &:hover {
                 color: $lilyBlue;
@@ -86,7 +87,7 @@ $inline-editable-field-height: 30px;
 
         &:hover {
             color: $lilyBlue;
-            border: 1px $lilyGrey solid;
+            border: 1px $baseBorderColor solid;
             cursor: pointer;
 
             .editable-icons {
@@ -155,7 +156,6 @@ $inline-editable-field-height: 30px;
 }
 
 .editable-input {
-    margin: 0 -5px;
     padding: 0 5px;
     line-height: $inline-editable-field-height;
     border-color: $lilyGrey;

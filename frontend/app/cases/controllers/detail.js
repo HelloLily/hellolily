@@ -3,6 +3,7 @@ angular.module('app.cases').config(caseConfig);
 caseConfig.$inject = ['$stateProvider'];
 function caseConfig($stateProvider) {
     $stateProvider.state('base.cases.detail', {
+        parent: 'base.cases',
         url: '/{id:[0-9]{1,}}',
         views: {
             '@': {
@@ -15,24 +16,24 @@ function caseConfig($stateProvider) {
             label: '{{ case.subject }}',
         },
         resolve: {
-            caseItem: ['Case', '$stateParams', function(Case, $stateParams) {
+            currentCase: ['Case', '$stateParams', function(Case, $stateParams) {
                 var id = $stateParams.id;
                 return Case.get({id: id}).$promise;
             }],
-            caseAccount: ['Account', 'caseItem', function(Account, caseItem) {
+            caseAccount: ['Account', 'currentCase', function(Account, currentCase) {
                 var account;
 
-                if (caseItem.account) {
-                    account = Account.get({id: caseItem.account.id}).$promise;
+                if (currentCase.account) {
+                    account = Account.get({id: currentCase.account.id}).$promise;
                 }
 
                 return account;
             }],
-            caseContact: ['Contact', 'caseItem', function(Contact, caseItem) {
+            caseContact: ['Contact', 'currentCase', function(Contact, currentCase) {
                 var contact;
 
-                if (caseItem.contact) {
-                    contact = Contact.get({id: caseItem.contact.id}).$promise;
+                if (currentCase.contact) {
+                    contact = Contact.get({id: currentCase.contact.id}).$promise;
                 }
 
                 return contact;
@@ -43,16 +44,22 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseDetailController', CaseDetailController);
 
-CaseDetailController.$inject = ['$scope', 'Settings', 'CaseStatuses', 'HLResource', 'LocalStorage', 'Tenant',
-    'UserTeams', 'caseItem', 'caseAccount', 'caseContact', 'Case', 'HLUtils'];
-function CaseDetailController($scope, Settings, CaseStatuses, HLResource, LocalStorage, Tenant, UserTeams, caseItem,
-                              caseAccount, caseContact, Case, HLUtils) {
+CaseDetailController.$inject = ['$scope', 'Settings', 'CaseStatuses', 'HLResource', 'HLUtils', 'LocalStorage', 'Tenant',
+    'UserTeams', 'currentCase', 'caseAccount', 'caseContact', 'Case'];
+function CaseDetailController($scope, Settings, CaseStatuses, HLResource, HLUtils, LocalStorage, Tenant, UserTeams,
+                              currentCase, caseAccount, caseContact, Case) {
     var vm = this;
     var storage = new LocalStorage('caseDetail');
 
-    Settings.page.setAllTitles('detail', caseItem.subject, caseItem.contact, caseItem.account);
+    Settings.page.setAllTitles('detail', currentCase.subject, currentCase.contact, currentCase.account);
+    Settings.page.toolbar.data = {
+        model: 'Case',
+        object: currentCase,
+        field: 'subject',
+        updateCallback: updateModel,
+    };
 
-    vm.case = caseItem;
+    vm.case = currentCase;
     vm.case.account = caseAccount;
     vm.case.contact = caseContact;
     vm.caseStatuses = CaseStatuses.query();
@@ -130,6 +137,10 @@ function CaseDetailController($scope, Settings, CaseStatuses, HLResource, LocalS
         var args = HLResource.createArgs(data, field, vm.case);
         var casePriorities = Case.getCasePriorities();
         var expireDate;
+
+        if (field === 'subject') {
+            Settings.page.setAllTitles('detail', data, vm.case.contact, vm.case.account);
+        }
 
         if (args.hasOwnProperty('priority')) {
             expireDate = HLUtils.addBusinessDays(casePriorities[vm.case.priority].dateIncrement);

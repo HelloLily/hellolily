@@ -32,7 +32,7 @@ function CaseAssignModal($uibModalInstance, myCase, Case, User) {
     }
 
     function ok() {
-        // Update the assigned_to of the case and close the modal
+        // Update the assigned_to of the case and close the modal.
         Case.patch({id: vm.myCase.id, assigned_to: vm.assignee.id}).$promise.then(function() {
             $uibModalInstance.close();
         });

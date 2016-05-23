@@ -76,11 +76,9 @@
                 <tr ng-repeat="account in vm.table.items">
                     <td>
                         <a ui-sref="base.accounts.detail.edit({ id: account.id })" class="btn btn-xs default" title="Edit">
-                            <i class="fa fa-edit"></i>
+                            <i class="lilicon hl-edit-icon"></i>
                         </a>
-                        <button type="button" class="btn btn-xs default" title="Delete" ng-click="vm.deleteAccount(account)">
-                            <i class="fa fa-trash"></i>
-                        </button>
+                        <delete-confirmation model="Account" object="account" callback="vm.removeFromList(account)" button-class="btn-xs"></delete-confirmation>
                     </td>
                     <td ng-show="vm.table.visibility.name">
                         <a class="list-link" ui-sref="base.accounts.detail({ id: account.id })" title="{{ ::account.name }}">

@@ -36,6 +36,12 @@
   padding: 0;
 }
 
+.page-title {
+    .editable {
+        color: inherit;
+    }
+}
+
 .page-head .page-title > h1 > small {
   color: $lilyBlue;
   font-size: 14px;
@@ -280,4 +286,8 @@
         color: white;
 
     }
+}
+
+.page-header.navbar.navbar-fixed-top {
+    z-index: 999;
 }

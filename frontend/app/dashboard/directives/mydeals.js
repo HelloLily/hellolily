@@ -25,7 +25,6 @@ function MyDealsController($scope, Deal, HLUtils, LocalStorage, Case, Tenant) {
         usersFilter: storage.get('usersFilter', ''),
     };
 
-    vm.openPostponeWidget = openPostponeWidget;
     vm.getMyDeals = getMyDeals;
     vm.numOfDeals = 0;
 
@@ -79,14 +78,6 @@ function MyDealsController($scope, Deal, HLUtils, LocalStorage, Case, Tenant) {
 
         Tenant.query({}, function(tenant) {
             vm.tenant = tenant;
-        });
-    }
-
-    function openPostponeWidget(deal) {
-        var modalInstance = Deal.openPostponeWidget(deal, true);
-
-        modalInstance.result.then(function() {
-            getMyDeals();
         });
     }
 

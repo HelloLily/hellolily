@@ -46,6 +46,9 @@ angular.module('app', [
     'app.filters',
 ]);
 
+// Include libraries for global use.
+window.sprintf = require('sprintf-js').sprintf;
+
 angular.module('app').config(appConfig);
 
 appConfig.$inject = [

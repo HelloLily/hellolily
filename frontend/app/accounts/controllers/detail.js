@@ -20,8 +20,16 @@ function accountConfig($stateProvider) {
         },
         resolve: {
             currentAccount: ['Account', '$stateParams', function(Account, $stateParams) {
-                var accountId = $stateParams.id;
-                return Account.get({id: accountId}).$promise;
+                return Account.get({id: $stateParams.id}).$promise;
+            }],
+            caseList: ['Case', '$stateParams', function(Case, $stateParams) {
+                return Case.query({filterquery: 'account.id:' + $stateParams.id, sort: 'expires', size: 100}).$promise;
+            }],
+            contactList: ['Contact', '$stateParams', function(Contact, $stateParams) {
+                return Contact.search({filterquery: 'accounts.id:' + $stateParams.id}).$promise;
+            }],
+            dealList: ['Deal', '$stateParams', function(Deal, $stateParams) {
+                return Deal.query({filterquery: 'account.id:' + $stateParams.id, sort: '-created'}).$promise;
             }],
         },
     });
@@ -29,10 +37,9 @@ function accountConfig($stateProvider) {
 
 angular.module('app.accounts').controller('AccountDetailController', AccountDetailController);
 
-AccountDetailController.$inject = ['$stateParams', 'Case', 'Contact', 'Deal', 'HLResource', 'Settings', 'currentAccount'];
-function AccountDetailController($stateParams, Case, Contact, Deal, HLResource, Settings, currentAccount) {
+AccountDetailController.$inject = ['HLResource', 'Settings', 'currentAccount', 'caseList', 'contactList', 'dealList'];
+function AccountDetailController(HLResource, Settings, currentAccount, caseList, contactList, dealList) {
     var vm = this;
-    var id = $stateParams.id;
 
     Settings.page.setAllTitles('detail', currentAccount.name);
     Settings.page.toolbar.data = {
@@ -51,20 +58,9 @@ function AccountDetailController($stateParams, Case, Contact, Deal, HLResource, 
     ////
 
     function activate() {
-        vm.caseList = Case.query({filterquery: 'account.id:' + id, sort: '-created', size: 100});
-        vm.caseList.$promise.then(function(caseList) {
-            vm.caseList = caseList;
-        });
-
-        vm.dealList = Deal.query({filterquery: 'account.id:' + id, sort: '-created'});
-        vm.dealList.$promise.then(function(dealList) {
-            vm.dealList = dealList;
-        });
-
-        vm.contactList = Contact.search({filterquery: 'accounts.id:' + id, size: 100});
-        vm.contactList.$promise.then(function(results) {
-            vm.contactList = results.objects;
-        });
+        vm.caseList = caseList.objects;
+        vm.contactList = contactList.objects;
+        vm.dealList = dealList.objects;
     }
 
     function updateModel(data, field) {

@@ -330,7 +330,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
 
         if (vm.deal.account) {
             // Mark as new business if the given account doesn't have any deals yet.
-            Deal.query({filterquery: 'account:' + vm.deal.account.id}).$promise.then(function(response) {
+            Deal.query({filterquery: 'account.id:' + vm.deal.account.id}).$promise.then(function(response) {
                 vm.deal.new_business = !response.objects.length;
             });
         }

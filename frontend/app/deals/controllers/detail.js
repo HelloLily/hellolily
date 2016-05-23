@@ -68,10 +68,6 @@ function DealDetailController($scope, $state, $uibModal, Account, Contact, Deal,
             });
         });
 
-        if (vm.deal.next_step_date) {
-            vm.originalNextStepDate = vm.deal.next_step_date;
-        }
-
         Deal.getWhyLost(function(response) {
             vm.whyLost = response.results;
         });
@@ -95,7 +91,7 @@ function DealDetailController($scope, $state, $uibModal, Account, Contact, Deal,
         if (args.hasOwnProperty('next_step')) {
             if (vm.deal.next_step.date_increment !== 0) {
                 // Update next step date based on next step.
-                nextStepDate = HLUtils.addBusinessDays(vm.deal.next_step.date_increment, vm.originalNextStepDate);
+                nextStepDate = HLUtils.addBusinessDays(vm.deal.next_step.date_increment);
                 nextStepDate = moment(nextStepDate).format('YYYY-MM-DD');
 
                 vm.deal.next_step_date = nextStepDate;

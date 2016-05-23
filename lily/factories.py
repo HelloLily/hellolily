@@ -1,5 +1,5 @@
 """
-Collect all factories from Hellolily apps in this module for easy access.
+Collect all factories from Lily apps in this module for easy access.
 
 Instead of:
     from lily.cases.factories import CaseFactory

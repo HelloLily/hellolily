@@ -74,7 +74,7 @@ class Email {
  */
 class Header {
     constructor() {
-        this.main = 'Hellolily';
+        this.main = 'Lily';
     }
 
     /**

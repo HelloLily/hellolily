@@ -20,7 +20,7 @@
 		"followLinks": false
 	},
 	"customVars": {
-		"projectName": "HelloLily"
+		"projectName": "Lily"
 	},
 	"jqFile": "./node_modules/markdown-styleguide-generator/template/jquery.js"
 }

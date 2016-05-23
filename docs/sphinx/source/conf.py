@@ -2,6 +2,7 @@ import json
 import requests
 import sys
 import os
+import sphinx_rtd_theme
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -9,8 +10,6 @@ import os
 # sys.path.insert(0, os.path.abspath('.'))
 sys.path.append(os.path.abspath('../../../'))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'lily.settings.settings')
-
-import lily
 
 # If your documentation needs a minimal Sphinx version, state it here.
 needs_sphinx = '1.3'
@@ -50,8 +49,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Hellolily'
-copyright = u'2015, Devhouse Spindle'
+project = u'Lily'
+copyright = u'2016, Devhouse Spindle'
 author = u'Devhouse Spindle'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -83,13 +82,12 @@ pygments_style = 'sphinx'
 todo_include_todos = True
 
 # Add the famous readthedocs theme.
-import sphinx_rtd_theme
 html_theme = 'sphinx_rtd_theme'
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-html_title = 'Hellolily documentation'
+html_title = 'Lily documentation'
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 # html_short_title = None

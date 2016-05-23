@@ -14,7 +14,7 @@ class LilyConfig(AppConfig):
     Custom startup code is defined here.
     """
     name = 'lily'
-    verbose_name = 'HelloLily'
+    verbose_name = 'Lily'
 
     def is_form(self, member):
         """

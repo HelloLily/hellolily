@@ -207,7 +207,7 @@ def other_mailbox_folders(email_account, active_url):
 @register.filter(name='replace_mailto')
 def replace_mailto(value):
     '''
-    Filter to replace mailto links with an url to compose new mail within HelloLily.
+    Filter to replace mailto links with an url to compose new mail within Lily.
     '''
     soup = BeautifulSoup(value, 'lxml')
     mailto_tags = soup.select('a[href^=mailto]')

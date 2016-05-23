@@ -163,8 +163,6 @@ gulp.task('clean', [], function() {
 gulp.task('app-js', [], function() {
     return gulp.src(config.app.js.src, {read: false})
         .pipe(tap(function(file) {
-            //gutil.log('bundling ' + file.path);
-
             // Replace file contents with browserify's bundle stream.
             file.contents = browserify(file.path, {debug: true}).bundle();
         }))
@@ -388,9 +386,9 @@ gulp.task('watch', [], function() {
     isWatcher = true;
     livereload.listen();
     // Simple static server to test Sphinx documentation.
-    //connect.server({
-    //    root: path.join(__dirname, 'docs/sphinx/build/html'),
-    //});
+    connect.server({
+        root: path.join(__dirname, 'docs/sphinx/build/html'),
+    });
 
     // Watch for changes in app javascript.
     watch(config.app.js.src, function() {
@@ -437,7 +435,7 @@ gulp.task('watch', [], function() {
         gulp.start('ie-fixes');
     });
 
-    //watch(config.sphinx, '').on('change', buildSphinx);
+    watch(config.sphinx, '').on('change', buildSphinx);
 });
 
 /**

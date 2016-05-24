@@ -64,7 +64,7 @@ function ContactDetailController($scope, $stateParams, Contact, Case, Deal, HLRe
 
     $scope.$watchCollection('vm.contact.accounts', function() {
         vm.contact.accounts.forEach(function(account) {
-            var colleagueList = Contact.search({filterquery: 'NOT(id:' + id + ') AND accounts.id:' + account.id});
+            var colleagueList = Contact.search({filterquery: 'NOT(id:' + id + ') AND accounts.id:' + account.id, size: 100});
             colleagueList.$promise.then(function(response) {
                 account.colleagueList = response.objects;
             });

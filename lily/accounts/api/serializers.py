@@ -73,9 +73,10 @@ class AccountSerializer(WritableNestedSerializer):
     """
     Serializer for the account model.
     """
+    # Read only fields.
     content_type = ContentTypeSerializer(read_only=True)
     flatname = serializers.CharField(read_only=True)
-    name = serializers.CharField(validators=[DuplicateAccountName()])
+    contacts = ContactForAccountSerializer(many=True, read_only=True)
 
     # Related fields
     addresses = RelatedAddressSerializer(many=True, required=False, create_only=True)
@@ -86,6 +87,9 @@ class AccountSerializer(WritableNestedSerializer):
     status = RelatedAccountStatusSerializer(assign_only=True)
     tags = RelatedTagSerializer(many=True, required=False, create_only=True)
     websites = RelatedWebsiteSerializer(many=True, required=False, create_only=True)
+
+    # Custom fields.
+    name = serializers.CharField(validators=[DuplicateAccountName()])
 
     def create(self, validated_data):
         """

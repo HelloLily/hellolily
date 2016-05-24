@@ -61,7 +61,7 @@ function AccountDetailController($stateParams, Case, Contact, Deal, HLResource, 
             vm.dealList = dealList;
         });
 
-        vm.contactList = Contact.search({filterquery: 'accounts.id:' + id});
+        vm.contactList = Contact.search({filterquery: 'accounts.id:' + id, size: 100});
         vm.contactList.$promise.then(function(results) {
             vm.contactList = results.objects;
         });

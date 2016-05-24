@@ -1,6 +1,8 @@
 .widget-table {
     width: 100%;
     line-height: 20px;
+    table-layout: fixed;
+    word-wrap: break-word;
     color: $navyBlue;
 
     thead {

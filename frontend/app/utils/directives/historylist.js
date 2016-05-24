@@ -166,7 +166,7 @@ function HistoryListDirective($filter, $http, $q, $state, $uibModal, EmailAccoun
                     casePromise.then(function(response) {
                         response.objects.forEach(function(caseItem) {
                             // Get user object for the assigned to user.
-                            if (caseItem.assigned_to.id) {
+                            if (caseItem.assigned_to) {
                                 User.get({id: caseItem.assigned_to.id}, function(userObject) {
                                     caseItem.assigned_to = userObject;
                                 });
@@ -201,7 +201,7 @@ function HistoryListDirective($filter, $http, $q, $state, $uibModal, EmailAccoun
 
                     dealPromise.then(function(results) {
                         results.objects.forEach(function(deal) {
-                            if (deal.assigned_to.id) {
+                            if (deal.assigned_to) {
                                 // Get user object for the assigned to user.
                                 User.get({id: deal.assigned_to.id}, function(userObject) {
                                     deal.assigned_to = userObject;

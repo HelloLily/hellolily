@@ -157,7 +157,7 @@ function HistoryListDirective($filter, $http, $q, $state, $uibModal, EmailAccoun
                 // history list. So continue if we have an extra object or if
                 // we're dealing with something else than a case or deal.
                 if (contentType !== 'case' && contentType !== 'deal') {
-                    filterquery = contentType + ':' + currentObject.id;
+                    filterquery = contentType + '.id:' + currentObject.id;
 
                     casePromise = Case.query({filterquery: filterquery + dateQuery, size: 100}).$promise;
 

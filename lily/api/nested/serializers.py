@@ -2,7 +2,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
 from rest_framework import serializers
 
-from lily.utils.api.mixins import ValidateEverythingSimultaneouslyMixin
+from lily.api.mixins import ValidateEverythingSimultaneouslyMixin
 
 
 class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializers.ModelSerializer):

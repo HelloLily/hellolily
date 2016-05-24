@@ -1,7 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
 
-from lily.utils.api.related.mixins import RelatedSerializerMixin
+from lily.api.nested.mixins import RelatedSerializerMixin
 from ..models import Note, NOTABLE_MODELS
 
 

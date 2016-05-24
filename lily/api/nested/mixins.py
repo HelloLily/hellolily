@@ -7,7 +7,7 @@ from rest_framework.fields import empty, SkipField, set_value
 from rest_framework.settings import api_settings
 from rest_framework.validators import UniqueTogetherValidator
 
-from lily.utils.api.mixins import ValidateEverythingSimultaneouslyMixin
+from lily.api.mixins import ValidateEverythingSimultaneouslyMixin
 from .fields import RelatedPrimaryKeyField
 from .serializers import WritableNestedListSerializer
 from .validators import CreateOnlyValidator, AssignOnlyValidator
@@ -74,7 +74,7 @@ class RelatedSerializerMixin(ValidateEverythingSimultaneouslyMixin):
         fields = fields or [
             field for field in self.fields.values()
             if (not field.read_only) or (field.default is not empty)
-        ]
+            ]
 
         for field in fields:
             validate_method = getattr(self, 'validate_' + field.field_name, None)
@@ -177,6 +177,6 @@ class RelatedSerializerMixin(ValidateEverythingSimultaneouslyMixin):
                 # Remove unique together validator because we are creating so it's always unique.
                 self.validators = [
                     validator for validator in self.validators if not isinstance(validator, UniqueTogetherValidator)
-                ]
+                    ]
 
         return self.to_internal_value_fields(data)

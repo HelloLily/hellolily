@@ -1,22 +1,24 @@
-from django.utils import six
+import re
+
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
-from rest_framework.compat import OrderedDict
-
-from lily.tenant.middleware import get_current_user
+from rest_framework.exceptions import ValidationError
 
 
-class LilyPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
+class RegexDecimalField(serializers.DecimalField):
+    def to_internal_value(self, data):
+        if not data:
+            raise ValidationError(_('This field is required'))
 
-    def get_queryset(self):
-        queryset = self.queryset.filter(tenant=get_current_user().tenant)
-        return queryset
+        # Regex to get the decimal value.
+        regex = '([.,][0-9]{1,2}$)'
+        data_split = re.split(regex, str(data))
 
-    @property
-    def choices(self):
-        return OrderedDict([
-            (
-                six.text_type(self.to_representation(item)),
-                six.text_type(item)
-            )
-            for item in self.get_queryset()
-        ])
+        # Remove commas and periods.
+        data = data_split[0].replace('.', '').replace(',', '')
+
+        if len(data_split) >= 2:
+            # Change comma to period for decimal separator.
+            data += data_split[1].replace(',', '.')
+
+        return data

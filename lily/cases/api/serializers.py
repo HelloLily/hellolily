@@ -2,12 +2,12 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
 from lily.accounts.api.serializers import RelatedAccountSerializer
+from lily.api.nested.mixins import RelatedSerializerMixin
+from lily.api.nested.serializers import WritableNestedSerializer
 from lily.api.serializers import ContentTypeSerializer
 from lily.contacts.api.serializers import RelatedContactSerializer
 from lily.contacts.models import Function
 from lily.users.api.serializers import RelatedLilyUserSerializer, RelatedLilyGroupSerializer
-from lily.utils.api.related.mixins import RelatedSerializerMixin
-from lily.utils.api.related.serializers import WritableNestedSerializer
 from lily.utils.api.serializers import RelatedTagSerializer
 
 from ..models import Case, CaseStatus, CaseType

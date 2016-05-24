@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from lily.utils.api.related.mixins import RelatedSerializerMixin
+from lily.api.nested.mixins import RelatedSerializerMixin
 from ..models import LilyGroup, LilyUser
 
 

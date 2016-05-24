@@ -1,9 +1,9 @@
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
+from lily.api.nested.mixins import RelatedSerializerMixin
 from lily.socialmedia.connectors import LinkedIn
 from lily.socialmedia.connectors import Twitter
-from lily.utils.api.related.mixins import RelatedSerializerMixin
 
 from ..models import SocialMedia
 

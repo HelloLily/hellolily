@@ -2,17 +2,17 @@ import datetime
 
 from django.utils.timezone import utc
 from django.utils.translation import ugettext_lazy as _
-from lily.utils.api.related.fields import RegexDecimalField
+
+from lily.api.fields import RegexDecimalField
+from lily.api.nested.mixins import RelatedSerializerMixin
+from lily.api.nested.serializers import WritableNestedSerializer
 from rest_framework import serializers
 
 from lily.accounts.api.serializers import RelatedAccountSerializer
 from lily.api.serializers import ContentTypeSerializer
 from lily.contacts.api.serializers import RelatedContactSerializer
 from lily.contacts.models import Function
-from lily.notes.api.serializers import RelatedNoteSerializer
 from lily.users.api.serializers import RelatedLilyUserSerializer
-from lily.utils.api.related.mixins import RelatedSerializerMixin
-from lily.utils.api.related.serializers import WritableNestedSerializer
 from lily.utils.api.serializers import RelatedTagSerializer
 
 from ..models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost, DealFoundThrough, DealContactedBy, DealStatus

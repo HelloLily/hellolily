@@ -1,12 +1,6 @@
-import datetime
-import operator
 import re
 import urlparse
-from itertools import chain
-
 from django import forms
-from django.contrib import messages
-from django.db.models import Q
 
 
 def autostrip(cls):
@@ -69,14 +63,6 @@ def is_ajax(request):
     Return True if the request is for the AJAX version of a view.
     """
     return request.is_ajax() or 'xhr' in request.GET
-
-
-def clear_messages(request):
-    """
-    Clear messages for given request.
-    """
-    storage = messages.get_messages(request)
-    storage.used = True
 
 
 def parse_phone_number(raw_number):
@@ -142,96 +128,7 @@ def dummy_function(x, y=None):
     return x, y
 
 
-def get_emails_for_email_addresses(email_addresses_list, tenant_id, list_size, filter_date):
-    """
-    Finds all emails with headers that have one of the given email_addresses.
-
-    Arguments:
-        email_addresses_list (list): Strings with email addresses.
-        tenant_id (int): PK of current Tenant.
-        list_size (int): Number of emails to fetch.
-        filter_date (datetime): Date before the message must be sent.
-
-    Returns:
-        QuerySet of EmailMessages.
-    """
-    # Prevent circular import.
-    from lily.messaging.email.models.models import EmailAddressHeader, EmailMessage, EmailAddress
-
-    # Get the email address id's first.
-    filter_list = [Q(email_address=email.email_address) for email in email_addresses_list]
-    email_addresses = EmailAddress.objects.filter(reduce(operator.or_, filter_list)).values_list('id', flat=True)
-
-    # Evaluate QS to speedup.
-    email_addresses = list(email_addresses)
-    email_address_headers = EmailAddressHeader.objects.filter(
-        email_address__in=email_addresses,
-    ).order_by(
-        '-sent_date'
-    ).values_list(
-        'message_identifier', 'message_id'
-    ).distinct(
-        'message_identifier',
-        'sent_date'
-    )
-
-    # Filter out recent messages.
-    if filter_date:
-        email_address_headers = email_address_headers.filter(sent_date__lt=filter_date)
-
-    # Reduce number of emails.
-    email_address_headers = email_address_headers[:list_size + 1]
-
-    message_ids = [message_id for identifier, message_id in email_address_headers]
-
-    # Get all the email messages with the collected ids.
-    return EmailMessage.objects.filter(id__in=message_ids)
-
-
-def combine_notes_qs_email_qs(notes_qs, email_qs, objects_size):
-    """
-    Gets a notes_qs and and an email_qs and combines it to one object_list.
-
-    Sorts the list on sort_by_date and limits the query to objects_size.
-
-    Args:
-        notes_qs (instance): QuerySet of Notes.
-        email_qs (instance): QuerySet of EmailMessages.
-        objects_size (int): Maximum size of returned object_list.
-
-    Returns:
-        QuerySet with objects sorted by date and limited by objects_size and
-        Boolean if there are more results than currently shown.
-    """
-    # Limit the maximum amount of objects by object_size.
-    notes_qs = notes_qs.order_by('-sort_by_date')[:objects_size + 1]
-    email_qs = email_qs[:objects_size + 1]
-
-    # Combine qs_one and qs_two into one object_list.
-    object_list = sorted(
-        chain(notes_qs, email_qs),
-        key=lambda instance: instance.sort_by_date,
-        reverse=True,
-    )
-
-    paged_object_list = object_list[:objects_size]
-    show_more = len(object_list) > objects_size
-    return paged_object_list, show_more
-
-
-def get_class(kls):
-    """
-    Get a class by fully qualified class name.
-    """
-    parts = kls.split('.')
-    module = ".".join(parts[:-1])
-    m = __import__(module)
-    for comp in parts[1:]:
-        m = getattr(m, comp)
-    return m
-
-
-def _isint(string):
+def is_int(string):
     """
     Helper function to check if string is int.
 
@@ -246,39 +143,6 @@ def _isint(string):
         return True
     except (TypeError, ValueError):
         return False
-
-
-def add_business_days(date, days, days_of_business=None):
-    """
-    Returns the date after adding given amount of business days.
-    Args:
-        date (date)
-        days (int) - amount of business days to add
-        days_of_business (list) - days that are considered business days
-                                  (0 being monday and 6 sunday)
-    """
-    def recursive_find(date, days, business_days, elapsed_days,
-                       days_of_business):
-        if days == business_days:
-            return elapsed_days
-
-        date += datetime.timedelta(days=1)
-        if date.weekday() in days_of_business:
-            business_days += 1
-
-        return recursive_find(date, days, business_days, elapsed_days + 1,
-                              days_of_business)
-
-    # Set default value for `days_of_business`.
-    if not isinstance(days_of_business, list):
-        days_of_business = [0, 1, 2, 3, 4]
-
-    multiplier = days / 5
-    remainder = days - multiplier * 5
-    delta = (recursive_find(date, remainder, 0, 0, days_of_business) +
-             (7 * multiplier))
-
-    return date + datetime.timedelta(days=delta)
 
 
 def clean_website(website):

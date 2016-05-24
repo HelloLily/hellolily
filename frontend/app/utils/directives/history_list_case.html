@@ -13,7 +13,7 @@
             <div class="timeline-content">
                 <span class="timeline-content-title"><a ui-sref="base.cases.detail({ id: vm.item.id })">{{ ::vm.item.subject }}</a></span>
                 <ul class="timeline-content-details">
-                    <li>Status: <strong>{{ ::vm.item.status}} ({{ ::vm.item.archived ? 'archived' : 'active' }})</strong></li>
+                    <li>Status: <strong>{{ ::vm.item.status.name }} ({{ ::vm.item.archived ? 'archived' : 'active' }})</strong></li>
                     <li>
                         Priority:
                         <i class="lilicon" ng-class="{0: 'hl-low-prio-icon', 1: 'hl-normal-prio-icon', 2: 'hl-high-prio-icon', 3: 'hl-critical-prio-icon'}[vm.item.priority]"></i>

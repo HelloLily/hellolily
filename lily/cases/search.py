@@ -18,27 +18,41 @@ class CaseMapping(BaseMapping):
         """
         mapping = super(CaseMapping, cls).get_mapping()
         mapping['properties'].update({
-            'subject': {
-                'type': 'string',
-                'index_analyzer': 'normal_ngram_analyzer',
-            },
-            'body': {
-                'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
-            },
             'account': {
-                'type': 'integer',
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'name': {
+                        'type': 'string',
+                        'analyzer': 'normal_edge_analyzer',
+                    },
+                },
             },
-            'account_name': {
-                'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
+            'assigned_to': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'full_name': {
+                        'type': 'string',
+                        'analyzer': 'normal_edge_analyzer',
+                    },
+                },
+            },
+            'assigned_to_groups': {
+                'type': 'integer',
             },
             'contact': {
-                'type': 'integer',
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'name': {
+                        'type': 'string',
+                        'analyzer': 'normal_edge_analyzer',
+                    },
+                },
             },
-            'contact_name': {
-                'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
+            'created': {
+                'type': 'date',
             },
             'created_by': {
                 'type': 'object',
@@ -50,43 +64,60 @@ class CaseMapping(BaseMapping):
                     },
                 },
             },
-            'assigned_to_name': {
+            'description': {
                 'type': 'string',
                 'index_analyzer': 'normal_edge_analyzer',
-            },
-            'assigned_to_id': {
-                'type': 'integer',
-            },
-            'assigned_to_groups': {
-                'type': 'integer',
-            },
-            'priority': {
-                'type': 'integer',
-            },
-            'priority_name': {
-                'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
-            },
-            'status': {
-                'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
-            },
-            'tag': {
-                'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
-            },
-            'casetype_name': {
-                'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
-            },
-            'casetype_id': {
-                'type': 'integer',
             },
             'expires': {
                 'type': 'date',
             },
-            'archived': {
+            'is_archived': {
                 'type': 'boolean',
+            },
+            'modified': {
+                'type': 'date',
+            },
+            'priority': {
+                'type': 'integer',
+            },
+            'priority_display': {
+                'type': 'string',
+                'index_analyzer': 'normal_edge_analyzer',
+            },
+            'status': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'name': {
+                        'type': 'string',
+                        'analyzer': 'normal_edge_analyzer',
+                    },
+                },
+            },
+            'subject': {
+                'type': 'string',
+                'index_analyzer': 'normal_ngram_analyzer',
+            },
+            'tags': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'name': {
+                        'type': 'string',
+                        'index_analyzer': 'normal_edge_analyzer',
+                    },
+                    'object_id': {'type': 'integer'},
+                },
+            },
+            'type': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'name': {
+                        'type': 'string',
+                        'analyzer': 'normal_edge_analyzer',
+                    },
+                },
             },
         })
         return mapping
@@ -122,31 +153,46 @@ class CaseMapping(BaseMapping):
         Translate an object to an index document.
         """
         return {
-            'subject': obj.subject,
-            'body': obj.description,
-            'account': obj.account_id if obj.account else None,
-            'account_name': obj.account.name if obj.account else None,
-            'contact': obj.contact_id if obj.contact else None,
-            'contact_name': obj.contact.full_name() if obj.contact else None,
-            'assigned_to_name': obj.assigned_to.get_full_name() if obj.assigned_to else None,
+            'account': {
+                'id': obj.account.id,
+                'name': obj.account.name,
+            } if obj.account else None,
+            'assigned_to': {
+                'id': obj.assigned_to.id,
+                'full_name': obj.assigned_to.full_name,
+            } if obj.assigned_to else None,
             'assigned_to_groups': [group.id for group in obj.assigned_to_groups.all()],
-            'assigned_to_id': obj.assigned_to.id if obj.assigned_to else None,
-            'created_by': {
-                'full_name': obj.created_by.get_full_name(),
-                'id': obj.created_by.id,
-            } if obj.created_by else None,
-            'priority': obj.priority,
-            'priority_name': obj.get_priority_display(),
-            'status': obj.status.status,
-            'tag': [tag.name for tag in obj.tags.all() if tag.name],
-            'casetype_name': obj.type.type if obj.type else None,
-            'casetype_id': obj.type.id if obj.type else None,
-            'expires': obj.expires,
+            'contact': {
+                'id': obj.contact.id,
+                'full_name': obj.contact.full_name,
+            } if obj.contact else None,
+            'content_type': obj.content_type.id,
             'created': obj.created,
+            'created_by': {
+                'id': obj.created_by.id,
+                'full_name': obj.created_by.full_name,
+            } if obj.created_by else None,
+            'description': obj.description,
+            'expires': obj.expires,
+            'is_archived': obj.is_archived,
             'modified': obj.modified,
-            'archived': obj.is_archived,
+            'priority': obj.priority,
+            'priority_display': obj.get_priority_display(),
+            'status': {
+                'id': obj.status.id,
+                'name': obj.status.name,
+            },
+            'subject': obj.subject,
+            'tags': [{
+                'id': tag.id,
+                'name': tag.name,
+                'object_id': tag.object_id,
+            } for tag in obj.tags.all()],
+            'type': {
+                'id': obj.type.id,
+                'name': obj.type.name,
+            } if obj.type else None,
             'parcel_provider': obj.parcel.get_provider_display() if obj.parcel else None,
             'parcel_identifier': obj.parcel.identifier if obj.parcel else None,
             'parcel_link': obj.parcel.get_link() if obj.parcel else None,
-            'content_type': obj.content_type.id,
         }

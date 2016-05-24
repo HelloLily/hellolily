@@ -8,6 +8,7 @@ from lily.contacts.models import Function
 from lily.users.api.serializers import RelatedLilyUserSerializer, RelatedLilyGroupSerializer
 from lily.utils.api.related.mixins import RelatedSerializerMixin
 from lily.utils.api.related.serializers import WritableNestedSerializer
+from lily.utils.api.serializers import RelatedTagSerializer
 
 from ..models import Case, CaseStatus, CaseType
 
@@ -20,7 +21,7 @@ class CaseStatusSerializer(serializers.ModelSerializer):
         model = CaseStatus
         fields = (
             'id',
-            'status',
+            'name',
         )
 
 
@@ -36,7 +37,7 @@ class CaseTypeSerializer(serializers.ModelSerializer):
         model = CaseType
         fields = (
             'id',
-            'type',
+            'name',
             'use_as_filter',
         )
 
@@ -62,6 +63,7 @@ class CaseSerializer(WritableNestedSerializer):
     assigned_to_groups = RelatedLilyGroupSerializer(many=True, required=False, assign_only=True)
     type = RelatedCaseTypeSerializer(assign_only=True)
     status = RelatedCaseStatusSerializer(assign_only=True)
+    tags = RelatedTagSerializer(many=True, required=False, create_only=True)
 
     # Show string versions of fields.
     priority_display = serializers.CharField(source='get_priority_display', read_only=True)
@@ -99,7 +101,7 @@ class CaseSerializer(WritableNestedSerializer):
         status = CaseStatus.objects.get(pk=status_id)
 
         # Automatically archive the case if the status is set to 'Closed'.
-        if status.status == 'Closed':
+        if status.name == 'Closed':
             validated_data.update({
                 'is_archived': True
             })
@@ -124,6 +126,7 @@ class CaseSerializer(WritableNestedSerializer):
             'priority',
             'priority_display',
             'status',
+            'tags',
             'subject',
             'type',
         )

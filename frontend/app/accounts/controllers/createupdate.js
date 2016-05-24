@@ -47,7 +47,6 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
     vm.account = {};
     vm.people = [];
     vm.tags = [];
-    vm.tag_choices = [];
     vm.errors = {
         name: [],
     };
@@ -60,8 +59,6 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
     vm.addRelatedField = addRelatedField;
     vm.removeRelatedField = removeRelatedField;
     vm.setStatusForCustomerId = setStatusForCustomerId;
-    vm.refreshTags = refreshTags;
-    vm.addTagChoice = addTagChoice;
 
     activate();
 
@@ -295,7 +292,7 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
             }];
         }
 
-        vm.account = HLFields.cleanRelatedFields(vm.account, 'account');
+        vm.account = HLFields.cleanRelatedFields(vm.account);
 
         if (vm.account.id) {
             // If there's an ID set it means we're dealing with an existing account, so update it.
@@ -376,26 +373,5 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
         }
 
         return domain;
-    }
-
-    function refreshTags(query) {
-        var exclude = '';
-
-        if (query.length >= 1) {
-            // Exclude accounts already selected
-            angular.forEach(vm.contact.tags, function(tag) {
-                exclude += ' AND NOT name_flat:' + tag.name;
-            });
-
-            Tag.search({query: query + exclude}, function(response) {
-                vm.tag_choices = response;
-            });
-        }
-    }
-
-    function addTagChoice(tag) {
-        return {
-            'name': tag,
-        };
     }
 }

@@ -1,36 +1,36 @@
-<div ng-if="!contact.id" ng-include="'utils/controllers/does_not_exist.html'" class="row">
+<div ng-if="!vm.contact.id" ng-include="'utils/controllers/does_not_exist.html'" class="row">
 </div>
 
-<div ng-if="contact.id" class="row">
+<div ng-if="vm.contact.id" class="row">
     <div class="col-md-4">
-        <contact-detail-widget contact="contact"></contact-detail-widget>
+        <contact-detail-widget contact="vm.contact" update-callback="vm.updateModel"></contact-detail-widget>
     </div>
 
     <div class="col-md-4">
         <list-widget title="Deals"
-                     list="dealList"
+                     list="vm.dealList"
                      collapsable-items="true"
-                     object="contact"
-                     add-link="base.deals.create.fromContact({contactId: {{ contact.id }}})">
+                     object="vm.contact"
+                     add-link="base.deals.create.fromContact({contactId: {{ vm.contact.id }}})">
         </list-widget>
     </div>
 
     <div class="col-md-4">
         <list-widget title="Cases"
-                     list="caseList"
+                     list="vm.caseList"
                      collapsable-items="true"
                      object="contact"
-                     add-link="base.cases.create.fromContact({contactId: {{ contact.id }}})">
+                     add-link="base.cases.create.fromContact({contactId: {{ vm.contact.id }}})">
         </list-widget>
     </div>
 </div>
 
-<div ng-if="contact.id" class="row">
+<div ng-if="vm.contact.id" class="row">
     <div class="col-md-8">
-        <history-list ng-if="contact.id" target="'contact'" object="contact"></history-list>
+        <history-list ng-if="vm.contact.id" target="'contact'" object="vm.contact"></history-list>
     </div>
 
-    <div ng-if="contact.accounts.length" class="col-md-4" ng-repeat="account in contact.accounts">
+    <div ng-if="vm.contact.accounts.length" class="col-md-4" ng-repeat="account in vm.contact.accounts">
         <list-widget title="{{ account.name }}"
                      list="account.colleagueList"
                      module="contacts"
@@ -39,7 +39,7 @@
                      height="height">
         </list-widget>
     </div>
-    <div ng-if="!contact.accounts.length" class="col-md-4">
-        <list-widget title="Contacts" height="height" object="contact"></list-widget>
+    <div ng-if="!vm.contact.accounts.length" class="col-md-4">
+        <list-widget title="Contacts" height="height" object="vm.contact"></list-widget>
     </div>
 </div>

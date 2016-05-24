@@ -76,11 +76,11 @@
                     </td>
                 </tr>
 
-                <tr ng-show="vm.account.tag">
+                <tr ng-show="vm.account.tags">
                     <td><i class="fa fa-tag"></i> <strong>Tags</strong></td>
                     <td>
                         <a class="btn btn-xs btn-default" ng-repeat="tag in vm.account.tags">
-                            {{ tag }}
+                            {{ tag.name }}
                         </a>
                     </td>
                 </tr>
@@ -89,7 +89,7 @@
                     <td colspan="2">
                         <strong class="margin-bottom-5">Description</strong>
                         <div>
-                            <div class="pre-wrap" editable-textarea="vm.account.description" e-rows="4" e-cols="100" onbeforesave="vm.updateModel($data, 'description')">{{ (vm.account.description | parseUrls) || 'No description' }}</div>
+                            <div class="pre-wrap" editable-textarea="vm.account.description" e-rows="4" e-cols="100" onbeforesave="vm.updateCallback($data, 'description')">{{ (vm.account.description | parseUrls) || 'No description' }}</div>
                         </div>
                     </td>
                 </tr>

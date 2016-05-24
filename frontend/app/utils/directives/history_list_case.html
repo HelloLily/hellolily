@@ -17,9 +17,9 @@
                     <li>
                         Priority:
                         <i class="lilicon" ng-class="{0: 'hl-low-prio-icon', 1: 'hl-normal-prio-icon', 2: 'hl-high-prio-icon', 3: 'hl-critical-prio-icon'}[vm.item.priority]"></i>
-                        <strong>{{ ::vm.item.priority_name }}</strong>
+                        <strong>{{ ::vm.item.priority_display }}</strong>
                     </li>
-                    <li>Type: <strong>{{ ::vm.item.casetype_name }}</strong></li>
+                    <li>Type: <strong>{{ ::vm.item.type.name }}</strong></li>
                     <li>Expires: <strong class="margin-left-5"><date date="vm.item.expires"></date></strong></li>
                 </ul>
                 <div class="timeline-date">
@@ -38,9 +38,9 @@
                     <li><a ui-sref="base.cases.detail({ id: vm.item.id })"><i class="fa fa-eye"></i> View</a></li>
                     <li><a ui-sref="base.cases.detail.edit({ id: vm.item.id })"><i class="lilicon hl-edit-icon"></i> Edit</a></li>
                     <li>
-                        <a ng-href="/cases/delete/{{ ::vm.item.id }}/" data-target="#confirm-delete" data-source="/cases/delete/{{ ::vm.item.id }}/">
-                            <i class="lilicon hl-trashcan-icon"></i> Delete
-                        </a>
+                        <delete-confirmation model="Case" object="vm.item" display-field="subject" callback="vm.deleteCallback()" button-class="btn-link no-background no-padding">
+                            Delete
+                        </delete-confirmation>
                     </li>
                 </ul>
             </div>

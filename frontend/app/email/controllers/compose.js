@@ -14,7 +14,7 @@ function emailConfig($stateProvider) {
         },
     });
     $stateProvider.state('base.email.composeEmail', {
-        url: '/compose/{email}',
+        url: '/compose/{email}/{contactId}',
         views: {
             '@base.email': {
                 templateUrl: '/messaging/email/compose/',

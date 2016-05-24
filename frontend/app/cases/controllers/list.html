@@ -69,12 +69,12 @@
                 <th ng-show="vm.table.visibility.caseId" class="width-4">No.</th>
                 <th ng-show="vm.table.visibility.subject" class="width-20">Subject</th>
                 <th ng-show="vm.table.visibility.client" class="width-20">Client</th>
-                <th ng-show="vm.table.visibility.type" sort-column="casetype_name" table="vm.table">Type</th>
-                <th ng-show="vm.table.visibility.status" sort-column="status" table="vm.table">Status</th>
+                <th ng-show="vm.table.visibility.type" sort-column="type.name" table="vm.table">Type</th>
+                <th ng-show="vm.table.visibility.status" sort-column="status.name" table="vm.table">Status</th>
                 <th ng-show="vm.table.visibility.priority" sort-column="priority" table="vm.table">Priority</th>
                 <th ng-show="vm.table.visibility.created" sort-column="created" table="vm.table" class="width-10">Created</th>
                 <th ng-show="vm.table.visibility.expires" sort-column="expires" table="vm.table" class="width-10">Expires</th>
-                <th ng-show="vm.table.visibility.assignedTo" sort-column="assigned_to_name" table="vm.table">Assigned to</th>
+                <th ng-show="vm.table.visibility.assignedTo" sort-column="assigned_to.full_name" table="vm.table">Assigned to</th>
                 <th ng-show="vm.table.visibility.createdBy" sort-column="created_by" table="vm.table">Created by</th>
                 <th ng-show="vm.table.visibility.tags">Tags</th>
             </thead>
@@ -82,30 +82,30 @@
             <tr ng-repeat="case in vm.table.items">
                 <td>
                     <a ui-sref="base.cases.detail.edit({ id: case.id })" class="btn btn-xs default" title="Edit">
-                        <i class="fa fa-edit"></i>
+                        <i class="lilicon hl-edit-icon"></i>
                     </a>
                 </td>
                 <td ng-show="vm.table.visibility.caseId">
                     {{ ::case.id }}
                 </td>
                 <td ng-show="vm.table.visibility.subject">
-                    <strong ng-if="::case.archived">(a)</strong>
+                    <strong ng-if="::case.is_archived">(a)</strong>
                     <a ui-sref="base.cases.detail({ id: case.id })" title="{{ ::case.subject }}">{{ ::case.subject }}</a>
                 </td>
                 <td ng-show="vm.table.visibility.client">
-                    <a ui-sref="base.contacts.detail({ id: case.contact })" ng-if="::case.contact">{{ ::case.contact_name }}</a>
+                    <a ui-sref="base.contacts.detail({ id: case.contact.id })" ng-if="::case.contact">{{ ::case.contact.full_name }}</a>
                     <span ng-if="case.contact && case.account"> at </span>
-                    <a ui-sref="base.accounts.detail({ id: case.account })">{{ ::case.account_name }}</a>
+                    <a ui-sref="base.accounts.detail({ id: case.account.id })">{{ ::case.account.name }}</a>
                 </td>
                 <td ng-show="vm.table.visibility.type">
-                    {{ ::case.casetype_name }}
+                    {{ ::case.type.name }}
                 </td>
                 <td ng-show="vm.table.visibility.status">
-                    {{ ::case.status }}
+                    {{ ::case.status.name }}
                 </td>
                 <td ng-show="vm.table.visibility.priority">
                     <span title="{{ ::case.priority }}"></span>
-                    <span class="label label-sm" ng-class="{'label-success': !case.priority, 'label-info': case.priority === 1, 'label-warning': case.priority === 2, 'label-danger': case.priority === 3 } ">{{ ::case.priority_name | lowercase }}</span>
+                    <span class="label label-sm" ng-class="{'label-success': !case.priority, 'label-info': case.priority === 1, 'label-warning': case.priority === 2, 'label-danger': case.priority === 3 } ">{{ ::case.priority_display | lowercase }}</span>
                 </td>
                 <td ng-show="vm.table.visibility.created">
                     <date date="case.created"></date>
@@ -114,15 +114,15 @@
                     <postpone type="'Case'" object="case" date-field="'expires'"></postpone>
                 </td>
                 <td ng-show="vm.table.visibility.assignedTo">
-                    <span ng-if="case.assigned_to_id">{{ ::case.assigned_to_name }}</span>
-                    <a ng-if="!case.assigned_to_id" ng-click="vm.assignTo(case)">Assign case</a>
+                    <span ng-if="case.assigned_to.id">{{ ::case.assigned_to.full_name }}</span>
+                    <a ng-if="!case.assigned_to.id" ng-click="vm.assignTo(case)">Assign case</a>
                 </td>
                 <td ng-show="vm.table.visibility.createdBy">
                     {{ ::case.created_by.full_name }}
                 </td>
                 <td ng-show="vm.table.visibility.tags">
-                    <span ng-repeat="tag in case.tag">
-                        <a href="javascript:void(0)" ng-click="vm.setSearchQuery(tag)">{{ ::tag }}</a>
+                    <span ng-repeat="tag in case.tags">
+                        <a href="javascript:void(0)" ng-click="vm.setSearchQuery(tag.name)">{{ ::tag.name }}</a>
                         <br>
                     </span>
                 </td>

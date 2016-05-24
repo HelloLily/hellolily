@@ -7,9 +7,9 @@
             <div class="widget-heading">
                 <div class="hl-button-group-container">
                     <ul class="hl-button-group" data-toggle="buttons" data-object-id="{{ ::vm.case.id }}">
-                        <li class="hl-button-group-btn" ng-repeat="status in vm.caseStatuses" ng-click="vm.changeCaseStatus(status)" ng-class="{'selected': vm.case.status.status == status.status, 'disabled': vm.case.is_archived }">
+                        <li class="hl-button-group-btn" ng-repeat="status in vm.caseStatuses" ng-click="vm.changeCaseStatus(status)" ng-class="{'selected': vm.case.status.name == status.name, 'disabled': vm.case.is_archived }">
                             <span class="hl-button-group-btn-link">
-                                {{ status.status }}
+                                {{ status.name }}
                             </span>
                         </li>
 
@@ -31,8 +31,8 @@
                             <td><strong>Case ID:</strong> #{{ vm.case.id }}</td>
                             <td>
                                 <strong>Type:</strong>
-                                <editable-select class="margin-left-10" field="type" view-model="vm" type="Case" select-options="{field: 'caseTypes', display: 'type'}">
-                                    {{ vm.case.type.type }}
+                                <editable-select class="margin-left-10" field="type" view-model="vm" type="Case" select-options="{field: 'caseTypes'}">
+                                    {{ vm.case.type.name }}
                                 </editable-select>
                             </td>
                             <td>
@@ -205,10 +205,6 @@
                     <table class="widget-content-table">
                         <tbody>
                             <tr>
-                                <td>Name</td>
-                                <td><span editable-text="vm.case.subject" blur="submit" onbeforesave="vm.updateModel($data, 'subject')">{{ vm.case.subject }}</span></td>
-                            </tr>
-                            <tr>
                                 <td>Assigned to</td>
                                 <td>
                                     <editable-select field="assigned_to" view-model="vm" type="Case" search="true" select-options="{type: 'User', display: 'full_name', placeholder: 'Assign to...', allowClear: true}">
@@ -247,8 +243,8 @@
 
             <widget-body>
                 <div class="widget-content">
-                    <span ng-if="vm.case.tag" class="case-detail-tag" ng-repeat="tag in vm.case.tag">{{ tag }}</span>
-                    <span ng-if="!vm.case.tag">No tags</span>
+                    <span ng-if="vm.case.tags" class="case-detail-tag" ng-repeat="tag in vm.case.tags">{{ tag.name }}</span>
+                    <span ng-if="!vm.case.tags">No tags</span>
                 </div>
             </widget-body>
         </widget>

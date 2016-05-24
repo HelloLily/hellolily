@@ -1,7 +1,8 @@
 /**
  * HLCache Service provides a way to re-use one cache for different APIs.
- *
- */angular.module('app.services').service('HLCache', HLCache);
+ */
+
+angular.module('app.services').service('HLCache', HLCache);
 
 HLCache.$inject = ['CacheFactory'];
 function HLCache(CacheFactory) {

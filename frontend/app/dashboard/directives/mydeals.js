@@ -25,7 +25,6 @@ function MyDealsController($scope, Deal, HLUtils, LocalStorage, Case, Tenant) {
         usersFilter: storage.get('usersFilter', ''),
     };
 
-    vm.openPostponeWidget = openPostponeWidget;
     vm.getMyDeals = getMyDeals;
     vm.numOfDeals = 0;
 
@@ -40,8 +39,7 @@ function MyDealsController($scope, Deal, HLUtils, LocalStorage, Case, Tenant) {
     function getMyDeals() {
         var field = 'next_step.position';
         var descending = false;
-        var filterQuery = 'archived:false AND NOT next_step.name:"None"';
-        var dealPromise;
+        var filterQuery = 'is_archived:false AND NOT next_step.name:"None"';
 
         HLUtils.blockUI('#myDealsBlockTarget', true);
 
@@ -52,11 +50,10 @@ function MyDealsController($scope, Deal, HLUtils, LocalStorage, Case, Tenant) {
         if (vm.table.usersFilter) {
             filterQuery += ' AND (' + vm.table.usersFilter + ')';
         } else {
-            filterQuery += ' AND assigned_to_id:' + currentUser.id;
+            filterQuery += ' AND assigned_to.id:' + currentUser.id;
         }
 
-        dealPromise = Deal.getDeals('', 1, 250, field, descending, filterQuery);
-        dealPromise.then(function(data) {
+        Deal.getDeals(field, descending, filterQuery).then(function(data) {
             if (vm.table.dueDateFilter !== '') {
                 // Add empty key to prevent showing a header and to not crash the for loop.
                 vm.table.items = {
@@ -66,7 +63,7 @@ function MyDealsController($scope, Deal, HLUtils, LocalStorage, Case, Tenant) {
                 vm.table.items = HLUtils.timeCategorizeObjects(data.objects, 'next_step_date');
 
                 angular.forEach(data.objects, function(deal) {
-                    Case.query({filterquery: 'account:' + deal.account + ' AND archived:false'}).$promise.then(function(caseList) {
+                    Case.query({filterquery: 'account.id:' + deal.account.id + ' AND is_archived:false'}).$promise.then(function(caseList) {
                         if (caseList.objects.length > 0) {
                             deal.hasUnarchivedCases = true;
                         }
@@ -81,14 +78,6 @@ function MyDealsController($scope, Deal, HLUtils, LocalStorage, Case, Tenant) {
 
         Tenant.query({}, function(tenant) {
             vm.tenant = tenant;
-        });
-    }
-
-    function openPostponeWidget(deal) {
-        var modalInstance = Deal.openPostponeWidget(deal, true);
-
-        modalInstance.result.then(function() {
-            getMyDeals();
         });
     }
 

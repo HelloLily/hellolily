@@ -137,7 +137,6 @@ class DealSerializer(WritableNestedSerializer):
     assigned_to = RelatedLilyUserSerializer(required=False, assign_only=True)
     next_step = RelatedDealNextStepSerializer(assign_only=True)
     tags = RelatedTagSerializer(many=True, required=False, create_only=True)
-    notes = RelatedNoteSerializer(many=True, required=False, create_only=True)
     why_customer = RelatedDealWhyCustomerSerializer(assign_only=True)
     why_lost = RelatedDealWhyLostSerializer(assign_only=True, allow_null=True, required=False)
     found_through = RelatedDealFoundThroughSerializer(assign_only=True)
@@ -242,7 +241,6 @@ class DealSerializer(WritableNestedSerializer):
             'new_business',
             'next_step',
             'next_step_date',
-            'notes',
             'quote_id',
             'status',
             'tags',

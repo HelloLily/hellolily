@@ -6,7 +6,7 @@ function preferencesConfig($stateProvider) {
         url: '/emailtemplates',
         views: {
             '@base.preferences': {
-                templateUrl: 'preferences/controllers/emailtemplate_list.html',
+                templateUrl: 'preferences/email/controllers/emailtemplate_list.html',
                 controller: PreferencesEmailTemplatesList,
                 controllerAs: 'vm',
                 bindToController: true,
@@ -20,12 +20,12 @@ function preferencesConfig($stateProvider) {
 
 angular.module('app.preferences').controller('PreferencesEmailTemplatesList', PreferencesEmailTemplatesList);
 
-PreferencesEmailTemplatesList.$inject = ['$uibModal', '$scope', 'EmailTemplate'];
-function PreferencesEmailTemplatesList($uibModal, $scope, EmailTemplate) {
+PreferencesEmailTemplatesList.$inject = ['$scope', '$state', '$uibModal', 'EmailAccount', 'EmailTemplate'];
+function PreferencesEmailTemplatesList($scope, $state, $uibModal, EmailAccount, EmailTemplate) {
     var vm = this;
 
     vm.makeDefault = makeDefault;
-    vm.deleteEmailTemplate = deleteEmailTemplate;
+    vm.removeFromList = removeFromList;
 
     activate();
 
@@ -37,15 +37,19 @@ function PreferencesEmailTemplatesList($uibModal, $scope, EmailTemplate) {
         });
     }
 
-    function makeDefault(emailTemplate) {
-        // TODO: LILY-756: Make this controller more Angular
+    function makeDefault(emailTemplateId) {
         var modalInstance = $uibModal.open({
-            templateUrl: '/messaging/email/templates/set-default/' + emailTemplate.id + '/',
+            templateUrl: 'preferences/email/controllers/emailtemplate_default.html',
             controller: 'PreferencesSetTemplateDefaultModal',
-            size: 'lg',
+            controllerAs: 'vm',
+            bindToController: true,
+            size: 'md',
             resolve: {
                 emailTemplate: function() {
-                    return emailTemplate;
+                    return EmailTemplate.get({id: emailTemplateId}).$promise;
+                },
+                emailAccountList: function() {
+                    return EmailAccount.query().$promise;
                 },
             },
         });
@@ -56,16 +60,10 @@ function PreferencesEmailTemplatesList($uibModal, $scope, EmailTemplate) {
         });
     }
 
-    function deleteEmailTemplate(emailtemplate) {
-        if (confirm('Are you sure?')) {
-            EmailTemplate.delete({
-                id: emailtemplate.id,
-            }, function() {  // On success
-                var index = $scope.emailTemplates.indexOf(emailtemplate);
-                $scope.emailTemplates.splice(index, 1);
-            }, function(error) {  // On error
-                alert('something went wrong.');
-            });
-        }
+    function removeFromList(emailtemplate) {
+        var index = vm.emailTemplates.indexOf(emailtemplate);
+        vm.emailTemplates.splice(index, 1);
+
+        $scope.$apply();
     }
 }

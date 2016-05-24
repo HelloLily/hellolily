@@ -99,28 +99,7 @@
             <form-portlet portlet-title="Tags">
                 <form-portlet-body>
                     <form-group label-title="Tags" label-id="id_tags" label-icon="tags" field="accountForm.tags">
-                        <div class="show-and-hide-input">
-                            <div class="form-control-static" ng-class="{hide: vm.account.tags.length}">
-                                <a href="javascript:void(0)" class="toggle-original-form-input" data-action="show">
-                                    Add&nbsp;<i class="fa fa-angle-down"></i>
-                                </a>
-                            </div>
-
-                            <div class="original-form-widget" ng-class="{hide: !vm.account.tags.length}">
-                                <ui-select multiple ng-model="vm.account.tags" theme="bootstrap" tagging="vm.addTagChoice" tagging-label="(new tag)">
-                                    <ui-select-match placeholder="Add tags...">{{ $item.name }}</ui-select-match>
-                                    <ui-select-choices repeat="tag in vm.tag_choices" refresh="vm.refreshTags($select.search)" refresh-delay="150">
-                                        <div ng-bind-html="tag.name | highlight: $select.search"></div>
-                                    </ui-select-choices>
-                                </ui-select>
-                            </div>
-
-                            <div class="form-control-static" ng-class="{hide: !vm.account.tags.length}">
-                                <a href="javascript:void(0)" class="toggle-original-form-input" data-action="hide">
-                                    Cancel&nbsp;<i class="fa fa-angle-up"></i>
-                                </a>
-                            </div>
-                        </div>
+                        <tag-input ng-if="vm.account" object="vm.account"></tag-input>
                     </form-group>
                 </form-portlet-body>
             </form-portlet>

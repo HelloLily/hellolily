@@ -6,7 +6,6 @@ angular.module('app.services').factory('Settings', ['LocalStorage', function() {
     };
 }]);
 
-
 /**
  * Class representing the main settings object for the email sidebar layout.
  */
@@ -21,12 +20,10 @@ class Sidebar {
     }
 }
 
-
 /**
  * Class representing the main settings object for email layout.
  */
 class Email {
-
     /**
      * Initialize email layout.
      * @param {LocalStorage} storage - LocalStorage instance.
@@ -72,14 +69,12 @@ class Email {
     }
 }
 
-
 /**
  * Class representing the main settings object for page header layout.
  */
 class Header {
-
     constructor() {
-        this.main = 'Hellolily';
+        this.main = 'Lily';
     }
 
     /**
@@ -105,18 +100,23 @@ class Header {
     }
 }
 
+class Toolbar {
+    constructor() {
+        this.data = null;
+    }
+}
 
 /**
  * Class representing the main settings object for page layout.
  */
 class Page {
-
     constructor(localStorage) {
         this.storage = localStorage('generalSettings');
         this.title = 'Welcome';
 
         this.email = new Email(this.storage);
         this.header = new Header();
+        this.toolbar = new Toolbar();
     }
 
     /**
@@ -139,7 +139,7 @@ class Page {
      * @param {Contact} contact - A contact object to set the page context to.
      * @param {Account} account - An account object to set the page context to.
      */
-    setAllTitles(pageType, objectInfo, contact, account) {
+    setAllTitles(pageType, objectInfo, contact = null, account = null) {
         // Make sure sidebar forms don't set the titles/headers.
         if (!this.email.sidebar.form) {
             this.setTitle(pageType, objectInfo);

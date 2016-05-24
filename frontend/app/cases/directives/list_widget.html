@@ -23,12 +23,12 @@
             <tbody ng-repeat="case in vm.list" ng-if="vm.list.length">
                 <tr>
                     <td>
-                        <strong ng-if="::case.archived">(a)</strong>
+                        <strong ng-if="::case.is_archived">(a)</strong>
                         <a ui-sref="base.cases.detail({id: case.id})">{{ case.subject }}</a>
                     </td>
-                    <td>{{ case.status }}</td>
+                    <td>{{ case.status.name }}</td>
                     <td class="align-center">
-                        <i tooltip-placement="left" uib-tooltip="{{ case.priority_name }} priority" class="lilicon" ng-class="{0: 'hl-low-prio-icon', 1: 'hl-normal-prio-icon', 2: 'hl-high-prio-icon', 3: 'hl-critical-prio-icon'}[case.priority]"></i>
+                        <i tooltip-placement="left" uib-tooltip="{{ case.priority_display }} priority" class="lilicon" ng-class="{0: 'hl-low-prio-icon', 1: 'hl-normal-prio-icon', 2: 'hl-high-prio-icon', 3: 'hl-critical-prio-icon'}[case.priority]"></i>
                     </td>
                     <td><postpone type="'Case'" object="case" date-field="'expires'"</postpone></td>
                     <td class="clickable" style="width: 40px;" ng-click="case.collapsed = !case.collapsed">
@@ -39,12 +39,12 @@
                 </tr>
                 <tr ng-show="!case.collapsed" class="collapse-content" class="collapsable-cell">
                     <td colspan="5">
-                        <div class="margin-bottom-5" ng-if="case.casetype_name"><strong>Type:</strong> {{ case.casetype_name }}</div>
-                        <div class="margin-bottom-5"><strong>Assigned to:</strong> {{ case.assigned_to_name || "Nobody" }}</div>
+                        <div class="margin-bottom-5" ng-if="case.type.name"><strong>Type:</strong> {{ case.type.name }}</div>
+                        <div class="margin-bottom-5"><strong>Assigned to:</strong> {{ case.assigned_to.full_name || "Nobody" }}</div>
                         <div class="margin-bottom-5"><strong>Created by:</strong> <span class="margin-right-5">{{ case.created_by.full_name || "Nobody" }} on</span><date date="case.created"></date></div>
-                        <div class="margin-top-20" ng-if="case.body.length">
+                        <div class="margin-top-20" ng-if="case.description.length">
                             <strong class="margin-bottom-5">Description:</strong>
-                            <div>{{ case.body }}</div>
+                            <div>{{ case.description }}</div>
                         </div>
                     </td>
                 </tr>

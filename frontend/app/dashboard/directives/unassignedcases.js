@@ -43,8 +43,8 @@ function UnassignedCasesController($http, $scope, $state, Case, HLFilters, HLUti
 
             angular.forEach(caseTypes, function(caseType) {
                 filterList.push({
-                    name: caseType.type,
-                    value: 'casetype_id:' + caseType.id,
+                    name: caseType.name,
+                    value: 'type.id:' + caseType.id,
                     selected: false,
                     isSpecialFilter: true,
                 });
@@ -58,7 +58,7 @@ function UnassignedCasesController($http, $scope, $state, Case, HLFilters, HLUti
 
     function updateTable() {
         var i;
-        var filterQuery = 'archived:false AND _missing_:assigned_to_id AND assigned_to_groups:' + vm.team.id;
+        var filterQuery = 'is_archived:false AND _missing_:assigned_to.id AND assigned_to_groups:' + vm.team.id;
 
         HLUtils.blockUI('#unassignedCasesBlockTarget' + vm.team.id, true);
 
@@ -66,7 +66,7 @@ function UnassignedCasesController($http, $scope, $state, Case, HLFilters, HLUti
             filterQuery += ' AND ' + vm.table.filterQuery;
         }
 
-        Case.getCases('', 1, 20, vm.table.order.column, vm.table.order.descending, filterQuery).then(function(data) {
+        Case.getCases(vm.table.order.column, vm.table.order.descending, filterQuery).then(function(data) {
             vm.table.items = data.objects;
             vm.highPrioCases = 0;
 
@@ -81,21 +81,18 @@ function UnassignedCasesController($http, $scope, $state, Case, HLFilters, HLUti
     }
 
     function assignToMe(caseObj) {
-        var req;
-
-        if (confirm('Assign this case to yourself?')) {
-            req = {
-                method: 'POST',
-                url: '/cases/update/assigned_to/' + caseObj.id + '/',
-                data: 'assignee=' + currentUser.id,
-                headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'},
-            };
-
-            $http(req).success(function() {
-                vm.table.items.splice(vm.table.items.indexOf(caseObj), 1);
-                $state.go($state.current, {}, {reload: true});
-            });
-        }
+        swal({
+            text: HLMessages.alerts.assignTo.questionText,
+            type: 'question',
+            showCancelButton: true,
+        }).then(function(isConfirm) {
+            if (isConfirm) {
+                Case.patch({id: caseObj.id, assigned_to: currentUser.id}).$promise.then(function() {
+                    var index = vm.table.items.indexOf(caseObj);
+                    vm.table.items.splice(index, 1);
+                });
+            }
+        });
     }
 
     function _watchTable() {

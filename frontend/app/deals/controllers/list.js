@@ -93,7 +93,7 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
         filterList = [
             {
                 name: 'Assigned to me',
-                value: 'assigned_to_id:' + currentUser.id,
+                value: 'assigned_to.id:' + currentUser.id,
                 selected: false,
                 isSpecialFilter: false,
             },
@@ -125,7 +125,7 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
                 name: 'Archived',
                 value: '',
                 selected: false,
-                id: 'archived',
+                id: 'is_archived',
                 isSpecialFilter: false,
             },
         ];
@@ -134,7 +134,7 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
             angular.forEach(response.results, function(status) {
                 filterList.push({
                     name: status.name,
-                    value: 'status:' + status.id,
+                    value: 'status.id:' + status.id,
                     selected: false,
                     isSpecialFilter: false,
                 });
@@ -180,12 +180,12 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
      */
     function _updateDeals() {
         Deal.getDeals(
-            vm.table.searchQuery,
-            vm.table.page,
-            vm.table.pageSize,
             vm.table.order.column,
             vm.table.order.descending,
-            vm.table.filterQuery
+            vm.table.filterQuery,
+            vm.table.searchQuery,
+            vm.table.page,
+            vm.table.pageSize
         ).then(function(data) {
             vm.table.items = data.objects;
             vm.table.totalItems = data.total;

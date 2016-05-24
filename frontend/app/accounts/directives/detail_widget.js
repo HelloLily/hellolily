@@ -6,6 +6,7 @@ function accountDetailWidget() {
         scope: {
             account: '=',
             height: '=',
+            updateCallback: '&',
         },
         templateUrl: 'accounts/directives/detail_widget.html',
         controller: AccountDetailWidgetController,
@@ -14,8 +15,8 @@ function accountDetailWidget() {
     };
 }
 
-AccountDetailWidgetController.$inject = ['HLResource', 'Settings', 'Tenant'];
-function AccountDetailWidgetController(HLResource, Settings, Tenant) {
+AccountDetailWidgetController.$inject = ['Settings', 'Tenant'];
+function AccountDetailWidgetController(Settings, Tenant) {
     var vm = this;
 
     vm.settings = Settings;
@@ -27,15 +28,6 @@ function AccountDetailWidgetController(HLResource, Settings, Tenant) {
     });
 
     function updateModel(data, field) {
-        var args = HLResource.createArgs(data, field, vm.account);
-
-        if (field === 'twitter') {
-            args = {
-                id: vm.account.id,
-                social_media: [args],
-            };
-        }
-
-        return HLResource.patch('Account', args).$promise;
+        return vm.updateCallback()(data, field);
     }
 }

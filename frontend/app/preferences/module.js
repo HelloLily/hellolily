@@ -4,5 +4,5 @@ angular.module('app.preferences', [
     'app.email.services',
     'app.services',
     'app.users.services',
-    'app.users.filters'
+    'app.users.filters',
 ]);

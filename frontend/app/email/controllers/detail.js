@@ -172,7 +172,7 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
                                     Settings.email.data.account = data.data;
                                 }
 
-                                filterquery = 'account:' + data.data.id;
+                                filterquery = 'account.id:' + data.data.id;
                             }
                         } else if (data.type === 'contact') {
                             contact = data.data;
@@ -184,7 +184,7 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
                                     if (contact.accounts.length === 1) {
                                         Settings.email.data.account = contact.accounts[0];
 
-                                        filterquery =  'contact:' + contact.id + ' OR account:' + contact.accounts[0].id;
+                                        filterquery =  'contact.id:' + contact.id + ' OR account.id:' + contact.accounts[0].id;
                                     } else {
                                         angular.forEach(contact.accounts, function(account) {
                                             accountIds.push('id:' + account.id);
@@ -198,7 +198,7 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
                                                 // Additional filter isn't really possible.
                                                 Settings.email.data.account = accountData.objects[0];
 
-                                                filterquery =  'contact:' + contact.id + ' OR account:' + accountData.objects[0].id;
+                                                filterquery =  'contact.id:' + contact.id + ' OR account.id:' + accountData.objects[0].id;
                                             }
                                         });
                                     }

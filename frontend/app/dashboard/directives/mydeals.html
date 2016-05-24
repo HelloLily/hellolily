@@ -35,12 +35,12 @@
                         </a>
                     </td>
                     <td>
-                        <a ng-if="myDeal.hasUnarchivedCases" ui-sref="base.accounts.detail({ id: deal.account })" class="warning-icon" uib-tooltip="This account has an unarchived case">
+                        <a ng-if="myDeal.hasUnarchivedCases" ui-sref="base.accounts.detail({ id: deal.account.id })" class="warning-icon" uib-tooltip="This account has an unarchived case">
                             <i class="font-size-16 lilicon hl-case-icon"></i>
                         </a>
-                        <a ui-sref="base.contacts.detail({ id: myDeal.contact })" ng-if="myDeal.contact"> {{ myDeal.contact_name }}</a>
-                        <span ng-if="myDeal.contact && myDeal.account_name"> at</span>
-                        <a ui-sref="base.accounts.detail({ id: myDeal.account })" ng-if="myDeal.account"> {{ myDeal.account_name }}</a>
+                        <a ui-sref="base.contacts.detail({ id: myDeal.contact.id })" ng-if="myDeal.contact"> {{ myDeal.contact.full_name }}</a>
+                        <span ng-if="myDeal.contact && myDeal.account.name"> at</span>
+                        <a ui-sref="base.accounts.detail({ id: myDeal.account.id })" ng-if="myDeal.account"> {{ myDeal.account.name }}</a>
                     </td>
                     <td>
                         {{ myDeal.amount_recurring | currency:'&euro; ' }} /month | {{ myDeal.amount_once | currency:'&euro; ' }} /once
@@ -54,7 +54,7 @@
                         <postpone type="'Deal'" object="myDeal" date-field="'next_step_date'" tt-placement="bottom" callback="vm.getMyDeals()"></postpone>
                     </td>
                     <td style="width: 75px;">
-                        <a ng-href="{{ vm.tenant.primary_external_app_link.getUrl(myDeal.account_customer_id) }}" target="_blank" ng-if="myDeal.account_customer_id && vm.tenant.primary_external_app_link">
+                        <a ng-href="{{ vm.tenant.primary_external_app_link.getUrl(myDeal.account.customer_id) }}" target="_blank" ng-if="myDeal.account.customer_id && vm.tenant.primary_external_app_link">
                             <i class="fa fa-cloud-upload"></i>
                         </a>
                     </td>

@@ -42,13 +42,13 @@
                 </form-group>
 
                 <form-group label-title="Type" label-id="id_type" field="caseForm.type" required="true">
-                    <select ng-model="vm.case.type" ng-options="type.type for type in vm.caseTypes track by type.id" class="form-control" name="type">
+                    <select ng-model="vm.case.type" ng-options="type.name for type in vm.caseTypes track by type.id" class="form-control" name="type">
                         <option value="" hidden>---------</option>
                     </select>
                 </form-group>
 
                 <form-group label-title="Status" label-id="id_status" field="caseForm.status" required="true">
-                    <select ng-model="vm.case.status" ng-options="status as status.status for status in vm.caseStatuses track by status.id" class="form-control">
+                    <select ng-model="vm.case.status" ng-options="status as status.name for status in vm.caseStatuses track by status.id" class="form-control">
                         <option value="" hidden>---------</option>
                     </select>
                 </form-group>
@@ -132,6 +132,14 @@
 
                     <button class="btn btn-link assign-me-btn" ng-click="vm.assignToMe()">Assign to me</button>
                 </form-group>
+            </form-portlet>
+
+            <form-portlet portlet-title="Tags">
+                <form-portlet-body>
+                    <form-group label-title="Tags" label-id="id_tags" label-icon="tags" field="caseForm.tags">
+                        <tag-input ng-if="vm.case" object="vm.case"></tag-input>
+                    </form-group>
+                </form-portlet-body>
             </form-portlet>
 
             <div class="hl-form-footer">

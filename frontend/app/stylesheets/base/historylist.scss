@@ -486,6 +486,12 @@
         display: inline;
         list-style-type: none;
         margin-right: 20px;
+
+        .btn {
+            color: $lilyBlue;
+            font-size: 13px;
+            vertical-align: initial;
+        }
     }
 }
 

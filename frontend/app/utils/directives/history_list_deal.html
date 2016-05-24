@@ -39,7 +39,11 @@
                 <ul class="content-details-actions">
                     <li><a ui-sref="base.deals.detail({ id: vm.item.id })"><i class="fa fa-eye"></i> View</a></li>
                     <li><a ui-sref="base.deals.detail.edit({ id: vm.item.id })"><i class="lilicon hl-edit-icon"></i> Edit</a></li>
-                    <li><a ng-href="/deals/delete/{{ ::vm.item.id }}/" data-target="#confirm-delete" data-source="/cases/delete/{{ ::vm.item.id }}/"><i class="lilicon hl-trashcan-icon"></i> Delete</a></li>
+                    <li>
+                        <delete-confirmation model="Deal" object="vm.item" callback="vm.deleteCallback()" button-class="btn-link no-background no-padding">
+                            Delete
+                        </delete-confirmation>
+                    </li>
                 </ul>
             </div>
 

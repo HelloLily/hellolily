@@ -29,15 +29,13 @@ class ExportAccountView(ExportListViewMixin, View):
         'contactInformation': {
             'headers': [
                 _('Email'),
-                _('Work Phone'),
-                _('Mobile Phone'),
-                _('Address'),
+                _('Phone numbers'),
+                _('Addresses'),
             ],
             'columns_for_item': [
                 'email_addresses',
-                'phone_work',
-                'phone_mobile',
-                'address',
+                'phone_numbers',
+                'addresses',
             ]
         },
         'assignedTo': {
@@ -68,22 +66,27 @@ class ExportAccountView(ExportListViewMixin, View):
             if column == 'url':
                 return '/#/accounts/%s' % account['id']
             elif column == 'email_addresses':
-                # 'email_addresses' is a dict, so we need to process it differently
+                # 'email_addresses' is a dict, so we need to process it differently.
                 value = []
-                for account in account.get('email_addresses', []):
-                    value.append(account['email_address'])
+                for email in account.get('email_addresses', []):
+                    value.append(email['email_address'])
+            elif column == 'phone_numbers':
+                # 'phone_numbers' is a dict, so we need to process it differently.
+                value = []
+                for phone_number in account.get('phone_numbers', []):
+                    value.append(phone_number['number'])
             else:
                 value = account[column]
         except KeyError:
             result = ''
         else:
             # Fetch address info from database
-            if column == 'address':
+            if column == 'addresses':
                 result = '\r\n'.join(['%s, %s, %s, %s' % (
-                    address['address_address'] or '',
-                    address['address_postal_code'] or '',
-                    address['address_city'] or '',
-                    address['address_country'] or '',
+                    address['address'] or '',
+                    address['postal_code'] or '',
+                    address['city'] or '',
+                    address['country'] or '',
                 ) for address in value])
             elif isinstance(value, list):
                 result = ', '.join(value)

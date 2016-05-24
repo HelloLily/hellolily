@@ -25,7 +25,7 @@ class CustomBrokenLinkEmailsMiddleware(BrokenLinkEmailsMiddleware):
 
                 # provide the user
                 if request.user.is_authenticated():
-                    user = request.user.get_full_name()
+                    user = request.user.full_name
                 else:
                     user = 'Anonymous user'
 

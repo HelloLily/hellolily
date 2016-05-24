@@ -14,20 +14,20 @@ from lily.utils.models.mixins import DeletedMixin, ArchivedMixin
 
 
 class CaseType(TenantMixin, ArchivedMixin):
-    type = models.CharField(max_length=255, db_index=True)
+    name = models.CharField(max_length=255, db_index=True)
     # Whether it shows in the filter list or not.
     use_as_filter = models.BooleanField(default=True)
 
     def __unicode__(self):
-        return self.type
+        return self.name
 
 
 class CaseStatus(TenantMixin):
     position = models.IntegerField()
-    status = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
 
     def __unicode__(self):
-        return self.status
+        return self.name
 
     class Meta:
         verbose_name_plural = _('case statuses')

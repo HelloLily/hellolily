@@ -6,18 +6,18 @@ function preferencesConfig($stateProvider) {
         url: '/edit/{id:[0-9]{1,}}',
         views: {
             '@base.preferences': {
-                templateUrl: function (elem, attr) {
+                templateUrl: function(elem, attr) {
                     return 'messaging/email/accounts/update/' + elem.id;
                 },
-                controller: 'PreferencesEmailAccountEdit'
-            }
+                controller: 'PreferencesEmailAccountEdit',
+            },
         },
         ncyBreadcrumb: {
-            label: 'Edit EmailAccount'
-        }
+            label: 'Edit EmailAccount',
+        },
     });
 }
 
 angular.module('app.preferences').controller('PreferencesEmailAccountEdit', PreferencesEmailAccountEdit);
 
-function PreferencesEmailAccountEdit () {}
+function PreferencesEmailAccountEdit() {}

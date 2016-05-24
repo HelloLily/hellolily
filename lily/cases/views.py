@@ -63,7 +63,7 @@ class UpdateStatusAjaxView(AjaxUpdateView):
         message = _('Status has been changed to %s') % status
         messages.success(self.request, message)
         # Return response
-        return HttpResponse(anyjson.serialize({'status': status.status}), content_type='application/json')
+        return HttpResponse(anyjson.serialize({'status': status.name}), content_type='application/json')
 
 
 class UpdateAssignedToView(AjaxUpdateView):

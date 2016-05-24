@@ -7,15 +7,15 @@
             <li class="list-group-item" ng-repeat="template in vm.emailTemplates track by template.id">
                 {{ template.name }}
                 <span class="pull-right">
-                    <a class="btn btn-xs default" ng-click="vm.makeDefault(template)">
+                    <a class="btn btn-xs default" ng-click="vm.makeDefault(template.id)">
                         <span><i class="fa fa-star"></i> Manage defaults</span>
                     </a>
                     <a ui-sref="base.preferences.emailtemplates.edit({id: template.id})" class="btn btn-xs default">
-                        <span><i class="fa fa-edit"></i> Edit</span>
+                        <span><i class="lilicon hl-edit-icon"></i> Edit</span>
                     </a>
-                    <a class="btn btn-xs default" ng-click="vm.deleteEmailTemplate(template)">
-                        <span><i class="fa fa-trash"></i> Delete</span>
-                    </a>
+                    <delete-confirmation model="EmailTemplate" object="template" callback="vm.removeFromList(template)" button-class="btn-xs">
+                        Delete
+                    </delete-confirmation>
                 </span>
             </li>
             <li class="list-group-item" ng-hide="vm.emailTemplates.length">

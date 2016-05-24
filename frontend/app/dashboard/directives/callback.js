@@ -1,6 +1,6 @@
 angular.module('app.dashboard.directives').directive('callbackRequests', CallbackRequestsDirective);
 
-function CallbackRequestsDirective () {
+function CallbackRequestsDirective() {
     return {
         scope: {},
         templateUrl: 'dashboard/directives/callback.html',
@@ -9,10 +9,10 @@ function CallbackRequestsDirective () {
     };
 }
 
-CallbackRequestsController.$inject = ['$scope', 'Case', 'HLUtils', 'LocalStorage'];
-function CallbackRequestsController($scope, Case, HLUtils, LocalStorage) {
+CallbackRequestsController.$inject = ['$scope', 'Account', 'Case', 'Contact', 'HLUtils', 'LocalStorage'];
+function CallbackRequestsController($scope, Account, Case, Contact, HLUtils, LocalStorage) {
     var vm = this;
-    var storage = LocalStorage('callbackWidget');
+    var storage = new LocalStorage('callbackWidget');
 
     vm.table = {
         order: storage.get('order', {
@@ -26,16 +26,38 @@ function CallbackRequestsController($scope, Case, HLUtils, LocalStorage) {
 
     ///////////
 
-    function activate () {
+    function activate() {
         _watchTable();
     }
 
     function _getCallbackRequests() {
+        var filterQuery = 'is_archived:false AND type.name:Callback AND assigned_to.id:' + currentUser.id;
+
         HLUtils.blockUI('#callbackBlockTarget', true);
-        Case.getCallbackRequests(
+
+        Case.getCases(
             vm.table.order.column,
-            vm.table.order.descending
+            vm.table.order.descending,
+            filterQuery
         ).then(function(data) {
+            angular.forEach(data.objects, function(callbackCase) {
+                if (callbackCase.account) {
+                    Account.get({id: callbackCase.account.id}, function(account) {
+                        if (account.phone_numbers.length) {
+                            callbackCase.accountPhone = account.phone_numbers[0].number;
+                        }
+                    });
+                }
+
+                if (callbackCase.contact) {
+                    Contact.get({id: callbackCase.contact.id}, function(contact) {
+                        if (contact.phone_numbers.length) {
+                            callbackCase.contactPhone = contact.phone_numbers[0].number;
+                        }
+                    });
+                }
+            });
+
             vm.table.items = data.objects;
 
             HLUtils.unblockUI('#callbackBlockTarget');

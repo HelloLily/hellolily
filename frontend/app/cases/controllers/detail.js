@@ -3,6 +3,7 @@ angular.module('app.cases').config(caseConfig);
 caseConfig.$inject = ['$stateProvider'];
 function caseConfig($stateProvider) {
     $stateProvider.state('base.cases.detail', {
+        parent: 'base.cases',
         url: '/{id:[0-9]{1,}}',
         views: {
             '@': {
@@ -15,19 +16,27 @@ function caseConfig($stateProvider) {
             label: '{{ case.subject }}',
         },
         resolve: {
-            caseItem: ['Case', '$stateParams', function(Case, $stateParams) {
+            currentCase: ['Case', '$stateParams', function(Case, $stateParams) {
                 var id = $stateParams.id;
                 return Case.get({id: id}).$promise;
             }],
-            caseAccount: ['Account', 'caseItem', function(Account, caseItem) {
-                if (caseItem.account) {
-                    return Account.get({id: caseItem.account.id}).$promise;
+            caseAccount: ['Account', 'currentCase', function(Account, currentCase) {
+                var account;
+
+                if (currentCase.account) {
+                    account = Account.get({id: currentCase.account.id}).$promise;
                 }
+
+                return account;
             }],
-            caseContact: ['Contact', 'caseItem', function(Contact, caseItem) {
-                if (caseItem.contact) {
-                    return Contact.get({id: caseItem.contact.id}).$promise;
+            caseContact: ['Contact', 'currentCase', function(Contact, currentCase) {
+                var contact;
+
+                if (currentCase.contact) {
+                    contact = Contact.get({id: currentCase.contact.id}).$promise;
                 }
+
+                return contact;
             }],
         },
     });
@@ -35,14 +44,22 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseDetailController', CaseDetailController);
 
-CaseDetailController.$inject = ['$scope', 'Settings', 'CaseStatuses', 'HLResource', 'LocalStorage', 'Tenant', 'UserTeams', 'caseItem', 'caseAccount', 'caseContact'];
-function CaseDetailController($scope, Settings, CaseStatuses, HLResource, LocalStorage, Tenant, UserTeams, caseItem, caseAccount, caseContact) {
+CaseDetailController.$inject = ['$scope', 'Settings', 'CaseStatuses', 'HLResource', 'HLUtils', 'LocalStorage', 'Tenant',
+    'UserTeams', 'currentCase', 'caseAccount', 'caseContact', 'Case'];
+function CaseDetailController($scope, Settings, CaseStatuses, HLResource, HLUtils, LocalStorage, Tenant, UserTeams,
+                              currentCase, caseAccount, caseContact, Case) {
     var vm = this;
     var storage = new LocalStorage('caseDetail');
 
-    Settings.page.setAllTitles('detail', caseItem.subject, caseItem.contact, caseItem.account);
+    Settings.page.setAllTitles('detail', currentCase.subject, currentCase.contact, currentCase.account);
+    Settings.page.toolbar.data = {
+        model: 'Case',
+        object: currentCase,
+        field: 'subject',
+        updateCallback: updateModel,
+    };
 
-    vm.case = caseItem;
+    vm.case = currentCase;
     vm.case.account = caseAccount;
     vm.case.contact = caseContact;
     vm.caseStatuses = CaseStatuses.query();
@@ -75,7 +92,7 @@ function CaseDetailController($scope, Settings, CaseStatuses, HLResource, LocalS
 
         vm.caseStart = moment(vm.case.created).subtract(2, 'days').format('YYYY-MM-DD');
 
-        if (vm.case.status.status === 'Closed') {
+        if (vm.case.status.name === 'Closed') {
             caseEnd = moment(vm.case.modified);
         } else {
             caseEnd = moment();
@@ -118,6 +135,20 @@ function CaseDetailController($scope, Settings, CaseStatuses, HLResource, LocalS
 
     function updateModel(data, field) {
         var args = HLResource.createArgs(data, field, vm.case);
+        var casePriorities = Case.getCasePriorities();
+        var expireDate;
+
+        if (field === 'subject') {
+            Settings.page.setAllTitles('detail', data, vm.case.contact, vm.case.account);
+        }
+
+        if (args.hasOwnProperty('priority')) {
+            expireDate = HLUtils.addBusinessDays(casePriorities[vm.case.priority].dateIncrement);
+            expireDate = moment(expireDate).format('YYYY-MM-DD');
+
+            vm.case.expires = expireDate;
+            args.expires = vm.case.expires;
+        }
 
         return HLResource.patch('Case', args).$promise;
     }

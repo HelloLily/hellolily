@@ -291,7 +291,7 @@ class SendInvitationView(GroupRequiredMixin, FormSetView):
                 recipient_list=[form.cleaned_data['email']],
                 context={
                     'current_site': current_site,
-                    'full_name': self.request.user.get_full_name(),
+                    'full_name': self.request.user.full_name,
                     'name': first_name,
                     'invite_link': invite_link,
                 }

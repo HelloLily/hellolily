@@ -135,6 +135,7 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
         except:
             return None
 
+    @property
     def full_name(self):
         """
         Return full name of this contact without unnecessary white space.
@@ -145,7 +146,7 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
         return ' '.join([self.first_name, self.last_name]).strip()
 
     def __unicode__(self):
-        return self.full_name()
+        return self.full_name
 
     EMAIL_TEMPLATE_PARAMETERS = ['first_name', 'preposition', 'last_name', 'full_name', 'twitter', 'linkedin',
                                  'work_phone', 'mobile_phone', 'primary_email', 'account_city']

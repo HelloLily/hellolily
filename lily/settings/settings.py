@@ -86,7 +86,6 @@ ALLOWED_HOSTS = [
     'hellolily.herokuapp.com',
     'hellolily-staging.herokuapp.com',
     'app.hellolily.com',
-    'app.hellolilly.com',
     'app.hellolily.nl',
     'app.hellolilly.nl',
 

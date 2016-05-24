@@ -77,7 +77,7 @@ It is possible to specify multiple models, using comma separation."""
             targets = []  # (meaning all)
         has_targets = targets != []
 
-        self.stdout.write('Please remember that HelloLily needs to be in maintenance mode. \n\n')
+        self.stdout.write('Please remember that Lily needs to be in maintenance mode. \n\n')
 
         if has_targets:
             # Do a quick run to check if all targets are valid models.

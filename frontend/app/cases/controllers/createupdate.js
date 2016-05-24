@@ -95,7 +95,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             vm.caseTypes = data;
 
             angular.forEach(data, function(caseType) {
-                if (caseType.type.indexOf('Config') > -1) {
+                if (caseType.name.indexOf('Config') > -1) {
                     vm.configCaseType = caseType.id;
                 }
             });
@@ -182,8 +182,9 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     }
 
     $scope.$watch('vm.case.priority', function() {
-        var daysToAdd = [5, 3, 1, 0];
-        vm.case.expires = HLUtils.addBusinessDays(daysToAdd[vm.case.priority]);
+        if (vm.case.expires) {
+            vm.case.expires = HLUtils.addBusinessDays(vm.casePriorities[vm.case.priority].dateIncrement);
+        }
     });
 
     function _getTeams() {
@@ -257,7 +258,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
 
         vm.case.expires = moment(vm.case.expires).format('YYYY-MM-DD');
 
-        // clean modifies the object, so preserve the state by copying the object (in case of errors).
+        // Clean modifies the object, so preserve the state by copying the object (in case of errors).
         cleanedCase = HLForms.clean(angular.copy(vm.case));
 
         if (cleanedCase.id) {

@@ -21,11 +21,11 @@
                 <tr ng-repeat="case in vm.table.items">
                     <td>
                         <span ng-show="case.contact">
-                            <a ui-sref="base.contacts.detail({ id: case.contact })">{{ case.contact_name }}</a>
+                            <a ui-sref="base.contacts.detail({ id: case.contact.id })">{{ case.contact.full_name }}</a>
                         </span>
                         <span ng-if="case.contact && case.account"> at </span>
                         <span ng-show="case.account">
-                            <a ui-sref="base.accounts.detail({ id: case.account })">{{ case.account_name }}</a>
+                            <a ui-sref="base.accounts.detail({ id: case.account.id })">{{ case.account.name }}</a>
                         </span>
                     </td>
                     <td style="width: 140px; min-width: 140px;">

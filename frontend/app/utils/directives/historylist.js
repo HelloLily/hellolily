@@ -1,8 +1,8 @@
 angular.module('app.utils.directives').directive('historyList', HistoryListDirective);
 
-HistoryListDirective.$inject = ['$filter', '$http', '$uibModal', '$q', '$state', 'EmailAccount',
+HistoryListDirective.$inject = ['$filter', '$http', '$q', '$state', '$uibModal', 'EmailAccount',
     'Note', 'NoteDetail', 'Case', 'Deal', 'EmailDetail', 'User', 'HLGravatar', 'HLUtils'];
-function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccount,
+function HistoryListDirective($filter, $http, $q, $state, $uibModal, EmailAccount,
                               Note, NoteDetail, Case, Deal, EmailDetail, User, HLGravatar, HLUtils) {
     return {
         restrict: 'E',
@@ -36,7 +36,7 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
             scope.history.addNote = addNote;
             scope.history.editNote = editNote;
             scope.history.pinNote = pinNote;
-            scope.history.deleteNote = deleteNote;
+            scope.history.removeFromList = removeFromList;
             scope.history.filterType = filterType;
 
             scope.note = {};
@@ -166,8 +166,8 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
                     casePromise.then(function(response) {
                         response.objects.forEach(function(caseItem) {
                             // Get user object for the assigned to user.
-                            if (caseItem.assigned_to_id) {
-                                User.get({id: caseItem.assigned_to_id}, function(userObject) {
+                            if (caseItem.assigned_to.id) {
+                                User.get({id: caseItem.assigned_to.id}, function(userObject) {
                                     caseItem.assigned_to = userObject;
                                 });
                             }
@@ -201,9 +201,9 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
 
                     dealPromise.then(function(results) {
                         results.objects.forEach(function(deal) {
-                            if (deal.assigned_to_id) {
+                            if (deal.assigned_to.id) {
                                 // Get user object for the assigned to user.
-                                User.get({id: deal.assigned_to_id}, function(userObject) {
+                                User.get({id: deal.assigned_to.id}, function(userObject) {
                                     deal.assigned_to = userObject;
                                 });
                             }
@@ -316,7 +316,7 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
 
                     // Get first key in the nonPinned list to target the first
                     // item in the history items to set the property to shown.
-                    if (scope.target !== 'case' && orderedHistoryList.totalItems) {
+                    if (scope.target !== 'case' && Object.keys(orderedHistoryList.nonPinned).length) {
                         orderedHistoryList.nonPinned[Object.keys(orderedHistoryList.nonPinned)[0]].items[0].shown = true;
                     }
 
@@ -365,26 +365,26 @@ function HistoryListDirective($filter, $http, $uibModal, $q, $state, EmailAccoun
                 });
             }
 
-            function deleteNote(note) {
-                var month = moment(note.modified).format('M');
-                var year = moment(note.modified).format('YYYY');
+            function removeFromList(item) {
+                var month = moment(item.modified).format('M');
+                var year = moment(item.modified).format('YYYY');
                 var index;
 
-                if (confirm('Are you sure?')) {
-                    Note.delete({
-                        id: note.id,
-                    }, function() {  // On success
-                        if (note.is_pinned) {
-                            index = scope.history.list.pinned.indexOf(note);
-                            scope.history.list.pinned.splice(index, 1);
-                        } else {
-                            index = scope.history.list.nonPinned[year + '-' + month].items.indexOf(note);
-                            scope.history.list.nonPinned[year + '-' + month].items.splice(index, 1);
-                        }
-                    }, function(error) {  // On error
-                        alert('something went wrong.');
-                    });
+                if (item.is_pinned) {
+                    index = scope.history.list.pinned.indexOf(item);
+                    scope.history.list.pinned.splice(index, 1);
+                } else {
+                    index = scope.history.list.nonPinned[year + '-' + month].items.indexOf(item);
+                    scope.history.list.nonPinned[year + '-' + month].items.splice(index, 1);
                 }
+
+                // We might be deleting the last object of a certain month.
+                // Check if there are still items and hide the block if needed.
+                if (!scope.history.list.nonPinned[year + '-' + month].items.length) {
+                    scope.history.list.nonPinned[year + '-' + month].isVisible = false;
+                }
+
+                scope.$apply();
             }
         },
     };

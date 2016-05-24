@@ -69,12 +69,12 @@ the basic |project| installation!
 =================
 Email integration
 =================
-HelloLily uses Google email accounts(Gmail) and it's Gmail API to send email messages
+Lily uses Google email accounts(Gmail) and it's Gmail API to send email messages
 with. Customer emails are stored locally and indexed using ElasticSearch. This allows
-HelloLily users to search and find their customer's data very fast,
+Lily users to search and find their customer's data very fast,
 using extended search queries.
 
-In order to enable email in HelloLily, you first need to enable the Gmail API and create
+In order to enable email in Lily, you first need to enable the Gmail API and create
 an OAuth 2.0 client ID for a web application. This sounds harder than it is; just proceed as following:
 
  * Login to the `Google APIs website <https://console.developers.google.com>`_
@@ -86,18 +86,18 @@ an OAuth 2.0 client ID for a web application. This sounds harder than it is; jus
    * Where will you be calling the API from? *Web server*
    * What data will you be accessing? *User data*
  * Click on the *What credentials do i need?* button
- * Give the credentials a name, e.g. *HelloLily*
+ * Give the credentials a name, e.g. *Lily*
  * In *Authorized redirect URIs* fill in your development url, e.g. http://localhost:8003/messaging/email/callback/
  * The restriction options can be kept empty. Just click on the *Create client ID* button
  * You can skip step 3. Just click on the *Done* button at the bottom of the form
- * The current screen should be the Credentials overview; click on *HelloLily*
+ * The current screen should be the Credentials overview; click on *Lily*
 
-The Credentials are needed for our HelloLily GMail setup. Let's add them to the appropriate file.
+The credentials are needed for our Lily GMail setup. Let's add them to the appropriate file.
 Open the environment settings file with an editor:
 
 .. code:: bash
 
-    vim /path/to/hellolily/.env
+    vim /path/to/lily/.env
 
 Add the following settings and fill *Client ID* and *Client secret* as GA_CLIENT_ID and GA_CLIENT_SECRET:
 
@@ -107,11 +107,11 @@ Add the following settings and fill *Client ID* and *Client secret* as GA_CLIENT
     GA_CLIENT_SECRET=your_client_secret
     GMAIL_CALLBACK_URL=http://localhost:8003/messaging/email/callback/
 
-That's it! Hellolily is now able to manage Gmail accounts. To test if Gmail integration works, go back
-to your running HelloLily instance and visit http://localhost:8003/#/preferences/emailaccounts
+That's it! Lily is now able to manage Gmail accounts. To test if Gmail integration works, go back
+to your running Lily instance and visit http://localhost:8003/#/preferences/emailaccounts
 
  * Select *add an email account*
 
-You should now be redirected to the Google OAuth login screen. Allow Hellolily to access your Gmail account.
+You should now be redirected to the Google OAuth login screen. Allow Lily to access your Gmail account.
 After that, fill in *From name* and *Label* and press the *Save* button. Your email account will now
-get synced to Hellolily.
+get synced to Lily.

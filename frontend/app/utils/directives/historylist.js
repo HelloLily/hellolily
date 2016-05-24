@@ -326,19 +326,19 @@ function HistoryListDirective($filter, $http, $q, $state, $uibModal, EmailAccoun
                 });
             }
 
-            function addNote(note) {
-                $http({
-                    method: 'POST',
-                    url: '/notes/create/',
-                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                    data: $.param({
-                        content: note.content,
-                        type: note.type,
-                        content_type: scope.target,
-                        object_id: scope.object.id,
-                    }),
-                }).success(function() {
-                    $state.go($state.current, {}, {reload: true});
+            function addNote(note, form) {
+                note.content_type = scope.object.content_type.id;
+                note.object_id = scope.object.id;
+
+                Note.save(note, function() {
+                    // Success.
+                    scope.note.content = '';
+                    toastr.success('I\'ve created the note for you!', 'Done');
+                    reloadHistory();
+                }, function(response) {
+                    // Error.
+                    HLForms.setErrors(form, response.data);
+                    toastr.error('Uh oh, there seems to be a problem', 'Oops!');
                 });
             }
 
@@ -346,16 +346,18 @@ function HistoryListDirective($filter, $http, $q, $state, $uibModal, EmailAccoun
                 var modalInstance = $uibModal.open({
                     templateUrl: 'utils/controllers/note_edit.html',
                     controller: 'EditNoteModalController',
+                    controllerAs: 'vm',
+                    bindToController: true,
                     size: 'lg',
                     resolve: {
                         note: function() {
-                            return note;
+                            return Note.get({id: note.id}).$promise;
                         },
                     },
                 });
 
                 modalInstance.result.then(function() {
-                    $state.go($state.current, {}, {reload: true});
+                    reloadHistory();
                 });
             }
 

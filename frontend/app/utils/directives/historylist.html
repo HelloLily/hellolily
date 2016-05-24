@@ -15,7 +15,7 @@
 
             <div class="timeline-content-container">
                 <div class="timeline-content-header">
-                    <form role="form">
+                    <form role="form" name="noteForm">
                         <div class="form-body">
                             <ul class="timeline-content-type-buttons">
                                 <li ng-model="note.type" uib-btn-radio="0">
@@ -33,10 +33,11 @@
                             </ul>
                             <div class="form-group">
                                 <textarea required class="form-control" id="id_content" ng-model="note.content" name="content" rows="4" placeholder="Write your note here"></textarea>
+                                <field-error form="noteForm" field="content"></field-error>
                             </div>
                         </div>
                         <div class="form-actions text-right">
-                            <button type="submit" class="btn btn-sm blue" name="submit-form" ng-click="history.addNote(note)">
+                            <button type="submit" class="btn btn-sm blue" name="submit-form" ng-click="history.addNote(note, noteForm)">
                                 <i class="fa fa-check"></i>
                                 Add note
                             </button>

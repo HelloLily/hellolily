@@ -3,9 +3,11 @@ from rest_framework.viewsets import GenericViewSet
 
 from lily.notes.api.serializers import NoteSerializer
 from lily.notes.models import Note
+from lily.tenant.api.mixins import SetTenantUserMixin
 
 
-class NoteViewSet(mixins.CreateModelMixin,
+class NoteViewSet(SetTenantUserMixin,
+                  mixins.CreateModelMixin,
                   mixins.RetrieveModelMixin,
                   mixins.UpdateModelMixin,
                   mixins.DestroyModelMixin,

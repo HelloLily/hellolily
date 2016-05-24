@@ -1,7 +1,9 @@
 from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
 from lily.utils.api.related.mixins import RelatedSerializerMixin
+from lily.utils.sanitizers import HtmlSanitizer
 from ..models import Note, NOTABLE_MODELS
 
 
@@ -16,13 +18,25 @@ class NoteSerializer(serializers.ModelSerializer):
     object_id = serializers.IntegerField(write_only=True)
 
     def create(self, validated_data):
+        content = validated_data.get('content')
         user = self.context.get('request').user
 
         validated_data.update({
-            'author_id': user.pk
+            'author_id': user.pk,
+            'content': HtmlSanitizer(content).clean().linkify().render(),
         })
 
         return super(NoteSerializer, self).create(validated_data)
+
+    def update(self, instance, validated_data):
+        content = validated_data.get('content')
+
+        if content:
+            validated_data.update({
+                'content': HtmlSanitizer(content).clean().linkify().render(),
+            })
+
+        return super(NoteSerializer, self).update(instance, validated_data)
 
     class Meta:
         model = Note

@@ -54,7 +54,7 @@ function HLResource($injector) {
     this.createArgs = function(data, field, model) {
         var args;
 
-        if (data && typeof data === 'object') {
+        if (data && !Array.isArray(data) && typeof data === 'object') {
             args = data;
         } else {
             args = {

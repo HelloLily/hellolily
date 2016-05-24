@@ -3,9 +3,9 @@
 </span>
 
 <span ng-if="es.search && !es.multiple">
-    <form data-editable-form name="es.uiSelectForm" blur="cancel" class="display-inline-block margin-right-10">
+    <form data-editable-form name="es.{{ es.formName }}" blur="cancel" class="display-inline-block margin-right-10">
         <div editable-ui-select="es.selectModel" data-e-on-select="es.updateViewModel($data.id)"
-             data-e-form="uiSelectForm" data-e-theme="select2" data-e-class="form-control editable-select2"
+             data-e-form="{{ es.formName }}" data-e-theme="select2" data-e-class="form-control editable-select2"
              data-e-ng-model="es.selectModel" class="editable editable-click">
             <ng-transclude></ng-transclude>
 
@@ -20,9 +20,9 @@
 </span>
 
 <span ng-if="es.search && es.multiple">
-    <form data-editable-form name="es.uiSelectForm" class="display-inline-block margin-right-10 editable-multi">
+    <form data-editable-form name="es.{{ es.formName }}" class="display-inline-block margin-right-10 editable-multi">
         <div editable-ui-select="es.selectModel" data-e-multiple data-onbeforesave="es.updateViewModel($data)"
-             data-e-form="uiSelectForm" data-e-theme="select2" data-e-class="editable-select2"
+             data-e-form="{{ es.formName }}" data-e-theme="select2" data-e-class="editable-select2"
              data-e-ng-model="es.selectModel" class="editable editable-click">
             <ng-transclude></ng-transclude>
 
@@ -34,10 +34,10 @@
             </editable-ui-select-choices>
         </div>
 
-        <div class="editable-related-actions" ng-show="es.uiSelectForm.$visible">
+        <div class="editable-related-actions" ng-show="es[es.formName].$visible">
             <div class="pull-right">
                 <button type="submit" class="btn"><i class="fa fa-check"></i></button>
-                <button type="button" class="btn" ng-click="es.uiSelectForm.$cancel()"><i class="fa fa-close"></i></button>
+                <button type="button" class="btn" ng-click="es[es.formName].$cancel()"><i class="fa fa-close"></i></button>
             </div>
         </div>
     </form>

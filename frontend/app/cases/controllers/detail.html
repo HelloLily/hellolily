@@ -243,8 +243,7 @@
 
             <widget-body>
                 <div class="widget-content">
-                    <span ng-if="vm.case.tags" class="case-detail-tag" ng-repeat="tag in vm.case.tags">{{ tag.name }}</span>
-                    <span ng-if="!vm.case.tags">No tags</span>
+                    <editable-tags view-model="vm" type="Case"></editable-tags>
                 </div>
             </widget-body>
         </widget>

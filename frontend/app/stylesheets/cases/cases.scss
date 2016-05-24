@@ -38,218 +38,218 @@ Add priority to case headings by adding these classes in the `case-info-heading`
 */
 
 #case-status {
-    margin-top: 15px;
-    margin-bottom: 15px;
+  margin-top: 15px;
+  margin-bottom: 15px;
 }
 
 .label-sm {
-    padding: 4px 6px !important;
+  padding: 4px 6px !important;
 }
 
 td .label-sm {
-    display: block;
+  display: block;
 }
 
 .assign-me-btn {
-    float: right;
-    &:focus, &:hover {
-        text-decoration: none;
-    }
+  float: right;
+  &:focus, &:hover {
+    text-decoration: none;
+  }
 }
 
 .list-actions {
-    padding: 3px 10px;
+  padding: 3px 10px;
 }
 
 @mixin case-priority-color($color) {
-    border: 1px $color solid;
-    background: white;
+  border: 1px $color solid;
+  background: white;
 
-    .case-info-heading-priority {
-        color: white;
-        background: $color;
-    }
+  .case-info-heading-priority {
+    color: white;
+    background: $color;
+  }
 }
 
 .case-info-heading {
-    box-sizing: border-box;
+  box-sizing: border-box;
 
-    border-radius: $baseBorderRadius;
-    margin-bottom: 25px;
+  border-radius: $baseBorderRadius;
+  margin-bottom: 25px;
 
-    &.label-success {
-        @include case-priority-color($lowPrioColor);
-    }
+  &.label-success {
+    @include case-priority-color($lowPrioColor);
+  }
 
-    &.label-info {
-        @include case-priority-color($mediumPrioColor);
-    }
+  &.label-info {
+    @include case-priority-color($mediumPrioColor);
+  }
 
-    &.label-warning {
-        @include case-priority-color($highPrioColor);
-    }
+  &.label-warning {
+    @include case-priority-color($highPrioColor);
+  }
 
-    &.label-danger {
-        @include case-priority-color($criticalPrioColor);
-    }
+  &.label-danger {
+    @include case-priority-color($criticalPrioColor);
+  }
 }
 
 .case-info-heading-priority {
-    padding: 0 10px;
-    line-height: 40px;
-    font-size: 16px;
+  padding: 0 10px;
+  line-height: 40px;
+  font-size: 16px;
 }
 
 .case-info-heading-title {
-    padding: 10px;
-    font-size: 16px;
-    font-weight: 600;
+  padding: 10px;
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .case-info-heading-description {
-    border-top: 1px $lightGrey solid;
-    padding: 10px;
+  border-top: 1px $lightGrey solid;
+  padding: 10px;
 }
 
 .case-detail-block {
-    background: white;
-    border-radius: $baseBorderRadius;
-    margin-bottom: 25px;
+  background: white;
+  border-radius: $baseBorderRadius;
+  margin-bottom: 25px;
 }
 
 .case-detail-block-heading {
-    padding: 10px;
-    font-size: 16px;
-    border-bottom: 1px $lightGrey solid;
+  padding: 10px;
+  font-size: 16px;
+  border-bottom: 1px $lightGrey solid;
 
-    a {
-        text-decoration: none;
-    }
+  a {
+    text-decoration: none;
+  }
 }
 
 .case-detail-block-content {
-    padding: 10px;
+  padding: 10px;
 }
 
 .case-detail-block-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 
-    li {
-        line-height: 24px;
-        margin-bottom: 10px;
+  li {
+    line-height: 24px;
+    margin-bottom: 10px;
 
-        &:last-child {
-            margin-bottom: 0;
-        }
+    &:last-child {
+      margin-bottom: 0;
     }
+  }
 }
 
 .case-detail-tag {
-    padding: 3px 5px;
-    background: $lilyGrey;
-    border-radius: 4px;
-    margin-right: 5px;
-    color: #999;
+  padding: 3px 5px;
+  background: $lilyGrey;
+  border-radius: 4px;
+  margin-right: 5px;
+  color: #999;
 }
 
 .cases-person-selector-dropdown {
-    max-height: 300px;
-    min-width: 250px;
-    max-width: 350px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    line-height: 20px;
+  max-height: 300px;
+  min-width: 250px;
+  max-width: 350px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  line-height: 20px;
 
-    .no-icon-spacing {
-        left: 18px;
-        position: relative;
+  .no-icon-spacing {
+    left: 18px;
+    position: relative;
+  }
+
+  .cases-person-selector-dropdown-option:hover {
+    cursor: pointer;
+    background-color: #eeeeee;
+  }
+
+  .user-option {
+    position: relative;
+    left: 25px;
+    padding: 2px;
+  }
+
+  .team-option {
+    padding: 2px;
+  }
+
+  .cases-person-selector-dropdown-selection-box {
+    display: inline-block;
+    border: 1px solid #c5c5c5;
+    height: 16px;
+    width: 16px;
+    top: 2px;
+    position: relative;
+
+    i.fa-check {
+      position: relative;
+      top: -3px;
     }
-
-    .cases-person-selector-dropdown-option:hover {
-        cursor: pointer;
-        background-color: #eeeeee;
-    }
-
-    .user-option {
-        position: relative;
-        left: 25px;
-        padding: 2px;
-    }
-
-     .team-option {
-         padding: 2px;
-     }
-
-    .cases-person-selector-dropdown-selection-box {
-        display: inline-block;
-        border: 1px solid #c5c5c5;
-        height: 16px;
-        width: 16px;
-        top: 2px;
-        position: relative;
-
-        i.fa-check {
-            position: relative;
-            top: -3px;
-        }
-    }
+  }
 }
 
 .cases-btn-group-person-selector-padding-left-5 {
-    padding-left: 5px;
+  padding-left: 5px;
 }
 
 @mixin case-priority-border-indicator($color) {
-    border-left: 6px $color solid;
+  border-left: 6px $color solid;
 }
 
 .low-priority-color {
-    color: $lowPrioColor;
+  color: $lowPrioColor;
 }
 
 .medium-priority-color {
-    color: $mediumPrioColor;
+  color: $mediumPrioColor;
 }
 
 .high-priority-color {
-    color: $highPrioColor;
+  color: $highPrioColor;
 }
 
 .critical-priority-color {
-    color: $criticalPrioColor;
+  color: $criticalPrioColor;
 }
 
 .priority-button {
-    padding: 5px 12px !important;
-    border: 1px solid #E5E5E5;
-    border-radius: $baseBorderRadius;
-    width: 49%;
-    margin-bottom: 1.5%;
+  padding: 5px 12px !important;
+  border: 1px solid #E5E5E5;
+  border-radius: $baseBorderRadius;
+  width: 49%;
+  margin-bottom: 1.5%;
 
-    &.low-priority-indicator {
-        @include case-priority-border-indicator($lowPrioColor);
-        margin-right: 1.5%;
-    }
+  &.low-priority-indicator {
+    @include case-priority-border-indicator($lowPrioColor);
+    margin-right: 1.5%;
+  }
 
-    &.medium-priority-indicator {
-        @include case-priority-border-indicator($mediumPrioColor);
-    }
+  &.medium-priority-indicator {
+    @include case-priority-border-indicator($mediumPrioColor);
+  }
 
-    &.high-priority-indicator {
-        @include case-priority-border-indicator($highPrioColor);
-        margin-right: 1.5%;
-    }
+  &.high-priority-indicator {
+    @include case-priority-border-indicator($highPrioColor);
+    margin-right: 1.5%;
+  }
 
-    &.critical-priority-indicator {
-        @include case-priority-border-indicator($criticalPrioColor);
-    }
+  &.critical-priority-indicator {
+    @include case-priority-border-indicator($criticalPrioColor);
+  }
 }
 
 .case-detail-info {
-    div > label {
-        width: 160px;
-        font-weight: bold;
-    }
+  div > label {
+    width: 160px;
+    font-weight: bold;
+  }
 }

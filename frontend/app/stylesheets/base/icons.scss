@@ -1,97 +1,97 @@
 // Function that can be used to determine if the text-color should be black or white based on input color
 
 @mixin notification-icon($color) {
-    color: text-color($color);
-    background: $color;
-    padding: 3px;
-    border-radius: $baseBorderRadius;
+  color: text-color($color);
+  background: $color;
+  padding: 3px;
+  border-radius: $baseBorderRadius;
 
-    &:hover {
-        background: darken($color, 10);
-        color: text-color(darken($color,10));
-    }
+  &:hover {
+    background: darken($color, 10);
+    color: text-color(darken($color, 10));
+  }
 }
 
 .danger-icon {
-    @include notification-icon($criticalPrioColor);
+  @include notification-icon($criticalPrioColor);
 }
 
 .warning-icon {
-    @include notification-icon($highPrioColor);
+  @include notification-icon($highPrioColor);
 }
 
 .normal-icon {
-    @include notification-icon($mediumPrioColor);
+  @include notification-icon($mediumPrioColor);
 }
 
 .succes-icon {
-    @include notification-icon($lowPrioColor);
+  @include notification-icon($lowPrioColor);
 }
 
 .hl-low-prio-icon {
-    color: $lowPrioColor
+  color: $lowPrioColor
 }
 
 .hl-normal-prio-icon {
-    color: $mediumPrioColor;
+  color: $mediumPrioColor;
 }
 
 .hl-high-prio-icon {
-    color: $highPrioColor;
+  color: $highPrioColor;
 }
 
 .hl-critical-prio-icon {
-    color: $criticalPrioColor;
+  color: $criticalPrioColor;
 }
 
 .step-type {
-    &.position-1 {
-        @include colored-bullet(10px, $bulletColor1)
-    }
+  &.position-1 {
+    @include colored-bullet(10px, $bulletColor1)
+  }
 
-    &.position-2 {
-        @include colored-bullet(10px, $bulletColor2)
-    }
+  &.position-2 {
+    @include colored-bullet(10px, $bulletColor2)
+  }
 
-    &.position-3 {
-        @include colored-bullet(10px, $bulletColor3)
-    }
+  &.position-3 {
+    @include colored-bullet(10px, $bulletColor3)
+  }
 
-    &.position-4 {
-        @include colored-bullet(10px, $bulletColor4)
-    }
+  &.position-4 {
+    @include colored-bullet(10px, $bulletColor4)
+  }
 
-    &.position-5 {
-        @include colored-bullet(10px, $bulletColor5)
-    }
+  &.position-5 {
+    @include colored-bullet(10px, $bulletColor5)
+  }
 
-    &.position-6 {
-        @include colored-bullet(10px, $bulletColor6)
-    }
+  &.position-6 {
+    @include colored-bullet(10px, $bulletColor6)
+  }
 }
 
 .step-type-label {
-    &.position-1 {
-        @include colored-label(24px, $bulletColor1)
-    }
+  &.position-1 {
+    @include colored-label(24px, $bulletColor1)
+  }
 
-    &.position-2 {
-        @include colored-label(24px, $bulletColor2)
-    }
+  &.position-2 {
+    @include colored-label(24px, $bulletColor2)
+  }
 
-    &.position-3 {
-        @include colored-label(24px, $bulletColor3)
-    }
+  &.position-3 {
+    @include colored-label(24px, $bulletColor3)
+  }
 
-    &.position-4 {
-        @include colored-label(24px, $bulletColor4)
-    }
+  &.position-4 {
+    @include colored-label(24px, $bulletColor4)
+  }
 
-    &.position-5 {
-        @include colored-label(24px, $bulletColor5)
-    }
+  &.position-5 {
+    @include colored-label(24px, $bulletColor5)
+  }
 
-    &.position-6 {
-        @include colored-label(24px, $bulletColor6)
-    }
+  &.position-6 {
+    @include colored-label(24px, $bulletColor6)
+  }
 }

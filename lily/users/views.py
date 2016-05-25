@@ -323,7 +323,7 @@ class SendInvitationView(GroupRequiredMixin, FormSetView):
         return the success url and set a succes message.
         """
         messages.success(self.request, _('I did it! I\'ve sent the invitations successfully.'))
-        return reverse_lazy('dashboard')
+        return '/#/'
 
 
 class AcceptInvitationView(FormView):
@@ -448,4 +448,5 @@ class AcceptInvitationView(FormView):
         return self.get_success_url()
 
     def get_success_url(self):
+        messages.success(self.request, _('Welcome to Lily! You can now log in with the information you provided.'))
         return redirect(reverse_lazy('login'))

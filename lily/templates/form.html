@@ -4,6 +4,10 @@
     <div class="col-md-12">
         <div class="portlet light">
             <div class="portlet-body form">
+                <h3 class="form-title">
+                    {% block page-title %}{% endblock %}
+                </h3>
+
                 <form role="form" class="form-horizontal" method="post" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %} {% if form_prevent_autofill %}autocomplete="off"{% endif %} action="{{ request.path }}">
                     {% csrf_token %}
 

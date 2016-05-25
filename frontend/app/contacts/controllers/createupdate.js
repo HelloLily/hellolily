@@ -152,6 +152,8 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Settings, A
     function saveContact(form) {
         var accounts = [];
         var copiedContact;
+        var twitterId;
+        var linkedinId;
 
         // Check if a contact is being added via the + contact page or via
         // a supercard.
@@ -171,13 +173,25 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Settings, A
             }
         });
 
-        vm.contact.social_media = [];
+        // Store the ids of the current social media objects.
+        angular.forEach(vm.contact.social_media, function(value) {
+            if (value.name === 'twitter') {
+                twitterId = value.id;
+            } else if (value.name === 'linkedin') {
+                linkedinId = value.id;
+            }
+        });
 
+        vm.contact.social_media = [];
         if (vm.contact.twitter) {
             vm.contact.social_media.push({
                 name: 'twitter',
                 username: vm.contact.twitter,
             });
+            // Re-use social media id in case of an edit.
+            if (twitterId) {
+                vm.contact.social_media[vm.contact.social_media.length - 1].id = twitterId;
+            }
         }
 
         if (vm.contact.linkedin) {
@@ -185,6 +199,10 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Settings, A
                 name: 'linkedin',
                 username: vm.contact.linkedin,
             });
+            // Re-use social media ids in case of an edit.
+            if (linkedinId) {
+                vm.contact.social_media[vm.contact.social_media.length - 1].id = linkedinId;
+            }
         }
 
         vm.contact = HLFields.cleanRelatedFields(vm.contact);

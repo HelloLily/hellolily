@@ -129,6 +129,9 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
 
     @property
     def full_name(self):
+        return self.get_full_name()
+
+    def get_full_name(self):
         """
         Return full name of this user without unnecessary white space.
         """

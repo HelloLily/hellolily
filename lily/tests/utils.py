@@ -2,7 +2,6 @@ from urllib import urlencode
 
 from datetime import datetime, date
 import json
-from unittest import SkipTest
 
 from decimal import Decimal
 from django.contrib.auth.models import AnonymousUser

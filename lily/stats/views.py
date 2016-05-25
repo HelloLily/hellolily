@@ -81,7 +81,7 @@ class CasesPerTypeCountLastWeek(RawDatabaseView):
         return '''
             SELECT
                 count(cases_case.id),
-                type,
+                cases_casetype.name,
                 date_trunc( 'week', now() - interval '1 week' ) as from,
                 (date_trunc('week', now() - interval '1 week' ) + interval '1 week' - interval '1 second') as to,
                 EXTRACT(WEEK FROM date_trunc( 'week', now() - interval '1 week' )) as weeknr
@@ -102,7 +102,7 @@ class CasesPerTypeCountLastWeek(RawDatabaseView):
                 cases_case.created BETWEEN  date_trunc( 'week', now() - interval '1 week' ) AND
                 date_trunc( 'week', now() - interval '1 week' )+ interval '1 week' - interval '1 second'
             GROUP BY
-                type;
+                cases_casetype.name;
         '''.format(
             tenant_id=request.user.tenant_id,
             lilygroup_id=int(kwargs['lilygroup_id']),
@@ -145,7 +145,7 @@ class CasesCountPerStatus(RawDatabaseView):
     def get_query(self, request, *args, **kwargs):
         return '''
             SELECT
-                count (cases_case.id), cases_casestatus.status
+                count (cases_case.id), cases_casestatus.name
             FROM
                 cases_case,
                 cases_casestatus,
@@ -159,9 +159,9 @@ class CasesCountPerStatus(RawDatabaseView):
                 cases_case_assigned_to_groups.lilygroup_id = {lilygroup_id} AND
                 cases_case.is_deleted = false AND
                 cases_case.is_archived = false AND
-                cases_casestatus.status != 'Closed'
+                cases_casestatus.name != 'Closed'
             GROUP BY
-                cases_casestatus.status;
+                cases_casestatus.name;
           '''.format(
             tenant_id=request.user.tenant_id,
             lilygroup_id=int(kwargs['lilygroup_id']),
@@ -190,9 +190,9 @@ class CasesTopTags(RawDatabaseView):
                 cases_case.created BETWEEN date_trunc('month', now()- interval '1 month') AND
                 date_trunc('month', now()) - interval '1 second' AND
                 cases_case_assigned_to_groups.lilygroup_id = {lilygroup_id} AND
-                cases_casetype.type != 'Config' AND
-                cases_casetype.type != 'Retour' AND
-                cases_casetype.type != 'Callback'
+                cases_casetype.name != 'Config' AND
+                cases_casetype.name != 'Retour' AND
+                cases_casetype.name != 'Callback'
             GROUP BY
                 tags_tag.name
             HAVING

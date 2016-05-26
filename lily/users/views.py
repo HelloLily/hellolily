@@ -2,6 +2,7 @@ from datetime import date, timedelta
 from hashlib import sha256
 
 import anyjson
+import requests
 from braces.views import GroupRequiredMixin
 from django.conf import settings
 from django.contrib import messages
@@ -296,6 +297,13 @@ class SendInvitationView(GroupRequiredMixin, FormSetView):
                     'invite_link': invite_link,
                 }
             )
+
+            # payload = {
+            #     'api': settings.INTERCOM_KEY,
+            #     'event_name': 'invite-sent',
+            # }
+
+            # requests.post('https://api.intercom.io/events', data=payload, headers={'Authorization': 'Token ' + settings.INTERCOM_KEY)
 
         if is_ajax(self.request):
             return HttpResponse(anyjson.serialize({

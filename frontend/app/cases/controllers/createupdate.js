@@ -277,6 +277,8 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         if (cleanedCase.id) {
             // If there's an ID set it means we're dealing with an existing contact, so update it.
             cleanedCase.$update(function() {
+                new Intercom('trackEvent', 'case-created');
+
                 toastr.success('I\'ve updated the case for you!', 'Done');
                 $state.go('base.cases.detail', {id: cleanedCase.id}, {reload: true});
             }, function(response) {

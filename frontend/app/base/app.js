@@ -93,4 +93,10 @@ function runApp($rootScope, $state, editableOptions, HLMessages, Tenant, UserTea
     });
 
     editableOptions.theme = 'bs3';
+
+    new window.Intercom('boot', {
+        app_id: 'd6ko33k1',
+        name: currentUser.fullName,
+        email: currentUser.email,
+    });
 }

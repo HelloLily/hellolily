@@ -313,6 +313,8 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
             });
         } else {
             vm.deal.$save(function() {
+                new Intercom('trackEvent', 'deal-created');
+
                 toastr.success('I\'ve saved the deal for you!', 'Yay');
 
                 if (Settings.email.sidebar.form === 'deals') {

@@ -20,18 +20,23 @@ function contactsConfig($stateProvider) {
                 var contactId = $stateParams.id;
                 return Contact.get({id: contactId}).$promise;
             }],
+            caseList: ['Case', '$stateParams', function(Case, $stateParams) {
+                return Case.query({filterquery: 'contact.id:' + $stateParams.id, sort: '-created', size: 100}).$promise;
+            }],
+            dealList: ['Deal', '$stateParams', function(Deal, $stateParams) {
+                return  Deal.query({filterquery: 'contact.id:' + $stateParams.id, sort: '-created'}).$promise;
+            }],
         },
     });
 }
 
 angular.module('app.contacts').controller('ContactDetailController', ContactDetailController);
 
-ContactDetailController.$inject = ['$scope', '$stateParams', 'Contact', 'Case', 'Deal', 'HLResource',
-    'Settings', 'currentContact'];
-function ContactDetailController($scope, $stateParams, Contact, Case, Deal, HLResource,
-                                 Settings, currentContact) {
+ContactDetailController.$inject = ['$scope', 'Contact', 'HLResource', 'Settings', 'currentContact',
+    'caseList', 'dealList'];
+function ContactDetailController($scope, Contact, HLResource, Settings, currentContact,
+                                 caseList, dealList) {
     var vm = this;
-    var id = $stateParams.id;
 
     vm.contact = currentContact;
     vm.height = 200;
@@ -51,20 +56,13 @@ function ContactDetailController($scope, $stateParams, Contact, Case, Deal, HLRe
     ////
 
     function activate() {
-        vm.caseList = Case.query({filterquery: 'contact.id:' + id, sort: '-created', size: 100});
-        vm.caseList.$promise.then(function(caseList) {
-            vm.caseList = caseList;
-        });
-
-        vm.dealList = Deal.query({filterquery: 'contact.id:' + id, sort: '-created'});
-        vm.dealList.$promise.then(function(dealList) {
-            vm.dealList = dealList;
-        });
+        vm.caseList = caseList.objects;
+        vm.dealList = dealList.objects;
     }
 
     $scope.$watchCollection('vm.contact.accounts', function() {
         vm.contact.accounts.forEach(function(account) {
-            var colleagueList = Contact.search({filterquery: 'NOT(id:' + id + ') AND accounts.id:' + account.id, size: 100});
+            var colleagueList = Contact.search({filterquery: 'NOT(id:' + vm.contact.id + ') AND accounts.id:' + account.id});
             colleagueList.$promise.then(function(response) {
                 account.colleagueList = response.objects;
             });

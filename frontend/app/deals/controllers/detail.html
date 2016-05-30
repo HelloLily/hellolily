@@ -55,13 +55,9 @@
                         <div class="clearfix"></div>
                     </div>
 
-                    <div class="widget-content-section" ng-if="vm.deal.tags.length">
-                        <div style="margin-bottom: 5px;"><strong>Tags</strong></div>
-                        <div>
-                            <span class="btn btn-xs btn-default margin-right-5" ng-repeat="tag in vm.deal.tags">
-                                {{ tag.name }}
-                            </span>
-                        </div>
+                    <div class="widget-content-section">
+                        <div><strong>Tags</strong></div>
+                        <editable-tags view-model="vm" type="Deal"></editable-tags>
                     </div>
 
                 </div>

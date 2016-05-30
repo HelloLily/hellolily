@@ -1,0 +1,27 @@
+<span ng-if="vm.object.tags">
+    <form data-editable-form name="vm.tagForm" class="display-inline-block margin-right-10 editable-multi">
+        <div editable-ui-select="vm.object.tags" data-e-multiple data-onbeforesave="vm.updateViewModel($data)"
+             data-e-form="tagForm" data-e-theme="select2" data-e-class="editable-select2"
+             data-e-ng-model="vm.object.tags" class="editable editable-click" data-e-tagging="vm.addTagChoice">
+
+            <a class="btn btn-xs btn-default margin-right-5" ng-repeat="tag in vm.object.tags">
+                {{ tag.name }}
+            </a>
+            <span ng-if="!vm.object.tags.length">No tags</span>
+
+            <editable-ui-select-match placeholder="Add tags...">
+                {{ $item.name }}
+            </editable-ui-select-match>
+            <editable-ui-select-choices repeat="tag in vm.choices" refresh="vm.refreshTags($select.search)" refresh-delay="150">
+                <div ng-bind-html="tag.name | highlight: $select.search"></div>
+            </editable-ui-select-choices>
+        </div>
+
+        <div class="editable-related-actions" ng-show="vm.tagForm.$visible">
+            <div class="pull-right">
+                <button type="submit" class="btn"><i class="fa fa-check"></i></button>
+                <button type="button" class="btn" ng-click="vm.tagForm.$cancel()"><i class="fa fa-close"></i></button>
+            </div>
+        </div>
+    </form>
+</span>

@@ -21,7 +21,7 @@ function editableSelect() {
             // Bind click event to the current directive.
             element.on('click', '.editable-click', function() {
                 if (scope.es.search) {
-                    scope.es.uiSelectForm.$show();
+                    scope.es[scope.es.formName].$show();
 
                     scope.$apply();
                 }
@@ -81,6 +81,9 @@ function EditableSelectController($scope, HLResource, HLSearch, HLUtils) {
                 es.placeholder = es.selectOptions.placeholder;
             }
         }
+
+        // Setup the form name so we can block the element while saving data.
+        es.formName = es.field.replace('_', '') + 'Form';
     }
 
     function getChoices() {
@@ -105,7 +108,8 @@ function EditableSelectController($scope, HLResource, HLSearch, HLUtils) {
         if (!resourceCall.hasOwnProperty('$promise')) {
             es.choices = resourceCall;
         } else {
-            // Add a return here so the select gets disabled while loading the options.
+            // Add a return here so the select gets disabled while
+            // loading the options.
             return resourceCall.$promise.then(function(data) {
                 if (data.hasOwnProperty('results')) {
                     es.choices = data.results;
@@ -143,6 +147,8 @@ function EditableSelectController($scope, HLResource, HLSearch, HLUtils) {
             id: es.object.id,
         };
 
+        var form = '[name="es.' + es.formName + '"]';
+
         if (!es.multiple) {
             // $data only contains the ID, so get the name from the choices in the scope.
             for (i = 0; i < es.choices.length; i++) {
@@ -151,14 +157,14 @@ function EditableSelectController($scope, HLResource, HLSearch, HLUtils) {
                 }
             }
         } else {
-            HLUtils.blockUI('[name="es.uiSelectForm"]', true);
+            HLUtils.blockUI(form, true);
         }
 
         if (!es.multiple) {
             if (es.choiceField) {
                 es.object[es.field] = $data;
-                // Choice fields end with '_display',
-                // so set the proper variable so front end changes are reflected properly.
+                // Choice fields end with '_display', so set the proper
+                // variable so front end changes are reflected properly.
                 es.object[es.field + '_display'] = selected.name;
             } else {
                 es.object[es.field] = selected;
@@ -174,8 +180,8 @@ function EditableSelectController($scope, HLResource, HLSearch, HLUtils) {
 
         return es.viewModel.updateModel(args).then(function() {
             if (es.search) {
-                HLUtils.unblockUI('[name="es.uiSelectForm"]');
-                es.uiSelectForm.$hide();
+                HLUtils.unblockUI(form);
+                es[es.formName].$hide();
 
                 if (es.multiple) {
                     es.object[es.field] = $data;

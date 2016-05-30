@@ -102,12 +102,10 @@
                 </td>
             </tr>
 
-            <tr ng-show="vm.contact.tags">
+            <tr>
                 <td><i class="fa fa-tag"></i> <strong>Tags</strong></td>
                 <td>
-                    <a class="btn btn-xs btn-default" ng-repeat="tag in vm.contact.tags">
-                        {{ tag.name }}
-                    </a>
+                    <editable-tags view-model="vm" type="Contact"></editable-tags>
                 </td>
             </tr>
 

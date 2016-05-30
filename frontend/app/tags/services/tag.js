@@ -6,38 +6,25 @@ function Tag($resource) {
         '/api/tags/tag/:id',
         {},
         {
-            query: {
-                url: '/search/search/',
-                params: {
-                    type: 'tags_tag',
-                },
-                isArray: true,
+            search: {
+                url: '/search/search/?type=tags_tag&facet_field=name_flat&facet_filter=name::query&size=0',
                 transformResponse: function(data) {
                     var jsonData = angular.fromJson(data);
                     var objects = [];
-                    if (jsonData && jsonData.hits && jsonData.hits.length > 0) {
-                        jsonData.hits.forEach(function(obj) {
-                            objects.push(obj);
-                        });
-                    }
-                    return objects;
-                },
-            },
-            search: {
-                url: '/search/search/?type=tags_tag&facet_field=name_flat&facet_filter=name::query&size=0',
-                isArray: true,
-                transformResponse: function(response) {
-                    var data = angular.fromJson(response);
-                    var objects = [];
-                    if (data && data.facets && data.facets.length > 0) {
-                        data.facets.forEach(function(obj) {
+
+                    if (jsonData && jsonData.facets && jsonData.facets.length > 0) {
+                        jsonData.facets.forEach(function(obj) {
                             objects.push({
-                                'name': obj.term,
-                                'count': obj.count,
+                                name: obj.term,
+                                count: obj.count,
                             });
                         });
                     }
-                    return objects;
+
+                    return {
+                        objects: objects,
+                        total: jsonData.total,
+                    };
                 },
             },
         }

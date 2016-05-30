@@ -5,7 +5,7 @@ from rest_framework.compat import OrderedDict
 from rest_framework.metadata import SimpleMetadata
 
 
-class ExtraFieldInfoMetaData(SimpleMetadata):
+class CustomMetaData(SimpleMetadata):
     def get_field_info(self, field):
         """
         Custom get field info so extra parameters of custom fields are displayed as well.

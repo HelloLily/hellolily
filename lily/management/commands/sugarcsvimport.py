@@ -13,7 +13,7 @@ from lily.accounts.models import Account, Website
 from lily.contacts.models import Contact, Function
 from lily.socialmedia.models import SocialMedia
 from lily.users.models import LilyUser
-from lily.utils.functions import parse_address, _isint, parse_phone_number
+from lily.utils.functions import parse_address, is_int, parse_phone_number
 from lily.utils.models.models import Address, PhoneNumber, EmailAddress
 from lily.utils.countries import COUNTRIES
 
@@ -460,7 +460,7 @@ E.g.:
             address_kwargs['street'] = street
 
             # Set streetnumber.
-            if _isint(number) and int(number) < 32766:
+            if is_int(number) and int(number) < 32766:
                 address_kwargs['street_number'] = int(number)
             address_kwargs['complement'] = complement
 

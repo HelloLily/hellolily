@@ -164,10 +164,6 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
                 vm.deal.amount_recurring = $filter('currency')(vm.deal.amount_recurring, '');
 
                 Settings.page.setAllTitles('edit', deal.name);
-
-                if (deal.next_step_date) {
-                    vm.originalNextStepDate = deal.next_step_date;
-                }
             });
         } else {
             Settings.page.setAllTitles('create', 'deal');
@@ -216,10 +212,12 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
         }
     }
 
-    $scope.$watchCollection('vm.deal.next_step', function() {
-        if (vm.deal.next_step) {
+    $scope.$watchCollection('vm.deal.next_step', function(newValue, oldValue) {
+        // Only change the next step date when the next step actually gets changed.
+        // So don't change if we're just loading the deal (init when editing).
+        if ((vm.deal.id && oldValue && newValue !== oldValue) || (!vm.deal.id && newValue !== oldValue)) {
             if (vm.deal.next_step.date_increment !== 0) {
-                vm.deal.next_step_date = HLUtils.addBusinessDays(vm.deal.next_step.date_increment, vm.originalNextStepDate);
+                vm.deal.next_step_date = HLUtils.addBusinessDays(vm.deal.next_step.date_increment);
             } else if (angular.equals(vm.deal.next_step, vm.noneStep)) {
                 // None step is selected, so clear the next step date.
                 vm.deal.next_step_date = null;

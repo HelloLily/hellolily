@@ -1,6 +1,5 @@
 import operator
 from collections import OrderedDict
-from datetime import datetime
 
 import anyjson
 from django.core.urlresolvers import reverse
@@ -14,12 +13,9 @@ from django.shortcuts import get_object_or_404
 from django.utils.http import base36_to_int
 import unicodecsv
 
-from lily.messaging.email.models.models import EmailMessage
-from lily.notes.models import Note
-from lily.notes.views import NoteDetailViewMixin
 from lily.tags.models import Tag
 
-from ..functions import is_ajax, combine_notes_qs_email_qs, get_emails_for_email_addresses
+from ..functions import is_ajax
 
 
 class LoginRequiredMixin(object):
@@ -475,144 +471,6 @@ class ModelFormSetViewMixin(object):
                     'label': self.formset_data[context_name]['label'],
                     'template': self.formset_data[context_name]['template']
                 }
-
-        return kwargs
-
-
-class HistoryListViewMixin(NoteDetailViewMixin):
-    # TODO: Can this class be removed?
-    """
-    Mix in a paginated list of history list items.
-    Supports AJAX calls to show more older items.
-    """
-    page_size = 15
-
-    def dispatch(self, request, *args, **kwargs):
-        if is_ajax(request):
-            self.template_name = 'utils/historylist.html'
-
-        return super(HistoryListViewMixin, self).dispatch(request, *args, **kwargs)
-
-    def get(self, request, *args, **kwargs):
-        """
-        For AJAX calls, reply with a JSON response.
-        """
-        response = super(HistoryListViewMixin, self).get(request, *args, **kwargs)
-
-        if is_ajax(request):
-            html = ''
-            if len(response.context_data.get('object_list')) > 0:
-                html = response.rendered_content
-
-            ajax_response = anyjson.serialize({
-                'html': html,
-                'show_more': response.context_data.get('show_more')
-            })
-            return HttpResponse(ajax_response, content_type='application/json')
-
-        return response
-
-    def get_notes_list(self, filter_date=None):
-        """
-        Build a Notes list for the current model.
-
-        Arguments:
-            filter_date (datetime): date before the message must be sent.
-
-        Returns:
-            A filtered Notes QuerySet.
-        """
-        model_content_type = ContentType.objects.get_for_model(self.model)
-
-        # Build initial list with just notes.
-        notes_list = Note.objects.filter(
-            content_type=model_content_type,
-            object_id=self.object.pk,
-            is_deleted=False,
-        ).order_by('-sort_by_date')
-
-        # Filter on date if date is set
-        if filter_date:
-            notes_list = notes_list.filter(sort_by_date__lt=filter_date)
-
-        return notes_list
-
-    def get_related_email_addresses_for_object(self):
-        """
-        Check if object has attached email addresses and returns them.
-
-        Returns:
-            A Queryset of email addresses.
-        """
-        email_address_list = []
-        if hasattr(self.object, 'email_addresses'):
-            email_address_list = self.object.email_addresses.all()
-
-        return email_address_list
-
-    def get_emails_list(self, filter_date=None):
-        """
-        Build an Email list for the current model.
-
-        Returns:
-            A filtered Notes QuerySet.
-        """
-        if hasattr(self, '_emails_list'):
-            return self._emails_list
-
-        # There always needs to be a QuerySet for email_list.
-        email_list = EmailMessage.objects.none()
-
-        # Build initial list with email messages if possible.
-        email_address_list = self.get_related_email_addresses_for_object()
-        if len(email_address_list) > 0:
-            email_list = get_emails_for_email_addresses(
-                email_address_list,
-                self.request.user.tenant_id,
-                self.page_size,
-                filter_date,
-            )
-
-        setattr(self, '_emails_list', email_list)
-
-        return email_list
-
-    def get_notes_and_email_lists(self):
-        """
-        Build an Email and Notes list for the current model.
-
-        Returns:
-            A combined QuerySet with emails and notes.
-        """
-
-        # Filter lists by timestamp from request.GET.
-        epoch = self.request.GET.get('datetime')
-        filter_date = None
-        if epoch:
-            try:
-                filter_date = datetime.fromtimestamp(int(epoch))
-            except ValueError:
-                pass
-
-        notes_list = self.get_notes_list(filter_date)
-        email_list = self.get_emails_list(filter_date)
-
-        # Paginate list.
-        return combine_notes_qs_email_qs(notes_list, email_list, self.page_size)
-
-    def get_context_data(self, **kwargs):
-        """
-        Build list of history items, i.e. notes/email messages.
-        """
-        kwargs = super(HistoryListViewMixin, self).get_context_data(**kwargs)
-
-        # Get emails and notes
-        object_list, show_more = self.get_notes_and_email_lists()
-
-        kwargs.update({
-            'object_list': object_list,
-            'show_more': show_more,
-        })
 
         return kwargs
 

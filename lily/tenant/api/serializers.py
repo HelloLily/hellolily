@@ -1,5 +1,5 @@
+from lily.api.nested.serializers import WritableNestedSerializer
 from lily.tenant.models import Tenant
-from lily.utils.api.related.serializers import WritableNestedSerializer
 from lily.utils.api.serializers import RelatedExternalAppLinkSerializer
 
 

@@ -237,7 +237,7 @@ class InvitationForm(HelloLilyForm):
         max_length=255,
         required=True,
         widget=forms.TextInput(attrs={
-            'placeholder': _('Email Adress')
+            'placeholder': _('E-mail address')
         })
     )
 

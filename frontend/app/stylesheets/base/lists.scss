@@ -1,7 +1,9 @@
 .list-link {
   text-decoration: none;
+
   &:hover {
     text-decoration: none;
+
     > .list-link-name {
       text-decoration: underline;
     }

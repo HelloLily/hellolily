@@ -1,34 +1,39 @@
-class MultiSerializerViewSetMixin(object):
+from collections import OrderedDict
 
-    def get_serializer_class(self):
+from django.core.exceptions import ValidationError as DjangoValidationError
+from rest_framework.exceptions import ValidationError
+from rest_framework.fields import empty
+from rest_framework.serializers import get_validation_error_detail
+
+
+class ValidateEverythingSimultaneouslyMixin(object):
+    def run_validation(self, data=empty):
         """
-        Look for serializer class in self.serializer_action_classes, which
-        should be a dict mapping action name (key) to serializer class (value),
-        i.e.:
-
-        class MyViewSet(MultiSerializerViewSetMixin, ViewSet):
-            serializer_class = MyDefaultSerializer
-            serializer_action_classes = {
-               'list': MyListSerializer,
-               'my_action': MyActionSerializer,
-            }
-
-            @action
-            def my_action:
-                ...
-
-        If there's no entry for that action then just fallback to the regular
-        get_serializer_class lookup: self.serializer_class, DefaultSerializer.
-
-        Thanks gonz: http://stackoverflow.com/a/22922156/11440
-
+        We patch this function because we want to see all the errors at once.
         """
-        # Workaround for the OPTIONS command to reflect the data needed for
-        # the create method (POST)
-        if self.action is None:
-            self.action = 'create'
+        (is_empty_value, data) = self.validate_empty_values(data)
+        if is_empty_value:
+            return data
+
+        errors = OrderedDict()
 
         try:
-            return self.serializer_action_classes[self.action]
-        except (KeyError, AttributeError):
-            return super(MultiSerializerViewSetMixin, self).get_serializer_class()
+            data = self.to_internal_value(data)
+        except ValidationError as exc:
+            errors.update(exc.detail)
+
+        try:
+            self.run_validators(data)
+        except (ValidationError, DjangoValidationError) as exc:
+            errors.update(get_validation_error_detail(exc))
+
+        try:
+            data = self.validate(data)
+            assert data is not None, '.validate() should return the validated data'
+        except (ValidationError, DjangoValidationError) as exc:
+            errors.update(get_validation_error_detail(exc))
+
+        if errors:
+            raise ValidationError(errors)
+
+        return data

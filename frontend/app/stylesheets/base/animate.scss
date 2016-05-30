@@ -1,20 +1,20 @@
 .slideup {
-    &.ng-enter, &.ng-leave {
-        -webkit-transition: all cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s;
-        -moz-transition: all cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s;
-        -o-transition: all cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s;
-        transition: all cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s;
+  &.ng-enter, &.ng-leave {
+    -webkit-transition: all cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s;
+    -moz-transition: all cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s;
+    -o-transition: all cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s;
+    transition: all cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s;
+  }
+  &.ng-enter {
+    max-height: 0;
+  }
+  &.ng-leave {
+    &.ng-leave-active {
+      max-height: 0;
     }
-    &.ng-enter {
-        max-height: 0;
-    }
-    &.ng-leave {
-        &.ng-leave-active {
-            max-height: 0;
-        }
-        max-height: 1000px;
-    }
-    &.ng-enter.ng-enter-active {
-        max-height: 1000px;
-    }
+    max-height: 1000px;
+  }
+  &.ng-enter.ng-enter-active {
+    max-height: 1000px;
+  }
 }

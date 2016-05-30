@@ -1,17 +1,17 @@
 .dropdown-toggle i.fa-angle-down {
-    margin-left: 10px;
+  margin-left: 10px;
 }
 
 .dropdown-toggle i:first-child {
-    margin-right: 2px;
+  margin-right: 2px;
 }
 
 .dropdown-toggle {
-    &.no-primary-icon {
-        i {
-            margin: 0;
-        }
+  &.no-primary-icon {
+    i {
+      margin: 0;
     }
+  }
 }
 
 /* SG
@@ -47,70 +47,70 @@ By adding the class *.no-radio-bullets* the radio bullets are not being shown.
 */
 
 .radio-button-group {
+  display: inline-block;
+
+  .radio-button {
+    line-height: 30px;
+    border: 1px solid $baseBorderColor;
+    border-left: none;
+    background: $lilyHeaderBg;
+    margin: 0;
     display: inline-block;
 
-    .radio-button {
-        line-height: 30px;
-        border: 1px solid $baseBorderColor;
-        border-left: none;
-        background: $lilyHeaderBg;
-        margin: 0;
-        display: inline-block;
+    &:hover,
+    &.active {
+      background: $lilyWhiteToneHover;
 
-        &:hover,
-        &.active {
-            background: $lilyWhiteToneHover;
-
-            .radio-button-inset {
-                border-top: 1px $lilyHeaderBg solid;
-            }
-        }
-
-        &.disabled {
-            background: darken($lilyHeaderBg, 3);
-            pointer-events: none;
-
-            .radio-button-inset {
-                border-top: 1px transparent solid;
-                color: darken($lilyHeaderBg, 10);
-                cursor: not-allowed;
-            }
-        }
-
-        &:first-child {
-            border-top-left-radius: $baseBorderRadius;
-            border-bottom-left-radius: $baseBorderRadius;
-            border-left: 1px solid $baseBorderColor;
-
-            .radio-button-inset {
-                border-top-left-radius: $baseBorderRadius;
-            }
-        }
-
-        &:last-child {
-            border-top-right-radius: $baseBorderRadius;
-            border-bottom-right-radius: $baseBorderRadius;
-
-            .radio-button-inset {
-                border-top-right-radius: $baseBorderRadius;
-            }
-        }
-
-        &.no-radio-bullets {
-            input[type="radio"]{
-                display: none;
-            }
-        }
+      .radio-button-inset {
+        border-top: 1px $lilyHeaderBg solid;
+      }
     }
 
-    .radio-button-inset {
-        input {
-            cursor: pointer;
-        }
+    &.disabled {
+      background: darken($lilyHeaderBg, 3);
+      pointer-events: none;
 
-        cursor: pointer;
-        padding: 0 10px;
-        border-top: 1px white solid;
-        border-bottom: 3px transparent solid;
+      .radio-button-inset {
+        border-top: 1px transparent solid;
+        color: darken($lilyHeaderBg, 10);
+        cursor: not-allowed;
+      }
     }
+
+    &:first-child {
+      border-top-left-radius: $baseBorderRadius;
+      border-bottom-left-radius: $baseBorderRadius;
+      border-left: 1px solid $baseBorderColor;
+
+      .radio-button-inset {
+        border-top-left-radius: $baseBorderRadius;
+      }
+    }
+
+    &:last-child {
+      border-top-right-radius: $baseBorderRadius;
+      border-bottom-right-radius: $baseBorderRadius;
+
+      .radio-button-inset {
+        border-top-right-radius: $baseBorderRadius;
+      }
+    }
+
+    &.no-radio-bullets {
+      input[type="radio"] {
+        display: none;
+      }
+    }
+  }
+
+  .radio-button-inset {
+    input {
+      cursor: pointer;
+    }
+
+    cursor: pointer;
+    padding: 0 10px;
+    border-top: 1px white solid;
+    border-bottom: 3px transparent solid;
+  }
 }

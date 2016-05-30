@@ -1,14 +1,14 @@
+from lily.api.nested.mixins import RelatedSerializerMixin
+from lily.api.nested.serializers import WritableNestedSerializer
+from lily.contacts.models import Contact
 from lily.utils.functions import clean_website
 from rest_framework import serializers
 
 from lily.api.serializers import ContentTypeSerializer
-from lily.contacts.models import Contact
 from lily.socialmedia.api.serializers import RelatedSocialMediaSerializer
 from lily.users.api.serializers import RelatedLilyUserSerializer
-from lily.utils.api.related.mixins import RelatedSerializerMixin
-from lily.utils.api.related.serializers import WritableNestedSerializer
 from lily.utils.api.serializers import (RelatedAddressSerializer, RelatedEmailAddressSerializer,
-                                        RelatedPhoneNumberSerializer, RelatedModelSerializer, RelatedTagSerializer)
+                                        RelatedPhoneNumberSerializer, RelatedTagSerializer)
 
 from ..models import Account, Website, AccountStatus
 from .validators import DuplicateAccountName, HostnameValidator
@@ -33,10 +33,9 @@ class RelatedWebsiteSerializer(RelatedSerializerMixin, WebsiteSerializer):
     pass
 
 
-class ContactForAccountSerializer(RelatedModelSerializer):
+class ContactForAccountSerializer(serializers.ModelSerializer):
     """
     Serializer for Contact model related to Accounts.
-
     This serializer is a small subset for the related Contact model.
     """
     class Meta:

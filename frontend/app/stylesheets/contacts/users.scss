@@ -1,36 +1,37 @@
 /* BEGIN Login screen fixes */
 @media (min-width: 992px) {
-    .page-header-fixed .container {
-        margin-top: 100px;
-    }
+  .page-header-fixed .container {
+    margin-top: 100px;
+  }
 }
 
 @media (max-width: 991px) {
-    .page-header-fixed .container {
-        margin-top: 25px;
-    }
+  .page-header-fixed .container {
+    margin-top: 25px;
+  }
 }
 
 .text-inline-block {
-    display: inline-block;
+  display: inline-block;
 }
 
 .display-inline-block {
-    display: inline-block;
+  display: inline-block;
 }
 
 .margin-bottom-15 {
-    margin-bottom: 15px;
+  margin-bottom: 15px;
 }
 
 #login-form .form-group ~ .form-group {
-    display: inline-block;
+  display: inline-block;
 }
 
 #login-form .form-group > div.checkbox input[type="checkbox"] {
 
-    position: relative;
-    margin-left: 0;
+  position: relative;
+  margin-left: 0;
 
 }
+
 /* END Login scherm fixes */

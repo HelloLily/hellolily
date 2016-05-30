@@ -1,73 +1,67 @@
 //Fonts
-@import "fonts/lilicon";
-
+@import 'fonts/lilicon';
 // Primary requirements
-@import "variables";
-@import "mixins";
-
-@import "contacts/accounts";
-@import "contacts/users";
-
-@import "base/avatars";
-@import "base/inputs";
-@import "base/icons";
-@import "base/header";
-@import "base/dropdown";
-@import "base/historylist";
-@import "base/lists";
-@import "base/animate";
-@import "base/buttons";
-@import "base/button-group";
-@import "base/checkbox";
-@import "base/forms";
-@import "base/filters";
-@import "base/widget";
-@import "base/tables";
-
-@import "cases/cases";
-@import "deals/deals";
-@import "mail/inbox";
-
-@import "mail/email";
-
-@import "base/generic";
-@import "vendor";
+@import 'variables';
+@import 'mixins';
+@import 'contacts/accounts';
+@import 'contacts/users';
+@import 'base/avatars';
+@import 'base/inputs';
+@import 'base/icons';
+@import 'base/header';
+@import 'base/dropdown';
+@import 'base/historylist';
+@import 'base/lists';
+@import 'base/animate';
+@import 'base/buttons';
+@import 'base/button-group';
+@import 'base/checkbox';
+@import 'base/forms';
+@import 'base/filters';
+@import 'base/widget';
+@import 'base/tables';
+@import 'cases/cases';
+@import 'deals/deals';
+@import 'mail/inbox';
+@import 'mail/email';
+@import 'base/generic';
+@import 'vendor';
 
 small {
-    text-transform: lowercase;
+  text-transform: lowercase;
 }
 
 table {
-    .table.table-bordered.table-striped.flip-content {
-        td, th {
-            min-height: 38px;
-        }
+  .table.table-bordered.table-striped.flip-content {
+    td, th {
+      min-height: 38px;
     }
-    th {
-        vertical-align: top !important;
-    }
+  }
+  th {
+    vertical-align: top !important;
+  }
 }
 
 a {
-    &.link-no-decoration {
-      text-decoration: none;
-      color: inherit;
-    }
+  &.link-no-decoration {
+    text-decoration: none;
+    color: inherit;
+  }
 }
 
 .btn-group {
-    &.btn-group-devided {
-        .btn {
-            min-width: 4em;
-        }
+  &.btn-group-devided {
+    .btn {
+      min-width: 4em;
     }
+  }
 }
 
 // Overwrite bootstrap class for specific checkbox fields
 .form-horizontal .form-group {
-    &.form-group-checkbox-field {
-        @media (min-width: $breakpoint-laptop){
-            margin-left: 17.2%;
-        }
+  &.form-group-checkbox-field {
+    @media (min-width: $breakpoint-laptop) {
+      margin-left: 17.2%;
     }
+  }
 }

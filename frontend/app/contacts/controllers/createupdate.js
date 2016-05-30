@@ -58,6 +58,7 @@ ContactCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', 'Se
 function ContactCreateUpdateController($scope, $state, $stateParams, Settings, Account, Contact, HLFields, HLForms,
                                        HLSearch) {
     var vm = this;
+
     vm.contact = {};
     vm.errors = {
         name: [],

@@ -570,14 +570,14 @@ REST_FRAMEWORK = {
         # 'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
-        'lily.utils.authentication.TokenGETAuthentication',
+        'lily.api.drf_extensions.authentication.TokenGETAuthentication',
     ),
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',
     ),
-    'DEFAULT_METADATA_CLASS': 'lily.utils.api.metadata.ExtraFieldInfoMetaData',
+    'DEFAULT_METADATA_CLASS': 'lily.api.drf_extensions.metadata.CustomMetaData',
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',  # Use application/json instead of multipart/form-data requests in tests.
-    'DEFAULT_PAGINATION_CLASS': 'lily.api.pagination.CustomPagination',
+    'DEFAULT_PAGINATION_CLASS': 'lily.api.drf_extensions.pagination.CustomPagination',
 }
 
 #######################################################################################################################

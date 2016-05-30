@@ -1,77 +1,78 @@
 .widget-table {
-    width: 100%;
-    line-height: 20px;
-    color: $navyBlue;
+  width: 100%;
+  line-height: 20px;
+  table-layout: fixed;
+  word-wrap: break-word;
+  color: $navyBlue;
 
-    thead {
-        th {
-            padding: 5px 15px;
-            background: $skyGrey;
-            border-top: 1px white solid;
-            border-bottom: 1px $baseBorderColor solid;
-            font-weight: 500;
-            color: #9fa6b6;
-        }
+  thead {
+    th {
+      padding: 5px 15px;
+      background: $skyGrey;
+      border-top: 1px white solid;
+      border-bottom: 1px $baseBorderColor solid;
+      font-weight: 500;
+      color: #9fa6b6;
+    }
+  }
+
+  tbody {
+    tr {
+      &:hover {
+        background: lighten($skyGrey, 3);
+      }
     }
 
-    tbody {
-        tr {
-            &:hover {
-                background: lighten($skyGrey, 3);
-            }
-        }
-
-        td {
-            padding: 12px 15px;
-            border-bottom: 1px lighten($baseBorderColor, 12) solid;
-        }
-
-        tr.widget-table-sub-heading {
-            td {
-                padding: 5px 15px;
-                background: lighten($skyGrey, 2);
-            }
-        }
+    td {
+      padding: 12px 15px;
+      border-bottom: 1px lighten($baseBorderColor, 12) solid;
     }
 
-    .widget-table-priority-cell {
-        text-align: center;
+    tr.widget-table-sub-heading {
+      td {
+        padding: 5px 15px;
+        background: lighten($skyGrey, 2);
+      }
+    }
+  }
 
-        i {
-            font-size: 18px;
-        }
+  .widget-table-priority-cell {
+    text-align: center;
+
+    i {
+      font-size: 18px;
+    }
+  }
+
+  &.vertical-top-align {
+
+    td:first-child {
+      vertical-align: top;
+      padding-top: 18px;
     }
 
-    &.vertical-top-align {
+  }
 
-        td:first-child {
-            vertical-align: top;
-            padding-top: 18px;
-        }
-
+  &.align-table {
+    // /* Set width of the table cells based on the amount of cells. */
+    td:first-child:nth-last-child(1) {
+      width: 100%;
     }
 
-    &.align-table {
-
-        // /* Set width of the table cells based on the amount of cells. */
-        td:first-child:nth-last-child(1) {
-            width: 100%;
-        }
-
-        td:first-child:nth-last-child(2),
-        td:first-child:nth-last-child(2) ~ td {
-            width: 50%;
-        }
-
-        td:first-child:nth-last-child(3),
-        td:first-child:nth-last-child(3) ~ td {
-            width: 33.3333%;
-        }
-
-        td:first-child:nth-last-child(4),
-        td:first-child:nth-last-child(4) ~ td {
-            width: 25%;
-        }
-
+    td:first-child:nth-last-child(2),
+    td:first-child:nth-last-child(2) ~ td {
+      width: 50%;
     }
+
+    td:first-child:nth-last-child(3),
+    td:first-child:nth-last-child(3) ~ td {
+      width: 33.3333%;
+    }
+
+    td:first-child:nth-last-child(4),
+    td:first-child:nth-last-child(4) ~ td {
+      width: 25%;
+    }
+
+  }
 }

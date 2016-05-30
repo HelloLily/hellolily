@@ -13,8 +13,8 @@ function tagInput() {
     };
 }
 
-TagInputController.$inject = ['Tag'];
-function TagInputController(Tag) {
+TagInputController.$inject = ['HLSearch'];
+function TagInputController(HLSearch) {
     var vm = this;
 
     vm.tagChoices = [];
@@ -23,14 +23,12 @@ function TagInputController(Tag) {
     vm.addTagChoice = addTagChoice;
 
     function refreshTags(query) {
-        var exclude = '';
-        if (query.length >= 1) {
-            // Exclude tags already selected.
-            angular.forEach(vm.object.tags, function(tag) {
-                exclude += ' AND NOT name_flat:' + tag.name;
-            });
+        var tagPromise = HLSearch.refreshTags(query, vm.object.tags);
 
-            vm.tagChoices = Tag.search({query: query + exclude});
+        if (tagPromise) {
+            tagPromise.$promise.then(function(result) {
+                vm.tagChoices = result.objects;
+            });
         }
     }
 

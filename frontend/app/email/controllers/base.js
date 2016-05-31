@@ -70,8 +70,7 @@ angular.module('app.email').controller('EmailBaseController', EmailBaseControlle
 
 EmailBaseController.$inject = ['Settings'];
 function EmailBaseController(Settings) {
-    Settings.page.setTitle('custom', 'Email');
-    Settings.page.header.setMain('custom', 'Email');
+    Settings.page.setAllTitles('custom', 'Email');
 
     activate();
 

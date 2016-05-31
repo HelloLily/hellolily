@@ -45,8 +45,7 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     vm.toggleSidebar = toggleSidebar;
     vm.toggleStarred = toggleStarred;
 
-    Settings.page.setTitle('custom', 'Email message');
-    Settings.page.header.setMain('custom', 'Email message');
+    Settings.page.setAllTitles('custom', 'Email message');
 
     activate();
 

@@ -87,6 +87,7 @@ function DealDetailController($scope, $state, $uibModal, Account, Contact, Deal,
     function updateModel(data, field) {
         var nextStepDate;
         var args = HLResource.createArgs(data, field, vm.deal);
+        var patchPromise;
 
         if (args.hasOwnProperty('next_step')) {
             if (vm.deal.next_step.date_increment !== 0) {
@@ -129,11 +130,15 @@ function DealDetailController($scope, $state, $uibModal, Account, Contact, Deal,
             Settings.page.setAllTitles('detail', data, vm.deal.contact, vm.deal.account);
         }
 
-        return HLResource.patch('Deal', args).$promise.then(function() {
+        patchPromise = HLResource.patch('Deal', args).$promise;
+
+        patchPromise.then(function() {
             if (args.hasOwnProperty('amount_once') || args.hasOwnProperty('amount_recurring')) {
                 $state.go($state.current, {}, {reload: true});
             }
         });
+
+        return patchPromise;
     }
 
     /**

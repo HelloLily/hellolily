@@ -244,7 +244,7 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
 
         // Check if an account is being added via the + account page or via a supercard.
         if (Settings.email.sidebar.isVisible) {
-            ga('send', 'event', 'Account', 'Save', 'Email SC');
+            ga('send', 'event', 'Account', 'Save', 'Email Sidebar');
         } else {
             ga('send', 'event', 'Account', 'Save', 'Default');
         }

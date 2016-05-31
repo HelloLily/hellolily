@@ -253,13 +253,25 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
         // Check if a deal is being saved (and archived) via the + deal page
         // or via a supercard.
         if (Settings.email.sidebar.isVisible && archive) {
-            ga('send', 'event', 'Deal', 'Save and archive', 'Email SC');
+            ga('send', 'event', 'Deal', 'Save and archive', 'Email Sidebar');
         } else if (Settings.email.sidebar.isVisible && !archive) {
-            ga('send', 'event', 'Deal', 'Save', 'Email SC');
+            ga('send', 'event', 'Deal', 'Save', 'Email Sidebar');
         } else if (!Settings.email.sidebar.isVisible && archive) {
-            ga('send', 'event', 'Deal', 'Save and archive', 'Default');
+            if($stateParams.accountId){
+                ga('send', 'event', 'Deal', 'Save and archive', 'Account Widget');
+            } else if ($stateParams.contactId) {
+                ga('send', 'event', 'Deal', 'Save and archive', 'Contact Widget');
+            } else {
+                ga('send', 'event', 'Deal', 'Save and archive', 'Default');
+            }
         } else {
-            ga('send', 'event', 'Deal', 'Save', 'Default');
+            if($stateParams.accountId){
+                ga('send', 'event', 'Deal', 'Save', 'Account Widget');
+            } else if ($stateParams.contactId) {
+                ga('send', 'event', 'Deal', 'Save', 'Contact Widget');
+            } else {
+                ga('send', 'event', 'Deal', 'Save', 'Default');
+            }
         }
 
         if (!_dealFormIsValid()) {

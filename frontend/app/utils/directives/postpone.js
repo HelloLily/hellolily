@@ -53,7 +53,7 @@ function PostponeController($state, $uibModal) {
         }
 
         if ($state.current.name === 'base.contacts.detail') {
-            ga('send', 'event', pp.type, 'Open postpone modal', 'Deal detail');
+            ga('send', 'event', pp.type, 'Open postpone modal', 'Contact detail');
         }
 
         modalInstance = $uibModal.open({

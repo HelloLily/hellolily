@@ -120,8 +120,7 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
                                 EmailTemplate, SelectedEmailAccount) {
     var vm = this;
 
-    Settings.page.setTitle('custom', 'Compose email');
-    Settings.page.header.setMain('custom', 'Compose email');
+    Settings.page.setAllTitles('custom', 'Compose email');
 
     vm.discard = discard;
 

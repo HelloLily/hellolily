@@ -243,7 +243,10 @@
 
             <widget-body>
                 <div class="widget-content">
-                    <editable-tags view-model="vm" type="Case"></editable-tags>
+                    <a class="btn btn-xs btn-default margin-right-5" ng-repeat="tag in vm.case.tags">
+                        {{ tag.name }}
+                    </a>
+                    <span ng-if="!vm.case.tags.length">No tags</span>
                 </div>
             </widget-body>
         </widget>

@@ -1,4 +1,4 @@
-<widget ng-if="vm.account" widget-name="'Account info'" widget-scrollable="true">
+<widget ng-if="vm.account" widget-name="'Account info'" widget-scrollable="true" class="js-cq-widget-container">
     <widget-header>
         <div class="widget-name">
             <i class="lilicon hl-company-icon"></i>
@@ -12,11 +12,11 @@
     <widget-filters>
         <a ng-href="{{ vm.tenant.primary_external_app_link.getUrl(vm.account.customer_id) }}" target="_blank" class="btn btn-circle btn-default" ng-if="vm.account.customer_id && vm.tenant.primary_external_app_link">
             <i class="fa fa-external-link fa-sm"></i>
-            {{ vm.tenant.primary_external_app_link.name }}
+            <span class="external-link-name">{{ vm.tenant.primary_external_app_link.name }}</span>
         </a>
         <a href="https://freedom.voys.nl/quotes/create/" target="_blank" class="btn btn-circle btn-default" ng-if="!vm.account.customer_id && vm.tenant.isVoysNL()">
             <i class="fa fa-external-link fa-sm"></i>
-            Write quote
+            <span class="external-link-name">Write quote</span>
         </a>
     </widget-filters>
 

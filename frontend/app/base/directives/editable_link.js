@@ -48,9 +48,10 @@ function EditableLinkController() {
         args[el.field] = $data;
 
         if (el.isSocialMedia) {
+            args.name = el.object.name;
             return el.viewModel.updateModel(args, el.object.name);
-        } else {
-            return el.viewModel.updateModel(args);
         }
+
+        return el.viewModel.updateModel(args);
     }
 }

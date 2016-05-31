@@ -240,6 +240,7 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
     function saveAccount(form) {
         var primaryWebsite = vm.account.primaryWebsite;
         var exists;
+        var twitterId;
 
         // Check if an account is being added via the + account page or via a supercard.
         if (Settings.email.sidebar.isVisible) {
@@ -285,11 +286,19 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
             }
         });
 
+        // Store the id of the current twitter object.
+        if (vm.account.social_media && vm.account.social_media.length > 0) {
+            twitterId = vm.account.social_media[0].id;
+        }
         if (vm.account.twitter) {
             vm.account.social_media = [{
                 name: 'twitter',
                 username: vm.account.twitter,
             }];
+            // Re-use twitter id in case of an edit.
+            if (twitterId) {
+                vm.account.social_media[vm.account.social_media.length - 1].id = twitterId;
+            }
         }
 
         vm.account = HLFields.cleanRelatedFields(vm.account);

@@ -5,6 +5,7 @@ function editableTags() {
         restrict: 'E',
         scope: {
             viewModel: '=',
+            object: '=',
             type: '@',
         },
         templateUrl: 'base/directives/editable_tags.html',
@@ -65,7 +66,7 @@ function EditableTagsController($timeout, HLSearch, HLUtils) {
             vm.tagForm.$hide();
 
             // Just setting the value doesn't update the values model properly.
-            // So use $timeout so it get's applied in the next digest cycle.
+            // So use $timeout so it gets applied in the next digest cycle.
             $timeout(function() {
                 vm.viewModel[vm.type.toLowerCase()].tags = response.tags;
             });

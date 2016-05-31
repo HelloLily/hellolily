@@ -28,8 +28,7 @@ function StatsBaseController(Settings, Stats) {
     vm.countWithoutTagsCases = 0;
     vm.topTagsCases = {};
 
-    Settings.page.setTitle('custom', 'Stats');
-    Settings.page.header.setMain('custom', 'Stats');
+    Settings.page.setAllTitles('custom', 'Stats');
 
     activate();
 

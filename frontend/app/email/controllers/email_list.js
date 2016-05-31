@@ -70,8 +70,7 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
     vm.reloadMessages = reloadMessages;
     vm.goToDraft = goToDraft;
 
-    Settings.page.setTitle('custom', 'Email');
-    Settings.page.header.setMain('custom', 'Email');
+    Settings.page.setAllTitles('custom', 'Email');
 
     activate();
 

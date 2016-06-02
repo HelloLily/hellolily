@@ -26,22 +26,24 @@ class Command(BaseCommand):
         else:
             cutoff = self.ratio_cut_off_default
 
-        tags1 = Tag.objects.all()
-        tags2 = Tag.objects.all()
+        original_tags = Tag.objects.all()
+        tags_to_check = Tag.objects.all()
         tag_list = []
         # Loop over each tag and compare with all other tags.
-        for tag1 in tags1:
-            for tag2 in tags2:
-                if ((tag1.name, tag2.name) not in tag_list) and ((tag2.name, tag1.name) not in tag_list):
+        for original_tag in original_tags:
+            for tag_to_check in tags_to_check:
+                if ((original_tag.name, tag_to_check.name) not in tag_list) and \
+                        ((tag_to_check.name, original_tag.name) not in tag_list) and \
+                        (original_tag.id != tag_to_check.id):
                     # Determine similarity ratio between the two tag names.
-                    diffl = difflib.SequenceMatcher(a=tag1.name, b=tag2.name).ratio()
+                    diffl = difflib.SequenceMatcher(a=original_tag.name, b=tag_to_check.name).ratio()
                     if diffl > cutoff and diffl != 1.0:
+                        tag_list.insert(0, (original_tag.name, tag_to_check.name))
+
                         # Encode & decode to handle special characters.
                         # This is a work around for encoding problems in outputting to docker shell.
-                        n1 = tag1.name.encode('utf-8')
-                        n1 = n1.decode('ascii', 'ignore')
-                        n2 = tag2.name.encode('utf-8')
-                        n2 = n2.decode('ascii', 'ignore')
-                        tag_list.insert(0, (tag1.name, tag2.name))
-
-                        print u"{0}\t{1}\t{2:.3f}".format(n1, n2, diffl)
+                        name_original = original_tag.name.encode('utf-8')
+                        name_original = name_original.decode('ascii', 'ignore')
+                        name_duplicate = tag_to_check.name.encode('utf-8')
+                        name_duplicate = name_duplicate.decode('ascii', 'ignore')
+                        print u"{0}\t{1}\t{2:.3f}".format(name_original, name_duplicate, diffl)

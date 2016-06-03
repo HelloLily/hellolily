@@ -72,6 +72,8 @@ function EditableRelatedController(HLFields, HLResource, HLUtils) {
 
     function activate() {
         er.items = er.model[er.field];
+        // Store the original items in case we cancel the editing.
+        er.originalItems = angular.copy(er.items);
 
         er.formName = er.field + 'Form';
     }
@@ -131,9 +133,8 @@ function EditableRelatedController(HLFields, HLResource, HLUtils) {
     }
 
     function closeForm() {
-        er.items = HLFields.cleanInlineRelatedFields(er.items);
-        er.model[er.field] = er.items;
-
+        // Cancel the editing and restore the original values.
+        angular.copy(er.originalItems, er.items);
         er.formVisible = false;
     }
 }

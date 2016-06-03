@@ -23,7 +23,7 @@
                     <li>Expires: <strong class="margin-left-5"><date date="vm.item.expires"></date></strong></li>
                 </ul>
                 <div class="timeline-date">
-                    {{ ::vm.item.modified | date:'dd MMM - HH:mm' }}
+                    {{ ::vm.item.modified | date:'dd MMM yyyy - HH:mm' }}
                 </div>
             </div>
 
@@ -72,7 +72,7 @@
                                     {{ note.author.full_name }} added a note <span ng-if="note.type === 1">(callback)</span> <span ng-if="note.type === 2">(meetup)</span>
                                 </div>
 
-                                <div class="content-history-date">{{ ::note.date | date:'dd MMM - HH:mm' }}</div>
+                                <div class="content-history-date">{{ ::note.date | date:'dd MMM yyyy - HH:mm' }}</div>
                                 <div class="clearfix"></div>
                             </div>
                             <div ng-if="note.content" class="content-history-note-body">
@@ -87,7 +87,7 @@
                                     {{ ::vm.item.created_by.full_name || 'An unknown entity' }} created the case <a ui-sref="base.cases.detail({ id: vm.item.id })">{{ ::vm.item.subject }}</a>
                                 </div>
 
-                                <div class="content-history-date">{{ ::vm.item.created | date:'dd MMM - HH:mm' }}</div>
+                                <div class="content-history-date">{{ ::vm.item.created | date:'dd MMM yyyy - HH:mm' }}</div>
                                 <div class="clearfix"></div>
                             </div>
                         </li>

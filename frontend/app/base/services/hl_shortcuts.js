@@ -29,7 +29,7 @@ function HLShortcuts($state, $timeout, $rootScope) {
 
             Mousetrap.bind('d', function() {
                 // Broadcast event for email/controllers/detail.js to handle
-                // sending the particular e-mail to trash.
+                // sending the particular email to trash.
                 $rootScope.$broadcast('deleteMessageByShortCode');
                 // Unbind after pressed so next bind can take place.
                 Mousetrap.unbind('d');
@@ -37,7 +37,7 @@ function HLShortcuts($state, $timeout, $rootScope) {
 
             Mousetrap.bind('e', function() {
                 // Broadcast event for email/controllers/detail.js to handle
-                // sending the particular e-mail to trash.
+                // sending the particular email to trash.
                 $rootScope.$broadcast('archiveMessageByShortCode');
                 // Unbind after pressed so next bind can take place.
                 Mousetrap.unbind('e');

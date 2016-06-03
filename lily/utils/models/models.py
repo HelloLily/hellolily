@@ -112,7 +112,7 @@ class EmailAddress(TenantMixin):
         (INACTIVE_STATUS, _('Inactive')),
     )
 
-    email_address = models.EmailField(max_length=255, verbose_name=_('e-mail address'))
+    email_address = models.EmailField(max_length=255, verbose_name=_('email address'))
     status = models.IntegerField(max_length=50, choices=EMAIL_STATUS_CHOICES, default=OTHER_STATUS,
                                  verbose_name=_('status'))
 
@@ -125,8 +125,8 @@ class EmailAddress(TenantMixin):
 
     class Meta:
         app_label = 'utils'
-        verbose_name = _('e-mail address')
-        verbose_name_plural = _('e-mail addresses')
+        verbose_name = _('email address')
+        verbose_name_plural = _('email addresses')
 
 
 class HistoryListItem(PolymorphicTenantMixin):

@@ -351,12 +351,12 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
         });
     }
 
-    // Broadcast function to send e-mail to trash by HLShortcuts service.
+    // Broadcast function to send email to trash by HLShortcuts service.
     $scope.$on('deleteMessageByShortCode', function() {
         trashMessage();
     });
 
-    // Broadcast function to archive a specific e-mail by HLShortcuts service.
+    // Broadcast function to archive a specific email by HLShortcuts service.
     $scope.$on('archiveMessageByShortCode', function() {
         archiveMessage();
     });

@@ -298,9 +298,9 @@ class EmailTemplate(TenantMixin, TimeStampedModel):
     Emails can be composed using templates.
     A template is a predefined email in which parameters can be dynamically inserted.
 
-    @name: name that is used to display templates in a list
-    @subject: default subject for the e-mail using this template
-    @body_html: html part of the e-mail
+    @name: name that is used to display templates in a list.
+    @subject: default subject for the email using this template.
+    @body_html: html part of the email.
 
     """
     name = models.CharField(verbose_name=_('template name'), max_length=255)
@@ -313,8 +313,8 @@ class EmailTemplate(TenantMixin, TimeStampedModel):
 
     class Meta:
         app_label = 'email'
-        verbose_name = _('e-mail template')
-        verbose_name_plural = _('e-mail templates')
+        verbose_name = _('email template')
+        verbose_name_plural = _('email templates')
 
 
 class TemplateVariable(TenantMixin):
@@ -334,8 +334,8 @@ class TemplateVariable(TenantMixin):
 
     class Meta:
         app_label = 'email'
-        verbose_name = _('e-mail template variable')
-        verbose_name_plural = _('e-mail template variables')
+        verbose_name = _('email template variable')
+        verbose_name_plural = _('email template variables')
 
 
 class DefaultEmailTemplate(models.Model):
@@ -351,8 +351,8 @@ class DefaultEmailTemplate(models.Model):
 
     class Meta:
         app_label = 'email'
-        verbose_name = _('default e-mail template')
-        verbose_name_plural = _('default e-mail templates')
+        verbose_name = _('default email template')
+        verbose_name_plural = _('default email templates')
         unique_together = ('user', 'account')
 
 
@@ -361,7 +361,7 @@ class EmailTemplateAttachment(TenantMixin):
     Default attachments that are added to templates.
 
     @template: foreign key to the template model
-    @attachment: the actual file to add per default to all e-mails using the template
+    @attachment: the actual file to add per default to all emails using the template
 
     """
     attachment = models.FileField(
@@ -386,8 +386,8 @@ class EmailTemplateAttachment(TenantMixin):
 
     class Meta:
         app_label = 'email'
-        verbose_name = _('e-mail template attachment')
-        verbose_name_plural = _('e-mail template attachments')
+        verbose_name = _('email template attachment')
+        verbose_name_plural = _('email template attachments')
 
 
 class EmailDraft(TimeStampedModel):
@@ -403,8 +403,8 @@ class EmailDraft(TimeStampedModel):
 
     class Meta:
         app_label = 'email'
-        verbose_name = _('e-mail draft')
-        verbose_name_plural = _('e-mail drafts')
+        verbose_name = _('email draft')
+        verbose_name_plural = _('email drafts')
 
 
 class EmailOutboxMessage(TenantMixin, models.Model):
@@ -517,8 +517,8 @@ class EmailOutboxMessage(TenantMixin, models.Model):
 
     class Meta:
         app_label = 'email'
-        verbose_name = _('e-mail outbox message')
-        verbose_name_plural = _('e-mail outbox messages')
+        verbose_name = _('email outbox message')
+        verbose_name_plural = _('email outbox messages')
 
 
 class EmailOutboxAttachment(TenantMixin):
@@ -533,8 +533,8 @@ class EmailOutboxAttachment(TenantMixin):
 
     class Meta:
         app_label = 'email'
-        verbose_name = _('e-mail outbox attachment')
-        verbose_name_plural = _('e-mail outbox attachments')
+        verbose_name = _('email outbox attachment')
+        verbose_name_plural = _('email outbox attachments')
 
 
 @receiver(post_delete, sender=EmailAttachment)

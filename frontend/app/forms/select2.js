@@ -177,7 +177,7 @@
                                     data.hits.forEach(function (hit) {
                                         var displayedName;
 
-                                        // Only display contacts with an e-mail address
+                                        // Only display contacts with an email address
                                         for (var i = 0; i < hit.email_addresses.length; i++) {
                                             if (hit.hasOwnProperty('full_name')) {
                                                 displayedName = hit.full_name;

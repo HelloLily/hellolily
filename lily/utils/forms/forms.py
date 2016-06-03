@@ -51,7 +51,7 @@ class HelloLilyModelForm(BetterModelForm):
 
 class EmailAddressBaseForm(HelloLilyModelForm):
     """
-    Form for adding an e-mail address, only including the status and the e-mail fields.
+    Form for adding an email address, only including the status and the email fields.
     """
     class Meta:
         model = EmailAddress

@@ -1,30 +1,37 @@
-<div class="modal-header">
-    <h3 class="modal-title">Edit Note</h3>
-</div>
-<div class="modal-body" slimscroll="{height: 300}">
-    <div class="form-body">
-        <!--<div class="form-group">-->
-            <!--<div class="btn-group">-->
-                <!--<label class="btn btn-default" ng-model="note.modalType" btn-radio="1">-->
-                    <!--<i class="fa fa-phone"></i>-->
-                    <!--Call-->
-                <!--</label>-->
-                <!--<label class="btn btn-default" ng-model="note.modalType" btn-radio="2">-->
-                    <!--<i class="fa fa-calendar"></i>-->
-                    <!--Meetup-->
-                <!--</label>-->
-                <!--<label class="btn btn-default" ng-model="note.modalType" btn-radio="0">-->
-                    <!--<i class="fa fa-sticky-note"></i>-->
-                    <!--Note-->
-                <!--</label>-->
+<form name="noteForm">
+    <div class="modal-header">
+        <h3 class="modal-title">Edit Note</h3>
+    </div>
+    <div class="modal-body" slimscroll="{height: 300}">
+        <div class="form-body">
+            <!--<div class="form-group">-->
+                <!--<div class="btn-group">-->
+                    <!--<label class="btn btn-default" ng-model="vm.note.modalType" btn-radio="1">-->
+                        <!--<i class="fa fa-phone"></i>-->
+                        <!--Call-->
+                    <!--</label>-->
+                    <!--<label class="btn btn-default" ng-model="vm.note.modalType" btn-radio="2">-->
+                        <!--<i class="fa fa-calendar"></i>-->
+                        <!--Meetup-->
+                    <!--</label>-->
+                    <!--<label class="btn btn-default" ng-model="vm.note.modalType" btn-radio="0">-->
+                        <!--<i class="fa fa-sticky-note"></i>-->
+                        <!--Note-->
+                    <!--</label>-->
+                <!--</div>-->
             <!--</div>-->
-        <!--</div>-->
-        <div class="form-group">
-            <textarea class="form-control inline note-textarea" cols="40" rows="10" ng-model="note.content"></textarea>
+            <div class="form-group">
+                <textarea name="content"
+                          class="form-control inline note-textarea"
+                          cols="40" rows="10"
+                          ng-model="vm.note.content">
+                </textarea>
+                <field-error form="noteForm" field="content"></field-error>
+            </div>
         </div>
     </div>
-</div>
-<div class="modal-footer">
-    <button class="btn btn-primary" ng-click="ok()">OK</button>
-    <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
-</div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="vm.ok(noteForm)">OK</button>
+        <button class="btn btn-warning" ng-click="vm.cancel()">Cancel</button>
+    </div>
+</form>

@@ -15,7 +15,6 @@ urlpatterns = patterns(
     url(r'^contacts/', include('lily.contacts.urls', app_name='contacts')),
     url(r'^cases/', include('lily.cases.urls', app_name='cases')),
     url(r'^deals/', include('lily.deals.urls', app_name='deals')),
-    url(r'^notes/', include('lily.notes.urls')),
     url(r'^messaging/', include('lily.messaging.urls')),
     url(r'^provide/', include('lily.provide.urls')),
     url(r'^stats/', include('lily.stats.urls')),

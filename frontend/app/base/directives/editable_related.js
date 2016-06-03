@@ -125,6 +125,8 @@ function EditableRelatedController(HLFields, HLResource, HLUtils) {
             er.items = response[er.field];
 
             HLUtils.unblockUI(element);
+        }).catch(function() {
+            HLUtils.unblockUI(element);
         });
     }
 

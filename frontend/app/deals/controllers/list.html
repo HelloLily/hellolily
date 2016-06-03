@@ -18,7 +18,7 @@
                     <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.amountOnce">One-time cost</checkbox></li>
                     <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.amountRecurring">Recurring costs</checkbox></li>
                     <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.newBusiness">New business</checkbox></li>
-                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.feedbackFormSent">Feedback form sent</checkbox></li>
+                    <li class="hl-dropdown-item" ng-if="vm.tenant.isVoysNL()"><checkbox model="vm.table.visibility.feedbackFormSent">Feedback form sent</checkbox></li>
                     <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.created">Created</checkbox></li>
                     <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.createdBy">Created by</checkbox></li>
                     <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.tags">Tags</checkbox></li>
@@ -92,7 +92,7 @@
                 <th ng-show="vm.table.visibility.amountOnce" sort-column="amount_once" table="vm.table">One-time cost</th>
                 <th ng-show="vm.table.visibility.amountRecurring" sort-column="amount_recurring" table="vm.table">Recurring costs</th>
                 <th ng-show="vm.table.visibility.newBusiness" sort-column="new_business" table="vm.table">Business</th>
-                <th ng-show="vm.table.visibility.feedbackFormSent" sort-column="feedback_form_sent" table="vm.table">Feedback form sent</th>
+                <th ng-show="vm.tenant.isVoysNL() && vm.table.visibility.feedbackFormSent" sort-column="feedback_form_sent" table="vm.table">Feedback form sent</th>
                 <th ng-show="vm.table.visibility.created" sort-column="created" table="vm.table" class="width-10">Created</th>
                 <th ng-show="vm.table.visibility.createdBy" sort-column="created_by" table="vm.table">Created by</th>
                 <th ng-show="vm.table.visibility.tags">Tags</th>
@@ -133,7 +133,7 @@
                         <span ng-if="deal.new_business">New</span>
                         <span ng-if="!deal.new_business">Existing</span>
                     </td>
-                    <td ng-show="vm.table.visibility.feedbackFormSent">
+                    <td ng-show="vm.tenant.isVoysNL() && vm.table.visibility.feedbackFormSent">
                         <span ng-if="deal.feedback_form_sent"><i class="fa fa-check text-success font-size-inherit"></i></span>
                         <span ng-if="deal.feedback_form_sent" class="text-success">Done</span>
 

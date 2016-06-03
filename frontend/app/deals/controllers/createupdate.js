@@ -62,9 +62,9 @@ function dealConfig($stateProvider) {
 angular.module('app.deals').controller('DealCreateUpdateController', DealCreateUpdateController);
 
 DealCreateUpdateController.$inject = ['$filter', '$scope', '$state', '$stateParams', 'Account', 'Contact', 'Deal',
-    'HLForms', 'HLSearch', 'HLUtils', 'Settings', 'User'];
+    'HLForms', 'HLSearch', 'HLUtils', 'Settings', 'Tenant', 'User'];
 function DealCreateUpdateController($filter, $scope, $state, $stateParams, Account, Contact, Deal, HLForms,
-                                    HLSearch, HLUtils, Settings, User) {
+                                    HLSearch, HLUtils, Settings, Tenant, User) {
     var vm = this;
 
     vm.deal = {};
@@ -147,6 +147,10 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
 
         // Regex to determine if the given amount is valid.
         vm.currencyRegex = /^[0-9]{1,3}(?:[0-9]*(?:[.,][0-9]{2})?|(?:,[0-9]{3})*(?:\.[0-9]{1,2})?|(?:\.[0-9]{3})*(?:,[0-9]{1,2})?)$/;
+
+        Tenant.query({}, function(tenant) {
+            vm.tenant = tenant;
+        });
 
         _getDeal();
     }

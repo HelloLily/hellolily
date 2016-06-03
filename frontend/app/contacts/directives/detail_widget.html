@@ -85,7 +85,7 @@
             <tr>
                 <td><i class="fa fa-twitter"></i> <strong>Twitter</strong></td>
                 <td>
-                    <editable-link view-model="vm" type="Contact" object="vm.contact.twitter" field="username" is-social-media="true">
+                    <editable-link view-model="vm" type="Contact" object="vm.contact.twitter" field="username" social-media-name="twitter">
                         <a ng-if="vm.contact.twitter" ng-href="{{ vm.contact.twitter.profile_url }}" target="_blank">{{ vm.contact.twitter.username }}</a>
                         <span ng-if="!vm.contact.twitter">No Twitter profile</span>
                     </editable-link>
@@ -95,7 +95,7 @@
             <tr>
                 <td><i class="fa fa-linkedin"></i> <strong>LinkedIn</strong></td>
                 <td>
-                    <editable-link view-model="vm" type="Contact" object="vm.contact.linkedin" field="username" is-social-media="true">
+                    <editable-link view-model="vm" type="Contact" object="vm.contact.linkedin" field="username" social-media-name="linkedin">
                         <a ng-if="vm.contact.linkedin" ng-href="{{ vm.contact.linkedin.profile_url }}" target="_blank">{{ vm.contact.linkedin.username }}</a>
                         <span ng-if="!vm.contact.linkedin">No LinkedIn profile</span>
                     </editable-link>

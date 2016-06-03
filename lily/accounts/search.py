@@ -116,8 +116,8 @@ class AccountMapping(BaseMapping):
                 'index': 'no',
                 'properties': {
                     'name': {'type': 'string'},
-                    'url': {'type': 'string'},
-                    'profile': {'type': 'string'},
+                    'profile_url': {'type': 'string'},
+                    'username': {'type': 'string'},
                 },
             },
             'domain': {

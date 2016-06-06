@@ -40,13 +40,13 @@ class ContactMapping(BaseMapping):
                 'type': 'string',
                 'index_analyzer': 'normal_edge_analyzer',
             },
-            'social': {
+            'social_media': {
                 'type': 'object',
                 'index': 'no',
                 'properties': {
-                    'social_name': {'type': 'string'},
-                    'social_url': {'type': 'string'},
-                    'social_profile': {'type': 'string'},
+                    'name': {'type': 'string'},
+                    'profile_url': {'type': 'string'},
+                    'username': {'type': 'string'},
                 },
             },
             'title': {

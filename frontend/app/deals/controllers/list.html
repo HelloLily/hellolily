@@ -85,9 +85,8 @@
         </div>
     </div>
     <div class="portlet-body flip-scroll">
-        <table class="table table-bordered table-striped flip-content">
+        <table class="table table-bordered flip-content">
             <thead class="flip-content">
-                <th>Edit</th>
                 <th ng-show="vm.table.visibility.name" table="vm.table" class="width-20">Subject</th>
                 <th ng-show="vm.table.visibility.client" class="width-10">Client</th>
                 <th ng-show="vm.table.visibility.status" sort-column="status" table="vm.table">Status</th>
@@ -101,14 +100,10 @@
                 <th ng-show="vm.table.visibility.created" sort-column="created" table="vm.table" class="width-10">Created</th>
                 <th ng-show="vm.table.visibility.createdBy" sort-column="created_by" table="vm.table">Created by</th>
                 <th ng-show="vm.table.visibility.tags">Tags</th>
+                <th style="width: 60px;">Edit</th>
             </thead>
             <tbody>
                 <tr ng-repeat="deal in vm.table.items">
-                    <td>
-                        <a ui-sref="base.deals.detail.edit({ id: deal.id })" class="btn btn-xs default" title="Edit">
-                            <i class="lilicon hl-edit-icon"></i>
-                        </a>
-                    </td>
                     <td ng-show="vm.table.visibility.name">
                         <strong ng-if="::deal.is_archived">(a)</strong>
                         <a ui-sref="base.deals.detail({ id: deal.id })" title="{{ deal.name }}">{{ deal.name }}</a>
@@ -161,6 +156,11 @@
                             <a href="javascript:void(0)" ng-click="vm.setSearchQuery(tag.name)">{{ ::tag.name }}</a>
                             <br>
                         </span>
+                    </td>
+                    <td>
+                        <a ui-sref="base.deals.detail.edit({ id: deal.id })" class="base-icon" title="Edit">
+                            <i class="lilicon hl-edit-icon"></i>
+                        </a>
                     </td>
                 </tr>
             </tbody>

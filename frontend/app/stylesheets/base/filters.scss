@@ -1,25 +1,3 @@
-.filter-group {
-  float: left;
-  line-height: $button-height;
-}
-
-.filter-group-option {
-  display: inline-block;
-  line-height: 23px;
-  padding: 0 9px;
-  color: #5b667b;
-  font-size: 13px;
-  font-weight: 600;
-  border-radius: 12px;
-  cursor: pointer;
-
-  &:hover,
-  &.active {
-    color: white;
-    background: #5b9bd1;
-  }
-}
-
 // Fix to make sure the filters in the widgets don't reposition because of the
 // 50% width their parent col-md-6 has.
 .tools {
@@ -62,13 +40,13 @@
 }
 
 .due-date-filter-container {
-  display: inline;
+    display: inline;
 
-  @media (max-width: $breakpoint-tablet) {
-    background-color: white;
-    display: none;
+    @media (max-width: $breakpoint-tablet) {
+        background-color: white;
+        display: none;
 
-    &.is-open {
+        &.is-open {
       display: block;
       position: absolute;
       z-index: 99;
@@ -77,16 +55,16 @@
       padding-top: 10px;
       border-bottom: 1px solid $lilyBorderDark;
 
-      label {
-        display: block;
-        line-height: 30px;
-        text-align: center;
+            label {
+                display: block;
+                line-height: 30px;
+                text-align: center;
 
-        &.active {
-          color: $lilyBlue;
-          background: white;
+                &.active {
+                    color: $lilyBlue;
+                    background: white;
+                }
+            }
         }
-      }
     }
-  }
 }

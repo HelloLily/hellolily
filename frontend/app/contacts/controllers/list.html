@@ -40,14 +40,9 @@
         </div>
     </div>
     <div class="portlet-body flip-scroll">
-        <table class="table table-bordered table-striped flip-content">
+        <table class="table table-bordered flip-content">
             <thead class="flip-content">
                 <tr>
-                    <th class="list-actions" width="75px">
-                        <span class="text-nowrap">
-                            Options
-                        </span>
-                    </th>
                     <th ng-show="table.visibility.name" sort-column="last_name" table="table" class="width-22">
                         <span class="text-nowrap">
                             Name
@@ -78,19 +73,18 @@
                             Tags
                         </span>
                     </th>
+                    <th class="list-actions" width="85px">
+                        <span class="text-nowrap">
+                            Options
+                        </span>
+                    </th>
                 </tr>
             </thead>
             <tbody>
                 <tr ng-repeat="contact in table.items">
-                    <td>
-                        <a ui-sref="base.contacts.detail.edit({ id: contact.id })" class="btn btn-xs default" title="Edit">
-                            <i class="lilicon hl-edit-icon"></i>
-                        </a>
-                        <delete-confirmation model="Contact" object="contact" callback="removeFromList(contact)" button-class="btn-xs"></delete-confirmation>
-                    </td>
                     <td ng-show="table.visibility.name">
                         <a class="list-link" ui-sref="base.contacts.detail({ id: contact.id })" title="{{ ::contact.full_name }}">
-                            <i class="lilicon hl-user-icon"></i>
+                            <i class="lilicon hl-entity-icon"></i>
                             <span class="list-link-name">{{ ::contact.full_name }}</span>
                         </a>
                     </td>
@@ -124,6 +118,12 @@
                             <a href="javascript:void(0)" ng-click="setFilter(tag.name)">{{ ::tag.name }}</a>
                             <br>
                         </span>
+                    </td>
+                    <td>
+                        <a ui-sref="base.contacts.detail.edit({ id: contact.id })" class="base-icon" title="Edit">
+                            <i class="lilicon hl-edit-icon"></i>
+                        </a>
+                        <delete-confirmation model="Contact" object="contact" callback="removeFromList(contact)" button-class="base-icon"></delete-confirmation>
                     </td>
                 </tr>
             </tbody>

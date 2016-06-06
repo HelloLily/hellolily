@@ -132,6 +132,7 @@ function HLUtils() {
     this.blockUI = function(target, animate) {
         Metronic.blockUI(
             {
+                css: {backgroundColor: "#FF0000"},
                 target: target,
                 animate: animate,
             }

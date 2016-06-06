@@ -12,7 +12,7 @@
         <!-- BEGIN LOGO -->
         <div class="page-header-logo-container">
             <a ui-sref="base.dashboard" class="page-header-logo">
-                <strong>Lily</strong>
+                <i class="lilicon hl-lily-icon"></i>
             </a>
         </div>
         <!-- END LOGO -->
@@ -25,11 +25,8 @@
         <!-- BEGIN PAGE TOP -->
             <ul class="drop-down pull-right">
                 <li class="header-user-menu drop-down-item">
-                    <a href="javascript:void(0);" data-toggle="dropdown" data-close-others="true">
-                        <i class="lilicon hl-user-icon"></i>
-                        <div class="header-user-menu-username-container">
-                            <span class="header-user-menu-username">{{ currentUser.fullName }}</span>
-                        </div>
+                    <a class="header-user-menu-link" href="javascript:void(0);" data-toggle="dropdown" data-close-others="true">
+                        <span class="header-avatar" style="background-image: url({{ currentUser.picture }});"></span>
                         <i class="lilicon hl-arrow-down-smll-icon"></i>
                     </a>
 
@@ -82,14 +79,14 @@
         <ul class="main-nav" ng-class="mainNavCollapsed ? 'main-nav-toggled':''">
             <li class="main-nav-item">
                 <a ui-sref-active="active" ui-sref="base.dashboard" ng-click="mainNavCollapsed = !mainNavCollapsed">
-                    <i class="lilicon hl-home-icon"></i>
+                    <i class="lilicon hl-dashboard-icon"></i>
                     <span class="title">Dashboard</span>
                 </a>
             </li>
 
             <li class="main-nav-item">
                 <a ui-sref-active="active" ui-sref="base.stats" ng-click="mainNavCollapsed = !mainNavCollapsed">
-                    <i class="lilicon hl-stats-icon"></i>
+                    <i class="lilicon hl-statistics-icon"></i>
                     <span class="title">Stats</span>
                 </a>
             </li>
@@ -108,7 +105,7 @@
             </li>
             <li class="main-nav-item">
                 <a ui-sref-active="active" ui-sref="base.contacts" ng-click="mainNavCollapsed = !mainNavCollapsed">
-                    <i class="lilicon hl-user-icon"></i>
+                    <i class="lilicon hl-entity-icon"></i>
                     <span class="title">Contacts</span>
                 </a>
             </li>
@@ -129,36 +126,91 @@
     <!-- END HEADER INNER -->
     <!-- BEGIN SUBHEADER -->
     <div class="clearfix"></div>
+    <table class="header-rainbow">
+        <tr>
+            <td class="yellow"></td>
+            <td class="purple"></td>
+            <td class="mint"></td>
+            <td class="aqua"></td>
+            <td class="red"></td>
+        </tr>
+    </table>
+
     <div class="sub-header">
         <!-- BEGIN PAGE ACTIONS -->
+        <div class="hl-page-name-container">
+            <h1 class="hl-page-name">
+                <span ng-if="toolbar.updateCallback">
+                    <span ng-if="toolbar.field" editable-text="toolbar.object[toolbar.field]" onbeforesave="toolbar.updateCallback($data, toolbar.field)" blur="submit">
+                        <span>{{ settings.page.header.main }}</span>
+                    </span>
+                    <form ng-if="toolbar.fields" editable-form name="headerForm"
+                          ng-class="{'editable editable-click addable-click': !headerForm.$visible}"
+                          onbeforesave="toolbar.updateCallback($data, toolbar.fields)" blur="submit">
+                        <span ng-if="!headerForm.$visible" ng-click="headerForm.$show()">
+                            {{ settings.page.header.main }}
+
+                            <span ng-if="!headerForm.$visible" class="editable-icons no-edit">
+                                <span class="editable-icon"><i class="lilicon hl-edit-icon"></i></span>
+                            </span>
+                        </span>
+                        <span ng-if="headerForm.$visible" ng-repeat="field in toolbar.fields">
+                            <span e-name="{{ field }}" editable-text="toolbar.object[field]"></span>
+                        </span>
+                        <span ng-if="headerForm.$visible">
+                            <button type="submit" class="btn" ng-disabled="headerForm.$waiting">
+                                <i class="fa fa-check"></i>
+                            </button>
+                            <button class="btn" ng-click="headerForm.$cancel()" ng-disabled="headerForm.$waiting">
+                                <i class="fa fa-close"></i>
+                            </button>
+                        </span>
+                    </form>
+                </span>
+                <span ng-if="!toolbar.updateCallback">
+                    {{ settings.page.header.main }}
+                </span>
+                <span ng-if="settings.page.contact">
+                    for <a ui-sref="base.contacts.detail({ id: settings.page.contact.id })">{{ settings.page.contact.full_name }}</a>
+                </span>
+                <span ng-if="settings.page.account">
+                    at <a ui-sref="base.accounts.detail({ id: settings.page.account.id })">{{ settings.page.account.name }}</a>
+                </span>
+            </h1>
+        </div>
+
         <div class="pull-right">
             <!-- BEGIN LARGE ACTIONS -->
             <div class="hidden-sm hidden-xs">
-                <a class="btn blue btn-sm" ui-sref="base.accounts.create" role="button" onclick="ga('send', 'event', 'Account', 'Open', 'Topnav');"><i class="fa fa-plus"></i> Account</a>
-                <a class="btn blue btn-sm" ui-sref="base.contacts.create" role="button" onclick="ga('send', 'event', 'Contact', 'Open', 'Topnav');"><i class="fa fa-plus"></i> Contact</a>
-                <a class="btn blue btn-sm" ui-sref="base.deals.create" role="button" onclick="ga('send', 'event', 'Deal', 'Open', 'Topnav');"><i class="fa fa-plus"></i> Deal</a>
-                <a class="btn blue btn-sm" ui-sref="base.cases.create" role="button" onclick="ga('send', 'event', 'Case', 'Open', 'Topnav');"><i class="fa fa-plus"></i> Case</a>
+                <a class="hl-primary-btn" ui-sref="base.accounts.create" role="button" onclick="ga('send', 'event', 'Account', 'Open', 'Topnav');"><i class="fa fa-plus"></i> Account</a>
+                <a class="hl-primary-btn" ui-sref="base.contacts.create" role="button" onclick="ga('send', 'event', 'Contact', 'Open', 'Topnav');"><i class="fa fa-plus"></i> Contact</a>
+                <a class="hl-primary-btn" ui-sref="base.deals.create" role="button" onclick="ga('send', 'event', 'Deal', 'Open', 'Topnav');"><i class="fa fa-plus"></i> Deal</a>
+                <a class="hl-primary-btn" ui-sref="base.cases.create" role="button" onclick="ga('send', 'event', 'Case', 'Open', 'Topnav');"><i class="fa fa-plus"></i> Case</a>
             </div>
             <!-- END LARGE ACTIONS -->
 
             <!-- BEGIN SMALL ACTIONS -->
-            <div class="sub-header-action-menu drop-down hidden-md hidden-lg">
-                <a class="drop-down-item" data-toggle="dropdown" data-hover="dropdown" data-close-others="true" aria-expanded="false">
-                    add <i class="fa fa-angle-down"></i>
-                </a>
+            <div class="hl-button-group-container hidden-md hidden-lg">
+                <ul class="hl-button-group">
+                    <li class="hl-button-group-btn">
+                        <a class="hl-button-group-btn-link" data-toggle="dropdown" data-hover="dropdown" data-close-others="true" aria-expanded="false">
+                            Add <i class="fa fa-angle-down"></i>
+                        </a>
 
-                <ul class="sub-header-action-submenu drop-down-sub-menu right-aligned white-menu">
-                    <li class="sub-header-action-menu-item drop-down-sub-menu-item">
-                        <a ui-sref="base.accounts.create" onclick="ga('send', 'event', 'Account', 'Open', 'Topnav mobile');"><i class="fa fa-plus"></i> Account</a>
-                    </li>
-                    <li class="sub-header-action-menu-item drop-down-sub-menu-item">
-                        <a ui-sref="base.contacts.create" onclick="ga('send', 'event', 'Contact', 'Open', 'Topnav mobile');"><i class="fa fa-plus"></i> Contact</a>
-                    </li>
-                    <li class="sub-header-action-menu-item drop-down-sub-menu-item">
-                        <a ui-sref="base.deals.create" onclick="ga('send', 'event', 'Deal', 'Open', 'Topnav mobile');"><i class="fa fa-plus"></i> Deal</a>
-                    </li>
-                    <li class="sub-header-action-menu-item drop-down-sub-menu-item">
-                        <a ui-sref="base.cases.create" onclick="ga('send', 'event', 'Case', 'Open', 'Topnav mobile');"><i class="fa fa-plus"></i> Case</a>
+                        <ul class="hl-dropdown aligned-to-right">
+                            <li class="hl-dropdown-item">
+                                <a class="hl-dropdown-item-link" ui-sref="base.accounts.create" onclick="ga('send', 'event', 'Account', 'Open', 'Topnav mobile');"><i class="fa fa-plus"></i> Account</a>
+                            </li>
+                            <li class="hl-dropdown-item">
+                                <a class="hl-dropdown-item-link" ui-sref="base.contacts.create" onclick="ga('send', 'event', 'Contact', 'Open', 'Topnav mobile');"><i class="fa fa-plus"></i> Contact</a>
+                            </li>
+                            <li class="hl-dropdown-item">
+                                <a class="hl-dropdown-item-link" ui-sref="base.deals.create" onclick="ga('send', 'event', 'Deal', 'Open', 'Topnav mobile');"><i class="fa fa-plus"></i> Deal</a>
+                            </li>
+                            <li class="hl-dropdown-item">
+                                <a class="hl-dropdown-item-link" ui-sref="base.cases.create" onclick="ga('send', 'event', 'Case', 'Open', 'Topnav mobile');"><i class="fa fa-plus"></i> Case</a>
+                            </li>
+                        </ul>
                     </li>
                 </ul>
             </div>

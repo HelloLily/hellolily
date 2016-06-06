@@ -1,30 +1,128 @@
+/* SG
+# Icons #
+
+Lily has a large amount of icons that can be used.
+
+<table class="widget-table">
+    <thead>
+        <tr>
+            <th colspan="9">Menu icons</th>
+        </tr>
+    </thead>
+
+    <tbody class="align-center">
+        <tr>
+            <td><i class="lilicon hl-lily-icon"></i><div>.hl-lily-icon</div></td>
+            <td><i class="lilicon hl-dashboard-icon"></i><div>.hl-dashboard-icon</div></td>
+            <td><i class="lilicon hl-mail-icon"></i><div>.hl-mail-icon</div></td>
+            <td><i class="lilicon hl-company-icon"></i><div>.hl-company-icon</div></td>
+            <td><i class="lilicon hl-entity-icon"></i><div>.hl-entity-icon</div></td>
+            <td><i class="lilicon hl-deals-icon"></i><div>.hl-deals-icon</div></td>
+            <td><i class="lilicon hl-case-icon"></i><div>.hl-case-icon</div></td>
+        </tr>
+    </tbody>
+    <thead>
+        <tr>
+            <th colspan="9">Interface icons</th>
+        </tr>
+    </thead>
+    <tbody class="align-center">
+        <tr>
+            <td><i class="lilicon hl-arrow-up-icon"></i><div>.hl-arrow-up-icon</div></td>
+            <td><i class="lilicon hl-arrow-right-icon"></i><div>.hl-arrow-right-icon</div></td>
+            <td><i class="lilicon hl-arrow-down-icon"></i><div>.hl-arrow-down-icon</div></td>
+            <td><i class="lilicon hl-arrow-left-icon"></i><div>.hl-arrow-left-icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+        </tr>
+        <tr>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+        </tr>
+        <tr>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+        </tr>
+        <tr>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+        </tr>
+        <tr>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+        </tr>
+        <tr>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+        </tr>
+        <tr>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+            <td><i class="lilicon hl--icon"></i><div>.hl--icon</div></td>
+        </tr>
+</table>
+
+*/
+
 @font-face {
-  font-family: 'lilicon';
-  src: url('fonts/lilicon/lilicon.eot?ls2e23');
-  src: url('fonts/lilicon/lilicon.eot?ls2e23#iefix') format('embedded-opentype'),
-  url('fonts/lilicon/lilicon.ttf?ls2e23') format('truetype'),
-  url('fonts/lilicon/lilicon.woff?ls2e23') format('woff'),
-  url('fonts/lilicon/lilicon.svg?ls2e23#lilicon') format('svg');
-  font-weight: normal;
-  font-style: normal;
+    font-family: 'lilicon';
+    src:    url('fonts/lilicon/lilicon.eot?ls2e23');
+    src:    url('fonts/lilicon/lilicon.eot?ls2e23#iefix') format('embedded-opentype'),
+        url('fonts/lilicon/lilicon.ttf?ls2e23') format('truetype'),
+        url('fonts/lilicon/lilicon.woff?ls2e23') format('woff'),
+        url('fonts/lilicon/lilicon.svg?ls2e23#lilicon') format('svg');
+    font-weight: normal;
+    font-style: normal;
 }
 
 .lilicon {
-  /* use !important to prevent issues with browser extensions that change fonts */
-  font-family: 'lilicon' !important;
-  speak: none;
-  font-style: normal;
-  font-weight: normal;
-  font-variant: normal;
-  text-transform: none;
-  line-height: 1;
+    /* use !important to prevent issues with browser extensions that change fonts */
+    font-family: 'lilicon' !important;
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
 
-  /* Better Font Rendering =========== */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    /* Better Font Rendering =========== */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
+$hl-lily-icon: "\e935";
 $hl-status-icon: "\e900";
+$hl-postpone-icon: "\e910";
 $hl-deals-icon: "\e901";
 $hl-deals-filled-icon: "\e902";
 $hl-outgoing-icon: "\e903";
@@ -40,7 +138,6 @@ $hl-calender-icon: "\e90c";
 $hl-firstday-icon: "\e90d";
 $hl-tomorrow-icon: "\e90e";
 $hl-cog-icon: "\e90f";
-$hl-postpone-icon: "\e910";
 $hl-user-icon: "\e911";
 $hl-mail-icon: "\e912";
 $hl-case-icon: "\e913";
@@ -70,187 +167,293 @@ $hl-arrow-up-smll-icon: "\e92a";
 $hl-arrow-down-smll-icon: "\e92b";
 $hl-pin-icon: "\e92c";
 $hl-phone-icon: "\e92d";
+$hl-info-icon: "\e933";
+$hl-entity-icon: "\e932";
+$hl-menu-icon: "\e92f";
+$hl-dialplan-icon: "\e92e";
+$hl-admin-icon: "\e931";
+$hl-statistics-icon: "\e930";
+$hl-administration-icon: "\e936";
+$hl-dashboard-icon: "\e934";
+$hl-forwarding-icon: "\e937";
 
-.hl-status-icon:before {
-  content: "\e900";
+.hl-lily-icon {
+    &:before {
+        content: $hl-lily-icon;
+    }
 }
-
-.hl-deals-icon:before {
-  content: "\e901";
+.hl-status-icon {
+    &:before {
+        content: $hl-status-icon;
+    }
 }
-
-.hl-deals-filled-icon:before {
-  content: "\e902";
+.hl-postpone-icon {
+    &:before {
+        content: $hl-postpone-icon;
+    }
 }
-
-.hl-outgoing-icon:before {
-  content: "\e903";
+.hl-deals-icon {
+    &:before {
+        content: $hl-deals-icon;
+    }
 }
-
-.hl-incomming-icon:before {
-  content: "\e904";
+.hl-deals-filled-icon {
+    &:before {
+        content: $hl-deals-filled-icon;
+    }
 }
-
-.hl-incomming-down-icon:before {
-  content: "\e905";
+.hl-outgoing-icon {
+    &:before {
+        content: $hl-outgoing-icon;
+    }
 }
-
-.hl-outgoing-up-icon:before {
-  content: "\e906";
+.hl-incomming-icon {
+    &:before {
+        content: $hl-incomming-icon;
+    }
 }
-
-.hl-phone-filled-icon:before {
-  content: "\e907";
+.hl-incomming-down-icon {
+    &:before {
+        content: $hl-incomming-down-icon;
+    }
 }
-
-.hl-asterix-icon:before {
-  content: "\e908";
+.hl-outgoing-up-icon {
+    &:before {
+        content: $hl-outgoing-up-icon;
+    }
 }
-
-.hl-edit-icon:before {
-  content: "\e909";
+.hl-phone-filled-icon {
+    &:before {
+        content: $hl-phone-filled-icon;
+    }
 }
-
-.hl-edit-line-icon:before {
-  content: "\e90a";
+.hl-asterix-icon {
+    &:before {
+        content: $hl-asterix-icon;
+    }
 }
-
-.hl-trashcan-icon:before {
-  content: "\e90b";
+.hl-edit-icon {
+    &:before {
+        content: $hl-edit-icon;
+    }
 }
-
-.hl-calender-icon:before {
-  content: "\e90c";
+.hl-edit-line-icon {
+    &:before {
+        content: $hl-edit-line-icon;
+    }
 }
-
-.hl-firstday-icon:before {
-  content: "\e90d";
+.hl-trashcan-icon {
+    &:before {
+        content: $hl-trashcan-icon;
+    }
 }
-
-.hl-tomorrow-icon:before {
-  content: "\e90e";
+.hl-calender-icon {
+    &:before {
+        content: $hl-calender-icon;
+    }
 }
-
-.hl-cog-icon:before {
-  content: "\e90f";
+.hl-firstday-icon {
+    &:before {
+        content: $hl-firstday-icon;
+    }
 }
-
-.hl-postpone-icon:before {
-  content: "\e910";
+.hl-tomorrow-icon {
+    &:before {
+        content: $hl-tomorrow-icon;
+    }
 }
-
-.hl-user-icon:before {
-  content: "\e911";
+.hl-cog-icon {
+    &:before {
+        content: $hl-cog-icon;
+    }
 }
-
-.hl-mail-icon:before {
-  content: "\e912";
+.hl-user-icon {
+    &:before {
+        content: $hl-user-icon;
+    }
 }
-
-.hl-case-icon:before {
-  content: "\e913";
+.hl-mail-icon {
+    &:before {
+        content: $hl-mail-icon;
+    }
 }
-
-.hl-person-icon:before {
-  content: "\e914";
+.hl-case-icon {
+    &:before {
+        content: $hl-case-icon;
+    }
 }
-
-.hl-note-icon:before {
-  content: "\e915";
+.hl-person-icon {
+    &:before {
+        content: $hl-person-icon;
+    }
 }
-
-.hl-home-icon:before {
-  content: "\e916";
+.hl-note-icon {
+    &:before {
+        content: $hl-note-icon;
+    }
 }
-
-.hl-company-icon:before {
-  content: "\e917";
+.hl-home-icon {
+    &:before {
+        content: $hl-home-icon;
+    }
 }
-
-.hl-stats-icon:before {
-  content: "\e918";
+.hl-company-icon {
+    &:before {
+        content: $hl-company-icon;
+    }
 }
-
-.hl-paperclip-icon:before {
-  content: "\e919";
+.hl-stats-icon {
+    &:before {
+        content: $hl-stats-icon;
+    }
 }
-
-.hl-options-icon:before {
-  content: "\e91a";
+.hl-paperclip-icon {
+    &:before {
+        content: $hl-paperclip-icon;
+    }
 }
-
-.hl-low-prio-icon:before {
-  content: "\e91b";
+.hl-options-icon {
+    &:before {
+        content: $hl-options-icon;
+    }
 }
-
-.hl-normal-prio-icon:before {
-  content: "\e91c";
+.hl-low-prio-icon {
+    &:before {
+        content: $hl-low-prio-icon;
+    }
 }
-
-.hl-high-prio-icon:before {
-  content: "\e91d";
+.hl-normal-prio-icon {
+    &:before {
+        content: $hl-normal-prio-icon;
+    }
 }
-
-.hl-critical-prio-icon:before {
-  content: "\e91e";
+.hl-high-prio-icon {
+    &:before {
+        content: $hl-high-prio-icon;
+    }
 }
-
-.hl-toggle-right-icon:before {
-  content: "\e91f";
+.hl-critical-prio-icon {
+    &:before {
+        content: $hl-critical-prio-icon;
+    }
 }
-
-.hl-toggle-left-icon:before {
-  content: "\e920";
+.hl-toggle-right-icon {
+    &:before {
+        content: $hl-toggle-right-icon;
+    }
 }
-
-.hl-toggle-up-icon:before {
-  content: "\e921";
+.hl-toggle-left-icon {
+    &:before {
+        content: $hl-toggle-left-icon;
+    }
 }
-
-.hl-toggle-down-icon:before {
-  content: "\e922";
+.hl-toggle-up-icon {
+    &:before {
+        content: $hl-toggle-up-icon;
+    }
 }
-
-.hl-close-icon:before {
-  content: "\e923";
+.hl-toggle-down-icon {
+    &:before {
+        content: $hl-toggle-down-icon;
+    }
 }
-
-.hl-arrow-right-icon:before {
-  content: "\e924";
+.hl-close-icon {
+    &:before {
+        content: $hl-close-icon;
+    }
 }
-
-.hl-arrow-left-icon:before {
-  content: "\e925";
+.hl-arrow-right-icon {
+    &:before {
+        content: $hl-arrow-right-icon;
+    }
 }
-
-.hl-arrow-up-icon:before {
-  content: "\e926";
+.hl-arrow-left-icon {
+    &:before {
+        content: $hl-arrow-left-icon;
+    }
 }
-
-.hl-arrow-down-icon:before {
-  content: "\e927";
+.hl-arrow-up-icon {
+    &:before {
+        content: $hl-arrow-up-icon;
+    }
 }
-
-.hl-arrow-right-smll-icon:before {
-  content: "\e928";
+.hl-arrow-down-icon {
+    &:before {
+        content: $hl-arrow-down-icon;
+    }
 }
-
-.hl-arrow-left-smll-icon:before {
-  content: "\e929";
+.hl-arrow-right-smll-icon {
+    &:before {
+        content: $hl-arrow-right-smll-icon;
+    }
 }
-
-.hl-arrow-up-smll-icon:before {
-  content: "\e92a";
+.hl-arrow-left-smll-icon {
+    &:before {
+        content: $hl-arrow-left-smll-icon;
+    }
 }
-
-.hl-arrow-down-smll-icon:before {
-  content: "\e92b";
+.hl-arrow-up-smll-icon {
+    &:before {
+        content: $hl-arrow-up-smll-icon;
+    }
 }
-
-.hl-pin-icon:before {
-  content: "\e92c";
+.hl-arrow-down-smll-icon {
+    &:before {
+        content: $hl-arrow-down-smll-icon;
+    }
 }
-
-.hl-phone-icon:before {
-  content: "\e92d";
+.hl-pin-icon {
+    &:before {
+        content: $hl-pin-icon;
+    }
+}
+.hl-phone-icon {
+    &:before {
+        content: $hl-phone-icon;
+    }
+}
+.hl-info-icon {
+    &:before {
+        content: $hl-info-icon;
+    }
+}
+.hl-entity-icon {
+    &:before {
+        content: $hl-entity-icon;
+    }
+}
+.hl-menu-icon {
+    &:before {
+        content: $hl-menu-icon;
+    }
+}
+.hl-dialplan-icon {
+    &:before {
+        content: $hl-dialplan-icon;
+    }
+}
+.hl-admin-icon {
+    &:before {
+        content: $hl-admin-icon;
+    }
+}
+.hl-statistics-icon {
+    &:before {
+        content: $hl-statistics-icon;
+    }
+}
+.hl-administration-icon {
+    &:before {
+        content: $hl-administration-icon;
+    }
+}
+.hl-dashboard-icon {
+    &:before {
+        content: $hl-dashboard-icon;
+    }
+}
+.hl-forwarding-icon {
+    &:before {
+        content: $hl-forwarding-icon;
+    }
 }

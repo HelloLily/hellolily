@@ -20,9 +20,24 @@ $dropdown-arrow-size: 8px;
   position: absolute;
   left: -1px;
   z-index: 100;
-  -webkit-box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.15);
-  -moz-box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.15);
-  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.15);
+    -webkit-box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.15);
+    -moz-box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.15);
+    box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.15);
+
+    &.aligned-to-right {
+        right: -1px;
+        left: auto;
+
+        &:before {
+            left: auto;
+            right: 10px;
+        }
+
+        &:after {
+            left: auto;
+            right: 10px;
+        }
+    }
 
   &:before {
     content: "";
@@ -55,7 +70,7 @@ $dropdown-arrow-size: 8px;
   padding: 5px 10px;
   white-space: nowrap;
   position: relative;
-  border-bottom: 1px lighten($baseBorderColor, 10) solid;
+    border-bottom: 1px lighten($baseBorderColor, 10) solid;
 
   &:first-child {
     .hl-dropdown-item-link {
@@ -211,5 +226,5 @@ $dropdown-arrow-size: 8px;
 
 .drop-down-sub-menu .divider {
   margin: 5px;
-  border-bottom: 1px lighten(#5b667b, 10) solid;
+    border-bottom: 1px lighten(#5b667b, 10) solid;
 }

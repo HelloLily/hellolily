@@ -6,8 +6,6 @@ General reset
 ***/
 /* Set default body */
 body {
-  color: #333333;
-  font-family: "Open Sans", sans-serif;
   padding: 0px !important;
   margin: 0px !important;
   font-size: 13px;
@@ -134,10 +132,6 @@ h6.block {
 /* Links */
 a {
   text-shadow: none;
-  color: #5b9bd1;
-}
-a:hover {
-  color: #3175af;
 }
 a:focus, a:hover, a:active {
   outline: 0;
@@ -2750,84 +2744,6 @@ Input icons
 .input-icon.input-icon-sm > i {
   margin-top: 8px;
   font-size: 13px;
-}
-
-/***
-Customized Bootstrap Labels
-***/
-.label {
-  text-shadow: none !important;
-  font-size: 13px;
-  font-weight: 300;
-  padding: 3px 6px 3px 6px;
-  color: #fff;
-  font-family: "Open Sans", sans-serif;
-}
-.label.label-sm {
-  font-size: 12px;
-  padding: 0px 4px 1px 4px;
-}
-h1 .label, h2 .label, h3 .label, h4 .label, h5 .label, h6 .label {
-  font-size: 75%;
-}
-
-/* Labels variants */
-.label-default {
-  background-color: #c6c6c6;
-}
-.label-default[href]:hover, .label-default[href]:focus {
-  background-color: #adadad;
-}
-
-.label-primary {
-  background-color: #428bca;
-}
-.label-primary[href]:hover, .label-primary[href]:focus {
-  background-color: #3071a9;
-}
-
-.label-success {
-  background-color: #45B6AF;
-}
-.label-success[href]:hover, .label-success[href]:focus {
-  background-color: #37918b;
-}
-
-.label-info {
-  background-color: #89C4F4;
-}
-.label-info[href]:hover, .label-info[href]:focus {
-  background-color: #5aadf0;
-}
-
-.label-warning {
-  background-color: #dfba49;
-}
-.label-warning[href]:hover, .label-warning[href]:focus {
-  background-color: #d0a625;
-}
-
-.label-danger {
-  background-color: #F3565D;
-}
-.label-danger[href]:hover, .label-danger[href]:focus {
-  background-color: #f0262f;
-}
-
-/***
-Iconic labels
-***/
-.label.label-icon {
-  padding: 4px 0px 4px 4px;
-  margin-right: 2px;
-  text-align: center !important;
-}
-.label.label-icon > i {
-  font-size: 12px;
-  text-align: center !important;
-}
-.ie8 .label.label-icon, .ie9 .label.label-icon {
-  padding: 3px 0px 3px 3px;
 }
 
 /***
@@ -8760,11 +8676,6 @@ Grey Cascade
   background-image: none !important;
   background-color: #95A5A6 !important;
   color: #FFFFFF !important;
-}
-
-/* General Text & Icon Font Colors */
-.font-grey-cascade {
-  color: #95A5A6 !important;
 }
 
 .progress-bar.grey-cascade {

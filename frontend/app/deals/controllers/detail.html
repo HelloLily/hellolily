@@ -71,6 +71,7 @@
         <div class="col-md-4">
             <widget widget-name="'Detail'">
                 <widget-header>
+                    <div class="widget-label deal"></div>
                     <div class="widget-name">Deal details</div>
                 </widget-header>
                 <widget-body>
@@ -168,6 +169,7 @@
 
             <widget widget-name="'Involved'">
                 <widget-header>
+                    <div class="widget-label"></div>
                     <div class="widget-name">Involved</div>
                 </widget-header>
 
@@ -197,6 +199,7 @@
 
             <widget ng-if="vm.deal.account" widget-name="'Account info'">
                 <widget-header>
+                    <div class="widget-label account"></div>
                     <div class="widget-name">
                         <a ui-sref="base.accounts.detail({ id: vm.deal.account.id })">
                             <i class="lilicon hl-company-icon"></i>
@@ -246,9 +249,10 @@
 
             <widget ng-if="vm.deal.contact" widget-name="'Contact info'">
                 <widget-header>
+                    <div class="widget-label contact"></div>
                     <div class="widget-name">
                         <a ui-sref="base.contacts.detail({ id: vm.deal.contact.id })">
-                            <i class="lilicon hl-user-icon"></i>
+                            <i class="lilicon hl-entity-icon"></i>
                             {{ vm.deal.contact.full_name }}
                         </a>
                     </div>

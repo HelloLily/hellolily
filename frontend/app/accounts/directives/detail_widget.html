@@ -29,7 +29,7 @@
                         <editable-select field="status" view-model="vm" type="Account">{{ vm.account.status.name }}</editable-select>
                     </td>
                 </tr>
-                <tr ng-show="(vm.account.email_addresses | filter: {status: '!' + 0}).length">
+                <tr>
                     <td><i class="lilicon hl-mail-icon"></i> <strong>Email</strong></td>
                     <td>
                         <editable-related model="vm.account" type="Account" field="email_addresses"></editable-related>
@@ -50,7 +50,7 @@
                     </td>
                 </tr>
 
-                <tr ng-show="vm.account.assigned_to">
+                <tr>
                     <td><i class="lilicon hl-user-icon"></i> <strong>Assigned to</strong></td>
                     <td>
                         <editable-select field="assigned_to" view-model="vm" type="Account" class="inline-selectable-text" select-options="{type: 'User', field: 'assignOptions', display: 'full_name'}">

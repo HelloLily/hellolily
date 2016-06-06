@@ -233,6 +233,8 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Settings, A
             });
         } else {
             copiedContact.$save(function() {
+                new Intercom('trackEvent', 'contact-created');
+
                 toastr.success('I\'ve saved the contact for you!', 'Yay');
 
                 if (Settings.email.sidebar.form === 'contact') {

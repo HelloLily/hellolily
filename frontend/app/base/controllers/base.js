@@ -48,6 +48,8 @@ function BaseController($scope, $state, Settings, Notifications, HLShortcuts) {
 
         $scope.loadNotifications();
         $scope.toolbar = Settings.page.toolbar.data;
+
+        new window.Intercom('update');
     }
 
     function _setPreviousState(event, toState, toParams, fromState, fromParams) {

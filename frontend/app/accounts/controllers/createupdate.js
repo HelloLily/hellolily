@@ -313,6 +313,8 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
             });
         } else {
             vm.account.$save(function() {
+                new Intercom('trackEvent', 'account-created');
+
                 toastr.success('I\'ve saved the account for you!', 'Yay');
 
                 if (Settings.email.sidebar.form === 'account') {

@@ -19,14 +19,14 @@
 
         <div ng-if="settings.email.sidebar.account && settings.email.data.account.id">
             <div ui-view="showAccount">
-                <account-detail-widget account="account" height="300" update-callback="vm.updateModel"></account-detail-widget>
+                <account-detail-widget account="account" height="300"></account-detail-widget>
                 <list-widget ng-if="!settings.email.data.contact.id" title="{{ account.name }}" module="contacts" list="contactList" height="300" object="account"></list-widget>
             </div>
         </div>
 
         <div ng-if="settings.email.sidebar.contact && settings.email.data.contact.id">
             <div ui-view="showContact">
-                <contact-detail-widget contact="contact" height="300" update-callback="vm.updateModel"></contact-detail-widget>
+                <contact-detail-widget contact="contact" height="300"></contact-detail-widget>
                 <div ng-repeat="account in contact.accounts" ng-show="contact.accounts.length">
                     <list-widget title="{{ account.name }}" module="contacts" object="account" list="account.colleagueList" height="height"></list-widget>
                 </div>

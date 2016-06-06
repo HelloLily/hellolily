@@ -1,7 +1,7 @@
 angular.module('app.accounts.services').factory('Account', Account);
 
-Account.$inject = ['$http', '$q', '$resource', 'HLResource', 'HLUtils', 'HLCache', 'CacheFactory'];
-function Account($http, $q, $resource, HLResource, HLUtils, HLCache, CacheFactory) {
+Account.$inject = ['$http', '$q', '$resource', 'HLResource', 'HLUtils', 'HLCache', 'CacheFactory', 'Settings'];
+function Account($http, $q, $resource, HLResource, HLUtils, HLCache, CacheFactory, Settings) {
     var _account = $resource(
         '/api/accounts/account/:id/',
         null,
@@ -87,8 +87,8 @@ function Account($http, $q, $resource, HLResource, HLUtils, HLCache, CacheFactor
 
     _account.getAccounts = getAccounts;
     _account.create = create;
+    _account.updateModel = updateModel;
 
-    _account.prototype.getEmailAddress = getEmailAddress;
     _account.prototype.getDataproviderInfo = getDataproviderInfo;
     _account.prototype.addRelatedField = addRelatedField;
     _account.prototype.removeRelatedField = removeRelatedField;
@@ -125,25 +125,41 @@ function Account($http, $q, $resource, HLResource, HLUtils, HLCache, CacheFactor
                 size: pageSize,
                 sort: sort,
             },
-        })
-            .then(function(response) {
-                return {
-                    accounts: response.data.hits,
-                    total: response.data.total,
-                };
-            });
+        }).then(function(response) {
+            return {
+                accounts: response.data.hits,
+                total: response.data.total,
+            };
+        });
     }
 
-    function getEmailAddress() {
-        var account = this;
+    function updateModel(data, field, account) {
+        var patchPromise;
+        var args = HLResource.createArgs(data, field, account);
 
-        var primaryEmails = $filter('filter')(account.email_addresses, {status: 0});
-
-        if (primaryEmails.length) {
-            return primaryEmails[0];
-        } else if (account.email_addresses.length) {
-            return account.email_addresses[0];
+        if (field === 'twitter') {
+            args = {
+                id: account.id,
+                social_media: [args],
+            };
         }
+
+        if (field === 'name') {
+            Settings.page.setAllTitles('detail', data);
+        }
+
+        patchPromise = HLResource.patch('Account', args).$promise;
+
+        patchPromise.then(function(response) {
+            if (field === 'twitter') {
+                // Update the Twitter link.
+                HLResource.setSocialMediaFields(response);
+
+                account.twitter = response.twitter;
+            }
+        });
+
+        return patchPromise;
     }
 
     function create() {
@@ -193,13 +209,12 @@ function Account($http, $q, $resource, HLResource, HLUtils, HLCache, CacheFactor
 
     function addRelatedField(field) {
         var account = this;
+        var status = 1;
+        var isPrimary = false;
 
         switch (field) {
             case 'emailAddress':
                 // Default status is 'Other'
-                var status = 1;
-                var isPrimary = false;
-
                 if (account.email_addresses.length === 0) {
                     // No email addresses added yet, so first one is primary
                     status = 2;
@@ -224,6 +239,7 @@ function Account($http, $q, $resource, HLResource, HLUtils, HLCache, CacheFactor
 
     function removeRelatedField(field, index, remove) {
         var account = this;
+        var websiteIndex;
 
         switch (field) {
             case 'emailAddress':
@@ -236,9 +252,11 @@ function Account($http, $q, $resource, HLResource, HLUtils, HLCache, CacheFactor
                 account.addresses[index].is_deleted = remove;
                 break;
             case 'website':
-                index = account.websites.indexOf(index);
-                if (index !== -1) {
-                    account.websites[index].is_deleted = remove;
+                // index is a whole website object in this case.
+                websiteIndex = account.websites.indexOf(index);
+
+                if (websiteIndex  !== -1) {
+                    account.websites[websiteIndex].is_deleted = remove;
                 }
                 break;
             default:

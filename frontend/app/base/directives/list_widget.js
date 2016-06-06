@@ -60,20 +60,28 @@ function ListWidgetController($filter, $state, Settings) {
     // Google Analytics function to set labels to differentiate in Analytics
     // which widget the user used to add a case or deal.
     function googleAnalyticsEvent() {
-        if ($state.current === 'base.contacts.detail' && vm.title === 'Cases') {
-            ga('send', 'event', 'Case', 'Open', 'Contact widget');
+        if ($state.current.name === 'base.contacts.detail' && vm.title === 'Cases') {
+            ga('send', 'event', 'Case', 'Open', 'Contact Widget');
         }
 
-        if ($state.current === 'base.accounts.detail' && vm.title === 'Cases') {
-            ga('send', 'event', 'Case', 'Open', 'Account widget');
+        if ($state.current.name === 'base.accounts.detail' && vm.title === 'Cases') {
+            ga('send', 'event', 'Case', 'Open', 'Account Widget');
         }
 
-        if ($state.current === 'base.contacts.detail' && vm.title === 'Deals') {
-            ga('send', 'event', 'Deal', 'Open', 'Contact widget');
+        if ($state.current.name === 'base.contacts.detail' && vm.title === 'Deals') {
+            ga('send', 'event', 'Deal', 'Open', 'Contact Widget');
         }
 
-        if ($state.current === 'base.accounts.detail' && vm.title === 'Deals') {
-            ga('send', 'event', 'Deal', 'Open', 'Account widget');
+        if ($state.current.name === 'base.accounts.detail' && vm.title === 'Deals') {
+            ga('send', 'event', 'Deal', 'Open', 'Account Widget');
+        }
+
+        if ($state.current.name === 'base.accounts.detail' && vm.title !== 'Deals' && vm.title !== 'Cases') {
+            ga('send', 'event', 'Contact', 'Open', 'Account Widget');
+        }
+
+        if ($state.current.name === 'base.contacts.detail' && vm.title !== 'Deals' && vm.title !== 'Cases') {
+            ga('send', 'event', 'Contact', 'Open', 'Contact Widget');
         }
     }
 

@@ -3,6 +3,7 @@ from django.db import models, transaction
 from rest_framework import serializers
 
 from lily.api.mixins import ValidateEverythingSimultaneouslyMixin
+from lily.tags.models import Tag
 
 
 class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializers.ModelSerializer):
@@ -17,6 +18,7 @@ class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializer
         generic_related_data = {}
 
         # Warning: model meta class api changes in django 1.9 so these lists need to be rewritten.
+        # See https://docs.djangoproject.com/en/1.9/ref/models/meta/#migrating-from-the-old-api
         fk_fields = [f.name for f in self.Meta.model._meta.local_fields if isinstance(f, models.ForeignKey)]
         generic_fk_fields = [field.name for field in self.Meta.model._meta.virtual_fields]
         many_to_many_fields = [field.name for field in self.Meta.model._meta.many_to_many]
@@ -95,6 +97,34 @@ class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializer
         # Prepare all data for saving.
         (non_related_data, many_related_data,
          fk_related_data, generic_related_data) = self._separate_data(validated_data)
+
+        if self.partial:
+            for related_field_name in many_related_data:
+                # Store which fields are removed to update many_related_data afterwards.
+                removed_ids = []
+                # The non-model field is_deleted isn't present in many_related_data, so use initial_data instead.
+                field_data = self.initial_data[related_field_name]
+                for item in field_data:
+                    if 'is_deleted' in item and item['is_deleted']:
+                        getattr(self.instance, related_field_name).filter(id=item['id']).delete()
+                        removed_ids.append(item['id'])
+
+                # Update many_related_data without the removed items.
+                # Keep items without an id, those will be newly created items.
+                many_related_data[related_field_name] = [
+                    item for item in many_related_data[related_field_name]
+                    if 'id' not in item or not item['id'] in removed_ids
+                ]
+
+            # Compare the current tags with the submitted tags to determine which tags should be deleted.
+            # Handle tags as a special case, because removed tags have no is_deleted flag,
+            # in fact they aren't present in initial_data at all.
+            if 'tags' in generic_related_data:
+                current_tag_ids = [tag['id'] for tag in instance.tags.all().values()]
+                submitted_existing_tag_ids = [tag['id'] for tag in generic_related_data['tags'] if 'id' in tag]
+                removed_tag_ids = set(current_tag_ids) ^ set(submitted_existing_tag_ids)
+                if len(removed_tag_ids):
+                    Tag.objects.filter(id__in=removed_tag_ids).delete()
 
         with transaction.atomic():
             instance = super(WritableNestedSerializer, self).update(instance, non_related_data)

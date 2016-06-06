@@ -109,28 +109,39 @@ class AccountSerializer(WritableNestedSerializer):
 
     def update(self, instance, validated_data):
         """
-        Reverse foreign key relations don't work yet with
-        WritableNestedSerializer, so we manually update them.
-
         Args:
             validated_data (dict): The validated deserialized data.
         """
-        websites_data = validated_data.pop('websites', {})
+
+        # Handle websites as a special case:
+        # reverse foreign key relations don't work yet with WritableNestedSerializer, so we manually update them.
+        websites_validated_data = validated_data.pop('websites', {})
+        websites_initial_data = self.initial_data.get('websites', {})
         account = super(AccountSerializer, self).update(instance, validated_data)
         if self.partial:
-            # For a PATCH we only apply a delta to existing resources.
-            for website in websites_data:
-                if 'id' in website:
-                    Website.objects.filter(pk=website.pop('id')).update(**website)
+            for website_validated in websites_validated_data:
+                if 'id' in website_validated:
+                    website_deleted = False
+                    # The non-model field is_deleted isn't present in many_related_data,
+                    # so look in initial data to see if the website is marked as deleted.
+                    for website_initial in websites_initial_data:
+                        if 'id' in website_initial and website_initial['id'] == website_validated['id']\
+                                and 'is_deleted' in website_initial and website_initial['is_deleted']:
+                            Website.objects.filter(pk=website_validated['id']).delete()
+                            website_deleted = True
+                            continue
+
+                    if not website_deleted:
+                        Website.objects.filter(pk=website_validated.pop('id')).update(**website_validated)
                 else:
-                    website['account'] = account
-                    Website.objects.create(**website)
+                    website_validated['account'] = account
+                    Website.objects.create(**website_validated)
         else:
-            # For a PUT we replace the whole resource.
+            # For a PUT operation we replace the whole resource.
             account.websites.all().delete()
-            for website in websites_data:
-                website['account'] = account
-                Website.objects.create(**website)
+            for website_validated in websites_validated_data:
+                website_validated['account'] = account
+                Website.objects.create(**website_validated)
 
         return account
 

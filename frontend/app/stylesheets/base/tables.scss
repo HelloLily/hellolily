@@ -1,18 +1,20 @@
 .widget-table {
   width: 100%;
   line-height: 20px;
-  table-layout: fixed;
-  word-wrap: break-word;
-  color: $navyBlue;
+    font-size: 14px;
+    color: $app-color-darkBlue;
 
   thead {
     th {
+            text-align: left;
       padding: 5px 15px;
-      background: $skyGrey;
+            background: #fff;
       border-top: 1px white solid;
-      border-bottom: 1px $baseBorderColor solid;
-      font-weight: 500;
-      color: #9fa6b6;
+            border-bottom: 2px $lightBorderColor solid;
+            font-weight: 400;
+            text-transform: uppercase;
+            font-size: 11px;
+            color: $app-color-grey;
     }
   }
 
@@ -32,6 +34,12 @@
       td {
         padding: 5px 15px;
         background: lighten($skyGrey, 2);
+            }
+        }
+
+        &.align-center {
+            td {
+                text-align: center;
       }
     }
   }
@@ -75,4 +83,72 @@
     }
 
   }
+}
+
+.table-bordered {
+    border-color: $app-border-color;
+
+    thead {
+        th {
+            text-align: left;
+            padding: 5px 15px !important;
+            background: #fff;
+            border-top: 1px white solid;
+            border-bottom: 2px $lightBorderColor solid !important;
+            font-weight: 400 !important;
+            text-transform: uppercase;
+            font-size: 11px !important;
+            color: $app-color-grey;
+
+            border-left-width: 0 !important;
+            border-right-width: 0 !important;
+
+            &:first-child {
+                border-left-width: 1px;
+            }
+
+            &:last-child {
+                border-right-width: 1px;
+            }
+        }
+    }
+
+    tr:hover {
+        background: $lilyWhiteToneHover;
+    }
+
+    tbody tr td {
+        border-bottom-width: 0;
+        border-top-width: 1px;
+        border-top-color: $lightBorderColor;
+    }
+
+    tr:nth-of-type(even) {
+        background: $lilyWhiteTone;
+
+        &:hover {
+            background: $lilyWhiteToneHover;
+        }
+    }
+
+    tr {
+        td {
+            border-left-width: 0 !important;
+            border-right-width: 0 !important;
+
+            &:first-child {
+                border-left-width: 1px;
+            }
+
+            &:last-child {
+                border-right-width: 1px;
+            }
+        }
+    }
+
+    tbody {
+        tr td {
+            padding: 12px 15px;
+        }
+    }
 }

@@ -779,7 +779,7 @@ Page container
   clear: both;
 }
 .page-header-fixed .page-container {
-  margin-top: 109px;
+  margin-top: 140px;
 }
 .page-footer-fixed.page-footer-fixed-mobile .page-container {
   margin-bottom: 20px !important;
@@ -806,7 +806,7 @@ Page container
     padding: 10px 10px 0 10px;
   }
   .page-header-fixed.page-header-fixed-mobile .page-container {
-    margin-top: 109px !important;
+    margin-top: 140px !important;
   }
 }
 @media (max-width: 767px) {

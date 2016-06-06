@@ -1,31 +1,47 @@
+$header-height: 80px;
+
 .sub-header {
-  padding: 10px 20px;
-  background: $skyGrey;
-  border-bottom: 1px $baseBorderColor solid;
+    padding: 15px 20px;
+    background: #fff;
+    border-bottom: 1px $baseBorderColor solid;
+}
+
+.hl-page-name {
+    font-size: 22px;
+    font-weight: 500;
+    color: $app-color-darkBlue;
+    margin: 0;
+    float: left;
 }
 
 .page-header-logo-container {
-  float: left;
-  padding: 0 10px 0 20px;
-  margin-right: 20px;
+    float: left;
+    padding: 0 10px 0 20px;
+    margin-right: 20px;
 
-  @media (max-width: $breakpoint-mobile) {
-    margin-right: 0px;
-  }
+    @media (max-width: $breakpoint-mobile) {
+        margin-right: 0px;
+    }
+}
+
+.page-header.navbar {
+    background: $app-color-darkBlue;
 }
 
 .page-header-logo {
-  font-size: 1.4em;
-  line-height: 60px;
+    color: #fff;
+    font-size: 46px;
+    line-height: $header-height;
 
-  &:hover,
-  &:focus {
-    text-decoration: none;
-  }
+    &:hover,
+    &:focus {
+        color: #fff;
+        text-decoration: none;
+    }
 }
 
 .page-head {
-  margin-bottom: 15px;
+    margin-bottom: 15px;
 }
 
 .page-head .page-title > h1 {
@@ -37,9 +53,9 @@
 }
 
 .page-title {
-  .editable {
-    color: inherit;
-  }
+    .editable {
+        color: inherit;
+    }
 }
 
 .page-head .page-title > h1 > small {
@@ -47,246 +63,189 @@
   font-size: 14px;
 }
 
-.main-nav {
-  display: block;
-  float: left;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  @extend .no-select;
-
-  @media (max-width: $breakpoint-mobile) {
-    display: none;
-    width: 100%;
-
-    &.main-nav-toggled {
-      display: block;
-    }
-  }
-}
-
-.main-nav-toggle {
-  float: right;
-  width: 40px;
-  text-align: center;
-  display: none;
-
-  i {
-    font-size: 18px;
-    line-height: 60px;
-  }
-
-  @media (max-width: $breakpoint-mobile) {
-    display: block;
-  }
-}
-
-.main-nav-item {
-  float: left;
-  margin: 0 10px;
-
-  &:first-child {
-    margin-left: 0px;
-  }
-
-  &:last-child {
-    margin-right: 0px;
-  }
-
-  @media (max-width: $breakpoint-laptop) {
-    margin: 0;
-  }
-
-  @media (max-width: $breakpoint-mobile) {
-    margin: 0;
-    display: block;
-    width: 100%;
-    border-bottom: 1px $lightBorderColor solid;
-
-    &:first-child {
-      border-top: 1px $lightBorderColor solid;
-    }
-  }
-
-  @media (max-width: $breakpoint-mobile) {
-    margin: 0;
-  }
-}
-
-.main-nav-item .title {
-  display: inline-block;
-
-  @media (max-width: $breakpoint-laptop) {
-    display: none;
-  }
-
-  @media (max-width: $breakpoint-mobile) {
-    display: inline-block;
-  }
-}
-
-.main-nav-item a {
-  position: relative;
-  border-bottom: 3px transparent solid;
-  box-sizing: border-box;
-  text-decoration: none;
-  font-size: 14px;
-  line-height: 57px;
-  padding: 0px 10px;
-  display: block;
-  color: $navyBlue;
-
-  &:hover,
-  &:focus {
-    text-decoration: none;
-    color: $lilyBlue;
-  }
-
-  @media (max-width: $breakpoint-mobile) {
-    line-height: 40px;
-    border-bottom: 0px;
-    border-left: 3px transparent solid;
-  }
-}
-
 .main-nav-item a i {
-  font-size: 18px;
-  position: relative;
-  top: 2px;
+    position: relative;
 
-  &.hl-deals-filled-icon {
-    font-size: 20px;
-  }
+
 }
 
 .main-nav-item a.active {
-  color: $lilyBlue;
-  border-bottom: 3px $lilyBlue solid;
+    color: $lilyBlue;
 
-  @media (max-width: $breakpoint-mobile) {
-    border-bottom: 0px transparent solid;
-    border-left: 3px $lilyBlue solid;
-    margin-top: -1px;
-    margin-bottom: -1px;
-    padding-top: 1px;
-    padding-bottom: 1px;
-  }
+    @media (max-width: $breakpoint-mobile) {
+        border-bottom: 0px transparent solid;
+        border-left: 3px $lilyBlue solid;
+        margin-top: -1px;
+        margin-bottom: -1px;
+        padding-top: 1px;
+        padding-bottom: 1px;
+    }
 }
 
 .header-user-menu {
-  margin-right: 20px;
-  line-height: 60px;
+    margin-right: 20px;
+    line-height: $header-height;
 
-  a {
-    text-decoration: none;
-  }
+    a {
+        color: rgba(255,255,255,0.5);
+        font-size: 14px;
+        text-decoration: none;
+
+        &:hover {
+            color: #fff;
+        }
+    }
+
+    @media (max-width: 510px){
+        margin-right: 5px;
+    }
 }
 
 .header-user-menu-username-container {
-  display: inline-block;
-  line-height: 12px;
+    display: inline-block;
+    line-height: 12px;
 }
 
 .header-user-menu-username {
-  display: inline-block;
+    display: inline-block;
 
-  @media (max-width: $breakpoint-laptop) {
-    display: block;
-    max-width: 150px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+    @media (max-width: $breakpoint-laptop) {
+        display: block;
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
 
-  @media (max-width: $breakpoint-mobile) {
-    display: none;
-  }
+    @media (max-width: $breakpoint-mobile) {
+        display: none;
+    }
 }
 
 .header-user-menu-item {
-  top: 65px;
-  line-height: 40px;
+    top: 65px;
+    line-height: 40px;
+}
+
+.header-user-menu-link {
+    height: 40px;
+    padding: 20px 0px;
+    line-height: 40px;
+    display: block;
+
+    &:after {
+        clear: both;
+        display: block;
+        content: "";
+    }
 }
 
 .sub-header-action-menu .drop-down-item {
-  color: white;
-  display: block;
-  background: $lilyBlue;
-  line-height: 28px;
-  border-radius: 4px;
-  padding: 0 10px;
-  text-decoration: none;
+    color: #fff;
+    display: block;
+    background: $lilyBlue;
+    line-height: 28px;
+    border-radius: 4px;
+    padding: 0 10px;
+    text-decoration: none;
 
-  &:hover {
-    background: darken($lilyBlue, 10);
-  }
+    &:hover {
+        background: darken($lilyBlue,10);
+    }
 }
 
 .sub-header-action-menu.open {
-  .drop-down-item {
-    background: darken($lilyBlue, 10);
-  }
+    .drop-down-item {
+        background: darken($lilyBlue,10);
+    }
 }
 
 .sub-header-action-menu-item {
-  line-height: 40px;
+    line-height: 40px;
 }
 
 .sub-header-action-submenu {
-  margin-top: 7px !important;
+    margin-top: 7px !important;
 }
 
 .notification-container {
-  height: 30px;
-  width: 100%;
-  text-align: center;
-  color: #ffffff;
-  line-height: 30px;
-  font-weight: bold;
-  position: relative;
+    height: 30px;
+    width: 100%;
+    text-align: center;
+    color: #ffffff;
+    line-height: 30px;
+    font-weight: bold;
+    position: relative;
 
-  a {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    color: white;
-  }
+    a {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        color: #fff;
+    }
 
-  &.is-error {
-    background-color: $criticalPrioColor;
-  }
+    &.is-error {
+        background-color: $criticalPrioColor;
+    }
 
-  &.is-alert {
-    background-color: $bulletColor4;
-  }
+    &.is-alert {
+        background-color: $bulletColor4;
+    }
 
-  &.is-success {
-    background-color: $lilyGreen;
-  }
+    &.is-success {
+        background-color: $lilyGreen;
+    }
 }
 
 .notification-inline {
-  padding: 0px 5px;
-  background: #ffd66f;
-  color: white;
-  border-radius: 4px;
-  display: block;
-  margin-bottom: 10px;
-  width: auto;
-  text-align: center;
-  margin-top: 10px;
-  min-height: 21px;
-  line-height: 21px;
+    padding: 0px 5px;
+    background: #ffd66f;
+    color: #fff;
+    border-radius: 4px;
+    display: block;
+    margin-bottom: 10px;
+    width: auto;
+    text-align: center;
+    margin-top: 10px;
+    min-height: 21px;
+    line-height: 21px;
 
-  i,
-  &:hover {
-    color: white;
+    i,
+    &:hover {
+        color: #fff;
 
-  }
+    }
 }
 
 .page-header.navbar.navbar-fixed-top {
-  z-index: 999;
+    z-index: 999;
+}
+
+.header-rainbow {
+    display: none;
+    margin: 0;
+    width: 100%;
+    min-height: 5px;
+
+    .yellow {
+        background: $app-color-yellow;
+    }
+
+    .purple {
+        background: $app-color-purple;
+    }
+
+    .mint {
+        background: $app-color-mint;
+    }
+
+    .aqua {
+        background: $app-color-aqua;
+    }
+
+    .red {
+        background: $app-color-red;
+    }
 }

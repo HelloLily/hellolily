@@ -1,0 +1,35 @@
+.filter-group {
+    float: left;
+    line-height: $button-height;
+    height: $button-height;
+}
+
+.filter-group-option {
+    text-transform: uppercase;
+    line-height: $button-height - 3px;
+    display: inline-block;
+    padding: 0 9px;
+    color: $app-color-darkBlue;
+    font-size: 12px;
+    font-weight: 500;
+    -webkit-font-smoothing: antialiased;
+    border-radius: 3px;
+    cursor: pointer;
+    border: 1px transparent solid;
+
+    &:hover,
+    &.active {
+        border-width: 1px;
+        border-bottom-width: 2px;
+        border-style: solid;
+        border-color: $app-border-color;
+    }
+
+    &:hover {
+        color: $app-color-aqua;
+    }
+
+    &.active {
+        color: $app-color-aqua;
+    }
+}

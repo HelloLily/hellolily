@@ -26,12 +26,12 @@ inbox to display buttons like reply, delete, archive etc.
     </ul>
 
     <ul class="hl-button-group">
-        <li class="hl-button-group-btn">
+        <li class="hl-button-group-btn selected">
             <a class="hl-button-group-btn-link" href="#">
                 Email
             </a>
         </li>
-        <li class="hl-button-group-btn">
+        <li class="hl-button-group-btn disabled">
             <a class="hl-button-group-btn-link" href="#">
                 Email
             </a>
@@ -110,12 +110,13 @@ inbox to display buttons like reply, delete, archive etc.
     line-height: $button-height - 4px;
     font-weight: 400;
     font-size: 14px;
-    background: $skyGrey;
-    border: 1px $baseBorderColor solid;
+        background: #fff;
+        border: 1px $app-border-color solid;
+        border-bottom-width: 2px;
     border-left: none;
 
     &:first-child {
-      border-left: 1px $baseBorderColor solid;
+            border-left: 1px $app-border-color solid;
       border-top-left-radius: $baseBorderRadius;
       border-bottom-left-radius: $baseBorderRadius;
 
@@ -135,12 +136,11 @@ inbox to display buttons like reply, delete, archive etc.
       }
     }
 
-    &:hover {
-      background: #fff;
-    }
-
+        &:hover,
     &.selected {
-      background: #fff;
+            .hl-button-group-btn-link {
+                color: $app-color-aqua;
+            }
     }
 
     &.disabled {
@@ -153,7 +153,11 @@ inbox to display buttons like reply, delete, archive etc.
       }
 
       &.selected {
-        background: $skyGrey;
+                background: #fff;
+
+                .hl-button-group-btn-link {
+                    color: $app-color-darkBlue;
+                }
       }
 
       &:hover {
@@ -162,7 +166,9 @@ inbox to display buttons like reply, delete, archive etc.
     }
 
     &.open {
-      background: #fff;
+            .hl-button-group-btn-link {
+                color: $app-color-aqua;
+            }
 
       .hl-dropdown {
         display: block;
@@ -170,13 +176,21 @@ inbox to display buttons like reply, delete, archive etc.
     }
 
     .hl-button-group-btn-link {
+            text-transform: uppercase;
+            font-size: 12px;
+            font-weight: 500;
       cursor: pointer;
       display: inline-block;
-      border-top: 1px #fff solid;
       border-bottom: 1px transparent solid;
       padding: 0 10px;
       text-decoration: none;
-      color: $lilyDarkBlue;
+            color: $app-color-darkBlue;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        button {
+            background-color: transparent !important;
+            border-width: 0;
     }
 
     .hl-button-group-btn-clear {

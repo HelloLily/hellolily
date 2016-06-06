@@ -1,5 +1,6 @@
 <widget widget-name="'Deals'" widget-scrollable="true">
     <widget-header>
+        <div class="widget-label deals"></div>
         <div class="widget-name"><i class="lilicon hl-deals-icon"></i> {{ vm.title }}</div>
     </widget-header>
 
@@ -44,7 +45,7 @@
                     </td>
                 </tr>
                 <tr ng-show="!deal.collapsed" class="collapse-content" class="collapsable-cell">
-                    <td colspan="4">
+                    <td colspan="5">
                         <div class="margin-bottom-5"><strong>Assigned to:</strong> {{ deal.assigned_to.full_name || "Nobody" }}</div>
                         <div class="margin-bottom-5"><strong>Amount once:</strong> &euro; {{ deal.amount_once }}</div>
                         <div class="margin-bottom-5"><strong>Recurring amount:</strong> &euro; {{ deal.amount_recurring }} per month</div>
@@ -58,7 +59,7 @@
             </tbody>
             <tbody ng-hide="vm.list.length">
                 <tr>
-                    <td colspan="4">No deals</td>
+                    <td colspan="5">No deals</td>
                 </tr>
             </tbody>
         </table>

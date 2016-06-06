@@ -1,38 +1,48 @@
 {% load i18n email bootstrap3 %}
 
-<div class="email-inbox-header">
-    <h1 class="pull-left">{% trans 'Compose' %}</h1>
+<div class="widget-heading">
+    <div class="widget-title">
+        <div class="widget-name">{% trans 'Compose' %}</div>
+    </div>
+    <div class="clearfix"></div>
 </div>
-<div class="inbox-content">
-    <span class="text-danger">{{ form.non_field_errors }}</span>
 
-    <form class="inbox-compose form-horizontal" id="fileupload" method="POST" enctype="multipart/form-data" novalidate action="{{ request.path }}">
-        {% csrf_token %}
+<form class="inbox-compose form-horizontal" id="fileupload" method="POST" enctype="multipart/form-data" novalidate action="{{ request.path }}">
+    {% csrf_token %}
 
-        {% for hidden in form.hidden_fields %}
-            {{ hidden }}
-        {% endfor %}
+    {% for hidden in form.hidden_fields %}
+        {{ hidden }}
+    {% endfor %}
 
-        <input type="hidden" name="success_url" value="" />
+    <input type="hidden" name="success_url" value="" />
 
-        <div class="email-reply-actions-header">
-            <ul class="email-inbox-actions">
-                <li>
-                    <button type="submit" name="submit-send" send-checker><i class="fa fa-check"></i> Send</button>
-                </li>{% if form.message_type == 'reply' or form.message_type == 'forward' %}<li>
-                    <button type="submit" name="submit-send-archive" send-and-archive><i class="fa fa-archive"></i> {% trans 'Send and archive' %}</button>
-                </li>{% endif %}
-            </ul>
-            <ul class="email-inbox-actions">
-                <li>
-                    <button type="submit" name="submit-save">Draft</button>
-                </li><li>
-                    <button type="button" ng-click="vm.discard()" name="submit-discard">Discard</button>
+    <div class="widget-sub-heading">
+        <div class="hl-button-group-container">
+            <ul class="hl-button-group">
+                <li class="hl-button-group-btn">
+                    <button class="hl-button-group-btn-link" type="submit" name="submit-send" send-checker><i class="fa fa-check"></i> Send</button>
                 </li>
+
+                {% if form.message_type == 'reply' or form.message_type == 'forward' %}
+                    <li class="hl-button-group-btn">
+                        <button class="hl-button-group-btn-link" type="submit" name="submit-send-archive" send-and-archive><i class="fa fa-archive"></i> {% trans 'Send and archive' %}</button>
+                    </li>
+                {% endif %}
             </ul>
+
+            <ul class="hl-button-group">
+                <li class="hl-button-group-btn">
+                    <button class="hl-button-group-btn-link" type="submit" name="submit-save">Draft</button>
+                </li>
+                <li class="hl-button-group-btn">
+                    <button class="hl-button-group-btn-link" type="button" ng-click="vm.discard()" name="submit-discard">Discard</button>
                 </li>
             </ul>
         </div>
+    </div>
+
+    <div class="inbox-content">
+        <span class="text-danger">{{ form.non_field_errors }}</span>
 
         <div class="email-reply-meta-container">
 
@@ -131,6 +141,5 @@
                 </li>
             </ul>
         </div>
-
-    </form>
-</div>
+    </div>
+</form>

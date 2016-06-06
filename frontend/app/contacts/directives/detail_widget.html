@@ -1,7 +1,8 @@
 <widget ng-if="vm.contact" widget-name="'Contact info'" widget-scrollable="true">
     <widget-header>
+        <div class="widget-label contact"></div>
         <div class="widget-name">
-            <i class="lilicon hl-user-icon"></i>
+            <i class="lilicon hl-entity-icon"></i>
             <span ng-show="vm.settings.email.data.contact.id">
                 <a ui-sref="base.contacts.detail({ id: vm.settings.email.data.contact.id })">{{ vm.contact.full_name }}</a>
             </span>

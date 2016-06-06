@@ -24,7 +24,7 @@
                     <li>Amount recurring: <strong>&euro; {{ ::vm.item.amount_recurring}}</strong></li>
                 </ul>
                 <div class="timeline-date">
-                    {{ ::vm.item.modified | date:'dd MMM - HH:mm' }}
+                    {{ ::vm.item.modified | date:'dd MMM yyyy - HH:mm' }}
                 </div>
             </div>
 
@@ -73,7 +73,7 @@
                                 <div class="content-history-desc">
                                     {{ note.author.full_name }} added a note <span ng-if="note.type === 1">(Callback)</span> <span ng-if="note.type === 2">(Meetup)</span>
                                 </div>
-                                <div class="content-history-date">{{ ::note.modified | date:'dd MMM - HH:mm' }}</div>
+                                <div class="content-history-date">{{ ::note.modified | date:'dd MMM yyyy - HH:mm' }}</div>
                                 <div class="clearfix"></div>
                             </div>
                             <div ng-if="note.content" class="content-history-note-body">
@@ -89,7 +89,7 @@
                                     {{ ::vm.item.created_by.full_name || 'An unknown entity' }} created the deal <a ui-sref="base.deals.detail({ id: vm.item.id })">{{ ::vm.item.name }}</a>
                                 </div>
 
-                                <div class="content-history-date">{{ ::vm.item.created | date:'dd MMM - HH:mm' }}</div>
+                                <div class="content-history-date">{{ ::vm.item.created | date:'dd MMM yyyy - HH:mm' }}</div>
                                 <div class="clearfix"></div>
                             </div>
                         </li>

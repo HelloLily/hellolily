@@ -20,32 +20,33 @@
 }
 
 .email-nav-header {
-  color: $lilyBlue;
-  background: $lilyHeaderBg;
+    color: #fff;
+    background: $app-color-darkBlue;
   display: block;
   font-size: 15px;
   border-left: none;
   text-align: left;
-  margin-right: 0;
-  border-bottom: 1px solid $lilyBorderDark;
-  border-top: 1px solid $lilyWhiteTone;
+    margin-right: -1px;
+    margin-top: -1px;
+    margin-left: -1px;
 }
 
 .email-nav-header-icon {
   cursor: pointer;
   position: absolute;
   right: 10px;
-  top: 7px;
-  line-height: 24px;
-  min-width: 24px;
+    top: 8px;
+    line-height: 20px;
+    font-size: 12px;
+    min-width: 20px;
   text-align: center;
   border-radius: 5px;
-  color: #9fa6b6;
-  background: $lilyHeaderBg;
+    color: $app-color-darkBlue;
+    background: rgba(255,255,255,0.3);
 
   &:hover {
-    color: $lilyDarkBlue;
-    background: $lilyBorderDark;
+        color: $app-color-darkBlue;
+        background: #fff;
   }
 }
 
@@ -110,13 +111,13 @@
 }
 
 .inbox-content {
-  background-color: #ffffff;
+    background-color: #fff;
   border: 1px solid $lilyBorderDark;
   border-top: 0;
 
   tfoot {
-    background-color: $lilyHeaderBg;
-    border-top: 1px solid $lilyWhiteTone;
+        background-color: #fff;
+        border-top: 2px solid $app-border-color;
 
     @media (max-width: $breakpoint-mobile) {
       display: block;
@@ -151,7 +152,7 @@
         border-bottom: 0;
       }
 
-      &:nth-of-type(odd) {
+            &:nth-of-type(odd) {
         background: #ffffff;
       }
 
@@ -165,7 +166,7 @@
       }
     }
 
-    @media (max-width: $breakpoint-mobile) {
+        @media (max-width: $breakpoint-mobile) {
       width: 100%;
       overflow-x: scroll;
       display: inline-block;
@@ -178,14 +179,14 @@
     tr th > label {
       width: 50px;
 
-      @media (max-width: $breakpoint-mobile) {
+            @media (max-width: $breakpoint-mobile) {
         position: absolute;
         bottom: 5px;
         left: 8px;
       }
     }
 
-    @media (max-width: $breakpoint-mobile) {
+        @media (max-width: $breakpoint-mobile) {
       display: inline-block;
     }
   }
@@ -194,17 +195,17 @@
     margin-bottom: 0;
 
     thead th {
-      background: $lilyHeaderBg;
-      border-bottom: 0;
+            background: #fff;
+            border-bottom: 2px solid $app-border-color;
     }
 
-    @media (max-width: $breakpoint-mobile) {
+        @media (max-width: $breakpoint-mobile) {
       display: inline-block;
       width: 100%;
     }
   }
 
-  @media (max-width: $breakpoint-mobile) {
+    @media (max-width: $breakpoint-mobile) {
 
     .table > thead > tr > th {
       padding: 10px;
@@ -222,13 +223,16 @@
 }
 
 .email-compose-button {
-  background: $lilyGreen;
-  color: #ffffff;
+    background: $app-color-mint;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: #fff;
   width: 100%;
   display: block;
   line-height: 40px;
   border-radius: 4px;
-  font-size: 15px;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
   text-align: center;
   text-decoration: none;
 
@@ -237,14 +241,14 @@
   }
 
   &:hover {
-    color: #ffffff;
+        color: #fff;
     text-decoration: none;
-    background: darken($lilyGreen, 5);
+        background: darken($app-color-mint, 10);
   }
 
   &:visited,
   &:focus {
-    color: #ffffff;
+        color: #fff;
     text-decoration: none;
   }
 }
@@ -264,13 +268,6 @@
     margin-bottom: 0;
     border-bottom: 0;
   }
-}
-
-.email-content-container {
-  padding: 15px;
-  background: $lilyWhiteTone;
-  border: 1px solid $lilyBorderDark;
-  border-top: none;
 }
 
 .email-inbox-header {
@@ -344,7 +341,7 @@
 }
 
 .email-inbox-search-button {
-  background-color: $lilyGreen;
+    background: $app-color-aqua;
   border: none;
   height: 34px;
   width: 30px;
@@ -353,6 +350,10 @@
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
   box-sizing: border-box;
+
+    &:hover {
+        background: darken($app-color-aqua, 10);
+    }
 }
 
 .email-inbox-actions {
@@ -430,7 +431,7 @@
     }
   }
 
-  @media (max-width: $breakpoint-tablet) {
+    @media (max-width: $breakpoint-tablet) {
     margin-right: 2px;
     margin-bottom: 10px;
   }
@@ -473,14 +474,14 @@
 }
 
 .email-content-container {
+    background: #fff;
   padding: 20px;
-  background: $lilyWhiteTone;
   border: 1px solid $lilyBorderDark;
   border-top: none;
   overflow: hidden;
   text-overflow: ellipsis;
 
-  @media (max-width: $breakpoint-tablet) {
+    @media (max-width: $breakpoint-tablet) {
     padding-left: 10px;
   }
 }
@@ -550,7 +551,7 @@
 .email-inbox-action-desc {
   display: inline;
 
-  @media (max-width: $breakpoint-tablet) {
+    @media (max-width: $breakpoint-tablet) {
     display: none;
   }
 }
@@ -578,7 +579,7 @@ div.checker {
   margin-left: 10px;
   margin-right: 10px;
 
-  @media (max-width: $breakpoint-tablet) {
+    @media (max-width: $breakpoint-tablet) {
     margin-left: 0px;
   }
 }
@@ -603,6 +604,10 @@ div.checker {
   }
 }
 
+.fa-star-o {
+    color: $app-color-grey;
+}
+
 .fa-star {
-  color: $lilyBlue;
+    color: $app-color-yellow;
 }

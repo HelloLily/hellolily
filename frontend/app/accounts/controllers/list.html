@@ -42,12 +42,9 @@
     </div>
 
     <div class="portlet-body flip-scroll">
-        <table class="table table-bordered table-striped flip-content">
+        <table class="table table-bordered flip-content">
             <thead class="flip-content">
                 <tr>
-                    <th class="list-actions" width="75px">
-                        <span class="text-nowrap">Options</span>
-                    </th>
                     <th ng-show="vm.table.visibility.name" sort-column="name" table="vm.table" class="width-22">
                         <span class="text-nowrap">Account</span>
                     </th>
@@ -69,17 +66,14 @@
                     <th ng-show="vm.table.visibility.tags" sort-column="tag" table="vm.table" class="width-10">
                         <span class="text-nowrap">Tags</span>
                     </th>
+                    <th class="list-actions" width="85px">
+                        <span class="text-nowrap">Options</span>
+                    </th>
                 </tr>
             </thead>
 
             <tbody>
                 <tr ng-repeat="account in vm.table.items">
-                    <td>
-                        <a ui-sref="base.accounts.detail.edit({ id: account.id })" class="btn btn-xs default" title="Edit">
-                            <i class="lilicon hl-edit-icon"></i>
-                        </a>
-                        <delete-confirmation model="Account" object="account" callback="vm.removeFromList(account)" button-class="btn-xs"></delete-confirmation>
-                    </td>
                     <td ng-show="vm.table.visibility.name">
                         <a class="list-link" ui-sref="base.accounts.detail({ id: account.id })" title="{{ ::account.name }}">
                             <i class="lilicon hl-company-icon"></i>
@@ -111,6 +105,12 @@
                             <a href="javascript:void(0)" ng-click="vm.setFilter(tag.name)">{{ ::tag.name }}</a>
                             <br>
                         </span>
+                    </td>
+                    <td>
+                        <a ui-sref="base.accounts.detail.edit({ id: account.id })" class="base-icon" title="Edit">
+                            <i class="lilicon hl-edit-icon"></i>
+                        </a>
+                        <delete-confirmation model="Account" object="account" callback="vm.removeFromList(account)" button-class="base-icon"></delete-confirmation>
                     </td>
                 </tr>
             </tbody>

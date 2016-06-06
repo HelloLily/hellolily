@@ -121,8 +121,8 @@
                                         term = '*';
                                     }
                                     // search for contacts and accounts containing the search term, but only those with an email address
-                                    var filterQuery = '((_type:contacts_contact AND (name:(' + term + ') OR email_addresses.email_address:(' + term + '))) ' +
-                                        'OR (_type:accounts_account AND (name:(' + term + ') OR email_addresses.email_address:(' + term + ')))) ' +
+                                    var filterQuery = '((_type:contacts_contact AND (full_name:(' + term + ') OR email_addresses.email_address:(' + term + '))) ' +
+                                        'OR (_type:accounts_account AND (full_name:(' + term + ') OR email_addresses.email_address:(' + term + ')))) ' +
                                         'AND email_addresses.email_address:*';
 
                                     data = {
@@ -177,7 +177,7 @@
                                     data.hits.forEach(function (hit) {
                                         var displayedName;
 
-                                        // Only display contacts with an e-mail address
+                                        // Only display contacts with an email address
                                         for (var i = 0; i < hit.email_addresses.length; i++) {
                                             if (hit.hasOwnProperty('full_name')) {
                                                 displayedName = hit.full_name;

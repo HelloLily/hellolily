@@ -12,6 +12,20 @@ It can never contain a blue value. Instead a variable name like
 `$criticalPrioColor: #dfba49;` is prefered. This variable name creates meaning to it.
 */
 
+// NEW COLORS
+$app-color-darkBlue: #27244c;
+$app-color-purple: #9F5EDC;
+$app-color-aqua: #3EB8E0;
+$app-color-mint: #55DCC3;
+$app-color-red: #FF4257;
+$app-color-yellow: #FFD657;
+$app-color-grey: #B4B4C0;
+
+$app-border-color: #E1E6EF;
+
+$app-bg-color: #EFF0F8;
+$app-link-color: $app-color-aqua;
+
 // Colors
 $lightGrey: #f5f6fa;
 
@@ -19,13 +33,13 @@ $lilyBlue: #5b9bd1;
 $lilyGrey: #e9ecf3;
 
 $skyGrey: #eff2f9;
-$baseBorderColor: #ced9e3;
-$lightBorderColor: #e5e9f0;
+$baseBorderColor: #D1D1D6;
+$lightBorderColor: #EFF2F8;
 
 $lilyBorderDark: $baseBorderColor;
 $lilyBorderLight: #EEF2F6;
 $lilyWhiteTone: #fcfcfe;
-$lilyWhiteToneHover: #f6f9fb;
+$lilyWhiteToneHover: #F7F8FD;
 $lilyDarkBlue: #5b667b;
 $lilyGreen: #01B55F;
 $lilyHeaderBg: #edf0f8;
@@ -40,16 +54,18 @@ $bulletColor5: #6c8ce6;
 $bulletColor6: #ff9a4f;
 
 // Item type colors
-$caseColor: #9b59b6;
-$emailColor: #578ebe;
-$dealColor: #1bbc9b;
-$noteColor: #ffd66f;
+$caseColor: $app-color-purple;
+$emailColor: $app-color-aqua;
+$dealColor: $app-color-mint;
+$noteColor: $app-color-yellow;
+$contactColor: $app-color-grey;
+$accountColor: $app-color-grey;
 
 // Priority colors
-$lowPrioColor: #45b6af;
-$mediumPrioColor: #89c4f4;
-$highPrioColor: #dfba49;
-$criticalPrioColor: #f3565d;
+$lowPrioColor: #A0E0D4;
+$mediumPrioColor: #97D5FF;
+$highPrioColor: #FFD191;
+$criticalPrioColor: #FF7097;
 
 // Borders
 $baseBorderRadius: 4px;

@@ -8,7 +8,7 @@
 
   &:hover {
     background: darken($color, 10);
-    color: text-color(darken($color, 10));
+        color: text-color(darken($color, 10));
   }
 }
 
@@ -94,4 +94,51 @@
   &.position-6 {
     @include colored-label(24px, $bulletColor6)
   }
+}
+
+i {
+    &.green {
+        color: $app-color-mint;
+    }
+
+    &.grey {
+        color: $app-color-grey;
+    }
+
+    &.yellow {
+        color: $app-color-yellow;
+    }
+
+    &.red {
+        color: $app-color-red;
+    }
+
+    &.aqua {
+        color: $app-color-aqua;
+    }
+
+    &.darkblue {
+        color: $app-color-darkBlue;
+    }
+}
+
+.base-icon {
+    float: left;
+    padding: 0;
+    margin: 0;
+    color: $app-color-grey;
+    border-radius: $baseBorderRadius;
+    font-size: 12px;
+    height: 21px;
+    width: 21px;
+    line-height: 21px;
+    text-align: center;
+    background: $lightBorderColor;
+    margin-right: 8px;
+    border: 1px $app-border-color solid;
+
+    &:hover {
+        color: $app-color-aqua;
+        text-decoration: none;
+    }
 }

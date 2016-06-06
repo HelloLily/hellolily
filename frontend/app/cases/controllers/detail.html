@@ -68,6 +68,7 @@
     <div ng-if="vm.case.id" class="col-md-4">
         <widget ng-if="vm.case.account" widget-name="'Account info'">
             <widget-header>
+                <div class="widget-label account"></div>
                 <div class="widget-name">
                     <a ui-sref="base.accounts.detail({ id: vm.case.account.id })">
                         <i class="lilicon hl-company-icon"></i>
@@ -81,7 +82,7 @@
                     <table class="widget-content-table">
                         <tbody>
                             <tr ng-if="vm.case.account.email_addresses.length">
-                                <td>E-mail</td>
+                                <td>Email</td>
                                 <td>
                                     <ul>
                                         <li ng-repeat="email in vm.case.account.email_addresses">
@@ -150,9 +151,10 @@
 
         <widget ng-if="vm.case.contact" widget-name="'Contact info'">
             <widget-header>
+                <div class="widget-label contact"></div>
                 <div class="widget-name">
                     <a ui-sref="base.contacts.detail({ id: vm.case.contact.id })">
-                        <i class="lilicon hl-user-icon"></i>
+                        <i class="lilicon hl-entity-icon"></i>
                         {{ vm.case.contact.full_name }}
                     </a>
                 </div>
@@ -163,7 +165,7 @@
                     <table class="widget-content-table">
                         <tbody>
                             <tr ng-if="vm.case.contact.email_addresses.length">
-                                <td>E-mail addresses</td>
+                                <td>Email addresses</td>
                                 <td>
                                     <ul>
                                         <li ng-repeat="email in vm.case.contact.email_addresses">
@@ -194,6 +196,7 @@
 
         <widget widget-name="'More info'">
             <widget-header>
+                <div class="widget-label"></div>
                 <div class="widget-name">
                     <i class="fa fa-info"></i>
                     More info
@@ -235,6 +238,7 @@
 
         <widget widget-name="'Tags'">
             <widget-header>
+                <div class="widget-label"></div>
                 <div class="widget-name">
                     <i class="fa fa-tag"></i>
                     Tags
@@ -243,10 +247,7 @@
 
             <widget-body>
                 <div class="widget-content">
-                    <a class="btn btn-xs btn-default margin-right-5" ng-repeat="tag in vm.case.tags">
-                        {{ tag.name }}
-                    </a>
-                    <span ng-if="!vm.case.tags.length">No tags</span>
+                    <editable-tags view-model="vm" type="Case"></editable-tags>
                 </div>
             </widget-body>
         </widget>

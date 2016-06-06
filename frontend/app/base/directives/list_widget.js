@@ -30,49 +30,65 @@ function ListWidget() {
     };
 }
 
-ListWidgetController.$inject = ['$state', 'Settings'];
-function ListWidgetController($state, Settings) {
+ListWidgetController.$inject = ['$filter', '$state', 'Settings'];
+function ListWidgetController($filter, $state, Settings) {
     var vm = this;
 
     vm.settings = Settings;
 
     vm.googleAnalyticsEvent = googleAnalyticsEvent;
 
-    // Google Analytics function to set labels to differentiate in Analytics
-    // which widget the user used to add a case or deal.
-    function googleAnalyticsEvent() {
-        if ($state.current === 'base.contacts.detail' && vm.title === 'Cases') {
-            ga('send', 'event', 'Case', 'Open', 'Contact widget');
-        }
+    activate();
 
-        if ($state.current === 'base.accounts.detail' && vm.title === 'Cases') {
-            ga('send', 'event', 'Case', 'Open', 'Account widget');
-        }
+    /////
 
-        if ($state.current === 'base.contacts.detail' && vm.title === 'Deals') {
-            ga('send', 'event', 'Deal', 'Open', 'Contact widget');
-        }
-
-        if ($state.current === 'base.accounts.detail' && vm.title === 'Deals') {
-            ga('send', 'event', 'Deal', 'Open', 'Account widget');
+    function activate() {
+        if (vm.collapsableItems) {
+            // Certain list widgets have collapsable cells, so set the default state to collapsed.
+            if (!vm.list.hasOwnProperty('$promise')) {
+                // Array was passed, so just pass the list.
+                _setCollapsed(vm.list);
+            } else {
+                vm.list.$promise.then(function(response) {
+                    // List hasn't fully loaded, so wait and pass the response.
+                    _setCollapsed(response);
+                });
+            }
         }
     }
 
-    if (vm.collapsableItems) {
-        // Certain list widgets have collapsable cells, so set the default state to collapsed.
-        if (!vm.list.hasOwnProperty('$promise')) {
-            // Array was passed, so just pass the list.
-            _setCollapsed(vm.list);
-        } else {
-            vm.list.$promise.then(function(response) {
-                // List hasn't fully loaded, so wait and pass the response.
-                _setCollapsed(response);
-            });
+    // Google Analytics function to set labels to differentiate in Analytics
+    // which widget the user used to add a case or deal.
+    function googleAnalyticsEvent() {
+        if ($state.current.name === 'base.contacts.detail' && vm.title === 'Cases') {
+            ga('send', 'event', 'Case', 'Open', 'Contact Widget');
+        }
+
+        if ($state.current.name === 'base.accounts.detail' && vm.title === 'Cases') {
+            ga('send', 'event', 'Case', 'Open', 'Account Widget');
+        }
+
+        if ($state.current.name === 'base.contacts.detail' && vm.title === 'Deals') {
+            ga('send', 'event', 'Deal', 'Open', 'Contact Widget');
+        }
+
+        if ($state.current.name === 'base.accounts.detail' && vm.title === 'Deals') {
+            ga('send', 'event', 'Deal', 'Open', 'Account Widget');
+        }
+
+        if ($state.current.name === 'base.accounts.detail' && vm.title !== 'Deals' && vm.title !== 'Cases') {
+            ga('send', 'event', 'Contact', 'Open', 'Account Widget');
+        }
+
+        if ($state.current.name === 'base.contacts.detail' && vm.title !== 'Deals' && vm.title !== 'Cases') {
+            ga('send', 'event', 'Contact', 'Open', 'Contact Widget');
         }
     }
 
     function _setCollapsed(items) {
         var list;
+        var cases;
+        var archivedCases;
 
         if (items.hasOwnProperty('objects')) {
             list = items.objects;
@@ -83,6 +99,22 @@ function ListWidgetController($state, Settings) {
         angular.forEach(list, function(item) {
             item.collapsed = true;
         });
+
+        // We want to apply a certain sorting for cases.
+        if (vm.title === 'Cases') {
+            // Separate not archived cases and order by priority.
+            cases = $filter('filter')(list, {is_archived: false});
+            cases = $filter('orderBy')(cases, '-priority');
+
+            // Separate archived cases and order by expiry date.
+            archivedCases = $filter('filter')(list, {is_archived: true});
+            archivedCases = $filter('orderBy')(archivedCases, '-expires');
+
+            // Merge both arrays.
+            cases.push.apply(cases, archivedCases);
+
+            list = cases;
+        }
 
         vm.list = list;
     }

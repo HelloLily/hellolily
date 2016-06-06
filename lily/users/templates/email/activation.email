@@ -9,7 +9,7 @@ Hi {{ full_name }},
 
 You just signed up for {{ site_name }}, using:
 
-    E-mail address: {{ email }}
+    Email address: {{ email }}
     Join date: {{ date_joined }}
 
 Please click the following link to activate your account or copy/paste the link to the address bar in your browser:

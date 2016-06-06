@@ -18,7 +18,7 @@ class CustomAuthenticationForm(AuthenticationForm):
     """
 
     error_messages = {
-        'invalid_login': _("Please enter a correct e-mail address and password. "
+        'invalid_login': _("Please enter a correct email address and password. "
                            "Note that both fields are case-sensitive."),
         'no_cookies': _("Your Web browser doesn't appear to have cookies "
                         "enabled. Cookies are required for logging in."),
@@ -69,8 +69,8 @@ class CustomPasswordResetForm(PasswordResetForm):
     LilyUser is used for validation instead of User.
     """
     error_messages = {
-        'unknown': _("That e-mail address doesn't have an associated user account. Are you sure you've registered?"),
-        'unusable': _("The user account associated with this e-mail address cannot reset the password."),
+        'unknown': _("That email address doesn't have an associated user account. Are you sure you've registered?"),
+        'unusable': _("The user account associated with this email address cannot reset the password."),
         'inactive_error_message': _('You cannot request a password reset for an account that is inactive.'),
     }
 
@@ -122,11 +122,11 @@ class CustomSetPasswordForm(SetPasswordForm):
 
 class ResendActivationForm(HelloLilyForm):
     """
-    Form that allows a user to retry sending the activation e-mail.
+    Form that allows a user to retry sending the activation email.
     """
     error_messages = {
-        'unknown': _("That e-mail address doesn't have an associated user account. Are you sure you've registered?"),
-        'active': _("You cannot request a new activation e-mail for an account that is already active."),
+        'unknown': _("That email address doesn't have an associated user account. Are you sure you've registered?"),
+        'active': _("You cannot request a new activation email for an account that is already active."),
     }
 
     email = forms.EmailField(
@@ -163,7 +163,7 @@ class RegistrationForm(HelloLilyForm):
     """
     This form allows new user registration.
     """
-    email = forms.EmailField(label=_('E-mail'), max_length=255)
+    email = forms.EmailField(label=_('Email'), max_length=255)
     password = forms.CharField(
         label=_('Password'),
         min_length=6,
@@ -182,7 +182,7 @@ class RegistrationForm(HelloLilyForm):
 
     def clean_email(self):
         if LilyUser.objects.filter(email__iexact=self.cleaned_data['email']).exists():
-            raise ValidationError(code='invalid', message=_('E-mail address already in use.'))
+            raise ValidationError(code='invalid', message=_('Email address already in use.'))
         else:
             return self.cleaned_data['email']
 
@@ -206,7 +206,7 @@ class UserRegistrationForm(RegistrationForm):
     Form for accepting invitations.
     """
     email = forms.EmailField(
-        label=_('E-mail'),
+        label=_('Email'),
         max_length=255,
         widget=forms.TextInput(attrs={
             'class': 'mws-register-email disabled',
@@ -216,7 +216,7 @@ class UserRegistrationForm(RegistrationForm):
 
     def clean_email(self):
         if self.cleaned_data['email'] != self.initial['email']:
-            raise ValidationError(code='invalid', message=_('You can\'t change the e-mail address of the invitation.'))
+            raise ValidationError(code='invalid', message=_('You can\'t change the email address of the invitation.'))
         else:
             return self.cleaned_data['email']
 
@@ -233,11 +233,11 @@ class InvitationForm(HelloLilyForm):
         })
     )
     email = forms.EmailField(
-        label=_('E-mail'),
+        label=_('Email'),
         max_length=255,
         required=True,
         widget=forms.TextInput(attrs={
-            'placeholder': _('E-mail address')
+            'placeholder': _('Email address')
         })
     )
 
@@ -248,7 +248,7 @@ class InvitationForm(HelloLilyForm):
         except LilyUser.DoesNotExist:
             return email
         else:
-            raise ValidationError(code='invalid', message=_('This e-mail address is already linked to a user.'))
+            raise ValidationError(code='invalid', message=_('This email address is already linked to a user.'))
 
 
 # ------------------------------------------------------------------------------------------------
@@ -284,7 +284,7 @@ class RequiredFormset(BaseFormSet):
 
 class InvitationFormset(RequiredFirstFormFormset):
     """
-    This formset is sending invitations to users based on e-mail addresses.
+    This formset is sending invitations to users based on email addresses.
     """
     def clean(self):
         """Checks that no two email addresses are the same."""
@@ -300,6 +300,6 @@ class InvitationFormset(RequiredFirstFormFormset):
             if email and email in emails:
                 raise ValidationError(
                     code='invalid',
-                    message=_('You can\'t invite someone more than once (e-mail addresses must be unique).')
+                    message=_('You can\'t invite someone more than once (email addresses must be unique).')
                 )
             emails.append(email)

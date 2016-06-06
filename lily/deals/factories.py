@@ -79,7 +79,7 @@ CONTACTED_BY_NAMES = [
     'Contact form',
     'Phone',
     'Web chat',
-    'E-mail',
+    'Email',
     'Instant connect',
     'Other',
 ]

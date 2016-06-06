@@ -1,8 +1,9 @@
 <widget widget-name="'Unread email'" widget-class="'col-md-6'" widget-scrollable="true" widget-closeable="true">
     <widget-header>
+        <div class="widget-label email"></div>
         <div class="widget-name">
             <i class="lilicon hl-mail-icon"></i>
-            Unread e-mail
+            Unread email
             <span class="label-amount">{{ vm.table.items.length }}</span>
         </div>
     </widget-header>
@@ -19,7 +20,7 @@
                     <th>From</th>
                     <th>Subject</th>
                     <th style="width: 120px;" sort-column="sent_date" table="vm.table">Created</th>
-                    <th style="width: 75px;">Actions</th>
+                    <th style="width: 80px;">Actions</th>
                 </tr>
             </thead>
             <tbody>

@@ -65,8 +65,8 @@ def get_field_names(field):
 
 def get_email_parameter_dict():
     """
-    If there is no e-mail parameter dict yet, construct it and return it.
-    The e-mail parameter dict consists of all posible variables for e-mail templates.
+    If there is no email parameter dict yet, construct it and return it.
+    The email parameter dict consists of all posible variables for email templates.
 
     This function returns parameters organized by variable name for easy parsing.
     """
@@ -89,8 +89,8 @@ def get_email_parameter_dict():
 
 def get_email_parameter_api_dict():
     """
-    If there is no e-mail parameter dict yet, construct it and return it.
-    The e-mail parameter dict consists of all possible variables for e-mail templates.
+    If there is no email parameter dict yet, construct it and return it.
+    The email parameter dict consists of all possible variables for email templates.
 
     This function returns parameters organized by variable name for easy parsing.
     """
@@ -109,8 +109,8 @@ def get_email_parameter_api_dict():
 
 def get_email_parameter_choices():
     """
-    If there is no e-mail parameter choices yet, construct it and return it.
-    The e-mail parameter choices consists of all possible variables for e-mail templates.
+    If there is no email parameter choices yet, construct it and return it.
+    The email parameter choices consists of all possible variables for email templates.
 
     This function returns parameters organized by model name, for easy selecting.
 

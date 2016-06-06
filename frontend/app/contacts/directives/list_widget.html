@@ -1,5 +1,6 @@
-<widget widget-name="'Colleagues'">
+<widget ng-if="vm.object" widget-name="'Colleagues'" class="js-cq-widget-container">
     <widget-header>
+        <div class="widget-label"></div>
         <div class="widget-name">
             <i class="fa fa-users"></i>
             <span ng-if="vm.object.id && vm.list">
@@ -13,8 +14,9 @@
     </widget-header>
 
     <widget-filters>
-        <a ng-if="!vm.settings.email.sidebar.contact" ui-sref="{{ vm.addLink || 'base.contacts.create' }}" class="btn btn-circle btn-default">
-            <i class="fa fa-plus"></i> Add
+        <a ng-if="!vm.settings.email.sidebar.contact" ui-sref="{{ vm.addLink || 'base.contacts.create' }}" class="btn btn-circle btn-default" ng-click="vm.googleAnalyticsEvent()">
+            <i class="fa fa-plus"></i>
+            <span class="external-link-name">Add</span>
         </a>
     </widget-filters>
 

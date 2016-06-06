@@ -1,4 +1,4 @@
-<i class="lilicon hl-user-icon margin-right-10" ng-if="!er.items.length" uib-tooltip="{{ $root.messages.contact.contactInfoTooltip }}"></i>
+<i class="lilicon hl-entity-icon margin-right-10" ng-if="!er.items.length" uib-tooltip="{{ $root.messages.contact.contactInfoTooltip }}"></i>
 <span ng-show="!er.formVisible" class="editable editable-click addable-click">
     <div ng-repeat="phone in er.items">
         <a href="tel:{{ phone.number }}">
@@ -40,11 +40,11 @@
     </div>
 
     <div class="editable-related-actions">
-        <button class="btn" ng-click="er.addRelatedField()"><i class="fa fa-plus"></i></button>
+        <button type="button" class="btn" ng-click="er.addRelatedField()"><i class="fa fa-plus"></i></button>
 
         <div class="pull-right">
-            <button class="btn" ng-click="er.submit()"><i class="fa fa-check"></i></button>
-            <button class="btn" ng-click="er.closeForm()"><i class="fa fa-close"></i></button>
+            <button type="submit" class="btn" ng-click="er.submit()"><i class="fa fa-check"></i></button>
+            <button type="button" class="btn" ng-click="er.closeForm()"><i class="fa fa-close"></i></button>
         </div>
     </div>
 </form>

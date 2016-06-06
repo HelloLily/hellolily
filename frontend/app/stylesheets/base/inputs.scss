@@ -124,11 +124,11 @@ $inline-editable-field-height: 30px;
   &:last-child {
     border-top-right-radius: $baseBorderRadius;
     border-bottom-right-radius: $baseBorderRadius;
-    border-right: 1px $lilyGrey solid;
+        border-right: 1px $lilyGrey solid;
   }
 
   &:hover {
-    background: $lilyWhiteToneHover;
+        background: $lilyWhiteToneHover;
     border-color: $lilyGrey;
     color: $lilyBlue;
   }

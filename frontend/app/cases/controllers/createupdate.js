@@ -213,13 +213,26 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         // Check if a case is being saved (and archived) via the + case page
         // or via a supercard.
         if (Settings.email.sidebar.isVisible && archive) {
-            ga('send', 'event', 'Case', 'Save and archive', 'Email SC');
+            ga('send', 'event', 'Case', 'Save and archive', 'Email Sidebar');
         } else if (Settings.email.sidebar.isVisible && !archive) {
-            ga('send', 'event', 'Case', 'Save', 'Email SC');
+            ga('send', 'event', 'Case', 'Save', 'Email Sidebar');
         } else if (!Settings.email.sidebar.isVisible && archive) {
-            ga('send', 'event', 'Case', 'Save and archive', 'Default');
+            if($stateParams.accountId){
+                ga('send', 'event', 'Case', 'Save and archive', 'Account Widget');
+            } else if ($stateParams.contactId) {
+                ga('send', 'event', 'Case', 'Save and archive', 'Contact Widget');
+            } else {
+                ga('send', 'event', 'Case', 'Save and archive', 'Default');
+            }
         } else {
-            ga('send', 'event', 'Case', 'Save', 'Default');
+            if($stateParams.accountId){
+                ga('send', 'event', 'Case', 'Save', 'Account Widget');
+            } else if ($stateParams.contactId) {
+                ga('send', 'event', 'Case', 'Save', 'Contact Widget');
+            } else {
+                ga('send', 'event', 'Case', 'Save', 'Default');
+            }
+
         }
 
         if (!_caseFormIsValid()) {
@@ -264,6 +277,8 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         if (cleanedCase.id) {
             // If there's an ID set it means we're dealing with an existing contact, so update it.
             cleanedCase.$update(function() {
+                new Intercom('trackEvent', 'case-created');
+
                 toastr.success('I\'ve updated the case for you!', 'Done');
                 $state.go('base.cases.detail', {id: cleanedCase.id}, {reload: true});
             }, function(response) {

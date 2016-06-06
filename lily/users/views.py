@@ -2,6 +2,7 @@ from datetime import date, timedelta
 from hashlib import sha256
 
 import anyjson
+import requests
 from braces.views import GroupRequiredMixin
 from django.conf import settings
 from django.contrib import messages
@@ -81,7 +82,7 @@ class RegistrationView(FormView):
         token = token_generator.make_token(user)
 
         # Send an activation mail
-        # TODO: only create/save contact when e-mail sent successfully
+        # TODO: only create/save contact when email sent successfully
         send_templated_mail(
             template_name='activation',
             from_email=settings.DEFAULT_FROM_EMAIL,
@@ -151,14 +152,14 @@ class ActivationView(TemplateView):
 
 class ActivationResendView(FormView):
     """
-    This view is used by an user to request a new activation e-mail.
+    This view is used by an user to request a new activation email.
     """
     template_name = 'users/activation_resend_form.html'
     form_class = ResendActivationForm
 
     def form_valid(self, form):
         """
-        If ResendActivationForm passed the validation, generate new token and send an e-mail.
+        If ResendActivationForm passed the validation, generate new token and send an email.
         """
         token_generator = PasswordResetTokenGenerator()
         users = LilyUser.objects.filter(
@@ -176,7 +177,7 @@ class ActivationResendView(FormView):
             uidb36 = int_to_base36(user.pk)
             token = token_generator.make_token(user)
 
-            # E-mail to the user
+            # Email to the user
             send_templated_mail(
                 template_name='activation',
                 from_email=settings.DEFAULT_FROM_EMAIL,
@@ -284,7 +285,7 @@ class SendInvitationView(GroupRequiredMixin, FormSetView):
                 'hash': hash,
             }))
 
-            # E-mail to the user
+            # Email to the user
             send_templated_mail(
                 template_name='invitation',
                 from_email=settings.DEFAULT_FROM_EMAIL,
@@ -296,6 +297,13 @@ class SendInvitationView(GroupRequiredMixin, FormSetView):
                     'invite_link': invite_link,
                 }
             )
+
+            # payload = {
+            #     'api': settings.INTERCOM_KEY,
+            #     'event_name': 'invite-sent',
+            # }
+
+            # requests.post('https://api.intercom.io/events', data=payload, headers={'Authorization': 'Token ' + settings.INTERCOM_KEY)
 
         if is_ajax(self.request):
             return HttpResponse(anyjson.serialize({

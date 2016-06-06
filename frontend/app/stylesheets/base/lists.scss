@@ -1,15 +1,15 @@
 .list-link {
-  text-decoration: none;
-
-  &:hover {
     text-decoration: none;
 
-    > .list-link-name {
-      text-decoration: underline;
+    &:hover {
+        text-decoration: none;
+
+        > .list-link-name {
+            text-decoration: underline;
+        }
     }
-  }
 }
 
 .fa + .list-link-name {
-  margin-left: 5px;
+    margin-left: 5px;
 }

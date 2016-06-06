@@ -1,0 +1,68 @@
+/* SG
+# Labels #
+
+<table class="widget-table">
+    <thead>
+        <tr><th>Basic labels</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><span class="label-default">.label-default</span></td></tr>
+        <tr><td><span class="label-success">.label-success</span></td></tr>
+        <tr><td><span class="label-warning">.label-warning</span></td></tr>
+        <tr><td><span class="label-danger">.label-danger</span></td></tr>
+    </tbody>
+    <thead>
+        <tr><th>Priority labels</th></tr>
+    </thead>
+    <tbody>
+        <tr><td><span class="label-low-prio">.label-low-prio</span></td></tr>
+        <tr><td><span class="label-med-prio">.label-med-prio</span></td></tr>
+        <tr><td><span class="label-high-prio">.label-high-prio</span></td></tr>
+        <tr><td><span class="label-critical-prio">.label-critical-prio</span></td></tr>
+    </tbody>
+*/
+
+@mixin hl-label($color) {
+    background: $color;
+    border-radius: 3px;
+    text-transform: uppercase;
+    font-weight: 500;
+    font-size: 11px;
+    padding: 3px 6px;
+    margin: 2px;
+    color: #fff;
+    text-align: center;
+    -webkit-font-smoothing: subpixel-antialiased;
+}
+
+.label-default {
+    @include hl-label($app-color-grey);
+}
+
+.label-success {
+    @include hl-label($app-color-mint);
+}
+
+.label-warning {
+    @include hl-label($app-color-yellow);
+}
+
+.label-danger {
+    @include hl-label($app-color-red);
+}
+
+.label-low-prio {
+    @include hl-label($lowPrioColor);
+}
+
+.label-med-prio {
+    @include hl-label($mediumPrioColor);
+}
+
+.label-high-prio {
+    @include hl-label($highPrioColor);
+}
+
+.label-critical-prio {
+    @include hl-label($criticalPrioColor);
+}

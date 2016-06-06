@@ -17,8 +17,6 @@
         <meta content="" name="description"/>
         <meta content="Devhouse Spindle" name="author"/>
         <!-- BEGIN GLOBAL MANDATORY STYLES -->
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700&subset=all" rel="stylesheet" type="text/css">
-
         {% endverbatim %}
 
         <link href="{% static 'vendor/vendor.css' %}" rel="stylesheet" type="text/css">
@@ -84,47 +82,6 @@
                     <!-- BEGIN PAGE HEAD -->
                     <div class="page-head">
                         <!-- BEGIN PAGE TITLE -->
-                        <div class="page-title">
-                            <h1>
-                                <span ng-if="toolbar.updateCallback">
-                                    <span ng-if="toolbar.field" editable-text="toolbar.object[toolbar.field]" onbeforesave="toolbar.updateCallback($data, toolbar.field)" blur="submit">
-                                        <span>{{ settings.page.header.main }}</span>
-                                    </span>
-                                    <form ng-if="toolbar.fields" editable-form name="headerForm"
-                                          ng-class="{'editable editable-click addable-click': !headerForm.$visible}"
-                                          onbeforesave="toolbar.updateCallback($data, toolbar.fields)" blur="submit">
-                                        <span ng-if="!headerForm.$visible" ng-click="headerForm.$show()">
-                                            {{ settings.page.header.main }}
-
-                                            <span ng-if="!headerForm.$visible" class="editable-icons no-edit">
-                                                <span class="editable-icon"><i class="lilicon hl-edit-icon"></i></span>
-                                            </span>
-                                        </span>
-                                        <span ng-if="headerForm.$visible" ng-repeat="field in toolbar.fields">
-                                            <span e-name="{{ field }}" editable-text="toolbar.object[field]"></span>
-                                        </span>
-                                        <span ng-if="headerForm.$visible">
-                                            <button type="submit" class="btn" ng-disabled="headerForm.$waiting">
-                                                <i class="fa fa-check"></i>
-                                            </button>
-                                            <button class="btn" ng-click="headerForm.$cancel()" ng-disabled="headerForm.$waiting">
-                                                <i class="fa fa-close"></i>
-                                            </button>
-                                        </span>
-                                    </form>
-                                </span>
-                                <span ng-if="!toolbar.updateCallback">
-                                    {{ settings.page.header.main }}
-                                </span>
-                                <span ng-if="settings.page.contact">
-                                    for <a ui-sref="base.contacts.detail({ id: settings.page.contact.id })">{{ settings.page.contact.full_name }}</a>
-                                </span>
-                                <span ng-if="settings.page.account">
-                                    at <a ui-sref="base.accounts.detail({ id: settings.page.account.id })">{{ settings.page.account.name }}</a>
-                                </span>
-                            </h1>
-                        </div>
-
                         <div ng-if="toolbar" class="page-toolbar">
                             <div class="btn-group btn-theme-panel">
                                 <a ng-click="$state.go('.edit')" class="btn" title="Edit"><i class="lilicon hl-edit-icon"></i></a>
@@ -156,6 +113,7 @@
         <script type="text/javascript" src="{% static 'app/templates.js' %}" charset="utf-8"></script>
         <script type="text/javascript" src="{% static 'app/app.js' %}" charset="utf-8"></script>
         <script type="text/javascript" src="{% static 'app/analytics.js' %}" charset="utf-8"></script>
+        <script type="text/javascript">(function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',intercomSettings);}else{var d=document;var i=function(){i.c(arguments)};i.q=[];i.c=function(args){i.q.push(args)};w.Intercom=i;function l(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://widget.intercom.io/widget/d6ko33k1';var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);}if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})()</script>
         <script>
             var currentUser = {
                 id: parseInt('{{ user.id }}'),

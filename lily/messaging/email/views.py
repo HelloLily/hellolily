@@ -249,7 +249,7 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
         email_outbox_message.original_attachment_ids = ','.join(original_attachment_ids)
         email_outbox_message.save()
 
-        # Remove an old draft when sending an e-mail message or saving a new draft
+        # Remove an old draft when sending an email message or saving a new draft
         if self.object and self.remove_old_message:
             self.remove_draft()
 
@@ -283,7 +283,7 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
         """
         context = super(EmailMessageComposeView, self).get_context_data(**kwargs)
 
-        # Find e-mail templates and add to context in json
+        # Find email templates and add to context in json
         templates = EmailTemplate.objects.all()
         template_list = {}
         for template in templates:
@@ -377,7 +377,7 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
         if not task:
             messages.error(
                 self.request,
-                _('Sorry, I couldn\'t remove your e-mail draft')
+                _('Sorry, I couldn\'t remove your email draft')
             )
             logging.error(_('Failed to create remove_draft task for email account %d. Draft message id was %d.') % (
                 self.object.send_from, self.object.id
@@ -424,7 +424,7 @@ class EmailMessageSendOrArchiveView(EmailMessageComposeView):
         else:
             messages.error(
                 self.request,
-                _('Sorry, I couldn\'t deliver your e-mail, but I did save it as a draft so you can try again later')
+                _('Sorry, I couldn\'t deliver your email, but I did save it as a draft so you can try again later')
             )
             send_logger.error(_('Failed to create send_message task (%s) outbox message id was %d. TRACE: %s') % (
                 task.id, email_outbox_message.id, task.traceback
@@ -498,7 +498,7 @@ class EmailMessageDraftView(EmailMessageComposeView):
         else:
             messages.error(
                 self.request,
-                _('Sorry, I couldn\'t save you e-mail as a draft')
+                _('Sorry, I couldn\'t save you email as a draft')
             )
             logging.error(
                 _('Failed to create create_draft_email_message task for email account %d. '
@@ -600,7 +600,7 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
         else:
             messages.error(
                 self.request,
-                _('Sorry, I couldn\'t send your e-mail')
+                _('Sorry, I couldn\'t send your email')
             )
             logging.error(_('Failed to create %s task for email account %d. Outbox message id was %d.') % (
                 self.action,

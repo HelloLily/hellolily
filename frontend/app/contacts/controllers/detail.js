@@ -76,6 +76,7 @@ function ContactDetailController($scope, Contact, HLResource, Settings, currentC
     function updateModel(data, field) {
         var accounts = [];
         var args;
+        var patchPromise;
 
         if (field instanceof Array) {
             args = data;
@@ -99,11 +100,15 @@ function ContactDetailController($scope, Contact, HLResource, Settings, currentC
             data.accounts = accounts;
         }
 
-        return HLResource.patch('Contact', args).$promise.then(function(newData) {
+        patchPromise = HLResource.patch('Contact', args).$promise;
+
+        patchPromise.then(function(newData) {
             if (field instanceof Array) {
                 Settings.page.setAllTitles('detail', newData.full_name);
                 vm.contact.full_name = newData.full_name;
             }
         });
+
+        return patchPromise;
     }
 }

@@ -1,6 +1,10 @@
 <widget widget-name="'Cases'" widget-scrollable="true">
     <widget-header>
-        <div class="widget-name"><i class="lilicon hl-case-icon"></i> {{ vm.title }}</div>
+        <div class="widget-label cases"></div>
+        <div class="widget-name">
+            <i class="lilicon hl-case-icon"></i>
+            {{ vm.title }}
+        </div>
     </widget-header>
 
     <widget-filters>
@@ -20,8 +24,8 @@
                     <th></th>
                 </tr>
             </thead>
-            <tbody ng-if="vm.list.length" ng-repeat="case in vm.list | orderBy:'-priority' | orderBy:'is_archived'">
-                <tr>
+            <tbody ng-if="vm.list.length">
+                <tr ng-repeat="case in vm.list | orderBy:'-priority' | orderBy:'is_archived'">
                     <td>
                         <strong ng-if="::case.is_archived">(a)</strong>
                         <a ui-sref="base.cases.detail({id: case.id})">{{ case.subject }}</a>

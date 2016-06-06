@@ -97,7 +97,7 @@ By adding the class *.no-radio-bullets* the radio bullets are not being shown.
     }
 
     &.no-radio-bullets {
-      input[type="radio"] {
+            input[type="radio"] {
         display: none;
       }
     }
@@ -113,4 +113,42 @@ By adding the class *.no-radio-bullets* the radio bullets are not being shown.
     border-top: 1px white solid;
     border-bottom: 3px transparent solid;
   }
+}
+
+$large-button: 30px;
+
+@mixin hl-button($button-size) {
+    box-sizing: border-box;
+    display: inline-block;
+    border-width: 1px;
+    border-bottom-width: 2px;
+    border-color: $app-border-color;
+    border-style: solid;
+    line-height: $button-size - 2px;
+    padding: 1px ($button-size/4) 0 ($button-size/4);
+    color: $app-color-darkBlue;
+    border-radius: 3px;
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 13px;
+    -webkit-font-smoothing: antialiased;
+
+
+    &:hover {
+        color: $app-color-aqua;
+        text-decoration: none;
+    }
+
+    &:focus {
+        color: $app-color-darkBlue;
+        text-decoration: none;
+    }
+}
+
+.hl-primary-btn {
+    @include hl-button($large-button)
+
+    .fa-plus {
+        font-size: 10px;
+    }
 }

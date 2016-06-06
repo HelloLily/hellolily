@@ -328,11 +328,6 @@ Inbox Page
 }
 
 /*Inbox Compose*/
-.inbox-compose {
-  margin-top: 1px;
-  border: solid 1px #eee;
-}
-
 .inbox-compose-btn {
   padding: 8px 4px;
   background: #f0f6fa;

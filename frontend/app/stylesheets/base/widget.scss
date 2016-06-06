@@ -1,199 +1,310 @@
+/* SG
+# Widget with cq-prolyfill #
+
+This file contains all styling for our widgets. A specific example is included that shows how the cq-prolyfill
+is used to enable container queries and show different styling based upon the width of the element rather than the
+width of the entire viewport.
+
+To use the cq-prolyfill you can add a class to the toplevel container of an element and its parent container with
+container-queries.
+
+`.js-cq-widget-container:container("width < 500px") {
+display: none;
+}`
+
+This CSS example shows how the element gets a `display: none;` when the element is less than 500px wide.
+
+The example down below shows the class added to a div, cq-prolyfill targets the container of the element which the
+class is applied to, so be sure it has a wrapping container.
+
+```
+<div>
+<div class="js-cq-widget-container">This div has display none if the parent element is smaller than 500px.</div>
+</div>
+```
+
+*/
+
 .widget-container {
-  background: white;
-  margin-bottom: 30px;
-  position: relative;
+    background: white;
+    margin-bottom: 30px;
+    position: relative;
 }
 
 .widget-heading {
-  background: $skyGrey;
-  border: 1px $baseBorderColor solid;
-  padding: 10px 15px;
+    background: #fff;
+    border: 1px $baseBorderColor solid;
+    border-bottom: 1px $lightBorderColor solid;
+    padding: 10px 15px;
 
-  &:before {
-    top: -10px;
-    margin: 0 -15px;
-    position: relative;
-    height: 1px;
-    display: block;
-    content: "";
-    background: lighten($skyGrey, 4);
-  }
+    &:before {
+        top: -10px;
+        margin: 0 -15px;
+        position: relative;
+        height: 1px;
+        display: block;
+        content: "";
+        background: lighten($skyGrey, 4);
+    }
 }
 
 .widget-body {
-  border-right: 1px $baseBorderColor solid;
-  border-bottom: 1px $baseBorderColor solid;
-  border-left: 1px $baseBorderColor solid;
+    border-right: 1px $baseBorderColor solid;
+    border-bottom: 1px $baseBorderColor solid;
+    border-left: 1px $baseBorderColor solid;
 }
 
 .widget-content {
-  padding: 15px;
+    padding: 15px;
 }
 
 .widget-content-section {
-  margin-bottom: 20px;
+    margin-bottom: 20px;
 
-  &:last-child {
-    margin-bottom: 0;
-  }
+    &:last-child {
+        margin-bottom: 0;
+    }
 }
 
 .widget-title {
-  float: left;
+    float: left;
 }
 
 .widget-tools {
-  line-height: $button-height;
-  margin-left: 15px;
+    line-height: $button-height;
+    margin-left: 15px;
 }
 
 .widget-collapse,
 .widget-close {
-  display: inline-block;
-  line-height: 24px;
-  min-width: 24px;
-  text-align: center;
-  border-radius: 5px;
-  color: #9fa6b6;
+    display: inline-block;
+    line-height: 24px;
+    min-width: 24px;
+    text-align: center;
+    border-radius: 5px;
+    color: #9fa6b6;
 
-  &:hover {
-    color: $lilyDarkBlue;
-    text-decoration: none;
-    background: $baseBorderColor;
-  }
+    &:hover {
+        color: $lilyDarkBlue;
+        text-decoration: none;
+        background: $baseBorderColor;
+    }
 }
 
 .widget-name {
-  line-height: $button-height;
-  font-size: 18px;
-  font-weight: 400;
-  color: $lilyDarkBlue;
+    line-height: $button-height;
+    font-size: 18px;
+    font-weight: 400;
+    color: $app-color-darkBlue;
+
 }
 
 .widget-name-meta {
-  font-size: 13px;
+    font-size: 13px;
+}
+
+.widget-heading {
+    position: relative;
+}
+
+.widget-sub-heading {
+    padding: 10px 15px;
+    background: #fff;
+    border-width: 0 1px 2px;
+    border-color: $baseBorderColor;
+    border-bottom-color: $app-border-color;
+    border-style: solid;
+}
+
+.widget-label {
+    position: absolute;
+    z-index: 2;
+    left: -1px;
+    top: -1px;
+    bottom: -1px;
+    float: left;
+    width: 5px;
+    background: $app-color-grey;
+
+    &.cases {
+        background: $caseColor;
+    }
+
+    &.deals {
+        background: $dealColor;
+    }
+
+    &.email {
+        background: $emailColor;
+    }
+
+    &.contact {
+        background: $contactColor;
+    }
+
+    &.account {
+        background: $accountColor;
+    }
 }
 
 .label-amount {
-  display: inline-block;
-  border-radius: 4px;
-  border: 1px $baseBorderColor solid;
-  padding: 0 3px;
-  margin: 0 3px;
-  font-size: 14px;
-  text-align: center;
-  min-width: 24px;
-  line-height: 24px;
+    display: inline-block;
+    border-radius: 4px;
+    border: 1px $baseBorderColor solid;
+    padding: 0 3px;
+    margin: 0 3px;
+    font-size: 14px;
+    text-align: center;
+    min-width: 24px;
+    line-height: 24px;
 
-  &.high-prio {
-    color: #ffffff;
-    border-color: darken($criticalPrioColor, 20);
-    background: $criticalPrioColor;
-  }
+    &.high-prio {
+        color: #ffffff;
+        border-color: darken($criticalPrioColor, 20);
+        background: $criticalPrioColor;
+    }
 }
 
 .widget-info-table {
-  width: 100%;
+    width: 100%;
 
-  td {
-    padding: 3px 0;
-    width: 50%;
-    line-height: 28px;
-    vertical-align: top;
-  }
+    td {
+        padding: 3px 0;
+        width: 50%;
+        line-height: 28px;
+        vertical-align: top;
+    }
 
-  hr {
-    margin: 10px 0;
-  }
+    hr {
+        margin: 10px 0;
+    }
 }
 
 .widget-content-table {
-  background: none;
+    background: none;
 
-  td {
-    vertical-align: top;
-
-    &:first-child {
-      font-weight: bold;
-      width: 160px;
-    }
-  }
-
-  tr {
-    margin-bottom: 20px;
-    display: block;
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-
-    &.has-no-info {
-      td {
-        width: 100%;
-      }
-    }
-  }
-
-  ul {
-    padding: 0;
-    margin: 0;
-    list-style-type: none;
-    margin-bottom: 10px;
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
-
-  @media (max-width: $breakpoint-mobile) {
     td {
-      width: 100%;
-      display: inline;
+        vertical-align: top;
+
+        &:first-child {
+            font-weight: bold;
+            width: 160px;
+        }
     }
-  }
+
+    tr {
+        margin-bottom: 20px;
+        display: block;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+
+        &.has-no-info {
+            td {
+                width: 100%;
+            }
+        }
+    }
+
+    ul {
+        padding: 0;
+        margin: 0;
+        list-style-type: none;
+        margin-bottom: 10px;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    @media (max-width: $breakpoint-mobile) {
+        td {
+            width: 100%;
+            display: inline;
+        }
+    }
 }
 
 .is-scrollable-fadeout {
-  position: absolute;
-  height: 14px;
-  background-color: lighten($skyGrey, 3);
-  opacity: 0.8;
-  border-top: 1px solid $lilyBorderDark;
-  bottom: 1px;
-  left: 1px;
-  right: 1px;
-  z-index: 999;
-  pointer-events: none;
-  text-align: center;
-
-  &:before {
-    content: " ";
     position: absolute;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: #ffffff;
-  }
-
-  i {
-    color: $lilyBorderDark;
-    font-size: 10px;
-    position: absolute;
-    top: 2px;
-  }
-
-  &.ng-enter,
-  &.ng-leave {
-    transition: all linear 0.3s;
-  }
-
-  &.ng-enter,
-  &.ng-leave.ng-leave-active {
-    opacity: 0;
-  }
-
-  &.ng-leave,
-  &.ng-enter.ng-enter-active {
+    height: 14px;
+    background-color: lighten($skyGrey, 3);
     opacity: 0.8;
-  }
+    border-top: 1px solid $lilyBorderDark;
+    bottom: 1px;
+    left: 1px;
+    right: 1px;
+    z-index: 998;
+    pointer-events: none;
+    text-align: center;
+
+    &:before {
+        content: " ";
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: #ffffff;
+    }
+
+    i {
+        color: $lilyBorderDark;
+        font-size: 10px;
+        position: absolute;
+        top: 2px;
+    }
+
+    &.ng-enter,
+    &.ng-leave {
+        transition: all linear 0.3s;
+    }
+
+    &.ng-enter,
+    &.ng-leave.ng-leave-active {
+        opacity: 0;
+    }
+
+    &.ng-leave,
+    &.ng-enter.ng-enter-active {
+        opacity: 0.8;
+    }
+}
+
+@media (max-width: $breakpoint-desktop){
+    .js-cq-widget-container:container("width < 900px") {
+        .external-link-name {
+            display: none;
+        }
+
+        .widget-name {
+            width: 60%;
+        }
+    }
+}
+
+@media (min-width: $breakpoint-desktop){
+    .js-cq-widget-container:container("width < 500px") {
+        .external-link-name {
+            display: none;
+        }
+
+        .widget-name {
+            width: 60%;
+        }
+    }
+
+    .js-cq-widget-container:container("width < 800px > 500px") {
+
+        .widget-name {
+            width: 60%;
+        }
+    }
+
+    .js-cq-widget-container:container("width > 800px") {
+
+        .widget-name {
+            width: 75%;
+        }
+    }
 }

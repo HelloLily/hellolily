@@ -190,20 +190,20 @@ class Function(DeletedMixin):
 @receiver(pre_save, sender=Contact)
 def post_save_contact_handler(sender, **kwargs):
     """
-    If an e-mail attribute was set on an instance of Contact, add a primary e-mail address or
+    If an email attribute was set on an instance of Contact, add a primary email address or
     overwrite the existing one.
     """
     instance = kwargs['instance']
     if 'primary_email' in instance.__dict__:
         new_email_address = instance.__dict__['primary_email']
         if len(new_email_address.strip()) > 0:
-            # Overwrite existing primary e-mail address
+            # Overwrite existing primary email address
             email = instance.email_addresses.filter(status=EmailAddress.PRIMARY_STATUS).first()
             if email:
                 email.email_address = new_email_address
                 email.save()
             else:
-                # Add new e-mail address as primary
+                # Add new email address as primary
                 email = EmailAddress(email_address=new_email_address, status=EmailAddress.PRIMARY_STATUS)
                 add_tenant(email, instance.tenant)
                 email.save()

@@ -8,7 +8,7 @@ function editableLink() {
             type: '@',
             field: '@',
             object: '=?',
-            isSocialMedia: '@?',
+            socialMediaName: '@?',
         },
         templateUrl: 'base/directives/editable_link.html',
         controller: EditableLinkController,
@@ -36,21 +36,32 @@ function EditableLinkController() {
 
     function activate() {
         if (!el.object) {
-            el.object = el.viewModel[el.type.toLowerCase()];
+            if (!el.socialMediaName) {
+                el.object = el.viewModel[el.type.toLowerCase()];
+            }
         }
     }
 
     function updateViewModel($data) {
-        var args = {
-            id: el.object.id,
-        };
+        var patchPromise;
+
+        var args = {};
+
+        if (el.object) {
+            args = {
+                id: el.object.id,
+            };
+        }
 
         args[el.field] = $data;
 
-        if (el.isSocialMedia) {
-            return el.viewModel.updateModel(args, el.object.name);
+        if (el.socialMediaName) {
+            args.name = el.socialMediaName;
+            patchPromise = el.viewModel.updateModel(args, el.socialMediaName);
         } else {
-            return el.viewModel.updateModel(args);
+            patchPromise = el.viewModel.updateModel(args).$promise;
         }
+
+        return patchPromise;
     }
 }

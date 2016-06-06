@@ -1,5 +1,6 @@
-<widget ng-if="vm.account" widget-name="'Account info'" widget-scrollable="true">
+<widget ng-if="vm.account" widget-name="'Account info'" widget-scrollable="true" class="js-cq-widget-container">
     <widget-header>
+        <div class="widget-label"></div>
         <div class="widget-name">
             <i class="lilicon hl-company-icon"></i>
             <span ng-show="vm.settings.email.data.account.id">
@@ -12,11 +13,11 @@
     <widget-filters>
         <a ng-href="{{ vm.tenant.primary_external_app_link.getUrl(vm.account.customer_id) }}" target="_blank" class="btn btn-circle btn-default" ng-if="vm.account.customer_id && vm.tenant.primary_external_app_link">
             <i class="fa fa-external-link fa-sm"></i>
-            {{ vm.tenant.primary_external_app_link.name }}
+            <span class="external-link-name">{{ vm.tenant.primary_external_app_link.name }}</span>
         </a>
         <a href="https://freedom.voys.nl/quotes/create/" target="_blank" class="btn btn-circle btn-default" ng-if="!vm.account.customer_id && vm.tenant.isVoysNL()">
             <i class="fa fa-external-link fa-sm"></i>
-            Write quote
+            <span class="external-link-name">Write quote</span>
         </a>
     </widget-filters>
 
@@ -29,7 +30,7 @@
                         <editable-select field="status" view-model="vm" type="Account">{{ vm.account.status.name }}</editable-select>
                     </td>
                 </tr>
-                <tr ng-show="(vm.account.email_addresses | filter: {status: '!' + 0}).length">
+                <tr>
                     <td><i class="lilicon hl-mail-icon"></i> <strong>Email</strong></td>
                     <td>
                         <editable-related model="vm.account" type="Account" field="email_addresses"></editable-related>
@@ -50,8 +51,8 @@
                     </td>
                 </tr>
 
-                <tr ng-show="vm.account.assigned_to">
-                    <td><i class="lilicon hl-user-icon"></i> <strong>Assigned to</strong></td>
+                <tr>
+                    <td><i class="lilicon hl-entity-icon"></i> <strong>Assigned to</strong></td>
                     <td>
                         <editable-select field="assigned_to" view-model="vm" type="Account" class="inline-selectable-text" select-options="{type: 'User', field: 'assignOptions', display: 'full_name'}">
                             {{ vm.account.assigned_to.full_name }}
@@ -69,10 +70,10 @@
                 <tr>
                     <td><i class="fa fa-twitter"></i> <strong>Twitter</strong></td>
                     <td>
-                        <!--<editable-link view-model="vm" type="Account" object="vm.account.twitter" field="username" is-social-media="true">-->
+                        <editable-link view-model="vm" type="Account" object="vm.account.twitter" field="username" social-media-name="twitter">
                             <a ng-if="vm.account.twitter" ng-href="{{ vm.account.twitter.profile_url }}" target="_blank">{{ vm.account.twitter.username }}</a>
                             <span ng-if="!vm.account.twitter">No Twitter profile</span>
-                        <!--</editable-link>-->
+                        </editable-link>
                     </td>
                 </tr>
 

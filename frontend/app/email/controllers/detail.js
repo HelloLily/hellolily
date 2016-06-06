@@ -295,7 +295,7 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
             // opening/adding is the same button thus we can differentiate
             // the open and adding actions.
             gaModelName = $filter('ucfirst')(modelName);
-            ga('send', 'event', gaModelName, 'Open SC', 'Email SC');
+            ga('send', 'event', gaModelName, 'Open', 'Email Sidebar');
             // No data yet and no form open, so open the form.
             Settings.email.sidebar.form = modelName;
         } else if (form === modelName) {
@@ -311,6 +311,7 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     }
 
     function _toggleListWidget(modelName, toggleList) {
+        var gaModelName;
         var modelNamePlural = modelName;
         var slicedModelName = modelName.slice(0, 4);
 
@@ -318,6 +319,9 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
             Settings.email.sidebar[slicedModelName] = !Settings.email.sidebar[slicedModelName];
         } else {
             if (Settings.email.sidebar.form !== modelNamePlural) {
+                // Send Google Analytics event when adding new case or deal via email Sidebar.
+                gaModelName = $filter('ucfirst')(modelName);
+                ga('send', 'event', gaModelName, 'Open', 'Email Sidebar');
                 // No data yet and no form open, so open the form.
                 Settings.email.sidebar.form = modelNamePlural;
             } else if (Settings.email.sidebar.form === modelNamePlural) {
@@ -351,12 +355,12 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
         });
     }
 
-    // Broadcast function to send e-mail to trash by HLShortcuts service.
+    // Broadcast function to send email to trash by HLShortcuts service.
     $scope.$on('deleteMessageByShortCode', function() {
         trashMessage();
     });
 
-    // Broadcast function to archive a specific e-mail by HLShortcuts service.
+    // Broadcast function to archive a specific email by HLShortcuts service.
     $scope.$on('archiveMessageByShortCode', function() {
         archiveMessage();
     });

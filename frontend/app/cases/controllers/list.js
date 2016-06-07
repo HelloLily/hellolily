@@ -79,7 +79,7 @@ function CaseListController($scope, $state, $timeout, $uibModal, Case, HLFilters
             _getFilterOnList();
             _getFilterSpecialList();
             _setupWatchers();
-        });
+        }, 50);
     }
 
     /**

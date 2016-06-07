@@ -1,0 +1,133 @@
+{% load i18n staticfiles %}
+
+<!DOCTYPE html>
+<!--[if IE 8]> <html lang="en" class="ie8 no-js" ng-app="app"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9 no-js" ng-app="app"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="en" ng-app="app" ng-controller="BaseController">
+<!--<![endif]-->
+    <!-- BEGIN HEAD -->
+    <head>
+        <meta charset="utf-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="" />
+        <meta name="author" content="Devhouse Spindle" />
+        <title ng-bind="settings.page.title + ' - Lily'">Lily</title>
+
+        <!-- Generated using realfavicongenerator.net using the three base_images. -->
+        <link rel="apple-touch-icon" sizes="57x57" href="{% static 'app/images/favicons/apple-touch-icon-57x57.png' %}">
+        <link rel="apple-touch-icon" sizes="60x60" href="{% static 'app/images/favicons/apple-touch-icon-60x60.png' %}">
+        <link rel="apple-touch-icon" sizes="72x72" href="{% static 'app/images/favicons/apple-touch-icon-72x72.png' %}">
+        <link rel="apple-touch-icon" sizes="76x76" href="{% static 'app/images/favicons/apple-touch-icon-76x76.png' %}">
+        <link rel="apple-touch-icon" sizes="114x114" href="{% static 'app/images/favicons/apple-touch-icon-114x114.png' %}">
+        <link rel="apple-touch-icon" sizes="120x120" href="{% static 'app/images/favicons/apple-touch-icon-120x120.png' %}">
+        <link rel="apple-touch-icon" sizes="144x144" href="{% static 'app/images/favicons/apple-touch-icon-144x144.png' %}">
+        <link rel="apple-touch-icon" sizes="152x152" href="{% static 'app/images/favicons/apple-touch-icon-152x152.png' %}">
+        <link rel="apple-touch-icon" sizes="180x180" href="{% static 'app/images/favicons/apple-touch-icon-180x180.png' %}">
+        <link rel="icon" type="image/png" href="{% static 'app/images/favicons/favicon-32x32.png' %}" sizes="32x32">
+        <link rel="icon" type="image/png" href="{% static 'app/images/favicons/android-chrome-192x192.png' %}" sizes="192x192">
+        <link rel="icon" type="image/png" href="{% static 'app/images/favicons/favicon-96x96.png' %}" sizes="96x96">
+        <link rel="icon" type="image/png" href="{% static 'app/images/favicons/favicon-16x16.png' %}" sizes="16x16">
+        <link rel="manifest" href="{% static 'app/images/favicons/manifest.json' %}">
+        <link rel="mask-icon" href="{% static 'app/images/favicons/safari-pinned-tab.svg' %}" color="#5bbad5">
+        <link rel="shortcut icon" href="{% static 'app/images/favicons/favicon.ico' %}">
+        <meta name="apple-mobile-web-app-title" content="Lily">
+        <meta name="application-name" content="Lily">
+        <meta name="msapplication-TileColor" content="#27244c">
+        <meta name="msapplication-TileImage" content="{% static 'app/images/favicons/mstile-144x144.png' %}">
+        <meta name="msapplication-config" content="{% static 'app/images/favicons/browserconfig.xml' %}">
+        <meta name="theme-color" content="#ffffff">
+
+        <!-- BEGIN GLOBAL MANDATORY STYLES -->
+        <link href="{% static 'vendor/vendor.css' %}" rel="stylesheet" type="text/css">
+        <link href="{% static 'app/app.css' %}" rel="stylesheet" type="text/css">
+        <!-- END GLOBAL STYLES -->
+
+        {% verbatim %}
+    </head>
+    <!-- END HEAD -->
+    <!-- BEGIN BODY -->
+    <!-- DOC: Apply "page-header-fixed-mobile" and "page-footer-fixed-mobile" class to body element to force fixed header or footer in mobile devices -->
+    <!-- DOC: Apply "page-sidebar-closed" class to the body and "page-sidebar-menu-closed" class to the sidebar menu element to hide the sidebar by default -->
+    <!-- DOC: Apply "page-sidebar-hide" class to the body to make the sidebar completely hidden on toggle -->
+    <!-- DOC: Apply "page-sidebar-closed-hide-logo" class to the body element to make the logo hidden on sidebar toggle -->
+    <!-- DOC: Apply "page-sidebar-hide" class to body element to completely hide the sidebar on sidebar toggle -->
+    <!-- DOC: Apply "page-sidebar-fixed" class to have fixed sidebar -->
+    <!-- DOC: Apply "page-footer-fixed" class to the body element to have fixed footer -->
+    <!-- DOC: Apply "page-sidebar-reversed" class to put the sidebar on the right side -->
+    <!-- DOC: Apply "page-full-width" class to the body element to have full width page without the sidebar menu -->
+    <body class="page-header-fixed page-sidebar-closed-hide-logo page-container-bg-solid page-sidebar-closed-hide-logo page-on-load page-sidebar-fixed">
+
+        <!-- BEGIN PAGE SPINNER -->
+        <div ng-spinner-bar class="page-spinner-bar">
+            <div class="bounce1"></div>
+            <div class="bounce2"></div>
+            <div class="bounce3"></div>
+        </div>
+        <!-- END PAGE SPINNER -->
+
+        <!-- BEGIN HEADER -->
+        <div ng-include="'base/header.html'" ng-controller="headerController" class="page-header navbar navbar-fixed-top">
+        </div>
+        <!-- END HEADER -->
+
+        <div class="clearfix"></div>
+
+        <!-- BEGIN CONTAINER -->
+        <div class="page-container">
+            <!-- BEGIN CONTENT -->
+            <div class="page-content-wrapper">
+                <div class="page-content">
+                    <!-- BEGIN PAGE HEAD -->
+                    <div class="page-head">
+                        <!-- BEGIN PAGE TITLE -->
+                        <div ng-if="toolbar" class="page-toolbar">
+                            <div class="btn-group btn-theme-panel">
+                                <a ng-click="$state.go('.edit')" class="btn" title="Edit"><i class="lilicon hl-edit-icon"></i></a>
+                                <delete-confirmation model="{{ toolbar.model }}" object="toolbar.object" display-field="{{ toolbar.field }}" button-class="no-background"></delete-confirmation>
+                            </div>
+                        </div>
+                        <!-- END PAGE TITLE -->
+                    </div>
+                    <!-- END PAGE HEAD -->
+                    <!-- BEGIN PAGE CONTENT-->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div ui-view></div>
+                        </div>
+                    </div>
+                    <!-- END PAGE CONTENT -->
+                </div>
+            </div>
+            <!-- END CONTENT -->
+        </div>
+        <!-- END CONTAINER -->
+        {% endverbatim %}
+
+        <!-- BEGIN JAVASCRIPTS(Load javascripts at bottom, this will reduce page load time) -->
+        <!--[if lt IE 9]>
+        <script type="text/javascript" src="{% static 'vendor/ie-fixes.js' %}" charset="utf-8"></script>
+        <![endif]-->
+        <script type="text/javascript" src="{% static 'vendor/vendor.js' %}" charset="utf-8"></script>
+        <script type="text/javascript" src="{% static 'app/templates.js' %}" charset="utf-8"></script>
+        <script type="text/javascript" src="{% static 'app/app.js' %}" charset="utf-8"></script>
+        <script type="text/javascript" src="{% static 'app/analytics.js' %}" charset="utf-8"></script>
+        <script type="text/javascript">(function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',intercomSettings);}else{var d=document;var i=function(){i.c(arguments)};i.q=[];i.c=function(args){i.q.push(args)};w.Intercom=i;function l(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://widget.intercom.io/widget/d6ko33k1';var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);}if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})()</script>
+        <script>
+            var currentUser = {
+                id: parseInt('{{ user.id }}'),
+                firstName: '{{ user.first_name }}',
+                lastName: '{{ user.last_name }}',
+                picture: '{{ user.profile_picture|safe }}',
+                email: '{{ user.email }}',
+                fullName: '{{ user.full_name }}',
+                isSuperUser: '{{ user.is_superuser }}' == 'True',
+                displayEmailWarning: '{{ user.display_email_warning }}' == 'True'
+            };
+        </script>
+        <!-- END JAVASCRIPTS -->
+    </body>
+    <!-- END BODY -->
+</html>

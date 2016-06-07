@@ -1,0 +1,104 @@
+{% load i18n staticfiles %}
+
+<!DOCTYPE html>
+<!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="en">
+<!--<![endif]-->
+<!-- BEGIN HEAD -->
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="" />
+    <meta name="author" content="Devhouse Spindle" />
+    <title>Lily | {% block head-title %}{% endblock %}</title>
+
+    <!-- Generated using realfavicongenerator.net using the three base_images. -->
+    <link rel="apple-touch-icon" sizes="57x57" href="{% static 'app/images/favicons/apple-touch-icon-57x57.png' %}">
+    <link rel="apple-touch-icon" sizes="60x60" href="{% static 'app/images/favicons/apple-touch-icon-60x60.png' %}">
+    <link rel="apple-touch-icon" sizes="72x72" href="{% static 'app/images/favicons/apple-touch-icon-72x72.png' %}">
+    <link rel="apple-touch-icon" sizes="76x76" href="{% static 'app/images/favicons/apple-touch-icon-76x76.png' %}">
+    <link rel="apple-touch-icon" sizes="114x114" href="{% static 'app/images/favicons/apple-touch-icon-114x114.png' %}">
+    <link rel="apple-touch-icon" sizes="120x120" href="{% static 'app/images/favicons/apple-touch-icon-120x120.png' %}">
+    <link rel="apple-touch-icon" sizes="144x144" href="{% static 'app/images/favicons/apple-touch-icon-144x144.png' %}">
+    <link rel="apple-touch-icon" sizes="152x152" href="{% static 'app/images/favicons/apple-touch-icon-152x152.png' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'app/images/favicons/apple-touch-icon-180x180.png' %}">
+    <link rel="icon" type="image/png" href="{% static 'app/images/favicons/favicon-32x32.png' %}" sizes="32x32">
+    <link rel="icon" type="image/png" href="{% static 'app/images/favicons/android-chrome-192x192.png' %}" sizes="192x192">
+    <link rel="icon" type="image/png" href="{% static 'app/images/favicons/favicon-96x96.png' %}" sizes="96x96">
+    <link rel="icon" type="image/png" href="{% static 'app/images/favicons/favicon-16x16.png' %}" sizes="16x16">
+    <link rel="manifest" href="{% static 'app/images/favicons/manifest.json' %}">
+    <link rel="mask-icon" href="{% static 'app/images/favicons/safari-pinned-tab.svg' %}" color="#5bbad5">
+    <link rel="shortcut icon" href="{% static 'app/images/favicons/favicon.ico' %}">
+    <meta name="apple-mobile-web-app-title" content="Lily">
+    <meta name="application-name" content="Lily">
+    <meta name="msapplication-TileColor" content="#27244c">
+    <meta name="msapplication-TileImage" content="{% static 'app/images/favicons/mstile-144x144.png' %}">
+    <meta name="msapplication-config" content="{% static 'app/images/favicons/browserconfig.xml' %}">
+    <meta name="theme-color" content="#ffffff">
+
+    <!-- BEGIN GLOBAL MANDATORY STYLES -->
+    <link href="{% static 'vendor/vendor.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'app/app.css' %}" rel="stylesheet" type="text/css">
+    <!-- END GLOBAL STYLES -->
+
+    <link rel="shortcut icon" href="{% static 'images/core/favicon.ico' %}" />
+</head>
+
+<body class="page-header-fixed">
+
+<div class="page-header navbar navbar-fixed-top">
+    <div class="page-header-inner">
+        <!-- BEGIN LOGO -->
+        <div class="page-logo">
+            <a href="{% url 'login' %}">
+                <p class="logo-default" style="font-size:1.4em;">
+                    <strong>Lily</strong>
+                </p>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="clearfix"></div>
+
+<div class="page-container">
+    <div class="row">
+        <div class="{% block content-width %}col-xs-12 col-sm-8 col-md-8 col-lg-6 col-sm-offset-2 col-md-offset-2 col-lg-offset-3{% endblock %}">
+            <div class="portlet light">
+                <div class="portlet-title">
+                    <h3 class="form-title">
+                        {% block page-title %}{% endblock %}
+                    </h3>
+                </div>
+
+                <div class="portlet-body">
+                    {% block content %}{% endblock content %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- BEGIN JAVASCRIPTS (Load javascripts at bottom, this will reduce page load time) -->
+<!--[if lt IE 9]>
+<script type="text/javascript" src="{% static 'vendor/ie-fixes.js' %}" charset="utf-8"></script>
+<![endif]-->
+<script type="text/javascript" src="{% static 'vendor/vendor.js' %}" charset="utf-8"></script>
+<script type="text/javascript" src="{% static 'app/analytics.js' %}" charset="utf-8"></script>
+{% if messages %}
+<script>
+    $( document ).ready(function() {
+        {% for message in messages %}
+        toastr['{{ message.level_tag }}']('{{ message.message }}');
+        {% endfor %}
+    });
+</script>
+{% endif %}
+<!-- END JAVASCRIPTS -->
+</body>
+<!-- END BODY -->
+</html>

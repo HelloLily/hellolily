@@ -74,7 +74,7 @@ class RelatedSerializerMixin(ValidateEverythingSimultaneouslyMixin):
         fields = fields or [
             field for field in self.fields.values()
             if (not field.read_only) or (field.default is not empty)
-            ]
+        ]
 
         for field in fields:
             validate_method = getattr(self, 'validate_' + field.field_name, None)

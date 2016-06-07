@@ -56,8 +56,8 @@ function PreferencesEmailAccountList($uibModal, EmailAccount, User, user, $http)
         function checkHiddenState(account) {
             $http.get('/api/messaging/email/shared_email_config/?email_account=' + account.id).success(function(d) {
                 var isHidden = false;
-                if (d.length) {
-                    if (d[0].is_hidden) {
+                if (d.results.length) {
+                    if (d.results[0].is_hidden) {
                         isHidden = true;
                     }
                 }

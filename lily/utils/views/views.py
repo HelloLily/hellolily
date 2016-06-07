@@ -231,7 +231,7 @@ class RedirectSetMessageView(RedirectView):
 
 
 class BaseView(LoginRequiredMixin, TemplateView):
-    template_name = 'angular/base.html'
+    template_name = 'base.html'
 
     def get_context_data(self, **kwargs):
         kwargs = super(BaseView, self).get_context_data(**kwargs)

@@ -69,6 +69,7 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
     vm.starMessages = starMessages;
     vm.reloadMessages = reloadMessages;
     vm.goToDraft = goToDraft;
+    vm.setSearchQuery = setSearchQuery;
 
     Settings.page.setAllTitles('custom', 'Email');
 
@@ -81,6 +82,10 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
         // Store current email account
         SelectedEmailAccount.setCurrentAccountId($stateParams.accountId);
         SelectedEmailAccount.setCurrentFolderId($stateParams.labelId);
+    }
+
+    function setSearchQuery(queryString) {
+        vm.table.filter = queryString;
     }
 
     function watchTable() {

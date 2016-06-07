@@ -1,5 +1,28 @@
 $inline-editable-field-height: 30px;
 
+@mixin input-field($height) {
+    border-color: $app-border-color;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 3px;
+    background: #fff;
+    line-height: $height;
+    height: $height;
+    width: 100%;
+    padding: 0 6px;
+    transition: border-color, 0.3s;
+
+    &:focus {
+        transition: border-color, 0.3s;
+        outline: none;
+        border-color: darken($app-border-color, 20);
+    }
+}
+
+.hl-base-input {
+    @include input-field(30px);
+}
+
 .editable-click {
   color: #333;
   margin: 0 -5px;
@@ -256,4 +279,51 @@ $inline-editable-field-height: 30px;
 .select2-container-multi .select2-choices .select2-search-choice-focus {
   background: $lilyBlue;
   color: #fff;
+}
+
+.hl-search-field-container {
+    position: relative;
+
+    .hl-search-field {
+        @include input-field(31px);
+        margin-right: 20px;
+    }
+
+    .hl-search-field.ng-not-empty + .hl-search-btn {
+        background: $criticalPrioColor;
+
+        &:before {
+            content: "\f00d";
+        }
+
+        &:hover {
+            transition: background, 0s;
+            background: darken($criticalPrioColor, 20);
+        }
+    }
+
+    .hl-search-btn {
+        background: $app-color-aqua;
+        border-width: 0;
+        height: 31px;
+        width: 26px;
+        text-align: center;
+        padding: 0 6px;
+        line-height: 31px;
+        position: absolute;
+        right: 0;
+        top: 0;
+        border-top-right-radius: 3px;
+        border-bottom-right-radius: 3px;
+        transition: background, 0.25s;
+        outline: none;
+
+        &:before {
+            -webkit-font-smoothing: antialiased;
+            font-weight: normal;
+            font-family: "FontAwesome";
+            content: "\f002";
+            color: #fff;
+        }
+    }
 }

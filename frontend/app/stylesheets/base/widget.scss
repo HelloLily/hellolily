@@ -75,6 +75,11 @@ class is applied to, so be sure it has a wrapping container.
     margin-left: 15px;
 }
 
+.widget-search {
+    line-height: $button-height;
+    width: 200px;
+}
+
 .widget-collapse,
 .widget-close {
     display: inline-block;

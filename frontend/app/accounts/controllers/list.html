@@ -27,15 +27,11 @@
             </li>
         </ul>
 
-        <div class="tools col-xs-12 col-md-6">
-            <form class="form-inline pull-right">
-                <div class="input-group">
-                    <input type="text" class="form-control search-input" ng-model="vm.table.filter" placeholder="Search...">
-                    <span class="input-group-btn">
-                        <button type="button" class="btn red-pink" ng-click="vm.setFilter('')" ng-disabled="!vm.table.filter">
-                            <i class="fa fa-times"></i>
-                        </button>
-                    </span>
+        <div class="widget-tools pull-right">
+            <form class="widget-search pull-right">
+                <div class="hl-search-field-container">
+                    <input type="text" class="hl-search-field" ng-model="vm.table.filter" placeholder="Search..">
+                    <button type="button" class="hl-search-btn" ng-click="vm.setFilter('')" ng-disabled="!vm.table.filter"></button>
                 </div>
             </form>
         </div>

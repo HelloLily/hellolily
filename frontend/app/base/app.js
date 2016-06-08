@@ -10,7 +10,6 @@ angular.module('app', [
     'ngResource',
     'ngSanitize',
     'ncy-angular-breadcrumb',
-    'multi-transclude',
     'xeditable',
     'angular-cache',
 

@@ -37,8 +37,8 @@ function accountConfig($stateProvider) {
 
 angular.module('app.accounts').controller('AccountDetailController', AccountDetailController);
 
-AccountDetailController.$inject = ['HLResource', 'Settings', 'currentAccount', 'caseList', 'contactList', 'dealList'];
-function AccountDetailController(HLResource, Settings, currentAccount, caseList, contactList, dealList) {
+AccountDetailController.$inject = ['Account', 'Settings', 'currentAccount', 'caseList', 'contactList', 'dealList'];
+function AccountDetailController(Account, Settings, currentAccount, caseList, contactList, dealList) {
     var vm = this;
 
     Settings.page.setAllTitles('detail', currentAccount.name);
@@ -64,19 +64,6 @@ function AccountDetailController(HLResource, Settings, currentAccount, caseList,
     }
 
     function updateModel(data, field) {
-        var args = HLResource.createArgs(data, field, vm.account);
-
-        if (field === 'twitter') {
-            args = {
-                id: vm.account.id,
-                social_media: [args],
-            };
-        }
-
-        if (field === 'name') {
-            Settings.page.setAllTitles('detail', data);
-        }
-
-        return HLResource.patch('Account', args).$promise;
+        return Account.updateModel(data, field, vm.account);
     }
 }

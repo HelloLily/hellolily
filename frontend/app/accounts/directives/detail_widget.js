@@ -15,8 +15,8 @@ function accountDetailWidget() {
     };
 }
 
-AccountDetailWidgetController.$inject = ['Settings', 'Tenant'];
-function AccountDetailWidgetController(Settings, Tenant) {
+AccountDetailWidgetController.$inject = ['Account', 'Settings', 'Tenant'];
+function AccountDetailWidgetController(Account, Settings, Tenant) {
     var vm = this;
 
     vm.settings = Settings;
@@ -28,6 +28,6 @@ function AccountDetailWidgetController(Settings, Tenant) {
     });
 
     function updateModel(data, field) {
-        return vm.updateCallback()(data, field);
+        return Account.updateModel(data, field, vm.account);
     }
 }

@@ -74,41 +74,6 @@ function ContactDetailController($scope, Contact, HLResource, Settings, currentC
     });
 
     function updateModel(data, field) {
-        var accounts = [];
-        var args;
-        var patchPromise;
-
-        if (field instanceof Array) {
-            args = data;
-            args.id = vm.contact.id;
-        } else {
-            args = HLResource.createArgs(data, field, vm.contact);
-        }
-
-        if (field === 'twitter' || field === 'linkedin') {
-            args = {
-                id: vm.contact.id,
-                social_media: [args],
-            };
-        }
-
-        if (data.hasOwnProperty('accounts')) {
-            data.accounts.forEach(function(account) {
-                accounts.push(account.id);
-            });
-
-            data.accounts = accounts;
-        }
-
-        patchPromise = HLResource.patch('Contact', args).$promise;
-
-        patchPromise.then(function(newData) {
-            if (field instanceof Array) {
-                Settings.page.setAllTitles('detail', newData.full_name);
-                vm.contact.full_name = newData.full_name;
-            }
-        });
-
-        return patchPromise;
+        return Contact.updateModel(data, field, vm.contact);
     }
 }

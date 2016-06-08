@@ -321,6 +321,8 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
             if (Settings.email.sidebar.form !== modelNamePlural) {
                 // Send Google Analytics event when adding new case or deal via email Sidebar.
                 gaModelName = $filter('ucfirst')(modelName);
+                // Strip last letter to make modal event singular for Google Analytics naming consistency.
+                gaModelName = gaModelName.slice(0, -1);
                 ga('send', 'event', gaModelName, 'Open', 'Email Sidebar');
                 // No data yet and no form open, so open the form.
                 Settings.email.sidebar.form = modelNamePlural;

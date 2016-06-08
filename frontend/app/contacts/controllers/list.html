@@ -96,7 +96,7 @@
                             </a>
                         </div>
                         <div ng-repeat="phone in contact.phone_numbers track by $index" ng-if="phone.type == 'mobile' || phone.type == 'work'">
-                            <a href="tel:{{ ::phone }}">
+                            <a href="tel:{{ phone.number }}">
                                 <i ng-class="{work: 'fa fa-phone', mobile: 'fa fa-mobile-phone'}[phone.type]"></i>
                                 {{ phone.number }}
                             </a>

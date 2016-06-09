@@ -44,7 +44,7 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
     vm.emailMessages = [];
     vm.primaryEmailAccount = null;
     vm.table = {
-        page: 0,  // current page of pagination: 1-index
+        page: Settings.email.page,
         pageSize: 20,  // number of items per page
         totalItems: 0, // total number of items
         filter: storage.get('searchQuery', ''),  // search filter
@@ -74,6 +74,11 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
     Settings.page.setAllTitles('custom', 'Email');
 
     activate();
+
+    $scope.$on('$locationChangeSuccess', function() {
+        // Reset page if the user clicks an inbox.
+        vm.table.page = 0;
+    });
 
     ///////
 
@@ -106,7 +111,8 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
 
     function _updateTableSettings() {
         storage.put('searchQuery', vm.table.filter);
-        storage.put('page', vm.table.page);
+
+        Settings.email.page = vm.table.page;
     }
 
     function setPage(pageNumber) {

@@ -100,12 +100,12 @@ function Contact($resource, HLResource, Settings) {
             };
         }
 
-        if (data.hasOwnProperty('accounts')) {
-            data.accounts.forEach(function(account) {
+        if (args.hasOwnProperty('accounts')) {
+            args.accounts.forEach(function(account) {
                 accounts.push(account.id);
             });
 
-            data.accounts = accounts;
+            args.accounts = accounts;
         }
 
         patchPromise = HLResource.patch('Contact', args).$promise;

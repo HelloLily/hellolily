@@ -1,6 +1,6 @@
 from lily.search.base_mapping import BaseMapping
 
-from .models import LilyUser
+from .models import LilyUser, LilyGroup
 
 
 class LilyUserMapping(BaseMapping):
@@ -53,4 +53,33 @@ class LilyUserMapping(BaseMapping):
             'full_name': obj.full_name,
             'position': obj.position,
             'profile_picture': obj.profile_picture,
+        }
+
+
+class LilyGroupMapping(BaseMapping):
+    @classmethod
+    def get_model(cls):
+        return LilyGroup
+
+    @classmethod
+    def get_mapping(cls):
+        """
+        Returns an Elasticsearch mapping for this MappingType.
+        """
+        mapping = super(LilyGroupMapping, cls).get_mapping()
+        mapping['properties'].update({
+            'name': {
+                'type': 'string',
+                'index_analyzer': 'normal_ngram_analyzer',
+            },
+        })
+        return mapping
+
+    @classmethod
+    def obj_to_doc(cls, obj):
+        """
+        Translate an object to an index document.
+        """
+        return {
+            'name': obj.name,
         }

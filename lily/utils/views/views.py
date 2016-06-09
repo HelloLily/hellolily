@@ -3,11 +3,9 @@ import logging
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ImproperlyConfigured
 from django.core.files.storage import default_storage
 from django.core.urlresolvers import resolve, reverse_lazy
-from django.db.models import Q
 from django.db.models.loading import get_model
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404

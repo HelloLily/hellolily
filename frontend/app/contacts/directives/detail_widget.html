@@ -106,10 +106,7 @@
             <tr>
                 <td><i class="fa fa-tag"></i> <strong>Tags</strong></td>
                 <td>
-                    <a class="btn btn-xs btn-default margin-right-5" ng-repeat="tag in vm.contact.tags">
-                        {{ tag.name }}
-                    </a>
-                    <span ng-if="!vm.contact.tags.length">No tags</span>
+                    <editable-tags view-model="vm" type="Contact"></editable-tags>
                 </td>
             </tr>
 

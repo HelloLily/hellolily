@@ -9,6 +9,25 @@ function UserTeams($resource) {
             query: {
                 isArray: false,
             },
+            search: {
+                url: '/search/search/?type=users_lilygroup&filterquery=:filterquery',
+                method: 'GET',
+                transformResponse: function(data) {
+                    var jsonData = angular.fromJson(data);
+                    var objects = [];
+
+                    if (jsonData && jsonData.hits && jsonData.hits.length > 0) {
+                        jsonData.hits.forEach(function(obj) {
+                            objects.push(obj);
+                        });
+                    }
+
+                    return {
+                        objects: objects,
+                        total: jsonData.total,
+                    };
+                },
+            },
             mine: {
                 method: 'GET',
                 url: '/api/users/team/mine/',
@@ -16,5 +35,6 @@ function UserTeams($resource) {
             },
         }
     );
+
     return _userTeam;
 }

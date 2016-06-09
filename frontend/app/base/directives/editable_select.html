@@ -4,7 +4,7 @@
 
 <span ng-if="es.search && !es.multiple">
     <form data-editable-form name="es.{{ es.formName }}" blur="cancel" class="display-inline-block margin-right-10">
-        <div editable-ui-select="es.selectModel" data-e-on-select="es.updateViewModel($data.id)"
+        <div editable-ui-select="es.selectModel" name="{{ es.field }}" data-e-name="{{ es.field }}" data-e-on-select="es.updateViewModel($data.id)"
              data-e-form="{{ es.formName }}" data-e-theme="select2" data-e-class="form-control editable-select2"
              data-e-ng-model="es.selectModel" class="editable editable-click">
             <ng-transclude></ng-transclude>
@@ -21,7 +21,7 @@
 
 <span ng-if="es.search && es.multiple">
     <form data-editable-form name="es.{{ es.formName }}" class="display-inline-block margin-right-10 editable-multi">
-        <div editable-ui-select="es.selectModel" data-e-multiple data-onbeforesave="es.updateViewModel($data)"
+        <div editable-ui-select="es.selectModel" name="{{ es.field }}" data-e-name="{{ es.field }}" data-e-multiple data-onbeforesave="es.updateViewModel($data)"
              data-e-form="{{ es.formName }}" data-e-theme="select2" data-e-class="editable-select2"
              data-e-ng-model="es.selectModel" class="editable editable-click">
             <ng-transclude></ng-transclude>

@@ -30,7 +30,7 @@ from lily.accounts.models import Account
 from lily.contacts.models import Contact
 from lily.google.token_generator import generate_token, validate_token
 from lily.tenant.middleware import get_current_user
-from lily.utils.functions import is_ajax
+from lily.utils.functions import is_ajax, post_intercom_event
 from lily.utils.views.mixins import LoginRequiredMixin, FormActionMixin, AjaxFormMixin
 
 from .forms import (ComposeEmailForm, CreateUpdateEmailTemplateForm, CreateUpdateTemplateVariableForm,
@@ -88,6 +88,7 @@ class OAuth2Callback(LoginRequiredMixin, View):
         if account.public is not set_to_public:
             account.public = set_to_public
             account.save()
+            post_intercom_event(event_name='email-account-added', user_id=self.request.user.id)
 
         return HttpResponseRedirect('/#/preferences/emailaccounts/edit/%s' % account.pk)
 
@@ -788,6 +789,8 @@ class CreateEmailTemplateView(CreateUpdateEmailTemplateMixin, CreateView):
         message = _('%s has been created') % self.object.name
         messages.success(self.request, message)
 
+        post_intercom_event(event_name='email-template-created', user_id=self.request.user.id)
+
         return response
 
 
@@ -1018,6 +1021,8 @@ class CreateTemplateVariableView(CreateUpdateTemplateVariableMixin, CreateView):
         # Show save messages
         message = _('%s has been created') % self.object.name
         messages.success(self.request, message)
+
+        post_intercom_event(event_name='email-variable-created', user_id=self.request.user.id)
 
         return response
 

@@ -5,6 +5,7 @@ from celery.task import task
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 
+from lily.utils.functions import post_intercom_event
 from .manager import GmailManager, ManagerError
 from .models.models import (EmailAccount, EmailMessage, EmailOutboxMessage, EmailTemplateAttachment,
                             EmailOutboxAttachment, EmailAttachment)
@@ -356,6 +357,9 @@ def send_message(email_outbox_message_id, original_message_id=None):
             # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more
             email_outbox_message.delete()
             sent_success = True
+            # TODO: This should probably be moved to the front end once
+            # we can notify users about sent mails.
+            post_intercom_event(event_name='email-sent', user_id=email_account.owner.id)
         except ManagerError as e:
             logger.error(traceback.format_exc(e))
             raise

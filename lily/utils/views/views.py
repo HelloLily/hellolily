@@ -236,7 +236,8 @@ class BaseView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         kwargs = super(BaseView, self).get_context_data(**kwargs)
         kwargs.update({
-            'DEBUG': settings.DEBUG
+            'INTERCOM_APP_ID': settings.INTERCOM_APP_ID,
+            'DEBUG': settings.DEBUG,
         })
         return kwargs
 

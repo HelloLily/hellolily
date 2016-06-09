@@ -118,6 +118,7 @@ class Page {
         this.email = new Email(this.storage);
         this.header = new Header();
         this.toolbar = new Toolbar();
+        this.previousState = null;
     }
 
     /**

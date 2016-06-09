@@ -113,7 +113,7 @@
                                     </td>
                                 </tr>
 
-                               <tr ng-if="vm.deal.account.customer_id && vm.tenant.primary_external_app_link">
+                                <tr ng-if="vm.deal.account.customer_id && vm.tenant.primary_external_app_link">
                                     <td><strong>{{ vm.tenant.primary_external_app_link.name }}</strong></td>
                                     <td>
                                         <editable-link view-model="vm" type="Account" object="vm.deal.account" field="customer_id">
@@ -140,27 +140,29 @@
                                     <td><editable-select field="why_customer" view-model="vm" type="Deal">{{ vm.deal.why_customer.name }}</editable-select></td>
                                 </tr>
 
-                                <tr><td colspan="2"><hr></td></tr>
+                                <tbody ng-if="vm.tenant.isVoysNL()">
+                                    <tr><td colspan="2"><hr></td></tr>
 
-                                <tr>
-                                    <td><strong>Twitter checked</strong></td>
-                                    <td><editable-checkbox view-model="vm" type="Deal" field="twitter_checked"></editable-checkbox></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Card sent</strong></td>
-                                    <td><editable-checkbox view-model="vm" type="Deal" field="card_sent"></editable-checkbox></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Feedback form sent</strong></td>
-                                    <td><editable-checkbox view-model="vm" type="Deal" field="feedback_form_sent"></editable-checkbox></td>
-                                </tr>
+                                    <tr>
+                                        <td><strong>Twitter checked</strong></td>
+                                        <td><editable-checkbox view-model="vm" type="Deal" field="twitter_checked"></editable-checkbox></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Card sent</strong></td>
+                                        <td><editable-checkbox view-model="vm" type="Deal" field="card_sent"></editable-checkbox></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Feedback form sent</strong></td>
+                                        <td><editable-checkbox view-model="vm" type="Deal" field="feedback_form_sent"></editable-checkbox></td>
+                                    </tr>
 
-                                <tr ng-show="vm.deal.status.id == vm.wonStatus.id">
-                                    <td><strong>Quote checked</strong></td>
-                                    <td>
-                                        <editable-checkbox view-model="vm" type="Deal" field="is_checked"></editable-checkbox>
-                                    </td>
-                                </tr>
+                                    <tr ng-show="vm.deal.status.id == vm.wonStatus.id">
+                                        <td><strong>Quote checked</strong></td>
+                                        <td>
+                                            <editable-checkbox view-model="vm" type="Deal" field="is_checked"></editable-checkbox>
+                                        </td>
+                                    </tr>
+                                </tbody>
                             </tbody>
                         </table>
                     </div>

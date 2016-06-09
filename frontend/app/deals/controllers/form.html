@@ -159,7 +159,7 @@
                 </form-group>
             </form-portlet>
 
-            <form-portlet portlet-title="Action checklist">
+            <form-portlet ng-if="vm.tenant.isVoysNL()" portlet-title="Action checklist">
                 <form-radio-buttons options="['Nearly', 'Done']" label-title="Twitter checked"
                                     input-name="twitter_checked"
                                     field="vm.deal.twitter_checked" sidebar="settings.email.sidebar.form">

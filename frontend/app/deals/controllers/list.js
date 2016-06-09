@@ -19,8 +19,8 @@ function dealsConfig($stateProvider) {
 
 angular.module('app.deals').controller('DealListController', DealListController);
 
-DealListController.$inject = ['$scope', '$timeout', 'Settings', 'LocalStorage', 'Deal', 'HLFilters'];
-function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFilters) {
+DealListController.$inject = ['$scope', '$timeout', 'Settings', 'Deal', 'HLFilters', 'LocalStorage', 'Tenant'];
+function DealListController($scope, $timeout, Settings, Deal, HLFilters, LocalStorage, Tenant) {
     var storage = new LocalStorage('deals');
     var vm = this;
 
@@ -77,6 +77,10 @@ function DealListController($scope, $timeout, Settings, LocalStorage, Deal, HLFi
             _setupWatchers();
             _getFilterList();
         }, 50);
+
+        Tenant.query({}, function(tenant) {
+            vm.tenant = tenant;
+        });
     }
 
     function _getFilterList() {

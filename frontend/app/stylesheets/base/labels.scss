@@ -52,17 +52,17 @@
 }
 
 .label-low-prio {
-    @include hl-label($lowPrioColor);
+    @include hl-label($low-prio-color);
 }
 
 .label-med-prio {
-    @include hl-label($mediumPrioColor);
+    @include hl-label($medium-prio-color);
 }
 
 .label-high-prio {
-    @include hl-label($highPrioColor);
+    @include hl-label($high-prio-color);
 }
 
 .label-critical-prio {
-    @include hl-label($criticalPrioColor);
+    @include hl-label($critical-prio-color);
 }

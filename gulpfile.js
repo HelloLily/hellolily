@@ -19,7 +19,6 @@ var rebaseUrls = require('gulp-css-rebase-urls');  // Make relative paths absolu
 var remember = require('gulp-remember');  // Remember all files after a cached call
 var rename = require('gulp-rename');  // Rename current file stream
 var sass = require('gulp-sass');  // Sass compilation
-var sasslint = require('gulp-sass-lint');
 var shell = require('gulp-shell'); // For running shell commands
 var size = require('gulp-size');  // Notify about filesize
 var sourcemaps = require('gulp-sourcemaps');  // Create sourcemaps from original files and create a .map file
@@ -315,13 +314,6 @@ gulp.task('analytics', [], function() {
     return gulp.src(config.app.js.analytics.src)
         .pipe(rename(config.app.js.analytics.fileName))
         .pipe(gulp.dest(config.app.buildDir));
-});
-
-gulp.task('sass-lint', function() {
-    return gulp.src(config.app.sass.src)
-    .pipe(sasslint())
-    .pipe(sasslint.format())
-    .pipe(sasslint.failOnError());
 });
 
 /**

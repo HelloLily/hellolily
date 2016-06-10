@@ -1,54 +1,54 @@
 #deal-status {
-  margin-top: 15px;
-  margin-bottom: 15px;
+    margin-top: 15px;
+    margin-bottom: 15px;
 }
 
 .deal-detail-info {
-  div > label {
-    width: 160px;
-    font-weight: bold;
-  }
+    div > label {
+        width: 160px;
+        font-weight: bold;
+    }
 }
 
 .deal-detail-involved-table-avatar {
-  width: 40px;
-  height: 40px;
-  float: left;
-  border-radius: 20px;
-  overflow: hidden;
-  margin: 5px 10px 5px 0;
+    width: 40px;
+    height: 40px;
+    float: left;
+    border-radius: 20px;
+    overflow: hidden;
+    margin: 5px 10px 5px 0;
 }
 
 .list-filters .step-type {
-  margin-left: 10px;
+    margin-left: 10px;
 }
 
 .list-filters .checker {
-  margin-left: 5px;
+    margin-left: 5px;
 }
 
 .inline-selectable-text {
-  margin-left: 1px;
-  margin-right: 5px;
+    margin-left: 1px;
+    margin-right: 5px;
 }
 
 .deal-detail-info-table {
-  width: 100%;
+    width: 100%;
 
-  td {
-    height: 30px;
+    td {
+        height: 30px;
 
-    label {
-      margin-bottom: 0;
+        label {
+            margin-bottom: 0;
+        }
     }
-  }
 
-  td:first-child {
-    width: 160px;
-    font-weight: bold;
-  }
+    td:first-child {
+        width: 160px;
+        font-weight: bold;
+    }
 
-  .checker {
-    margin: 0;
-  }
+    .checker {
+        margin: 0;
+    }
 }

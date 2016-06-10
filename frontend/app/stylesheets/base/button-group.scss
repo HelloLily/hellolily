@@ -69,159 +69,159 @@ inbox to display buttons like reply, delete, archive etc.
 */
 
 .hl-button-group-container {
-  &:after {
-    content: "";
-    clear: both;
-    display: block;
-  }
+    &:after {
+        content: "";
+        clear: both;
+        display: block;
+    }
 }
 
 .hl-button-group {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-  list-style: none;
-  margin-right: 10px;
-  float: left;
-
-  &.pull-right {
-    margin-right: 0;
-    margin-left: 10px;
-
-    .hl-dropdown {
-      left: auto;
-      right: -1px;
-
-      &:before {
-        left: auto;
-        right: 8px;
-      }
-
-      &:after {
-        left: auto;
-        right: 8px;
-      }
-    }
-  }
-
-  .hl-button-group-btn {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    margin-right: 10px;
     float: left;
-    position: relative;
-    line-height: $button-height - 4px;
-    font-weight: 400;
-    font-size: 14px;
+
+    &.pull-right {
+        margin-right: 0;
+        margin-left: 10px;
+
+        .hl-dropdown {
+            left: auto;
+            right: -1px;
+
+            &:before {
+                left: auto;
+                right: 8px;
+            }
+
+            &:after {
+                left: auto;
+                right: 8px;
+            }
+        }
+    }
+
+    .hl-button-group-btn {
+        float: left;
+        position: relative;
+        line-height: $button-height - 4px;
+        font-weight: 400;
+        font-size: 14px;
         background: #fff;
         border: 1px $app-border-color solid;
         border-bottom-width: 2px;
-    border-left: none;
+        border-left: 0;
 
-    &:first-child {
+        &:first-child {
             border-left: 1px $app-border-color solid;
-      border-top-left-radius: $baseBorderRadius;
-      border-bottom-left-radius: $baseBorderRadius;
+            border-top-left-radius: $base-border-radius;
+            border-bottom-left-radius: $base-border-radius;
 
-      .hl-button-group-btn-link {
-        border-top-left-radius: $baseBorderRadius;
-        border-bottom-left-radius: $baseBorderRadius;
-      }
-    }
+            .hl-button-group-btn-link {
+                border-top-left-radius: $base-border-radius;
+                border-bottom-left-radius: $base-border-radius;
+            }
+        }
 
-    &:last-child {
-      border-top-right-radius: $baseBorderRadius;
-      border-bottom-right-radius: $baseBorderRadius;
+        &:last-child {
+            border-top-right-radius: $base-border-radius;
+            border-bottom-right-radius: $base-border-radius;
 
-      .hl-button-group-btn-link {
-        border-top-right-radius: $baseBorderRadius;
-        border-bottom-right-radius: $baseBorderRadius;
-      }
-    }
+            .hl-button-group-btn-link {
+                border-top-right-radius: $base-border-radius;
+                border-bottom-right-radius: $base-border-radius;
+            }
+        }
 
         &:hover,
-    &.selected {
+        &.selected {
             .hl-button-group-btn-link {
                 color: $app-color-aqua;
             }
-    }
+        }
 
-    &.disabled {
-      pointer-events: none;
+        &.disabled {
+            pointer-events: none;
 
-      .hl-button-group-btn-link {
-        opacity: 0.3;
-        pointer-events: none;
-        cursor: not-allowed;
-      }
+            .hl-button-group-btn-link {
+                opacity: 0.3;
+                pointer-events: none;
+                cursor: not-allowed;
+            }
 
-      &.selected {
+            &.selected {
                 background: #fff;
 
                 .hl-button-group-btn-link {
-                    color: $app-color-darkBlue;
+                    color: $app-color-darkblue;
                 }
-      }
+            }
 
-      &:hover {
-        background: $skyGrey;
-      }
-    }
+            &:hover {
+                background: $sky-grey;
+            }
+        }
 
-    &.open {
+        &.open {
             .hl-button-group-btn-link {
                 color: $app-color-aqua;
             }
 
-      .hl-dropdown {
-        display: block;
-      }
-    }
+            .hl-dropdown {
+                display: block;
+            }
+        }
 
-    .hl-button-group-btn-link {
+        .hl-button-group-btn-link {
             text-transform: uppercase;
             font-size: 12px;
             font-weight: 500;
-      cursor: pointer;
-      display: inline-block;
-      border-bottom: 1px transparent solid;
-      padding: 0 10px;
-      text-decoration: none;
-            color: $app-color-darkBlue;
+            cursor: pointer;
+            display: inline-block;
+            border-bottom: 1px transparent solid;
+            padding: 0 10px;
+            text-decoration: none;
+            color: $app-color-darkblue;
             -webkit-font-smoothing: antialiased;
         }
 
         button {
             background-color: transparent !important;
             border-width: 0;
+        }
+
+        .hl-button-group-btn-clear {
+            cursor: pointer;
+            width: 24px;
+            text-align: center;
+            position: relative;
+            float: right;
+            background: $critical-prio-color;
+            color: #fff;
+            border: 1px darken($critical-prio-color, 5) solid;
+            border-top-right-radius: $base-border-radius;
+            border-bottom-right-radius: $base-border-radius;
+            margin: -1px;
+            line-height: $button-height - 2px;
+
+            &:before {
+                content: "";
+                width: 100%;
+                height: $base-border-radius;
+                display: block;
+                position: absolute;
+                border-top: 1px #fff solid;
+                border-top-right-radius: $base-border-radius;
+                opacity: 0.3;
+            }
+
+            &:hover {
+                background: darken($critical-prio-color, 20);
+                border-color: darken($critical-prio-color, 20);
+            }
+        }
     }
-
-    .hl-button-group-btn-clear {
-      cursor: pointer;
-      width: 24px;
-      text-align: center;
-      position: relative;
-      float: right;
-      background: $criticalPrioColor;
-      color: #fff;
-      border: 1px darken($criticalPrioColor, 5) solid;
-      border-top-right-radius: $baseBorderRadius;
-      border-bottom-right-radius: $baseBorderRadius;
-      margin: -1px;
-      line-height: $button-height - 2px;
-
-      &:before {
-        content: "";
-        width: 100%;
-        height: $baseBorderRadius;
-        display: block;
-        position: absolute;
-        border-top: 1px #fff solid;
-        border-top-right-radius: $baseBorderRadius;
-        opacity: 0.3;
-      }
-
-      &:hover {
-        background: darken($criticalPrioColor, 20);
-        border-color: darken($criticalPrioColor, 20);
-      }
-    }
-  }
 }

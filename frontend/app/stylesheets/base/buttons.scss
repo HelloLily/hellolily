@@ -1,17 +1,17 @@
 .dropdown-toggle i.fa-angle-down {
-  margin-left: 10px;
+    margin-left: 10px;
 }
 
 .dropdown-toggle i:first-child {
-  margin-right: 2px;
+    margin-right: 2px;
 }
 
 .dropdown-toggle {
-  &.no-primary-icon {
-    i {
-      margin: 0;
+    &.no-primary-icon {
+        i {
+            margin: 0;
+        }
     }
-  }
 }
 
 /* SG
@@ -47,72 +47,72 @@ By adding the class *.no-radio-bullets* the radio bullets are not being shown.
 */
 
 .radio-button-group {
-  display: inline-block;
-
-  .radio-button {
-    line-height: 30px;
-    border: 1px solid $baseBorderColor;
-    border-left: none;
-    background: $lilyHeaderBg;
-    margin: 0;
     display: inline-block;
 
-    &:hover,
-    &.active {
-      background: $lilyWhiteToneHover;
+    .radio-button {
+        line-height: 30px;
+        border: 1px solid $base-border-color;
+        border-left: 0;
+        background: $lily-header-bg;
+        margin: 0;
+        display: inline-block;
 
-      .radio-button-inset {
-        border-top: 1px $lilyHeaderBg solid;
-      }
-    }
+        &:hover,
+        &.active {
+            background: $lily-white-tone-hover;
 
-    &.disabled {
-      background: darken($lilyHeaderBg, 3);
-      pointer-events: none;
+            .radio-button-inset {
+                border-top: 1px $lily-header-bg solid;
+            }
+        }
 
-      .radio-button-inset {
-        border-top: 1px transparent solid;
-        color: darken($lilyHeaderBg, 10);
-        cursor: not-allowed;
-      }
-    }
+        &.disabled {
+            background: darken($lily-header-bg, 3);
+            pointer-events: none;
 
-    &:first-child {
-      border-top-left-radius: $baseBorderRadius;
-      border-bottom-left-radius: $baseBorderRadius;
-      border-left: 1px solid $baseBorderColor;
+            .radio-button-inset {
+                border-top: 1px transparent solid;
+                color: darken($lily-header-bg, 10);
+                cursor: not-allowed;
+            }
+        }
 
-      .radio-button-inset {
-        border-top-left-radius: $baseBorderRadius;
-      }
-    }
+        &:first-child {
+            border-top-left-radius: $base-border-radius;
+            border-bottom-left-radius: $base-border-radius;
+            border-left: 1px solid $base-border-color;
 
-    &:last-child {
-      border-top-right-radius: $baseBorderRadius;
-      border-bottom-right-radius: $baseBorderRadius;
+            .radio-button-inset {
+                border-top-left-radius: $base-border-radius;
+            }
+        }
 
-      .radio-button-inset {
-        border-top-right-radius: $baseBorderRadius;
-      }
-    }
+        &:last-child {
+            border-top-right-radius: $base-border-radius;
+            border-bottom-right-radius: $base-border-radius;
 
-    &.no-radio-bullets {
+            .radio-button-inset {
+                border-top-right-radius: $base-border-radius;
+            }
+        }
+
+        &.no-radio-bullets {
             input[type="radio"] {
-        display: none;
-      }
-    }
-  }
-
-  .radio-button-inset {
-    input {
-      cursor: pointer;
+                display: none;
+            }
+        }
     }
 
-    cursor: pointer;
-    padding: 0 10px;
-    border-top: 1px white solid;
-    border-bottom: 3px transparent solid;
-  }
+    .radio-button-inset {
+        cursor: pointer;
+        padding: 0 10px;
+        border-top: 1px #fff solid;
+        border-bottom: 3px transparent solid;
+
+        input {
+            cursor: pointer;
+        }
+    }
 }
 
 $large-button: 30px;
@@ -125,14 +125,13 @@ $large-button: 30px;
     border-color: $app-border-color;
     border-style: solid;
     line-height: $button-size - 2px;
-    padding: 1px ($button-size/4) 0 ($button-size/4);
-    color: $app-color-darkBlue;
+    padding: 1px ($button-size / 4) 0 ($button-size / 4);
+    color: $app-color-darkblue;
     border-radius: 3px;
     text-transform: uppercase;
     font-weight: 600;
     font-size: 13px;
     -webkit-font-smoothing: antialiased;
-
 
     &:hover {
         color: $app-color-aqua;
@@ -140,13 +139,13 @@ $large-button: 30px;
     }
 
     &:focus {
-        color: $app-color-darkBlue;
+        color: $app-color-darkblue;
         text-decoration: none;
     }
 }
 
 .hl-primary-btn {
-    @include hl-button($large-button)
+    @include hl-button($large-button);
 
     .fa-plus {
         font-size: 10px;

@@ -21,5 +21,3 @@ class AccountTests(TestCase):
 
         account.save(update_modified=True)
         self.assertNotEqual(modified, account.modified)
-
-

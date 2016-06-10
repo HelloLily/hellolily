@@ -1,35 +1,35 @@
 $checkbox-size: 14px;
 
 .hl-checkbox {
-  float: left;
-  margin-right: $checkbox-size + 5px;
+    float: left;
+    margin-right: $checkbox-size + 5px;
 
-  &:before {
-    content: "";
-    border: 1px $baseBorderColor solid;
-    position: absolute;
-    width: $checkbox-size;
-    height: $checkbox-size;
-    top: 50%;
-    transform: translateY(-50%);
-    -ms-transform: translateY(-50%);
-    -moz-transform: translateY(-50%);
-    -webkit-transform: translateY(-50%);
-    -o-transform: translateY(-50%);
-  }
-
-  &.checked {
     &:before {
-      font-size: 12px;
-      font-family: 'FontAwesome';
-      line-height: $checkbox-size - 2px;
-      text-align: center;
-      content: "\f00c";
+        content: "";
+        border: 1px $base-border-color solid;
+        position: absolute;
+        width: $checkbox-size;
+        height: $checkbox-size;
+        top: 50%;
+        transform: translateY(-50%);
+        -ms-transform: translateY(-50%);
+        -moz-transform: translateY(-50%);
+        -webkit-transform: translateY(-50%);
+        -o-transform: translateY(-50%);
     }
-  }
 
-  &:after {
-    content: "";
-    display: inline-block;
-  }
+    &.checked {
+        &:before {
+            font-size: 12px;
+            font-family: "FontAwesome";
+            line-height: $checkbox-size - 2px;
+            text-align: center;
+            content: "\f00c";
+        }
+    }
+
+    &:after {
+        content: "";
+        display: inline-block;
+    }
 }

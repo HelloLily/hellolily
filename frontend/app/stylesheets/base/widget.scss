@@ -26,15 +26,15 @@ class is applied to, so be sure it has a wrapping container.
 */
 
 .widget-container {
-    background: white;
+    background: #fff;
     margin-bottom: 30px;
     position: relative;
 }
 
 .widget-heading {
     background: #fff;
-    border: 1px $baseBorderColor solid;
-    border-bottom: 1px $lightBorderColor solid;
+    border: 1px $base-border-color solid;
+    border-bottom: 1px $light-border-color solid;
     padding: 10px 15px;
 
     &:before {
@@ -44,14 +44,14 @@ class is applied to, so be sure it has a wrapping container.
         height: 1px;
         display: block;
         content: "";
-        background: lighten($skyGrey, 4);
+        background: lighten($sky-grey, 4);
     }
 }
 
 .widget-body {
-    border-right: 1px $baseBorderColor solid;
-    border-bottom: 1px $baseBorderColor solid;
-    border-left: 1px $baseBorderColor solid;
+    border-right: 1px $base-border-color solid;
+    border-bottom: 1px $base-border-color solid;
+    border-left: 1px $base-border-color solid;
 }
 
 .widget-content {
@@ -90,9 +90,9 @@ class is applied to, so be sure it has a wrapping container.
     color: #9fa6b6;
 
     &:hover {
-        color: $lilyDarkBlue;
+        color: $lily-dark-blue;
         text-decoration: none;
-        background: $baseBorderColor;
+        background: $base-border-color;
     }
 }
 
@@ -100,7 +100,7 @@ class is applied to, so be sure it has a wrapping container.
     line-height: $button-height;
     font-size: 18px;
     font-weight: 400;
-    color: $app-color-darkBlue;
+    color: $app-color-darkblue;
 
 }
 
@@ -116,7 +116,7 @@ class is applied to, so be sure it has a wrapping container.
     padding: 10px 15px;
     background: #fff;
     border-width: 0 1px 2px;
-    border-color: $baseBorderColor;
+    border-color: $base-border-color;
     border-bottom-color: $app-border-color;
     border-style: solid;
 }
@@ -132,30 +132,30 @@ class is applied to, so be sure it has a wrapping container.
     background: $app-color-grey;
 
     &.cases {
-        background: $caseColor;
+        background: $case-color;
     }
 
     &.deals {
-        background: $dealColor;
+        background: $deal-color;
     }
 
     &.email {
-        background: $emailColor;
+        background: $email-color;
     }
 
     &.contact {
-        background: $contactColor;
+        background: $contact-color;
     }
 
     &.account {
-        background: $accountColor;
+        background: $account-color;
     }
 }
 
 .label-amount {
     display: inline-block;
     border-radius: 4px;
-    border: 1px $baseBorderColor solid;
+    border: 1px $base-border-color solid;
     padding: 0 3px;
     margin: 0 3px;
     font-size: 14px;
@@ -164,9 +164,9 @@ class is applied to, so be sure it has a wrapping container.
     line-height: 24px;
 
     &.high-prio {
-        color: #ffffff;
-        border-color: darken($criticalPrioColor, 20);
-        background: $criticalPrioColor;
+        color: #fff;
+        border-color: darken($critical-prio-color, 20);
+        background: $critical-prio-color;
     }
 }
 
@@ -234,9 +234,9 @@ class is applied to, so be sure it has a wrapping container.
 .is-scrollable-fadeout {
     position: absolute;
     height: 14px;
-    background-color: lighten($skyGrey, 3);
+    background-color: lighten($sky-grey, 3);
     opacity: 0.8;
-    border-top: 1px solid $lilyBorderDark;
+    border-top: 1px solid $lily-border-dark;
     bottom: 1px;
     left: 1px;
     right: 1px;
@@ -250,11 +250,11 @@ class is applied to, so be sure it has a wrapping container.
         left: 0;
         right: 0;
         height: 1px;
-        background: #ffffff;
+        background: #fff;
     }
 
     i {
-        color: $lilyBorderDark;
+        color: $lily-border-dark;
         font-size: 10px;
         position: absolute;
         top: 2px;
@@ -276,7 +276,7 @@ class is applied to, so be sure it has a wrapping container.
     }
 }
 
-@media (max-width: $breakpoint-desktop){
+@media (max-width: $breakpoint-desktop) {
     .js-cq-widget-container:container("width < 900px") {
         .external-link-name {
             display: none;
@@ -288,7 +288,7 @@ class is applied to, so be sure it has a wrapping container.
     }
 }
 
-@media (min-width: $breakpoint-desktop){
+@media (min-width: $breakpoint-desktop) {
     .js-cq-widget-container:container("width < 500px") {
         .external-link-name {
             display: none;

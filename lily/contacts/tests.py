@@ -21,5 +21,3 @@ class ContactTests(TestCase):
 
         contact.save(update_modified=True)
         self.assertNotEqual(modified, contact.modified)
-
-

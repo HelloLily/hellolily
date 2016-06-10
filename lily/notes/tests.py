@@ -21,5 +21,3 @@ class NoteTests(TestCase):
 
         note.save(update_modified=True)
         self.assertNotEqual(modified, note.modified)
-
-

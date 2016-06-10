@@ -153,11 +153,3 @@ class RelatedCaseSerializer(RelatedSerializerMixin, CaseSerializer):
             'priority_display',
             'subject',
         )
-
-
-class CasePriorityField(serializers.RelatedField):
-    """
-    Field that shows the priority name and id.
-    """
-    def to_representation(self, value):
-        return Case.PRIORITY_CHOICES[value]

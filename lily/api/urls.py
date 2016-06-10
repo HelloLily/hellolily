@@ -42,7 +42,7 @@ router.register(r'messaging/email/shared_email_config', SharedEmailConfigViewSet
 router.register(r'users/user', LilyUserViewSet)
 router.register(r'users/team', TeamViewSet)
 
-router.register(r'notes', NoteViewSet)
+router.register(r'notes/note', NoteViewSet)
 router.register(r'utils/countries', CountryViewSet)
 
 urlpatterns = patterns(

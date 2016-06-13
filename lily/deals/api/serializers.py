@@ -205,7 +205,9 @@ class DealSerializer(WritableNestedSerializer):
         return super(DealSerializer, self).create(validated_data)
 
     def update(self, instance, validated_data):
-        status_id = validated_data.get('status').get('id')
+        status_id = validated_data.get('status', instance.status_id)
+        if isinstance(status_id, dict):
+            status_id = status_id.get('id')
         status = DealStatus.objects.get(pk=status_id)
         closed_date = validated_data.get('closed_date', instance.closed_date)
 

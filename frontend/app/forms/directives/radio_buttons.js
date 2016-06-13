@@ -10,6 +10,7 @@ function formRadioButtons() {
             required: '@',
             inputName: '@',
             sidebar: '=',
+            reverse: '@?',
         },
         templateUrl: 'forms/directives/radio_buttons.html',
         controller: FormRadioButtonsController,

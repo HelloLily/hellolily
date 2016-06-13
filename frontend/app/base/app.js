@@ -1,5 +1,3 @@
-//import { INTERCOM}
-
 /**
  * App Module is the entry point for Lily related Angular code
  */

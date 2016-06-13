@@ -148,6 +148,7 @@ class DealMapping(BaseMapping):
                         'type': 'string',
                         'analyzer': 'normal_edge_analyzer',
                     },
+                    'position': {'type': 'integer'},
                 },
             },
             'tags': {
@@ -252,6 +253,7 @@ class DealMapping(BaseMapping):
             'status': {
                 'id': obj.status.id,
                 'name': obj.status.name,
+                'position': obj.status.position,
             },
             'tags': [{
                 'id': tag.id,

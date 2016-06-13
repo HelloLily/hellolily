@@ -25,7 +25,7 @@
                     <th></th>
                 </tr>
             </thead>
-            <tbody ng-if="vm.list.length" ng-repeat="case in vm.list | orderBy:'-priority' | orderBy:'is_archived'">
+            <tbody ng-if="vm.list.length" ng-repeat="case in vm.list">
                 <tr>
                     <td>
                         <strong ng-if="::case.is_archived">(a)</strong>

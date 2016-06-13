@@ -113,7 +113,7 @@
                                     </td>
                                 </tr>
 
-                               <tr ng-if="vm.deal.account.customer_id && vm.tenant.primary_external_app_link">
+                                <tr ng-if="vm.deal.account.customer_id && vm.tenant.primary_external_app_link">
                                     <td><strong>{{ vm.tenant.primary_external_app_link.name }}</strong></td>
                                     <td>
                                         <editable-link view-model="vm" type="Account" object="vm.deal.account" field="customer_id">
@@ -140,27 +140,29 @@
                                     <td><editable-select field="why_customer" view-model="vm" type="Deal">{{ vm.deal.why_customer.name }}</editable-select></td>
                                 </tr>
 
-                                <tr><td colspan="2"><hr></td></tr>
+                                <tbody ng-if="vm.tenant.isVoysNL()">
+                                    <tr><td colspan="2"><hr></td></tr>
 
-                                <tr>
-                                    <td><strong>Twitter checked</strong></td>
-                                    <td><editable-checkbox view-model="vm" type="Deal" field="twitter_checked"></editable-checkbox></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Card sent</strong></td>
-                                    <td><editable-checkbox view-model="vm" type="Deal" field="card_sent"></editable-checkbox></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Feedback form sent</strong></td>
-                                    <td><editable-checkbox view-model="vm" type="Deal" field="feedback_form_sent"></editable-checkbox></td>
-                                </tr>
+                                    <tr>
+                                        <td><strong>Twitter checked</strong></td>
+                                        <td><editable-checkbox view-model="vm" type="Deal" field="twitter_checked"></editable-checkbox></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Card sent</strong></td>
+                                        <td><editable-checkbox view-model="vm" type="Deal" field="card_sent"></editable-checkbox></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Feedback form sent</strong></td>
+                                        <td><editable-checkbox view-model="vm" type="Deal" field="feedback_form_sent"></editable-checkbox></td>
+                                    </tr>
 
-                                <tr ng-show="vm.deal.status.id == vm.wonStatus.id">
-                                    <td><strong>Quote checked</strong></td>
-                                    <td>
-                                        <editable-checkbox view-model="vm" type="Deal" field="is_checked"></editable-checkbox>
-                                    </td>
-                                </tr>
+                                    <tr ng-show="vm.deal.status.id == vm.wonStatus.id">
+                                        <td><strong>Quote checked</strong></td>
+                                        <td>
+                                            <editable-checkbox view-model="vm" type="Deal" field="is_checked"></editable-checkbox>
+                                        </td>
+                                    </tr>
+                                </tbody>
                             </tbody>
                         </table>
                     </div>
@@ -179,7 +181,8 @@
                             <li>
                                 <strong>Assignee: </strong>
                                 <div>
-                                    <editable-select field="assigned_to" view-model="vm" type="Deal" class="inline-selectable-text" select-options="{type: 'User', field: 'assignOptions', display: 'full_name'}">
+                                    <editable-select field="assigned_to" view-model="vm" type="Deal" class="inline-selectable-text"
+                                                     select-options="{type: 'User', field: 'assignOptions', display: 'full_name', sortColumn: 'full_name', nameColumn: 'full_name'}">
                                         {{ vm.deal.assigned_to.full_name }}
                                     </editable-select>
                                 </div>
@@ -197,89 +200,9 @@
                 </widget-body>
             </widget>
 
-            <widget ng-if="vm.deal.account" widget-name="'Account info'">
-                <widget-header>
-                    <div class="widget-label account"></div>
-                    <div class="widget-name">
-                        <a ui-sref="base.accounts.detail({ id: vm.deal.account.id })">
-                            <i class="lilicon hl-company-icon"></i>
-                            {{ vm.deal.account.name }}
-                        </a>
-                    </div>
-                </widget-header>
+            <account-detail-widget ng-if="vm.deal.account" account="vm.deal.account"></account-detail-widget>
 
-                <widget-body>
-                    <div class="widget-content">
-                        <ul class="case-detail-block-list">
-                            <li ng-if="vm.account.email_addresses.length">
-                                <strong>Email addresses</strong>
-                                <div ng-repeat="email in vm.account.email_addresses">
-                                    <a ui-sref="base.email.composeEmail({email: email.email_address})">{{ email.email_address }}</a> ({{ email.status_name }})
-                                </div>
-                            </li>
-                            <li ng-if="vm.account.phone_numbers.length">
-                                <strong>Phone numbers: </strong>
-                                <div ng-repeat="phonenumber in vm.account.phone_numbers">
-                                    <a href="tel:{{ phonenumber.number }}">{{ phonenumber.number }}</a> ({{phonenumber.type}})
-                                </div>
-                            </li>
-                            <li ng-if="vm.account.addresses.length">
-                                <strong>Addresses: </strong>
-                                <div ng-repeat="address in vm.account.addresses">
-                                    {{ address.address }}
-                                    <br />
-                                    {{ address.postal_code }}, {{ address.city }}
-                                    <br />
-                                    {{ address.country_display }}
-                                </div>
-                            </li>
-                            <li ng-if="vm.account.websites.length">
-                                <strong>Websites: </strong>
-                                <div ng-repeat="website in vm.account.websites">
-                                    <a target="_blank" href="{{website.website}}">{{ website.website | stripScheme }}</a>
-                                </div>
-                            </li>
-                            <li ng-if="!vm.account.email_addresses.length && !vm.account.phone_numbers.length && !vm.account.addresses.length && !vm.account.websites.length" >
-                                No additional information
-                            </li>
-                        </ul>
-                    </div>
-                </widget-body>
-            </widget>
-
-            <widget ng-if="vm.deal.contact" widget-name="'Contact info'">
-                <widget-header>
-                    <div class="widget-label contact"></div>
-                    <div class="widget-name">
-                        <a ui-sref="base.contacts.detail({ id: vm.deal.contact.id })">
-                            <i class="lilicon hl-entity-icon"></i>
-                            {{ vm.deal.contact.full_name }}
-                        </a>
-                    </div>
-                </widget-header>
-
-                <widget-body>
-                    <div class="widget-content">
-                        <ul class="case-detail-block-list">
-                            <li ng-if="vm.contact.email_addresses.length">
-                                <strong>Email addresses: </strong>
-                                <div ng-repeat="email in vm.contact.email_addresses">
-                                    <a ui-sref="base.email.composeEmail({email: email.email_address})">{{ email.email_address }}</a> ({{ email.status_name }})
-                                </div>
-                            </li>
-                            <li ng-if="vm.contact.phone_numbers.length">
-                                <strong>Phone numbers: </strong>
-                                <div ng-repeat="phonenumber in vm.contact.phone_numbers">
-                                    <a href="tel:{{ phonenumber.number }}">{{ phonenumber.number }}</a> ({{phonenumber.type}})
-                                </div>
-                            </li>
-                            <li ng-if="!vm.contact.email_addresses.length && !vm.contact.phone_numbers.length">
-                                No additional information
-                            </li>
-                        </ul>
-                    </div>
-                </widget-body>
-            </widget>
+            <contact-detail-widget ng-if="vm.deal.contact" contact="vm.deal.contact"></contact-detail-widget>
         </div>
     </div>
 </div>

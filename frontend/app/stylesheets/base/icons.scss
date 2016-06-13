@@ -1,99 +1,99 @@
 // Function that can be used to determine if the text-color should be black or white based on input color
 
 @mixin notification-icon($color) {
-  color: text-color($color);
-  background: $color;
-  padding: 3px;
-  border-radius: $baseBorderRadius;
+    color: text-color($color);
+    background: $color;
+    padding: 3px;
+    border-radius: $base-border-radius;
 
-  &:hover {
-    background: darken($color, 10);
+    &:hover {
+        background: darken($color, 10);
         color: text-color(darken($color, 10));
-  }
+    }
 }
 
 .danger-icon {
-  @include notification-icon($criticalPrioColor);
+    @include notification-icon($critical-prio-color);
 }
 
 .warning-icon {
-  @include notification-icon($highPrioColor);
+    @include notification-icon($high-prio-color);
 }
 
 .normal-icon {
-  @include notification-icon($mediumPrioColor);
+    @include notification-icon($medium-prio-color);
 }
 
 .succes-icon {
-  @include notification-icon($lowPrioColor);
+    @include notification-icon($low-prio-color);
 }
 
 .hl-low-prio-icon {
-  color: $lowPrioColor
+    color: $low-prio-color;
 }
 
 .hl-normal-prio-icon {
-  color: $mediumPrioColor;
+    color: $medium-prio-color;
 }
 
 .hl-high-prio-icon {
-  color: $highPrioColor;
+    color: $high-prio-color;
 }
 
 .hl-critical-prio-icon {
-  color: $criticalPrioColor;
+    color: $critical-prio-color;
 }
 
 .step-type {
-  &.position-1 {
-    @include colored-bullet(10px, $bulletColor1)
-  }
+    &.position-1 {
+        @include colored-bullet(10px, $bullet-color-1)
+    }
 
-  &.position-2 {
-    @include colored-bullet(10px, $bulletColor2)
-  }
+    &.position-2 {
+        @include colored-bullet(10px, $bullet-color-2)
+    }
 
-  &.position-3 {
-    @include colored-bullet(10px, $bulletColor3)
-  }
+    &.position-3 {
+        @include colored-bullet(10px, $bullet-color-3)
+    }
 
-  &.position-4 {
-    @include colored-bullet(10px, $bulletColor4)
-  }
+    &.position-4 {
+        @include colored-bullet(10px, $bullet-color-4)
+    }
 
-  &.position-5 {
-    @include colored-bullet(10px, $bulletColor5)
-  }
+    &.position-5 {
+        @include colored-bullet(10px, $bullet-color-5)
+    }
 
-  &.position-6 {
-    @include colored-bullet(10px, $bulletColor6)
-  }
+    &.position-6 {
+        @include colored-bullet(10px, $bullet-color-6)
+    }
 }
 
 .step-type-label {
-  &.position-1 {
-    @include colored-label(24px, $bulletColor1)
-  }
+    &.position-1 {
+        @include colored-label(24px, $bullet-color-1)
+    }
 
-  &.position-2 {
-    @include colored-label(24px, $bulletColor2)
-  }
+    &.position-2 {
+        @include colored-label(24px, $bullet-color-2)
+    }
 
-  &.position-3 {
-    @include colored-label(24px, $bulletColor3)
-  }
+    &.position-3 {
+        @include colored-label(24px, $bullet-color-3)
+    }
 
-  &.position-4 {
-    @include colored-label(24px, $bulletColor4)
-  }
+    &.position-4 {
+        @include colored-label(24px, $bullet-color-4)
+    }
 
-  &.position-5 {
-    @include colored-label(24px, $bulletColor5)
-  }
+    &.position-5 {
+        @include colored-label(24px, $bullet-color-5)
+    }
 
-  &.position-6 {
-    @include colored-label(24px, $bulletColor6)
-  }
+    &.position-6 {
+        @include colored-label(24px, $bullet-color-6)
+    }
 }
 
 i {
@@ -118,7 +118,7 @@ i {
     }
 
     &.darkblue {
-        color: $app-color-darkBlue;
+        color: $app-color-darkblue;
     }
 }
 
@@ -127,13 +127,13 @@ i {
     padding: 0;
     margin: 0;
     color: $app-color-grey;
-    border-radius: $baseBorderRadius;
+    border-radius: $base-border-radius;
     font-size: 12px;
     height: 21px;
     width: 21px;
     line-height: 21px;
     text-align: center;
-    background: $lightBorderColor;
+    background: $light-border-color;
     margin-right: 8px;
     border: 1px $app-border-color solid;
 

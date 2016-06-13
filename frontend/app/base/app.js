@@ -8,7 +8,6 @@ angular.module('app', [
     'ngResource',
     'ngSanitize',
     'ncy-angular-breadcrumb',
-    'multi-transclude',
     'xeditable',
     'angular-cache',
 
@@ -95,7 +94,8 @@ function runApp($rootScope, $state, editableOptions, HLMessages, Tenant, UserTea
     editableOptions.theme = 'bs3';
 
     new window.Intercom('boot', {
-        app_id: 'd6ko33k1',
+        app_id: intercomAppId,
+        user_id: currentUser.id,
         name: currentUser.fullName,
         email: currentUser.email,
     });

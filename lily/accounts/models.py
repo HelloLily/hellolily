@@ -3,8 +3,6 @@ import urlparse
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.db.models.signals import pre_save
-from django.dispatch.dispatcher import receiver
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
@@ -14,10 +12,6 @@ from lily.users.models import LilyUser
 from lily.utils.functions import flatten, clean_website
 from lily.utils.models.models import EmailAddress
 from lily.utils.models.mixins import Common, CaseClientModelMixin
-try:
-    from lily.tenant.functions import add_tenant
-except ImportError:
-    from lily.utils.functions import dummy_function as add_tenant
 
 
 def get_account_logo_upload_path(instance, filename):
@@ -55,27 +49,27 @@ class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
         ('10001', u'10001+'),
     )
 
-    customer_id = models.CharField(max_length=32, verbose_name=_('customer id'), blank=True)
-    name = models.CharField(max_length=255, verbose_name=_('company name'))
+    customer_id = models.CharField(max_length=32, blank=True)
+    name = models.CharField(max_length=255)
     flatname = models.CharField(max_length=255, blank=True)
-    status = models.ForeignKey(AccountStatus, verbose_name=_('status'), related_name='accounts')
+    status = models.ForeignKey(AccountStatus, related_name='accounts')
     company_size = models.CharField(
         max_length=15,
         choices=ACCOUNT_SIZE_CHOICES,
         verbose_name=_('company size'),
         blank=True
     )
-    logo = models.ImageField(upload_to=get_account_logo_upload_path, verbose_name=_('logo'), blank=True)
-    description = models.TextField(verbose_name=_('description'), blank=True)
-    legalentity = models.CharField(max_length=20, verbose_name=_('legal entity'), blank=True)
-    taxnumber = models.CharField(max_length=20, verbose_name=_('tax number'), blank=True)
-    bankaccountnumber = models.CharField(max_length=20, verbose_name=_('bank account number'), blank=True)
-    cocnumber = models.CharField(max_length=20, verbose_name=_('coc number'), blank=True)
-    iban = models.CharField(max_length=40, verbose_name=_('iban'), blank=True)
-    bic = models.CharField(max_length=20, verbose_name=_('bic'), blank=True)
-    assigned_to = models.ForeignKey(LilyUser, verbose_name=_('assigned to'), null=True, blank=True)
+    logo = models.ImageField(upload_to=get_account_logo_upload_path, blank=True)
+    description = models.TextField(blank=True)
+    legalentity = models.CharField(max_length=20, blank=True)
+    taxnumber = models.CharField(max_length=20, blank=True)
+    bankaccountnumber = models.CharField(max_length=20, blank=True)
+    cocnumber = models.CharField(max_length=20, blank=True)
+    iban = models.CharField(max_length=40, blank=True)
+    bic = models.CharField(max_length=20, blank=True)
+    assigned_to = models.ForeignKey(LilyUser, null=True, blank=True)
 
-    import_id = models.CharField(max_length=100, verbose_name=_('import id'), default='', blank=True, db_index=True)
+    import_id = models.CharField(max_length=100, default='', blank=True, db_index=True)
 
     @property
     def content_type(self):
@@ -210,30 +204,3 @@ class Website(TenantMixin, models.Model):
     class Meta:
         verbose_name = _('website')
         verbose_name_plural = _('websites')
-
-
-# ------------------------------------------------------------------------------------------------
-# Signal listeners
-# ------------------------------------------------------------------------------------------------
-
-@receiver(pre_save, sender=Account)
-def post_save_account_handler(sender, **kwargs):
-    """
-    If an email attribute was set on an instance of Account, add a primary email address or
-    overwrite the existing one.
-    """
-    instance = kwargs['instance']
-    if 'primary_email' in instance.__dict__:
-        new_email_address = instance.__dict__['primary_email']
-        if new_email_address and len(new_email_address.strip()) > 0:
-            # Overwrite existing primary email address.
-            email = instance.email_addresses.filter(status=EmailAddress.PRIMARY_STATUS).first()
-            if email:
-                email.email_address = new_email_address
-                email.save()
-            else:
-                # Add new email address as primary.
-                email = EmailAddress(email_address=new_email_address, status=EmailAddress.PRIMARY_STATUS)
-                add_tenant(email, instance.tenant)
-                email.save()
-                instance.email_addresses.add(email)

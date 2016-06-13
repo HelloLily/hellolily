@@ -4,11 +4,9 @@ from rest_framework.filters import DjangoFilterBackend, OrderingFilter
 from rest_framework.viewsets import ModelViewSet
 
 from lily.api.filters import ElasticSearchFilter
-from lily.utils.api.views import (AddressViewSet, EmailAddressViewSet, PhoneNumberViewSet, RelatedModelViewSet,
-                                  TagViewSet)
 from lily.tenant.api.mixins import SetTenantUserMixin
-from .serializers import AccountSerializer, WebsiteSerializer, AccountStatusSerializer
-from ..models import Account, Website, AccountStatus
+from .serializers import AccountSerializer, AccountStatusSerializer
+from ..models import Account, AccountStatus
 
 
 class AccountFilter(django_filters.FilterSet):
@@ -75,31 +73,6 @@ class AccountViewSet(SetTenantUserMixin, ModelViewSet):
         Set the queryset here so it filters on tenant and works with pagination.
         """
         return super(AccountViewSet, self).get_queryset().filter(is_deleted=False)
-
-
-class WebsiteViewSet(RelatedModelViewSet):
-    queryset = Website.objects
-    serializer_class = WebsiteSerializer
-    related_model = Account
-
-    def _get_related_queryset(self, object_pk):
-        return self._get_related_object(object_pk).websites
-
-
-class AccountPhoneNumberViewSet(PhoneNumberViewSet):
-    related_model = Account
-
-
-class AccountAddressViewSet(AddressViewSet):
-    related_model = Account
-
-
-class AccountEmailAddressViewSet(EmailAddressViewSet):
-    related_model = Account
-
-
-class AccountTagViewSet(TagViewSet):
-    related_model = Account
 
 
 class AccountStatusViewSet(SetTenantUserMixin, ModelViewSet):

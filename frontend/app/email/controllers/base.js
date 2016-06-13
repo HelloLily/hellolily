@@ -63,6 +63,10 @@ function emailConfig($stateProvider, $urlRouterProvider) {
                 return deferred.promise;
             }],
         },
+        onExit: ['Settings', function(Settings) {
+            // Reset the email page when we navigate away from the email views.
+            Settings.email.page = 0;
+        }],
     });
 }
 

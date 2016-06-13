@@ -2,7 +2,6 @@ from datetime import date, timedelta
 from hashlib import sha256
 
 import anyjson
-import requests
 from braces.views import GroupRequiredMixin
 from django.conf import settings
 from django.contrib import messages
@@ -22,7 +21,7 @@ from extra_views import FormSetView
 from templated_email import send_templated_mail
 
 
-from lily.utils.functions import is_ajax
+from lily.utils.functions import is_ajax, post_intercom_event
 
 from .forms import (CustomAuthenticationForm, RegistrationForm, ResendActivationForm, InvitationForm,
                     InvitationFormset, UserRegistrationForm)
@@ -298,12 +297,7 @@ class SendInvitationView(GroupRequiredMixin, FormSetView):
                 }
             )
 
-            # payload = {
-            #     'api': settings.INTERCOM_KEY,
-            #     'event_name': 'invite-sent',
-            # }
-
-            # requests.post('https://api.intercom.io/events', data=payload, headers={'Authorization': 'Token ' + settings.INTERCOM_KEY)
+            post_intercom_event(event_name='invite-sent', user_id=self.request.user.id)
 
         if is_ajax(self.request):
             return HttpResponse(anyjson.serialize({

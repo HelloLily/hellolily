@@ -229,22 +229,21 @@ INSTALLED_APPS = (
     'lily',  # required for management commands
     'lily.accounts',
     'lily.cases',
-    'lily.deals',
     'lily.contacts',
-    'lily.messaging',
+    'lily.deals',
+    'lily.google',
+    'lily.messaging.email',
     'lily.notes',
+    'lily.parcels',
     'lily.preferences',
     'lily.provide',
     'lily.search',
+    'lily.socialmedia',
     'lily.stats',
     'lily.tags',
     'lily.tenant',
-    'lily.updates',
     'lily.users',
     'lily.utils',
-    'lily.parcels',
-    'lily.socialmedia',
-    'lily.google',
 
     # 3rd party
     'activelink',
@@ -284,11 +283,6 @@ if DEBUG:
         'template_timings_panel',
         # 'debug_toolbar_line_profiler',  # Gedetailleerde
     )
-
-MESSAGE_APPS = (
-    'lily.messaging.email',
-)
-INSTALLED_APPS += MESSAGE_APPS
 
 #######################################################################################################################
 # EMAIL SETTINGS                                                                                                      #
@@ -581,8 +575,9 @@ REST_FRAMEWORK = {
 }
 
 #######################################################################################################################
-# Intercom settings                                                                                                             #
+# Intercom settings                                                                                                   #
 #######################################################################################################################
+INTERCOM_APP_ID = os.environ.get('INTERCOM_APP_ID', '')
 INTERCOM_KEY = os.environ.get('INTERCOM_KEY', '')
 
 #######################################################################################################################

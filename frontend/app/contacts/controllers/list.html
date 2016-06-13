@@ -26,15 +26,11 @@
             </li>
         </ul>
 
-        <div class="tools col-xs-12 col-md-6">
-            <form class="form-inline pull-right">
-                <div class="input-group">
-                    <input type="text" class="form-control search-input" ng-model="table.filter" placeholder="Search..">
-                    <span class="input-group-btn">
-                        <button type="button" class="btn red-pink" ng-click="setFilter('')" ng-disabled="!table.filter">
-                            <i class="fa fa-times"></i>
-                        </button>
-                    </span>
+        <div class="widget-tools pull-right">
+            <form class="widget-search pull-right">
+                <div class="hl-search-field-container">
+                    <input type="text" class="hl-search-field" ng-model="table.filter" placeholder="Search..">
+                    <button type="button" class="hl-search-btn" ng-click="setFilter('')" ng-disabled="!table.filter"></button>
                 </div>
             </form>
         </div>
@@ -96,7 +92,7 @@
                             </a>
                         </div>
                         <div ng-repeat="phone in contact.phone_numbers track by $index" ng-if="phone.type == 'mobile' || phone.type == 'work'">
-                            <a href="tel:{{ ::phone }}">
+                            <a href="tel:{{ phone.number }}">
                                 <i ng-class="{work: 'fa fa-phone', mobile: 'fa fa-mobile-phone'}[phone.type]"></i>
                                 {{ phone.number }}
                             </a>

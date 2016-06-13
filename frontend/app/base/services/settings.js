@@ -33,6 +33,7 @@ class Email {
         this.storage = storage;
         this.title = 'Welcome';
         this.previousInbox = this.storage.get('previousInbox', null);
+        this.page = 0;
     }
 
     /**
@@ -117,6 +118,7 @@ class Page {
         this.email = new Email(this.storage);
         this.header = new Header();
         this.toolbar = new Toolbar();
+        this.previousState = null;
     }
 
     /**

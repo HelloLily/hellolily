@@ -3,11 +3,9 @@ import logging
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ImproperlyConfigured
 from django.core.files.storage import default_storage
-from django.core.urlresolvers import resolve, reverse_lazy
-from django.db.models import Q
+from django.core.urlresolvers import reverse_lazy
 from django.db.models.loading import get_model
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -231,12 +229,13 @@ class RedirectSetMessageView(RedirectView):
 
 
 class BaseView(LoginRequiredMixin, TemplateView):
-    template_name = 'angular/base.html'
+    template_name = 'base.html'
 
     def get_context_data(self, **kwargs):
         kwargs = super(BaseView, self).get_context_data(**kwargs)
         kwargs.update({
-            'DEBUG': settings.DEBUG
+            'INTERCOM_APP_ID': settings.INTERCOM_APP_ID,
+            'DEBUG': settings.DEBUG,
         })
         return kwargs
 

@@ -75,20 +75,11 @@ function CaseDetailController($scope, Settings, CaseStatuses, HLResource, HLUtil
     //////
 
     function activate() {
-        var assignedToGroups = [];
         var caseEnd;
-
-        angular.forEach(vm.case.assigned_to_groups, function(response) {
-            UserTeams.get({id: response.id}).$promise.then(function(team) {
-                assignedToGroups.push(team);
-            });
-        });
 
         Tenant.query({}, function(tenant) {
             vm.tenant = tenant;
         });
-
-        vm.case.assigned_to_groups = assignedToGroups;
 
         vm.caseStart = moment(vm.case.created).subtract(2, 'days').format('YYYY-MM-DD');
 
@@ -136,10 +127,19 @@ function CaseDetailController($scope, Settings, CaseStatuses, HLResource, HLUtil
     function updateModel(data, field) {
         var args = HLResource.createArgs(data, field, vm.case);
         var casePriorities = Case.getCasePriorities();
+        var groups = [];
         var expireDate;
 
         if (field === 'subject') {
             Settings.page.setAllTitles('detail', data, vm.case.contact, vm.case.account);
+        }
+
+        if (args.hasOwnProperty('assigned_to_groups')) {
+            args.assigned_to_groups.forEach(function(group) {
+                groups.push(group.id);
+            });
+
+            args.assigned_to_groups = groups;
         }
 
         if (args.hasOwnProperty('priority')) {

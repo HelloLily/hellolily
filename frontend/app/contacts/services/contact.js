@@ -1,7 +1,7 @@
 angular.module('app.contacts.services').factory('Contact', Contact);
 
-Contact.$inject = ['$resource', 'HLResource'];
-function Contact($resource, HLResource) {
+Contact.$inject = ['$resource', 'HLResource', 'Settings'];
+function Contact($resource, HLResource, Settings) {
     var _contact = $resource(
         '/api/contacts/contact/:id/',
         null,
@@ -60,23 +60,9 @@ function Contact($resource, HLResource) {
     );
 
     _contact.create = create;
+    _contact.updateModel = updateModel;
     _contact.getSalutationOptions = getSalutationOptions;
     _contact.getGenderOptions = getGenderOptions;
-
-    function getSalutationOptions() {
-        return [
-            {id: 0, name: 'Formal'},
-            {id: 1, name: 'Informal'},
-        ];
-    }
-
-    function getGenderOptions() {
-        return [
-            {id: 0, name: 'Male'},
-            {id: 1, name: 'Female'},
-            {id: 2, name: 'Unknown/Other'},
-        ];
-    }
 
     //////
 
@@ -93,6 +79,69 @@ function Contact($resource, HLResource) {
             tags: [],
             accounts: [],
         });
+    }
+
+    function updateModel(data, field, contact) {
+        var accounts = [];
+        var args;
+        var patchPromise;
+
+        if (field instanceof Array) {
+            args = data;
+            args.id = contact.id;
+        } else {
+            args = HLResource.createArgs(data, field, contact);
+        }
+
+        if (field === 'twitter' || field === 'linkedin') {
+            args = {
+                id: contact.id,
+                social_media: [args],
+            };
+        }
+
+        if (args.hasOwnProperty('accounts')) {
+            args.accounts.forEach(function(account) {
+                accounts.push(account.id);
+            });
+
+            args.accounts = accounts;
+        }
+
+        patchPromise = HLResource.patch('Contact', args).$promise;
+
+        patchPromise.then(function(response) {
+            if (field instanceof Array) {
+                // We're updating the name here, which is an Array when inline editing.
+                Settings.page.setAllTitles('detail', response.full_name);
+                contact.full_name = response.full_name;
+            }
+
+            if (field === 'twitter' || field === 'linkedin') {
+                // Update the social media links.
+                HLResource.setSocialMediaFields(response);
+
+                contact.twitter = response.twitter;
+                contact.linkedin = response.linkedin;
+            }
+        });
+
+        return patchPromise;
+    }
+
+    function getSalutationOptions() {
+        return [
+            {id: 0, name: 'Formal'},
+            {id: 1, name: 'Informal'},
+        ];
+    }
+
+    function getGenderOptions() {
+        return [
+            {id: 0, name: 'Male'},
+            {id: 1, name: 'Female'},
+            {id: 2, name: 'Unknown/Other'},
+        ];
     }
 
     return _contact;

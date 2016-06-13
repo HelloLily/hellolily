@@ -6,7 +6,6 @@ from lily.utils.views.mixins import LoginRequiredMixin, ExportListViewMixin
 
 
 class ExportContactView(LoginRequiredMixin, ExportListViewMixin, View):
-
     http_method_names = ['get']
     file_name = 'contacts.csv'
 

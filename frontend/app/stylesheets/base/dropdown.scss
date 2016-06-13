@@ -9,20 +9,20 @@ Dropdown menu's are frequently used user interface elements. We would like to us
 $dropdown-arrow-size: 8px;
 
 .hl-dropdown {
-  list-style: none;
-  min-width: 200px;
-  margin: 10px 0;
-  padding: 0;
-  background: white;
-  border: 1px $baseBorderColor solid;
-  border-radius: $baseBorderRadius;
-  display: none;
-  position: absolute;
-  left: -1px;
-  z-index: 100;
-    -webkit-box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.15);
-    -moz-box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.15);
-    box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.15);
+    list-style: none;
+    min-width: 200px;
+    margin: 10px 0;
+    padding: 0;
+    background: #fff;
+    border: 1px $base-border-color solid;
+    border-radius: $base-border-radius;
+    display: none;
+    position: absolute;
+    left: -1px;
+    z-index: 100;
+    -webkit-box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.15);
+    -moz-box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.15);
 
     &.aligned-to-right {
         right: -1px;
@@ -39,192 +39,192 @@ $dropdown-arrow-size: 8px;
         }
     }
 
-  &:before {
-    content: "";
-    position: absolute;
-    z-index: 20;
-    left: 10px;
-    top: -$dropdown-arrow-size;
-    width: 0;
-    height: 0;
-    border-width: 0 $dropdown-arrow-size $dropdown-arrow-size $dropdown-arrow-size;
-    border-color: transparent transparent #fff transparent;
-    border-style: solid;
-  }
+    &:before {
+        content: "";
+        position: absolute;
+        z-index: 20;
+        left: 10px;
+        top: -$dropdown-arrow-size;
+        width: 0;
+        height: 0;
+        border-width: 0 $dropdown-arrow-size $dropdown-arrow-size $dropdown-arrow-size;
+        border-color: transparent transparent #fff transparent;
+        border-style: solid;
+    }
 
-  &:after {
-    content: "";
-    z-index: 19;
-    position: absolute;
-    top: - ($dropdown-arrow-size + 1px);
-    left: 10px;
-    border-width: 0 $dropdown-arrow-size $dropdown-arrow-size $dropdown-arrow-size;
-    border-color: transparent transparent $baseBorderColor transparent;
-    border-style: solid;
-  }
+    &:after {
+        content: "";
+        z-index: 19;
+        position: absolute;
+        top: - ($dropdown-arrow-size + 1px);
+        left: 10px;
+        border-width: 0 $dropdown-arrow-size $dropdown-arrow-size $dropdown-arrow-size;
+        border-color: transparent transparent $base-border-color transparent;
+        border-style: solid;
+    }
 }
 
 .hl-dropdown-item {
-  cursor: pointer;
-  line-height: 20px;
-  padding: 5px 10px;
-  white-space: nowrap;
-  position: relative;
-    border-bottom: 1px lighten($baseBorderColor, 10) solid;
-
-  &:first-child {
-    .hl-dropdown-item-link {
-      border-top-left-radius: $baseBorderRadius;
-      border-top-right-radius: $baseBorderRadius;
-    }
-  }
-
-  &:last-child {
-    border-bottom: none;
-
-    .hl-dropdown-item-link {
-      border-bottom-left-radius: $baseBorderRadius;
-      border-bottom-right-radius: $baseBorderRadius;
-    }
-  }
-
-  .hl-dropdown-item-link {
-    text-decoration: none;
-    display: block;
-    margin: -5px -10px;
+    cursor: pointer;
+    line-height: 20px;
     padding: 5px 10px;
+    white-space: nowrap;
+    position: relative;
+    border-bottom: 1px lighten($base-border-color, 10) solid;
 
-    &:hover {
-      background: $skyGrey;
+    &:first-child {
+        .hl-dropdown-item-link {
+            border-top-left-radius: $base-border-radius;
+            border-top-right-radius: $base-border-radius;
+        }
     }
-  }
+
+    &:last-child {
+        border-bottom: 0;
+
+        .hl-dropdown-item-link {
+            border-bottom-left-radius: $base-border-radius;
+            border-bottom-right-radius: $base-border-radius;
+        }
+    }
+
+    .hl-dropdown-item-link {
+        text-decoration: none;
+        display: block;
+        margin: -5px -10px;
+        padding: 5px 10px;
+
+        &:hover {
+            background: $sky-grey;
+        }
+    }
 }
 
 /* OLD STUFF */
 
 .drop-down {
-  position: relative;
-  list-style: none;
-  margin: 0;
-  padding: 0;
+    position: relative;
+    list-style: none;
+    margin: 0;
+    padding: 0;
 
-  .drop-down-item {
-    z-index: 999;
-  }
-
-  .drop-down-sub-menu {
-    display: none;
-  }
-
-  &.open {
-    .drop-down-sub-menu {
-      position: absolute;
-      z-index: 1000;
-      display: block;
+    .drop-down-item {
+        z-index: 999;
     }
-  }
+
+    .drop-down-sub-menu {
+        display: none;
+    }
+
+    &.open {
+        .drop-down-sub-menu {
+            position: absolute;
+            z-index: 1000;
+            display: block;
+        }
+    }
 }
 
 .drop-down > .header-user-menu {
-  &.open {
-    .drop-down-sub-menu {
-      position: absolute;
-      z-index: 1000;
-      display: block;
+    &.open {
+        .drop-down-sub-menu {
+            position: absolute;
+            z-index: 1000;
+            display: block;
+        }
     }
-  }
 }
 
 .drop-down-sub-menu {
-  position: relative;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  background: #5b667b;
-  border: 1px solid #5b667b;
-  min-width: 160px;
+    position: relative;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background: #5b667b;
+    border: 1px solid #5b667b;
+    min-width: 160px;
 
-  &.right-aligned {
-    right: 0;
+    &.right-aligned {
+        right: 0;
+
+        &:before {
+            right: 9px;
+        }
+
+        &:after {
+            right: 10px;
+        }
+    }
+
+    &.left-aligned {
+        left: 0;
+
+        &:before {
+            left: 9px;
+        }
+
+        &:after {
+            left: 10px;
+        }
+    }
+
+    &.white-menu {
+        background: #fff;
+        border: 1px #ced9e3 solid;
+
+        &:before {
+            border-bottom: 8px solid #ced9e3;
+        }
+
+        &:after {
+            border-bottom: 7px solid #fff;
+        }
+
+        .drop-down-sub-menu-item a {
+            color: #5b667b;
+
+            &:hover {
+                background: $sky-grey;
+            }
+        }
+    }
 
     &:before {
-      right: 9px;
+        position: absolute;
+        top: -8px;
+        right: auto;
+        display: inline-block !important;
+        border-right: 8px solid transparent;
+        border-bottom: 8px solid #5b667b;
+        border-left: 8px solid transparent;
+        content: "";
     }
 
     &:after {
-      right: 10px;
+        position: absolute;
+        top: -7px;
+        right: auto;
+        display: inline-block !important;
+        border-right: 7px solid transparent;
+        border-bottom: 7px solid #5b667b;
+        border-left: 7px solid transparent;
+        content: "";
     }
-  }
-
-  &.left-aligned {
-    left: 0;
-
-    &:before {
-      left: 9px;
-    }
-
-    &:after {
-      left: 10px;
-    }
-  }
-
-  &.white-menu {
-    background: #ffffff;
-    border: 1px #ced9e3 solid;
-
-    &:before {
-      border-bottom: 8px solid #ced9e3;
-    }
-
-    &:after {
-      border-bottom: 7px solid #ffffff;
-    }
-
-    .drop-down-sub-menu-item a {
-      color: #5b667b;
-
-      &:hover {
-        background: $skyGrey;
-      }
-    }
-  }
-
-  &:before {
-    position: absolute;
-    top: -8px;
-    right: auto;
-    display: inline-block !important;
-    border-right: 8px solid transparent;
-    border-bottom: 8px solid #5b667b;
-    border-left: 8px solid transparent;
-    content: '';
-  }
-
-  &:after {
-    position: absolute;
-    top: -7px;
-    right: auto;
-    display: inline-block !important;
-    border-right: 7px solid transparent;
-    border-bottom: 7px solid #5b667b;
-    border-left: 7px solid transparent;
-    content: '';
-  }
 }
 
 .drop-down-sub-menu-item a {
-  width: 100%;
-  padding: 0 10px;
-  display: block;
-  text-decoration: none;
-  color: #d4dadf;
+    width: 100%;
+    padding: 0 10px;
+    display: block;
+    text-decoration: none;
+    color: #d4dadf;
 
-  &:hover {
-    background: darken(#5b667b, 10);
-  }
+    &:hover {
+        background: darken(#5b667b, 10);
+    }
 }
 
 .drop-down-sub-menu .divider {
-  margin: 5px;
+    margin: 5px;
     border-bottom: 1px lighten(#5b667b, 10) solid;
 }

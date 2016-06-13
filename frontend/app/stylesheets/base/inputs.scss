@@ -1,259 +1,329 @@
 $inline-editable-field-height: 30px;
 
+@mixin input-field($height) {
+    border-color: $app-border-color;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 3px;
+    background: #fff;
+    line-height: $height;
+    height: $height;
+    width: 100%;
+    padding: 0 6px;
+    transition: border-color, 0.3s;
+
+    &:focus {
+        transition: border-color, 0.3s;
+        outline: none;
+        border-color: darken($app-border-color, 20);
+    }
+}
+
+.hl-base-input {
+    @include input-field(30px);
+}
+
 .editable-click {
-  color: #333;
-  margin: 0 -5px;
-  padding: 0 5px;
-  line-height: $inline-editable-field-height - 2px;
-  display: inline-block;
-  position: relative;
-  border-top-left-radius: $baseBorderRadius;
-  border-bottom-left-radius: $baseBorderRadius;
-  border: 1px transparent solid;
-
-  &:after {
-    background: $lilyWhiteToneHover;
-    border: 1px $baseBorderColor solid;
-    border-top-right-radius: $baseBorderRadius;
-    border-bottom-right-radius: $baseBorderRadius;
-    color: $lilyDarkBlue;
-    text-align: center;
-    float: left;
-    position: absolute;
-    top: -1px;
-    overflow: hidden;
-    font-family: "lilicon";
-    font-size: 1.5rem;
-    content: $hl-edit-icon;
+    color: #333;
+    margin: 0 -5px;
+    padding: 0 5px;
     line-height: $inline-editable-field-height - 2px;
-    transition: all 0s;
-    visibility: hidden;
-    width: 0;
-    right: 0;
-
-    &:hover {
-      color: $lilyBlue;
-    }
-  }
-
-  &:hover {
-    color: $lilyBlue;
-    border: 1px $baseBorderColor solid;
-    cursor: pointer;
+    display: inline-block;
+    position: relative;
+    border-top-left-radius: $base-border-radius;
+    border-bottom-left-radius: $base-border-radius;
+    border: 1px transparent solid;
 
     &:after {
-      transition: all ease-in-out 0.3s;
-      visibility: visible;
-      width: $inline-editable-field-height;
-      right: -$inline-editable-field-height;
-      z-index: 99;
-    }
-  }
+        background: $lily-white-tone-hover;
+        border: 1px $base-border-color solid;
+        border-top-right-radius: $base-border-radius;
+        border-bottom-right-radius: $base-border-radius;
+        color: $lily-dark-blue;
+        text-align: center;
+        float: left;
+        position: absolute;
+        top: -1px;
+        overflow: hidden;
+        font-family: "lilicon";
+        font-size: 1.5rem;
+        content: $hl-edit-icon;
+        line-height: $inline-editable-field-height - 2px;
+        transition: all 0s;
+        visibility: hidden;
+        width: 0;
+        right: 0;
 
-  &.addable-click {
-    &:after {
-      display: none;
-    }
-
-    .editable-icons {
-      background: $lilyWhiteToneHover;
-      border-top: 1px $baseBorderColor solid;
-      border-bottom: 1px $baseBorderColor solid;
-      border-right: 1px $baseBorderColor solid;
-      border-left: 0;
-      border-top-right-radius: $baseBorderRadius;
-      border-bottom-right-radius: $baseBorderRadius;
-      position: absolute;
-      top: -1px;
-      right: 0px;
-      float: left;
-      overflow: hidden;
-      visibility: hidden;
-    }
-
-    .editable-icon {
-      width: 0;
-      overflow: hidden;
-      border-left: 1px $baseBorderColor solid;
-      float: left;
-      color: $lilyDarkBlue;
-      text-align: center;
-      font-size: 1.5rem;
-
-      &:hover {
-        color: $lilyBlue;
-      }
-    }
-
-    &:hover {
-      color: $lilyBlue;
-      border: 1px $baseBorderColor solid;
-      cursor: pointer;
-
-      .editable-icons {
-        transition: right ease-in-out 0.3s;
-        visibility: visible;
-        right: -61px;
-
-        &.no-edit {
-          right: -31px;
+        &:hover {
+            color: $lily-blue;
         }
-      }
-
-      .editable-icon {
-        transition: width ease-in-out 0.3s;
-        width: 30px;
-      }
     }
-  }
+
+    &:hover {
+        color: $lily-blue;
+        border: 1px $base-border-color solid;
+        cursor: pointer;
+
+        &:after {
+            transition: all ease-in-out 0.3s;
+            visibility: visible;
+            width: $inline-editable-field-height;
+            right: -$inline-editable-field-height;
+            z-index: 99;
+        }
+    }
+
+    &.addable-click {
+        &:after {
+            display: none;
+        }
+
+        .editable-icons {
+            background: $lily-white-tone-hover;
+            border-top: 1px $base-border-color solid;
+            border-bottom: 1px $base-border-color solid;
+            border-right: 1px $base-border-color solid;
+            border-left: 0;
+            border-top-right-radius: $base-border-radius;
+            border-bottom-right-radius: $base-border-radius;
+            position: absolute;
+            top: -1px;
+            right: 0;
+            float: left;
+            overflow: hidden;
+            visibility: hidden;
+        }
+
+        .editable-icon {
+            width: 0;
+            overflow: hidden;
+            border-left: 1px $base-border-color solid;
+            float: left;
+            color: $lily-dark-blue;
+            text-align: center;
+            font-size: 1.5rem;
+
+            &:hover {
+                color: $lily-blue;
+            }
+        }
+
+        &:hover {
+            color: $lily-blue;
+            border: 1px $base-border-color solid;
+            cursor: pointer;
+
+            .editable-icons {
+                transition: right ease-in-out 0.3s;
+                visibility: visible;
+                right: -61px;
+
+                &.no-edit {
+                    right: -31px;
+                }
+            }
+
+            .editable-icon {
+                transition: width ease-in-out 0.3s;
+                width: 30px;
+            }
+        }
+    }
 }
 
 .editable-buttons button {
-  color: $lilyDarkBlue;
-  background: $lilyWhiteToneHover;
-  border: 1px $lilyGrey solid;
-  border-right: none;
-  margin-left: 0;
-  border-radius: 0;
-  height: $inline-editable-field-height;
-  width: $inline-editable-field-height;
-  text-align: center;
-  padding: 0;
-  line-height: $inline-editable-field-height - 2px;
+    color: $lily-dark-blue;
+    background: $lily-white-tone-hover;
+    border: 1px $lily-grey solid;
+    border-right: 0;
+    margin-left: 0;
+    border-radius: 0;
+    height: $inline-editable-field-height;
+    width: $inline-editable-field-height;
+    text-align: center;
+    padding: 0;
+    line-height: $inline-editable-field-height - 2px;
 
-  &:last-child {
-    border-top-right-radius: $baseBorderRadius;
-    border-bottom-right-radius: $baseBorderRadius;
-        border-right: 1px $lilyGrey solid;
-  }
+    &:last-child {
+        border-top-right-radius: $base-border-radius;
+        border-bottom-right-radius: $base-border-radius;
+        border-right: 1px $lily-grey solid;
+    }
 
-  &:hover {
-        background: $lilyWhiteToneHover;
-    border-color: $lilyGrey;
-    color: $lilyBlue;
-  }
+    &:hover {
+        background: $lily-white-tone-hover;
+        border-color: $lily-grey;
+        color: $lily-blue;
+    }
 
-  &:active,
-  &:focus {
-    background: $lilyGrey !important;
-    color: darken($lilyBlue, 10) !important;
-    border-color: $lilyGrey;
-  }
+    &:active,
+    &:focus {
+        background: $lily-grey !important;
+        color: darken($lily-blue, 10) !important;
+        border-color: $lily-grey;
+    }
 }
 
 .editable-has-buttons {
-  margin: 0 -5px;
-  padding: 0 5px;
-  line-height: $inline-editable-field-height - 2px;
-  height: $inline-editable-field-height;
-  border: 1px $lilyGrey solid;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
+    margin: 0 -5px;
+    padding: 0 5px;
+    line-height: $inline-editable-field-height - 2px;
+    height: $inline-editable-field-height;
+    border: 1px $lily-grey solid;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
 
-  &:focus {
-    border: 1px $lilyGrey solid;
-  }
+    &:focus {
+        border: 1px $lily-grey solid;
+    }
 }
 
 .editable-input {
-  padding: 0 5px;
-  line-height: $inline-editable-field-height;
-  border-color: $lilyGrey;
-  border-radius: $baseBorderRadius;
+    padding: 0 5px;
+    line-height: $inline-editable-field-height;
+    border-color: $lily-grey;
+    border-radius: $base-border-radius;
 
-  &:focus {
-    border-color: $lilyGrey;
-  }
+    &:focus {
+        border-color: $lily-grey;
+    }
 
-  .select2-search {
-    margin: 5px 0;
-  }
+    .select2-search {
+        margin: 5px 0;
+    }
 
-  .ui-select-choices-row {
-    line-height: initial;
-  }
+    .ui-select-choices-row {
+        line-height: initial;
+    }
 
-  &.editable-select2 {
-    line-height: initial;
-    min-width: 250px;
-  }
+    &.editable-select2 {
+        line-height: initial;
+        min-width: 250px;
+    }
 }
 
 .deal-detail-info,
 .case-detail-info {
-  div > label {
-    line-height: $inline-editable-field-height;
-  }
+    div > label {
+        line-height: $inline-editable-field-height;
+    }
 }
 
 .editable-textarea .editable-controls {
-  width: 100%;
-
-  .editable-input {
-    margin: 0;
     width: 100%;
-  }
+
+    .editable-input {
+        margin: 0;
+        width: 100%;
+    }
 }
 
 .editable-textarea {
-  width: 100%;
-  position: relative;
+    width: 100%;
+    position: relative;
 
-  textarea {
-    margin-right: -1px;
-    border-top-right-radius: 0;
-    margin-bottom: $inline-editable-field-height !important;
-  }
+    textarea {
+        margin-right: -1px;
+        border-top-right-radius: 0;
+        margin-bottom: $inline-editable-field-height !important;
+    }
 
-  .editable-buttons {
-    bottom: 1px;
-    position: absolute;
-    right: 0;
-  }
+    .editable-buttons {
+        bottom: 1px;
+        position: absolute;
+        right: 0;
+    }
 }
 
 .editable-empty {
-  &:hover {
-    color: #B5B5B5;
-  }
+    &:hover {
+        color: #b5b5b5;
+    }
 
-  color: #B5B5B5;
+    color: #b5b5b5;
 }
 
 .checker {
-  margin: 0 !important;
+    margin: 0 !important;
 }
 
 .editable-related-actions {
-  background: $lilyWhiteToneHover;
-  border: 1px $lilyGrey solid;
-  border-bottom-left-radius: $baseBorderRadius;
-  border-bottom-right-radius: $baseBorderRadius;
-  height: $inline-editable-field-height;
+    background: $lily-white-tone-hover;
+    border: 1px $lily-grey solid;
+    border-bottom-left-radius: $base-border-radius;
+    border-bottom-right-radius: $base-border-radius;
+    height: $inline-editable-field-height;
 
-  .btn {
-    background: inherit;
-    height: $inline-editable-field-height - 2;
-    color: $lilyDarkBlue;
-    padding-top: 0;
-    line-height: 28px;
-  }
+    .btn {
+        background: inherit;
+        height: $inline-editable-field-height - 2;
+        color: $lily-dark-blue;
+        padding-top: 0;
+        line-height: 28px;
+    }
 }
 
 .editable-multi {
-  width: 75%;
+    width: 75%;
 
-  .editable-wrap {
-    width: 100%;
-  }
+    .editable-wrap {
+        width: 100%;
+    }
 
-  .editable-select2 {
-    margin: 0;
-    padding: 0;
-  }
+    .editable-select2 {
+        margin: 0;
+        padding: 0;
+    }
 }
 
 .select2-container-multi .select2-choices .select2-search-choice-focus {
-  background: $lilyBlue;
-  color: #fff;
+    background: $lily-blue;
+    color: #fff;
+}
+
+.hl-search-field-container {
+    position: relative;
+
+    .hl-search-field {
+        @include input-field(31px);
+        margin-right: 20px;
+    }
+
+    .hl-search-field.ng-not-empty + .hl-search-btn {
+        background: $critical-prio-color;
+
+        &:before {
+            content: "\f00d";
+        }
+
+        &:hover {
+            transition: background, 0s;
+            background: darken($critical-prio-color, 20);
+        }
+    }
+
+    .hl-search-btn {
+        background: $app-color-aqua;
+        border-width: 0;
+        height: 31px;
+        width: 26px;
+        text-align: center;
+        padding: 0 6px;
+        line-height: 31px;
+        position: absolute;
+        right: 0;
+        top: 0;
+        border-top-right-radius: 3px;
+        border-bottom-right-radius: 3px;
+        transition: background, 0.25s;
+        outline: none;
+
+        &:before {
+            -webkit-font-smoothing: antialiased;
+            font-weight: normal;
+            font-family: "FontAwesome";
+            content: "\f002";
+            color: #fff;
+        }
+    }
 }

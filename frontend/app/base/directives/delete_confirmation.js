@@ -22,8 +22,8 @@ function deleteConfirmation() {
     };
 }
 
-DeleteConfirmationController.$inject = ['$state', 'HLMessages', 'HLResource'];
-function DeleteConfirmationController($state, HLMessages, HLResource) {
+DeleteConfirmationController.$inject = ['$state', 'HLMessages', 'HLResource', 'Settings'];
+function DeleteConfirmationController($state, HLMessages, HLResource, Settings) {
     var vm = this;
 
     vm.openConfirmationModal = openConfirmationModal;
@@ -84,12 +84,16 @@ function DeleteConfirmationController($state, HLMessages, HLResource) {
                         // Call the given function.
                         vm.callback();
                     } else {
-                        // Otherwise just go to the parent state.
-                        $state.go($state.current.parent);
+                        if (Settings.page.previousState) {
+                            // Check if we're coming from another page.
+                            $state.go(Settings.page.previousState.state, Settings.page.previousState.params);
+                        } else {
+                            // Otherwise just go to the parent state.
+                            $state.go($state.current.parent);
+                        }
                     }
                 });
             }
         });
     }
 }
-

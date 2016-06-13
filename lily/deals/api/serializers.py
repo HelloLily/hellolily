@@ -180,9 +180,19 @@ class DealSerializer(WritableNestedSerializer):
 
     def create(self, validated_data):
         user = self.context.get('request').user
+        status_id = validated_data.get('status').get('id')
+        status = DealStatus.objects.get(pk=status_id)
+        closed_date = validated_data.get('closed_date')
+
+        # Set closed_date if status is lost/won and not manually provided.
+        if (status.is_won or status.is_lost) and not closed_date:
+            closed_date = datetime.datetime.utcnow().replace(tzinfo=utc)
+        else:
+            closed_date = None
 
         validated_data.update({
-            'created_by_id': user.pk
+            'created_by_id': user.pk,
+            'closed_date': closed_date,
         })
 
         assigned_to = validated_data.get('assigned_to')

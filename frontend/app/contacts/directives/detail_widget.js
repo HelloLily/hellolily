@@ -15,8 +15,8 @@ function contactDetailWidget() {
     };
 }
 
-ContactDetailWidgetController.$inject = ['Settings'];
-function ContactDetailWidgetController(Settings) {
+ContactDetailWidgetController.$inject = ['Contact', 'Settings'];
+function ContactDetailWidgetController(Contact, Settings) {
     var vm = this;
 
     vm.settings = Settings;
@@ -24,7 +24,7 @@ function ContactDetailWidgetController(Settings) {
     vm.updateModel = updateModel;
 
     function updateModel(data, field) {
-        return vm.updateCallback()(data, field);
+        return Contact.updateModel(data, field, vm.contact);
     }
 }
 

@@ -1,6 +1,12 @@
 import re
 import urlparse
+from time import time
+
+import anyjson
+import requests
 from django import forms
+
+from lily.settings import settings
 
 
 def autostrip(cls):
@@ -161,3 +167,30 @@ def clean_website(website):
         website = urlparse.urlunparse(parse_result)
 
     return website
+
+
+def post_intercom_event(event_name, user_id):
+    """
+    Sends a request to Intercom to track the given event.
+
+    Args:
+        event_name (str): Name of the event that we want to track.
+        user_id (int): ID of the Lily user.
+
+    Returns:
+        response (Response): Object containing the response information.
+    """
+    payload = {
+        'event_name': event_name,
+        'user_id': user_id,
+        'created_at': int(time())
+    }
+
+    response = requests.post(
+        url='https://api.intercom.io/events',
+        data=anyjson.serialize(payload),
+        auth=(settings.INTERCOM_APP_ID, settings.INTERCOM_KEY),
+        headers={'Content-Type': 'application/json'}
+    )
+
+    return response

@@ -18,7 +18,7 @@
                     <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.amountOnce">One-time cost</checkbox></li>
                     <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.amountRecurring">Recurring costs</checkbox></li>
                     <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.newBusiness">New business</checkbox></li>
-                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.feedbackFormSent">Feedback form sent</checkbox></li>
+                    <li class="hl-dropdown-item" ng-if="vm.tenant.isVoysNL()"><checkbox model="vm.table.visibility.feedbackFormSent">Feedback form sent</checkbox></li>
                     <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.created">Created</checkbox></li>
                     <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.createdBy">Created by</checkbox></li>
                     <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.tags">Tags</checkbox></li>
@@ -69,19 +69,15 @@
             </li>
         </ul>
 
-        <div class="tools col-xs-12 col-md-6">
-            <form class="form-inline pull-right">
-                <div class="input-group">
-                    <input type="text" class="form-control search-input" ng-model="vm.table.searchQuery" placeholder="Search..">
-                    <span class="input-group-btn">
-                        <button type="button" class="btn red-pink" ng-click="vm.setSearchQuery('')" ng-disabled="!vm.table.searchQuery">
-                            <i class="fa fa-times"></i>
-                        </button>
-                    </span>
+        <div class="widget-tools pull-right">
+            <form class="widget-search pull-right">
+                <div class="hl-search-field-container">
+                    <input type="text" class="hl-search-field" ng-model="vm.table.searchQuery" placeholder="Search..">
+                    <button type="button" class="hl-search-btn" ng-click="vm.setSearchQuery('')" ng-disabled="!vm.table.searchQuery"></button>
                 </div>
             </form>
             <users-filter users-store="vm.table.usersFilter" storage-name="'dealUsersFilter'" allow-empty="true" class="pull-right margin-right-10"></users-filter>
-            <due-date-filter filter-store="vm.table.dueDateFilter" filter-field="'next_step_date'" type="'deal'" class="list-actions pull-right"></due-date-filter>
+            <due-date-filter filter-store="vm.table.dueDateFilter" filter-field="'next_step_date'" type="'deal'" class="pull-right"></due-date-filter>
         </div>
     </div>
     <div class="portlet-body flip-scroll">
@@ -96,7 +92,7 @@
                 <th ng-show="vm.table.visibility.amountOnce" sort-column="amount_once" table="vm.table">One-time cost</th>
                 <th ng-show="vm.table.visibility.amountRecurring" sort-column="amount_recurring" table="vm.table">Recurring costs</th>
                 <th ng-show="vm.table.visibility.newBusiness" sort-column="new_business" table="vm.table">Business</th>
-                <th ng-show="vm.table.visibility.feedbackFormSent" sort-column="feedback_form_sent" table="vm.table">Feedback form sent</th>
+                <th ng-show="vm.tenant.isVoysNL() && vm.table.visibility.feedbackFormSent" sort-column="feedback_form_sent" table="vm.table">Feedback form sent</th>
                 <th ng-show="vm.table.visibility.created" sort-column="created" table="vm.table" class="width-10">Created</th>
                 <th ng-show="vm.table.visibility.createdBy" sort-column="created_by" table="vm.table">Created by</th>
                 <th ng-show="vm.table.visibility.tags">Tags</th>
@@ -137,7 +133,7 @@
                         <span ng-if="deal.new_business">New</span>
                         <span ng-if="!deal.new_business">Existing</span>
                     </td>
-                    <td ng-show="vm.table.visibility.feedbackFormSent">
+                    <td ng-show="vm.tenant.isVoysNL() && vm.table.visibility.feedbackFormSent">
                         <span ng-if="deal.feedback_form_sent"><i class="fa fa-check text-success font-size-inherit"></i></span>
                         <span ng-if="deal.feedback_form_sent" class="text-success">Done</span>
 

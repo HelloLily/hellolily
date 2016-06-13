@@ -9,14 +9,14 @@
         </div>
     </div>
 
-    <form class="widget-filters pull-right">
-        <div class="input-group input-medium">
-            <input type="text" class="form-control search-input" placeholder="Search" ng-model="vm.table.filter">
-            <span class="input-group-btn">
-                <button type="submit" class="email-inbox-search-button"><i class="fa fa-search"></i></button>
-            </span>
-        </div>
-    </form>
+    <div class="widget-tools pull-right">
+        <form class="widget-search pull-right">
+            <div class="hl-search-field-container">
+                <input type="text" class="hl-search-field" placeholder="Search" ng-model="vm.table.filter">
+                <button type="button" ng-click="vm.table.filter = ''" class="hl-search-btn"></button>
+            </div>
+        </form>
+    </div>
 
     <div class="clearfix"></div>
 </div>

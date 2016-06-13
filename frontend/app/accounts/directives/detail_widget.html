@@ -54,7 +54,8 @@
                 <tr>
                     <td><i class="lilicon hl-entity-icon"></i> <strong>Assigned to</strong></td>
                     <td>
-                        <editable-select field="assigned_to" view-model="vm" type="Account" class="inline-selectable-text" select-options="{type: 'User', field: 'assignOptions', display: 'full_name'}">
+                        <editable-select field="assigned_to" view-model="vm" type="Account" class="inline-selectable-text"
+                                         select-options="{type: 'User', field: 'assignOptions', display: 'full_name', sortColumn: 'full_name', nameColumn: 'full_name'}">
                             {{ vm.account.assigned_to.full_name }}
                         </editable-select>
                     </td>

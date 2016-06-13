@@ -1,88 +1,88 @@
 .widget-table {
-  width: 100%;
-  line-height: 20px;
+    width: 100%;
+    line-height: 20px;
     font-size: 14px;
-    color: $app-color-darkBlue;
+    color: $app-color-darkblue;
 
-  thead {
-    th {
+    thead {
+        th {
             text-align: left;
-      padding: 5px 15px;
+            padding: 5px 15px;
             background: #fff;
-      border-top: 1px white solid;
-            border-bottom: 2px $lightBorderColor solid;
+            border-top: 1px #fff solid;
+            border-bottom: 2px $light-border-color solid;
             font-weight: 400;
             text-transform: uppercase;
             font-size: 11px;
             color: $app-color-grey;
-    }
-  }
-
-  tbody {
-    tr {
-      &:hover {
-        background: lighten($skyGrey, 3);
-      }
+        }
     }
 
-    td {
-      padding: 12px 15px;
-      border-bottom: 1px lighten($baseBorderColor, 12) solid;
-    }
+    tbody {
+        tr {
+            &:hover {
+                background: lighten($sky-grey, 3);
+            }
+        }
 
-    tr.widget-table-sub-heading {
-      td {
-        padding: 5px 15px;
-        background: lighten($skyGrey, 2);
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px lighten($base-border-color, 12) solid;
+        }
+
+        tr.widget-table-sub-heading {
+            td {
+                padding: 5px 15px;
+                background: lighten($sky-grey, 2);
             }
         }
 
         &.align-center {
             td {
                 text-align: center;
-      }
-    }
-  }
-
-  .widget-table-priority-cell {
-    text-align: center;
-
-    i {
-      font-size: 18px;
-    }
-  }
-
-  &.vertical-top-align {
-
-    td:first-child {
-      vertical-align: top;
-      padding-top: 18px;
+            }
+        }
     }
 
-  }
+    .widget-table-priority-cell {
+        text-align: center;
 
-  &.align-table {
-    // /* Set width of the table cells based on the amount of cells. */
-    td:first-child:nth-last-child(1) {
-      width: 100%;
+        i {
+            font-size: 18px;
+        }
     }
 
-    td:first-child:nth-last-child(2),
-    td:first-child:nth-last-child(2) ~ td {
-      width: 50%;
+    &.vertical-top-align {
+
+        td:first-child {
+            vertical-align: top;
+            padding-top: 18px;
+        }
+
     }
 
-    td:first-child:nth-last-child(3),
-    td:first-child:nth-last-child(3) ~ td {
-      width: 33.3333%;
-    }
+    &.align-table {
+        // /* Set width of the table cells based on the amount of cells. */
+        td:first-child:nth-last-child(1) {
+            width: 100%;
+        }
 
-    td:first-child:nth-last-child(4),
-    td:first-child:nth-last-child(4) ~ td {
-      width: 25%;
-    }
+        td:first-child:nth-last-child(2),
+        td:first-child:nth-last-child(2) ~ td {
+            width: 50%;
+        }
 
-  }
+        td:first-child:nth-last-child(3),
+        td:first-child:nth-last-child(3) ~ td {
+            width: 33.3333%;
+        }
+
+        td:first-child:nth-last-child(4),
+        td:first-child:nth-last-child(4) ~ td {
+            width: 25%;
+        }
+
+    }
 }
 
 .table-bordered {
@@ -93,8 +93,8 @@
             text-align: left;
             padding: 5px 15px !important;
             background: #fff;
-            border-top: 1px white solid;
-            border-bottom: 2px $lightBorderColor solid !important;
+            border-top: 1px #fff solid;
+            border-bottom: 2px $light-border-color solid !important;
             font-weight: 400 !important;
             text-transform: uppercase;
             font-size: 11px !important;
@@ -114,20 +114,21 @@
     }
 
     tr:hover {
-        background: $lilyWhiteToneHover;
+        background: $lily-white-tone-hover;
     }
 
     tbody tr td {
         border-bottom-width: 0;
         border-top-width: 1px;
-        border-top-color: $lightBorderColor;
+        border-top-color: $light-border-color;
+        padding: 12px 15px;
     }
 
     tr:nth-of-type(even) {
-        background: $lilyWhiteTone;
+        background: $lily-white-tone;
 
         &:hover {
-            background: $lilyWhiteToneHover;
+            background: $lily-white-tone-hover;
         }
     }
 
@@ -143,12 +144,6 @@
             &:last-child {
                 border-right-width: 1px;
             }
-        }
-    }
-
-    tbody {
-        tr td {
-            padding: 12px 15px;
         }
     }
 }

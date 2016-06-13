@@ -3,13 +3,13 @@ $header-height: 80px;
 .sub-header {
     padding: 15px 20px;
     background: #fff;
-    border-bottom: 1px $baseBorderColor solid;
+    border-bottom: 1px $base-border-color solid;
 }
 
 .hl-page-name {
     font-size: 22px;
     font-weight: 500;
-    color: $app-color-darkBlue;
+    color: $app-color-darkblue;
     margin: 0;
     float: left;
 }
@@ -20,12 +20,16 @@ $header-height: 80px;
     margin-right: 20px;
 
     @media (max-width: $breakpoint-mobile) {
-        margin-right: 0px;
+        margin-right: 0;
     }
 }
 
 .page-header.navbar {
-    background: $app-color-darkBlue;
+    background: $app-color-darkblue;
+}
+
+.page-header.navbar.navbar-fixed-top {
+    z-index: 999;
 }
 
 .page-header-logo {
@@ -45,11 +49,11 @@ $header-height: 80px;
 }
 
 .page-head .page-title > h1 {
-  color: $navyBlue;
-  font-size: 24px;
-  font-weight: 500;
-  margin: 0;
-  padding: 0;
+    color: $navy-blue;
+    font-size: 24px;
+    font-weight: 500;
+    margin: 0;
+    padding: 0;
 }
 
 .page-title {
@@ -59,22 +63,21 @@ $header-height: 80px;
 }
 
 .page-head .page-title > h1 > small {
-  color: $lilyBlue;
-  font-size: 14px;
+    color: $lily-blue;
+    font-size: 14px;
 }
 
 .main-nav-item a i {
     position: relative;
 
-
 }
 
 .main-nav-item a.active {
-    color: $lilyBlue;
+    color: $lily-blue;
 
     @media (max-width: $breakpoint-mobile) {
-        border-bottom: 0px transparent solid;
-        border-left: 3px $lilyBlue solid;
+        border-bottom: 0 transparent solid;
+        border-left: 3px $lily-blue solid;
         margin-top: -1px;
         margin-bottom: -1px;
         padding-top: 1px;
@@ -87,7 +90,7 @@ $header-height: 80px;
     line-height: $header-height;
 
     a {
-        color: rgba(255,255,255,0.5);
+        color: rgba(255, 255, 255, 0.5);
         font-size: 14px;
         text-decoration: none;
 
@@ -96,7 +99,7 @@ $header-height: 80px;
         }
     }
 
-    @media (max-width: 510px){
+    @media (max-width: 510px) {
         margin-right: 5px;
     }
 }
@@ -129,7 +132,7 @@ $header-height: 80px;
 
 .header-user-menu-link {
     height: 40px;
-    padding: 20px 0px;
+    padding: 20px 0;
     line-height: 40px;
     display: block;
 
@@ -143,20 +146,20 @@ $header-height: 80px;
 .sub-header-action-menu .drop-down-item {
     color: #fff;
     display: block;
-    background: $lilyBlue;
+    background: $lily-blue;
     line-height: 28px;
     border-radius: 4px;
     padding: 0 10px;
     text-decoration: none;
 
     &:hover {
-        background: darken($lilyBlue,10);
+        background: darken($lily-blue, 10);
     }
 }
 
 .sub-header-action-menu.open {
     .drop-down-item {
-        background: darken($lilyBlue,10);
+        background: darken($lily-blue, 10);
     }
 }
 
@@ -172,7 +175,7 @@ $header-height: 80px;
     height: 30px;
     width: 100%;
     text-align: center;
-    color: #ffffff;
+    color: #fff;
     line-height: 30px;
     font-weight: bold;
     position: relative;
@@ -187,20 +190,20 @@ $header-height: 80px;
     }
 
     &.is-error {
-        background-color: $criticalPrioColor;
+        background-color: $critical-prio-color;
     }
 
     &.is-alert {
-        background-color: $bulletColor4;
+        background-color: $bullet-color-4;
     }
 
     &.is-success {
-        background-color: $lilyGreen;
+        background-color: $lily-green;
     }
 }
 
 .notification-inline {
-    padding: 0px 5px;
+    padding: 0 5px;
     background: #ffd66f;
     color: #fff;
     border-radius: 4px;
@@ -217,10 +220,6 @@ $header-height: 80px;
         color: #fff;
 
     }
-}
-
-.page-header.navbar.navbar-fixed-top {
-    z-index: 999;
 }
 
 .header-rainbow {

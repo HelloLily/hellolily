@@ -83,7 +83,7 @@ function EditableSelectController($scope, HLResource, HLSearch, HLUtils) {
         }
 
         // Setup the form name so we can block the element while saving data.
-        es.formName = es.field.replace('_', '') + 'Form';
+        es.formName = es.field.split('_').join('') + 'Form';
     }
 
     function getChoices() {
@@ -123,6 +123,8 @@ function EditableSelectController($scope, HLResource, HLSearch, HLUtils) {
     function refreshChoices(query) {
         var type;
         var searchPromise;
+        var sortColumn;
+        var nameColumn;
 
         if (es.selectOptions.hasOwnProperty('type')) {
             type = es.selectOptions.type;
@@ -130,7 +132,15 @@ function EditableSelectController($scope, HLResource, HLSearch, HLUtils) {
             type = es.type;
         }
 
-        searchPromise = HLSearch.refreshList(query, type);
+        if (es.selectOptions.hasOwnProperty('sortColumn')) {
+            sortColumn = es.selectOptions.sortColumn;
+        }
+
+        if (es.selectOptions.hasOwnProperty('nameColumn')) {
+            nameColumn = es.selectOptions.nameColumn;
+        }
+
+        searchPromise = HLSearch.refreshList(query, type, '', sortColumn, nameColumn);
 
         if (searchPromise) {
             searchPromise.$promise.then(function(data) {
@@ -191,6 +201,8 @@ function EditableSelectController($scope, HLResource, HLSearch, HLUtils) {
                 // es.selectModel, so update it manually.
                 es.selectModel = es.object[es.field];
             }
+        }).catch(function() {
+            HLUtils.unblockUI(form);
         });
     }
 }

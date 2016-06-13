@@ -11,19 +11,8 @@ def to_lower_case(apps, schema_editor):
     # Loop reversed so tags can also be deleted.
     for tag in reversed(tags):
         tag.update_modified = False
-
-        cnt = Tag.objects.filter(
-            name=tag.name.lower,
-            object_id=tag.object_id,
-            content_type_id=tag.content_type_id).count()
-        if cnt > 0:
-            # After converting to lowercase the new tag would yield in a
-            # IntegrityError: duplicate key value violates unique constraint
-            # so this tag is redundant.
-            Tag.objects.filter(id=tag.id).delete()
-        else:
-            tag.name = tag.name.lower()
-            tag.save()
+        tag.name = tag.name.lower()
+        tag.save()
 
 
 def delete_tags(apps, schema_editor):

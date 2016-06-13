@@ -21,5 +21,3 @@ class CaseTests(TestCase):
 
         case.save(update_modified=True)
         self.assertNotEqual(modified, case.modified)
-
-

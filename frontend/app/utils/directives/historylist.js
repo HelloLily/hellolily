@@ -1,9 +1,9 @@
 angular.module('app.utils.directives').directive('historyList', HistoryListDirective);
 
-HistoryListDirective.$inject = ['$filter', '$http', '$q', '$state', '$uibModal', 'EmailAccount',
-    'Note', 'NoteDetail', 'Case', 'Deal', 'EmailDetail', 'User', 'HLGravatar', 'HLUtils'];
-function HistoryListDirective($filter, $http, $q, $state, $uibModal, EmailAccount,
-                              Note, NoteDetail, Case, Deal, EmailDetail, User, HLGravatar, HLUtils) {
+HistoryListDirective.$inject = ['$filter', '$q', '$state', 'Case', 'Deal', 'EmailAccount', 'EmailDetail', 'HLGravatar',
+    'HLResource', 'HLUtils', 'Note', 'NoteDetail', 'User'];
+function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, EmailDetail, HLGravatar,
+                              HLResource, HLUtils, Note, NoteDetail, User) {
     return {
         restrict: 'E',
         replace: true,
@@ -34,8 +34,8 @@ function HistoryListDirective($filter, $http, $q, $state, $uibModal, EmailAccoun
             scope.history.loadMore = loadMore;
             scope.history.reloadHistory = reloadHistory;
             scope.history.addNote = addNote;
-            scope.history.editNote = editNote;
             scope.history.pinNote = pinNote;
+            scope.history.updateModel = updateModel;
             scope.history.removeFromList = removeFromList;
             scope.history.filterType = filterType;
 
@@ -342,23 +342,13 @@ function HistoryListDirective($filter, $http, $q, $state, $uibModal, EmailAccoun
                 });
             }
 
-            function editNote(note) {
-                var modalInstance = $uibModal.open({
-                    templateUrl: 'utils/controllers/note_edit.html',
-                    controller: 'EditNoteModalController',
-                    controllerAs: 'vm',
-                    bindToController: true,
-                    size: 'lg',
-                    resolve: {
-                        note: function() {
-                            return Note.get({id: note.id}).$promise;
-                        },
-                    },
-                });
+            function updateModel(data, field, note, type) {
+                var patchPromise;
+                var args = HLResource.createArgs(data, field, note);
 
-                modalInstance.result.then(function() {
-                    reloadHistory();
-                });
+                patchPromise = HLResource.patch(type, args).$promise;
+
+                return patchPromise;
             }
 
             function pinNote(note, isPinned) {

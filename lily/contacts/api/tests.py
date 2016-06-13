@@ -121,7 +121,7 @@ class ContactTests(GenericAPITestCase):
         contact['accounts'] = [{'id': account_id}, ]
         del contact['phone_numbers']  # Clear phone_numbers, only check account referencing.
         request = self.user.post(self.get_url(self.list_url), contact)
-        self.assertStatus(request, status.HTTP_400_BAD_REQUEST,contact)
+        self.assertStatus(request, status.HTTP_400_BAD_REQUEST, contact)
         self.assertEqual(request.data, {
             'accounts': [{
                 'id': ['The id must point to an existing object.']

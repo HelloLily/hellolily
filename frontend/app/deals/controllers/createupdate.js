@@ -261,7 +261,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
         } else if (Settings.email.sidebar.isVisible && !archive) {
             ga('send', 'event', 'Deal', 'Save', 'Email Sidebar');
         } else if (!Settings.email.sidebar.isVisible && archive) {
-            if($stateParams.accountId){
+            if ($stateParams.accountId) {
                 ga('send', 'event', 'Deal', 'Save and archive', 'Account Widget');
             } else if ($stateParams.contactId) {
                 ga('send', 'event', 'Deal', 'Save and archive', 'Contact Widget');
@@ -269,7 +269,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
                 ga('send', 'event', 'Deal', 'Save and archive', 'Default');
             }
         } else {
-            if($stateParams.accountId){
+            if ($stateParams.accountId) {
                 ga('send', 'event', 'Deal', 'Save', 'Account Widget');
             } else if ($stateParams.contactId) {
                 ga('send', 'event', 'Deal', 'Save', 'Contact Widget');

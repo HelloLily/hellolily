@@ -30,7 +30,3 @@ class StatsTests(TestCase):
             # Loop over deal patterns, these need no kwargs.
             response = self.client.get(reverse(pattern.name))
             self.assertEqual(response.status_code, 200)
-
-
-
-

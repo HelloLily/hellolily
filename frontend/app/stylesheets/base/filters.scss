@@ -1,59 +1,59 @@
 // Fix to make sure the filters in the widgets don't reposition because of the
 // 50% width their parent col-md-6 has.
 .tools {
-  @media (min-width: 992px) {
-    width: 65%;
-  }
+    @media (min-width: 992px) {
+        width: 65%;
+    }
 }
 
 .due-date-filter-toggle {
-  display: none;
+    display: none;
 
-  i:first-child {
-    margin-right: 5px;
-  }
-
-  i {
-    margin-top: 0;
-    pointer-events: none;
-  }
-
-  @media (max-width: $breakpoint-tablet) {
-    font-size: 14px;
-    margin-right: 5px;
-    margin-top: 2px;
-    background-color: white;
-    display: inline;
-    padding: 6px 15px 7px;
-    border-radius: 25px;
-    border: 1px solid #CCC;
-    position: relative;
-    top: 2px;
-    color: #aaa;
-
-    &:hover {
-      text-decoration: none;
-      background: #ededed;
-      border-color: #b3b3b3;
+    i:first-child {
+        margin-right: 5px;
     }
-  }
+
+    i {
+        margin-top: 0;
+        pointer-events: none;
+    }
+
+    @media (max-width: $breakpoint-tablet) {
+        font-size: 14px;
+        margin-right: 5px;
+        margin-top: 2px;
+        background-color: #fff;
+        display: inline;
+        padding: 6px 15px 7px;
+        border-radius: 25px;
+        border: 1px solid #ccc;
+        position: relative;
+        top: 2px;
+        color: #aaa;
+
+        &:hover {
+            text-decoration: none;
+            background: #ededed;
+            border-color: #b3b3b3;
+        }
+    }
 }
 
 .due-date-filter-container {
     display: inline;
 
     @media (max-width: $breakpoint-tablet) {
-        background-color: white;
+        background-color: #fff;
         display: none;
 
         &.is-open {
-      display: block;
-      position: absolute;
-      z-index: 99;
-      left: 1px;
-      right: 1px;
-      padding-top: 10px;
-      border-bottom: 1px solid $lilyBorderDark;
+            display: block;
+            position: absolute;
+            z-index: 99;
+            left: 1px;
+            right: 1px;
+            padding-top: 10px;
+            border-bottom: 1px solid $lily-border-dark;
 
             label {
                 display: block;
@@ -61,8 +61,8 @@
                 text-align: center;
 
                 &.active {
-                    color: $lilyBlue;
-                    background: white;
+                    color: $lily-blue;
+                    background: #fff;
                 }
             }
         }

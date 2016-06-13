@@ -1,35 +1,34 @@
 //Fonts
 @import url(https://fonts.googleapis.com/css?family=Roboto:400,300,500,700);
-@import 'fonts/lilicon';
+@import "fonts/lilicon";
 // Primary requirements
-@import 'variables';
-@import 'mixins';
-@import 'contacts/accounts';
-@import 'contacts/users';
-@import 'base/avatars';
-@import 'base/inputs';
-@import 'base/icons';
-@import 'base/header';
-@import 'base/dropdown';
-@import 'base/historylist';
-@import 'base/lists';
+@import "variables";
+@import "mixins";
+@import "contacts/accounts";
+@import "contacts/users";
+@import "base/avatars";
+@import "base/inputs";
+@import "base/icons";
+@import "base/header";
+@import "base/dropdown";
+@import "base/historylist";
+@import "base/lists";
 @import "base/mainnav";
 @import "base/labels";
-@import 'base/buttons';
-@import 'base/button-group';
-@import 'base/checkbox';
-@import 'base/forms';
-@import 'base/filters';
-@import 'base/widget';
+@import "base/buttons";
+@import "base/button-group";
+@import "base/checkbox";
+@import "base/forms";
+@import "base/filters";
+@import "base/widget";
 @import "base/filter-group";
-@import 'base/tables';
-@import 'cases/cases';
-@import 'deals/deals';
-@import 'mail/inbox';
-@import 'mail/email';
-@import 'base/generic';
-@import 'vendor';
-
+@import "base/tables";
+@import "cases/cases";
+@import "deals/deals";
+@import "mail/inbox";
+@import "mail/email";
+@import "base/generic";
+@import "vendor";
 
 body {
     font-family: 'Roboto', sans-serif !important;
@@ -37,59 +36,61 @@ body {
 }
 
 small {
-  text-transform: lowercase;
+    text-transform: lowercase;
 }
 
 table {
-  .table.table-bordered.table-striped.flip-content {
-    td, th {
-      min-height: 38px;
+    .table.table-bordered.table-striped.flip-content {
+        td,
+        th {
+            min-height: 38px;
+        }
     }
-  }
-  th {
-    vertical-align: top !important;
-  }
+
+    th {
+        vertical-align: top !important;
+    }
 }
 
 a {
     color: $app-link-color;
 
     &:hover {
-        color: $app-color-darkBlue;
+        color: $app-color-darkblue;
     }
 
-  &.link-no-decoration {
-    text-decoration: none;
-    color: inherit;
+    &.link-no-decoration {
+        text-decoration: none;
+        color: inherit;
     }
 }
 
-@media (min-width: $breakpoint-laptop){
+@media (min-width: $breakpoint-laptop) {
     .page-container {
         margin-left: auto;
         margin-right: auto;
         max-width: 1800px;
-  }
+    }
 }
 
 .btn-group {
-  &.btn-group-devided {
-    .btn {
-      min-width: 4em;
+    &.btn-group-devided {
+        .btn {
+            min-width: 4em;
+        }
     }
-  }
 }
 
 // Overwrite bootstrap class for specific checkbox fields
 .form-horizontal .form-group {
-  &.form-group-checkbox-field {
+    &.form-group-checkbox-field {
         @media (min-width: $breakpoint-laptop) {
-      margin-left: 17.2%;
+            margin-left: 17.2%;
+        }
     }
-  }
 }
 
 .blockOverlay {
-    background: lighten($app-color-darkBlue,30) !important;
+    background: lighten($app-color-darkblue, 30) !important;
     opacity: 0.1 !important;
 }

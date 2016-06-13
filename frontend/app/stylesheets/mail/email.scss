@@ -1,225 +1,227 @@
 .email-nav,
 .email-compose-button-container {
-  padding: 0;
-  margin: 0;
-  list-style-type: none;
-  margin-bottom: 20px;
-  position: relative;
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+    margin-bottom: 20px;
+    position: relative;
 }
 
 .email-nav-header-title {
-  float: left;
-  width: 100%;
-  padding: 8px;
-  cursor: pointer;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding-right: 40px;
-  padding-left: 15px;
+    float: left;
+    width: 100%;
+    padding: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 40px;
+    padding-left: 15px;
 }
 
 .email-nav-header {
     color: #fff;
-    background: $app-color-darkBlue;
-  display: block;
-  font-size: 15px;
-  border-left: none;
-  text-align: left;
+    background: $app-color-darkblue;
+    display: block;
+    font-size: 15px;
+    border-left: 0;
+    text-align: left;
     margin-right: -1px;
     margin-top: -1px;
     margin-left: -1px;
 }
 
 .email-nav-header-icon {
-  cursor: pointer;
-  position: absolute;
-  right: 10px;
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
     top: 8px;
     line-height: 20px;
     font-size: 12px;
     min-width: 20px;
-  text-align: center;
-  border-radius: 5px;
-    color: $app-color-darkBlue;
-    background: rgba(255,255,255,0.3);
+    text-align: center;
+    border-radius: 5px;
+    color: $app-color-darkblue;
+    background: rgba(255, 255, 255, 0.3);
 
-  &:hover {
-        color: $app-color-darkBlue;
+    &:hover {
+        color: $app-color-darkblue;
         background: #fff;
-  }
+    }
 }
 
 .email-nav {
-  background: #ffffff;
-  border: 1px solid $lilyBorderDark;
+    background: #fff;
+    border: 1px solid $lily-border-dark;
 
-  li {
-    .email-nav-item {
-      color: $lilyDarkBlue;
-      padding: 0px 15px;
-      line-height: 40px;
-      position: relative;
-      border-top: 1px solid transparent;
-      border-bottom: 1px solid transparent;
-      overflow: hidden;
-      text-overflow: ellipsis;
-
-      &:hover {
-        background-color: $lilyWhiteToneHover;
-      }
-    }
-
-    &.active {
-      .email-nav-item {
-        color: $lilyDarkBlue;
-        border-bottom: 1px solid $lilyBorderLight;
-        border-top: 1px solid $lilyBorderLight;
-        background: $lilyWhiteToneHover;
-      }
-    }
-
-    &:first-child {
-      &.active {
+    li {
         .email-nav-item {
-          border-top: 1px solid transparent;
-        }
-      }
-    }
+            color: $lily-dark-blue;
+            padding: 0 15px;
+            line-height: 40px;
+            position: relative;
+            border-top: 1px solid transparent;
+            border-bottom: 1px solid transparent;
+            overflow: hidden;
+            text-overflow: ellipsis;
 
-    &:last-child {
-      &.active {
-        .email-nav-item {
-          border-bottom: 1px solid transparent;
+            &:hover {
+                background-color: $lily-white-tone-hover;
+            }
         }
-      }
+
+        &.active {
+            .email-nav-item {
+                color: $lily-dark-blue;
+                border-bottom: 1px solid $lily-border-light;
+                border-top: 1px solid $lily-border-light;
+                background: $lily-white-tone-hover;
+            }
+        }
+
+        &:first-child {
+            &.active {
+                .email-nav-item {
+                    border-top: 1px solid transparent;
+                }
+            }
+        }
+
+        &:last-child {
+            &.active {
+                .email-nav-item {
+                    border-bottom: 1px solid transparent;
+                }
+            }
+        }
     }
-  }
 }
 
-.unread-count, .label-count {
-  font-size: 12px;
-  padding: 3px 8px;
-  border: 1px solid $lilyBorderDark;
-  border-radius: 5px;
-  color: $lilyDarkBlue;
-  right: 10px;
-  top: 8px;
-  position: absolute;
-  line-height: 16px;
-  margin-right: 0;
+.unread-count,
+.label-count {
+    font-size: 12px;
+    padding: 3px 8px;
+    border: 1px solid $lily-border-dark;
+    border-radius: 5px;
+    color: $lily-dark-blue;
+    right: 10px;
+    top: 8px;
+    position: absolute;
+    line-height: 16px;
+    margin-right: 0;
 }
 
 .inbox-content {
     background-color: #fff;
-  border: 1px solid $lilyBorderDark;
-  border-top: 0;
+    border: 1px solid $lily-border-dark;
+    border-top: 0;
 
-  tfoot {
+    tfoot {
         background-color: #fff;
         border-top: 2px solid $app-border-color;
 
-    @media (max-width: $breakpoint-mobile) {
-      display: block;
+        @media (max-width: $breakpoint-mobile) {
+            display: block;
+        }
     }
-  }
 
-  tbody {
-    border-bottom: 1px solid $lilyBorderDark;
+    tbody {
+        border-bottom: 1px solid $lily-border-dark;
 
-    tr {
+        tr {
 
-      height: 50px;
-      background: #ffffff;
+            height: 50px;
+            background: #fff;
 
-      td {
-        vertical-align: middle;
-        padding: 6px;
-        border-top: 1px solid $lilyBorderLight;
-        padding-right: 16px;
+            td {
+                vertical-align: middle;
+                padding: 6px;
+                border-top: 1px solid $lily-border-light;
+                padding-right: 16px;
 
-        &:first-child {
-          padding-left: 8px;
-        }
+                &:first-child {
+                    padding-left: 8px;
+                }
 
-        &.inbox-small-cells {
-          width: 20px;
-        }
-      }
+                &.inbox-small-cells {
+                    width: 20px;
+                }
+            }
 
-      thead th {
-        background: #edf0f8;
-        border-bottom: 0;
-      }
+            thead th {
+                background: #edf0f8;
+                border-bottom: 0;
+            }
 
             &:nth-of-type(odd) {
-        background: #ffffff;
-      }
+                background: #fff;
+            }
 
-      &.unread {
-        font-weight: bold;
-        background: $lilyWhiteToneHover;
-      }
+            &.unread {
+                font-weight: bold;
+                background: $lily-white-tone-hover;
+            }
 
-      &:hover {
-        background: $lilyWhiteToneHover;
-      }
-    }
+            &:hover {
+                background: $lily-white-tone-hover;
+            }
+        }
 
         @media (max-width: $breakpoint-mobile) {
-      width: 100%;
-      overflow-x: scroll;
-      display: inline-block;
+            width: 100%;
+            overflow-x: scroll;
+            display: inline-block;
+        }
     }
-  }
 
-  thead {
-    position: relative;
-    border-top: 1px solid $lilyWhiteTone;
-    tr th > label {
-      width: 50px;
+    thead {
+        position: relative;
+        border-top: 1px solid $lily-white-tone;
+
+        tr th > label {
+            width: 50px;
 
             @media (max-width: $breakpoint-mobile) {
-        position: absolute;
-        bottom: 5px;
-        left: 8px;
-      }
-    }
+                position: absolute;
+                bottom: 5px;
+                left: 8px;
+            }
+        }
 
         @media (max-width: $breakpoint-mobile) {
-      display: inline-block;
+            display: inline-block;
+        }
     }
-  }
 
-  table {
-    margin-bottom: 0;
+    table {
+        margin-bottom: 0;
 
-    thead th {
+        thead th {
             background: #fff;
             border-bottom: 2px solid $app-border-color;
-    }
+        }
 
         @media (max-width: $breakpoint-mobile) {
-      display: inline-block;
-      width: 100%;
+            display: inline-block;
+            width: 100%;
+        }
     }
-  }
 
     @media (max-width: $breakpoint-mobile) {
-
-    .table > thead > tr > th {
-      padding: 10px;
+        .table > thead > tr > th {
+            padding: 10px;
+        }
     }
-  }
 }
 
 .email-nav-item {
-  font-size: 14px;
-  display: block;
+    font-size: 14px;
+    display: block;
 
-  &:hover, &:focus {
-    text-decoration: none;
-  }
+    &:hover,
+    &:focus {
+        text-decoration: none;
+    }
 }
 
 .email-compose-button {
@@ -227,129 +229,128 @@
     text-transform: uppercase;
     font-weight: 600;
     color: #fff;
-  width: 100%;
-  display: block;
-  line-height: 40px;
-  border-radius: 4px;
+    width: 100%;
+    display: block;
+    line-height: 40px;
+    border-radius: 4px;
     font-size: 14px;
     -webkit-font-smoothing: antialiased;
-  text-align: center;
-  text-decoration: none;
-
-  i {
-    font-weight: bold;
-  }
-
-  &:hover {
-        color: #fff;
+    text-align: center;
     text-decoration: none;
+
+    i {
+        font-weight: bold;
+    }
+
+    &:hover {
+        color: #fff;
+        text-decoration: none;
         background: darken($app-color-mint, 10);
-  }
+    }
 
-  &:visited,
-  &:focus {
+    &:visited,
+    &:focus {
         color: #fff;
-    text-decoration: none;
-  }
+        text-decoration: none;
+    }
 }
 
 .create-sidebar .portlet.light {
-  padding: 0;
+    padding: 0;
 
-  .form-body {
-    padding: 15px;
-  }
+    .form-body {
+        padding: 15px;
+    }
 
-  .form-horizontal {
-    border: 1px solid $lilyBorderDark;
-  }
+    .form-horizontal {
+        border: 1px solid $lily-border-dark;
+    }
 
-  .inbox-view-header {
-    margin-bottom: 0;
-    border-bottom: 0;
-  }
+    .inbox-view-header {
+        margin-bottom: 0;
+        border-bottom: 0;
+    }
 }
 
 .email-inbox-header {
-  overflow: hidden;
-  margin-bottom: -1px; // to prevent double borders when above .hl-form-body
+    overflow: hidden;
+    margin-bottom: -1px; // to prevent double borders when above .hl-form-body
 }
 
 .email-inbox-header,
 .email-inbox-actions-header,
 .email-inbox-compose-options,
 .email-reply-actions-header {
-  background-color: $lilyHeaderBg;
-  padding: 10px 20px;
-  border: 1px solid $lilyBorderDark;
-  position: relative;
+    background-color: $lily-header-bg;
+    padding: 10px 20px;
+    border: 1px solid $lily-border-dark;
+    position: relative;
 
-  &:before {
-    height: 1px;
-    display: block;
-    content: "";
-    background: $lilyWhiteTone;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-  }
+    &:before {
+        height: 1px;
+        display: block;
+        content: "";
+        background: $lily-white-tone;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+    }
 
-  h1 {
-    font-size: 20px;
-    margin: 0;
-    line-height: 33px;
-    color: $lilyDarkBlue;
-    font-weight: 600;
-  }
+    h1 {
+        font-size: 20px;
+        margin: 0;
+        line-height: 33px;
+        color: $lily-dark-blue;
+        font-weight: 600;
+    }
 }
 
 .email-inbox-actions-header {
-  border-top: none;
+    border-top: 0;
 
-  @media (max-width: $breakpoint-mobile) {
-    padding: 10px;
-  }
+    @media (max-width: $breakpoint-mobile) {
+        padding: 10px;
+    }
 }
 
 .email-inbox-compose-options {
-  border: none;
+    border: 0;
 }
 
 .email-reply-actions-header {
-  border: none;
+    border: 0;
 
-  &:before {
-    top: -2px;
-  }
+    &:before {
+        top: -2px;
+    }
 }
 
 .email-inbox-compose-options {
-  border: none;
+    border: 0;
 }
 
 .email-inbox-search {
-  position: absolute;
-  right: 10px;
-  top: 10px;
+    position: absolute;
+    right: 10px;
+    top: 10px;
 
-  @media (max-width: $breakpoint-tablet) {
-    position: relative;
-    right: 0px;
-    margin-bottom: 10px;
-  }
+    @media (max-width: $breakpoint-tablet) {
+        position: relative;
+        right: 0;
+        margin-bottom: 10px;
+    }
 }
 
 .email-inbox-search-button {
     background: $app-color-aqua;
-  border: none;
-  height: 34px;
-  width: 30px;
-  color: #ffffff;
-  border: none;
-  border-top-right-radius: 4px;
-  border-bottom-right-radius: 4px;
-  box-sizing: border-box;
+    border: 0;
+    height: 34px;
+    width: 30px;
+    color: #fff;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    box-sizing: border-box;
 
     &:hover {
         background: darken($app-color-aqua, 10);
@@ -357,203 +358,203 @@
 }
 
 .email-inbox-actions {
-  margin: 0;
-  padding: 0;
-  list-style-type: none;
-  margin-right: 10px;
-  display: inline-block;
-  vertical-align: top;
-
-  li {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    margin-right: 10px;
     display: inline-block;
-    vertical-align: middle;
-    box-sizing: border-box;
-    line-height: 30px;
-    border: 1px solid $lilyBorderDark;
-    border-right: 0;
+    vertical-align: top;
 
-    a,
-    button {
-      height: 100%;
-      display: block;
-      color: $lilyDarkBlue;
-      border: none;
-      border-top: 1px solid $lilyWhiteTone;
-      padding: 0px 10px;
-      background: none;
+    li {
+        display: inline-block;
+        vertical-align: middle;
+        box-sizing: border-box;
+        line-height: 30px;
+        border: 1px solid $lily-border-dark;
+        border-right: 0;
 
-      &:hover, &:focus {
-        text-decoration: none;
-        background: lighten($lilyHeaderBg, 2);
-      }
+        a,
+        button {
+            height: 100%;
+            display: block;
+            color: $lily-dark-blue;
+            border: 0;
+            border-top: 1px solid $lily-white-tone;
+            padding: 0 10px;
+            background: none;
 
-      &.email-inbox-primary {
-        background: $lilyGreen;
-        color: $lilyWhiteTone;
-        border: none;
-      }
-    }
+            &:hover,
+            &:focus {
+                text-decoration: none;
+                background: lighten($lily-header-bg, 2);
+            }
 
-    &:first-child {
-      border-top-left-radius: 4px;
-      border-bottom-left-radius: 4px;
-
-      a,
-      button {
-        border-top-left-radius: 4px;
-        border-bottom-left-radius: 4px;
-      }
-    }
-
-    &:last-child {
-      border-right: 1px solid $lilyBorderDark;
-      border-top-right-radius: 4px;
-      border-bottom-right-radius: 4px;
-
-      a,
-      button {
-        border-top-right-radius: 4px;
-        border-bottom-right-radius: 4px;
-      }
-    }
-
-    .dropdown-menu {
-
-      li {
-        display: block;
-        border: 0;
-        border-radius: 0;
-
-        a {
-          padding: 10px 0px 10px 10px;
+            &.email-inbox-primary {
+                background: $lily-green;
+                color: $lily-white-tone;
+                border: 0;
+            }
         }
-      }
+
+        &:first-child {
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+
+            a,
+            button {
+                border-top-left-radius: 4px;
+                border-bottom-left-radius: 4px;
+            }
+        }
+
+        &:last-child {
+            border-right: 1px solid $lily-border-dark;
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+
+            a,
+            button {
+                border-top-right-radius: 4px;
+                border-bottom-right-radius: 4px;
+            }
+        }
+
+        .dropdown-menu {
+            li {
+                display: block;
+                border: 0;
+                border-radius: 0;
+
+                a {
+                    padding: 10px 0 10px 10px;
+                }
+            }
+        }
     }
-  }
 
     @media (max-width: $breakpoint-tablet) {
-    margin-right: 2px;
-    margin-bottom: 10px;
-  }
-
-  @media (max-width: $breakpoint-mobile) {
-    &.is-full-mobile {
-      width: 100%;
+        margin-right: 2px;
+        margin-bottom: 10px;
     }
-  }
+
+    @media (max-width: $breakpoint-mobile) {
+        &.is-full-mobile {
+            width: 100%;
+        }
+    }
 }
 
 .email-inbox-supercard-nav {
-  float: right;
-  margin-right: 0;
+    float: right;
+    margin-right: 0;
 
-  @media (max-width: $breakpoint-tablet) {
-    float: none;
-  }
+    @media (max-width: $breakpoint-tablet) {
+        float: none;
+    }
 
-  @media (max-width: $breakpoint-mobile) {
-    margin-top: 10px;
-  }
+    @media (max-width: $breakpoint-mobile) {
+        margin-top: 10px;
+    }
 }
 
 .create-sidebar .portlet.light {
-  padding: 0;
+    padding: 0;
 
-  .form-body {
-    padding: 15px;
-  }
+    .form-body {
+        padding: 15px;
+    }
 
-  .form-horizontal {
-    border: 1px solid $lilyBorderDark;
-  }
+    .form-horizontal {
+        border: 1px solid $lily-border-dark;
+    }
 
-  .inbox-view-header {
-    margin-bottom: 0;
-    border-bottom: 0;
-  }
+    .inbox-view-header {
+        margin-bottom: 0;
+        border-bottom: 0;
+    }
 }
 
 .email-content-container {
     background: #fff;
-  padding: 20px;
-  border: 1px solid $lilyBorderDark;
-  border-top: none;
-  overflow: hidden;
-  text-overflow: ellipsis;
+    padding: 20px;
+    border: 1px solid $lily-border-dark;
+    border-top: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
 
     @media (max-width: $breakpoint-tablet) {
-    padding-left: 10px;
-  }
+        padding-left: 10px;
+    }
 }
 
 .email-pagination {
-  margin: 0;
-  padding: 0;
-  list-style-type: none;
-  float: left;
-  line-height: $button-height;
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    float: left;
+    line-height: $button-height;
 
-  li {
-    display: inline-block;
-    vertical-align: middle;
+    li {
+        display: inline-block;
+        vertical-align: middle;
 
-    &.email-pagination-page-info {
-      padding-right: 10px;
-      font-weight: normal;
+        &.email-pagination-page-info {
+            padding-right: 10px;
+            font-weight: normal;
+        }
     }
-  }
 }
 
 .email-pagination-arrow {
-  width: 30px;
-  height: 30px;
-  display: inline-block;
-  border: 1px solid $lilyBorderDark;
-
-  a {
-    position: relative;
-    height: 100%;
-    width: 100%;
+    width: 30px;
+    height: 30px;
     display: inline-block;
-    border-top: 1px solid $lilyWhiteTone;
-    border-radius: 4px;
-  }
+    border: 1px solid $lily-border-dark;
 
-  i {
-    margin-top: 0;
-    position: absolute;
-    line-height: 27px;
-    left: 2px;
-    font-size: 18px;
-    color: $lilyDarkBlue;
-  }
+    a {
+        position: relative;
+        height: 100%;
+        width: 100%;
+        display: inline-block;
+        border-top: 1px solid $lily-white-tone;
+        border-radius: 4px;
+    }
 
-  &.left {
-    border-top-left-radius: 4px;
-    border-bottom-left-radius: 4px;
-    border-right: 0;
-  }
+    i {
+        margin-top: 0;
+        position: absolute;
+        line-height: 27px;
+        left: 2px;
+        font-size: 18px;
+        color: $lily-dark-blue;
+    }
 
-  &.right {
-    border-top-right-radius: 4px;
-    border-bottom-right-radius: 4px;
-  }
+    &.left {
+        border-top-left-radius: 4px;
+        border-bottom-left-radius: 4px;
+        border-right: 0;
+    }
+
+    &.right {
+        border-top-right-radius: 4px;
+        border-bottom-right-radius: 4px;
+    }
 }
 
 .email-reply-meta-container {
-  padding: 10px 20px;
+    padding: 10px 20px;
 }
 
 .email-content {
-  width: 100%;
+    width: 100%;
 }
 
 .email-inbox-action-desc {
-  display: inline;
+    display: inline;
 
     @media (max-width: $breakpoint-tablet) {
-    display: none;
-  }
+        display: none;
+    }
 }
 
 // Metronic overrides for this branch for now to make it a bit neater
@@ -561,47 +562,48 @@
 // container and associated HTML/CSS.
 
 .mail-attachments {
-  padding-left: 20px;
+    padding-left: 20px;
 }
 
 .email-compose {
-  padding: 10px;
+    padding: 10px;
 }
 
 .inbox-compose {
-  background: #ffffff;
-  .inbox-form-group > label {
-    text-align: left;
-  }
+    background: #fff;
+
+    .inbox-form-group > label {
+        text-align: left;
+    }
 }
 
 div.checker {
-  margin-left: 10px;
-  margin-right: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
 
     @media (max-width: $breakpoint-tablet) {
-    margin-left: 0px;
-  }
+        margin-left: 0;
+    }
 }
 
 .email-recipients span {
-  display: inline;
+    display: inline;
 }
 
 .email-reply-meta-container {
-  padding: 10px 20px;
+    padding: 10px 20px;
 }
 
 .email-content {
-  width: 100%;
+    width: 100%;
 }
 
 .email-info-top {
-  .fa-star,
-  .fa-star-o {
-    vertical-align: middle;
-    margin-right: 5px;
-  }
+    .fa-star,
+    .fa-star-o {
+        vertical-align: middle;
+        margin-right: 5px;
+    }
 }
 
 .fa-star-o {

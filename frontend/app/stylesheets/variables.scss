@@ -9,66 +9,66 @@ can be adjusted.
 Variables should be named in a manner that the values can easily be changed. To
 give an example a variable like `$red: #dfba49;` is not a well named variable.
 It can never contain a blue value. Instead a variable name like
-`$criticalPrioColor: #dfba49;` is prefered. This variable name creates meaning to it.
+`$critical-prio-color: #dfba49;` is prefered. This variable name creates meaning to it.
 */
 
 // NEW COLORS
-$app-color-darkBlue: #27244c;
-$app-color-purple: #9F5EDC;
-$app-color-aqua: #3EB8E0;
-$app-color-mint: #55DCC3;
-$app-color-red: #FF4257;
-$app-color-yellow: #FFD657;
-$app-color-grey: #B4B4C0;
+$app-color-darkblue: #27244c;
+$app-color-purple: #9f5edc;
+$app-color-aqua: #3eb8e0;
+$app-color-mint: #55dcc3;
+$app-color-red: #ff4257;
+$app-color-yellow: #ffd657;
+$app-color-grey: #b4b4c0;
 
-$app-border-color: #E1E6EF;
+$app-border-color: #e1e6ef;
 
-$app-bg-color: #EFF0F8;
+$app-bg-color: #eff0f8;
 $app-link-color: $app-color-aqua;
 
 // Colors
-$lightGrey: #f5f6fa;
+$light-grey: #f5f6fa;
 
-$lilyBlue: #5b9bd1;
-$lilyGrey: #e9ecf3;
+$lily-blue: #5b9bd1;
+$lily-grey: #e9ecf3;
 
-$skyGrey: #eff2f9;
-$baseBorderColor: #D1D1D6;
-$lightBorderColor: #EFF2F8;
+$sky-grey: #eff2f9;
+$base-border-color: #d1d1d6;
+$light-border-color: #eff2f8;
 
-$lilyBorderDark: $baseBorderColor;
-$lilyBorderLight: #EEF2F6;
-$lilyWhiteTone: #fcfcfe;
-$lilyWhiteToneHover: #F7F8FD;
-$lilyDarkBlue: #5b667b;
-$lilyGreen: #01B55F;
-$lilyHeaderBg: #edf0f8;
+$lily-border-dark: $base-border-color;
+$lily-border-light: #eef2f6;
+$lily-white-tone: #fcfcfe;
+$lily-white-tone-hover: #f7f8fd;
+$lily-dark-blue: #5b667b;
+$lily-green: #01b55f;
+$lily-header-bg: #edf0f8;
 
-$navyBlue: $lilyDarkBlue;
+$navy-blue: $lily-dark-blue;
 
-$bulletColor1: #7dc9fa;
-$bulletColor2: #c6a0f0;
-$bulletColor3: #94efac;
-$bulletColor4: #ffd66f;
-$bulletColor5: #6c8ce6;
-$bulletColor6: #ff9a4f;
+$bullet-color-1: #7dc9fa;
+$bullet-color-2: #c6a0f0;
+$bullet-color-3: #94efac;
+$bullet-color-4: #ffd66f;
+$bullet-color-5: #6c8ce6;
+$bullet-color-6: #ff9a4f;
 
 // Item type colors
-$caseColor: $app-color-purple;
-$emailColor: $app-color-aqua;
-$dealColor: $app-color-mint;
-$noteColor: $app-color-yellow;
-$contactColor: $app-color-grey;
-$accountColor: $app-color-grey;
+$case-color: $app-color-purple;
+$email-color: $app-color-aqua;
+$deal-color: $app-color-mint;
+$note-color: $app-color-yellow;
+$contact-color: $app-color-grey;
+$account-color: $app-color-grey;
 
 // Priority colors
-$lowPrioColor: #A0E0D4;
-$mediumPrioColor: #97D5FF;
-$highPrioColor: #FFD191;
-$criticalPrioColor: #FF7097;
+$low-prio-color: #a0e0d4;
+$medium-prio-color: #97d5ff;
+$high-prio-color: #ffd191;
+$critical-prio-color: #ff7097;
 
 // Borders
-$baseBorderRadius: 4px;
+$base-border-radius: 4px;
 
 // Buttons
 $button-height: 30px;

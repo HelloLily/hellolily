@@ -8,7 +8,7 @@ The Angular part of Lily was built with the `John Papa Angular style guide <http
 
 Basics
 ******
-Let's start with the basics; the coding style. You can check our ESLint rules in the ``.eslintrc`` file and the scss-lint rules in the ``.sass-lint.yml`` file. Both located in the root of the Lily app. Here's a small excerpt of some general coding style rules.
+Let's start with the basics; the coding style. You can check our ESLint rules in the ``.eslintrc`` file and the scss-lint rules in the ``.scss-lint.yml`` file. Both located in the root of the Lily app. Here's a small excerpt of some general coding style rules.
 
 Naming conventions
 ==================

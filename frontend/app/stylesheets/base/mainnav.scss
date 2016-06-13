@@ -25,7 +25,7 @@
     line-height: $header-height;
 
     i {
-        color: rgba(255,255,255,0.5);
+        color: rgba(255, 255, 255, 0.5);
         font-size: 18px;
         line-height: $header-height;
 
@@ -34,7 +34,7 @@
         }
     }
 
-    @media (max-width: 510px){
+    @media (max-width: 510px) {
         display: block;
     }
 }
@@ -52,35 +52,35 @@
     }
 
     @media (max-width: 1085px) {
-        margin: 0px;
+        margin: 0;
     }
 
     @media (max-width: 510px) {
         margin: 0;
         display: block;
         width: 100%;
-        border-bottom: 1px rgba(255,255,255,0.3) solid;
+        border-bottom: 1px rgba(255, 255, 255, 0.3) solid;
 
         &:first-child {
-            border-top: 1px rgba(255,255,255,0.3) solid;
+            border-top: 1px rgba(255, 255, 255, 0.3) solid;
         }
     }
 
     .title {
         display: inline-block;
 
-        @media (max-width: 910px){
+        @media (max-width: 910px) {
             display: none;
         }
 
-        @media (max-width: 510px){
+        @media (max-width: 510px) {
             display: inline-block;
         }
     }
 }
 
 .main-nav-item a {
-    color: rgba(255,255,255,0.5);
+    color: rgba(255, 255, 255, 0.5);
     line-height: $header-height;
     text-decoration: none;
     font-size: 16px;

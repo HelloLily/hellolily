@@ -21,5 +21,3 @@ class DealTests(TestCase):
 
         deal.save(update_modified=True)
         self.assertNotEqual(modified, deal.modified)
-
-

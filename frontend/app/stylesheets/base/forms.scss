@@ -1,142 +1,138 @@
-.collapsable-portlet {
-
-}
-
 .collapsable-portlet-heading {
-  line-height: 50px;
-  border-bottom: 1px #e7ecf1 solid;
-  color: #5b667b;
-  margin-bottom: 10px;
+    line-height: 50px;
+    border-bottom: 1px #e7ecf1 solid;
+    color: #5b667b;
+    margin-bottom: 10px;
 }
 
 .portlet-heading-title {
-  font-size: 18px;
-  font-weight: 600;
+    font-size: 18px;
+    font-weight: 600;
 }
 
 .portlet-heading-icon {
-  float: right;
-
-  i {
     float: right;
-    line-height: 50px;
-    font-size: 24px;
-    margin: 0;
-  }
+
+    i {
+        float: right;
+        line-height: 50px;
+        font-size: 24px;
+        margin: 0;
+    }
 }
 
 .hl-form-body {
-  background: white;
-  padding: 15px;
-  border: 1px solid $baseBorderColor;
+    background: #fff;
+    padding: 15px;
+    border: 1px solid $base-border-color;
 }
 
 .hl-form-section {
-  margin-bottom: 30px;
+    margin-bottom: 30px;
 }
 
 .hl-form-section-heading {
-  border-bottom: 1px $lilyBorderLight solid;
-  font-size: 18px;
-  font-weight: 600;
-  color: $lilyDarkBlue;
-  padding-bottom: 7px;
-  padding-top: 6px;
-  text-align: right;
+    border-bottom: 1px $lily-border-light solid;
+    font-size: 18px;
+    font-weight: 600;
+    color: $lily-dark-blue;
+    padding-bottom: 7px;
+    padding-top: 6px;
+    text-align: right;
 
-  @media(max-width: $breakpoint-tablet) {
-    text-align: left;
-  }
+    @media(max-width: $breakpoint-tablet) {
+        text-align: left;
+    }
 }
 
 .hl-form-field {
-  margin: 10px 0;
+    margin: 10px 0;
 
-  label {
-    color: $lilyDarkBlue;
-    margin: 0 0 8px;
-    padding: 0;
-  }
+    label {
+        color: $lily-dark-blue;
+        margin: 0 0 8px;
+        padding: 0;
+    }
 }
 
 .hl-form-table {
-  display: table;
-  width: 100%;
+    display: table;
+    width: 100%;
 
-  &.hl-form-fixed-data {
-    background: $skyGrey;
-    border-radius: $baseBorderRadius;
-  }
+    &.hl-form-fixed-data {
+        background: $sky-grey;
+        border-radius: $base-border-radius;
+    }
 }
 
 .hl-form-table-column {
-  height: 40px;
-  line-height: 40px;
-  display: table-cell;
-  vertical-align: top;
-  padding: 0 5px;
+    height: 40px;
+    line-height: 40px;
+    display: table-cell;
+    vertical-align: top;
+    padding: 0 5px;
 
-  &:first-child {
-    padding-left: 0;
-  }
+    &:first-child {
+        padding-left: 0;
+    }
 
-  &:last-child {
-    padding-right: 0;
-  }
+    &:last-child {
+        padding-right: 0;
+    }
 
-  &.entity-icon-container {
-    width: 20px;
-    padding: 0 10px;
-  }
+    &.entity-icon-container {
+        width: 20px;
+        padding: 0 10px;
+    }
 }
 
 @media (max-width: $breakpoint-tablet) {
-  .hl-form-table-column.on-small-screen {
-    width: 100%;
-    float: left;
-    padding: 0;
-  }
+    .hl-form-table-column.on-small-screen {
+        width: 100%;
+        float: left;
+        padding: 0;
+    }
 }
 
 .small-cell {
-  width: 30px;
+    width: 30px;
 }
 
 .supercard-form {
-  .hl-form-table-column.on-small-screen {
-    width: 100%;
-    float: left;
-    padding: 0;
-  }
+    .hl-form-table-column.on-small-screen {
+        width: 100%;
+        float: left;
+        padding: 0;
+    }
 }
 
 .hl-form-input {
-  float: left;
-  width: 100%;
-  margin: 5px 0;
+    float: left;
+    width: 100%;
+    margin: 5px 0;
 }
 
 .user-field-image {
-  width: 60px;
-  height: 60px;
-  margin-right: 10px;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    margin-right: 10px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 50%;
 }
 
 .user-field-image-clear {
-  position: absolute;
-  top: 20px;
-  left: 85px;
+    position: absolute;
+    top: 20px;
+    left: 85px;
 }
 
 .user-field-image-change {
-  display: block;
-  margin-top: 10px;
+    display: block;
+    margin-top: 10px;
 
-  input {
-    display: inline;
-  }
+    input {
+        display: inline;
+    }
 }

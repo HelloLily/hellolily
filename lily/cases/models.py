@@ -44,36 +44,24 @@ class Case(TenantMixin, TaggedObjectMixin, DeletedMixin, ArchivedMixin):
         (CRIT_PRIO, _('Critical')),
     )
 
-    priority = models.SmallIntegerField(choices=PRIORITY_CHOICES, default=LOW_PRIO, verbose_name=_('priority'))
-    subject = models.CharField(max_length=255, verbose_name=_('subject'))
-    description = models.TextField(verbose_name=_('description'), blank=True)
-    status = models.ForeignKey(CaseStatus, verbose_name=_('status'), related_name='cases')
+    priority = models.SmallIntegerField(choices=PRIORITY_CHOICES, default=LOW_PRIO)
+    subject = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    status = models.ForeignKey(CaseStatus, related_name='cases')
+    type = models.ForeignKey(CaseType, null=True, blank=True, related_name='cases')
 
-    type = models.ForeignKey(CaseType, verbose_name=_('type'), null=True,
-                             blank=True, related_name='cases')
+    assigned_to_groups = models.ManyToManyField(LilyGroup, related_name='assigned_to_groups', null=True, blank=True)
+    assigned_to = models.ForeignKey(LilyUser, related_name='assigned_cases', null=True, blank=True)
+    created_by = models.ForeignKey(LilyUser, related_name='created_cases', null=True, blank=True)
 
-    assigned_to_groups = models.ManyToManyField(
-        LilyGroup,
-        verbose_name=_('assigned to teams'),
-        related_name='assigned_to_groups',
-        null=True,
-        blank=True,
-    )
-    assigned_to = models.ForeignKey(LilyUser, verbose_name=_('assigned to'),
-                                    related_name='assigned_cases', null=True, blank=True)
-    created_by = models.ForeignKey(LilyUser, verbose_name=_('created by'),
-                                   related_name='created_cases', null=True, blank=True)
+    account = models.ForeignKey(Account, null=True, blank=True)
+    contact = models.ForeignKey(Contact, null=True, blank=True)
 
-    account = models.ForeignKey(Account, verbose_name=_('account'), null=True, blank=True)
-    contact = models.ForeignKey(Contact, verbose_name=_('contact'), null=True, blank=True)
+    notes = GenericRelation('notes.Note', content_type_field='content_type', object_id_field='object_id')
 
-    notes = GenericRelation('notes.Note', content_type_field='content_type',
-                            object_id_field='object_id',
-                            verbose_name=_('list of notes'))
+    expires = models.DateField(default=week_from_now)
 
-    expires = models.DateField(verbose_name=_('expires'), default=week_from_now)
-
-    parcel = models.ForeignKey(Parcel, verbose_name=_('parcel'), null=True, blank=True)
+    parcel = models.ForeignKey(Parcel, null=True, blank=True)
     billing_checked = models.BooleanField(default=False)
 
     @property

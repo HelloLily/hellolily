@@ -13,7 +13,7 @@ class Tag(TenantMixin):
     """
     Tag model, simple char field to store a tag. Is used to describe the model it is linked to.
     """
-    name = models.CharField(max_length=50, verbose_name=_('tag'))
+    name = models.CharField(max_length=50)
 
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
@@ -34,15 +34,7 @@ class TaggedObjectMixin(models.Model):
     Tagged Mixin, supplying a relation with tags
     """
 
-    tags = GenericRelation(Tag, content_type_field='content_type', object_id_field='object_id',
-                           verbose_name=_('list of tags'))
+    tags = GenericRelation(Tag, content_type_field='content_type', object_id_field='object_id')
 
     class Meta:
         abstract = True
-
-    def get_tags(self):
-        try:
-            tags = self.tags.all()[:3]
-        except:
-            tags = ('',)
-        return tags

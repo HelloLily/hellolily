@@ -1,7 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.db.models.signals import pre_save
-from django.dispatch.dispatcher import receiver
 from django.utils.translation import ugettext_lazy as _
 
 from lily.accounts.models import Account
@@ -9,10 +7,6 @@ from django.conf import settings
 from lily.tags.models import TaggedObjectMixin
 from lily.utils.models.models import PhoneNumber, EmailAddress
 from lily.utils.models.mixins import Common, DeletedMixin, CaseClientModelMixin
-try:
-    from lily.tenant.functions import add_tenant
-except ImportError:
-    from lily.utils.functions import dummy_function as add_tenant
 
 
 def get_contact_picture_upload_path(instance, filename):
@@ -47,17 +41,15 @@ class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
         (INFORMAL, _('Informal')),
     )
 
-    first_name = models.CharField(max_length=255, verbose_name=_('first name'), default='', blank=True)
-    preposition = models.CharField(max_length=100, verbose_name=_('preposition'), default='', blank=True)
-    last_name = models.CharField(max_length=255, verbose_name=_('last name'), default='', blank=True)
-    gender = models.IntegerField(choices=CONTACT_GENDER_CHOICES, default=UNKNOWN_GENDER,
-                                 verbose_name=_('gender'))
-    title = models.CharField(max_length=20, verbose_name=_('title'), blank=True)
-    status = models.IntegerField(choices=CONTACT_STATUS_CHOICES, default=ACTIVE_STATUS,
-                                 verbose_name=_('status'))
-    picture = models.ImageField(upload_to=get_contact_picture_upload_path, verbose_name=_('picture'), blank=True)
-    description = models.TextField(verbose_name=_('description'), blank=True)
-    salutation = models.IntegerField(choices=SALUTATION_CHOICES, default=INFORMAL, verbose_name=_('salutation'))
+    first_name = models.CharField(max_length=255, default='', blank=True)
+    preposition = models.CharField(max_length=100, default='', blank=True)
+    last_name = models.CharField(max_length=255, default='', blank=True)
+    gender = models.IntegerField(choices=CONTACT_GENDER_CHOICES, default=UNKNOWN_GENDER)
+    title = models.CharField(max_length=20, blank=True)
+    status = models.IntegerField(choices=CONTACT_STATUS_CHOICES, default=ACTIVE_STATUS)
+    picture = models.ImageField(upload_to=get_contact_picture_upload_path, blank=True)
+    description = models.TextField(blank=True)
+    salutation = models.IntegerField(choices=SALUTATION_CHOICES, default=INFORMAL)
 
     import_id = models.CharField(max_length=100, default='', blank=True, db_index=True)
     accounts = models.ManyToManyField(
@@ -163,16 +155,13 @@ class Function(DeletedMixin):
     """
     account = models.ForeignKey(Account, related_name='functions')
     contact = models.ForeignKey(Contact, related_name='functions')
-    title = models.CharField(max_length=50, verbose_name=_('title'), blank=True)
-    department = models.CharField(max_length=50, verbose_name=_('department'), blank=True)
+    title = models.CharField(max_length=50, blank=True)
+    department = models.CharField(max_length=50, blank=True)
     # Limited relation: only possible with contacts related to the same account
-    manager = models.ForeignKey(Contact, related_name='manager', verbose_name=_('manager'),
-                                blank=True, null=True)
-    is_active = models.BooleanField(default=True, verbose_name=_('is active'))
-    phone_numbers = models.ManyToManyField(PhoneNumber,
-                                           verbose_name=_('list of phone numbers'))
-    email_addresses = models.ManyToManyField(EmailAddress,
-                                             verbose_name=_('list of email addresses'))
+    manager = models.ForeignKey(Contact, related_name='manager', blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    phone_numbers = models.ManyToManyField(PhoneNumber)
+    email_addresses = models.ManyToManyField(EmailAddress)
 
     def __unicode__(self):
         return self.title
@@ -181,30 +170,3 @@ class Function(DeletedMixin):
         verbose_name = _('function')
         verbose_name_plural = _('functions')
         unique_together = ('account', 'contact')
-
-# ------------------------------------------------------------------------------------------------
-# Signal listeners
-# ------------------------------------------------------------------------------------------------
-
-
-@receiver(pre_save, sender=Contact)
-def post_save_contact_handler(sender, **kwargs):
-    """
-    If an email attribute was set on an instance of Contact, add a primary email address or
-    overwrite the existing one.
-    """
-    instance = kwargs['instance']
-    if 'primary_email' in instance.__dict__:
-        new_email_address = instance.__dict__['primary_email']
-        if len(new_email_address.strip()) > 0:
-            # Overwrite existing primary email address
-            email = instance.email_addresses.filter(status=EmailAddress.PRIMARY_STATUS).first()
-            if email:
-                email.email_address = new_email_address
-                email.save()
-            else:
-                # Add new email address as primary
-                email = EmailAddress(email_address=new_email_address, status=EmailAddress.PRIMARY_STATUS)
-                add_tenant(email, instance.tenant)
-                email.save()
-                instance.email_addresses.add(email)

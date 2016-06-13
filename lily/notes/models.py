@@ -23,15 +23,10 @@ class Note(HistoryListItem, DeletedMixin):
         (TYPE_MEETUP, _('Meetup')),
     )
 
-    content = models.TextField(verbose_name=_('note'))
-    author = models.ForeignKey(LilyUser, verbose_name=_('author'))
+    content = models.TextField()
+    author = models.ForeignKey(LilyUser)
 
-    type = models.SmallIntegerField(
-        max_length=2,
-        choices=NOTE_TYPE_CHOICES,
-        default=TYPE_NOTE,
-        verbose_name=_('type')
-    )
+    type = models.SmallIntegerField(max_length=2, choices=NOTE_TYPE_CHOICES, default=TYPE_NOTE)
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     subject = GenericForeignKey('content_type', 'object_id')

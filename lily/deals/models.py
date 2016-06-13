@@ -103,35 +103,36 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
 
     OPEN_STAGE, PENDING_STAGE, WON_STAGE, LOST_STAGE, CALLED_STAGE, EMAILED_STAGE = range(6)
 
-    name = models.CharField(max_length=255, verbose_name=_('name'))
-    description = models.TextField(verbose_name=_('description'), blank=True)
-    account = models.ForeignKey(Account, verbose_name=_('account'))
-    contact = models.ForeignKey(Contact, verbose_name=_('contact'), null=True, blank=True)
-    currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, verbose_name=_('currency'))
-    amount_once = models.DecimalField(default=0, max_digits=19, decimal_places=2, verbose_name=_('one-time cost'))
-    amount_recurring = models.DecimalField(default=0, max_digits=19, decimal_places=2,
-                                           verbose_name=_('recurring costs'))
-    closed_date = models.DateTimeField(verbose_name=_('closed date'), blank=True, null=True)
-    status = models.ForeignKey(DealStatus, verbose_name=_('status'), related_name='deals')
-    assigned_to = models.ForeignKey(LilyUser, verbose_name=_('assigned to'), null=True)
-    created_by = models.ForeignKey(LilyUser, verbose_name=_('created by'),
-                                   related_name='created_deals', null=True, blank=True)
-    notes = GenericRelation('notes.Note', content_type_field='content_type', object_id_field='object_id',
-                            verbose_name='list of notes')
-    feedback_form_sent = models.BooleanField(default=False, verbose_name=_('feedback form sent'))
-    new_business = models.BooleanField(default=False, verbose_name=_('business'))
-    is_checked = models.BooleanField(default=False, verbose_name=_('quote checked'))
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES)
+    amount_once = models.DecimalField(default=0, max_digits=19, decimal_places=2)
+    amount_recurring = models.DecimalField(default=0, max_digits=19, decimal_places=2)
+    closed_date = models.DateTimeField(blank=True, null=True)
+    notes = GenericRelation('notes.Note', content_type_field='content_type', object_id_field='object_id')
+    quote_id = models.CharField(max_length=255, blank=True)
+    next_step_date = models.DateField(null=True, blank=True)
+    import_id = models.CharField(max_length=100, default='', blank=True, db_index=True)
+    imported_from = models.CharField(max_length=50, null=True, blank=True)
+
+    # Voys specific fields.
+    feedback_form_sent = models.BooleanField(default=False)
+    new_business = models.BooleanField(default=False)
+    is_checked = models.BooleanField(default=False)
     twitter_checked = models.BooleanField(default=False)
     card_sent = models.BooleanField(default=False)
-    quote_id = models.CharField(max_length=255, verbose_name=_('freedom quote id'), blank=True)
-    found_through = models.ForeignKey(DealFoundThrough, verbose_name=_('found us through'), related_name='deals')
-    contacted_by = models.ForeignKey(DealContactedBy, verbose_name=_('contacted us by'), related_name='deals')
-    next_step = models.ForeignKey(DealNextStep, verbose_name=_('next step'), related_name='deals')
-    next_step_date = models.DateField(verbose_name=_('next step date'), null=True, blank=True)
-    import_id = models.CharField(max_length=100, verbose_name=_('import id'), default='', blank=True, db_index=True)
-    imported_from = models.CharField(max_length=50, verbose_name=_('imported from'), null=True, blank=True)
-    why_customer = models.ForeignKey(DealWhyCustomer, verbose_name=_('why'), related_name='deals')
-    why_lost = models.ForeignKey(DealWhyLost, verbose_name=_('why lost'), related_name='deals', null=True)
+
+    # Related Fields.
+    account = models.ForeignKey(Account)
+    contact = models.ForeignKey(Contact, null=True, blank=True)
+    assigned_to = models.ForeignKey(LilyUser, null=True)
+    created_by = models.ForeignKey(LilyUser, related_name='created_deals', null=True, blank=True)
+    status = models.ForeignKey(DealStatus, related_name='deals')
+    found_through = models.ForeignKey(DealFoundThrough, related_name='deals')
+    contacted_by = models.ForeignKey(DealContactedBy, related_name='deals')
+    next_step = models.ForeignKey(DealNextStep, related_name='deals')
+    why_customer = models.ForeignKey(DealWhyCustomer, related_name='deals')
+    why_lost = models.ForeignKey(DealWhyLost, related_name='deals', null=True)
 
     @property
     def content_type(self):

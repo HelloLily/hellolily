@@ -12,10 +12,10 @@ admin.autodiscover()
 urlpatterns = patterns(
     '',
     url(r'^accounts/', include('lily.accounts.urls', app_name='accounts')),
-    url(r'^contacts/', include('lily.contacts.urls', app_name='contacts')),
     url(r'^cases/', include('lily.cases.urls', app_name='cases')),
+    url(r'^contacts/', include('lily.contacts.urls', app_name='contacts')),
     url(r'^deals/', include('lily.deals.urls', app_name='deals')),
-    url(r'^messaging/', include('lily.messaging.urls')),
+    url(r'^messaging/email/', include('lily.messaging.email.urls')),
     url(r'^provide/', include('lily.provide.urls')),
     url(r'^stats/', include('lily.stats.urls')),
     url(r'^', include('lily.users.urls')),

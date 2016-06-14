@@ -124,7 +124,8 @@
                 email: '{{ user.email }}',
                 fullName: '{{ user.full_name }}',
                 isSuperUser: '{{ user.is_superuser }}' == 'True',
-                displayEmailWarning: '{{ user.display_email_warning }}' == 'True'
+                displayEmailWarning: '{{ user.display_email_warning }}' == 'True',
+                country: '{{ user.tenant.country }}'
             };
 
             window.intercomAppId = '{{ INTERCOM_APP_ID }}';

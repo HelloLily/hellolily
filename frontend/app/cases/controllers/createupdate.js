@@ -352,7 +352,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             accountQuery += 'accounts.id:' + vm.case.account.id;
         }
 
-        contactsPromise = HLSearch.refreshList(query, 'Contact', accountQuery);
+        contactsPromise = HLSearch.refreshList(query, 'Contact', accountQuery, '', 'full_name');
 
         if (contactsPromise) {
             contactsPromise.$promise.then(function(data) {
@@ -368,7 +368,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         var usersPromise;
 
         if (!vm.assigned_to && (!vm.users || query.length)) {
-            usersPromise = HLSearch.refreshList(query, 'User');
+            usersPromise = HLSearch.refreshList(query, 'User', '', 'full_name', 'full_name');
 
             if (usersPromise) {
                 usersPromise.$promise.then(function(data) {

@@ -392,7 +392,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
             accountQuery += 'accounts.id:' + vm.deal.account.id;
         }
 
-        contactsPromise = HLSearch.refreshList(query, 'Contact', accountQuery);
+        contactsPromise = HLSearch.refreshList(query, 'Contact', accountQuery, '', 'full_name');
 
         if (contactsPromise) {
             contactsPromise.$promise.then(function(data) {
@@ -408,7 +408,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
         var usersPromise;
 
         if (!vm.assigned_to && (!vm.users || query.length)) {
-            usersPromise = HLSearch.refreshList(query, 'User');
+            usersPromise = HLSearch.refreshList(query, 'User', '', 'full_name', 'full_name');
 
             if (usersPromise) {
                 usersPromise.$promise.then(function(data) {

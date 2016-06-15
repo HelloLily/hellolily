@@ -122,18 +122,6 @@ class Page {
     }
 
     /**
-     * Sets the title of the document, as shown in the tab and window border.
-     * @param {String} pageType - The page category/type.
-     * @param {String} newTitle - The page category/type.
-     * @return {String} The new title.
-     */
-    setTitle(pageType, newTitle) {
-        // Capitalize first letter of the new title.
-        this.title = newTitle.charAt(0).toUpperCase() + newTitle.slice(1);
-        return this.title;
-    }
-
-    /**
      * Sets tab/window border title, but also the header's title and (optional)
      * context of contact/account.
      * @param {String} pageType - The page category/type, e.g. `custom`/list`/`create`.
@@ -144,7 +132,7 @@ class Page {
     setAllTitles(pageType, objectInfo, contact = null, account = null) {
         // Make sure sidebar forms don't set the titles/headers.
         if (!this.email.sidebar.form) {
-            this.setTitle(pageType, objectInfo);
+            this.title = objectInfo.charAt(0).toUpperCase() + objectInfo.slice(1);
             this.header.setMain(pageType, objectInfo);
             this.contact = contact;
             this.account = account;

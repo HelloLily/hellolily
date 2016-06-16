@@ -1,12 +1,12 @@
-.dropdown-toggle i.fa-angle-down {
-    margin-left: 10px;
-}
-
-.dropdown-toggle i:first-child {
-    margin-right: 2px;
-}
-
 .dropdown-toggle {
+    .fa-angle-down {
+        margin-left: 10px;
+    }
+
+    i:first-child {
+        margin-right: 2px;
+    }
+
     &.no-primary-icon {
         i {
             margin: 0;
@@ -125,7 +125,7 @@ $large-button: 30px;
     border-color: $app-border-color;
     border-style: solid;
     line-height: $button-size - 2px;
-    padding: 1px ($button-size / 4) 0 ($button-size / 4);
+    padding: 1px ($button-size / 4) 0;
     color: $app-color-darkblue;
     border-radius: 3px;
     text-transform: uppercase;
@@ -145,8 +145,8 @@ $large-button: 30px;
 }
 
 .hl-primary-btn {
-    margin: 0 3px;
     @include hl-button($large-button);
+    margin: 0 3px;
 
     .fa-plus {
         font-size: 10px;

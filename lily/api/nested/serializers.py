@@ -24,28 +24,19 @@ class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializer
         for field_name in validated_data.copy():  # Copy because a dict can't be modified during loop.
             # Check for many to many fields.
             if field_name in many_to_many_fields:
-                data = validated_data.pop('%s' % field_name)
-                if data:
-                    # Only fill many_related_data with actual values (not None).
-                    many_related_data[field_name] = data
+                many_related_data[field_name] = validated_data.pop('%s' % field_name)
                 # Go to next field, because this one was recognized.
                 continue
 
             # Check for foreign key fields.
             if field_name in fk_fields:
-                data = validated_data.pop('%s' % field_name)
-                if data:
-                    # Only fill fk_related_data with actual values (not None).
-                    fk_related_data[field_name] = data
+                fk_related_data[field_name] = validated_data.pop('%s' % field_name)
                 # Go to next field, because this one was recognized.
                 continue
 
             # Check for generic relation fields.
             if field_name in generic_fk_fields:
-                data = validated_data.pop('%s' % field_name)
-                if data:
-                    # Only fill generic_related_data with actual values (not None).
-                    generic_related_data[field_name] = data
+                generic_related_data[field_name] = validated_data.pop('%s' % field_name)
 
         return validated_data, many_related_data, fk_related_data, generic_related_data
 

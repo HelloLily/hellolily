@@ -1,11 +1,9 @@
-import os
-
 from django.conf import settings
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.views.generic import RedirectView
 
-from lily.utils.views import BaseView
+from lily.utils.views import BaseView, TemplateView
 
 admin.autodiscover()
 
@@ -34,18 +32,18 @@ urlpatterns = patterns(
 
     url(r'^$', BaseView.as_view(), name='base_view'),
 
-    (r'^media/(.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
-
-    (r'^favicon\.ico$', RedirectView.as_view(url=settings.STATIC_URL + 'app/images/favicons/favicon.ico')),
+    (r'^favicon.ico$', RedirectView.as_view(url=settings.STATIC_URL + 'app/images/favicons/favicon.ico')),
+    (r'^404.html$', TemplateView.as_view(template_name='404.html')),
+    (r'^500.html$', TemplateView.as_view(template_name='500.html')),
 )
 
 if settings.DEBUG:
     import debug_toolbar
     urlpatterns += patterns('', url(r'^__debug__/', include(debug_toolbar.urls)), )
 
-# Works only in debug mode
-if os.environ.get('PRODUCTION_MEDIA_URL', None) is None:
+    # Works only in debug mode
     urlpatterns += patterns(
         '',
+        (r'^media/(.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
         (r'^static/(.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT}),
     )

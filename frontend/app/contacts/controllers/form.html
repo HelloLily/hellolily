@@ -1,7 +1,12 @@
 <div class="row">
     <div class="col-md-12">
-        <div ng-if="settings.email.sidebar.form" class="email-inbox-header inbox-view-header">
-            <h1 class="pull-left">Add contact</h1>
+        <div class="widget-heading" ng-if="settings.email.sidebar.form">
+            <div class="widget-name">
+                <div class="widget-title">
+                    Add contact
+                </div>
+            </div>
+            <div class="clearfix"></div>
         </div>
 
         <form novalidate class="hl-form-body" name="contactForm">

@@ -119,7 +119,6 @@ class DealFilter(django_filters.FilterSet):
             'contacted_by': ['exact', ],
             'created': ['exact', 'lt', 'lte', 'gt', 'gte', ],
             'currency': ['exact', ],
-            'feedback_form_sent': ['exact', ],
             'found_through': ['exact', ],
             'is_checked': ['exact', ],
             'modified': ['exact', 'lt', 'lte', 'gt', 'gte', ],

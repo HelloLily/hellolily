@@ -46,15 +46,15 @@
 
         <list-filter filter-label="'Case type'" filter-label-plural="'types'" view-model="vm"></list-filter>
 
-        <div class="widget-tools pull-right">
+        <div class="widget-filters">
+            <due-date-filter filter-store="vm.table.dueDateFilter" type="'case'" class="due-date-filter"></due-date-filter>
+            <users-filter users-store="vm.table.usersFilter" storage-name="'caseUsersFilter'" allow-empty="true" class="user-filter"></users-filter>
             <form class="widget-search pull-right">
                 <div class="hl-search-field-container">
                     <input type="text" class="hl-search-field" ng-model="vm.table.searchQuery" placeholder="Search..">
                     <button type="button" class="hl-search-btn" ng-click="vm.setSearchQuery('')" ng-disabled="!vm.table.searchQuery"></button>
                 </div>
             </form>
-            <users-filter users-store="vm.table.usersFilter" storage-name="'caseUsersFilter'" allow-empty="true" class="pull-right margin-right-10"></users-filter>
-            <due-date-filter filter-store="vm.table.dueDateFilter" type="'case'" class="pull-right"></due-date-filter>
         </div>
     </div>
     <div class="portlet-body flip-scroll">

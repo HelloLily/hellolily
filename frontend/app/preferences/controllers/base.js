@@ -22,6 +22,5 @@ angular.module('app.preferences').controller('PreferencesBase', PreferencesBase)
 
 PreferencesBase.$inject = ['Settings'];
 function PreferencesBase(Settings) {
-    Settings.page.setTitle('custom', 'Preferences');
-    Settings.page.header.setMain('custom', 'Preferences');
+    Settings.page.setAllTitles('custom', 'Preferences');
 }

@@ -86,6 +86,7 @@ $header-height: 80px;
 }
 
 .header-user-menu {
+    position: relative;
     margin-right: 20px;
     line-height: $header-height;
 
@@ -126,7 +127,7 @@ $header-height: 80px;
 }
 
 .header-user-menu-item {
-    top: 65px;
+    top: 70px;
     line-height: 40px;
 }
 

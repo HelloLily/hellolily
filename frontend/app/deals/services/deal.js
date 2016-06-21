@@ -109,7 +109,6 @@ function Deal($resource, HLUtils, HLForms, HLCache, CacheFactory) {
     _deal.getDeals = getDeals;
     _deal.create = create;
     _deal.prototype.markDealAsChecked = markDealAsChecked;
-    _deal.prototype.feedbackFormSent = feedbackFormSent;
 
     /////////
 
@@ -119,7 +118,6 @@ function Deal($resource, HLUtils, HLForms, HLCache, CacheFactory) {
             twitter_checked: false,
             is_checked: false,
             card_sent: false,
-            feedback_form_sent: false,
             tags: [],
             currency: 'EUR',
             amount_once: '0',
@@ -156,12 +154,6 @@ function Deal($resource, HLUtils, HLForms, HLCache, CacheFactory) {
         }, function(data) {
             return data;
         }).$promise;
-    }
-
-    function feedbackFormSent() {
-        var deal = this;
-        deal.feedback_form_sent = true;
-        return deal.$update();
     }
 
     function markDealAsChecked() {

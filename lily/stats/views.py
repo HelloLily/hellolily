@@ -206,37 +206,6 @@ class CasesTopTags(RawDatabaseView):
         )
 
 
-class DealsUnsentFeedbackForms(RawDatabaseView):
-    def get_query(self, request, *args, **kwargs):
-        try:
-            deal_status = DealStatus.objects.get(name='Won')
-        except DealStatus.DoesNotExist:
-            return ''
-
-        return '''
-            SELECT
-                users_lilyuser.last_name,
-                count(deals_deal.id) as NrOfDeals
-            FROM
-                deals_deal,
-                users_lilyuser
-            WHERE
-                deals_deal.assigned_to_id = users_lilyuser.id AND
-                deals_deal.status_id = {status_id} AND
-                deals_deal.new_business = true AND
-                deals_deal.closed_date BETWEEN (now() - interval '120 day') AND (now() - interval '30 day') AND
-                deals_deal.feedback_form_sent = false AND
-                /* deals_deal.card_sent = true AND */
-                deals_deal.tenant_id = {tenant_id} AND
-                deals_deal.is_deleted = false
-            GROUP BY
-                users_lilyuser.last_name;
-        '''.format(
-            status_id=deal_status.pk,
-            tenant_id=request.user.tenant_id
-        )
-
-
 class DealsUrgentFollowUp(RawDatabaseView):
     def get_query(self, request, *args, **kwargs):
         try:

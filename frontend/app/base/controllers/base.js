@@ -24,6 +24,10 @@ function BaseController($scope, $state, Settings, Notifications, HLShortcuts) {
     //////////
 
     function activate() {
+        $scope.$on('$stateChangeStart', function() {
+            new window.Intercom('update', {email: currentUser.email});
+        });
+
         $scope.$on('$stateChangeSuccess', _setPreviousState);
         $scope.$on('$viewContentLoaded', _contentLoadedActions);
     }
@@ -48,8 +52,6 @@ function BaseController($scope, $state, Settings, Notifications, HLShortcuts) {
 
         $scope.loadNotifications();
         $scope.toolbar = Settings.page.toolbar.data;
-
-        new window.Intercom('update');
     }
 
     function _setPreviousState(event, toState, toParams, fromState, fromParams) {
@@ -74,5 +76,9 @@ function BaseController($scope, $state, Settings, Notifications, HLShortcuts) {
         }
 
         Settings.page.toolbar.data = null;
+
+        // For some reason we need to do two update calls to display messages
+        // when they should.
+        new window.Intercom('update', {email: currentUser.email});
     }
 }

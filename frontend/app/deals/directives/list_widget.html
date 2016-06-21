@@ -1,4 +1,4 @@
-<widget widget-name="'Deals'" widget-scrollable="true">
+<widget widget-name="'Deals'" widget-scrollable="true" class="js-cq-widget-container">
     <widget-header>
         <div class="widget-label deals"></div>
         <div class="widget-name"><i class="lilicon hl-deals-icon"></i> {{ vm.title }}</div>
@@ -6,7 +6,8 @@
 
     <widget-filters>
         <a ng-if="!vm.settings.email.sidebar.deal" ui-sref="{{ vm.addLink || 'base.deals.create' }}" class="btn btn-circle btn-default" ng-click="vm.googleAnalyticsEvent()">
-            <i class="fa fa-plus"></i> Add
+            <i class="fa fa-plus"></i>
+            <span class="external-link-name">Add</span>
         </a>
     </widget-filters>
 

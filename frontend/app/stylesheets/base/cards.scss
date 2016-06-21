@@ -1,0 +1,51 @@
+//
+
+.hl-card-heading {
+    padding: 0;
+
+    .widget-title,
+    .widget-filters,
+    .widget-tools {
+        display: table-cell;
+        float: none !important;
+    }
+
+    .widget-title {
+        width: 100%;
+        padding: 10px 5px 10px 15px;
+    }
+
+    .widget-filters,
+    .widget-tools,
+    .widget-search {
+        white-space: nowrap;
+    }
+
+    .widget-filters {
+        padding: 10px 0;
+
+        .filter-group {
+            display: inline-block;
+            float: none;
+        }
+
+        .due-date-filter,
+        .user-filter, {
+            float: none;
+        }
+
+        .hl-button-group {
+            float: none;
+        }
+    }
+
+    .widget-tools {
+        padding: 10px 15px 10px 5px;
+    }
+}
+
+.due-date-filter,
+.user-filter {
+    margin-left: 10px;
+    display: inline-block;
+}

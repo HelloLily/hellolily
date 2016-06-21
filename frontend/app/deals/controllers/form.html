@@ -1,7 +1,12 @@
 <div class="row">
     <div class="col-md-12">
-        <div ng-if="settings.email.sidebar.form" class="email-inbox-header inbox-view-header">
-            <h1 class="pull-left">Add deal</h1>
+        <div class="widget-heading" ng-if="settings.email.sidebar.form">
+            <div class="widget-name">
+                <div class="widget-title">
+                    Add deal
+                </div>
+            </div>
+            <div class="clearfix"></div>
         </div>
 
         <form novalidate class="hl-form-body" name="dealForm">
@@ -165,19 +170,14 @@
                                     field="vm.deal.twitter_checked" sidebar="settings.email.sidebar.form">
                 </form-radio-buttons>
 
-                <form-radio-buttons options="['Almost', 'Done']" label-title="Quote checked"
-                                    input-name="is_checked"
-                                    field="vm.deal.is_checked" sidebar="settings.email.sidebar.form">
-                </form-radio-buttons>
-
                 <form-radio-buttons options="['Writing it now', 'Done']" label-title="Card sent"
                                     input-name="card_sent"
                                     field="vm.deal.card_sent" sidebar="settings.email.sidebar.form">
                 </form-radio-buttons>
 
-                <form-radio-buttons options="['Not yet', 'Done']" label-title="Feedback form sent"
-                                    input-name="feedback_form_sent"
-                                    field="vm.deal.feedback_form_sent" sidebar="settings.email.sidebar.form">
+                <form-radio-buttons options="['Almost', 'Done']" label-title="Quote checked"
+                                    input-name="is_checked"
+                                    field="vm.deal.is_checked" sidebar="settings.email.sidebar.form">
                 </form-radio-buttons>
             </form-portlet>
 

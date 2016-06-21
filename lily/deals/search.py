@@ -96,9 +96,6 @@ class DealMapping(BaseMapping):
                 'type': 'string',
                 'index_analyzer': 'normal_edge_analyzer',
             },
-            'feedback_form_sent': {
-                'type': 'boolean',
-            },
             'found_through': {
                 'type': 'object',
                 'properties': {
@@ -235,7 +232,6 @@ class DealMapping(BaseMapping):
             'currency': obj.currency,
             'currency_display': obj.get_currency_display(),
             'description': obj.description,
-            'feedback_form_sent': obj.feedback_form_sent,
             'found_through': {
                 'id': obj.found_through.id,
                 'name': obj.found_through.name,

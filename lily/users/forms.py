@@ -192,8 +192,8 @@ class RegistrationForm(HelloLilyForm):
         """
         cleaned_data = super(RegistrationForm, self).clean()
 
-        password = cleaned_data['password']
-        password_repeat = cleaned_data['password_repeat']
+        password = cleaned_data.get('password')
+        password_repeat = cleaned_data.get('password_repeat')
 
         if password != password_repeat:
             self._errors['password'] = self.error_class([_('The two password fields didn\'t match.')])

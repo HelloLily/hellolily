@@ -116,7 +116,6 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     imported_from = models.CharField(max_length=50, null=True, blank=True)
 
     # Voys specific fields.
-    feedback_form_sent = models.BooleanField(default=False)
     new_business = models.BooleanField(default=False)
     is_checked = models.BooleanField(default=False)
     twitter_checked = models.BooleanField(default=False)

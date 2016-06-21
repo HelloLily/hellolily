@@ -50,7 +50,6 @@ function DealListController($scope, $timeout, Settings, Deal, HLFilters, LocalSt
             assignedTo: true,
             nextStep: true,
             nextStepDate: true,
-            feedbackFormSent: true,
             newBusiness: true,
             createdBy: true,
             tags: true,
@@ -104,12 +103,6 @@ function DealListController($scope, $timeout, Settings, Deal, HLFilters, LocalSt
             {
                 name: 'New business',
                 value: 'new_business:true',
-                selected: false,
-                isSpecialFilter: false,
-            },
-            {
-                name: 'Feedback form not sent',
-                value: 'feedback_form_sent:false',
                 selected: false,
                 isSpecialFilter: false,
             },

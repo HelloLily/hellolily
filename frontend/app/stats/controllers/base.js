@@ -41,7 +41,6 @@ function StatsBaseController(Settings, Stats) {
         _getCountPerTypeCases();
         _getTopTagsCases();
 
-        _getDealsUnsentFeedback();
         _getDealsUrgentFollowUp();
         _getDealsWon();
         _getDealsLost();
@@ -97,15 +96,6 @@ function StatsBaseController(Settings, Stats) {
             'groupid': 1,
         }, function(data) {
             vm.topTagCases = data;
-        });
-    }
-
-    function _getDealsUnsentFeedback() {
-        Stats.query({
-            'appname': 'deals',
-            'endpoint': 'unsentfeedback',
-        }, function(data) {
-            vm.dealsUnsentFeedback = data;
         });
     }
 

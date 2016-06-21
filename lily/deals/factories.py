@@ -122,7 +122,6 @@ class DealFactory(DjangoModelFactory):
     card_sent = FuzzyChoice([True, False])
     contacted_by = SubFactory(DealContactedByFactory, tenant=SelfAttribute('..tenant'))
     currency = FuzzyChoice(dict(Deal.CURRENCY_CHOICES).keys())
-    feedback_form_sent = FuzzyChoice([True, False])
     found_through = SubFactory(DealFoundThroughFactory, tenant=SelfAttribute('..tenant'))
     is_checked = FuzzyChoice([True, False])
     name = LazyAttribute(lambda o: faker.word())

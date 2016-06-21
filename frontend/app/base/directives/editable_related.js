@@ -118,7 +118,7 @@ function EditableRelatedController(HLFields, HLResource, HLUtils) {
             id: er.model.id,
         };
 
-        args[er.field] = HLFields.cleanInlineRelatedFields(er.items);
+        args[er.field] = er.items;
 
         HLUtils.blockUI(element, true);
 

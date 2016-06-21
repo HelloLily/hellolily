@@ -1,8 +1,7 @@
 from django.conf.urls import patterns, url
 
 from .views import (CasesTotalCountLastWeek, CasesPerTypeCountLastWeek, CasesWithTagsLastWeek, CasesCountPerStatus,
-                    CasesTopTags, DealsUnsentFeedbackForms, DealsUrgentFollowUp, DealsWon, DealsLost,
-                    DealsAmountRecurring)
+                    CasesTopTags, DealsUrgentFollowUp, DealsWon, DealsLost, DealsAmountRecurring)
 
 case_patterns = patterns(
     '',
@@ -15,7 +14,6 @@ case_patterns = patterns(
 
 deal_patterns = patterns(
     '',
-    url(r'^deals/unsentfeedback/$', DealsUnsentFeedbackForms.as_view(), name='stats_deals_unsent_feedback'),
     url(r'^deals/urgentfollowup/$', DealsUrgentFollowUp.as_view(), name='stats_deals_urgent_followup'),
     url(r'^deals/won/$', DealsWon.as_view(), name='stats_deals_won'),
     url(r'^deals/lost/$', DealsLost.as_view(), name='stats_deals_lost'),

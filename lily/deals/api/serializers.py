@@ -242,7 +242,6 @@ class DealSerializer(WritableNestedSerializer):
             'currency',
             'currency_display',
             'description',
-            'feedback_form_sent',
             'found_through',
             'is_archived',
             'is_checked',

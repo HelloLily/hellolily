@@ -1,4 +1,4 @@
-<widget widget-name="'Cases'" widget-scrollable="true">
+<widget widget-name="'Cases'" widget-scrollable="true" class="js-cq-widget-container">
     <widget-header>
         <div class="widget-label cases"></div>
         <div class="widget-name">
@@ -9,7 +9,8 @@
 
     <widget-filters>
         <a ng-if="!vm.settings.email.sidebar.case" ui-sref="{{ vm.addLink || 'base.cases.create' }}" class="btn btn-circle btn-default" ng-click="vm.googleAnalyticsEvent()">
-            <i class="fa fa-plus"></i> Add
+            <i class="fa fa-plus"></i>
+            <span class="external-link-name">Add</span>
         </a>
     </widget-filters>
 

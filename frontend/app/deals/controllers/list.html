@@ -1,83 +1,84 @@
 <div class="portlet light">
     <div class="portlet-title">
-        <ul class="hl-button-group">
-            <li class="hl-button-group-btn">
-                <a class="hl-button-group-btn-link" href="javascript:;" data-toggle="dropdown">
-                    <i class="fa fa-columns"></i>
-                    Columns
-                    <i class="margin-left-5 small-icon lilicon hl-toggle-down-icon"></i>
-                </a>
+        <div class="widget-title">
+            <ul class="hl-button-group">
+                <li class="hl-button-group-btn">
+                    <a class="hl-button-group-btn-link" href="javascript:;" data-toggle="dropdown">
+                        <i class="fa fa-columns"></i>
+                        Columns
+                        <i class="margin-left-5 small-icon lilicon hl-toggle-down-icon"></i>
+                    </a>
 
-                <ul class="hl-dropdown js-hold-on-click">
-                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.name">Subject</checkbox></li>
-                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.client">Client</checkbox></li>
-                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.status">Status</checkbox></li>
-                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.nextStep">Next step</checkbox></li>
-                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.nextStepDate">Next step date</checkbox></li>
-                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.assignedTo">Assigned to</checkbox></li>
-                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.amountOnce">One-time cost</checkbox></li>
-                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.amountRecurring">Recurring costs</checkbox></li>
-                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.newBusiness">New business</checkbox></li>
-                    <li class="hl-dropdown-item" ng-if="vm.tenant.isVoysNL()"><checkbox model="vm.table.visibility.feedbackFormSent">Feedback form sent</checkbox></li>
-                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.created">Created</checkbox></li>
-                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.createdBy">Created by</checkbox></li>
-                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.tags">Tags</checkbox></li>
-                </ul>
-            </li>
-        </ul>
+                    <ul class="hl-dropdown js-hold-on-click">
+                        <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.name">Subject</checkbox></li>
+                        <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.client">Client</checkbox></li>
+                        <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.status">Status</checkbox></li>
+                        <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.nextStep">Next step</checkbox></li>
+                        <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.nextStepDate">Next step date</checkbox></li>
+                        <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.assignedTo">Assigned to</checkbox></li>
+                        <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.amountOnce">One-time cost</checkbox></li>
+                        <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.amountRecurring">Recurring costs</checkbox></li>
+                        <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.newBusiness">New business</checkbox></li>
+                        <li class="hl-dropdown-item" ng-if="vm.tenant.isVoysNL()"><checkbox model="vm.table.visibility.feedbackFormSent">Feedback form sent</checkbox></li>
+                        <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.created">Created</checkbox></li>
+                        <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.createdBy">Created by</checkbox></li>
+                        <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.tags">Tags</checkbox></li>
+                    </ul>
+                </li>
+            </ul>
 
-        <ul class="hl-button-group">
-            <li class="hl-button-group-btn">
-                <a class="hl-button-group-btn-link" href="javascript:;" data-toggle="dropdown">
-                    <i class="fa fa-filter"></i>
-                    Filter on
-                    <i class="margin-left-5 small-icon lilicon hl-toggle-down-icon"></i>
-                </a>
+            <ul class="hl-button-group">
+                <li class="hl-button-group-btn">
+                    <a class="hl-button-group-btn-link" href="javascript:;" data-toggle="dropdown">
+                        <i class="fa fa-filter"></i>
+                        Filter on
+                        <i class="margin-left-5 small-icon lilicon hl-toggle-down-icon"></i>
+                    </a>
 
-                <span class="hl-button-group-btn-clear" ng-click="vm.clearFilters()" ng-show="vm.displayFilterClear">
-                    <i class="fa fa-remove"></i>
-                </span>
+                    <span class="hl-button-group-btn-clear" ng-click="vm.clearFilters()" ng-show="vm.displayFilterClear">
+                        <i class="fa fa-remove"></i>
+                    </span>
 
-                <ul class="hl-dropdown js-hold-on-click">
-                    <li class="hl-dropdown-item" ng-repeat="filter in vm.filterList | filter: {isSpecialFilter: false}">
-                        <checkbox model="filter.selected" ng-click="vm.updateFilterQuery()">{{filter.name}}</checkbox>
-                    </li>
-                </ul>
-            </li>
-        </ul>
+                    <ul class="hl-dropdown js-hold-on-click">
+                        <li class="hl-dropdown-item" ng-repeat="filter in vm.filterList | filter: {isSpecialFilter: false}">
+                            <checkbox model="filter.selected" ng-click="vm.updateFilterQuery()">{{filter.name}}</checkbox>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
 
-        <ul class="hl-button-group">
-            <li class="hl-button-group-btn">
-                <a class="hl-button-group-btn-link" href="javascript:;" data-toggle="dropdown">
-                    <i class="fa fa-filter"></i>
-                    Next step
-                    <i class="margin-left-5 small-icon lilicon hl-toggle-down-icon"></i>
-                </a>
+            <ul class="hl-button-group">
+                <li class="hl-button-group-btn">
+                    <a class="hl-button-group-btn-link" href="javascript:;" data-toggle="dropdown">
+                        <i class="fa fa-filter"></i>
+                        Next step
+                        <i class="margin-left-5 small-icon lilicon hl-toggle-down-icon"></i>
+                    </a>
 
-                <span class="hl-button-group-btn-clear" ng-click="vm.clearFilters(true)" ng-show="vm.displaySpecialFilterClear">
-                    <i class="fa fa-remove"></i>
-                </span>
+                    <span class="hl-button-group-btn-clear" ng-click="vm.clearFilters(true)" ng-show="vm.displaySpecialFilterClear">
+                        <i class="fa fa-remove"></i>
+                    </span>
 
-                <ul class="hl-dropdown js-hold-on-click">
-                    <li class="hl-dropdown-item" ng-repeat="filter in vm.filterList | filter: {isSpecialFilter: true}">
-                        <checkbox model="filter.selected" ng-click="vm.updateFilterQuery()">
-                            <span class="step-type" ng-class="{0: 'position-1', 1: 'position-2', 2: 'position-3', 3: 'position-4', 4: 'position-5', 5: 'position-6'}[filter.position]"></span>
-                            {{filter.name}}
-                        </checkbox>
-                    </li>
-                </ul>
-            </li>
-        </ul>
-
-        <div class="widget-tools pull-right">
+                    <ul class="hl-dropdown js-hold-on-click">
+                        <li class="hl-dropdown-item" ng-repeat="filter in vm.filterList | filter: {isSpecialFilter: true}">
+                            <checkbox model="filter.selected" ng-click="vm.updateFilterQuery()">
+                                <span class="step-type" ng-class="{0: 'position-1', 1: 'position-2', 2: 'position-3', 3: 'position-4', 4: 'position-5', 5: 'position-6'}[filter.position]"></span>
+                                {{filter.name}}
+                            </checkbox>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="widget-filters">
+            <due-date-filter filter-store="vm.table.dueDateFilter" filter-field="'next_step_date'" type="'deal'" class="due-date-filter"></due-date-filter>
+            <users-filter users-store="vm.table.usersFilter" storage-name="'dealUsersFilter'" allow-empty="true" class="user-filter"></users-filter>
             <form class="widget-search pull-right">
                 <div class="hl-search-field-container">
                     <input type="text" class="hl-search-field" ng-model="vm.table.searchQuery" placeholder="Search..">
                     <button type="button" class="hl-search-btn" ng-click="vm.setSearchQuery('')" ng-disabled="!vm.table.searchQuery"></button>
                 </div>
             </form>
-            <users-filter users-store="vm.table.usersFilter" storage-name="'dealUsersFilter'" allow-empty="true" class="pull-right margin-right-10"></users-filter>
-            <due-date-filter filter-store="vm.table.dueDateFilter" filter-field="'next_step_date'" type="'deal'" class="pull-right"></due-date-filter>
         </div>
     </div>
     <div class="portlet-body flip-scroll">

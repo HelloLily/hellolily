@@ -36,16 +36,7 @@ class is applied to, so be sure it has a wrapping container.
     border: 1px $base-border-color solid;
     border-bottom: 1px $light-border-color solid;
     padding: 10px 15px;
-
-    &:before {
-        top: -10px;
-        margin: 0 -15px;
-        position: relative;
-        height: 1px;
-        display: block;
-        content: "";
-        background: lighten($sky-grey, 4);
-    }
+    position: relative;
 }
 
 .widget-body {
@@ -73,6 +64,7 @@ class is applied to, so be sure it has a wrapping container.
 .widget-tools {
     line-height: $button-height;
     margin-left: 15px;
+    float: right;
 }
 
 .widget-search {
@@ -106,10 +98,6 @@ class is applied to, so be sure it has a wrapping container.
 
 .widget-name-meta {
     font-size: 13px;
-}
-
-.widget-heading {
-    position: relative;
 }
 
 .widget-sub-heading {
@@ -168,6 +156,10 @@ class is applied to, so be sure it has a wrapping container.
         border-color: darken($critical-prio-color, 20);
         background: $critical-prio-color;
     }
+}
+
+.widget-filters {
+    float: right;
 }
 
 .widget-info-table {
@@ -281,10 +273,6 @@ class is applied to, so be sure it has a wrapping container.
         .external-link-name {
             display: none;
         }
-
-        .widget-name {
-            width: 60%;
-        }
     }
 }
 
@@ -292,24 +280,6 @@ class is applied to, so be sure it has a wrapping container.
     .js-cq-widget-container:container("width < 500px") {
         .external-link-name {
             display: none;
-        }
-
-        .widget-name {
-            width: 60%;
-        }
-    }
-
-    .js-cq-widget-container:container("width < 800px > 500px") {
-
-        .widget-name {
-            width: 60%;
-        }
-    }
-
-    .js-cq-widget-container:container("width > 800px") {
-
-        .widget-name {
-            width: 75%;
         }
     }
 }

@@ -24,7 +24,9 @@
 .hl-form-body {
     background: #fff;
     padding: 15px;
-    border: 1px solid $base-border-color;
+    border-width: 0 1px 1px;
+    border-style: solid;
+    border-color: $base-border-color;
 }
 
 .hl-form-section {

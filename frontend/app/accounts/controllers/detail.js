@@ -29,7 +29,7 @@ function accountConfig($stateProvider) {
                 return Contact.search({filterquery: 'accounts.id:' + $stateParams.id}).$promise;
             }],
             dealList: ['Deal', '$stateParams', function(Deal, $stateParams) {
-                return Deal.query({filterquery: 'account.id:' + $stateParams.id, sort: '-created'}).$promise;
+                return Deal.query({filterquery: 'account.id:' + $stateParams.id, sort: '-next_step_date'}).$promise;
             }],
         },
     });

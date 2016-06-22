@@ -21,10 +21,10 @@ function contactsConfig($stateProvider) {
                 return Contact.get({id: contactId}).$promise;
             }],
             caseList: ['Case', '$stateParams', function(Case, $stateParams) {
-                return Case.query({filterquery: 'contact.id:' + $stateParams.id, sort: '-created', size: 100}).$promise;
+                return Case.query({filterquery: 'contact.id:' + $stateParams.id, sort: 'expires', size: 100}).$promise;
             }],
             dealList: ['Deal', '$stateParams', function(Deal, $stateParams) {
-                return  Deal.query({filterquery: 'contact.id:' + $stateParams.id, sort: '-created'}).$promise;
+                return  Deal.query({filterquery: 'contact.id:' + $stateParams.id, sort: '-next_step_date'}).$promise;
             }],
         },
     });
@@ -32,10 +32,8 @@ function contactsConfig($stateProvider) {
 
 angular.module('app.contacts').controller('ContactDetailController', ContactDetailController);
 
-ContactDetailController.$inject = ['$scope', 'Contact', 'HLResource', 'Settings', 'currentContact',
-    'caseList', 'dealList'];
-function ContactDetailController($scope, Contact, HLResource, Settings, currentContact,
-                                 caseList, dealList) {
+ContactDetailController.$inject = ['$scope', 'Contact', 'Settings', 'currentContact', 'caseList', 'dealList'];
+function ContactDetailController($scope, Contact, Settings, currentContact, caseList, dealList) {
     var vm = this;
 
     vm.contact = currentContact;

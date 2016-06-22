@@ -12,9 +12,9 @@
     </div>
 </span>
 
-<form name="{{ er.formName }}" ng-show="er.formVisible" class="form-inline">
-    <div ng-repeat="website in er.items">
-        <div class="form-group">
+<form name="{{ er.formName }}" ng-show="er.formVisible" class="form-inline js-form-prolyfill">
+    <div ng-repeat="website in er.items" class="form-inline-section">
+        <div class="form-inline-input width-80">
             <input class="form-control"
                    maxlength="255"
                    placeholder="www.example.com"
@@ -22,7 +22,8 @@
                    ng-model="website.website" />
         </div>
 
-        <div class="form-group">
+
+        <div class="form-inline-input width-20">
             <i class="margin-left-5 clickable"
                ng-class="{'fa fa-minus-circle': !website.is_deleted, 'fa fa-undo': website.is_deleted}"
                ng-click="er.removeRelatedField(website)"></i>

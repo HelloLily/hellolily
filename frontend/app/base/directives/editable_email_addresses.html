@@ -16,9 +16,9 @@
     </div>
 </span>
 
-<form name="{{ er.formName }}" ng-show="er.formVisible" class="form-inline">
-    <div ng-repeat="email in er.items">
-        <div class="form-group">
+<form name="{{ er.formName }}" ng-show="er.formVisible" class="form-inline js-form-prolyfill">
+    <div ng-repeat="email in er.items" class="form-inline-section">
+        <div class="form-inline-input width-60">
             <input class="form-control"
                    maxlength="255"
                    placeholder="Email address"
@@ -26,7 +26,7 @@
                    ng-model="email.email_address" />
         </div>
 
-        <div class="form-group">
+        <div class="form-inline-input width-40">
             <select class="form-control"
                     ng-readonly="email.is_deleted"
                     ng-model="email.status"
@@ -35,7 +35,7 @@
             </select>
         </div>
 
-        <div class="form-group">
+        <div class="form-inline-input">
             <i class="margin-left-5 clickable"
                ng-class="{'fa fa-minus-circle': !email.is_deleted, 'fa fa-undo': email.is_deleted}"
                ng-click="er.removeRelatedField(email)"></i>

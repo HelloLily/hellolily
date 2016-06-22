@@ -53,7 +53,7 @@
                         <div class="margin-bottom-5"><strong>Created by:</strong> <span class="margin-right-5">{{ deal.created_by.full_name || "Nobody" }} on</span><date date="deal.created"></date></div>
                         <div class="margin-top-20" ng-if="deal.description">
                             <strong class="margin-bottom-5">Description:</strong>
-                            <div>{{ deal.description }}</div>
+                            <div class="break-words">{{ deal.description }}</div>
                         </div>
                     </td>
                 </tr>

@@ -1,6 +1,6 @@
 <i class="lilicon hl-entity-icon margin-right-10" ng-if="er.type === 'Contact' && !er.items.length" uib-tooltip="{{ $root.messages.contact.contactInfoTooltip }}"></i>
 <span ng-show="!er.formVisible" class="editable editable-click addable-click">
-    <div ng-repeat="address in er.items">
+    <div class="form-inline-section" ng-repeat="address in er.items">
         {{ address.address }}
         <br />
         {{ address.postal_code }}, {{ address.city }}
@@ -18,36 +18,42 @@
     </div>
 </span>
 
-<form name="{{ er.formName }}" ng-show="er.formVisible" class="form-inline">
-    <div ng-repeat="address in er.items">
-        <input class="form-control"
-               maxlength="255"
-               placeholder="Address"
-               type="text"
-               ng-model="address.address"
-               ng-readonly="address.is_deleted">
-
-        <input class="form-control"
-               maxlength="255"
-               placeholder="Postal code"
-               type="text"
-               ng-model="address.postal_code"
-               ng-readonly="address.is_deleted">
-
-        <input class="form-control"
-               maxlength="255"
-               placeholder="City"
-               type="text"
-               ng-model="address.city"
-               ng-readonly="address.is_deleted">
-
-        <country-selector address="address"></country-selector>
-
-        <select class="form-control"
-                ng-model="address.type"
-                ng-options="type.key as type.value for type in er.addressTypes"
-                ng-readonly="address.is_deleted">
-        </select>
+<form name="{{ er.formName }}" ng-show="er.formVisible" class="form-inline js-form-prolyfill">
+    <div class="form-inline-section" ng-repeat="address in er.items">
+        <div class="form-inline-input">
+            <input class="form-control"
+                   maxlength="255"
+                   placeholder="Address"
+                   type="text"
+                   ng-model="address.address"
+                   ng-readonly="address.is_deleted">
+        </div>
+        <div class="form-inline-input">
+            <input class="form-control"
+                   maxlength="255"
+                   placeholder="Postal code"
+                   type="text"
+                   ng-model="address.postal_code"
+                   ng-readonly="address.is_deleted">
+        </div>
+        <div class="form-inline-input">
+            <input class="form-control"
+                   maxlength="255"
+                   placeholder="City"
+                   type="text"
+                   ng-model="address.city"
+                   ng-readonly="address.is_deleted">
+        </div>
+        <div class="form-inline-input">
+            <country-selector address="address"></country-selector>
+        </div>
+        <div class="form-inline-input">
+            <select class="form-control"
+                    ng-model="address.type"
+                    ng-options="type.key as type.value for type in er.addressTypes"
+                    ng-readonly="address.is_deleted">
+            </select>
+        </div>
 
         <div class="form-group">
             <i class="margin-left-5 clickable"

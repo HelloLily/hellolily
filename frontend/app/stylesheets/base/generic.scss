@@ -112,10 +112,6 @@ td {
 .actions {
     display: inline-block;
     margin-left: 10px;
-
-    select.xsm {
-        height: 26px;
-    }
 }
 
 /*  END DASHBOARD STUFF */
@@ -124,7 +120,7 @@ td {
     border: 1px solid #2d6ca2;
 }
 
-.inbox tr.unread td {
+.inbox .unread td {
     font-weight: 800;
     color: #595959;
 }
@@ -152,14 +148,16 @@ td {
     font-size: inherit !important;
 }
 
-label.required {
-    &:after {
-        vertical-align: middle;
-        margin-left: 5px;
-        font-size: 10px;
-        color: #c9c9c9;
-        display: inline-block;
-        content: "(required)";
+label {
+    &.required {
+        &:after {
+            vertical-align: middle;
+            margin-left: 5px;
+            font-size: 10px;
+            color: #c9c9c9;
+            display: inline-block;
+            content: "(required)";
+        }
     }
 }
 
@@ -425,6 +423,10 @@ table {
     margin-right: 5px;
 }
 
+.margin-right-30 {
+    margin-right: 30px;
+}
+
 .margin-bottom-5 {
     margin-bottom: 5px;
 }
@@ -490,4 +492,8 @@ table {
 
 .dropdown-backdrop {
     position: static;
+}
+
+.break-words {
+    word-break: break-word;
 }

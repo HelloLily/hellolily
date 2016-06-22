@@ -2048,10 +2048,6 @@ Form Layouts
   padding: 5px;
 }
 
-.form-inline input {
-  margin-bottom: 0px !important;
-}
-
 /* Control Label */
 .control-label {
   margin-top: 1px;

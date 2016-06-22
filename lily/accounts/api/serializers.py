@@ -116,9 +116,9 @@ class AccountSerializer(WritableNestedSerializer):
         # Handle websites as a special case:
         # reverse foreign key relations don't work yet with WritableNestedSerializer, so we manually update them.
         websites_validated_data = validated_data.pop('websites', {})
-        websites_initial_data = self.initial_data.get('websites', {})
         account = super(AccountSerializer, self).update(instance, validated_data)
         if self.partial:
+            websites_initial_data = self.initial_data.get('websites', {})
             for website_validated in websites_validated_data:
                 if 'id' in website_validated:
                     website_deleted = False

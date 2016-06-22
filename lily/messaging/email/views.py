@@ -25,6 +25,7 @@ from django.views.generic.base import View
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from oauth2client.client import OAuth2WebServerFlow
+from oauth2client.contrib.django_orm import Storage
 
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
@@ -36,11 +37,12 @@ from lily.utils.views.mixins import LoginRequiredMixin, FormActionMixin, AjaxFor
 from .forms import (ComposeEmailForm, CreateUpdateEmailTemplateForm, CreateUpdateTemplateVariableForm,
                     EmailAccountCreateUpdateForm, EmailTemplateFileForm, EmailTemplateSetDefaultForm)
 from .models.models import (EmailMessage, EmailAttachment, EmailAccount, EmailTemplate, DefaultEmailTemplate,
-                            EmailOutboxMessage, EmailOutboxAttachment, TemplateVariable)
-from .utils import (create_account, get_attachment_filename_from_url, get_email_parameter_choices,
-                    create_recipients, render_email_body, replace_cid_in_html, create_reply_body_header)
+                            EmailOutboxMessage, EmailOutboxAttachment, TemplateVariable, GmailCredentialsModel)
+from .services import build_gmail_service
 from .tasks import (send_message, create_draft_email_message, delete_email_message, archive_email_message,
                     update_draft_email_message)
+from .utils import (get_attachment_filename_from_url, get_email_parameter_choices, create_recipients,
+                    render_email_body, replace_cid_in_html, create_reply_body_header)
 
 
 logger = logging.getLogger(__name__)
@@ -59,10 +61,12 @@ FLOW = OAuth2WebServerFlow(
 class SetupEmailAuth(LoginRequiredMixin, View):
     def get(self, request):
         public = request.GET.get('public', 0)
+        only_new = request.GET.get('only_new', 0)
 
         state = b64encode(anyjson.serialize({
             'token': generate_token(settings.SECRET_KEY, request.user.pk),
             'public': public,
+            'only_new': only_new,
         }))
 
         authorize_url = FLOW.step1_get_authorize_url(state=state)
@@ -83,19 +87,45 @@ class OAuth2Callback(LoginRequiredMixin, View):
             return HttpResponseBadRequest()
         credentials = FLOW.step2_exchange(code=request.GET.get('code'))
 
-        account = create_account(credentials, request.user)
+        # Setup service to retrieve email address
+        service = build_gmail_service(credentials)
+        profile = service.users().getProfile(userId='me').execute()
+
+        # Create account based on email address
+        account, created = EmailAccount.objects.get_or_create(
+            owner=request.user,
+            email_address=profile.get('emailAddress')
+        )
+
+        # Store credentials based on new email account
+        storage = Storage(GmailCredentialsModel, 'id', account, 'credentials')
+        storage.put(credentials)
+
+        # Set account as authorized
+        account.is_authorized = True
+        account.is_deleted = False
+
+        account.label = account.label or account.email_address
+        account.from_name = account.from_name or ' '.join(account.email_address.split('@')[0].split('.')).title()
+
         set_to_public = bool(int(state.get('public')))
         if account.public is not set_to_public:
             account.public = set_to_public
-            account.save()
-            post_intercom_event(event_name='email-account-added', user_id=self.request.user.id)
+
+        only_sync_new_mails = bool(int(state.get('only_new')))
+        if only_sync_new_mails and created:
+            # Setting it before the first sync means it will only fetch changes starting now.
+            account.history_id = profile.get('historyId')
+
+        account.save()
+
+        post_intercom_event(event_name='email-account-added', user_id=request.user.id)
 
         return HttpResponseRedirect('/#/preferences/emailaccounts/edit/%s' % account.pk)
 
 
-class EmailAccountUpdateView(LoginRequiredMixin, AjaxFormMixin, SuccessMessageMixin, FormActionMixin,
-                             StaticContextMixin, UpdateView):
-    template_name = 'ajax_form.html'
+class EmailAccountUpdateView(LoginRequiredMixin, SuccessMessageMixin, FormActionMixin, StaticContextMixin, UpdateView):
+    template_name = 'form.html'
     model = EmailAccount
     form_class = EmailAccountCreateUpdateForm
     success_message = _('%(label)s has been updated.')
@@ -106,18 +136,11 @@ class EmailAccountUpdateView(LoginRequiredMixin, AjaxFormMixin, SuccessMessageMi
         Provide an url to go back to.
         """
         kwargs = super(EmailAccountUpdateView, self).get_context_data(**kwargs)
-        if not is_ajax(self.request):
-            kwargs.update({
-                'back_url': self.get_success_url(),
-            })
+        kwargs.update({
+            'back_url': self.get_success_url(),
+        })
 
         return kwargs
-
-    def get(self, request, *args, **kwargs):
-        if not is_ajax(request):
-            self.template_name = 'form.html'
-
-        return super(EmailAccountUpdateView, self).get(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
         """

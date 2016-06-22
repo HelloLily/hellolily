@@ -30,10 +30,14 @@
                 <li class="list-group-item"  ng-hide="vm.ownedAccounts.length">
                     No email accounts setup yet
                 </li>
-                <li class="list-group-item">
-                    <a href="/messaging/email/setup/">Add an email account</a>
+                <li class="list-group-item" style="text-align: center;">
+                    <a href="/messaging/email/setup/">Add an email account, sync everything</a>
+                    <span style="width: 30px; display: inline-block;">|</span>
+                    <a href="/messaging/email/setup/?only_new=1">Add an email account, sync starting now</a>
                     <br />
-                    <i>Gmail accounts only, link redirects to Google where you can authorize the email account you want to synchronize</i>
+                    <i>Gmail accounts only, link redirects to Google where you can authorize the email account you want to synchronize.</i>
+                    <br />
+                    <i>Choose whether you want to import all mail or start with a clean sheet. For now this can only be selected during setup.</i>
                 </li>
             </ul>
         </div>
@@ -87,10 +91,14 @@
                 <li class="list-group-item" ng-hide="vm.publicAccounts.length">
                     No company wide email accounts.
                 </li>
-                <li class="list-group-item">
-                    <a href="/messaging/email/setup/?public=1">Add an email account</a>
+                <li class="list-group-item" style="text-align: center;">
+                    <a href="/messaging/email/setup/?public=1">Add an email account, sync everything</a>
+                    <span style="width: 30px; display: inline-block;">|</span>
+                    <a href="/messaging/email/setup/?public=1&only_new=1">Add an email account, sync starting now</a>
                     <br />
-                    <i>Gmail accounts only, link redirects to Google where you can authorize the email account you want to synchronize</i>
+                    <i>Gmail accounts only, link redirects to Google where you can authorize the email account you want to synchronize.</i>
+                    <br />
+                    <i>Choose whether you want to import all mail or start with a clean sheet. For now this can only be selected during setup.</i>
                 </li>
             </ul>
         </div>

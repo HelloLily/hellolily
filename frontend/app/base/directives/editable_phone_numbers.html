@@ -5,7 +5,10 @@
             {{ phone.number }}
         </a>
     </div>
-    <div ng-if="!er.items.length">No phone numbers</div>
+    <div ng-if="!er.items.length">
+        <span ng-if="er.type !== 'Contact'">No phone number</span>
+        <span ng-if="er.type === 'Contact' ">No personal phone number</span>
+    </div>
 
     <div class="editable-icons" ng-class="{'no-edit': !er.items.length}">
         <span ng-if="er.items.length" class="editable-icon js-edit"><i class="lilicon hl-edit-icon"></i></span>

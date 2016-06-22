@@ -1,4 +1,4 @@
-<i class="lilicon hl-entity-icon margin-right-10" ng-if="!er.items.length" uib-tooltip="{{ $root.messages.contact.contactInfoTooltip }}"></i>
+<i class="lilicon hl-entity-icon margin-right-10" ng-if="er.type === 'Contact' && !er.items.length" uib-tooltip="{{ $root.messages.contact.contactInfoTooltip }}"></i>
 <span ng-show="!er.formVisible" class="editable editable-click addable-click">
     <div ng-repeat="address in er.items">
         {{ address.address }}
@@ -7,7 +7,10 @@
         <br />
         {{ address.country }}
     </div>
-    <div ng-if="!er.items.length">No addresses</div>
+    <div ng-if="!er.items.length">
+        <span ng-if="er.type !== 'Contact'">No address</span>
+        <span ng-if="er.type === 'Contact' ">No personal address</span>
+    </div>
 
     <div class="editable-icons" ng-class="{'no-edit': !er.items.length}">
         <span ng-if="er.items.length" class="editable-icon js-edit"><i class="lilicon hl-edit-icon"></i></span>

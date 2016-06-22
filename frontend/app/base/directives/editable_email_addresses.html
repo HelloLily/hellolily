@@ -5,7 +5,10 @@
             {{ email.email_address }}
         </a>
     </div>
-    <div ng-if="!er.items.length"> No email addresses</div>
+    <div ng-if="!er.items.length">
+        <span ng-if="er.type !== 'Contact'">No email address</span>
+        <span ng-if="er.type === 'Contact' ">No personal email address</span>
+    </div>
 
     <div class="editable-icons" ng-class="{'no-edit': !er.items.length}">
         <span ng-if="er.items.length" class="editable-icon js-edit"><i class="lilicon hl-edit-icon"></i></span>

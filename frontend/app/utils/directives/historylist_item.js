@@ -9,6 +9,7 @@ function HistoryListItemDirective($compile, $http, $templateCache) {
             history: '=',
             object: '=',
             deleteCallback: '&?',
+            updateCallback: '&?',
         },
         link: function(scope, element, attrs) {
             var getTemplate = function(historyType) {
@@ -43,6 +44,7 @@ function HistoryListItemController($state) {
     var vm = this;
 
     vm.replyOnEmail = replyOnEmail;
+    vm.updateModel = updateModel;
 
     /////
 
@@ -72,5 +74,9 @@ function HistoryListItemController($state) {
         }
 
         $state.go('base.email.reply', {id: vm.item.id});
+    }
+
+    function updateModel(data, field, object, type) {
+        vm.updateCallback()(data, field, object, type);
     }
 }

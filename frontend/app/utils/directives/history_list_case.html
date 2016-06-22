@@ -75,8 +75,8 @@
                                 <div class="content-history-date">{{ ::note.date | date:'dd MMM yyyy - HH:mm' }}</div>
                                 <div class="clearfix"></div>
                             </div>
-                            <div ng-if="note.content" class="content-history-note-body">
-                                {{ note.content }}
+                            <div class="content-history-note-body">
+                                <div class="pre-wrap" editable-textarea="note.content" e-rows="4" e-cols="100" onbeforesave="vm.updateModel($data, 'content', note, 'Note')" ng-bind-html="(note.content | parseUrls) || 'No description'"></div>
                             </div>
                         </li>
                         <li>

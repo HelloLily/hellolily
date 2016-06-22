@@ -75,7 +75,7 @@
                 </div>
 
                 <div ng-repeat="item in value.items" class="history-item" ng-show="!history.activeFilter || history.activeFilter == item.historyType">
-                    <history-list-item item="item" history="history" object="object" delete-callback="history.removeFromList(item)"></history-list-item>
+                    <history-list-item item="item" history="history" object="object" delete-callback="history.removeFromList(item)" update-callback="history.updateModel"></history-list-item>
                 </div>
             </div>
         </div>

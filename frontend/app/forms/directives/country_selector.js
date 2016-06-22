@@ -13,6 +13,11 @@ function countrySelector(Country) {
             Country.getList().then(function(countries) {
                 scope.countries = countries;
             });
+
+            if (currentUser.country) {
+                // Set the default country as the tenant's country.
+                scope.address.country = currentUser.country;
+            }
         },
     };
 }

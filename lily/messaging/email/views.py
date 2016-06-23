@@ -906,8 +906,7 @@ class EmailTemplateGetDefaultView(LoginRequiredMixin, View):
             default_email_template_id = None
 
             try:
-                current_user = get_current_user()
-                default_email_template = email_account.default_templates.get(user_id=current_user.id)
+                default_email_template = email_account.default_templates.get(account=email_account)
                 default_email_template_id = default_email_template.template.id
             except DefaultEmailTemplate.DoesNotExist:
                 pass

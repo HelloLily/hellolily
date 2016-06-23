@@ -5,13 +5,15 @@
         </h3>
     </div>
     <div class="modal-body">
-        <label ng-repeat="emailAccount in vm.emailAccountList">
-            <input type="checkbox"
-                   name="default_for"
-                   value="{{ emailAccount.id }}"
-                   ng-model="emailAccount.selected" />
-            {{ emailAccount.email_address }}
-        </label>
+        <div ng-repeat="emailAccount in vm.emailAccountList">
+            <label>
+                <input type="checkbox"
+                       name="default_for"
+                       value="{{ emailAccount.id }}"
+                       ng-model="emailAccount.selected" />
+                {{ emailAccount.email_address }}
+            </label>
+        </div>
         <field-error form="defaultForForm" field="default_for"></field-error>
     </div>
     <div class="modal-footer">

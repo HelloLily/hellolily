@@ -49,7 +49,7 @@ function PreferencesEmailTemplatesList($scope, $state, $uibModal, EmailAccount, 
                     return EmailTemplate.get({id: emailTemplateId}).$promise;
                 },
                 emailAccountList: function() {
-                    return EmailAccount.query().$promise;
+                    return EmailAccount.mine().$promise;
                 },
             },
         });

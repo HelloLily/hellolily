@@ -22,7 +22,7 @@ function errorConfig($stateProvider) {
 
 angular.module('app.base').controller('ErrorController', ErrorController);
 
-ErrorController.$inject = ['Settings', ];
+ErrorController.$inject = ['Settings'];
 function ErrorController(Settings) {
     Settings.page.setAllTitles('custom', 'Error');
 }

@@ -22,7 +22,7 @@ function notFoundConfig($stateProvider) {
 
 angular.module('app.base').controller('NotFoundController', NotFoundController);
 
-NotFoundController.$inject = ['Settings', ];
+NotFoundController.$inject = ['Settings'];
 function NotFoundController(Settings) {
     Settings.page.setAllTitles('custom', 'Not found');
 }

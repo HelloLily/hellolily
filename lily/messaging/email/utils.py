@@ -17,11 +17,8 @@ from django.utils.translation import ugettext_lazy as _
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
 
-from oauth2client.contrib.django_orm import Storage
-
 from .decorators import get_safe_template
-from .models.models import GmailCredentialsModel, EmailAccount, EmailAttachment
-from .services import build_gmail_service
+from .models.models import EmailAttachment
 from .sanitize import sanitize_html_email
 
 
@@ -30,27 +27,6 @@ _EMAIL_PARAMETER_API_DICT = {}
 _EMAIL_PARAMETER_CHOICES = {}
 
 logger = logging.getLogger(__name__)
-
-
-def create_account(credentials, user):
-    # Setup service to retrieve email address
-    service = build_gmail_service(credentials)
-    response = service.users().getProfile(userId='me').execute()
-
-    # Create account based on email address
-    account = EmailAccount.objects.get_or_create(
-        owner=user,
-        email_address=response.get('emailAddress'))[0]
-
-    # Store credentials based on new email account
-    storage = Storage(GmailCredentialsModel, 'id', account, 'credentials')
-    storage.put(credentials)
-
-    # Set account as authorized
-    account.is_authorized = True
-    account.is_deleted = False
-    account.save()
-    return account
 
 
 def get_field_names(field):

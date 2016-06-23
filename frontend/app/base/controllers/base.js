@@ -30,6 +30,8 @@ function BaseController($scope, $state, Settings, Notifications, HLShortcuts) {
 
         $scope.$on('$stateChangeSuccess', _setPreviousState);
         $scope.$on('$viewContentLoaded', _contentLoadedActions);
+
+        $scope.$on('$stateChangeError', _handleResolveErrors);
     }
 
     function loadNotifications() {
@@ -40,18 +42,6 @@ function BaseController($scope, $state, Settings, Notifications, HLShortcuts) {
         }, function(error) {  // On error
             toastr.error(error, 'Couldn\'t load notifications');
         });
-    }
-
-    function _contentLoadedActions() {
-        Metronic.unblockUI();
-        Metronic.initComponents(); // init core components
-        HLSelect2.init();
-        HLFormsets.init();
-        HLShowAndHide.init();
-        autosize($('textarea'));
-
-        $scope.loadNotifications();
-        $scope.toolbar = Settings.page.toolbar.data;
     }
 
     function _setPreviousState(event, toState, toParams, fromState, fromParams) {
@@ -80,5 +70,28 @@ function BaseController($scope, $state, Settings, Notifications, HLShortcuts) {
         // For some reason we need to do two update calls to display messages
         // when they should.
         new window.Intercom('update', {email: currentUser.email});
+    }
+
+    function _contentLoadedActions() {
+        Metronic.unblockUI();
+        Metronic.initComponents(); // init core components
+        HLSelect2.init();
+        HLFormsets.init();
+        HLShowAndHide.init();
+        autosize($('textarea'));
+
+        $scope.loadNotifications();
+        $scope.toolbar = Settings.page.toolbar.data;
+    }
+
+    function _handleResolveErrors(event, toState, toParams, fromState, fromParams, error) {
+        switch (error.status) {
+            case 404:
+                $state.go('base.404');
+                break;
+            default:
+                // With js errors, error isn't an object, but still the default case get's called.
+                $state.go('base.500');
+        }
     }
 }

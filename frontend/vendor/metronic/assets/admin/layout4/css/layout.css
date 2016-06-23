@@ -827,13 +827,6 @@ Page container
 /***
 Page sidebar
 ***/
-/* IE8 fix */
-.ie8 .page-sidebar {
-  width: 235px;
-  float: left;
-  position: relative;
-  margin-right: -100%;
-}
 
 /* Page Sidebar */
 .page-sidebar,
@@ -1665,10 +1658,6 @@ Theme Panel
   opacity: 0.6;
   filter: alpha(opacity=60);
   padding: 0 6px;
-}
-.btn-theme-panel .btn > i {
-  font-size: 24px;
-  color: #62707a;
 }
 .btn-theme-panel .btn:hover {
   opacity: 1;

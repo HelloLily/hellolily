@@ -1,0 +1,23 @@
+{% extends 'anonymous/base.html' %}
+{% load staticfiles %}
+
+{% block head-title %}Not found{% endblock head-title %}
+
+{% block page-content %}
+    <table class="hl-error-table">
+        <tbody>
+            <tr>
+                <td class="hl-error-image">
+                    <img src="{% static 'app/images/search-the-universe.1.svg' %}">
+                </td>
+                <td class="hl-error-message">
+                    <h2>404 - page not found</h2>
+                    <h1>
+                        I searched the universe to find
+                        this page, but it does not exist.
+                    </h1>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+{% endblock page-content %}

@@ -28,8 +28,10 @@
 @import "deals/deals";
 @import "mail/inbox";
 @import "mail/email";
+@import "base/errors";
 @import "base/generic";
 @import "vendor";
+
 
 body {
     font-family: 'Roboto', sans-serif !important;

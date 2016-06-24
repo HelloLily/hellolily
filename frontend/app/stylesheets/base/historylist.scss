@@ -44,7 +44,7 @@
 
 .history-timeline {
     list-style: none;
-    padding: 20px 0 20px;
+    padding: 20px 0;
     position: relative;
 }
 
@@ -126,6 +126,23 @@
 
     &:last-of-type {
         margin-bottom: 0;
+    }
+}
+
+.history-list-item.pinned-items {
+    .timeline-content-container.has-note:before {
+        background: $app-color-red;
+    }
+
+    .timeline-type i {
+        &:before {
+            display: none;
+        }
+
+        &:after {
+            content: $hl-pin-icon;
+            color: $app-color-darkblue;
+        }
     }
 }
 
@@ -248,10 +265,27 @@
 }
 
 .timeline-time {
-    margin-left: 90px;
-    color: #afb5c2;
+    padding: 10px;
+    background: darken($app-bg-color, 3);
+    margin-left: 85px;
+    color: $app-color-darkblue;
+    text-transform: uppercase;
+    font-weight: 600;
+    -webkit-font-smoothing: antialiased;
     position: relative;
     margin-bottom: 20px;
+    border-radius: 4px;
+
+    &:after {
+        position: absolute;
+        left: -6px;
+        content: "";
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 7px 6px 7px 0;
+        border-color: transparent darken($app-bg-color, 3) transparent transparent;
+    }
 
     &:before {
         content: " ";
@@ -262,8 +296,8 @@
         width: 16px;
         height: 16px;
         position: absolute;
-        left: -64px;
-        top: 2px;
+        left: -59px;
+        top: 10px;
     }
 
     @media (max-width: $breakpoint-mobile) {
@@ -304,7 +338,7 @@
     font-weight: 600;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    color: $lily-dark-blue;
+    color: $app-color-darkblue;
     margin-bottom: 10px;
     display: block;
     padding-right: 140px;
@@ -372,7 +406,6 @@
     color: #5b667b;
     font-size: 16px;
     position: absolute;
-    right: 0;
     line-height: 70px;
     top: 0;
     right: 20px;
@@ -598,6 +631,7 @@
 
         @media (max-width: $breakpoint-mobile) {
             padding-right: 10px;
+            
             i {
                 display: none;
             }

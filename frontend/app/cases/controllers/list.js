@@ -97,8 +97,6 @@ function CaseListController($scope, $state, $timeout, $uibModal, Case, HLFilters
      * @returns filterSpecialList (object): object containing the filter list.
      */
     function _getFilterSpecialList() {
-        var storedFilterSpecialList = vm.storage.get('filterSpecialListSelected', null);
-
         Case.getCaseTypes(function(caseTypes) {
             var filterList = [];
 
@@ -113,7 +111,7 @@ function CaseListController($scope, $state, $timeout, $uibModal, Case, HLFilters
             });
 
             // Merge previous stored selection with new filters.
-            HLFilters.getStoredSelections(filterList, storedFilterSpecialList);
+            HLFilters.getStoredSelections(filterList, vm.storedFilterSpecialList);
 
             vm.filterSpecialList = filterList;
 

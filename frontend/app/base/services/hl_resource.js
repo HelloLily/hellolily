@@ -68,9 +68,11 @@ function HLResource($injector) {
     };
 
     this.setSocialMediaFields = function(object) {
-        object.social_media.forEach(function(profile) {
-            object[profile.name] = profile;
-        });
+        if (object.social_media) {
+            object.social_media.forEach(function(profile) {
+                object[profile.name] = profile;
+            });
+        }
     };
 
     /**

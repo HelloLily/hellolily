@@ -20,7 +20,8 @@ strong {
         background-color: #3175af;
     }
 
-    &:active, &:focus {
+    &:active,
+    &:focus {
         background-color: #3071a9;
     }
 }
@@ -111,10 +112,6 @@ td {
 .actions {
     display: inline-block;
     margin-left: 10px;
-
-    select.xsm {
-        height: 26px;
-    }
 }
 
 /*  END DASHBOARD STUFF */
@@ -123,7 +120,7 @@ td {
     border: 1px solid #2d6ca2;
 }
 
-.inbox tr.unread td {
+.inbox .unread td {
     font-weight: 800;
     color: #595959;
 }
@@ -151,14 +148,16 @@ td {
     font-size: inherit !important;
 }
 
-label.required {
-    &:after {
-        vertical-align: middle;
-        margin-left: 5px;
-        font-size: 10px;
-        color: #c9c9c9;
-        display: inline-block;
-        content: "(required)";
+label {
+    &.required {
+        &:after {
+            vertical-align: middle;
+            margin-left: 5px;
+            font-size: 10px;
+            color: #c9c9c9;
+            display: inline-block;
+            content: "(required)";
+        }
     }
 }
 
@@ -371,12 +370,16 @@ table {
     }
 }
 
+.font-size-14 {
+    font-size: 14px;
+}
+
 .font-size-16 {
     font-size: 16px;
 }
 
 .font-size-18 {
-    font-size: 18px;
+    font-size: 18px !important;
 }
 
 .font-size-24 {
@@ -418,6 +421,10 @@ table {
 
 .margin-right-5 {
     margin-right: 5px;
+}
+
+.margin-right-30 {
+    margin-right: 30px;
 }
 
 .margin-bottom-5 {
@@ -485,4 +492,8 @@ table {
 
 .dropdown-backdrop {
     position: static;
+}
+
+.break-words {
+    word-break: break-word;
 }

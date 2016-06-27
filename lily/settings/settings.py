@@ -606,6 +606,7 @@ INTERNAL_IPS = (['127.0.0.1', '172.17.42.1'] +
 
 # dataprovider
 DATAPROVIDER_API_KEY = os.environ.get('DATAPROVIDER_API_KEY')
+DATAPROVIDER_API_URL = 'https://www.dataprovider.com/api/0.1/lookup/hostname.json'
 
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
 DEBUG_TOOLBAR_PANELS = [

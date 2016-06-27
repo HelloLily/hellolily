@@ -5,7 +5,10 @@
             {{ phone.number }}
         </a>
     </div>
-    <div ng-if="!er.items.length">No phone numbers</div>
+    <div ng-if="!er.items.length">
+        <span ng-if="er.type !== 'Contact'">No phone number</span>
+        <span ng-if="er.type === 'Contact' ">No personal phone number</span>
+    </div>
 
     <div class="editable-icons" ng-class="{'no-edit': !er.items.length}">
         <span ng-if="er.items.length" class="editable-icon js-edit"><i class="lilicon hl-edit-icon"></i></span>
@@ -13,9 +16,9 @@
     </div>
 </span>
 
-<form name="{{ er.formName }}" ng-show="er.formVisible" class="form-inline">
-    <div ng-repeat="phone in er.items">
-        <div class="form-group">
+<form name="{{ er.formName }}" ng-show="er.formVisible" class="form-inline js-form-prolyfill">
+    <div ng-repeat="phone in er.items" class="form-inline-section">
+        <div class="form-inline-input width-60">
             <input class="form-control"
                    maxlength="255"
                    placeholder="Phone number"
@@ -24,7 +27,7 @@
                    ng-model="phone.number" />
         </div>
 
-        <div class="form-group">
+        <div class="form-inline-input width-40">
             <select class="form-control"
                     ng-model="phone.type"
                     ng-readonly="phone.is_deleted"
@@ -32,7 +35,7 @@
             </select>
         </div>
 
-        <div class="form-group">
+        <div class="form-inline-input">
             <i class="margin-left-5 clickable"
                ng-class="{'fa fa-minus-circle': !phone.is_deleted, 'fa fa-undo': phone.is_deleted}"
                ng-click="er.removeRelatedField(phone)"></i>

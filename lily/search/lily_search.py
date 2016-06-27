@@ -162,7 +162,7 @@ class LilySearch(object):
                     'analyzer': 'cross_analyzer',
                     'fields': [
                         'id',
-                        'tag',
+                        'tags.name',
                         'email',
                         'email_addresses.email_address',
                         'account_name',

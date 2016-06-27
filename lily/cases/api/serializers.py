@@ -8,6 +8,7 @@ from lily.api.serializers import ContentTypeSerializer
 from lily.contacts.api.serializers import RelatedContactSerializer
 from lily.contacts.models import Function
 from lily.users.api.serializers import RelatedLilyUserSerializer, RelatedLilyGroupSerializer
+from lily.users.models import LilyGroup
 from lily.utils.api.serializers import RelatedTagSerializer
 
 from ..models import Case, CaseStatus, CaseType
@@ -105,6 +106,17 @@ class CaseSerializer(WritableNestedSerializer):
             validated_data.update({
                 'is_archived': True
             })
+
+        if self.partial:
+            if 'assigned_to_groups' in validated_data:
+                # Handle PATCH on assigned to groups as a special case.
+                # Removed assigned_to_groups lack the is_deleted flag, so replace the whole resource.
+                assigned_to_groups_validated_data = validated_data.pop('assigned_to_groups', {})
+                instance.assigned_to_groups.clear()
+                for group_validated in assigned_to_groups_validated_data:
+                    group = LilyGroup.objects.get(pk=group_validated['id'])
+                    if group:
+                        instance.assigned_to_groups.add(group)
 
         return super(CaseSerializer, self).update(instance, validated_data)
 

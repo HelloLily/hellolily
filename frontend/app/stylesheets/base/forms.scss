@@ -138,3 +138,77 @@
         display: inline;
     }
 }
+
+.form-inline {
+    .form-inline-section {
+        padding: 5px;
+        border-radius: $base-border-radius;
+        border: 1px dashed $base-border-color;
+        margin-bottom: 10px;
+
+        .editable-multi,
+        .editable-controls,
+        .editable-input {
+            width: 100%;
+        }
+
+        .editable-controls {
+            margin-bottom: 10px;
+        }
+    }
+
+    .form-inline-input {
+        width: 50%;
+        display: inline-block;
+        padding-top: 3px;
+        padding-bottom: 3px;
+        padding-left: 0;
+        padding-right: 3px;
+
+        &:nth-child(2n+2) {
+            padding-right: 0;
+            padding-left: 3px;
+        }
+
+        input {
+            width: 100%;
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        .form-control {
+            width: 100%;
+        }
+
+        .editable-select2 {
+            width: 100%;
+        }
+
+        &.width-20 {
+            width: 20%;
+        }
+
+        &.width-40 {
+            width: 40%;
+        }
+
+        &.width-60 {
+            width: 60%;
+        }
+
+        &.width-80 {
+            width: 80%;
+        }
+
+        &.width-100 {
+            width: 100%;
+        }
+
+    }
+}
+
+.js-form-prolyfill:container("width < 500px") {
+    .form-inline-input {
+        width: 100%;
+    }
+}

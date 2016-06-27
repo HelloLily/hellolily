@@ -15,6 +15,12 @@ function Note($resource) {
                     id: '@id',
                 },
             },
+            patch: {
+                method: 'PATCH',
+                params: {
+                    id: '@id',
+                },
+            },
         }
     );
     return _note;

@@ -1,0 +1,23 @@
+{% extends 'anonymous/base.html' %}
+{% load staticfiles %}
+
+{% block head-title %}Error{% endblock head-title %}
+
+{% block page-title %}Darn, my space rocket won't launch due to technical issues. I will get that fixed. Please be patient in the meantime.{% endblock page-title %}
+
+{% block page-content %}
+    <table class="hl-error-table">
+        <tbody>
+            <tr>
+                <td class="hl-error-image">
+                    <img src="{% static 'app/images/rocket-wont-launch.1.svg' %}">
+                </td>
+                <td class="hl-error-message">
+                    <h2>500 - internal server error</h2>
+                    <h1>Darn, my space rocket won't launch due to technical issues.</h1>
+                    <h3>I will get that fixed. Please be patient in the meantime.</h3>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+{% endblock page-content %}

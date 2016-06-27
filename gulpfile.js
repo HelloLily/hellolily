@@ -84,15 +84,8 @@ var config = {
                 'frontend/vendor/**/*angular.js',
                 'frontend/vendor/**/*.js',
                 '!frontend/vendor/**/angular-mocks.js',
-                '!frontend/vendor/metronic/assets/global/plugins/ie-fixes/**/*.js',  // IE fixes
             ],
             fileName: 'vendor.js',
-            IEFixes: {
-                src: [
-                    'frontend/vendor/metronic/assets/global/plugins/ie-fixes/**/*.js',
-                ],
-                fileName: 'ie-fixes.js',
-            },
         },
         css: {
             src: [
@@ -260,21 +253,6 @@ gulp.task('vendor-js', [], function() {
         .pipe(ifElse(isWatcher, livereload));
 });
 
-gulp.task('ie-fixes', [], function() {
-    return gulp.src(config.vendor.js.IEFixes.src)
-        .pipe(ifElse(!isProduction, function() {
-            return sourcemaps.init();
-        }))
-        .pipe(ifElse(isProduction, uglify))
-        .pipe(concat(config.vendor.js.IEFixes.fileName))
-        .pipe(ifElse(!isProduction, function() {
-            return sourcemaps.write('.');
-        }))
-        .pipe(gulp.dest(config.vendor.buildDir))
-        .pipe(ifElse(isWatcher, size))
-        .pipe(ifElse(isWatcher, livereload));
-});
-
 gulp.task('vendor-css', [], function() {
     return gulp.src(config.vendor.css.src)
         .pipe(ifElse(!isProduction, function() {
@@ -319,7 +297,7 @@ gulp.task('analytics', [], function() {
 /**
  * Concatenate, minify and make source maps of all js and css.
  */
-gulp.task('build', ['app-js', 'app-css', 'app-templates', 'app-assets', 'vendor-js', 'vendor-css', 'vendor-assets', 'analytics', 'ie-fixes'], function() {});
+gulp.task('build', ['app-js', 'app-css', 'app-templates', 'app-assets', 'vendor-js', 'vendor-css', 'vendor-assets', 'analytics'], function() {});
 
 /**
  * This is a custom gulp watch change trigger that builds changed
@@ -420,11 +398,6 @@ gulp.task('watch', [], function() {
     // Gather all other static from vendor.
     watch(config.vendor.assets.src, function() {
         gulp.start('vendor-assets');
-    });
-
-    // JS with IE fixes.
-    watch(config.vendor.js.IEFixes.src, function() {
-        gulp.start('ie-fixes');
     });
 
     watch(config.sphinx, '').on('change', buildSphinx);

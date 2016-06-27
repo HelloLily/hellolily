@@ -88,7 +88,9 @@ function ListWidgetController($filter, $state, Settings) {
     function _setCollapsed(items) {
         var list;
         var cases;
+        var deals;
         var archivedCases;
+        var archivedDeals;
 
         if (items.hasOwnProperty('objects')) {
             list = items.objects;
@@ -102,7 +104,7 @@ function ListWidgetController($filter, $state, Settings) {
 
         // We want to apply a certain sorting for cases.
         if (vm.title === 'Cases') {
-            // Separate not archived cases and order by priority.
+            // Separate non-archived cases and order by priority.
             cases = $filter('filter')(list, {is_archived: false});
             cases = $filter('orderBy')(cases, '-priority');
 
@@ -110,10 +112,24 @@ function ListWidgetController($filter, $state, Settings) {
             archivedCases = $filter('filter')(list, {is_archived: true});
             archivedCases = $filter('orderBy')(archivedCases, '-expires');
 
-            // Merge both arrays.
+            // Add archived cases to cases array.
             cases.push.apply(cases, archivedCases);
 
             list = cases;
+        }
+
+        // We want to apply a certain sorting for deals.
+        if (vm.title === 'Deals') {
+            // Separate non-archived deals.
+            deals = $filter('filter')(list, {is_archived: false});
+
+            // Separate archived deals.
+            archivedDeals = $filter('filter')(list, {is_archived: true});
+
+            // Add archived deals to deals array.
+            deals.push.apply(deals, archivedDeals);
+
+            list = deals;
         }
 
         vm.list = list;

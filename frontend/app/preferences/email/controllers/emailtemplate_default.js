@@ -4,13 +4,13 @@ PreferencesSetTemplateDefaultModal.$inject = ['$uibModalInstance', 'HLForms', 'E
 function PreferencesSetTemplateDefaultModal($uibModalInstance, HLForms, EmailTemplate, emailTemplate, emailAccountList) {
     var vm = this;
     vm.emailTemplate = emailTemplate;
-    vm.emailAccountList = emailAccountList.results;
+    vm.emailAccountList = emailAccountList;
     vm.ok = ok;
     vm.cancel = cancel;
 
     activate();
 
-    ///////////////////
+    /////
 
     function activate() {
         vm.emailAccountList.forEach(function(emailAccount) {

@@ -15,12 +15,12 @@ function HLShortcuts($state, $timeout, $rootScope) {
         }
 
         if ($state.current.name === 'base.email.detail') {
-            //
             Mousetrap.bind('c', function() {
                 _replyViaShortcode();
                 // Unbind after pressed so next bind can take place.
                 Mousetrap.unbind('c');
             });
+
             Mousetrap.bind('r', function() {
                 _replyViaShortcode();
                 // Unbind after pressed so next bind can take place.
@@ -42,27 +42,30 @@ function HLShortcuts($state, $timeout, $rootScope) {
                 // Unbind after pressed so next bind can take place.
                 Mousetrap.unbind('e');
             });
+        }
 
-            // Function for both the c and r key when in Email Detail view.
-            function _replyViaShortcode() {
-                var message = $state.params.id;
-                if (message) {
-                    $state.go('base.email.reply', {id: message});
-                }
+        // Function for both the c and r key when in Email Detail view.
+        function _replyViaShortcode() {
+            var message = $state.params.id;
+            if (message) {
+                $state.go('base.email.reply', {id: message});
             }
         }
 
         $timeout(function() {
-            if (angular.element('.search-input').length) {
+            var searchField = '.hl-search-field';
+
+            if (angular.element(searchField).length) {
                 Mousetrap.bind('s', function() {
-                    var scope = angular.element($('.search-input').get(0)).scope();
-                    angular.element('.search-input').focus();
+                    var scope = angular.element($(searchField).get(0)).scope();
+                    angular.element(searchField).focus();
                     // TODO: Remove if statement if Contacts get refactored
                     // To utilize vm.table. instead of table.
                     if ($state.current.name === 'base.contacts') {
                         scope.table.filter = '';
-                    // TODO: Remove else if statement if we refactor code to
-                    // make the filter/search model consistent.
+
+                        // TODO: Remove else if statement if we refactor code to
+                        // make the filter/search model consistent.
                     } else if ($state.current.name === 'base.deals' || $state.current.name === 'base.cases') {
                         scope.vm.table.searchQuery = '';
                     } else {

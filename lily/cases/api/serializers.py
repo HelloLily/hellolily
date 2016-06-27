@@ -108,14 +108,15 @@ class CaseSerializer(WritableNestedSerializer):
             })
 
         if self.partial:
-            # Handle PATCH on assigned to groups as a special case.
-            # Removed assigned_to_groups lack the is_deleted flag, so replace the whole resource.
-            assigned_to_groups_validated_data = validated_data.pop('assigned_to_groups', {})
-            instance.assigned_to_groups.clear()
-            for group_validated in assigned_to_groups_validated_data:
-                group = LilyGroup.objects.get(pk=group_validated['id'])
-                if group:
-                    instance.assigned_to_groups.add(group)
+            if 'assigned_to_groups' in validated_data:
+                # Handle PATCH on assigned to groups as a special case.
+                # Removed assigned_to_groups lack the is_deleted flag, so replace the whole resource.
+                assigned_to_groups_validated_data = validated_data.pop('assigned_to_groups', {})
+                instance.assigned_to_groups.clear()
+                for group_validated in assigned_to_groups_validated_data:
+                    group = LilyGroup.objects.get(pk=group_validated['id'])
+                    if group:
+                        instance.assigned_to_groups.add(group)
 
         return super(CaseSerializer, self).update(instance, validated_data)
 

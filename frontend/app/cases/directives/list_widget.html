@@ -49,7 +49,7 @@
                         <div class="margin-bottom-5"><strong>Created by:</strong> <span class="margin-right-5">{{ case.created_by.full_name || "Nobody" }} on</span><date date="case.created"></date></div>
                         <div class="margin-top-20" ng-if="case.description.length">
                             <strong class="margin-bottom-5">Description:</strong>
-                            <div>{{ case.description }}</div>
+                            <div class="break-words">{{ case.description }}</div>
                         </div>
                     </td>
                 </tr>

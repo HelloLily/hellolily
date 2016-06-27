@@ -250,8 +250,7 @@ $inline-editable-field-height: 30px;
 .editable-related-actions {
     background: $lily-white-tone-hover;
     border: 1px $lily-grey solid;
-    border-bottom-left-radius: $base-border-radius;
-    border-bottom-right-radius: $base-border-radius;
+    border-radius: $base-border-radius;
     height: $inline-editable-field-height;
 
     .btn {

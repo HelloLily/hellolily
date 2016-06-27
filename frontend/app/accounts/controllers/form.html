@@ -19,7 +19,7 @@
                                maxlength="255"
                                placeholder="www.example.com"
                                type="text"
-                               ng-blur="vm.checkDomainForDuplicates()"
+                               on-enter-key="vm.checkDomainForDuplicates()"
                                ng-model="vm.account.primaryWebsite" />
                             <span class="input-group-btn">
                                 <button autocomplete="off"

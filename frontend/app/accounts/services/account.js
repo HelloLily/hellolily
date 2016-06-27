@@ -191,7 +191,9 @@ function Account($http, $q, $resource, HLResource, HLUtils, HLCache, CacheFactor
 
         if (sanitizedUrl.length > 1) {
             $http({
-                url: '/provide/account/' + sanitizedUrl,
+                url: '/api/provide/dataprovider/',
+                method: 'POST',
+                data: {url: sanitizedUrl},
             }).success(function(response) {
                 if (response.error) {
                     deferred.reject('Failed to load data');

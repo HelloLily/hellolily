@@ -18,8 +18,8 @@ function contactsConfig($stateProvider) {
 
 angular.module('app.contacts').controller('ContactListController', ContactListController);
 
-ContactListController.$inject = ['$scope', '$window', 'Settings', 'Contact', 'LocalStorage'];
-function ContactListController($scope, $window, Settings, Contact, LocalStorage) {
+ContactListController.$inject = ['$scope', '$window', 'Settings', 'Account', 'Contact', 'LocalStorage'];
+function ContactListController($scope, $window, Settings, Account, Contact, LocalStorage) {
     var storage = new LocalStorage('contactList');
 
     Settings.page.setAllTitles('list', 'contacts');
@@ -73,11 +73,23 @@ function ContactListController($scope, $window, Settings, Contact, LocalStorage)
 
         Contact.search({
             q: $scope.table.filter,
-            page: $scope.table.page - 1,
+            page: $scope.table.page,
             size: $scope.table.pageSize,
             sort: sort,
         }, function(data) {
             $scope.table.items = data.objects;
+
+            $scope.table.items.forEach(function(contact) {
+                if (contact.accounts) {
+                    contact.accounts.forEach(function(account) {
+                        Account.get({id: account.id}, {cache: true}).$promise.then(function(accountData) {
+                            account.primary_email_address = accountData.primary_email_address;
+                            account.phone_numbers = accountData.phone_numbers;
+                        });
+                    });
+                }
+            });
+
             $scope.table.totalItems = data.total;
         });
     }

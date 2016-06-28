@@ -1,7 +1,7 @@
 angular.module('app.contacts.services').factory('Contact', Contact);
 
-Contact.$inject = ['$resource', 'HLResource', 'Settings'];
-function Contact($resource, HLResource, Settings) {
+Contact.$inject = ['$filter', '$resource', 'HLResource', 'Settings'];
+function Contact($filter, $resource, HLResource, Settings) {
     var _contact = $resource(
         '/api/contacts/contact/:id/',
         null,
@@ -11,6 +11,8 @@ function Contact($resource, HLResource, Settings) {
                     var jsonData = angular.fromJson(data);
 
                     HLResource.setSocialMediaFields(jsonData);
+
+                    jsonData.primary_email_address = $filter('primaryEmail')(jsonData.email_addresses);
 
                     return jsonData;
                 },
@@ -46,6 +48,8 @@ function Contact($resource, HLResource, Settings) {
 
                     if (jsonData && jsonData.hits && jsonData.hits.length > 0) {
                         jsonData.hits.forEach(function(obj) {
+                            obj.primary_email_address = $filter('primaryEmail')(obj.email_addresses);
+
                             objects.push(obj);
                         });
                     }

@@ -249,7 +249,13 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
                         var emailMessageList = results[1];
 
                         emailMessageList.forEach(function(email) {
-                            email.gravatar = HLGravatar.getGravatar(email.sender_email);
+                            User.search({filterquery: 'email:' + email.sender_email}).$promise.then(function(userResults) {
+                                if (userResults.objects[0]) {
+                                    email.profile_picture = userResults.objects[0].profile_picture;
+                                } else {
+                                    email.profile_picture = HLGravatar.getGravatar(email.sender_email);
+                                }
+                            });
 
                             tenantEmailAccountList.forEach(function(emailAddress) {
                                 if (emailAddress.email_address === email.sender_email) {

@@ -15,17 +15,23 @@ function EmailAccountShareModalController($uibModalInstance, EmailAccount, User,
         // Get all users to display in a list.
         User.query({}, function(data) {
             vm.users = [];
-            // Check if user has the emailaccount already shared.
+            // Check if user has the email account already shared.
             angular.forEach(data.results, function(user) {
-                if (vm.currentAccount.shared_with_users.indexOf(user.id) !== -1) {
-                    user.sharedWith = true;
+                // Can't share with yourself, so don't include own user.
+                if (user.id !== currentUser.id) {
+                    if (vm.currentAccount.shared_with_users.indexOf(user.id) !== -1) {
+                        user.sharedWith = true;
+                    }
+
+                    vm.users.push(user);
                 }
-                vm.users.push(user);
             });
         });
     }
 
     function ok() {
+        var sharedWithUsers = [];
+
         // Save updated account information.
         if (vm.currentAccount.public) {
             EmailAccount.update({id: vm.currentAccount.id}, vm.currentAccount, function() {
@@ -33,7 +39,6 @@ function EmailAccountShareModalController($uibModalInstance, EmailAccount, User,
             });
         } else {
             // Get ids of the users to share with.
-            var sharedWithUsers = [];
             angular.forEach(vm.users, function(user) {
                 if (user.sharedWith) {
                     sharedWithUsers.push(user.id);

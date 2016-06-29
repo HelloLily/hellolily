@@ -1,6 +1,7 @@
 import logging
 from django.db.models import Q
-from rest_framework import viewsets, mixins, status, filters
+from django.utils.translation import ugettext_lazy as _
+from rest_framework import viewsets, mixins, status, filters, serializers
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.filters import DjangoFilterBackend
 from rest_framework.response import Response
@@ -129,6 +130,11 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
         account.save()
 
         for user_id in request.data['shared_with_users']:
+            if user_id == request.user.id:
+                raise serializers.ValidationError({
+                    'shared_with_users': _('Can\'t share your email account with yourself')
+                })
+
             user = LilyUser.objects.get(id=user_id, tenant=request.user.tenant)
             account.shared_with_users.add(user)
 

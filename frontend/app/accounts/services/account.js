@@ -161,6 +161,20 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
 
                 account.twitter = response.twitter;
             }
+
+            if (field === 'customer_id') {
+                // Change status to Active if customer_id is succesfully updated.
+                _account.getStatuses(function(statusResponse) {
+                    args = {
+                        id: account.id,
+                        status: _account.relationStatus.id,
+                    };
+                    if (account.status.id === _account.relationStatus.id) {
+                        HLResource.patch('Account', args).$promise;
+                        account.status = _account.activeStatus;
+                    }
+                });
+            }
         });
 
         return patchPromise;

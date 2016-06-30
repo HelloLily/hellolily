@@ -158,17 +158,19 @@ function CaseListController($scope, $state, $timeout, $uibModal, Case, HLFilters
         UserTeams.mine(function(teams) {
             var myTeamIds = [];
 
-            // Get a list with id's of all my teams.
-            teams.forEach(function(team) {
-                myTeamIds.push(team.id);
-            });
+            if (teams.length) {
+                // Get a list with id's of all my teams.
+                teams.forEach(function(team) {
+                    myTeamIds.push(team.id);
+                });
 
-            // Create a filter for cases assigned to one of my teams.
-            filterList.push({
-                name: 'My teams cases',
-                value: 'assigned_to_groups:(' + myTeamIds.join(' OR ') + ')',
-                selected: false,
-            });
+                // Create a filter for cases assigned to one of my teams.
+                filterList.push({
+                    name: 'My teams cases',
+                    value: 'assigned_to_groups:(' + myTeamIds.join(' OR ') + ')',
+                    selected: false,
+                });
+            }
 
             // Merge previous stored selection with new filters.
             HLFilters.getStoredSelections(filterList, storedFilterList);

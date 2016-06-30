@@ -36,7 +36,10 @@ class LilyUserMapping(BaseMapping):
                 'index_analyzer': 'normal_ngram_analyzer',
             },
             'is_active': {
-                'type': 'boolean'
+                'type': 'boolean',
+            },
+            'email': {
+                'type': 'string',
             }
         })
         return mapping
@@ -53,6 +56,7 @@ class LilyUserMapping(BaseMapping):
             'full_name': obj.full_name,
             'position': obj.position,
             'profile_picture': obj.profile_picture,
+            'email': obj.email,
         }
 
 

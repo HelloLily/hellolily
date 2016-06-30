@@ -24,7 +24,7 @@ function contactsConfig($stateProvider) {
                 return Case.query({filterquery: 'contact.id:' + $stateParams.id, sort: 'expires', size: 100}).$promise;
             }],
             dealList: ['Deal', '$stateParams', function(Deal, $stateParams) {
-                return  Deal.query({filterquery: 'contact.id:' + $stateParams.id, sort: '-next_step_date'}).$promise;
+                return Deal.query({filterquery: 'contact.id:' + $stateParams.id, sort: '-next_step_date'}).$promise;
             }],
         },
     });
@@ -32,8 +32,8 @@ function contactsConfig($stateProvider) {
 
 angular.module('app.contacts').controller('ContactDetailController', ContactDetailController);
 
-ContactDetailController.$inject = ['$scope', 'Contact', 'Settings', 'currentContact', 'caseList', 'dealList'];
-function ContactDetailController($scope, Contact, Settings, currentContact, caseList, dealList) {
+ContactDetailController.$inject = ['$filter', '$scope', 'Contact', 'Settings', 'currentContact', 'caseList', 'dealList'];
+function ContactDetailController($filter, $scope, Contact, Settings, currentContact, caseList, dealList) {
     var vm = this;
 
     vm.contact = currentContact;
@@ -60,7 +60,11 @@ function ContactDetailController($scope, Contact, Settings, currentContact, case
 
     $scope.$watchCollection('vm.contact.accounts', function() {
         vm.contact.accounts.forEach(function(account) {
-            var colleagueList = Contact.search({filterquery: 'NOT(id:' + vm.contact.id + ') AND accounts.id:' + account.id});
+            var colleagueList;
+
+            account.primary_email_address = $filter('primaryEmail')(account.email_addresses);
+
+            colleagueList = Contact.search({filterquery: 'NOT(id:' + vm.contact.id + ') AND accounts.id:' + account.id, size: 50});
             colleagueList.$promise.then(function(response) {
                 account.colleagueList = response.objects;
             });

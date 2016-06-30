@@ -5,6 +5,10 @@
  * file that was distributed with this source code.
  */
 
+window.cqConfig = {
+	postcss: true
+};
+
 (function(
 	window,
 	document,

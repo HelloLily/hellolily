@@ -5,6 +5,8 @@ We have mixins in order to keep our cascading style sheets DRY (Don't Repeat
 Yourself) and maintainable.
 */
 
+@import "base/prolyfill";
+
 @function text-color($text-color) {
     @if (lightness($text-color) > 75) {
         @return #000;

@@ -268,16 +268,8 @@ class is applied to, so be sure it has a wrapping container.
     }
 }
 
-@media (max-width: $breakpoint-desktop) {
-    .js-cq-widget-container:container("width < 900px") {
-        .external-link-name {
-            display: none;
-        }
-    }
-}
-
-@media (min-width: $breakpoint-desktop) {
-    .js-cq-widget-container:container("width < 500px") {
+.js-cq-widget-container {
+    @include prolyfill("width < 500px") {
         .external-link-name {
             display: none;
         }

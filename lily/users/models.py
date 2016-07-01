@@ -53,6 +53,13 @@ class LilyUserManager(UserManager):
 
         return user
 
+    def get_by_natural_key(self, email):
+        """"
+        Define how the user should be retrieved.
+        Default is to do a case sensitive match.
+        """
+        return self.get(email__iexact=email)
+
 
 class LilyGroup(TenantMixin):
     """
@@ -126,6 +133,10 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name', ]
+
+    def save(self, *args, **kwargs):
+        self.email = self.email.lower()
+        super(LilyUser, self).save(*args, **kwargs)
 
     @property
     def full_name(self):

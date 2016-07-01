@@ -53,9 +53,9 @@ function contactConfig($stateProvider) {
  */
 angular.module('app.contacts').controller('ContactCreateUpdateController', ContactCreateUpdateController);
 
-ContactCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', 'Settings', 'Account', 'Contact',
+ContactCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', '$timeout', 'Settings', 'Account', 'Contact',
     'HLFields', 'HLForms', 'HLSearch'];
-function ContactCreateUpdateController($scope, $state, $stateParams, Settings, Account, Contact, HLFields, HLForms,
+function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, Settings, Account, Contact, HLFields, HLForms,
                                        HLSearch) {
     var vm = this;
 
@@ -76,6 +76,12 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Settings, A
 
     function activate() {
         _getContact();
+
+        $timeout(function() {
+            // Focus the first input on page load.
+            angular.element('.form-control')[0].focus();
+            $scope.$apply();
+        });
     }
 
     function _getContact() {

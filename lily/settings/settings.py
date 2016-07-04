@@ -262,6 +262,7 @@ INSTALLED_APPS = (
     'djangoformsetjs',
     'rest_framework',
     'rest_framework.authtoken',
+    'raven.contrib.django.raven_compat',
 
     # Django
     'django.contrib.admin',
@@ -575,10 +576,13 @@ REST_FRAMEWORK = {
 }
 
 #######################################################################################################################
-# Intercom settings                                                                                                   #
+# External app settings                                                                                               #
 #######################################################################################################################
 INTERCOM_APP_ID = os.environ.get('INTERCOM_APP_ID', '')
 INTERCOM_KEY = os.environ.get('INTERCOM_KEY', '')
+
+SENTRY_PUBLIC_DSN = os.environ.get('SENTRY_PUBLIC_DSN', '')
+SENTRY_DSN = os.environ.get('SENTRY_DSN', '')
 
 #######################################################################################################################
 # TESTING                                                                                                             #

@@ -1,3 +1,8 @@
+// Include libraries.
+var Raven = require('raven-js');
+
+window.sprintf = require('sprintf-js').sprintf;
+
 /**
  * App Module is the entry point for Lily related Angular code
  */
@@ -45,9 +50,6 @@ angular.module('app', [
     'app.filters',
 ]);
 
-// Include libraries for global use.
-window.sprintf = require('sprintf-js').sprintf;
-
 angular.module('app').config(appConfig);
 
 appConfig.$inject = [
@@ -69,6 +71,13 @@ function appConfig($breadcrumbProvider, $controllerProvider, $httpProvider, $res
     $resourceProvider.defaults.stripTrailingSlashes = false;
     $urlRouterProvider.otherwise('/');
 }
+
+// Global exception handler.
+angular.module('app').factory('$exceptionHandler', function() {
+    return function(exception) {
+        Raven.captureException(exception);
+    };
+});
 
 /* Init global settings and run the app. */
 angular.module('app').run(runApp);
@@ -101,5 +110,11 @@ function runApp($rootScope, $state, editableOptions, HLMessages, Tenant, UserTea
         widget: {
             activator: '#IntercomDefaultWidget',
         },
+    });
+
+    // Setup Raven for global JS error logging.
+    Raven.config(window.sentryPublicDsn).addPlugin(require('raven-js/plugins/angular'), angular).install();
+    Raven.setUserContext({
+        id: currentUser.id,
     });
 }

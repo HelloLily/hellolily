@@ -125,6 +125,7 @@ class GmailConnector(object):
         response = self.execute_service_call(self.service.users().messages().list(
             userId='me',
             quotaUser=self.email_account.id,
+            q='!in:chats',
         ))
 
         messages = response['messages'] if 'messages' in response else []

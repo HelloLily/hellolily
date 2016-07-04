@@ -2,7 +2,6 @@ from datetime import date, timedelta
 from hashlib import sha256
 
 import anyjson
-from braces.views import GroupRequiredMixin
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.tokens import PasswordResetTokenGenerator

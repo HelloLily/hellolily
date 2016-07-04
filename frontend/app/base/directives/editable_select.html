@@ -29,7 +29,7 @@
             <editable-ui-select-match placeholder="{{ es.placeholder }}">
                 {{ $item[es.optionDisplay] }}
             </editable-ui-select-match>
-            <editable-ui-select-choices repeat="item in es.choices | filterItems: es.selectModel" refresh="es.refreshChoices($select.search)" refresh-delay="150">
+            <editable-ui-select-choices repeat="item in es.choices | filterItems: $select.selected" refresh="es.refreshChoices($select.search)" refresh-delay="150">
                 <div ng-bind-html="item[es.optionDisplay] | highlight: $select.search"></div>
             </editable-ui-select-choices>
         </div>

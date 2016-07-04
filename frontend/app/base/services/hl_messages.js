@@ -5,6 +5,7 @@ function HLMessages() {
     return {
         contact: {
             accountInfoTooltip: 'I\'ve loaded the selected account\'s data for you. Now you don\'t have to enter duplicate data!',
+            accountListInfoTooltip: 'This is the data of the account(s) the contact works for',
             contactInfoTooltip: 'This is the current contact\'s data',
         },
         alerts: {

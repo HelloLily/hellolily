@@ -207,8 +207,12 @@
     }
 }
 
-.js-form-prolyfill:container("width < 500px") {
-    .form-inline-input {
-        width: 100%;
+.js-form-prolyfill {
+    @include prolyfill("width < 500px") {
+        .form-inline-input {
+            width: 100%;
+            padding-left: 0;
+            padding-right: 0;
+        }
     }
 }

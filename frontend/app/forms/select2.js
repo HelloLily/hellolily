@@ -1,4 +1,4 @@
-(function($, window, document, undefined){
+(function($, window, document) {
     window.HLSelect2 = {
         config: {
             tagInputs: 'input.tags',
@@ -8,7 +8,7 @@
             clearText: '-- Clear --',
         },
 
-        init: function( config ) {
+        init: function(config) {
             var self = this;
             // Setup configuration
             if ($.isPlainObject(config)) {
@@ -35,27 +35,32 @@
                 // (9 is the amount at which the user must scroll to see all items)
                 minimumResultsForSearch: 9,
             });
+
             this.createTagInputs();
             this.createAjaxInputs();
         },
 
         createTagInputs: function() {
+            var tags = [];
+            var $this;
+
             // Setup tag inputs
             $(this.config.tagInputs).each(function() {
                 if (!$(this).data().hasOwnProperty('select2')) {
-                    var tags = [];
-                    var $this = $(this);
+                    $this = $(this);
+
                     if ($this.data('choices')) {
                         tags = $this.data('choices').split(',');
                     }
+
                     $this.select2({
                         tags: tags,
                         tokenSeparators: [','],
                         width: '100%',
-                        createSearchChoice: function (term, data) {
-                            if ($(data).filter(function () {
-                                    return this.text.localeCompare(term) === 0;
-                                }).length === 0) {
+                        createSearchChoice: function(term, data) {
+                            if ($(data).filter(function() {
+                                return this.text.localeCompare(term) === 0;
+                            }).length === 0) {
                                 return {
                                     id: term,
                                     text: term + ' (new tag)',
@@ -78,50 +83,62 @@
                 window.Select2.util.markMatch(result.email_address, query.term, emailMarkup, escapeMarkup);
 
                 resultRow =
-                '<div>' +
+                    '<div>' +
                     '<div>' + nameMarkup.join('') + '</div>' +
                     '<div class="text-muted">' + emailMarkup.join('') + '</div>' +
-                '</div>';
+                    '</div>';
             } else {
                 window.Select2.util.markMatch(result.text, query.term, markup, escapeMarkup);
 
                 resultRow =
-                '<div>' +
+                    '<div>' +
                     '<div>' + markup.join('') + '</div>' +
-                '</div>';
+                    '</div>';
             }
 
             return resultRow;
         },
 
         createAjaxInputs: function() {
-            // Setup inputs that needs remote link
+            // Setup inputs that needs remote link.
             var self = this;
             var cf = self.config;
 
             $(cf.ajaxInputs).each(function() {
+                var options;
+                var filterQuery;
+
                 var $this = $(this);
                 var _data = $this.data();
+
                 // _data.tags is a marker for AjaxSelect2Widget which indicates
                 // that it expects multiple values as input.
 
-                // Prevent Select2 from being initialized on elements that already have Select2
+                // Prevent Select2 from being initialized on elements that already have Select2.
                 if (!_data.hasOwnProperty('select2')) {
-                    var options = {
+                    options = {
                         formatResult: self.formatResult,
                         ajax: {
                             cache: true,
-                            data: function (term, page) {
-                                // page is the one-based page number tracked by Select2
+                            data: function(searchTerm, page) {
+                                var termStripped;
+                                var filters;
+
+                                // Page is the one-based page number tracked by Select2.
                                 var data = null;
+                                var term;
+
+                                if (searchTerm === '') {
+                                    // Elasticsearch breaks when the term is empty, so just look for non-empty results.
+                                    term = '*';
+                                } else {
+                                    // Otherwise escape the search term so special characters don't break Elasticsearch.
+                                    term = '"' + searchTerm + '"';
+                                }
 
                                 if ($this.hasClass(cf.tagsAjaxClass) && !_data.tags) {
-                                    if (term === '') {
-                                        // elasticsearch breaks when the term is empty, so just look for non-empty results
-                                        term = '*';
-                                    }
-                                    // search for contacts and accounts containing the search term, but only those with an email address
-                                    var filterQuery = '((_type:contacts_contact AND (full_name:(' + term + ') OR email_addresses.email_address:(' + term + '))) ' +
+                                    // Search for contacts and accounts containing the search term, but only those with an email address.
+                                    filterQuery = '((_type:contacts_contact AND (full_name:(' + term + ') OR email_addresses.email_address:(' + term + '))) ' +
                                         'OR (_type:accounts_account AND (full_name:(' + term + ') OR email_addresses.email_address:(' + term + ')))) ' +
                                         'AND email_addresses.email_address:*';
 
@@ -129,35 +146,39 @@
                                         filterquery: filterQuery,
                                         size: cf.ajaxPageLimit, // page size
                                         page: (page - 1), // page number, zero-based
-                                        sort: '-modified' // sort modified descending
+                                        sort: '-modified', // sort modified descending
                                     };
-                                }
-                                else {
-                                    var term_stripped = term.trim();
+                                } else {
+                                    termStripped = term.trim();
                                     data = {
-                                        filterquery: term_stripped ? 'name:('+term_stripped+')' : '', //search term
+                                        filterquery: termStripped ? 'name:(' + termStripped + ')' : '', //search term
                                         size: cf.ajaxPageLimit, // page size
                                         page: (page - 1), // page number, zero-based
-                                        sort: '-modified' // sort modified descending
+                                        sort: '-modified', // sort modified descending
                                     };
                                 }
 
-                                var filters = $this.data('filter-on');
+                                filters = $this.data('filter-on');
+
                                 if (typeof filters !== 'undefined' && filters !== '') {
-                                    filters.split(',').forEach(function (filter) {
+                                    filters.split(',').forEach(function(filter) {
+                                        var filterVal;
+                                        var filterName;
+
                                         if (filter.indexOf('id_') === 0) {
-                                            var filter_val = $('#' + filter).val();
-                                            var filter_name = filter.substring(3);
-                                            if (filter_name.indexOf('case_quickbutton_') === 0) {
-                                                filter_name = filter.substring(20);
-                                            } else if (filter_name == 'account') {
+                                            filterVal = $('#' + filter).val();
+                                            filterName = filter.substring(3);
+
+                                            if (filterName.indexOf('case_quickbutton_') === 0) {
+                                                filterName = filter.substring(20);
+                                            } else if (filterName === 'account') {
                                                 // This is a special case at the moment, in the future we might have
                                                 // more cases like this.
                                                 // But for now, just do this check
-                                                filter_name = 'accounts.id';
+                                                filterName = 'accounts.id';
                                             }
-                                            if (filter_val && filter_val > 0) {
-                                                data.filterquery += ' ' + filter_name + ':' + filter_val;
+                                            if (filterVal && filterVal > 0) {
+                                                data.filterquery += ' ' + filterName + ':' + filterVal;
                                             }
                                         } else {
                                             data.type = filter;
@@ -168,17 +189,20 @@
                                 return data;
                             },
 
-                            results: function (data, page) {
+                            results: function(data, page) {
+                                var usedText;
+                                var displayedText;
+                                var i;
+
                                 var more = (page * cf.ajaxPageLimit) < data.total; // whether or not there are more results available
+                                var parsedData = [];
 
                                 if ($this.hasClass(cf.tagsAjaxClass) && !_data.tags) {
-                                    var parsed_data = [];
-
-                                    data.hits.forEach(function (hit) {
+                                    data.hits.forEach(function(hit) {
                                         var displayedName;
 
-                                        // Only display contacts with an email address
-                                        for (var i = 0; i < hit.email_addresses.length; i++) {
+                                        // Only display contacts with an email address.
+                                        for (i = 0; i < hit.email_addresses.length; i++) {
                                             if (hit.hasOwnProperty('full_name')) {
                                                 displayedName = hit.full_name;
                                             } else {
@@ -186,14 +210,15 @@
                                             }
 
                                             // The text which is actually used in the application
-                                            var used_text = '"' + displayedName + '" <' + hit.email_addresses[i].email_address + '>';
+                                            usedText = '"' + displayedName + '" <' + hit.email_addresses[i].email_address + '>';
                                             // The displayed text
-                                            var displayed_text = displayedName + ' <' + hit.email_addresses[i].email_address + '>';
+                                            displayedText = displayedName + ' <' + hit.email_addresses[i].email_address + '>';
+
                                             // Select2 sends 'id' as the value, but we want to use the email
                                             // So store the actual id (hit.id) under a different name
-                                            parsed_data.push({
-                                                id: used_text,
-                                                text: displayed_text,
+                                            parsedData.push({
+                                                id: usedText,
+                                                text: displayedText,
                                                 name: hit.name,
                                                 email_address: hit.email_addresses[i].email_address,
                                                 object_id: hit.id,
@@ -202,18 +227,18 @@
                                     });
 
                                     // Array elements with empty text can't be added to select2, so manually fill a new array
-                                    data.hits = parsed_data;
-                                }
-                                else {
-                                    data.hits.forEach(function (hit) {
+                                    data.hits = parsedData;
+                                } else {
+                                    data.hits.forEach(function(hit) {
                                         hit.text = hit.name;
                                     });
                                 }
 
                                 // Add clear option, but not for multiple select2.
-                                if ((page == 1 && !$this.hasClass(cf.tagsAjaxClass)) && !_data.tags) {
-                                    data.hits.unshift({id: '', text:cf.clearText});
+                                if ((page === 1 && !$this.hasClass(cf.tagsAjaxClass)) && !_data.tags) {
+                                    data.hits.unshift({id: '', text: cf.clearText});
                                 }
+
                                 return {
                                     results: data.hits,
                                     more: more,
@@ -221,10 +246,10 @@
                             },
                         },
 
-                        initSelection: function (item, callback) {
+                        initSelection: function(item, callback) {
                             var id = item.val();
                             var text = item.data('selected-text');
-                            var data = { id: id, text: text };
+                            var data = {id: id, text: text};
                             callback(data);
                         },
                     };
@@ -233,10 +258,10 @@
                         options.tags = true;
                         options.tokenSeparators = [','];
                         // Create a new tag if there were no results
-                        options.createSearchChoice = function (term, data) {
-                            if ($(data).filter(function () {
-                                    return this.text.localeCompare(term) === 0;
-                                }).length === 0) {
+                        options.createSearchChoice = function(term, data) {
+                            if ($(data).filter(function() {
+                                return this.text.localeCompare(term) === 0;
+                            }).length === 0) {
                                 return {
                                     id: term,
                                     text: term,
@@ -263,5 +288,4 @@
             });
         },
     };
-
 })(jQuery, window, document);

@@ -1,7 +1,9 @@
 angular.module('app.accounts.services').factory('Account', Account);
 
-Account.$inject = ['$http', '$q', '$resource', 'HLResource', 'HLUtils', 'HLCache', 'CacheFactory', 'Settings'];
-function Account($http, $q, $resource, HLResource, HLUtils, HLCache, CacheFactory, Settings) {
+Account.$inject = ['$filter', '$http', '$q', '$resource', 'HLResource', 'HLUtils', 'HLCache',
+    'CacheFactory', 'Settings'];
+function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
+                 CacheFactory, Settings) {
     var _account = $resource(
         '/api/accounts/account/:id/',
         null,
@@ -13,6 +15,8 @@ function Account($http, $q, $resource, HLResource, HLUtils, HLCache, CacheFactor
                     var jsonData = angular.fromJson(data);
 
                     HLResource.setSocialMediaFields(jsonData);
+
+                    jsonData.primary_email_address = $filter('primaryEmail')(jsonData.email_addresses);
 
                     return jsonData;
                 },
@@ -156,6 +160,20 @@ function Account($http, $q, $resource, HLResource, HLUtils, HLCache, CacheFactor
                 HLResource.setSocialMediaFields(response);
 
                 account.twitter = response.twitter;
+            }
+
+            if (field === 'customer_id') {
+                // Change status to Active if customer_id is succesfully updated.
+                _account.getStatuses(function(statusResponse) {
+                    args = {
+                        id: account.id,
+                        status: _account.relationStatus.id,
+                    };
+                    if (account.status.id === _account.relationStatus.id) {
+                        HLResource.patch('Account', args).$promise;
+                        account.status = _account.activeStatus;
+                    }
+                });
             }
         });
 

@@ -30,8 +30,15 @@ def update_in_index(instance, mapping):
 
         try:
             main_index_with_type = get_index_name(main_index, mapping)
-            tasks.index_objects(mapping, [instance.id], es=es, index=main_index_with_type)
-            es.indices.refresh(main_index_with_type)
+            try:
+                document = mapping.extract_document(instance.id, instance)
+            except Exception as exc:
+                logger.exception('Unable to extract document {0}: {1}'.format(
+                    instance, repr(exc)))
+            else:
+                # Index object direct instead of bulk_index, to prevent multiple reads from db
+                mapping.index(document, id_=instance.id, es=es, index=main_index_with_type)
+                es.indices.refresh(main_index_with_type)
         except Exception, e:
             logger.error(traceback.format_exc(e))
 

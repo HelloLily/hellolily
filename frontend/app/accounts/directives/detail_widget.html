@@ -79,6 +79,13 @@
                 </tr>
 
                 <tr>
+                    <td><i class="lilicon hl-entity-icon"></i> <strong>Customer ID</strong></td>
+                    <td>
+                        <span class="pre-wrap" editable-text="vm.account.customer_id" onbeforesave="vm.updateModel($data, 'customer_id')">{{ vm.account.customer_id || 'No customer id' }}</span>
+                    </td>
+                </tr>
+
+                <tr>
                     <td><i class="fa fa-tag"></i> <strong>Tags</strong></td>
                     <td>
                         <editable-tags view-model="vm" type="Account"></editable-tags>
@@ -89,7 +96,7 @@
                     <td colspan="2">
                         <strong class="margin-bottom-5">Description</strong>
                         <div>
-                            <div class="break-words margin-right-30 pre-wrap" editable-textarea="vm.account.description" e-rows="4" e-cols="100" onbeforesave="vm.updateCallback($data, 'description')">{{ (vm.account.description | parseUrls) || 'No description' }}</div>
+                            <div class="break-words margin-right-30 pre-wrap" editable-textarea="vm.account.description" e-rows="4" e-cols="100" onbeforesave="vm.updateModel($data, 'description')">{{ (vm.account.description | parseUrls) || 'No description' }}</div>
                         </div>
                     </td>
                 </tr>

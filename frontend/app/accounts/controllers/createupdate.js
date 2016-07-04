@@ -348,7 +348,7 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
     }
 
     function setStatusForCustomerId() {
-        if (vm.account.status === undefined || vm.account.status === vm.relationStatus) {
+        if (vm.account.status.id === vm.relationStatus.id) {
             vm.account.status = vm.activeStatus;
         }
     }

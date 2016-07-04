@@ -2,7 +2,6 @@ from datetime import date, timedelta
 from hashlib import sha256
 
 import anyjson
-from braces.views import GroupRequiredMixin
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
@@ -232,7 +231,7 @@ class LoginView(View):
         )
 
 
-class SendInvitationView(GroupRequiredMixin, FormSetView):
+class SendInvitationView(FormSetView):
     """
     This view is used to invite new people to the site. It works with a formset to allow easy
     adding of multiple invitations. It also checks whether the call is done via ajax or via a normal
@@ -244,7 +243,6 @@ class SendInvitationView(GroupRequiredMixin, FormSetView):
     formset_class = InvitationFormset
     extra = 1
     can_delete = True
-    group_required = ['account_admin', ]
 
     def formset_valid(self, formset):
         """

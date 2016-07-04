@@ -906,10 +906,20 @@ class EmailTemplateGetDefaultView(LoginRequiredMixin, View):
             default_email_template_id = None
 
             try:
-                default_email_template = email_account.default_templates.get(account=email_account)
+                # Try to get the default template by user.
+                current_user = get_current_user()
+                default_email_template = email_account.default_templates.get(user_id=current_user.id)
                 default_email_template_id = default_email_template.template.id
             except DefaultEmailTemplate.DoesNotExist:
-                pass
+                try:
+                    # If nothing is found it's most likely because it was shared
+                    # and then set as default by the person it was shared with.
+                    # So try to get by email account.
+                    default_email_template = email_account.default_templates.get(account=email_account)
+                    default_email_template_id = default_email_template.template.id
+                except (DefaultEmailTemplate.MultipleObjectsReturned, DefaultEmailTemplate.DoesNotExist):
+                    # Still fails so just return nothing.
+                    pass
 
             return HttpResponse(anyjson.serialize({
                 'template_id': default_email_template_id,
@@ -955,7 +965,7 @@ class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
 
         # Setup regex to find custom variables
         search_regex = '\[\[ custom\.(.*?) \]\]'
-        # Find all occurences
+        # Find all occurrences.
         search_result = re.findall(search_regex, template.body_html)
 
         if search_result:

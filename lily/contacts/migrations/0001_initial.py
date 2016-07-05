@@ -37,7 +37,7 @@ class Migration(migrations.Migration):
                 'verbose_name': 'contact',
                 'verbose_name_plural': 'contacts',
             },
-            bases=(models.Model, lily.utils.models.mixins.CaseClientModelMixin),
+            bases=(models.Model, ),
         ),
         migrations.CreateModel(
             name='Function',

@@ -121,6 +121,7 @@ class GmailManager(object):
         Fetches the changes from the GMail api and creates tasks for the mutations.
         """
         logger.info('updating history for %s with history_id %s' % (self.email_account, self.email_account.history_id))
+        old_history_id = self.email_account.history_id
 
         history = self.connector.get_history()
         if not len(history):
@@ -164,7 +165,9 @@ class GmailManager(object):
             app.send_task('update_labels_for_message', args=[self.email_account.id, message_id])
 
         self.connector.save_history_id()
-        self.update_unread_count()
+        # Only update the unread count if the history id was updated.
+        if old_history_id != self.email_account.history_id:
+            self.update_unread_count()
 
     def update_unread_count(self):
         """

@@ -13,13 +13,14 @@ primaryEmail.$inject = ['$filter'];
 function primaryEmail($filter) {
     return function(emailAddresses) {
         var primaryEmailAddress = '';
+        var filteredEmailAddresses = $filter('filter')(emailAddresses, {status: '!' + 0});
 
-        if (emailAddresses && emailAddresses.length) {
-            primaryEmailAddress = $filter('filter')(emailAddresses, {status: 2})[0];
+        if (filteredEmailAddresses && filteredEmailAddresses.length) {
+            primaryEmailAddress = $filter('filter')(filteredEmailAddresses, {status: 2})[0];
 
             if (!primaryEmailAddress) {
                 // No primary email set, so just get the first active email address.
-                primaryEmailAddress = $filter('filter')(emailAddresses, {status: '!' + 0})[0];
+                primaryEmailAddress = filteredEmailAddresses[0];
             }
 
             primaryEmailAddress = primaryEmailAddress.email_address;

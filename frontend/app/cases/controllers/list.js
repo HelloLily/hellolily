@@ -27,6 +27,7 @@ function CaseListController($scope, $state, $timeout, $uibModal, Case, HLFilters
 
     vm.storage = new LocalStorage('cases');
     vm.storedFilterSpecialList = vm.storage.get('filterSpecialListSelected', null);
+    vm.storedFilterList = vm.storage.get('filterListSelected', null);
     vm.updateTable = updateTable;
 
     Settings.page.setAllTitles('list', 'cases');
@@ -126,13 +127,12 @@ function CaseListController($scope, $state, $timeout, $uibModal, Case, HLFilters
      * @returns filterList (object): object containing the filter list.
      */
     function _getFilterOnList() {
-        var storedFilterList = vm.storage.get('filterListSelected', null);
         var filterList;
 
         // Use the value from storage first.
         // (Because it is faster; loading the list uses AJAX requests).
-        if (storedFilterList) {
-            vm.filterList = storedFilterList;
+        if (vm.storedFilterList) {
+            vm.filterList = vm.storedFilterList;
         }
 
         // But we still update the list afterwards (in case a filter was changed).
@@ -173,7 +173,7 @@ function CaseListController($scope, $state, $timeout, $uibModal, Case, HLFilters
             }
 
             // Merge previous stored selection with new filters.
-            HLFilters.getStoredSelections(filterList, storedFilterList);
+            HLFilters.getStoredSelections(filterList, vm.storedFilterList);
 
             vm.filterList = filterList;
 

@@ -73,7 +73,7 @@ function ContactListController($scope, $window, Settings, Account, Contact, Loca
 
         Contact.search({
             q: $scope.table.filter,
-            page: $scope.table.page,
+            page: $scope.table.page - 1,
             size: $scope.table.pageSize,
             sort: sort,
         }, function(data) {

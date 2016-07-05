@@ -89,7 +89,7 @@
                                     <td><span editable-text="vm.deal.amount_recurring" onbeforesave="vm.updateModel($data, 'amount_recurring')" blur="submit">{{ vm.deal.amount_recurring | currency:"€" }}</span></td>
                                 </tr>
 
-                                <tr ng-show="vm.deal.why_lost">
+                                <tr ng-if="vm.deal.why_lost">
                                     <td><strong>Why lost</strong></td>
                                     <td><editable-select field="why_lost" view-model="vm" type="Deal">{{ vm.deal.why_lost.name }}</editable-select></td>
                                 </tr>

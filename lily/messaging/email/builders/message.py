@@ -407,18 +407,28 @@ class MessageBuilder(object):
         for recipient in recipients:
             # Get or create recipient
             email_address = email.utils.parseaddr(recipient)
-            recipient = Recipient.objects.get_or_create(
-                name=email_address[0],
-                email_address=email_address[1],
-            )[0]
 
-            # Set recipient to correct field
-            if header_name == 'from':
-                self.message.sender = recipient
-            elif header_name in ['to', 'delivered-to']:
-                self.received_by.add(recipient)
-            elif header_name == 'cc':
-                self.received_by_cc.add(recipient)
+            if email_address[1] == '':
+                # Log empty recipient email addresses
+                logger.warning('Empty email address for recipient: %s \n %s \n %s \n %s' % (
+                    header_name,
+                    header_value,
+                    recipient,
+                    email_address
+                ))
+            else:
+                recipient = Recipient.objects.get_or_create(
+                    name=email_address[0],
+                    email_address=email_address[1],
+                )[0]
+
+                # Set recipient to correct field
+                if header_name == 'from':
+                    self.message.sender = recipient
+                elif header_name in ['to', 'delivered-to']:
+                    self.received_by.add(recipient)
+                elif header_name == 'cc':
+                    self.received_by_cc.add(recipient)
 
     def save(self):
         # Only save if there is a sent date, otherwise its a chat message

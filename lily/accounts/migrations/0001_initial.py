@@ -41,7 +41,7 @@ class Migration(migrations.Migration):
                 'verbose_name': 'account',
                 'verbose_name_plural': 'accounts',
             },
-            bases=(models.Model, lily.utils.models.mixins.CaseClientModelMixin),
+            bases=(models.Model, ),
         ),
         migrations.CreateModel(
             name='Website',

@@ -11,7 +11,7 @@ from lily.tenant.models import TenantMixin
 from lily.users.models import LilyUser
 from lily.utils.functions import flatten, clean_website
 from lily.utils.models.models import EmailAddress
-from lily.utils.models.mixins import Common, CaseClientModelMixin
+from lily.utils.models.mixins import Common
 
 
 def get_account_logo_upload_path(instance, filename):
@@ -34,7 +34,7 @@ class AccountStatus(TenantMixin):
         ordering = ['position']
 
 
-class Account(Common, TaggedObjectMixin, CaseClientModelMixin):
+class Account(Common, TaggedObjectMixin):
     """
     Account model, this is a company's profile. May have relations with contacts.
     """

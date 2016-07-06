@@ -10,6 +10,7 @@ from lily.api.serializers import ContentTypeSerializer
 from lily.socialmedia.api.serializers import RelatedSocialMediaSerializer
 from lily.utils.api.serializers import (RelatedPhoneNumberSerializer, RelatedAddressSerializer,
                                         RelatedEmailAddressSerializer, RelatedTagSerializer)
+from lily.utils.sanitizers import HtmlSanitizer
 from ..models import Contact, Function
 
 
@@ -96,6 +97,11 @@ class ContactSerializer(WritableNestedSerializer):
 
     def create(self, validated_data):
         account_list = validated_data.pop('accounts', None)
+        description = validated_data.get('description')
+
+        validated_data.update({
+            'description': HtmlSanitizer(description).clean().render(),
+        })
 
         with transaction.atomic():
             instance = super(ContactSerializer, self).create(validated_data)
@@ -107,6 +113,12 @@ class ContactSerializer(WritableNestedSerializer):
 
     def update(self, instance, validated_data):
         account_list = validated_data.pop('accounts', None)
+        description = validated_data.get('description')
+
+        validated_data.update({
+            'description': HtmlSanitizer(description).clean().render(),
+        })
+
         with transaction.atomic():
             instance = super(ContactSerializer, self).update(instance, validated_data)
 

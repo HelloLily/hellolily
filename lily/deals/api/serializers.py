@@ -14,6 +14,7 @@ from lily.contacts.api.serializers import RelatedContactSerializer
 from lily.contacts.models import Function
 from lily.users.api.serializers import RelatedLilyUserSerializer
 from lily.utils.api.serializers import RelatedTagSerializer
+from lily.utils.sanitizers import HtmlSanitizer
 
 from ..models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost, DealFoundThrough, DealContactedBy, DealStatus
 
@@ -183,6 +184,7 @@ class DealSerializer(WritableNestedSerializer):
         status_id = validated_data.get('status').get('id')
         status = DealStatus.objects.get(pk=status_id)
         closed_date = validated_data.get('closed_date')
+        description = validated_data.get('description')
 
         # Set closed_date if status is lost/won and not manually provided.
         if (status.is_won or status.is_lost) and not closed_date:
@@ -193,6 +195,7 @@ class DealSerializer(WritableNestedSerializer):
         validated_data.update({
             'created_by_id': user.pk,
             'closed_date': closed_date,
+            'description': HtmlSanitizer(description).clean().render(),
         })
 
         assigned_to = validated_data.get('assigned_to')
@@ -210,6 +213,7 @@ class DealSerializer(WritableNestedSerializer):
             status_id = status_id.get('id')
         status = DealStatus.objects.get(pk=status_id)
         closed_date = validated_data.get('closed_date', instance.closed_date)
+        description = validated_data.get('description')
 
         # Set closed_date after changing status to lost/won and reset it when it's any other status.
         if status.is_won or status.is_lost:
@@ -220,6 +224,10 @@ class DealSerializer(WritableNestedSerializer):
 
         validated_data.update({
             'closed_date': closed_date,
+        })
+
+        validated_data.update({
+            'description': HtmlSanitizer(description).clean().render(),
         })
 
         return super(DealSerializer, self).update(instance, validated_data)

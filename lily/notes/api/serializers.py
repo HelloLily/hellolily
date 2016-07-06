@@ -22,7 +22,7 @@ class NoteSerializer(serializers.ModelSerializer):
 
         validated_data.update({
             'author_id': user.pk,
-            'content': HtmlSanitizer(content).clean().linkify().render(),
+            'content': HtmlSanitizer(content).clean().render(),
         })
 
         return super(NoteSerializer, self).create(validated_data)
@@ -32,7 +32,7 @@ class NoteSerializer(serializers.ModelSerializer):
 
         if content:
             validated_data.update({
-                'content': HtmlSanitizer(content).clean().linkify().render(),
+                'content': HtmlSanitizer(content).clean().render(),
             })
 
         return super(NoteSerializer, self).update(instance, validated_data)

@@ -50,7 +50,7 @@
                 <div class="widget-content">
                     <div class="widget-content-section">
                         <div><strong>Description</strong></div>
-                        <div class="pre-wrap" editable-textarea="vm.deal.description" e-rows="4" e-cols="100" onbeforesave="vm.updateModel($data, 'description')" ng-bind-html="(vm.deal.description | parseUrls) || 'No description'"></div>
+                        <editable-textarea view-model="vm" field="description" object="vm.deal"></editable-textarea>
                     </div>
 
                     <div class="widget-content-section">

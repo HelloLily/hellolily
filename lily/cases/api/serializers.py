@@ -10,6 +10,7 @@ from lily.contacts.models import Function
 from lily.users.api.serializers import RelatedLilyUserSerializer, RelatedLilyGroupSerializer
 from lily.users.models import LilyGroup
 from lily.utils.api.serializers import RelatedTagSerializer
+from lily.utils.sanitizers import HtmlSanitizer
 
 from ..models import Case, CaseStatus, CaseType
 
@@ -86,15 +87,18 @@ class CaseSerializer(WritableNestedSerializer):
 
     def create(self, validated_data):
         user = self.context.get('request').user
+        description = validated_data.get('description')
 
         validated_data.update({
-            'created_by_id': user.pk
+            'created_by_id': user.pk,
+            'description': HtmlSanitizer(description).clean().render(),
         })
 
         return super(CaseSerializer, self).create(validated_data)
 
     def update(self, instance, validated_data):
         status_id = validated_data.get('status', instance.status_id)
+        description = validated_data.get('description')
 
         if isinstance(status_id, dict):
             status_id = status_id.get('id')
@@ -106,6 +110,10 @@ class CaseSerializer(WritableNestedSerializer):
             validated_data.update({
                 'is_archived': True
             })
+
+        validated_data.update({
+            'description': HtmlSanitizer(description).clean().render(),
+        })
 
         if self.partial:
             if 'assigned_to_groups' in validated_data:

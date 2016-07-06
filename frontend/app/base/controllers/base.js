@@ -90,7 +90,7 @@ function BaseController($scope, $state, Settings, Notifications, HLShortcuts) {
                 $state.go('base.404');
                 break;
             default:
-                // With js errors, error isn't an object, but still the default case get's called.
+                // With JS errors, error isn't an object, but still the default case gets called.
                 $state.go('base.500');
         }
     }

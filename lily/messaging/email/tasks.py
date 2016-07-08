@@ -58,7 +58,6 @@ def synchronize_email_account(account_id):
         manager = GmailManager(email_account)
         try:
             manager.sync_by_history()
-            manager.update_unread_count()
             logger.info('History page sync done for: %s', email_account)
         except ManagerError:
             pass

@@ -2,6 +2,7 @@ import logging
 import traceback
 
 from celery.task import task
+from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 
@@ -463,3 +464,50 @@ def update_draft_email_message(email_outbox_message_id, current_draft_pk):
             manager.cleanup()
 
     return draft_success
+
+
+@task(name='toggle_star_email_message', logger=logger)
+def toggle_star_email_message(email_id, star=True):
+    """
+    (Un)star a message.
+
+    Args:
+        email_id (int): id of the EmailMessage
+        star (boolean, optional): if True, message will be starred
+    """
+    try:
+        email_message = EmailMessage.objects.get(pk=email_id)
+    except EmailMessage.DoesNotExist:
+        logger.debug('EmailMessage no longer exists: %s', email_id)
+    else:
+        manager = GmailManager(email_message.account)
+        try:
+            logger.debug('Toggle star for: %s', email_message)
+            manager.toggle_star_email_message(email_message, star)
+        except Exception:
+            logger.exception('Failed toggle star for: %s', email_message)
+        finally:
+            manager.cleanup()
+
+
+@task(name='mark_message_as_spam', logger=logger)
+def mark_message_as_spam(email_id):
+    """
+    Mark message as spam.
+
+    Args:
+        email_id (int): id of the EmailMessage
+    """
+    try:
+        email_message = EmailMessage.objects.get(pk=email_id)
+    except EmailMessage.DoesNotExist:
+        logger.warning('EmailMessage no longer exists: %s', email_id)
+    else:
+        manager = GmailManager(email_message.account)
+        try:
+            logger.debug('Marking message as spam: %s', email_message)
+            manager.mark_email_message_as_spam(email_message)
+        except Exception:
+            logger.exception('Failed marking as spam: %s', email_message)
+        finally:
+            manager.cleanup()

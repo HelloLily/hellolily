@@ -312,15 +312,30 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
 
         if ($stateParams.labelId) {
             filterquery.push('label_id:' + $stateParams.labelId);
+
+            if ($stateParams.labelId === 'TRASH') {
+                filterquery.push('is_removed:true');
+                filterquery.push('is_spam:false'); // like Gmail, don't show deleted spam emails.
+            } else if ($stateParams.labelId !== 'SPAM') {
+                filterquery.push('is_removed:false');
+            }
+
+            if ($stateParams.labelId === 'SPAM') {
+                filterquery.push('is_spam:true');
+            }
         } else {
+            // Corresponds with the 'All mail'-label.
             filterquery.push('NOT label_id:Sent');
+            // Exclude removed emails and spam.
+            //filterquery.push('is_removed:false'); // TODO: LILY-1812: 'all mail' shows incorrectly deleted mails.
+            filterquery.push('is_spam:false');
         }
 
         if ($stateParams.accountId) {
             filterquery.push('account:' + $stateParams.accountId);
 
             if ($stateParams.labelId) {
-                // Get the label for the given accountId
+                // Get the label for the given accountId.
                 EmailLabel.query({
                     label_id: $stateParams.labelId,
                     account__id: $stateParams.accountId,
@@ -333,14 +348,10 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
                     }
                 });
             }
-            // Get the account for the given accountId
+            // Get the account for the given accountId.
             vm.account = EmailAccount.get({id: $stateParams.accountId});
         } else {
             vm.label = {id: $stateParams.labelId, name: $stateParams.labelId.hlCapitalize()};
-        }
-
-        if ($stateParams.labelId && $stateParams.labelId !== 'TRASH') {
-            filterquery.push('is_removed:false');
         }
 
         if (filterquery) {

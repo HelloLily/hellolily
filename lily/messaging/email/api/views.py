@@ -14,10 +14,10 @@ from lily.users.models import LilyUser
 
 from .serializers import (EmailLabelSerializer, EmailAccountSerializer, EmailMessageSerializer,
                           EmailTemplateSerializer, SharedEmailConfigSerializer, TemplateVariableSerializer)
-from ..models.models import EmailLabel, EmailAccount, EmailMessage, EmailTemplate, SharedEmailConfig, \
-    TemplateVariable
+from ..models.models import (EmailLabel, EmailAccount, EmailMessage, EmailTemplate, SharedEmailConfig,
+                             TemplateVariable)
 from ..tasks import (trash_email_message, delete_email_message, archive_email_message, toggle_read_email_message,
-                     add_and_remove_labels_for_message)
+                     add_and_remove_labels_for_message, toggle_star_email_message, mark_message_as_spam)
 
 
 logger = logging.getLogger(__name__)
@@ -200,7 +200,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         email.is_removed = True
         email.save()
         serializer = self.get_serializer(email, partial=True)
-        if trashed is False:
+        if not trashed:
             trash_email_message.apply_async(args=(email.id,))
         return Response(serializer.data)
 
@@ -209,7 +209,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         """
         Any modifications are passed through the manager and not directly on the db.
 
-        Move will happen async
+        Move will happen async.
         """
         email = self.get_object()
         serializer = self.get_serializer(email, partial=True)
@@ -230,19 +230,29 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         email = self.get_object()
         serializer = self.get_serializer(email, partial=True)
 
-        add_labels = []
-        remove_labels = []
-
         if request.data['starred']:
-            add_labels = ['STARRED']
+            toggle_star_email_message.delay(email.id, star=True)
         else:
-            remove_labels = ['STARRED']
+            toggle_star_email_message.delay(email.id, star=False)
 
-        add_and_remove_labels_for_message.delay(
-            email.id,
-            add_labels=add_labels,
-            remove_labels=remove_labels,
-        )
+        return Response(serializer.data)
+
+    @detail_route(methods=['put'])
+    def spam(self, request, pk=None):
+        """
+        Any modifications are passed through the manager and not directly on the db.
+
+        Mark as spam will happen async.
+        """
+        email = self.get_object()
+
+        # Make sure emails are removed instantly from the email list.
+        email.is_removed = True
+        email.save()
+        serializer = self.get_serializer(email, partial=True)
+
+        if not email.is_spam:
+            mark_message_as_spam.delay(email.id)
 
         return Response(serializer.data)
 

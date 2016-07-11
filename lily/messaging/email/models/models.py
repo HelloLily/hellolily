@@ -225,6 +225,10 @@ class EmailMessage(models.Model):
 
         return False
 
+    @property
+    def is_spam(self):
+        return self.labels.filter(label_id=settings.GMAIL_LABEL_SPAM).count() == 1
+
     def get_message_id(self):
         header = self.headers.filter(name__icontains='message-id').first()
         if header:

@@ -1,0 +1,409 @@
+/* SG
+# Branding/About #
+Lily is a nifty piece of software that helps you (as a company) understand your
+relationship with your customers. It translates events happening within that
+relation into context, insights and actions for you to follow up on.
+Lily is built around the flow of human communication, so every interaction with
+the product feels natural and logical. It will let you do your work fast and
+structured, which will give you that blissful feeling when everything just works.
+
+In this section of the styleguide you will find all the information about branding.
+*/
+
+
+/* SG
+# Branding/Logo #
+## About the logo ##
+For the Lily identity, we aimed for a friendly, approachable and strong logo that
+captured the essence of what we think Lily is all about. With the right use of
+rhythm in the wordmark, the flow of the letters also tell a story which makes
+this all make sense.
+
+## Clearspace ##
+Our company stands out from the crowd, and so does our identity. To create maximum
+impact, keep the space around the Lily logo free from other text and graphics.
+The clear space on each side of the logo should always be equal to or greater
+than the x-height of the Lily wordmark.
+
+## Color usage ##
+<table class="widget-table">
+    <thead>
+        <tr>
+            <th><h2 class="text-color-darkblue">Logo color usage</h2></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                <table style="width: 100%;" class="text-color-white">
+                    <tr>
+                        <td class="align-center bg-color-darkblue" style="padding: 30px">
+                            <i class="hl-lily-icon lilicon" style="font-size:60px;"></i>
+                        </td>
+                        <td class="align-center bg-color-yellow" style="padding: 30px">
+                            <i class="hl-lily-icon lilicon" style="font-size:60px;"></i>
+                        </td>
+                        <td class="align-center bg-color-purple" style="padding: 30px">
+                            <i class="hl-lily-icon lilicon" style="font-size:60px;"></i>
+                        </td>
+                        <td class="align-center bg-color-mint" style="padding: 30px">
+                            <i class="hl-lily-icon lilicon" style="font-size:60px;"></i>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="align-center bg-color-red" style="padding: 30px">
+                            <i class="hl-lily-icon lilicon" style="font-size:60px;"></i>
+                        </td>
+                        <td class="align-center bg-color-aqua" style="padding: 30px">
+                            <i class="hl-lily-icon lilicon" style="font-size:60px;"></i>
+                        </td>
+                        <td class="align-center text-color-darkblue" style="padding: 30px">
+                            <i class="hl-lily-icon lilicon" style="font-size:60px;"></i>
+                        </td>
+                        <td class="align-center bg-color-grey" style="padding: 30px">
+                            <i class="hl-lily-icon lilicon" style="font-size:60px;"></i>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+All these examples are approved color combinations for the Lily logo identity.
+The logo can be presented in white or dark when showing on a chosen (colored) background.
+We use these 8 ‘colors’ for the Lily logo identity. As the primary color is the first
+(dark blue) version. The next 5 ‘bright’ colors are secondary colors used within the
+Lily branding. The other two variations are ‘Dark blue/white’ and greyscaled versions.
+
+
+*/
+
+/* SG
+# Branding/Colors #
+<table class="widget-table">
+    <thead>
+        <tr>
+            <th colspan="7"><h2 class="text-color-darkblue">Branding colors</h2></th>
+        </tr>
+        <tr>
+            <th>Variable name</th>
+            <th style="width: 200px;">Color</th>
+            <th>Pantone</th>
+            <th>CMYK</th>
+            <th>RGB</th>
+            <th>HEX</th>
+            <th>Info</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>$app-color-darkblue</td>
+            <td>
+                <table class="text-color-white" style="width:200px;">
+                    <tr>
+                        <td class="bg-color-darkblue" style="opacity: 1.0;">100%</td>
+                        <td class="bg-color-darkblue" style="opacity: 0.8;">80%</td>
+                        <td class="bg-color-darkblue" style="opacity: 0.6;">60%</td>
+                        <td class="bg-color-darkblue" style="opacity: 0.4;">40%</td>
+                    </tr>
+                </table>
+            </td>
+            <td>Solid Coated 2695 C</td>
+            <td>C93 M92 Y40 K39</td>
+            <td>R39 G36 B76</td>
+            <td>#27244c</td>
+            <td>Primary color</td>
+        </tr>
+
+        <tr>
+            <td>$app-color-yellow</td>
+            <td>
+                <table class="text-color-white" style="width:200px;">
+                    <tr>
+                        <td class="bg-color-yellow" style="opacity: 1.0;">100%</td>
+                        <td class="bg-color-yellow" style="opacity: 0.8;">80%</td>
+                        <td class="bg-color-yellow" style="opacity: 0.6;">60%</td>
+                        <td class="bg-color-yellow" style="opacity: 0.4;">40%</td>
+                    </tr>
+                </table>
+            </td>
+            <td>Solid Coated 107 C</td>
+            <td>C0 M15 Y100 K1</td>
+            <td>R253 G214 B0</td>
+            <td>#ffd600</td>
+            <td>Signal color for note related elements</td>
+        </tr>
+
+        <tr>
+            <td>$app-color-purple</td>
+            <td>
+                <table class="text-color-white" style="width:200px;">
+                    <tr>
+                        <td class="bg-color-purple" style="opacity: 1.0;">100%</td>
+                        <td class="bg-color-purple" style="opacity: 0.8;">80%</td>
+                        <td class="bg-color-purple" style="opacity: 0.6;">60%</td>
+                        <td class="bg-color-purple" style="opacity: 0.4;">40%</td>
+                    </tr>
+                </table>
+            </td>
+            <td>Solid Coated 2665 C</td>
+            <td>C51 M71 Y0 K0</td>
+            <td>R159 G94 B220</td>
+            <td>#9f5edc</td>
+            <td>Signal color for case related elements</td>
+        </tr>
+
+        <tr>
+            <td>$app-color-mint</td>
+            <td>
+                <table class="text-color-white" style="width:200px;">
+                    <tr>
+                        <td class="bg-color-mint" style="opacity: 1.0;">100%</td>
+                        <td class="bg-color-mint" style="opacity: 0.8;">80%</td>
+                        <td class="bg-color-mint" style="opacity: 0.6;">60%</td>
+                        <td class="bg-color-mint" style="opacity: 0.4;">40%</td>
+                    </tr>
+                </table>
+            </td>
+            <td>Solid Coated 333 C</td>
+            <td>C56 M0 Y34 K0</td>
+            <td>R85 G220 B195</td>
+            <td>#55dcc3</td>
+            <td>Signal color for deal related elements</td>
+        </tr>
+
+        <tr>
+            <td>$app-color-red</td>
+            <td>
+                <table class="text-color-white" style="width:200px;">
+                    <tr>
+                        <td class="bg-color-red" style="opacity: 1.0;">100%</td>
+                        <td class="bg-color-red" style="opacity: 0.8;">80%</td>
+                        <td class="bg-color-red" style="opacity: 0.6;">60%</td>
+                        <td class="bg-color-red" style="opacity: 0.4;">40%</td>
+                    </tr>
+                </table>
+            </td>
+            <td>Solid Coated 1785 C</td>
+            <td>C0 M88 Y58 K0</td>
+            <td>R255 G66 B87</td>
+            <td>#ff4257</td>
+            <td></td>
+        </tr>
+
+        <tr>
+            <td>$app-color-aqua</td>
+            <td>
+                <table class="text-color-white" style="width:200px;">
+                    <tr>
+                        <td class="bg-color-aqua" style="opacity: 1.0;">100%</td>
+                        <td class="bg-color-aqua" style="opacity: 0.8;">80%</td>
+                        <td class="bg-color-aqua" style="opacity: 0.6;">60%</td>
+                        <td class="bg-color-aqua" style="opacity: 0.4;">40%</td>
+                    </tr>
+                </table>
+            </td>
+            <td>Solid Coated 298 C</td>
+            <td>C67 M5 Y6 K0</td>
+            <td>R42 G184 B224</td>
+            <td>#2ab8e0</td>
+            <td>Secundary color, Signal color for email related elements</td>
+        </tr>
+
+        <tr>
+            <td>$app-color-grey</td>
+            <td>
+                <table class="text-color-white" style="width:200px;">
+                    <tr>
+                        <td class="bg-color-grey" style="opacity: 1.0;">100%</td>
+                        <td class="bg-color-grey" style="opacity: 0.8;">80%</td>
+                        <td class="bg-color-grey" style="opacity: 0.6;">60%</td>
+                        <td class="bg-color-grey" style="opacity: 0.4;">40%</td>
+                    </tr>
+                </table>
+            </td>
+            <td>Solid Coated 5295 C</td>
+            <td>C30 M24 Y16 K0</td>
+            <td>R180 G180 B192</td>
+            <td>#b4b4c0</td>
+            <td></td>
+        </tr>
+    </tbody>
+
+    <thead>
+        <tr>
+            <th colspan="7"><h2 class="text-color-darkblue">Supporting colors</h2></th>
+        </tr>
+        <tr>
+            <th>Variable name</th>
+            <th style="width: 200px;">Color</th>
+            <th>Pantone</th>
+            <th>CMYK</th>
+            <th>RGB</th>
+            <th>HEX</th>
+            <th>Info</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>$low-prio-color</td>
+            <td>
+                <table class="text-color-white" style="width:200px;">
+                    <tr>
+                        <td class="bg-color-low-prio" style="opacity: 1.0;">100%</td>
+                        <td class="bg-color-low-prio" style="opacity: 0.8;">80%</td>
+                        <td class="bg-color-low-prio" style="opacity: 0.6;">60%</td>
+                        <td class="bg-color-low-prio" style="opacity: 0.4;">40%</td>
+                    </tr>
+                </table>
+            </td>
+            <td>Solid Coated 572 C</td>
+            <td>C35 M0 Y21 K0</td>
+            <td>R160 G224 B212</td>
+            <td>#a0e0d4</td>
+            <td>Low priority</td>
+        </tr>
+
+        <tr>
+            <td>$medium-prio-color</td>
+            <td>
+                <table class="text-color-white" style="width:200px;">
+                    <tr>
+                        <td class="bg-color-medium-prio" style="opacity: 1.0;">100%</td>
+                        <td class="bg-color-medium-prio" style="opacity: 0.8;">80%</td>
+                        <td class="bg-color-medium-prio" style="opacity: 0.6;">60%</td>
+                        <td class="bg-color-medium-prio" style="opacity: 0.4;">40%</td>
+                    </tr>
+                </table>
+            </td>
+            <td>Solid Coated 291 C</td>
+            <td>C36 M4 Y0 K0</td>
+            <td>R151 G213 B255</td>
+            <td>#97d5ff</td>
+            <td>Medium priority</td>
+        </tr>
+
+        <tr>
+            <td>$high-prio-color</td>
+            <td>
+                <table class="text-color-white" style="width:200px;">
+                    <tr>
+                        <td class="bg-color-high-prio" style="opacity: 1.0;">100%</td>
+                        <td class="bg-color-high-prio" style="opacity: 0.8;">80%</td>
+                        <td class="bg-color-high-prio" style="opacity: 0.6;">60%</td>
+                        <td class="bg-color-high-prio" style="opacity: 0.4;">40%</td>
+                    </tr>
+                </table>
+            </td>
+            <td>Solid Coated 148 C</td>
+            <td>C0 M19 Y48 K0</td>
+            <td>R255 G209 B145</td>
+            <td>#ffd191</td>
+            <td>High priority</td>
+        </tr>
+
+        <tr>
+            <td>$critical-prio-color</td>
+            <td>
+                <table class="text-color-white" style="width:200px;">
+                    <tr>
+                        <td class="bg-color-critical-prio" style="opacity: 1.0;">100%</td>
+                        <td class="bg-color-critical-prio" style="opacity: 0.8;">80%</td>
+                        <td class="bg-color-critical-prio" style="opacity: 0.6;">60%</td>
+                        <td class="bg-color-critical-prio" style="opacity: 0.4;">40%</td>
+                    </tr>
+                </table>
+            </td>
+            <td>Solid Coated 190 C</td>
+            <td>C0 M71 Y16 K0</td>
+            <td>R255 G112 B151</td>
+            <td>#ff7097</td>
+            <td>Critical priority</td>
+        </tr>
+</table>
+*/
+
+// BRANDING COLORS
+
+.text-color-darkblue {
+    color: $app-color-darkblue;
+}
+
+.text-color-purple {
+    color: $app-color-purple;
+}
+
+.text-color-aqua {
+    color: $app-color-aqua;
+}
+
+.text-color-mint {
+    color: $app-color-mint;
+}
+
+.text-color-red {
+    color: $app-color-red;
+}
+
+.text-color-yellow {
+    color: $app-color-yellow;
+}
+
+.text-color-grey {
+    color: $app-color-grey;
+}
+
+.text-color-white {
+    color: #fff;
+}
+
+.text-color-black {
+    color: #000;
+}
+
+.bg-color-darkblue {
+    background: $app-color-darkblue;
+}
+
+.bg-color-purple {
+    background: $app-color-purple;
+}
+
+.bg-color-aqua {
+    background: $app-color-aqua;
+}
+
+.bg-color-mint {
+    background: $app-color-mint;
+}
+
+.bg-color-red {
+    background: $app-color-red;
+}
+
+.bg-color-yellow {
+    background: $app-color-yellow;
+}
+
+.bg-color-grey {
+    background: $app-color-grey;
+}
+
+// SUPPORTING COLORS
+
+.bg-color-low-prio {
+    background: $low-prio-color;
+}
+
+.bg-color-medium-prio {
+    background: $medium-prio-color;
+}
+
+.bg-color-high-prio {
+    background: $high-prio-color;
+}
+
+.bg-color-critical-prio {
+    background: $critical-prio-color;
+}

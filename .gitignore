@@ -18,6 +18,7 @@
 dist-packages/
 /styleguide/styleguide.html
 .overcommit.yml
+.tld_set
 
 celerybeat-schedule
 celeryev.pid

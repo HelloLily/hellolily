@@ -69,22 +69,6 @@ class Common(DeletedMixin, TenantMixin):
         abstract = True
 
 
-class CaseClientModelMixin(object):
-    """
-    Contains helper function for retrieving cases based on priority or status.
-    """
-    def get_cases(self, priority=None, status=None):
-        case_list = self.case_set.all()
-
-        if priority:
-            case_list = case_list.filter(priority=priority)
-
-        if status:
-            case_list = case_list.filter(status=status)
-
-        return case_list
-
-
 class ArchivedMixin(models.Model):
     """
     Archived model, if set to true, the instance is archived.

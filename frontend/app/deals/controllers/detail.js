@@ -112,6 +112,10 @@ function DealDetailController($scope, $state, $uibModal, Account, Contact, Deal,
 
                 args.next_step = vm.noneStep;
                 args.next_step_date = null;
+            } else {
+                vm.deal.why_lost = null;
+
+                args.why_lost = null;
             }
         }
 
@@ -168,7 +172,7 @@ function DealDetailController($scope, $state, $uibModal, Account, Contact, Deal,
             // If the status is 'Lost' we want to provide a reason why the deal was lost.
             whyLost(args);
         } else {
-            return HLResource.patch('Deal', args).$promise;
+            updateModel(args);
         }
     }
 

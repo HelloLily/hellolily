@@ -6,7 +6,7 @@ from lily.accounts.models import Account
 from django.conf import settings
 from lily.tags.models import TaggedObjectMixin
 from lily.utils.models.models import PhoneNumber, EmailAddress
-from lily.utils.models.mixins import Common, DeletedMixin, CaseClientModelMixin
+from lily.utils.models.mixins import Common, DeletedMixin
 
 
 def get_contact_picture_upload_path(instance, filename):
@@ -17,7 +17,7 @@ def get_contact_picture_upload_path(instance, filename):
     }
 
 
-class Contact(Common, TaggedObjectMixin, CaseClientModelMixin):
+class Contact(Common, TaggedObjectMixin):
     """
     Contact model, this is a person's profile. Has an optional relation to an account through
     Function. Can be related to LilyUser.

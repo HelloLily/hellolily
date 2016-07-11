@@ -235,6 +235,7 @@ class BaseView(LoginRequiredMixin, TemplateView):
         kwargs = super(BaseView, self).get_context_data(**kwargs)
         kwargs.update({
             'INTERCOM_APP_ID': settings.INTERCOM_APP_ID,
+            'SENTRY_PUBLIC_DSN': settings.SENTRY_PUBLIC_DSN,
             'DEBUG': settings.DEBUG,
         })
         return kwargs

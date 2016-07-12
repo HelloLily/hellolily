@@ -2,14 +2,13 @@ import logging
 import gc
 import traceback
 
-import anyjson
 from django.conf import settings
 from googleapiclient.errors import HttpError
 
 from lily.celery import app
 from .builders.label import LabelBuilder
 from .builders.message import MessageBuilder
-from .connector import GmailConnector, MessageNotFoundError
+from .connector import GmailConnector, MessageNotFoundError, LabelNotFoundError
 from .credentials import InvalidCredentialsError
 from .models.models import EmailLabel, EmailMessage, NoEmailMessageId
 
@@ -212,7 +211,7 @@ class GmailManager(object):
 
     def update_labels_for_message(self, message_id):
         """
-        Fetch the labels for the EmailMessage with the given message_id
+        Fetch the labels for the EmailMessage with the given message_id.
 
         Args:
             message_id (string): message_id of the message
@@ -223,16 +222,20 @@ class GmailManager(object):
             self.download_message(message_id)
             return
 
-        message_info = self.connector.get_short_message_info(message_id)
+        try:
+            message_info = self.connector.get_short_message_info(message_id)
+        except MessageNotFoundError:
+            return
+
         logger.debug('Storing label info for message: %s, account %s' % (
             message_id,
             self.email_account
         ))
 
-        # Keep track if anything has changed
+        # Keep track if anything has changed.
         changed = False
 
-        # Check if existing labels differ from new labels
+        # Check if existing labels differ from new labels.
         existing_labels = set(email_message.labels.all().values_list('label_id', flat=True))
         if not email_message.read:
             existing_labels.add(settings.GMAIL_UNREAD_LABEL)
@@ -246,7 +249,7 @@ class GmailManager(object):
             self.message_builder.message.thread_id = message_info['threadId']
             changed = True
 
-        # Labels or thread_id has changed, lets save
+        # Labels or thread_id has changed, lets save.
         if changed:
             try:
                 self.message_builder.save()
@@ -264,9 +267,14 @@ class GmailManager(object):
             remove_labels (list, optional): list of label_ids to remove
             remove_all (bool, optional): If True, all labels will be removed
         """
-        # We should do some tries to update
+        # We should do some tries to update.
         for n in range(0, 6):
-            message_info = self.connector.get_short_message_info(email_message.message_id)
+            try:
+                message_info = self.connector.get_short_message_info(email_message.message_id)
+            except MessageNotFoundError:
+                logger.debug('Message not available on remote.')
+                EmailMessage.objects.get(pk=email_message.id).delete()
+                return
 
             labels = {}
             removed_labels = []
@@ -283,7 +291,7 @@ class GmailManager(object):
                 # Temporary set traceback in logging to find out what triggers adding SENT label
                 if label == settings.GMAIL_SENT_LABEL:
                     logger.warning('trying to add label SENT: %s' % traceback.print_stack())
-                # UNREAD isn't added to the database as an available label, so do a separate check
+                # UNREAD isn't added to the database as an available label, so do a separate check.
                 if label not in message_info.get('labelIds', []) and label != settings.GMAIL_SENT_LABEL:
                     if (email_message.account.labels.filter(label_id=label).exists() or
                             label == settings.GMAIL_UNREAD_LABEL):
@@ -293,13 +301,13 @@ class GmailManager(object):
             if labels:
                 try:
                     self.connector.update_labels(email_message.message_id, labels)
+                except LabelNotFoundError:
+                    logger.error('label not found, update labels failed! %s: %s' %
+                                 (self.email_account, email_message.message_id))
                 except HttpError as e:
+                    # Other that a label error, so raise.
                     logger.error('update labels failed! %s: %s' % (self.email_account, email_message.message_id))
-                    error = anyjson.loads(e.content)
-                    error = error.get('error', error)
-                    if error.get('code') != 400:
-                        # No label error, raise
-                        raise
+                    raise
                 else:
                     if remove_all:
                         email_message.labels.clear()
@@ -343,14 +351,13 @@ class GmailManager(object):
         Args:
             email_message (instance): EmailMessage instance
         """
-        message_dict = self.connector.trash_email_message(email_message.message_id)
-
         try:
+            message_dict = self.connector.trash_email_message(email_message.message_id)
             full_message_dict = self.connector.get_message_info(message_dict['id'])
         except MessageNotFoundError:
             logger.debug('Message already deleted from remote')
         else:
-            # Store updated message
+            # Store updated message.
             self.message_builder.store_message_info(full_message_dict, message_dict['id'])
             self.message_builder.save()
             self.update_unread_count()
@@ -362,8 +369,12 @@ class GmailManager(object):
         Args:
             email_message (instance): EmailMessage instance
         """
-        self.connector.delete_email_message(email_message.message_id)
-        self.update_unread_count()
+        try:
+            self.connector.delete_email_message(email_message.message_id)
+        except MessageNotFoundError:
+            logger.debug('Message already deleted from remote')
+        else:
+            self.update_unread_count()
 
     def send_email_message(self, email_message, thread_id=None):
         """

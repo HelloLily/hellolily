@@ -142,8 +142,8 @@ def update_labels_for_message(self, account_id, email_id):
             manager.cleanup()
 
 
-@task(name='toggle_read_email_message', logger=logger, acks_late=True)
-def toggle_read_email_message(email_id, read=True):
+@task(name='toggle_read_email_message', logger=logger, acks_late=True, bind=True)
+def toggle_read_email_message(self, email_id, read=True):
     """
     Mark message as read or unread.
 
@@ -162,14 +162,15 @@ def toggle_read_email_message(email_id, read=True):
         try:
             logger.debug('Toggle read: %s', email_message)
             manager.toggle_read_email_message(email_message, read=read)
-        except Exception:
+        except Exception as exc:
             logger.exception('Failed toggle read for: %s' % email_message)
+            raise self.retry(exc=exc)
         finally:
             manager.cleanup()
 
 
-@task(name='archive_email_message', logger=logger)
-def archive_email_message(email_id):
+@task(name='archive_email_message', logger=logger, bind=True)
+def archive_email_message(self, email_id):
     """
     Archive message.
 
@@ -186,14 +187,15 @@ def archive_email_message(email_id):
         try:
             logger.debug('Archiving: %s', email_message)
             manager.archive_email_message(email_message)
-        except Exception:
+        except Exception as exc:
             logger.exception('Failed archiving %s' % email_message)
+            raise self.retry(exc=exc)
         finally:
             manager.cleanup()
 
 
-@task(name='trash_email_message', logger=logger)
-def trash_email_message(email_id):
+@task(name='trash_email_message', logger=logger, bind=True)
+def trash_email_message(self, email_id):
     """
     Trash message.
 
@@ -211,14 +213,15 @@ def trash_email_message(email_id):
         try:
             logger.debug('Trashing: %s', email_message)
             manager.trash_email_message(email_message)
-        except Exception:
+        except Exception as exc:
             logger.exception('Failed trashing %s' % email_message)
+            raise self.retry(exc=exc)
         finally:
             manager.cleanup()
 
 
-@task(name='add_and_remove_labels_for_message', logger=logger)
-def add_and_remove_labels_for_message(email_id, add_labels=None, remove_labels=None):
+@task(name='add_and_remove_labels_for_message', logger=logger, bind=True)
+def add_and_remove_labels_for_message(self, email_id, add_labels=None, remove_labels=None):
     """
     Add and/or removes labels for the EmailMessage.
 
@@ -236,14 +239,15 @@ def add_and_remove_labels_for_message(email_id, add_labels=None, remove_labels=N
         try:
             logger.debug('Changing labels for: %s', email_message)
             manager.add_and_remove_labels_for_message(email_message, add_labels, remove_labels)
-        except Exception:
+        except Exception as exc:
             logger.exception('Failed changing labels for %s' % email_message)
+            raise self.retry(exc=exc)
         finally:
             manager.cleanup()
 
 
-@task(name='delete_email_message', logger=logger)
-def delete_email_message(email_id):
+@task(name='delete_email_message', logger=logger, bind=True)
+def delete_email_message(self, email_id):
     """
     Delete message.
 
@@ -267,8 +271,9 @@ def delete_email_message(email_id):
         try:
             if removed is False or in_trash is True:
                 manager.delete_email_message(email_message)
-        except Exception:
+        except Exception as exc:
             logger.exception('Failed deleting %s' % email_message)
+            raise self.retry(exc=exc)
         finally:
             manager.cleanup()
 

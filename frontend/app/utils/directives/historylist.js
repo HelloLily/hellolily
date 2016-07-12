@@ -35,7 +35,7 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
             scope.history.reloadHistory = reloadHistory;
             scope.history.addNote = addNote;
             scope.history.pinNote = pinNote;
-            scope.history.updateModel = updateModel;
+            scope.history.updateNote = updateNote;
             scope.history.removeFromList = removeFromList;
             scope.history.filterType = filterType;
 
@@ -348,11 +348,11 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
                 });
             }
 
-            function updateModel(data, field, note, type) {
+            function updateNote(data, field) {
                 var patchPromise;
-                var args = HLResource.createArgs(data, field, note);
+                var args = HLResource.createArgs(data, field);
 
-                patchPromise = HLResource.patch(type, args).$promise;
+                patchPromise = HLResource.patch('Note', args).$promise;
 
                 return patchPromise;
             }

@@ -9,7 +9,7 @@ function HistoryListItemDirective($compile, $http, $templateCache) {
             history: '=',
             object: '=',
             deleteCallback: '&?',
-            updateCallback: '&?',
+            updateNoteCallback: '&?',
         },
         link: function(scope, element, attrs) {
             var getTemplate = function(historyType) {
@@ -76,7 +76,15 @@ function HistoryListItemController($state) {
         $state.go('base.email.reply', {id: vm.item.id});
     }
 
-    function updateModel(data, field, object, type) {
-        vm.updateCallback()(data, field, object, type);
+    function updateModel(data, field) {
+        var promise;
+
+        // For now only inline editing for notes is implemented.
+        // In the future we might add other models too.
+        if (vm.updateNoteCallback) {
+            promise = vm.updateNoteCallback()(data);
+        }
+
+        return promise;
     }
 }

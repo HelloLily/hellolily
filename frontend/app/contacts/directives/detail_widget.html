@@ -114,7 +114,7 @@
                 <td colspan="2">
                     <strong class="margin-bottom-5">Description</strong>
                     <div>
-                        <div class="pre-wrap break-words margin-right-30" editable-textarea="vm.contact.description" e-rows="4" e-cols="100" onbeforesave="vm.updateModel($data, 'description')">{{ (vm.contact.description | parseUrls) || 'No description' }}</div>
+                        <editable-textarea view-model="vm" field="description" object="vm.contact"></editable-textarea>
                     </div>
                 </td>
             </tr>

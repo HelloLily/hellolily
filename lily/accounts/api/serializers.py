@@ -9,6 +9,7 @@ from lily.socialmedia.api.serializers import RelatedSocialMediaSerializer
 from lily.users.api.serializers import RelatedLilyUserSerializer
 from lily.utils.api.serializers import (RelatedAddressSerializer, RelatedEmailAddressSerializer,
                                         RelatedPhoneNumberSerializer, RelatedTagSerializer)
+from lily.utils.sanitizers import HtmlSanitizer
 
 from ..models import Account, Website, AccountStatus
 from .validators import DuplicateAccountName, HostnameValidator
@@ -99,6 +100,12 @@ class AccountSerializer(WritableNestedSerializer):
             validated_data (dict): The validated deserialized data.
         """
         websites = validated_data.pop('websites', {})
+        description = validated_data.get('description')
+
+        validated_data.update({
+            'description': HtmlSanitizer(description).clean().render(),
+        })
+
         account = super(AccountSerializer, self).create(validated_data)
 
         for website in websites:
@@ -116,7 +123,14 @@ class AccountSerializer(WritableNestedSerializer):
         # Handle websites as a special case:
         # reverse foreign key relations don't work yet with WritableNestedSerializer, so we manually update them.
         websites_validated_data = validated_data.pop('websites', {})
+        description = validated_data.get('description')
+
+        validated_data.update({
+            'description': HtmlSanitizer(description).clean().render(),
+        })
+
         account = super(AccountSerializer, self).update(instance, validated_data)
+
         if self.partial:
             websites_initial_data = self.initial_data.get('websites', {})
             for website_validated in websites_validated_data:

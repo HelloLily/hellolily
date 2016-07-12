@@ -12,7 +12,8 @@
     "sweetalert2": "^2.2.11",
     "sprintf-js": "^1.0.3",
     "gulp-buffer": "^0.0.2",
-    "raven-js": "^3.1.1"
+    "raven-js": "^3.1.1",
+    "autolinker": "^0.27.0"
   },
   "devDependencies": {
     "babel-cli": "^6.7.7",

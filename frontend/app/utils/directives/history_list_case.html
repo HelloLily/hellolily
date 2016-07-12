@@ -76,7 +76,7 @@
                                 <div class="clearfix"></div>
                             </div>
                             <div class="content-history-note-body">
-                                <div class="pre-wrap" editable-textarea="note.content" e-rows="4" e-cols="100" onbeforesave="vm.updateModel($data, 'content', note, 'Note')" ng-bind-html="(note.content | parseUrls) || 'No description'"></div>
+                                <editable-textarea view-model="vm" field="content" object="note"></editable-textarea>
                             </div>
                         </li>
                         <li>

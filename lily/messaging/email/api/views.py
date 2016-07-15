@@ -14,8 +14,8 @@ from lily.users.models import LilyUser
 
 from .serializers import (EmailLabelSerializer, EmailAccountSerializer, EmailMessageSerializer,
                           EmailTemplateSerializer, SharedEmailConfigSerializer, TemplateVariableSerializer)
-from ..models.models import EmailLabel, EmailAccount, EmailMessage, EmailTemplate, SharedEmailConfig, \
-    TemplateVariable
+from ..models.models import (EmailLabel, EmailAccount, EmailMessage, EmailTemplate, SharedEmailConfig,
+                             TemplateVariable)
 from ..tasks import (trash_email_message, delete_email_message, archive_email_message, toggle_read_email_message,
                      add_and_remove_labels_for_message)
 

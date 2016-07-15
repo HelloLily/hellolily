@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from lily.api.fields import DynamicQuerySetPrimaryKeyRelatedField
 from lily.api.nested.mixins import RelatedSerializerMixin
 from ..models.models import (EmailLabel, EmailAccount, EmailMessage, Recipient, EmailAttachment, EmailTemplate,
                              SharedEmailConfig, TemplateVariable, DefaultEmailTemplate)
@@ -90,7 +91,28 @@ class RelatedEmailAccountSerializer(RelatedSerializerMixin, EmailAccountSerializ
 
 
 class EmailTemplateSerializer(serializers.ModelSerializer):
-    default_for = RelatedEmailAccountSerializer(many=True, assign_only=True)
+    def get_default_for_queryset(self, instance=None):
+        """
+        Filtered queryset method that is called for:
+            - Fetching of currently related items.
+            - Fetching all possible relatable items.
+
+        This function is called once per instance in the list view, and once for the detail view.
+        If we're creating a new email template or validating all possible relatable items, instance is None.
+
+        Args:
+            instance (EmailTemplate instance): the email template instance for which we want to fetch items.
+        """
+        if instance:
+            queryset = EmailAccount.objects.filter(
+                default_templates__template=instance,
+                default_templates__user=self.context.get('request').user
+            )
+        else:
+            queryset = EmailAccount.objects.all()
+        return queryset
+
+    default_for = DynamicQuerySetPrimaryKeyRelatedField(many=True, queryset=get_default_for_queryset)
 
     class Meta:
         model = EmailTemplate
@@ -102,10 +124,33 @@ class EmailTemplateSerializer(serializers.ModelSerializer):
             'default_for',
         )
 
+    def create(self, validated_data):
+        default_for = validated_data.pop('default_for')
+        instance = super(EmailTemplateSerializer, self).create(validated_data)
+
+        for email_account_id in default_for:
+            # Get defaults for this user for the email account and replace it if exists, if not create new.
+            default_template, created = DefaultEmailTemplate.objects.get_or_create(
+                account_id=email_account_id,
+                user=self.context.get('request').user,
+                defaults={
+                    'template': instance,
+                }
+            )
+            if not created:
+                # There was an existing default, so reroute it to this template instead.
+                default_template.template = instance
+                default_template.save()
+
+        return instance
+
     def update(self, instance, validated_data):
-        validated_default_for = set([pk['id'] for pk in validated_data.pop('default_for', {})])
-        existing_default_for = set(instance.default_for.all().values_list('id', flat=True))
         user = self.context.get('request').user
+        validated_default_for = set([obj.pk for obj in validated_data.pop('default_for', [])])
+        existing_default_for = set(EmailAccount.objects.filter(
+            default_templates__user=user,
+            default_templates__template_id=instance.pk
+        ).values_list('pk', flat=True))
 
         add_list = list(validated_default_for - existing_default_for)
         del_list = list(existing_default_for - validated_default_for)

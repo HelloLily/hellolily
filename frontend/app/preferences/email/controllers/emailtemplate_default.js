@@ -15,8 +15,8 @@ function PreferencesSetTemplateDefaultModal($uibModalInstance, HLForms, EmailTem
     function activate() {
         vm.emailAccountList.forEach(function(emailAccount) {
             // For every email account in emailTemplate.default_for set selected to true.
-            var selected = emailTemplate.default_for.filter(function(obj) {
-                return obj.id === emailAccount.id;
+            var selected = emailTemplate.default_for.filter(function(accountId) {
+                return accountId === emailAccount.id;
             });
             emailAccount.selected = selected.length > 0;
         });

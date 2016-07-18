@@ -13,8 +13,6 @@ django-template-debug==0.3.5  # Old version is: 0.3.3
 django-debug-toolbar-template-timings==0.6.4
 sqlparse==0.1.19
 
-ipython==5.0.0
-ipdb==0.8.1
 readline==6.2.4.1
 gnureadline==6.3.3
 werkzeug==0.10.4
@@ -25,3 +23,22 @@ mccabe==0.3.1
 coverage==3.7.1
 netifaces==0.10.4
 flower==0.8.4
+
+#######################################################
+### Ipython & ipdb                                  ###
+#######################################################
+ipdb==0.10.1
+ipython==5.0.0
+appnope==0.1.0
+backports.shutil-get-terminal-size==1.0.0
+decorator==4.0.10
+ipython-genutils==0.1.0
+pathlib2==2.1.0
+pexpect==4.2.0
+pickleshare==0.7.3
+prompt-toolkit==1.0.3
+ptyprocess==0.5.1
+simplegeneric==0.8.1
+traitlets==4.2.2
+wcwidth==0.1.7
+pygments==2.1.3

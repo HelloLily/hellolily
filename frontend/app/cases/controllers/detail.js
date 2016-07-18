@@ -44,10 +44,10 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseDetailController', CaseDetailController);
 
-CaseDetailController.$inject = ['$scope', 'Settings', 'CaseStatuses', 'HLResource', 'HLUtils', 'LocalStorage', 'Tenant',
-    'UserTeams', 'currentCase', 'caseAccount', 'caseContact', 'Case'];
-function CaseDetailController($scope, Settings, CaseStatuses, HLResource, HLUtils, LocalStorage, Tenant, UserTeams,
-                              currentCase, caseAccount, caseContact, Case) {
+CaseDetailController.$inject = ['$scope', 'Settings', 'CaseStatuses', 'HLResource', 'HLUtils', 'LocalStorage',
+    'Tenant', 'currentCase', 'caseAccount', 'caseContact', 'Case'];
+function CaseDetailController($scope, Settings, CaseStatuses, HLResource, HLUtils, LocalStorage,
+                              Tenant, currentCase, caseAccount, caseContact, Case) {
     var vm = this;
     var storage = new LocalStorage('caseDetail');
 

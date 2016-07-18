@@ -23,7 +23,7 @@
             <a class="timeline-toggle-details" ng-click="vm.item.shown = !vm.item.shown"><i class="lilicon hl-toggle-left-icon" ng-class="vm.item.shown ? 'hl-toggle-down-icon' : 'hl-toggle-left-icon'"></i></a>
         </div>
         <div class="content-details history-item-body" ng-show="vm.item.shown">
-            <div class="pre-wrap" editable-textarea="vm.item.content" e-rows="4" e-cols="100" onbeforesave="vm.history.updateModel($data, 'content', vm.item, 'Note')" ng-bind-html="(vm.item.content | parseUrls) || 'No description'"></div>
+            <editable-textarea view-model="vm" field="content" object="vm.item"></editable-textarea>
 
             <ul class="content-details-actions">
                 <li ng-if="!vm.item.is_pinned"><a ng-click="vm.history.pinNote(vm.item, true)"><i class="lilicon hl-pin-icon"></i> Pin note</a></li>

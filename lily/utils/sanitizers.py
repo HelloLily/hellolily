@@ -91,15 +91,5 @@ class HtmlSanitizer(object):
 
         return self
 
-    def linkify(self, callbacks=DEFAULT_CALLBACKS, skip_pre=False, parse_email=False):
-        self.html = bleach.linkify(
-            self.html,
-            callbacks=callbacks,
-            skip_pre=skip_pre,
-            parse_email=parse_email,
-        )
-
-        return self
-
     def render(self):
         return self.html

@@ -1,11 +1,14 @@
 from optparse import make_option
 
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
+from factory import iterator, Iterator
+
 
 from lily.accounts.factories import AccountFactory
-from lily.cases.factories import CaseFactory
+from lily.cases.factories import CaseFactory, CaseTypeFactory, CaseStatusFactory
 from lily.contacts.factories import ContactFactory, FunctionFactory
-from lily.deals.factories import DealFactory
+from lily.deals.factories import (DealFactory, DealContactedByFactory, DealFoundThroughFactory, DealNextStepFactory,
+                                  DealStatusFactory, DealWhyCustomerFactory)
 from lily.notes.factories import NoteFactory
 from lily.tenant.factories import TenantFactory
 from lily.tenant.models import Tenant
@@ -17,15 +20,19 @@ class Command(BaseCommand):
 or use an existent tenant if passed as an argument."""
 
     # please keep in sync with methods defined below
-    target_choices = ['all', 'contacts_and_accounts', 'cases', 'deals', 'notes', 'users',
-                      'superusers', 'lilygroups', ]
+    target_choices = [
+        'all', 'users_lily_group', 'users_user', 'contacts_contact', 'accounts_account', 'accounts_function',
+        'cases_case_type', 'cases_case_status', 'cases_case', 'deals_deal_contacted_by', 'deals_deal_found_through',
+        'deals_deal_next_step', 'deals_deal_status', 'deals_deal_why_customer', 'deals_deal', 'notes_note',
+        'users_login',
+    ]
 
     option_list = BaseCommand.option_list + (
         make_option('-t', '--target',
                     action='store',
                     dest='target',
                     default='all',
-                    help='Choose specific comma separated targets, choose from %s' % target_choices,
+                    help='Choose a specific target, options are: %s' % target_choices,
                     ),
         make_option('-b', '--batch-size',
                     action='store',
@@ -42,89 +49,312 @@ or use an existent tenant if passed as an argument."""
     )
 
     def handle(self, *args, **options):
-        batch_size = int(options['batch_size'])
-        targets = options['target']
-        tenantOption = options['tenant'].strip()
-        if not tenantOption:
-            tenant = TenantFactory()
-        else:
-            tenant = Tenant.objects.get(pk=int(tenantOption))
+        self.batch_size = int(options['batch_size'])
 
-        for target in targets.split(','):
-            getattr(self, target)(batch_size, tenant)
+        self.target = options['target'].strip()
+        if self.target not in self.target_choices:
+            raise CommandError(
+                'Unknown target specified, please only use one of the following:\n'
+                '    %s' % "\n    ".join(self.target_choices)
+            )
+
+        tenant_id = options['tenant'].strip()
+        if tenant_id:
+            self.tenant = Tenant.objects.get(pk=int(tenant_id))
+        else:
+            self.tenant = TenantFactory()
+
+        getattr(self, self.target)()
+
         self.stdout.write('Done running "%s" with batch size %s in %s.' % (
-            targets,
-            batch_size,
-            tenant
+            self.target,
+            self.batch_size,
+            self.tenant
         ))
 
-    def all(self, size, tenant):
-        # Call every target.
-        self.contacts_and_accounts(size, tenant)
-        self.cases(size, tenant)
-        self.deals(size, tenant)
-        self.notes(size, tenant)
-        self.users(size, tenant)
-        self.superusers(size, tenant)
-        self.lilygroups(size, tenant)
+    def all(self, **kwargs):
+        groups = self.users_lily_group()
+        users = self.users_user(groups=Iterator(groups))
+        logins = self.users_login(groups=Iterator(groups))
 
-    def contacts_and_accounts(self, size, tenant):
-        # create various contacts
-        ContactFactory.create_batch(size, tenant=tenant)
-        # create accounts with zero contact
-        AccountFactory.create_batch(size, tenant=tenant)
-        # create account with multi contacts
-        FunctionFactory.create_batch(
-            size,
-            tenant=tenant,
-            account=AccountFactory(tenant=tenant),
-        )
-        # create account with assigned_to
-        FunctionFactory.create_batch(
-            size,
-            tenant=tenant,
-            account=AccountFactory(
-                tenant=tenant,
-                assigned_to=LilyUserFactory(tenant=tenant)
-            ),
+        accounts = self.accounts_account(assigned_to=Iterator(users))
+        contacts = self.contacts_contact()
+        self.accounts_function(
+            account=Iterator(accounts[:len(accounts)]),
+            contact=Iterator(contacts[:len(contacts)])
         )
 
-    def cases(self, size, tenant):
-        CaseFactory.create_batch(size / 2, tenant=tenant)
-        CaseFactory.create_batch(size / 2, tenant=tenant, groups=[LilyGroupFactory(tenant=tenant)])
-
-    def deals(self, size, tenant):
-        DealFactory.create_batch(size, tenant=tenant)
-
-    def notes(self, size, tenant):
-        NoteFactory.create_batch(size, tenant=tenant)
-        # create multiple notes for single subject and multi author
-        NoteFactory.create_batch(size, tenant=tenant, subject=AccountFactory(tenant=tenant))
-        # create multiple notes for single subject and single author
-        NoteFactory.create_batch(
-            size,
-            tenant=tenant,
-            author=LilyUserFactory(tenant=tenant),
-            subject=AccountFactory(tenant=tenant)
+        cases = self.cases_case(
+            assigned_to=Iterator(users[:len(users) / 2]),  # Only use half the users for coupling.
+            groups=Iterator(groups),
+            account=Iterator(accounts[:len(accounts) / 2]),  # Only use half the accounts for coupling.
+            contact=Iterator(contacts[:len(contacts) / 2])  # Only use half the contacts for coupling.
+        )
+        deals = self.deals_deal(
+            assigned_to=Iterator(users[:len(users) / 2]),  # Only use half the users for coupling.
+            account=Iterator(accounts[:len(accounts) / 2]),  # Only use half the accounts for coupling.
+            contact=Iterator(contacts[:len(contacts) / 2])  # Only use half the contacts for coupling.
         )
 
-    def users(self, size, tenant):
-        LilyUserFactory.create_batch(size, tenant=tenant)
-        user = LilyUserFactory.create(tenant=tenant, is_active=True, email='user%s@lily.com' % tenant.pk)
-        self.stdout.write('You can now login as a normal user in %(tenant)s with:\n%(email)s\n%(password)s\n' % {
-            'tenant': tenant,
+        # Only use half of the user list and the usable users as authors.
+        authors = users[:len(users) / 2] + logins
+        subjects = Iterator(
+            accounts[:len(accounts) / 4] +
+            contacts[:len(contacts) / 4] +
+            cases[:len(cases) / 4] +
+            deals[:len(deals) / 4]
+        )
+        self.notes_note(
+            author=Iterator(authors),
+            subject=subjects
+        )
+
+        # Email templates
+        # Email template variables
+
+    def users_lily_group(self, **kwargs):
+        kwargs.update({
+            'size': kwargs.get('size', 5),
+            'tenant': kwargs.get('tenant', self.tenant)
+        })
+        groups = LilyGroupFactory.create_batch(**kwargs)
+
+        self.stdout.write('Done with users_lily_group.')
+
+        return groups
+
+    def users_user(self, **kwargs):
+        kwargs.update({
+            'size': kwargs.get('size', self.batch_size) / 2,
+            'tenant': kwargs.get('tenant', self.tenant),
+            'groups': kwargs.get('groups') if kwargs.get('groups') else iterator(self.users_lily_group)
+        })
+
+        users = LilyUserFactory.create_batch(**kwargs)
+        superusers = LilySuperUserFactory.create_batch(**kwargs)
+
+        self.stdout.write('Done with users_user.')
+
+        return users + superusers
+
+    def users_login(self, **kwargs):
+        kwargs.update({
+            'tenant': kwargs.get('tenant', self.tenant),
+            'groups': kwargs.get('groups') if kwargs.get('groups') else iterator(self.users_lily_group),
+            'is_active': kwargs.get('is_active', True),
+            'email': 'user%s@lily.com' % self.tenant.pk,
+        })
+
+        user = LilyUserFactory.create(**kwargs)
+
+        self.stdout.write('\nYou can now login as a normal user in %(tenant)s with:\n%(email)s\n%(password)s\n' % {
+            'tenant': self.tenant,
             'email': user.email,
             'password': 'admin'
         })
 
-    def superusers(self, size, tenant):
-        LilySuperUserFactory.create_batch(size, tenant=tenant)
-        user = LilySuperUserFactory.create(tenant=tenant, is_active=True, email='superuser%s@lily.com' % tenant.pk)
+        kwargs['email'] = 'superuser%s@lily.com' % self.tenant.pk
+        superuser = LilySuperUserFactory.create(**kwargs)
+
         self.stdout.write('\nYou can now login as a superuser in %(tenant)s with:\n%(email)s\n%(password)s\n\n' % {
-            'tenant': tenant,
-            'email': user.email,
+            'tenant': self.tenant,
+            'email': superuser.email,
             'password': 'admin'
         })
 
-    def lilygroups(self, size, tenant):
-        LilyGroupFactory.create_batch(size, tenant=tenant)
+        return [user, superuser]
+
+    def contacts_contact(self, **kwargs):
+        kwargs.update({
+            'size': kwargs.get('size', self.batch_size),
+            'tenant': kwargs.get('tenant', self.tenant),
+        })
+        contacts = ContactFactory.create_batch(**kwargs)
+
+        self.stdout.write('Done with contacts_contact.')
+
+        return contacts
+
+    def accounts_account(self, **kwargs):
+        kwargs.update({
+            'size': kwargs.get('size', self.batch_size) / 2,
+            'tenant': kwargs.get('tenant', self.tenant),
+            'assigned_to': kwargs.get('assigned_to') if kwargs.get('assigned_to') else iterator(self.users_user),
+        })
+        accounts_with_users = AccountFactory.create_batch(**kwargs)
+
+        del kwargs['assigned_to']
+        accounts_without_users = AccountFactory.create_batch(**kwargs)
+
+        self.stdout.write('Done with accounts_account.')
+
+        return accounts_with_users + accounts_without_users
+
+    def accounts_function(self, **kwargs):
+        kwargs.update({
+            'size': kwargs.get('size', self.batch_size) / 2,
+            'account': kwargs.get('account') if kwargs.get('account') else iterator(self.accounts_account),
+            'contact': kwargs.get('contact') if kwargs.get('contact') else iterator(self.contacts_contact),
+        })
+        functions = FunctionFactory.create_batch(**kwargs)
+
+        self.stdout.write('Done with accounts_function.')
+
+        return functions
+
+    def cases_case_type(self, **kwargs):
+        kwargs.update({
+            'size': kwargs.get('size', 5),
+            'tenant': kwargs.get('tenant', self.tenant),
+        })
+        case_types = CaseTypeFactory.create_batch(**kwargs)
+
+        self.stdout.write('Done with cases_case_type.')
+
+        return case_types
+
+    def cases_case_status(self, **kwargs):
+        kwargs.update({
+            'size': kwargs.get('size', 5),
+            'tenant': kwargs.get('tenant', self.tenant),
+        })
+        case_statuses = CaseStatusFactory.create_batch(**kwargs)
+
+        self.stdout.write('Done with cases_case_status.')
+
+        return case_statuses
+
+    def cases_case(self, **kwargs):
+        kwargs.update({
+            'size': kwargs.get('size', self.batch_size) / 3,
+            'tenant': kwargs.get('tenant', self.tenant),
+            'status': kwargs.get('status') if kwargs.get('status') else iterator(self.cases_case_status),
+            'type': kwargs.get('type') if kwargs.get('type') else iterator(self.cases_case_type),
+            'assigned_to': kwargs.get('assigned_to') if kwargs.get('assigned_to') else iterator(self.users_user),
+            'groups': kwargs.get('groups') if kwargs.get('groups') else iterator(self.users_lily_group),
+            'account': kwargs.get('account') if kwargs.get('account') else iterator(self.accounts_account),
+            'contact': kwargs.get('contact') if kwargs.get('contact') else iterator(self.contacts_contact),
+        })
+
+        contact = kwargs.pop('contact')  # Remove contact for now.
+        cases_with_account = CaseFactory.create_batch(**kwargs)
+
+        kwargs['account'] = None  # Replace account with contact.
+        kwargs['contact'] = contact
+        cases_with_contact = CaseFactory.create_batch(**kwargs)
+
+        kwargs['groups'] = None  # Remove all connections.
+        kwargs['contact'] = None
+        cases_without = CaseFactory.create_batch(**kwargs)
+
+        self.stdout.write('Done with cases_case.')
+
+        return cases_with_account + cases_with_contact + cases_without
+
+    def deals_deal_contacted_by(self, **kwargs):
+        kwargs.update({
+            'size': kwargs.get('size', 5),
+            'tenant': kwargs.get('tenant', self.tenant),
+        })
+        deal_contacted_bys = DealContactedByFactory.create_batch(**kwargs)
+
+        self.stdout.write('Done with deals_deal_contacted_by.')
+
+        return deal_contacted_bys
+
+    def deals_deal_found_through(self, **kwargs):
+        kwargs.update({
+            'size': kwargs.get('size', 5),
+            'tenant': kwargs.get('tenant', self.tenant),
+        })
+        deal_found_throughs = DealFoundThroughFactory.create_batch(**kwargs)
+
+        self.stdout.write('Done with deals_deal_found_throughs.')
+
+        return deal_found_throughs
+
+    def deals_deal_next_step(self, **kwargs):
+        kwargs.update({
+            'size': kwargs.get('size', 5),
+            'tenant': kwargs.get('tenant', self.tenant),
+        })
+        deal_next_steps = DealNextStepFactory.create_batch(**kwargs)
+
+        self.stdout.write('Done with deals_deal_next_steps.')
+
+        return deal_next_steps
+
+    def deals_deal_status(self, **kwargs):
+        kwargs.update({
+            'size': kwargs.get('size', 5),
+            'tenant': kwargs.get('tenant', self.tenant),
+        })
+        deal_statuses = DealStatusFactory.create_batch(**kwargs)
+
+        self.stdout.write('Done with deals_deal_status.')
+
+        return deal_statuses
+
+    def deals_deal_why_customer(self, **kwargs):
+        kwargs.update({
+            'size': kwargs.get('size', 5),
+            'tenant': kwargs.get('tenant', self.tenant),
+        })
+        deal_why_customers = DealWhyCustomerFactory.create_batch(**kwargs)
+
+        self.stdout.write('Done with deals_deal_why_customers.')
+
+        return deal_why_customers
+
+    def deals_deal(self, **kwargs):
+        kwargs.update({
+            'size': kwargs.get('size', self.batch_size) / 2,
+            'tenant': kwargs.get('tenant', self.tenant),
+            'account': kwargs.get('account') if kwargs.get('account') else iterator(self.accounts_account),
+            'contact': kwargs.get('contact') if kwargs.get('contact') else iterator(self.contacts_contact),
+            'assigned_to': kwargs.get('assigned_to') if kwargs.get('assigned_to') else iterator(self.users_user),
+            'contacted_by': kwargs.get('contacted_by') if kwargs.get('contacted_by') else
+            iterator(self.deals_deal_contacted_by),
+            'found_through': kwargs.get('found_through') if kwargs.get('found_through') else
+            iterator(self.deals_deal_found_through),
+            'next_step': kwargs.get('next_step') if kwargs.get('next_step') else
+            iterator(self.deals_deal_next_step),
+            'status': kwargs.get('status') if kwargs.get('status') else iterator(self.deals_deal_status),
+            'why_customer': kwargs.get('why_customer') if kwargs.get('why_customer') else
+            iterator(self.deals_deal_why_customer),
+        })
+        contact = kwargs.pop('contact')
+        kwargs['contact'] = None
+        deals_with_accounts = DealFactory.create_batch(**kwargs)
+
+        kwargs['contact'] = contact
+        deals_with_contacts = DealFactory.create_batch(**kwargs)
+
+        self.stdout.write('Done with deals_deal.')
+
+        return deals_with_accounts + deals_with_contacts
+
+    def _notes_subject(self, **kwargs):
+        kwargs.update({
+            'size': kwargs.get('size', self.batch_size) / 8,  # Only half the amount of subjects for the batch size.
+            'tenant': kwargs.get('tenant', self.tenant),
+        })
+
+        accounts = self.accounts_account(**kwargs)
+        contacts = self.contacts_contact(**kwargs)
+        deals = self.deals_deal(**kwargs)
+        cases = self.cases_case(**kwargs)
+
+        return accounts + contacts + deals + cases
+
+    def notes_note(self, **kwargs):
+        kwargs.update({
+            'size': kwargs.get('size', self.batch_size),
+            'tenant': kwargs.get('tenant', self.tenant),
+            'author': kwargs.get('author') if kwargs.get('author') else iterator(self.users_user),
+            'subject': kwargs.get('subject') if kwargs.get('subject') else iterator(self._notes_subject),
+        })
+
+        self.stdout.write('Done with notes_note.')
+
+        return NoteFactory.create_batch(**kwargs)

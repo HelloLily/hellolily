@@ -41,4 +41,3 @@ ptyprocess==0.5.1
 simplegeneric==0.8.1
 traitlets==4.2.2
 wcwidth==0.1.7
-pygments==2.1.3

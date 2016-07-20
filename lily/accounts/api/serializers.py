@@ -102,9 +102,10 @@ class AccountSerializer(WritableNestedSerializer):
         websites = validated_data.pop('websites', {})
         description = validated_data.get('description')
 
-        validated_data.update({
-            'description': HtmlSanitizer(description).clean().render(),
-        })
+        if description:
+            validated_data.update({
+                'description': HtmlSanitizer(description).clean().render(),
+            })
 
         account = super(AccountSerializer, self).create(validated_data)
 
@@ -125,9 +126,10 @@ class AccountSerializer(WritableNestedSerializer):
         websites_validated_data = validated_data.pop('websites', {})
         description = validated_data.get('description')
 
-        validated_data.update({
-            'description': HtmlSanitizer(description).clean().render(),
-        })
+        if description:
+            validated_data.update({
+                'description': HtmlSanitizer(description).clean().render(),
+            })
 
         account = super(AccountSerializer, self).update(instance, validated_data)
 

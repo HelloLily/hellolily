@@ -99,9 +99,10 @@ class ContactSerializer(WritableNestedSerializer):
         account_list = validated_data.pop('accounts', None)
         description = validated_data.get('description')
 
-        validated_data.update({
-            'description': HtmlSanitizer(description).clean().render(),
-        })
+        if description:
+            validated_data.update({
+                'description': HtmlSanitizer(description).clean().render(),
+            })
 
         with transaction.atomic():
             instance = super(ContactSerializer, self).create(validated_data)
@@ -115,9 +116,10 @@ class ContactSerializer(WritableNestedSerializer):
         account_list = validated_data.pop('accounts', None)
         description = validated_data.get('description')
 
-        validated_data.update({
-            'description': HtmlSanitizer(description).clean().render(),
-        })
+        if description:
+            validated_data.update({
+                'description': HtmlSanitizer(description).clean().render(),
+            })
 
         with transaction.atomic():
             instance = super(ContactSerializer, self).update(instance, validated_data)

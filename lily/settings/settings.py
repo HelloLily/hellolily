@@ -551,6 +551,8 @@ GMAIL_CALLBACK_URL = os.environ.get('GMAIL_CALLBACK_URL', 'http://localhost:8000
 GMAIL_SYNC_DELAY_INTERVAL = 1
 GMAIL_SYNC_LOCK_LIFETIME = 300
 GMAIL_CHUNK_SIZE = 1024 * 1024
+GMAIL_LABEL_SPAM = os.environ.get('GMAIL_LABEL_SPAM', 'SPAM')
+GMAIL_LABEL_STAR = os.environ.get('GMAIL_LABEL_STAR', 'STARRED')
 
 #######################################################################################################################
 # Django rest settings                                                                                                #

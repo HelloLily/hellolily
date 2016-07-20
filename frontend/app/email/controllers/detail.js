@@ -40,6 +40,7 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     vm.deleteMessage = deleteMessage;
     vm.toggleOverlay = toggleOverlay;
     vm.markAsUnread = markAsUnread;
+    vm.markAsSpam = markAsSpam;
     vm.toggleEmailVariant = toggleEmailVariant;
     vm.showSidebar = showSidebar;
     vm.toggleSidebar = toggleSidebar;
@@ -308,6 +309,16 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
         vm.message.is_starred = !vm.message.is_starred;
 
         EmailMessage.star({id: vm.message.id, starred: vm.message.is_starred});
+    }
+
+    function markAsSpam() {
+        EmailMessage.spam({id: vm.message.id}).$promise.then(function() {
+            if (Settings.email.previousInbox) {
+                $state.transitionTo(Settings.email.previousInbox.state, Settings.email.previousInbox.params, false);
+            } else {
+                $state.go('base.email.list', {labelId: 'INBOX'});
+            }
+        });
     }
 
     function _toggleListWidget(modelName, toggleList) {

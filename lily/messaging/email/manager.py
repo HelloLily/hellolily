@@ -322,6 +322,23 @@ class GmailManager(object):
 
         self.update_unread_count()
 
+    def toggle_star_email_message(self, email_message, star=True):
+        """
+        (Un)star a message.
+
+        Args:
+            email_message(instance): EmailMessage instance
+            star (bool, optional): If True, star the message
+        """
+        add_labels = []
+        remove_labels = []
+        if star:
+            add_labels = [settings.GMAIL_LABEL_STAR]
+        else:
+            remove_labels = [settings.GMAIL_LABEL_STAR]
+
+        self.add_and_remove_labels_for_message(email_message, add_labels, remove_labels)
+
     def toggle_read_email_message(self, email_message, read=True):
         """
         Mark message as read or unread.
@@ -334,6 +351,21 @@ class GmailManager(object):
             self.add_and_remove_labels_for_message(email_message, remove_labels=[settings.GMAIL_UNREAD_LABEL])
         else:
             self.add_and_remove_labels_for_message(email_message, add_labels=[settings.GMAIL_UNREAD_LABEL])
+
+    def mark_email_message_as_spam(self, email_message):
+        """
+        Mark message as spam.
+
+        Args:
+            email_message(instance): EmailMessage instance
+        """
+        add_labels = [settings.GMAIL_LABEL_SPAM]
+        remove_labels = []
+
+        for label in email_message.labels.all():
+            remove_labels.append(label.name)
+
+        self.add_and_remove_labels_for_message(email_message, add_labels, remove_labels)
 
     def archive_email_message(self, email_message):
         """

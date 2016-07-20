@@ -317,7 +317,7 @@ class GmailConnector(object):
                 quotaUser=self.email_account.id,
             ))
 
-    def remove_draft_email_message(self, message_id):
+    def delete_draft_email_message(self, message_id):
         return self.execute_service_call(
             self.service.users().drafts().delete(
                 userId='me',

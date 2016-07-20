@@ -29,8 +29,8 @@ function NoteDetail($resource) {
 
                     if (jsonData && jsonData.hits && jsonData.hits.length > 0) {
                         jsonData.hits.forEach(function(obj) {
-                            obj = $.extend(obj, {historyType: 'note', color: 'yellow'});
-                            objects.push(obj)
+                            var noteObject = $.extend(obj, {historyType: 'note', color: 'yellow'});
+                            objects.push(noteObject);
                         });
                     }
 

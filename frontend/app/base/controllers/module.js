@@ -1,3 +1,3 @@
 angular.module('app.base', [
-    'ui.bootstrap'
+    'ui.bootstrap',
 ]);

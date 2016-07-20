@@ -6,5 +6,5 @@ angular.module('app.email', [
     // Lily dependencies
     'app.email.services',
     'app.email.directives',
-    'app.services'
+    'app.services',
 ]);

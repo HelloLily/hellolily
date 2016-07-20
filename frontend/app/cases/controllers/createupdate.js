@@ -217,7 +217,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         } else if (Settings.email.sidebar.isVisible && !archive) {
             ga('send', 'event', 'Case', 'Save', 'Email Sidebar');
         } else if (!Settings.email.sidebar.isVisible && archive) {
-            if($stateParams.accountId){
+            if ($stateParams.accountId) {
                 ga('send', 'event', 'Case', 'Save and archive', 'Account Widget');
             } else if ($stateParams.contactId) {
                 ga('send', 'event', 'Case', 'Save and archive', 'Contact Widget');
@@ -225,14 +225,13 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
                 ga('send', 'event', 'Case', 'Save and archive', 'Default');
             }
         } else {
-            if($stateParams.accountId){
+            if ($stateParams.accountId) {
                 ga('send', 'event', 'Case', 'Save', 'Account Widget');
             } else if ($stateParams.contactId) {
                 ga('send', 'event', 'Case', 'Save', 'Contact Widget');
             } else {
                 ga('send', 'event', 'Case', 'Save', 'Default');
             }
-
         }
 
         if (!_caseFormIsValid()) {

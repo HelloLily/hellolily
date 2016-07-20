@@ -1,4 +1,4 @@
-(function ($, window, document, undefined) {
+(function($, window, document) {
     window.HLEmailTemplates = {
         config: {
             insertButton: '#id_insert_button',
@@ -14,37 +14,40 @@
             submitButton: 'button[type="submit"]',
             parameterChoices: {},
             variablePreviewButton: '#variable_preview_button',
-            customVariablePreviewText: ''
+            customVariablePreviewText: '',
         },
 
-        init: function (config) {
+        init: function(config) {
             var self = this;
 
             // Setup config
-            if (typeof (config === 'object')) {
+            if (typeof config === 'object') {
                 $.extend(this.config, config);
             }
 
             self.initListeners();
 
-            $.get('api/messaging/email/templatevariable', function (data) {
+            $.get('api/messaging/email/templatevariable', function(data) {
+                var i;
+                var customVariableName;
+
                 if (!jQuery.isEmptyObject(data.default)) {
-                    self.config.parameterChoices = data['default'];
+                    self.config.parameterChoices = data.default;
                     self.config.parameterChoices['Custom variables'] = {};
 
                     if (data.custom.length) {
-                        for (var i = 0; i < data.custom.length; i++) {
+                        for (i = 0; i < data.custom.length; i++) {
                             if (data.custom[i].is_public) {
-                                var customVariableName = ['custom', data.custom[i].name.toLowerCase(), 'public'].join('.');
+                                customVariableName = ['custom', data.custom[i].name.toLowerCase(), 'public'].join('.');
                                 self.config.parameterChoices['Custom variables'][customVariableName] = {
                                     nameDisplay: data.custom[i].name + ' (public)',
-                                    previewValue: data.custom[i].text
+                                    previewValue: data.custom[i].text,
                                 };
                             } else {
-                                var customVariableName = ['custom', data.custom[i].name.toLowerCase()].join('.');
+                                customVariableName = ['custom', data.custom[i].name.toLowerCase()].join('.');
                                 self.config.parameterChoices['Custom variables'][customVariableName] = {
                                     nameDisplay: data.custom[i].name,
-                                    previewValue: data.custom[i].text
+                                    previewValue: data.custom[i].text,
                                 };
                             }
                         }
@@ -56,49 +59,51 @@
         },
 
         initListeners: function() {
-            var self = this,
-                cf = self.config;
+            var toolbar;
+
+            var self = this;
+            var cf = self.config;
 
             $('body')
-                .on('click', cf.insertButton, function (event) {
-                    var templateVariable = $(cf.templateVariableField).html();
+            .on('click', cf.insertButton, function(event) {
+                var templateVariable = $(cf.templateVariableField).html();
 
-                    HLInbox.getEditor().focus();
-                    HLInbox.getEditor().composer.commands.exec('insertHTML', templateVariable);
+                HLInbox.getEditor().focus();
+                HLInbox.getEditor().composer.commands.exec('insertHTML', templateVariable);
 
-                    event.preventDefault();
-                })
-                .on('change', cf.variablesField, function () {
-                    self.updateVariableOptions();
-                })
-                .on('click', cf.fileUploadField, function (event) {
-                    $(cf.bodyFileField).click();
-                    event.preventDefault();
-                })
-                .on('change', cf.valuesField, function () {
-                    self.handleValueChange.call(self, this);
-                })
-                .on('change', cf.bodyFileField, function () {
-                    self.handleBodyFileChange.call(self, this);
-                })
-                .on('click', cf.attachmentDeleteButton, function() {
-                    var attachmentRow = $(this).closest('.form-group');
-                    self.toggleMarkDeleted(attachmentRow);
-                })
-                .on('click', cf.attachmentUndoDeleteButton , function() {
-                    var attachmentRow = $(this).closest('.form-group');
-                    self.toggleMarkDeleted(attachmentRow);
-                })
-                .on('click', cf.submitButton, function (event) {
-                    self.handleFormSubmit(this, event);
-                })
-                .on('click', cf.variablePreviewButton, function (event) {
-                    event.preventDefault();
-                    bootbox.alert(cf.customVariablePreviewText);
-                });
+                event.preventDefault();
+            })
+            .on('change', cf.variablesField, function() {
+                self.updateVariableOptions();
+            })
+            .on('click', cf.fileUploadField, function(event) {
+                $(cf.bodyFileField).click();
+                event.preventDefault();
+            })
+            .on('change', cf.valuesField, function() {
+                self.handleValueChange.call(self, this);
+            })
+            .on('change', cf.bodyFileField, function() {
+                self.handleBodyFileChange.call(self, this);
+            })
+            .on('click', cf.attachmentDeleteButton, function() {
+                var attachmentRow = $(this).closest('.form-group');
+                self.toggleMarkDeleted(attachmentRow);
+            })
+            .on('click', cf.attachmentUndoDeleteButton, function() {
+                var attachmentRow = $(this).closest('.form-group');
+                self.toggleMarkDeleted(attachmentRow);
+            })
+            .on('click', cf.submitButton, function(event) {
+                self.handleFormSubmit(this, event);
+            })
+            .on('click', cf.variablePreviewButton, function(event) {
+                event.preventDefault();
+                bootbox.alert(cf.customVariablePreviewText);
+            });
 
             // Set heading properly after change
-            var toolbar = $(cf.wysiHtmlToolbar);
+            toolbar = $(cf.wysiHtmlToolbar);
             $(toolbar).find('a[data-wysihtml5-command="formatBlock"]').click(function(e) {
                 var target = e.target || e.srcElement;
                 var el = $(target);
@@ -106,7 +111,7 @@
             });
         },
 
-        updateVariableOptions: function () {
+        updateVariableOptions: function() {
             var self = this;
             var valueSelect = $(this.config.valuesField);
             var category = $(this.config.variablesField).val();
@@ -115,25 +120,25 @@
             valueSelect.change();
 
             if (category !== '') {
-                if (category == 'Custom variables') {
-                    $.each(self.config.parameterChoices[category], function (parameter, variableValues) {
+                if (category === 'Custom variables') {
+                    $.each(self.config.parameterChoices[category], function(parameter, variableValues) {
                         valueSelect.append($('<option>', {
                             value: parameter,
-                            text: variableValues.nameDisplay
+                            text: variableValues.nameDisplay,
                         }));
                     });
                 } else {
-                    $.each(self.config.parameterChoices[category], function (parameter, label) {
+                    $.each(self.config.parameterChoices[category], function(parameter, label) {
                         valueSelect.append($('<option>', {
                             value: parameter,
-                            text: label
+                            text: label,
                         }));
                     });
                 }
             }
         },
 
-        handleValueChange: function (valuesField) {
+        handleValueChange: function(valuesField) {
             var cf = this.config;
 
             var templateVariableField = $(cf.templateVariableField);
@@ -141,12 +146,11 @@
             var category = $(this.config.variablesField).val();
 
             if (templateVariable !== '') {
-                if (category != 'Custom variables') {
+                if (category !== 'Custom variables') {
                     $(cf.variablePreviewButton).hide();
 
                     templateVariableField.html(cf.openVariable + ' ' + templateVariable + ' ' + cf.closeVariable);
-                }
-                else {
+                } else {
                     $(cf.variablePreviewButton).show();
 
                     this.config.customVariablePreviewText = cf.parameterChoices['Custom variables'][templateVariable].previewValue;
@@ -158,7 +162,7 @@
             }
         },
 
-        handleBodyFileChange: function (bodyFileField) {
+        handleBodyFileChange: function(bodyFileField) {
             var form = $(bodyFileField).closest('form');
             var uploadedTemplate = form.find(bodyFileField).val();
 
@@ -172,10 +176,13 @@
                     dataType: 'json',
                     url: this.config.parseEmailTemplateUrl,
                     success: function(response) {
-                        if(!response.error && response.form) {
-                            var fields = ['name', 'subject'];
+                        var fields;
+
+                        if (!response.error && response.form) {
+                            fields = ['name', 'subject'];
+
                             $.each(fields, function(index, field) {
-                                if(response.form.hasOwnProperty(field)) {
+                                if (response.form.hasOwnProperty(field)) {
                                     $('#id_' + field).val(response.form[field]);
                                 }
                             });
@@ -192,26 +199,28 @@
                     error: function() {
                         // Loads notifications if any
                         load_notifications();
-                    }
+                    },
                 });
             }
         },
 
-        toggleMarkDeleted: function (attachmentRow) {
+        toggleMarkDeleted: function(attachmentRow) {
             var rowAttachmentName = attachmentRow.find(this.config.templateAttachmentName);
 
             if (rowAttachmentName.hasClass('mark-deleted')) {
                 rowAttachmentName.removeClass('mark-deleted');
-            }
-            else {
+            } else {
                 rowAttachmentName.addClass('mark-deleted');
             }
         },
 
-        handleFormSubmit: function (submitButton, event) {
-            event.preventDefault();
+        handleFormSubmit: function(submitButton, event) {
+            var $form;
 
             var $containerDiv = $('<div>');
+
+            event.preventDefault();
+
             $containerDiv[0].innerHTML = HLInbox.getEditor().getValue();
             // Remove resize div
             $containerDiv.find('#resize-div').remove();
@@ -223,12 +232,12 @@
              */
             $('#' + HLInbox.config.textEditorId).val($containerDiv[0].innerHTML);
 
-            var $form = $($(submitButton).closest('form'));
+            $form = $($(submitButton).closest('form'));
 
             Metronic.blockUI($('.inbox-content'), false, '');
 
             $form.submit();
-        }
-    }
+        },
+    };
 })(jQuery, window, document);
 

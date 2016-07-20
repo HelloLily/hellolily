@@ -16,7 +16,7 @@ function dateFormatter(dateFilter) {
                 if (value) {
                     return dateFilter(value, attrs.dateFormatter);
                 }
-            })
-        }
-    }
+            });
+        },
+    };
 }

@@ -19,12 +19,13 @@ function dateDirective() {
 DateController.$inject = [];
 function DateController() {
     var vm = this;
+    var date;
 
     if (vm.date) {
         // new Date() to prevent deprecation warning of MomentJS.
-        var date = moment(new Date(vm.date));
+        date = moment(new Date(vm.date));
 
-        if(!vm.dateFormat){
+        if (!vm.dateFormat) {
             if (date.isSame(moment(), 'day') && vm.showTime) {
                 // In certain cases we want to display the time if it's the same day.
                 vm.dateFormat = 'HH:mm';

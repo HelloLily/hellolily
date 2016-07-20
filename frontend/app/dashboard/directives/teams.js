@@ -1,15 +1,15 @@
 angular.module('app.dashboard.directives').directive('teams', teamsDirective);
 
-function teamsDirective () {
+function teamsDirective() {
     return {
         templateUrl: 'dashboard/directives/teams.html',
         controller: TeamsController,
-        controllerAs: 'vm'
-    }
+        controllerAs: 'vm',
+    };
 }
 
 TeamsController.$inject = ['UserTeams'];
-function TeamsController (UserTeams) {
+function TeamsController(UserTeams) {
     var vm = this;
     vm.teams = [];
 

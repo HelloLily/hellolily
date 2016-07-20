@@ -4,17 +4,17 @@ function ThreadInfoDirective() {
     return {
         restrict: 'E',
         scope: {
-            messageId:'='
+            messageId: '=',
         },
         controller: ThreadInfoController,
         controllerAs: 'vm',
         bindToController: true,
-        templateUrl: 'email/directives/thread_info.html'
+        templateUrl: 'email/directives/thread_info.html',
     };
 }
 
 ThreadInfoController.$inject = ['$state', 'EmailMessage'];
-function ThreadInfoController ($state, EmailMessage) {
+function ThreadInfoController($state, EmailMessage) {
     var vm = this;
     vm.action = '';
     vm.nextMessage = null;
@@ -25,14 +25,14 @@ function ThreadInfoController ($state, EmailMessage) {
 
     ////
 
-    function activate () {
+    function activate() {
         EmailMessage.history({id: vm.messageId}, function(history) {
             vm.action = 'nothing';
             if (history.replied_with) {
-                vm.action = _getEmailAddresses(history.replied_with).length == 1 ? 'reply' : 'reply-all';
+                vm.action = _getEmailAddresses(history.replied_with).length === 1 ? 'reply' : 'reply-all';
                 vm.nextMessage = history.replied_with;
-            } else if(history.forwarded_with) {
-                if(_getEmailAddresses(history.replied_with).length == 1) {
+            } else if (history.forwarded_with) {
+                if (_getEmailAddresses(history.replied_with).length === 1) {
                     vm.action = 'forward';
                 } else {
                     // hack, there is no forward all
@@ -43,7 +43,7 @@ function ThreadInfoController ($state, EmailMessage) {
         });
     }
 
-    function _getEmailAddresses (message) {
+    function _getEmailAddresses(message) {
         var emailAddresses = [];
 
         // TODO: LILY-982: Fix empty messages being sent
@@ -60,7 +60,7 @@ function ThreadInfoController ($state, EmailMessage) {
         return emailAddresses;
     }
 
-    function gotoMessage () {
+    function gotoMessage() {
         $state.go('base.email.detail', {id: vm.nextMessage.id});
     }
 }

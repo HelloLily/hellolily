@@ -34,7 +34,7 @@
             var self = this;
 
             // Setup config
-            if (typeof (config === 'object')) {
+            if (typeof config === 'object') {
                 $.extend(this.config, config);
             }
 
@@ -120,7 +120,7 @@
             var decodedEditorValue;
             var $composeEmailTemplate;
 
-            if (typeof (emailComposeConfig === 'object')) {
+            if (typeof emailComposeConfig === 'object') {
                 $.extend(self.config, emailComposeConfig);
             }
 

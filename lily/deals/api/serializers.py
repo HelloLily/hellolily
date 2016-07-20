@@ -195,8 +195,12 @@ class DealSerializer(WritableNestedSerializer):
         validated_data.update({
             'created_by_id': user.pk,
             'closed_date': closed_date,
-            'description': HtmlSanitizer(description).clean().render(),
         })
+
+        if description:
+            validated_data.update({
+                'description': HtmlSanitizer(description).clean().render(),
+            })
 
         assigned_to = validated_data.get('assigned_to')
         if assigned_to is None:
@@ -226,9 +230,10 @@ class DealSerializer(WritableNestedSerializer):
             'closed_date': closed_date,
         })
 
-        validated_data.update({
-            'description': HtmlSanitizer(description).clean().render(),
-        })
+        if description:
+            validated_data.update({
+                'description': HtmlSanitizer(description).clean().render(),
+            })
 
         return super(DealSerializer, self).update(instance, validated_data)
 

@@ -91,8 +91,12 @@ class CaseSerializer(WritableNestedSerializer):
 
         validated_data.update({
             'created_by_id': user.pk,
-            'description': HtmlSanitizer(description).clean().render(),
         })
+
+        if description:
+            validated_data.update({
+                'description': HtmlSanitizer(description).clean().render(),
+            })
 
         return super(CaseSerializer, self).create(validated_data)
 
@@ -111,9 +115,10 @@ class CaseSerializer(WritableNestedSerializer):
                 'is_archived': True
             })
 
-        validated_data.update({
-            'description': HtmlSanitizer(description).clean().render(),
-        })
+        if description:
+            validated_data.update({
+                'description': HtmlSanitizer(description).clean().render(),
+            })
 
         if self.partial:
             if 'assigned_to_groups' in validated_data:

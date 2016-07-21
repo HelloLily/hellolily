@@ -36,6 +36,6 @@ class CustomMetaData(SimpleMetadata):
                     'display_name': force_text(choice_name, strings_only=True)
                 }
                 for choice_value, choice_name in field.choices.items()
-                ]
+            ]
 
         return field_info

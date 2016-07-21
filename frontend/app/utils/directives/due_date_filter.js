@@ -18,7 +18,7 @@ function dueDateFilter() {
 DueDateFilterWidgetController.$inject = ['LocalStorage', '$scope'];
 function DueDateFilterWidgetController(LocalStorage, $scope) {
     var vm = this;
-    var storage = LocalStorage(vm.type);
+    var storage = new LocalStorage(vm.type);
 
     // Get the stored value or set to 'All' if it doesn't exist
     vm.dueDateFilter = storage.get('dueDateFilter', 0);
@@ -40,6 +40,10 @@ function DueDateFilterWidgetController(LocalStorage, $scope) {
 
     function _watchDueDateFilter() {
         $scope.$watch('vm.dueDateFilter', function() {
+            var today;
+            var tomorrow;
+            var week;
+
             var filter = '';
             var filterField = vm.filterField ? vm.filterField : 'expires';
             filterField += ': ';
@@ -48,20 +52,21 @@ function DueDateFilterWidgetController(LocalStorage, $scope) {
             angular.element('.due-date-filter-container.is-open').removeClass('is-open');
 
             switch (vm.dueDateFilter) {
+                default:
                 case 0:
                     filter = '';
                     break;
                 case 1:
-                    var today = moment().format('YYYY-MM-DD');
+                    today = moment().format('YYYY-MM-DD');
                     filter = filterField + today;
                     break;
                 case 2:
-                    var tomorrow = moment().add(1, 'd').format('YYYY-MM-DD');
+                    tomorrow = moment().add(1, 'd').format('YYYY-MM-DD');
                     filter = filterField + tomorrow;
                     break;
                 case 3:
-                    var today = moment().format('YYYY-MM-DD');
-                    var week = moment().add(6, 'd').format('YYYY-MM-DD');
+                    today = moment().format('YYYY-MM-DD');
+                    week = moment().add(6, 'd').format('YYYY-MM-DD');
                     filter = filterField + '[' + today + ' TO ' + week + ']';
                     break;
                 case 4:

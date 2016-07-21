@@ -177,6 +177,6 @@ class RelatedSerializerMixin(ValidateEverythingSimultaneouslyMixin):
                 # Remove unique together validator because we are creating so it's always unique.
                 self.validators = [
                     validator for validator in self.validators if not isinstance(validator, UniqueTogetherValidator)
-                    ]
+                ]
 
         return self.to_internal_value_fields(data)

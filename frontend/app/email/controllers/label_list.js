@@ -28,8 +28,10 @@ function LabelListController($filter, $interval, $scope, $state, EmailAccount, p
     }
 
     function _startIntervalAccountInfo() {
+        var stopGetAccountInfo;
+
         _getAccountInfo();
-        var stopGetAccountInfo = $interval(_getAccountInfo, 60000);
+        stopGetAccountInfo = $interval(_getAccountInfo, 60000);
 
         // Stop fetching when out of scope.
         $scope.$on('$destroy', function() {
@@ -44,12 +46,16 @@ function LabelListController($filter, $interval, $scope, $state, EmailAccount, p
     // Fetch the EmailAccounts & associated labels.
     function _getAccountInfo() {
         EmailAccount.mine(function(results) {
+            var i;
+            var j;
+            var label;
+            var labelCount = {};
             // Sort accounts on id.
-            results = $filter('orderBy')(results, 'id');
+            var orderedResults = $filter('orderBy')(results, 'id');
 
             vm.accountList = [];
             // Make sure primary account is set first.
-            angular.forEach(results, function(account) {
+            angular.forEach(orderedResults, function(account) {
                 if (account.id !== vm.primaryEmailAccountId) {
                     this.push(account);
                 } else {
@@ -58,10 +64,10 @@ function LabelListController($filter, $interval, $scope, $state, EmailAccount, p
             }, vm.accountList);
 
             // Check for unread email count.
-            var labelCount = {};
-            for (var i in vm.accountList) {
-                for (var j in vm.accountList[i].labels) {
-                    var label = vm.accountList[i].labels[j];
+            for (i in vm.accountList) {
+                for (j in vm.accountList[i].labels) {
+                    label = vm.accountList[i].labels[j];
+
                     if (label.label_type === 0) {
                         if (labelCount.hasOwnProperty(label.label_id)) {
                             labelCount[label.label_id] += parseInt(label.unread);
@@ -80,7 +86,7 @@ function LabelListController($filter, $interval, $scope, $state, EmailAccount, p
         angular.forEach(account.labels, function(label) {
             if (label.label_id === labelId) {
                 count = label.unread;
-                return true;
+                return;
             }
         });
 

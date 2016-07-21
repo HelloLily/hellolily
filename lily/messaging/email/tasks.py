@@ -213,7 +213,10 @@ def trash_email_message(self, email_id):
         manager = GmailManager(email_message.account)
         try:
             logger.debug('Trashing: %s', email_message)
-            manager.trash_email_message(email_message)
+            if email_message.is_draft:
+                manager.delete_draft_email_message(email_message)
+            else:
+                manager.trash_email_message(email_message)
         except Exception as exc:
             logger.exception('Failed trashing %s' % email_message)
             raise self.retry(exc=exc)
@@ -258,11 +261,7 @@ def delete_email_message(self, email_id):
     try:
         email_message = EmailMessage.objects.get(pk=email_id)
         removed = email_message.is_removed
-        in_trash = False
-        for label in email_message.labels.all():
-            if label.name == 'TRASH':
-                in_trash = True
-                break
+        in_trash = email_message.is_trashed
         email_message.is_removed = True
         email_message.save()
     except EmailMessage.DoesNotExist:
@@ -270,8 +269,11 @@ def delete_email_message(self, email_id):
     else:
         manager = GmailManager(email_message.account)
         try:
-            if removed is False or in_trash is True:
-                manager.delete_email_message(email_message)
+            if not removed or in_trash:
+                if email_message.is_draft:
+                    manager.delete_draft_email_message(email_message)
+                else:
+                    manager.delete_email_message(email_message)
         except Exception as exc:
             logger.exception('Failed deleting %s' % email_message)
             raise self.retry(exc=exc)
@@ -436,11 +438,11 @@ def update_draft_email_message(email_outbox_message_id, current_draft_pk):
 
     manager = GmailManager(email_account)
     if current_draft.draft_id:
-        # Update current draft
+        # Update current draft.
         try:
             manager.update_draft_email_message(email_outbox_message.message(), draft_id=current_draft.draft_id)
             logger.debug('Updated draft for: %s', email_account)
-            # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more
+            # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more.
             email_outbox_message.delete()
             draft_success = True
         except Exception:
@@ -449,12 +451,12 @@ def update_draft_email_message(email_outbox_message_id, current_draft_pk):
         finally:
             manager.cleanup()
     else:
-        # There is no draft pk stored, just remove and create a new draft
+        # There is no draft pk stored, just remove and create a new draft.
         try:
             manager.create_draft_email_message(email_outbox_message.message())
             manager.delete_email_message(current_draft)
             logger.debug('Message saved as draft and removed current draft, for: %s', email_account)
-            # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more
+            # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more.
             email_outbox_message.delete()
             draft_success = True
         except Exception:

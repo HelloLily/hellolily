@@ -114,12 +114,12 @@ class MessageBuilder(object):
         self.message.thread_id = message_info['threadId']
 
         # UNREAD identifier check to see if message is read
-        self.message.read = settings.GMAIL_UNREAD_LABEL not in message_info.get('labelIds', [])
+        self.message.read = settings.GMAIL_LABEL_UNREAD not in message_info.get('labelIds', [])
 
         # Store all labels
         for label in message_info.get('labelIds', []):
             # Do not save UNREAD_LABEL
-            if label == settings.GMAIL_UNREAD_LABEL:
+            if label == settings.GMAIL_LABEL_UNREAD:
                 continue
 
             db_label = self.manager.get_label(label)

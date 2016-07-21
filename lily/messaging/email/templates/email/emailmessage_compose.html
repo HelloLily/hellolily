@@ -20,7 +20,7 @@
         <div class="hl-button-group-container">
             <ul class="hl-button-group">
                 <li class="hl-button-group-btn">
-                    <button class="hl-button-group-btn-link" type="submit" name="submit-send" send-checker><i class="fa fa-check"></i> Send</button>
+                    <button class="hl-button-group-btn-link" type="submit" name="submit-send" send-checker send-draft><i class="fa fa-check"></i> Send</button>
                 </li>
 
                 {% if form.message_type == 'reply' or form.message_type == 'forward' %}
@@ -121,7 +121,7 @@
         <div class="email-reply-actions-header">
             <ul class="email-inbox-actions">
                 <li>
-                    <button type="submit" name="submit-send" send-checker>
+                    <button type="submit" name="submit-send" send-checker send-draft>
                         <i class="fa fa-check"></i>
                         {% trans 'Send' %}
                     </button>

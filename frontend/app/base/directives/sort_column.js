@@ -24,11 +24,11 @@ function sortColumn() {
      *
      * @param $scope object: current scope
      * @param element object: current DOM element
-     * @param sortColumn string: column from current DOM element
+     * @param column string: column from current DOM element
      */
-    var _setSortableIcon = function($scope, element, sortColumn) {
+    var _setSortableIcon = function($scope, element, column) {
         // Add classes based on current sorted column
-        if ($scope.table.order.column === sortColumn) {
+        if ($scope.table.order.column === column) {
             if ($scope.table.order.descending) {
                 $scope.sorted = -1;
             } else {

@@ -3,10 +3,10 @@
  *
  * Set `prefix` to give local storage keys a prefix
  */
-angular.module('app.services').service('LocalStorage', LocalStorage);
+angular.module('app.services').service('LocalStorage', LocalStorageService);
 
-LocalStorage.$inject = [];
-function LocalStorage() {
+LocalStorageService.$inject = [];
+function LocalStorageService() {
     function LocalStorageFactory(prefix) {
         return new LocalStorage(prefix);
     }
@@ -45,10 +45,14 @@ function LocalStorage() {
      * @returns {*}: Retrieved or default value
      */
     LocalStorage.prototype.getObjectValue = function(field, defaultValue) {
+        var storage;
+        var values;
+        var value;
+
         try {
-            var storage = this;
-            var values = storage.get('', defaultValue);
-            var value = values[field];
+            storage = this;
+            values = storage.get('', defaultValue);
+            value = values[field];
 
             return value ? value : defaultValue;
         } catch (error) {
@@ -64,9 +68,9 @@ function LocalStorage() {
      * @param value {*} : The value to be stored
      */
     LocalStorage.prototype.put = function(field, value) {
-        value = JSON.stringify(value);
+        var convertedValue = JSON.stringify(value);
 
-        localStorage.setItem(this.prefix + field, value);
+        localStorage.setItem(this.prefix + field, convertedValue);
     };
 
     /**

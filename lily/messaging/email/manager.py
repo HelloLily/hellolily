@@ -304,7 +304,7 @@ class GmailManager(object):
                 except LabelNotFoundError:
                     logger.error('label not found, update labels failed! %s: %s' %
                                  (self.email_account, email_message.message_id))
-                except HttpError as e:
+                except HttpError:
                     # Other that a label error, so raise.
                     logger.error('update labels failed! %s: %s' % (self.email_account, email_message.message_id))
                     raise

@@ -36,8 +36,8 @@ function emailConfig($stateProvider) {
 angular.module('app.email').controller('EmailListController', EmailListController);
 
 EmailListController.$inject = ['$scope', '$state', '$stateParams', 'Settings', 'EmailMessage', 'EmailLabel',
-    'EmailAccount', 'HLText', 'LocalStorage', 'SelectedEmailAccount'];
-function EmailListController($scope, $state, $stateParams, Settings, EmailMessage, EmailLabel, EmailAccount, HLText, LocalStorage, SelectedEmailAccount) {
+    'EmailAccount', 'LocalStorage', 'SelectedEmailAccount'];
+function EmailListController($scope, $state, $stateParams, Settings, EmailMessage, EmailLabel, EmailAccount, LocalStorage, SelectedEmailAccount) {
     var storage = new LocalStorage('inbox');
     var vm = this;
 
@@ -172,6 +172,8 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
                 return vm.emailMessages[i];
             }
         }
+
+        return false;
     }
 
     /**
@@ -342,16 +344,16 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
                 }, function(response) {
                     if (response.results && response.results.length) {
                         vm.label = response.results[0];
-                        vm.label.name = vm.label.name.hlCapitalize();
+                        vm.label.name = _normalizeLabel(vm.label.name);
                     } else {
-                        vm.label = {id: $stateParams.labelId, name: $stateParams.labelId.hlCapitalize()};
+                        vm.label = {id: $stateParams.labelId, name: _normalizeLabel($stateParams.labelId)};
                     }
                 });
             }
             // Get the account for the given accountId.
             vm.account = EmailAccount.get({id: $stateParams.accountId});
         } else {
-            vm.label = {id: $stateParams.labelId, name: $stateParams.labelId.hlCapitalize()};
+            vm.label = {id: $stateParams.labelId, name: _normalizeLabel($stateParams.labelId)};
         }
 
         if (filterquery) {
@@ -367,5 +369,10 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
             vm.emailMessages = data.hits;
             vm.table.totalItems = data.total;
         });
+    }
+
+    function _normalizeLabel(label) {
+        var normalizedLabel = label.toLowerCase();
+        return normalizedLabel.charAt(0).toUpperCase() + normalizedLabel.substring(1);
     }
 }

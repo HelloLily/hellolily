@@ -19,7 +19,7 @@ CollapsableController.$inject = ['$scope', 'LocalStorage'];
 function CollapsableController($scope, LocalStorage) {
     var vm = this;
 
-    var storage = LocalStorage('collapseDirective-' + vm.name);
+    var storage = new LocalStorage('collapseDirective-' + vm.name);
     vm.folded = storage.get('folded', false);
 
     vm.toggleFolded = toggleFolded;

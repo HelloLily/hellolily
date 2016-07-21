@@ -8,9 +8,8 @@ from django.forms.widgets import TextInput, Widget, RadioFieldRenderer, Textarea
 from django.forms.util import flatatt
 from django.utils import translation
 from django.utils.encoding import force_text
-from django.utils.html import conditional_escape, format_html
+from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
 
 

@@ -56,6 +56,8 @@ class EmailMessageSerializer(serializers.ModelSerializer):
             'read',
             'subject',
             'is_starred',
+            'is_spam',
+            'is_draft',
         )
 
 

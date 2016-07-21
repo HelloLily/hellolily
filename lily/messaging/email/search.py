@@ -95,6 +95,9 @@ class EmailMessageMapping(BaseMapping):
             'is_spam': {
                 'type': 'boolean',
             },
+            'is_draft': {
+                'type': 'boolean',
+            },
         })
         return mapping
 
@@ -152,6 +155,7 @@ class EmailMessageMapping(BaseMapping):
             'is_removed': obj.is_removed,
             'is_starred': obj.is_starred,
             'is_spam': obj.is_spam,
+            'is_draft': obj.is_draft,
         }
 
     @classmethod

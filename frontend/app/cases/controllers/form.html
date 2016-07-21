@@ -48,13 +48,13 @@
 
                 <form-group label-title="Type" label-id="id_type" field="caseForm.type" required="true">
                     <select ng-model="vm.case.type" ng-options="type.name for type in vm.caseTypes track by type.id" class="form-control" name="type">
-                        <option value="" hidden>---------</option>
+                        <option value="" hidden>Select a type</option>
                     </select>
                 </form-group>
 
                 <form-group label-title="Status" label-id="id_status" field="caseForm.status" required="true">
                     <select ng-model="vm.case.status" ng-options="status as status.name for status in vm.caseStatuses track by status.id" class="form-control">
-                        <option value="" hidden>---------</option>
+                        <option value="" hidden>Select a status</option>
                     </select>
                 </form-group>
 

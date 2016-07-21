@@ -14,7 +14,7 @@ from lily.notes.api.views import NoteViewSet
 from lily.provide.api.views import DataproviderView
 from lily.tenant.api.views import TenantViewSet
 from lily.users.api.views import LilyUserViewSet, TeamViewSet
-from lily.utils.api.views import CountryViewSet, CallerName, Notifications
+from lily.utils.api.views import AppHash, CallerName, CountryViewSet, Notifications
 
 # Define routes, using the default router so the API is browsable.
 router = DefaultRouter()
@@ -55,6 +55,7 @@ urlpatterns = patterns(
 
     url(r'^utils/notifications/$', Notifications.as_view()),
     url(r'^utils/callername/$', CallerName.as_view()),
+    url(r'^utils/apphash/$', AppHash.as_view()),
 
     url(r'^provide/dataprovider/$', DataproviderView.as_view()),
 

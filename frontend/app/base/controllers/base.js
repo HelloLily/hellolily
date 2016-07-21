@@ -12,8 +12,8 @@ function appConfig($stateProvider) {
 
 angular.module('app.base').controller('BaseController', BaseController);
 
-BaseController.$inject = ['$scope', '$state', 'Settings', 'Notifications', 'HLShortcuts'];
-function BaseController($scope, $state, Settings, Notifications, HLShortcuts) {
+BaseController.$inject = ['$scope', '$state', 'AppHash', 'Settings', 'Notifications', 'HLShortcuts'];
+function BaseController($scope, $state, AppHash, Settings, Notifications, HLShortcuts) {
     // Make sure the settings are available everywhere.
     $scope.settings = Settings;
 
@@ -25,6 +25,16 @@ function BaseController($scope, $state, Settings, Notifications, HLShortcuts) {
 
     function activate() {
         $scope.$on('$stateChangeStart', function() {
+            AppHash.get().$promise.then(function(response) {
+                // App hash is set, so compare with the response.
+                if (window.appHash && window.appHash !== response.app_hash) {
+                    // Reload the page so we get new static files.
+                    window.location.reload(true);
+                } else {
+                    window.appHash = response.app_hash;
+                }
+            });
+
             new window.Intercom('update', {email: currentUser.email});
         });
 

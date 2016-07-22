@@ -98,12 +98,7 @@ function PostponeModal($uibModalInstance, $scope, data, $injector, HLUtils) {
             futureDate = moment(vm.date);
         }
 
-        if (days !== 7) {
-            // Only skip weekends if we're postponing by 1 or 2 days.
-            futureDate = HLUtils.addBusinessDays(days, futureDate);
-        } else {
-            futureDate = futureDate.add(days, 'days').format('YYYY-MM-DD');
-        }
+        futureDate = HLUtils.addBusinessDays(days, futureDate);
 
         return futureDate;
     }

@@ -78,6 +78,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     vm.configCaseType = 0;
 
     vm.assignToMe = assignToMe;
+    vm.assignToMyTeams = assignToMyTeams;
     vm.cancelCaseCreation = cancelCaseCreation;
     vm.saveCase = saveCase;
     vm.refreshAccounts = refreshAccounts;
@@ -191,11 +192,19 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         UserTeams.query().$promise.then(function(response) {
             vm.teams = response.results;
         });
+
+        UserTeams.mine(function(teams) {
+            vm.ownTeams = teams;
+        });
     }
 
     function assignToMe() {
         // Bit of a hacky way to assign the current user, but we'll clean this up later.
         vm.case.assigned_to = {id: currentUser.id, full_name: currentUser.fullName};
+    }
+
+    function assignToMyTeams() {
+        vm.case.assigned_to_groups = vm.ownTeams;
     }
 
     function cancelCaseCreation() {

@@ -146,3 +146,49 @@ i {
 .page-toolbar .lilicon {
     color: $app-color-grey;
 }
+
+.hl-entity-status-active-icon {
+    position: relative;
+    display: inline-block;
+
+    &:before {
+        content: $hl-entity-b-icon;
+        position: relative;
+        top: 0;
+        left: 0;
+        margin-right: 5px;
+    }
+
+    &:after {
+        color: $app-color-mint;
+        content: $hl-entity-active-icon;
+        position: absolute;
+        top: 0;
+        left: -4px;
+        font-size: 150%;
+        line-height: 100% / (150 / 100); // Make first number within () same percentage as the font-size
+    }
+}
+
+.hl-entity-status-inactive-icon {
+    position: relative;
+    display: inline-block;
+
+    &:before {
+        content: $hl-entity-b-icon;
+        position: relative;
+        top: 0;
+        left: 0;
+        margin-right: 5px;
+    }
+
+    &:after {
+        color: $app-color-grey;
+        content: $hl-entity-inactive-icon;
+        position: absolute;
+        top: 0;
+        left: -5px;
+        font-size: 150%;
+        line-height: 100% / (150 / 100); // Make first number within () same percentage as the font-size
+    }
+}

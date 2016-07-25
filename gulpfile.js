@@ -165,7 +165,7 @@ gulp.task('app-js', [], function() {
             return sourcemaps.init();
         }))
         .pipe(cached('app-js'))
-        .pipe(babel({presets: ['es2015']}))
+        .pipe(babel({presets: ['es2015'], compact: false}))
         .pipe(wrap('(function(angular){\'use strict\';<%= contents %>})(angular);'))
         .pipe(ifElse(isProduction, uglify))
         .pipe(remember('app-js'))

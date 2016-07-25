@@ -97,8 +97,10 @@ By adding the class *.no-radio-bullets* the radio bullets are not being shown.
         }
 
         &.no-radio-bullets {
-            input[type="radio"] {
-                display: none;
+            input {
+                &[type="radio"] {
+                    display: none;
+                }
             }
         }
     }

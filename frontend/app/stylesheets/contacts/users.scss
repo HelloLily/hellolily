@@ -23,15 +23,19 @@
     margin-bottom: 15px;
 }
 
-#login-form .form-group ~ .form-group {
+.login-form .form-group ~ .form-group {
     display: inline-block;
 }
 
-#login-form .form-group > div.checkbox input[type="checkbox"] {
-
-    position: relative;
-    margin-left: 0;
-
+.login-form .form-group > div {
+    &.checkbox {
+        input {
+            &[type="checkbox"] {
+                position: relative;
+                margin-left: 0;
+            }
+        }
+    }
 }
 
 /* END Login scherm fixes */

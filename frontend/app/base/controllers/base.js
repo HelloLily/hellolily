@@ -87,7 +87,6 @@ function BaseController($scope, $state, AppHash, Settings, Notifications, HLShor
         Metronic.initComponents(); // init core components
         HLSelect2.init();
         HLFormsets.init();
-        HLShowAndHide.init();
         autosize($('textarea'));
 
         $scope.loadNotifications();

@@ -255,23 +255,6 @@
     }
 }
 
-.create-sidebar .portlet.light {
-    padding: 0;
-
-    .form-body {
-        padding: 15px;
-    }
-
-    .form-horizontal {
-        border: 1px solid $lily-border-dark;
-    }
-
-    .inbox-view-header {
-        margin-bottom: 0;
-        border-bottom: 0;
-    }
-}
-
 .email-inbox-header {
     overflow: hidden;
     margin-bottom: -1px; // to prevent double borders when above .hl-form-body
@@ -324,10 +307,6 @@
     &:before {
         top: -2px;
     }
-}
-
-.email-inbox-compose-options {
-    border: 0;
 }
 
 .email-inbox-search {
@@ -541,10 +520,6 @@
     }
 }
 
-.email-reply-meta-container {
-    padding: 10px 20px;
-}
-
 .email-content {
     width: 100%;
 }
@@ -577,12 +552,14 @@
     }
 }
 
-div.checker {
-    margin-left: 10px;
-    margin-right: 10px;
+div {
+    &.checker {
+        margin-left: 10px;
+        margin-right: 10px;
 
-    @media (max-width: $breakpoint-tablet) {
-        margin-left: 0;
+        @media (max-width: $breakpoint-tablet) {
+            margin-left: 0;
+        }
     }
 }
 
@@ -592,10 +569,6 @@ div.checker {
 
 .email-reply-meta-container {
     padding: 10px 20px;
-}
-
-.email-content {
-    width: 100%;
 }
 
 .email-info-top {

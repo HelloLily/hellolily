@@ -1,5 +1,4 @@
 @mixin history-item-heading($color) {
-
     .history-item-heading {
         background: $color;
     }
@@ -671,4 +670,48 @@
 
 .timeline-mail-type-outgoing i {
     color: #5b9bd1;
+}
+
+.mix-filter {
+    list-style: none;
+    margin: 0 0 20px;
+    padding: 0;
+
+    li {
+        border: 1px solid $base-border-color;
+        border-left: 0;
+
+        color: $lily-dark-blue;
+        background: $lily-header-bg;
+        cursor: pointer;
+        padding: 6px 15px;
+        margin-bottom: 5px;
+        line-height: 25px;
+        display: inline-block;
+        font-size: 14px;
+
+        &:first-child {
+            border-top-left-radius: $base-border-radius;
+            border-bottom-left-radius: $base-border-radius;
+            border-left: 1px solid $base-border-color;
+
+            .radio-button-inset {
+                border-top-left-radius: $base-border-radius;
+            }
+        }
+
+        &:last-child {
+            border-top-right-radius: $base-border-radius;
+            border-bottom-right-radius: $base-border-radius;
+
+            .radio-button-inset {
+                border-top-right-radius: $base-border-radius;
+            }
+        }
+
+        &:hover,
+        &.active {
+            background: $lily-white-tone-hover;
+        }
+    }
 }

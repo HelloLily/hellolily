@@ -124,6 +124,8 @@
                             <div ng-bind-html="team.name | highlight: $select.search"></div>
                         </ui-select-choices>
                     </ui-select>
+
+                    <button class="btn btn-link assign-me-btn" ng-click="vm.assignToMyTeams()">Assign to my teams</button>
                 </form-group>
 
                 <form-group label-title="Assigned to" label-icon="child" label-id="id_assigned_to" field="caseForm.assigned_to">

@@ -21,7 +21,6 @@ from .decorators import get_safe_template
 from .models.models import EmailAttachment
 from .sanitize import sanitize_html_email
 
-
 _EMAIL_PARAMETER_DICT = {}
 _EMAIL_PARAMETER_API_DICT = {}
 _EMAIL_PARAMETER_CHOICES = {}
@@ -115,6 +114,7 @@ class TemplateParser(object):
     """
     Parse template input and provide helper functions for further template handling.
     """
+
     def __init__(self, text):
         self.valid_parameters = []
         self.valid_blocks = []
@@ -423,12 +423,11 @@ def create_reply_body_header(email_message):
         Text string
 
     """
-    reply_string = _('%(sender)s (%(email_address)s) wrote on %(date)s:') % \
-        {
-            'date': email_message.sent_date.strftime("%d %B %Y %H:%M"),
-            'sender': email_message.sender.name,
-            'email_address': email_message.sender.email_address
-        }
+    reply_string = _('%(sender)s (%(email_address)s) wrote on %(date)s:') % {
+        'date': email_message.sent_date.strftime("%d %B %Y %H:%M"),
+        'sender': email_message.sender.name,
+        'email_address': email_message.sender.email_address
+    }
     reply_header = ('<br /><br />' +
                     reply_string +
                     '<hr />')

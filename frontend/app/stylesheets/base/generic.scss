@@ -497,3 +497,19 @@ table {
 .break-words {
     word-break: break-word;
 }
+
+select.ng-empty.form-control {
+    color: #999;
+}
+
+option {
+    color: #000;
+}
+
+option:first-child {
+    color: #999;
+}
+
+select.form-control {
+    color: #000;
+}

@@ -157,7 +157,7 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_URL = reverse_lazy('logout')
 # Also used as timeout for activation link.
 PASSWORD_RESET_TIMEOUT_DAYS = os.environ.get('PASSWORD_RESET_TIMEOUT_DAYS', 7)
-USER_INVITATION_TIMEOUT_DAYS = os.environ.get('USER_INVITATION_TIMEOUT_DAYS', 7)
+USER_INVITATION_TIMEOUT_DAYS = int(os.environ.get('USER_INVITATION_TIMEOUT_DAYS', 7))
 AUTH_USER_MODEL = 'users.LilyUser'
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',

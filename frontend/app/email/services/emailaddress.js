@@ -25,19 +25,24 @@ function EmailAddress() {
 
         recipientsList = recipientsList.split(',');
         recipientsList.forEach(function(recipient) {
-            if (recipient !== '') {
-                recipient = recipient.split('" ');
-                var email = recipient[recipient.length - 1];
+            var email;
+            var emailRegex;
+            var matches;
+            var isValid;
 
-                if (recipient.length > 1) {
-                    var emailRegex = /<(.*?)>/gi;
-                    var matches = emailRegex.exec(recipient[recipient.length - 1]);
+            if (recipient !== '') {
+                splitRecipient = recipient.split('" ');
+                email = splitRecipient[splitRecipient.length - 1];
+
+                if (splitRecipient.length > 1) {
+                    emailRegex = /<(.*?)>/gi;
+                    matches = emailRegex.exec(splitRecipient[splitRecipient.length - 1]);
                     if (matches.length > 0) {
                         email = matches[1];
                     }
                 }
 
-                var isValid = checkValidityOfEmail(email);
+                isValid = checkValidityOfEmail(email);
                 if (!isValid) {
                     invalidAddress.push(email);
                 }
@@ -53,7 +58,7 @@ function EmailAddress() {
      * @param emailAddress
      * @returns {boolean}
      */
-    function checkValidityOfEmail(emailAddress){
+    function checkValidityOfEmail(emailAddress) {
         return /^([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22))*\x40([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d))*$/.test(emailAddress);
     }
 

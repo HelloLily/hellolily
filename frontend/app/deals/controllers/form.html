@@ -41,21 +41,21 @@
                 <form-group label-title="Found us through" label-id="id_found_through" field="dealForm.found_through" required="true">
                     <select name="found_through" ng-model="vm.deal.found_through"
                             ng-options="found_through.name for found_through in vm.foundThroughChoices track by found_through.id" class="form-control">
-                        <option value="" hidden>---------</option>
+                        <option value="" hidden>Select a channel</option>
                     </select>
                 </form-group>
 
                 <form-group label-title="Contacted us by" label-id="id_contacted_by" field="dealForm.contacted_by" required="true">
                     <select name="contacted_by" ng-model="vm.deal.contacted_by"
                             ng-options="contacted_by.name for contacted_by in vm.contactedByChoices track by contacted_by.id" class="form-control">
-                        <option value="" hidden>---------</option>
+                        <option value="" hidden>Select a medium</option>
                     </select>
                 </form-group>
 
                 <form-group label-title="Why customer" label-id="id_why_customer" field="dealForm.why_customer" required="true">
                     <select name="why_customer" ng-model="vm.deal.why_customer"
                             ng-options="why_customer.name for why_customer in vm.whyCustomer track by why_customer.id" class="form-control">
-                        <option value="" hidden>---------</option>
+                        <option value="" hidden>Select a reason</option>
                     </select>
                 </form-group>
             </form-portlet>
@@ -77,7 +77,7 @@
 
                 <form-group label-title="Currency" label-id="id_currency" field="dealForm.currency" required="true">
                     <select name="currency" ng-model="vm.deal.currency" ng-options="currency.value as currency.display_name for currency in vm.currencyChoices" class="form-control">
-                        <option value="" hidden>---------</option>
+                        <option value="" hidden>Select a currency</option>
                     </select>
                 </form-group>
 
@@ -117,21 +117,21 @@
                 <form-group label-title="Status" label-id="id_status" field="dealForm.status" required="true">
                     <select name="status" ng-model="vm.deal.status"
                             ng-options="status.name for status in vm.statusChoices track by status.id" class="form-control">
-                        <option value="" hidden>---------</option>
+                        <option value="" hidden>Select a status</option>
                     </select>
                 </form-group>
 
                 <form-group label-title="Why lost" label-id="id_why_lost" field="dealForm.why_lost" ng-show="vm.deal.status.id == vm.lostStatus.id && vm.whyLost.length" required="vm.deal.status && vm.whyLost.length == 3 ? true : false">
                     <select name="why_lost" ng-model="vm.deal.why_lost"
                             ng-options="why_lost.name for why_lost in vm.whyLost track by why_lost.id" class="form-control">
-                        <option value="" hidden>---------</option>
+                        <option value="" hidden>Select a reason</option>
                     </select>
                 </form-group>
 
                 <form-group label-title="Next step" label-id="id_next_step" field="dealForm.next_step" required="true">
                     <select name="next_step" ng-model="vm.deal.next_step"
                             ng-options="next_step.name for next_step in vm.nextSteps track by next_step.id" class="form-control">
-                        <option value="" hidden>---------</option>
+                        <option value="" hidden>Select what's next</option>
                     </select>
                 </form-group>
 

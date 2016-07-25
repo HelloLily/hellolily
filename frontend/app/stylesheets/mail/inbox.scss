@@ -1,8 +1,4 @@
 .inbox {
-    .emailmessage-list td i.icon-paper-clip {
-        color: #777;
-    }
-
     .emailmessage-detail {
         .inbox-loading {
             display: block;
@@ -33,6 +29,11 @@
 
     .form-control {
         border: 0;
+    }
+
+    &.email-template-attachments {
+        border: 1px solid #eee;
+        padding-top: 10px;
     }
 }
 
@@ -117,7 +118,8 @@
             margin-bottom: 0;
 
             > {
-                a, div > a {
+                a,
+                div > a {
                     background: #fff;
                 }
             }
@@ -129,13 +131,14 @@
     }
 }
 
-ul.wysihtml5-toolbar a.btn.wysihtml5-command-active {
-    background: #eee !important;
-}
-
-.inbox-form-group.email-template-attachments {
-    border: 1px solid #eee;
-    padding-top: 10px;
+ul {
+    &.wysihtml5-toolbar {
+        a {
+            &.btn.wysihtml5-command-active {
+                background: #eee !important;
+            }
+        }
+    }
 }
 
 .template-attachment-name {
@@ -194,31 +197,9 @@ ul.wysihtml5-toolbar a.btn.wysihtml5-command-active {
     margin-left: 10px;
 }
 
-.inbox-compose #attachments input,
-.email-template-attachments #attachments input {
-    width: 100%;
-}
-
-.inbox-form-group.email-template-attachments {
-    border: 1px solid #eee;
-    padding-top: 10px;
-}
-
-.template-attachment-name {
-    padding: 1px 3px;
-
-    &.mark-deleted {
-        background-color: #f9f9f9 !important;
-    }
-}
-
 .email-template-attachments .add-link {
     margin-left: 0;
     margin-right: 0;
-}
-
-.inbox ul.inbox-nav li.active span {
-    color: #f9f9f9;
 }
 
 .show-more-recipients {
@@ -245,6 +226,6 @@ ul.wysihtml5-toolbar a.btn.wysihtml5-command-active {
     padding-top: 20px;
 }
 
-#attachments .form-group {
+.mail-attachments .form-group {
     margin-bottom: 0;
 }

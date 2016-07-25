@@ -36,8 +36,8 @@ function emailConfig($stateProvider) {
 angular.module('app.email').controller('EmailListController', EmailListController);
 
 EmailListController.$inject = ['$scope', '$state', '$stateParams', 'Settings', 'EmailMessage', 'EmailLabel',
-    'EmailAccount', 'HLText', 'LocalStorage', 'SelectedEmailAccount'];
-function EmailListController($scope, $state, $stateParams, Settings, EmailMessage, EmailLabel, EmailAccount, HLText, LocalStorage, SelectedEmailAccount) {
+    'EmailAccount', 'LocalStorage', 'SelectedEmailAccount'];
+function EmailListController($scope, $state, $stateParams, Settings, EmailMessage, EmailLabel, EmailAccount, LocalStorage, SelectedEmailAccount) {
     var storage = new LocalStorage('inbox');
     var vm = this;
 
@@ -172,6 +172,8 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
                 return vm.emailMessages[i];
             }
         }
+
+        return false;
     }
 
     /**
@@ -312,35 +314,46 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
 
         if ($stateParams.labelId) {
             filterquery.push('label_id:' + $stateParams.labelId);
+
+            if ($stateParams.labelId === 'TRASH') {
+                filterquery.push('is_removed:true');
+                filterquery.push('is_spam:false'); // like Gmail, don't show deleted spam emails.
+            } else if ($stateParams.labelId !== 'SPAM') {
+                filterquery.push('is_removed:false');
+            }
+
+            if ($stateParams.labelId === 'SPAM') {
+                filterquery.push('is_spam:true');
+            }
         } else {
+            // Corresponds with the 'All mail'-label.
             filterquery.push('NOT label_id:Sent');
+            // Exclude removed emails and spam.
+            //filterquery.push('is_removed:false'); // TODO: LILY-1812: 'all mail' shows incorrectly deleted mails.
+            filterquery.push('is_spam:false');
         }
 
         if ($stateParams.accountId) {
             filterquery.push('account:' + $stateParams.accountId);
 
             if ($stateParams.labelId) {
-                // Get the label for the given accountId
+                // Get the label for the given accountId.
                 EmailLabel.query({
                     label_id: $stateParams.labelId,
                     account__id: $stateParams.accountId,
                 }, function(response) {
                     if (response.results && response.results.length) {
                         vm.label = response.results[0];
-                        vm.label.name = vm.label.name.hlCapitalize();
+                        vm.label.name = _normalizeLabel(vm.label.name);
                     } else {
-                        vm.label = {id: $stateParams.labelId, name: $stateParams.labelId.hlCapitalize()};
+                        vm.label = {id: $stateParams.labelId, name: _normalizeLabel($stateParams.labelId)};
                     }
                 });
             }
-            // Get the account for the given accountId
+            // Get the account for the given accountId.
             vm.account = EmailAccount.get({id: $stateParams.accountId});
         } else {
-            vm.label = {id: $stateParams.labelId, name: $stateParams.labelId.hlCapitalize()};
-        }
-
-        if ($stateParams.labelId && $stateParams.labelId !== 'TRASH') {
-            filterquery.push('is_removed:false');
+            vm.label = {id: $stateParams.labelId, name: _normalizeLabel($stateParams.labelId)};
         }
 
         if (filterquery) {
@@ -356,5 +369,10 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
             vm.emailMessages = data.hits;
             vm.table.totalItems = data.total;
         });
+    }
+
+    function _normalizeLabel(label) {
+        var normalizedLabel = label.toLowerCase();
+        return normalizedLabel.charAt(0).toUpperCase() + normalizedLabel.substring(1);
     }
 }

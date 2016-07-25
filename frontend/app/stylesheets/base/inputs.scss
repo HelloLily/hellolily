@@ -209,15 +209,6 @@ $inline-editable-field-height: 30px;
     }
 }
 
-.editable-textarea .editable-controls {
-    width: 100%;
-
-    .editable-input {
-        margin: 0;
-        width: 100%;
-    }
-}
-
 .editable-textarea {
     width: 100%;
     position: relative;
@@ -233,14 +224,21 @@ $inline-editable-field-height: 30px;
         position: absolute;
         right: 0;
     }
+
+    .editable-controls {
+        .editable-input {
+            margin: 0;
+            width: 100%;
+        }
+    }
 }
 
 .editable-empty {
+    color: #b5b5b5;
+
     &:hover {
         color: #b5b5b5;
     }
-
-    color: #b5b5b5;
 }
 
 .checker {
@@ -286,18 +284,18 @@ $inline-editable-field-height: 30px;
     .hl-search-field {
         @include input-field(31px);
         margin-right: 20px;
-    }
 
-    .hl-search-field.ng-not-empty + .hl-search-btn {
-        background: $critical-prio-color;
+        &.ng-not-empty + .hl-search-btn {
+            background: $critical-prio-color;
 
-        &:before {
-            content: "\f00d";
-        }
+            &:before {
+                content: "\f00d";
+            }
 
-        &:hover {
-            transition: background, 0s;
-            background: darken($critical-prio-color, 20);
+            &:hover {
+                transition: background, 0s;
+                background: darken($critical-prio-color, 20);
+            }
         }
     }
 

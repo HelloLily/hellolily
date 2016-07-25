@@ -1,62 +1,64 @@
 angular.module('app.email.directives').directive('sendChecker', sendCheckerDirective);
 
 sendCheckerDirective.$inject = ['EmailAddress'];
-function sendCheckerDirective (EmailAddress) {
+function sendCheckerDirective(EmailAddress) {
     return {
         restrict: 'A',
-        link: function (scope, element) {
-            element.on('click', function (event) {
-                // check recipients
-                var recipients_to = $('#id_send_to_normal').val();
-                var recipients_cc = $('#id_send_to_cc').val();
-                var recipients_bcc = $('#id_send_to_bcc').val();
-                var subject = angular.element('#id_subject').val();
-                var all_recipients = [];
+        link: function(scope, element) {
+            element.on('click', function(event) {
+                var invalidAddresses;
 
-                if (!recipients_to && !recipients_cc && !recipients_bcc) {
+                // Check recipients.
+                var recipientsTo = $('#id_send_to_normal').val();
+                var recipientsCc = $('#id_send_to_cc').val();
+                var recipientsBcc = $('#id_send_to_bcc').val();
+                var subject = angular.element('#id_subject').val();
+                var allRecipients = [];
+
+                if (!recipientsTo && !recipientsCc && !recipientsBcc) {
                     event.stopPropagation();
                     event.preventDefault();
                     bootbox.alert('I couldn\'t find a recipient, could you please fill in where I need to send this mail.');
                     return;
                 }
 
-                if (recipients_to) all_recipients.push(recipients_to);
-                if (recipients_cc) all_recipients.push(recipients_cc);
-                if (recipients_bcc) all_recipients.push(recipients_bcc);
+                if (recipientsTo) allRecipients.push(recipientsTo);
+                if (recipientsCc) allRecipients.push(recipientsCc);
+                if (recipientsBcc) allRecipients.push(recipientsBcc);
 
-                if(all_recipients) {
-                    all_recipients = all_recipients.join(',');
+                if (allRecipients) {
+                    allRecipients = allRecipients.join(',');
 
-                    var invalid_addresses = EmailAddress.checkValidityOfEmailList(all_recipients);
+                    invalidAddresses = EmailAddress.checkValidityOfEmailList(allRecipients);
 
-                    if(invalid_addresses && invalid_addresses.length){
+                    if (invalidAddresses && invalidAddresses.length) {
                         event.stopPropagation();
                         event.preventDefault();
-                        invalid_addresses = invalid_addresses.join("<br />");
+                        invalidAddresses = invalidAddresses.join('<br />');
                         bootbox.dialog({
                             message: 'There seem to be some invalid email addresses in your message?<br />' +
-                                        invalid_addresses,
+                            invalidAddresses,
                             title: 'Invalid email addresses',
                             buttons: {
                                 danger: {
                                     label: 'Oops, I\'ll fix it',
-                                    className: 'btn-danger'
+                                    className: 'btn-danger',
                                 },
                                 success: {
                                     label: 'No problem, send it anyway',
-                                    className: (subject != "") ? 'btn-success' : 'hidden',
+                                    className: (subject !== '') ? 'btn-success' : 'hidden',
                                     callback: function() {
                                         HLInbox.submitForm('submit-send', element.closest('form')[0]);
-                                    }
-                                }
-                            }
+                                    },
+                                },
+                            },
                         });
                         return;
                     }
                 }
 
-                // check subject
-                if (subject == '') {
+                // Check subject.
+                if (subject === '') {
                     event.stopPropagation();
                     event.preventDefault();
                     bootbox.dialog({
@@ -65,22 +67,22 @@ function sendCheckerDirective (EmailAddress) {
                         buttons: {
                             danger: {
                                 label: 'Oops, I\'ll fix it',
-                                className: 'btn-danger'
+                                className: 'btn-danger',
                             },
                             success: {
                                 label: 'No Problem, send it anyway',
                                 className: 'btn-success',
-                                callback: function () {
+                                callback: function() {
                                     HLInbox.submitForm('submit-send', element.closest('form')[0]);
-                                }
-                            }
-                        }
+                                },
+                            },
+                        },
                     });
 
                     return;
                 }
             });
-        }
-    }
+        },
+    };
 }
 

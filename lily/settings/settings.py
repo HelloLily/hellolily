@@ -157,7 +157,7 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_URL = reverse_lazy('logout')
 # Also used as timeout for activation link.
 PASSWORD_RESET_TIMEOUT_DAYS = os.environ.get('PASSWORD_RESET_TIMEOUT_DAYS', 7)
-USER_INVITATION_TIMEOUT_DAYS = os.environ.get('USER_INVITATION_TIMEOUT_DAYS', 7)
+USER_INVITATION_TIMEOUT_DAYS = int(os.environ.get('USER_INVITATION_TIMEOUT_DAYS', 7))
 AUTH_USER_MODEL = 'users.LilyUser'
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
@@ -544,13 +544,17 @@ GA_CLIENT_ID = os.environ.get('GA_CLIENT_ID', '')
 GA_CLIENT_SECRET = os.environ.get('GA_CLIENT_SECRET', '')
 GMAIL_FULL_MESSAGE_BATCH_SIZE = os.environ.get('GMAIL_FULL_MESSAGE_BATCH_SIZE', 300)
 GMAIL_LABEL_UPDATE_BATCH_SIZE = os.environ.get('GMAIL_LABEL_UPDATE_BATCH_SIZE', 500)
-GMAIL_UNREAD_LABEL = os.environ.get('GMAIL_UNREAD_LABEL', 'UNREAD')
-GMAIL_SENT_LABEL = os.environ.get('GMAIL_SENT_LABEL', 'SENT')
 GMAIL_PARTIAL_SYNC_LIMIT = os.environ.get('GMAIL_PARTIAL_SYNC_LIMIT', 899)
 GMAIL_CALLBACK_URL = os.environ.get('GMAIL_CALLBACK_URL', 'http://localhost:8000/messaging/email/callback/')
 GMAIL_SYNC_DELAY_INTERVAL = 1
 GMAIL_SYNC_LOCK_LIFETIME = 300
 GMAIL_CHUNK_SIZE = 1024 * 1024
+GMAIL_LABEL_SPAM = os.environ.get('GMAIL_LABEL_SPAM', 'SPAM')
+GMAIL_LABEL_UNREAD = os.environ.get('GMAIL_LABEL_UNREAD', 'UNREAD')
+GMAIL_LABEL_SENT = os.environ.get('GMAIL_LABEL_SENT', 'SENT')
+GMAIL_LABEL_TRASH = os.environ.get('GMAIL_LABEL_TRASH', 'TRASH')
+GMAIL_LABEL_STARRED = os.environ.get('GMAIL_LABEL_STARRED', 'STARRED')
+GMAIL_LABEL_DRAFT = os.environ.get('GMAIL_LABEL_DRAFT', 'DRAFT')
 
 #######################################################################################################################
 # Django rest settings                                                                                                #

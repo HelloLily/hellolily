@@ -1,15 +1,21 @@
 angular.module('app.directives').directive('resizeIframe', resizeIframe);
 
-function resizeIframe () {
+function resizeIframe() {
     return {
         restrict: 'A',
-        link: function ($scope, element, attrs) {
+        link: function($scope, element, attrs) {
             var maxHeight = $('body').outerHeight();
             element.on('load', function() {
+                var ifDoc;
+                var ifRef;
+                var subtractHeights;
+                var height;
+
                 element.removeClass('hidden');
 
-                // do this after .inbox-view is visible
-                var ifDoc, ifRef = this;
+                // Do this after .inbox-view is visible.
+                ifDoc = this;
+                ifRef = this;
 
                 // set ifDoc to 'document' from frame
                 try {
@@ -18,17 +24,18 @@ function resizeIframe () {
                     try {
                         ifDoc = ifRef.contentDocument.documentElement;
                     } catch (e2) {
+                        throw e2.message;
                     }
                 }
 
                 // calculate and set max height for frame
                 if (ifDoc) {
-                    var subtractHeights = [
+                    subtractHeights = [
                         element.offset().top,
                         $('.footer').outerHeight(),
-                        $('.inbox-attached').outerHeight()
+                        $('.inbox-attached').outerHeight(),
                     ];
-                    for (var height in subtractHeights) {
+                    for (height in subtractHeights) {
                         maxHeight = maxHeight - height;
                     }
 
@@ -39,6 +46,6 @@ function resizeIframe () {
                     }
                 }
             });
-        }
-    }
+        },
+    };
 }

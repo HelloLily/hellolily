@@ -54,8 +54,15 @@ class LilyUserViewSet(mixins.UpdateModelMixin,
 
     def get_queryset(self):
         queryset = (self.model.objects
-                        .filter(is_active=True, tenant_id=self.request.user.tenant_id)
+                        .filter(tenant_id=self.request.user.tenant_id)
                         .exclude(first_name=''))
+
+        show_inactive = self.request.query_params.get('show_inactive')
+
+        # By default we filter out non-active users.
+        if show_inactive != 'true':
+            queryset = queryset.filter(is_active=False)
+
         return queryset
 
     def get_object(self):

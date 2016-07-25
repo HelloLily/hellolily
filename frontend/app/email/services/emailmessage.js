@@ -72,6 +72,13 @@ function EmailMessage($resource, $q) {
                     id: '@id',
                 },
             },
+            spam: {
+                method: 'PUT',
+                url: '/api/messaging/email/email/:id/spam/',
+                params: {
+                    id: '@id',
+                },
+            },
         }
     );
 

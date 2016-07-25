@@ -37,11 +37,6 @@ Add priority to case headings by adding these classes in the `case-info-heading`
 ```
 */
 
-#case-status {
-    margin-top: 15px;
-    margin-bottom: 15px;
-}
-
 .label-sm {
     padding: 4px 6px !important;
 }
@@ -192,9 +187,11 @@ td .label-sm {
         top: 2px;
         position: relative;
 
-        i.fa-check {
-            position: relative;
-            top: -3px;
+        i {
+            &.fa-check {
+                position: relative;
+                top: -3px;
+            }
         }
     }
 }

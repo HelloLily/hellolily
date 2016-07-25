@@ -189,7 +189,7 @@ class EmailMessage(models.Model):
         from ..utils import create_a_beautiful_soup_object
         """
         Return an version of the body which is used for replies or forwards.
-        This is preferably the html part, but in case that doesn't exist we use the text part
+        This is preferably the html part, but in case that doesn't exist we use the text part.
         """
         if self.body_html:
             # In case of html, wrap body in blockquote tag.
@@ -218,12 +218,20 @@ class EmailMessage(models.Model):
             return ''
 
     @property
-    def is_starred(self):
-        for label in self.labels.all():
-            if label.label_id == 'STARRED':
-                return True
+    def is_trashed(self):
+        return self.labels.filter(label_id=settings.GMAIL_LABEL_TRASH).count() == 1
 
-        return False
+    @property
+    def is_starred(self):
+        return self.labels.filter(label_id=settings.GMAIL_LABEL_STARRED).count() == 1
+
+    @property
+    def is_draft(self):
+        return self.labels.filter(label_id=settings.GMAIL_LABEL_DRAFT).count() == 1
+
+    @property
+    def is_spam(self):
+        return self.labels.filter(label_id=settings.GMAIL_LABEL_SPAM).count() == 1
 
     def get_message_id(self):
         header = self.headers.filter(name__icontains='message-id').first()

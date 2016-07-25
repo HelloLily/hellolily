@@ -29,6 +29,10 @@ class MessageNotFoundError(ConnectorError):
     pass
 
 
+class LabelNotFoundError(ConnectorError):
+    pass
+
+
 class GmailConnector(object):
     service = None
 
@@ -67,11 +71,12 @@ class GmailConnector(object):
             except HttpError as e:
                 try:
                     error = anyjson.loads(e.content)
-                    # Error could be nested, so unwrap if necessary
+                    # Error could be nested, so unwrap if necessary.
                     error = error.get('error', error)
                 except ValueError:
                     logger.exception('error %s' % e)
                     error = e
+
                 if error.get('code') == 403 and error.get('errors')[0].get('reason') in ['rateLimitExceeded',
                                                                                          'userRateLimitExceeded']:
                     # Apply exponential backoff.
@@ -88,6 +93,10 @@ class GmailConnector(object):
                     sleep_time = (2 ** n) + random.randint(0, 1000) / 1000
                     logger.warning('Backend error, sleeping for %d seconds' % sleep_time)
                     time.sleep(sleep_time)
+                elif error.get('code') == 400 and error.get('message') == 'labelId not found':
+                    raise LabelNotFoundError
+                elif error.get('code') == 404:
+                    raise MessageNotFoundError
                 else:
                     logger.exception('Unkown error code for error %s' % error)
                     raise
@@ -159,18 +168,11 @@ class GmailConnector(object):
         Returns:
             dict with message info
         """
-        try:
-            return self.execute_service_call(self.service.users().messages().get(
-                userId='me',
-                id=message_id,
-                quotaUser=self.email_account.id,
-            ))
-        except HttpError as e:
-            content = anyjson.loads(e.content)
-            if content.get('error', {}).get('code') == 404:
-                raise MessageNotFoundError
-            else:
-                raise ConnectorError
+        return self.execute_service_call(self.service.users().messages().get(
+            userId='me',
+            id=message_id,
+            quotaUser=self.email_account.id,
+        ))
 
     def get_label_list(self):
         """
@@ -202,7 +204,7 @@ class GmailConnector(object):
 
     def get_short_message_info(self, message_id):
         """
-        Fetch labels & threadId for given message
+        Fetch labels & threadId for given message.
 
         Args:
             message_id (string): id of the message
@@ -315,7 +317,7 @@ class GmailConnector(object):
                 quotaUser=self.email_account.id,
             ))
 
-    def remove_draft_email_message(self, message_id):
+    def delete_draft_email_message(self, message_id):
         return self.execute_service_call(
             self.service.users().drafts().delete(
                 userId='me',

@@ -8,14 +8,14 @@
  */
 angular.module('app.directives').directive('checkbox', checkbox);
 
-function checkbox () {
+function checkbox() {
     return {
         restrict: 'E',
         replace: true,
         transclude: true,
         scope: {
-            model: '='
+            model: '=',
         },
-        templateUrl: 'base/directives/checkbox.html'
-    }
+        templateUrl: 'base/directives/checkbox.html',
+    };
 }

@@ -1,9 +1,9 @@
-(function($, window, document, undefined){
+(function($, window, document) {
     window.HLFormsets = {
         config: {
-            formsetClass: '.formset'
+            formsetClass: '.formset',
         },
-        init: function (config) {
+        init: function(config) {
             var self = this;
             // Setup configuration
             if ($.isPlainObject(config)) {
@@ -15,26 +15,27 @@
         },
 
         initListeners: function() {
-            var self = this;
             var body = $('body');
 
             body.on('formAdded', '[data-formset-form]', function() {
-                var formset_element = $(this).parents('.formset');
-                var add_element = $(formset_element).find('.add-link');
+                var formsetElement = $(this).parents('.formset');
+                var addElement = $(formsetElement).find('.add-link');
 
-                var indent = ($(formset_element).attr('data-formset-indent') || 'true') == 'true';
-                if(indent) {
-                    $(add_element).find('.form-control-static').addClass('col-md-offset-2').removeClass('form-control-static');
+                var indent = ($(formsetElement).attr('data-formset-indent') || 'true') === 'true';
+
+                if (indent) {
+                    $(addElement).find('.form-control-static').addClass('col-md-offset-2').removeClass('form-control-static');
                 }
-                $(add_element).find('label').addClass('hide');
+                $(addElement).find('label').addClass('hide');
 
-                if ($(formset_element).find('[data-formset-form]').length === 1) {
+                if ($(formsetElement).find('[data-formset-form]').length === 1) {
                     $(this).find('label.hide').removeClass('hide');
 
-                    if(indent) {
+                    if (indent) {
                         $(this).find('.field_wrapper').removeClass('col-md-offset-2');
                     }
                 }
+
                 HLSelect2.init();
             });
 
@@ -53,7 +54,6 @@
                 formset.find('[data-formset-delete-button]').toggleClass('hidden');
                 $(this).toggleClass('hidden');
             });
-
-        }
-    }
+        },
+    };
 })(jQuery, window, document);

@@ -5,7 +5,7 @@ function SelectedEmailAccount() {
         currentAccountId: null,
         setCurrentAccountId: setCurrentAccountId,
         currentFolderId: null,
-        setCurrentFolderId: setCurrentFolderId
+        setCurrentFolderId: setCurrentFolderId,
     };
     return factory;
 

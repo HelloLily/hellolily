@@ -9,18 +9,19 @@ angular.module('app.filters').filter('join', join);
 
 function join() {
     return function(input, field, delimiter) {
-        if (field) {
-            var strings = [];
+        var strings = [];
+        var values = input;
 
+        if (field) {
             // Array with object was given, so iterate over the objects and extract the field.
-            angular.forEach(input, function(item) {
+            angular.forEach(values, function(item) {
                 strings.push(item[field]);
             });
 
-            input = strings;
+            values = strings;
         }
 
         // Join the strings array.
-        return (input || []).join(delimiter || ', ');
+        return (values || []).join(delimiter || ', ');
     };
 }

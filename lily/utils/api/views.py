@@ -1,4 +1,6 @@
+import redis
 from django.contrib.messages import get_messages
+from django.conf import settings
 from django.db.models import Q
 from django.http import HttpResponse
 from rest_framework import exceptions
@@ -81,3 +83,12 @@ class CountryViewSet(ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         raise exceptions.PermissionDenied
+
+
+class AppHash(APIView):
+    def get(self, request, format=None, *args, **kwargs):
+        r = redis.StrictRedis(host=settings.REDIS.hostname, port=settings.REDIS.port, password=settings.REDIS.password)
+
+        app_hash = r.get('app_hash')
+
+        return Response({'app_hash': app_hash})

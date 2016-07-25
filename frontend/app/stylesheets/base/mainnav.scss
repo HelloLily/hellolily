@@ -1,11 +1,11 @@
 .main-nav {
+    @extend %no-select;
     font-family: 'Roboto', "Helvetica Neue", Helvetica, Arial, sans-serif;
     display: block;
     float: left;
     margin: 0;
     padding: 0;
     list-style: none;
-    @extend .no-select;
 
     @media (max-width: 510px) {
         display: none;
@@ -77,38 +77,38 @@
             display: inline-block;
         }
     }
-}
 
-.main-nav-item a {
-    color: rgba(255, 255, 255, 0.5);
-    line-height: $header-height;
-    text-decoration: none;
-    font-size: 16px;
-    font-weight: 500;
-    padding: 0 10px;
-    display: block;
-    -webkit-font-smoothing: antialiased;
-
-    &:hover,
-    &:focus {
+    a {
+        color: rgba(255, 255, 255, 0.5);
+        line-height: $header-height;
         text-decoration: none;
-        color: #fff;
-    }
+        font-size: 16px;
+        font-weight: 500;
+        padding: 0 10px;
+        display: block;
+        -webkit-font-smoothing: antialiased;
 
-    &.active {
-        color: #fff;
-    }
+        &:hover,
+        &:focus {
+            text-decoration: none;
+            color: #fff;
+        }
 
-    @media (max-width: 510px) {
-        line-height: 40px;
-    }
+        &.active {
+            color: #fff;
+        }
 
-    i {
-        margin-right: 5px;
-        font-size: 18px;
+        @media (max-width: 510px) {
+            line-height: 40px;
+        }
 
-        &.hl-deals-filled-icon {
-            font-size: 20px;
+        i {
+            margin-right: 5px;
+            font-size: 18px;
+
+            &.hl-deals-filled-icon {
+                font-size: 20px;
+            }
         }
     }
 }

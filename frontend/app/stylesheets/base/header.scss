@@ -26,10 +26,10 @@ $header-height: 80px;
 
 .page-header.navbar {
     background: $app-color-darkblue;
-}
 
-.page-header.navbar.navbar-fixed-top {
-    z-index: 999;
+    &.navbar-fixed-top {
+        z-index: 999;
+    }
 }
 
 .page-header-logo {
@@ -46,14 +46,14 @@ $header-height: 80px;
 
 .page-head {
     margin-bottom: 15px;
-}
 
-.page-head .page-title > h1 {
-    color: $navy-blue;
-    font-size: 24px;
-    font-weight: 500;
-    margin: 0;
-    padding: 0;
+    .page-title > h1 {
+        color: $navy-blue;
+        font-size: 24px;
+        font-weight: 500;
+        margin: 0;
+        padding: 0;
+    }
 }
 
 .page-title {
@@ -62,26 +62,16 @@ $header-height: 80px;
     }
 }
 
-.page-head .page-title > h1 > small {
-    color: $lily-blue;
-    font-size: 14px;
-}
-
-.main-nav-item a i {
-    position: relative;
-
-}
-
-.main-nav-item a.active {
-    color: $lily-blue;
-
-    @media (max-width: $breakpoint-mobile) {
-        border-bottom: 0 transparent solid;
-        border-left: 3px $lily-blue solid;
-        margin-top: -1px;
-        margin-bottom: -1px;
-        padding-top: 1px;
-        padding-bottom: 1px;
+.main-nav-item a {
+    &.active {
+        @media (max-width: $breakpoint-mobile) {
+            border-bottom: 0 transparent solid;
+            border-left: 3px $lily-blue solid;
+            margin-top: -1px;
+            margin-bottom: -1px;
+            padding-top: 1px;
+            padding-bottom: 1px;
+        }
     }
 }
 

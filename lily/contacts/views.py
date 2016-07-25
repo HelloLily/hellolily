@@ -21,7 +21,7 @@ class ExportContactView(LoginRequiredMixin, ExportListViewMixin, View):
         },
         'name': {
             'headers': [_('Name')],
-            'columns_for_item': ['name']
+            'columns_for_item': ['full_name']
         },
         'contactInformation': {
             'headers': [

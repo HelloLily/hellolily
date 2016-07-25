@@ -160,7 +160,7 @@ function ContactCreateUpdateController($scope, $state, $stateParams, Settings, A
         if (Settings.email.sidebar.isVisible) {
             ga('send', 'event', 'Contact', 'Save', 'Email Sidebar');
         } else {
-            if($stateParams.accountId){
+            if ($stateParams.accountId) {
                 ga('send', 'event', 'Contact', 'Save', 'Account Widget');
             } else {
                 ga('send', 'event', 'Contact', 'Save', 'Default');

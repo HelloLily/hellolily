@@ -23,18 +23,18 @@
             &:hover {
                 background: lighten($sky-grey, 3);
             }
+
+            &.widget-table-sub-heading {
+                td {
+                    padding: 5px 15px;
+                    background: lighten($sky-grey, 2);
+                }
+            }
         }
 
         td {
             padding: 12px 15px;
             border-bottom: 1px lighten($base-border-color, 12) solid;
-        }
-
-        tr.widget-table-sub-heading {
-            td {
-                padding: 5px 15px;
-                background: lighten($sky-grey, 2);
-            }
         }
 
         &.align-center {

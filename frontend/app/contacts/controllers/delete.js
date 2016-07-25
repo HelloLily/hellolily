@@ -1,14 +1,14 @@
 angular.module('app.contacts').config(contactsConfig);
 
 contactsConfig.$inject = ['$stateProvider'];
-function contactsConfig ($stateProvider) {
+function contactsConfig($stateProvider) {
     $stateProvider.state('base.contacts.detail.delete', {
         url: '/delete',
         views: {
             '@': {
-                controller: ContactDeleteController
-            }
-        }
+                controller: ContactDeleteController,
+            },
+        },
     });
 }
 
@@ -19,7 +19,7 @@ function ContactDeleteController($state, $stateParams, ContactTest) {
     var id = $stateParams.id;
 
     ContactTest.delete({
-        id:id
+        id: id,
     }, function() {  // On success
         $state.go('base.contacts');
     }, function(error) {  // On error

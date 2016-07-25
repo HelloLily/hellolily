@@ -1,16 +1,15 @@
-angular.module('app.email.directives').directive('sendAndArchive', SendAndArchiveDirective);
+angular.module('app.email.directives').directive('sendDraft', SendDraftDirective);
 
-SendAndArchiveDirective.$inject = [];
-function SendAndArchiveDirective() {
+SendDraftDirective.$inject = [];
+function SendDraftDirective() {
     return {
         restrict: 'A',
         link: function(scope, element) {
             element.on('click', function() {
                 $('<input />').attr('type', 'hidden')
-                    .attr('name', 'archive')
+                    .attr('name', 'send_draft')
                     .attr('value', true)
                     .appendTo(element.closest('form'));
             });
-        },
-    };
+        }};
 }

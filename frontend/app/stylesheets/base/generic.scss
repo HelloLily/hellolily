@@ -221,10 +221,6 @@ label {
     padding-bottom: 0 !important;
 }
 
-.page-header.navbar .top-menu .navbar-nav > li.dropdown .dropdown-menu:after {
-    right: 22px;
-}
-
 .max-height-400 {
     max-height: 400px;
 }
@@ -233,15 +229,17 @@ label {
     background: #eee;
 }
 
-ul[uib-datepicker-popup-wrap] {
-    padding: 10px;
+ul {
+    &[uib-datepicker-popup-wrap] {
+        padding: 10px;
 
-    *:focus {
-        outline: none;
-    }
+        *:focus {
+            outline: none;
+        }
 
-    .btn-default {
-        border: 0;
+        .btn-default {
+            border: 0;
+        }
     }
 }
 
@@ -461,11 +459,6 @@ table {
     }
 }
 
-.editable-controls input[type="checkbox"] {
-    position: relative;
-    margin-left: 0;
-}
-
 .display-inline-block {
     display: inline-block;
 }
@@ -496,4 +489,22 @@ table {
 
 .break-words {
     word-break: break-word;
+}
+
+select {
+    &.form-control {
+        color: #000;
+
+        &.ng-empty {
+            color: #999;
+        }
+    }
+}
+
+option {
+    color: #000;
+}
+
+option:first-child {
+    color: #999;
 }

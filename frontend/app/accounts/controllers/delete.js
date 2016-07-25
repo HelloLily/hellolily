@@ -4,8 +4,7 @@
 angular.module('app.accounts').config(accountConfig);
 
 accountConfig.$inject = ['$stateProvider'];
-function accountConfig ($stateProvider) {
-
+function accountConfig($stateProvider) {
     $stateProvider.state('base.accounts.detail.delete', {
         url: '/delete',
         views: {

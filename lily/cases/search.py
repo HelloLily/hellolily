@@ -115,7 +115,7 @@ class CaseMapping(BaseMapping):
                     'id': {'type': 'integer'},
                     'name': {
                         'type': 'string',
-                        'analyzer': 'normal_edge_analyzer',
+                        'index_analyzer': 'normal_edge_analyzer',
                     },
                 },
             },

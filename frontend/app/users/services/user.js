@@ -3,7 +3,7 @@ angular.module('app.users.services').factory('User', User);
 User.$inject = ['$resource', 'HLCache', 'CacheFactory'];
 function User($resource, HLCache, CacheFactory) {
     var _user = $resource(
-        '/api/users/user/:id/',
+        '/api/users/user/:id/?show_inactive=:show_inactive',
         null,
         {
             get: {

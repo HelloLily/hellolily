@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- saved from url=(0034)https://app.hellolily.com/login/we -->
 <html lang="en">
     <!-- BEGIN HEAD -->
     <head>
@@ -11,16 +10,20 @@
 
         <title>Lily | Maintenance</title>
 
-        <link href="https://s3-eu-west-1.amazonaws.com/hellolily-static/vendor/vendor.css" rel="stylesheet" type="text/css"">
-        <link href="https://s3-eu-west-1.amazonaws.com/hellolily-static/app/app.css" rel="stylesheet" type="text/css">
+        <link href="../vendor/vendor.css" rel="stylesheet" type="text/css"">
+        <link href="../app/app.css" rel="stylesheet" type="text/css">
+        <!--
+            The lilycon font is loaded in the app.css but blocked by Cross-Origin Resource Sharing policy,
+            so the font is added inline here.
+        -->
         <style>
             @font-face {
                 font-family: "lilicon";
-                src: url("https://s3-eu-west-1.amazonaws.com/hellolily-staging-static/app/stylesheets/fonts/lilicon/lilicon.eot");
-                src: url("https://s3-eu-west-1.amazonaws.com/hellolily-staging-static/app/stylesheets/fonts/lilicon/lilicon.eot#iefix") format("embedded-opentype"),
-                url("https://s3-eu-west-1.amazonaws.com/hellolily-staging-static/app/stylesheets/fonts/lilicon/lilicon.ttf") format("truetype"),
-                url("https://s3-eu-west-1.amazonaws.com/hellolily-staging-static/app/stylesheets/fonts/lilicon/lilicon.woff") format("woff"),
-                url("https://s3-eu-west-1.amazonaws.com/hellolily-staging-static/app/stylesheets/fonts/lilicon/lilicon.svg") format("svg");
+                src: url("../app/stylesheets/fonts/lilicon/lilicon.eot");
+                src: url("../app/stylesheets/fonts/lilicon/lilicon.eot#iefix") format("embedded-opentype"),
+                url("../app/stylesheets/fonts/lilicon/lilicon.ttf") format("truetype"),
+                url("../app/stylesheets/fonts/lilicon/lilicon.woff") format("woff"),
+                url("../app/stylesheets/fonts/lilicon/lilicon.svg") format("svg");
                 font-weight: normal;
                 font-style: normal;
             }
@@ -43,7 +46,6 @@
             </div>
         </div>
 
-
         <div class="clearfix"></div>
 
         <!-- BEGIN CONTAINER -->
@@ -56,7 +58,7 @@
                         <tbody>
                             <tr>
                                 <td class="hl-error-image">
-                                    <img src="search-the-universe.1.svg">
+                                    <img src="../app/images/search-the-universe.1.svg">
                                 </td>
                                 <td class="hl-error-message">
                                     <h2>Maintenance</h2>
@@ -74,6 +76,7 @@
             <!-- END CONTENT -->
         </div>
         <!-- END CONTAINER -->
+        
     <!-- END BODY -->
     </body>
 </html>

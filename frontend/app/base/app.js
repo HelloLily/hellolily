@@ -76,11 +76,17 @@ function appConfig($breadcrumbProvider, $controllerProvider, $httpProvider, $res
 }
 
 // Global exception handler.
-angular.module('app').factory('$exceptionHandler', function() {
+angular.module('app').factory('$exceptionHandler', ['$log', function($log) {
     return function(exception) {
-        Raven.captureException(exception);
+        if (window.debug) {
+            // Log to console when developing.
+            $log.error(exception);
+        } else {
+            // Otherwise send to Sentry.
+            Raven.captureException(exception);
+        }
     };
-});
+}]);
 
 /* Init global settings and run the app. */
 angular.module('app').run(runApp);
@@ -115,9 +121,12 @@ function runApp($rootScope, $state, editableOptions, HLMessages, Tenant, UserTea
         },
     });
 
-    // Setup Raven for global JS error logging.
-    Raven.config(window.sentryPublicDsn).addPlugin(require('raven-js/plugins/angular'), angular).install();
-    Raven.setUserContext({
-        id: currentUser.id,
-    });
+    // Only setup if we're in the live app.
+    if (!window.debug) {
+        // Setup Raven for global JS error logging.
+        Raven.config(window.sentryPublicDsn).addPlugin(require('raven-js/plugins/angular'), angular).install();
+        Raven.setUserContext({
+            id: currentUser.id,
+        });
+    }
 }

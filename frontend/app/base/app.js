@@ -3,6 +3,8 @@ var Raven = require('raven-js');
 
 window.sprintf = require('sprintf-js').sprintf;
 
+require('ui-select');
+
 /**
  * App Module is the entry point for Lily related Angular code
  */
@@ -10,6 +12,7 @@ angular.module('app', [
     'angular.filter',
     'ui.router',
     'ui.bootstrap',
+    'ui.select',
     'ngResource',
     'ngSanitize',
     'ncy-angular-breadcrumb',

@@ -138,6 +138,20 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
         self.email = self.email.lower()
         super(LilyUser, self).save(*args, **kwargs)
 
+    def delete(self, using=None, hard=False):
+        """
+        Soft delete instance by flagging is_active as False.
+
+        Arguments:
+            using (str): which db to use
+            hard (boolean): If True, permanent removal from db
+        """
+        if hard:
+            super(LilyUser, self).delete(using=using)
+        else:
+            self.is_active = False
+            self.save()
+
     @property
     def full_name(self):
         return self.get_full_name()

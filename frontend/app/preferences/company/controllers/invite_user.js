@@ -2,23 +2,23 @@ angular.module('app.preferences').config(preferencesInviteConfig);
 
 preferencesInviteConfig.$inject = ['$stateProvider'];
 function preferencesInviteConfig($stateProvider) {
-    $stateProvider.state('base.preferences.invite', {
+    $stateProvider.state('base.preferences.company.users.inviteUser', {
         url: '/invite',
         views: {
             '@base.preferences': {
                 templateUrl: 'invitation/invite',
-                controller: PreferencesInviteController,
+                controller: PreferencesCompanyInviteUserController,
                 controllerAs: 'vm',
             },
         },
         ncyBreadcrumb: {
-            label: 'account',
+            label: 'Invites',
         },
     });
 }
 
-angular.module('app.preferences').controller('PreferencesInviteController', PreferencesInviteController);
+angular.module('app.preferences').controller('PreferencesCompanyInviteUserController', PreferencesCompanyInviteUserController);
 
-PreferencesInviteController.$inject = [];
-function PreferencesInviteController() {
+PreferencesCompanyInviteUserController.$inject = [];
+function PreferencesCompanyInviteUserController() {
 }

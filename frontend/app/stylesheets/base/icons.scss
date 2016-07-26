@@ -124,13 +124,13 @@ i {
 
 .base-icon {
     float: left;
-    padding: 0;
+    padding: 0 3px;
     margin: 0;
     color: $app-color-grey;
     border-radius: $base-border-radius;
     font-size: 12px;
     height: 21px;
-    width: 21px;
+    width: 30px;
     line-height: 21px;
     text-align: center;
     background: $light-border-color;
@@ -187,7 +187,7 @@ i {
         content: $hl-entity-inactive-icon;
         position: absolute;
         top: 0;
-        left: -5px;
+        left: -3px;
         font-size: 150%;
         line-height: 100% / (150 / 100); // Make first number within () same percentage as the font-size
     }

@@ -323,7 +323,7 @@ class SendInvitationView(FormSetView):
         return the success url and set a succes message.
         """
         messages.success(self.request, _('I did it! I\'ve sent the invitations successfully.'))
-        return '/#/'
+        return '/#/preferences/company/users'
 
 
 class AcceptInvitationView(FormView):

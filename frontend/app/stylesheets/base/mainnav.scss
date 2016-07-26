@@ -1,5 +1,5 @@
 .main-nav {
-    @extend %no-select;
+    @extend %no-select !optional;
     font-family: 'Roboto', "Helvetica Neue", Helvetica, Arial, sans-serif;
     display: block;
     float: left;

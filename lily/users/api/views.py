@@ -61,7 +61,7 @@ class LilyUserViewSet(mixins.UpdateModelMixin,
 
         # By default we filter out non-active users.
         if show_inactive != 'true':
-            queryset = queryset.filter(is_active=False)
+            queryset = queryset.filter(is_active=True)
 
         return queryset
 

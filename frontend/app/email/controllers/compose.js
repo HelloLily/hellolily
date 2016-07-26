@@ -232,10 +232,20 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
     }
 
     function discard() {
-        if ($scope.previousState) {
-            window.location = $scope.previousState;
+        if ($stateParams.messageType === 'draft') {
+            EmailMessage.trash({id: $stateParams.id}).$promise.then(function() {
+                if (Settings.email.previousInbox) {
+                    $state.transitionTo(Settings.email.previousInbox.state, Settings.email.previousInbox.params, false);
+                } else {
+                    $state.go('base.email.list', {labelId: 'INBOX'});
+                }
+            });
         } else {
-            $state.go('base.email');
+            if (Settings.email.previousInbox) {
+                $state.transitionTo(Settings.email.previousInbox.state, Settings.email.previousInbox.params, false);
+            } else {
+                $state.go('base.email.list', {labelId: 'INBOX'});
+            }
         }
     }
 }

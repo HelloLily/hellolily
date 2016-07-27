@@ -7,7 +7,7 @@ accountConfig.$inject = ['$stateProvider'];
 function accountConfig($stateProvider) {
     $stateProvider.state('base.accounts.detail', {
         parent: 'base.accounts',
-        url: '/{id:[0-9]{1,}}',
+        url: '/{id:int}',
         views: {
             '@': {
                 templateUrl: 'accounts/controllers/detail.html',

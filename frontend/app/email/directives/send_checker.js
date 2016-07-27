@@ -63,14 +63,14 @@ function sendCheckerDirective(EmailAddress) {
                     event.preventDefault();
                     bootbox.dialog({
                         message: 'Are you sure you want to send this email without a subject?',
-                        title: 'No Subject',
+                        title: 'No subject',
                         buttons: {
                             danger: {
                                 label: 'Oops, I\'ll fix it',
                                 className: 'btn-danger',
                             },
                             success: {
-                                label: 'No Problem, send it anyway',
+                                label: 'No problem, send it anyway',
                                 className: 'btn-success',
                                 callback: function() {
                                     HLInbox.submitForm('submit-send', element.closest('form')[0]);

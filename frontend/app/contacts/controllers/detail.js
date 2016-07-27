@@ -4,7 +4,7 @@ contactsConfig.$inject = ['$stateProvider'];
 function contactsConfig($stateProvider) {
     $stateProvider.state('base.contacts.detail', {
         parent: 'base.contacts',
-        url: '/{id:[0-9]{1,}}',
+        url: '/{id:int}',
         views: {
             '@': {
                 templateUrl: 'contacts/controllers/detail.html',

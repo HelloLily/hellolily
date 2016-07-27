@@ -201,8 +201,8 @@ class WebsiteSearchView(LoginRequiredMixin, View):
             model_type='accounts_account',
             size=1,
         )
-        # Try to find an account with the full email address
-        search.like_filter_query(website)
+        # Try to find an account with the given website.
+        search.filter_query('domain:%s' % website)
 
         hits, facets, total, took = search.do_search()
         if hits:

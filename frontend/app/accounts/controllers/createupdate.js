@@ -39,9 +39,10 @@ function accountConfig($stateProvider) {
  */
 angular.module('app.accounts').controller('AccountCreateController', AccountCreateController);
 
-AccountCreateController.$inject = ['$scope', '$state', '$stateParams', 'Settings', 'Account', 'User', 'HLFields',
-    'HLForms', 'HLUtils'];
-function AccountCreateController($scope, $state, $stateParams, Settings, Account, User, HLFields, HLForms, HLUtils) {
+AccountCreateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'HLFields', 'HLForms', 'HLMessages',
+    'HLUtils', 'Settings', 'User'];
+function AccountCreateController($scope, $state, $stateParams, Account, HLFields, HLForms, HLMessages,
+                                 HLUtils, Settings, User) {
     var vm = this;
 
     vm.account = {};
@@ -157,38 +158,29 @@ function AccountCreateController($scope, $state, $stateParams, Settings, Account
 
             Account.searchByWebsite({website: domain}).$promise.then(function(result) {
                 if (result.data && result.data.id !== $stateParams.id) {
-                    bootbox.dialog({
-                        message: 'This website has already been added to an existing account: <br />' +
-                        result.data.name + '<br />' +
-                        'Are you sure you want to use: <br />' +
-                        website,
-                        title: 'Website already exists',
-                        buttons: {
-                            danger: {
-                                label: 'No, clear the field.',
-                                className: 'btn-danger',
-                                callback: function() {
-                                    if (isExtraWebsite) {
-                                        vm.account.websites[index].website = null;
-                                    } else {
-                                        vm.account.primaryWebsite = null;
-                                    }
-                                    vm.useDuplicateWebsite = false;
-                                    $scope.$apply();
-                                },
-                            },
-                            success: {
-                                label: 'Yes',
-                                className: 'btn-success',
-                                callback: function() {
-                                    _processAccountCheck(form, isExtraWebsite);
+                    swal({
+                        title: HLMessages.alerts.accountForm.title,
+                        html: sprintf(HLMessages.alerts.accountForm.body, {account: result.data.name, website: website}),
+                        type: 'warning',
+                        showCancelButton: true,
+                        cancelButtonText: HLMessages.alerts.accountForm.cancelButtonText,
+                    }).then(function(isConfirm) {
+                        if (isConfirm) {
+                            _processAccountCheck(form, isExtraWebsite);
 
-                                    if (!form) {
-                                        vm.useDuplicateWebsite = true;
-                                    }
-                                },
-                            },
-                        },
+                            if (!form) {
+                                vm.useDuplicateWebsite = true;
+                            }
+                        } else {
+                            if (isExtraWebsite) {
+                                vm.account.websites[index].website = null;
+                            } else {
+                                vm.account.primaryWebsite = null;
+                            }
+
+                            vm.useDuplicateWebsite = false;
+                            $scope.$apply();
+                        }
                     });
                 } else {
                     _processAccountCheck(form, isExtraWebsite);

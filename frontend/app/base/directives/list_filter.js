@@ -15,8 +15,8 @@ function listFilter() {
     };
 }
 
-ListFilterController.$inject = ['$timeout', 'HLFilters'];
-function ListFilterController($timeout, HLFilters) {
+ListFilterController.$inject = ['$filter', '$timeout', 'HLFilters'];
+function ListFilterController($filter, $timeout, HLFilters) {
     var vm = this;
 
     vm.toggleFilter = toggleFilter;
@@ -51,9 +51,11 @@ function ListFilterController($timeout, HLFilters) {
 
     function toggleAll() {
         var filterList = vm.viewModel.filterList;
+
         if (vm.viewModel.filterSpecialList) {
             filterList = vm.viewModel.filterSpecialList;
         }
+
         vm.allSelected = !vm.allSelected;
 
         // Deselect/Select all items.
@@ -80,7 +82,9 @@ function ListFilterController($timeout, HLFilters) {
         if (vm.viewModel.filterSpecialList) {
             filterList = vm.viewModel.filterSpecialList;
         }
+
         vm.allSelected = true;
+
         angular.forEach(filterList, function(item) {
             if (!item.selected) {
                 vm.allSelected = false;
@@ -91,34 +95,35 @@ function ListFilterController($timeout, HLFilters) {
     function updateFilterQuery() {
         HLFilters.updateFilterQuery(vm.viewModel);
 
-        vm.viewModel.updateTable();
+        if (vm.viewModel.hasOwnProperty('updateTable')) {
+            vm.viewModel.updateTable();
+        }
 
         vm.viewModel.storage.put('filterListSelected', vm.viewModel.filterList);
         vm.viewModel.storage.put('filterSpecialListSelected', vm.viewModel.filterSpecialList);
     }
 
     function updateFilterDisplayName() {
-        var count = 0;
-        var label = '';
         var filterList = vm.viewModel.filterList;
+        var selectedItems = [];
+        var label = vm.filterLabel;
+
         if (vm.viewModel.filterSpecialList) {
             filterList = vm.viewModel.filterSpecialList;
         }
 
-        if (vm.filterPlural) {
-            label = vm.filterPlural;
-        }
-        vm.filterDisplayName = vm.filterLabel;
+        selectedItems = $filter('filter')(filterList, {selected: true});
 
-        angular.forEach(filterList, function(item) {
-            if (item.selected === true) {
-                count += 1;
-                if (count === 1) {
-                    vm.filterDisplayName = item.name + ' selected';
-                } else if (count > 1) {
-                    vm.filterDisplayName = count + ' ' + label + ' selected';
-                }
+        if (selectedItems.length) {
+            if (selectedItems.length < 3) {
+                label = selectedItems.map(function(item) {
+                    return item.name;
+                }).join(' + ');
+            } else {
+                label = selectedItems.length + ' ' + vm.filterLabel + ' selected';
             }
-        });
+        }
+
+        vm.filterDisplayName = label;
     }
 }

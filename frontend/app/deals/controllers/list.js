@@ -19,27 +19,32 @@ function dealsConfig($stateProvider) {
 
 angular.module('app.deals').controller('DealListController', DealListController);
 
-DealListController.$inject = ['$scope', '$timeout', 'Settings', 'Deal', 'HLFilters', 'LocalStorage', 'Tenant'];
-function DealListController($scope, $timeout, Settings, Deal, HLFilters, LocalStorage, Tenant) {
-    var storage = new LocalStorage('deals');
+DealListController.$inject = ['$filter', '$scope', '$timeout', 'Deal', 'HLFilters', 'LocalStorage',
+    'Settings', 'Tenant'];
+function DealListController($filter, $scope, $timeout, Deal, HLFilters, LocalStorage,
+                            Settings, Tenant) {
     var vm = this;
+
+    vm.storage = new LocalStorage('deals');
+    vm.storedFilterSpecialList = vm.storage.get('filterSpecialListSelected', null);
+    vm.storedFilterList = vm.storage.get('filterListSelected', null);
 
     Settings.page.setAllTitles('list', 'deals');
 
     /**
-     * table object: stores all the information to correctly display the table
+     * Table object: stores all the information to correctly display the table
      */
     vm.table = {
         page: 1,  // current page of pagination: 1-index
         pageSize: 20,  // number of items per page
         totalItems: 0, // total number of items
         filterQuery: '',
-        archived: storage.get('archived', false),
-        order: storage.get('order', {
+        archived: vm.storage.get('archived', false),
+        order: vm.storage.get('order', {
             descending: true,
             column: 'next_step_date',  // string: current sorted column
         }),
-        visibility: storage.get('visibility', {
+        visibility: vm.storage.get('visibility', {
             deal: true,
             client: true,
             status: true,
@@ -54,13 +59,14 @@ function DealListController($scope, $timeout, Settings, Deal, HLFilters, LocalSt
             createdBy: true,
             tags: true,
         }),
-        dueDateFilter: storage.get('dueDateFilter', ''),
-        usersFilter: storage.get('usersFilter', ''),
-        searchQuery: storage.get('searchQuery', ''),
+        dueDateFilter: vm.storage.get('dueDateFilter', ''),
+        usersFilter: vm.storage.get('usersFilter', ''),
+        searchQuery: vm.storage.get('searchQuery', ''),
     };
     vm.displayFilterClear = false;
     vm.displaySpecialFilterClear = false;
     vm.filterList = [];
+    vm.filterSpecialList = [];
 
     vm.updateFilterQuery = updateFilterQuery;
     vm.setSearchQuery = setSearchQuery;
@@ -74,7 +80,8 @@ function DealListController($scope, $timeout, Settings, Deal, HLFilters, LocalSt
         // This timeout is needed because by loading from LocalStorage isn't fast enough
         $timeout(function() {
             _setupWatchers();
-            _getFilterList();
+            _getFilterOnList();
+            _getFilterSpecialList();
         }, 50);
 
         Tenant.query({}, function(tenant) {
@@ -82,14 +89,13 @@ function DealListController($scope, $timeout, Settings, Deal, HLFilters, LocalSt
         });
     }
 
-    function _getFilterList() {
-        var storedFilterList = storage.get('filterListSelected', null);
+    function _getFilterOnList() {
         var filterList;
 
         // Use the value from storage first.
         // (Because it is faster; loading the list uses AJAX requests).
-        if (storedFilterList) {
-            vm.filterList = storedFilterList;
+        if (vm.storedFilterList) {
+            vm.filterList = vm.storedFilterList;
         }
 
         // But we still update the list afterwards (in case a filter was changed)
@@ -98,32 +104,27 @@ function DealListController($scope, $timeout, Settings, Deal, HLFilters, LocalSt
                 name: 'Assigned to me',
                 value: 'assigned_to.id:' + currentUser.id,
                 selected: false,
-                isSpecialFilter: false,
             },
             {
                 name: 'New business',
                 value: 'new_business:true',
                 selected: false,
-                isSpecialFilter: false,
             },
             {
                 name: 'Age between 7 and 30 days',
                 value: 'created:[' + moment().subtract(30, 'd').format('YYYY-MM-DD') + ' TO ' + moment().subtract(7, 'd').format('YYYY-MM-DD') + ']',
                 selected: false,
-                isSpecialFilter: false,
             },
             {
                 name: 'Age between 30 and 120 days',
                 value: 'created:[' + moment().subtract(120, 'd').format('YYYY-MM-DD') + ' TO ' + moment().subtract(30, 'd').format('YYYY-MM-DD') + ']',
                 selected: false,
-                isSpecialFilter: false,
             },
             {
                 name: 'Archived',
                 value: '',
                 selected: false,
                 id: 'is_archived',
-                isSpecialFilter: false,
             },
         ];
 
@@ -133,26 +134,41 @@ function DealListController($scope, $timeout, Settings, Deal, HLFilters, LocalSt
                     name: status.name,
                     value: 'status.id:' + status.id,
                     selected: false,
-                    isSpecialFilter: false,
                 });
             });
-        });
 
+            // Merge previous stored selection with new filters.
+            HLFilters.getStoredSelections(filterList, vm.storedFilterList);
+
+            vm.filterList = filterList;
+
+            // Watch doesn't get triggered here, so manually call _updateTableSettings.
+            _updateTableSettings();
+        });
+    }
+
+    /**
+     * Gets the deal next step filter list. Merges selections with locally stored values.
+     *
+     * @returns filterSpecialList (object): object containing the filter list.
+     */
+    function _getFilterSpecialList() {
         Deal.getNextSteps(function(response) {
+            var filterList = [];
+
             angular.forEach(response.results, function(nextStep) {
                 filterList.push({
                     name: nextStep.name,
                     value: 'next_step.id:' + nextStep.id,
                     selected: false,
-                    isSpecialFilter: true,
                     position: nextStep.position,
                 });
             });
 
-            HLFilters.getStoredSelections(filterList, storedFilterList);
+            HLFilters.getStoredSelections(filterList, vm.storedFilterSpecialList);
 
             // Update filterList once AJAX calls are done.
-            vm.filterList = filterList;
+            vm.filterSpecialList = filterList;
 
             // Watch doesn't get triggered here, so manually call _updateTableSettings.
             _updateTableSettings();
@@ -163,11 +179,12 @@ function DealListController($scope, $timeout, Settings, Deal, HLFilters, LocalSt
      * _updateTableSettings() puts the scope variables in local storage
      */
     function _updateTableSettings() {
-        storage.put('searchQuery', vm.table.searchQuery);
-        storage.put('archived', vm.table.archived);
-        storage.put('order', vm.table.order);
-        storage.put('visibility', vm.table.visibility);
-        storage.put('filterListSelected', vm.filterList);
+        vm.storage.put('searchQuery', vm.table.searchQuery);
+        vm.storage.put('archived', vm.table.archived);
+        vm.storage.put('order', vm.table.order);
+        vm.storage.put('visibility', vm.table.visibility);
+        vm.storage.put('filterListSelected', vm.filterList);
+        vm.storage.put('filterSpecialSelected', vm.filterSpecialList);
     }
 
     /**
@@ -218,14 +235,20 @@ function DealListController($scope, $timeout, Settings, Deal, HLFilters, LocalSt
          * Watches the filters so when the values are retrieved from local storage,
          * the filterQuery changes and a new set of deals is fetched
          */
-        $scope.$watchCollection('vm.filterList', function() {
+        $scope.$watch('vm.filterList', function() {
+            updateFilterQuery();
+
+            vm.selectedFilters = $filter('filter')(vm.filterList, {selected: true});
+        }, true);
+
+        $scope.$watchCollection('vm.filterSpecialList', function() {
             updateFilterQuery();
         });
 
         $scope.$watchGroup(['vm.table.dueDateFilter', 'vm.table.usersFilter'], function() {
             updateFilterQuery();
-            storage.put('dueDateFilter', vm.table.dueDateFilter);
-            storage.put('usersFilter', vm.table.usersFilter);
+            vm.storage.put('dueDateFilter', vm.table.dueDateFilter);
+            vm.storage.put('usersFilter', vm.table.usersFilter);
         });
     }
 

@@ -9,14 +9,14 @@
     </widget-header>
 
     <widget-filters>
-        <list-filter filter-label="'Case type'" filter-label-plural="'types'" view-model="vm"></list-filter>
+        <list-filter filter-label="'Case types'" view-model="vm"></list-filter>
     </widget-filters>
 
     <widget-body>
         <table id="unassignedCasesBlockTarget{{ vm.team.id }}" class="widget-table">
             <thead>
                 <tr>
-                    <th>Casenr.</th>
+                    <th>Case nr.</th>
                     <th>Subject</th>
                     <th>Client</th>
                     <th sort-column="priority" table="vm.table">Prio</th>

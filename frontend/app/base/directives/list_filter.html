@@ -1,7 +1,7 @@
 <ul class="hl-button-group">
     <li class="hl-button-group-btn">
         <a class="hl-button-group-btn-link" href="javascript:;" data-toggle="dropdown">
-            <i class="fa fa-filter"></i>
+            <i class="lilicon hl-cog-icon"></i>
             {{ vm.filterDisplayName }}
             <i class="margin-left-5 small-icon lilicon hl-toggle-down-icon"></i>
         </a>
@@ -9,8 +9,8 @@
         <ul class="hl-dropdown js-hold-on-click">
             <li class="hl-dropdown-item" ng-click="vm.toggleAll()">
                 <div class="hl-checkbox" ng-class="{'checked': vm.allSelected}"></div>
-                <span ng-show="vm.allSelected" >All selected</span>
-                <span ng-hide="vm.allSelected" >Select all</span>
+                <span ng-show="vm.allSelected">All selected</span>
+                <span ng-hide="vm.allSelected">Select all</span>
             </li>
 
             <li class="hl-dropdown-item" ng-if="!vm.viewModel.filterSpecialList" ng-repeat="filter in vm.viewModel.filterList" ng-click="vm.toggleFilter(filter)">

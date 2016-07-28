@@ -83,7 +83,7 @@
             <thead class="flip-content">
                 <th ng-show="vm.table.visibility.name" table="vm.table" class="width-20">Subject</th>
                 <th ng-show="vm.table.visibility.client" class="width-10">Client</th>
-                <th ng-show="vm.table.visibility.status" sort-column="status" table="vm.table">Status</th>
+                <th ng-show="vm.table.visibility.status" sort-column="status.name" table="vm.table">Status</th>
                 <th ng-show="vm.table.visibility.nextStep" sort-column="next_step.name" table="vm.table">Next step</th>
                 <th ng-show="vm.table.visibility.nextStepDate" sort-column="next_step_date" table="vm.table">Next step date</th>
                 <th ng-show="vm.table.visibility.assignedTo" sort-column="assigned_to.full_name" table="vm.table">Assigned to</th>
@@ -91,7 +91,7 @@
                 <th ng-show="vm.table.visibility.amountRecurring" sort-column="amount_recurring" table="vm.table">Recurring costs</th>
                 <th ng-show="vm.table.visibility.newBusiness" sort-column="new_business" table="vm.table">Business</th>
                 <th ng-show="vm.table.visibility.created" sort-column="created" table="vm.table" class="width-10">Created</th>
-                <th ng-show="vm.table.visibility.createdBy" sort-column="created_by" table="vm.table">Created by</th>
+                <th ng-show="vm.table.visibility.createdBy" sort-column="created_by.full_name" table="vm.table">Created by</th>
                 <th ng-show="vm.table.visibility.tags">Tags</th>
                 <th style="width: 60px;">Edit</th>
             </thead>

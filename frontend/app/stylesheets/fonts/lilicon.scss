@@ -116,7 +116,7 @@ Lily has a large amount of icons that can be used.
             <td><i class="lilicon font-size-24 hl-entity-inactive-icon"></i><div style="margin-top: 10px">.hl-entity-inactive-icon</div></td>
             <td><i class="lilicon font-size-24 hl-entity-status-active-icon"></i><div style="margin-top: 10px">.hl-entity-status-active</div></td>
             <td><i class="lilicon font-size-24 hl-entity-status-inactive-icon "></i><div style="margin-top: 10px">.hl-entity-status-inactive-icon</div></td>
-            <td><i class="lilicon font-size-24 hl-tomorrow-icon"></i><div style="margin-top: 10px">.hl-tomorrow-icon</div></td>
+            <td><i class="lilicon font-size-24 hl-entities-icon"></i><div style="margin-top: 10px">.hl-entities-icon</div></td>
         </tr>
 </table>
 
@@ -148,6 +148,7 @@ Lily has a large amount of icons that can be used.
     -moz-osx-font-smoothing: grayscale;
 }
 
+$hl-entities-icon: "\e93b";
 $hl-entity-inactive-icon: "\e938";
 $hl-entity-active-icon: "\e939";
 $hl-entity-b-icon: "\e93a";
@@ -207,6 +208,12 @@ $hl-statistics-icon: "\e930";
 $hl-administration-icon: "\e936";
 $hl-dashboard-icon: "\e934";
 $hl-forwarding-icon: "\e937";
+
+.hl-entities-icon {
+    &:before {
+        content: $hl-entities-icon;
+    }
+}
 
 .hl-entity-inactive-icon {
     &:before {

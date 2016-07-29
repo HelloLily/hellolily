@@ -159,7 +159,9 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
                         isVisible: true,
                     };
 
-                    Settings.email.data.website = vm.message.sender.email_address.split('@').slice(-1)[0];
+                    if (!data.free_mail) {
+                        Settings.email.data.website = vm.message.sender.email_address.split('@').slice(-1)[0];
+                    }
 
                     if (data && data.data) {
                         if (data.type === 'account') {
@@ -203,7 +205,9 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
                                         });
                                     }
                                 } else {
-                                    Settings.email.sidebar.form = 'account';
+                                    if (!data.free_mail) {
+                                        Settings.email.sidebar.form = 'account';
+                                    }
                                 }
                             }
                         }
@@ -226,12 +230,16 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
                         Settings.email.sidebar.case = true;
                         Settings.email.sidebar.deal = true;
                     } else {
-                        Settings.email.sidebar.form = 'account';
-                        Settings.email.sidebar.contact = false;
-
-                        // Setup auto fill contact data in case the user only wants to create a contact.
+                        if (data.free_mail) {
+                            Settings.email.sidebar.form = 'contact';
+                            Settings.email.sidebar.account = false;
+                        } else {
+                            Settings.email.sidebar.form = 'account';
+                            Settings.email.sidebar.contact = false;
+                        }
                     }
 
+                    // Setup auto fill contact data in case the user only wants to create a contact.
                     if (data.type !== 'contact') {
                         _setupContactInfo();
                     }

@@ -1,3 +1,4 @@
+import unicodedata
 from factory.declarations import LazyAttribute
 from factory.django import DjangoModelFactory
 from factory.fuzzy import FuzzyChoice
@@ -30,7 +31,7 @@ class AddressFactory(DjangoModelFactory):
 
 
 class EmailAddressFactory(DjangoModelFactory):
-    email_address = LazyAttribute(lambda o: faker.safe_email())
+    email_address = LazyAttribute(lambda o: unicodedata.normalize('NFD', faker.safe_email()).encode('ascii', 'ignore'))
     status = EmailAddress.PRIMARY_STATUS
 
     class Meta:

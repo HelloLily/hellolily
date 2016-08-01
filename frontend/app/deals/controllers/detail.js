@@ -4,7 +4,7 @@ dealsConfig.$inject = ['$stateProvider'];
 function dealsConfig($stateProvider) {
     $stateProvider.state('base.deals.detail', {
         parent: 'base.deals',
-        url: '/{id:[0-9]{1,}}',
+        url: '/{id:int}',
         views: {
             '@': {
                 templateUrl: 'deals/controllers/detail.html',

@@ -98,13 +98,18 @@ class EmailAddressSearchView(LoginRequiredMixin, View):
 
         results = {}
 
-        if not freemail.is_free(email_address):
-            # Only search for contacts if a full email is given.
-            if email_address.split('@')[0]:
-                # 1: Search for contact with given email address.
-                results = self._search_contact(email_address)
+        # Only search for contacts if a full email is given.
+        if email_address.split('@')[0]:
+            # Search for contact with given email address.
+            results = self._search_contact(email_address)
 
-            # 2: Search for account with given email address.
+        # Don't continue search if we're dealing with a free email address.
+        if freemail.is_free(email_address):
+            results.update({
+                'free_mail': True,
+            })
+        else:
+            # Search for account with given email address.
             if not results:
                 results = self._search_account(email_address)
 
@@ -201,8 +206,8 @@ class WebsiteSearchView(LoginRequiredMixin, View):
             model_type='accounts_account',
             size=1,
         )
-        # Try to find an account with the full email address
-        search.like_filter_query(website)
+        # Try to find an account with the given website.
+        search.filter_query('domain:%s' % website)
 
         hits, facets, total, took = search.do_search()
         if hits:

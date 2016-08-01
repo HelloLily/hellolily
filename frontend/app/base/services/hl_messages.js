@@ -9,6 +9,14 @@ function HLMessages() {
             contactInfoTooltip: 'This is the current contact\'s data',
         },
         alerts: {
+            accountForm: {
+                title: 'Website already exists',
+                body: 'This website has already been added to an existing account: <br />' +
+                '<strong>%(account)s</strong><br />' +
+                'Are you sure you want to use:<br />' +
+                '%(website)s',
+                cancelButtonText: 'No, clear the field',
+            },
             delete: {
                 confirmTitle: 'Are you sure?',
                 confirmText: 'You are about to delete <strong>%(name)s</strong>.<br />You won\'t be able to revert this!',

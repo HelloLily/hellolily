@@ -125,6 +125,12 @@ var config = {
         '!./docs/sphinx/source/modules/*.rst',
         './lily/**/*.py',
     ],
+    heroku: {
+        buildDir: 'lily/static/heroku/',
+        assets: {
+            src: ['frontend/app/heroku/*.*'],
+        },
+    },
     env: process.env.NODE_ENV || 'production',
 };
 
@@ -165,7 +171,7 @@ gulp.task('app-js', [], function() {
             return sourcemaps.init();
         }))
         .pipe(cached('app-js'))
-        .pipe(babel({presets: ['es2015']}))
+        .pipe(babel({presets: ['es2015'], compact: false}))
         .pipe(wrap('(function(angular){\'use strict\';<%= contents %>})(angular);'))
         .pipe(ifElse(isProduction, uglify))
         .pipe(remember('app-js'))
@@ -294,10 +300,16 @@ gulp.task('analytics', [], function() {
         .pipe(gulp.dest(config.app.buildDir));
 });
 
+gulp.task('heroku-assets', [], function() {
+    return gulp.src(config.heroku.assets.src)
+        .pipe(gulp.dest(config.heroku.buildDir));
+});
+
 /**
  * Concatenate, minify and make source maps of all js and css.
  */
-gulp.task('build', ['app-js', 'app-css', 'app-templates', 'app-assets', 'vendor-js', 'vendor-css', 'vendor-assets', 'analytics'], function() {});
+gulp.task('build', ['app-js', 'app-css', 'app-templates', 'app-assets', 'vendor-js', 'vendor-css', 'vendor-assets',
+    'analytics', 'heroku-assets'], function() {});
 
 /**
  * This is a custom gulp watch change trigger that builds changed

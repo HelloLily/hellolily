@@ -1,4 +1,5 @@
 import random
+import unicodedata
 from factory.declarations import LazyAttribute
 from factory.django import DjangoModelFactory
 from faker.factory import Factory
@@ -15,7 +16,7 @@ social_media = {
 
 class SocialMediaFactory(DjangoModelFactory):
     name = LazyAttribute(lambda o: random.choice(social_media.keys()))  # Only currently supported social media
-    username = LazyAttribute(lambda o: faker.user_name())
+    username = LazyAttribute(lambda o: unicodedata.normalize('NFD', faker.user_name()).encode('ascii', 'ignore'))
     profile_url = LazyAttribute(lambda o: social_media[o.name] % o.username)
 
     class Meta:

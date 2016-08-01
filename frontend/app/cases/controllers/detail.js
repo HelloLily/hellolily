@@ -4,7 +4,7 @@ caseConfig.$inject = ['$stateProvider'];
 function caseConfig($stateProvider) {
     $stateProvider.state('base.cases.detail', {
         parent: 'base.cases',
-        url: '/{id:[0-9]{1,}}',
+        url: '/{id:int}',
         views: {
             '@': {
                 templateUrl: 'cases/controllers/detail.html',

@@ -1,14 +1,19 @@
+from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
 from lily.api.nested.mixins import RelatedSerializerMixin
+from lily.api.nested.serializers import WritableNestedSerializer
 from ..models import LilyGroup, LilyUser
 
 
-class LilyUserSerializer(serializers.ModelSerializer):
+class LilyUserSerializer(WritableNestedSerializer):
     """
     Serializer for the LilyUser model.
     """
     full_name = serializers.CharField(read_only=True)
+    profile_picture = serializers.CharField(read_only=True)
+    picture = serializers.ImageField(write_only=True)
 
     class Meta:
         model = LilyUser
@@ -22,13 +27,31 @@ class LilyUserSerializer(serializers.ModelSerializer):
             'primary_email_account',
             'position',
             'profile_picture',
+            'picture',
             'is_active',
+            'picture',
             'phone_number',
             'social_media',
             'language',
             'timezone',
             'lily_groups',
         )
+
+    def update(self, instance, validated_data):
+        picture = validated_data.get('picture')
+
+        if not picture:
+            # Because of the order in which DRF does things clearing the
+            # picture doesn't work in the update of the view.
+            validated_data['picture'] = None
+
+        return super(LilyUserSerializer, self).update(instance, validated_data)
+
+    def validate_picture(self, value):
+        if value and value.size > settings.MAX_AVATAR_SIZE:
+            raise serializers.ValidationError(_('File too large. Size should not exceed 300 KB.'))
+
+        return value
 
 
 class RelatedLilyUserSerializer(RelatedSerializerMixin, LilyUserSerializer):

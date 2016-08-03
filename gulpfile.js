@@ -412,7 +412,7 @@ gulp.task('watch', [], function() {
         gulp.start('vendor-assets');
     });
 
-    watch(config.sphinx, '').on('change', buildSphinx);
+    // watch(config.sphinx, '').on('change', buildSphinx);
 });
 
 /**

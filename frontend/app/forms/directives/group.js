@@ -6,7 +6,6 @@ function formGroup() {
         scope: {
             labelId: '@',
             labelTitle: '@',
-            labelIcon: '@',
             labelChar: '@',
             field: '=',
             required: '@',

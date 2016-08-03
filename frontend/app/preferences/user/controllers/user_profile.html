@@ -1,0 +1,128 @@
+<div class="row">
+    <div class="col-md-12">
+        <form novalidate name="userForm">
+            <form-portlet portlet-title="Personal information">
+                <form-group label-title="First name" label-id="first_name" field="userForm.first_name" required="true" >
+                    <input class="form-control"
+                           id="first_name"
+                           maxlength="255"
+                           name="first_name"
+                           placeholder="First name"
+                           type="text"
+                           ng-model="vm.user.first_name">
+
+                    <field-error form="userForm" field="first_name"></field-error>
+                </form-group>
+
+                <form-group label-title="Last name" label-id="last_name" field="userForm.last_name" required="true">
+                    <input class="form-control"
+                           id="last_name"
+                           maxlength="255"
+                           name="last_name"
+                           placeholder="Last name"
+                           type="text"
+                           ng-model="vm.user.last_name">
+
+                    <field-error form="userForm" field="last_name"></field-error>
+                </form-group>
+
+                <form-group label-title="Position" label-id="position" field="userForm.position">
+                    <input class="form-control"
+                           id="position"
+                           maxlength="255"
+                           name="position"
+                           placeholder="Position"
+                           type="text"
+                           ng-model="vm.user.position">
+
+                    <field-error form="userForm" field="position"></field-error>
+                </form-group>
+
+                <form-group label-title="Picture" field="userForm.picture">
+                    <div>
+                        <img ngf-src="vm.user.picture" class="user-field-image">
+
+                        <button ng-show="vm.user.picture" class="btn no-background" ng-click="vm.user.picture = null" title="Remove picture">
+                            <i class="lilicon hl-trashcan-icon font-size-18"></i>
+                        </button>
+
+                        <div>
+                            <div class="btn btn-default margin-top-10" ngf-select ng-model="vm.user.picture" name="picture" ngf-pattern="'image/*'"
+                                ngf-accept="'image/*'" ngf-max-size="300kb" ng-model-options="{allowInvalid: true}">Select</div>
+                        </div>
+
+                        <p class="help-text margin-top-10">Maximum picture size is 300kb.</p>
+                    </div>
+                </form-group>
+            </form-portlet>
+
+            <form-portlet portlet-title="Contact information">
+                <form-group label-title="Phone number" label-id="phone_number" field="userForm.phone_number">
+                    <input class="form-control"
+                           id="phone_number"
+                           maxlength="255"
+                           name="phone_number"
+                           placeholder="Phone number"
+                           type="text"
+                           ng-model="vm.user.phone_number">
+
+                    <field-error form="userForm" field="phone_number"></field-error>
+                </form-group>
+
+                <!--<form-group label-title="Twitter" label-id="twitter" field="userForm.twitter">-->
+                    <!--<div class="input-group">-->
+                        <!--<span class="input-group-addon">-->
+                            <!--<i class="fa fa-twitter"></i>-->
+                        <!--</span>-->
+                        <!--<input class="form-control"-->
+                                <!--id="twitter"-->
+                                <!--name="twitter"-->
+                                <!--maxlength="255"-->
+                                <!--placeholder="Twitter"-->
+                                <!--type="text"-->
+                                <!--ng-model="vm.user.twitter">-->
+                    <!--</div>-->
+                <!--</form-group>-->
+                <!--<form-group label-title="LinkedIn" label-id="linkedin" field="userForm.linkedin">-->
+                    <!--<div class="input-group">-->
+                        <!--<span class="input-group-addon">-->
+                            <!--<i class="fa fa-linkedin"></i>-->
+                        <!--</span>-->
+                        <!--<input class="form-control"-->
+                                <!--id="linkedin"-->
+                                <!--name="linkedin"-->
+                                <!--maxlength="255"-->
+                                <!--placeholder="LinkedIn"-->
+                                <!--type="text"-->
+                                <!--ng-model="vm.user.linkedin">-->
+                    <!--</div>-->
+                <!--</form-group>-->
+            </form-portlet>
+
+            <!--<form-portlet portlet-title="Time zone">
+                <form-group label-title="Time zone" label-id="timezone" field="userForm.timezone" required="true">
+                    <ui-select ng-model="vm.user.timezone" theme="select2" class="form-control" name="timezone" append-to-body="true">
+                        <ui-select-match placeholder="Select a timezone">{{ $select.selected }}</ui-select-match>
+                        <ui-select-choices repeat="timezone in vm.timezones | filter:$select.search">
+                            <div ng-bind-html="timezone | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+                </form-group>
+            </form-portlet>-->
+
+            <div class="hl-form-footer">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-2 col-lg-2"></div>
+                    <div class="col-xs-12 col-sm-9 col-md-8 col-md-7 col-lg-4">
+                        <button type="button" class="btn blue" ng-click="vm.saveUser(userForm)">
+                            <i class="fa fa-check"></i> Save
+                        </button>
+                        <button type="button" class="btn default" ng-click="vm.cancelProfileEditing()">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

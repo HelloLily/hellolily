@@ -1,7 +1,7 @@
 from django import template
-register = template.Library()
-
 from ..functions import uniquify
+
+register = template.Library()
 
 # Map message levels to CSS classes
 tag_mapping = {

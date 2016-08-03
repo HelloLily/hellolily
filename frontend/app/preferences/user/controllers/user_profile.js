@@ -1,21 +1,91 @@
+require('ng-file-upload');
+
 angular.module('app.preferences').config(preferencesConfig);
 
 preferencesConfig.$inject = ['$stateProvider'];
 function preferencesConfig($stateProvider) {
     $stateProvider.state('base.preferences.user.profile', {
+        parent: 'base.preferences.user',
         url: '/profile',
         views: {
             '@base.preferences': {
-                templateUrl: 'preferences/user/profile/',
+                templateUrl: 'preferences/user/controllers/user_profile.html',
                 controller: PreferencesUserProfileController,
                 controllerAs: 'vm',
             },
         },
-        ncyBreadcrumb: {
-            label: 'profile',
+        resolve: {
+            user: ['User', function(User) {
+                return User.me().$promise;
+            }],
         },
     });
 }
 
-angular.module('app.preferences').controller('PreferencesUserProfile', PreferencesUserProfileController);
-function PreferencesUserProfileController() {}
+angular.module('app.preferences').controller('PreferencesUserProfileController', PreferencesUserProfileController);
+
+PreferencesUserProfileController.$inject = ['$state', '$window', 'HLForms', 'HLUtils', 'Upload', 'user'];
+function PreferencesUserProfileController($state, $window, HLForms, HLUtils, Upload, user) {
+    var vm = this;
+
+    vm.user = user;
+
+    vm.saveUser = saveUser;
+    vm.cancelProfileEditing = cancelProfileEditing;
+
+    activate();
+
+    //////
+
+    function activate() {
+        if (vm.user.profile_picture) {
+            vm.user.picture = vm.user.profile_picture;
+        }
+
+        if (vm.user.hasOwnProperty('social_media') && vm.user.social_media.length) {
+            angular.forEach(vm.user.social_media, function(profile) {
+                vm.user[profile.name] = profile.username;
+            });
+        }
+    }
+
+    function saveUser(form) {
+        var formName = '[name="userForm"]';
+
+        // Manually set the fields because Upload.upload doesn't
+        // seem to handle Angular resources very well.
+        var data = {
+            'first_name': vm.user.first_name,
+            'last_name': vm.user.last_name,
+            'position': vm.user.position,
+            'phone_number': vm.user.phone_number,
+        };
+
+        if (vm.user.picture) {
+            data.picture = vm.user.picture;
+        }
+
+        HLUtils.blockUI(formName, true);
+        HLForms.clearErrors(form);
+
+        Upload.upload({
+            url: 'api/users/user/me/',
+            method: 'PATCH',
+            data: data,
+        }).then(function() {
+            toastr.success('I\'ve updated your profile!', 'Done');
+            // Regular state reload isn't enough here, because the picture isn't reloaded.
+            // So do a full refresh to show the updated picture.
+            $window.location.reload();
+        }, function(response) {
+            HLUtils.unblockUI(formName);
+            HLForms.setErrors(form, response.data);
+
+            toastr.error('Uh oh, there seems to be a problem', 'Oops!');
+        });
+    }
+
+    function cancelProfileEditing() {
+        $state.reload();
+    }
+}

@@ -1,9 +1,11 @@
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django_password_strength.widgets import PasswordStrengthInput
 from django_password_strength.widgets import PasswordConfirmationInput
+
 from lily.socialmedia.connectors import Twitter, LinkedIn
 from lily.socialmedia.models import SocialMedia
 from lily.tenant.middleware import get_current_user
@@ -87,7 +89,7 @@ class UserProfileForm(HelloLilyModelForm):
     def clean_picture(self):
         picture = self.cleaned_data['picture']
 
-        if picture and picture.size > 300 * 1024:
+        if picture and picture.size > settings.MAX_AVATAR_SIZE:
             raise ValidationError(_('File too large. Size should not exceed 300 KB.'), code='invalid')
 
         return picture

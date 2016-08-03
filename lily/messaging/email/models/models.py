@@ -63,16 +63,17 @@ def get_outbox_attachment_upload_path(instance, filename):
 
 class EmailAccount(TenantMixin, DeletedMixin):
     """
-    Email Account linked to a user
+    Email Account linked to a user.
     """
     email_address = models.EmailField(max_length=254)
     from_name = models.CharField(max_length=254, default='')
     label = models.CharField(max_length=254, default='')
     is_authorized = models.BooleanField(default=False)
 
-    # History id is a field to keep track of the sync status of a gmail box
+    # History id is a field to keep track of the sync status of a gmail box.
     history_id = models.BigIntegerField(null=True)
     temp_history_id = models.BigIntegerField(null=True)
+    first_sync_finished = models.BooleanField(default=False)
 
     owner = models.ForeignKey(LilyUser, related_name='email_accounts_owned')
     shared_with_users = models.ManyToManyField(

@@ -37,6 +37,9 @@
             <li class="list-group-item" ng-repeat="variable in vm.publicTemplateVariables">
                 {{ variable.name }}
                 <span class="pull-right">
+                    <a ui-sref="base.preferences.templatevariables.edit({id: variable.id})" class="btn btn-xs default">
+                        <span><i class="lilicon hl-edit-icon"></i> Edit</span>
+                    </a>
                     <a ng-click="vm.previewTemplateVariable(variable)" class="btn btn-xs default">
                         <span><i class="fa fa-eye"></i> Preview</span>
                     </a>

@@ -121,10 +121,10 @@
                         {{ deal.assigned_to.full_name }}
                     </td>
                     <td ng-show="vm.table.visibility.amountOnce">
-                        {{ deal.amount_once |currency:'&euro; ' }}
+                        <span ng-bind-html="deal.amount_once | currencySymbol:deal.currency"></span>
                     </td>
                     <td ng-show="vm.table.visibility.amountRecurring">
-                        {{ deal.amount_recurring |currency:'&euro; ' }}
+                        <span ng-bind-html="deal.amount_recurring | currencySymbol:deal.currency"></span>
                     </td>
                     <td ng-show="vm.table.visibility.newBusiness">
                         <span ng-if="deal.new_business">New</span>

@@ -41,7 +41,7 @@ class ContactTests(GenericAPITestCase):
                 obj.social_media.add(SocialMediaFactory(tenant=obj.tenant))
                 obj.addresses.add(AddressFactory(tenant=obj.tenant))
                 obj.email_addresses.add(EmailAddressFactory(tenant=obj.tenant))
-                obj.functions.add(FunctionFactory(tenant=obj.tenant, contact=obj))
+                obj.functions.add(FunctionFactory(contact=obj))
                 obj.tags.add(TagFactory(tenant=obj.tenant, subject=obj))
 
         if size > 1:

@@ -42,11 +42,13 @@ class ContactWithEmailFactory(ContactFactory):
 
 
 class FunctionFactory(DjangoModelFactory):
+    tenant = SubFactory(TenantFactory)
     contact = SubFactory(ContactFactory, tenant=SelfAttribute('..tenant'))
     account = SubFactory(AccountFactory, tenant=SelfAttribute('..tenant'))
 
     class Meta:
         model = Function
+        exclude = ('tenant',)  # Tenant is a field because of the relations, but not because a function has a tenant.
 
 
 class ContactWithAccountFactory(ContactWithEmailFactory):

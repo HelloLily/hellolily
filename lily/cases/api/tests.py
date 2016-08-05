@@ -52,10 +52,12 @@ class CaseTests(GenericAPITestCase):
                 del obj['account']['tenant']
                 del obj['contact']['tenant']
                 del obj['assigned_to']['tenant']
+                del obj['created_by']
             else:
                 # Delete the related objects, since they can't be serialized.
                 del obj['account']
                 del obj['assigned_to']
+                del obj['created_by']
 
             object_list.append(obj)
 

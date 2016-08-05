@@ -18,9 +18,16 @@ class LilyUserSerializer(serializers.ModelSerializer):
             'preposition',
             'last_name',
             'full_name',
+            'email',
             'primary_email_account',
             'position',
             'profile_picture',
+            'is_active',
+            'phone_number',
+            'social_media',
+            'language',
+            'timezone',
+            'lily_groups',
         )
 
 

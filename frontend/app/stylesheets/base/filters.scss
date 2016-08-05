@@ -6,7 +6,8 @@
     }
 }
 
-.due-date-filter-toggle {
+.due-date-filter-toggle ,
+.user-status-filter-toggle {
     display: none;
 
     i:first-child {
@@ -39,7 +40,8 @@
     }
 }
 
-.due-date-filter-container {
+.due-date-filter-container,
+.user-status-filter-container {
     display: inline;
 
     @media (max-width: $breakpoint-tablet) {

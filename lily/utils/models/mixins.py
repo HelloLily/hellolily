@@ -20,7 +20,7 @@ class DeletedMixin(TimeStampedModel):
 
     def delete(self, using=None, hard=False):
         """
-        Soft delete instance by flagging is_deleted as False.
+        Soft delete instance by flagging is_deleted as True.
 
         Arguments:
             using (str): which db to use

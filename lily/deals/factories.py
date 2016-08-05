@@ -7,6 +7,7 @@ from factory.fuzzy import FuzzyDecimal, FuzzyChoice, FuzzyDate
 from faker.factory import Factory
 
 from lily.accounts.factories import AccountFactory
+from lily.contacts.factories import ContactFactory
 from lily.users.factories import LilyUserFactory
 from lily.tenant.factories import TenantFactory
 
@@ -116,6 +117,7 @@ class DealStatusFactory(DjangoModelFactory):
 class DealFactory(DjangoModelFactory):
     tenant = SubFactory(TenantFactory)
     account = SubFactory(AccountFactory, tenant=SelfAttribute('..tenant'))
+    contact = SubFactory(ContactFactory, tenant=SelfAttribute('..tenant'))
     amount_once = FuzzyDecimal(42.7)
     amount_recurring = FuzzyDecimal(42.7)
     assigned_to = SubFactory(LilyUserFactory, tenant=SelfAttribute('..tenant'))
@@ -131,13 +133,7 @@ class DealFactory(DjangoModelFactory):
     status = SubFactory(DealStatusFactory, tenant=SelfAttribute('..tenant'))
     twitter_checked = FuzzyChoice([True, False])
     why_customer = SubFactory(DealWhyCustomerFactory, tenant=SelfAttribute('..tenant'))
-    why_lost = None
-
-    @post_generation
-    def why_lost(self, create, extracted, **kwargs):
-        # If a deal was created with the 'Lost' status we want to set a lost reason.
-        if self.status.name == 'Lost':
-            self.why_lost = DealWhyLostFactory(tenant=self.tenant)
+    why_lost = SubFactory(DealWhyLostFactory, tenant=SelfAttribute('..tenant'))
 
     class Meta:
         model = Deal

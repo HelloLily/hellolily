@@ -29,6 +29,12 @@ function HLMessages() {
             assignTo: {
                 questionText: 'Assign this case to yourself?',
             },
+            deactivateUser: {
+                confirmText: 'You are about to deactivate <strong>%(name)s</strong>.<br />You won\'t be able to revert this!',
+                confirmButtonText: 'Yes, deactivate him/her!',
+                successTitle: 'Deactivated!',
+                successText: '<strong>%(name)s</strong> has been deactivated.',
+            },
         },
     };
 }

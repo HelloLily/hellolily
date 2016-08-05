@@ -14,8 +14,8 @@ import dj_database_url
 # Provide a dummy translation function without importing it from
 # django.utils.translation, because that module is depending on
 # settings itself possibly resulting in a circular import
-
-gettext_noop = lambda s: s
+def gettext_noop(s):
+    return s
 
 # Don't share this with anybody
 SECRET_KEY = os.environ.get('SECRET_KEY', 'my-secret-key')
@@ -24,11 +24,15 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'my-secret-key')
 uses_netloc.append('postgres')
 uses_netloc.append('redis')
 
+
 # Turn 0 or 1 into False/True respectively
-boolean = lambda value: bool(int(value))
+def boolean(value):
+    return bool(int(value))
+
 
 # Get local path for any given folder/path
-local_path = lambda path: os.path.join(os.path.dirname(__file__), os.pardir, path)
+def local_path(path):
+    return os.path.join(os.path.dirname(__file__), os.pardir, path)
 
 #######################################################################################################################
 # DJANGO CONFIG                                                                                                       #
@@ -440,7 +444,12 @@ if USE_LOGGING:
                 'handlers': ['email_errors_temp_handler'],
                 'level': 'INFO',
                 'propagate': False,
-            }
+            },
+            'urllib3.connectionpool': {
+                'handlers': ['console'],
+                'level': 'WARNING',
+                'propagate': False,
+            },
         }
     }
 else:

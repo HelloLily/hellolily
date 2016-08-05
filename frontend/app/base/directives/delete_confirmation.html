@@ -1,1 +1,4 @@
-<button class="btn" ng-class="vm.buttonClass" ng-click="vm.openConfirmationModal()" title="Delete"><i class="lilicon hl-trashcan-icon font-size-18"></i><ng-transclude></ng-transclude></button>
+<button class="btn" ng-class="vm.buttonClass" ng-click="vm.openConfirmationModal()" ng-attr-title="{{ vm.helpText }}">
+    <i ng-class="vm.iconClass"></i>
+    <ng-transclude></ng-transclude>
+</button>

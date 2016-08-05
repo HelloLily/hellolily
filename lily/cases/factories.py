@@ -10,6 +10,7 @@ from faker.factory import Factory
 from lily.accounts.factories import AccountFactory
 from lily.tenant.factories import TenantFactory
 from lily.users.factories import LilyUserFactory
+from lily.users.models import LilyGroup
 
 from .models import Case, CaseStatus, CaseType
 
@@ -66,6 +67,7 @@ class CaseFactory(DjangoModelFactory):
     expires = FuzzyDate(datetime.date(2015, 1, 1), datetime.date(2016, 1, 1))
     assigned_to = SubFactory(LilyUserFactory, tenant=SelfAttribute('..tenant'))
     type = SubFactory(CaseTypeFactory, tenant=SelfAttribute('..tenant'))
+    created_by = SelfAttribute('.assigned_to')
 
     @factory.post_generation
     def groups(self, create, extracted, **kwargs):
@@ -74,9 +76,13 @@ class CaseFactory(DjangoModelFactory):
             return
 
         if extracted:
-            # A list of groups were passed in, use them
-            for group in extracted:
-                self.assigned_to_groups.add(group)
+            if isinstance(extracted, LilyGroup):
+                # A single group was passed in, use that.
+                self.assigned_to_groups.add(extracted)
+            else:
+                # A list of groups were passed in, use them.
+                for group in extracted:
+                    self.assigned_to_groups.add(group)
 
     class Meta:
         model = Case

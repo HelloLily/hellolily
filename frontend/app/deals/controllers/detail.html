@@ -82,11 +82,17 @@
                                 </tr>
                                 <tr>
                                     <td><strong>One-time-cost</strong></td>
-                                    <td><span editable-text="vm.deal.amount_once" onbeforesave="vm.updateModel($data, 'amount_once')" blur="submit">{{ vm.deal.amount_once | currency:"€" }}</span></td>
+                                    <td>
+                                        <span editable-text="vm.deal.amount_once" onbeforesave="vm.updateModel($data, 'amount_once')" blur="submit"></span>
+                                        <span ng-bind-html="vm.deal.amount_once | currencySymbol:vm.deal.currency"></span>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td><strong>Recurring costs</strong></td>
-                                    <td><span editable-text="vm.deal.amount_recurring" onbeforesave="vm.updateModel($data, 'amount_recurring')" blur="submit">{{ vm.deal.amount_recurring | currency:"€" }}</span></td>
+                                    <td>
+                                        <span editable-text="vm.deal.amount_recurring" onbeforesave="vm.updateModel($data, 'amount_recurring')" blur="submit"></span>
+                                        <span ng-bind-html="vm.deal.amount_recurring | currencySymbol:vm.deal.currency"></span>
+                                    </td>
                                 </tr>
 
                                 <tr ng-if="vm.deal.why_lost">

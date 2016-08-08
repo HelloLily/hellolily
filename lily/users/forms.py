@@ -18,9 +18,8 @@ class CustomAuthenticationForm(AuthenticationForm):
     """
 
     error_messages = {
-        'invalid_login': _("Please enter a correct email address and password. "
-                           "Note that both fields are case-sensitive."),
-        'no_cookies': _("Your Web browser doesn't appear to have cookies "
+        'invalid_login': _("Please enter a correct email address and password."),
+        'no_cookies': _("Your web browser doesn't appear to have cookies "
                         "enabled. Cookies are required for logging in."),
         'inactive': _("This account is inactive."),
     }
@@ -168,6 +167,7 @@ class RegistrationForm(HelloLilyForm):
         label=_('Password'),
         min_length=6,
         widget=PasswordStrengthInput(),
+        help_text='Password should be at least 6 characters long.',
     )
     password_repeat = forms.CharField(
         label=_('Confirm password'),
@@ -176,9 +176,7 @@ class RegistrationForm(HelloLilyForm):
     )
 
     first_name = forms.CharField(label=_('First name'), max_length=255)
-    preposition = forms.CharField(label=_('Preposition'), max_length=100, required=False)
     last_name = forms.CharField(label=_('Last name'), max_length=255)
-    position = forms.CharField(label=_('Position'), max_length=255, required=False)
 
     def clean_email(self):
         if LilyUser.objects.filter(email__iexact=self.cleaned_data['email']).exists():

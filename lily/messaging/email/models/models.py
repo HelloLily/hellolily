@@ -361,7 +361,7 @@ class DefaultEmailTemplate(models.Model):
         app_label = 'email'
         verbose_name = _('default email template')
         verbose_name_plural = _('default email templates')
-        unique_together = ('user', 'account')
+        unique_together = ('user', 'account', 'template')
 
 
 class EmailTemplateAttachment(TenantMixin):

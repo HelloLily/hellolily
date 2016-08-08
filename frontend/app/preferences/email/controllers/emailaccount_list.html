@@ -19,7 +19,7 @@
                         <a class="btn btn-xs default" title="Just manage it" ui-sref="base.preferences.emailaccounts.edit({id: account.id})">
                             <i class="lilicon hl-edit-icon"></i>
                         </a>
-                        <delete-confirmation model="EmailAccount" object="account" display-field="label" callback="vm.loadAccounts()" button-class="btn-xs"></delete-confirmation>
+                        <delete-confirmation model="EmailAccount" object="account" display-field="label" callback="vm.loadAccounts()" button-class="btn-xs default"></delete-confirmation>
                     </span>
 
                     <a ng-if="!account.is_authorized" href="/messaging/email/setup/" class="notification-inline">

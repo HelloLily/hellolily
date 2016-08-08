@@ -323,7 +323,7 @@ class SendInvitationView(FormSetView):
         return the success url and set a succes message.
         """
         messages.success(self.request, _('I did it! I\'ve sent the invitations successfully.'))
-        return '/#/'
+        return '/#/preferences/company/users'
 
 
 class AcceptInvitationView(FormView):
@@ -438,9 +438,7 @@ class AcceptInvitationView(FormView):
         user = LilyUser()
         user.email = self.email
         user.first_name = form.cleaned_data['first_name']
-        user.preposition = form.cleaned_data['preposition']
         user.last_name = form.cleaned_data['last_name']
-        user.position = form.cleaned_data['position']
         user.set_password(form.cleaned_data['password'])
         user.tenant_id = self.tenant_id
         user.save()

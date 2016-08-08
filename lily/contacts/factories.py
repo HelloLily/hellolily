@@ -48,8 +48,7 @@ class FunctionFactory(DjangoModelFactory):
 
     class Meta:
         model = Function
-        exclude = ('tenant',)
-        django_get_or_create = ('contact', 'account', )
+        exclude = ('tenant',)  # Tenant is a field because of the relations, but not because a function has a tenant.
 
 
 class ContactWithAccountFactory(ContactWithEmailFactory):

@@ -129,7 +129,7 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
                 notePromise.then(function(results) {
                     results.forEach(function(note) {
                         // Get user for notes to show profile picture correctly.
-                        User.get({id: note.author.id, show_inactive: true}, function(userObject) {
+                        User.get({id: note.author.id, is_active: 'All'}, function(userObject) {
                             note.author = userObject;
                         });
 
@@ -167,14 +167,14 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
                         response.objects.forEach(function(caseItem) {
                             // Get user object for the assigned to user.
                             if (caseItem.assigned_to) {
-                                User.get({id: caseItem.assigned_to.id, show_inactive: true}, function(userObject) {
+                                User.get({id: caseItem.assigned_to.id, is_active: 'All'}, function(userObject) {
                                     caseItem.assigned_to = userObject;
                                 });
                             }
 
                             if (caseItem.created_by) {
                                 // Get user object for the created by user.
-                                User.get({id: caseItem.created_by.id, show_inactive: true}, function(userObject) {
+                                User.get({id: caseItem.created_by.id, is_active: 'All'}, function(userObject) {
                                     caseItem.created_by = userObject;
                                 });
                             }
@@ -186,7 +186,7 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
                                 .$promise.then(function(notes) {
                                     angular.forEach(notes, function(note) {
                                         // Get user for notes to show profile picture correctly.
-                                        User.get({id: note.author.id, show_inactive: true}, function(author) {
+                                        User.get({id: note.author.id, is_active: 'All'}, function(author) {
                                             note.author = author;
                                         });
                                     });
@@ -203,14 +203,14 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
                         results.objects.forEach(function(deal) {
                             if (deal.assigned_to) {
                                 // Get user object for the assigned to user.
-                                User.get({id: deal.assigned_to.id, show_inactive: true}, function(userObject) {
+                                User.get({id: deal.assigned_to.id, is_active: 'All'}, function(userObject) {
                                     deal.assigned_to = userObject;
                                 });
                             }
 
                             if (deal.created_by) {
                                 // Get user object to show profile picture correctly.
-                                User.get({id: deal.created_by.id, show_inactive: true}, function(userObject) {
+                                User.get({id: deal.created_by.id, is_active: 'All'}, function(userObject) {
                                     deal.created_by = userObject;
                                 });
                             }
@@ -221,7 +221,7 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
                             }).$promise.then(function(notes) {
                                 angular.forEach(notes, function(note) {
                                     // Get user for notes to show profile picture correctly.
-                                    User.get({id: note.author.id, show_inactive: true}, function(author) {
+                                    User.get({id: note.author.id, is_active: 'All'}, function(author) {
                                         note.author = author;
                                     });
                                 });
@@ -249,7 +249,7 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
                         var emailMessageList = results[1];
 
                         emailMessageList.forEach(function(email) {
-                            User.search({filterquery: 'email:' + email.sender_email, show_inactive: true}).$promise.then(function(userResults) {
+                            User.search({filterquery: 'email:' + email.sender_email, is_active: 'All'}).$promise.then(function(userResults) {
                                 if (userResults.objects[0]) {
                                     email.profile_picture = userResults.objects[0].profile_picture;
                                 } else {

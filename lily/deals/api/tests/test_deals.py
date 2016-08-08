@@ -1,7 +1,7 @@
 from lily.accounts.factories import AccountFactory
 from lily.deals.api.serializers import DealSerializer
 from lily.deals.factories import DealFactory, DealWhyCustomerFactory, DealNextStepFactory, DealFoundThroughFactory, \
-    DealContactedByFactory, DealStatusFactory
+    DealContactedByFactory, DealStatusFactory, DealWhyLostFactory
 from lily.deals.models import Deal
 from lily.notes.factories import NoteFactory
 from lily.tags.factories import TagFactory
@@ -37,10 +37,12 @@ class DealTests(GenericAPITestCase):
         found_through = DealFoundThroughFactory(**kwargs)
         contacted_by = DealContactedByFactory(**kwargs)
         status = DealStatusFactory(**kwargs)
+        why_lost = DealWhyLostFactory(**kwargs)
 
         for iteration in range(0, size):
             obj = self.factory_cls.stub(**kwargs).__dict__
             del obj['tenant']
+            del obj['contact']
 
             # The minimum viable deal instance needs these relations, so always make them.
             obj['account'] = {
@@ -63,6 +65,9 @@ class DealTests(GenericAPITestCase):
             }
             obj['status'] = {
                 'id': status.pk,
+            }
+            obj['why_lost'] = {
+                'id': why_lost.pk,
             }
 
             if with_relations:

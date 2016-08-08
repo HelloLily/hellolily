@@ -13,6 +13,9 @@ function deleteConfirmation() {
             displayField: '@?',
             callback: '&?',
             buttonClass: '@?',
+            iconClass: '@?',
+            messageObject: '=?',
+            helpText: '@?',
         },
         templateUrl: 'base/directives/delete_confirmation.html',
         controller: DeleteConfirmationController,
@@ -36,6 +39,28 @@ function DeleteConfirmationController($state, HLMessages, HLResource, Settings) 
         if (!vm.buttonClass) {
             vm.buttonClass = '';
         }
+
+        if (!vm.iconClass) {
+            vm.iconClass = 'lilicon hl-trashcan-icon';
+        }
+
+        if (!vm.helpText) {
+            vm.helpText = 'Delete';
+        }
+
+        if (vm.messageObject) {
+            vm.messages = {
+                'confirmTitle': vm.messageObject.confirmTitle || HLMessages.alerts.delete.confirmTitle,
+                'confirmText': vm.messageObject.confirmText || HLMessages.alerts.delete.confirmText,
+                'confirmButtonText': vm.messageObject.confirmButtonText || HLMessages.alerts.delete.confirmButtonText,
+                'errorTitle': vm.messageObject.errorTitle || HLMessages.alerts.delete.errorTitle,
+                'errorText': vm.messageObject.errorText || HLMessages.alerts.delete.errorText,
+                'successTitle': vm.messageObject.successTitle || HLMessages.alerts.delete.successTitle,
+                'successText': vm.messageObject.successText || HLMessages.alerts.delete.successText,
+            };
+        } else {
+            vm.messages = HLMessages.alerts.delete;
+        }
     }
 
     function openConfirmationModal() {
@@ -50,12 +75,12 @@ function DeleteConfirmationController($state, HLMessages, HLResource, Settings) 
         }
 
         swal({
-            title: HLMessages.alerts.delete.confirmTitle,
-            html: sprintf(HLMessages.alerts.delete.confirmText, {name: name ? name : 'this ' + vm.model.toLowerCase()}),
+            title: vm.messages.confirmTitle,
+            html: sprintf(vm.messages.confirmText, {name: name ? name : 'this ' + vm.model.toLowerCase()}),
             type: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#f3565d',
-            confirmButtonText: HLMessages.alerts.delete.confirmButtonText,
+            confirmButtonText: vm.messages.confirmButtonText,
             preConfirm: function() {
                 swal.enableLoading();
                 return new Promise(function(resolve) {
@@ -65,8 +90,8 @@ function DeleteConfirmationController($state, HLMessages, HLResource, Settings) 
                     }, function(error) {
                         // Otherwise show error alert.
                         swal({
-                            title: HLMessages.alerts.delete.errorTitle,
-                            html: HLMessages.alerts.delete.errorText,
+                            title: vm.messages.errorTitle,
+                            html: vm.messages.errorText,
                             type: 'error',
                         });
                     });
@@ -75,8 +100,8 @@ function DeleteConfirmationController($state, HLMessages, HLResource, Settings) 
         }).then(function(isConfirm) {
             if (isConfirm) {
                 swal({
-                    title: HLMessages.alerts.delete.successTitle,
-                    html: sprintf(HLMessages.alerts.delete.successText, {model: vm.model.toLowerCase(), name: name}),
+                    title: vm.messages.successTitle,
+                    html: sprintf(vm.messages.successText, {model: vm.model.toLowerCase(), name: name}),
                     type: 'success',
                 }).then(function() {
                     // In certain cases we want to call a function of another controller.

@@ -55,7 +55,7 @@
         </div>
 
         <div class="content-details history-item-body" ng-show="vm.item.shown">
-            <p class="detail-plain-text" ng-bind-html="vm.item.body | parseUrls"></p>
+            <p class="detail-plain-text" ng-bind-html="vm.item.body"></p>
 
             <ul class="content-details-actions">
                 <li><a ui-sref="base.email.detail({id: vm.item.id})"><i class="fa fa-eye"></i> View</a></li>

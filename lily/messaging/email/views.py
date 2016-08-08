@@ -907,31 +907,16 @@ class EmailTemplateGetDefaultView(LoginRequiredMixin, View):
         account_id = kwargs.pop('account_id')
 
         try:
-            email_account = EmailAccount.objects.get(pk=account_id)
-        except EmailAccount.DoesNotExist:
-            raise Http404()
-        else:
+            default_email_template_id = DefaultEmailTemplate.objects.get(
+                user=request.user.pk,
+                account_id=account_id
+            ).pk
+        except DefaultEmailTemplate.DoesNotExist:
             default_email_template_id = None
 
-            try:
-                # Try to get the default template by user.
-                current_user = get_current_user()
-                default_email_template = email_account.default_templates.get(user_id=current_user.id)
-                default_email_template_id = default_email_template.template.id
-            except DefaultEmailTemplate.DoesNotExist:
-                try:
-                    # If nothing is found it's most likely because it was shared
-                    # and then set as default by the person it was shared with.
-                    # So try to get by email account.
-                    default_email_template = email_account.default_templates.get(account=email_account)
-                    default_email_template_id = default_email_template.template.id
-                except (DefaultEmailTemplate.MultipleObjectsReturned, DefaultEmailTemplate.DoesNotExist):
-                    # Still fails so just return nothing.
-                    pass
-
-            return HttpResponse(anyjson.serialize({
-                'template_id': default_email_template_id,
-            }), content_type='application/json')
+        return HttpResponse(anyjson.serialize({
+            'template_id': default_email_template_id,
+        }), content_type='application/json')
 
 
 class DetailEmailTemplateView(LoginRequiredMixin, DetailView):

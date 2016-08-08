@@ -18,7 +18,7 @@
     </div>
 </span>
 
-<form name="{{ er.formName }}" ng-show="er.formVisible" class="form-inline js-form-prolyfill">
+<form name="{{ er.formName }}" class="form-inline js-form-prolyfill" ng-if="er.formVisible">
     <div class="form-inline-section" ng-repeat="address in er.items">
         <div class="form-inline-input">
             <input class="form-control"

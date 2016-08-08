@@ -13,4 +13,11 @@ function HLCache(CacheFactory) {
         // Expired items will remain in the cache until requested, at which point they are removed.
         deleteOnExpire: 'passive',
     });
+
+    new CacheFactory('userCache', {
+        // Items added to this cache expire after 5 minutes.
+        maxAge: 5 * 60 * 1000,
+        // Expired items will remain in the cache until requested, at which point they are removed.
+        deleteOnExpire: 'passive',
+    });
 }

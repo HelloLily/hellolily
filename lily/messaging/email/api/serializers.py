@@ -135,12 +135,9 @@ class EmailTemplateSerializer(serializers.ModelSerializer):
             default_template, created = DefaultEmailTemplate.objects.get_or_create(
                 account_id=email_account_id,
                 user=self.context.get('request').user,
-                defaults={
-                    'template': instance,
-                }
             )
-            if not created:
-                # There was an existing default, so reroute it to this template instead.
+            if created or default_template.template is not instance:
+                # Make sure the default is alway this template instance.
                 default_template.template = instance
                 default_template.save()
 

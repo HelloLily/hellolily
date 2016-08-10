@@ -50,14 +50,14 @@ class GmailManager(object):
     def full_synchronize(self):
         message_ids = self.connector.get_all_message_id_list()
 
-        # Check for message_ids that are saved as non email messages
+        # Check for message_ids that are saved as non email messages.
         no_message_ids_in_db = set(
             NoEmailMessageId.objects.filter(
                 account=self.email_account
             ).values_list('message_id', flat='true')
         )
 
-        # Check for message_ids that are saved as email messages
+        # Check for message_ids that are saved as email messages.
         message_ids_in_db = set(
             EmailMessage.objects.filter(
                 account=self.email_account
@@ -68,10 +68,10 @@ class GmailManager(object):
         for i, message_dict in enumerate(message_ids):
             logger.debug('Check for existing messages, %s/%s' % (i, len(message_ids)))
             if message_dict['id'] in no_message_ids_in_db:
-                # Not an email, but chatmessage, skip
+                # Not an email, but chatmessage, skip.
                 pass
             elif message_dict['id'] not in message_ids_in_db:
-                # Message is new
+                # Message is new.
                 app.send_task(
                     'download_email_message',
                     args=[self.email_account.id, message_dict['id']],
@@ -79,17 +79,24 @@ class GmailManager(object):
                 )
 
             else:
-                # We only need to update the labels for this message
+                # We only need to update the labels for this message.
                 app.send_task(
                     'update_labels_for_message',
                     args=[self.email_account.id, message_dict['id']],
                     queue='email_first_sync'
                 )
 
-        self.connector.save_history_id()
+        # Finally, add a task to keep track when the sync queue is finished.
+        app.send_task(
+            'first_sync_finished',
+            args=[self.email_account.id],
+            queue='email_first_sync'
+        )
 
-        # Only if transaction was successful, we update the history ID
-        logger.debug('Finished syncing, storing history id for %s' % self.email_account.email_address)
+        self.connector.save_history_id()
+        # Only if transaction was successful, we update the history ID.
+        logger.debug('Finished queuing up tasks for email sync, storing history id for %s' %
+                     self.email_account.email_address)
 
     def download_message(self, message_id):
         """

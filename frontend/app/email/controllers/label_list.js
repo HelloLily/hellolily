@@ -6,6 +6,7 @@ function LabelListController($filter, $interval, $scope, $state, EmailAccount, p
     vm.accountList = [];
     vm.primaryEmailAccountId = primaryEmailAccountId;
     vm.labelCount = 0;
+    vm.firstAllSyncFinished = true;
 
     vm.hasUnreadLabel = hasUnreadLabel;
     vm.unreadCountForLabel = unreadCountForLabel;
@@ -52,6 +53,7 @@ function LabelListController($filter, $interval, $scope, $state, EmailAccount, p
             var labelCount = {};
             // Sort accounts on id.
             var orderedResults = $filter('orderBy')(results, 'id');
+            var finished = true;
 
             vm.accountList = [];
             // Make sure primary account is set first.
@@ -78,6 +80,15 @@ function LabelListController($filter, $interval, $scope, $state, EmailAccount, p
                 }
             }
             vm.labelCount = labelCount;
+
+            // Check if there is still one account syncing for the first time to set the global sync status.
+            for (i in vm.accountList) {
+                if (!vm.accountList[i].first_sync_finished) {
+                    finished = false;
+                    break;
+                }
+            }
+            vm.firstAllSyncFinished = finished;
         });
     }
 

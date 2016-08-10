@@ -162,6 +162,7 @@ function DealListController($filter, $scope, $timeout, Deal, HLFilters, LocalSto
                     value: 'next_step.id:' + nextStep.id,
                     selected: false,
                     position: nextStep.position,
+                    isSpecialFilter: true,
                 });
             });
 

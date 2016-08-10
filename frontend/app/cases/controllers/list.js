@@ -167,6 +167,7 @@ function CaseListController($filter, $scope, $state, $timeout, $uibModal, Case, 
                     name: caseType.name,
                     value: 'type.id:' + caseType.id,
                     selected: false,
+                    isSpecialFilter: true,
                 });
             });
 

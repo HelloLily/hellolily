@@ -910,7 +910,7 @@ class EmailTemplateGetDefaultView(LoginRequiredMixin, View):
             default_email_template_id = DefaultEmailTemplate.objects.get(
                 user=request.user.pk,
                 account_id=account_id
-            ).pk
+            ).template_id
         except DefaultEmailTemplate.DoesNotExist:
             default_email_template_id = None
 

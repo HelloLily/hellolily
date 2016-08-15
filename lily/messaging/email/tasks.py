@@ -92,6 +92,30 @@ def first_synchronize_email_account(account_id):
             manager.cleanup()
 
 
+@task(name='first_sync_finished', logger=logger)
+def first_sync_finished(account_id):
+    """
+    Mark the email account as finished syncing for the first time.
+
+    Args:
+        account_id (int): id of the EmailAccount
+    """
+    try:
+        email_account = EmailAccount.objects.get(pk=account_id, is_deleted=False)
+    except EmailAccount.DoesNotExist:
+        logger.warning('EmailAccount no longer exists: %s', account_id)
+    else:
+        manager = GmailManager(email_account)
+        try:
+            logger.debug('Finished first email sync for: %s', email_account)
+            email_account.first_sync_finished = True
+            email_account.save()
+        except Exception:
+            logger.exception('Could not update first_sync_finished flag for account %s' % email_account)
+        finally:
+            manager.cleanup()
+
+
 @task(name='download_email_message', logger=logger, acks_late=True, bind=True)
 def download_email_message(self, account_id, message_id):
     """

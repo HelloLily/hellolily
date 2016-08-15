@@ -87,21 +87,21 @@ class OAuth2Callback(LoginRequiredMixin, View):
             return HttpResponseBadRequest()
         credentials = FLOW.step2_exchange(code=request.GET.get('code'))
 
-        # Setup service to retrieve email address
+        # Setup service to retrieve email address.
         service = build_gmail_service(credentials)
         profile = service.users().getProfile(userId='me').execute()
 
-        # Create account based on email address
+        # Create account based on email address.
         account, created = EmailAccount.objects.get_or_create(
             owner=request.user,
             email_address=profile.get('emailAddress')
         )
 
-        # Store credentials based on new email account
+        # Store credentials based on new email account.
         storage = Storage(GmailCredentialsModel, 'id', account, 'credentials')
         storage.put(credentials)
 
-        # Set account as authorized
+        # Set account as authorized.
         account.is_authorized = True
         account.is_deleted = False
 
@@ -116,6 +116,7 @@ class OAuth2Callback(LoginRequiredMixin, View):
         if only_sync_new_mails and created:
             # Setting it before the first sync means it will only fetch changes starting now.
             account.history_id = profile.get('historyId')
+            account.first_sync_finished = True
 
         account.save()
 

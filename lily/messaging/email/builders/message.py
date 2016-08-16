@@ -409,13 +409,14 @@ class MessageBuilder(object):
             email_address = email.utils.parseaddr(recipient)
 
             if email_address[1] == '':
-                # Log empty recipient email addresses
-                logger.warning('Empty email address for recipient: %s \n %s \n %s \n %s' % (
-                    header_name,
-                    header_value,
-                    recipient,
-                    email_address
-                ))
+                if email_address[0] != '':  # Only log if there is a name but no email.
+                    # Log empty recipient email addresses
+                    logger.warning('Empty email address for recipient: "%s" & "%s" & "%s" & "%s"' % (
+                        header_name,
+                        header_value,
+                        recipient,
+                        email_address
+                    ))
             else:
                 recipient = Recipient.objects.get_or_create(
                     name=email_address[0],

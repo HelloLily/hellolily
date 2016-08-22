@@ -11,7 +11,8 @@ RUN apt-get update && apt-get install -y \
     libncurses5-dev \
     rsync \
     nodejs \
-    npm
+    npm \
+    libjpeg8-dev
 
 RUN useradd docker
 RUN echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers

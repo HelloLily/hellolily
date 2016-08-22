@@ -10,7 +10,6 @@ def fix_multiple_default_templates(apps, schema_editor):
     User = apps.get_model('users', 'LilyUser')
     DefaultEmailTemplate = apps.get_model('email', 'DefaultEmailTemplate')
 
-    print('\nFixing default template for the following users:')
     for user in User.objects.all():
         templates = DefaultEmailTemplate.objects.filter(user=user.pk).order_by('id')
         if templates.count() > 1:
@@ -19,8 +18,6 @@ def fix_multiple_default_templates(apps, schema_editor):
             # So remove all except the last one.
             template_to_keep = templates.last()
             templates.exclude(id=template_to_keep.id).delete()
-
-            print('%d:\t%s' % (user.pk, user.email))
 
 
 class Migration(migrations.Migration):

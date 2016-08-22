@@ -2,7 +2,7 @@
 ### Base & Server                                   ###
 #######################################################
 
-Django==1.7.9
+Django==1.7.11
 django-appconf==1.0.1
 django-extensions==1.6.3
 django-filter==0.10.0
@@ -61,7 +61,7 @@ django-pipeline==1.5.2
 futures==3.0.5
 django-statici18n==1.1.3
 django-storages==1.4
-Pillow==2.9.0
+Pillow==3.3.1
 
 #######################################################
 ### Celery & Email                                  ###
@@ -85,7 +85,7 @@ kombu==3.0.33
 lxml==3.4.4  # Old version is: 3.2.3, on max install with: STATIC_DEPS=true pip install lxml, because they can't code properly
 pyasn1==0.1.9
 pyasn1-modules==0.0.8
-rsa==3.3
+rsa==3.4.2
 uritemplate==0.6
 
 #######################################################
@@ -149,5 +149,5 @@ backports.ssl-match-hostname==3.5.0.1
 pathtools==0.1.2
 singledispatch==3.4.0.3
 snowballstemmer==1.2.1
-tornado==4.2
+tornado==4.4.1
 watchdog==0.8.3

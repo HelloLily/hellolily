@@ -224,7 +224,7 @@ class EmailMessage(models.Model):
 
     @property
     def is_starred(self):
-        return self.labels.filter(label_id=settings.GMAIL_LABEL_STARRED).count() == 1
+        return self.labels.filter(label_id=settings.GMAIL_LABEL_STAR).count() == 1
 
     @property
     def is_draft(self):

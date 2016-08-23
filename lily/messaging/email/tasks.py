@@ -515,13 +515,14 @@ def toggle_star_email_message(email_id, star=True):
             manager.cleanup()
 
 
-@task(name='mark_message_as_spam', logger=logger)
-def mark_message_as_spam(email_id):
+@task(name='toggle_spam_email_message', logger=logger)
+def toggle_spam_email_message(email_id, spam=True):
     """
-    Mark message as spam.
+    (Un)mark message as spam.
 
     Args:
         email_id (int): id of the EmailMessage
+        spam (boolean, optional): if True, message will be marked as spam
     """
     try:
         email_message = EmailMessage.objects.get(pk=email_id)
@@ -530,8 +531,8 @@ def mark_message_as_spam(email_id):
     else:
         manager = GmailManager(email_message.account)
         try:
-            logger.debug('Marking message as spam: %s', email_message)
-            manager.mark_email_message_as_spam(email_message)
+            logger.debug('Toggle spam label for message: %s', email_message)
+            manager.toggle_spam_email_message(email_message, spam)
         except Exception:
             logger.exception('Failed marking as spam: %s', email_message)
         finally:

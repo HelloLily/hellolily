@@ -85,6 +85,15 @@ class OAuth2Callback(LoginRequiredMixin, View):
 
         if not validate_token(settings.SECRET_KEY, state.get('token'), request.user.pk):
             return HttpResponseBadRequest()
+
+        error = request.GET.get('error')
+        if error:
+            messages.error(
+                self.request,
+                _('Sorry, Lily needs authorization from Google to synchronize your email account.')
+            )
+            return HttpResponseRedirect('/#/preferences/emailaccounts')
+
         credentials = FLOW.step2_exchange(code=request.GET.get('code'))
 
         # Setup service to retrieve email address.
@@ -1055,12 +1064,7 @@ class CreateTemplateVariableView(CreateUpdateTemplateVariableMixin, CreateView):
 
 class UpdateTemplateVariableView(CreateUpdateTemplateVariableMixin, UpdateView):
     def get_object(self, queryset=None):
-        """
-        A user is only able to edit accounts he owns.
-        """
         template_variable = super(UpdateTemplateVariableView, self).get_object(queryset=queryset)
-        if not template_variable.owner == self.request.user and not template_variable.is_public:
-            raise Http404()
 
         return template_variable
 

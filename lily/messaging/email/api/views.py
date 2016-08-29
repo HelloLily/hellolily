@@ -17,7 +17,7 @@ from .serializers import (EmailLabelSerializer, EmailAccountSerializer, EmailMes
 from ..models.models import (EmailLabel, EmailAccount, EmailMessage, EmailTemplate, SharedEmailConfig,
                              TemplateVariable)
 from ..tasks import (trash_email_message, delete_email_message, archive_email_message, toggle_read_email_message,
-                     add_and_remove_labels_for_message, toggle_star_email_message, mark_message_as_spam)
+                     add_and_remove_labels_for_message, toggle_star_email_message, toggle_spam_email_message)
 
 
 logger = logging.getLogger(__name__)
@@ -230,10 +230,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         email = self.get_object()
         serializer = self.get_serializer(email, partial=True)
 
-        if request.data['starred']:
-            toggle_star_email_message.delay(email.id, star=True)
-        else:
-            toggle_star_email_message.delay(email.id, star=False)
+        toggle_star_email_message.delay(email.id, star=request.data['starred'])
 
         return Response(serializer.data)
 
@@ -242,17 +239,16 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         """
         Any modifications are passed through the manager and not directly on the db.
 
-        Mark as spam will happen async.
+        Mark / unmark as spam will happen async.
         """
         email = self.get_object()
 
-        # Make sure emails are removed instantly from the email list.
-        email.is_removed = True
+        # Make sure emails are removed / shown instantly in the email list.
+        email.is_removed = request.data['markAsSpam']
         email.save()
         serializer = self.get_serializer(email, partial=True)
 
-        if not email.is_spam:
-            mark_message_as_spam.delay(email.id)
+        toggle_spam_email_message.delay(email.id, spam=request.data['markAsSpam'])
 
         return Response(serializer.data)
 

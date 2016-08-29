@@ -359,18 +359,23 @@ class GmailManager(object):
         else:
             self.add_and_remove_labels_for_message(email_message, add_labels=[settings.GMAIL_LABEL_UNREAD])
 
-    def mark_email_message_as_spam(self, email_message):
+    def toggle_spam_email_message(self, email_message, spam=True):
         """
-        Mark message as spam.
+        (Un)mark a message as spam.
 
         Args:
             email_message(instance): EmailMessage instance
+            spam (bool, optional): If True, mark the message as spam
         """
-        add_labels = [settings.GMAIL_LABEL_SPAM]
+        add_labels = []
         remove_labels = []
 
-        for label in email_message.labels.all():
-            remove_labels.append(label.name)
+        if spam:
+            add_labels = [settings.GMAIL_LABEL_SPAM]
+            for label in email_message.labels.all():
+                remove_labels.append(label.name)
+        else:
+            remove_labels = [settings.GMAIL_LABEL_SPAM]
 
         self.add_and_remove_labels_for_message(email_message, add_labels, remove_labels)
 

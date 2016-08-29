@@ -530,7 +530,8 @@ class CreateUpdateTemplateVariableForm(HelloLilyModelForm):
         # Convert \n to <br>
         instance.text = linebreaksbr(instance.text.strip())
 
-        instance.owner = get_current_user()
+        if not instance.owner_id:
+            instance.owner = get_current_user()
 
         if commit:
             instance.save()

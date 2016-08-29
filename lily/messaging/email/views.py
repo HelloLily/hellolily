@@ -1064,12 +1064,7 @@ class CreateTemplateVariableView(CreateUpdateTemplateVariableMixin, CreateView):
 
 class UpdateTemplateVariableView(CreateUpdateTemplateVariableMixin, UpdateView):
     def get_object(self, queryset=None):
-        """
-        A user is only able to edit accounts he owns.
-        """
         template_variable = super(UpdateTemplateVariableView, self).get_object(queryset=queryset)
-        if not template_variable.owner == self.request.user and not template_variable.is_public:
-            raise Http404()
 
         return template_variable
 

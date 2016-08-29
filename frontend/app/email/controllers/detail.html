@@ -34,8 +34,10 @@
                     </a>
                 </li>
                 <li class="hl-dropdown-item">
-                    <a class="hl-dropdown-item-link" ng-click="vm.markAsSpam()">
-                        <i class="fa fa-envelope reply-btn"></i> Mark as spam
+                    <a class="hl-dropdown-item-link" ng-click="vm.toggleSpam()">
+                        <i class="fa fa-envelope reply-btn"></i>
+                        <span ng-if="!vm.message.is_spam">Mark as spam</span>
+                        <span ng-if="vm.message.is_spam">Unmark as spam</span>
                     </a>
                 </li>
             </ul>

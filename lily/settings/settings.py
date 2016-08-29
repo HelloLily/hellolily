@@ -562,7 +562,7 @@ GMAIL_LABEL_SPAM = os.environ.get('GMAIL_LABEL_SPAM', 'SPAM')
 GMAIL_LABEL_UNREAD = os.environ.get('GMAIL_LABEL_UNREAD', 'UNREAD')
 GMAIL_LABEL_SENT = os.environ.get('GMAIL_LABEL_SENT', 'SENT')
 GMAIL_LABEL_TRASH = os.environ.get('GMAIL_LABEL_TRASH', 'TRASH')
-GMAIL_LABEL_STARRED = os.environ.get('GMAIL_LABEL_STARRED', 'STARRED')
+GMAIL_LABEL_STAR = os.environ.get('GMAIL_LABEL_STAR', 'STARRED')
 GMAIL_LABEL_DRAFT = os.environ.get('GMAIL_LABEL_DRAFT', 'DRAFT')
 
 #######################################################################################################################

@@ -1651,9 +1651,6 @@ Page footer
 /***
 Theme Panel
 ***/
-.btn-theme-panel {
-  margin-top: 10px;
-}
 .btn-theme-panel .btn {
   opacity: 0.6;
   filter: alpha(opacity=60);

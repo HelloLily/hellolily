@@ -25,8 +25,7 @@
             <thead>
                 <tr>
                     <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
+                    <th>Contact information</th>
                 </tr>
             </thead>
 
@@ -34,6 +33,17 @@
                 <tr ng-repeat="contact in vm.list">
                     <td><a ui-sref="base.contacts.detail({id: contact.id})">{{ contact.full_name }}</a></td>
                     <td>
+                        <div ng-if="!contact.phone_numbers">
+                            <i class="lilicon hl-company-icon margin-right-5" uib-tooltip="{{ $root.messages.contact.accountListInfoTooltip }}"></i>
+                            <a href="tel:{{ vm.object.phone_numbers[0].number }}">{{ vm.object.phone_numbers[0].number }}</a>
+                        </div>
+
+                        <div ng-if="contact.phone_numbers">
+                            <a href="tel:{{ contact.phone_numbers[0].number }}">
+                                {{ contact.phone_numbers[0].number }}
+                            </a>
+                        </div>
+
                         <div ng-if="!contact.primary_email_address && vm.object.primary_email_address">
                             <i class="lilicon hl-company-icon margin-right-5" uib-tooltip="{{ $root.messages.contact.accountListInfoTooltip }}"></i>
                             <a ui-sref="base.email.composeEmail({email: vm.object.primary_email_address})">
@@ -41,21 +51,11 @@
                             </a>
                         </div>
 
-                        <a ui-sref="base.email.composeEmail({email: contact.primary_email_address })" ng-if="contact.primary_email_address">
-                            {{ contact.primary_email_address }}
-                        </a>
-                        <span ng-if="!contact.primary_email_address && !vm.object.primary_email_address">-</span>
-                    </td>
-                    <td>
-                        <div ng-if="!contact.phone_numbers">
-                            <i class="lilicon hl-company-icon margin-right-5" uib-tooltip="{{ $root.messages.contact.accountListInfoTooltip }}"></i>
-                            <a href="tel:{{ vm.object.phone_numbers[0].number }}">{{ vm.object.phone_numbers[0].number }}</a>
+                        <div>
+                            <a ui-sref="base.email.composeEmail({email: contact.primary_email_address })" ng-if="contact.primary_email_address">
+                                {{ contact.primary_email_address }}
+                            </a>
                         </div>
-
-                        <a href="tel:{{ contact.phone_numbers[0].number }}">
-                            {{ contact.phone_numbers[0].number }}
-                        </a>
-                        <span ng-if="!contact.phone_numbers.length && !vm.object.phone_numbers.length">-</span>
                     </td>
                 </tr>
                 <tr ng-hide="vm.list.length">

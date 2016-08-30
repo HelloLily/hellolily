@@ -48,62 +48,64 @@
     </div>
 
     <div class="portlet-body flip-scroll">
-        <table class="table table-bordered flip-content">
-            <thead class="flip-content">
-                <tr>
-                    <th ng-show="vm.table.visibility.full_name" sort-column="full_name" table="vm.table">
-                        <span class="text-nowrap">Name</span>
-                    </th>
-                    <th ng-show="vm.table.visibility.email" sort-column="email" table="vm.table">
-                        <span class="text-nowrap">Email</span>
-                    </th>
-                    <th ng-show="vm.table.visibility.phone_number" sort-column="phone_number" table="vm.table">
-                        <span class="text-nowrap">Phone number</span>
-                    </th>
-                    <th ng-show="vm.table.visibility.is_active" sort-column="is_active" table="vm.table" width="100px">
-                        <span class="text-nowrap">Status</span>
-                    </th>
-                    <th width="105px">
-                        <span class="text-nowrap">Options</span>
-                    </th>
-                </tr>
-            </thead>
+        <div class="scrollable-table-container">
+            <table class="table table-bordered flip-content">
+                <thead class="flip-content">
+                    <tr>
+                        <th ng-show="vm.table.visibility.full_name" sort-column="full_name" table="vm.table">
+                            <span class="text-nowrap">Name</span>
+                        </th>
+                        <th ng-show="vm.table.visibility.email" sort-column="email" table="vm.table">
+                            <span class="text-nowrap">Email</span>
+                        </th>
+                        <th ng-show="vm.table.visibility.phone_number" sort-column="phone_number" table="vm.table">
+                            <span class="text-nowrap">Phone number</span>
+                        </th>
+                        <th ng-show="vm.table.visibility.is_active" sort-column="is_active" table="vm.table" width="100px">
+                            <span class="text-nowrap">Status</span>
+                        </th>
+                        <th width="105px">
+                            <span class="text-nowrap">Options</span>
+                        </th>
+                    </tr>
+                </thead>
 
-            <tbody>
-            <tr ng-repeat="user in vm.table.items">
-                <td ng-show="vm.table.visibility.full_name">
-                    <span ng-if="user.id != currentUser.id">{{ user.full_name }}</span>
-                    <span ng-if="user.id == currentUser.id">{{ user.full_name }} (you)</span>
-                </td>
-                <td ng-show="vm.table.visibility.email">
-                    {{ user.email }}
-                </td>
-                <td ng-show="vm.table.visibility.phone_number">
-                    {{ user.phone_number }}
-                </td>
-                <td ng-show="vm.table.visibility.is_active">
-                    <span ng-show="user.is_active" class="label label-sm label-success">
-                        Active
-                    </span>
-                    <span ng-hide="user.is_active" class="label label-sm label-default">
-                        Inactive
-                    </span>
-                </td>
-                <td>
-                    <button class="btn base-icon" ng-click="vm.openGroupModal(user)" title="Manage groups">
-                        <i class="lilicon hl-entities-icon"></i>
-                    </button>
+                <tbody>
+                    <tr ng-repeat="user in vm.table.items">
+                        <td ng-show="vm.table.visibility.full_name">
+                            <span ng-if="user.id != currentUser.id">{{ user.full_name }}</span>
+                            <span ng-if="user.id == currentUser.id">{{ user.full_name }} (you)</span>
+                        </td>
+                        <td ng-show="vm.table.visibility.email">
+                            {{ user.email }}
+                        </td>
+                        <td ng-show="vm.table.visibility.phone_number">
+                            {{ user.phone_number }}
+                        </td>
+                        <td ng-show="vm.table.visibility.is_active">
+                            <span ng-show="user.is_active" class="label label-sm label-success">
+                                Active
+                            </span>
+                            <span ng-hide="user.is_active" class="label label-sm label-default">
+                                Inactive
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn base-icon" ng-click="vm.openGroupModal(user)" title="Manage groups">
+                                <i class="lilicon hl-entities-icon"></i>
+                            </button>
 
-                    <delete-confirmation ng-show="user.is_active && user.id != currentUser.id" model="User" object="user" message-object="vm.alertMessages" callback="vm.toggleStatus(user)" button-class="base-icon" icon-class="lilicon hl-entity-status-inactive-icon" help-text="Deactivate user">
-                    </delete-confirmation>
+                            <delete-confirmation ng-show="user.is_active && user.id != currentUser.id" model="User" object="user" message-object="vm.alertMessages" callback="vm.toggleStatus(user)" button-class="base-icon" icon-class="lilicon hl-entity-status-inactive-icon" help-text="Deactivate user">
+                            </delete-confirmation>
 
-                    <button ng-hide="user.is_active" class="btn base-icon" ng-click="vm.toggleStatus(user)" title="Activate">
-                        <i class="lilicon hl-entity-status-active-icon"></i>
-                    </button>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+                            <button ng-hide="user.is_active" class="btn base-icon" ng-click="vm.toggleStatus(user)" title="Activate">
+                                <i class="lilicon hl-entity-status-active-icon"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
     <hl-pagination values="vm.table"></hl-pagination>
 </div>

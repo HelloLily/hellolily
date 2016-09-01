@@ -39,6 +39,13 @@ def synchronize_email_account_scheduler():
                 default_retry_delay=100,
             )
 
+        logger.info('Adding task for label sync for: %s', email_account.email_address)
+        synchronize_labels.apply_async(
+            args=(email_account.pk,),
+            max_retries=1,
+            default_retry_delay=100,
+        )
+
 
 @task(name='synchronize_email_account', logger=logger)
 def synchronize_email_account(account_id):
@@ -53,20 +60,20 @@ def synchronize_email_account(account_id):
     except EmailAccount.DoesNotExist:
         logger.warning('EmailAccount no longer exists: %s', account_id)
         return False
-
-    if email_account.is_authorized:
-        manager = GmailManager(email_account)
-        try:
-            manager.sync_by_history()
-            logger.info('History page sync done for: %s', email_account)
-        except ManagerError:
-            pass
-        except Exception:
-            logger.exception('No sync for account %s' % email_account)
-        finally:
-            manager.cleanup()
     else:
-        logger.info('Not syncing, no authorization for: %s', email_account.email_address)
+        if email_account.is_authorized:
+            manager = GmailManager(email_account)
+            try:
+                manager.sync_by_history()
+                logger.info('History page sync done for: %s', email_account)
+            except ManagerError:
+                pass
+            except Exception:
+                logger.exception('No sync for account %s' % email_account)
+            finally:
+                manager.cleanup()
+        else:
+            logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
 
 
 @task(name='first_synchronize_email_account', logger=logger)
@@ -82,14 +89,17 @@ def first_synchronize_email_account(account_id):
     except EmailAccount.DoesNotExist:
         logger.warning('EmailAccount no longer exists: %s', account_id)
     else:
-        manager = GmailManager(email_account)
-        try:
-            logger.debug('First sync for: %s', email_account)
-            manager.full_synchronize()
-        except Exception:
-            logger.exception('No sync for account %s' % email_account)
-        finally:
-            manager.cleanup()
+        if email_account.is_authorized:
+            manager = GmailManager(email_account)
+            try:
+                logger.debug('First sync for: %s', email_account)
+                manager.full_synchronize()
+            except Exception:
+                logger.exception('No sync for account %s' % email_account)
+            finally:
+                manager.cleanup()
+        else:
+            logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
 
 
 @task(name='first_sync_finished', logger=logger)
@@ -105,15 +115,44 @@ def first_sync_finished(account_id):
     except EmailAccount.DoesNotExist:
         logger.warning('EmailAccount no longer exists: %s', account_id)
     else:
-        manager = GmailManager(email_account)
-        try:
-            logger.debug('Finished first email sync for: %s', email_account)
-            email_account.first_sync_finished = True
-            email_account.save()
-        except Exception:
-            logger.exception('Could not update first_sync_finished flag for account %s' % email_account)
-        finally:
-            manager.cleanup()
+        if email_account.is_authorized:
+            manager = GmailManager(email_account)
+            try:
+                logger.debug('Finished first email sync for: %s', email_account)
+                email_account.first_sync_finished = True
+                email_account.save()
+            except Exception:
+                logger.exception('Could not update first_sync_finished flag for account %s' % email_account)
+            finally:
+                manager.cleanup()
+        else:
+            logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
+
+
+@task(name='synchronize_labels', logger=logger)
+def synchronize_labels(account_id):
+    """
+    Synchronize the labels for the email account.
+
+    Args:
+        account_id (int): id of the EmailAccount
+    """
+    try:
+        email_account = EmailAccount.objects.get(pk=account_id, is_deleted=False)
+    except EmailAccount.DoesNotExist:
+        logger.warning('EmailAccount no longer exists: %s', account_id)
+    else:
+        if email_account.is_authorized:
+            manager = GmailManager(email_account)
+            try:
+                manager.sync_labels()
+                logger.debug('Label synchronize for: %s', email_account)
+            except Exception:
+                logger.exception('Could not synchronize labels for account %s' % email_account)
+            finally:
+                manager.cleanup()
+        else:
+            logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
 
 
 @task(name='download_email_message', logger=logger, acks_late=True, bind=True)
@@ -130,15 +169,18 @@ def download_email_message(self, account_id, message_id):
     except EmailAccount.DoesNotExist:
         logger.warning('EmailAccount no longer exists: %s', account_id)
     else:
-        manager = GmailManager(email_account)
-        try:
-            logger.debug('Fetch message %s for: %s' % (message_id, email_account))
-            manager.download_message(message_id)
-        except Exception as exc:
-            logger.exception('Fetch message %s for: %s failed' % (message_id, email_account))
-            raise self.retry(exc=exc)
-        finally:
-            manager.cleanup()
+        if email_account.is_authorized:
+            manager = GmailManager(email_account)
+            try:
+                logger.debug('Fetch message %s for: %s' % (message_id, email_account))
+                manager.download_message(message_id)
+            except Exception as exc:
+                logger.exception('Fetch message %s for: %s failed' % (message_id, email_account))
+                raise self.retry(exc=exc)
+            finally:
+                manager.cleanup()
+        else:
+            logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
 
 
 @task(name='update_labels_for_message', logger=logger, bind=True)
@@ -151,19 +193,22 @@ def update_labels_for_message(self, account_id, email_id):
         email_id (str): Google hash of their id
     """
     try:
-        account = EmailAccount.objects.get(pk=account_id)
+        email_account = EmailAccount.objects.get(pk=account_id, is_deleted=False)
     except EmailAccount.DoesNotExist:
         logger.warning('EmailAccount no longer exists: %s', email_id)
     else:
-        manager = GmailManager(account)
-        try:
-            logger.debug('Changing labels for: %s', email_id)
-            manager.update_labels_for_message(email_id)
-        except Exception as exc:
-            logger.exception('Failed changing labels for %s' % email_id)
-            raise self.retry(exc=exc)
-        finally:
-            manager.cleanup()
+        if email_account.is_authorized:
+            manager = GmailManager(email_account)
+            try:
+                logger.debug('Changing labels for: %s', email_id)
+                manager.update_labels_for_message(email_id)
+            except Exception as exc:
+                logger.exception('Failed changing labels for %s' % email_id)
+                raise self.retry(exc=exc)
+            finally:
+                manager.cleanup()
+        else:
+            logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
 
 
 @task(name='toggle_read_email_message', logger=logger, acks_late=True, bind=True)
@@ -323,8 +368,11 @@ def send_message(email_outbox_message_id, original_message_id=None):
         raise
 
     email_account = email_outbox_message.send_from
+    if not email_account.is_authorized:
+        logger.error('EmailAccount not authorized: %s', email_account)
+        return sent_success
 
-    # If we reply or forward, we want to add the thread_id
+    # If we reply or forward, we want to add the thread_id.
     original_message_thread_id = None
     if original_message_id:
         try:
@@ -334,7 +382,7 @@ def send_message(email_outbox_message_id, original_message_id=None):
         except EmailMessage.DoesNotExist:
             raise
 
-    # Add template attachments
+    # Add template attachments.
     if email_outbox_message.template_attachment_ids:
         template_attachment_id_list = email_outbox_message.template_attachment_ids.split(',')
         for template_attachment_id in template_attachment_id_list:
@@ -351,7 +399,7 @@ def send_message(email_outbox_message_id, original_message_id=None):
                 attachment.tenant_id = template_attachment.tenant_id
                 attachment.save()
 
-    #  Add attachment from original message (if mail is being forwarded)
+    # Add attachment from original message (if mail is being forwarded).
     if email_outbox_message.original_attachment_ids:
         original_attachment_id_list = email_outbox_message.original_attachment_ids.split(',')
         for attachment_id in original_attachment_id_list:
@@ -377,27 +425,25 @@ def send_message(email_outbox_message_id, original_message_id=None):
                 outbox_attachment.size = file.size
                 outbox_attachment.save()
 
-    if not email_account.is_authorized:
-        logger.error('EmailAccount not authorized: %s', email_account)
-    else:
-        manager = GmailManager(email_account)
-        try:
-            manager.send_email_message(email_outbox_message.message(), original_message_thread_id)
-            logger.debug('Message sent from: %s', email_account)
-            # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more
-            email_outbox_message.delete()
-            sent_success = True
-            # TODO: This should probably be moved to the front end once
-            # we can notify users about sent mails.
-            post_intercom_event(event_name='email-sent', user_id=email_account.owner.id)
-        except ManagerError as e:
-            logger.error(traceback.format_exc(e))
-            raise
-        except Exception as e:
-            logger.error(traceback.format_exc(e))
-            raise
-        finally:
-            manager.cleanup()
+    manager = GmailManager(email_account)
+    try:
+        manager.send_email_message(email_outbox_message.message(), original_message_thread_id)
+        logger.debug('Message sent from: %s', email_account)
+        # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more.
+        email_outbox_message.delete()
+        sent_success = True
+        # TODO: This should probably be moved to the front end once.
+        # We can notify users about sent mails.
+        post_intercom_event(event_name='email-sent', user_id=email_account.owner.id)
+    except ManagerError as e:
+        logger.error(traceback.format_exc(e))
+        raise
+    except Exception as e:
+        logger.error(traceback.format_exc(e))
+        raise
+    finally:
+        manager.cleanup()
+
     send_logger.info(
         'Done sending email_outbox_message: %d And sent_succes value: %s' % (email_outbox_message_id, sent_success)
     )

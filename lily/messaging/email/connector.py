@@ -176,7 +176,7 @@ class GmailConnector(object):
 
     def get_label_list(self):
         """
-        Fetch all labels from the email account
+        Fetch all labels from the email account.
 
         Returns:
             list with label info

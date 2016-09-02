@@ -18,6 +18,7 @@ angular.module('app', [
     'ncy-angular-breadcrumb',
     'xeditable',
     'angular-cache',
+    'ngFileUpload',
 
     // Modules
     'app.accounts',

@@ -43,7 +43,7 @@
                            ng-model="vm.account.name">
                 </form-group>
 
-                <form-group label-title="Description" label-icon="info" label-id="id_description" field="accountForm.description">
+                <form-group label-title="Description" label-id="id_description" field="accountForm.description">
                     <textarea class="form-control" cols="40" id="id_description" name="description" placeholder="Description" rows="3" ng-model="vm.account.description"></textarea>
                 </form-group>
 
@@ -61,11 +61,10 @@
                         <option value="" hidden>Select a status</option>
                     </select>
                 </form-group>
-
             </form-portlet>
 
             <form-portlet portlet-title="Who is handling the account?">
-                <form-group label-title="Assigned to" label-icon="child" label-id="id_assigned_to" field="accountForm.assigned_to">
+                <form-group label-title="Assigned to" label-id="id_assigned_to" field="accountForm.assigned_to">
                     <ui-select ng-model="vm.account.assigned_to" theme="select2" class="form-control" name="assigned_to">
                         <ui-select-match placeholder="Assign to...">{{ $select.selected.name }}</ui-select-match>
                         <ui-select-choices repeat="person.id as person in vm.people | propsFilter: {name: $select.search}">
@@ -103,14 +102,14 @@
 
             <form-portlet portlet-title="Tags">
                 <form-portlet-body>
-                    <form-group label-title="Tags" label-id="id_tags" label-icon="tags" field="accountForm.tags">
+                    <form-group label-title="Tags" label-id="id_tags" field="accountForm.tags">
                         <tag-input ng-if="vm.account" object="vm.account"></tag-input>
                     </form-group>
                 </form-portlet-body>
             </form-portlet>
 
             <form-portlet portlet-title="Social media">
-                <form-group label-title="Twitter" label-icon="twitter" label-id="twitter" field="accountForm.twitter">
+                <form-group label-title="Twitter" label-id="twitter" field="accountForm.twitter">
                     <div class="input-group">
                         <span class="input-group-addon">
                             <i class="fa fa-twitter"></i>

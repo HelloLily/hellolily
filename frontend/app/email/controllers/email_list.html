@@ -58,7 +58,7 @@
                                 <li class="hl-dropdown-item" ng-if="!vm.label.label_id == 'INBOX'">
                                     <a class="hl-dropdown-item-link" href="javascript:void(0)" ng-click="vm.moveMessages('INBOX')">Inbox</a>
                                 </li>
-                                <li class="hl-dropdown-item" ng-repeat="accountLabel in vm.account.labels" ng-if="accountLabel.label_type != 0 && accountLabel.label_id != vm.label.label_id">
+                                <li class="hl-dropdown-item" ng-repeat="accountLabel in vm.account.labels | orderBy:'name'" ng-if="accountLabel.label_type != 0 && accountLabel.label_id != vm.label.label_id">
                                     <a class="hl-dropdown-item-link" href="javascript:void(0)" ng-click="vm.moveMessages(accountLabel.label_id)">{{ accountLabel.name }}</a>
                                 </li>
                             </ul>

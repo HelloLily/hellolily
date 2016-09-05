@@ -199,9 +199,9 @@ class GmailManager(object):
         set_remove_labels = set_existing_labels.difference(set_api_labels)
         if len(set_remove_labels):
             remove_labels = EmailLabel.objects.filter(
-                            account=self.email_account,
-                            label_id__in=set_remove_labels
-                        )
+                account=self.email_account,
+                label_id__in=set_remove_labels
+            )
 
             if EmailMessage.objects.filter(account=self.email_account, labels=remove_labels).count() == 0:
                 # There are no emails attached, so remove the labels.

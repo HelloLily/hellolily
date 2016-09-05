@@ -75,5 +75,5 @@ class ArchivedMixin(models.Model):
     """
     is_archived = models.BooleanField(default=False)
 
-    class Meta():
+    class Meta:
         abstract = True

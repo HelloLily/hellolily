@@ -85,6 +85,17 @@
     }
 }
 
+.scrollable-table-container {
+    overflow-x: auto;
+    margin-bottom: 20px;
+    border: $app-border-color 1px solid;
+
+    .table {
+        margin-bottom: 0;
+        border: none !important;
+    }
+}
+
 .table-bordered {
     border-color: $app-border-color;
 

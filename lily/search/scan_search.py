@@ -28,9 +28,9 @@ class ModelMappings:
                         member = name_member[1]
                         # Check if we defined a mapping class. We shall exclude
                         # members of BaseMapping or MappingType itself.
-                        if (issubclass(member, MappingType)
-                                and member is not BaseMapping
-                                and member is not MappingType):
+                        if (issubclass(member, MappingType) and
+                                member is not BaseMapping and
+                                member is not MappingType):
                             mappings.append(member)
                 except:
                     pass

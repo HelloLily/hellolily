@@ -103,7 +103,7 @@
                            ng-model="vm.deal.amount_recurring" />
                 </form-group>
 
-                <form-group label-title="Freedom quote ID" label-id="id_quote_id" field="dealForm.quote_id">
+                <form-group label-title="Freedom quote ID" label-id="id_quote_id" ng-if="vm.tenant.isVoysNL()" field="dealForm.quote_id">
                         <input class="form-control"
                                id="id_quote_id"
                                maxlength="255"
@@ -183,7 +183,7 @@
 
             <form-portlet portlet-title="Tags">
                 <form-portlet-body>
-                    <form-group label-title="Tags" label-id="id_tags" label-icon="tags" field="dealForm.tags">
+                    <form-group label-title="Tags" label-id="id_tags" field="dealForm.tags">
                         <tag-input ng-if="vm.deal" object="vm.deal"></tag-input>
                     </form-group>
                 </form-portlet-body>

@@ -248,4 +248,10 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
             }
         }
     }
+
+    // Listen to Angular broadcast function on scope destroy.
+    $scope.$on('$destroy', function() {
+        // Properly destroy the rich text editor to prevent memory leaks.
+        HLInbox.destroyEditor();
+    });
 }

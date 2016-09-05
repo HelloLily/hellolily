@@ -15,7 +15,7 @@
                 <form-radio-buttons options="['Male', 'Female', 'Unknown/Other']" label-title="Gender" input-name="gender" required="true" field="vm.contact.gender" sidebar="settings.email.sidebar.form"></form-radio-buttons>
 
                 <div class="hl-form-field">
-                    <form-group label-title="Name" label-icon="building-o" required="true" ng-class="{'has-error': contactForm.last_name.$invalid}">
+                    <form-group label-title="Name" required="true" ng-class="{'has-error': contactForm.last_name.$invalid}">
                         <table class="hl-form-table">
                             <tbody>
                                 <tr>
@@ -54,7 +54,7 @@
                     </form-group>
                 </div>
 
-                <form-group label-title="Works at" label-icon="child" label-id="id_account" field="contactForm.accounts">
+                <form-group label-title="Works at" label-id="id_account" field="contactForm.accounts">
                     <ui-select multiple ng-model="vm.contact.accounts" theme="select2" class="form-control" name="accounts">
                         <ui-select-match placeholder="Select one or more account(s)">{{ $item.name }}</ui-select-match>
                         <ui-select-choices repeat="account in vm.accounts | filterItems:vm.contact.accounts" refresh="vm.refreshAccounts($select.search)" refresh-delay="150">
@@ -64,7 +64,7 @@
                     <span class="help-text text-muted">Please type at least 2 characters to begin the search</span>
                 </form-group>
 
-                <form-group label-title="Description" label-icon="info" label-id="id_description" field="contactForm.description">
+                <form-group label-title="Description" label-id="id_description" field="contactForm.description">
                     <textarea class="form-control" cols="40" id="id_description" name="description" placeholder="Description" rows="3" ng-model="vm.contact.description"></textarea>
                 </form-group>
             </form-portlet>
@@ -148,7 +148,7 @@
 
             <form-portlet portlet-title="Tags">
                 <form-portlet-body>
-                    <form-group label-title="Tags" label-id="id_tags" label-icon="tags" field="contactForm.tags">
+                    <form-group label-title="Tags" label-id="id_tags" field="contactForm.tags">
                         <tag-input ng-if="vm.contact" object="vm.contact"></tag-input>
                     </form-group>
                 </form-portlet-body>
@@ -156,7 +156,7 @@
 
             <form-portlet portlet-title="Social media">
                 <form-portlet-body>
-                    <form-group label-title="Twitter" label-icon="twitter" label-id="twitter" field="contactForm.twitter">
+                    <form-group label-title="Twitter" label-id="twitter" field="contactForm.twitter">
                         <div class="input-group">
                             <span class="input-group-addon">
                                 <i class="fa fa-twitter"></i>
@@ -170,7 +170,7 @@
                                    ng-model="vm.contact.twitter">
                         </div>
                     </form-group>
-                    <form-group label-title="LinkedIn" label-icon="linkedin" label-id="linkedin" field="contactForm.linkedin">
+                    <form-group label-title="LinkedIn" label-id="linkedin" field="contactForm.linkedin">
                         <div class="input-group">
                             <span class="input-group-addon">
                                 <i class="fa fa-linkedin"></i>

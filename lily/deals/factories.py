@@ -1,6 +1,5 @@
 import datetime
 
-from factory import post_generation
 from factory.declarations import SubFactory, LazyAttribute, SelfAttribute, Iterator, Sequence
 from factory.django import DjangoModelFactory
 from factory.fuzzy import FuzzyDecimal, FuzzyChoice, FuzzyDate

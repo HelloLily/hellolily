@@ -38,79 +38,81 @@
     </div>
 
     <div class="portlet-body flip-scroll">
-        <table class="table table-bordered flip-content">
-            <thead class="flip-content">
-                <tr>
-                    <th ng-show="vm.table.visibility.name" sort-column="name" table="vm.table" class="width-22">
-                        <span class="text-nowrap">Account</span>
-                    </th>
-                    <th ng-show="vm.table.visibility.contactInformation" class="width-22">
-                        <span class="text-nowrap">Contact information</span>
-                    </th>
-                    <th ng-show="vm.table.visibility.assignedTo" sort-column="assigned_to" table="vm.table" class="width-22">
-                        <span class="text-nowrap">Assigned to</span>
-                    </th>
-                    <th ng-show="vm.table.visibility.created" sort-column="created" table="vm.table" class="width-10">
-                        <span class="text-nowrap">Created</span>
-                    </th>
-                    <th ng-show="vm.table.visibility.modified" sort-column="modified" table="vm.table" class="width-10">
-                        <span class="text-nowrap">Modified</span>
-                    </th>
-                    <th ng-show="vm.table.visibility.status" sort-column="status" table="vm.table" class="width-10">
-                        <span class="text-nowrap">Status</span>
-                    </th>
-                    <th ng-show="vm.table.visibility.tags" table="vm.table" class="width-10">
-                        <span class="text-nowrap">Tags</span>
-                    </th>
-                    <th class="list-actions" width="105px">
-                        <span class="text-nowrap">Options</span>
-                    </th>
-                </tr>
-            </thead>
+        <div class="scrollable-table-container">
+            <table class="table table-bordered flip-content">
+                <thead class="flip-content">
+                    <tr>
+                        <th ng-show="vm.table.visibility.name" sort-column="name" table="vm.table" class="width-22">
+                            <span class="text-nowrap">Account</span>
+                        </th>
+                        <th ng-show="vm.table.visibility.contactInformation" class="width-22">
+                            <span class="text-nowrap">Contact information</span>
+                        </th>
+                        <th ng-show="vm.table.visibility.assignedTo" sort-column="assigned_to" table="vm.table" class="width-22">
+                            <span class="text-nowrap">Assigned to</span>
+                        </th>
+                        <th ng-show="vm.table.visibility.created" sort-column="created" table="vm.table" class="width-10">
+                            <span class="text-nowrap">Created</span>
+                        </th>
+                        <th ng-show="vm.table.visibility.modified" sort-column="modified" table="vm.table" class="width-10">
+                            <span class="text-nowrap">Modified</span>
+                        </th>
+                        <th ng-show="vm.table.visibility.status" sort-column="status" table="vm.table" class="width-10">
+                            <span class="text-nowrap">Status</span>
+                        </th>
+                        <th ng-show="vm.table.visibility.tags" table="vm.table" class="width-10">
+                            <span class="text-nowrap">Tags</span>
+                        </th>
+                        <th class="list-actions" width="105px">
+                            <span class="text-nowrap">Options</span>
+                        </th>
+                    </tr>
+                </thead>
 
-            <tbody>
-                <tr ng-repeat="account in vm.table.items">
-                    <td ng-show="vm.table.visibility.name">
-                        <a class="list-link" ui-sref="base.accounts.detail({ id: account.id })" title="{{ ::account.name }}">
-                            <i class="lilicon hl-company-icon"></i>
-                            <span class="list-link-name">{{ ::account.name }}</span>
-                        </a>
-                    </td>
-                    <td ng-show="vm.table.visibility.contactInformation">
-                        <div ng-repeat="email in account.email_addresses | filter: {status: '!' + 0}">
-                            <a ui-sref="base.email.composeEmail({ email:email.email_address })" title="{{ ::email.email_address }}">
-                                <i class="fa fa-envelope-alt"></i>
-                                {{ email.email_address }}
+                <tbody>
+                    <tr ng-repeat="account in vm.table.items">
+                        <td ng-show="vm.table.visibility.name">
+                            <a class="list-link" ui-sref="base.accounts.detail({ id: account.id })" title="{{ ::account.name }}">
+                                <i class="lilicon hl-company-icon"></i>
+                                <span class="list-link-name">{{ ::account.name }}</span>
                             </a>
-                        </div>
-                        <div ng-repeat="phone in account.phone_numbers track by $index" ng-if="phone.type == 'mobile' || phone.type == 'work'">
-                            <a href="tel:{{ phone.number }}">
-                                <i ng-class="{work: 'fa fa-phone', mobile: 'fa fa-mobile-phone'}[phone.type]"></i>
-                                {{ phone.number }}
+                        </td>
+                        <td ng-show="vm.table.visibility.contactInformation">
+                            <div ng-repeat="email in account.email_addresses | filter: {status: '!' + 0}">
+                                <a ui-sref="base.email.composeEmail({ email:email.email_address })" title="{{ ::email.email_address }}">
+                                    <i class="fa fa-envelope-alt"></i>
+                                    {{ email.email_address }}
+                                </a>
+                            </div>
+                            <div ng-repeat="phone in account.phone_numbers track by $index" ng-if="phone.type == 'mobile' || phone.type == 'work'">
+                                <a href="tel:{{ phone.number }}">
+                                    <i ng-class="{work: 'fa fa-phone', mobile: 'fa fa-mobile-phone'}[phone.type]"></i>
+                                    {{ phone.number }}
+                                </a>
+                            </div>
+                        </td>
+                        <td ng-show="vm.table.visibility.assignedTo">
+                            {{ ::account.assigned_to }}
+                        </td>
+                        <td ng-show="vm.table.visibility.created"><date date="account.created"></date></td>
+                        <td ng-show="vm.table.visibility.modified"><date date="account.modified"></date></td>
+                        <td ng-show="vm.table.visibility.status">{{ account.status.name }}</date></td>
+                        <td ng-show="vm.table.visibility.tags">
+                            <span ng-repeat="tag in account.tags">
+                                <a href="javascript:void(0)" ng-click="vm.setFilter(tag.name)">{{ ::tag.name }}</a>
+                                <br>
+                            </span>
+                        </td>
+                        <td>
+                            <a ui-sref="base.accounts.detail.edit({ id: account.id })" class="base-icon" title="Edit">
+                                <i class="lilicon hl-edit-icon"></i>
                             </a>
-                        </div>
-                    </td>
-                    <td ng-show="vm.table.visibility.assignedTo">
-                        {{ ::account.assigned_to }}
-                    </td>
-                    <td ng-show="vm.table.visibility.created"><date date="account.created"></date></td>
-                    <td ng-show="vm.table.visibility.modified"><date date="account.modified"></date></td>
-                    <td ng-show="vm.table.visibility.status">{{ account.status.name }}</date></td>
-                    <td ng-show="vm.table.visibility.tags">
-                        <span ng-repeat="tag in account.tags">
-                            <a href="javascript:void(0)" ng-click="vm.setFilter(tag.name)">{{ ::tag.name }}</a>
-                            <br>
-                        </span>
-                    </td>
-                    <td>
-                        <a ui-sref="base.accounts.detail.edit({ id: account.id })" class="base-icon" title="Edit">
-                            <i class="lilicon hl-edit-icon"></i>
-                        </a>
-                        <delete-confirmation model="Account" object="account" callback="vm.removeFromList(account)" button-class="base-icon"></delete-confirmation>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                            <delete-confirmation model="Account" object="account" callback="vm.removeFromList(account)" button-class="base-icon"></delete-confirmation>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
     <hl-pagination values="vm.table"></hl-pagination>
 </div>

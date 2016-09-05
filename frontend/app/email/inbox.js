@@ -212,6 +212,13 @@
             $('.wysihtml5-sandbox')[0].style.height = editor.composer.element.scrollHeight + 'px';
         },
 
+        destroyEditor: function() {
+            if (editor && editor !== null) {
+                editor.destroy();
+                editor = null;
+            }
+        },
+
         handleAdditionalRecipientsInput: function(inputType) {
             var $ccLink = $('.inbox-compose .mail-to .inbox-' + inputType);
             var $inputField = $('.inbox-compose .input-' + inputType);

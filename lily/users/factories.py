@@ -1,5 +1,6 @@
 from random import randint, choice
 
+import unicodedata
 from django.contrib.auth.hashers import make_password
 from factory.declarations import LazyAttribute, SubFactory, Sequence
 from factory.django import DjangoModelFactory
@@ -30,7 +31,7 @@ class LilyUserFactory(DjangoModelFactory):
     first_name = LazyAttribute(lambda o: faker.first_name())
     preposition = LazyAttribute(lambda o: choice(preposition_list) if bool(randint(0, 1)) else '')
     last_name = LazyAttribute(lambda o: faker.last_name())
-    email = LazyAttribute(lambda o: faker.email())
+    email = LazyAttribute(lambda o: unicodedata.normalize('NFD', faker.safe_email()).encode('ascii', 'ignore'))
     is_active = LazyAttribute(lambda o: bool(randint(0, 1)))
 
     phone_number = LazyAttribute(lambda o: faker.phone_number())

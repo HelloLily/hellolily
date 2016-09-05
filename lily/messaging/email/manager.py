@@ -175,6 +175,41 @@ class GmailManager(object):
         if old_history_id != self.email_account.history_id:
             self.update_unread_count()
 
+    def sync_labels(self):
+        """
+        Synchronize labels.
+
+        Fetches all the labels for the email account.
+        Add, remove and rename the labels in the database retrieved from the api.
+        """
+        logger.info('updating labels for %s' % self.email_account)
+
+        labels = self.connector.get_label_list()
+        if not len(labels):
+            return
+
+        # Loop over all the labels retrieved from the api, not just the labels missing in the db.
+        # By this, renamed labels in gmail are also updated in the db.
+        for label in labels:
+            self.label_builder.get_or_create_label(label)
+
+        # Determine which labels to remove from the database.
+        set_api_labels = set([x['id'] for x in labels])
+        set_existing_labels = set(self.email_account.labels.all().values_list('label_id', flat=True))
+        set_remove_labels = set_existing_labels.difference(set_api_labels)
+        if len(set_remove_labels):
+            remove_labels = EmailLabel.objects.filter(
+                account=self.email_account,
+                label_id__in=set_remove_labels
+            )
+
+            if EmailMessage.objects.filter(account=self.email_account, labels=remove_labels).count() == 0:
+                # There are no emails attached, so remove the labels.
+                EmailLabel.objects.filter(
+                    account=self.email_account,
+                    label_id__in=set_remove_labels
+                ).delete()
+
     def update_unread_count(self):
         """
         Update unread count on every label.

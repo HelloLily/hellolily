@@ -8,6 +8,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.filters import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
+from rest_framework.parsers import JSONParser, MultiPartParser
 
 from lily.tenant.api.mixins import SetTenantUserMixin
 from .serializers import LilyGroupSerializer, LilyUserSerializer, LilyUserTokenSerializer
@@ -60,28 +61,30 @@ class LilyUserFilter(django_filters.FilterSet):
 
 class LilyUserViewSet(SetTenantUserMixin, viewsets.ModelViewSet):
     """
-        Returns a list of all users in the system, filtered by default on active status.
+    Returns a list of all users in the system, filtered by default on active status.
 
-        #Ordering#
-        Ordering is enabled on this API.
+    #Ordering#
+    Ordering is enabled on this API.
 
-        To order, provide a comma seperated list to the ordering argument. Use `-` minus to inverse the ordering.
+    To order, provide a comma separated list to the ordering argument. Use `-` minus to inverse the ordering.
 
-        #Filtering#
-        Filtering is enabled on this API.
+    #Filtering#
+    Filtering is enabled on this API.
 
-        To filter, provide a field name to filter on followed by the value you want to filter on.
+    To filter, provide a field name to filter on followed by the value you want to filter on.
 
-        #Examples#
-        - plain: `/api/users/user/`
-        - order: `/api/users/user/?ordering=first_name,-id`
-        - filter: `/api/users/user/?is_active=True`
+    #Examples#
+    - plain: `/api/users/user/`
+    - order: `/api/users/user/?ordering=first_name,-id`
+    - filter: `/api/users/user/?is_active=True`
 
-        #Returns#
-        * List of cases with related fields
-        """
+    #Returns#
+    * List of cases with related fields
+    """
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
     queryset = LilyUser.objects
+    # Set the parsers for this viewset.
+    parser_classes = (JSONParser, MultiPartParser, )
     # Set the serializer class for this viewset.
     serializer_class = LilyUserSerializer
     # Set all filter backends that this viewset uses.
@@ -155,14 +158,17 @@ class LilyUserViewSet(SetTenantUserMixin, viewsets.ModelViewSet):
 
         return Response(serializer.data)
 
-    # def update(self, request, *args, **kwargs):
-    #     """
-    #     Prevent users from updating other users data.
-    #     """
-    #     if self.request.user != self.get_object():
-    #         raise PermissionDenied
-    #
-    #     return super(LilyUserViewSet, self).update(request, *args, **kwargs)
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        picture = self.request.data.get('picture')
+
+        if picture:
+            if not self.request.FILES:
+                # Picture property was set, but no files were sent.
+                # This means it's still the old picture.
+                self.request.data['picture'] = instance.picture
+
+        return super(LilyUserViewSet, self).partial_update(request, args, kwargs)
 
     def destroy(self, request, *args, **kwargs):
         """

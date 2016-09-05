@@ -128,6 +128,8 @@ EMAIL_ATTACHMENT_UPLOAD_TO = 'messaging/email/attachments/%(tenant_id)d/%(messag
 EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO = ('messaging/email/templates/attachments'
                                        '/%(tenant_id)d/%(template_id)d/%(filename)s')
 
+MAX_AVATAR_SIZE = os.environ.get('MAX_AVATAR_SIZE', 300 * 1024)
+
 STATICI18N_ROOT = local_path('static/')
 STATICFILES_DIRS = (
     local_path('static/'),
@@ -152,6 +154,8 @@ AWS_HEADERS = {
 }
 
 COLLECTFAST_CACHE = 'collectfast' if not DEBUG else 'default'
+
+MAX_AVATAR_SIZE = os.environ.get('MAX_AVATAR_SIZE', 300 * 1024)
 
 #######################################################################################################################
 # LOGIN SETTINGS                                                                                                      #

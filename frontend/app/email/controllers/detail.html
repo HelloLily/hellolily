@@ -145,7 +145,7 @@
                 <strong>{{ attachment.name }}</strong>
                 <span>
                 {{ attachment.size / 1024 | number: 0}} KB </span>
-                <a ng-href="{{ attachment.url }}" target="_blank">
+                <a ng-href="{{ attachment.url }}" target="_blank" rel="noopener noreferrer">
                     Download
                 </a>
             </div>
@@ -165,7 +165,7 @@
                         <strong>{{ attachment.name }}</strong>
                     <span>
                     {{ attachment.size / 1024 | number: 0}} KB </span>
-                        <a ng-href="{{ attachment.url }}" target="_blank">
+                        <a ng-href="{{ attachment.url }}" target="_blank" rel="noopener noreferrer">
                             Download
                         </a>
                     </div>

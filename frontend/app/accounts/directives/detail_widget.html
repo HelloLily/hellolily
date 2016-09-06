@@ -15,7 +15,7 @@
             <i class="fa fa-external-link fa-sm"></i>
             <span class="external-link-name">{{ vm.tenant.primary_external_app_link.name }}</span>
         </a>
-        <a href="https://freedom.voys.nl/quotes/create/" target="_blank" class="btn btn-circle btn-default" ng-if="!vm.account.customer_id && vm.tenant.isVoysNL()">
+        <a href="https://freedom.voys.nl/quotes/create/" target="_blank" rel="noopener noreferrer" class="btn btn-circle btn-default" ng-if="!vm.account.customer_id && vm.tenant.isVoysNL()">
             <i class="fa fa-external-link fa-sm"></i>
             <span class="external-link-name">Write quote</span>
         </a>
@@ -72,7 +72,7 @@
                     <td><i class="fa fa-twitter"></i> <strong>Twitter</strong></td>
                     <td>
                         <editable-link view-model="vm" type="Account" object="vm.account.twitter" field="username" social-media-name="twitter">
-                            <a ng-if="vm.account.twitter" ng-href="{{ vm.account.twitter.profile_url }}" target="_blank">{{ vm.account.twitter.username }}</a>
+                            <a ng-if="vm.account.twitter" ng-href="{{ vm.account.twitter.profile_url }}" target="_blank" rel="noopener noreferrer">{{ vm.account.twitter.username }}</a>
                             <span ng-if="!vm.account.twitter">No Twitter profile</span>
                         </editable-link>
                     </td>

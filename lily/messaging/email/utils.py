@@ -407,6 +407,7 @@ def replace_anchors_in_html(html):
     for anchor in soup.findAll('a'):
         anchor.attrs.update({
             'target': '_blank',
+            'rel': 'noopener noreferrer',
         })
 
     return soup.encode_contents()

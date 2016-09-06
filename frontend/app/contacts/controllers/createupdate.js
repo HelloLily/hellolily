@@ -151,7 +151,12 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, S
             Settings.email.sidebar.form = null;
             Settings.email.sidebar.contact = false;
         } else {
-            $state.go('base.contacts');
+            if (Settings.page.previousState && !Settings.page.previousState.state.abstract) {
+                // Check if we're coming from another page.
+                $state.go(Settings.page.previousState.state, Settings.page.previousState.params);
+            } else {
+                $state.go('base.contacts');
+            }
         }
     }
 

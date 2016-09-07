@@ -17,6 +17,10 @@
     text-overflow: ellipsis;
     padding-right: 40px;
     padding-left: 15px;
+
+    &.active-account {
+        color: $app-color-mint;
+    }
 }
 
 .email-nav-header {

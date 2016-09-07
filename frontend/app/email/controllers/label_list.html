@@ -48,7 +48,7 @@
 <collapsable name="account-{{ account.id }}" ng-repeat="account in vm.accountList">
     <ul class="email-nav">
         <li class="email-nav-header">
-            <div class="email-nav-header-title" ng-click="vm.clickAccountHeader(account)">
+            <div class="email-nav-header-title" ng-click="vm.clickAccountHeader(account)" ng-class="{'active-account': account.id == $state.params.accountId}">
                 <i class="fa fa-star" ng-show="account.id == vm.primaryEmailAccountId" uib-tooltip="Primary account"></i>
                 {{ account.label }}
             </div>

@@ -280,6 +280,7 @@
         submitForm: function(buttonName, $form) {
             var self = this;
             var templateContent = '';
+            var templateDivs = '';
 
             // Remove unnecessary html.
             var $containerDiv = $('<div id="email-container-div">');
@@ -287,7 +288,10 @@
 
             // Get template content if we're not dealing with the creation of a draft and there is a template set.
             if (buttonName !== 'submit-save' && $containerDiv.find('#compose-email-template').length) {
-                templateContent = $containerDiv.find('#compose-email-template')[0].innerHTML;
+                templateDivs = $containerDiv.find('#compose-email-template');
+                templateDivs.each(function(index) {
+                    templateContent = templateContent + '<br>' + templateDivs[index].innerHTML;
+                });
 
                 // Remove email template div and resize div and only keep user typed text.
                 $containerDiv.find('#compose-email-template').remove();

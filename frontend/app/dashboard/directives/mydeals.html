@@ -56,7 +56,7 @@
                         <postpone type="'Deal'" object="myDeal" date-field="'next_step_date'" tt-placement="bottom" callback="vm.getMyDeals()"></postpone>
                     </td>
                     <td style="width: 75px;">
-                        <a ng-href="{{ vm.tenant.primary_external_app_link.getUrl(myDeal.account.customer_id) }}" target="_blank" ng-if="myDeal.account.customer_id && vm.tenant.primary_external_app_link">
+                        <a ng-href="{{ vm.tenant.primary_external_app_link.getUrl(myDeal.account.customer_id) }}" target="_blank" rel="noopener noreferrer" ng-if="myDeal.account.customer_id && vm.tenant.primary_external_app_link">
                             <i class="fa fa-cloud-upload"></i>
                         </a>
                     </td>

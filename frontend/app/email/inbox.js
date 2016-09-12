@@ -178,6 +178,7 @@
                 toolbar: 'wysihtml5-toolbar',
                 parser: self.customParser(),
                 handleTables: false,
+                doubleLineBreakEscapesBlock: false,
             });
 
             editor.observe('load', function() {

@@ -212,7 +212,12 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             Settings.email.sidebar.form = null;
             Settings.email.sidebar.case = false;
         } else {
-            $state.go('base.cases');
+            if (Settings.page.previousState && !Settings.page.previousState.state.abstract) {
+                // Check if we're coming from another page.
+                $state.go(Settings.page.previousState.state, Settings.page.previousState.params);
+            } else {
+                $state.go('base.cases');
+            }
         }
     }
 

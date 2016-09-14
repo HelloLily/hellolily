@@ -4,6 +4,9 @@
     </div>
     <div class="portlet-body">
         <ul class="list-group">
+            <li class="list-group-item">
+                <a ui-sref="base.preferences.emailtemplates.create">Add an email template</a>
+            </li>
             <li class="list-group-item" ng-repeat="template in vm.emailTemplates track by template.id">
                 {{ template.name }}
                 <span class="pull-right">
@@ -20,9 +23,6 @@
             </li>
             <li class="list-group-item" ng-hide="vm.emailTemplates.length">
                 No templates yet. You should create one!
-            </li>
-            <li class="list-group-item">
-                <a ui-sref="base.preferences.emailtemplates.create">Add an email template</a>
             </li>
         </ul>
     </div>

@@ -195,33 +195,33 @@ inbox to display buttons like reply, delete, archive etc.
 
         .hl-button-group-btn-clear {
             cursor: pointer;
-            width: 24px;
+            width: 26px;
             text-align: center;
             position: relative;
             float: right;
             background: $critical-prio-color;
             color: #fff;
-            border: 1px darken($critical-prio-color, 5) solid;
+            border-style: solid;
+            border-color: $critical-prio-color;
+            border-width: 1px;
+            border-bottom-width: 2px;
             border-top-right-radius: $base-border-radius;
             border-bottom-right-radius: $base-border-radius;
-            margin: -1px;
+            margin: -1px -1px -2px;
             line-height: $button-height - 2px;
-
-            &:before {
-                content: "";
-                width: 100%;
-                height: $base-border-radius;
-                display: block;
-                position: absolute;
-                border-top: 1px #fff solid;
-                border-top-right-radius: $base-border-radius;
-                opacity: 0.3;
-            }
+            transition: background, 0.25s;
 
             &:hover {
                 background: darken($critical-prio-color, 20);
                 border-color: darken($critical-prio-color, 20);
             }
         }
+    }
+}
+
+.widget-filters {
+    .hl-button-group-btn-clear {
+        float: none !important;
+        padding: 6px 2px;
     }
 }

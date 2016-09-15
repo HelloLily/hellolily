@@ -117,10 +117,23 @@ class GmailConnector(object):
             quotaUser=self.email_account.id,
         ))
 
-        # Get the messageIds.
         history = response.get('history', [])
 
-        self.history_id = response.get('historyId', self.history_id)
+        # Check if there are more pages.
+        while 'nextPageToken' in response:
+            page_token = response.get('nextPageToken')
+            response = self.execute_service_call(self.service.users().history().list(
+                userId='me',
+                startHistoryId=self.history_id,
+                pageToken=page_token
+            ))
+            history.extend(response.get('history', []))
+
+        # History id's are for successive history pages identical, so no need to update with each nextPageToken.
+        new_history_id = response.get('historyId', self.history_id)
+        if new_history_id > self.history_id:
+            # Store new history id if it's past the current one.
+            self.history_id = new_history_id
 
         return history
 
@@ -147,13 +160,15 @@ class GmailConnector(object):
                     userId='me',
                     pageToken=page_token,
                     quotaUser=self.email_account.id,
+                    q='!in:chats',
                 ))
             messages.extend(response.get('messages', []))
 
-        # Store history_id
         if messages:
+            # The history is in reverse chronological order, so the first message has the latest history id.
             message = self.get_message_info(messages[0]['id'])
             if message['historyId'] > self.history_id:
+                # Store if it's past the current history id.
                 self.history_id = message['historyId']
 
         return messages

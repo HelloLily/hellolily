@@ -109,11 +109,11 @@ function DeleteConfirmationController($state, HLMessages, HLResource, Settings) 
                         // Call the given function.
                         vm.callback();
                     } else {
-                        if (Settings.page.previousState) {
-                            // Check if we're coming from another page.
+                        if (Settings.page.previousState && !Settings.page.previousState.state.name.endsWith('edit')) {
+                            // Go to the previous page if it isn't the edit page of the just deleted item.
                             $state.go(Settings.page.previousState.state, Settings.page.previousState.params);
                         } else {
-                            // Otherwise just go to the parent state.
+                            // Otherwise just go to the list view, which is the parent state.
                             $state.go($state.current.parent);
                         }
                     }

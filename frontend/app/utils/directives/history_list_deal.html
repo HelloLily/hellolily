@@ -23,7 +23,7 @@
                     <li>Amount once: <strong class="margin-left-5" ng-bind-html="::vm.item.amount_once | currencySymbol:vm.item.currency"></strong></li>
                     <li>Amount recurring: <strong class="margin-left-5" ng-bind-html="::vm.item.amount_recurring | currencySymbol:vm.item.currency"></strong></li>
                 </ul>
-                <div class="timeline-date">
+                <div class="timeline-date" title="Modified on {{ ::vm.item.modified | date:'dd MMM yyyy - HH:mm' }}">
                     {{ ::vm.item.modified | date:'dd MMM yyyy - HH:mm' }}
                 </div>
             </div>

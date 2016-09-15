@@ -280,6 +280,9 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
                     for (i = 0; i < history.length; i++) {
                         if (history[i].historyType === 'email') {
                             history[i].historySortDate = history[i].sent_date;
+                        } else if (history[i].historyType === 'note') {
+                            // We want to sort notes on created date.
+                            history[i].historySortDate = history[i].date;
                         } else {
                             history[i].historySortDate = history[i].modified;
                         }

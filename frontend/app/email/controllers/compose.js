@@ -155,9 +155,11 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
         var filterquery;
 
         if (emailMessage) {
-            filterquery = 'email_addresses.email_address:' + emailMessage.sender.email_address;
+            // It's a reply, so try to load a contact with the given email address.
+            filterquery = 'email_addresses.email_address:"' + emailMessage.sender.email_address + '"';
         } else if (email) {
-            filterquery = 'email_addresses.email_address:' + email;
+            // Otherwise try to load a contact with the email in the url.
+            filterquery = 'email_addresses.email_address:"' + email + '"';
         }
 
         if (filterquery) {

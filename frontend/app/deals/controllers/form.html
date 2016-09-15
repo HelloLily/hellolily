@@ -103,7 +103,7 @@
                            ng-model="vm.deal.amount_recurring" />
                 </form-group>
 
-                <form-group label-title="Freedom quote ID" label-id="id_quote_id" ng-if="vm.tenant.isVoysNL()" field="dealForm.quote_id">
+                <form-group label-title="Freedom quote ID" label-id="id_quote_id" ng-if="vm.tenant.isVoysNL() || vm.tenant.isVoysSA()" field="dealForm.quote_id">
                         <input class="form-control"
                                id="id_quote_id"
                                maxlength="255"

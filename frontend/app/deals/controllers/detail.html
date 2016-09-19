@@ -107,11 +107,14 @@
                                     <td><date date="vm.deal.closed_date"></date></td>
                                 </tr>
 
-                                <tr ng-if="vm.tenant.isVoysNL()">
+                                <tr ng-if="vm.tenant.isVoysNL() || vm.tenant.isVoysSA()">
                                     <td><strong>Quote</strong></td>
                                     <td>
                                         <editable-link view-model="vm" type="Deal" field="quote_id">
-                                            <a ng-if="vm.deal.quote_id" target="_blank" rel="noopener noreferrer" ng-href="https://freedom.voys.nl/quotes/pdf/{{ vm.deal.quote_id }}/">
+                                            <a ng-if="vm.deal.quote_id && vm.tenant.isVoysNL()" target="_blank" rel="noopener noreferrer" ng-href="https://freedom.voys.nl/quotes/pdf/{{ vm.deal.quote_id }}/">
+                                                {{ vm.deal.quote_id }}
+                                            </a>
+                                            <a ng-if="vm.deal.quote_id && vm.tenant.isVoysSA()" target="_blank" rel="noopener noreferrer" ng-href="https://freedom.voys.co.za/quotes/pdf/{{ vm.deal.quote_id }}/">
                                                 {{ vm.deal.quote_id }}
                                             </a>
                                             <span ng-if="!vm.deal.quote_id">No quote ID</span>
@@ -202,9 +205,9 @@
                 </widget-body>
             </widget>
 
-            <account-detail-widget ng-if="vm.deal.account" account="vm.deal.account"></account-detail-widget>
+            <account-detail-widget ng-if="vm.account" account="vm.account"></account-detail-widget>
 
-            <contact-detail-widget ng-if="vm.deal.contact" contact="vm.deal.contact"></contact-detail-widget>
+            <contact-detail-widget ng-if="vm.contact" contact="vm.contact"></contact-detail-widget>
         </div>
     </div>
 </div>

@@ -20,8 +20,9 @@ function ListFilterController($filter, $timeout, HLFilters) {
     var vm = this;
 
     vm.toggleFilter = toggleFilter;
-    vm.toggleAll = toggleAll;
+    vm.setAll = setAll;
     vm.updateFilterQuery = updateFilterQuery;
+
     vm.allSelected = false;
     vm.filterDisplayName = vm.filterLabel;
     vm.filterPlural = vm.filterLabelPlural;
@@ -49,18 +50,26 @@ function ListFilterController($filter, $timeout, HLFilters) {
         }
     }
 
-    function toggleAll() {
+    function setAll(value) {
+        var newValue;
+
         var filterList = vm.viewModel.filterList;
 
         if (vm.viewModel.filterSpecialList) {
             filterList = vm.viewModel.filterSpecialList;
         }
 
-        vm.allSelected = !vm.allSelected;
+        if (typeof value !== 'undefined') {
+            // Set all items to the given value.
+            newValue = value;
+        } else {
+            // Deselect/Select all items.
+            vm.allSelected = !vm.allSelected;
+            newValue = vm.allSelected;
+        }
 
-        // Deselect/Select all items.
         angular.forEach(filterList, function(item) {
-            item.selected = vm.allSelected;
+            item.selected = newValue;
         });
 
         updateFilterQuery();
@@ -122,6 +131,10 @@ function ListFilterController($filter, $timeout, HLFilters) {
             } else {
                 label = selectedItems.length + ' ' + vm.filterLabel + ' selected';
             }
+
+            vm.displayClearButton = true;
+        } else {
+            vm.displayClearButton = false;
         }
 
         vm.filterDisplayName = label;

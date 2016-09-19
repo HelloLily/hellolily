@@ -1,6 +1,8 @@
 /**
  * Router definition.
  */
+var URI = require('urijs');
+
 angular.module('app.accounts').config(accountConfig);
 
 accountConfig.$inject = ['$stateProvider'];
@@ -149,6 +151,7 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
     function checkDomainForDuplicates(form, index) {
         var website;
         var domain;
+        var uri;
         // If an index was given it means we're dealing with a related/extra
         // website which is processed differently.
         var isExtraWebsite = typeof index !== 'undefined';
@@ -160,13 +163,20 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
         }
 
         if (!vm.useDuplicateWebsite && website) {
-            domain = getDomain(website);
+            // The URI library only works correct when the website has a protocol-authority-delimiter,
+            // so add if missing. See https://github.com/medialize/URI.js/issues/232
+            if ((website.toLowerCase().indexOf('http://') === -1) &&
+                (website.toLowerCase().indexOf('https://') === -1)) {
+                website = '//' + website;
+            }
+            uri = new URI(website);
+            domain = uri.domain();
 
             Account.searchByWebsite({website: domain}).$promise.then(function(result) {
                 if (result.data && result.data.id !== $stateParams.id) {
                     swal({
                         title: HLMessages.alerts.accountForm.title,
-                        html: sprintf(HLMessages.alerts.accountForm.body, {account: result.data.name, website: website}),
+                        html: sprintf(HLMessages.alerts.accountForm.body, {account: result.data.name, website: domain}),
                         type: 'warning',
                         showCancelButton: true,
                         cancelButtonText: HLMessages.alerts.accountForm.cancelButtonText,
@@ -229,7 +239,12 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
             Settings.email.sidebar.form = null;
             Settings.email.sidebar.account = false;
         } else {
-            $state.go('base.accounts');
+            if (Settings.page.previousState && !Settings.page.previousState.state.abstract) {
+                // Check if we're coming from another page.
+                $state.go(Settings.page.previousState.state, Settings.page.previousState.params);
+            } else {
+                $state.go('base.accounts');
+            }
         }
     }
 
@@ -347,38 +362,5 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
         if (vm.account.status.id === vm.relationStatus.id) {
             vm.account.status = vm.activeStatus;
         }
-    }
-
-    function getHostName(url) {
-        var match = url.match(/:\/\/(www[0-9]?\.)?(.[^/:]+)/i);
-        var hostName;
-
-        if (match !== null && match.length > 2 && typeof match[2] === 'string' && match[2].length > 0) {
-            hostName = match[2];
-        } else {
-            hostName = url;
-        }
-
-        return hostName;
-    }
-
-    function getDomain(url) {
-        var hostName = getHostName(url);
-        var domain = hostName;
-        var parts;
-
-        if (hostName !== null) {
-            parts = hostName.split('.').reverse();
-
-            if (parts !== null && parts.length > 1) {
-                domain = parts[1] + '.' + parts[0];
-
-                if (hostName.toLowerCase().indexOf('.co.uk') !== -1 && parts.length > 2) {
-                    domain = parts[2] + '.' + domain;
-                }
-            }
-        }
-
-        return domain;
     }
 }

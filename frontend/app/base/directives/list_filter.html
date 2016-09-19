@@ -6,8 +6,12 @@
             <i class="margin-left-5 small-icon lilicon hl-toggle-down-icon"></i>
         </a>
 
+        <span class="hl-button-group-btn-clear" ng-click="vm.setAll(false)" ng-if="vm.displayClearButton">
+            <i class="fa fa-remove"></i>
+        </span>
+
         <ul class="hl-dropdown js-hold-on-click">
-            <li class="hl-dropdown-item" ng-click="vm.toggleAll()">
+            <li class="hl-dropdown-item" ng-click="vm.setAll()">
                 <div class="hl-checkbox" ng-class="{'checked': vm.allSelected}"></div>
                 <span ng-show="vm.allSelected">All selected</span>
                 <span ng-hide="vm.allSelected">Select all</span>

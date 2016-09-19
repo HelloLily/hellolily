@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+  db:
+    build: Dockers/db
+
+  app:
+    build: .

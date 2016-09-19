@@ -1,0 +1,15 @@
+PreCommit:
+  EsLint:
+    enabled: true
+    on_warn: 'fail'
+    include: 'frontend/app/**/*.js'
+
+  ScssLint:
+    enabled: true
+    on_warn: 'fail'
+
+  PythonFlake8:
+    enabled: true
+    on_warn: 'fail'
+    flags: ['--max-line-length=119']
+    exclude: ['**/migrations/**', 'lily/google/**', '**/__init__.py', 'python_imap/**', 'taskmonitor/**']

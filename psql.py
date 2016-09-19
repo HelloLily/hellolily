@@ -23,5 +23,5 @@ def connect(app):
 if __name__ == '__main__':
     app = DEFAULT_APP
     if len(sys.argv[1:]) == 1:
-       app = sys.argv[1]
+        app = sys.argv[1]
     connect(app)

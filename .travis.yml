@@ -1,0 +1,129 @@
+sudo: required
+
+services:
+  - docker
+
+branches:
+  # Only build on these branches.
+  only:
+    - master
+    - develop
+    - /^feature/
+    - /^hotfix/
+
+env:
+  global:
+    # GITHUB_PERSONAL_ACCESS_TOKEN: account used is voipgrid-user:Travis auto merge for lily.
+    - secure: "LhLYNZ9XEAuV7Hgj9bWnugKOLswcc2b6U7Ed4a1Gz8ix2T+IvPsyNcY0Aoi8S2ztrJHZLv1N8erYYFK5NhRpK17NVWAXB5+7NHGM2pSgD2op+xTMMsmI4JJfY94O9I042ES/HEHiMi6vfZS3hFaOvYOzbD5ZtXx0fb8f8bcBgHs="
+
+    # CODECLIMATE_REPO_TOKEN
+    - secure: "YxRY659DsaAlAyY20aNOMlCN+Anr81WPmpg36zkTpSw2VgC219HS8301HN5userqAjnkKHNo7aWbHxq37sGKm2nYXPq2T2PkvyOToc4f7+uRwJ5i6w79zXKRvp4q6sA3mwjuPuPekRnHguM3WNshm2Nxbp0Aoxlu6Npd2vYvKVM="
+
+    # HEROKU_API_KEY: account used is admin.
+    - secure: "F87DeMNdaZMUSf63+K3rKFNXo/ZUN79ryiXCD+e4wLGfjfHgYZOYjV+G/PrviZ76+f4HZhjqSsAfjZWr1OJg0z7N8qzbRNXp24xHkxm2VZgF++0DLzsta/1WxeFlskWC823ec3d3ZbiFaHLdJRpSBCgtgg9QeMWS3QLldg3lqRk="
+
+    # DOCKER_HUB_EMAIL
+    - secure: "KDETg8s/pmEoKgcZPzU2tmW0ilU/iVLtZmCRetFMb77OigQT01pGJweYpPaFs+vx7M0fG2dmDI3mMyWRMcIMUqv17jwrl6nlLYMFjwUObUFNEwBg0lyM2atYD4JoFqd+U3rl8u4H+A+XHospsdRUBf1yTwH6EifdQ5wHUbDP8Q4="
+
+    # DOCKER_HUB_USERNAME
+    - secure: "TdWpx05v/6NEmFLn55ZnSDIwDbssWFZrJJMY49rjGC//A+/2p1fXn3fqsXvhQbViMej/7thGQrvUCVsa8Vef+0peGDZxxooCER7dTjt6bHRAub1mFk5DXkRHmRQ3hgysdFHmQguXMwiqb8meXPyuTv3FT+YYPOyrf94Pv2KNdk0="
+
+    # DOCKER_HUB_PASSWORD
+    - secure: "eVlQ3Y5X7/5Ql2GauLXnNs4Apl0TovMuc0aVCgU5uG0Ngcl2PfgQaXW+XjEx72k9uLmYcDsgG0C9RPIiZo9FRqJmbVAdSyGmXCUS4QCJocebyz1ivfhPK0Qb2RhI9PQtk/8DRtzpALnxujUHs1SZ0nPw5H5sgimRo/DQJgLjWUU="
+
+    - TZ=Europe/Amsterdam
+    - GITHUB_REPO="HelloLily/hellolily"
+    - GITHUB_URI="https://${GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/${GITHUB_REPO}"
+    - GIT_COMMITTER_EMAIL="travis@travis"
+    - GIT_COMMITTER_NAME="Travis CI"
+    - REPO_DIR="$(mktemp -d)"
+    - NEXT_ACTION="$(ci/deploy_check.sh)"
+    - HEROKU_APP_NAME="hellolily-staging"
+    - MIGRATION_NEEDED="$(ci/migration_needed.sh)"
+    - INDEXING_NEEDED="$(ci/indexing_needed.sh)"
+    - DEPLOY_COMMAND="$(ci/deploy_command.sh)"
+
+language: python
+
+install:
+  - pip install -r requirements.travis.txt
+  - gem install overcommit
+  - npm install -g eslint
+  - gem install scss_lint
+
+# The steps are run in the following order:
+  # Install apt addons
+  # before_install
+  # install
+  # before_script
+  # script
+  # after_success or after_failure
+  # before_deploy
+  # deploy
+  # after_deploy
+  # after_script
+
+before_script:
+  # Since Travis does a partial checkout, we need to get the whole thing.
+  - git clone "https://github.com/${GITHUB_REPO}" "${REPO_DIR}"
+
+  # Echo some variables for debug purposes.
+  - echo "Next action is ${NEXT_ACTION}"
+  - echo "Deploy command is ${DEPLOY_COMMAND}"
+  - echo "Current datetime is $(date +'%Y%m%d%H%M')"
+
+  # Always build new images for docker.
+  - docker-compose -f docker-compose.yml -f docker-compose.new-build.yml build
+
+script:
+  # Run git hooks with overcommit.
+  - overcommit --sign
+  - overcommit --run
+
+  # Once the db has started, run the tests and output coverage and results.
+  - ./ci/run_tests.sh
+
+  # Try a merge to see if there are merge conflicts but do not push yet.
+  - ./ci/git_merge.sh
+
+  # Run a hook to check if there are unhandled migrations.
+  - ./checks/git/migrations.sh
+
+after_success:
+  # Only push if the tests and merge succeeded.
+  - ./ci/git_push.sh
+
+before_deploy:
+  # If migrations are needed, set the heroku app to maintenance mode before the deploy. The maintenance mode
+  # is switched off in the DEPLOY_COMMAND to make sure that maintenance mode stays on if migrations or indexing fail.
+  - if [ "${MIGRATION_NEEDED}" == "true" ] || [ "${INDEXING_NEEDED}" == "true" ] ; then python ./ci/patch_heroku_app.py "${HEROKU_APP_NAME}" "${HEROKU_API_KEY}" maintenance true; fi
+
+  # If migrations or indexing are needed, scale down all beat dynos for the duration of the deploy.
+  - if [ "${MIGRATION_NEEDED}" == "true" ] || [ "${INDEXING_NEEDED}" == "true" ] ; then python ./ci/patch_heroku_app.py "${HEROKU_APP_NAME}/formation/beat" "${HEROKU_API_KEY}" quantity 0; fi
+
+deploy:
+  - provider: heroku
+    skip_cleanup: true
+    api_key: "${HEROKU_API_KEY}"
+    app: "${HEROKU_APP_NAME}"
+    on:
+      branch: master
+      condition: "${NEXT_ACTION} == 'deploy'"
+    run:
+      - "${DEPLOY_COMMAND}"
+
+after_deploy:
+  # Push the new docker images to DockerHub after deploy.
+  - Dockers/push.sh
+
+after_script:
+  # If we're on the default branch (in our case develop), push test coverage to code climate.
+  - if [ "${TRAVIS_BRANCH}" == "develop" ]; then docker-compose -f docker-compose.new-build.yml run --rm --service-ports -e CODECLIMATE_REPO_TOKEN -e TRAVIS -e TRAVIS_BRANCH -e TRAVIS_JOB_ID -e TRAVIS_PULL_REQUEST web codeclimate-test-reporter; fi
+
+notifications:
+  email: false
+  slack:
+    on_success: change
+    on_failure: always
+    rooms:
+      secure: Qa78mn+5RE1eZkPuQLrRKP+CmN7p9az6In1aObveUwt45SrlIJsDldmD80KrN60YkLgc6cAwGJb0w9yttJsj1BLQBjEs5nbTdWqI0n95wsgRsVMM1Rb/3z0QH9KfoWa31c7YuZQljcVFyiHFoUa4oR1ilN6IV22YOapE9k/xpVizAjdqE36H6Cr8dR2FJbi+m2EqYWQ0mGL92VkNYWvJJm1swRZd+ZeOvqw4XHql0lNviLCKqD7jJOH2hlUtsTzq9zrxbDeDr9iz93Mf0jpFIEcsLfDlEIOEU0ZfVj1ddLwmiIiUrqchFyYZL9rH0gwEiQItLeTxWRuV6z1ig4H0WHJ9cow18C3CjoqiCEMh9wS5KirGctNEP6z1MRlQgQYzPHNd/jqxMcwWBcARWdDm7tEu6X26KZUc5jo3NO7s7xdH//esD7p4B5xIF1XDWxHPYgqIcQyFIq8kNGmWHIiE01XmZMjHyfQFIVfx0Akhk/JsFUevY4FiPulibNgXBG3P3qjOej7b7iwNCPoGMaR9JbKUu/5eAF5ykYe3LlI57fGNvBY4152dGpmM8YZT/hAuDYSda1aqBhJiQza98xRdjPnVF00c9nDy/Tu9NnYY8NxqVbVoGWHwQAJtdJ2Ii6GudCV/dcc9eH4lDaChlm6L+nwvKPZkqTTONqgE08ErjNQ=

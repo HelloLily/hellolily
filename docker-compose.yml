@@ -1,58 +1,87 @@
-flower:
-  build: .
-  command: flower --app=lily.celery
-  volumes:
-    - .:/home/docker/hellolily
-  ports:
-    - 5555:5555
-  links:
-    - rabbit
-    - db
-db:
-  build: Dockers/db
-  ports:
-    - 5433:5432
-es:
-  build: Dockers/es
-  ports:
-    - 9203:9200
-redis:
-  image: redis:2.8
-  ports:
-    - 6373:6379
-web:
-  build: .
-  command: python manage.py runserver 0:8000
-  environment:
-    - DJANGO_LIVE_TEST_SERVER_ADDRESS=0:8081
-    - TLDEXTRACT_CACHE=./.tld_set
-  volumes:
-    - .:/home/docker/hellolily
-  ports:
-    - 8003:8000
-    - 8083:8081
-  links:
-    # Define all containers for easy running of development setup.
-    - db
-    - es
-    - rabbit
-    - redis
-rabbit:
-  build: Dockers/rabbit
-  ports:
-    - 5672:5672
-beat:
-  build: .
-  command: celery worker -B --app=lily.celery --loglevel=info -Q celery -n beat.%h -c 1
-  volumes: [".:/home/docker/hellolily"]
-  links: [rabbit, db, redis, es]
-worker1:
-  build: .
-  command: celery worker --loglevel=info --app=lily.celery -Q email_async_tasks -n worker1.%h -c 12 -P eventlet
-  volumes: [".:/home/docker/hellolily"]
-  links: [rabbit, db, redis, es]
-worker2:
-  build: .
-  command: celery worker --loglevel=info --app=lily.celery -Q email_scheduled_tasks,email_first_sync -n worker2.%h -c 12 -P eventlet
-  volumes: [".:/home/docker/hellolily"]
-  links: [rabbit, db, redis, es]
+version: '2'
+
+services:
+  rabbit:
+    image: rabbitmq:3.6-management  # Use latest version of 3.6 with management plugin enabled.
+    ports:
+      - 5672:5672
+
+  redis:
+    image: redis:2.8  # Use latest version of 2.8.
+    ports:
+      - 6373:6379
+
+  db:
+    image: "hellolily/hellolily-db:latest"
+    ports:
+      - 5433:5432
+
+  es:
+      image: elasticsearch:1.7  # Use latest version of 1.7.
+      ports:
+        - 9203:9200
+
+  app:
+    image: "hellolily/hellolily-app:latest"
+    command: "/bin/true"
+    environment:
+      - PYTHONUNBUFFERED=true
+      - DJANGO_SETTINGS_MODULE=lily.settings.settings
+      - DJANGO_LIVE_TEST_SERVER_ADDRESS=0:8081
+      - DEBUG=1
+      - SECRET_KEY=abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn
+      - DATABASE_URL=postgres://hellolily:@db/hellolily
+      - MULTI_TENANT=1
+      - TLDEXTRACT_CACHE=./.tld_set
+    volumes:
+      - .:/home/docker/hellolily
+    cap_drop:
+      - ALL
+
+  web:
+    extends: app
+    command: "python manage.py runserver 0:8000"
+    links:
+      - rabbit
+      - redis
+      - db
+      - es
+    ports:
+      - "8003:8000"
+      - "8083:8081"
+
+  flower:
+    extends: app
+    command: "flower --app=lily.celery"
+    ports:
+      - "5555:5555"
+    links:
+      - db
+      - rabbit
+
+  beat:
+    extends: app
+    command: "celery worker -B --app=lily.celery --loglevel=info -Q celery -n beat.%h -c 1"
+    links:
+      - rabbit
+      - redis
+      - db
+      - es
+
+  worker1:
+    extends: app
+    command: "celery worker --loglevel=info --app=lily.celery -Q email_async_tasks -n worker1.%h -c 12 -P eventlet"
+    links:
+      - rabbit
+      - redis
+      - db
+      - es
+
+  worker2:
+    extends: app
+    command: "celery worker --loglevel=info --app=lily.celery -Q email_scheduled_tasks,email_first_sync -n worker2.%h -c 12 -P eventlet"
+    links:
+      - rabbit
+      - redis
+      - db
+      - es

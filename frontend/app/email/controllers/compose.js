@@ -184,7 +184,11 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
                 templates = results[1].results;
 
                 if (emailMessage && !email) {
-                    email = emailMessage.sender.email_address;
+                    if (emailMessage.reply_to) {
+                        email = emailMessage.reply_to;
+                    } else {
+                        email = emailMessage.sender.email_address;
+                    }
                 }
 
                 if (contact) {

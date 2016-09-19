@@ -1,7 +1,8 @@
+from datetime import datetime
+
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from django_extensions.db.fields import ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 
 from lily.tenant.models import TenantMixin
@@ -15,7 +16,7 @@ class DeletedMixin(TimeStampedModel):
     """
     Deleted model, flags when an instance is deleted.
     """
-    deleted = ModificationDateTimeField(_('deleted'))
+    deleted = models.DateTimeField(_('deleted'))
     is_deleted = models.BooleanField(default=False)
 
     def delete(self, using=None, hard=False):
@@ -30,6 +31,7 @@ class DeletedMixin(TimeStampedModel):
             super(DeletedMixin, self).delete(using=using)
         else:
             self.is_deleted = True
+            self.deleted = datetime.now()
             self.save()
 
     class Meta:

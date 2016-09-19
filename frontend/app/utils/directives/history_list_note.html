@@ -15,8 +15,8 @@
                     <li>Created by: {{ ::vm.item.author.full_name }}</li>
                 </ul>
 
-                <div class="timeline-date">
-                    {{ ::vm.item.modified | date:'dd MMM yyyy - HH:mm' }}
+                <div class="timeline-date" title="Created on {{ ::vm.item.date | date:'dd MMM yyyy - HH:mm' }}">
+                    {{ ::vm.item.date | date:'dd MMM yyyy - HH:mm' }}
                 </div>
             </div>
 

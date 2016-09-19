@@ -22,7 +22,7 @@
                     <li>Type: <strong>{{ ::vm.item.type.name }}</strong></li>
                     <li>Expires: <strong class="margin-left-5"><date date="vm.item.expires"></date></strong></li>
                 </ul>
-                <div class="timeline-date">
+                <div class="timeline-date" title="Modified on {{ ::vm.item.modified | date:'dd MMM yyyy - HH:mm' }}">
                     {{ ::vm.item.modified | date:'dd MMM yyyy - HH:mm' }}
                 </div>
             </div>

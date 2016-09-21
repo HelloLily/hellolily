@@ -679,7 +679,7 @@ class EmailMessageReplyView(EmailMessageReplyOrForwardView):
         kwargs.update({
             'initial': {
                 'subject': self.get_subject(prefix='Re: '),
-                'send_to_normal': self.object.sender.email_address,
+                'send_to_normal': self.object.reply_to,
                 'body_html': create_reply_body_header(self.object) + mark_safe(self.object.reply_body),
             },
         })
@@ -715,7 +715,7 @@ class EmailMessageReplyAllView(EmailMessageReplyView):
         kwargs.update({
             'initial': {
                 'subject': self.get_subject(prefix='Re: '),
-                'send_to_normal': self.object.sender.email_address,
+                'send_to_normal': self.object.reply_to,
                 'send_to_cc': recipients,
                 'body_html': create_reply_body_header(self.object) + mark_safe(self.object.reply_body),
             },

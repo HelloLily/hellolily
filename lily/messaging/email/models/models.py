@@ -235,9 +235,20 @@ class EmailMessage(models.Model):
         return self.labels.filter(label_id=settings.GMAIL_LABEL_SPAM).count() == 1
 
     def get_message_id(self):
-        header = self.headers.filter(name__icontains='message-id').first()
+        header = self.headers.filter(name__istartswith='message-id').first()
         if header:
             return header.value
+
+    @property
+    def reply_to(self):
+        """
+        Return the reply to address if it is present as a header, otherwise use email address of the sender.
+        """
+        header = self.headers.filter(name__istartswith='reply-to').first()
+        if header:
+            return header.value
+        else:
+            return self.sender.email_address
 
     def __unicode__(self):
         return u'%s: %s' % (self.sender, self.snippet)

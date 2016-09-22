@@ -99,7 +99,7 @@
             })
             .on('click', cf.variablePreviewButton, function(event) {
                 event.preventDefault();
-                bootbox.alert(cf.customVariablePreviewText);
+                swal(cf.customVariablePreviewText).done();
             });
 
             // Set heading properly after change

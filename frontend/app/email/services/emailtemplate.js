@@ -17,5 +17,6 @@ function EmailTemplate($resource) {
             },
         }
     );
+
     return _emailTemplate;
 }

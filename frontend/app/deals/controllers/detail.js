@@ -26,8 +26,10 @@ function dealsConfig($stateProvider) {
 
 angular.module('app.deals').controller('DealDetailController', DealDetailController);
 
-DealDetailController.$inject = ['$scope', '$state', '$uibModal', 'Account', 'Contact', 'Deal', 'HLResource', 'HLUtils', 'Settings', 'currentDeal', 'Tenant'];
-function DealDetailController($scope, $state, $uibModal, Account, Contact, Deal, HLResource, HLUtils, Settings, currentDeal, Tenant) {
+DealDetailController.$inject = ['$compile', '$scope', '$state', '$templateCache', 'Account', 'Contact', 'Deal',
+    'HLResource', 'HLUtils', 'Settings', 'Tenant', 'currentDeal'];
+function DealDetailController($compile, $scope, $state, $templateCache, Account, Contact, Deal,
+                              HLResource, HLUtils, Settings, Tenant, currentDeal) {
     var vm = this;
 
     Settings.page.setAllTitles('detail', currentDeal.name, currentDeal.contact, currentDeal.account);
@@ -69,7 +71,7 @@ function DealDetailController($scope, $state, $uibModal, Account, Contact, Deal,
         });
 
         Deal.getWhyLost(function(response) {
-            vm.whyLost = response.results;
+            vm.whyLostChoices = response.results;
         });
 
         Deal.getStatuses(function(response) {
@@ -168,7 +170,7 @@ function DealDetailController($scope, $state, $uibModal, Account, Contact, Deal,
             closed_date: vm.deal.closed_date,
         };
 
-        if (vm.deal.status.id === vm.lostStatus.id && vm.whyLost.length > 0) {
+        if (vm.deal.status.id === vm.lostStatus.id && vm.whyLostChoices.length > 0) {
             // If the status is 'Lost' we want to provide a reason why the deal was lost.
             whyLost(args);
         } else {
@@ -183,20 +185,18 @@ function DealDetailController($scope, $state, $uibModal, Account, Contact, Deal,
     });
 
     function whyLost(args) {
-        var modalInstance = $uibModal.open({
-            templateUrl: 'deals/controllers/whylost.html',
-            controller: 'WhyLostModal',
-            controllerAs: 'vm',
-            size: 'sm',
-        });
+        swal({
+            title: messages.alerts.deals.title,
+            html: $compile($templateCache.get('deals/controllers/whylost.html'))($scope),
+            showCancelButton: true,
+            showCloseButton: true,
+        }).then(function(isConfirm) {
+            if (isConfirm) {
+                vm.deal.why_lost = vm.whyLost;
+                args.why_lost = vm.whyLost.id;
 
-        modalInstance.result.then(function(result) {
-            vm.deal.why_lost = result;
-            args.why_lost = result.id;
-
-            updateModel(args);
-        }, function() {
-            $state.go($state.current, {}, {reload: true});
-        });
+                updateModel(args);
+            }
+        }).done();
     }
 }

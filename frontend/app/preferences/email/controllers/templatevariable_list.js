@@ -65,6 +65,6 @@ function PreferencesEmailTemplatesList($scope, TemplateVariable, user) {
     }
 
     function previewTemplateVariable(templateVariable) {
-        swal('Preview', templateVariable.text);
+        swal('Preview', templateVariable.text).done();
     }
 }

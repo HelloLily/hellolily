@@ -19,28 +19,40 @@ function dashboardConfig($stateProvider) {
 
 angular.module('app.dashboard').controller('DashboardController', DashboardController);
 
-DashboardController.$inject = ['$uibModal', '$state', 'Settings', 'Tenant'];
-function DashboardController($uibModal, $state, Settings, Tenant) {
+DashboardController.$inject = ['$compile', '$scope', '$state', '$templateCache', '$timeout', 'LocalStorage',
+    'Settings', 'Tenant'];
+function DashboardController($compile, $scope, $state, $templateCache, $timeout, LocalStorage,
+                             Settings, Tenant) {
     var db = this;
+    var storage = new LocalStorage($state.current.name + 'widgetInfo');
+
+    db.widgetSettings = storage.get('', {});
 
     db.openWidgetSettingsModal = openWidgetSettingsModal;
 
     Settings.page.setAllTitles('custom', 'Dashboard');
 
-    Tenant.query({}, function(tenant) {
-        db.tenant = tenant;
-    });
+    activate();
+
+    //////
+
+    function activate() {
+        Tenant.query({}, function(tenant) {
+            db.tenant = tenant;
+        });
+    }
 
     function openWidgetSettingsModal() {
-        var modalInstance = $uibModal.open({
-            templateUrl: 'base/controllers/widget_settings.html',
-            controller: 'WidgetSettingsModal',
-            controllerAs: 'vm',
-            size: 'md',
-        });
-
-        modalInstance.result.then(function() {
-            $state.reload();
-        });
+        swal({
+            title: messages.alerts.dashboard.title,
+            html: $compile($templateCache.get('dashboard/controllers/widget_settings.html'))($scope),
+            showCancelButton: true,
+            showCloseButton: true,
+        }).then(function(isConfirm) {
+            if (isConfirm) {
+                storage.put('', db.widgetSettings);
+                $state.reload();
+            }
+        }).done();
     }
 }

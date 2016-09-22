@@ -41,9 +41,9 @@ function accountConfig($stateProvider) {
  */
 angular.module('app.accounts').controller('AccountCreateController', AccountCreateController);
 
-AccountCreateController.$inject = ['$scope', '$state', '$stateParams', '$timeout', 'Account', 'HLFields', 'HLForms', 'HLMessages',
+AccountCreateController.$inject = ['$scope', '$state', '$stateParams', '$timeout', 'Account', 'HLFields', 'HLForms',
     'HLUtils', 'Settings', 'User'];
-function AccountCreateController($scope, $state, $stateParams, $timeout, Account, HLFields, HLForms, HLMessages,
+function AccountCreateController($scope, $state, $stateParams, $timeout, Account, HLFields, HLForms,
                                  HLUtils, Settings, User) {
     var vm = this;
 
@@ -175,11 +175,11 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
             Account.searchByWebsite({website: domain}).$promise.then(function(result) {
                 if (result.data && result.data.id !== $stateParams.id) {
                     swal({
-                        title: HLMessages.alerts.accountForm.title,
-                        html: sprintf(HLMessages.alerts.accountForm.body, {account: result.data.name, website: domain}),
+                        title: messages.alerts.accountForm.title,
+                        html: sprintf(messages.alerts.accountForm.body, {account: result.data.name, website: domain}),
                         type: 'warning',
                         showCancelButton: true,
-                        cancelButtonText: HLMessages.alerts.accountForm.cancelButtonText,
+                        cancelButtonText: messages.alerts.accountForm.cancelButtonText,
                     }).then(function(isConfirm) {
                         if (isConfirm) {
                             _processAccountCheck(form, isExtraWebsite);
@@ -197,7 +197,7 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
                             vm.useDuplicateWebsite = false;
                             $scope.$apply();
                         }
-                    });
+                    }).done();
                 } else {
                     _processAccountCheck(form, isExtraWebsite);
                 }

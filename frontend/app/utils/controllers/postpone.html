@@ -1,21 +1,23 @@
-<div class="modal-header">
-    <h3 class="modal-title">Postpone this {{ vm.type | lowercase }}!</h3>
-</div>
-<div class="modal-body">
+<div>
     <div class="row">
         <div class="col-md-12">
-            <p>Boo, can't close this {{ vm.type | lowercase }} so quickly :( Lets postpone the {{ vm.type | lowercase }}.</p>
-            <span ng-repeat="amount in [1, 2]">
+            <p ng-bind-html="$root.messages.alerts.postpone[vm.type.toLowerCase()]"></p>
+            <div>
+                <a ng-click="vm.postponeWithDays()" class="btn btn-default margin-top-10">Set to today ({{ vm.getFutureDate() | date }})</a>
+            </div>
+            <div ng-repeat="amount in [1, 2]">
                 <a ng-click="vm.postponeWithDays(amount)" class="btn btn-default margin-top-10">
                     Add {{ amount }} <ng-pluralize count="amount" when="{1: ' day', 'other': ' days'}"></ng-pluralize> ({{ vm.getFutureDate(amount) | date }})
                 </a>
-            </span>
-            <a ng-click="vm.postponeWithDays(7)" class="btn btn-default margin-top-10">Add 7 days ({{ vm.getFutureDate(7) | date }})</a>
+            </div>
+            <div>
+                <a ng-click="vm.postponeWithDays(7)" class="btn btn-default margin-top-10">Add 7 days ({{ vm.getFutureDate(7) | date }})</a>
+            </div>
         </div>
     </div>
     <div class="row">
         <div class="col-md-12 margin-top-10">
-            <p>Lets go crazy:</p>
+            <p ng-bind-html="$root.messages.alerts.postpone.datepicker"></p>
             <div class="input-group form-datepicker">
                 <input type="text"
                        class="form-control"
@@ -24,7 +26,8 @@
                        datepicker-options="vm.datepickerOptions"
                        is-open="vm.pickerIsOpen"
                        date-disabled="vm.disabledDates(date, mode)"
-                       date-formatter="{{ vm.dateFormat }}" />
+                       date-formatter="{{ vm.dateFormat }}"
+                       datepicker-append-to-body="true" />
                 <span class="input-group-btn">
                     <button type="button" class="btn btn-default" ng-click="vm.openDatePicker($event)"><i class="glyphicon glyphicon-calendar"></i></button>
                 </span>

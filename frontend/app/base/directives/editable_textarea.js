@@ -7,6 +7,7 @@ function editableTextarea() {
             viewModel: '=',
             field: '@',
             object: '=',
+            extraClass: '@',
         },
         templateUrl: 'base/directives/editable_textarea.html',
         controller: EditableTextAreaController,
@@ -39,17 +40,27 @@ function EditableTextAreaController($timeout, HLUtils) {
 
     function decodeText() {
         // Convert the HTML entities to human readable characters.
-        vm.selectModel = HLUtils.decodeHtmlEntities(vm.selectModel);
+        if (vm.selectModel) {
+            vm.selectModel = HLUtils.decodeHtmlEntities(vm.selectModel);
+        }
     }
 
     function updateViewModel($data) {
+        var patchPromise;
         var args = {
             id: vm.object.id,
         };
 
         args[vm.field] = $data;
 
-        return vm.viewModel.updateModel(args).then(function(data) {
+        if (vm.object.historyType) {
+            // Dealing with a history list item, so we don't know what model to patch.
+            patchPromise = vm.viewModel.updateModel(vm.object.historyType, args);
+        } else {
+            patchPromise = vm.viewModel.updateModel(args);
+        }
+
+        return patchPromise.then(function(data) {
             // Set the encoded value so it get's properly displayed in the frontend.
             $timeout(function() {
                 // Just setting the value doesn't update the values model properly.

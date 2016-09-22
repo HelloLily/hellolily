@@ -1,13 +1,15 @@
-<span class="break-words margin-right-30 pre-wrap editable editable-click addable-click"
-     editable-textarea="vm.selectModel"
-     e-rows="4" e-cols="100"
-     onbeforesave="vm.updateViewModel($data)"
-     onshow="vm.decodeText()"
-     blur="ignore"
-     e-form="textAreaForm">
-    <span ng-bind-html="(vm.object[vm.field] | parseUrls) || ('No ' + vm.field)"></span>
+<div ng-class="{'{{ vm.extraClass }}': vm.extraClass}">
+    <span class="break-words margin-right-30 pre-wrap editable editable-click addable-click"
+        editable-textarea="vm.selectModel"
+        e-rows="4" e-cols="100"
+        onbeforesave="vm.updateViewModel($data)"
+        onshow="vm.decodeText()"
+        blur="ignore"
+        e-form="textAreaForm">
+        <span ng-bind-html="(vm.object[vm.field] | parseUrls) || ('No ' + vm.field)"></span>
 
-    <div class="editable-icons no-edit">
-        <span class="editable-icon"><i class="lilicon hl-edit-icon"></i></span>
-    </div>
-</span>
+        <div class="editable-icons no-edit">
+            <span class="editable-icon"><i class="lilicon hl-edit-icon"></i></span>
+        </div>
+    </span>
+</div>

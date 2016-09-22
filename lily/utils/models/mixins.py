@@ -16,7 +16,7 @@ class DeletedMixin(TimeStampedModel):
     """
     Deleted model, flags when an instance is deleted.
     """
-    deleted = models.DateTimeField(_('deleted'))
+    deleted = models.DateTimeField(_('deleted'), null=True, blank=True)
     is_deleted = models.BooleanField(default=False)
 
     def delete(self, using=None, hard=False):

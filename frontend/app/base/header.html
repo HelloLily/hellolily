@@ -28,7 +28,7 @@
 
             <ul class="header-user-menu-item drop-down-sub-menu right-aligned">
                 <li class="drop-down-sub-menu-item">
-                    <a ui-sref="base.preferences.user.profile">
+                    <a ui-sref="base.preferences.user.profile" ui-sref-opts="{reload:true}">
                         <span class="drop-down-sub-menu-icon">
                             <i class="lilicon hl-entity-icon"></i>
                         </span>
@@ -36,7 +36,7 @@
                     </a>
                 </li>
                 <li class="drop-down-sub-menu-item">
-                    <a ui-sref="base.preferences.user.account">
+                    <a ui-sref="base.preferences.user.account" ui-sref-opts="{reload:true}">
                         <span class="drop-down-sub-menu-icon">
                             <i class="lilicon hl-cog-icon"></i>
                         </span>
@@ -45,7 +45,7 @@
                 </li>
                 <li class="divider"></li>
                 <li class="drop-down-sub-menu-item">
-                    <a ui-sref="base.preferences.company.users">
+                    <a ui-sref="base.preferences.company.users" ui-sref-opts="{reload:true}">
                         <span class="drop-down-sub-menu-icon">
                             <i class="lilicon hl-cog-icon"></i>
                         </span>
@@ -54,7 +54,7 @@
                 </li>
                 <li class="divider"></li>
                 <li class="drop-down-sub-menu-item">
-                    <a ui-sref="base.preferences.emailaccounts">
+                    <a ui-sref="base.preferences.emailaccounts" ui-sref-opts="{reload:true}">
                         <span class="drop-down-sub-menu-icon">
                             <i class="lilicon hl-mail-icon"></i>
                         </span>
@@ -62,7 +62,7 @@
                     </a>
                 </li>
                 <li class="drop-down-sub-menu-item">
-                    <a ui-sref="base.preferences.emailtemplates">
+                    <a ui-sref="base.preferences.emailtemplates" ui-sref-opts="{reload:true}">
                         <span class="drop-down-sub-menu-icon">
                             <i class="icon-envelope-letter"></i>
                         </span>
@@ -70,7 +70,7 @@
                     </a>
                 </li>
                 <li class="drop-down-sub-menu-item">
-                    <a ui-sref="base.preferences.templatevariables">
+                    <a ui-sref="base.preferences.templatevariables" ui-sref-opts="{reload:true}">
                         <span class="drop-down-sub-menu-icon">
                             <i class="fa fa-code"></i>
                         </span>
@@ -95,45 +95,45 @@
     <!-- BEGIN MAINNAVIGATION -->
     <ul class="main-nav" ng-class="mainNavCollapsed ? 'main-nav-toggled':''">
         <li class="main-nav-item">
-            <a ui-sref-active="active" ui-sref="base.dashboard" ng-click="mainNavCollapsed = !mainNavCollapsed">
+            <a ui-sref-active="active" ui-sref="base.dashboard" ui-sref-opts="{reload:true}" ng-click="mainNavCollapsed = !mainNavCollapsed">
                 <i class="lilicon hl-dashboard-icon"></i>
                 <span class="title">Dashboard</span>
             </a>
         </li>
 
         <li class="main-nav-item">
-            <a ui-sref-active="active" ui-sref="base.stats" ng-click="mainNavCollapsed = !mainNavCollapsed">
+            <a ui-sref-active="active" ui-sref="base.stats" ui-sref-opts="{reload:true}" ng-click="mainNavCollapsed = !mainNavCollapsed">
                 <i class="lilicon hl-statistics-icon"></i>
                 <span class="title">Stats</span>
             </a>
         </li>
 
         <li class="main-nav-item">
-            <a ui-sref-active="active" ui-sref="base.email" ng-click="mainNavCollapsed = !mainNavCollapsed">
+            <a ui-sref-active="active" ui-sref="base.email" ui-sref-opts="{reload:true}" ng-click="mainNavCollapsed = !mainNavCollapsed">
                 <i class="lilicon hl-mail-icon"></i>
                 <span class="title">Email</span>
             </a>
         </li>
         <li class="main-nav-item">
-            <a ui-sref-active="active" ui-sref="base.accounts" ng-click="mainNavCollapsed = !mainNavCollapsed">
+            <a ui-sref-active="active" ui-sref="base.accounts" ui-sref-opts="{reload:true}" ng-click="mainNavCollapsed = !mainNavCollapsed">
                 <i class="lilicon hl-company-icon"></i>
                 <span class="title">Accounts</span>
             </a>
         </li>
         <li class="main-nav-item">
-            <a ui-sref-active="active" ui-sref="base.contacts" ng-click="mainNavCollapsed = !mainNavCollapsed">
+            <a ui-sref-active="active" ui-sref="base.contacts" ui-sref-opts="{reload:true}" ng-click="mainNavCollapsed = !mainNavCollapsed">
                 <i class="lilicon hl-entity-icon"></i>
                 <span class="title">Contacts</span>
             </a>
         </li>
         <li class="main-nav-item">
-            <a ui-sref-active="active" ui-sref="base.deals" ng-click="mainNavCollapsed = !mainNavCollapsed">
+            <a ui-sref-active="active" ui-sref="base.deals" ui-sref-opts="{reload:true}" ng-click="mainNavCollapsed = !mainNavCollapsed">
                 <i class="lilicon hl-deals-filled-icon"></i>
                 <span class="title">Deals</span>
             </a>
         </li>
         <li class="main-nav-item">
-            <a ui-sref-active="active" ui-sref="base.cases" ng-click="mainNavCollapsed = !mainNavCollapsed">
+            <a ui-sref-active="active" ui-sref="base.cases" ui-sref-opts="{reload:true}" ng-click="mainNavCollapsed = !mainNavCollapsed">
                 <i class="lilicon hl-case-icon"></i>
                 <span class="title">Cases</span>
             </a>

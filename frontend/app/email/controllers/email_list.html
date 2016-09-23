@@ -129,7 +129,7 @@
         <tbody>
             <tr ng-repeat="message in vm.emailMessages" style="cursor: pointer;" ng-class="{'unread': !message.read}">
                 <td class="inbox-small-cells">
-                    <checkbox model="message.checked"></checkbox>
+                    <checkbox model="message.checked" ng-click="vm.handleSelect($index, $event)"></checkbox>
                 </td>
                 <td class="inbox-small-cells">
                     <i ng-class="{'fa fa-star': message.is_starred, 'fa fa-star-o': !message.is_starred}" ng-click="vm.toggleStarred(message)"></i>

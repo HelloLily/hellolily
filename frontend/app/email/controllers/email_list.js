@@ -70,6 +70,30 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
     vm.reloadMessages = reloadMessages;
     vm.goToDraft = goToDraft;
     vm.setSearchQuery = setSearchQuery;
+    vm.handleSelect = handleSelect;
+
+    function handleSelect(index, event) {
+        // Keep track of the previously clicked item.
+        var i = vm.lastSelected;
+
+        // Set the last selected item.
+        vm.lastSelected = index;
+
+        // Check if someone wants to select multiple items.
+        if (event.shiftKey) {
+            if (i < index) {
+                //  We're going from top to bottom, so increment i.
+                for (i; i < index; i++) {
+                    vm.emailMessages[i].checked = vm.emailMessages[vm.lastSelected].checked;
+                }
+            } else {
+                // Going from bottom to top, so decrement i.
+                for (i; i > index; i--) {
+                    vm.emailMessages[i].checked = vm.emailMessages[vm.lastSelected].checked;
+                }
+            }
+        }
+    }
 
     Settings.page.setAllTitles('custom', 'Email');
 

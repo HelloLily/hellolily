@@ -5,7 +5,7 @@ Account.$inject = ['$filter', '$http', '$q', '$resource', 'HLResource', 'HLUtils
 function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
                  CacheFactory, Settings) {
     var _account = $resource(
-        '/api/accounts/account/:id/',
+        '/api/accounts/:id/',
         null,
         {
             get: {

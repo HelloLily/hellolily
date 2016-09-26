@@ -3,7 +3,7 @@ angular.module('app.notes').factory('Note', Note);
 Note.$inject = ['$resource'];
 function Note($resource) {
     var _note = $resource(
-        '/api/notes/note/:id/',
+        '/api/notes/:id/',
         null,
         {
             query: {

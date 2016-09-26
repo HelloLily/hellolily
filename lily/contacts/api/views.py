@@ -23,9 +23,9 @@ class ContactViewSet(SetTenantUserMixin, viewsets.ModelViewSet):
     To order, provide a comma seperated list to the ordering argument. Use `-` minus to inverse the ordering.
 
     #Examples#
-    - plain: `/api/contacts/contact/`
-    - search: `/api/contacts/contact/?search=subject:Doremi`
-    - order: `/api/contacts/contact/?ordering=subject,-id`
+    - plain: `/api/contacts/`
+    - search: `/api/contacts/?search=subject:Doremi`
+    - order: `/api/contacts/?ordering=subject,-id`
 
     #Returns#
     * List of cases with related fields

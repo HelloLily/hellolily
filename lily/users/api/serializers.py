@@ -33,7 +33,7 @@ class LilyUserSerializer(WritableNestedSerializer):
             'phone_number',
             'social_media',
             'language',
-            'timezone',
+            # 'timezone',
             'lily_groups',
         )
 

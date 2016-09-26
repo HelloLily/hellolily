@@ -74,9 +74,9 @@ class LilyUserViewSet(SetTenantUserMixin, viewsets.ModelViewSet):
     To filter, provide a field name to filter on followed by the value you want to filter on.
 
     #Examples#
-    - plain: `/api/users/user/`
-    - order: `/api/users/user/?ordering=first_name,-id`
-    - filter: `/api/users/user/?is_active=True`
+    - plain: `/api/users/`
+    - order: `/api/users/?ordering=first_name,-id`
+    - filter: `/api/users/?is_active=True`
 
     #Returns#
     * List of cases with related fields

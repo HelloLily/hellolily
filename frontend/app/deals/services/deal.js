@@ -3,7 +3,7 @@ angular.module('app.deals.services').factory('Deal', Deal);
 Deal.$inject = ['$resource', 'HLUtils', 'HLForms', 'HLCache', 'CacheFactory'];
 function Deal($resource, HLUtils, HLForms, HLCache, CacheFactory) {
     var _deal = $resource(
-        '/api/deals/deal/:id/',
+        '/api/deals/:id/',
         null,
         {
             update: {
@@ -100,7 +100,7 @@ function Deal($resource, HLUtils, HLForms, HLCache, CacheFactory) {
                 url: '/api/deals/contacted-by/',
             },
             getFormOptions: {
-                url: 'api/deals/deal',
+                url: 'api/deals',
                 method: 'OPTIONS',
             },
         }

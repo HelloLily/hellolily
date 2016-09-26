@@ -25,7 +25,7 @@ function User($resource, CacheFactory) {
     };
 
     var _user = $resource(
-        '/api/users/user/:id/',
+        '/api/users/:id/',
         null,
         {
             get: {
@@ -59,38 +59,38 @@ function User($resource, CacheFactory) {
             },
             me: {
                 method: 'GET',
-                url: '/api/users/user/me/',
+                url: '/api/users/me/',
                 isArray: false,
             },
             update: {
                 method: 'PUT',
-                url: '/api/users/user/:id/',
+                url: '/api/users/:id/',
                 interceptor: interceptor,
             },
             patch: {
                 method: 'PATCH',
-                url: '/api/users/user/:id/',
+                url: '/api/users/:id/',
                 interceptor: interceptor,
             },
             delete: {
                 method: 'DELETE',
-                url: '/api/users/user/:id/',
+                url: '/api/users/:id/',
                 interceptor: interceptor,
             },
             token: {
                 method: 'GET',
-                url: '/api/users/user/token/',
+                url: '/api/users/token/',
             },
             deleteToken: {
                 method: 'DELETE',
-                url: '/api/users/user/token/',
+                url: '/api/users/token/',
             },
             generateToken: {
                 method: 'POST',
-                url: '/api/users/user/token/',
+                url: '/api/users/token/',
             },
             getAssignOptions: {
-                url: '/api/users/user',
+                url: '/api/users/',
             },
         }
     );

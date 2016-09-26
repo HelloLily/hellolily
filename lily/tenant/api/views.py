@@ -28,10 +28,10 @@ class TenantViewSet(SetTenantUserMixin, mixins.UpdateModelMixin, mixins.ListMode
     To order, provide a comma seperated list to the ordering argument. Use `-` minus to inverse the ordering.
 
     #Examples#
-    - plain: `/api/tenants/tenant/`
-    - search: `/api/tenants/tenant/?search=subject:Doremi`
-    - filter: `/api/tenants/tenant/?type=1`
-    - order: `/api/tenants/tenant/?ordering=subject,-id`
+    - plain: `/api/tenants/`
+    - search: `/api/tenants/?search=subject:Doremi`
+    - filter: `/api/tenants/?type=1`
+    - order: `/api/tenants/?ordering=subject,-id`
 
     #Returns#
     * List of tenants with related fields

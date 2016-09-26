@@ -152,11 +152,11 @@
                 <td class="view-message inbox-small-cells" ui-sref="base.email.detail({id: message.id})">
                     <i class="lilicon hl-paperclip-icon" uib-tooltip="There is a file attached" tooltip-placement="left" ng-if="message.has_attachment"></i>
                 </td>
-                <td class="view-message" ng-if="vm.label.name == 'Draft'">
-                    <a class="link-no-decoration" ui-sref="base.email.draft({id: message.id})">{{ message.subject }}</a>
+                <td class="view-message" ng-if="vm.label.name == 'Draft'" ui-sref="base.email.draft({id: message.id})">
+                    <a class="link-no-decoration">{{ message.subject }}</a>
                 </td>
-                <td class="view-message" ng-if="vm.label.name != 'Draft'">
-                    <a class="link-no-decoration" ui-sref="base.email.detail({id: message.id})">{{ message.subject }}</a>
+                <td class="view-message" ng-if="vm.label.name != 'Draft'" ui-sref="base.email.detail({id: message.id})">
+                    <a class="link-no-decoration">{{ message.subject }}</a>
                 </td>
                 <td title="{{ message.sent_date | date:'dd MMMM y H:mm' }}" class="view-message text-right text-nowrap" ui-sref="base.email.detail({id: message.id})">
                     <date date="message.sent_date" show-time="true"></date>

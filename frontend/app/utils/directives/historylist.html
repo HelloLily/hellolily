@@ -66,7 +66,7 @@
             </div>
 
             <div ng-repeat="item in history.list.pinned" class="history-list-item pinned-items">
-                <history-list-item item="item" history="history" object="object" delete-callback="history.removeFromList(item)" update-note-callback="history.updateNote"></history-list-item>
+                <history-list-item item="item" history="history" object="object" delete-callback="history.removeFromList(item)" update-callback="history.updateModel"></history-list-item>
             </div>
 
             <div ng-repeat="(key, value) in history.list.nonPinned" class="history-list-item" ng-show="value.isVisible">
@@ -75,7 +75,7 @@
                 </div>
 
                 <div ng-repeat="item in value.items" class="history-item" ng-show="!history.activeFilter || history.activeFilter == item.historyType">
-                    <history-list-item item="item" history="history" object="object" delete-callback="history.removeFromList(item)" update-note-callback="history.updateNote"></history-list-item>
+                    <history-list-item item="item" history="history" object="object" delete-callback="history.removeFromList(item)" update-callback="history.updateModel"></history-list-item>
                 </div>
             </div>
         </div>

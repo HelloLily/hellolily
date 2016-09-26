@@ -15,8 +15,6 @@
             tagsAjaxSelector: '.tags-ajax',
             emailAccountInput: '#id_send_from',
             sendToNormalField: '#id_send_to_normal',
-            overwriteTemplateConfirm: 'Selecting a different template will reload the template. This will put your typed text at the bottom of the email. Do you want to load the template anyway?',
-            reloadTemplateConfirm: 'Do you want to reload the template? This will load the template variables, but will put your text at the bottom of the email.',
             emptyTemplateAttachmentRow: '#empty-template-attachment-row',
             templateAttachmentDeleteButton: '#template-attachments [data-formset-delete-button]',
             templateAttachmentsDiv: '#template-attachments',
@@ -381,61 +379,54 @@
                 if (currentTemplate.html().length) {
                     if (templateChanged) {
                         // If a different template was selected we want to warn the user.
-                        message = self.config.overwriteTemplateConfirm;
+                        message = messages.alerts.email.overwriteTemplateConfirm;
                     } else {
                         // Template wasn't changed, so a new recipient was entered.
                         // Check if the user wants to reload the template.
-                        message = self.config.reloadTemplateConfirm;
+                        message = messages.alerts.email.reloadTemplateConfirm;
                     }
 
-                    bootbox.confirm({
-                        message: message,
+                    swal({
                         title: 'Reload template',
-                        buttons: {
-                            cancel: {
-                                label: 'No',
-                                className: 'btn-default',
-                            },
-                            confirm: {
-                                label: 'Yes',
-                                className: 'btn-primary',
-                            },
-                        },
-                        callback: function(changeTemplate) {
-                            if (changeTemplate) {
-                                if (self.config.currentTemplate) {
-                                    // First time changing a draft needs a different operation.
-                                    // We want to check if the draft template differs from the default.
-                                    if (self.config.messageType === 'draft' && htmlPart === self.config.currentTemplate) {
-                                        diff = JsDiff.diffChars(currentTemplate.html(), htmlPart);
-                                    } else {
-                                        // Otherwise compare the current editor value with the current template.
-                                        diff = JsDiff.diffChars(currentTemplate.html(), self.config.currentTemplate);
-                                    }
-
-                                    diff.forEach(function(part) {
-                                        // Get all text that was changed/added.
-                                        if (part.added || part.removed) {
-                                            addedTemplateText += part.value;
-                                        }
-                                    });
+                        html: message,
+                        type: 'info',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes',
+                        cancelButtonText: 'No',
+                    }).then(function(isConfirm) {
+                        if (isConfirm) {
+                            if (self.config.currentTemplate) {
+                                // First time changing a draft needs a different operation.
+                                // We want to check if the draft template differs from the default.
+                                if (self.config.messageType === 'draft' && htmlPart === self.config.currentTemplate) {
+                                    diff = JsDiff.diffChars(currentTemplate.html(), htmlPart);
+                                } else {
+                                    // Otherwise compare the current editor value with the current template.
+                                    diff = JsDiff.diffChars(currentTemplate.html(), self.config.currentTemplate);
                                 }
 
-                                self.config.currentTemplate = htmlPart;
-
-                                // Change the html of the existing email template and add text that was added to the template.
-                                currentTemplate.html(htmlPart + addedTemplateText);
-                                // Since editorValue is actually an array of elements we can't easily convert it back to text.
-                                container = $('<div>');
-                                // Add the (edited) html to the newly created container.
-                                container.append(editorValue);
-                                // Get the text version of the new html.
-                                newEditorValue = container[0].innerHTML;
-
-                                self.processNewEditorValue(newEditorValue, data);
+                                diff.forEach(function(part) {
+                                    // Get all text that was changed/added.
+                                    if (part.added || part.removed) {
+                                        addedTemplateText += part.value;
+                                    }
+                                });
                             }
-                        },
-                    });
+
+                            self.config.currentTemplate = htmlPart;
+
+                            // Change the html of the existing email template and add text that was added to the template.
+                            currentTemplate.html(htmlPart + addedTemplateText);
+                            // Since editorValue is actually an array of elements we can't easily convert it back to text.
+                            container = $('<div>');
+                            // Add the (edited) html to the newly created container.
+                            container.append(editorValue);
+                            // Get the text version of the new html.
+                            newEditorValue = container[0].innerHTML;
+
+                            self.processNewEditorValue(newEditorValue, data);
+                        }
+                    }).done();
                 }
             } else {
                 // No email template loaded so create our email template container.

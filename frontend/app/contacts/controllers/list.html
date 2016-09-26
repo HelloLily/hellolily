@@ -94,7 +94,7 @@
                                     </a>
                                 </div>
 
-                                <div ng-if="!contact.phone_numbers">
+                                <div ng-if="!contact.phone_numbers && account.phone_numbers.length">
                                     <i class="lilicon hl-company-icon margin-right-5" uib-tooltip="{{ $root.messages.contact.accountListInfoTooltip }}"></i>
                                     <a href="tel:{{ account.phone_numbers[0].number }}">
                                         {{ account.phone_numbers[0].number }}

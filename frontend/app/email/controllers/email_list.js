@@ -222,6 +222,11 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
                 vm.emailMessages.splice(i, 1);
             }
         }
+
+        if (vm.opts.checkboxesAll) {
+            reloadMessages();
+            vm.opts.checkboxesAll = false;
+        }
     }
 
     function archiveMessages() {

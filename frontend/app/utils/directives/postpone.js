@@ -12,24 +12,136 @@ function postponeDirective() {
         },
         templateUrl: 'utils/directives/postpone.html',
         controller: PostponeController,
-        controllerAs: 'pp',  // naming it vm gives conflicts with the modal's scope
+        controllerAs: 'vm',
         bindToController: true,
     };
 }
 
-PostponeController.$inject = ['$state', '$uibModal'];
-function PostponeController($state, $uibModal) {
-    var pp = this;
+PostponeController.$inject = ['$compile', '$injector', '$scope', '$state', '$templateCache', 'HLUtils'];
+function PostponeController($compile, $injector, $scope, $state, $templateCache, HLUtils) {
+    var vm = this;
 
-    pp.openPostponeModal = openPostponeModal;
+    vm.pickerIsOpen = false;
+    vm.dateFormat = 'dd MMMM yyyy';
+    vm.datepickerOptions = {
+        startingDay: 1, // day 1 is Monday
+    };
+
+    vm.disabledDates = disabledDates;
+    vm.openDatePicker = openDatePicker;
+    vm.postponeWithDays = postponeWithDays;
+    vm.getFutureDate = getFutureDate;
+    vm.openPostponeModal = openPostponeModal;
+
+    activate();
+
+    ////
+
+    function activate() {
+        if (vm.object[vm.dateField]) {
+            vm.date = moment(vm.object[vm.dateField]);
+        } else {
+            vm.date = moment();
+        }
+
+        vm.date = vm.date.format();
+
+        _watchCloseDatePicker();
+    }
+
+    /**
+     * When the datepicker popup is closed, update model and close modal.
+     *
+     * @private
+     */
+    function _watchCloseDatePicker() {
+        $scope.$watch('vm.pickerIsOpen', function(newValue, oldValue) {
+            if (!newValue && oldValue) {
+                _updateDayAndCloseModal();
+            }
+        });
+    }
+
+    function _updateDayAndCloseModal() {
+        var newDate;
+        var args;
+
+        if (!moment(vm.date).isSame(moment(vm.object[vm.dateField]))) {
+            // Update the due date for this case.
+            newDate = moment(vm.date).format('YYYY-MM-DD');
+
+            args = {
+                id: vm.object.id,
+            };
+
+            args[vm.dateField] = newDate;
+            // Update the model so changes are reflected instantly.
+            vm.object[vm.dateField] = newDate;
+
+            // Dynamically get the model that should be updated.
+            $injector.get(vm.type).patch(args, function() {
+                swal.close();
+                _processClose();
+            });
+        } else {
+            swal.close();
+            _processClose();
+        }
+    }
+
+    function _processClose() {
+        if (vm.callback) {
+            vm.callback();
+        } else {
+            $state.go($state.current, {}, {reload: true});
+        }
+    }
+
+    function disabledDates(currentDate, mode) {
+        var date = moment.isMoment(currentDate) ? currentDate : moment(currentDate);
+
+        // Disable Saturday and Sunday.
+        return ( mode === 'day' && ( date.day() === 6 || date.day() === 0 ) );
+    }
+
+    function openDatePicker($event) {
+        $event.preventDefault();
+        $event.stopPropagation();
+        vm.pickerIsOpen = true;
+    }
+
+    function postponeWithDays(days) {
+        vm.date = getFutureDate(days);
+
+        _updateDayAndCloseModal();
+    }
+
+    function getFutureDate(days) {
+        var daysToAdd;
+
+        var futureDate = moment();
+
+        if (days) {
+            daysToAdd = days;
+
+            if (futureDate.isBefore(vm.date)) {
+                futureDate = moment(vm.date);
+            }
+        } else {
+            // The date should be the current date.
+            daysToAdd = 0;
+        }
+
+        futureDate = HLUtils.addBusinessDays(daysToAdd, futureDate);
+
+        return futureDate;
+    }
 
     function openPostponeModal() {
-        var modalInstance;
-
         // Google Analytics events per page to track where users use the
         // postpone functionality.
         if ($state.current.name === 'base.dashboard') {
-            ga('send', 'event', pp.type, 'Open postpone modal', 'Dashboard');
+            ga('send', 'event', vm.type, 'Open postpone modal', 'Dashboard');
         }
 
         if ($state.current.name === 'base.cases.detail') {
@@ -49,35 +161,19 @@ function PostponeController($state, $uibModal) {
         }
 
         if ($state.current.name === 'base.accounts.detail') {
-            ga('send', 'event', pp.type, 'Open postpone modal', 'Account detail');
+            ga('send', 'event', vm.type, 'Open postpone modal', 'Account detail');
         }
 
         if ($state.current.name === 'base.contacts.detail') {
-            ga('send', 'event', pp.type, 'Open postpone modal', 'Contact detail');
+            ga('send', 'event', vm.type, 'Open postpone modal', 'Contact detail');
         }
 
-        modalInstance = $uibModal.open({
-            templateUrl: 'utils/controllers/postpone.html',
-            controller: 'PostponeModal',
-            controllerAs: 'vm',
-            size: 'sm',
-            resolve: {
-                data: function() {
-                    return {
-                        object: pp.object,
-                        dateField: pp.dateField,
-                        type: pp.type,
-                    };
-                },
-            },
-        });
+        vm.bodyText = messages.alerts.postpone[vm.type.toLowerCase()];
 
-        modalInstance.result.then(function() {
-            if (pp.callback) {
-                pp.callback();
-            } else {
-                $state.go($state.current, {}, {reload: true});
-            }
-        });
+        swal({
+            title: messages.alerts.postpone[vm.type.toLowerCase() + 'Title'],
+            html: $compile($templateCache.get('utils/controllers/postpone.html'))($scope),
+            showCloseButton: true,
+        }).done();
     }
 }

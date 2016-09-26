@@ -1,22 +1,12 @@
-<div class="modal-header">
-    <h3 class="modal-title">Why lost?</h3>
-</div>
-<div class="modal-body">
-    <div class="row">
-        <div class="col-md-12">
-            Please select a reason why this deal has been lost.
+<div class="row">
+    <div class="col-md-12">
+        Please select a reason why this deal has been lost.
 
-            <select name="why_lost"
-                    ng-model="vm.whyLost"
-                    ng-options="why_lost.name for why_lost in vm.whyLostChoices track by why_lost.id"
-                    class="form-control">
-                <option value="" hidden>Select a reason</option>
-            </select>
-        </div>
+        <select name="why_lost"
+                ng-model="vm.whyLost"
+                ng-options="why_lost.name for why_lost in vm.whyLostChoices track by why_lost.id"
+                class="form-control">
+            <option value="" hidden>Select a reason</option>
+        </select>
     </div>
-</div>
-
-<div class="modal-footer">
-    <button class="btn btn-primary" ng-click="vm.ok()">OK</button>
-    <button class="btn btn-default" ng-click="vm.cancel()">Cancel</button>
 </div>

@@ -24,13 +24,15 @@ function emailPreferencesStates($stateProvider) {
 
 angular.module('app.preferences').controller('PreferencesEmailAccountList', PreferencesEmailAccountList);
 
-PreferencesEmailAccountList.$inject = ['$uibModal', 'EmailAccount', 'User', 'user', '$http'];
-function PreferencesEmailAccountList($uibModal, EmailAccount, User, user, $http) {
+PreferencesEmailAccountList.$inject = ['$compile', '$http', '$scope', '$templateCache', 'EmailAccount', 'User', 'user'];
+function PreferencesEmailAccountList($compile, $http, $scope, $templateCache, EmailAccount, User, user) {
     var vm = this;
+
     vm.ownedAccounts = [];
     vm.sharedAccounts = [];
     vm.publicAccounts = [];
     vm.currentUser = user;
+
     vm.activate = activate;
     vm.followShared = followShared;
     vm.hideShared = hideShared;
@@ -101,23 +103,53 @@ function PreferencesEmailAccountList($uibModal, EmailAccount, User, user, $http)
     }
 
     function openShareAccountModal(emailAccount) {
-        var modalInstance = $uibModal.open({
-            templateUrl: 'preferences/email/controllers/emailaccount_share.html',
-            controller: 'EmailAccountShareModalController',
-            size: 'lg',
-            controllerAs: 'vm',
-            bindToController: true,
-            resolve: {
-                currentAccount: function() {
-                    return emailAccount;
-                },
-            },
-        });
+        vm.currentAccount = emailAccount;
 
-        modalInstance.result.then(function() {
-            loadAccounts();
-        }, function() {
-            loadAccounts();
+        User.query({}, function(data) {
+            vm.users = [];
+            // Check if user has the email account already shared.
+            angular.forEach(data.results, function(userObject) {
+                // Can't share with yourself, so don't include own user.
+                if (userObject.id !== vm.currentUser.id) {
+                    if (vm.currentAccount.shared_with_users.indexOf(userObject.id) !== -1) {
+                        userObject.sharedWith = true;
+                    }
+
+                    vm.users.push(userObject);
+                }
+            });
+
+            swal({
+                title: messages.alerts.preferences.shareAccountTitle,
+                html: $compile($templateCache.get('preferences/email/controllers/emailaccount_share.html'))($scope),
+                showCancelButton: true,
+                showCloseButton: true,
+            }).then(function(isConfirm) {
+                var sharedWithUsers = [];
+
+                if (isConfirm) {
+                    // Save updated account information.
+                    if (vm.currentAccount.public) {
+                        EmailAccount.update({id: vm.currentAccount.id}, vm.currentAccount, function() {
+                            swal.close();
+                            loadAccounts();
+                        });
+                    } else {
+                        // Get ids of the users to share with.
+                        angular.forEach(vm.users, function(userObject) {
+                            if (userObject.sharedWith) {
+                                sharedWithUsers.push(userObject.id);
+                            }
+                        });
+
+                        // Push ids to api.
+                        EmailAccount.shareWith({id: vm.currentAccount.id}, {shared_with_users: sharedWithUsers}, function() {
+                            swal.close();
+                            loadAccounts();
+                        });
+                    }
+                }
+            }).done();
         });
     }
 

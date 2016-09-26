@@ -252,19 +252,19 @@
         }
     }
 
+    .history-item-body {
+        .detail-plain-text {
+            padding: 15px;
+            border-bottom: 1px $app-border-color solid;
+            max-height: 400px;
+            overflow-y: auto;
+            margin: -15px -15px 15px;
+        }
+    }
+
     &.has-email {
         &:before {
             background-color: $email-color;
-        }
-
-        .history-item-body {
-            .detail-plain-text {
-                padding: 15px;
-                margin: -15px -15px 15px;
-                border-bottom: 1px $app-border-color solid;
-                max-height: 400px;
-                overflow-y: auto;
-            }
         }
     }
 

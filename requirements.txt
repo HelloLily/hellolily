@@ -121,7 +121,7 @@ unicodecsv==0.13.0
 urllib3==1.11
 Babel==2.2.0
 six==1.10.0
-freemail==1.2.16
+freemail==1.2.17
 tldextract==1.7.5
 idna==2.1
 raven==5.21.0
@@ -149,5 +149,5 @@ backports.ssl-match-hostname==3.5.0.1
 pathtools==0.1.2
 singledispatch==3.4.0.3
 snowballstemmer==1.2.1
-tornado==4.4.1
+tornado==4.2  # Hold back for flower. See https://github.com/mher/flower/issues/586
 watchdog==0.8.3

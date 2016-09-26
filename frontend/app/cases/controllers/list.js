@@ -19,10 +19,10 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseListController', CaseListController);
 
-CaseListController.$inject = ['$filter', '$scope', '$state', '$timeout', '$uibModal', 'Case', 'HLFilters', 'LocalStorage',
-    'Settings', 'UserTeams'];
-function CaseListController($filter, $scope, $state, $timeout, $uibModal, Case, HLFilters, LocalStorage, Settings,
-                            UserTeams) {
+CaseListController.$inject = ['$compile', '$filter', '$scope', '$state', '$timeout', '$templateCache', 'Case',
+    'HLFilters', 'LocalStorage', 'Settings', 'User', 'UserTeams'];
+function CaseListController($compile, $filter, $scope, $state, $timeout, $templateCache, Case, HLFilters,
+                            LocalStorage, Settings, User, UserTeams) {
     var vm = this;
 
     vm.storage = new LocalStorage('cases');
@@ -63,17 +63,23 @@ function CaseListController($filter, $scope, $state, $timeout, $uibModal, Case, 
     vm.displaySpecialFilterClear = false;
     vm.filterList = [];
     vm.filterSpecialList = [];
+    vm.users = [];
 
     vm.updateFilterQuery = updateFilterQuery;
     vm.setSearchQuery = setSearchQuery;
     vm.clearFilters = clearFilters;
     vm.assignTo = assignTo;
+    vm.assignToMe = assignToMe;
 
     activate();
 
     //////
 
     function activate() {
+        User.query({}, function(data) {
+            vm.users = data.results;
+        });
+
         // This timeout is needed because by loading from LocalStorage isn't fast enough.
         $timeout(function() {
             _getFilterOnList();
@@ -267,20 +273,24 @@ function CaseListController($filter, $scope, $state, $timeout, $uibModal, Case, 
     }
 
     function assignTo(myCase) {
-        var modalInstance = $uibModal.open({
-            templateUrl: 'cases/controllers/assignto.html',
-            controller: 'CaseAssignModal',
-            controllerAs: 'vm',
-            size: 'sm',
-            resolve: {
-                myCase: function() {
-                    return myCase;
-                },
-            },
-        });
+        swal({
+            title: messages.alerts.assignTo.title,
+            html: $compile($templateCache.get('cases/controllers/assignto.html'))($scope),
+            showCancelButton: true,
+            showCloseButton: true,
+        }).then(function(isConfirm) {
+            if (isConfirm) {
+                Case.patch({id: myCase.id, assigned_to: vm.assignee.id}).$promise.then(function() {
+                    $state.go($state.current, {}, {reload: true});
+                });
+            }
+        }).done();
+    }
 
-        modalInstance.result.then(function() {
-            $state.go($state.current, {}, {reload: true});
-        });
+    function assignToMe() {
+        vm.assignee = {
+            id: currentUser.id,
+            full_name: currentUser.fullName,
+        };
     }
 }

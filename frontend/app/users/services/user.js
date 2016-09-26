@@ -69,7 +69,9 @@ function User($resource, CacheFactory) {
             },
             patch: {
                 method: 'PATCH',
-                url: '/api/users/user/:id/',
+                params: {
+                    id: '@id',
+                },
                 interceptor: interceptor,
             },
             delete: {

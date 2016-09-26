@@ -32,7 +32,7 @@
         </div>
         <div ng-show="vm.item.shown">
             <div class="content-details history-item-body">
-                <p ng-if="vm.item.body" ng-bind-html="::vm.item.body | parseUrls"></p>
+                <editable-textarea extra-class="detail-plain-text" view-model="vm" field="description" object="vm.item"></editable-textarea>
 
                 <ul class="content-details-actions">
                     <li><a ui-sref="base.cases.detail({ id: vm.item.id })"><i class="fa fa-eye"></i> View</a></li>

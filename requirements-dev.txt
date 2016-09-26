@@ -22,7 +22,7 @@ pyflakes==0.8.1
 mccabe==0.3.1
 coverage==3.7.1
 netifaces==0.10.4
-flower==0.8.4
+flower==0.9.1
 
 #######################################################
 ### Ipython & ipdb                                  ###

@@ -20,7 +20,7 @@
         <div class="hl-button-group-container">
             <ul class="hl-button-group">
                 <li class="hl-button-group-btn">
-                    <button class="hl-button-group-btn-link" type="submit" name="submit-send" send-checker send-draft><i class="fa fa-check"></i> Send</button>
+                    <button class="hl-button-group-btn-link" type="submit" name="submit-send"><i class="fa fa-check"></i> Send</button>
                 </li>
 
                 {% if form.message_type == 'reply' or form.message_type == 'forward' %}
@@ -33,8 +33,7 @@
             <ul class="hl-button-group">
                 <li class="hl-button-group-btn">
                     <button class="hl-button-group-btn-link" type="submit" name="submit-save">Draft</button>
-                </li>
-                <li class="hl-button-group-btn">
+                </li><li class="hl-button-group-btn">
                     <button class="hl-button-group-btn-link" type="button" ng-click="vm.discard()" name="submit-discard">Discard</button>
                 </li>
             </ul>
@@ -119,27 +118,29 @@
         {{ form.attachments }}
 
         <div class="email-reply-actions-header">
-            <ul class="email-inbox-actions">
-                <li>
-                    <button type="submit" name="submit-send" send-checker send-draft>
-                        <i class="fa fa-check"></i>
-                        {% trans 'Send' %}
-                    </button>
-                </li>{% if form.message_type == 'reply' or form.message_type == 'forward' %}<li>
-                    <button type="submit" name="submit-send-archive" send-and-archive>
-                        <i class="fa fa-archive"></i>
-                        {% trans 'Send and archive' %}
-                    </button>
-                </li>
-                {% endif %}
-            </ul>
-            <ul class="email-inbox-actions">
-                <li>
-                    <button type="submit" name="submit-save">{% trans 'Draft' %}</button>
-                </li><li>
-                    <button type="button" ng-click="vm.discard()">{% trans 'Discard' %}</button>
-                </li>
-            </ul>
+            <div class="hl-button-group-container">
+              <ul class="hl-button-group">
+                  <li class="hl-button-group-btn">
+                      <button class="hl-button-group-btn-link" type="submit" name="submit-send">
+                          <i class="fa fa-check"></i>
+                          {% trans 'Send' %}
+                      </button>
+                  </li>{% if form.message_type == 'reply' or form.message_type == 'forward' %}<li class="hl-button-group-btn">
+                      <button class="hl-button-group-btn-link" type="submit" name="submit-send-archive" send-and-archive>
+                          <i class="fa fa-archive"></i>
+                          {% trans 'Send and archive' %}
+                      </button>
+                  </li>
+                  {% endif %}
+              </ul>
+              <ul class="hl-button-group">
+                  <li class="hl-button-group-btn">
+                      <button class="hl-button-group-btn-link" type="submit" name="submit-save">{% trans 'Draft' %}</button>
+                  </li><li class="hl-button-group-btn">
+                      <button class="hl-button-group-btn-link" type="button" ng-click="vm.discard()" name="submit-discard">{% trans 'Discard' %}</button>
+                  </li>
+              </ul>
+            </div>
         </div>
     </div>
 </form>

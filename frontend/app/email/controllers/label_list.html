@@ -20,27 +20,27 @@
         </li>
         <collapsable-content>
             <li ui-sref-active="active">
-                <a class="email-nav-item" ui-sref="base.email.list({labelId:'INBOX'})">
+                <a class="email-nav-item" ui-sref="base.email.list({labelId:'INBOX'})" ui-sref-opts="{reload:true}">
                     Inbox <span class="label-count" ng-if="vm.labelCount['INBOX']">{{ vm.labelCount['INBOX'] }}</span>
                 </a>
             </li>
             <li ui-sref-active="active">
-                <a class="email-nav-item" ui-sref="base.email.list({labelId:'SENT'})">
+                <a class="email-nav-item" ui-sref="base.email.list({labelId:'SENT'})" ui-sref-opts="{reload:true}">
                     Sent <span class="label-count" ng-if="vm.labelCount['SENT']">{{ vm.labelCount['SENT'] }}</span>
                 </a>
             </li>
             <li ui-sref-active="active">
-                <a class="email-nav-item" ui-sref="base.email.list({labelId:'DRAFT'})">
+                <a class="email-nav-item" ui-sref="base.email.list({labelId:'DRAFT'})" ui-sref-opts="{reload:true}">
                     Draft <span class="label-count" ng-if="vm.labelCount['DRAFT']">{{ vm.labelCount['DRAFT'] }}</span>
                 </a>
             </li>
             <li ui-sref-active="active">
-                <a class="email-nav-item" ui-sref="base.email.list({labelId:'TRASH'})">
+                <a class="email-nav-item" ui-sref="base.email.list({labelId:'TRASH'})" ui-sref-opts="{reload:true}">
                     Trash <span class="label-count" ng-if="vm.labelCount['TRASH']">{{ vm.labelCount['TRASH'] }}</span>
                 </a>
             </li>
             <li ui-sref-active="active">
-                <a class="email-nav-item" ui-sref="base.email.list({labelId:''})">All mail</a>
+                <a class="email-nav-item" ui-sref="base.email.list({labelId:''})" ui-sref-opts="{reload:true}">All mail</a>
             </li>
         </collapsable-content>
     </collapsable>
@@ -60,32 +60,32 @@
         </li>
         <collapsable-content>
             <li ui-sref-active="active">
-                <a class="email-nav-item" ui-sref="base.email.accountList({labelId:'INBOX', accountId: account.id})">
+                <a class="email-nav-item" ui-sref="base.email.accountList({labelId:'INBOX', accountId: account.id})" ui-sref-opts="{reload:true}">
                     Inbox <span class="unread-count" ng-if="vm.hasUnreadLabel(account, 'INBOX')">{{ vm.unreadCountForLabel(account, 'INBOX') }}</span>
                 </a>
             </li>
             <li ui-sref-active="active">
-                <a class="email-nav-item" ui-sref="base.email.accountList({labelId:'SENT', accountId: account.id})">
+                <a class="email-nav-item" ui-sref="base.email.accountList({labelId:'SENT', accountId: account.id})" ui-sref-opts="{reload:true}">
                     Sent <span class="unread-count" ng-if="vm.hasUnreadLabel(account, 'SENT')">{{ vm.unreadCountForLabel(account, 'SENT') }}</span>
                 </a>
             </li>
             <li ui-sref-active="active">
-                <a class="email-nav-item" ui-sref="base.email.accountList({labelId:'DRAFT', accountId: account.id})">
+                <a class="email-nav-item" ui-sref="base.email.accountList({labelId:'DRAFT', accountId: account.id})" ui-sref-opts="{reload:true}">
                     Draft <span class="unread-count" ng-if="vm.hasUnreadLabel(account, 'DRAFT')">{{ vm.unreadCountForLabel(account, 'DRAFT') }}</span>
                 </a>
             </li>
             <li ui-sref-active="active">
-                <a class="email-nav-item" ui-sref="base.email.accountList({labelId:'TRASH', accountId: account.id})">
+                <a class="email-nav-item" ui-sref="base.email.accountList({labelId:'TRASH', accountId: account.id})" ui-sref-opts="{reload:true}">
                     Trash <span class="unread-count" ng-if="vm.hasUnreadLabel(account, 'TRASH')">{{ vm.unreadCountForLabel(account, 'TRASH') }}</span>
                 </a>
             </li>
             <li ui-sref-active="active">
-                <a class="email-nav-item" ui-sref="base.email.accountList({labelId:'SPAM', accountId: account.id})">
+                <a class="email-nav-item" ui-sref="base.email.accountList({labelId:'SPAM', accountId: account.id})" ui-sref-opts="{reload:true}">
                     Spam <span class="unread-count" ng-if="vm.hasUnreadLabel(account, 'SPAM')">{{ vm.unreadCountForLabel(account, 'SPAM') }}</span>
                 </a>
             </li>
             <li ng-repeat="label in account.labels | orderBy:'name'" ng-if="label.label_type != 0" ui-sref-active="active">
-                <a class="email-nav-item" ui-sref="base.email.accountList({labelId: label.label_id, accountId: account.id})">
+                <a class="email-nav-item" ui-sref="base.email.accountList({labelId: label.label_id, accountId: account.id})" ui-sref-opts="{reload:true}">
                     {{ label.name }}<span class="unread-count" ng-show="label.unread">{{ label.unread }}</span></a>
             </li>
             <li ui-sref-active="active">

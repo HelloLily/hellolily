@@ -1,21 +1,12 @@
-<div class="modal-header">
-    <h3 class="modal-title">Assign this case!</h3>
-</div>
-<div class="modal-body">
-    <div class="row">
-        <div class="col-md-12">
-            <ui-select ng-model="vm.assignee" theme="select2" style="width: 100%">
-                <ui-select-match placeholder="Select user">{{$select.selected.full_name}}</ui-select-match>
-                <ui-select-choices repeat="user in vm.users | filter: $select.search">
-                    <div ng-bind-html="user.full_name | highlight: $select.search"></div>
-                </ui-select-choices>
-            </ui-select>
+<div class="row">
+    <div class="col-md-12">
+        <ui-select ng-model="vm.assignee" theme="select2" style="width: 100%" append-to-body="true" autofocus="true">
+            <ui-select-match placeholder="Select user">{{$select.selected.full_name}}</ui-select-match>
+            <ui-select-choices repeat="user in vm.users | filter: $select.search">
+                <div ng-bind-html="user.full_name | highlight: $select.search"></div>
+            </ui-select-choices>
+        </ui-select>
 
-            <button ng-click="vm.assignToMe()" class="btn btn-link assign-me-btn no-padding">Assign to me</button>
-        </div>
+        <button ng-click="vm.assignToMe()" class="btn btn-link assign-me-btn no-padding">Assign to me</button>
     </div>
-</div>
-<div class="modal-footer">
-    <button class="btn btn-primary" ng-click="vm.ok()">OK</button>
-    <button class="btn btn-default" ng-click="vm.cancel()">Cancel</button>
 </div>

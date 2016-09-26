@@ -24,8 +24,9 @@ function preferencesConfig($stateProvider) {
 
 angular.module('app.preferences').controller('PreferencesCompanyUserList', PreferencesCompanyUserList);
 
-PreferencesCompanyUserList.$inject = ['$scope', '$uibModal', 'HLMessages', 'Settings', 'User', 'UserTeams', 'LocalStorage'];
-function PreferencesCompanyUserList($scope, $uibModal, HLMessages, Settings, User, UserTeams, LocalStorage) {
+PreferencesCompanyUserList.$inject = ['$compile', '$scope', '$templateCache', 'LocalStorage', 'Settings',
+    'User', 'UserTeams'];
+function PreferencesCompanyUserList($compile, $scope, $templateCache, LocalStorage, Settings, User, UserTeams) {
     var vm = this;
     var storage = new LocalStorage('userList');
 
@@ -48,7 +49,7 @@ function PreferencesCompanyUserList($scope, $uibModal, HLMessages, Settings, Use
             is_active: true,
         }),
     };
-    vm.alertMessages = HLMessages.alerts.deactivateUser;
+    vm.alertMessages = messages.alerts.deactivateUser;
 
     vm.openGroupModal = openGroupModal;
     vm.toggleStatus = toggleStatus;
@@ -58,6 +59,10 @@ function PreferencesCompanyUserList($scope, $uibModal, HLMessages, Settings, Use
     /////////////
 
     function activate() {
+        UserTeams.query().$promise.then(function(response) {
+            vm.groupList = response.results;
+        });
+
         _setupWatches();
     }
 
@@ -134,30 +139,45 @@ function PreferencesCompanyUserList($scope, $uibModal, HLMessages, Settings, Use
     }
 
     function openGroupModal(user) {
-        var modalInstance = $uibModal.open({
-            templateUrl: 'preferences/company/controllers/user_groups_modal.html',
-            controller: 'PreferencesUserGroupsModalController',
-            size: 'lg',
-            controllerAs: 'vm',
-            bindToController: true,
-            resolve: {
-                user: function() {
-                    return User.get({
-                        id: user.id,
-                        is_active: 'All',
-                    }).$promise;
-                },
-                groupList: function() {
-                    return UserTeams.query().$promise;
-                },
-            },
+        vm.user = user;
+
+        vm.groupList.forEach(function(group) {
+            var selected = vm.user.lily_groups.filter(function(groupId) {
+                return groupId === group.id;
+            });
+
+            group.selected = selected.length > 0;
         });
 
-        modalInstance.result.then(function() {
-            _updateUsers();
-        }, function() {
-            _updateUsers();
-        });
+        swal({
+            title: sprintf(messages.alerts.preferences.userAssignTitle, {user: user.full_name}),
+            html: $compile($templateCache.get('preferences/company/controllers/user_groups_modal.html'))($scope),
+            showCancelButton: true,
+            showCloseButton: true,
+        }).then(function(isConfirm) {
+            var selectedGroups = [];
+            var args = {
+                id: user.id,
+            };
+
+            if (isConfirm) {
+                // Loop over emailAccountList to extract the selected accounts.
+                vm.groupList.forEach(function(group) {
+                    if (group.selected) {
+                        selectedGroups.push(group.id);
+                    }
+                });
+
+                args.lily_groups = selectedGroups;
+
+                User.patch(args).then(function() {
+                    toastr.success('I\'ve updated the users\' groups for you!', 'Done');
+                }, function(response) {
+                    HLForms.setErrors(form, response.data);
+                    toastr.error('Uh oh, there seems to be a problem', 'Oops!');
+                });
+            }
+        }).done();
     }
 
     function toggleStatus(user) {

@@ -27,6 +27,7 @@ function HLMessages() {
                 errorText: 'There was an error processing your request.<br />Please try again.',
             },
             assignTo: {
+                title: 'Assign this case',
                 questionText: 'Assign this case to yourself?',
             },
             deactivateUser: {
@@ -34,6 +35,30 @@ function HLMessages() {
                 confirmButtonText: 'Yes, deactivate him/her!',
                 successTitle: 'Deactivated!',
                 successText: '<strong>%(name)s</strong> has been deactivated.',
+            },
+            postpone: {
+                dealTitle: 'Change next step date',
+                caseTitle: 'Change expiry date',
+                deal: 'Wrong day to solve it?<br />Set to today or postpone it.',
+                case: 'Not the right day to act upon it?<br />Set to today or postpone it.',
+                datepicker: 'Or manually select a date:',
+            },
+            dashboard: {
+                title: 'Widget settings',
+            },
+            deals: {
+                title: 'Why lost?',
+            },
+            email: {
+                sendCheckerTitle: 'No recipient',
+                sendCheckerText: 'I couldn\'t find a recipient, could you please fill in where I need to send this mail.',
+                overwriteTemplateConfirm: 'Selecting a different template will reload the template. This will put your typed text at the bottom of the email. Do you want to load the template anyway?',
+                reloadTemplateConfirm: 'Do you want to reload the template? This will load the template variables, but will put your text at the bottom of the email.',
+            },
+            preferences: {
+                userAssignTitle: 'Assign %(user)s to groups',
+                shareAccountTitle: 'Yes, let me share this email account',
+                shareTemplateTitle: 'Set %(template)s as default for',
             },
         },
     };

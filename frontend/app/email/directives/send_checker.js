@@ -18,7 +18,10 @@ function sendCheckerDirective(EmailAddress) {
                 if (!recipientsTo && !recipientsCc && !recipientsBcc) {
                     event.stopPropagation();
                     event.preventDefault();
-                    bootbox.alert('I couldn\'t find a recipient, could you please fill in where I need to send this mail.');
+                    swal({
+                        title: messages.alerts.email.sendCheckerTitle,
+                        html: messages.alerts.email.sendCheckerText,
+                    }).done();
                     return;
                 }
 

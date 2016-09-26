@@ -1,5 +1,3 @@
-require('sweetalert2');
-
 /**
  * Directive to show a confirmation box before deleting.
  */
@@ -25,8 +23,8 @@ function deleteConfirmation() {
     };
 }
 
-DeleteConfirmationController.$inject = ['$state', 'HLMessages', 'HLResource', 'Settings'];
-function DeleteConfirmationController($state, HLMessages, HLResource, Settings) {
+DeleteConfirmationController.$inject = ['$state', 'HLResource', 'Settings'];
+function DeleteConfirmationController($state, HLResource, Settings) {
     var vm = this;
 
     vm.openConfirmationModal = openConfirmationModal;
@@ -50,16 +48,16 @@ function DeleteConfirmationController($state, HLMessages, HLResource, Settings) 
 
         if (vm.messageObject) {
             vm.messages = {
-                'confirmTitle': vm.messageObject.confirmTitle || HLMessages.alerts.delete.confirmTitle,
-                'confirmText': vm.messageObject.confirmText || HLMessages.alerts.delete.confirmText,
-                'confirmButtonText': vm.messageObject.confirmButtonText || HLMessages.alerts.delete.confirmButtonText,
-                'errorTitle': vm.messageObject.errorTitle || HLMessages.alerts.delete.errorTitle,
-                'errorText': vm.messageObject.errorText || HLMessages.alerts.delete.errorText,
-                'successTitle': vm.messageObject.successTitle || HLMessages.alerts.delete.successTitle,
-                'successText': vm.messageObject.successText || HLMessages.alerts.delete.successText,
+                'confirmTitle': vm.messageObject.confirmTitle || messages.alerts.delete.confirmTitle,
+                'confirmText': vm.messageObject.confirmText || messages.alerts.delete.confirmText,
+                'confirmButtonText': vm.messageObject.confirmButtonText || messages.alerts.delete.confirmButtonText,
+                'errorTitle': vm.messageObject.errorTitle || messages.alerts.delete.errorTitle,
+                'errorText': vm.messageObject.errorText || messages.alerts.delete.errorText,
+                'successTitle': vm.messageObject.successTitle || messages.alerts.delete.successTitle,
+                'successText': vm.messageObject.successText || messages.alerts.delete.successText,
             };
         } else {
-            vm.messages = HLMessages.alerts.delete;
+            vm.messages = messages.alerts.delete;
         }
     }
 
@@ -117,8 +115,8 @@ function DeleteConfirmationController($state, HLMessages, HLResource, Settings) 
                             $state.go($state.current.parent);
                         }
                     }
-                });
+                }).done();
             }
-        });
+        }).done();
     }
 }

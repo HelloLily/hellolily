@@ -228,6 +228,7 @@ label {
 ul {
     &[uib-datepicker-popup-wrap] {
         padding: 10px;
+        z-index: 2000;
 
         *:focus {
             outline: none;
@@ -346,6 +347,10 @@ table {
     .btn-group:not(:last-child) {
         margin-right: 5px;
     }
+}
+
+.align-left {
+    text-align: left;
 }
 
 .align-center {

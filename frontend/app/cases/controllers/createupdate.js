@@ -393,29 +393,23 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
 
     function _caseFormIsValid() {
         if (!vm.case.account && !vm.case.contact) {
-            bootbox.dialog({
-                message: 'Please select an account or contact the case belongs to',
+            swal({
                 title: 'No account or contact',
-                buttons: {
-                    success: {
-                        label: 'Let me fix that for you',
-                        className: 'btn-success',
-                    },
-                },
-            });
+                text: 'Please select an account or contact the case belongs to',
+                type: 'warning',
+                confirmButtonText: 'Let me fix that for you',
+                confirmButtonClass: 'btn btn-success',
+            }).done();
 
             return false;
         } else if ((vm.case.assigned_to_groups && !vm.case.assigned_to_groups.length) && !vm.case.assigned_to) {
-            bootbox.dialog({
-                message: 'Please select a colleague or team to assign the case to',
+            swal({
                 title: 'No assignee set',
-                buttons: {
-                    success: {
-                        label: 'Let me fix that for you',
-                        className: 'btn-success',
-                    },
-                },
-            });
+                text: 'Please select a colleague or team to assign the case to',
+                type: 'warning',
+                confirmButtonText: 'Let me fix that for you',
+                confirmButtonClass: 'btn btn-success',
+            }).done();
 
             return false;
         }

@@ -4,6 +4,7 @@ var Raven = require('raven-js');
 window.sprintf = require('sprintf-js').sprintf;
 
 require('ui-select');
+require('sweetalert2');
 
 /**
  * App Module is the entry point for Lily related Angular code
@@ -74,6 +75,12 @@ function appConfig($breadcrumbProvider, $controllerProvider, $httpProvider, $res
     $httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
     $resourceProvider.defaults.stripTrailingSlashes = false;
     $urlRouterProvider.otherwise('/');
+
+    swal.setDefaults({
+        confirmButtonClass: 'btn btn-primary',
+        cancelButtonClass: 'btn btn-default',
+        buttonsStyling: false,
+    });
 }
 
 // Global exception handler.
@@ -97,6 +104,7 @@ function runApp($rootScope, $state, editableOptions, HLMessages, Tenant, UserTea
     $rootScope.$state = $state; // State to be accessed from view.
     $rootScope.currentUser = currentUser;
     $rootScope.messages = HLMessages;
+    window.messages = HLMessages;
 
     // Get tenant name to set custom dimension for GA.
     Tenant.query({}, function(tenant) {

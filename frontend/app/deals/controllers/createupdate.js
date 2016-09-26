@@ -425,16 +425,13 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
 
     function _dealFormIsValid() {
         if (!vm.deal.account && !vm.deal.contact) {
-            bootbox.dialog({
-                message: 'Please select an account or contact the deal belongs to',
+            swal({
                 title: 'No account or contact',
-                buttons: {
-                    success: {
-                        label: 'Let me fix that for you',
-                        className: 'btn-success',
-                    },
-                },
-            });
+                text: 'Please select an account or contact the deal belongs to',
+                type: 'warning',
+                confirmButtonText: 'Let me fix that for you',
+                confirmButtonClass: 'btn btn-success',
+            }).done();
 
             return false;
         }

@@ -3,11 +3,10 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
 from lily.api.nested.mixins import RelatedSerializerMixin
-from lily.api.nested.serializers import WritableNestedSerializer
 from ..models import LilyGroup, LilyUser
 
 
-class LilyUserSerializer(WritableNestedSerializer):
+class LilyUserSerializer(serializers.ModelSerializer):
     """
     Serializer for the LilyUser model.
     """

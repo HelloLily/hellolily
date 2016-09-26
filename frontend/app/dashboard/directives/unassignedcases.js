@@ -82,7 +82,7 @@ function UnassignedCasesController($http, $scope, $state, Case, HLFilters, HLUti
 
     function assignToMe(caseObj) {
         swal({
-            text: HLMessages.alerts.assignTo.questionText,
+            text: messages.alerts.assignTo.questionText,
             type: 'question',
             showCancelButton: true,
         }).then(function(isConfirm) {
@@ -92,7 +92,7 @@ function UnassignedCasesController($http, $scope, $state, Case, HLFilters, HLUti
                     vm.table.items.splice(index, 1);
                 });
             }
-        });
+        }).done();
     }
 
     function _watchTable() {

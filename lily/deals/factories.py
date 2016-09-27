@@ -25,15 +25,18 @@ NEXT_STEP_NAMES = [
 
 NEXT_STEP_DATE_INCREMENTS = [4, 2, 30, 0]
 
+NEXT_STEP_POSITIONS = [0, 1, 2, 3]
+
 
 class DealNextStepFactory(DjangoModelFactory):
     tenant = SubFactory(TenantFactory)
     name = Iterator(NEXT_STEP_NAMES)
     date_increment = Iterator(NEXT_STEP_DATE_INCREMENTS)
+    position = Iterator(NEXT_STEP_POSITIONS)
 
     class Meta:
         model = DealNextStep
-        django_get_or_create = ('tenant', 'name', 'date_increment')
+        django_get_or_create = ('tenant', 'name', 'date_increment', 'position')
 
 
 class DealWhyCustomerFactory(DjangoModelFactory):

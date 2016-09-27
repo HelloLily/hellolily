@@ -308,6 +308,10 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
             vm.deal.next_step_date = moment(vm.deal.next_step_date).format('YYYY-MM-DD');
         }
 
+        if (vm.deal.closed_date) {
+            vm.deal.closed_date = moment(vm.deal.closed_date).format('YYYY-MM-DD');
+        }
+
         if (vm.deal.why_lost && vm.deal.status.id !== vm.lostStatus.id) {
             vm.deal.why_lost = null;
         }

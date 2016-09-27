@@ -164,9 +164,13 @@ class LilyUserViewSet(SetTenantUserMixin, viewsets.ModelViewSet):
 
         if picture:
             if not self.request.FILES:
-                # Picture property was set, but no files were sent.
-                # This means it's still the old picture.
-                self.request.data['picture'] = instance.picture
+                if instance.picture:
+                    # Picture property was set, but no files were sent.
+                    # This means it's still the old picture.
+                    self.request.data['picture'] = instance.picture
+                else:
+                    # Otherwise remove picture from request data to prevent errors.
+                    del self.request.data['picture']
 
         return super(LilyUserViewSet, self).partial_update(request, args, kwargs)
 

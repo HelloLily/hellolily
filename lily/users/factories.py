@@ -1,4 +1,4 @@
-from random import randint, choice
+from random import randint
 
 import unicodedata
 from django.contrib.auth.hashers import make_password
@@ -13,7 +13,6 @@ from .models import Team, LilyUser
 
 
 faker = Factory.create('nl_NL')
-preposition_list = ['van der', 'vd', 'van', 'de', 'ten', 'von', 'van de', 'van den']
 
 
 class TeamFactory(DjangoModelFactory):
@@ -29,7 +28,6 @@ class LilyUserFactory(DjangoModelFactory):
     password = make_password('admin')
 
     first_name = LazyAttribute(lambda o: faker.first_name())
-    preposition = LazyAttribute(lambda o: choice(preposition_list) if bool(randint(0, 1)) else '')
     last_name = LazyAttribute(lambda o: faker.last_name())
     email = LazyAttribute(lambda o: unicodedata.normalize('NFD', faker.safe_email()).encode('ascii', 'ignore'))
     is_active = LazyAttribute(lambda o: bool(randint(0, 1)))

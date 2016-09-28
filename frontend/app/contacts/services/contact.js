@@ -75,7 +75,6 @@ function Contact($filter, $resource, HLResource, Settings) {
             salutation: 1, // Default salutation is 'Informal'
             gender: 2, // Default gender is 'Unknown/Other'
             first_name: '',
-            preposition: '',
             last_name: '',
             email_addresses: [],
             phone_numbers: [],

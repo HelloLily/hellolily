@@ -56,7 +56,6 @@ class RegistrationView(FormView):
             email=form.cleaned_data['email'],
             password=form.cleaned_data['password'],
             first_name=form.cleaned_data['first_name'],
-            preposition=form.cleaned_data['preposition'],
             last_name=form.cleaned_data['last_name'],
             position=form.cleaned_data['position'],
         )

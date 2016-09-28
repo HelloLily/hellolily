@@ -115,10 +115,6 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, S
                         vm.contact.first_name = Settings.email.data.contact.firstName;
                     }
 
-                    if (Settings.email.data.contact.preposition) {
-                        vm.contact.preposition = Settings.email.data.contact.preposition;
-                    }
-
                     if (Settings.email.data.contact.lastName) {
                         vm.contact.last_name = Settings.email.data.contact.lastName;
                     }

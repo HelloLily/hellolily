@@ -42,7 +42,6 @@ class Contact(Common, TaggedObjectMixin):
     )
 
     first_name = models.CharField(max_length=255, default='', blank=True)
-    preposition = models.CharField(max_length=100, default='', blank=True)
     last_name = models.CharField(max_length=255, default='', blank=True)
     gender = models.IntegerField(choices=CONTACT_GENDER_CHOICES, default=UNKNOWN_GENDER)
     title = models.CharField(max_length=20, blank=True)
@@ -132,15 +131,12 @@ class Contact(Common, TaggedObjectMixin):
         """
         Return full name of this contact without unnecessary white space.
         """
-        if self.preposition:
-            return ' '.join([self.first_name, self.preposition, self.last_name]).strip()
-
         return ' '.join([self.first_name, self.last_name]).strip()
 
     def __unicode__(self):
         return self.full_name
 
-    EMAIL_TEMPLATE_PARAMETERS = ['first_name', 'preposition', 'last_name', 'full_name', 'twitter', 'linkedin',
+    EMAIL_TEMPLATE_PARAMETERS = ['first_name', 'last_name', 'full_name', 'twitter', 'linkedin',
                                  'work_phone', 'mobile_phone', 'primary_email', 'account_city']
 
     class Meta:

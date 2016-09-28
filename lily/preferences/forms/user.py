@@ -165,7 +165,6 @@ class UserProfileForm(HelloLilyModelForm):
             (_('Personal information'), {
                 'fields': [
                     'first_name',
-                    'preposition',
                     'last_name',
                     'position',
                     'picture',

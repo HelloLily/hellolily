@@ -416,4 +416,8 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
 
         return true;
     }
+
+    $scope.$on('saveCase', function() {
+        saveCase($scope.caseForm);
+    });
 }

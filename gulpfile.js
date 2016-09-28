@@ -82,6 +82,7 @@ var config = {
             src: [
                 'frontend/vendor/**/*jquery.min.js',
                 'frontend/vendor/**/*angular.js',
+                'frontend/vendor/mousetrap.min.js',
                 'frontend/vendor/**/*.js',
                 '!frontend/vendor/**/angular-mocks.js',
             ],

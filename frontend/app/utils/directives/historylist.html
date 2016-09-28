@@ -15,7 +15,7 @@
 
             <div class="timeline-content-container">
                 <div class="timeline-content-header">
-                    <form role="form" name="noteForm">
+                    <form role="form" name="noteForm" on-ctrl-enter-key="history.addNote(note, noteForm)">
                         <div class="form-body">
                             <ul class="timeline-content-type-buttons">
                                 <li ng-model="note.type" uib-btn-radio="0">

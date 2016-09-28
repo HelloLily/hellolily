@@ -6,7 +6,8 @@ function HLShortcuts($state, $timeout, $rootScope) {
     // This watches the change in states so we can execute certain Mousetrap
     // functions on specific pages.
     $rootScope.$on('$stateChangeSuccess', function() {
-        if ($state.current.name === 'base.email.list') {
+        var state = $state.current.name;
+        if (state === 'base.email.list') {
             Mousetrap.bind('c', function() {
                 $state.go('base.email.compose');
                 // Unbind after pressed so next bind can take place.
@@ -14,7 +15,7 @@ function HLShortcuts($state, $timeout, $rootScope) {
             });
         }
 
-        if ($state.current.name === 'base.email.detail') {
+        if (state === 'base.email.detail') {
             Mousetrap.bind('c', function() {
                 _replyViaShortcode();
                 // Unbind after pressed so next bind can take place.
@@ -44,6 +45,35 @@ function HLShortcuts($state, $timeout, $rootScope) {
             });
         }
 
+        if (state === 'base.deals.detail.edit' || state === 'base.deals.create') {
+            Mousetrap.bindGlobal('mod+enter', function() {
+                // Broadcast event for deals/controllers/createupdate.js to save
+                // the deal
+                $rootScope.$broadcast('saveDeal');
+            }, 'keyup');
+        } else if (state === 'base.cases.detail.edit' || state === 'base.cases.create') {
+            Mousetrap.bindGlobal('mod+space', function() {
+                // Broadcast event for cases/controllers/createupdate.js to save
+                // the case
+                $rootScope.$broadcast('saveCase');
+            }, 'keyup');
+        } else if (state === 'base.contacts.detail.edit' || state === 'base.contacts.create') {
+            Mousetrap.bindGlobal('mod+enter', function() {
+                // Broadcast event for contact/controllers/createupdate.js to save
+                // the contact
+                $rootScope.$broadcast('saveContact');
+            });
+        } else if (state === 'base.accounts.detail.edit' || state === 'base.accounts.create') {
+            Mousetrap.bindGlobal('mod+enter', function() {
+                // Broadcast event for account/controllers/createupdate.js to save
+                // the account
+                $rootScope.$broadcast('saveAccount');
+            });
+        } else {
+            // Unbind when not a form page
+            Mousetrap.unbind('mod+enter');
+        }
+
         // Function for both the c and r key when in Email Detail view.
         function _replyViaShortcode() {
             var message = $state.params.id;
@@ -61,12 +91,12 @@ function HLShortcuts($state, $timeout, $rootScope) {
                     angular.element(searchField).focus();
                     // TODO: Remove if statement if Contacts get refactored
                     // To utilize vm.table. instead of table.
-                    if ($state.current.name === 'base.contacts') {
+                    if (state === 'base.contacts') {
                         scope.table.filter = '';
 
                         // TODO: Remove else if statement if we refactor code to
                         // make the filter/search model consistent.
-                    } else if ($state.current.name === 'base.deals' || $state.current.name === 'base.cases') {
+                    } else if (state === 'base.deals' || state === 'base.cases') {
                         scope.vm.table.searchQuery = '';
                     } else {
                         scope.vm.table.filter = '';

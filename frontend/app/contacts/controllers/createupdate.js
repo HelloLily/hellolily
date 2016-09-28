@@ -295,4 +295,8 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, S
 
         toastr.error('Uh oh, there seems to be a problem', 'Oops!');
     }
+
+    $scope.$on('saveContact', function() {
+        saveContact($scope.contactForm);
+    });
 }

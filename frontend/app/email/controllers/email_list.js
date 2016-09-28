@@ -35,9 +35,10 @@ function emailConfig($stateProvider) {
 
 angular.module('app.email').controller('EmailListController', EmailListController);
 
-EmailListController.$inject = ['$scope', '$state', '$stateParams', 'Settings', 'EmailMessage', 'EmailLabel',
-    'EmailAccount', 'LocalStorage', 'SelectedEmailAccount'];
-function EmailListController($scope, $state, $stateParams, Settings, EmailMessage, EmailLabel, EmailAccount, LocalStorage, SelectedEmailAccount) {
+EmailListController.$inject = ['$scope', '$state', '$stateParams', 'EmailAccount', 'EmailLabel', 'EmailMessage',
+    'HLUtils', 'LocalStorage', 'SelectedEmailAccount', 'Settings'];
+function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLabel, EmailMessage,
+                             HLUtils, LocalStorage, SelectedEmailAccount, Settings) {
     var storage = new LocalStorage('inbox');
     var vm = this;
 
@@ -107,6 +108,8 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
     ///////
 
     function activate() {
+        HLUtils.blockUI('#emailBase', true);
+
         watchTable();
         // Store current email account
         SelectedEmailAccount.setCurrentAccountId($stateParams.accountId);
@@ -140,6 +143,8 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
     }
 
     function setPage(pageNumber) {
+        HLUtils.blockUI('#emailBase', true);
+
         if (pageNumber >= 0 && pageNumber * vm.table.pageSize < vm.table.totalItems) {
             vm.table.page = pageNumber;
         }
@@ -331,6 +336,9 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
 
     function reloadMessages() {
         vm.emailMessages = [];
+
+        HLUtils.blockUI('#emailBase', true);
+
         _reloadMessages();
     }
 
@@ -397,6 +405,8 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
         }, function(data) {
             vm.emailMessages = data.hits;
             vm.table.totalItems = data.total;
+
+            HLUtils.unblockUI('#emailBase');
         });
     }
 

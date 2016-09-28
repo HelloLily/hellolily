@@ -21,7 +21,10 @@ class TagMapping(BaseMapping):
             'name_flat': {
                 'type': 'string',
                 'index': 'not_analyzed',
-            }
+            },
+            'last_used': {
+                'type': 'date',
+            },
         })
         return mapping
 
@@ -33,6 +36,7 @@ class TagMapping(BaseMapping):
         doc = {
             'name': obj.name,
             'name_flat': obj.name,
+            'last_used': obj.last_used,
         }
 
         return doc

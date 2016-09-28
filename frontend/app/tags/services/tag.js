@@ -7,16 +7,19 @@ function Tag($resource) {
         {},
         {
             search: {
-                url: '/search/search/?type=tags_tag&facet_field=name_flat&facet_filter=name::query&size=0',
+                url: '/search/search/?type=tags_tag&facet_field=name_flat&facet_filter=name::query&size=60',
                 transformResponse: function(data) {
                     var jsonData = angular.fromJson(data);
                     var objects = [];
 
                     if (jsonData && jsonData.facets && jsonData.facets.length > 0) {
                         jsonData.facets.forEach(function(obj) {
+                            var lastUsed = obj.last_used ? obj.last_used : '';
+
                             objects.push({
                                 name: obj.term,
                                 count: obj.count,
+                                last_used: lastUsed,
                             });
                         });
                     }

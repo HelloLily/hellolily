@@ -133,7 +133,20 @@ class LilySearch(object):
                 hits.append(hit)
 
             if execute.facets:
-                return hits, execute.facets['items']['terms'], execute.count, execute.took
+                facets = execute.facets['items']['terms']
+
+                if self.model_type == 'tags_tag':
+                    for hit in hits:
+                        # Get the object with the given name.
+                        facet = next((x for x in facets if x.get('term') == hit.get('name_flat')), None)
+
+                        if facet and (not facet.get('last_used') or hit.get('last_used') > facet.get('last_used')):
+                            # Set the latest usage date.
+                            facet.update({
+                                'last_used': hit.get('last_used')
+                            })
+
+                return hits, facets, execute.count, execute.took
 
             return hits, None, execute.count, execute.took
         except RequestError as e:

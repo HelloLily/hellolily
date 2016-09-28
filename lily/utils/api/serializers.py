@@ -98,7 +98,7 @@ class TagSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tag
-        fields = ('id', 'name', 'content_type', 'object_id', )
+        fields = ('id', 'name', 'content_type', 'object_id', 'last_used', )
 
 
 class RelatedTagSerializer(RelatedSerializerMixin, TagSerializer):
@@ -111,7 +111,7 @@ class RelatedTagSerializer(RelatedSerializerMixin, TagSerializer):
 
     class Meta:
         model = Tag
-        fields = ('id', 'name', 'content_type', 'object_id',)
+        fields = ('id', 'name', 'content_type', 'object_id', 'last_used', )
 
 
 class ExternalAppLinkSerializer(serializers.ModelSerializer):

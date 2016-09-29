@@ -40,14 +40,14 @@ class CaseAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
         'status',
         'type',
         'assigned_to',
-        'assigned_to_groups',
+        'assigned_to_teams',
         'created_by',
         'account',
         'contact',
         'parcel',
     )
     filter_horizontal = (
-        'assigned_to_groups',
+        'assigned_to_teams',
     )
 
 

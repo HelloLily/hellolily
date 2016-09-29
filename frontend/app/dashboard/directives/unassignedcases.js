@@ -58,7 +58,7 @@ function UnassignedCasesController($http, $scope, $state, Case, HLFilters, HLUti
 
     function updateTable() {
         var i;
-        var filterQuery = 'is_archived:false AND _missing_:assigned_to.id AND assigned_to_groups:' + vm.team.id;
+        var filterQuery = 'is_archived:false AND _missing_:assigned_to.id AND assigned_to_teams:' + vm.team.id;
 
         HLUtils.blockUI('#unassignedCasesBlockTarget' + vm.team.id, true);
 

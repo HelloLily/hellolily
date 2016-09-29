@@ -61,7 +61,7 @@ class LilyUserManager(UserManager):
         return self.get(email__iexact=email)
 
 
-class LilyGroup(TenantMixin):
+class Team(TenantMixin):
     """
     A group with a Tenant.
     """
@@ -110,9 +110,9 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
                     'Unselect this instead of deleting accounts.')
     )
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
-    lily_groups = models.ManyToManyField(
-        LilyGroup,
-        verbose_name=_('Lily groups'),
+    teams = models.ManyToManyField(
+        Team,
+        verbose_name=_('Lily teams'),
         blank=True,
         related_name='user_set',
         related_query_name='user',
@@ -129,7 +129,7 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
     objects = LilyUserManager()
 
     EMAIL_TEMPLATE_PARAMETERS = ['first_name', 'preposition', 'last_name', 'full_name', 'position', 'twitter',
-                                 'linkedin', 'phone_number', 'current_email_address', 'user_group']
+                                 'linkedin', 'phone_number', 'current_email_address', 'user_team']
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name', ]
@@ -210,13 +210,13 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
             return linkedin.profile_url
 
     @property
-    def user_group(self):
-        user_group = self.lily_groups.first()
+    def user_team(self):
+        user_team = self.teams.first()
 
-        if not user_group:
+        if not user_team:
             return ''
 
-        return user_group
+        return user_team
 
     @property
     def display_email_warning(self):

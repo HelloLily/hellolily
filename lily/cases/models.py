@@ -8,7 +8,7 @@ from lily.contacts.models import Contact
 from lily.parcels.models import Parcel
 from lily.tags.models import TaggedObjectMixin
 from lily.tenant.models import TenantMixin
-from lily.users.models import LilyGroup, LilyUser
+from lily.users.models import Team, LilyUser
 from lily.utils.date_time import week_from_now
 from lily.utils.models.mixins import DeletedMixin, ArchivedMixin
 
@@ -50,7 +50,7 @@ class Case(TenantMixin, TaggedObjectMixin, DeletedMixin, ArchivedMixin):
     status = models.ForeignKey(CaseStatus, related_name='cases')
     type = models.ForeignKey(CaseType, null=True, blank=True, related_name='cases')
 
-    assigned_to_groups = models.ManyToManyField(LilyGroup, related_name='assigned_to_groups', null=True, blank=True)
+    assigned_to_teams = models.ManyToManyField(Team, related_name='assigned_to_teams', null=True, blank=True)
     assigned_to = models.ForeignKey(LilyUser, related_name='assigned_cases', null=True, blank=True)
     created_by = models.ForeignKey(LilyUser, related_name='created_cases', null=True, blank=True)
 

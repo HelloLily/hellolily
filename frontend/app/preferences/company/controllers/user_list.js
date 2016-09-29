@@ -51,7 +51,7 @@ function PreferencesCompanyUserList($compile, $scope, $templateCache, LocalStora
     };
     vm.alertMessages = messages.alerts.deactivateUser;
 
-    vm.openGroupModal = openGroupModal;
+    vm.openTeamModal = openTeamModal;
     vm.toggleStatus = toggleStatus;
 
     activate();
@@ -60,7 +60,7 @@ function PreferencesCompanyUserList($compile, $scope, $templateCache, LocalStora
 
     function activate() {
         UserTeams.query().$promise.then(function(response) {
-            vm.groupList = response.results;
+            vm.teamList = response.results;
         });
 
         _setupWatches();
@@ -138,40 +138,40 @@ function PreferencesCompanyUserList($compile, $scope, $templateCache, LocalStora
         });
     }
 
-    function openGroupModal(user) {
+    function openTeamModal(user) {
         vm.user = user;
 
-        vm.groupList.forEach(function(group) {
-            var selected = vm.user.lily_groups.filter(function(groupId) {
-                return groupId === group.id;
+        vm.teamList.forEach(function(team) {
+            var selected = vm.user.teams.filter(function(teamId) {
+                return teamId === team.id;
             });
 
-            group.selected = selected.length > 0;
+            team.selected = selected.length > 0;
         });
 
         swal({
             title: sprintf(messages.alerts.preferences.userAssignTitle, {user: user.full_name}),
-            html: $compile($templateCache.get('preferences/company/controllers/user_groups_modal.html'))($scope),
+            html: $compile($templateCache.get('preferences/company/controllers/user_teams_modal.html'))($scope),
             showCancelButton: true,
             showCloseButton: true,
         }).then(function(isConfirm) {
-            var selectedGroups = [];
+            var selectedTeams = [];
             var args = {
                 id: user.id,
             };
 
             if (isConfirm) {
                 // Loop over emailAccountList to extract the selected accounts.
-                vm.groupList.forEach(function(group) {
-                    if (group.selected) {
-                        selectedGroups.push(group.id);
+                vm.teamList.forEach(function(team) {
+                    if (team.selected) {
+                        selectedTeams.push(team.id);
                     }
                 });
 
-                args.lily_groups = selectedGroups;
+                args.teams = selectedTeams;
 
-                User.patch(args).then(function() {
-                    toastr.success('I\'ve updated the users\' groups for you!', 'Done');
+                User.patch(args).$promise.then(function() {
+                    toastr.success('I\'ve updated the users\' teams for you!', 'Done');
                 }, function(response) {
                     HLForms.setErrors(form, response.data);
                     toastr.error('Uh oh, there seems to be a problem', 'Oops!');

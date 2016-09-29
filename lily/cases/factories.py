@@ -10,7 +10,7 @@ from faker.factory import Factory
 from lily.accounts.factories import AccountFactory
 from lily.tenant.factories import TenantFactory
 from lily.users.factories import LilyUserFactory
-from lily.users.models import LilyGroup
+from lily.users.models import Team
 
 from .models import Case, CaseStatus, CaseType
 
@@ -70,19 +70,19 @@ class CaseFactory(DjangoModelFactory):
     created_by = SelfAttribute('.assigned_to')
 
     @factory.post_generation
-    def groups(self, create, extracted, **kwargs):
+    def teams(self, create, extracted, **kwargs):
         if not create:
             # Simple build, do nothing.
             return
 
         if extracted:
-            if isinstance(extracted, LilyGroup):
-                # A single group was passed in, use that.
-                self.assigned_to_groups.add(extracted)
+            if isinstance(extracted, Team):
+                # A single team was passed in, use that.
+                self.assigned_to_teams.add(extracted)
             else:
-                # A list of groups were passed in, use them.
-                for group in extracted:
-                    self.assigned_to_groups.add(group)
+                # A list of teams were passed in, use them.
+                for team in extracted:
+                    self.assigned_to_teams.add(team)
 
     class Meta:
         model = Case

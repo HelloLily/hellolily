@@ -12,7 +12,7 @@ from lily.deals.factories import (DealFactory, DealContactedByFactory, DealFound
 from lily.notes.factories import NoteFactory
 from lily.tenant.factories import TenantFactory
 from lily.tenant.models import Tenant
-from lily.users.factories import LilyGroupFactory, LilySuperUserFactory, LilyUserFactory
+from lily.users.factories import TeamFactory, LilySuperUserFactory, LilyUserFactory
 
 
 class Command(BaseCommand):
@@ -21,7 +21,7 @@ or use an existent tenant if passed as an argument."""
 
     # please keep in sync with methods defined below
     target_choices = [
-        'all', 'users_lily_group', 'users_user', 'contacts_contact', 'accounts_account', 'accounts_function',
+        'all', 'users_teams', 'users_user', 'contacts_contact', 'accounts_account', 'accounts_function',
         'cases_case_type', 'cases_case_status', 'cases_case', 'deals_deal_contacted_by', 'deals_deal_found_through',
         'deals_deal_next_step', 'deals_deal_status', 'deals_deal_why_customer', 'deals_deal', 'notes_note',
         'users_login',
@@ -73,9 +73,9 @@ or use an existent tenant if passed as an argument."""
         ))
 
     def all(self, **kwargs):
-        groups = self.users_lily_group()
-        users = self.users_user(groups=Iterator(groups))
-        logins = self.users_login(groups=Iterator(groups))
+        teams = self.users_team()
+        users = self.users_user(teams=Iterator(teams))
+        logins = self.users_login(teams=Iterator(teams))
 
         accounts = self.accounts_account(assigned_to=Iterator(users))
         contacts = self.contacts_contact()
@@ -86,7 +86,7 @@ or use an existent tenant if passed as an argument."""
 
         cases = self.cases_case(
             assigned_to=Iterator(users[:len(users) / 2]),  # Only use half the users for coupling.
-            groups=Iterator(groups),
+            teams=Iterator(teams),
             account=Iterator(accounts[:len(accounts) / 2]),  # Only use half the accounts for coupling.
             contact=Iterator(contacts[:len(contacts) / 2])  # Only use half the contacts for coupling.
         )
@@ -112,22 +112,22 @@ or use an existent tenant if passed as an argument."""
         # Email templates
         # Email template variables
 
-    def users_lily_group(self, **kwargs):
+    def users_team(self, **kwargs):
         kwargs.update({
             'size': kwargs.get('size', 5),
             'tenant': kwargs.get('tenant', self.tenant)
         })
-        groups = LilyGroupFactory.create_batch(**kwargs)
+        teams = TeamFactory.create_batch(**kwargs)
 
-        self.stdout.write('Done with users_lily_group.')
+        self.stdout.write('Done with users_team.')
 
-        return groups
+        return teams
 
     def users_user(self, **kwargs):
         kwargs.update({
             'size': kwargs.get('size', self.batch_size) / 2,
             'tenant': kwargs.get('tenant', self.tenant),
-            'groups': kwargs.get('groups') if kwargs.get('groups') else iterator(self.users_lily_group)
+            'teams': kwargs.get('teams') if kwargs.get('teams') else iterator(self.users_team)
         })
 
         users = LilyUserFactory.create_batch(**kwargs)
@@ -140,7 +140,7 @@ or use an existent tenant if passed as an argument."""
     def users_login(self, **kwargs):
         kwargs.update({
             'tenant': kwargs.get('tenant', self.tenant),
-            'groups': kwargs.get('groups') if kwargs.get('groups') else iterator(self.users_lily_group),
+            'teams': kwargs.get('teams') if kwargs.get('teams') else iterator(self.users_team),
             'is_active': kwargs.get('is_active', True),
             'email': 'user%s@lily.com' % self.tenant.pk,
         })
@@ -231,7 +231,7 @@ or use an existent tenant if passed as an argument."""
             'status': kwargs.get('status') if kwargs.get('status') else iterator(self.cases_case_status),
             'type': kwargs.get('type') if kwargs.get('type') else iterator(self.cases_case_type),
             'assigned_to': kwargs.get('assigned_to') if kwargs.get('assigned_to') else iterator(self.users_user),
-            'groups': kwargs.get('groups') if kwargs.get('groups') else iterator(self.users_lily_group),
+            'teams': kwargs.get('teams') if kwargs.get('teams') else iterator(self.users_team),
             'account': kwargs.get('account') if kwargs.get('account') else iterator(self.accounts_account),
             'contact': kwargs.get('contact') if kwargs.get('contact') else iterator(self.contacts_contact),
         })
@@ -243,7 +243,7 @@ or use an existent tenant if passed as an argument."""
         kwargs['contact'] = contact
         cases_with_contact = CaseFactory.create_batch(**kwargs)
 
-        kwargs['groups'] = None  # Remove all connections.
+        kwargs['teams'] = None  # Remove all connections.
         kwargs['contact'] = None
         cases_without = CaseFactory.create_batch(**kwargs)
 

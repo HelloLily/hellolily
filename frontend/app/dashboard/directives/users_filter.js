@@ -174,7 +174,7 @@ function UsersFilterController(LocalStorage, UserTeams) {
         });
 
         angular.forEach(vm.teamsSelection, function(id) {
-            selectedFilter.push('assigned_to_groups:' + id);
+            selectedFilter.push('assigned_to_teams:' + id);
         });
 
         filter = selectedFilter.join(' OR ');

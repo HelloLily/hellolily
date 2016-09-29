@@ -1,34 +1,28 @@
 <div class="hl-form-field" ng-repeat="website in vm.websites | filter: {is_primary:false}">
-    <label for="id_website-{{ $index }}" ng-show="$first" class="col-xs-12">
+    <label for="id_website-{{ $index }}" ng-show="$first">
         Extra website
     </label>
-    <table class="hl-form-table">
-        <tbody>
-            <tr>
-                <td class="hl-form-table-column" ng-class="{'has-error': form['websites-website-' + $index].$invalid }">
-                    <input class="form-control"
-                           id="id_website-{{ $index }}"
-                           maxlength="255"
-                           name="websites-website-{{ $index }}"
-                           placeholder="www.example.com"
-                           type="text"
-                           ng-model="website.website"
-                           ng-blur="vm.doubleAccountCheck({index: $index})"
-                           ng-readonly="website.is_deleted">
-                    <field-error form="form" field="websites-website" index="$index"></field-error>
-                </td>
+    <div class="row hl-row-sm">
+        <div class="col-md-12 hl-flex-container">
+            <input class="form-control hl-form-input margin-right-5 hl-flex-1"
+                   id="id_website-{{ $index }}"
+                   maxlength="255"
+                   name="websites-website-{{ $index }}"
+                   placeholder="www.example.com"
+                   type="text"
+                   ng-model="website.website"
+                   ng-blur="vm.doubleAccountCheck({index: $index})"
+                   ng-readonly="website.is_deleted">
 
-                <td class="hl-form-table-column small-cell">
-                    <a ng-click="vm.removeRelatedField({field: 'website', index: $index, remove: false})" class="btn btn-sm default" title="Undo the deletion of this row" ng-show="website.is_deleted">
-                        <i class="fa fa-undo"></i>
-                    </a>
-                    <a ng-click="vm.removeRelatedField({field: 'website', index: $index, remove: true})" class="btn btn-sm default" title="Delete this row" ng-hide="website.is_deleted">
-                        <i class="fa fa-trash"></i>
-                    </a>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+            <a ng-click="vm.removeRelatedField({field: 'website', index: $index, remove: false})" class="hl-primary-btn hl-form-input-btn" title="Undo the deletion of this row" ng-show="website.is_deleted">
+                <i class="fa fa-undo"></i>
+            </a>
+            <a ng-click="vm.removeRelatedField({field: 'website', index: $index, remove: true})" class="hl-primary-btn hl-form-input-btn" title="Delete this row" ng-hide="website.is_deleted">
+                <i class="fa fa-trash"></i>
+            </a>
+        </div>
+    </div>
+    <field-error form="form" field="websites-website" index="$index"></field-error>
 </div>
 
 <div class="hl-form-field">

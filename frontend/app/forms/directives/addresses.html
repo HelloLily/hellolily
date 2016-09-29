@@ -1,77 +1,66 @@
-<div ng-repeat="address in vm.addresses">
-    <div class="hl-form-field">
-        <div class="row">
-            <div class="col-md-12">
-                <table class="hl-form-table">
-                    <tr>
-                        <td class="hl-form-table-column entity-icon-container" ng-if="vm.showIcon" ng-transclude uib-tooltip="{{ $root.messages.contact.contactInfoTooltip }}"></td>
-                        <td>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div style="float:left; width: 100%;" ng-class="{'has-error': form['addresses-address-' + $index].$invalid }">
-                                        <input class="form-control hl-form-input"
-                                               id="id_addresses-address-{{ $index }}"
-                                               maxlength="255"
-                                               name="addresses-address-{{ $index }}"
-                                               placeholder="Address"
-                                               type="text"
-                                               ng-model="address.address"
-                                               ng-readonly="address.is_deleted">
-                                        <field-error form="form" field="addresses-address" index="$index"></field-error>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="hidden control-label" for="id_addresses-postal_code-{{ $index }}">Postal code</label>
-                                    <input class="form-control hl-form-input"
-                                           id="id_addresses-postal_code-{{ $index }}"
-                                           maxlength="255"
-                                           name="addresses-postal_code-{{ $index }}"
-                                           placeholder="Postal code"
-                                           type="text"
-                                           ng-model="address.postal_code"
-                                           ng-readonly="address.is_deleted">
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <label class="hidden control-label" for="id_addresses-city-{{ $index }}">City</label>
-                                        <input class="form-control hl-form-input"
-                                               id="id_addresses-city-{{ $index }}"
-                                               maxlength="255"
-                                               name="addresses-city-{{ $index }}"
-                                               placeholder="City"
-                                               type="text"
-                                               ng-model="address.city"
-                                               ng-readonly="address.is_deleted">
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="hidden control-label" for="id_addresses-country-{{ $index }}">Country</label>
-                                    <country-selector class="hl-form-input" address="address"></country-selector>
-                                </div>
-                                <div class="col-md-3">
-                                    <select class="form-control hl-form-input"
-                                            id="id_addresses-type-{{ $index }}"
-                                            name="addresses-type-{{ $index }}"
-                                            ng-model="address.type"
-                                            ng-options="labelType.key as labelType.value for labelType in vm.addressTypes"
-                                            ng-readonly="address.is_deleted">
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <a ng-click="vm.removeRelatedField({field: 'address', index: $index, remove: false})" class="btn btn-sm default" title="Undo the deletion of this row" ng-show="address.is_deleted">
-                                        <i class="fa fa-undo"></i>
-                                    </a>
-                                    <a ng-click="vm.removeRelatedField({field: 'address', index: $index, remove: true})" class="btn btn-sm default" title="Delete this row" ng-hide="address.is_deleted">
-                                        <i class="lilicon hl-trashcan-icon"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </div>
+
+<div class="hl-form-field" ng-repeat="address in vm.addresses" ng-class="{'has-error': form['addresses-address-' + $index].$invalid }">
+    <div class="row hl-row-sm">
+        <div class="col-md-8 hl-flex-container">
+            <i class="hl-form-icon" ng-transclude uib-tooltip="{{ $root.messages.contact.contactInfoTooltip }}"></i>
+            <input class="form-control hl-form-input hl-flex-1"
+                   id="id_addresses-address-{{ $index }}"
+                   maxlength="255"
+                   name="addresses-address-{{ $index }}"
+                   placeholder="Address"
+                   type="text"
+                   ng-model="address.address"
+                   ng-readonly="address.is_deleted">
+        </div>
+
+        <div class="col-md-4">
+            <label class="hidden control-label" for="id_addresses-postal_code-{{ $index }}">Postal code</label>
+            <input class="form-control hl-form-input"
+                   id="id_addresses-postal_code-{{ $index }}"
+                   maxlength="255"
+                   name="addresses-postal_code-{{ $index }}"
+                   placeholder="Postal code"
+                   type="text"
+                   ng-model="address.postal_code"
+                   ng-readonly="address.is_deleted">
         </div>
     </div>
+
+    <div class="row hl-row-sm">
+        <div class="col-md-4">
+            <label class="hidden control-label" for="id_addresses-city-{{ $index }}">City</label>
+            <input class="form-control hl-form-input"
+                   id="id_addresses-city-{{ $index }}"
+                   maxlength="255"
+                   name="addresses-city-{{ $index }}"
+                   placeholder="City"
+                   type="text"
+                   ng-model="address.city"
+                   ng-readonly="address.is_deleted">
+        </div>
+
+        <div class="col-md-4">
+            <label class="hidden control-label" for="id_addresses-country-{{ $index }}">Country</label>
+            <country-selector class="hl-form-input" address="address"></country-selector>
+        </div>
+        <div class="col-md-4 hl-flex-container">
+            <select class="form-control hl-form-input margin-right-5 hl-flex-1"
+                    id="id_addresses-type-{{ $index }}"
+                    name="addresses-type-{{ $index }}"
+                    ng-model="address.type"
+                    ng-options="labelType.key as labelType.value for labelType in vm.addressTypes"
+                    ng-disabled="address.is_deleted">
+            </select>
+
+            <a ng-click="vm.removeRelatedField({field: 'address', index: $index, remove: false})" class="hl-primary-btn hl-form-input-btn" title="Undo the deletion of this row" ng-if="address.is_deleted">
+                <i class="fa fa-undo"></i>
+            </a>
+            <a ng-click="vm.removeRelatedField({field: 'address', index: $index, remove: true})" class="hl-primary-btn hl-form-input-btn" title="Delete this row" ng-if="!address.is_deleted">
+                <i class="fa fa-trash"></i>
+            </a>
+        </div>
+    </div>
+     <field-error form="form" field="addresses-address" index="$index"></field-error>
 </div>
 
 <div class="hl-form-field">

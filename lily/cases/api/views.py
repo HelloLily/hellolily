@@ -63,10 +63,10 @@ class CaseViewSet(SetTenantUserMixin, viewsets.ModelViewSet):
     To order, provide a comma seperated list to the ordering argument. Use `-` minus to inverse the ordering.
 
     #Examples#
-    - plain: `/api/cases/case/`
-    - search: `/api/cases/case/?search=subject:Doremi`
-    - filter: `/api/cases/case/?type=1`
-    - order: `/api/cases/case/?ordering=subject,-id`
+    - plain: `/api/cases/`
+    - search: `/api/cases/?search=subject:Doremi`
+    - filter: `/api/cases/?type=1`
+    - order: `/api/cases/?ordering=subject,-id`
 
     #Returns#
     * List of cases with related fields

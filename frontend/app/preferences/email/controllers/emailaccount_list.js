@@ -56,7 +56,7 @@ function PreferencesEmailAccountList($compile, $http, $scope, $templateCache, Em
         });
 
         function checkHiddenState(account) {
-            $http.get('/api/messaging/email/shared_email_config/?email_account=' + account.id).success(function(d) {
+            $http.get('/api/messaging/email/shared-email-configurations/?email_account=' + account.id).success(function(d) {
                 var isHidden = false;
                 if (d.results.length) {
                     if (d.results[0].is_hidden) {
@@ -89,7 +89,7 @@ function PreferencesEmailAccountList($compile, $http, $scope, $templateCache, Em
         if (isHidden) {
             body.is_hidden = true;
         }
-        $http.post('/api/messaging/email/shared_email_config/', body);
+        $http.post('/api/messaging/email/shared-email-configurations/', body);
     }
 
     function followShared(account) {

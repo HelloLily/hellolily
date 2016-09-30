@@ -158,7 +158,7 @@
     <div class="hl-page-name-container">
         <h1 class="hl-page-name">
             <span ng-if="toolbar.updateCallback">
-                <span ng-if="toolbar.field" editable-text="toolbar.object[toolbar.field]" onbeforesave="toolbar.updateCallback($data, toolbar.field)" blur="submit">
+                <span ng-if="toolbar.field" e-name="{{ toolbar.field }}" e-size="{{ $data.length }}" editable-text="toolbar.object[toolbar.field]" onbeforesave="toolbar.updateCallback($data, toolbar.field)" blur="submit" input-auto-size>
                     <span>{{ settings.page.header.main }}</span>
                 </span>
                 <form ng-if="toolbar.fields" editable-form name="headerForm"
@@ -172,7 +172,7 @@
                         </span>
                     </span>
                     <span ng-if="headerForm.$visible" ng-repeat="field in toolbar.fields">
-                        <span e-name="{{ field }}" editable-text="toolbar.object[field]"></span>
+                        <span e-name="{{ field }}" e-size="{{ $data.length }}" editable-text="toolbar.object[field]" input-auto-size></span>
                     </span>
                     <span ng-if="headerForm.$visible">
                         <button type="submit" class="btn" ng-disabled="headerForm.$waiting">

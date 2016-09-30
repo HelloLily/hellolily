@@ -2,9 +2,9 @@
 var Raven = require('raven-js');
 
 window.sprintf = require('sprintf-js').sprintf;
+window.swal = require('sweetalert2');
 
 require('ui-select');
-require('sweetalert2');
 
 /**
  * App Module is the entry point for Lily related Angular code

@@ -56,7 +56,7 @@ function HLMessages() {
                 reloadTemplateConfirm: 'Do you want to reload the template? This will load the template variables, but will put your text at the bottom of the email.',
             },
             preferences: {
-                userAssignTitle: 'Assign %(user)s to groups',
+                userAssignTitle: 'Assign %(user)s to teams',
                 shareAccountTitle: 'Yes, let me share this email account',
                 shareTemplateTitle: 'Set %(template)s as default for',
             },

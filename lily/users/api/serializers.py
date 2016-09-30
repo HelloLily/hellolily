@@ -3,7 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
 from lily.api.nested.mixins import RelatedSerializerMixin
-from ..models import LilyGroup, LilyUser
+from ..models import Team, LilyUser
 
 
 class LilyUserSerializer(serializers.ModelSerializer):
@@ -33,7 +33,7 @@ class LilyUserSerializer(serializers.ModelSerializer):
             'social_media',
             'language',
             # 'timezone',
-            'lily_groups',
+            'teams',
         )
 
     def update(self, instance, validated_data):
@@ -67,14 +67,14 @@ class RelatedLilyUserSerializer(RelatedSerializerMixin, LilyUserSerializer):
         )
 
 
-class LilyGroupSerializer(serializers.ModelSerializer):
+class TeamSerializer(serializers.ModelSerializer):
     """
     Serializer for the contact model.
     """
     users = RelatedLilyUserSerializer(many=True, source='active_users')
 
     class Meta:
-        model = LilyGroup
+        model = Team
         fields = (
             'id',
             'name',
@@ -82,9 +82,9 @@ class LilyGroupSerializer(serializers.ModelSerializer):
         )
 
 
-class RelatedLilyGroupSerializer(RelatedSerializerMixin, LilyGroupSerializer):
+class RelatedTeamSerializer(RelatedSerializerMixin, TeamSerializer):
     class Meta:
-        model = LilyGroup
+        model = Team
         fields = (
             'id',
             'name',

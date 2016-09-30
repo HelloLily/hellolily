@@ -127,19 +127,19 @@ function CaseDetailController($scope, Settings, CaseStatuses, HLResource, HLUtil
     function updateModel(data, field) {
         var args = HLResource.createArgs(data, field, vm.case);
         var casePriorities = Case.getCasePriorities();
-        var groups = [];
+        var teams = [];
         var expireDate;
 
         if (field === 'subject') {
             Settings.page.setAllTitles('detail', data, vm.case.contact, vm.case.account);
         }
 
-        if (args.hasOwnProperty('assigned_to_groups')) {
-            args.assigned_to_groups.forEach(function(group) {
-                groups.push(group.id);
+        if (args.hasOwnProperty('assigned_to_teams')) {
+            args.assigned_to_teams.forEach(function(team) {
+                teams.push(team.id);
             });
 
-            args.assigned_to_groups = groups;
+            args.assigned_to_teams = teams;
         }
 
         if (args.hasOwnProperty('priority')) {

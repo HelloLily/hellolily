@@ -57,13 +57,13 @@ class CasesTotalCountLastWeek(RawDatabaseView):
                 cases_case,
                 cases_casestatus,
                 cases_casetype,
-                cases_case_assigned_to_groups
+                cases_case_assigned_to_teams
             WHERE
                 cases_case.status_id = cases_casestatus.id AND
                 cases_case.type_id = cases_casetype.id AND
-                cases_case.id = cases_case_assigned_to_groups.case_id AND
+                cases_case.id = cases_case_assigned_to_teams.case_id AND
                 cases_case.tenant_id = {tenant_id} AND
-                cases_case_assigned_to_groups.lilygroup_id = {lilygroup_id} AND
+                cases_case_assigned_to_teams.team_id = {team_id} AND
                 cases_case.is_deleted = false AND
 
                 /*last week*/
@@ -71,7 +71,7 @@ class CasesTotalCountLastWeek(RawDatabaseView):
                 date_trunc( 'week', now() - interval '1 week' )+ interval '1 week' - interval '1 second';
         '''.format(
             tenant_id=request.user.tenant_id,
-            lilygroup_id=int(kwargs['lilygroup_id']),
+            team_id=int(kwargs['team_id']),
         )
 
 
@@ -89,13 +89,13 @@ class CasesPerTypeCountLastWeek(RawDatabaseView):
                 cases_case,
                 cases_casestatus,
                 cases_casetype,
-                cases_case_assigned_to_groups
+                cases_case_assigned_to_teams
             WHERE
                 cases_case.status_id = cases_casestatus.id AND
                 cases_case.type_id = cases_casetype.id AND
-                cases_case.id = cases_case_assigned_to_groups.case_id AND
+                cases_case.id = cases_case_assigned_to_teams.case_id AND
                 cases_case.tenant_id = {tenant_id} AND
-                cases_case_assigned_to_groups.lilygroup_id = {lilygroup_id} AND
+                cases_case_assigned_to_teams.team_id = {team_id} AND
                 cases_case.is_deleted = false AND
 
                 /*last week*/
@@ -105,7 +105,7 @@ class CasesPerTypeCountLastWeek(RawDatabaseView):
                 cases_casetype.name;
         '''.format(
             tenant_id=request.user.tenant_id,
-            lilygroup_id=int(kwargs['lilygroup_id']),
+            team_id=int(kwargs['team_id']),
         )
 
 
@@ -120,16 +120,16 @@ class CasesWithTagsLastWeek(RawDatabaseView):
                 cases_case,
                 cases_casestatus,
                 cases_casetype,
-                cases_case_assigned_to_groups,
+                cases_case_assigned_to_teams,
                 tags_tag
             WHERE
                 cases_case.status_id = cases_casestatus.id AND
                 cases_case.type_id = cases_casetype.id AND
-                cases_case.id = cases_case_assigned_to_groups.case_id AND
+                cases_case.id = cases_case_assigned_to_teams.case_id AND
                 cases_case.id = tags_tag.object_id AND
                 tags_tag.name != '' AND
                 tags_tag.tenant_id = {tenant_id} AND
-                cases_case_assigned_to_groups.lilygroup_id = {lilygroup_id} AND
+                cases_case_assigned_to_teams.team_id = {team_id} AND
                 cases_case.is_deleted = false AND
 
                 /*last week*/
@@ -137,7 +137,7 @@ class CasesWithTagsLastWeek(RawDatabaseView):
                 date_trunc( 'week', now() - interval '1 week' )+ interval '1 week' - interval '1 second';
         '''.format(
             tenant_id=request.user.tenant_id,
-            lilygroup_id=int(kwargs['lilygroup_id']),
+            team_id=int(kwargs['team_id']),
         )
 
 
@@ -150,13 +150,13 @@ class CasesCountPerStatus(RawDatabaseView):
                 cases_case,
                 cases_casestatus,
                 cases_casetype,
-                cases_case_assigned_to_groups
+                cases_case_assigned_to_teams
             WHERE
                 cases_case.status_id = cases_casestatus.id AND
                 cases_case.type_id = cases_casetype.id AND
-                cases_case.id = cases_case_assigned_to_groups.case_id AND
+                cases_case.id = cases_case_assigned_to_teams.case_id AND
                 cases_case.tenant_id = {tenant_id} AND
-                cases_case_assigned_to_groups.lilygroup_id = {lilygroup_id} AND
+                cases_case_assigned_to_teams.team_id = {team_id} AND
                 cases_case.is_deleted = false AND
                 cases_case.is_archived = false AND
                 cases_casestatus.name != 'Closed'
@@ -164,7 +164,7 @@ class CasesCountPerStatus(RawDatabaseView):
                 cases_casestatus.name;
           '''.format(
             tenant_id=request.user.tenant_id,
-            lilygroup_id=int(kwargs['lilygroup_id']),
+            team_id=int(kwargs['team_id']),
         )
 
 
@@ -177,19 +177,19 @@ class CasesTopTags(RawDatabaseView):
                 cases_case,
                 cases_casestatus,
                 cases_casetype,
-                cases_case_assigned_to_groups,
+                cases_case_assigned_to_teams,
                 tags_tag
             WHERE
                 cases_case.status_id = cases_casestatus.id AND
                 cases_case.type_id = cases_casetype.id AND
-                cases_case.id = cases_case_assigned_to_groups.case_id AND
+                cases_case.id = cases_case_assigned_to_teams.case_id AND
                 cases_case.id = tags_tag.object_id AND
                 tags_tag.name <> '' AND
                 tags_tag.tenant_id = {tenant_id} AND
                 cases_case.is_deleted = false AND
                 cases_case.created BETWEEN date_trunc('month', now()- interval '1 month') AND
                 date_trunc('month', now()) - interval '1 second' AND
-                cases_case_assigned_to_groups.lilygroup_id = {lilygroup_id} AND
+                cases_case_assigned_to_teams.team_id = {team_id} AND
                 cases_casetype.name != 'Config' AND
                 cases_casetype.name != 'Retour' AND
                 cases_casetype.name != 'Callback'
@@ -202,7 +202,7 @@ class CasesTopTags(RawDatabaseView):
             LIMIT 15;
           '''.format(
             tenant_id=request.user.tenant_id,
-            lilygroup_id=int(kwargs['lilygroup_id']),
+            team_id=int(kwargs['team_id']),
         )
 
 

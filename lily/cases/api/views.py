@@ -110,8 +110,8 @@ class TeamsCaseList(APIView):
 
     def get(self, request, pk=None, format=None):
         if pk is None:
-            pk = self.request.user.lily_groups.all()
-        queryset = self.get_queryset().filter(assigned_to_groups=pk)
+            pk = self.request.user.teams.all()
+        queryset = self.get_queryset().filter(assigned_to_teams=pk)
         filtered_queryset = self.filter_class(request.GET, queryset=queryset)
         serializer = self.serializer_class(filtered_queryset, context={'request': request}, many=True)
         return Response(serializer.data)

@@ -19,10 +19,6 @@ RUN echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
 WORKDIR /home/docker
 ENV HOME /home/docker
 
-# For our e2e tests we need protractor
-RUN ln -s /usr/bin/nodejs /usr/bin/node
-RUN npm install -g protractor
-
 ADD requirements.txt $HOME/requirements.txt
 RUN pip install -r $HOME/requirements.txt
 

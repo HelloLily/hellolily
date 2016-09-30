@@ -7,8 +7,8 @@ from lily.api.nested.serializers import WritableNestedSerializer
 from lily.api.serializers import ContentTypeSerializer
 from lily.contacts.api.serializers import RelatedContactSerializer
 from lily.contacts.models import Function
-from lily.users.api.serializers import RelatedLilyUserSerializer, RelatedLilyGroupSerializer
-from lily.users.models import LilyGroup
+from lily.users.api.serializers import RelatedLilyUserSerializer, RelatedTeamSerializer
+from lily.users.models import Team
 from lily.utils.api.serializers import RelatedTagSerializer
 from lily.utils.sanitizers import HtmlSanitizer
 
@@ -62,7 +62,7 @@ class CaseSerializer(WritableNestedSerializer):
     account = RelatedAccountSerializer(required=False, allow_null=True)
     contact = RelatedContactSerializer(required=False, allow_null=True)
     assigned_to = RelatedLilyUserSerializer(required=False, allow_null=True, assign_only=True)
-    assigned_to_groups = RelatedLilyGroupSerializer(many=True, required=False, assign_only=True)
+    assigned_to_teams = RelatedTeamSerializer(many=True, required=False, assign_only=True)
     type = RelatedCaseTypeSerializer(assign_only=True)
     status = RelatedCaseStatusSerializer(assign_only=True)
     tags = RelatedTagSerializer(many=True, required=False, create_only=True)
@@ -121,15 +121,15 @@ class CaseSerializer(WritableNestedSerializer):
             })
 
         if self.partial:
-            if 'assigned_to_groups' in validated_data:
-                # Handle PATCH on assigned to groups as a special case.
-                # Removed assigned_to_groups lack the is_deleted flag, so replace the whole resource.
-                assigned_to_groups_validated_data = validated_data.pop('assigned_to_groups', {})
-                instance.assigned_to_groups.clear()
-                for group_validated in assigned_to_groups_validated_data:
-                    group = LilyGroup.objects.get(pk=group_validated['id'])
-                    if group:
-                        instance.assigned_to_groups.add(group)
+            if 'assigned_to_teams' in validated_data:
+                # Handle PATCH on assigned to teams as a special case.
+                # Removed assigned_to_teams lack the is_deleted flag, so replace the whole resource.
+                assigned_to_teams_validated_data = validated_data.pop('assigned_to_teams', {})
+                instance.assigned_to_teams.clear()
+                for team_validated in assigned_to_teams_validated_data:
+                    team = Team.objects.get(pk=team_validated['id'])
+                    if team:
+                        instance.assigned_to_teams.add(team)
 
         return super(CaseSerializer, self).update(instance, validated_data)
 
@@ -139,7 +139,7 @@ class CaseSerializer(WritableNestedSerializer):
             'id',
             'account',
             'assigned_to',
-            'assigned_to_groups',
+            'assigned_to_teams',
             'contact',
             'content_type',
             'created',
@@ -167,7 +167,7 @@ class RelatedCaseSerializer(RelatedSerializerMixin, CaseSerializer):
         fields = (
             'id',
             'assigned_to',
-            'assigned_to_groups',
+            'assigned_to_teams',
             'created',
             'created_by',
             'description',

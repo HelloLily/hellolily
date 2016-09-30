@@ -1,6 +1,6 @@
 from lily.search.base_mapping import BaseMapping
 
-from .models import LilyUser, LilyGroup
+from .models import LilyUser, Team
 
 
 class LilyUserMapping(BaseMapping):
@@ -60,17 +60,17 @@ class LilyUserMapping(BaseMapping):
         }
 
 
-class LilyGroupMapping(BaseMapping):
+class TeamMapping(BaseMapping):
     @classmethod
     def get_model(cls):
-        return LilyGroup
+        return Team
 
     @classmethod
     def get_mapping(cls):
         """
         Returns an Elasticsearch mapping for this MappingType.
         """
-        mapping = super(LilyGroupMapping, cls).get_mapping()
+        mapping = super(TeamMapping, cls).get_mapping()
         mapping['properties'].update({
             'name': {
                 'type': 'string',

@@ -11,8 +11,8 @@ from rest_framework.response import Response
 from rest_framework.parsers import JSONParser, MultiPartParser
 
 from lily.tenant.api.mixins import SetTenantUserMixin
-from .serializers import LilyGroupSerializer, LilyUserSerializer, LilyUserTokenSerializer
-from ..models import LilyGroup, LilyUser
+from .serializers import TeamSerializer, LilyUserSerializer, LilyUserTokenSerializer
+from ..models import Team, LilyUser
 
 
 class TeamFilter(django_filters.FilterSet):
@@ -21,7 +21,7 @@ class TeamFilter(django_filters.FilterSet):
     """
 
     class Meta:
-        model = LilyGroup
+        model = Team
         fields = ['name', ]
 
 
@@ -29,10 +29,10 @@ class TeamViewSet(viewsets.ReadOnlyModelViewSet):
     """
     List all teams assigned to the current user.
     """
-    model = LilyGroup
-    serializer_class = LilyGroupSerializer
+    model = Team
+    serializer_class = TeamSerializer
     filter_class = TeamFilter
-    queryset = LilyGroup.objects
+    queryset = Team.objects
 
     def get_queryset(self):
         queryset = self.model.objects.filter(tenant_id=self.request.user.tenant_id)

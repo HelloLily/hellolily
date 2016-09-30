@@ -9,19 +9,19 @@ from faker.factory import Factory
 
 from lily.tenant.factories import TenantFactory
 
-from .models import LilyGroup, LilyUser
+from .models import Team, LilyUser
 
 
 faker = Factory.create('nl_NL')
 preposition_list = ['van der', 'vd', 'van', 'de', 'ten', 'von', 'van de', 'van den']
 
 
-class LilyGroupFactory(DjangoModelFactory):
+class TeamFactory(DjangoModelFactory):
     tenant = SubFactory(TenantFactory)
     name = Sequence(lambda n: '%s.%s' % (n, faker.word()))
 
     class Meta:
-        model = LilyGroup
+        model = Team
 
 
 class LilyUserFactory(DjangoModelFactory):
@@ -40,19 +40,19 @@ class LilyUserFactory(DjangoModelFactory):
     timezone = LazyAttribute(lambda o: faker.timezone())
 
     @post_generation
-    def groups(self, create, extracted, **kwargs):
+    def teams(self, create, extracted, **kwargs):
         if not create:
             # Simple build, do nothing.
             return
 
         if extracted:
-            if isinstance(extracted, LilyGroup):
-                # A single group was passed in, use that.
-                self.lily_groups.add(extracted)
+            if isinstance(extracted, Team):
+                # A single team was passed in, use that.
+                self.teams.add(extracted)
             else:
-                # A list of groups were passed in, use them.
-                for group in extracted:
-                    self.lily_groups.add(group)
+                # A list of teams were passed in, use them.
+                for team in extracted:
+                    self.teams.add(team)
 
     class Meta:
         model = LilyUser
@@ -64,16 +64,16 @@ class LilySuperUserFactory(LilyUserFactory):
     is_staff = True
 
     @post_generation
-    def groups(self, create, extracted, **kwargs):
+    def teams(self, create, extracted, **kwargs):
         if not create:
             # Simple build, do nothing.
             return
 
         if extracted:
-            if isinstance(extracted, LilyGroup):
-                # A single group was passed in, use that.
-                self.lily_groups.add(extracted)
+            if isinstance(extracted, Team):
+                # A single team was passed in, use that.
+                self.teams.add(extracted)
             else:
-                # A list of groups were passed in, use them.
-                for group in extracted:
-                    self.lily_groups.add(group)
+                # A list of teams were passed in, use them.
+                for team in extracted:
+                    self.teams.add(team)

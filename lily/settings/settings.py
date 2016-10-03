@@ -562,11 +562,13 @@ GMAIL_CALLBACK_URL = os.environ.get('GMAIL_CALLBACK_URL', 'http://localhost:8000
 GMAIL_SYNC_DELAY_INTERVAL = 1
 GMAIL_SYNC_LOCK_LIFETIME = 300
 GMAIL_CHUNK_SIZE = 1024 * 1024
+GMAIL_LABEL_INBOX = os.environ.get('GMAIL_LABEL_INBOX', 'INBOX')
 GMAIL_LABEL_SPAM = os.environ.get('GMAIL_LABEL_SPAM', 'SPAM')
-GMAIL_LABEL_UNREAD = os.environ.get('GMAIL_LABEL_UNREAD', 'UNREAD')
-GMAIL_LABEL_SENT = os.environ.get('GMAIL_LABEL_SENT', 'SENT')
 GMAIL_LABEL_TRASH = os.environ.get('GMAIL_LABEL_TRASH', 'TRASH')
+GMAIL_LABEL_UNREAD = os.environ.get('GMAIL_LABEL_UNREAD', 'UNREAD')
 GMAIL_LABEL_STAR = os.environ.get('GMAIL_LABEL_STAR', 'STARRED')
+GMAIL_LABEL_IMPORTANT = os.environ.get('GMAIL_LABEL_IMPORTANT', 'IMPORTANT')
+GMAIL_LABEL_SENT = os.environ.get('GMAIL_LABEL_SENT', 'SENT')
 GMAIL_LABEL_DRAFT = os.environ.get('GMAIL_LABEL_DRAFT', 'DRAFT')
 
 #######################################################################################################################

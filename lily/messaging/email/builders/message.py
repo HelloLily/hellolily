@@ -118,10 +118,6 @@ class MessageBuilder(object):
 
         # Store all labels
         for label in message_info.get('labelIds', []):
-            # Do not save UNREAD_LABEL
-            if label == settings.GMAIL_LABEL_UNREAD:
-                continue
-
             db_label = self.manager.get_label(label)
             self.labels.append(db_label)
 

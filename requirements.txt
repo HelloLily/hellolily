@@ -4,7 +4,7 @@
 
 Django==1.7.11
 django-appconf==1.0.1
-django-extensions==1.6.3
+django-extensions==1.6.5
 django-filter==0.10.0
 django-sslify==0.2.7
 djangorestframework==3.1.3

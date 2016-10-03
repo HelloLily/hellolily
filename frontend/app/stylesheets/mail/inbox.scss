@@ -133,6 +133,8 @@
 
 ul {
     &.wysihtml5-toolbar {
+        background: #fff;
+
         a {
             &.btn.wysihtml5-command-active {
                 background: #eee !important;

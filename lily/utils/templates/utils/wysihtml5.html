@@ -1,7 +1,7 @@
 {% load bootstrap3 i18n %}
 
 <div{% if attrs.container_class %} class="{{ attrs.container_class }}"{% endif %}>
-    <div id="wysihtml5-toolbar" style="display: none;">
+    <div id="wysihtml5-toolbar" style="display: none;" class="width-100">
         <ul class="wysihtml5-toolbar">
             <li class="dropdown">
                 <a class="btn default dropdown-toggle" tabindex="-1" data-toggle="dropdown" title="{% trans 'Text type' %}">
@@ -30,7 +30,7 @@
             <li><a class="btn default" tabindex="-1" data-wysihtml5-command="createLink" title="{% trans 'Create a link' %}"><i class="fa fa-link"></i></a></li>
         </ul>
         <!-- Some wysihtml5 commands like 'createLink' require extra paramaters specified by the user (eg. href) -->
-        <div data-wysihtml5-dialog="createLink" style="display: none;">
+        <div data-wysihtml5-dialog="createLink" class="display-none">
             <div class="form-group">
                 <label class="sr-only" for="wysihtml5-link">Link:</label>
                 <input id="wysihtml5-link" data-wysihtml5-dialog-field="href" value="http://" class="text form-control" placeholder="Enter link">

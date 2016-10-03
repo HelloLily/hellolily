@@ -146,6 +146,11 @@
                 }
             }
         }
+
+        .notification-inline {
+            border-radius: 0;
+            margin-top: 0;
+        }
     }
 }
 
@@ -354,6 +359,7 @@
 }
 
 .email-reply-actions-header {
+    background-color: #fff;
     border: 0;
 
     &:before {

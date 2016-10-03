@@ -17,16 +17,6 @@ function editableSelect() {
         controllerAs: 'es',
         transclude: true,
         bindToController: true,
-        link: function(scope, element, attr) {
-            // Bind click event to the current directive.
-            element.on('click', '.editable-click', function() {
-                if (scope.es.search) {
-                    scope.es[scope.es.formName].$show();
-
-                    scope.$apply();
-                }
-            });
-        },
     };
 }
 
@@ -90,6 +80,7 @@ function EditableSelectController($scope, HLResource, HLSearch, HLUtils) {
         var type;
         var field;
         var resourceCall;
+        var returnValue;
 
         if (es.selectOptions.hasOwnProperty('type')) {
             type = es.selectOptions.type;
@@ -107,10 +98,11 @@ function EditableSelectController($scope, HLResource, HLSearch, HLUtils) {
 
         if (!resourceCall.hasOwnProperty('$promise')) {
             es.choices = resourceCall;
+            returnValue = false;
         } else {
             // Add a return here so the select gets disabled while
             // loading the options.
-            return resourceCall.$promise.then(function(data) {
+            returnValue = resourceCall.$promise.then(function(data) {
                 if (data.hasOwnProperty('results')) {
                     es.choices = data.results;
                 } else {
@@ -118,6 +110,8 @@ function EditableSelectController($scope, HLResource, HLSearch, HLUtils) {
                 }
             });
         }
+
+        return returnValue;
     }
 
     function refreshChoices(query) {

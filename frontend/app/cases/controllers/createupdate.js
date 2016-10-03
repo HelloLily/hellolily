@@ -204,7 +204,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     }
 
     function assignToMyTeams() {
-        vm.case.assigned_to_groups = vm.ownTeams;
+        vm.case.assigned_to_teams = vm.ownTeams;
     }
 
     function cancelCaseCreation() {
@@ -402,7 +402,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             }).done();
 
             return false;
-        } else if ((vm.case.assigned_to_groups && !vm.case.assigned_to_groups.length) && !vm.case.assigned_to) {
+        } else if ((vm.case.assigned_to_teams && !vm.case.assigned_to_teams.length) && !vm.case.assigned_to) {
             swal({
                 title: 'No assignee set',
                 text: 'Please select a colleague or team to assign the case to',
@@ -416,4 +416,8 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
 
         return true;
     }
+
+    $scope.$on('saveCase', function() {
+        saveCase($scope.caseForm);
+    });
 }

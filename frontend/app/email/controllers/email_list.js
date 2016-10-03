@@ -35,9 +35,10 @@ function emailConfig($stateProvider) {
 
 angular.module('app.email').controller('EmailListController', EmailListController);
 
-EmailListController.$inject = ['$scope', '$state', '$stateParams', 'Settings', 'EmailMessage', 'EmailLabel',
-    'EmailAccount', 'LocalStorage', 'SelectedEmailAccount'];
-function EmailListController($scope, $state, $stateParams, Settings, EmailMessage, EmailLabel, EmailAccount, LocalStorage, SelectedEmailAccount) {
+EmailListController.$inject = ['$scope', '$state', '$stateParams', 'EmailAccount', 'EmailLabel', 'EmailMessage',
+    'HLUtils', 'LocalStorage', 'SelectedEmailAccount', 'Settings'];
+function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLabel, EmailMessage,
+                             HLUtils, LocalStorage, SelectedEmailAccount, Settings) {
     var storage = new LocalStorage('inbox');
     var vm = this;
 
@@ -70,6 +71,30 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
     vm.reloadMessages = reloadMessages;
     vm.goToDraft = goToDraft;
     vm.setSearchQuery = setSearchQuery;
+    vm.handleSelect = handleSelect;
+
+    function handleSelect(index, event) {
+        // Keep track of the previously clicked item.
+        var i = vm.lastSelected;
+
+        // Set the last selected item.
+        vm.lastSelected = index;
+
+        // Check if someone wants to select multiple items.
+        if (event.shiftKey) {
+            if (i < index) {
+                //  We're going from top to bottom, so increment i.
+                for (i; i < index; i++) {
+                    vm.emailMessages[i].checked = vm.emailMessages[vm.lastSelected].checked;
+                }
+            } else {
+                // Going from bottom to top, so decrement i.
+                for (i; i > index; i--) {
+                    vm.emailMessages[i].checked = vm.emailMessages[vm.lastSelected].checked;
+                }
+            }
+        }
+    }
 
     Settings.page.setAllTitles('custom', 'Email');
 
@@ -83,6 +108,8 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
     ///////
 
     function activate() {
+        HLUtils.blockUI('#emailBase', true);
+
         watchTable();
         // Store current email account
         SelectedEmailAccount.setCurrentAccountId($stateParams.accountId);
@@ -116,6 +143,8 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
     }
 
     function setPage(pageNumber) {
+        HLUtils.blockUI('#emailBase', true);
+
         if (pageNumber >= 0 && pageNumber * vm.table.pageSize < vm.table.totalItems) {
             vm.table.page = pageNumber;
         }
@@ -269,11 +298,11 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
         var i;
         var data;
 
-        if (vm.label.label_id) {
+        if ((vm.label) && (vm.label.label_id)) {
             removedLabels = [vm.label.label_id];
         }
 
-        // Gmail API needs to know the new labels as well as the old ones, so send them too
+        // Gmail API needs to know the new labels as well as the old ones, so send them too.
         data = {
             remove_labels: removedLabels,
             add_labels: addedLabels,
@@ -307,6 +336,9 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
 
     function reloadMessages() {
         vm.emailMessages = [];
+
+        HLUtils.blockUI('#emailBase', true);
+
         _reloadMessages();
     }
 
@@ -318,24 +350,34 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
         var filterquery = [];
 
         if ($stateParams.labelId) {
-            filterquery.push('label_id:' + $stateParams.labelId);
-
-            if ($stateParams.labelId === 'TRASH') {
-                filterquery.push('is_removed:true');
-                filterquery.push('is_spam:false'); // like Gmail, don't show deleted spam emails.
-            } else if ($stateParams.labelId !== 'SPAM') {
-                filterquery.push('is_removed:false');
-            }
-
-            if ($stateParams.labelId === 'SPAM') {
+            if ($stateParams.labelId === 'INBOX') {
+                filterquery.push('is_trashed:false');
+                filterquery.push('is_spam:false');
+                filterquery.push('is_archived:false');
+            } else if ($stateParams.labelId === 'SENT') {
+                filterquery.push('label_id:SENT');
+                filterquery.push('is_trashed:false');
+                filterquery.push('is_spam:false');
+            } else if ($stateParams.labelId === 'TRASH') {
+                filterquery.push('is_trashed:true');
+                filterquery.push('is_spam:false');
+            } else if ($stateParams.labelId === 'SPAM') {
                 filterquery.push('is_spam:true');
+                filterquery.push('is_trashed:false');
+            } else if ($stateParams.labelId === 'DRAFT') {
+                filterquery.push('is_draft:true');
+            } else {
+                // User labels.
+                filterquery.push('label_id:' + $stateParams.labelId);
+                filterquery.push('is_trashed:false');
+                filterquery.push('is_spam:false');
             }
         } else {
             // Corresponds with the 'All mail'-label.
-            filterquery.push('NOT label_id:Sent');
-            // Exclude removed emails and spam.
-            //filterquery.push('is_removed:false'); // TODO: LILY-1812: 'all mail' shows incorrectly deleted mails.
+            filterquery.push('is_trashed:false');
             filterquery.push('is_spam:false');
+            filterquery.push('is_draft:false');
+            filterquery.push('NOT label_id:SENT');
         }
 
         if ($stateParams.accountId) {
@@ -373,6 +415,8 @@ function EmailListController($scope, $state, $stateParams, Settings, EmailMessag
         }, function(data) {
             vm.emailMessages = data.hits;
             vm.table.totalItems = data.total;
+
+            HLUtils.unblockUI('#emailBase');
         });
     }
 

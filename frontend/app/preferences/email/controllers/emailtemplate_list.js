@@ -32,6 +32,10 @@ function PreferencesEmailTemplatesList($compile, $scope, $state, $templateCache,
     //////
 
     function activate() {
+        getTemplates();
+    }
+
+    function getTemplates() {
         EmailTemplate.query({}, function(data) {
             vm.emailTemplates = data.results;
         });
@@ -70,6 +74,7 @@ function PreferencesEmailTemplatesList($compile, $scope, $state, $templateCache,
                     args.default_for = selectedAccounts;
 
                     EmailTemplate.update(args).$promise.then(function() {
+                        getTemplates();
                         swal.close();
                         toastr.success('I\'ve updated the email template for you!', 'Done');
                     }, function(response) {

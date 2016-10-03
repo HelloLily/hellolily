@@ -1,6 +1,6 @@
 from lily.search.base_mapping import BaseMapping
 
-from .models import LilyUser, LilyGroup
+from .models import LilyUser, Team
 
 
 class LilyUserMapping(BaseMapping):
@@ -16,10 +16,6 @@ class LilyUserMapping(BaseMapping):
         mapping = super(LilyUserMapping, cls).get_mapping()
         mapping['properties'].update({
             'first_name': {
-                'type': 'string',
-                'index_analyzer': 'normal_ngram_analyzer',
-            },
-            'preposition': {
                 'type': 'string',
                 'index_analyzer': 'normal_ngram_analyzer',
             },
@@ -51,7 +47,6 @@ class LilyUserMapping(BaseMapping):
         """
         return {
             'first_name': obj.first_name,
-            'preposition': obj.preposition,
             'last_name': obj.last_name,
             'full_name': obj.full_name,
             'position': obj.position,
@@ -60,17 +55,17 @@ class LilyUserMapping(BaseMapping):
         }
 
 
-class LilyGroupMapping(BaseMapping):
+class TeamMapping(BaseMapping):
     @classmethod
     def get_model(cls):
-        return LilyGroup
+        return Team
 
     @classmethod
     def get_mapping(cls):
         """
         Returns an Elasticsearch mapping for this MappingType.
         """
-        mapping = super(LilyGroupMapping, cls).get_mapping()
+        mapping = super(TeamMapping, cls).get_mapping()
         mapping['properties'].update({
             'name': {
                 'type': 'string',

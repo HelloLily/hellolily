@@ -1,20 +1,20 @@
 <div class="row">
     <div class="no-padding" ng-class="{'col-md-9': settings.email.sidebar.isVisible, 'col-md-12': !settings.email.sidebar.isVisible}">
         <div class="col-md-2" ui-view="labelList"></div>
-        <div class="col-md-10" ui-view></div>
+        <div class="col-md-10" ui-view id="emailBase"></div>
     </div>
 
     <div class="col-md-3" ng-show="settings.email.sidebar.isVisible">
         <div ng-if="settings.email.sidebar.form">
-                <div class="row inbox">
-                    <div class="col-md-12">
-                        <!-- Setting ui-view to settings.email.sidebar.form doesn't update the view if a different form is clicked. So doing ng-if instead -->
-                        <div class="create-sidebar" ng-if="settings.email.sidebar.form == 'account'" ui-view="createAccount"></div>
-                        <div class="create-sidebar" ng-if="settings.email.sidebar.form == 'contact'" ui-view="createContact"></div>
-                        <div class="create-sidebar" ng-if="settings.email.sidebar.form == 'cases'" ui-view="createCase"></div>
-                        <div class="create-sidebar" ng-if="settings.email.sidebar.form == 'deals'" ui-view="createDeal"></div>
-                    </div>
+            <div class="row inbox">
+                <div class="col-md-12">
+                    <!-- Setting ui-view to settings.email.sidebar.form doesn't update the view if a different form is clicked. So doing ng-if instead -->
+                    <div class="create-sidebar" ng-if="settings.email.sidebar.form == 'account'" ui-view="createAccount"></div>
+                    <div class="create-sidebar" ng-if="settings.email.sidebar.form == 'contact'" ui-view="createContact"></div>
+                    <div class="create-sidebar" ng-if="settings.email.sidebar.form == 'cases'" ui-view="createCase"></div>
+                    <div class="create-sidebar" ng-if="settings.email.sidebar.form == 'deals'" ui-view="createDeal"></div>
                 </div>
+            </div>
         </div>
 
         <div ng-if="settings.email.sidebar.account && settings.email.data.account.id">

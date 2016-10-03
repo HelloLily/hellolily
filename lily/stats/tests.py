@@ -1,7 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from lily.users.factories import LilyGroupFactory, LilyUserFactory
+from lily.users.factories import TeamFactory, LilyUserFactory
 from .urls import case_patterns, deal_patterns
 
 
@@ -11,13 +11,13 @@ class StatsTests(TestCase):
         Test that the stats pages give no errors.
         """
         user_obj = LilyUserFactory(is_active=True)
-        lilygroup = LilyGroupFactory()
+        team = TeamFactory()
         self.client.login(email=user_obj.email, password='admin')
 
         for pattern in case_patterns:
-            # Loop over case patterns, these need the lilygroup_id kwarg.
+            # Loop over case patterns, these need the team_id kwarg.
             response = self.client.get(reverse(pattern.name, kwargs={
-                'lilygroup_id': lilygroup.id,
+                'team_id': team.id,
             }))
 
             if response.status_code != 200:

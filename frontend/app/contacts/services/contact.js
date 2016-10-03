@@ -3,7 +3,7 @@ angular.module('app.contacts.services').factory('Contact', Contact);
 Contact.$inject = ['$filter', '$resource', 'HLResource', 'Settings'];
 function Contact($filter, $resource, HLResource, Settings) {
     var _contact = $resource(
-        '/api/contacts/contact/:id/',
+        '/api/contacts/:id/',
         null,
         {
             get: {
@@ -75,7 +75,6 @@ function Contact($filter, $resource, HLResource, Settings) {
             salutation: 1, // Default salutation is 'Informal'
             gender: 2, // Default gender is 'Unknown/Other'
             first_name: '',
-            preposition: '',
             last_name: '',
             email_addresses: [],
             phone_numbers: [],

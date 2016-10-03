@@ -5,11 +5,11 @@ from .views import (CasesTotalCountLastWeek, CasesPerTypeCountLastWeek, CasesWit
 
 case_patterns = patterns(
     '',
-    url(r'^cases/total/(?P<lilygroup_id>[\d]+)/$', CasesTotalCountLastWeek.as_view(), name='stats_cases_total'),
-    url(r'^cases/grouped/(?P<lilygroup_id>[\d]+)/$', CasesPerTypeCountLastWeek.as_view(), name='stats_cases_grouped'),
-    url(r'^cases/withtags/(?P<lilygroup_id>[\d]+)/$', CasesWithTagsLastWeek.as_view(), name='stats_cases_withtags'),
-    url(r'^cases/countperstatus/(?P<lilygroup_id>[\d]+)/$', CasesCountPerStatus.as_view(), name='stats_cases_cps'),
-    url(r'^cases/toptags/(?P<lilygroup_id>[\d]+)/$', CasesTopTags.as_view(), name='stats_cases_toptags'),
+    url(r'^cases/total/(?P<team_id>[\d]+)/$', CasesTotalCountLastWeek.as_view(), name='stats_cases_total'),
+    url(r'^cases/grouped/(?P<team_id>[\d]+)/$', CasesPerTypeCountLastWeek.as_view(), name='stats_cases_grouped'),
+    url(r'^cases/withtags/(?P<team_id>[\d]+)/$', CasesWithTagsLastWeek.as_view(), name='stats_cases_withtags'),
+    url(r'^cases/countperstatus/(?P<team_id>[\d]+)/$', CasesCountPerStatus.as_view(), name='stats_cases_cps'),
+    url(r'^cases/toptags/(?P<team_id>[\d]+)/$', CasesTopTags.as_view(), name='stats_cases_toptags'),
 )
 
 deal_patterns = patterns(

@@ -10,7 +10,7 @@ function UserTeams($resource) {
                 isArray: false,
             },
             search: {
-                url: '/search/search/?type=users_lilygroup&filterquery=:filterquery',
+                url: '/search/search/?type=users_team&filterquery=:filterquery',
                 method: 'GET',
                 transformResponse: function(data) {
                     var jsonData = angular.fromJson(data);

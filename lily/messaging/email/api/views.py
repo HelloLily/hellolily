@@ -7,7 +7,7 @@ from rest_framework.filters import DjangoFilterBackend
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from lily.messaging.email.utils import get_email_parameter_api_dict
+from lily.messaging.email.utils import get_email_parameter_api_dict, reindex_email_message
 from lily.search.lily_search import LilySearch
 from lily.tenant.api.mixins import SetTenantUserMixin
 from lily.users.models import LilyUser
@@ -157,32 +157,30 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
 
     def perform_update(self, serializer):
         """
-        Any modifications are passed through the manager and not directly on the db.
-
-        For now, only the read status will be updated.
+        For now, only the read status will be updated. Opposite to others email modification (archive, spam, star, etc)
+        read status is a model field. This enables calculations of the unread count per label. So in this case
+        update database directly. Save will trigger an update of the search index.
         """
         email = self.get_object()
+        email.read = self.request.data['read']
+        email.save()
         toggle_read_email_message.apply_async(args=(email.id, self.request.data['read']))
 
     def perform_destroy(self, instance):
         """
-        Any modifications are passed through the manager and not directly on the db.
-
-        Delete will happen async
+        Delete an email message asynchronous through the manager and not directly on the database.
         """
         delete_email_message.apply_async(args=(instance.id,))
 
     @detail_route(methods=['put'])
     def archive(self, request, pk=None):
         """
-        Any modifications are passed through the manager and not directly on the db.
-
-        Archive will happen async
+        Archive an email message asynchronous through the manager and not directly on the database. Just update the
+        search index by an instance variable so changes are immediately visible.
         """
         email = self.get_object()
-        # Make sure emails are removed instantly from the email list
-        email.is_removed = True
-        email.save()
+        email._is_archived = True
+        reindex_email_message(email)
         serializer = self.get_serializer(email, partial=True)
         archive_email_message.apply_async(args=(email.id,))
         return Response(serializer.data)
@@ -190,26 +188,21 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
     @detail_route(methods=['put'])
     def trash(self, request, pk=None):
         """
-        Any modifications are passed through the manager and not directly on the db.
-
-        Trash will happen async
+        Trash an email message asynchronous through the manager and not directly on the database. Just update the
+        search index by an instance variable so changes are immediately visible.
         """
         email = self.get_object()
-        trashed = email.is_removed
-        # Make sure emails are removed instantly from the email list
-        email.is_removed = True
-        email.save()
+        email._is_trashed = True
+        reindex_email_message(email)
         serializer = self.get_serializer(email, partial=True)
-        if not trashed:
-            trash_email_message.apply_async(args=(email.id,))
+        trash_email_message.apply_async(args=(email.id,))
         return Response(serializer.data)
 
     @detail_route(methods=['put'])
     def move(self, request, pk=None):
         """
-        Any modifications are passed through the manager and not directly on the db.
-
-        Move will happen async.
+        Move an email message asynchronous through the manager and not directly on the database. Just update the
+        search index by an instance variable so changes are immediately visible.
         """
         email = self.get_object()
         serializer = self.get_serializer(email, partial=True)
@@ -223,33 +216,27 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
     @detail_route(methods=['put'])
     def star(self, request, pk=None):
         """
-        Any modifications are passed through the manager and not directly on the db.
-
-        Star will happen async.
+        Star an email message asynchronous through the manager and not directly on the database. Just update the
+        search index by an instance variable so changes are immediately visible.
         """
         email = self.get_object()
+        email._is_starred = request.data['starred']
+        reindex_email_message(email)
         serializer = self.get_serializer(email, partial=True)
-
         toggle_star_email_message.delay(email.id, star=request.data['starred'])
-
         return Response(serializer.data)
 
     @detail_route(methods=['put'])
     def spam(self, request, pk=None):
         """
-        Any modifications are passed through the manager and not directly on the db.
-
-        Mark / unmark as spam will happen async.
+        Mark / unmark an email message as spam asynchronous through the manager and not directly on the database. Just
+        update the search index by an instance variable so changes are immediately visible.
         """
         email = self.get_object()
-
-        # Make sure emails are removed / shown instantly in the email list.
-        email.is_removed = request.data['markAsSpam']
-        email.save()
+        email._is_spam = request.data['markAsSpam']
+        reindex_email_message(email)
         serializer = self.get_serializer(email, partial=True)
-
         toggle_spam_email_message.delay(email.id, spam=request.data['markAsSpam'])
-
         return Response(serializer.data)
 
     @detail_route(methods=['get'])

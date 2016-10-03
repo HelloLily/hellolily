@@ -38,7 +38,7 @@ class CaseMapping(BaseMapping):
                     },
                 },
             },
-            'assigned_to_groups': {
+            'assigned_to_teams': {
                 'type': 'integer',
             },
             'contact': {
@@ -161,7 +161,7 @@ class CaseMapping(BaseMapping):
                 'id': obj.assigned_to.id,
                 'full_name': obj.assigned_to.full_name,
             } if obj.assigned_to else None,
-            'assigned_to_groups': [group.id for group in obj.assigned_to_groups.all()],
+            'assigned_to_teams': [team.id for team in obj.assigned_to_teams.all()],
             'contact': {
                 'id': obj.contact.id,
                 'full_name': obj.contact.full_name,

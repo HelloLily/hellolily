@@ -69,7 +69,7 @@ function PreferencesUserProfileController($state, $window, HLForms, HLUtils, Upl
         HLForms.clearErrors(form);
 
         Upload.upload({
-            url: 'api/users/user/me/',
+            url: 'api/users/me/',
             method: 'PATCH',
             data: data,
         }).then(function() {

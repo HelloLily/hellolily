@@ -185,7 +185,7 @@ $header-height: 80px;
     }
 
     &.is-alert {
-        background-color: $bullet-color-4;
+        background-color: $alert-warning-color;
     }
 
     &.is-success {
@@ -195,7 +195,7 @@ $header-height: 80px;
 
 .notification-inline {
     padding: 0 5px;
-    background: #ffd66f;
+    background: $alert-warning-color;
     color: #fff;
     border-radius: 4px;
     display: block;
@@ -209,7 +209,6 @@ $header-height: 80px;
     i,
     &:hover {
         color: #fff;
-
     }
 }
 

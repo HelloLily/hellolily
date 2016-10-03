@@ -117,8 +117,8 @@
             </form-portlet>
 
             <form-portlet portlet-title="Who is going to do this?">
-                <form-group label-title="Assigned to teams" label-id="id_assigned_to_groups" field="caseForm.assigned_to_groups">
-                    <ui-select multiple ng-model="vm.case.assigned_to_groups" theme="select2" class="form-control" name="assigned_to_groups" append-to-body="true">
+                <form-group label-title="Assigned to teams" label-id="id_assigned_to_teams" field="caseForm.assigned_to_teams">
+                    <ui-select multiple ng-model="vm.case.assigned_to_teams" theme="select2" class="form-control" name="assigned_to_teams" append-to-body="true">
                         <ui-select-match placeholder="Select one or more team(s)">{{ $item.name }}</ui-select-match>
                         <ui-select-choices repeat="team.id as team in vm.teams | propsFilter: {name: $select.search}">
                             <div ng-bind-html="team.name | highlight: $select.search"></div>

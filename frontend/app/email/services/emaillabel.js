@@ -3,7 +3,7 @@ angular.module('app.email.services').factory('EmailLabel', EmailLabel);
 EmailLabel.$inject = ['$resource'];
 function EmailLabel($resource) {
     var _emailLabel = $resource(
-        '/api/messaging/email/label/:id/',
+        '/api/messaging/email/labels/:id/',
         {},
         {
             query: {

@@ -1,0 +1,9 @@
+<form name="userTeamForm">
+    <ul class="list-unstyled align-left">
+        <li ng-repeat="team in vm.teamList" class="clickable">
+            <checkbox model="team.selected">{{ team.name }}</checkbox>
+        </li>
+    </ul>
+
+    <field-error form="userTeamForm" field="teams"></field-error>
+</form>

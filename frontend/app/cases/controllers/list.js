@@ -142,8 +142,8 @@ function CaseListController($compile, $filter, $scope, $state, $timeout, $templa
 
                 // Create a filter for cases assigned to one of my teams.
                 filterList.push({
-                    name: 'My teams cases',
-                    value: 'assigned_to_groups:(' + myTeamIds.join(' OR ') + ')',
+                    name: 'My teams\' cases',
+                    value: 'assigned_to_teams:(' + myTeamIds.join(' OR ') + ')',
                     selected: false,
                 });
             }

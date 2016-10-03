@@ -363,4 +363,8 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
             vm.account.status = vm.activeStatus;
         }
     }
+
+    $scope.$on('saveAccount', function() {
+        checkDomainForDuplicates($scope.accountForm);
+    });
 }

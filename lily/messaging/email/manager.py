@@ -222,7 +222,7 @@ class GmailManager(object):
 
     def get_label(self, label_id):
         """
-        Returns the label given the label_id
+        Returns the label given the label_id.
 
         Args:
             label_id (string): label_id of the label
@@ -333,10 +333,9 @@ class GmailManager(object):
                 # Temporary set traceback in logging to find out what triggers adding SENT label
                 if label == settings.GMAIL_LABEL_SENT:
                     logger.warning('trying to add label SENT: %s' % traceback.print_stack())
-                # UNREAD isn't added to the database as an available label, so do a separate check
+
                 if label not in message_info.get('labelIds', []) and label != settings.GMAIL_LABEL_SENT:
-                    if (email_message.account.labels.filter(label_id=label).exists() or
-                            label == settings.GMAIL_LABEL_UNREAD):
+                    if email_message.account.labels.filter(label_id=label).exists():
                         labels.setdefault('addLabelIds', []).append(label)
                         added_labels.append(label)
 
@@ -416,7 +415,10 @@ class GmailManager(object):
 
     def archive_email_message(self, email_message):
         """
-        Archive message by removing all labels except for possible UNREAD label
+        Archive message by removing all labels.
+
+        TODO: Archive shouldn't remove all labels, so untill LILY-1873 is fixed archive will also remove the unread
+        label.
 
         Args:
             email_message(instance): EmailMessage instance

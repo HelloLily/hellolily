@@ -86,7 +86,7 @@ class EmailMessageMapping(BaseMapping):
                 'type': 'string',
                 'index_analyzer': 'normal_analyzer',
             },
-            'is_removed': {
+            'is_trashed': {
                 'type': 'boolean',
             },
             'is_starred': {
@@ -96,6 +96,9 @@ class EmailMessageMapping(BaseMapping):
                 'type': 'boolean',
             },
             'is_draft': {
+                'type': 'boolean',
+            },
+            'is_archived': {
                 'type': 'boolean',
             },
         })
@@ -152,10 +155,11 @@ class EmailMessageMapping(BaseMapping):
             'message_id': obj.message_id,
             'thread_id': obj.thread_id,
             'body': obj.body_text or cls.body_html_parsed(obj),
-            'is_removed': obj.is_removed,
+            'is_trashed': obj.is_trashed,
             'is_starred': obj.is_starred,
             'is_spam': obj.is_spam,
             'is_draft': obj.is_draft,
+            'is_archived': obj.is_archived,
         }
 
     @classmethod

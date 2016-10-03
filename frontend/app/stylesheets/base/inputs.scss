@@ -23,7 +23,8 @@ $inline-editable-field-height: 30px;
     @include input-field(30px);
 }
 
-.editable-click {
+.editable-click,
+.editable {
     color: #333;
     margin: 0 -5px;
     padding: 0 5px;
@@ -199,6 +200,13 @@ $inline-editable-field-height: 30px;
     &.editable-select2 {
         line-height: initial;
         min-width: 250px;
+    }
+}
+
+.hl-page-name {
+    .editable-input {
+        font-size: 22px;
+        font-weight: 500;
     }
 }
 

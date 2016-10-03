@@ -4,7 +4,7 @@ from lily.accounts.models import AccountStatus
 from lily.cases.models import CaseType, CaseStatus
 from lily.deals.models import DealContactedBy, DealFoundThrough, DealNextStep, DealWhyCustomer, DealWhyLost, DealStatus
 from lily.tenant.models import Tenant
-from lily.users.models import LilyGroup
+from lily.users.models import Team
 
 
 class Command(BaseCommand):
@@ -20,11 +20,11 @@ class Command(BaseCommand):
 
         tenant = Tenant.objects.create(name=tenant_name, country=tenant_country)
 
-        # LilyGroups
-        lily_group_list = ['Sales', 'Customer care', 'Finance', ]
-        print 'Adding user groups.'
-        for lily_group in lily_group_list:
-            LilyGroup.objects.create(tenant=tenant, name=lily_group)
+        # Team
+        team_list = ['Sales', 'Customer care', 'Finance', ]
+        print 'Adding user teams.'
+        for team in team_list:
+            Team.objects.create(tenant=tenant, name=team)
 
         # AccountStatus
         account_status_list = ['Customer', 'Relation', 'Prospect', 'Former customer', ]

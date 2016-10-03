@@ -45,7 +45,7 @@ function ContactDetailController($filter, $scope, Contact, Settings, currentCont
     Settings.page.toolbar.data = {
         model: 'Contact',
         object: currentContact,
-        fields: ['first_name', 'preposition', 'last_name'],
+        fields: ['first_name', 'last_name'],
         updateCallback: updateModel,
     };
 

@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from lily.tenant.admin import TenantFilter
 from lily.tenant.admin import TenantFilteredChoicesMixin
-from .models import LilyUser, LilyGroup
+from .models import LilyUser, Team
 
 
 @admin.register(LilyUser)
@@ -31,11 +31,11 @@ class LilyUserAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
         TenantFilter,
     )
     tenant_filtered_fields = (
-        'lily_groups',
+        'teams',
         'social_media',
     )
     filter_horizontal = (
-        'lily_groups',
+        'teams',
         'user_permissions',
         'social_media',
     )
@@ -57,8 +57,8 @@ class LilyUserAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
         obj.save()
 
 
-@admin.register(LilyGroup)
-class LilyGroupAdmin(admin.ModelAdmin):
+@admin.register(Team)
+class TeamAdmin(admin.ModelAdmin):
     list_select_related = (
         'tenant',
     )

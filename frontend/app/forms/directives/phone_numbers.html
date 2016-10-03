@@ -1,47 +1,46 @@
-<div class="hl-form-field" ng-repeat="phoneNumber in vm.phoneNumbers">
-    <table class="hl-form-table">
-        <tbody>
-            <tr>
-                <td class="hl-form-table-column entity-icon-container" ng-if="vm.showIcon" ng-transclude uib-tooltip="{{ $root.messages.contact.contactInfoTooltip }}"></td>
-                    <input class="form-control"
-                           id="id_phone_numbers-number-{{ $index }}"
-                           maxlength="255"
-                           name="phone_numbers-number-{{ $index }}"
-                           placeholder="Phone number"
-                           type="text"
-                           ng-model="phoneNumber.number"
-                           ng-readonly="phoneNumber.is_deleted"
-                           ng-blur="vm.formatPhoneNumber(phoneNumber)">
-                    <field-error form="form" field="phone_numbers-number" index="$index"></field-error>
-                </td>
+<div class="hl-form-field" ng-repeat="phoneNumber in vm.phoneNumbers" ng-class="{'has-error': form['phone_numbers-number-' + $index].$invalid }">
+    <div class="row hl-row-sm">
+        <div class="col-md-8 hl-flex-container">
+            <i class="hl-form-icon" ng-if="vm.showIcon" ng-transclude uib-tooltip="{{ $root.messages.contact.contactInfoTooltip }}"/>
+            <input class="form-control hl-form-input hl-flex-1"
+                   id="id_phone_numbers-number-{{ $index }}"
+                   maxlength="255"
+                   name="phone_numbers-number-{{ $index }}"
+                   placeholder="Phone number"
+                   type="text"
+                   ng-model="phoneNumber.number"
+                   ng-readonly="phoneNumber.is_deleted"
+                   ng-blur="vm.formatPhoneNumber(phoneNumber)">
+        </div>
 
-                <label class="hidden control-label" for="id_phone_numbers-type-{{ $index }}">
-                    Phone number type
-                </label>
+        <div class="col-md-4 hl-flex-container">
+            <label class="hidden control-label" for="id_phone_numbers-type-{{ $index }}">
+                Phone number type
+            </label>
 
-                <td class="hl-form-table-column">
-                    <select class="form-control"
-                            id="id_phone_numbers-type-{{ $index }}"
-                            name="phone_numbers-type-{{ $index }}"
-                            ng-model="phoneNumber.type"
-                            ng-options="labelType.key as labelType.value for labelType in vm.telephoneTypes"
-                            ng-readonly="phoneNumber.is_deleted">
-                    </select>
-                </td>
+            <select class="form-control hl-form-input margin-right-5 hl-flex-1"
+                    id="id_phone_numbers-type-{{ $index }}"
+                    name="phone_numbers-type-{{ $index }}"
+                    ng-model="phoneNumber.type"
+                    ng-options="labelType.key as labelType.value for labelType in vm.telephoneTypes"
+                    ng-disabled="phoneNumber.is_deleted">
+            </select>
 
-                <td class="hl-form-table-column small-cell">
-                    <a ng-click="vm.removeRelatedField({field: 'phoneNumber', index: $index, remove: false})" class="btn btn-sm default" title="Undo the deletion of this row" ng-show="phoneNumber.is_deleted">
-                        <i class="fa fa-undo"></i>
-                    </a>
-                    <a ng-click="vm.removeRelatedField({field: 'phoneNumber', index: $index, remove: true})" class="btn btn-sm default" title="Delete this row" ng-hide="phoneNumber.is_deleted">
-                        <i class="fa fa-trash"></i>
-                    </a>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+            <a ng-click="vm.removeRelatedField({field: 'phoneNumber', index: $index, remove: false})"
+               class="hl-primary-btn hl-form-input-btn" title="Undo the deletion of this row" ng-if="phoneNumber.is_deleted">
+                <i class="fa fa-undo"></i>
+            </a>
+            <a ng-click="vm.removeRelatedField({field: 'phoneNumber', index: $index, remove: true})"
+               class="hl-primary-btn hl-form-input-btn" title="Delete this row" ng-if="!phoneNumber.is_deleted">
+                <i class="fa fa-trash"></i>
+            </a>
+        </div>
+    </div>
+    <field-error form="form" field="phone_numbers-number" index="$index"></field-error>
 </div>
 
 <div class="hl-form-field">
-    <div><a ng-click="vm.addRelatedField({field:'phoneNumber'})" class="form-control-static">Add a phone number</a></div>
+    <div>
+        <a ng-click="vm.addRelatedField({field:'phoneNumber'})" class="form-control-static">Add a phone number</a>
+    </div>
 </div>

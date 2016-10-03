@@ -61,7 +61,7 @@ class LilyUserManager(UserManager):
         return self.get(email__iexact=email)
 
 
-class LilyGroup(TenantMixin):
+class Team(TenantMixin):
     """
     A group with a Tenant.
     """
@@ -92,9 +92,8 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
 
     Password and email are required. Other fields are optional.
     """
-    first_name = models.CharField(_('first name'), max_length=45)
-    preposition = models.CharField(_('preposition'), max_length=100, blank=True)
-    last_name = models.CharField(_('last name'), max_length=45)
+    first_name = models.CharField(_('first name'), max_length=255)
+    last_name = models.CharField(_('last name'), max_length=255)
     picture = models.ImageField(upload_to=get_lilyuser_picture_upload_path, verbose_name=_('picture'), blank=True)
     email = models.EmailField(_('email address'), max_length=255, unique=True)
     position = models.CharField(_('position'), max_length=255, blank=True)
@@ -110,9 +109,9 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
                     'Unselect this instead of deleting accounts.')
     )
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
-    lily_groups = models.ManyToManyField(
-        LilyGroup,
-        verbose_name=_('Lily groups'),
+    teams = models.ManyToManyField(
+        Team,
+        verbose_name=_('Lily teams'),
         blank=True,
         related_name='user_set',
         related_query_name='user',
@@ -128,8 +127,8 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
 
     objects = LilyUserManager()
 
-    EMAIL_TEMPLATE_PARAMETERS = ['first_name', 'preposition', 'last_name', 'full_name', 'position', 'twitter',
-                                 'linkedin', 'phone_number', 'current_email_address', 'user_group']
+    EMAIL_TEMPLATE_PARAMETERS = ['first_name', 'last_name', 'full_name', 'position', 'twitter',
+                                 'linkedin', 'phone_number', 'current_email_address', 'user_team']
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name', ]
@@ -160,9 +159,6 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
         """
         Return full name of this user without unnecessary white space.
         """
-        if self.preposition:
-            return u' '.join([self.first_name, self.preposition, self.last_name]).strip()
-
         return u' '.join([self.first_name, self.last_name]).strip()
 
     def get_short_name(self):
@@ -210,13 +206,13 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
             return linkedin.profile_url
 
     @property
-    def user_group(self):
-        user_group = self.lily_groups.first()
+    def user_team(self):
+        user_team = self.teams.first()
 
-        if not user_group:
+        if not user_team:
             return ''
 
-        return user_group
+        return user_team
 
     @property
     def display_email_warning(self):

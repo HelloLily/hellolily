@@ -18,32 +18,39 @@ from lily.utils.api.views import AppHash, CallerName, CountryViewSet, Notificati
 
 # Define routes, using the default router so the API is browsable.
 router = DefaultRouter()
+
+# Keep for now since, vg uses it. see https://voipgrid.atlassian.net/browse/LILY-1918
 router.register(r'accounts/account', AccountViewSet)
+
 router.register(r'accounts/statuses', AccountStatusViewSet)
+router.register(r'accounts', AccountViewSet)
 
-router.register(r'tenants/tenant', TenantViewSet)
-router.register(r'cases/case', CaseViewSet)
-router.register(r'contacts/contact', ContactViewSet)
-
-router.register(r'deals/deal', DealViewSet)
 router.register(r'deals/next-steps', DealNextStepViewSet)
 router.register(r'deals/why-customer', DealWhyCustomerViewSet)
 router.register(r'deals/why-lost', DealWhyLostViewSet)
 router.register(r'deals/found-through', DealFoundThroughViewSet)
 router.register(r'deals/contacted-by', DealContactedByViewSet)
 router.register(r'deals/statuses', DealStatusViewSet)
+router.register(r'deals', DealViewSet)
 
-router.register(r'messaging/email/label', EmailLabelViewSet)
-router.register(r'messaging/email/account', EmailAccountViewSet)
+router.register(r'messaging/email/labels', EmailLabelViewSet)
+router.register(r'messaging/email/accounts', EmailAccountViewSet)
 router.register(r'messaging/email/email', EmailMessageViewSet)
-router.register(r'messaging/email/emailtemplate', EmailTemplateViewSet)
-router.register(r'messaging/email/templatevariable', TemplateVariableViewSet)
-router.register(r'messaging/email/shared_email_config', SharedEmailConfigViewSet)
+router.register(r'messaging/email/templates', EmailTemplateViewSet)
+router.register(r'messaging/email/template-variables', TemplateVariableViewSet)
+router.register(r'messaging/email/shared-email-configurations', SharedEmailConfigViewSet)
 
-router.register(r'users/user', LilyUserViewSet)
 router.register(r'users/team', TeamViewSet)
+router.register(r'users', LilyUserViewSet)
 
-router.register(r'notes/note', NoteViewSet)
+router.register(r'tenants', TenantViewSet)
+
+router.register(r'cases', CaseViewSet)
+
+router.register(r'contacts', ContactViewSet)
+
+router.register(r'notes', NoteViewSet)
+
 router.register(r'utils/countries', CountryViewSet)
 
 urlpatterns = patterns(

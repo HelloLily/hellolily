@@ -31,8 +31,8 @@ function HLMessages() {
                 questionText: 'Assign this case to yourself?',
             },
             deactivateUser: {
-                confirmText: 'You are about to deactivate <strong>%(name)s</strong>.<br />You won\'t be able to revert this!',
-                confirmButtonText: 'Yes, deactivate him/her!',
+                confirmText: 'Are you sure you want to deactivate <strong>%(name)s</strong>',
+                confirmButtonText: 'Yes, deactivate',
                 successTitle: 'Deactivated!',
                 successText: '<strong>%(name)s</strong> has been deactivated.',
             },
@@ -56,7 +56,7 @@ function HLMessages() {
                 reloadTemplateConfirm: 'Do you want to reload the template? This will load the template variables, but will put your text at the bottom of the email.',
             },
             preferences: {
-                userAssignTitle: 'Assign %(user)s to groups',
+                userAssignTitle: 'Assign %(user)s to teams',
                 shareAccountTitle: 'Yes, let me share this email account',
                 shareTemplateTitle: 'Set %(template)s as default for',
             },

@@ -3,7 +3,7 @@ angular.module('app.tenants.services').factory('Tenant', Tenant);
 Tenant.$inject = ['$resource', '$interpolate', 'HLCache', 'CacheFactory'];
 function Tenant($resource, $interpolate, HLCache, CacheFactory) {
     var _tenant = $resource(
-        '/api/tenants/tenant/:id/',
+        '/api/tenants/:id/',
         {},
         {
             query: {

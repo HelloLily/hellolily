@@ -11,8 +11,8 @@ from rest_framework.response import Response
 from rest_framework.parsers import JSONParser, MultiPartParser
 
 from lily.tenant.api.mixins import SetTenantUserMixin
-from .serializers import LilyGroupSerializer, LilyUserSerializer, LilyUserTokenSerializer
-from ..models import LilyGroup, LilyUser
+from .serializers import TeamSerializer, LilyUserSerializer, LilyUserTokenSerializer
+from ..models import Team, LilyUser
 
 
 class TeamFilter(django_filters.FilterSet):
@@ -21,7 +21,7 @@ class TeamFilter(django_filters.FilterSet):
     """
 
     class Meta:
-        model = LilyGroup
+        model = Team
         fields = ['name', ]
 
 
@@ -29,10 +29,10 @@ class TeamViewSet(viewsets.ReadOnlyModelViewSet):
     """
     List all teams assigned to the current user.
     """
-    model = LilyGroup
-    serializer_class = LilyGroupSerializer
+    model = Team
+    serializer_class = TeamSerializer
     filter_class = TeamFilter
-    queryset = LilyGroup.objects
+    queryset = Team.objects
 
     def get_queryset(self):
         queryset = self.model.objects.filter(tenant_id=self.request.user.tenant_id)
@@ -74,9 +74,9 @@ class LilyUserViewSet(SetTenantUserMixin, viewsets.ModelViewSet):
     To filter, provide a field name to filter on followed by the value you want to filter on.
 
     #Examples#
-    - plain: `/api/users/user/`
-    - order: `/api/users/user/?ordering=first_name,-id`
-    - filter: `/api/users/user/?is_active=True`
+    - plain: `/api/users/`
+    - order: `/api/users/?ordering=first_name,-id`
+    - filter: `/api/users/?is_active=True`
 
     #Returns#
     * List of cases with related fields
@@ -92,7 +92,7 @@ class LilyUserViewSet(SetTenantUserMixin, viewsets.ModelViewSet):
 
     # OrderingFilter: set all possible fields to order by.
     ordering_fields = (
-        'id', 'first_name', 'preposition', 'last_name', 'email', 'phone_number', 'is_active',
+        'id', 'first_name', 'last_name', 'email', 'phone_number', 'is_active',
     )
     # OrderingFilter: set the default ordering fields.
     ordering = ('first_name', 'last_name', )
@@ -164,9 +164,13 @@ class LilyUserViewSet(SetTenantUserMixin, viewsets.ModelViewSet):
 
         if picture:
             if not self.request.FILES:
-                # Picture property was set, but no files were sent.
-                # This means it's still the old picture.
-                self.request.data['picture'] = instance.picture
+                if instance.picture:
+                    # Picture property was set, but no files were sent.
+                    # This means it's still the old picture.
+                    self.request.data['picture'] = instance.picture
+                else:
+                    # Otherwise remove picture from request data to prevent errors.
+                    del self.request.data['picture']
 
         return super(LilyUserViewSet, self).partial_update(request, args, kwargs)
 

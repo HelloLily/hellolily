@@ -100,12 +100,12 @@
                             <tr>
                                 <td>Assigned to teams:</td>
                                 <td>
-                                    <editable-select field="assigned_to_groups" view-model="vm" type="Case" search="true" multiple="true"
+                                    <editable-select field="assigned_to_teams" view-model="vm" type="Case" search="true" multiple="true"
                                                      select-options="{type: 'UserTeams', placeholder: 'Select one or more team(s)', sortColumn: 'name'}">
-                                        <div ng-repeat="team in vm.case.assigned_to_groups">
+                                        <div ng-repeat="team in vm.case.assigned_to_teams">
                                             {{ team.name }}
                                         </div>
-                                        <span ng-if="!vm.case.assigned_to_groups.length">Not assigned to any team(s)</span>
+                                        <span ng-if="!vm.case.assigned_to_teams.length">Not assigned to any team(s)</span>
                                     </editable-select>
                                 </td>
                             </tr>

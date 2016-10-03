@@ -26,6 +26,7 @@
             currentTemplate: null,
             previousSendToNormalLength: 0,
             firstLoad: true,
+            mailAttachmentsOffset: 0,
         },
 
         init: function(config) {
@@ -170,13 +171,20 @@
 
         initWysihtml5: function() {
             var self = this;
+            var toolbarOffset;
             var toolbar;
+            var scrollHeight;
+            var mailAttachmentsHeight;
+            // Only set the navBarHeight if we're dealing with a 'big' screen.
+            var navBarHeight = $(window).width() > 992 ? $('.page-header').height() : 0;
 
             editor = new wysihtml5.Editor(self.config.textEditorId, {
                 toolbar: 'wysihtml5-toolbar',
                 parser: self.customParser(),
                 handleTables: false,
             });
+
+            toolbar = $(self.config.wysiHtmlToolbar);
 
             editor.observe('load', function() {
                 // Initial value is most likely reply/forward text, so store it for later usage
@@ -190,10 +198,28 @@
 
                 // Make the editor the correct height on load
                 self.resizeEditor();
+
+                // Check the initial position of the toolbar.
+                toolbarOffset = toolbar.offset().top;
+
+                mailAttachmentsHeight = $('.attachments_formset_wrapper').height();
+
+                $(window).scroll(function() {
+                    scrollHeight = $(window).scrollTop() + navBarHeight;
+
+                    // Check the position of our scroll.
+                    // Check if the (fixed) toolbar has reached the location of the attachments.
+                    if (scrollHeight > toolbarOffset && scrollHeight <= self.config.mailAttachmentsOffset - mailAttachmentsHeight * 2) {
+                        // Stick the toolbar in a fixed positon once the window's
+                        // scroll passes the toolbar.
+                        toolbar.css({position: 'fixed', top: navBarHeight + 'px'});
+                    } else {
+                        // Otherwise it should just be in normal position.
+                        toolbar.css({position: 'static'});
+                    }
+                });
             });
 
-            // Set heading properly after change
-            toolbar = $(self.config.wysiHtmlToolbar);
             $(toolbar).find('a[data-wysihtml5-command="formatBlock"]').click(function(e) {
                 var target = e.target || e.srcElement;
                 var el = $(target);
@@ -208,6 +234,9 @@
 
         resizeEditor: function() {
             $('.wysihtml5-sandbox')[0].style.height = editor.composer.element.scrollHeight + 'px';
+
+            // We want to move the toolbar back once it reaches the attachments location.
+            this.config.mailAttachmentsOffset = $('.attachments_formset_wrapper').offset().top;
         },
 
         handleAdditionalRecipientsInput: function(inputType) {

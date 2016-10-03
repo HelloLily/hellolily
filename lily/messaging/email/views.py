@@ -42,7 +42,7 @@ from .services import build_gmail_service
 from .tasks import (send_message, create_draft_email_message, delete_email_message, archive_email_message,
                     update_draft_email_message)
 from .utils import (get_attachment_filename_from_url, get_email_parameter_choices, create_recipients,
-                    render_email_body, replace_cid_in_html, create_reply_body_header)
+                    render_email_body, replace_cid_in_html, create_reply_body_header, reindex_email_message)
 
 
 logger = logging.getLogger(__name__)
@@ -599,6 +599,9 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
 
         # Send and archive was pressed, so start an archive task.
         if task and form.data.get('archive', False) == 'true':
+            email_message = EmailMessage.objects.get(pk=self.object.id)
+            email_message._is_archived = True
+            reindex_email_message(email_message)
             archive_email_message.apply_async(args=(self.object.id,))
 
         if is_ajax(self.request):

@@ -109,12 +109,12 @@
                         </ul>
 
                         <ul class="hl-button-group pull-right">
-                            <li class="hl-button-group-btn">
+                            <li class="hl-button-group-btn" ng-class="{'disabled': !vm.table.page}">
                                 <a class="hl-button-group-btn-link" ng-click="vm.setPage(vm.table.page - 1)">
                                     <i class="fa fa-caret-left"></i>
                                 </a>
                             </li>
-                            <li class="hl-button-group-btn">
+                            <li class="hl-button-group-btn" ng-class="{'disabled': vm.table.page + 1 > vm.table.totalItems / vm.table.pageSize}">
                                 <a class="hl-button-group-btn-link" ng-click="vm.setPage(vm.table.page + 1)">
                                     <i class="fa fa-caret-right"></i>
                                 </a>
@@ -129,7 +129,7 @@
         <tbody>
             <tr ng-repeat="message in vm.emailMessages" style="cursor: pointer;" ng-class="{'unread': !message.read}">
                 <td class="inbox-small-cells">
-                    <checkbox model="message.checked"></checkbox>
+                    <checkbox model="message.checked" ng-click="vm.handleSelect($index, $event)"></checkbox>
                 </td>
                 <td class="inbox-small-cells">
                     <i ng-class="{'fa fa-star': message.is_starred, 'fa fa-star-o': !message.is_starred}" ng-click="vm.toggleStarred(message)"></i>
@@ -152,11 +152,11 @@
                 <td class="view-message inbox-small-cells" ui-sref="base.email.detail({id: message.id})">
                     <i class="lilicon hl-paperclip-icon" uib-tooltip="There is a file attached" tooltip-placement="left" ng-if="message.has_attachment"></i>
                 </td>
-                <td class="view-message" ng-if="vm.label.name == 'Draft'">
-                    <a class="link-no-decoration" ui-sref="base.email.draft({id: message.id})">{{ message.subject }}</a>
+                <td class="view-message" ng-if="vm.label.name == 'Draft'" ui-sref="base.email.draft({id: message.id})">
+                    <a class="link-no-decoration">{{ message.subject }}</a>
                 </td>
-                <td class="view-message" ng-if="vm.label.name != 'Draft'">
-                    <a class="link-no-decoration" ui-sref="base.email.detail({id: message.id})">{{ message.subject }}</a>
+                <td class="view-message" ng-if="vm.label.name != 'Draft'" ui-sref="base.email.detail({id: message.id})">
+                    <a class="link-no-decoration">{{ message.subject }}</a>
                 </td>
                 <td title="{{ message.sent_date | date:'dd MMMM y H:mm' }}" class="view-message text-right text-nowrap" ui-sref="base.email.detail({id: message.id})">
                     <date date="message.sent_date" show-time="true"></date>
@@ -174,12 +174,12 @@
                             </li>
                         </ul>
                         <ul class="hl-button-group">
-                            <li class="hl-button-group-btn">
+                            <li class="hl-button-group-btn" ng-class="{'disabled': !vm.table.page}">
                                 <a class="hl-button-group-btn-link" ng-click="vm.setPage(vm.table.page - 1)">
                                     <i class="fa fa-caret-left"></i>
                                 </a>
                             </li>
-                            <li class="hl-button-group-btn">
+                            <li class="hl-button-group-btn" ng-class="{'disabled': vm.table.page + 1 > vm.table.totalItems / vm.table.pageSize}">
                                 <a class="hl-button-group-btn-link" ng-click="vm.setPage(vm.table.page + 1)">
                                     <i class="fa fa-caret-right"></i>
                                 </a>

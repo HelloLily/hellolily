@@ -63,10 +63,10 @@ class CaseViewSet(SetTenantUserMixin, viewsets.ModelViewSet):
     To order, provide a comma seperated list to the ordering argument. Use `-` minus to inverse the ordering.
 
     #Examples#
-    - plain: `/api/cases/case/`
-    - search: `/api/cases/case/?search=subject:Doremi`
-    - filter: `/api/cases/case/?type=1`
-    - order: `/api/cases/case/?ordering=subject,-id`
+    - plain: `/api/cases/`
+    - search: `/api/cases/?search=subject:Doremi`
+    - filter: `/api/cases/?type=1`
+    - order: `/api/cases/?ordering=subject,-id`
 
     #Returns#
     * List of cases with related fields
@@ -110,8 +110,8 @@ class TeamsCaseList(APIView):
 
     def get(self, request, pk=None, format=None):
         if pk is None:
-            pk = self.request.user.lily_groups.all()
-        queryset = self.get_queryset().filter(assigned_to_groups=pk)
+            pk = self.request.user.teams.all()
+        queryset = self.get_queryset().filter(assigned_to_teams=pk)
         filtered_queryset = self.filter_class(request.GET, queryset=queryset)
         serializer = self.serializer_class(filtered_queryset, context={'request': request}, many=True)
         return Response(serializer.data)

@@ -47,7 +47,6 @@ class ContactForAccountSerializer(serializers.ModelSerializer):
             'full_name',
             'gender',
             'last_name',
-            'preposition',
             'salutation',
         )
 

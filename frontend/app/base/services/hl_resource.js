@@ -28,19 +28,22 @@ function HLResource($injector) {
         var resource = $injector.get(model);
         var convertedField = _convertVariableName(field);
         var key;
+        var choices;
 
         if (!resource.hasOwnProperty(convertedField)) {
             // Resource doesn't contain the given field.
             // So the field is probably a plural version of the given field or whatever.
             for (key in resource) {
                 if (key.indexOf(convertedField) > -1) {
-                    return resource[key]();
+                    choices = resource[key]();
                 }
             }
         } else {
             // Call the proper endpoint/field.
-            return resource[convertedField]();
+            choices = resource[convertedField]();
         }
+
+        return choices;
     };
 
     /**

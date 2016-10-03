@@ -3,7 +3,7 @@ angular.module('app.email.services').factory('EmailAccount', EmailAccount);
 EmailAccount.$inject = ['$resource'];
 function EmailAccount($resource) {
     var _emailAccount = $resource(
-        '/api/messaging/email/account/:id/',
+        '/api/messaging/email/accounts/:id/',
         null,
         {
             query: {
@@ -14,11 +14,11 @@ function EmailAccount($resource) {
             },
             'shareWith': {
                 method: 'POST',
-                url: '/api/messaging/email/account/:id/shared/',
+                url: '/api/messaging/email/accounts/:id/shared/',
             },
             'mine': {
                 method: 'GET',
-                url: '/api/messaging/email/account/mine/',
+                url: '/api/messaging/email/accounts/mine/',
                 isArray: true,
             },
         }

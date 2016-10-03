@@ -248,29 +248,11 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     }
 
     function _setupContactInfo() {
-        var prepositionParts = [];
-        var i;
-
-        // Setup contact name as follows:
-        // 1. Split sender name by space
-        // 2. First name is always the first element
-        // 3. Last name is always the last element
-        // 4. Preposition is all other elements
         var senderParts = vm.message.sender.name.split(' ');
-        var preposition = '';
-
-        if (senderParts.length > 2) {
-            for (i = 1; i < senderParts.length - 1; i++) {
-                prepositionParts.push(senderParts[i]);
-            }
-
-            preposition = prepositionParts.join(' ');
-        }
 
         Settings.email.data.contact = {
             firstName: senderParts[0],
-            preposition: preposition,
-            lastName: senderParts[senderParts.length - 1],
+            lastName: senderParts.slice(1).join(' '),
             emailAddress: vm.message.sender.email_address,
         };
     }

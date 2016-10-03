@@ -1,9 +1,0 @@
-<form name="userGroupForm">
-    <ul class="list-unstyled align-left">
-        <li ng-repeat="group in vm.groupList" ng-click="group.selected = !group.selected" class="clickable">
-            <checkbox model="group.selected">{{ group.name }}</checkbox>
-        </li>
-    </ul>
-
-    <field-error form="userGroupForm" field="lily_groups"></field-error>
-</form>

@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 import html2text
 from urllib import unquote
 
+from django.conf import settings
 from django.core.files.storage import default_storage
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -16,9 +17,11 @@ from django.utils.translation import ugettext_lazy as _
 
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
+from lily.search.scan_search import ModelMappings
+from lily.search.indexing import update_in_index
 
 from .decorators import get_safe_template
-from .models.models import EmailAttachment
+from .models.models import EmailAttachment, EmailMessage
 from .sanitize import sanitize_html_email
 
 _EMAIL_PARAMETER_DICT = {}
@@ -489,3 +492,19 @@ def create_recipients(receivers, filter_emails=[]):
         email_addresses.append(receiver.email_address)
 
     return recipients
+
+
+def reindex_email_message(instance):
+    """
+    Re-index the given email message instance, so there is no need to misuse the save method for triggering a re-index.
+
+    No need to check related models compared to the more generic post_save signal. Email messages have no related model
+    mapping.
+    """
+    if settings.ES_DISABLED:
+        return
+    if not isinstance(instance, EmailMessage):
+        return
+    mapping = ModelMappings.get_model_mappings().get(type(instance))
+    if mapping:
+        update_in_index(instance, mapping)

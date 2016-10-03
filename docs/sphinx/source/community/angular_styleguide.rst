@@ -203,7 +203,7 @@ To retrieve data from the backend and to share data across the app we use factor
         // 'private' variable to show it's only supposed to be used in this scope.
         // Factory can be used by calling `Deal.<function>`.
         var _deal = $resource(
-            '/api/deals/deal/:id/',
+            '/api/deals/:id/',
             null,
             {
                 // Overwrite the built-in patch function Angular provides so we can overwrite the transformRequest

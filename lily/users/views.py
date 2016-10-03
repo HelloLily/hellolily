@@ -371,7 +371,8 @@ class AcceptInvitationView(FormView):
             }
             return super(AcceptInvitationView, self).get(request, *args, **kwargs)
 
-        return self.render_to_response(self.get_context_data())
+        messages.error(self.request, _('This invitation link is invalid or expired'))
+        return HttpResponseRedirect(reverse_lazy('login'))
 
     def post(self, request, *args, **kwargs):
         """

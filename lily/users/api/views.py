@@ -92,7 +92,7 @@ class LilyUserViewSet(SetTenantUserMixin, viewsets.ModelViewSet):
 
     # OrderingFilter: set all possible fields to order by.
     ordering_fields = (
-        'id', 'first_name', 'preposition', 'last_name', 'email', 'phone_number', 'is_active',
+        'id', 'first_name', 'last_name', 'email', 'phone_number', 'is_active',
     )
     # OrderingFilter: set the default ordering fields.
     ordering = ('first_name', 'last_name', )

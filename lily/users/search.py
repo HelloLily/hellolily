@@ -19,10 +19,6 @@ class LilyUserMapping(BaseMapping):
                 'type': 'string',
                 'index_analyzer': 'normal_ngram_analyzer',
             },
-            'preposition': {
-                'type': 'string',
-                'index_analyzer': 'normal_ngram_analyzer',
-            },
             'last_name': {
                 'type': 'string',
                 'index_analyzer': 'normal_ngram_analyzer',
@@ -51,7 +47,6 @@ class LilyUserMapping(BaseMapping):
         """
         return {
             'first_name': obj.first_name,
-            'preposition': obj.preposition,
             'last_name': obj.last_name,
             'full_name': obj.full_name,
             'position': obj.position,

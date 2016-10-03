@@ -19,7 +19,6 @@ class LilyUserSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'first_name',
-            'preposition',
             'last_name',
             'full_name',
             'email',
@@ -61,7 +60,6 @@ class RelatedLilyUserSerializer(RelatedSerializerMixin, LilyUserSerializer):
         fields = (
             'id',
             'first_name',
-            'preposition',
             'last_name',
             'full_name',
         )

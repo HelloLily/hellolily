@@ -53,7 +53,6 @@ class ContactSerializer(WritableNestedSerializer):
             'last_name',
             'modified',
             'phone_numbers',
-            'preposition',
             'salutation',
             'salutation_display',
             'social_media',
@@ -69,7 +68,7 @@ class ContactSerializer(WritableNestedSerializer):
         if not (len(data) == 1 and 'id' in data and hasattr(self, 'is_related_serializer')):
             if not self.partial:
                 # Not just a new reference, so validate if contact is set properly.
-                if not any([data.get('first_name', None), data.get('preposition', None), data.get('last_name', None)]):
+                if not any([data.get('first_name', None), data.get('last_name', None)]):
                     raise serializers.ValidationError({'last_name': _('Please enter a valid name.')})
 
         return super(ContactSerializer, self).validate(data)
@@ -145,7 +144,6 @@ class RelatedContactSerializer(RelatedSerializerMixin, ContactSerializer):
             'created',
             'modified',
             'first_name',
-            'preposition',
             'last_name',
             'full_name',
             'gender',

@@ -113,9 +113,9 @@ function PreferencesCompanyUserList($compile, $scope, $templateCache, LocalStora
         if (vm.table.order.column === 'full_name') {
             // Special case for full_name, since it's not a db field we can't really order by it.
             if (vm.table.order.descending) {
-                column = 'first_name,-preposition,-last_name';
+                column = 'first_name,-last_name';
             } else {
-                column = 'first_name,preposition,last_name';
+                column = 'first_name,last_name';
             }
         } else {
             column = vm.table.order.column;

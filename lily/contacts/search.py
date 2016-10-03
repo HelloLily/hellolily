@@ -180,7 +180,6 @@ class ContactMapping(BaseMapping):
                 'status': phone_number.status,
                 'status_name': phone_number.get_status_display(),
             } for phone_number in obj.phone_numbers.all()],
-            'preposition': obj.preposition,
             'salutation': obj.get_salutation_display(),
             'social_media': [{
                 'id': soc.id,

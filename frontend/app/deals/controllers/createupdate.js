@@ -438,4 +438,8 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
 
         return true;
     }
+
+    $scope.$on('saveDeal', function() {
+        saveDeal($scope.dealForm);
+    });
 }

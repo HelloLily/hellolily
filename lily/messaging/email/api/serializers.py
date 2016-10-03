@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import serializers
 
 from lily.api.fields import DynamicQuerySetPrimaryKeyRelatedField
@@ -147,10 +148,12 @@ class EmailTemplateSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         user = self.context.get('request').user
+        # All email account ids the user submitted through the default_for field.
         validated_account_ids = set([obj.pk for obj in validated_data.pop('default_for', [])])
+        # All the email account ids that are in the database, submitted by the user or linked to this template.
         existing_account_ids = set(DefaultEmailTemplate.objects.filter(
-            user_id=user.pk,
-            account_id__in=validated_account_ids
+            Q(user_id=user.pk),
+            Q(account_id__in=validated_account_ids) | Q(template_id=instance.pk)
         ).values_list('account_id', flat=True))
 
         # Defaults to add are in validated_account_ids but not in existing_account_ids.

@@ -147,14 +147,18 @@ class EmailTemplateSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         user = self.context.get('request').user
-        validated_default_for = set([obj.pk for obj in validated_data.pop('default_for', [])])
-        existing_default_for = set(EmailAccount.objects.filter(
-            default_templates__user=user,
-            default_templates__template_id=instance.pk
-        ).values_list('pk', flat=True))
+        validated_account_ids = set([obj.pk for obj in validated_data.pop('default_for', [])])
+        existing_account_ids = set(DefaultEmailTemplate.objects.filter(
+            user_id=user.pk,
+            account_id__in=validated_account_ids
+        ).values_list('account_id', flat=True))
 
-        add_list = list(validated_default_for - existing_default_for)
-        del_list = list(existing_default_for - validated_default_for)
+        # Defaults to add are in validated_account_ids but not in existing_account_ids.
+        add_list = list(validated_account_ids - existing_account_ids)
+        # Defaults to edit are in both validated_account_ids and in existing_account_ids.
+        edit_list = list(validated_account_ids & existing_account_ids)
+        # Defaults to delete are in existing_account_ids but not in validated_account_ids.
+        del_list = list(existing_account_ids - validated_account_ids)
 
         # Add new default email template relations.
         for add_pk in add_list:
@@ -163,6 +167,14 @@ class EmailTemplateSerializer(serializers.ModelSerializer):
                 template_id=instance.pk,
                 account_id=add_pk
             )
+
+        # Edit existing email template relations.
+        DefaultEmailTemplate.objects.filter(
+            user_id=user.pk,
+            account_id__in=edit_list
+        ).update(
+            template_id=instance.pk
+        )
 
         if not self.partial:
             # If not partial then we need to delete the unreferenced default_for relations.

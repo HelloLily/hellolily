@@ -298,11 +298,11 @@ function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLa
         var i;
         var data;
 
-        if (vm.label.label_id) {
+        if ((vm.label) && (vm.label.label_id)) {
             removedLabels = [vm.label.label_id];
         }
 
-        // Gmail API needs to know the new labels as well as the old ones, so send them too
+        // Gmail API needs to know the new labels as well as the old ones, so send them too.
         data = {
             remove_labels: removedLabels,
             add_labels: addedLabels,
@@ -350,24 +350,34 @@ function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLa
         var filterquery = [];
 
         if ($stateParams.labelId) {
-            filterquery.push('label_id:' + $stateParams.labelId);
-
-            if ($stateParams.labelId === 'TRASH') {
-                filterquery.push('is_removed:true');
-                filterquery.push('is_spam:false'); // like Gmail, don't show deleted spam emails.
-            } else if ($stateParams.labelId !== 'SPAM') {
-                filterquery.push('is_removed:false');
-            }
-
-            if ($stateParams.labelId === 'SPAM') {
+            if ($stateParams.labelId === 'INBOX') {
+                filterquery.push('is_trashed:false');
+                filterquery.push('is_spam:false');
+                filterquery.push('is_archived:false');
+            } else if ($stateParams.labelId === 'SENT') {
+                filterquery.push('label_id:SENT');
+                filterquery.push('is_trashed:false');
+                filterquery.push('is_spam:false');
+            } else if ($stateParams.labelId === 'TRASH') {
+                filterquery.push('is_trashed:true');
+                filterquery.push('is_spam:false');
+            } else if ($stateParams.labelId === 'SPAM') {
                 filterquery.push('is_spam:true');
+                filterquery.push('is_trashed:false');
+            } else if ($stateParams.labelId === 'DRAFT') {
+                filterquery.push('is_draft:true');
+            } else {
+                // User labels.
+                filterquery.push('label_id:' + $stateParams.labelId);
+                filterquery.push('is_trashed:false');
+                filterquery.push('is_spam:false');
             }
         } else {
             // Corresponds with the 'All mail'-label.
-            filterquery.push('NOT label_id:Sent');
-            // Exclude removed emails and spam.
-            //filterquery.push('is_removed:false'); // TODO: LILY-1812: 'all mail' shows incorrectly deleted mails.
+            filterquery.push('is_trashed:false');
             filterquery.push('is_spam:false');
+            filterquery.push('is_draft:false');
+            filterquery.push('NOT label_id:SENT');
         }
 
         if ($stateParams.accountId) {

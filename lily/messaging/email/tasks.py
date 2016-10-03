@@ -10,7 +10,6 @@ from .manager import GmailManager, ManagerError
 from .models.models import (EmailAccount, EmailMessage, EmailOutboxMessage, EmailTemplateAttachment,
                             EmailOutboxAttachment, EmailAttachment)
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -222,8 +221,6 @@ def toggle_read_email_message(self, email_id, read=True):
     """
     try:
         email_message = EmailMessage.objects.get(pk=email_id)
-        email_message.read = read
-        email_message.save()
     except EmailMessage.DoesNotExist:
         logger.debug('EmailMessage no longer exists: %s', email_id)
     else:
@@ -273,8 +270,6 @@ def trash_email_message(self, email_id):
     """
     try:
         email_message = EmailMessage.objects.get(pk=email_id)
-        email_message.is_deleted = True
-        email_message.save()
     except EmailMessage.DoesNotExist:
         logger.warning('EmailMessage no longer exists: %s', email_id)
     else:
@@ -328,20 +323,16 @@ def delete_email_message(self, email_id):
     """
     try:
         email_message = EmailMessage.objects.get(pk=email_id)
-        removed = email_message.is_removed
         in_trash = email_message.is_trashed
-        email_message.is_removed = True
-        email_message.save()
     except EmailMessage.DoesNotExist:
         logger.warning('EmailMessage no longer exists: %s', email_id)
     else:
         manager = GmailManager(email_message.account)
         try:
-            if not removed or in_trash:
-                if email_message.is_draft:
-                    manager.delete_draft_email_message(email_message)
-                else:
-                    manager.delete_email_message(email_message)
+            if email_message.is_draft:
+                manager.delete_draft_email_message(email_message)
+            elif in_trash:
+                manager.delete_email_message(email_message)
         except Exception as exc:
             logger.exception('Failed deleting %s' % email_message)
             raise self.retry(exc=exc)

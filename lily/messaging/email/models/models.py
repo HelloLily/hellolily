@@ -135,7 +135,7 @@ class EmailLabel(models.Model):
     label_type = models.IntegerField(choices=LABEL_TYPES, default=LABEL_SYSTEM)
     label_id = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
-    unread = models.PositiveIntegerField(default=0)
+    unread = models.PositiveIntegerField(default=0)  # Number of unread email messages with this label.
 
     def __unicode__(self):
         return self.name
@@ -169,7 +169,6 @@ class EmailMessage(models.Model):
     body_text = models.TextField(default='')
     draft_id = models.CharField(max_length=50, db_index=True, default='')
     has_attachment = models.BooleanField(default=False)
-    is_removed = models.BooleanField(default=False)
     labels = models.ManyToManyField(EmailLabel, related_name='messages')
     message_id = models.CharField(max_length=50, db_index=True)
     read = models.BooleanField(default=False, db_index=True)
@@ -189,14 +188,14 @@ class EmailMessage(models.Model):
     def reply_body(self):
         from ..utils import create_a_beautiful_soup_object
         """
-        Return an version of the body which is used for replies or forwards.
-        This is preferably the html part, but in case that doesn't exist we use the text part.
+        Return a version of the body which is used for replies or forwards.
+        This is preferably the html part, but in case that doesn't exist we use the plain text part.
         """
         if self.body_html:
             # In case of html, wrap body in blockquote tag.
             soup = create_a_beautiful_soup_object(self.body_html)
             if not soup.html:
-                # haven't figured out yet how to do this elegantly..
+                # Haven't figured out yet how to do this elegantly.
                 html = '<html>%s</html>' % self.body_html
                 soup = create_a_beautiful_soup_object(html)
 
@@ -214,25 +213,49 @@ class EmailMessage(models.Model):
             for line in self.body_text.splitlines():
                 reply_body.extend(textwrap.wrap(line, 120))
             reply_body = ['> %s' % line for line in reply_body]
-            return '<br /><br />' + '<br />'.join(reply_body)
+            return '<br /><br /><br />'.join(reply_body)
         else:
             return ''
 
     @property
     def is_trashed(self):
-        return self.labels.filter(label_id=settings.GMAIL_LABEL_TRASH).count() == 1
+        # When the instance variable is present, don't evaluate the corresponding label.
+        if hasattr(self, '_is_trashed'):
+            return self._is_trashed
+        else:
+            return self.labels.filter(label_id=settings.GMAIL_LABEL_TRASH).exists()
 
     @property
     def is_starred(self):
-        return self.labels.filter(label_id=settings.GMAIL_LABEL_STAR).count() == 1
+        # When the instance variable is present, don't evaluate the corresponding label.
+        if hasattr(self, '_is_starred'):
+            return self._is_starred
+        else:
+            return self.labels.filter(label_id=settings.GMAIL_LABEL_STAR).exists()
 
     @property
     def is_draft(self):
-        return self.labels.filter(label_id=settings.GMAIL_LABEL_DRAFT).count() == 1
+        return self.labels.filter(label_id=settings.GMAIL_LABEL_DRAFT).exists()
+
+    @property
+    def is_important(self):
+        return self.labels.filter(label_id=settings.GMAIL_LABEL_IMPORTANT).exists()
 
     @property
     def is_spam(self):
-        return self.labels.filter(label_id=settings.GMAIL_LABEL_SPAM).count() == 1
+        # When the instance variable is present, don't evaluate the corresponding label.
+        if hasattr(self, '_is_spam'):
+            return self._is_spam
+        else:
+            return self.labels.filter(label_id=settings.GMAIL_LABEL_SPAM).exists()
+
+    @property
+    def is_archived(self):
+        # When the instance variable is present, don't evaluate the corresponding label.
+        if hasattr(self, '_is_archived'):
+            return self._is_archived
+        else:
+            return not self.labels.filter(label_id=settings.GMAIL_LABEL_INBOX).exists()
 
     def get_message_id(self):
         header = self.headers.filter(name__istartswith='message-id').first()

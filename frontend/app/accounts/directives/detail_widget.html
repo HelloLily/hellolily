@@ -85,7 +85,7 @@
                 <tr>
                     <td><i class="lilicon hl-entity-icon"></i> <strong>Customer ID</strong></td>
                     <td>
-                        <span class="pre-wrap" editable-text="vm.account.customer_id" onbeforesave="vm.updateModel($data, 'customer_id')">{{ vm.account.customer_id || 'No customer id' }}</span>
+                        <editable-text field="customer_id" object="vm.account" update-callback="vm.updateModel">{{ vm.account.customer_id || 'No customer id' }}</editable-text>
                     </td>
                 </tr>
 

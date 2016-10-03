@@ -12,14 +12,6 @@ function editableTags() {
         controllerAs: 'vm',
         transclude: true,
         bindToController: true,
-        link: function(scope, element, attr) {
-            // Bind click event to the current directive.
-            element.on('click', '.editable-click', function() {
-                scope.vm.tagForm.$show();
-
-                scope.$apply();
-            });
-        },
     };
 }
 

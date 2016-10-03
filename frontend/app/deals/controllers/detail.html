@@ -78,22 +78,24 @@
                             <tbody>
                                 <tr>
                                     <td><strong>Name</strong></td>
-                                    <td><span editable-text="vm.deal.name" onbeforesave="vm.updateModel($data, 'name')" blur="submit">{{ vm.deal.name }}</span></td>
+                                    <td>
+                                        <editable-text field="name" object="vm.deal" update-callback="vm.updateModel">{{ vm.deal.name }}</editable-text>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td><strong>One-time-cost</strong></td>
                                     <td>
-                                        <span editable-text="vm.deal.amount_once" onbeforesave="vm.updateModel($data, 'amount_once')" blur="submit">
+                                        <editable-text field="amount_once" object="vm.deal" update-callback="vm.updateModel">
                                             <span ng-bind-html="vm.deal.amount_once | currencySymbol:vm.deal.currency"></span>
-                                        </span>
+                                        </editable-text>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><strong>Recurring costs</strong></td>
                                     <td>
-                                        <span editable-text="vm.deal.amount_recurring" onbeforesave="vm.updateModel($data, 'amount_recurring')" blur="submit">
+                                        <editable-text field="amount_recurring" object="vm.deal" update-callback="vm.updateModel">
                                             <span ng-bind-html="vm.deal.amount_recurring | currencySymbol:vm.deal.currency"></span>
-                                        </span>
+                                        </editable-text>
                                     </td>
                                 </tr>
 

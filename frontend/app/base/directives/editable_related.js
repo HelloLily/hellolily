@@ -18,18 +18,12 @@ function editableRelated() {
         link: function(scope, element, attr) {
             // Bind click event to the current directive.
             element.on('click', '.js-edit', function() {
-                scope.er.formVisible = true;
-
-                if (!scope.er.items.length) {
-                    scope.er.addRelatedField();
-                }
-
+                scope.er.showForm();
                 scope.$apply();
             });
 
             element.on('click', '.js-add', function() {
-                scope.er.formVisible = true;
-                scope.er.addRelatedField();
+                scope.er.showForm(true);
                 scope.$apply();
             });
         },
@@ -45,6 +39,7 @@ function EditableRelatedController(HLFields, HLResource, HLUtils) {
     er.removeRelatedField = removeRelatedField;
     er.closeForm = closeForm;
     er.submit = submit;
+    er.showForm = showForm;
 
     // TODO: LILY-1520: Clean up this model specific code.
     er.formatPhoneNumber = HLUtils.formatPhoneNumber;
@@ -130,6 +125,14 @@ function EditableRelatedController(HLFields, HLResource, HLUtils) {
         }).catch(function() {
             HLUtils.unblockUI(element);
         });
+    }
+
+    function showForm(add) {
+        er.formVisible = true;
+
+        if (!er.items.length || add) {
+            er.addRelatedField();
+        }
     }
 
     function closeForm() {

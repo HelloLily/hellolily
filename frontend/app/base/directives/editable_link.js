@@ -15,12 +15,6 @@ function editableLink() {
         controllerAs: 'el',
         transclude: true,
         bindToController: true,
-        link: function(scope, element, attrs) {
-            // Bind click event to the current directive.
-            element.on('click', '.hl-edit-icon', function() {
-                scope.linkForm.$show();
-            });
-        },
     };
 }
 

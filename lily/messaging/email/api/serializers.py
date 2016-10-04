@@ -60,6 +60,7 @@ class EmailMessageSerializer(serializers.ModelSerializer):
             'is_starred',
             'is_spam',
             'is_draft',
+            'is_archived',
             'reply_to',
         )
 

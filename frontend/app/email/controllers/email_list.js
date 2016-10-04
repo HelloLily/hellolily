@@ -354,6 +354,7 @@ function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLa
                 filterquery.push('is_trashed:false');
                 filterquery.push('is_spam:false');
                 filterquery.push('is_archived:false');
+                filterquery.push('NOT label_id:SENT');
             } else if ($stateParams.labelId === 'SENT') {
                 filterquery.push('label_id:SENT');
                 filterquery.push('is_trashed:false');

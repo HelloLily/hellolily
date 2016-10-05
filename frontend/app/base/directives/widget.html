@@ -1,15 +1,16 @@
 <div ng-show="vm.widgetInfo.status">
     <div class="{{ vm.widgetClass }}">
         <div class="widget-container">
-            <div ng-if="vm.showFade" class="is-scrollable-fadeout">
-                <i class="lilicon hl-toggle-down-icon"></i>
+            <div ng-if="vm.showFade" class="is-scrollable-fadeout clickable" ng-click="vm.expandToggle()">
+                <i class="lilicon hl-toggle-down-icon" ng-if="vm.widgetInfo.status == 1"></i>
+                <i class="lilicon hl-toggle-up-icon" ng-if="vm.widgetInfo.status == 3"></i>
             </div>
             <div class="widget-heading hl-card-heading">
                 <div class="widget-title" ng-transclude="widgetHeader"></div>
                 <div class="widget-filters" ng-transclude="widgetFilters"></div>
                 <div class="widget-tools">
                     <a class="widget-collapse" ng-click="vm.toggleCollapse()" ng-class="{1: 'portlet-open', 2: 'portlet-closed'}[vm.widgetInfo.status]">
-                        <i class="lilicon" ng-class="{1: 'hl-toggle-down-icon', 2: 'hl-toggle-left-icon'}[vm.widgetInfo.status]"></i>
+                        <i class="lilicon" ng-class="{1: 'hl-toggle-down-icon', 2: 'hl-toggle-left-icon', 3: 'hl-toggle-down-icon'}[vm.widgetInfo.status]"></i>
                     </a>
                     <a class="widget-close" ng-if="vm.widgetCloseable" ng-click="vm.removeWidget()">
                         <i class="lilicon hl-close-icon"></i>
@@ -18,8 +19,9 @@
                 <div class="clearfix"></div>
             </div>
 
-            <div class="widget-body" ng-show="vm.widgetInfo.status == 1">
-                <div ng-if="vm.widgetScrollable" hl-scroll-indicator ng-class="{'max-height-400': vm.widgetDynamicHeight}" slimscroll="{height: {{ vm.height }}, allowPageScroll: true}" class="scroll-body" ng-transclude="widgetBody"></div>
+            <div class="widget-body" ng-show="vm.widgetInfo.status == 1 || vm.widgetInfo.status == 3">
+                <div ng-if="vm.widgetScrollable && vm.widgetDynamicHeight" hl-scroll-indicator ng-class="{1: 'max-height-400', 3: 'max-height-800'}[vm.widgetInfo.status]" slimscroll="{allowPageScroll: true}" class="scroll-body" ng-transclude="widgetBody"></div>
+                <div ng-if="vm.widgetScrollable && !vm.widgetDynamicHeight" hl-scroll-indicator ng-class="{1: 'height-250', 3: 'height-500'}[vm.widgetInfo.status]" slimscroll="{allowPageScroll: true}" class="scroll-body" ng-transclude="widgetBody"></div>
                 <div ng-if="!vm.widgetScrollable" ng-transclude="widgetBody"></div>
             </div>
         </div>

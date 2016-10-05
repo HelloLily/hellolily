@@ -30,13 +30,14 @@ function WidgetController($scope, $state, LocalStorage) {
         hidden: 0,
         visible: 1,
         collapsed: 2,
+        expanded: 3,
     };
 
     vm.storageName = _getWidgetStorageName();
-    vm.height = 250;
 
     vm.toggleCollapse = toggleCollapse;
     vm.removeWidget = removeWidget;
+    vm.expandToggle = expandToggle;
 
     activate();
 
@@ -56,10 +57,6 @@ function WidgetController($scope, $state, LocalStorage) {
 
         _updateWidgetStorage();
         _watchWidgetVisibility();
-
-        if (vm.widgetDynamicHeight) {
-            vm.height = 'auto';
-        }
     }
 
     function _getWidgetStorageName() {
@@ -84,17 +81,27 @@ function WidgetController($scope, $state, LocalStorage) {
     }
 
     function toggleCollapse() {
-        if (vm.widgetInfo.status === 1) {
+        if (vm.widgetInfo.status === widgetStatus.visible || vm.widgetInfo.status === widgetStatus.expanded) {
             // Check if the fade is initially set to prevent it from showing up
             // when the widget isn't scrollable.
             if ($scope.vm.showFade) {
                 $scope.vm.showFade = false;
             }
+
             vm.widgetInfo.status = widgetStatus.collapsed;
         } else {
             if ($scope.vm.showFade === false) {
                 $scope.vm.showFade = true;
             }
+
+            vm.widgetInfo.status = widgetStatus.visible;
+        }
+    }
+
+    function expandToggle() {
+        if (vm.widgetInfo.status === widgetStatus.visible) {
+            vm.widgetInfo.status = widgetStatus.expanded;
+        } else {
             vm.widgetInfo.status = widgetStatus.visible;
         }
     }

@@ -19,7 +19,7 @@
             </div>
 
             <div class="widget-body" ng-show="vm.widgetInfo.status == 1">
-                <div ng-if="vm.widgetScrollable" hl-scroll-indicator ng-class="{'max-height-400': vm.widgetDynamicHeight}" slimscroll="{height: {{ vm.height }}}" class="scroll-body" ng-transclude="widgetBody"></div>
+                <div ng-if="vm.widgetScrollable" hl-scroll-indicator ng-class="{'max-height-400': vm.widgetDynamicHeight}" slimscroll="{height: {{ vm.height }}, allowPageScroll: true}" class="scroll-body" ng-transclude="widgetBody"></div>
                 <div ng-if="!vm.widgetScrollable" ng-transclude="widgetBody"></div>
             </div>
         </div>

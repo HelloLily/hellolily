@@ -1,5 +1,5 @@
 import datetime
-from django.utils.timezone import get_default_timezone
+from django.utils.timezone import utc
 
 from factory.declarations import SubFactory, LazyAttribute, SelfAttribute, Iterator, Sequence
 from factory.django import DjangoModelFactory
@@ -137,7 +137,7 @@ class DealFactory(DjangoModelFactory):
     why_lost = SubFactory(DealWhyLostFactory, tenant=SelfAttribute('..tenant'))
     closed_date = LazyAttribute(
         lambda o: faker.date_time_between_dates(
-            past_date, current_date, get_default_timezone()
+            past_date, current_date, utc
         ) if o.status.is_won or o.status.is_lost else None
     )
 

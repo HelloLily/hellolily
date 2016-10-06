@@ -151,6 +151,30 @@ class DataproviderView(SetTenantUserMixin, APIView):
                 'postal_code': result.get('zipcode'),
             }]
 
+        # Get social media profiles.
+        social_profiles = result.get('socialprofiles')
+
+        # Group profiles by platform.
+        # Disregards the other platforms provided by Dataprovider: Facebook, Google Plus and Pinterest.
+        social_media = {}
+        for profile in social_profiles:
+            if profile.startswith('twitter.com/'):
+                if 'twitter' not in social_media:
+                    social_media['twitter'] = []
+                social_media['twitter'].append(profile)
+            elif profile.startswith('www.linkedin.com/in/'):
+                if 'linkedin' not in social_media:
+                    social_media['linkedin'] = []
+                social_media['linkedin'].append(profile)
+
+        primary_twitter = ''
+        if 'twitter' in social_media:
+            primary_twitter = self._get_primary_profile(social_media['twitter'], result.get('company'))
+
+        primary_linkedin = ''
+        if 'linkedin' in social_media:
+            primary_linkedin = self._get_primary_profile(social_media['linkedin'], result.get('company'))
+
         # Build dict with account information.
         account_information = {
             'name': result.get('company'),
@@ -167,6 +191,9 @@ class DataproviderView(SetTenantUserMixin, APIView):
             'cocnumber': result.get('cocnumber'),
             'iban': result.get('iban'),
             'bic': result.get('bic'),
+            'social_media': social_media,
+            'twitter': primary_twitter,
+            'linkedin': primary_linkedin,
         }
 
         return account_information
@@ -180,3 +207,22 @@ class DataproviderView(SetTenantUserMixin, APIView):
 
         # Return the first email address in the list if no info@ or contact@ email could be found.
         return emails[0]
+
+    def _get_primary_profile(self, profiles, company_name):
+        """
+        Determine which of the provided social media profiles is most likely the primary one.
+        """
+        if len(profiles) == 0:
+            return ''
+        if len(profiles) == 1:
+            return profiles[0]
+
+        # Maybe the social media profile has the exact company name in it.
+        if company_name:
+            name = company_name.lower()
+            for profile in profiles:
+                if profile.endswith(name):
+                    return profile
+
+        # Return the first profile if the company name couldn't be found in the profile.
+        return profiles[0]

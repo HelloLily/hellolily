@@ -1,4 +1,5 @@
 import datetime
+from django.utils.timezone import utc
 
 from factory.declarations import SubFactory, LazyAttribute, SelfAttribute, Iterator, Sequence
 from factory.django import DjangoModelFactory
@@ -15,6 +16,7 @@ from .models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost, DealFoundT
 faker = Factory.create('nl_NL')
 past_date = datetime.date.today() - datetime.timedelta(days=10)
 future_date = datetime.date.today() + datetime.timedelta(days=10)
+current_date = datetime.date.today()
 
 NEXT_STEP_NAMES = [
     'Follow up',
@@ -133,6 +135,11 @@ class DealFactory(DjangoModelFactory):
     twitter_checked = FuzzyChoice([True, False])
     why_customer = SubFactory(DealWhyCustomerFactory, tenant=SelfAttribute('..tenant'))
     why_lost = SubFactory(DealWhyLostFactory, tenant=SelfAttribute('..tenant'))
+    closed_date = LazyAttribute(
+        lambda o: faker.date_time_between_dates(
+            past_date, current_date, utc
+        ) if o.status.is_won or o.status.is_lost else None
+    )
 
     class Meta:
         model = Deal

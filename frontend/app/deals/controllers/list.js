@@ -58,6 +58,7 @@ function DealListController($filter, $scope, $timeout, Deal, HLFilters, LocalSto
             newBusiness: true,
             createdBy: true,
             tags: true,
+            closedDate: false,
         }),
         dueDateFilter: vm.storage.get('dueDateFilter', ''),
         usersFilter: vm.storage.get('usersFilter', ''),

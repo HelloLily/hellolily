@@ -19,6 +19,7 @@
                         <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.amountRecurring">Recurring costs</checkbox></li>
                         <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.newBusiness">New business</checkbox></li>
                         <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.created">Created</checkbox></li>
+                        <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.closedDate">Closed date</checkbox></li>
                         <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.createdBy">Created by</checkbox></li>
                         <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.tags">Tags</checkbox></li>
                     </ul>
@@ -80,6 +81,7 @@
                     <th ng-show="vm.table.visibility.amountRecurring" sort-column="amount_recurring" table="vm.table">Recurring costs</th>
                     <th ng-show="vm.table.visibility.newBusiness" sort-column="new_business" table="vm.table">Business</th>
                     <th ng-show="vm.table.visibility.created" sort-column="created" table="vm.table" class="width-10">Created</th>
+                    <th ng-show="vm.table.visibility.closedDate" sort-column="closed_date" table="vm.table">Closed date</th>
                     <th ng-show="vm.table.visibility.createdBy" sort-column="created_by.full_name" table="vm.table">Created by</th>
                     <th ng-show="vm.table.visibility.tags">Tags</th>
                     <th style="width: 60px;">Edit</th>
@@ -121,6 +123,9 @@
                         </td>
                         <td ng-show="vm.table.visibility.created">
                             <date date="deal.created"></date>
+                        </td>
+                        <td ng-show="vm.table.visibility.closedDate">
+                            <date date="deal.closed_date"></date>
                         </td>
                         <td ng-show="vm.table.visibility.createdBy">
                             {{ ::deal.created_by.full_name }}

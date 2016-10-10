@@ -40,7 +40,7 @@ function MyCasesController($filter, $scope, Case, HLUtils, LocalStorage) {
         var field = 'expires';
         var descending = false;
 
-        var filterQuery = 'is_archived:false AND NOT type.name:Callback';
+        var filterQuery = 'is_archived:false';
 
         if (vm.table.dueDateFilter) {
             filterQuery += ' AND ' + vm.table.dueDateFilter;

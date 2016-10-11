@@ -279,3 +279,41 @@ class is applied to, so be sure it has a wrapping container.
         }
     }
 }
+
+.widget-suggestion {
+    background: lighten($app-color-yellow, 47);
+    border: 1px lighten($app-color-yellow, 20) solid;
+    padding: 10px;
+    border-radius: $base-border-radius;
+}
+
+.widget-suggestion-title {
+    color: #000;
+    font-size: 16px;
+    display: inline-block;
+    margin-bottom: 10px;
+
+    i {
+        color: $app-color-darkblue;
+    }
+}
+
+.widget-suggestion-items { // container
+    font-size: 14px;
+    display: flex;
+    width: 100%;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+    border-bottom: 1px lighten($app-color-yellow, 20) dotted;
+
+    &:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+}
+
+.widget-suggestion-item { //CHILDS
+    width: 100%;
+    align-self: center;
+}

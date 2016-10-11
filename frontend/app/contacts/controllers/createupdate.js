@@ -69,10 +69,10 @@ function contactConfig($stateProvider) {
  */
 angular.module('app.contacts').controller('ContactCreateUpdateController', ContactCreateUpdateController);
 
-ContactCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', '$timeout', 'Settings', 'Account',
-    'Contact', 'HLFields', 'HLForms', 'HLSearch', 'currentContact'];
-function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, Settings, Account, Contact,
-                                       HLFields, HLForms, HLSearch, currentContact) {
+ContactCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', '$timeout', 'Account',
+    'Contact', 'HLFields', 'HLForms', 'HLResource', 'HLSearch', 'Settings', 'currentContact'];
+function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, Account, Contact,
+                                       HLFields, HLForms, HLResource, HLSearch, Settings, currentContact) {
     var vm = this;
 
     vm.contact = {};
@@ -85,6 +85,8 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, S
     vm.addRelatedField = addRelatedField;
     vm.removeRelatedField = removeRelatedField;
     vm.refreshAccounts = refreshAccounts;
+    vm.checkExistingContact = checkExistingContact;
+    vm.mergeContactData = mergeContactData;
 
     activate();
 
@@ -132,6 +134,8 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, S
                     if (Settings.email.data.contact.lastName) {
                         vm.contact.last_name = Settings.email.data.contact.lastName;
                     }
+
+                    checkExistingContact();
 
                     if (Settings.email.data.contact.emailAddress) {
                         vm.contact.email_addresses.push({
@@ -254,22 +258,9 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, S
             });
         } else {
             copiedContact.$save(function() {
-                new Intercom('trackEvent', 'contact-created');
-
                 toastr.success('I\'ve saved the contact for you!', 'Yay');
 
-                if (Settings.email.sidebar.form === 'contact') {
-                    Settings.email.sidebar.form = null;
-                    Settings.email.sidebar.contact = true;
-                    Settings.email.data.contact = copiedContact;
-                } else {
-                    if ($stateParams.accountId) {
-                        // Redirect back to account if contact was created from the account page.
-                        $state.go('base.accounts.detail', {id: $stateParams.accountId}, {reload: true});
-                    } else {
-                        $state.go('base.contacts.detail', {id: copiedContact.id}, {reload: true});
-                    }
-                }
+                _postSave(copiedContact);
             }, function(response) {
                 _handleBadResponse(response, form);
             });
@@ -286,6 +277,53 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, S
                 accountsPromise.$promise.then(function(data) {
                     vm.accounts = data.objects;
                 });
+            }
+        }
+    }
+
+    function checkExistingContact() {
+        var fullName;
+
+        if (!vm.contact.id && vm.contact.first_name && vm.contact.last_name) {
+            fullName = vm.contact.first_name + ' ' + vm.contact.last_name;
+
+            Contact.search({filterquery: 'full_name:"' + fullName + '"'}).$promise.then(function(results) {
+                vm.contactSuggestions = results.objects;
+            });
+        }
+    }
+
+    function mergeContactData(contact) {
+        var args = {
+            id: contact.id,
+            accounts: [],
+            email_addresses: vm.contact.email_addresses,
+        };
+
+        angular.forEach(vm.contact.accounts, function(account) {
+            if (account) {
+                args.accounts.push({id: account.id});
+            }
+        });
+
+        HLResource.patch('Contact', args).$promise.then(function() {
+            _postSave(contact);
+        });
+    }
+
+    function _postSave(contact) {
+        new Intercom('trackEvent', 'contact-created');
+
+        if (Settings.email.sidebar.form === 'contact') {
+            Settings.email.sidebar.form = null;
+            Settings.email.sidebar.contact = true;
+            Settings.email.data.contact = contact;
+        } else {
+            if ($stateParams.accountId) {
+                // Redirect back to account if contact was created from the account page.
+                $state.go('base.accounts.detail', {id: $stateParams.accountId}, {reload: true});
+            } else {
+                $state.go('base.contacts.detail', {id: contact.id}, {reload: true});
             }
         }
     }

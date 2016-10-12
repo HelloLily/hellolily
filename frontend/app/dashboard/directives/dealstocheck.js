@@ -10,8 +10,8 @@ function dealsToCheckDirective() {
     };
 }
 
-DealsToCheckController.$inject = ['$scope', 'LocalStorage', 'Deal', 'HLUtils', 'UserTeams'];
-function DealsToCheckController($scope, LocalStorage, Deal, HLUtils, UserTeams) {
+DealsToCheckController.$inject = ['$scope', 'Deal', 'HLResource', 'HLUtils', 'LocalStorage', 'UserTeams'];
+function DealsToCheckController($scope, Deal, HLResource, HLUtils, LocalStorage, UserTeams) {
     var storage = new LocalStorage('dealsToCheckWidget');
     var vm = this;
 
@@ -72,7 +72,12 @@ function DealsToCheckController($scope, LocalStorage, Deal, HLUtils, UserTeams) 
     }
 
     function markDealAsChecked(deal) {
-        deal.markDealAsChecked().then(function() {
+        var args = {
+            id: deal.id,
+            is_checked: true,
+        };
+
+        HLResource.patch('Deal', args).$promise.then(function() {
             vm.table.items.splice(vm.table.items.indexOf(deal), 1);
         });
     }

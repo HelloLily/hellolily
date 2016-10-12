@@ -108,7 +108,6 @@ function Deal($resource, HLUtils, HLForms, HLCache, CacheFactory) {
 
     _deal.getDeals = getDeals;
     _deal.create = create;
-    _deal.prototype.markDealAsChecked = markDealAsChecked;
 
     /////////
 
@@ -154,12 +153,6 @@ function Deal($resource, HLUtils, HLForms, HLCache, CacheFactory) {
         }, function(data) {
             return data;
         }).$promise;
-    }
-
-    function markDealAsChecked() {
-        var deal = this;
-        deal.is_checked = true;
-        return deal.$update();
     }
 
     return _deal;

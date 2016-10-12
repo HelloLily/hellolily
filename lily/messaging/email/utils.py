@@ -453,9 +453,12 @@ def create_recipients(receivers, filter_emails=[]):
     recipients = []
     email_addresses = []
 
+    if not isinstance(filter_emails, list):
+        filter_emails = [filter_emails]
+
     for receiver in receivers:
         # TODO: Once we correct the sync we probably won't need this check
-        if receiver.email_address in email_addresses or receiver.email_address in [filter_emails]:
+        if receiver.email_address in email_addresses or receiver.email_address in filter_emails:
             continue
 
         name = receiver.name

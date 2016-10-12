@@ -109,7 +109,6 @@ inbox to display buttons like reply, delete, archive etc.
         position: relative;
         line-height: $button-height - 4px;
         font-weight: 400;
-        font-size: 14px;
         background: #fff;
         border: 1px $app-border-color solid;
         border-bottom-width: 2px;
@@ -223,5 +222,17 @@ inbox to display buttons like reply, delete, archive etc.
     .hl-button-group-btn-clear {
         float: none !important;
         padding: 6px 2px;
+    }
+}
+
+.due-date-filter {
+    border: 0;
+
+    li {
+        border: 0;
+    }
+
+    label {
+        margin-bottom: 0;
     }
 }

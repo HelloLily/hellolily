@@ -191,7 +191,7 @@ class DataproviderView(SetTenantUserMixin, APIView):
             'cocnumber': result.get('cocnumber'),
             'iban': result.get('iban'),
             'bic': result.get('bic'),
-            'social_media': social_media,
+            'social_media_profiles': social_media,
             'twitter': primary_twitter,
             'linkedin': primary_linkedin,
         }

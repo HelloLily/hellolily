@@ -20,21 +20,21 @@
     }
 
     @media (max-width: $breakpoint-tablet) {
-       display: inline-block;
-       font-size: 12px;
-       line-height: 28px;
-       padding: 0 6px;
-       border: 1px #e1e6ef solid;
-       border-bottom-width: 2px;
-       border-radius: $base-border-radius;
-       color: $app-color-darkblue;
-       font-weight: bold;
+        display: inline-block;
+        font-size: 12px;
+        line-height: 28px;
+        padding: 0 6px;
+        border: 1px #e1e6ef solid;
+        border-bottom-width: 2px;
+        border-radius: $base-border-radius;
+        color: $app-color-darkblue;
+        font-weight: bold;
 
-       &:hover {
-           text-decoration: none;
-           color: $app-color-aqua;
-       }
-   }
+        &:hover {
+            text-decoration: none;
+            color: $app-color-aqua;
+        }
+    }
 }
 
 .due-date-filter-container,

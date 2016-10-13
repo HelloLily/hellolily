@@ -80,13 +80,13 @@
                         <td ng-show="vm.table.visibility.contactInformation">
                             <div ng-repeat="email in account.email_addresses | filter: {status: '!' + 0}">
                                 <a ui-sref="base.email.composeEmail({ email:email.email_address })" title="{{ ::email.email_address }}">
-                                    <i class="fa fa-envelope-alt"></i>
+                                    <i class="lilicon hl-mail-icon"></i>
                                     {{ email.email_address }}
                                 </a>
                             </div>
                             <div ng-repeat="phone in account.phone_numbers track by $index" ng-if="phone.type == 'mobile' || phone.type == 'work'">
                                 <a href="tel:{{ phone.number }}">
-                                    <i ng-class="{work: 'fa fa-phone', mobile: 'fa fa-mobile-phone'}[phone.type]"></i>
+                                    <i ng-class="{work: 'lilicon hl-phone-filled-icon', mobile: 'fa fa-mobile-phone'}[phone.type]"></i>
                                     {{ phone.number }}
                                 </a>
                             </div>

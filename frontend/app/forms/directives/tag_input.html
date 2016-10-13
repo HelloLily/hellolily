@@ -1,4 +1,4 @@
-<ui-select multiple ng-model="vm.object.tags" theme="select2" tagging-tokens="," class="form-control" name="tags" tagging="vm.addTagChoice" tagging-label="(new tag)" append-to-body="true">
+<ui-select multiple ng-model="vm.object.tags" theme="select2" tagging-tokens="," class="form-control hl-tags" name="tags" tagging="vm.addTagChoice" tagging-label="(new tag)" append-to-body="true">
     <ui-select-match placeholder="Add tags...">
         {{ $item.name }}
     </ui-select-match>
@@ -7,3 +7,15 @@
         <div ng-if="!tag.isTag" ng-bind-html="tag.name + tag.isTag| highlight: $select.search"></div>
     </ui-select-choices>
 </ui-select>
+
+<div class="hl-tag-options">
+    <div>
+        Most used:
+        <button ng-repeat="tag in vm.mostUsed | xor:vm.object.tags:'name' | limitTo:5" class="btn btn-xs btn-default margin-right-5" ng-click="vm.addTag(tag)">{{ tag.name }}</button>
+    </div>
+
+    <div>
+        Last used:
+        <button ng-repeat="tag in vm.lastUsed | xor:vm.object.tags:'name' | limitTo:5" class="btn btn-xs btn-default margin-right-5" ng-click="vm.addTag(tag)">{{ tag.name }}</button>
+    </div>
+</div>

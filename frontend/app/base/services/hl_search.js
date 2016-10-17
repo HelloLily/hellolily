@@ -1,7 +1,7 @@
 angular.module('app.services').factory('HLSearch', HLSearch);
 
-HLSearch.$inject = ['$injector'];
-function HLSearch($injector) {
+HLSearch.$inject = ['$injector', 'Tag'];
+function HLSearch($injector, Tag) {
     HLSearch.refreshList = refreshList;
     HLSearch.refreshTags = refreshTags;
 
@@ -34,17 +34,18 @@ function HLSearch($injector) {
     function refreshTags(query, tags) {
         var exclude = '';
         var tagsPromise;
+        var i;
 
-        if (query.length >= 1) {
-            // Exclude tags already selected.
-            angular.forEach(tags, function(tag) {
-                exclude += ' AND NOT name_flat:' + tag.name;
-            });
-
-            // Just load the 'Tag' model dynamically, so we don't have to
-            // inject it into the controller.
-            tagsPromise = $injector.get('Tag').search({query: query + exclude});
+        // Exclude tags already selected.
+        for (i = 0; i < tags.length; i++) {
+            if (i === 0) {
+                exclude += 'NOT name_flat:' + tags[i].name;
+            } else {
+                exclude += ' AND NOT name_flat:' + tags[i].name;
+            }
         }
+
+        tagsPromise = Tag.search({query: query, filterquery: exclude});
 
         return tagsPromise;
     }

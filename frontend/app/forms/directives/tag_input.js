@@ -13,20 +13,30 @@ function tagInput() {
     };
 }
 
-TagInputController.$inject = ['HLSearch'];
-function TagInputController(HLSearch) {
+TagInputController.$inject = ['$scope', '$filter', 'HLSearch'];
+function TagInputController($scope, $filter, HLSearch) {
     var vm = this;
 
     vm.tagChoices = [];
+    vm.firstSearch = true;
 
     vm.refreshTags = refreshTags;
     vm.addTagChoice = addTagChoice;
+    vm.addTag = addTag;
 
     function refreshTags(query) {
-        var tagPromise = HLSearch.refreshTags(query, vm.object.tags);
+        var searchPromise = HLSearch.refreshTags(query, vm.object.tags);
 
-        if (tagPromise) {
-            tagPromise.$promise.then(function(result) {
+        if (searchPromise) {
+            searchPromise.$promise.then(function(result) {
+                if (vm.firstSearch) {
+                    // Get the 5 last used tags.
+                    vm.lastUsed = $filter('orderBy')(result.objects, '-last_used');
+                    vm.mostUsed = result.objects;
+
+                    vm.firstSearch = false;
+                }
+
                 vm.tagChoices = result.objects;
             });
         }
@@ -36,5 +46,11 @@ function TagInputController(HLSearch) {
         return {
             name: tag,
         };
+    }
+
+    function addTag(tag) {
+        if (vm.object.tags.indexOf(tag) === -1) {
+            vm.object.tags.push(tag);
+        }
     }
 }

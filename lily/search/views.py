@@ -1,8 +1,8 @@
-import anyjson
-import freemail
 from django.http.response import HttpResponse
 from django.views.generic.base import View
 
+import anyjson
+import freemail
 from lily.accounts.models import Website
 from lily.utils.views.mixins import LoginRequiredMixin
 
@@ -39,6 +39,10 @@ class SearchView(LoginRequiredMixin, View):
 
         facet_field = request.GET.get('facet_field', '')
         facet_filter = request.GET.get('facet_filter', '')
+
+        if facet_filter and not facet_filter.split(':')[1]:
+            facet_filter = ''
+
         facet_size = request.GET.get('facet_size', 60)
         if facet_field:
             kwargs['facet'] = {

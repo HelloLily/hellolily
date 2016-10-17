@@ -1,0 +1,16 @@
+.hl-tags {
+    .select2-choices {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+}
+
+.hl-tag-options {
+    padding: 5px 10px;
+    border: 1px $app-border-color solid;
+    margin-top: -1px;
+    background: $app-bg-color;
+    border-bottom-left-radius: $base-border-radius;
+    border-bottom-right-radius: $base-border-radius;
+    line-height: 30px;
+}

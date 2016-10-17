@@ -86,6 +86,12 @@
                             </a>
                         </td>
                         <td ng-show="table.visibility.contactInformation">
+                            <div ng-repeat="email in contact.email_addresses | filter: {status: '!'+ 0}">
+                                <a ui-sref="base.email.composeEmail({ email: email.email_address })" title="{{ ::email.email_address }}">
+                                    <i class="lilicon hl-mail-icon"></i>
+                                    {{ email.email_address }}
+                                </a>
+                            </div>
                             <div ng-if="contact.accounts" ng-repeat="account in contact.accounts">
                                 <div ng-if="!contact.primary_email_address && account.primary_email_address">
                                     <i class="lilicon hl-company-icon margin-right-5" uib-tooltip="{{ $root.messages.contact.accountListInfoTooltip }}"></i>
@@ -101,16 +107,9 @@
                                     </a>
                                 </div>
                             </div>
-
-                            <div ng-repeat="email in contact.email_addresses | filter: {status: '!'+ 0}">
-                                <a ui-sref="base.email.composeEmail({ email: email.email_address })" title="{{ ::email.email_address }}">
-                                    <i class="fa fa-envelope-alt"></i>
-                                    {{ email.email_address }}
-                                </a>
-                            </div>
                             <div ng-repeat="phone in contact.phone_numbers track by $index" ng-if="phone.type == 'mobile' || phone.type == 'work'">
                                 <a href="tel:{{ phone.number }}">
-                                    <i ng-class="{work: 'fa fa-phone', mobile: 'fa fa-mobile-phone'}[phone.type]"></i>
+                                    <i ng-class="{work: 'lilicon hl-phone-filled-icon', mobile: 'fa fa-mobile-phone'}[phone.type]"></i>
                                     {{ phone.number }}
                                 </a>
                             </div>

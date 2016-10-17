@@ -4,7 +4,7 @@ $inline-editable-field-height: 30px;
     border-color: $app-border-color;
     border-width: 1px;
     border-style: solid;
-    border-radius: 3px;
+    border-radius: $base-border-radius;
     background: #fff;
     line-height: $height;
     height: $height;
@@ -292,7 +292,7 @@ $inline-editable-field-height: 30px;
     position: relative;
 
     .hl-search-field {
-        @include input-field(31px);
+        @include input-field(30px);
         margin-right: 20px;
 
         &.ng-not-empty + .hl-search-btn {
@@ -312,11 +312,11 @@ $inline-editable-field-height: 30px;
     .hl-search-btn {
         background: $app-color-aqua;
         border-width: 0;
-        height: 31px;
+        height: 30px;
         width: 26px;
         text-align: center;
         padding: 0 6px;
-        line-height: 31px;
+        line-height: 30px;
         position: absolute;
         right: 0;
         top: 0;

@@ -212,14 +212,14 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
             if (Settings.email.data && (Settings.email.data.account ||
                 (Settings.email.data.contact && Settings.email.data.contact.accounts))) {
                 // Auto fill data if it's available.
-                if (Settings.email.data.contact.id) {
+                if (Settings.email.data.contact && Settings.email.data.contact.id) {
                     if (Settings.email.data && Settings.email.data.account) {
                         filterquery = 'accounts.id:' + Settings.email.data.account.id;
 
                         Contact.search({filterquery: filterquery}).$promise.then(function(colleagues) {
                             for (i = 0; i < colleagues.objects.length; i++) {
                                 if (colleagues.objects[i].id === Settings.email.data.contact.id) {
-                                    vm.case.contact = Settings.email.data.contact.id;
+                                    vm.deal.contact = Settings.email.data.contact.id;
                                 }
                             }
                         });

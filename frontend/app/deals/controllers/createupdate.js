@@ -14,6 +14,11 @@ function dealConfig($stateProvider) {
         ncyBreadcrumb: {
             label: 'Create',
         },
+        resolve: {
+            currentDeal: function() {
+                return null;
+            },
+        },
     });
 
     $stateProvider.state('base.deals.create.fromAccount', {
@@ -27,6 +32,11 @@ function dealConfig($stateProvider) {
         },
         ncyBreadcrumb: {
             skip: true,
+        },
+        resolve: {
+            currentDeal: function() {
+                return null;
+            },
         },
     });
 

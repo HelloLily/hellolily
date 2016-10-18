@@ -36,6 +36,12 @@ function contactConfig($stateProvider) {
         ncyBreadcrumb: {
             label: 'Edit',
         },
+        resolve: {
+            currentContact: ['Contact', '$stateParams', function(Contact, $stateParams) {
+                var contactId = $stateParams.id;
+                return Contact.get({id: contactId}).$promise;
+            }],
+        },
     });
 
     $stateProvider.state('base.contacts.create.fromAccount', {
@@ -51,10 +57,9 @@ function contactConfig($stateProvider) {
             skip: true,
         },
         resolve: {
-            currentContact: ['Contact', '$stateParams', function(Contact, $stateParams) {
-                var contactId = $stateParams.id;
-                return Contact.get({id: contactId}).$promise;
-            }],
+            currentContact: function() {
+                return null;
+            },
         },
     });
 }

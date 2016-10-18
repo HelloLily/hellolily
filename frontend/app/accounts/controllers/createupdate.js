@@ -19,6 +19,11 @@ function accountConfig($stateProvider) {
         ncyBreadcrumb: {
             label: 'Create',
         },
+        resolve: {
+            currentAccount: function() {
+                return null;
+            },
+        },
     });
 
     $stateProvider.state('base.accounts.detail.edit', {
@@ -33,6 +38,11 @@ function accountConfig($stateProvider) {
         ncyBreadcrumb: {
             label: 'Edit',
         },
+        resolve: {
+            currentAccount: ['Account', '$stateParams', function(Account, $stateParams) {
+                return Account.get({id: $stateParams.id}).$promise;
+            }],
+        },
     });
 }
 
@@ -42,9 +52,9 @@ function accountConfig($stateProvider) {
 angular.module('app.accounts').controller('AccountCreateController', AccountCreateController);
 
 AccountCreateController.$inject = ['$scope', '$state', '$stateParams', '$timeout', 'Account', 'HLFields', 'HLForms',
-    'HLUtils', 'Settings', 'User'];
+    'HLUtils', 'Settings', 'User', 'currentAccount'];
 function AccountCreateController($scope, $state, $stateParams, $timeout, Account, HLFields, HLForms,
-                                 HLUtils, Settings, User) {
+                                 HLUtils, Settings, User, currentAccount) {
     var vm = this;
 
     vm.account = {};
@@ -100,31 +110,29 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
         var company;
 
         // Fetch the account or create empty account
-        if ($stateParams.id) {
-            Account.get({id: $stateParams.id}).$promise.then(function(account) {
-                Settings.page.setAllTitles('edit', account.name);
+        if (currentAccount) {
+            Settings.page.setAllTitles('edit', currentAccount.name);
 
-                vm.account = account;
+            vm.account = currentAccount;
 
-                angular.forEach(account.websites, function(website) {
-                    if (website.is_primary) {
-                        vm.account.primaryWebsite = website.website;
-                    }
-                });
-                if (!vm.account.primaryWebsite || vm.account.primaryWebsite === '') {
-                    vm.account.primaryWebsite = '';
-                }
-
-                if (vm.account.assigned_to) {
-                    vm.account.assigned_to = vm.account.assigned_to.id;
-                }
-
-                if (vm.account.hasOwnProperty('social_media') && vm.account.social_media.length) {
-                    angular.forEach(vm.account.social_media, function(profile) {
-                        vm.account[profile.name] = profile.username;
-                    });
+            angular.forEach(currentAccount.websites, function(website) {
+                if (website.is_primary) {
+                    vm.account.primaryWebsite = website.website;
                 }
             });
+            if (!vm.account.primaryWebsite || vm.account.primaryWebsite === '') {
+                vm.account.primaryWebsite = '';
+            }
+
+            if (vm.account.assigned_to) {
+                vm.account.assigned_to = vm.account.assigned_to.id;
+            }
+
+            if (vm.account.hasOwnProperty('social_media') && vm.account.social_media.length) {
+                angular.forEach(vm.account.social_media, function(profile) {
+                    vm.account[profile.name] = profile.username;
+                });
+            }
         } else {
             Settings.page.setAllTitles('create', 'account');
 

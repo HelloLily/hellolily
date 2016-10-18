@@ -14,6 +14,11 @@ function caseConfig($stateProvider) {
         ncyBreadcrumb: {
             label: 'Create',
         },
+        resolve: {
+            currentCase: function() {
+                return null;
+            },
+        },
     });
 
     $stateProvider.state('base.cases.create.fromContact', {
@@ -27,6 +32,11 @@ function caseConfig($stateProvider) {
         },
         ncyBreadcrumb: {
             skip: true,
+        },
+        resolve: {
+            currentCase: function() {
+                return null;
+            },
         },
     });
 
@@ -42,6 +52,11 @@ function caseConfig($stateProvider) {
         ncyBreadcrumb: {
             skip: true,
         },
+        resolve: {
+            currentCase: function() {
+                return null;
+            },
+        },
     });
 
     $stateProvider.state('base.cases.detail.edit', {
@@ -56,15 +71,21 @@ function caseConfig($stateProvider) {
         ncyBreadcrumb: {
             label: 'Edit',
         },
+        resolve: {
+            currentCase: ['Case', '$stateParams', function(Case, $stateParams) {
+                var id = $stateParams.id;
+                return Case.get({id: id}).$promise;
+            }],
+        },
     });
 }
 
 angular.module('app.cases').controller('CaseCreateUpdateController', CaseCreateUpdateController);
 
 CaseCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'Case', 'Contact', 'HLForms',
-    'HLSearch', 'HLUtils', 'Settings', 'UserTeams', 'User'];
+    'HLSearch', 'HLUtils', 'Settings', 'UserTeams', 'User', 'currentCase'];
 function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case, Contact, HLForms,
-                                    HLSearch, HLUtils, Settings, UserTeams, User) {
+                                    HLSearch, HLUtils, Settings, UserTeams, User, currentCase) {
     var vm = this;
 
     vm.case = {};
@@ -123,12 +144,10 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         var i;
 
         // Fetch the case or create an empty one.
-        if ($stateParams.id) {
-            Case.get({id: $stateParams.id}).$promise.then(function(lilyCase) {
-                vm.case = lilyCase;
+        if (currentCase) {
+            vm.case = currentCase;
 
-                Settings.page.setAllTitles('edit', lilyCase.subject);
-            });
+            Settings.page.setAllTitles('edit', currentCase.subject);
         } else {
             Settings.page.setAllTitles('create', 'case');
             vm.case = Case.create();

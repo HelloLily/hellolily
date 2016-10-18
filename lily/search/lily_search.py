@@ -84,31 +84,34 @@ class LilySearch(object):
 
         if self.facet:
             facet_raw = {
-                "terms": {
-                    "field": self.facet['field'],
-                    "size": self.facet['size'],
+                'terms': {
+                    'field': self.facet['field'],
+                    'size': self.facet['size'],
                 },
             }
 
+            facet_filter_dict = {
+                'and': [
+                    {
+                        'term': {
+                            'tenant': self.tenant_id,
+                        }
+                    }
+                ]
+            }
+
             if self.facet['filter']:
-                facet_filter_dict = {
-                    'and': [
-                        {
-                            'term': {
-                                'tenant': self.tenant_id
-                            }
-                        },
-                        {
-                            'query': {
-                                'query_string': {
-                                    'query': self.facet['filter']
-                                }
+                facet_filter_dict['and'].append(
+                    {
+                        'query': {
+                            'query_string': {
+                                'query': self.facet['filter']
                             }
                         }
-                    ]
-                }
+                    }
+                )
 
-                facet_raw['facet_filter'] = facet_filter_dict
+            facet_raw['facet_filter'] = facet_filter_dict
 
             self.search = self.search.facet_raw(items=facet_raw)
 

@@ -28,6 +28,11 @@ function emailConfig($stateProvider, $urlRouterProvider) {
                 templateUrl: 'accounts/controllers/form.html',
                 controller: 'AccountCreateController',
                 controllerAs: 'vm',
+                resolve: {
+                    currentAccount: function() {
+                        return null;
+                    },
+                },
             },
             'showAccount@base.email': {
                 controller: EmailShowAccountController,
@@ -36,6 +41,11 @@ function emailConfig($stateProvider, $urlRouterProvider) {
                 templateUrl: 'contacts/controllers/form.html',
                 controller: 'ContactCreateUpdateController',
                 controllerAs: 'vm',
+                resolve: {
+                    currentContact: function() {
+                        return null;
+                    },
+                },
             },
             'showContact@base.email': {
                 controller: EmailShowContactController,
@@ -44,11 +54,21 @@ function emailConfig($stateProvider, $urlRouterProvider) {
                 templateUrl: 'cases/controllers/form.html',
                 controller: 'CaseCreateUpdateController',
                 controllerAs: 'vm',
+                resolve: {
+                    currentCase: function() {
+                        return null;
+                    },
+                },
             },
             'createDeal@base.email': {
                 templateUrl: 'deals/controllers/form.html',
                 controller: 'DealCreateUpdateController',
                 controllerAs: 'vm',
+                resolve: {
+                    currentDeal: function() {
+                        return null;
+                    },
+                },
             },
         },
         ncyBreadcrumb: {

@@ -17,6 +17,11 @@ function contactConfig($stateProvider) {
         ncyBreadcrumb: {
             label: 'Create',
         },
+        resolve: {
+            currentContact: function() {
+                return null;
+            },
+        },
     });
 
     $stateProvider.state('base.contacts.detail.edit', {
@@ -45,6 +50,12 @@ function contactConfig($stateProvider) {
         ncyBreadcrumb: {
             skip: true,
         },
+        resolve: {
+            currentContact: ['Contact', '$stateParams', function(Contact, $stateParams) {
+                var contactId = $stateParams.id;
+                return Contact.get({id: contactId}).$promise;
+            }],
+        },
     });
 }
 
@@ -53,10 +64,10 @@ function contactConfig($stateProvider) {
  */
 angular.module('app.contacts').controller('ContactCreateUpdateController', ContactCreateUpdateController);
 
-ContactCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', '$timeout', 'Settings', 'Account', 'Contact',
-    'HLFields', 'HLForms', 'HLSearch'];
-function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, Settings, Account, Contact, HLFields, HLForms,
-                                       HLSearch) {
+ContactCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', '$timeout', 'Settings', 'Account',
+    'Contact', 'HLFields', 'HLForms', 'HLSearch', 'currentContact'];
+function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, Settings, Account, Contact,
+                                       HLFields, HLForms, HLSearch, currentContact) {
     var vm = this;
 
     vm.contact = {};
@@ -86,17 +97,15 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, S
 
     function _getContact() {
         // Fetch the contact or create empty contact.
-        if ($stateParams.id) {
-            Contact.get({id: $stateParams.id}).$promise.then(function(contact) {
-                vm.contact = contact;
-                Settings.page.setAllTitles('edit', contact.full_name);
+        if (currentContact) {
+            vm.contact = currentContact;
+            Settings.page.setAllTitles('edit', currentContact.full_name);
 
-                if (vm.contact.hasOwnProperty('social_media') && vm.contact.social_media.length) {
-                    angular.forEach(vm.contact.social_media, function(profile) {
-                        vm.contact[profile.name] = profile.username;
-                    });
-                }
-            });
+            if (vm.contact.hasOwnProperty('social_media') && vm.contact.social_media.length) {
+                angular.forEach(vm.contact.social_media, function(profile) {
+                    vm.contact[profile.name] = profile.username;
+                });
+            }
         } else {
             Settings.page.setAllTitles('create', 'contact');
             vm.contact = Contact.create();

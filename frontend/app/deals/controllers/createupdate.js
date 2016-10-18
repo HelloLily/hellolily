@@ -42,6 +42,11 @@ function dealConfig($stateProvider) {
         ncyBreadcrumb: {
             skip: true,
         },
+        resolve: {
+            currentDeal: function() {
+                return null;
+            },
+        },
     });
 
     $stateProvider.state('base.deals.detail.edit', {
@@ -56,15 +61,21 @@ function dealConfig($stateProvider) {
         ncyBreadcrumb: {
             label: 'Edit',
         },
+        resolve: {
+            currentDeal: ['Deal', '$stateParams', function(Deal, $stateParams) {
+                var id = $stateParams.id;
+                return Deal.get({id: id}).$promise;
+            }],
+        },
     });
 }
 
 angular.module('app.deals').controller('DealCreateUpdateController', DealCreateUpdateController);
 
 DealCreateUpdateController.$inject = ['$filter', '$scope', '$state', '$stateParams', 'Account', 'Contact', 'Deal',
-    'HLForms', 'HLSearch', 'HLUtils', 'Settings', 'Tenant', 'User'];
+    'HLForms', 'HLSearch', 'HLUtils', 'Settings', 'Tenant', 'User', 'currentDeal'];
 function DealCreateUpdateController($filter, $scope, $state, $stateParams, Account, Contact, Deal, HLForms,
-                                    HLSearch, HLUtils, Settings, Tenant, User) {
+                                    HLSearch, HLUtils, Settings, Tenant, User, currentDeal) {
     var vm = this;
 
     vm.deal = {};
@@ -160,15 +171,13 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
         var i;
 
         // Fetch the contact or create empty contact.
-        if ($stateParams.id) {
-            Deal.get({id: $stateParams.id}).$promise.then(function(deal) {
-                vm.deal = deal;
+        if (currentDeal) {
+            vm.deal = currentDeal;
 
-                vm.deal.amount_once = $filter('currency')(vm.deal.amount_once, '');
-                vm.deal.amount_recurring = $filter('currency')(vm.deal.amount_recurring, '');
+            vm.deal.amount_once = $filter('currency')(vm.deal.amount_once, '');
+            vm.deal.amount_recurring = $filter('currency')(vm.deal.amount_recurring, '');
 
-                Settings.page.setAllTitles('edit', deal.name);
-            });
+            Settings.page.setAllTitles('edit', currentDeal.name);
         } else {
             Settings.page.setAllTitles('create', 'deal');
             vm.deal = Deal.create();

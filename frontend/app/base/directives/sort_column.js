@@ -1,5 +1,5 @@
 /**
- * sortColumn Directive adds sorting classes to an DOM element based on `table` object
+ * sortColumn directive adds sorting classes to an DOM element based on `table` object
  *
  * It makes the element clickable and sets the table sorting based on that element
  *
@@ -55,7 +55,17 @@ function sortColumn() {
             // When element is clicked, set the table ordering & sorting based on this DOM element
             element.on('click', function() {
                 if ($scope.table.order.column === attrs.sortColumn) {
-                    $scope.table.order.descending = !$scope.table.order.descending;
+                    // Toggle between the 3 states of a column:
+                    // - ascending
+                    // - descending
+                    // - no sorting
+                    if ($scope.table.order.descending) {
+                        $scope.table.order.column = '';
+                        $scope.table.order.descending = null;
+                    } else {
+                        $scope.table.order.descending = !$scope.table.order.descending;
+                    }
+
                     $scope.$apply();
                 } else {
                     $scope.table.order.column = attrs.sortColumn;

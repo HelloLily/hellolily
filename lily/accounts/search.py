@@ -66,6 +66,10 @@ class AccountMapping(BaseMapping):
                 'type': 'string',
                 'index_analyzer': 'normal_ngram_analyzer',
             },
+            'name_words': {
+                'type': 'string',
+                'index_analyzer': 'simple',
+            },
             'phone_numbers': {
                 'type': 'object',
                 'properties': {
@@ -189,6 +193,7 @@ class AccountMapping(BaseMapping):
             } for email in obj.email_addresses.all()],
             'modified': obj.modified,
             'name': obj.name,
+            'name_words': obj.name,
             'phone_numbers': [{
                 'id': phone_number.id,
                 'number': phone_number.number,

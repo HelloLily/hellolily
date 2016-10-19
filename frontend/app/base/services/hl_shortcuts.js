@@ -1,7 +1,7 @@
 angular.module('app.services').service('HLShortcuts', HLShortcuts);
 
-HLShortcuts.$inject = ['$state', '$timeout', '$rootScope'];
-function HLShortcuts($state, $timeout, $rootScope) {
+HLShortcuts.$inject = ['$state', '$timeout', '$rootScope', 'Settings'];
+function HLShortcuts($state, $timeout, $rootScope, Settings) {
     // Use $rootScope because $root is unavailable in services.
     // This watches the change in states so we can execute certain Mousetrap
     // functions on specific pages.
@@ -45,32 +45,47 @@ function HLShortcuts($state, $timeout, $rootScope) {
             });
         }
 
-        if (state === 'base.deals.detail.edit' || state === 'base.deals.create') {
+        if (state === 'base.email.compose') {
+            Mousetrap.bind('mod+enter', function() {
+                // Submit the email form.
+                document.getElementById('fileupload').submit();
+            });
+        } else if (state === 'base.deals.detail.edit' || state === 'base.deals.create') {
             Mousetrap.bindGlobal('mod+enter', function() {
                 // Broadcast event for deals/controllers/createupdate.js to save
-                // the deal
+                // the deal.
                 $rootScope.$broadcast('saveDeal');
             }, 'keyup');
         } else if (state === 'base.cases.detail.edit' || state === 'base.cases.create') {
-            Mousetrap.bindGlobal('mod+space', function() {
+            Mousetrap.bindGlobal('mod+enter', function() {
                 // Broadcast event for cases/controllers/createupdate.js to save
-                // the case
+                // the case.
                 $rootScope.$broadcast('saveCase');
             }, 'keyup');
         } else if (state === 'base.contacts.detail.edit' || state === 'base.contacts.create') {
             Mousetrap.bindGlobal('mod+enter', function() {
                 // Broadcast event for contact/controllers/createupdate.js to save
-                // the contact
+                // the contact.
                 $rootScope.$broadcast('saveContact');
             });
         } else if (state === 'base.accounts.detail.edit' || state === 'base.accounts.create') {
             Mousetrap.bindGlobal('mod+enter', function() {
                 // Broadcast event for account/controllers/createupdate.js to save
-                // the account
+                // the account.
                 $rootScope.$broadcast('saveAccount');
             });
+        } else if (state === 'base.email.detail') {
+            Mousetrap.bindGlobal('mod+enter', function() {
+                // Broadcast event for account/controllers/createupdate.js to save
+                // the account.
+                if (Settings.email.sidebar.form === 'account') {
+                    $rootScope.$broadcast('saveAccount');
+                } else if (Settings.email.sidebar.form === 'contact') {
+                    $rootScope.$broadcast('saveContact');
+                }
+            });
         } else {
-            // Unbind when not a form page
+            // Unbind when not a form page.
             Mousetrap.unbind('mod+enter');
         }
 

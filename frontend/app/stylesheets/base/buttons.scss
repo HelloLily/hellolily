@@ -166,4 +166,9 @@ $large-button: 30px;
     .fa-plus {
         font-size: 10px;
     }
+
+    &.round {
+        margin: 0;
+        border-radius: 50%;
+    }
 }

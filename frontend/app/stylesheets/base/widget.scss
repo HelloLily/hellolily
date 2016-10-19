@@ -280,6 +280,16 @@ class is applied to, so be sure it has a wrapping container.
     }
 }
 
+.widget-table {
+    .newly-assigned {
+        background: #eaffe9;
+
+        &:hover {
+            background: #e7f9e6;
+        }
+    }
+}
+
 .widget-suggestion {
     background: lighten($app-color-yellow, 47);
     border: 1px lighten($app-color-yellow, 20) solid;

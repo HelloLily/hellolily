@@ -88,6 +88,7 @@ class CaseSerializer(WritableNestedSerializer):
     def create(self, validated_data):
         user = self.context.get('request').user
         description = validated_data.get('description')
+        assigned_to = validated_data.get('assigned_to')
 
         validated_data.update({
             'created_by_id': user.pk,
@@ -96,6 +97,11 @@ class CaseSerializer(WritableNestedSerializer):
         if description:
             validated_data.update({
                 'description': HtmlSanitizer(description).clean().render(),
+            })
+
+        if assigned_to and assigned_to != user.pk:
+            validated_data.update({
+                'newly_assigned': True,
             })
 
         return super(CaseSerializer, self).create(validated_data)
@@ -148,6 +154,7 @@ class CaseSerializer(WritableNestedSerializer):
             'expires',
             'is_archived',
             'modified',
+            'newly_assigned',
             'priority',
             'priority_display',
             'status',

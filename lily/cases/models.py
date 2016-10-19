@@ -63,6 +63,7 @@ class Case(TenantMixin, TaggedObjectMixin, DeletedMixin, ArchivedMixin):
 
     parcel = models.ForeignKey(Parcel, null=True, blank=True)
     billing_checked = models.BooleanField(default=False)
+    newly_assigned = models.BooleanField(default=False)
 
     @property
     def content_type(self):

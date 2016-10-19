@@ -77,6 +77,9 @@ class CaseMapping(BaseMapping):
             'modified': {
                 'type': 'date',
             },
+            'newly_assigned': {
+                'type': 'boolean',
+            },
             'priority': {
                 'type': 'integer',
             },
@@ -176,6 +179,7 @@ class CaseMapping(BaseMapping):
             'expires': obj.expires,
             'is_archived': obj.is_archived,
             'modified': obj.modified,
+            'newly_assigned': obj.newly_assigned,
             'priority': obj.priority,
             'priority_display': obj.get_priority_display(),
             'status': {

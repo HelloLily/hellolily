@@ -9,8 +9,8 @@ function myCasesDirective() {
     };
 }
 
-MyCasesController.$inject = ['$filter', '$scope', 'Case', 'HLUtils', 'LocalStorage'];
-function MyCasesController($filter, $scope, Case, HLUtils, LocalStorage) {
+MyCasesController.$inject = ['$filter', '$scope', 'Case', 'HLUtils', 'HLResource', 'LocalStorage'];
+function MyCasesController($filter, $scope, Case, HLUtils, HLResource, LocalStorage) {
     var storage = new LocalStorage('myCasesWidget');
     var vm = this;
 
@@ -27,6 +27,7 @@ function MyCasesController($filter, $scope, Case, HLUtils, LocalStorage) {
     vm.numOfCases = 0;
 
     vm.getMyCases = getMyCases;
+    vm.acceptCase = acceptCase;
 
     activate();
 
@@ -85,6 +86,17 @@ function MyCasesController($filter, $scope, Case, HLUtils, LocalStorage) {
             HLUtils.unblockUI('#myCasesBlockTarget');
 
             vm.numOfCases = objects.length;
+        });
+    }
+
+    function acceptCase(myCase) {
+        var args = {
+            id: myCase.id,
+            newly_assigned: false,
+        };
+
+        HLResource.patch('Case', args).$promise.then(function() {
+            getMyCases();
         });
     }
 

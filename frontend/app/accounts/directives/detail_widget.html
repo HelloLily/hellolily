@@ -3,10 +3,8 @@
         <div class="widget-label"></div>
         <div class="widget-name">
             <i class="lilicon hl-company-icon"></i>
-            <span ng-show="vm.settings.email.data.account.id">
-                <a ui-sref="base.accounts.detail({ id: vm.settings.email.data.account.id })">{{ vm.account.name }}</a>
-            </span>
-            <span ng-show="!vm.settings.email.data.account">{{ vm.account.name }}</span>
+            <a ng-if="vm.clickableHeader" ui-sref="base.accounts.detail({ id: vm.settings.email.data.account.id || vm.account.id })">{{ vm.account.name }}</a>
+            <span ng-if="!vm.clickableHeader">{{ vm.account.name }}</span>
         </div>
     </widget-header>
 

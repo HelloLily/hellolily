@@ -2,7 +2,7 @@
     <ui-select-match placeholder="Add tags...">
         {{ $item.name }}
     </ui-select-match>
-    <ui-select-choices repeat="tag in vm.tagChoices" refresh="vm.refreshTags($select.search)" refresh-delay="150">
+    <ui-select-choices repeat="tag in vm.tagChoices" refresh="vm.refreshTags($select.search)" refresh-delay="300">
         <div ng-if="tag.isTag" ng-bind-html="(tag.name | highlight: $select.search) + ' <span>' + $select.taggingLabel + '</span>'"></div>
         <div ng-if="!tag.isTag" ng-bind-html="tag.name + tag.isTag| highlight: $select.search"></div>
     </ui-select-choices>

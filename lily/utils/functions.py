@@ -180,20 +180,22 @@ def post_intercom_event(event_name, user_id):
     Returns:
         response (Response): Object containing the response information.
     """
-    payload = {
-        'event_name': event_name,
-        'user_id': user_id,
-        'created_at': int(time())
-    }
+    if not settings.DEBUG:
+        payload = {
+            'event_name': event_name,
+            'user_id': user_id,
+            'created_at': int(time())
+        }
 
-    response = requests.post(
-        url='https://api.intercom.io/events',
-        data=anyjson.serialize(payload),
-        auth=(settings.INTERCOM_APP_ID, settings.INTERCOM_KEY),
-        headers={'Content-Type': 'application/json'}
-    )
+        response = requests.post(
+            url='https://api.intercom.io/events',
+            data=anyjson.serialize(payload),
+            auth=(settings.INTERCOM_APP_ID, settings.INTERCOM_KEY),
+            headers={'Content-Type': 'application/json'}
+        )
 
-    return response
+        return response
+    return None
 
 
 def send_get_request(url, credentials):

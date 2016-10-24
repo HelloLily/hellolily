@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 import os
-import sys
 from urlparse import urlparse, uses_netloc
 
 from django.conf import global_settings
@@ -20,10 +19,6 @@ def gettext_noop(s):
 # Don't share this with anybody
 SECRET_KEY = os.environ.get('SECRET_KEY', 'my-secret-key')
 
-# Register database scheme and redis caching in URLs
-uses_netloc.append('postgres')
-uses_netloc.append('redis')
-
 
 # Turn 0 or 1 into False/True respectively
 def boolean(value):
@@ -39,7 +34,6 @@ def local_path(path):
 #######################################################################################################################
 # Try to read as much configuration from ENV
 DEBUG = boolean(os.environ.get('DEBUG', 0))
-TEMPLATE_DEBUG = boolean(os.environ.get('DEBUG', DEBUG))
 
 ADMINS = eval(os.environ.get('ADMINS', '()'))
 MANAGERS = ADMINS
@@ -76,24 +70,35 @@ FIRST_DAY_OF_WEEK = os.environ.get('FIRST_DAY_OF_WEEK', 1)
 #######################################################################################################################
 # SECURITY                                                                                                            #
 #######################################################################################################################
-# Secure csrf cookie is only sent under https connection, for production this needs to be set to True
+# Automatic xss detection if the browser supports the header.
+SECURE_BROWSER_XSS_FILTER = boolean(os.environ.get('SECURE_BROWSER_XSS_FILTER', 0))
+# Turn off browser automatically detecting content-type of files served.
+SECURE_CONTENT_TYPE_NOSNIFF = boolean(os.environ.get('SECURE_CONTENT_TYPE_NOSNIFF', 0))
+# Tell the browser to only connect through https for x seconds.
+SECURE_HSTS_SECONDS = int(os.environ.get('SECURE_HSTS_SECONDS', 0))
+# Also include subdomains in the above setting.
+SECURE_HSTS_INCLUDE_SUBDOMAINS = boolean(os.environ.get('SECURE_HSTS_INCLUDE_SUBDOMAINS', 0))
+# Redirect all pages to https.
+SECURE_SSL_REDIRECT = boolean(os.environ.get('SECURE_SSL_REDIRECT', 0))
+# The header to use when determining if a request is made through https.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# Secure csrf cookie is only sent under https connection.
 CSRF_COOKIE_SECURE = boolean(os.environ.get('CSRF_COOKIE_SECURE', 0))
+# Show this view when csrf validation fails.
 CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
-# Secure session cookie is only sent under https connection, for production this needs to be set to True
+# Secure session cookie is only sent under https connection.
 SESSION_COOKIE_SECURE = boolean(os.environ.get('SESSION_COOKIE_SECURE', 0))
-# Prevent client side javascript from accessing session, for production this needs to be set to True
+# Prevent client side javascript from accessing session.
 SESSION_COOKIE_HTTPONLY = boolean(os.environ.get('SESSION_COOKIE_HTTPONLY', 0))
+# Log users out on exit of browser.
 SESSION_EXPIRE_AT_BROWSER_CLOSE = boolean(os.environ.get('SESSION_EXPIRE_AT_BROWSER_CLOSE', 0))
-# Only allow iframes from our own domain, for production this needs to be set to SAMEORIGIN
+# Only allow iframes from our own domain, choices are DENY, SAMEORIGIN and ALLOW.
 X_FRAME_OPTIONS = os.environ.get('X_FRAME_OPTIONS', 'SAMEORIGIN')
+# A list of strings representing the valid host/domain names.
 ALLOWED_HOSTS = [
     'hellolily.herokuapp.com',
     'hellolily-staging.herokuapp.com',
     'app.hellolily.com',
-    'app.hellolily.nl',
-    'app.hellolilly.nl',
-
-    'hellolily-staging.herokuapp.com',
     'localhost',
 ]
 
@@ -101,13 +106,15 @@ ALLOWED_HOSTS = [
 # UPLOADED MEDIA AND STATIC FILES                                                                                     #
 #######################################################################################################################
 if DEBUG:
-    COLLECTFAST_ENABLED = False
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 else:
     DEFAULT_FILE_STORAGE = 'lily.pipeline.filestorages.MediaFilesStorage'
     STATICFILES_STORAGE = 'lily.pipeline.filestorages.StaticFilesStorage'
+
+COLLECTFAST_ENABLED = boolean(os.environ.get('COLLECTFAST_ENABLED', 0))
+COLLECTFAST_CACHE = os.environ.get('COLLECTFAST_CACHE', 'default')
 
 MEDIA_ROOT = os.environ.get('MEDIA_ROOT', local_path('files/media/'))
 MEDIA_URL = os.environ.get('MEDIA_URL', '/media/')
@@ -121,13 +128,17 @@ FILE_UPLOAD_HANDLERS = (
 )
 
 ACCOUNT_LOGO_UPLOAD_TO = 'accounts/account/%(tenant_id)d/%(account_id)d/%(filename)s'
+
 CONTACT_PICTURE_UPLOAD_TO = 'contacts/contact/%(tenant_id)d/%(contact_id)d/%(filename)s'
+
 LILYUSER_PICTURE_UPLOAD_TO = 'users/lilyuser/%(tenant_id)d/%(user_id)d/%(filename)s'
+LILYUSER_PICTURE_MAX_SIZE = os.environ.get('MAX_AVATAR_SIZE', 300 * 1024)
+
 EMAIL_ATTACHMENT_UPLOAD_TO = 'messaging/email/attachments/%(tenant_id)d/%(message_id)d/%(filename)s'
+
 EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO = ('messaging/email/templates/attachments'
                                        '/%(tenant_id)d/%(template_id)d/%(filename)s')
 
-MAX_AVATAR_SIZE = os.environ.get('MAX_AVATAR_SIZE', 300 * 1024)
 
 STATICI18N_ROOT = local_path('static/')
 STATICFILES_DIRS = (
@@ -152,10 +163,6 @@ AWS_HEADERS = {
     'Expires': expires,
 }
 
-COLLECTFAST_CACHE = 'collectfast' if not DEBUG else 'default'
-
-MAX_AVATAR_SIZE = os.environ.get('MAX_AVATAR_SIZE', 300 * 1024)
-
 #######################################################################################################################
 # LOGIN SETTINGS                                                                                                      #
 #######################################################################################################################
@@ -175,54 +182,45 @@ AUTHENTICATION_BACKENDS = (
 #######################################################################################################################
 MIDDLEWARE_CLASSES = (
     # See https://docs.djangoproject.com/en/dev/ref/middleware/#middleware-ordering for ordering hints
-    'sslify.middleware.SSLifyMiddleware',  # Force all traffic over https
-
-    'django.middleware.common.CommonMiddleware',
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
     'lily.tenant.middleware.TenantMiddleware',
 )
-
-if 'test' in sys.argv:
-    SSLIFY_DISABLE = True
-elif DEBUG:
-    SSLIFY_DISABLE = True
 
 #######################################################################################################################
 # TEMPLATE SETTINGS                                                                                                   #
 #######################################################################################################################
-TEMPLATE_DIRS = (
-    local_path('templates/'),
-)
-
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.core.context_processors.debug',
-    'django.core.context_processors.i18n',
-    # 'django.core.context_processors.media',
-    'django.core.context_processors.request',
-    # 'django.core.context_processors.static',
-    # 'django.core.context_processors.tz',
-    'django.contrib.auth.context_processors.auth',
-    'django.contrib.messages.context_processors.messages',
-    'lily.utils.context_processors.current_site',
-)
-
-# Disable caching in a development environment
-if DEBUG:
-    TEMPLATE_LOADERS = (
-        'django.template.loaders.filesystem.Loader',
-        'django.template.loaders.app_directories.Loader',
-    )
-else:
-    TEMPLATE_LOADERS = (
-        ('django.template.loaders.cached.Loader', (
-            'django.template.loaders.filesystem.Loader',
-            'django.template.loaders.app_directories.Loader',
-        )),
-    )
+TEMPLATES = [{
+    'BACKEND': 'django.template.backends.django.DjangoTemplates',
+    'DIRS': [
+        local_path('templates/'),
+    ],
+    'OPTIONS': {
+        'debug': DEBUG,
+        'context_processors': [
+            'django.contrib.auth.context_processors.auth',
+            'django.template.context_processors.debug',
+            'django.template.context_processors.i18n',
+            # 'django.template.context_processors.media',
+            # 'django.template.context_processors.static',
+            'django.template.context_processors.request',
+            # 'django.template.context_processors.tz',
+            'django.contrib.messages.context_processors.messages',
+        ],
+        'loaders': [
+            ('django.template.loaders.cached.Loader', [
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
+            ]),
+        ],
+    },
+}]
 
 #######################################################################################################################
 # INSTALLED APPS                                                                                                      #
@@ -262,6 +260,7 @@ INSTALLED_APPS = (
     'elasticutils',
     'statici18n',
     'timezone_field',
+    'test_without_migrations',
     'django_nose',
     'django_password_strength',
     'djangoformsetjs',
@@ -273,7 +272,6 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'django.contrib.formtools',
     'django.contrib.humanize',
     'django.contrib.sessions',
     'django.contrib.sites',
@@ -394,7 +392,7 @@ if USE_LOGGING:
             },
             'py.warnings': {
                 'handlers': ['console'],
-                'level': 'INFO',
+                'level': 'DEBUG',
                 'propagate': False,
             },
             'search': {
@@ -453,6 +451,8 @@ else:
 #######################################################################################################################
 # CACHING CONFIG                                                                                                      #
 #######################################################################################################################
+uses_netloc.append('redis')
+
 REDIS_ENV = os.environ.get('REDIS_PROVIDER_ENV', 'REDIS_DEV_URL')
 REDIS_URL = os.environ.get(REDIS_ENV, 'redis://redis:6379')
 REDIS = urlparse(REDIS_URL)
@@ -460,12 +460,7 @@ REDIS = urlparse(REDIS_URL)
 if DEBUG:
     CACHES = {
         'default': {
-            'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-            'LOCATION': '/var/tmp/django_cache',
-            'TIMEOUT': 60,
-            'OPTIONS': {
-                'MAX_ENTRIES': 1000
-            }
+            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
         }
     }
 else:
@@ -597,6 +592,7 @@ SENTRY_DSN = os.environ.get('SENTRY_DSN', '')
 #######################################################################################################################
 # TESTING                                                                                                             #
 #######################################################################################################################
+TEST_WITHOUT_MIGRATIONS_COMMAND = 'django_nose.management.commands.test.Command'
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 NOSE_ARGS = ['--nocapture', '--nologcapture']
 

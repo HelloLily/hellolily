@@ -38,7 +38,7 @@ class BaseFKFormSet(BaseModelFormSet):
         """
         if commit and hasattr(self, 'related_instance') and hasattr(self, 'related_name'):
             for form in self.forms:
-                if self.related_name in form.instance._meta.get_all_field_names():
+                if self.related_name in [f.name for f in form.instance._meta.get_fields()]:
                     setattr(form.instance, self.related_name, self.related_instance)
 
         return super(BaseFKFormSet, self).save(commit)

@@ -8,13 +8,6 @@ from .models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost, DealFoundT
 class DealAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
     list_select_related = (
         'tenant',
-        'assigned_to',
-        'created_by',
-        'next_step',
-        'why_customer',
-        'why_lost',
-        'account',
-        'contact',
     )
     list_display = (
         'id',
@@ -24,14 +17,6 @@ class DealAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
         'amount_once',
         'amount_recurring',
         'status',
-        'assigned_to',
-        'created_by',
-        'next_step',
-        'next_step_date',
-        'why_customer',
-        'why_lost',
-        'account',
-        'contact',
         'tenant',
     )
     search_fields = (

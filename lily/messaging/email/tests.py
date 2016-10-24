@@ -1,4 +1,4 @@
-from unittest import TestCase
+from django.test import TestCase
 
 from python_imap.utils import convert_html_to_text
 

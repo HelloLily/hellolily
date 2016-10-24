@@ -89,7 +89,7 @@ class UserProfileForm(HelloLilyModelForm):
     def clean_picture(self):
         picture = self.cleaned_data['picture']
 
-        if picture and picture.size > settings.MAX_AVATAR_SIZE:
+        if picture and picture.size > settings.LILYUSER_PICTURE_MAX_SIZE:
             raise ValidationError(_('File too large. Size should not exceed 300 KB.'), code='invalid')
 
         return picture

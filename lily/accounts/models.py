@@ -24,7 +24,7 @@ def get_account_logo_upload_path(instance, filename):
 
 class AccountStatus(TenantMixin):
     name = models.CharField(max_length=255)
-    position = models.IntegerField(max_length=2, default=0)
+    position = models.PositiveSmallIntegerField(default=0)
 
     def __unicode__(self):
         return self.name

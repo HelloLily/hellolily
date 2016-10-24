@@ -1,7 +1,6 @@
 import csv
 from collections import defaultdict
 from datetime import datetime
-from optparse import make_option
 from pprint import pformat
 
 from django.core.management.base import BaseCommand
@@ -17,25 +16,27 @@ from . import user_map  # load externally to prevent adding users to codebase
 class Command(BaseCommand):
     help = """Load Sugar CRM deals into an existing tenant."""
 
-    option_list = BaseCommand.option_list + (
-        make_option('--tenant',
-                    dest='tenant',
-                    action='store',
-                    default='',
-                    help='Specify a tenant to import the data in.',
-                    ),
-        make_option('--dry-run',
-                    dest='dry_run',
-                    action='store_true',
-                    help='If only output should be printed without actually changed the db.',
-                    ),
-        make_option('--imported-from',
-                    dest='imported_from',
-                    action='store',
-                    default='',
-                    help='Specify an imported_from value.',
-                    ),
-    )
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--tenant',
+            dest='tenant',
+            action='store',
+            default='',
+            help='Specify a tenant to import the data in.'
+        )
+        parser.add_argument(
+            '--dry-run',
+            dest='dry_run',
+            action='store_true',
+            help='If only output should be printed without actually changed the db.'
+        )
+        parser.add_argument(
+            '--imported-from',
+            dest='imported_from',
+            action='store',
+            default='',
+            help='Specify an imported_from value.'
+        )
 
     def handle(self, *args, **options):
         '''Main method for iterating over all deals in the csv.'''

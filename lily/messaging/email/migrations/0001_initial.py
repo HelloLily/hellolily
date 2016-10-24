@@ -177,7 +177,7 @@ class Migration(migrations.Migration):
                 ('attachment', models.FileField(upload_to=lily.messaging.email.models.models.get_template_attachment_upload_path, max_length=255, verbose_name='template attachment')),
                 ('size', models.PositiveIntegerField(default=0)),
                 ('content_type', models.CharField(max_length=255, verbose_name='content type')),
-                ('template', models.ForeignKey(related_name='attachments', verbose_name='Project-Id-Version: PACKAGE VERSION\nReport-Msgid-Bugs-To: \nPOT-Creation-Date: 2011-02-02 11:42+0100\nPO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\nLast-Translator: FULL NAME <EMAIL@ADDRESS>\nLanguage-Team: LANGUAGE <LL@li.org>\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\n', to='email.EmailTemplate')),
+                ('template', models.ForeignKey(related_name='attachments', verbose_name='', to='email.EmailTemplate')),
                 ('tenant', models.ForeignKey(to='tenant.Tenant', blank=True)),
             ],
             options={

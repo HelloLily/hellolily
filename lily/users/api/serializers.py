@@ -65,7 +65,7 @@ class LilyUserSerializer(WritableNestedSerializer):
         return user
 
     def validate_picture(self, value):
-        if value and value.size > settings.MAX_AVATAR_SIZE:
+        if value and value.size > settings.LILYUSER_PICTURE_MAX_SIZE:
             raise serializers.ValidationError(_('File too large. Size should not exceed 300 KB.'))
 
         return value

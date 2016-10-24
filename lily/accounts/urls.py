@@ -1,9 +1,8 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from .views import ExportAccountView
 
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'^export/$', ExportAccountView.as_view(), name='account_export'),
-)
+]

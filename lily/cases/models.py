@@ -50,7 +50,7 @@ class Case(TenantMixin, TaggedObjectMixin, DeletedMixin, ArchivedMixin):
     status = models.ForeignKey(CaseStatus, related_name='cases')
     type = models.ForeignKey(CaseType, null=True, blank=True, related_name='cases')
 
-    assigned_to_teams = models.ManyToManyField(Team, related_name='assigned_to_teams', null=True, blank=True)
+    assigned_to_teams = models.ManyToManyField(Team, related_name='assigned_to_teams', blank=True)
     assigned_to = models.ForeignKey(LilyUser, related_name='assigned_cases', null=True, blank=True)
     created_by = models.ForeignKey(LilyUser, related_name='created_cases', null=True, blank=True)
 

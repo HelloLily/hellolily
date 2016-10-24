@@ -8,24 +8,12 @@ from .models import Case, CaseType, CaseStatus
 class CaseAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
     list_select_related = (
         'tenant',
-        'status',
-        'type',
-        'assigned_to',
-        'created_by',
-        'account',
-        'contact',
     )
     list_display = (
         'id',
         'subject',
         'description',
         'priority',
-        'status',
-        'type',
-        'assigned_to',
-        'created_by',
-        'account',
-        'contact',
         'tenant',
     )
     search_fields = (

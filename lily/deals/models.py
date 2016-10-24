@@ -15,7 +15,7 @@ from lily.utils.models.mixins import DeletedMixin, ArchivedMixin
 class DealNextStep(TenantMixin):
     name = models.CharField(max_length=255)
     date_increment = models.IntegerField(default=0)
-    position = models.IntegerField(choices=[(i, i) for i in range(10)], default=9)
+    position = models.PositiveSmallIntegerField(default=0)
 
     def __unicode__(self):
         return self.name
@@ -26,7 +26,7 @@ class DealNextStep(TenantMixin):
 
 class DealWhyCustomer(TenantMixin):
     name = models.CharField(max_length=255)
-    position = models.IntegerField(choices=[(i, i) for i in range(10)], default=9)
+    position = models.IntegerField(default=0)
 
     def __unicode__(self):
         return self.name
@@ -37,7 +37,7 @@ class DealWhyCustomer(TenantMixin):
 
 class DealWhyLost(TenantMixin):
     name = models.CharField(max_length=255)
-    position = models.IntegerField(choices=[(i, i) for i in range(10)], default=9)
+    position = models.PositiveSmallIntegerField(default=0)
 
     def __unicode__(self):
         return self.name
@@ -48,7 +48,7 @@ class DealWhyLost(TenantMixin):
 
 class DealFoundThrough(TenantMixin):
     name = models.CharField(max_length=255)
-    position = models.IntegerField(max_length=2, default=0)
+    position = models.PositiveSmallIntegerField(default=0)
 
     def __unicode__(self):
         return self.name
@@ -59,7 +59,7 @@ class DealFoundThrough(TenantMixin):
 
 class DealContactedBy(TenantMixin):
     name = models.CharField(max_length=255)
-    position = models.IntegerField(max_length=2, default=0)
+    position = models.PositiveSmallIntegerField(default=0)
 
     def __unicode__(self):
         return self.name
@@ -70,7 +70,7 @@ class DealContactedBy(TenantMixin):
 
 class DealStatus(TenantMixin):
     name = models.CharField(max_length=255)
-    position = models.IntegerField(max_length=2, default=0)
+    position = models.PositiveSmallIntegerField(default=0)
 
     @property
     def is_won(self):

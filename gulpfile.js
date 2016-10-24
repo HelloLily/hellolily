@@ -193,9 +193,9 @@ gulp.task('app-css', [], function() {
         }))
         .pipe(gulp.dest(config.app.buildDir))
         .pipe(ifElse(isWatcher, size))
-        .pipe(ifElse(!isProduction, function() {
-            return shell(['styleguide']);
-        }))
+        //.pipe(ifElse(!isProduction, function() {
+        //    return shell(['styleguide']);
+        //}))
         .pipe(ifElse(isWatcher, livereload));
 });
 

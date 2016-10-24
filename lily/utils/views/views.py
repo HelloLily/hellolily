@@ -1,12 +1,12 @@
 import json
 import logging
 
+from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ImproperlyConfigured
 from django.core.files.storage import default_storage
 from django.core.urlresolvers import reverse_lazy
-from django.db.models.loading import get_model
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
@@ -148,7 +148,7 @@ class AjaxUpdateView(LoginRequiredMixin, View):
             model_name = kwargs.pop('model_name').lower().capitalize()
             object_id = kwargs.pop('object_id')
 
-            model = get_model(app_name, model_name)
+            model = apps.get_model(app_name, model_name)
             instance = model.objects.get(pk=object_id)
 
             changed = False

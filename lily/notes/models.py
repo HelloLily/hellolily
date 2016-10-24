@@ -25,7 +25,7 @@ class Note(TenantMixin, DeletedMixin):
     content = models.TextField()
     author = models.ForeignKey(LilyUser)
 
-    type = models.SmallIntegerField(max_length=2, choices=NOTE_TYPE_CHOICES, default=TYPE_NOTE)
+    type = models.PositiveSmallIntegerField(choices=NOTE_TYPE_CHOICES, default=TYPE_NOTE)
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     subject = GenericForeignKey('content_type', 'object_id')

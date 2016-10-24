@@ -36,9 +36,8 @@ class PhoneNumber(TenantMixin):
         default='work',
         verbose_name=_('type')
     )
-    other_type = models.CharField(max_length=15, blank=True, null=True)  # used in combination with type='other'
-    status = models.IntegerField(
-        max_length=10,
+    other_type = models.CharField(max_length=15, blank=True, null=True)  # used in combination with type='other'.
+    status = models.PositiveSmallIntegerField(
         choices=PHONE_STATUS_CHOICES,
         default=ACTIVE_STATUS,
         verbose_name=_('status')
@@ -112,8 +111,11 @@ class EmailAddress(TenantMixin):
     )
 
     email_address = models.EmailField(max_length=255, verbose_name=_('email address'))
-    status = models.IntegerField(max_length=50, choices=EMAIL_STATUS_CHOICES, default=OTHER_STATUS,
-                                 verbose_name=_('status'))
+    status = models.PositiveSmallIntegerField(
+        choices=EMAIL_STATUS_CHOICES,
+        default=OTHER_STATUS,
+        verbose_name=_('status')
+    )
 
     def __unicode__(self):
         return self.email_address

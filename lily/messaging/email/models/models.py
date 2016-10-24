@@ -115,7 +115,7 @@ class GmailCredentialsModel(models.Model):
     """
     OAuth2 credentials for gmail api
     """
-    id = models.ForeignKey(EmailAccount, primary_key=True)
+    id = models.OneToOneField(EmailAccount, primary_key=True)
     credentials = CredentialsField()
 
     class Meta:

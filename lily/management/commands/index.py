@@ -1,5 +1,4 @@
 import traceback
-from optparse import make_option
 import time
 
 from django.conf import settings
@@ -33,29 +32,32 @@ The second way is to target a specific model:
 
 It is possible to specify multiple models, using comma separation."""
 
-    option_list = BaseCommand.option_list + (
-        make_option('-t', '--target',
-                    action='store',
-                    dest='target',
-                    default='',
-                    help='Choose specific model targets, comma separated (no added space after comma).'
-                    ),
-        make_option('-q', '--queries',
-                    action='store_true',
-                    dest='queries',
-                    help='Show the queries that were executed during the command.'
-                    ),
-        make_option('-l', '--list',
-                    action='store_true',
-                    dest='list',
-                    help='List available models to target.'
-                    ),
-        make_option('-f', '--force',
-                    action='store_true',
-                    dest='force',
-                    help='Force the creation of the new index, removing the old one (leftovers).'
-                    ),
-    )
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '-t', '--target',
+            action='store',
+            dest='target',
+            default='',
+            help='Choose specific model targets, comma separated (no added space after comma).'
+        )
+        parser.add_argument(
+            '-q', '--queries',
+            action='store_true',
+            dest='queries',
+            help='Show the queries that were executed during the command.'
+        )
+        parser.add_argument(
+            '-l', '--list',
+            action='store_true',
+            dest='list',
+            help='List available models to target.'
+        )
+        parser.add_argument(
+            '-f', '--force',
+            action='store_true',
+            dest='force',
+            help='Force the creation of the new index, removing the old one (leftovers).'
+        )
 
     def handle(self, *args, **kwargs):
         self.stdout.write('Please remember that Lily needs to be in maintenance mode. \n\n')

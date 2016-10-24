@@ -27,8 +27,8 @@ class TenantTests(CompareObjectsMixin, UserBasedTest, APITestCase):
     ordering = ('-id', )  # Default ordering field
 
     @classmethod
-    def setUpClass(cls):
-        super(TenantTests, cls).setUpClass()
+    def setUpTestData(cls):
+        super(TenantTests, cls).setUpTestData()
 
         cls.user_obj.tenant.name = "User Tenant"
         cls.user_obj.tenant.save()

@@ -1,6 +1,5 @@
 import csv
 import gc
-from optparse import make_option
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.storage import default_storage
@@ -13,20 +12,25 @@ from lily.utils.models.models import EmailAddress
 
 
 class Command(BaseCommand):
-    option_list = BaseCommand.option_list + (
-        make_option('--tenant',
-                    action='store',
-                    dest='tenant',
-                    default='',
-                    help='Specify a tenant to import the accounts for.',
-                    ),
-        make_option('--tag',
-                    action='store',
-                    dest='tag',
-                    default='',
-                    help='Specify the tag you wish to apply to the imported accounts or leave blank.',
-                    ),
-    )
+    help = """
+        Import accounts.
+    """
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--tenant',
+            action='store',
+            dest='tenant',
+            default='',
+            help='Specify a tenant to import the accounts for.'
+        )
+        parser.add_argument(
+            '--tag',
+            action='store',
+            dest='tag',
+            default='',
+            help='Specify the tag you wish to apply to the imported accounts or leave blank.'
+        )
 
     def handle(self, csvfile, *args, **options):
         tenant_id = options['tenant'].strip()

@@ -1,4 +1,3 @@
-from optparse import make_option
 import time
 
 from django.core.management.base import BaseCommand
@@ -10,20 +9,21 @@ from lily.tenant.models import Tenant
 class Command(BaseCommand):
     help = """Remove all deals imported with specific "imported from" marker."""
 
-    option_list = BaseCommand.option_list + (
-        make_option('--tenant',
-                    dest='tenant',
-                    action='store',
-                    default='',
-                    help='Specify a tenant.',
-                    ),
-        make_option('--imported-from',
-                    dest='imported_from',
-                    action='store',
-                    default='',
-                    help='Specify an imported_from value.',
-                    ),
-    )
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--tenant',
+            dest='tenant',
+            action='store',
+            default='',
+            help='Specify a tenant.'
+        )
+        parser.add_argument(
+            '--imported-from',
+            dest='imported_from',
+            action='store',
+            default='',
+            help='Specify an imported_from value.'
+        )
 
     def handle(self, *args, **options):
         tenantOption = options.get('tenant')

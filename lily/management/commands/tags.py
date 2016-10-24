@@ -1,4 +1,3 @@
-from optparse import make_option
 from django.core.management.base import BaseCommand
 
 from lily.tags.models import Tag
@@ -10,14 +9,14 @@ class Command(BaseCommand):
     help = """Find similar tags based on the difflib module, usefull to identify duplicates & typos."""
     ratio_cut_off_default = 0.65
 
-    option_list = BaseCommand.option_list + (
-        make_option('-c', '--cutoff',
-                    action='store',
-                    dest='cutoff',
-                    default='',
-                    help='Choose similarity cut-off value. Decimal in range [0,1]. Defaults to 0.65.'
-                    ),
-    )
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '-c', '--cutoff',
+            action='store',
+            dest='cutoff',
+            default='',
+            help='Choose similarity cut-off value. Decimal in range [0,1]. Defaults to 0.65.'
+        )
 
     def handle(self, *args, **options):
 

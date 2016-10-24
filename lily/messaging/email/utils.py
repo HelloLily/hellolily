@@ -6,12 +6,12 @@ from bs4 import BeautifulSoup
 import html2text
 from urllib import unquote
 
+from django.apps import apps
 from django.conf import settings
 from django.core.files.storage import default_storage
 from django.core.urlresolvers import reverse
-from django.db import models
-from django.template import Context, TemplateSyntaxError, VARIABLE_TAG_START, VARIABLE_TAG_END
-from django.template.loader import get_template_from_string
+from django.template import engines, Context, TemplateSyntaxError
+from django.template.base import VARIABLE_TAG_START, VARIABLE_TAG_END
 from django.template.loader_tags import BlockNode, ExtendsNode
 from django.utils.translation import ugettext_lazy as _
 
@@ -49,7 +49,7 @@ def get_email_parameter_dict():
     This function returns parameters organized by variable name for easy parsing.
     """
     if not _EMAIL_PARAMETER_DICT:
-        for model in models.get_models():
+        for model in apps.get_models():
             if hasattr(model, 'EMAIL_TEMPLATE_PARAMETERS'):
                 for field in model.EMAIL_TEMPLATE_PARAMETERS:
                     field_name, field_verbose_name = get_field_names(field)
@@ -73,7 +73,7 @@ def get_email_parameter_api_dict():
     This function returns parameters organized by variable name for easy parsing.
     """
     if not _EMAIL_PARAMETER_API_DICT:
-        for model in models.get_models():
+        for model in apps.get_models():
             if hasattr(model, 'EMAIL_TEMPLATE_PARAMETERS'):
                 for field in model.EMAIL_TEMPLATE_PARAMETERS:
                     field_name, field_verbose_name = get_field_names(field)
@@ -94,7 +94,7 @@ def get_email_parameter_choices():
 
     """
     if not _EMAIL_PARAMETER_CHOICES:
-        for model in models.get_models():
+        for model in apps.get_models():
             if hasattr(model, 'EMAIL_TEMPLATE_PARAMETERS'):
                 for field in model.EMAIL_TEMPLATE_PARAMETERS:
                     field_name, field_verbose_name = get_field_names(field)
@@ -126,7 +126,7 @@ class TemplateParser(object):
         tags_whitelist = [
             'block', 'now', 'templatetag'
         ]
-        safe_get_template_from_string = get_safe_template(tags=tags_whitelist)(get_template_from_string)
+        safe_get_template_from_string = get_safe_template(tags=tags_whitelist)(engines['django'].from_string)
 
         try:
             self.template = safe_get_template_from_string(text)
@@ -145,7 +145,7 @@ class TemplateParser(object):
         """
         Return the unrendered text, so variables etc. are still visible.
         """
-        return self.template.render(context=Context())
+        return self.template.render(context={})
 
     def get_parts(self, default_part='body_html', parts=None):
         """

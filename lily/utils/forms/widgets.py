@@ -5,7 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.query import QuerySet
 from django.forms.formsets import BaseFormSet
 from django.forms.widgets import TextInput, Widget, RadioFieldRenderer, Textarea, ClearableFileInput
-from django.forms.util import flatatt
+from django.forms.utils import flatatt
 from django.utils import translation
 from django.utils.encoding import force_text
 from django.utils.html import conditional_escape

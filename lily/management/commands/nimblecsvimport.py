@@ -1,5 +1,4 @@
 import csv
-from optparse import make_option
 import time
 
 from django.core.management.base import BaseCommand
@@ -19,37 +18,41 @@ from lily.utils.countries import COUNTRIES
 class Command(BaseCommand):
     help = """Load Nimble CSV accounts and contacts files, optionally truncating the tenant."""
 
-    option_list = BaseCommand.option_list + (
-        make_option('--tenant',
-                    dest='tenant',
-                    action='store',
-                    default='',
-                    help='Specify a tenant to create the testdata in, or leave blank to create new.',
-                    ),
-        make_option('--dialcode',
-                    dest='dialcode',
-                    action='store',
-                    help='Specify default international dialcode for local formatted phone numbers.',
-                    ),
-        make_option('--country',
-                    dest='country',
-                    action='store',
-                    help='Specify default country for addresses. (2-letter iso code)',
-                    ),
-        make_option('--truncate',
-                    dest='truncate',
-                    action='store_true',
-                    help='If the tenant should be truncated. Only makes sense when using existing tenant.',
-                    ),
-        make_option('--verbose',
-                    dest='verbose',
-                    action='store_true',
-                    help='If extra output should be printed.',
-                    ),
-    )
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--tenant',
+            dest='tenant',
+            action='store',
+            default='',
+            help='Specify a tenant to create the testdata in, or leave blank to create new.'
+        )
+        parser.add_argument(
+            '--dialcode',
+            dest='dialcode',
+            action='store',
+            help='Specify default international dialcode for local formatted phone numbers.'
+        )
+        parser.add_argument(
+            '--country',
+            dest='country',
+            action='store',
+            help='Specify default country for addresses. (2-letter iso code)'
+        )
+        parser.add_argument(
+            '--truncate',
+            dest='truncate',
+            action='store_true',
+            help='If the tenant should be truncated. Only makes sense when using existing tenant.'
+        )
+        parser.add_argument(
+            '--verbose',
+            dest='verbose',
+            action='store_true',
+            help='If extra output should be printed.'
+        )
 
     def clean_phone(self, phone):
-        '''Cleans a phone number by removing chars and prefixing with dialcode.'''
+        """Cleans a phone number by removing chars and prefixing with dialcode."""
         if self.verbose:
             print 'before %s' % phone
         # Strip all nonsense characters
@@ -69,7 +72,7 @@ class Command(BaseCommand):
         return phone
 
     def handle(self, *args, **options):
-        '''Main method for iterating over all accounts and contacts in the csv.'''
+        """Main method for iterating over all accounts and contacts in the csv."""
         self.verbose = options.get('verbose')
         self.dialcode = options['dialcode']
         assert self.dialcode, 'Need option dialcode.'

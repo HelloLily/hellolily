@@ -1,5 +1,3 @@
-from optparse import make_option
-
 from django.core.management.base import BaseCommand, CommandError
 from factory import iterator, Iterator
 
@@ -28,26 +26,28 @@ or use an existent tenant if passed as an argument."""
         'users_login',
     ]
 
-    option_list = BaseCommand.option_list + (
-        make_option('-t', '--target',
-                    action='store',
-                    dest='target',
-                    default='all',
-                    help='Choose a specific target, options are: %s' % target_choices,
-                    ),
-        make_option('-b', '--batch-size',
-                    action='store',
-                    dest='batch_size',
-                    default='20',
-                    help='Override the batch size.',
-                    ),
-        make_option('--tenant',
-                    action='store',
-                    dest='tenant',
-                    default='',
-                    help='Specify a tenant to create the testdata in, or leave blank to create new.',
-                    ),
-    )
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '-t', '--target',
+            action='store',
+            dest='target',
+            default='all',
+            help='Choose a specific target, options are: %s' % self.target_choices
+        )
+        parser.add_argument(
+            '-b', '--batch-size',
+            action='store',
+            dest='batch_size',
+            default='20',
+            help='Override the batch size.'
+        )
+        parser.add_argument(
+            '--tenant',
+            action='store',
+            dest='tenant',
+            default='',
+            help='Specify a tenant to create the testdata in, or leave blank to create new.'
+        )
 
     def handle(self, *args, **options):
         self.batch_size = int(options['batch_size'])

@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from .views import (SetupEmailAuth, OAuth2Callback, EmailAttachmentProxy, EmailTemplateSetDefaultView,
                     EmailTemplateGetDefaultView, EmailMessageHTMLView, EmailAccountUpdateView, EmailTemplateListView,
@@ -8,8 +8,7 @@ from .views import (SetupEmailAuth, OAuth2Callback, EmailAttachmentProxy, EmailT
                     UpdateTemplateVariableView)
 
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'^setup/$', SetupEmailAuth.as_view(), name='messaging_email_account_setup'),
     url(r'^callback/$', OAuth2Callback.as_view(), name='gmail_callback'),
     url(r'^html/(?P<pk>[\d-]+)/$', EmailMessageHTMLView.as_view(), name='messaging_email_html'),
@@ -59,4 +58,4 @@ urlpatterns = patterns(
     url(r'^reply/(?P<pk>[\d-]+)/$', EmailMessageReplyView.as_view(), name='messaging_email_reply'),
     url(r'^replyall/(?P<pk>[\d-]+)/$', EmailMessageReplyAllView.as_view(), name='messaging_email_reply_all'),
     url(r'^forward/(?P<pk>[\d-]+)/$', EmailMessageForwardView.as_view(), name='messaging_email_forward'),
-)
+]

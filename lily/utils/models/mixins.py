@@ -1,7 +1,6 @@
-from datetime import datetime
-
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 
@@ -31,7 +30,7 @@ class DeletedMixin(TimeStampedModel):
             super(DeletedMixin, self).delete(using=using)
         else:
             self.is_deleted = True
-            self.deleted = datetime.now()
+            self.deleted = timezone.now()
             self.save()
 
     class Meta:

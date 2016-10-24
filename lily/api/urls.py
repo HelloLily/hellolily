@@ -1,4 +1,4 @@
-from django.conf.urls import url, include, patterns
+from django.conf.urls import url, include
 from rest_framework.routers import DefaultRouter
 
 from lily.accounts.api.views import AccountViewSet, AccountStatusViewSet
@@ -55,8 +55,7 @@ router.register(r'tenants', TenantViewSet)
 
 router.register(r'utils/countries', CountryViewSet)
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'^cases/types/$', CaseTypeList.as_view()),
 
     url(r'^deals/nextsteps/$', DealNextStepList.as_view()),
@@ -72,4 +71,4 @@ urlpatterns = patterns(
     url(r'^provide/dataprovider/$', DataproviderView.as_view()),
 
     url(r'^', include(router.urls)),
-)
+]

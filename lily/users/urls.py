@@ -1,5 +1,6 @@
 from django.conf import settings
-from django.conf.urls import patterns, url
+from django.conf.urls import url
+from django.contrib.auth.views import password_reset_confirm, password_reset, logout_then_login
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 
@@ -9,8 +10,7 @@ from .views import (AcceptInvitationView, RegistrationView, ActivationView, Acti
 from .forms import CustomPasswordResetForm, CustomSetPasswordForm
 
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     # Registration
     url(r'^registration/$', RegistrationView.as_view(), name='registration'),
 
@@ -20,14 +20,14 @@ urlpatterns = patterns(
 
     # Password reset
     url(r'^password_reset/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/$',
-        'django.contrib.auth.views.password_reset_confirm',
+        password_reset_confirm,
         {
             'template_name': 'users/password_reset/confirm.html',
             'set_password_form': CustomSetPasswordForm
         },
         name='password_reset_confirm'),
     url(r'^password_reset/$',
-        'django.contrib.auth.views.password_reset',
+        password_reset,
         {
             'email_template_name': 'email/password_reset.email',
             'template_name': 'users/password_reset/form.html',
@@ -38,12 +38,14 @@ urlpatterns = patterns(
     url(r'^password_reset/done/$',
         RedirectSetMessageView.as_view(url=reverse_lazy('login'),
                                        message_level='info',
-                                       message=_('I\'ve sent you an email, please check it to reset your password.')),
+                                       message=_('I\'ve sent you an email, please check it to reset your password.'),
+                                       permanent=False),
         name='password_reset_done'),
     url(r'^reset/complete/$',
         RedirectSetMessageView.as_view(url=reverse_lazy('login'),
                                        message_level='info',
-                                       message=_('I\'ve reset your password, please login.')),
+                                       message=_('I\'ve reset your password, please login.'),
+                                       permanent=False),
         name='password_reset_complete'),
 
     # Login
@@ -54,10 +56,9 @@ urlpatterns = patterns(
     url(r'^invitation/accept/(?P<first_name>.+)/(?P<email>.+)/(?P<tenant_id>[0-9]+)-(?P<date>[0-9]+)-(?P<hash>.+)/$',
         AcceptInvitationView.as_view(),
         name='invitation_accept'),
-)
+]
 
 # Views from django.contrib.auth.views
-urlpatterns += patterns(
-    'django.contrib.auth.views',
-    url(r'^logout/$', 'logout_then_login', name='logout'),
-)
+urlpatterns += [
+    url(r'^logout/$', logout_then_login, name='logout'),
+]

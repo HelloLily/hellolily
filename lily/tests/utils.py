@@ -13,7 +13,6 @@ from rest_framework.utils import model_meta
 
 from lily.tenant.factories import TenantFactory
 from lily.tenant.middleware import set_current_user
-from lily.tenant.models import Tenant
 from lily.users.models import LilyUser
 
 
@@ -24,7 +23,7 @@ class UserBasedTest(object):
     factory_cls = None
 
     @classmethod
-    def setUpClass(cls):
+    def setUpTestData(cls):
         """
         Creates a user and logs it in before running the actual tests.
         """
@@ -63,12 +62,8 @@ class UserBasedTest(object):
 
     @classmethod
     def tearDownClass(cls):
-        """
-        Remove the users after the tests.
-        """
+        super(UserBasedTest, cls).tearDownClass()
         set_current_user(None)
-        LilyUser.objects.all().delete()
-        Tenant.objects.all().delete()
 
     def _create_object(self, with_relations=False, size=1, **kwargs):
         """
@@ -157,7 +152,7 @@ class CompareObjectsMixin(object):
             serializer._declared_fields,
             model_meta.get_field_info(self.model_cls)
         )
-        model_field_list = self.model_cls._meta.get_all_field_names()
+        model_field_list = [f.name for f in self.model_cls._meta.get_fields()]
 
         for field in serializer_field_list:
             if field in model_field_list:
@@ -185,7 +180,7 @@ class GenericAPITestCase(CompareObjectsMixin, UserBasedTest, APITestCase):
     serializer_cls = None
     ordering = ('-id', )  # Default ordering field
 
-    def __call__(self, nosetest):
+    def __call__(self, result=None):
         """
         Skip the GenericAPITestCase base class tests that nose mistakenly
         finds.
@@ -194,7 +189,7 @@ class GenericAPITestCase(CompareObjectsMixin, UserBasedTest, APITestCase):
             nose_testresult (TextTestResult): A nose TextTestResult instance.
         """
         if 'GenericAPITestCase' not in str(type(self)):
-            return super(GenericAPITestCase, self).__call__(nosetest)
+            return super(GenericAPITestCase, self).__call__(result)
 
     def get_url(self, name, ordering=None, *args, **kwargs):
         return '%s?%s' % (reverse(name, *args, **kwargs), urlencode({
@@ -421,7 +416,7 @@ class GenericAPITestCase(CompareObjectsMixin, UserBasedTest, APITestCase):
         request = self.user.delete(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}))
         self.assertStatus(request, status.HTTP_204_NO_CONTENT)
 
-        if 'is_deleted' in self.model_cls._meta.get_all_field_names():
+        if 'is_deleted' in [f.name for f in self.model_cls._meta.get_fields()]:
             self.assertTrue(self.model_cls.objects.get(pk=db_obj.pk).is_deleted)
         else:
             with self.assertRaises(self.model_cls.DoesNotExist):

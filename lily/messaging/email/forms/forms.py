@@ -116,7 +116,7 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
         template='email/formset_attachment.html',
     )
 
-    subject = forms.CharField(required=False)
+    subject = forms.CharField(required=False, max_length=255)
     body_html = forms.CharField(widget=Wysihtml5Input(), required=False)
 
     def __init__(self, *args, **kwargs):

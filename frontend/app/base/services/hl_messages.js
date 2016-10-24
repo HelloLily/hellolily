@@ -70,6 +70,8 @@ function HLMessages() {
             modEnter: {
                 title: mod + '+Enter',
             },
+            newlyAssignedCase: 'Add it to \'My cases\'',
+            newlyAssignedDeal: 'Add it to \'My deals\'',
         },
     };
 }

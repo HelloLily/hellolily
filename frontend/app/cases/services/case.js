@@ -44,10 +44,20 @@ function Case($resource, HLUtils, HLCache, CacheFactory) {
                 cache: CacheFactory.get('dataCache'),
                 url: '/api/cases/types/',
             },
-            caseStatuses: {
-                isArray: true,
+            getStatuses: {
                 cache: CacheFactory.get('dataCache'),
                 url: '/api/cases/statuses/',
+                transformResponse: function(data) {
+                    var statusData = angular.fromJson(data);
+
+                    angular.forEach(statusData.results, function(status) {
+                        if (status.name === 'Closed') {
+                            _case.closedStatus = status;
+                        }
+                    });
+
+                    return statusData;
+                },
             },
         }
     );

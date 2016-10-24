@@ -117,14 +117,17 @@ class TeamsCaseList(APIView):
         return Response(serializer.data)
 
 
-class CaseStatusList(APIView):
-    model = CaseStatus
+class CaseStatusViewSet(SetTenantUserMixin, viewsets.ModelViewSet):
+    # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
+    queryset = CaseStatus.objects
+    # Set the serializer class for this viewset.
     serializer_class = CaseStatusSerializer
 
-    def get(self, request, format=None):
-        queryset = self.model.objects.filter(tenant_id=self.request.user.tenant_id)
-        serializer = CaseStatusSerializer(queryset, many=True)
-        return Response(serializer.data)
+    def get_queryset(self):
+        """
+        Set the queryset here so it filters on tenant and works with pagination.
+        """
+        return super(CaseStatusViewSet, self).get_queryset().all()
 
 
 class CaseTypeList(APIView):

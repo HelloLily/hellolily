@@ -1,3 +1,14 @@
+/* SG
+# Buttons / Button #
+
+This are the standard buttons that can be used.
+
+```
+<button class="hl-primary-btn">button</div>
+```
+*/
+
+
 .dropdown-toggle {
     .fa-angle-down {
         margin-left: 10px;
@@ -148,9 +159,16 @@ $large-button: 30px;
 
 .hl-primary-btn {
     @include hl-button($large-button);
+    background: #fff;
+    white-space: nowrap;
     margin: 0 3px;
 
     .fa-plus {
         font-size: 10px;
+    }
+
+    &.round {
+        margin: 0;
+        border-radius: 50%;
     }
 }

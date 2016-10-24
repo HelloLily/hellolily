@@ -132,6 +132,7 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     next_step = models.ForeignKey(DealNextStep, related_name='deals')
     why_customer = models.ForeignKey(DealWhyCustomer, related_name='deals')
     why_lost = models.ForeignKey(DealWhyLost, related_name='deals', null=True)
+    newly_assigned = models.BooleanField(default=False)
 
     @property
     def content_type(self):

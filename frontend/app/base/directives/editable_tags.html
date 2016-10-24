@@ -13,7 +13,7 @@
                 <editable-ui-select-match placeholder="Add tags...">
                     {{ $item.name }}
                 </editable-ui-select-match>
-                <editable-ui-select-choices repeat="tag in vm.choices" refresh="vm.refreshTags($select.search)" refresh-delay="150">
+                <editable-ui-select-choices repeat="tag in vm.choices" refresh="vm.refreshTags($select.search)" refresh-delay="300">
                     <div ng-bind-html="tag.name | highlight: $select.search"></div>
                 </editable-ui-select-choices>
             </div>

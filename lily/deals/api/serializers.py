@@ -209,6 +209,11 @@ class DealSerializer(WritableNestedSerializer):
                 'assigned_to_id': user.pk
             })
 
+        if assigned_to and assigned_to != user.pk:
+            validated_data.update({
+                'newly_assigned': True,
+            })
+
         return super(DealSerializer, self).create(validated_data)
 
     def update(self, instance, validated_data):
@@ -261,6 +266,7 @@ class DealSerializer(WritableNestedSerializer):
             'modified',
             'name',
             'new_business',
+            'newly_assigned',
             'next_step',
             'next_step_date',
             'quote_id',

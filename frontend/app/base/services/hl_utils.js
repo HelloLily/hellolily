@@ -73,6 +73,7 @@ function HLUtils() {
         var day;
 
         var items = {
+            newlyAssigned: [],
             expired: [],
             today: [],
             tomorrow: [],
@@ -83,7 +84,9 @@ function HLUtils() {
             if (item[field]) {
                 day = moment(item[field]);
 
-                if (day.isBefore(now, 'day')) {
+                if (item.newly_assigned && item.assigned_to.id === currentUser.id) {
+                    items.newlyAssigned.push(item);
+                } else if (day.isBefore(now, 'day')) {
                     items.expired.push(item);
                 } else if (day.isSame(now, 'day')) {
                     items.today.push(item);

@@ -9,8 +9,8 @@ function myDealsDirective() {
     };
 }
 
-MyDealsController.$inject = ['$scope', 'Deal', 'HLUtils', 'LocalStorage', 'Case', 'Tenant'];
-function MyDealsController($scope, Deal, HLUtils, LocalStorage, Case, Tenant) {
+MyDealsController.$inject = ['$scope', 'Case', 'Deal', 'HLUtils', 'HLResource', 'LocalStorage', 'Tenant'];
+function MyDealsController($scope, Case, Deal, HLUtils, HLResource, LocalStorage, Tenant) {
     var storage = new LocalStorage('deals');
 
     var vm = this;
@@ -24,9 +24,10 @@ function MyDealsController($scope, Deal, HLUtils, LocalStorage, Case, Tenant) {
         dueDateFilter: storage.get('dueDateFilter', ''),
         usersFilter: storage.get('usersFilter', ''),
     };
+    vm.numOfDeals = 0;
 
     vm.getMyDeals = getMyDeals;
-    vm.numOfDeals = 0;
+    vm.acceptDeal = acceptDeal;
 
     activate();
 
@@ -78,6 +79,17 @@ function MyDealsController($scope, Deal, HLUtils, LocalStorage, Case, Tenant) {
 
         Tenant.query({}, function(tenant) {
             vm.tenant = tenant;
+        });
+    }
+
+    function acceptDeal(myDeal) {
+        var args = {
+            id: myDeal.id,
+            newly_assigned: false,
+        };
+
+        HLResource.patch('Deal', args).$promise.then(function() {
+            getMyDeals();
         });
     }
 

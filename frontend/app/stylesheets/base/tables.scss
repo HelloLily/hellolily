@@ -30,6 +30,12 @@
                     background: lighten($sky-grey, 2);
                 }
             }
+
+            &.newly-assigned {
+                td {
+                    padding: 6px 15px;
+                }
+            }
         }
 
         td {
@@ -53,12 +59,10 @@
     }
 
     &.vertical-top-align {
-
         td:first-child {
             vertical-align: top;
             padding-top: 18px;
         }
-
     }
 
     &.align-table {
@@ -81,7 +85,6 @@
         td:first-child:nth-last-child(4) ~ td {
             width: 25%;
         }
-
     }
 }
 

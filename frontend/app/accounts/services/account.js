@@ -28,6 +28,7 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
             },
             search: {
                 url: '/search/search/?type=accounts_account&filterquery=:filterquery',
+                cache: true,
                 transformResponse: function(data) {
                     var jsonData = angular.fromJson(data);
                     var objects = [];

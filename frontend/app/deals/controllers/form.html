@@ -15,7 +15,7 @@
                     <form-group label-title="Account" label-id="id_account" field="dealForm.account" required="true">
                         <ui-select ng-model="vm.deal.account" theme="select2" class="form-control" name="account" append-to-body="true" autofocus="true">
                             <ui-select-match placeholder="Select an account" allow-clear="true">{{ $select.selected.name }}</ui-select-match>
-                            <ui-select-choices repeat="account in vm.accounts | propsFilter: {name: $select.search}" refresh="vm.refreshAccounts($select.search)" refresh-delay="150">
+                            <ui-select-choices repeat="account in vm.accounts | propsFilter: {name: $select.search}" refresh="vm.refreshAccounts($select.search)" refresh-delay="300">
                                 <div ng-bind-html="account.name | highlight: $select.search"></div>
                             </ui-select-choices>
                         </ui-select>
@@ -154,7 +154,7 @@
                 <form-group label-title="Assigned to" label-id="id_assigned_to" field="dealForm.assigned_to" required="true">
                     <ui-select ng-model="vm.deal.assigned_to" theme="select2" class="form-control" name="assigned_to" append-to-body="true">
                         <ui-select-match placeholder="Assign to..." allow-clear="true">{{ $select.selected.full_name }}</ui-select-match>
-                        <ui-select-choices repeat="user in vm.users | propsFilter: {full_name: $select.search}" refresh="vm.refreshUsers($select.search)" refresh-delay="150">
+                        <ui-select-choices repeat="user in vm.users | propsFilter: {full_name: $select.search}" refresh="vm.refreshUsers($select.search)" refresh-delay="300">
                             <div ng-bind-html="user.full_name | highlight: $select.search"></div>
                         </ui-select-choices>
                     </ui-select>
@@ -193,7 +193,7 @@
                 <div class="row">
                     <div ng-class="{'hidden col-xs-12': settings.email.sidebar.form, 'col-xs-12 col-sm-3 col-md-2 col-lg-2': !settings.email.sidebar.form}"></div>
                     <div ng-class="{'col-xs-12': settings.email.sidebar.form, 'col-xs-12 col-sm-9 col-md-8 col-md-7 col-lg-4': !settings.email.sidebar.form}">
-                        <button type="button" class="btn blue" ng-click="vm.saveDeal(dealForm)">
+                        <button type="button" class="btn blue" ng-click="vm.saveDeal(dealForm)" uib-tooltip="{{ messages.tooltips.modEnter.title }}">
                             <i class="fa fa-check"></i> Save
                         </button>
                         <button type="button" class="btn default" ng-click="vm.cancelDealCreation()">

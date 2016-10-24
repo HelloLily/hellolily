@@ -122,6 +122,9 @@ class DealMapping(BaseMapping):
             'new_business': {
                 'type': 'boolean',
             },
+            'newly_assigned': {
+                'type': 'boolean',
+            },
             'next_step': {
                 'type': 'object',
                 'properties': {
@@ -248,6 +251,7 @@ class DealMapping(BaseMapping):
                 'date_increment': obj.next_step.date_increment,
                 'position': obj.next_step.position,
             } if obj.next_step else None,
+            'newly_assigned': obj.newly_assigned,
             'next_step_date': obj.next_step_date,
             'quote_id': obj.quote_id,
             'status': {

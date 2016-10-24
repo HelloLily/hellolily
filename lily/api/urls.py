@@ -19,9 +19,6 @@ from lily.utils.api.views import AppHash, CallerName, CountryViewSet, Notificati
 # Define routes, using the default router so the API is browsable.
 router = DefaultRouter()
 
-# Keep for now since, vg uses it. see https://voipgrid.atlassian.net/browse/LILY-1918
-router.register(r'accounts/account', AccountViewSet)
-
 router.register(r'accounts/statuses', AccountStatusViewSet)
 router.register(r'accounts', AccountViewSet)
 

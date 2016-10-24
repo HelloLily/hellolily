@@ -21,15 +21,16 @@
                     <th>Client</th>
                     <th>Deal size</th>
                     <th>Next step</th>
-                    <th>Next step date</th>
-                    <th>Actions</th>
+                    <th style="width: 135px;">Next step date</th>
+                    <th style="width: 105px;">Actions</th>
                 </tr>
             </thead>
             <tbody ng-repeat="(key, deals) in vm.table.items">
                 <tr class="widget-table-sub-heading" ng-show="deals.length && key.length">
-                    <td colspan="6" class="text-capitalize">{{ key }}</td>
+                    <td colspan="6" class="text-capitalize" ng-if="key !== 'newlyAssigned'">{{ key }}</td>
+                    <td colspan="6" ng-if="key === 'newlyAssigned'">Newly assigned to you</td>
                 </tr>
-                <tr ng-repeat="myDeal in deals">
+                <tr ng-repeat="myDeal in deals" ng-class="{'newly-assigned': key === 'newlyAssigned'}">
                     <td>
                         <a ui-sref="base.deals.detail({ id: myDeal.id })">
                             {{ myDeal.name }}
@@ -52,13 +53,19 @@
                             {{ myDeal.next_step.name }}
                         </span>
                     </td>
-                    <td style="width: 130px;">
+                    <td>
                         <postpone type="'Deal'" object="myDeal" date-field="'next_step_date'" tt-placement="bottom" callback="vm.getMyDeals()"></postpone>
                     </td>
-                    <td style="width: 75px;">
-                        <a ng-href="{{ vm.tenant.primary_external_app_link.getUrl(myDeal.account.customer_id) }}" target="_blank" rel="noopener noreferrer" ng-if="myDeal.account.customer_id && vm.tenant.primary_external_app_link">
+                    <td>
+                        <a ng-if="myDeal.account.customer_id && vm.tenant.primary_external_app_link"
+                           ng-href="{{ vm.tenant.primary_external_app_link.getUrl(myDeal.account.customer_id) }}"
+                           target="_blank" rel="noopener noreferrer" class="hl-primary-btn round">
                             <i class="fa fa-cloud-upload"></i>
                         </a>
+                        <button ng-if="key === 'newlyAssigned'" class="hl-primary-btn round" callback="vm.acceptDeal(myDeal)" mark-assigned-button
+                                uib-tooltip="{{ $root.messages.tooltips.newlyAssignedDeal }}" tooltip-append-to-body="true">
+                            <i class="fa fa-check"></i>
+                        </button>
                     </td>
                 </tr>
             </tbody>

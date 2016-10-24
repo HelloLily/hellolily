@@ -24,13 +24,15 @@
                     <th>Status</th>
                     <th class="align-center">Prio</th>
                     <th>Expires</th>
+                    <th style="width: 80px;">Actions</th>
                 </tr>
             </thead>
             <tbody ng-repeat="(key, cases) in vm.table.items">
                 <tr class="widget-table-sub-heading" ng-show="cases.length && key.length">
-                    <td colspan="7" class="text-capitalize">{{ key }}</td>
+                    <td colspan="8" class="text-capitalize" ng-if="key !== 'newlyAssigned'">{{ key }}</td>
+                    <td colspan="8" ng-if="key === 'newlyAssigned'">Newly assigned to you</td>
                 </tr>
-                <tr ng-repeat="myCase in cases">
+                <tr ng-repeat="myCase in cases" ng-class="{'newly-assigned': key === 'newlyAssigned'}">
                     <td style="width: 30px;">
                         <a ui-sref="base.cases.detail({ id: myCase.id })">
                             {{ myCase.id }}
@@ -62,11 +64,17 @@
                     <td style="width: 150px; min-width: 150px;">
                         <postpone type="'Case'" object="myCase" date-field="'expires'" callback="vm.getMyCases()"></postpone>
                     </td>
+                    <td>
+                        <button ng-if="key === 'newlyAssigned'" class="hl-primary-btn round" callback="vm.acceptCase(myCase)" mark-assigned-button
+                                uib-tooltip="{{ $root.messages.tooltips.newlyAssignedCase }}" tooltip-append-to-body="true">
+                            <i class="fa fa-check"></i>
+                        </button>
+                    </td>
                 </tr>
             </tbody>
             <tbody>
                 <tr ng-show="vm.numOfCases == 0">
-                    <td colspan="7">No cases</td>
+                    <td colspan="8">No cases</td>
                 </tr>
             </tbody>
         </table>

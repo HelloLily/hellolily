@@ -2,6 +2,11 @@ angular.module('app.services').factory('HLMessages', HLMessages);
 
 HLMessages.$inject = [];
 function HLMessages() {
+    var mod = 'CTRL';
+    if (navigator.userAgent.indexOf('Mac OS X') !== -1) {
+        mod = '⌘';
+    }
+
     return {
         contact: {
             accountInfoTooltip: 'I\'ve loaded the selected account\'s data for you. Now you don\'t have to enter duplicate data!',
@@ -61,6 +66,12 @@ function HLMessages() {
                 shareTemplateTitle: 'Set %(template)s as default for',
             },
         },
+        tooltips: {
+            modEnter: {
+                title: mod + '+Enter',
+            },
+            newlyAssignedCase: 'Add it to \'My cases\'',
+            newlyAssignedDeal: 'Add it to \'My deals\'',
+        },
     };
 }
-

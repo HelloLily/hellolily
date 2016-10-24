@@ -159,7 +159,7 @@ $large-button: 30px;
 
 .hl-primary-btn {
     @include hl-button($large-button);
-    background: white;
+    background: #fff;
     white-space: nowrap;
     margin: 0 3px;
 

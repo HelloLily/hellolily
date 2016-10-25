@@ -334,3 +334,8 @@ $inline-editable-field-height: 30px;
         }
     }
 }
+
+textarea {
+    min-height: 100px;
+    max-height: 500px;
+}

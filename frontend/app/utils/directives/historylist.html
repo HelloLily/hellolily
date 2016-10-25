@@ -32,12 +32,12 @@
                                </li>
                             </ul>
                             <div class="form-group">
-                                <textarea required class="form-control" id="id_content" ng-model="note.content" name="content" rows="4" placeholder="Write your note here"></textarea>
+                                <textarea required class="form-control" id="id_content" msd-elastic ng-model="note.content" name="content" placeholder="Write your note here"></textarea>
                                 <field-error form="noteForm" field="content"></field-error>
                             </div>
                         </div>
                         <div class="form-actions text-right">
-                            <button type="submit" class="btn btn-sm blue" name="submit-form" ng-click="history.addNote(note, noteForm)">
+                            <button type="submit" class="btn btn-sm blue" name="submit-form" ng-click="history.addNote(note, noteForm)" uib-tooltip="{{ $root.messages.tooltips.modEnter.title }}">
                                 <i class="fa fa-check"></i>
                                 Add note
                             </button>

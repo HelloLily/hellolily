@@ -42,7 +42,7 @@ class Command(BaseCommand):
 
         for row in self.read_csvfile(csvfile):
             name = row.get('name')
-            account_status = AccountStatus.objects.get(name='Prospect')
+            account_status = AccountStatus.objects.get(name='Prospect', tenant=tenant)
             account = Account.objects.create(name=name, tenant=tenant, status=account_status)
 
             website = Website.objects.create(

@@ -297,13 +297,7 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
             vm.account.status = {id: vm.account.status.id};
         }
 
-        // Clear all errors of the form (in case of new errors).
-        angular.forEach(form, function(value, key) {
-            if (typeof value === 'object' && value.hasOwnProperty('$modelValue')) {
-                form[key].$error = {};
-                form[key].$setValidity(key, true);
-            }
-        });
+        HLForms.clearErrors(form);
 
         // Store the id of the current twitter object.
         if (vm.account.social_media && vm.account.social_media.length > 0) {

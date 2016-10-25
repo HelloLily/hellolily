@@ -193,14 +193,7 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
         }
 
         HLForms.blockUI();
-
-        // Clear all errors of the form (in case of new errors)
-        angular.forEach(form, function(value, key) {
-            if (typeof value === 'object' && value.hasOwnProperty('$modelValue')) {
-                form[key].$error = {};
-                form[key].$setValidity(key, true);
-            }
-        });
+        HLForms.clearErrors(form);
 
         // Store the ids of the current social media objects.
         angular.forEach(vm.contact.social_media, function(value) {

@@ -539,6 +539,16 @@ option {
     }
 }
 
+.hl-row-xs {
+    margin-left: -2px;
+    margin-right: -2px;
+
+    [class*='col-'] {
+        padding-right: 2px;
+        padding-left: 2px;
+    }
+}
+
 .display-none {
     display: none;
 }

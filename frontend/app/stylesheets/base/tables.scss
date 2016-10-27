@@ -1,3 +1,123 @@
+/* SG
+# Tables #
+
+This file contains all styling for our tables. The default table that should be used
+is the `.hl-table`. Below is an example of how it should be applied. There is also
+the option to make the rows stripped by using `<table class="hl-table striped">` instead.
+
+```
+<div class="hl-table-container">
+    <table class="hl-table">
+        <thead>
+            <tr>
+                <th class="hl-table-column">Name</th>
+                <th class="hl-table-column">Priority</th>
+                <th class="hl-table-column">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="hl-table-column">Luuk Hartsema</td>
+                <td class="hl-table-column">Critical</td>
+                <td class="hl-table-column">Remove</td>
+            </tr>
+            <tr>
+                <td class="hl-table-column">Luuk Hartsema</td>
+                <td class="hl-table-column">Critical</td>
+                <td class="hl-table-column">Remove</td>
+            </tr>
+            <tr>
+                <td class="hl-table-column">Luuk Hartsema</td>
+                <td class="hl-table-column">Critical</td>
+                <td class="hl-table-column">Remove</td>
+            </tr>
+            <tr>
+                <td class="hl-table-column">Luuk Hartsema</td>
+                <td class="hl-table-column">Critical</td>
+                <td class="hl-table-column">Remove</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+```
+*/
+
+.hl-table-container {
+    overflow-x: auto;
+    border: 1px $app-border-color solid;
+}
+
+.hl-table {
+    width: 100%;
+    background: #fff;
+    border-spacing: none;
+    border-collapse: collapse;
+
+    &.striped {
+        tbody {
+            tr {
+                &:nth-child(2n+1) {
+                    background: $lily-white-tone;
+                }
+
+                &:nth-child(2n+1):hover {
+                    background: $lily-white-tone-hover;
+                }
+            }
+        }
+    }
+
+    thead {
+        tr:last-child {
+            th {
+                &.hl-table-column {
+                    border-bottom: 2px $app-border-color solid;
+                }
+            }
+        }
+    }
+
+    tbody {
+        tr:hover {
+            background: $lily-white-tone-hover;
+        }
+
+        tr:last-child {
+            td {
+                &.hl-table-column {
+                    border-bottom: 0;
+                }
+            }
+        }
+    }
+
+    th {
+        &.hl-table-column {
+            text-align: left;
+            text-transform: uppercase;
+            white-space: nowrap;
+            color: $app-color-grey;
+            font-size: 11px;
+            font-weight: 500;
+            padding: 5px 12px;
+        }
+    }
+
+    td {
+        &.hl-table-column {
+            font-size: 13px;
+            padding: 12px;
+        }
+    }
+
+    .hl-table-column {
+        border-bottom: 1px $app-border-color solid;
+        vertical-align: top;
+    }
+}
+
+
+
 .widget-table {
     width: 100%;
     line-height: 20px;

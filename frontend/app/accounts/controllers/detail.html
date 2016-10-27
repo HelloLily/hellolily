@@ -26,11 +26,7 @@
 </div>
 
 <div ng-if="vm.account.id" class="row">
-    <div class="col-md-8">
-        <history-list ng-if="vm.account.id" target="'account'" object="vm.account"></history-list>
-    </div>
-
-    <div class="col-md-4">
+    <div class="col-md-4 col-lg-push-8">
         <list-widget title="{{ vm.account.name }}"
                      list="vm.contactList"
                      module="contacts"
@@ -38,5 +34,9 @@
                      add-link="base.contacts.create.fromAccount({accountId: {{ vm.account.id }}})"
                      height="height">
         </list-widget>
+    </div>
+
+    <div class="col-md-8 col-lg-pull-4">
+        <history-list ng-if="vm.account.id" target="'account'" object="vm.account"></history-list>
     </div>
 </div>

@@ -5,6 +5,7 @@ window.sprintf = require('sprintf-js').sprintf;
 
 require('ui-select');
 require('sweetalert2');
+require('angular-elastic');
 
 /**
  * App Module is the entry point for Lily related Angular code
@@ -20,6 +21,7 @@ angular.module('app', [
     'xeditable',
     'angular-cache',
     'ngFileUpload',
+    'monospaced.elastic',
 
     // Modules
     'app.accounts',

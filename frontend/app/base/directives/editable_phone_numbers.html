@@ -18,27 +18,33 @@
 
 <form name="{{ er.formName }}" class="form-inline js-form-prolyfill" ng-if="er.formVisible">
     <div ng-repeat="phone in er.items" class="form-inline-section">
-        <div class="form-inline-input width-60">
-            <input class="form-control"
-                   maxlength="255"
-                   placeholder="Phone number"
-                   ng-readonly="phone.is_deleted"
-                   ng-blur="er.formatPhoneNumber(phone)"
-                   ng-model="phone.number" />
-        </div>
+        <div class="row hl-row-xs">
+            <div class="col-md-7">
+                <div class="form-inline-input">
+                    <input class="form-control"
+                           maxlength="255"
+                           placeholder="Phone number"
+                           ng-readonly="phone.is_deleted"
+                           ng-blur="er.formatPhoneNumber(phone)"
+                           ng-model="phone.number"
+                           autofocus-if="$index == 0" />
+                </div>
+            </div>
+            <div class="col-md-5 hl-flex-container">
+                <div class="form-inline-input hl-flex-1">
+                    <select class="form-control"
+                            ng-model="phone.type"
+                            ng-readonly="phone.is_deleted"
+                            ng-options="type.key as type.value for type in er.telephoneTypes">
+                    </select>
+                </div>
 
-        <div class="form-inline-input width-40">
-            <select class="form-control"
-                    ng-model="phone.type"
-                    ng-readonly="phone.is_deleted"
-                    ng-options="type.key as type.value for type in er.telephoneTypes">
-            </select>
-        </div>
-
-        <div class="form-inline-input">
-            <i class="margin-left-5 clickable"
-               ng-class="{'fa fa-minus-circle': !phone.is_deleted, 'fa fa-undo': phone.is_deleted}"
-               ng-click="er.removeRelatedField(phone)"></i>
+                <div class="form-inline-input">
+                    <i class="margin-left-5 margin-right-5 clickable form-inline-icon"
+                       ng-class="{'fa fa-trash': !phone.is_deleted, 'fa fa-undo': phone.is_deleted}"
+                       ng-click="er.removeRelatedField(phone)"></i>
+                </div>
+            </div>
         </div>
     </div>
 

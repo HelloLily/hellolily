@@ -1,5 +1,5 @@
 <div class="hl-form-field" ng-repeat="emailAddress in vm.emailAddresses" ng-class="{'has-error': form['email_addresses-email_address-' + $index].$invalid }">
-    <div class="row hl-row-sm">
+    <div class="row hl-row-xs">
         <div class="col-md-8 hl-flex-container">
             <i class="hl-form-icon" ng-if="vm.showIcon" ng-transclude uib-tooltip="{{ $root.messages.contact.contactInfoTooltip }}"/>
             <input class="form-control hl-form-input hl-flex-1"

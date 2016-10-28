@@ -55,20 +55,9 @@ function HLFields() {
         var cleanedValues = [];
 
         angular.forEach(items, function(item) {
-            if (!item.hasOwnProperty('is_deleted')) {
-                if (item.email_address) {
-                    cleanedValues.push(item);
-                }
-
-                if (item.number) {
-                    cleanedValues.push(item);
-                }
-
-                if (item.address && (item.city || item.postal_code)) {
-                    cleanedValues.push(item);
-                }
-
-                if (item.website) {
+            if (item.email_address || item.number || (item.address && (item.city ||
+                item.postal_code)) || item.website) {
+                if (item.id || !item.hasOwnProperty('is_deleted')) {
                     cleanedValues.push(item);
                 }
             }

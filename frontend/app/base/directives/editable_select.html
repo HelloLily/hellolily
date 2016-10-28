@@ -21,25 +21,27 @@
 </span>
 
 <span ng-if="es.search && es.multiple">
-    <form data-editable-form name="es.{{ es.formName }}" class="display-inline-block margin-right-10 editable-multi" ng-dblclick="es[es.formName].$show()">
-        <div editable-ui-select="es.selectModel" name="{{ es.field }}" data-e-name="{{ es.field }}" data-e-multiple data-onbeforesave="es.updateViewModel($data)"
-             data-e-form="{{ es.formName }}" data-e-theme="select2" data-e-class="editable-select2"
-             data-e-ng-model="es.selectModel" class="editable editable-click" editable-handler>
-            <ng-transclude></ng-transclude>
-
-            <editable-ui-select-match placeholder="{{ es.placeholder }}">
-                {{ $item[es.optionDisplay] }}
-            </editable-ui-select-match>
-            <editable-ui-select-choices repeat="item in es.choices | filterItems: $select.selected" refresh="es.refreshChoices($select.search)" refresh-delay="300">
-                <div ng-bind-html="item[es.optionDisplay] | highlight: $select.search"></div>
-            </editable-ui-select-choices>
+    <div ng-class="{'form-inline': es[es.formName].$visible}">
+        <div class="form-inline-section">
+            <form data-editable-form name="es.{{ es.formName }}" class="display-inline-block margin-right-10 editable-multi" ng-dblclick="es[es.formName].$show()">
+                <div editable-ui-select="es.selectModel" name="{{ es.field }}" data-e-name="{{ es.field }}" data-e-multiple data-onbeforesave="es.updateViewModel($data)"
+                     data-e-form="{{ es.formName }}" data-e-theme="select2" data-e-class="editable-select2"
+                     data-e-ng-model="es.selectModel" class="editable editable-click" editable-handler>
+                    <ng-transclude></ng-transclude>
+                    <editable-ui-select-match placeholder="{{ es.placeholder }}">
+                        {{ $item[es.optionDisplay] }}
+                    </editable-ui-select-match>
+                    <editable-ui-select-choices repeat="item in es.choices | filterItems: $select.selected" refresh="es.refreshChoices($select.search)" refresh-delay="300">
+                        <div ng-bind-html="item[es.optionDisplay] | highlight: $select.search"></div>
+                    </editable-ui-select-choices>
+                </div>
+                <div class="editable-related-actions" ng-show="es[es.formName].$visible">
+                    <div class="pull-right">
+                        <button type="submit" class="btn"><i class="fa fa-check"></i></button>
+                        <button type="button" class="btn" ng-click="es[es.formName].$cancel()"><i class="fa fa-close"></i></button>
+                    </div>
+                </div>
+            </form>
         </div>
-
-        <div class="editable-related-actions" ng-show="es[es.formName].$visible">
-            <div class="pull-right">
-                <button type="submit" class="btn"><i class="fa fa-check"></i></button>
-                <button type="button" class="btn" ng-click="es[es.formName].$cancel()"><i class="fa fa-close"></i></button>
-            </div>
-        </div>
-    </form>
+    </div>
 </span>

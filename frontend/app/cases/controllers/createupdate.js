@@ -91,7 +91,6 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     vm.case = {};
     vm.teams = [];
     vm.caseTypes = [];
-    vm.caseStatuses = [];
     vm.casePriorities = [];
     vm.datepickerOptions = {
         startingDay: 1,
@@ -123,10 +122,10 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             });
         });
 
-        Case.caseStatuses(function(data) {
-            vm.caseStatuses = data;
+        Case.getStatuses(function(response) {
+            vm.statusChoices = response.results;
 
-            vm.case.status = vm.caseStatuses[0];
+            vm.case.status = vm.statusChoices[0];
         });
 
         vm.casePriorities = Case.getCasePriorities();

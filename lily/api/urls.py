@@ -2,7 +2,7 @@ from django.conf.urls import url, include, patterns
 from rest_framework.routers import DefaultRouter
 
 from lily.accounts.api.views import AccountViewSet, AccountStatusViewSet
-from lily.cases.api.views import CaseViewSet, CaseStatusList, CaseTypeList
+from lily.cases.api.views import CaseViewSet, CaseStatusViewSet, CaseTypeList
 from lily.contacts.api.views import ContactViewSet
 from lily.deals.api.views import (DealViewSet, DealStatusViewSet, DealNextStepList, DealNextStepViewSet,
                                   DealWhyCustomerViewSet, DealContactedByViewSet, DealWhyLostViewSet,
@@ -42,6 +42,7 @@ router.register(r'users', LilyUserViewSet)
 
 router.register(r'tenants', TenantViewSet)
 
+router.register(r'cases/statuses', CaseStatusViewSet)
 router.register(r'cases', CaseViewSet)
 
 router.register(r'contacts', ContactViewSet)
@@ -52,7 +53,6 @@ router.register(r'utils/countries', CountryViewSet)
 
 urlpatterns = patterns(
     '',
-    url(r'^cases/statuses/$', CaseStatusList.as_view()),
     url(r'^cases/types/$', CaseTypeList.as_view()),
 
     url(r'^deals/nextsteps/$', DealNextStepList.as_view()),

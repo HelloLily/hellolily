@@ -44,10 +44,10 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseDetailController', CaseDetailController);
 
-CaseDetailController.$inject = ['$scope', 'Settings', 'CaseStatuses', 'HLResource', 'HLUtils', 'LocalStorage',
-    'Tenant', 'currentCase', 'caseAccount', 'caseContact', 'Case'];
-function CaseDetailController($scope, Settings, CaseStatuses, HLResource, HLUtils, LocalStorage,
-                              Tenant, currentCase, caseAccount, caseContact, Case) {
+CaseDetailController.$inject = ['$scope', 'Case', 'HLResource', 'HLUtils', 'LocalStorage', 'Settings', 'Tenant',
+    'currentCase', 'caseAccount', 'caseContact', 'Case'];
+function CaseDetailController($scope, Case, HLResource, HLUtils, LocalStorage, Settings, Tenant, currentCase,
+                              caseAccount, caseContact) {
     var vm = this;
     var storage = new LocalStorage('caseDetail');
 
@@ -62,13 +62,13 @@ function CaseDetailController($scope, Settings, CaseStatuses, HLResource, HLUtil
     vm.case = currentCase;
     vm.case.account = caseAccount;
     vm.case.contact = caseContact;
-    vm.caseStatuses = CaseStatuses.query();
     vm.mergeHistory = storage.get('mergeHistory', false);
 
     vm.getPriorityDisplay = getPriorityDisplay;
     vm.changeCaseStatus = changeCaseStatus;
     vm.assignCase = assignCase;
     vm.updateModel = updateModel;
+    vm.toggleArchived = toggleArchived;
 
     activate();
 
@@ -90,6 +90,12 @@ function CaseDetailController($scope, Settings, CaseStatuses, HLResource, HLUtil
         }
 
         vm.caseEnd = caseEnd.add(2, 'days').format('YYYY-MM-DD');
+
+        Case.getStatuses(function(response) {
+            vm.statusChoices = response.results;
+
+            vm.closedStatus = Case.closedStatus;
+        });
     }
 
     /**
@@ -156,7 +162,13 @@ function CaseDetailController($scope, Settings, CaseStatuses, HLResource, HLUtil
     function changeCaseStatus(status) {
         vm.case.status = status;
 
-        return updateModel(status.id, 'status');
+        return updateModel(status.id, 'status').then(function() {
+            if (status.id === vm.closedStatus.id) {
+                // A 'Closed' case is automatically set to archived in the API.
+                // So update in the front end as well.
+                vm.case.is_archived = true;
+            }
+        });
     }
 
     function assignCase() {
@@ -170,11 +182,11 @@ function CaseDetailController($scope, Settings, CaseStatuses, HLResource, HLUtil
         return updateModel(currentUser.id, 'assigned_to');
     }
 
-    $scope.$watch('vm.case.is_archived', function(newValue, oldValue) {
-        if (newValue !== oldValue) {
-            updateModel(vm.case.is_archived, 'is_archived');
-        }
-    });
+    function toggleArchived() {
+        vm.case.is_archived = !vm.case.is_archived;
+
+        updateModel(vm.case.is_archived, 'is_archived');
+    }
 
     $scope.$watch('vm.mergeHistory', function() {
         storage.put('mergeHistory', vm.mergeHistory);

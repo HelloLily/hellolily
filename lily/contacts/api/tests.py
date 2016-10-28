@@ -139,8 +139,11 @@ class ContactTests(GenericAPITestCase):
         self.assertStatus(request, status.HTTP_400_BAD_REQUEST, stub_dict)
 
         self.assertEqual(request.data, {
+            'first_name': [
+                'Please enter a valid first name.'
+            ],
             'last_name': [
-                'Please enter a valid name.'
+                'Please enter a valid last name.'
             ]
         })
 

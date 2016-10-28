@@ -17,18 +17,15 @@ function postponeDirective() {
     };
 }
 
-PostponeController.$inject = ['$compile', '$injector', '$scope', '$state', '$templateCache', 'HLUtils'];
-function PostponeController($compile, $injector, $scope, $state, $templateCache, HLUtils) {
+PostponeController.$inject = ['$compile', '$injector', '$scope', '$state', '$templateCache', 'HLResource', 'HLUtils'];
+function PostponeController($compile, $injector, $scope, $state, $templateCache, HLResource, HLUtils) {
     var vm = this;
 
-    vm.pickerIsOpen = false;
-    vm.dateFormat = 'dd MMMM yyyy';
     vm.datepickerOptions = {
         startingDay: 1, // day 1 is Monday
     };
 
     vm.disabledDates = disabledDates;
-    vm.openDatePicker = openDatePicker;
     vm.postponeWithDays = postponeWithDays;
     vm.getFutureDate = getFutureDate;
     vm.openPostponeModal = openPostponeModal;
@@ -44,7 +41,7 @@ function PostponeController($compile, $injector, $scope, $state, $templateCache,
             vm.date = moment();
         }
 
-        vm.date = vm.date.format();
+        vm.date = vm.date.toDate();
 
         _watchCloseDatePicker();
     }
@@ -56,8 +53,11 @@ function PostponeController($compile, $injector, $scope, $state, $templateCache,
      */
     function _watchCloseDatePicker() {
         $scope.$watch('vm.pickerIsOpen', function(newValue, oldValue) {
-            if (!newValue && oldValue) {
-                _updateDayAndCloseModal();
+            // Don't close the whole modal if we didn't change anything.
+            if (!moment(vm.date).isSame(moment(vm.object[vm.dateField]))) {
+                if (!newValue && oldValue) {
+                    _updateDayAndCloseModal();
+                }
             }
         });
     }
@@ -79,7 +79,7 @@ function PostponeController($compile, $injector, $scope, $state, $templateCache,
             vm.object[vm.dateField] = newDate;
 
             // Dynamically get the model that should be updated.
-            $injector.get(vm.type).patch(args, function() {
+            HLResource.patch(vm.type, args).$promise.then(function() {
                 swal.close();
                 _processClose();
             });
@@ -102,12 +102,6 @@ function PostponeController($compile, $injector, $scope, $state, $templateCache,
 
         // Disable Saturday and Sunday.
         return ( mode === 'day' && ( date.day() === 6 || date.day() === 0 ) );
-    }
-
-    function openDatePicker($event) {
-        $event.preventDefault();
-        $event.stopPropagation();
-        vm.pickerIsOpen = true;
     }
 
     function postponeWithDays(days) {
@@ -174,6 +168,10 @@ function PostponeController($compile, $injector, $scope, $state, $templateCache,
             title: messages.alerts.postpone[vm.type.toLowerCase() + 'Title'],
             html: $compile($templateCache.get('utils/controllers/postpone.html'))($scope),
             showCloseButton: true,
+        }).then(function(isConfirm) {
+            if (isConfirm) {
+                _updateDayAndCloseModal();
+            }
         }).done();
     }
 }

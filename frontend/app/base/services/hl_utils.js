@@ -123,7 +123,7 @@ function HLUtils() {
             }
         }
 
-        return newDate.format();
+        return newDate.toDate();
     };
 
     /**

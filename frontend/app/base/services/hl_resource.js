@@ -13,7 +13,9 @@ function HLResource($injector) {
     };
 
     this.delete = function(model, object) {
-        return $injector.get(model).delete({id: object.id}).$promise;
+        return $injector.get(model).delete({id: object.id}).$promise.then(function() {
+            toastr.success('I\'ve deleted the ' + model.toLowerCase() + ' for you!', 'Done');
+        });
     };
 
     /**

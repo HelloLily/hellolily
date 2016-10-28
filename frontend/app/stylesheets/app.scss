@@ -1,5 +1,6 @@
 //Fonts
 @import url(https://fonts.googleapis.com/css?family=Roboto:400,300,500,700);
+@import "vendor";
 @import "fonts/lilicon";
 // Primary requirements
 @import "variables";
@@ -31,7 +32,6 @@
 @import "mail/email";
 @import "base/errors";
 @import "base/generic";
-@import "vendor";
 
 
 body {

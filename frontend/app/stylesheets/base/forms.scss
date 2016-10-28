@@ -114,6 +114,14 @@
     margin: 5px 0;
 }
 
+.hl-form-input-deleted {
+    text-decoration: line-through;
+
+    .select2-choice {
+        text-decoration: line-through;
+    }
+}
+
 .hl-form-input-btn {
     margin: 5px 0;
 }

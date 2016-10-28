@@ -15,23 +15,23 @@
                 <form-radio-buttons options="['Male', 'Female', 'Unknown/Other']" label-title="Gender" input-name="gender" required="true" field="vm.contact.gender" sidebar="settings.email.sidebar.form"></form-radio-buttons>
 
                 <div class="hl-form-field">
-                    <form-group label-title="Name" required="true" ng-class="{'has-error': contactForm.last_name.$invalid}">
+                    <form-group label-title="Name" required="true" ng-class="{'has-error': contactForm.first_name.$invalid || contactForm.last_name.$invalid}">
                         <table class="hl-form-table">
                             <tbody>
                                 <tr>
                                     <td class="hl-form-table-column on-small-screen">
                                         <input class="form-control"
-                                               id="id_first_name"
                                                maxlength="255"
                                                name="first_name"
                                                placeholder="First name"
                                                type="text"
                                                ng-blur="vm.checkExistingContact()"
                                                ng-model="vm.contact.first_name" />
+
+                                        <field-error form="contactForm" field="first_name"></field-error>
                                     </td>
                                     <td class="hl-form-table-column on-small-screen">
                                         <input class="form-control"
-                                               id="id_last_name"
                                                maxlength="255"
                                                name="last_name"
                                                placeholder="Last name"

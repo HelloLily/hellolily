@@ -67,9 +67,15 @@ class ContactSerializer(WritableNestedSerializer):
         # Check if we are related and if we only passed in the id, which means user just wants new reference.
         if not (len(data) == 1 and 'id' in data and hasattr(self, 'is_related_serializer')):
             if not self.partial:
+                first_name = data.get('first_name', None)
+                last_name = data.get('last_name', None)
+
                 # Not just a new reference, so validate if contact is set properly.
-                if not any([data.get('first_name', None), data.get('last_name', None)]):
-                    raise serializers.ValidationError({'last_name': _('Please enter a valid name.')})
+                if not any([first_name, last_name]):
+                    raise serializers.ValidationError({
+                        'first_name': _('Please enter a valid first name.'),
+                        'last_name': _('Please enter a valid last name.')
+                    })
 
         return super(ContactSerializer, self).validate(data)
 

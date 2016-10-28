@@ -289,13 +289,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             }
         }
 
-        // Clear all errors of the form (in case of new errors).
-        angular.forEach(form, function(value, key) {
-            if (typeof value === 'object' && value.hasOwnProperty('$modelValue')) {
-                form[key].$error = {};
-                form[key].$setValidity(key, true);
-            }
-        });
+        HLForms.clearErrors(form);
 
         if (archive) {
             vm.case.is_archived = true;

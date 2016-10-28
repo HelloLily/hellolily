@@ -1,6 +1,7 @@
 angular.module('app.services').service('HLForms', HLForms);
 
-function HLForms() {
+HLForms.$inject = ['$timeout'];
+function HLForms($timeout) {
     /**
      * setErrors() sets the errors of the forms, making use of Angular's error handling.
      *
@@ -38,12 +39,16 @@ function HLForms() {
                     }
                 }
             }
+
+            $timeout(function() {
+                angular.element('.form-control.ng-invalid:first').focus();
+            });
         }
     };
 
     /**
      * Clear all errors of the form (in case of new errors).
-     * @param form
+     * @param form (object): The form from which the errors should be cleared.
      */
     this.clearErrors = function(form) {
         angular.forEach(form, function(value, key) {

@@ -77,20 +77,26 @@
             <form-portlet portlet-title="Contact information">
                 <div ng-class="{'supercard-form': settings.email.sidebar.form}">
 
-                    <form-email-addresses email-addresses="vm.account.email_addresses"
-                                          add-related-field="vm.addRelatedField(field)"
-                                          remove-related-field="vm.removeRelatedField(field, index, remove)">
-                    </form-email-addresses>
+                    <form-group label-title="Email">
+                        <form-email-addresses email-addresses="vm.account.email_addresses"
+                                              add-related-field="vm.addRelatedField(field)"
+                                              remove-related-field="vm.removeRelatedField(field, index, remove)">
+                        </form-email-addresses>
+                    </form-group>
 
-                    <form-phone-numbers phone-numbers="vm.account.phone_numbers"
+                    <form-group label-title="Phone number">
+                        <form-phone-numbers phone-numbers="vm.account.phone_numbers"
+                                            add-related-field="vm.addRelatedField(field)"
+                                            remove-related-field="vm.removeRelatedField(field, index, remove)">
+                        </form-phone-numbers>
+                    </form-group>
+
+                    <form-group label-title="Address">
+                        <form-addresses addresses="vm.account.addresses"
                                         add-related-field="vm.addRelatedField(field)"
                                         remove-related-field="vm.removeRelatedField(field, index, remove)">
-                    </form-phone-numbers>
-
-                    <form-addresses addresses="vm.account.addresses"
-                                    add-related-field="vm.addRelatedField(field)"
-                                    remove-related-field="vm.removeRelatedField(field, index, remove)">
-                    </form-addresses>
+                        </form-addresses>
+                    </form-group>
 
                     <form-websites websites="vm.account.websites"
                                    double-account-check="vm.checkDomainForDuplicates(form, index)"

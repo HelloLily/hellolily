@@ -86,16 +86,16 @@ function EditableRelatedController(HLFields, HLResource, HLUtils) {
                     isPrimary = true;
                 }
 
-                er.items.push({is_primary: isPrimary, status: status});
+                er.items.unshift({is_primary: isPrimary, status: status});
                 break;
             case 'phone_numbers':
-                er.items.push({type: 'work'});
+                er.items.unshift({type: 'work'});
                 break;
             case 'addresses':
-                er.items.push({type: 'visiting'});
+                er.items.unshift({type: 'visiting'});
                 break;
             case 'websites':
-                er.items.push({website: '', is_primary: false});
+                er.items.unshift({website: '', is_primary: false});
                 break;
             default:
                 break;
@@ -113,7 +113,7 @@ function EditableRelatedController(HLFields, HLResource, HLUtils) {
             id: er.model.id,
         };
 
-        args[er.field] = er.items;
+        args[er.field] = HLFields.cleanInlineRelatedFields(er.items);
 
         HLUtils.blockUI(element, true);
 

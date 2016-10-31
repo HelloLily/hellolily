@@ -97,25 +97,19 @@ function DeleteConfirmationController($state, HLResource, Settings) {
             },
         }).then(function(isConfirm) {
             if (isConfirm) {
-                swal({
-                    title: vm.messages.successTitle,
-                    html: sprintf(vm.messages.successText, {model: vm.model.toLowerCase(), name: name}),
-                    type: 'success',
-                }).then(function() {
-                    // In certain cases we want to call a function of another controller.
-                    if (vm.callback) {
-                        // Call the given function.
-                        vm.callback();
+                // In certain cases we want to call a function of another controller.
+                if (vm.callback) {
+                    // Call the given function.
+                    vm.callback();
+                } else {
+                    if (Settings.page.previousState && !Settings.page.previousState.state.name.endsWith('edit')) {
+                        // Go to the previous page if it isn't the edit page of the just deleted item.
+                        $state.go(Settings.page.previousState.state, Settings.page.previousState.params);
                     } else {
-                        if (Settings.page.previousState && !Settings.page.previousState.state.name.endsWith('edit')) {
-                            // Go to the previous page if it isn't the edit page of the just deleted item.
-                            $state.go(Settings.page.previousState.state, Settings.page.previousState.params);
-                        } else {
-                            // Otherwise just go to the list view, which is the parent state.
-                            $state.go($state.current.parent);
-                        }
+                        // Otherwise just go to the list view, which is the parent state.
+                        $state.go($state.current.parent);
                     }
-                }).done();
+                }
             }
         }).done();
     }

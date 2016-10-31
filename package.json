@@ -16,7 +16,10 @@
     "autolinker": "1.1.1",
     "ui-select": "0.19.4",
     "ng-file-upload": "12.2.12",
-    "urijs": "1.18.2"
+    "urijs": "1.18.2",
+    "angular-elastic": "2.5.1",
+    "angular-xeditable": "0.5.0",
+    "angular-ui-bootstrap": "2.2.0"
   },
   "devDependencies": {
     "babel-cli": "6.14.0",

@@ -43,7 +43,7 @@
                 </form-group>
 
                 <form-group label-title="Description" label-id="id_description" field="caseForm.description">
-                    <textarea class="form-control" cols="40" id="id_description" name="description" placeholder="Description" rows="3" ng-model="vm.case.description"></textarea>
+                    <textarea class="form-control" id="id_description" name="description" placeholder="Description" msd-elastic ng-model="vm.case.description"></textarea>
                 </form-group>
 
                 <form-group label-title="Type" label-id="id_type" field="caseForm.type" required="true">
@@ -53,7 +53,7 @@
                 </form-group>
 
                 <form-group label-title="Status" label-id="id_status" field="caseForm.status" required="true">
-                    <select ng-model="vm.case.status" ng-options="status as status.name for status in vm.caseStatuses track by status.id" class="form-control">
+                    <select ng-model="vm.case.status" ng-options="status as status.name for status in vm.statusChoices track by status.id" class="form-control">
                         <option value="" hidden>Select a status</option>
                     </select>
                 </form-group>
@@ -105,12 +105,13 @@
                                class="form-control"
                                ng-model="vm.case.expires"
                                uib-datepicker-popup="dd/MM/yyyy"
+                               uib-date-parser=""
                                datepicker-options="vm.datepickerOptions"
                                is-open="vm.pickerIsOpen"
                                date-disabled="vm.disabledDates(date, mode)"
                                datepicker-append-to-body="true" />
                         <span class="input-group-btn">
-                            <button type="button" class="btn btn-default" ng-click="vm.pickerIsOpen = !vm.pickerIsOpen"><i class="glyphicon glyphicon-calendar"></i></button>
+                            <button type="button" class="btn btn-default" ng-click="vm.pickerIsOpen = !vm.pickerIsOpen"><i class="lilicon hl-calendar-icon"></i></button>
                         </span>
                     </div>
                 </form-group>

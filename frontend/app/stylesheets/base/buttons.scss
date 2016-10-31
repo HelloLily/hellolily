@@ -128,6 +128,7 @@ By adding the class *.no-radio-bullets* the radio bullets are not being shown.
     }
 }
 
+$small-button: 20px;
 $large-button: 30px;
 
 @mixin hl-button($button-size) {
@@ -137,14 +138,17 @@ $large-button: 30px;
     border-bottom-width: 2px;
     border-color: $app-border-color;
     border-style: solid;
-    line-height: $button-size - 2px;
-    padding: 1px ($button-size / 4) 0;
+    line-height: $button-size;
+    padding: 0 ($button-size / 4);
     color: $app-color-darkblue;
     border-radius: 3px;
     text-transform: uppercase;
-    font-weight: 600;
-    font-size: 13px;
+    font-weight: 500;
+    font-size: 12px;
     -webkit-font-smoothing: antialiased;
+    background: #fff;
+    white-space: nowrap;
+    margin: 0 3px;
 
     &:hover {
         color: $app-color-aqua;
@@ -159,9 +163,6 @@ $large-button: 30px;
 
 .hl-primary-btn {
     @include hl-button($large-button);
-    background: #fff;
-    white-space: nowrap;
-    margin: 0 3px;
 
     .fa-plus {
         font-size: 10px;
@@ -170,5 +171,18 @@ $large-button: 30px;
     &.round {
         margin: 0;
         border-radius: 50%;
+    }
+
+    i {
+        font-size: 14px;
+    }
+}
+
+.hl-primary-btn-smll {
+    @include hl-button($small-button);
+    font-size: 11px;
+
+    i {
+        font-size: 12px;
     }
 }

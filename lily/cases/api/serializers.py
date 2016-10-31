@@ -116,7 +116,7 @@ class CaseSerializer(WritableNestedSerializer):
         status = CaseStatus.objects.get(pk=status_id)
 
         # Automatically archive the case if the status is set to 'Closed'.
-        if status.name == 'Closed':
+        if status.name == 'Closed' and 'is_archived' not in validated_data:
             validated_data.update({
                 'is_archived': True
             })

@@ -237,18 +237,20 @@ label {
     background: #eee;
 }
 
-ul {
-    &[uib-datepicker-popup-wrap] {
-        padding: 10px;
-        z-index: 2000;
+.uib-datepicker-popup {
+    padding: 10px;
+    z-index: 2000;
 
-        *:focus {
-            outline: none;
-        }
+    *:focus {
+        outline: none;
+    }
 
-        .btn-default {
-            border: 0;
-        }
+    .btn-default {
+        border: 0;
+    }
+
+    .btn-success {
+        display: none;
     }
 }
 
@@ -418,6 +420,10 @@ table {
     white-space: nowrap !important;
 }
 
+.margin-0 {
+    margin: 0;
+}
+
 .margin-left-5 {
     margin-left: 5px;
 }
@@ -440,6 +446,10 @@ table {
 
 .margin-right-30 {
     margin-right: 30px;
+}
+
+.margin-top-20 {
+    margin-top: 20px;
 }
 
 .margin-bottom-5 {
@@ -539,6 +549,16 @@ option {
     }
 }
 
+.hl-row-xs {
+    margin-left: -2px;
+    margin-right: -2px;
+
+    [class*='col-'] {
+        padding-right: 2px;
+        padding-left: 2px;
+    }
+}
+
 .display-none {
     display: none;
 }
@@ -549,8 +569,18 @@ option {
 
 .hl-flex-container {
     display: flex;
+    align-items: center;
 
     .hl-flex-1 {
         flex: 1;
     }
+}
+
+.swal2-modal h2 {
+    font-size: 24px;
+}
+
+.spacer-5 {
+    height: 5px;
+    display: block;
 }

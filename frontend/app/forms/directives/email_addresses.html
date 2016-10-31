@@ -1,5 +1,5 @@
 <div class="hl-form-field" ng-repeat="emailAddress in vm.emailAddresses" ng-class="{'has-error': form['email_addresses-email_address-' + $index].$invalid }">
-    <div class="row hl-row-sm">
+    <div class="row hl-row-xs">
         <div class="col-md-8 hl-flex-container">
             <i class="hl-form-icon" ng-if="vm.showIcon" ng-transclude uib-tooltip="{{ $root.messages.contact.contactInfoTooltip }}"/>
             <input class="form-control hl-form-input hl-flex-1"
@@ -7,6 +7,7 @@
                    maxlength="255"
                    name="email_addresses-email_address-{{ $index }}"
                    placeholder="Email address"
+                   ng-class="{'hl-form-input-deleted': emailAddress.is_deleted}"
                    ng-model="emailAddress.email_address"
                    ng-readonly="emailAddress.is_deleted">
         </div>
@@ -22,6 +23,7 @@
                     ng-model="emailAddress.status"
                     ng-options="o.v as o.n for o in [{ n: 'Primary', v: 2 }, { n: 'Other', v: 1 }, { n: 'Inactive', v: 0}]"
                     ng-disabled="emailAddress.is_deleted"
+                    ng-class="{'hl-form-input-deleted': emailAddress.is_deleted}"
                     ng-change="vm.setPrimaryEmailAddress(emailAddress, vm.emailAddresses)">
             </select>
 
@@ -31,7 +33,7 @@
             </a>
             <a ng-click="vm.removeRelatedField({field: 'emailAddress', index: $index, remove: true})"
                class="hl-primary-btn hl-form-input-btn" title="Delete this row" ng-if="!emailAddress.is_deleted">
-                <i class="fa fa-trash"></i>
+                <i class="lilicon hl-trashcan-icon"></i>
             </a>
         </div>
     </div>

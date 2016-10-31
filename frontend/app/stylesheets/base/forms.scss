@@ -114,6 +114,14 @@
     margin: 5px 0;
 }
 
+.hl-form-input-deleted {
+    text-decoration: line-through;
+
+    .select2-choice {
+        text-decoration: line-through;
+    }
+}
+
 .hl-form-input-btn {
     margin: 5px 0;
 }
@@ -170,8 +178,6 @@
     }
 
     .form-inline-input {
-        width: 50%;
-        display: inline-block;
         padding-top: 3px;
         padding-bottom: 3px;
         padding-left: 0;
@@ -195,36 +201,17 @@
         .editable-select2 {
             width: 100%;
         }
+    }
 
-        &.width-20 {
-            width: 20%;
-        }
-
-        &.width-40 {
-            width: 40%;
-        }
-
-        &.width-60 {
-            width: 60%;
-        }
-
-        &.width-80 {
-            width: 80%;
-        }
-
-        &.width-100 {
-            width: 100%;
-        }
-
+    .form-inline-icon {
+        padding-top: 10px;
     }
 }
 
 .js-form-prolyfill {
     @include prolyfill("width < 500px") {
-        .form-inline-input {
+        [class*='col-'] {
             width: 100%;
-            padding-left: 0;
-            padding-right: 0;
         }
     }
 }

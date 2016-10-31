@@ -3,8 +3,11 @@ var Raven = require('raven-js');
 
 window.sprintf = require('sprintf-js').sprintf;
 
-require('ui-select');
+require('angular-xeditable');
+require('angular-ui-bootstrap');
 require('sweetalert2');
+require('angular-elastic');
+require('ui-select');
 
 /**
  * App Module is the entry point for Lily related Angular code
@@ -20,6 +23,7 @@ angular.module('app', [
     'xeditable',
     'angular-cache',
     'ngFileUpload',
+    'monospaced.elastic',
 
     // Modules
     'app.accounts',

@@ -3,7 +3,7 @@
 
 <div ng-if="vm.contact.id" class="row">
     <div class="col-md-4">
-        <contact-detail-widget contact="vm.contact"></contact-detail-widget>
+        <contact-detail-widget contact="vm.contact" clickable-header="false"></contact-detail-widget>
     </div>
 
     <div class="col-md-4">
@@ -26,11 +26,7 @@
 </div>
 
 <div ng-if="vm.contact.id" class="row">
-    <div class="col-md-8">
-        <history-list ng-if="vm.contact.id" target="'contact'" object="vm.contact"></history-list>
-    </div>
-
-    <div ng-if="vm.contact.accounts.length" class="col-md-4" ng-repeat="account in vm.contact.accounts">
+    <div ng-if="vm.contact.accounts.length" class="col-md-4 col-lg-push-8" ng-repeat="account in vm.contact.accounts">
         <list-widget title="{{ account.name }}"
                      list="account.colleagueList"
                      module="contacts"
@@ -39,7 +35,11 @@
                      height="height">
         </list-widget>
     </div>
-    <div ng-if="!vm.contact.accounts.length" class="col-md-4">
+    <div ng-if="!vm.contact.accounts.length" class="col-md-4 col-lg-push-8">
         <list-widget title="Contacts" height="height" object="vm.contact"></list-widget>
+    </div>
+
+    <div class="col-md-8 col-lg-pull-4">
+        <history-list ng-if="vm.contact.id" target="'contact'" object="vm.contact"></history-list>
     </div>
 </div>

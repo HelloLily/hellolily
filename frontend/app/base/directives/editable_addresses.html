@@ -20,45 +20,64 @@
 
 <form name="{{ er.formName }}" class="form-inline js-form-prolyfill" ng-if="er.formVisible">
     <div class="form-inline-section" ng-repeat="address in er.items">
-        <div class="form-inline-input">
-            <input class="form-control"
-                   maxlength="255"
-                   placeholder="Address"
-                   type="text"
-                   ng-model="address.address"
-                   ng-readonly="address.is_deleted">
+        <div class="row hl-row-xs">
+            <div class="col-md-7">
+                <div class="form-inline-input">
+                    <input class="form-control"
+                           maxlength="255"
+                           placeholder="Address"
+                           type="text"
+                           ng-model="address.address"
+                           ng-readonly="address.is_deleted"
+                           ng-class="{'hl-form-input-deleted': address.is_deleted}"
+                           autofocus-if="$index == 0" />
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="form-inline-input">
+                    <input class="form-control"
+                           maxlength="255"
+                           placeholder="Postal code"
+                           type="text"
+                           ng-model="address.postal_code"
+                           ng-readonly="address.is_deleted"
+                           ng-class="{'hl-form-input-deleted': address.is_deleted}">
+                </div>
+            </div>
         </div>
-        <div class="form-inline-input">
-            <input class="form-control"
-                   maxlength="255"
-                   placeholder="Postal code"
-                   type="text"
-                   ng-model="address.postal_code"
-                   ng-readonly="address.is_deleted">
-        </div>
-        <div class="form-inline-input">
-            <input class="form-control"
-                   maxlength="255"
-                   placeholder="City"
-                   type="text"
-                   ng-model="address.city"
-                   ng-readonly="address.is_deleted">
-        </div>
-        <div class="form-inline-input">
-            <country-selector address="address"></country-selector>
-        </div>
-        <div class="form-inline-input">
-            <select class="form-control"
-                    ng-model="address.type"
-                    ng-options="type.key as type.value for type in er.addressTypes"
-                    ng-readonly="address.is_deleted">
-            </select>
-        </div>
+        <div class="row hl-row-xs">
+            <div class="col-md-7">
+                <div class="form-inline-input">
+                    <input class="form-control"
+                           maxlength="255"
+                           placeholder="City"
+                           type="text"
+                           ng-model="address.city"
+                           ng-readonly="address.is_deleted"
+                           ng-class="{'hl-form-input-deleted': address.is_deleted}">
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="form-inline-input">
+                    <country-selector address="address" ng-class="{'hl-form-input-deleted': address.is_deleted}"></country-selector>
+                </div>
+             </div>
+         </div>
+        <div class="hl-flex-container">
+            <div class="form-inline-input hl-flex-1">
+                <select class="form-control"
+                        ng-model="address.type"
+                        ng-options="type.key as type.value for type in er.addressTypes"
+                        ng-readonly="address.is_deleted"
+                        ng-class="{'hl-form-input-deleted': address.is_deleted}">
+                </select>
+            </div>
 
-        <div class="form-group">
-            <i class="margin-left-5 clickable"
-               ng-class="{'fa fa-minus-circle': !address.is_deleted, 'fa fa-undo': address.is_deleted}"
-               ng-click="er.removeRelatedField(address)"></i>
+            <div class="form-group">
+                <a class="hl-primary-btn hl-form-input-btn" ng-click="er.removeRelatedField(address)">
+                    <i class="form-inline-icon" ng-class="{'lilicon hl-trashcan-icon': !address.is_deleted, 'fa fa-undo': address.is_deleted}"></i>
+                </a>
+            </div>
         </div>
     </div>
 

@@ -7,6 +7,7 @@
                    maxlength="255"
                    name="phone_numbers-number-{{ $index }}"
                    placeholder="Phone number"
+                   ng-class="{'hl-form-input-deleted': phoneNumber.is_deleted}"
                    type="text"
                    ng-model="phoneNumber.number"
                    ng-readonly="phoneNumber.is_deleted"
@@ -21,6 +22,7 @@
             <select class="form-control hl-form-input margin-right-5 hl-flex-1"
                     id="id_phone_numbers-type-{{ $index }}"
                     name="phone_numbers-type-{{ $index }}"
+                    ng-class="{'hl-form-input-deleted': phoneNumber.is_deleted}"
                     ng-model="phoneNumber.type"
                     ng-options="labelType.key as labelType.value for labelType in vm.telephoneTypes"
                     ng-disabled="phoneNumber.is_deleted">
@@ -32,7 +34,7 @@
             </a>
             <a ng-click="vm.removeRelatedField({field: 'phoneNumber', index: $index, remove: true})"
                class="hl-primary-btn hl-form-input-btn" title="Delete this row" ng-if="!phoneNumber.is_deleted">
-                <i class="fa fa-trash"></i>
+                <i class="lilicon hl-trashcan-icon"></i>
             </a>
         </div>
     </div>

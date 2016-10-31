@@ -72,7 +72,7 @@
                 </form-group>
 
                 <form-group label-title="Description" label-id="id_description" field="dealForm.description">
-                    <textarea class="form-control" cols="40" id="id_description" name="description" placeholder="Description" rows="3" ng-model="vm.deal.description"></textarea>
+                    <textarea class="form-control" id="id_description" name="description" placeholder="Description" msd-elastic ng-model="vm.deal.description"></textarea>
                 </form-group>
 
                 <form-group label-title="Currency" label-id="id_currency" field="dealForm.currency" required="true">
@@ -146,7 +146,7 @@
                                date-disabled="vm.disabledDates(date, mode)"
                                datepicker-append-to-body="true" />
                         <span class="input-group-btn">
-                            <button type="button" class="btn btn-default" ng-click="vm.pickerIsOpen = !vm.pickerIsOpen"><i class="glyphicon glyphicon-calendar"></i></button>
+                            <button type="button" class="btn btn-default" ng-click="vm.pickerIsOpen = !vm.pickerIsOpen"><i class="lilicon hl-calendar-icon"></i></button>
                         </span>
                     </div>
                 </form-group>

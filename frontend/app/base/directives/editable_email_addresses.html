@@ -18,27 +18,35 @@
 
 <form name="{{ er.formName }}" class="form-inline js-form-prolyfill" ng-if="er.formVisible">
     <div ng-repeat="email in er.items" class="form-inline-section">
-        <div class="form-inline-input width-60">
-            <input class="form-control"
-                   maxlength="255"
-                   placeholder="Email address"
-                   ng-readonly="email.is_deleted"
-                   ng-model="email.email_address" />
-        </div>
+        <div class="row hl-row-xs">
+            <div class="col-md-7">
+                <div class="form-inline-input">
+                    <input class="form-control"
+                           maxlength="255"
+                           placeholder="Email address"
+                           ng-readonly="email.is_deleted"
+                           ng-class="{'hl-form-input-deleted': email.is_deleted}"
+                           ng-model="email.email_address"
+                           autofocus-if="$index == 0" />
+                </div>
+            </div>
+            <div class="col-md-5 hl-flex-container">
+                <div class="form-inline-input hl-flex-1">
+                    <select class="form-control"
+                            ng-readonly="email.is_deleted"
+                            ng-class="{'hl-form-input-deleted': email.is_deleted}"
+                            ng-model="email.status"
+                            ng-options="o.v as o.n for o in [{ n: 'Primary', v: 2 }, { n: 'Other', v: 1 }, { n: 'Inactive', v: 0}]"
+                            ng-change="er.setPrimaryEmailAddress(email, er.items)">
+                    </select>
+                </div>
 
-        <div class="form-inline-input width-40">
-            <select class="form-control"
-                    ng-readonly="email.is_deleted"
-                    ng-model="email.status"
-                    ng-options="o.v as o.n for o in [{ n: 'Primary', v: 2 }, { n: 'Other', v: 1 }, { n: 'Inactive', v: 0}]"
-                    ng-change="er.setPrimaryEmailAddress(email, er.items)">
-            </select>
-        </div>
-
-        <div class="form-inline-input">
-            <i class="margin-left-5 clickable"
-               ng-class="{'fa fa-minus-circle': !email.is_deleted, 'fa fa-undo': email.is_deleted}"
-               ng-click="er.removeRelatedField(email)"></i>
+                <div class="form-inline-input">
+                    <a class="hl-primary-btn" ng-click="er.removeRelatedField(email)">
+                        <i class="form-inline-icon" ng-class="{'lilicon hl-trashcan-icon': !email.is_deleted, 'fa fa-undo': email.is_deleted}"></i>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 

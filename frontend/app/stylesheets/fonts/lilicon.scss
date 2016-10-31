@@ -105,7 +105,7 @@ Lily has a large amount of icons that can be used.
             <td><i class="lilicon font-size-24 hl-menu-icon"></i><div style="margin-top: 10px">.hl-menu-icon</div></td>
             <td><i class="lilicon font-size-24 hl-dialplan-icon"></i><div style="margin-top: 10px">.hl-dialplan-icon</div></td>
             <td><i class="lilicon font-size-24 hl-admin-icon"></i><div style="margin-top: 10px">.hl-admin-icon</div></td>
-            <td><i class="lilicon font-size-24 hl-calender-icon"></i><div style="margin-top: 10px">.hl-calender-icon</div></td>
+            <td><i class="lilicon font-size-24 hl-calendar-icon"></i><div style="margin-top: 10px">.hl-calendar-icon</div></td>
             <td><i class="lilicon font-size-24 hl-firstday-icon"></i><div style="margin-top: 10px">.hl-firstday-icon</div></td>
             <td><i class="lilicon font-size-24 hl-tomorrow-icon"></i><div style="margin-top: 10px">.hl-tomorrow-icon</div></td>
         </tr>
@@ -166,7 +166,7 @@ $hl-asterix-icon: "\e908";
 $hl-edit-icon: "\e909";
 $hl-edit-line-icon: "\e90a";
 $hl-trashcan-icon: "\e90b";
-$hl-calender-icon: "\e90c";
+$hl-calendar-icon: "\e90c";
 $hl-firstday-icon: "\e90d";
 $hl-tomorrow-icon: "\e90e";
 $hl-cog-icon: "\e90f";
@@ -317,9 +317,9 @@ $hl-forwarding-icon: "\e937";
     }
 }
 
-.hl-calender-icon {
+.hl-calendar-icon {
     &:before {
-        content: $hl-calender-icon;
+        content: $hl-calendar-icon;
     }
 }
 

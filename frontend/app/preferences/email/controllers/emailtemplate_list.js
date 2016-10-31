@@ -55,7 +55,6 @@ function PreferencesEmailTemplatesList($compile, $scope, $state, $templateCache,
             });
 
             swal({
-                title: sprintf(messages.alerts.preferences.shareTemplateTitle, {template: emailTemplate.name}),
                 html: $compile($templateCache.get('preferences/email/controllers/emailtemplate_default.html'))($scope),
                 showCancelButton: true,
                 showCloseButton: true,

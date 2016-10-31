@@ -91,7 +91,6 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     vm.case = {};
     vm.teams = [];
     vm.caseTypes = [];
-    vm.caseStatuses = [];
     vm.casePriorities = [];
     vm.datepickerOptions = {
         startingDay: 1,
@@ -123,10 +122,10 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             });
         });
 
-        Case.caseStatuses(function(data) {
-            vm.caseStatuses = data;
+        Case.getStatuses(function(response) {
+            vm.statusChoices = response.results;
 
-            vm.case.status = vm.caseStatuses[0];
+            vm.case.status = vm.statusChoices[0];
         });
 
         vm.casePriorities = Case.getCasePriorities();
@@ -199,6 +198,8 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
                 vm.startsAt = 0;
             }
         }
+
+        vm.case.expires = moment(vm.case).toDate();
     }
 
     $scope.$watch('vm.case.priority', function() {
@@ -289,13 +290,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             }
         }
 
-        // Clear all errors of the form (in case of new errors).
-        angular.forEach(form, function(value, key) {
-            if (typeof value === 'object' && value.hasOwnProperty('$modelValue')) {
-                form[key].$error = {};
-                form[key].$setValidity(key, true);
-            }
-        });
+        HLForms.clearErrors(form);
 
         if (archive) {
             vm.case.is_archived = true;

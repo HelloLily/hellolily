@@ -7,6 +7,7 @@ function contactDetailWidget() {
             contact: '=',
             height: '=',
             updateCallback: '&',
+            clickableHeader: '=?',
         },
         templateUrl: 'contacts/directives/detail_widget.html',
         controller: ContactDetailWidgetController,
@@ -22,6 +23,16 @@ function ContactDetailWidgetController(Contact, Settings) {
     vm.settings = Settings;
 
     vm.updateModel = updateModel;
+
+    activate();
+
+    ////
+
+    function activate() {
+        if (typeof vm.clickableHeader === 'undefined') {
+            vm.clickableHeader = true;
+        }
+    }
 
     function updateModel(data, field) {
         return Contact.updateModel(data, field, vm.contact);

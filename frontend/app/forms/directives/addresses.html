@@ -8,6 +8,7 @@
                    maxlength="255"
                    name="addresses-address-{{ $index }}"
                    placeholder="Address"
+                   ng-class="{'hl-form-input-deleted': address.is_deleted}"
                    type="text"
                    ng-model="address.address"
                    ng-readonly="address.is_deleted">
@@ -20,6 +21,7 @@
                    maxlength="255"
                    name="addresses-postal_code-{{ $index }}"
                    placeholder="Postal code"
+                   ng-class="{'hl-form-input-deleted': address.is_deleted}"
                    type="text"
                    ng-model="address.postal_code"
                    ng-readonly="address.is_deleted">
@@ -34,6 +36,7 @@
                    maxlength="255"
                    name="addresses-city-{{ $index }}"
                    placeholder="City"
+                   ng-class="{'hl-form-input-deleted': address.is_deleted}"
                    type="text"
                    ng-model="address.city"
                    ng-readonly="address.is_deleted">
@@ -41,13 +44,14 @@
 
         <div class="col-md-4">
             <label class="hidden control-label" for="id_addresses-country-{{ $index }}">Country</label>
-            <country-selector class="hl-form-input" address="address"></country-selector>
+            <country-selector ng-class="{'hl-form-input-deleted': address.is_deleted}" class="hl-form-input" address="address"></country-selector>
         </div>
         <div class="col-md-4 hl-flex-container">
             <select class="form-control hl-form-input margin-right-5 hl-flex-1"
                     id="id_addresses-type-{{ $index }}"
                     name="addresses-type-{{ $index }}"
                     ng-model="address.type"
+                    ng-class="{'hl-form-input-deleted': address.is_deleted}"
                     ng-options="labelType.key as labelType.value for labelType in vm.addressTypes"
                     ng-disabled="address.is_deleted">
             </select>
@@ -56,7 +60,7 @@
                 <i class="fa fa-undo"></i>
             </a>
             <a ng-click="vm.removeRelatedField({field: 'address', index: $index, remove: true})" class="hl-primary-btn hl-form-input-btn" title="Delete this row" ng-if="!address.is_deleted">
-                <i class="fa fa-trash"></i>
+                <i class="lilicon hl-trashcan-icon"></i>
             </a>
         </div>
     </div>

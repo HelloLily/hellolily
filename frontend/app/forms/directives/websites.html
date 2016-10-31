@@ -12,13 +12,14 @@
                    type="text"
                    ng-model="website.website"
                    ng-blur="vm.doubleAccountCheck({index: $index})"
+                   ng-class="{'hl-form-input-deleted': website.is_deleted}"
                    ng-readonly="website.is_deleted">
 
             <a ng-click="vm.removeRelatedField({field: 'website', index: $index, remove: false})" class="hl-primary-btn hl-form-input-btn" title="Undo the deletion of this row" ng-show="website.is_deleted">
                 <i class="fa fa-undo"></i>
             </a>
             <a ng-click="vm.removeRelatedField({field: 'website', index: $index, remove: true})" class="hl-primary-btn hl-form-input-btn" title="Delete this row" ng-hide="website.is_deleted">
-                <i class="fa fa-trash"></i>
+                <i class="lilicon hl-trashcan-icon"></i>
             </a>
         </div>
     </div>

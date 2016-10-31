@@ -25,6 +25,7 @@
                            maxlength="255"
                            placeholder="Phone number"
                            ng-readonly="phone.is_deleted"
+                           ng-class="{'hl-form-input-deleted': phone.is_deleted}"
                            ng-blur="er.formatPhoneNumber(phone)"
                            ng-model="phone.number"
                            autofocus-if="$index == 0" />
@@ -35,14 +36,15 @@
                     <select class="form-control"
                             ng-model="phone.type"
                             ng-readonly="phone.is_deleted"
+                            ng-class="{'hl-form-input-deleted': phone.is_deleted}"
                             ng-options="type.key as type.value for type in er.telephoneTypes">
                     </select>
                 </div>
 
                 <div class="form-inline-input">
-                    <i class="margin-left-5 margin-right-5 clickable form-inline-icon"
-                       ng-class="{'fa fa-trash': !phone.is_deleted, 'fa fa-undo': phone.is_deleted}"
-                       ng-click="er.removeRelatedField(phone)"></i>
+                    <a class="hl-primary-btn" ng-click="er.removeRelatedField(phone)">
+                        <i class="form-inline-icon" ng-class="{'lilicon hl-trashcan-icon': !phone.is_deleted, 'fa fa-undo': phone.is_deleted}"></i>
+                    </a>
                 </div>
             </div>
         </div>

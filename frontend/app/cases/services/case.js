@@ -69,7 +69,7 @@ function Case($resource, HLUtils, HLCache, CacheFactory) {
     /////////
 
     function create() {
-        var expires = moment().add(1, 'week').format();  // default expiry date is a week from now
+        var expires = moment().add(1, 'week');  // default expiry date is a week from now
 
         return new _case({
             billing_checked: false,

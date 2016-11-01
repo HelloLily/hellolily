@@ -26,14 +26,16 @@
 </div>
 
 <div ng-if="vm.contact.id" class="row">
-    <div ng-if="vm.contact.accounts.length" class="col-md-4 col-lg-push-8" ng-repeat="account in vm.contact.accounts">
-        <list-widget title="{{ account.name }}"
-                     list="account.colleagueList"
-                     module="contacts"
-                     object="account"
-                     add-link="base.contacts.create.fromAccount({accountId: {{ account.id }}})"
-                     height="height">
-        </list-widget>
+    <div ng-if="vm.contact.accounts.length" class="col-md-4 col-lg-push-8">
+        <div ng-repeat="account in vm.contact.accounts">
+            <list-widget title="{{ account.name }}"
+                         list="account.colleagueList"
+                         module="contacts"
+                         object="account"
+                         add-link="base.contacts.create.fromAccount({accountId: {{ account.id }}})"
+                         height="height">
+            </list-widget>
+        </div>
     </div>
     <div ng-if="!vm.contact.accounts.length" class="col-md-4 col-lg-push-8">
         <list-widget title="Contacts" height="height" object="vm.contact"></list-widget>

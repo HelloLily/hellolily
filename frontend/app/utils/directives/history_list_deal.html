@@ -1,5 +1,5 @@
 <div class="timeline-item-container">
-    <div class="timeline-avatar" ng-if="vm.item.assigned_to" style="background-image: url('{{ vm.item.assigned_to.profile_picture }}');"></div>
+    <div class="timeline-avatar" ng-if="vm.item.assigned_to" ng-style="{'background-image': 'url(' + vm.item.assigned_to.profile_picture + ')'}"></div>
     <div class="timeline-avatar" ng-if="!vm.item.assigned_to" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png');"></div>
 
     <div class="timeline-content-container has-deal">
@@ -69,7 +69,7 @@
                     <ul class="content-history-list">
                         <li ng-repeat="note in vm.item.notes">
                             <div class="content-history-note-header">
-                                <div class="content-history-avatar" style="background-image: url('{{ note.author.profile_picture }}'); "></div>
+                                <div class="content-history-avatar" ng-style="{'background-image': 'url(' + note.author.profile_picture + ')'}"></div>
                                 <div class="content-history-desc">
                                     {{ note.author.full_name }} added a note <span ng-if="note.type === 1">(Callback)</span> <span ng-if="note.type === 2">(Meetup)</span>
                                 </div>
@@ -83,7 +83,7 @@
                         <li>
                             <div class="content-history-note-header">
 
-                                <div ng-if="vm.item.created_by" class="content-history-avatar" style="background-image: url('{{ vm.item.created_by.profile_picture }}');"></div>
+                                <div ng-if="vm.item.created_by" class="content-history-avatar" ng-style="{'background-image': 'url(' + vm.item.created_by.profile_picture + ')'}"></div>
                                 <div ng-if="!vm.item.created_by" class="content-history-avatar" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png');"></div>
                                 <div class="content-history-desc">
                                     {{ ::vm.item.created_by.full_name || 'An unknown entity' }} created the deal <a ui-sref="base.deals.detail({ id: vm.item.id })">{{ ::vm.item.name }}</a>

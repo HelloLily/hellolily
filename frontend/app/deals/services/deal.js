@@ -1,7 +1,7 @@
 angular.module('app.deals.services').factory('Deal', Deal);
 
-Deal.$inject = ['$resource', 'HLUtils', 'HLForms', 'HLCache', 'CacheFactory'];
-function Deal($resource, HLUtils, HLForms, HLCache, CacheFactory) {
+Deal.$inject = ['$resource', 'CacheFactory', 'HLCache', 'HLForms', 'HLResource', 'HLUtils'];
+function Deal($resource, CacheFactory, HLCache, HLForms, HLResource, HLUtils) {
     var _deal = $resource(
         '/api/deals/:id/',
         null,
@@ -108,6 +108,7 @@ function Deal($resource, HLUtils, HLForms, HLCache, CacheFactory) {
 
     _deal.getDeals = getDeals;
     _deal.create = create;
+    _deal.updateModel = updateModel;
 
     /////////
 
@@ -123,6 +124,19 @@ function Deal($resource, HLUtils, HLForms, HLCache, CacheFactory) {
             amount_recurring: '0',
             assigned_to: {id: currentUser.id, full_name: currentUser.fullName},
         });
+    }
+
+    function updateModel(data, field, deal) {
+        var patchPromise;
+        var args = HLResource.createArgs(data, field, deal);
+
+        if (field === 'name') {
+            Settings.page.setAllTitles('detail', data);
+        }
+
+        patchPromise = HLResource.patch('Deal', args).$promise;
+
+        return patchPromise;
     }
 
     /**

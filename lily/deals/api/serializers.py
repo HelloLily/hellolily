@@ -209,7 +209,7 @@ class DealSerializer(WritableNestedSerializer):
                 'assigned_to_id': user.pk
             })
 
-        if assigned_to and assigned_to != user.pk:
+        if assigned_to and assigned_to.get('id') != user.pk:
             validated_data.update({
                 'newly_assigned': True,
             })
@@ -217,12 +217,19 @@ class DealSerializer(WritableNestedSerializer):
         return super(DealSerializer, self).create(validated_data)
 
     def update(self, instance, validated_data):
+        user = self.context.get('request').user
         status_id = validated_data.get('status', instance.status_id)
+
         if isinstance(status_id, dict):
             status_id = status_id.get('id')
+
         status = DealStatus.objects.get(pk=status_id)
         closed_date = validated_data.get('closed_date', instance.closed_date)
         description = validated_data.get('description')
+        assigned_to = validated_data.get('assigned_to')
+
+        if assigned_to:
+            assigned_to = assigned_to.get('id')
 
         # Set closed_date after changing status to lost/won and reset it when it's any other status.
         if status.is_won or status.is_lost:
@@ -234,6 +241,12 @@ class DealSerializer(WritableNestedSerializer):
         validated_data.update({
             'closed_date': closed_date,
         })
+
+        # Check if the deal is being reassigned. If so we want to notify that user.
+        if assigned_to and assigned_to != user.pk and instance.assigned_to and instance.assigned_to.id != assigned_to:
+            validated_data.update({
+                'newly_assigned': True,
+            })
 
         if description:
             validated_data.update({

@@ -30,11 +30,12 @@
                     </td>
                     <td>{{ deal.status.name }}</td>
                     <td>
-                        <span ng-if="deal.next_step" class="step-type" tooltip-placement="left"
-                              uib-tooltip="{{ deal.next_step.name }}"
-                              ng-class="{0: 'position-1', 1: 'position-2', 2: 'position-3', 3: 'position-4', 4: 'position-5', 5: 'position-6'}[deal.next_step.position]">
-                            {{ deal.next_step.name }}
-                        </span>
+                        <editable-select field="next_step" view-model="vm" type="Deal" select-type="icon_select" object="deal" tooltip-placement="left"
+                                        uib-tooltip="{{ deal.next_step.name }}" select-options="{'classPrefix': 'step-type position-', 'classValue': 'position'}">
+                            <span class="step-type position-{{ deal.next_step.position }}">
+                                {{ deal.next_step.name }}
+                            </span>
+                        </editable-select>
                     </td>
                     <td>
                         <postpone ng-if="deal.next_step_date" type="'Deal'" object="deal" date-field="'next_step_date'"></postpone>

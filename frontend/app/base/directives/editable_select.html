@@ -1,13 +1,14 @@
 <span ng-if="!es.search" e-form="selectForm" ng-dblclick="selectForm.$show()" editable-select="es.selectModel" onshow="es.getChoices()"
-      e-ng-options="item.id as item[es.optionDisplay] for item in es.choices" onbeforesave="es.updateViewModel($data)" buttons="no" class="editable editable-click" editable-handler>
+        e-ng-options="item.id as item[es.optionDisplay] for item in es.choices" onbeforesave="es.updateViewModel($data)" buttons="no"
+        class="editable editable-click" editable-handler>
     <ng-transclude></ng-transclude>
 </span>
 
 <span ng-if="es.search && !es.multiple">
-    <form data-editable-form name="es.{{ es.formName }}" blur="cancel" class="display-inline-block margin-right-10" ng-dblclick="es[es.formName].$show()">
+    <form data-editable-form name="es.{{ es.formName }}" blur="cancel" class="display-inline" ng-dblclick="es[es.formName].$show()">
         <div editable-ui-select="es.selectModel" name="{{ es.field }}" data-e-name="{{ es.field }}" data-e-on-select="es.updateViewModel($data.id)"
-             data-e-form="{{ es.formName }}" data-e-theme="select2" data-e-class="form-control editable-select2"
-             data-e-ng-model="es.selectModel" class="editable editable-click" editable-handler>
+            data-e-form="{{ es.formName }}" data-e-theme="select2" data-e-class="form-control editable-select2" data-e-append-to-body="true"
+            data-e-ng-model="es.selectModel" class="editable editable-click" editable-handler>
             <ng-transclude></ng-transclude>
 
             <editable-ui-select-match placeholder="{{ es.placeholder }}" allow-clear="{{ es.selectOptions.allowClear }}">
@@ -23,10 +24,10 @@
 <span ng-if="es.search && es.multiple">
     <div ng-class="{'form-inline': es[es.formName].$visible}">
         <div class="form-inline-section">
-            <form data-editable-form name="es.{{ es.formName }}" class="display-inline-block margin-right-10 editable-multi" ng-dblclick="es[es.formName].$show()">
+            <form data-editable-form name="es.{{ es.formName }}" class="display-inline margin-right-10 editable-multi" ng-dblclick="es[es.formName].$show()">
                 <div editable-ui-select="es.selectModel" name="{{ es.field }}" data-e-name="{{ es.field }}" data-e-multiple data-onbeforesave="es.updateViewModel($data)"
-                     data-e-form="{{ es.formName }}" data-e-theme="select2" data-e-class="editable-select2"
-                     data-e-ng-model="es.selectModel" class="editable editable-click" editable-handler>
+                    data-e-form="{{ es.formName }}" data-e-theme="select2" data-e-class="editable-select2" data-e-append-to-body="true"
+                    data-e-ng-model="es.selectModel" class="editable editable-click" editable-handler>
                     <ng-transclude></ng-transclude>
                     <editable-ui-select-match placeholder="{{ es.placeholder }}">
                         {{ $item[es.optionDisplay] }}

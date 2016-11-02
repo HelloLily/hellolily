@@ -22,7 +22,7 @@
                     <th>Client</th>
                     <th>Type</th>
                     <th>Status</th>
-                    <th class="align-center">Prio</th>
+                    <th style="width: 50px;">Priority</th>
                     <th>Expires</th>
                     <th style="width: 80px;">Actions</th>
                 </tr>
@@ -58,8 +58,11 @@
                     <td>
                         {{ myCase.status.name }}
                     </td>
-                    <td class="widget-table-priority-cell" style="width: 30px;">
-                        <i class="lilicon" tooltip-placement="left" uib-tooltip="{{ myCase.priority_display }} priority" ng-class="{0: 'hl-low-prio-icon', 1: 'hl-normal-prio-icon', 2: 'hl-high-prio-icon', 3: 'hl-critical-prio-icon'}[myCase.priority]"></i>
+                    <td class="priority-cell">
+                        <editable-select field="priority" view-model="vm" type="Case" object="myCase" choice-field="true" select-type="icon_select"
+                                         select-options="{field: 'casePriorities', 'classPrefix': 'lilicon hl-prio-icon-', 'classValue': 'name'}">
+                            <i class="lilicon hl-prio-icon-{{ myCase.priority_display | lowercase }}" tooltip-placement="left" uib-tooltip="{{ myCase.priority_display }} priority"></i>
+                        </editable-select>
                     </td>
                     <td style="width: 150px; min-width: 150px;">
                         <postpone type="'Case'" object="myCase" date-field="'expires'" callback="vm.getMyCases()"></postpone>

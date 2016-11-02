@@ -49,9 +49,12 @@
                         <span ng-bind-html="myDeal.amount_once | currencySymbol:myDeal.currency"></span> /once
                     </td>
                     <td>
-                        <span class="step-type" ng-class="{0: 'position-1', 1: 'position-2', 2: 'position-3', 3: 'position-4', 4: 'position-5', 5: 'position-6'}[myDeal.next_step.position]">
-                            {{ myDeal.next_step.name }}
-                        </span>
+                        <editable-select field="next_step" view-model="vm" type="Deal" select-type="icon_select" object="myDeal"
+                                         select-options="{'classPrefix': 'step-type position-', 'classValue': 'position'}">
+                            <span class="step-type position-{{ myDeal.next_step.position }}">
+                                {{ myDeal.next_step.name }}
+                            </span>
+                        </editable-select>
                     </td>
                     <td>
                         <postpone type="'Deal'" object="myDeal" date-field="'next_step_date'" tt-placement="bottom" callback="vm.getMyDeals()"></postpone>

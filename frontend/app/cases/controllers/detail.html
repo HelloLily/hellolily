@@ -37,9 +37,10 @@
                             </td>
                             <td>
                                 <strong>Priority:</strong>
-                                <editable-select class="margin-left-10" field="priority" view-model="vm" type="Case" choice-field="true" select-options="{field: 'casePriorities'}">
-                                    <span class="lilicon" ng-class="{0: 'hl-low-prio-icon', 1: 'hl-normal-prio-icon', 2: 'hl-high-prio-icon', 3: 'hl-critical-prio-icon'}[vm.case.priority]"></span>
-                                    {{ vm.case.priority_display }} priority
+                                <editable-select class="margin-left-10" field="priority" view-model="vm" type="Case" choice-field="true" select-type="icon_select"
+                                                 select-options="{field: 'casePriorities', 'classPrefix': 'lilicon hl-prio-icon-', 'classValue': 'name'}">
+                                    <span class="lilicon" ng-class="{0: 'hl-prio-icon-low', 1: 'hl-prio-icon-medium', 2: 'hl-prio-icon-high', 3: 'hl-prio-icon-critical'}[vm.case.priority]"></span>
+                                    {{ vm.case.priority_display }}
                                 </editable-select>
                             </td>
                             <td><strong>Expires on:</strong> <postpone class="margin-left-5" type="'Case'" object="vm.case" date-field="'expires'"></postpone></td>

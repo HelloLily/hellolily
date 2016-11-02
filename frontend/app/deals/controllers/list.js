@@ -72,6 +72,7 @@ function DealListController($filter, $scope, $timeout, Deal, HLFilters, LocalSto
     vm.updateFilterQuery = updateFilterQuery;
     vm.setSearchQuery = setSearchQuery;
     vm.clearFilters = clearFilters;
+    vm.updateModel = updateModel;
 
     activate();
 
@@ -87,6 +88,12 @@ function DealListController($filter, $scope, $timeout, Deal, HLFilters, LocalSto
 
         Tenant.query({}, function(tenant) {
             vm.tenant = tenant;
+        });
+    }
+
+    function updateModel(data, field) {
+        return Deal.updateModel(data, field).then(function() {
+            _updateDeals();
         });
     }
 

@@ -3,9 +3,7 @@
     <div class="timeline-avatar" ng-if="!vm.item.assigned_to" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png');"></div>
 
     <div class="timeline-content-container has-case">
-
         <div class="timeline-content-header">
-
             <div class="timeline-type">
                 <i class="lilicon hl-case-icon"></i>
             </div>
@@ -16,8 +14,11 @@
                     <li>Status: <strong>{{ ::vm.item.status.name }} ({{ ::vm.item.archived ? 'archived' : 'active' }})</strong></li>
                     <li>
                         Priority:
-                        <i class="lilicon" ng-class="{0: 'hl-low-prio-icon', 1: 'hl-normal-prio-icon', 2: 'hl-high-prio-icon', 3: 'hl-critical-prio-icon'}[vm.item.priority]"></i>
-                        <strong>{{ ::vm.item.priority_display }}</strong>
+                        <editable-select field="priority" view-model="vm" type="Case" object="vm.item" choice-field="true" select-type="icon_select"
+                                         select-options="{field: 'casePriorities', 'classPrefix': 'lilicon hl-prio-icon-', 'classValue': 'name'}">
+                            <i class="lilicon hl-prio-icon-{{ vm.item.priority_display | lowercase }}" tooltip-placement="left" uib-tooltip="{{ vm.item.priority_display }}"></i>
+                            <strong>{{ vm.item.priority_display }}</strong>
+                        </editable-select>
                     </li>
                     <li>Type: <strong>{{ ::vm.item.type.name }}</strong></li>
                     <li>Expires: <strong class="margin-left-5"><date date="vm.item.expires"></date></strong></li>
@@ -28,7 +29,6 @@
             </div>
 
             <a class="timeline-toggle-details" ng-click="vm.item.shown = !vm.item.shown"><i class="lilicon hl-toggle-left-icon" ng-class="vm.item.shown ? 'hl-toggle-down-icon' : 'hl-toggle-left-icon'"></i></a>
-
         </div>
         <div ng-show="vm.item.shown">
             <div class="content-details history-item-body">

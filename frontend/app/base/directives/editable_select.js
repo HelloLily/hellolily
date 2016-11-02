@@ -10,9 +10,17 @@ function editableSelect() {
             choiceField: '@',
             search: '@?',
             multiple: '@?',
+            selectType: '@?',
+            object: '=?',
             selectOptions: '=?', // contains any custom settings for the select
         },
-        templateUrl: 'base/directives/editable_select.html',
+        templateUrl: function(elem, attrs) {
+            if (attrs.selectType) {
+                return 'base/directives/editable_' + attrs.selectType + '.html';
+            }
+
+            return 'base/directives/editable_select.html';
+        },
         controller: EditableSelectController,
         controllerAs: 'es',
         transclude: true,
@@ -20,8 +28,8 @@ function editableSelect() {
     };
 }
 
-EditableSelectController.$inject = ['$scope', 'HLResource', 'HLSearch', 'HLUtils'];
-function EditableSelectController($scope, HLResource, HLSearch, HLUtils) {
+EditableSelectController.$inject = ['$injector', '$scope', 'HLResource', 'HLSearch', 'HLUtils'];
+function EditableSelectController($injector, $scope, HLResource, HLSearch, HLUtils) {
     var es = this;
 
     es.getChoices = getChoices;
@@ -46,7 +54,9 @@ function EditableSelectController($scope, HLResource, HLSearch, HLUtils) {
             es.selectOptions = {};
         }
 
-        es.object = es.viewModel[es.type.toLowerCase()];
+        if (!es.object) {
+            es.object = es.viewModel[es.type.toLowerCase()];
+        }
 
         // Certain values in the given view model are objects,
         // so the default value in the select won't always work.
@@ -146,6 +156,7 @@ function EditableSelectController($scope, HLResource, HLSearch, HLUtils) {
     function updateViewModel($data) {
         var selected;
         var i;
+        var updatePromise;
 
         var args = {
             id: es.object.id,
@@ -182,11 +193,21 @@ function EditableSelectController($scope, HLResource, HLSearch, HLUtils) {
             args[es.field] = $data;
         }
 
-        return es.viewModel.updateModel(args).then(function() {
-            if (es.search) {
-                HLUtils.unblockUI(form);
-                es[es.formName].$hide();
+        if (es.viewModel.hasOwnProperty('updateModel')) {
+            updatePromise = es.viewModel.updateModel(args);
+        } else {
+            // Dealing with a generic view model (list widget, history list item) so just call the updateModel directly.
+            updatePromise = $injector.get(es.type).updateModel(args);
+        }
 
+        return updatePromise.then(function() {
+            HLUtils.unblockUI(form);
+
+            if (es.hasOwnProperty(es.formName)) {
+                es[es.formName].$hide();
+            }
+
+            if (es.search || es.selectType) {
                 if (es.multiple) {
                     es.object[es.field] = $data;
                 }

@@ -1,6 +1,8 @@
+from django.conf import settings
 from django.conf.urls import patterns, url
 from django.core.urlresolvers import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
+
 from lily.utils.views import RedirectSetMessageView
 from .views import (AcceptInvitationView, RegistrationView, ActivationView, ActivationResendView, LoginView,
                     SendInvitationView)
@@ -29,7 +31,8 @@ urlpatterns = patterns(
         {
             'email_template_name': 'email/password_reset.email',
             'template_name': 'users/password_reset/form.html',
-            'password_reset_form': CustomPasswordResetForm
+            'password_reset_form': CustomPasswordResetForm,
+            'from_email': settings.DEFAULT_FROM_EMAIL,
         },
         name='password_reset'),
     url(r'^password_reset/done/$',

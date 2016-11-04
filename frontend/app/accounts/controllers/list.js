@@ -53,7 +53,7 @@ function AccountList($scope, $window, Settings, Account, LocalStorage) {
             modified: true,
             status: true,
             tags: true,
-            customerId: true,
+            customerId: false,
         }),
     };
 

@@ -42,6 +42,9 @@
             <table class="table table-bordered flip-content">
                 <thead class="flip-content">
                     <tr>
+                        <th ng-show="vm.table.visibility.customerId" sort-column="customer_id" table="vm.table" class="width-10">
+                            <span class="text-nowrap">Customer ID</span>
+                        </th>
                         <th ng-show="vm.table.visibility.name" sort-column="name" table="vm.table" class="width-22">
                             <span class="text-nowrap">Account</span>
                         </th>
@@ -71,6 +74,9 @@
 
                 <tbody>
                     <tr ng-repeat="account in vm.table.items">
+                        <td ng-show="vm.table.visibility.customerId">
+                            {{ ::account.customer_id }}
+                        </td>
                         <td ng-show="vm.table.visibility.name">
                             <a class="list-link" ui-sref="base.accounts.detail({ id: account.id })" title="{{ ::account.name }}">
                                 <i class="lilicon hl-company-icon"></i>

@@ -65,8 +65,8 @@
                 })
                 .on('change', cf.sendToNormalField, function() {
                     var previousSendToNormalLength = self.config.previousSendToNormalLength;
-
                     var inputLength = $(this).select2('data').length;
+
                     self.config.previousSendToNormalLength = inputLength;
 
                     // Don't do anything if it's just an extra recipient being added/removed
@@ -266,7 +266,7 @@
                 emailAccountId = $(self.config.emailAccountInput).val();
 
                 if (emailAccountId) {
-                    if (selectedTemplate) {
+                    if (selectedTemplate && templateChanged) {
                         recipient = $('#id_send_to_normal').select2('data')[0];
 
                         if (typeof recipient !== 'undefined' && typeof recipient.object_id !== 'undefined') {
@@ -291,6 +291,8 @@
                         $.getJSON(url, function(data) {
                             self.setNewEditorValue(data, templateChanged);
                         });
+                    } else {
+                        self.loadDefaultEmailTemplate();
                     }
                 } else {
                     toastr.error('I couldn\'t load the template because your email account doesn\'t seem to be set. Please check your email account and try again');
@@ -375,6 +377,13 @@
             return editor;
         },
 
+        destroyEditor: function() {
+            if (editor && editor !== null) {
+                editor.destroy();
+                editor = null;
+            }
+        },
+
         loadDefaultEmailTemplate: function() {
             var self = this;
             var emailAccountId = $(self.config.emailAccountInput).val();
@@ -384,7 +393,9 @@
                 url = self.config.defaultEmailTemplateUrl + emailAccountId + '/';
 
                 $.getJSON(url, function(data) {
-                    $(self.config.templateField).select2('val', data.template_id).change();
+                    if (data.template_id) {
+                        $(self.config.templateField).select2('val', data.template_id).change();
+                    }
                 });
             } else {
                 toastr.error('Sorry, I couldn\'t load your default email template. You could try reloading the page');

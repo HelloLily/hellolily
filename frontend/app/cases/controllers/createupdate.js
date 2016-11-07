@@ -199,7 +199,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             }
         }
 
-        vm.case.expires = moment(vm.case).toDate();
+        vm.case.expires = moment(vm.case.expires).toDate();
     }
 
     $scope.$watch('vm.case.priority', function() {

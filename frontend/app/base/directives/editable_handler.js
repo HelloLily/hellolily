@@ -5,6 +5,7 @@ function editableHandler() {
         restrict: 'A',
         link: function(scope, element, attrs) {
             var form;
+            var isPencilClick = false;
 
             if (scope.hasOwnProperty('$form')) {
                 form = scope.$form;
@@ -17,6 +18,7 @@ function editableHandler() {
                 // So check if the clicked part was actually the edit icon.
                 if (event.offsetX > event.currentTarget.offsetWidth) {
                     form.$show();
+                    isPencilClick = true;
 
                     scope.$apply();
                 }
@@ -26,8 +28,22 @@ function editableHandler() {
                 // Certain inline editable elements have a separate button,
                 // so an extra check for the clicked area isn't needed.
                 form.$show();
+                isPencilClick = true;
 
                 scope.$apply();
+            });
+
+            scope.$watch('$form.$visible', function(newValue, oldValue) {
+                if (newValue) {
+                    if (isPencilClick) {
+                        ga('send', 'event', 'Field', 'Edit', 'Pencil');
+                    } else {
+                        ga('send', 'event', 'Field', 'Edit', 'Double click');
+                    }
+
+                    // Reset the variable.
+                    isPencilClick = false;
+                }
             });
         },
     };

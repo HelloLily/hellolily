@@ -221,6 +221,11 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
             messageType = $stateParams.messageType ? $stateParams.messageType : 'new';
 
             HLInbox.init();
+
+            if (SelectedEmailAccount.currentAccountId) {
+                angular.element(HLInbox.config.emailAccountInput).select2('val', SelectedEmailAccount.currentAccountId);
+            }
+
             HLInbox.initEmailCompose({
                 templateList: templates,
                 defaultEmailTemplateUrl: '/messaging/email/templates/get-default/',
@@ -230,10 +235,8 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
                 recipient: recipient,
                 template: template,
             });
+
             HLInbox.setSuccesURL($scope.previousState);
-            if (SelectedEmailAccount.currentAccountId) {
-                angular.element(HLInbox.config.emailAccountInput).select2('val', SelectedEmailAccount.currentAccountId);
-            }
         });
     }
 
@@ -254,4 +257,10 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
             }
         }
     }
+
+    // Listen to Angular broadcast function on scope destroy.
+    $scope.$on('$destroy', function() {
+        // Properly destroy the rich text editor to prevent memory leaks.
+        HLInbox.destroyEditor();
+    });
 }

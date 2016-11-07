@@ -1,47 +1,54 @@
 <div class="row">
-    <div class="no-padding" ng-class="{'col-md-9': settings.email.sidebar.isVisible, 'col-md-12': !settings.email.sidebar.isVisible}">
-        <div class="col-md-2" ui-view="labelList"></div>
-        <div class="col-md-10" ui-view id="emailBase"></div>
-    </div>
-
-    <div class="col-md-3" ng-show="settings.email.sidebar.isVisible">
-        <div ng-if="settings.email.sidebar.form">
-            <div class="row inbox">
-                <div class="col-md-12">
-                    <!-- Setting ui-view to settings.email.sidebar.form doesn't update the view if a different form is clicked. So doing ng-if instead -->
-                    <div class="create-sidebar" ng-if="settings.email.sidebar.form == 'account'" ui-view="createAccount"></div>
-                    <div class="create-sidebar" ng-if="settings.email.sidebar.form == 'contact'" ui-view="createContact"></div>
-                    <div class="create-sidebar" ng-if="settings.email.sidebar.form == 'cases'" ui-view="createCase"></div>
-                    <div class="create-sidebar" ng-if="settings.email.sidebar.form == 'deals'" ui-view="createDeal"></div>
+    <div class="col-md-2" ui-view="labelList"></div>
+    <div class="col-md-10">
+        <div class="row">
+            <div class="email-base" ng-class="{'col-lg-9': settings.email.sidebar.isVisible, 'col-lg-12': !settings.email.sidebar.isVisible}" ui-view id="emailBase"></div>
+            <div class="col-lg-3" ng-show="settings.email.sidebar.isVisible">
+                <div ng-if="settings.email.sidebar.form">
+                    <div class="row inbox">
+                        <div class="col-md-12">
+                            <!-- Setting ui-view to settings.email.sidebar.form doesn't update the view if a different form is clicked. So doing ng-if instead -->
+                            <div class="create-sidebar" ng-if="settings.email.sidebar.form == 'account'" ui-view="createAccount"></div>
+                            <div class="create-sidebar" ng-if="settings.email.sidebar.form == 'contact'" ui-view="createContact"></div>
+                            <div class="create-sidebar" ng-if="settings.email.sidebar.form == 'cases'" ui-view="createCase"></div>
+                            <div class="create-sidebar" ng-if="settings.email.sidebar.form == 'deals'" ui-view="createDeal"></div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-
-        <div ng-if="settings.email.sidebar.account && settings.email.data.account.id">
-            <div ui-view="showAccount">
-                <account-detail-widget account="account" height="300"></account-detail-widget>
-                <list-widget ng-if="!settings.email.data.contact.id" title="{{ account.name }}" module="contacts" list="contactList" height="300" object="account"></list-widget>
-            </div>
-        </div>
-
-        <div ng-if="settings.email.sidebar.contact && settings.email.data.contact.id">
-            <div ui-view="showContact">
-                <contact-detail-widget contact="contact" height="300"></contact-detail-widget>
-                <div ng-repeat="account in contact.accounts" ng-show="contact.accounts.length">
-                    <list-widget title="{{ account.name }}" module="contacts" object="account" list="account.colleagueList" height="height"></list-widget>
+                <div class="row">
+                    <div ng-if="settings.email.sidebar.account && settings.email.data.account.id">
+                        <div class="col-md-6 col-lg-12">
+                            <div ui-view="showAccount">
+                                <account-detail-widget account="account" height="300"></account-detail-widget>
+                                <list-widget ng-if="!settings.email.data.contact.id" title="{{ account.name }}" module="contacts" list="contactList" height="300" object="account"></list-widget>
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-if="settings.email.sidebar.contact && settings.email.data.contact.id">
+                        <div class="col-md-6 col-lg-12">
+                            <div ui-view="showContact">
+                                <contact-detail-widget contact="contact" height="300"></contact-detail-widget>
+                                <div ng-repeat="account in contact.accounts" ng-show="contact.accounts.length">
+                                    <list-widget title="{{ account.name }}" module="contacts" object="account" list="account.colleagueList" height="height"></list-widget>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-if="settings.email.sidebar.case && settings.email.data.cases">
+                        <div class="col-md-6 col-lg-12">
+                            <div ui-view="showCases">
+                                <list-widget title="Cases" list="settings.email.data.cases" height="300" collapsable-items="true"></list-widget>
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-if="settings.email.sidebar.deal && settings.email.data.deals">
+                        <div class="col-md-6 col-lg-12">
+                            <div ui-view="showDeals">
+                                <list-widget title="Deals" list="settings.email.data.deals" height="300" collapsable-items="true"></list-widget>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-
-        <div ng-if="settings.email.sidebar.case && settings.email.data.cases">
-            <div ui-view="showCases">
-                <list-widget title="Cases" list="settings.email.data.cases" height="300" collapsable-items="true"></list-widget>
-            </div>
-        </div>
-
-        <div ng-if="settings.email.sidebar.deal && settings.email.data.deals">
-            <div ui-view="showDeals">
-                <list-widget title="Deals" list="settings.email.data.deals" height="300" collapsable-items="true"></list-widget>
             </div>
         </div>
     </div>

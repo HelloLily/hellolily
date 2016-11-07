@@ -24,8 +24,10 @@ function emailPreferencesStates($stateProvider) {
 
 angular.module('app.preferences').controller('PreferencesEmailAccountList', PreferencesEmailAccountList);
 
-PreferencesEmailAccountList.$inject = ['$compile', '$http', '$scope', '$templateCache', 'EmailAccount', 'User', 'user'];
-function PreferencesEmailAccountList($compile, $http, $scope, $templateCache, EmailAccount, User, user) {
+PreferencesEmailAccountList.$inject = ['$compile', '$http', '$scope', '$templateCache', 'EmailAccount',
+    'HLResource', 'User', 'user'];
+function PreferencesEmailAccountList($compile, $http, $scope, $templateCache, EmailAccount,
+                                     HLResource, User, user) {
     var vm = this;
 
     vm.ownedAccounts = [];
@@ -154,6 +156,10 @@ function PreferencesEmailAccountList($compile, $http, $scope, $templateCache, Em
     }
 
     function togglePrimaryAccount(emailAccount) {
+        var args = {
+            id: 'me',
+        };
+
         if (vm.currentUser.primary_email_account === emailAccount.id) {
             // Unset primary email account..
             vm.currentUser.primary_email_account = null;
@@ -161,6 +167,9 @@ function PreferencesEmailAccountList($compile, $http, $scope, $templateCache, Em
             // Set primary email account.
             vm.currentUser.primary_email_account = emailAccount.id;
         }
-        User.update({id: 'me'}, vm.currentUser);
+
+        args.primary_email_account = vm.currentUser.primary_email_account;
+
+        HLResource.patch('User', args);
     }
 }

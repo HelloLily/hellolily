@@ -88,6 +88,9 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
             searchByWebsite: {
                 url: '/search/website/:website',
             },
+            searchByPhoneNumber: {
+                url: '/search/number/:number',
+            },
         });
 
     _account.getAccounts = getAccounts;

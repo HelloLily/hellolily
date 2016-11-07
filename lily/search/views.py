@@ -4,6 +4,7 @@ from django.views.generic.base import View
 import anyjson
 import freemail
 from lily.accounts.models import Website
+from lily.utils.functions import parse_phone_number
 from lily.utils.views.mixins import LoginRequiredMixin
 
 from .lily_search import LilySearch
@@ -197,7 +198,6 @@ class EmailAddressSearchView(LoginRequiredMixin, View):
 
 
 class WebsiteSearchView(LoginRequiredMixin, View):
-
     def get(self, request, *args, **kwargs):
         website = kwargs.get('website', None)
         results = self._search_website(website)
@@ -219,6 +219,38 @@ class WebsiteSearchView(LoginRequiredMixin, View):
                 'type': 'website',
                 'data': hits[0],
                 'complete': True,
+            }
+
+        return {}
+
+
+class PhoneNumberSearchView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        number = kwargs.get('number', None)
+
+        if number:
+            # For now we'll always convert the phone number to a certain format.
+            # In the future we might change how we handle phone numbers.
+            number = parse_phone_number(number)
+
+        results = self._search_number(number)
+
+        return HttpResponse(anyjson.dumps(results), content_type='application/json; charset=utf-8')
+
+    def _search_number(self, number):
+        search = LilySearch(
+            tenant_id=self.request.user.tenant_id,
+            model_type='accounts_account',
+            size=1,
+        )
+
+        # Try to find an account with the given phone number.
+        search.filter_query('phone_numbers.number:"%s"' % number)
+
+        hits, facets, total, took = search.do_search()
+        if hits:
+            return {
+                'data': hits[0],
             }
 
         return {}

@@ -233,6 +233,8 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
                 }
             }
         }
+
+        vm.deal.next_step_date = moment(vm.deal.next_step_date).toDate();
     }
 
     $scope.$watchCollection('vm.deal.next_step', function(newValue, oldValue) {

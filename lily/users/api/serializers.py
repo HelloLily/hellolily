@@ -29,6 +29,7 @@ class LilyUserSerializer(serializers.ModelSerializer):
             'is_active',
             'picture',
             'phone_number',
+            'internal_number',
             'social_media',
             'language',
             # 'timezone',

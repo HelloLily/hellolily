@@ -48,7 +48,6 @@ class PhoneNumber(TenantMixin):
         return self.number
 
     def save(self, *args, **kwargs):
-        # Save raw input as number only (for searching)
         self.number = parse_phone_number(self.number)
 
         return super(PhoneNumber, self).save(*args, **kwargs)

@@ -171,6 +171,10 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
 
         Tenant.query({}, function(tenant) {
             vm.tenant = tenant;
+
+            if (tenant.currency) {
+                vm.deal.currency = tenant.currency;
+            }
         });
 
         _getDeal();

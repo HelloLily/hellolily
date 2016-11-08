@@ -129,6 +129,7 @@ function EditableSelectController($injector, $scope, HLResource, HLSearch, HLUti
         var searchPromise;
         var sortColumn;
         var nameColumn;
+        var extraFilterQuery;
 
         if (es.selectOptions.hasOwnProperty('type')) {
             type = es.selectOptions.type;
@@ -144,7 +145,9 @@ function EditableSelectController($injector, $scope, HLResource, HLSearch, HLUti
             nameColumn = es.selectOptions.nameColumn;
         }
 
-        searchPromise = HLSearch.refreshList(query, type, '', sortColumn, nameColumn);
+        extraFilterQuery = (type === 'User') ? 'is_active:true' : '';
+
+        searchPromise = HLSearch.refreshList(query, type, extraFilterQuery, sortColumn, nameColumn);
 
         if (searchPromise) {
             searchPromise.$promise.then(function(data) {

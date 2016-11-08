@@ -240,7 +240,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
     $scope.$watchCollection('vm.deal.next_step', function(newValue, oldValue) {
         // Only change the next step date when the next step actually gets changed.
         // So don't change if we're just loading the deal (init when editing).
-        if ((vm.deal.id && oldValue && newValue !== oldValue) || (!vm.deal.id && newValue !== oldValue)) {
+        if ((vm.deal && vm.deal.id && oldValue && newValue !== oldValue) || (!vm.deal.id && newValue !== oldValue)) {
             if (vm.deal.next_step.date_increment !== 0) {
                 vm.deal.next_step_date = HLUtils.addBusinessDays(vm.deal.next_step.date_increment);
             } else if (angular.equals(vm.deal.next_step, vm.noneStep)) {
@@ -251,7 +251,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
     });
 
     $scope.$watch('vm.deal.status', function() {
-        if (vm.deal.id && vm.deal.status === vm.lostStatus.id) {
+        if (vm.deal && vm.lostStatus && vm.deal.id && vm.deal.status === vm.lostStatus.id) {
             if (vm.noneStep) {
                 // If the status is 'Lost', set the next step to 'None'.
                 vm.deal.next_step = vm.noneStep;
@@ -280,6 +280,8 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
     }
 
     function saveDeal(form, archive) {
+        var copiedDeal;
+
         // Check if a deal is being saved (and archived) via the + deal page
         // or via a supercard.
         if (Settings.email.sidebar.isVisible && archive) {
@@ -325,28 +327,26 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
             vm.deal.is_archived = true;
         }
 
-        if (vm.deal.next_step_date) {
-            vm.deal.next_step_date = moment(vm.deal.next_step_date).format('YYYY-MM-DD');
+        copiedDeal = angular.copy(vm.deal);
+
+        if (copiedDeal.next_step_date) {
+            copiedDeal.next_step_date = moment(copiedDeal.next_step_date).format('YYYY-MM-DD');
         }
 
-        if (vm.deal.closed_date) {
-            vm.deal.closed_date = moment(vm.deal.closed_date).format('YYYY-MM-DD');
+        if (copiedDeal.why_lost && copiedDeal.status.id !== vm.lostStatus.id) {
+            copiedDeal.why_lost = null;
         }
 
-        if (vm.deal.why_lost && vm.deal.status.id !== vm.lostStatus.id) {
-            vm.deal.why_lost = null;
-        }
-
-        if (vm.deal.id) {
+        if (copiedDeal.id) {
             // If there's an ID set it means we're dealing with an existing deal, so update it.
-            vm.deal.$update(function() {
+            copiedDeal.$update(function() {
                 toastr.success('I\'ve updated the deal for you!', 'Done');
-                $state.go('base.deals.detail', {id: vm.deal.id}, {reload: true});
+                $state.go('base.deals.detail', {id: copiedDeal.id}, {reload: true});
             }, function(response) {
                 _handleBadResponse(response, form);
             });
         } else {
-            vm.deal.$save(function() {
+            copiedDeal.$save(function() {
                 new Intercom('trackEvent', 'deal-created');
 
                 toastr.success('I\'ve saved the deal for you!', 'Yay');
@@ -356,7 +356,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
 
                     Metronic.unblockUI();
                 } else {
-                    $state.go('base.deals.detail', {id: vm.deal.id});
+                    $state.go('base.deals.detail', {id: copiedDeal.id});
                 }
             }, function(response) {
                 _handleBadResponse(response, form);

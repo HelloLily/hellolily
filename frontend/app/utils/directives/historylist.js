@@ -35,7 +35,6 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
             scope.history.reloadHistory = reloadHistory;
             scope.history.addNote = addNote;
             scope.history.pinNote = pinNote;
-            scope.history.updateModel = updateModel;
             scope.history.removeFromList = removeFromList;
             scope.history.filterType = filterType;
 
@@ -349,16 +348,6 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
                     HLForms.setErrors(form, response.data);
                     toastr.error('Uh oh, there seems to be a problem', 'Oops!');
                 });
-            }
-
-            function updateModel(historyType, data, field) {
-                var patchPromise;
-                var args = HLResource.createArgs(data, field);
-                var modelName = historyType.charAt(0).toUpperCase() + historyType.slice(1);
-
-                patchPromise = HLResource.patch(modelName, args).$promise;
-
-                return patchPromise;
             }
 
             function pinNote(note, isPinned) {

@@ -199,13 +199,12 @@ $inline-editable-field-height: 30px;
 
     &.editable-select2 {
         line-height: initial;
-        min-width: 250px;
     }
 }
 
 .hl-page-name {
     .editable-input {
-        font-size: 22px;
+        font-size: 25px;
         font-weight: 500;
     }
 }
@@ -271,15 +270,19 @@ $inline-editable-field-height: 30px;
 }
 
 .editable-multi {
-    width: 75%;
+    .editable-select2 {
+        margin: 0;
+        padding: 0;
+    }
 
     .editable-wrap {
         width: 100%;
     }
+}
 
-    .editable-select2 {
-        margin: 0;
-        padding: 0;
+.editable-wrap {
+    &.editable-ui-select {
+        min-width: 150px;
     }
 }
 

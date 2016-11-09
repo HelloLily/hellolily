@@ -28,6 +28,7 @@ function MyCasesController($filter, $scope, Case, HLUtils, HLResource, LocalStor
 
     vm.getMyCases = getMyCases;
     vm.acceptCase = acceptCase;
+    vm.updateModel = updateModel;
 
     activate();
 
@@ -89,15 +90,19 @@ function MyCasesController($filter, $scope, Case, HLUtils, HLResource, LocalStor
         });
     }
 
+    function updateModel(data, field) {
+        return Case.updateModel(data, field).then(function() {
+            getMyCases();
+        });
+    }
+
     function acceptCase(myCase) {
         var args = {
             id: myCase.id,
             newly_assigned: false,
         };
 
-        HLResource.patch('Case', args).$promise.then(function() {
-            getMyCases();
-        });
+        updateModel(args);
     }
 
     function _watchTable() {

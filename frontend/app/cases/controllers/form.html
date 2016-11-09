@@ -23,7 +23,7 @@
                 <form-group label-title="Contact" label-id="id_contact" field="caseForm.contact">
                     <ui-select ng-model="vm.case.contact" theme="select2" class="form-control" name="contact" append-to-body="true">
                         <ui-select-match placeholder="Select an contact" allow-clear="true">{{ $select.selected.full_name }}</ui-select-match>
-                        <ui-select-choices repeat="contact in vm.contacts | propsFilter: {full_name: $select.search}" refresh="vm.refreshContacts($select.search)">
+                        <ui-select-choices repeat="contact in vm.contacts" refresh="vm.refreshContacts($select.search)">
                             <div ng-bind-html="contact.full_name | highlight: $select.search"></div>
                         </ui-select-choices>
                     </ui-select>
@@ -121,7 +121,7 @@
                 <form-group label-title="Assigned to teams" label-id="id_assigned_to_teams" field="caseForm.assigned_to_teams">
                     <ui-select multiple ng-model="vm.case.assigned_to_teams" theme="select2" class="form-control" name="assigned_to_teams" append-to-body="true">
                         <ui-select-match placeholder="Select one or more team(s)">{{ $item.name }}</ui-select-match>
-                        <ui-select-choices repeat="team.id as team in vm.teams | propsFilter: {name: $select.search}">
+                        <ui-select-choices repeat="team.id as team in vm.teams">
                             <div ng-bind-html="team.name | highlight: $select.search"></div>
                         </ui-select-choices>
                     </ui-select>
@@ -132,7 +132,7 @@
                 <form-group label-title="Assigned to" label-id="id_assigned_to" field="caseForm.assigned_to">
                     <ui-select ng-model="vm.case.assigned_to" theme="select2" class="form-control" name="assigned_to" append-to-body="true">
                         <ui-select-match placeholder="Assign to..." allow-clear="true">{{ $select.selected.full_name }}</ui-select-match>
-                        <ui-select-choices repeat="user in vm.users | propsFilter: {full_name: $select.search}" refresh="vm.refreshUsers($select.search)" refresh-delay="300">
+                        <ui-select-choices repeat="user in vm.users" refresh="vm.refreshUsers($select.search)" refresh-delay="300">
                             <div ng-bind-html="user.full_name | highlight: $select.search"></div>
                         </ui-select-choices>
                     </ui-select>

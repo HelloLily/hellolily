@@ -99,7 +99,7 @@ class CaseSerializer(WritableNestedSerializer):
                 'description': HtmlSanitizer(description).clean().render(),
             })
 
-        if assigned_to and assigned_to != user.pk:
+        if assigned_to and assigned_to.get('id') != user.pk:
             validated_data.update({
                 'newly_assigned': True,
             })
@@ -107,8 +107,13 @@ class CaseSerializer(WritableNestedSerializer):
         return super(CaseSerializer, self).create(validated_data)
 
     def update(self, instance, validated_data):
+        user = self.context.get('request').user
         status_id = validated_data.get('status', instance.status_id)
         description = validated_data.get('description')
+        assigned_to = validated_data.get('assigned_to')
+
+        if assigned_to:
+            assigned_to = assigned_to.get('id')
 
         if isinstance(status_id, dict):
             status_id = status_id.get('id')
@@ -124,6 +129,12 @@ class CaseSerializer(WritableNestedSerializer):
         if description:
             validated_data.update({
                 'description': HtmlSanitizer(description).clean().render(),
+            })
+
+        # Check if the case being reassigned. If so we want to notify that user.
+        if assigned_to and assigned_to != user.pk and instance.assigned_to and instance.assigned_to.id != assigned_to:
+            validated_data.update({
+                'newly_assigned': True,
             })
 
         if self.partial:

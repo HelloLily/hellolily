@@ -28,70 +28,70 @@
     @include notification-icon($low-prio-color);
 }
 
-.hl-low-prio-icon {
+.hl-prio-icon-low {
     color: $low-prio-color;
 }
 
-.hl-normal-prio-icon {
+.hl-prio-icon-medium {
     color: $medium-prio-color;
 }
 
-.hl-high-prio-icon {
+.hl-prio-icon-high {
     color: $high-prio-color;
 }
 
-.hl-critical-prio-icon {
+.hl-prio-icon-critical {
     color: $critical-prio-color;
 }
 
 .step-type {
-    &.position-1 {
+    &.position-0 {
         @include colored-bullet(10px, $bullet-color-1)
     }
 
-    &.position-2 {
+    &.position-1 {
         @include colored-bullet(10px, $bullet-color-2)
     }
 
-    &.position-3 {
+    &.position-2 {
         @include colored-bullet(10px, $bullet-color-3)
     }
 
-    &.position-4 {
+    &.position-3 {
         @include colored-bullet(10px, $bullet-color-4)
     }
 
-    &.position-5 {
+    &.position-4 {
         @include colored-bullet(10px, $bullet-color-5)
     }
 
-    &.position-6 {
+    &.position-5 {
         @include colored-bullet(10px, $bullet-color-6)
     }
 }
 
 .step-type-label {
-    &.position-1 {
+    &.position-0 {
         @include colored-label(24px, $bullet-color-1)
     }
 
-    &.position-2 {
+    &.position-1 {
         @include colored-label(24px, $bullet-color-2)
     }
 
-    &.position-3 {
+    &.position-2 {
         @include colored-label(24px, $bullet-color-3)
     }
 
-    &.position-4 {
+    &.position-3 {
         @include colored-label(24px, $bullet-color-4)
     }
 
-    &.position-5 {
+    &.position-4 {
         @include colored-label(24px, $bullet-color-5)
     }
 
-    &.position-6 {
+    &.position-5 {
         @include colored-label(24px, $bullet-color-6)
     }
 }

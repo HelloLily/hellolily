@@ -70,6 +70,7 @@ function CaseListController($compile, $filter, $scope, $state, $timeout, $templa
     vm.clearFilters = clearFilters;
     vm.assignTo = assignTo;
     vm.assignToMe = assignToMe;
+    vm.updateModel = updateModel;
 
     activate();
 
@@ -86,6 +87,12 @@ function CaseListController($compile, $filter, $scope, $state, $timeout, $templa
             _getFilterSpecialList();
             _setupWatchers();
         }, 50);
+    }
+
+    function updateModel(data, field) {
+        return Case.updateModel(data, field).then(function() {
+            _updateCases();
+        });
     }
 
     /**

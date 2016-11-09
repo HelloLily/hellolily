@@ -161,7 +161,7 @@
                 <span ng-if="toolbar.field" e-form="headerForm" e-name="{{ toolbar.field }}" e-size="{{ $data.length }}"
                       ng-dblclick="headerForm.$show()" editable-text="toolbar.object[toolbar.field]"
                       onbeforesave="toolbar.updateCallback($data, toolbar.field)" blur="submit" editable-handler input-auto-size>
-                    <span>{{ settings.page.header.main }}</span>
+                    <span>{{ settings.page.header.main | hlTruncate }}</span>
                 </span>
                 <form ng-if="toolbar.fields" editable-form name="headerForm" e-form="headerForm"
                       ng-class="{'editable editable-click addable-click': !headerForm.$visible}"

@@ -11,7 +11,6 @@ from .connector import GmailConnector, MessageNotFoundError, LabelNotFoundError
 from .credentials import InvalidCredentialsError
 from .models.models import EmailLabel, EmailMessage, NoEmailMessageId
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -70,7 +69,6 @@ class GmailManager(object):
                     args=[self.email_account.id, message_dict['id']],
                     queue='email_first_sync'
                 )
-
             else:
                 # We only need to update the labels for this message.
                 app.send_task(
@@ -126,39 +124,55 @@ class GmailManager(object):
         if not len(history):
             return
 
-        add_messages = set()
+        new_messages = set()
         edit_labels = set()
+
+        # Collect message ids for new, removed email messages and email messages with label changes.
         for history_item in history:
             logger.debug('parsing history %s' % history_item)
-            # Get new messages
+
+            # New email messages.
             if 'messagesAdded' in history_item:
-                logger.debug(
-                    'messages added %s' % [item['message']['id'] for item in history_item['messagesAdded']]
-                )
-                add_messages.update([item['message']['id'] for item in history_item['messagesAdded']])
+                for item in history_item['messagesAdded']:
+                    # Skip chat messages.
+                    if settings.GMAIL_LABEL_CHAT not in item['message']['labelIds']:
+                        logger.debug('Message added %s' % item['message']['id'])
+                        new_messages.add(item['message']['id'])
 
-            # Label updates
+            # Email messages with labels added.
             for message in history_item.get('labelsAdded', []):
-                if message['message']['id'] not in add_messages:
+                if settings.GMAIL_LABEL_CHAT in message['message']['labelIds']:
+                    continue
+
+                if message['message']['id'] not in new_messages:
                     logger.debug('message updated %s', message['message']['id'])
                     edit_labels.add(message['message']['id'])
 
+            # Email messages with labels removed.
             for message in history_item.get('labelsRemoved', []):
-                if message['message']['id'] not in add_messages:
+                if settings.GMAIL_LABEL_CHAT in message['message']['labelIds']:
+                    continue
+
+                if message['message']['id'] not in new_messages:
                     logger.debug('message updated %s', message['message']['id'])
                     edit_labels.add(message['message']['id'])
 
-            # Remove messages
+            # Removed email messages.
             for message in history_item.get('messagesDeleted', []):
                 logger.debug('deleting message %s' % message['message']['id'])
-                add_messages.discard(message['message']['id'])
+
+                # When deleting the message, there is no need anymore to create a download it or update its labels.
+                new_messages.discard(message['message']['id'])
                 edit_labels.discard(message['message']['id'])
+
                 EmailMessage.objects.filter(message_id=message['message']['id'], account=self.email_account).delete()
 
-        for message_id in add_messages:
+        # Create tasks to download email messages.
+        for message_id in new_messages:
             logger.info('creating download_email_message for %s', message_id)
             app.send_task('download_email_message', args=[self.email_account.id, message_id])
 
+        # Creates tasks to update labeling for email messages.
         for message_id in edit_labels:
             logger.info('creating update_labels_for_message for %s', message_id)
             app.send_task('update_labels_for_message', args=[self.email_account.id, message_id])

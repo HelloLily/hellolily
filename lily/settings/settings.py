@@ -557,6 +557,7 @@ GMAIL_LABEL_STAR = os.environ.get('GMAIL_LABEL_STAR', 'STARRED')
 GMAIL_LABEL_IMPORTANT = os.environ.get('GMAIL_LABEL_IMPORTANT', 'IMPORTANT')
 GMAIL_LABEL_SENT = os.environ.get('GMAIL_LABEL_SENT', 'SENT')
 GMAIL_LABEL_DRAFT = os.environ.get('GMAIL_LABEL_DRAFT', 'DRAFT')
+GMAIL_LABEL_CHAT = os.environ.get('GMAIL_LABEL_CHAT', 'CHAT')
 
 #######################################################################################################################
 # Django rest settings                                                                                                #

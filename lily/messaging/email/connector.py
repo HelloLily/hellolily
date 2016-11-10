@@ -120,7 +120,7 @@ class GmailConnector(object):
 
     def get_history(self):
         """
-        Fetch the history list from the gmail api.
+        Fetch the history list from the gmail api. This includes email and chat messages.
 
         Returns:
             list with messageIds and threadIds
@@ -153,7 +153,7 @@ class GmailConnector(object):
 
     def get_all_message_id_list(self):
         """
-        Fetch all messageIds from the gmail api.
+        Fetch all messageIds from the gmail api. Chat messages are filtered out.
 
         Returns:
             list with messageIds and threadIds

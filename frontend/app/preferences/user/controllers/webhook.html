@@ -1,0 +1,54 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet">
+            <div class="portlet-title">
+                <div class="caption">Your webhook</div>
+            </div>
+
+            <p>You can enter a URL here to call whenever a create (POST) or update (PUT/PATCH) event is executed (e.g. an account being created or updated).</p>
+            <form novalidate name="webhookForm">
+                <form-portlet portlet-title="Webhook info">
+                    <div ng-repeat="webhook in vm.user.webhooks">
+                        <form-group label-title="Webhook URL" label-id="url" field="webhookForm.url" required="true">
+                            <input class="form-control"
+                                id="url"
+                                name="url"
+                                maxlength="255"
+                                placeholder="www.example.com"
+                                type="text"
+                                ng-model="webhook.url" />
+                        </form-group>
+
+                        <form-group label-title="Webhook name" label-id="name" field="webhookForm.name">
+                            <input class="form-control"
+                                id="name"
+                                name="name"
+                                maxlength="255"
+                                placeholder="Webhook name"
+                                type="text"
+                                ng-model="webhook.name" />
+                        </form-group>
+                    </div>
+                </form-portlet>
+
+                <!--<div>
+                    <button class="hl-primary-btn" ng-click="vm.addWebhook()"><i class="fa fa-plus"></i> Add webhook</button>
+                </div>-->
+
+                <div class="hl-form-footer">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-3 col-md-2 col-lg-2"></div>
+                        <div class="col-xs-12 col-sm-9 col-md-8 col-md-7 col-lg-4">
+                            <button type="button" class="btn blue" ng-click="vm.saveWebhooks()">
+                                <i class="fa fa-check"></i> Save
+                            </button>
+                            <button type="button" class="btn default" ng-click="vm.cancelWebhookEditing()">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

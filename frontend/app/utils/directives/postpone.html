@@ -1,5 +1,7 @@
 <span style="position: relative;">
     <a class="no-text-decoration" ng-click="vm.openPostponeModal(vm.object)" tooltip-placement="{{ vm.ttPlacement || 'top' }}" uib-tooltip="Aaah, that's too soon!">
-        <i class="lilicon hl-postpone-icon"></i><date class="margin-left-5" date="vm.object[vm.dateField]"></date>
+        <i ng-if="vm.object.next_step_date || vm.object.next_step.name !== 'None'" class="lilicon hl-postpone-icon"></i>
+        <date class="margin-left-5" ng-if="vm.object[vm.dateField]" date="vm.object[vm.dateField]"></date>
+        <span ng-if="!vm.object.next_step_date && vm.object.next_step.name !== 'None'">Pick a date</span>
     </a>
 </span>

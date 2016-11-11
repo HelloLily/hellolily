@@ -152,3 +152,17 @@ class ExternalAppLink(TenantMixin):
 
     class Meta:
         app_label = 'utils'
+
+
+class Webhook(TenantMixin):
+    """
+    A link to a webhook.
+    """
+    url = models.URLField(max_length=255)
+    name = models.CharField(max_length=255, null=True, blank=True)
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        app_label = 'utils'

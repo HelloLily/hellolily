@@ -117,6 +117,7 @@ newrelic==2.52.0.40
 pycrypto==2.6.1  # Old version is: 2.6
 Pympler==0.4.1
 requests==2.7.0
+grequests==0.3.0
 unicodecsv==0.13.0
 urllib3==1.11
 Babel==2.2.0

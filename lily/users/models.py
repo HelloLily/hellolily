@@ -14,6 +14,7 @@ from timezone_field import TimeZoneField
 
 from lily.socialmedia.models import SocialMedia
 from lily.tenant.models import TenantMixin, Tenant
+from lily.utils.models.models import Webhook
 
 
 class LilyUserManager(UserManager):
@@ -125,6 +126,7 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
     timezone = TimeZoneField(default='Europe/Amsterdam')
 
     primary_email_account = models.ForeignKey('email.EmailAccount', blank=True, null=True)
+    webhooks = models.ManyToManyField(Webhook, null=True, blank=True)
 
     objects = LilyUserManager()
 

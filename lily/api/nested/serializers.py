@@ -1,3 +1,6 @@
+import json
+import grequests
+
 from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
 from rest_framework import serializers
@@ -43,6 +46,8 @@ class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializer
         return validated_data, many_related_data, fk_related_data, generic_related_data
 
     def create(self, validated_data):
+        original_validated_data = validated_data.copy()
+
         # Prepare all data for saving.
         (non_related_data, many_related_data,
          fk_related_data, generic_related_data) = self._separate_data(validated_data)
@@ -91,9 +96,13 @@ class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializer
 
                 getattr(instance, field_name).add(*related_instance_list)
 
+            self.call_webhook(original_validated_data, instance)
+
         return instance
 
     def update(self, instance, validated_data):
+        original_validated_data = validated_data.copy()
+
         # Prepare all data for saving.
         (non_related_data, many_related_data,
          fk_related_data, generic_related_data) = self._separate_data(validated_data)
@@ -189,7 +198,46 @@ class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializer
                     # It's a full update, so we replace all currently linked objects with the new objects.
                     manager.exclude(id__in=[obj.id for obj in related_instance_list]).delete()
 
+            self.call_webhook(original_validated_data)
+
         return instance
+
+    def call_webhook(self, original_validated_data, instance=None):
+        user = self.context.get('request').user
+        # Get the webhook of the user.
+        webhook = user.webhooks.first()
+        # For now we only want to send a POST request for the following events.
+        events = ['account', 'case', 'contact', 'deal']
+        # Get the class name of the instance.
+        model = self.Meta.model._meta.model_name
+
+        if webhook and model in events:
+            if instance:
+                # Create, so we don't have the instance ID available in the data.
+                original_validated_data.update({
+                    'id': instance.id,
+                })
+
+                data = {
+                    'type': model,
+                    'data': original_validated_data,
+                }
+            else:
+                data = {
+                    'type': model,
+                    'data': original_validated_data,
+                    'object': self.data,
+                }
+
+            data = json.dumps(data, sort_keys=True, default=lambda x: str(x))
+
+            webhook_calls = (grequests.post(wh.url, data=data) for wh in [webhook])
+
+            try:
+                # User has a webhook set, so post the data to the given URL.
+                grequests.map(webhook_calls)
+            except:
+                pass
 
 
 class WritableNestedListSerializer(serializers.ListSerializer):

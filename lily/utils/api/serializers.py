@@ -6,10 +6,11 @@ from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from lily.accounts.api.validators import HostnameValidator
 from lily.api.nested.mixins import RelatedSerializerMixin
 from lily.tags.models import Tag, TAGABLE_MODELS
 
-from ..models.models import Address, EmailAddress, PhoneNumber, ExternalAppLink
+from ..models.models import Address, EmailAddress, PhoneNumber, ExternalAppLink, Webhook
 
 
 class PhoneNumberSerializer(serializers.ModelSerializer):
@@ -127,4 +128,19 @@ class ExternalAppLinkSerializer(serializers.ModelSerializer):
 
 
 class RelatedExternalAppLinkSerializer(RelatedSerializerMixin, ExternalAppLinkSerializer):
+    pass
+
+
+class WebhookSerializer(serializers.ModelSerializer):
+    url = serializers.CharField(required=True, max_length=255, validators=[HostnameValidator()])
+
+    class Meta:
+        model = Webhook
+        fields = (
+            'url',
+            'name',
+        )
+
+
+class RelatedWebhookSerializer(RelatedSerializerMixin, WebhookSerializer):
     pass

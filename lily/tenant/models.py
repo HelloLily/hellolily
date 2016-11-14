@@ -3,6 +3,7 @@ from django.db import models
 from django.db.models import Q
 from polymorphic import PolymorphicManager, PolymorphicModel
 from lily.utils.countries import COUNTRIES
+from lily.utils.currencies import CURRENCIES
 
 from .middleware import get_current_user
 
@@ -29,6 +30,7 @@ class PolymorphicTenantManager(TenantManager, PolymorphicManager):
 class Tenant(models.Model):
     name = models.CharField(max_length=255, blank=True)
     country = models.CharField(blank=True, max_length=2, verbose_name='country', choices=COUNTRIES)
+    currency = models.CharField(blank=True, max_length=3, verbose_name='currency', choices=CURRENCIES)
 
     def __unicode__(self):
         if self.name:

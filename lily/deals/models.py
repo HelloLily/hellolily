@@ -8,6 +8,7 @@ from lily.contacts.models import Contact
 from lily.tags.models import TaggedObjectMixin
 from lily.users.models import LilyUser
 from lily.tenant.models import TenantMixin
+from lily.utils.currencies import CURRENCIES
 from lily.utils.models.mixins import DeletedMixin, ArchivedMixin
 
 
@@ -90,22 +91,12 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     """
     Deal model
     """
-    CURRENCY_CHOICES = (
-        ('EUR', _('Euro')),
-        ('GBP', _('British pound')),
-        ('USD', _('United States dollar')),
-        ('ZAR', _('South African rand')),
-        ('NOR', _('Norwegian krone')),
-        ('DKK', _('Danish krone')),
-        ('SEK', _('Swedish krone')),
-        ('CHF', _('Swiss franc')),
-    )
 
     OPEN_STAGE, PENDING_STAGE, WON_STAGE, LOST_STAGE, CALLED_STAGE, EMAILED_STAGE = range(6)
 
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
-    currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES)
+    currency = models.CharField(max_length=3, choices=CURRENCIES)
     amount_once = models.DecimalField(default=0, max_digits=19, decimal_places=2)
     amount_recurring = models.DecimalField(default=0, max_digits=19, decimal_places=2)
     closed_date = models.DateTimeField(blank=True, null=True)

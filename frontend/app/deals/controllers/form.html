@@ -15,7 +15,7 @@
                     <form-group label-title="Account" label-id="id_account" field="dealForm.account" required="true">
                         <ui-select ng-model="vm.deal.account" theme="select2" class="form-control" name="account" append-to-body="true" autofocus="true">
                             <ui-select-match placeholder="Select an account" allow-clear="true">{{ $select.selected.name }}</ui-select-match>
-                            <ui-select-choices repeat="account in vm.accounts | propsFilter: {name: $select.search}" refresh="vm.refreshAccounts($select.search)" refresh-delay="300">
+                            <ui-select-choices repeat="account in vm.accounts" refresh="vm.refreshAccounts($select.search)" refresh-delay="300">
                                 <div ng-bind-html="account.name | highlight: $select.search"></div>
                             </ui-select-choices>
                         </ui-select>
@@ -25,7 +25,7 @@
                     <form-group label-title="Contact" label-id="id_contact" field="dealForm.contact">
                         <ui-select ng-model="vm.deal.contact" theme="select2" class="form-control" name="contact" append-to-body="true">
                             <ui-select-match placeholder="Select an contact" allow-clear="true">{{ $select.selected.full_name }}</ui-select-match>
-                            <ui-select-choices repeat="contact in vm.contacts | propsFilter: {full_name: $select.search}" refresh="vm.refreshContacts($select.search)">
+                            <ui-select-choices repeat="contact in vm.contacts" refresh="vm.refreshContacts($select.search)">
                                 <div ng-bind-html="contact.full_name | highlight: $select.search"></div>
                             </ui-select-choices>
                         </ui-select>
@@ -136,7 +136,6 @@
                 </form-group>
 
                 <form-group label-title="Next step date" label-id="id_next_step_date" field="dealForm.next_step_date">
-                    {{ vm.deal.next_step_date }}
                     <div class="input-group form-datepicker">
                         <input type="text"
                                class="form-control"
@@ -155,7 +154,7 @@
                 <form-group label-title="Assigned to" label-id="id_assigned_to" field="dealForm.assigned_to" required="true">
                     <ui-select ng-model="vm.deal.assigned_to" theme="select2" class="form-control" name="assigned_to" append-to-body="true">
                         <ui-select-match placeholder="Assign to..." allow-clear="true">{{ $select.selected.full_name }}</ui-select-match>
-                        <ui-select-choices repeat="user in vm.users | propsFilter: {full_name: $select.search}" refresh="vm.refreshUsers($select.search)" refresh-delay="300">
+                        <ui-select-choices repeat="user in vm.users" refresh="vm.refreshUsers($select.search)" refresh-delay="300">
                             <div ng-bind-html="user.full_name | highlight: $select.search"></div>
                         </ui-select-choices>
                     </ui-select>

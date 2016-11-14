@@ -33,13 +33,13 @@
                         <tr>
                             <td>
                                 <strong class="margin-right-10">Next step:</strong>
-                                <editable-select field="next_step" view-model="vm" type="Deal">
-                                    <span class="step-type" id="next-step" ng-if="vm.deal.next_step" ng-class="{0: 'position-1', 1: 'position-2', 2: 'position-3', 3: 'position-4', 4: 'position-5', 5: 'position-6'}[vm.deal.next_step.position]">
+                                <editable-select field="next_step" view-model="vm" type="Deal" select-type="icon_select" select-options="{'classPrefix': 'step-type position-', 'classValue': 'position'}">
+                                    <span ng-if="vm.deal.next_step" class="step-type position-{{ vm.deal.next_step.position }}">
                                         {{ vm.deal.next_step.name }}
                                     </span>
                                 </editable-select>
                             </td>
-                            <td ng-if="vm.deal.next_step_date">
+                            <td  ng-hide="!vm.deal.next_step_date && vm.deal.next_step.name === 'None'">
                                 <strong class="margin-right-10">Next step date:</strong>
                                 <postpone type="'Deal'" object="vm.deal" date-field="'next_step_date'" tt-placement="bottom"></postpone>
                             </td>
@@ -188,7 +188,7 @@
                             <li>
                                 <strong>Assignee: </strong>
                                 <div>
-                                    <editable-select field="assigned_to" view-model="vm" type="Deal" class="inline-selectable-text"
+                                    <editable-select field="assigned_to" view-model="vm" type="Deal" search="true"
                                                      select-options="{type: 'User', field: 'assignOptions', display: 'full_name', sortColumn: 'full_name', nameColumn: 'full_name'}">
                                         {{ vm.deal.assigned_to.full_name }}
                                     </editable-select>

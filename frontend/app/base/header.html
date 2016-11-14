@@ -102,13 +102,6 @@
         </li>
 
         <li class="main-nav-item">
-            <a ui-sref-active="active" ui-sref="base.stats" ui-sref-opts="{reload:true}" ng-click="mainNavCollapsed = !mainNavCollapsed">
-                <i class="lilicon hl-statistics-icon"></i>
-                <span class="title">Stats</span>
-            </a>
-        </li>
-
-        <li class="main-nav-item">
             <a ui-sref-active="active" ui-sref="base.email" ui-sref-opts="{reload:true}" ng-click="mainNavCollapsed = !mainNavCollapsed">
                 <i class="lilicon hl-mail-icon"></i>
                 <span class="title">Email</span>
@@ -161,7 +154,7 @@
                 <span ng-if="toolbar.field" e-form="headerForm" e-name="{{ toolbar.field }}" e-size="{{ $data.length }}"
                       ng-dblclick="headerForm.$show()" editable-text="toolbar.object[toolbar.field]"
                       onbeforesave="toolbar.updateCallback($data, toolbar.field)" blur="submit" editable-handler input-auto-size>
-                    <span>{{ settings.page.header.main }}</span>
+                    <span>{{ settings.page.header.main | hlTruncate }}</span>
                 </span>
                 <form ng-if="toolbar.fields" editable-form name="headerForm" e-form="headerForm"
                       ng-class="{'editable editable-click addable-click': !headerForm.$visible}"

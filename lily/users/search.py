@@ -52,6 +52,7 @@ class LilyUserMapping(BaseMapping):
             'position': obj.position,
             'profile_picture': obj.profile_picture,
             'email': obj.email,
+            'is_active': obj.is_active,
         }
 
 

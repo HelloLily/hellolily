@@ -1,7 +1,7 @@
 angular.module('app.cases.services').factory('Case', Case);
 
-Case.$inject = ['$resource', 'HLUtils', 'HLCache', 'CacheFactory'];
-function Case($resource, HLUtils, HLCache, CacheFactory) {
+Case.$inject = ['$resource', 'CacheFactory', 'HLCache', 'HLResource', 'HLUtils'];
+function Case($resource, CacheFactory, HLCache, HLResource, HLUtils) {
     var _case = $resource(
         '/api/cases/:id/',
         {},
@@ -65,6 +65,7 @@ function Case($resource, HLUtils, HLCache, CacheFactory) {
     _case.create = create;
     _case.getCases = getCases;
     _case.getCasePriorities = getCasePriorities;
+    _case.updateModel = updateModel;
 
     /////////
 
@@ -77,6 +78,19 @@ function Case($resource, HLUtils, HLCache, CacheFactory) {
             expires: expires,
             tags: [],
         });
+    }
+
+    function updateModel(data, field, caseObject) {
+        var patchPromise;
+        var args = HLResource.createArgs(data, field, caseObject);
+
+        if (field === 'name') {
+            Settings.page.setAllTitles('detail', data);
+        }
+
+        patchPromise = HLResource.patch('Case', args).$promise;
+
+        return patchPromise;
     }
 
     /**

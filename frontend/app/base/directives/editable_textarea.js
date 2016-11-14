@@ -17,8 +17,8 @@ function editableTextarea() {
     };
 }
 
-EditableTextAreaController.$inject = ['$timeout', 'HLUtils'];
-function EditableTextAreaController($timeout, HLUtils) {
+EditableTextAreaController.$inject = ['$injector', '$timeout', 'HLUtils'];
+function EditableTextAreaController($injector, $timeout, HLUtils) {
     var vm = this;
 
     vm.updateViewModel = updateViewModel;
@@ -41,6 +41,7 @@ function EditableTextAreaController($timeout, HLUtils) {
 
     function updateViewModel($data) {
         var patchPromise;
+        var modelName;
         var args = {
             id: vm.object.id,
         };
@@ -48,8 +49,9 @@ function EditableTextAreaController($timeout, HLUtils) {
         args[vm.field] = $data;
 
         if (vm.object.historyType) {
-            // Dealing with a history list item, so we don't know what model to patch.
-            patchPromise = vm.viewModel.updateModel(vm.object.historyType, args);
+            modelName = vm.object.historyType.charAt(0).toUpperCase() + vm.object.historyType.slice(1);
+
+            patchPromise = $injector.get(modelName).updateModel(args);
         } else {
             patchPromise = vm.viewModel.updateModel(args);
         }

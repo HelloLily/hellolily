@@ -15,4 +15,5 @@ class TenantSerializer(WritableNestedSerializer):
             'id',
             'name',
             'external_app_links',
+            'currency',
         )

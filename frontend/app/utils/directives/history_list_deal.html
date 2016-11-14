@@ -14,10 +14,18 @@
                 <span class="timeline-content-title"><a ui-sref="base.deals.detail({ id: vm.item.id })">{{ ::vm.item.name }}</a></span>
                 <ul class="timeline-content-details">
                     <li>Status: <strong>{{ ::vm.item.stage_name}} ({{ ::vm.item.archived ? 'archived' : 'active'}})</strong></li>
-                    <li>Next step:
-                        <span uib-tooltip="{{ vm.item.next_step.name }}" tooltip-placement="left" class="step-type" id="next-step" ng-if="vm.item.next_step" ng-class="{0: 'position-1', 1: 'position-2', 2: 'position-3', 3: 'position-4', 4: 'position-5', 5: 'position-6'}[vm.item.next_step.position]">
+                    <li>
+                        Next step:
+                        <span uib-tooltip="{{ vm.item.next_step.name }}" tooltip-placement="left" class="step-type" ng-if="vm.item.next_step" class="step-type position-{{ vm.item.next_step.position }}">
                             <strong class="margin-left-5" ng-show="vm.item.next_step_date"><date date="vm.item.next_step_date"></date></strong>
-                            <strong class="margin-left-5" ng-show="!vm.item.next_step_date">{{ vm.item.next_step.name }}</strong>
+                            <strong class="margin-left-5" ng-show="!vm.item.next_step_date">
+                                <editable-select field="next_step" view-model="vm" type="Deal" select-type="icon_select" object="vm.item" tooltip-placement="left"
+                                                uib-tooltip="{{ vm.item.next_step.name }}" select-options="{'classPrefix': 'step-type position-', 'classValue': 'position'}">
+                                    <span class="step-type position-{{ vm.item.next_step.position }}">
+                                        {{ vm.item.next_step.name }}
+                                    </span>
+                                </editable-select>
+                            </strong>
                         </span>
                     </li>
                     <li>Amount once: <strong class="margin-left-5" ng-bind-html="::vm.item.amount_once | currencySymbol:vm.item.currency"></strong></li>

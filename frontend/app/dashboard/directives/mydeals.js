@@ -28,6 +28,7 @@ function MyDealsController($scope, Case, Deal, HLUtils, HLResource, LocalStorage
 
     vm.getMyDeals = getMyDeals;
     vm.acceptDeal = acceptDeal;
+    vm.updateModel = updateModel;
 
     activate();
 
@@ -82,15 +83,19 @@ function MyDealsController($scope, Case, Deal, HLUtils, HLResource, LocalStorage
         });
     }
 
+    function updateModel(data, field) {
+        return Deal.updateModel(data, field).then(function() {
+            getMyDeals();
+        });
+    }
+
     function acceptDeal(myDeal) {
         var args = {
             id: myDeal.id,
             newly_assigned: false,
         };
 
-        HLResource.patch('Deal', args).$promise.then(function() {
-            getMyDeals();
-        });
+        updateModel(args);
     }
 
     function _watchTable() {

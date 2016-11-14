@@ -1,0 +1,16 @@
+<form data-editable-form name="es.{{ es.formName }}" blur="cancel" data-onshow="es.getChoices()" class="display-inline margin-right-10" ng-dblclick="es[es.formName].$show()">
+    <div editable-ui-select="es.selectModel" name="{{ es.field }}" data-e-name="{{ es.field }}" data-e-on-select="es.updateViewModel($data)"
+            data-e-form="{{ es.formName }}" data-e-theme="select2" data-e-class="form-control editable-select2" data-e-search-enabled="false"
+            data-e-ng-model="es.selectModel" class="editable editable-click" editable-handler data-e-append-to-body="true">
+        <ng-transclude></ng-transclude>
+
+        <editable-ui-select-match placeholder="{{ es.placeholder }}">
+            <span class="{{ es.selectOptions.classPrefix }}{{ $select.selected[es.selectOptions.classValue] | lowercase }}"></span>
+            {{ $select.selected[es.optionDisplay] }}
+        </editable-ui-select-match>
+        <editable-ui-select-choices repeat="item.id as item in es.choices">
+            <span class="{{ es.selectOptions.classPrefix }}{{ item[es.selectOptions.classValue] | lowercase }}"></span>
+            {{ item[es.optionDisplay] }}
+        </editable-ui-select-choices>
+    </div>
+</form>

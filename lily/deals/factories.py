@@ -9,6 +9,7 @@ from faker.factory import Factory
 from lily.accounts.factories import AccountFactory
 from lily.contacts.factories import ContactFactory
 from lily.users.factories import LilyUserFactory
+from lily.utils.currencies import CURRENCIES
 from lily.tenant.factories import TenantFactory
 
 from .models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost, DealFoundThrough, DealContactedBy, DealStatus
@@ -124,7 +125,7 @@ class DealFactory(DjangoModelFactory):
     assigned_to = SubFactory(LilyUserFactory, tenant=SelfAttribute('..tenant'))
     card_sent = FuzzyChoice([True, False])
     contacted_by = SubFactory(DealContactedByFactory, tenant=SelfAttribute('..tenant'))
-    currency = FuzzyChoice(dict(Deal.CURRENCY_CHOICES).keys())
+    currency = FuzzyChoice(dict(CURRENCIES).keys())
     found_through = SubFactory(DealFoundThroughFactory, tenant=SelfAttribute('..tenant'))
     is_checked = FuzzyChoice([True, False])
     name = LazyAttribute(lambda o: faker.word())

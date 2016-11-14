@@ -62,10 +62,10 @@ Lily has a large amount of icons that can be used.
     </thead>
     <tbody class="align-center">
         <tr>
-            <td><i class="lilicon font-size-24 hl-low-prio-icon"></i><div style="margin-top: 10px">.hl-low-prio-icon</div></td>
-            <td><i class="lilicon font-size-24 hl-normal-prio-icon"></i><div style="margin-top: 10px">.hl-normal-prio-icon</div></td>
-            <td><i class="lilicon font-size-24 hl-high-prio-icon"></i><div style="margin-top: 10px">.hl-high-prio-icon</div></td>
-            <td><i class="lilicon font-size-24 hl-critical-prio-icon"></i><div style="margin-top: 10px">.hl-critical-prio-icon</div></td>
+            <td><i class="lilicon font-size-24 hl-prio-icon-low"></i><div style="margin-top: 10px">.hl-prio-icon-low</div></td>
+            <td><i class="lilicon font-size-24 hl-prio-icon-medium"></i><div style="margin-top: 10px">.hl-prio-icon-medium</div></td>
+            <td><i class="lilicon font-size-24 hl-prio-icon-high"></i><div style="margin-top: 10px">.hl-prio-icon-high</div></td>
+            <td><i class="lilicon font-size-24 hl-prio-icon-crtical"></i><div style="margin-top: 10px">.hl-prio-icon-critical</div></td>
             <td colspan="3"></td>
         </tr>
     </tbody>
@@ -180,10 +180,10 @@ $hl-company-icon: "\e917";
 $hl-stats-icon: "\e918";
 $hl-paperclip-icon: "\e919";
 $hl-options-icon: "\e91a";
-$hl-low-prio-icon: "\e91b";
-$hl-normal-prio-icon: "\e91c";
-$hl-high-prio-icon: "\e91d";
-$hl-critical-prio-icon: "\e91e";
+$hl-prio-icon-low: "\e91b";
+$hl-prio-icon-medium: "\e91c";
+$hl-prio-icon-high: "\e91d";
+$hl-prio-icon-critical: "\e91e";
 $hl-toggle-right-icon: "\e91f";
 $hl-toggle-left-icon: "\e920";
 $hl-toggle-up-icon: "\e921";
@@ -401,27 +401,27 @@ $hl-forwarding-icon: "\e937";
     }
 }
 
-.hl-low-prio-icon {
+.hl-prio-icon-low {
     &:before {
-        content: $hl-low-prio-icon;
+        content: $hl-prio-icon-low;
     }
 }
 
-.hl-normal-prio-icon {
+.hl-prio-icon-medium {
     &:before {
-        content: $hl-normal-prio-icon;
+        content: $hl-prio-icon-medium;
     }
 }
 
-.hl-high-prio-icon {
+.hl-prio-icon-high {
     &:before {
-        content: $hl-high-prio-icon;
+        content: $hl-prio-icon-high;
     }
 }
 
-.hl-critical-prio-icon {
+.hl-prio-icon-critical {
     &:before {
-        content: $hl-critical-prio-icon;
+        content: $hl-prio-icon-critical;
     }
 }
 

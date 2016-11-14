@@ -4,9 +4,10 @@ import traceback
 from celery.task import task
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
+from oauth2client.client import HttpAccessTokenRefreshError
 
 from lily.utils.functions import post_intercom_event
-from .manager import GmailManager, ManagerError
+from .manager import GmailManager
 from .models.models import (EmailAccount, EmailMessage, EmailOutboxMessage, EmailTemplateAttachment,
                             EmailOutboxAttachment, EmailAttachment)
 
@@ -61,16 +62,19 @@ def synchronize_email_account(account_id):
         return False
     else:
         if email_account.is_authorized:
-            manager = GmailManager(email_account)
+            manager = None
             try:
+                manager = GmailManager(email_account)
                 manager.sync_by_history()
                 logger.info('History page sync done for: %s', email_account)
-            except ManagerError:
+            except HttpAccessTokenRefreshError:
+                logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
                 pass
             except Exception:
                 logger.exception('No sync for account %s' % email_account)
             finally:
-                manager.cleanup()
+                if manager:
+                    manager.cleanup()
         else:
             logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
 
@@ -89,14 +93,19 @@ def first_synchronize_email_account(account_id):
         logger.warning('EmailAccount no longer exists: %s', account_id)
     else:
         if email_account.is_authorized:
-            manager = GmailManager(email_account)
+            manager = None
             try:
+                manager = GmailManager(email_account)
                 logger.debug('First sync for: %s', email_account)
                 manager.full_synchronize()
+            except HttpAccessTokenRefreshError:
+                logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
+                pass
             except Exception:
                 logger.exception('No sync for account %s' % email_account)
             finally:
-                manager.cleanup()
+                if manager:
+                    manager.cleanup()
         else:
             logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
 
@@ -115,15 +124,20 @@ def first_sync_finished(account_id):
         logger.warning('EmailAccount no longer exists: %s', account_id)
     else:
         if email_account.is_authorized:
-            manager = GmailManager(email_account)
+            manager = None
             try:
+                manager = GmailManager(email_account)
                 logger.debug('Finished first email sync for: %s', email_account)
                 email_account.first_sync_finished = True
                 email_account.save()
+            except HttpAccessTokenRefreshError:
+                logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
+                pass
             except Exception:
                 logger.exception('Could not update first_sync_finished flag for account %s' % email_account)
             finally:
-                manager.cleanup()
+                if manager:
+                    manager.cleanup()
         else:
             logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
 
@@ -142,14 +156,19 @@ def synchronize_labels(account_id):
         logger.warning('EmailAccount no longer exists: %s', account_id)
     else:
         if email_account.is_authorized:
-            manager = GmailManager(email_account)
+            manager = None
             try:
+                manager = GmailManager(email_account)
                 manager.sync_labels()
                 logger.debug('Label synchronize for: %s', email_account)
+            except HttpAccessTokenRefreshError:
+                logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
+                pass
             except Exception:
                 logger.exception('Could not synchronize labels for account %s' % email_account)
             finally:
-                manager.cleanup()
+                if manager:
+                    manager.cleanup()
         else:
             logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
 
@@ -169,15 +188,20 @@ def download_email_message(self, account_id, message_id):
         logger.warning('EmailAccount no longer exists: %s', account_id)
     else:
         if email_account.is_authorized:
-            manager = GmailManager(email_account)
+            manager = None
             try:
+                manager = GmailManager(email_account)
                 logger.debug('Fetch message %s for: %s' % (message_id, email_account))
                 manager.download_message(message_id)
+            except HttpAccessTokenRefreshError:
+                logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
+                pass
             except Exception as exc:
                 logger.exception('Fetch message %s for: %s failed' % (message_id, email_account))
                 raise self.retry(exc=exc)
             finally:
-                manager.cleanup()
+                if manager:
+                    manager.cleanup()
         else:
             logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
 
@@ -197,15 +221,20 @@ def update_labels_for_message(self, account_id, email_id):
         logger.warning('EmailAccount no longer exists: %s', email_id)
     else:
         if email_account.is_authorized:
-            manager = GmailManager(email_account)
+            manager = None
             try:
+                manager = GmailManager(email_account)
                 logger.debug('Changing labels for: %s', email_id)
                 manager.update_labels_for_message(email_id)
+            except HttpAccessTokenRefreshError:
+                logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
+                pass
             except Exception as exc:
                 logger.exception('Failed changing labels for %s' % email_id)
                 raise self.retry(exc=exc)
             finally:
-                manager.cleanup()
+                if manager:
+                    manager.cleanup()
         else:
             logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
 
@@ -224,15 +253,23 @@ def toggle_read_email_message(self, email_id, read=True):
     except EmailMessage.DoesNotExist:
         logger.debug('EmailMessage no longer exists: %s', email_id)
     else:
-        manager = GmailManager(email_message.account)
-        try:
-            logger.debug('Toggle read: %s', email_message)
-            manager.toggle_read_email_message(email_message, read=read)
-        except Exception as exc:
-            logger.exception('Failed toggle read for: %s' % email_message)
-            raise self.retry(exc=exc)
-        finally:
-            manager.cleanup()
+        if email_message.account.is_authorized:
+            manager = None
+            try:
+                manager = GmailManager(email_message.account)
+                logger.debug('Toggle read: %s', email_message)
+                manager.toggle_read_email_message(email_message, read=read)
+            except HttpAccessTokenRefreshError:
+                logger.warning('Not syncing, no authorization for: %s', email_message.account.email_address)
+                pass
+            except Exception as exc:
+                logger.exception('Failed toggle read for: %s' % email_message)
+                raise self.retry(exc=exc)
+            finally:
+                if manager:
+                    manager.cleanup()
+        else:
+            logger.warning('Not syncing, no authorization for: %s', email_message.account.email_address)
 
 
 @task(name='archive_email_message', logger=logger, bind=True)
@@ -245,19 +282,26 @@ def archive_email_message(self, email_id):
     """
     try:
         email_message = EmailMessage.objects.get(pk=email_id)
-        email_message.labels.clear()
     except EmailMessage.DoesNotExist:
         logger.warning('EmailMessage no longer exists: %s', email_id)
     else:
-        manager = GmailManager(email_message.account)
-        try:
-            logger.debug('Archiving: %s', email_message)
-            manager.archive_email_message(email_message)
-        except Exception as exc:
-            logger.exception('Failed archiving %s' % email_message)
-            raise self.retry(exc=exc)
-        finally:
-            manager.cleanup()
+        if email_message.account.is_authorized:
+            manager = None
+            try:
+                manager = GmailManager(email_message.account)
+                logger.debug('Archiving: %s', email_message)
+                manager.archive_email_message(email_message)
+            except HttpAccessTokenRefreshError:
+                logger.warning('Not syncing, no authorization for: %s', email_message.account.email_address)
+                pass
+            except Exception as exc:
+                logger.exception('Failed archiving %s' % email_message)
+                raise self.retry(exc=exc)
+            finally:
+                if manager:
+                    manager.cleanup()
+        else:
+            logger.warning('Not syncing, no authorization for: %s', email_message.account.email_address)
 
 
 @task(name='trash_email_message', logger=logger, bind=True)
@@ -273,18 +317,26 @@ def trash_email_message(self, email_id):
     except EmailMessage.DoesNotExist:
         logger.warning('EmailMessage no longer exists: %s', email_id)
     else:
-        manager = GmailManager(email_message.account)
-        try:
-            logger.debug('Trashing: %s', email_message)
-            if email_message.is_draft:
-                manager.delete_draft_email_message(email_message)
-            else:
-                manager.trash_email_message(email_message)
-        except Exception as exc:
-            logger.exception('Failed trashing %s' % email_message)
-            raise self.retry(exc=exc)
-        finally:
-            manager.cleanup()
+        if email_message.account.is_authorized:
+            manager = None
+            try:
+                manager = GmailManager(email_message.account)
+                logger.debug('Trashing: %s', email_message)
+                if email_message.is_draft:
+                    manager.delete_draft_email_message(email_message)
+                else:
+                    manager.trash_email_message(email_message)
+            except HttpAccessTokenRefreshError:
+                logger.warning('Not syncing, no authorization for: %s', email_message.account.email_address)
+                pass
+            except Exception as exc:
+                logger.exception('Failed trashing %s' % email_message)
+                raise self.retry(exc=exc)
+            finally:
+                if manager:
+                    manager.cleanup()
+        else:
+            logger.warning('Not syncing, no authorization for: %s', email_message.account.email_address)
 
 
 @task(name='add_and_remove_labels_for_message', logger=logger, bind=True)
@@ -302,15 +354,23 @@ def add_and_remove_labels_for_message(self, email_id, add_labels=None, remove_la
     except EmailMessage.DoesNotExist:
         logger.warning('EmailMessage no longer exists: %s', email_id)
     else:
-        manager = GmailManager(email_message.account)
-        try:
-            logger.debug('Changing labels for: %s', email_message)
-            manager.add_and_remove_labels_for_message(email_message, add_labels, remove_labels)
-        except Exception as exc:
-            logger.exception('Failed changing labels for %s' % email_message)
-            raise self.retry(exc=exc)
-        finally:
-            manager.cleanup()
+        if email_message.account.is_authorized:
+            manager = None
+            try:
+                manager = GmailManager(email_message.account)
+                logger.debug('Changing labels for: %s', email_message)
+                manager.add_and_remove_labels_for_message(email_message, add_labels, remove_labels)
+            except HttpAccessTokenRefreshError:
+                logger.warning('Not syncing, no authorization for: %s', email_message.account.email_address)
+                pass
+            except Exception as exc:
+                logger.exception('Failed changing labels for %s' % email_message)
+                raise self.retry(exc=exc)
+            finally:
+                if manager:
+                    manager.cleanup()
+        else:
+            logger.warning('Not syncing, no authorization for: %s', email_message.account.email_address)
 
 
 @task(name='delete_email_message', logger=logger, bind=True)
@@ -327,17 +387,25 @@ def delete_email_message(self, email_id):
     except EmailMessage.DoesNotExist:
         logger.warning('EmailMessage no longer exists: %s', email_id)
     else:
-        manager = GmailManager(email_message.account)
-        try:
-            if email_message.is_draft:
-                manager.delete_draft_email_message(email_message)
-            elif in_trash:
-                manager.delete_email_message(email_message)
-        except Exception as exc:
-            logger.exception('Failed deleting %s' % email_message)
-            raise self.retry(exc=exc)
-        finally:
-            manager.cleanup()
+        if email_message.account.is_authorized:
+            manager = None
+            try:
+                manager = GmailManager(email_message.account)
+                if email_message.is_draft:
+                    manager.delete_draft_email_message(email_message)
+                elif in_trash:
+                    manager.delete_email_message(email_message)
+            except HttpAccessTokenRefreshError:
+                logger.warning('Not syncing, no authorization for: %s', email_message.account.email_address)
+                pass
+            except Exception as exc:
+                logger.exception('Failed deleting %s' % email_message)
+                raise self.retry(exc=exc)
+            finally:
+                if manager:
+                    manager.cleanup()
+        else:
+            logger.warning('Not syncing, no authorization for: %s', email_message.account.email_address)
 
 
 @task(name='send_message', logger=logger)
@@ -416,8 +484,9 @@ def send_message(email_outbox_message_id, original_message_id=None):
                 outbox_attachment.size = file.size
                 outbox_attachment.save()
 
-    manager = GmailManager(email_account)
+    manager = None
     try:
+        manager = GmailManager(email_account)
         manager.send_email_message(email_outbox_message.message(), original_message_thread_id)
         logger.debug('Message sent from: %s', email_account)
         # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more.
@@ -426,14 +495,15 @@ def send_message(email_outbox_message_id, original_message_id=None):
         # TODO: This should probably be moved to the front end once.
         # We can notify users about sent mails.
         post_intercom_event(event_name='email-sent', user_id=email_account.owner.id)
-    except ManagerError as e:
-        logger.error(traceback.format_exc(e))
-        raise
+    except HttpAccessTokenRefreshError:
+        logger.warning('EmailAccount not authorized: %s', email_account.email_address)
+        pass
     except Exception as e:
         logger.error(traceback.format_exc(e))
         raise
     finally:
-        manager.cleanup()
+        if manager:
+            manager.cleanup()
 
     send_logger.info(
         'Done sending email_outbox_message: %d And sent_succes value: %s' % (email_outbox_message_id, sent_success)
@@ -461,18 +531,23 @@ def create_draft_email_message(email_outbox_message_id):
         logger.error('EmailAccount not authorized: %s', email_account)
         return draft_success
 
-    manager = GmailManager(email_account)
+    manager = None
     try:
+        manager = GmailManager(email_account)
         manager.create_draft_email_message(email_outbox_message.message())
         logger.debug('Message saved as draft for: %s', email_account)
         # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more
         email_outbox_message.delete()
         draft_success = True
+    except HttpAccessTokenRefreshError:
+        logger.warning('EmailAccount not authorized: %s', email_account.email_address)
+        pass
     except Exception:
         logger.exception('Couldn\'t create draft')
         raise
     finally:
-        manager.cleanup()
+        if manager:
+            manager.cleanup()
 
     return draft_success
 
@@ -496,33 +571,31 @@ def update_draft_email_message(email_outbox_message_id, current_draft_pk):
         logger.error('EmailAccount not authorized: %s', email_account)
         return draft_success
 
-    manager = GmailManager(email_account)
-    if current_draft.draft_id:
-        # Update current draft.
-        try:
+    manager = None
+    try:
+        manager = GmailManager(email_account)
+
+        if current_draft.draft_id:
+            # Update current draft.
             manager.update_draft_email_message(email_outbox_message.message(), draft_id=current_draft.draft_id)
             logger.debug('Updated draft for: %s', email_account)
-            # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more.
-            email_outbox_message.delete()
-            draft_success = True
-        except Exception:
-            logger.exception('Couldn\'t create draft')
-            raise
-        finally:
-            manager.cleanup()
-    else:
-        # There is no draft pk stored, just remove and create a new draft.
-        try:
+        else:
+            # There is no draft pk stored, just remove and create a new draft.
             manager.create_draft_email_message(email_outbox_message.message())
             manager.delete_email_message(current_draft)
             logger.debug('Message saved as draft and removed current draft, for: %s', email_account)
-            # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more.
-            email_outbox_message.delete()
-            draft_success = True
-        except Exception:
-            logger.exception('Couldn\'t update draft')
-            raise
-        finally:
+
+        # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more.
+        email_outbox_message.delete()
+        draft_success = True
+    except HttpAccessTokenRefreshError:
+        logger.warning('EmailAccount not authorized: %s', email_account.email_address)
+        pass
+    except Exception:
+        logger.exception('Couldn\'t create or update draft')
+        raise
+    finally:
+        if manager:
             manager.cleanup()
 
     return draft_success
@@ -542,14 +615,22 @@ def toggle_star_email_message(email_id, star=True):
     except EmailMessage.DoesNotExist:
         logger.debug('EmailMessage no longer exists: %s', email_id)
     else:
-        manager = GmailManager(email_message.account)
-        try:
-            logger.debug('Toggle star for: %s', email_message)
-            manager.toggle_star_email_message(email_message, star)
-        except Exception:
-            logger.exception('Failed toggle star for: %s', email_message)
-        finally:
-            manager.cleanup()
+        if email_message.account.is_authorized:
+            manager = None
+            try:
+                manager = GmailManager(email_message.account)
+                logger.debug('Toggle star for: %s', email_message)
+                manager.toggle_star_email_message(email_message, star)
+            except HttpAccessTokenRefreshError:
+                logger.warning('Not syncing, no authorization for: %s', email_message.account.email_address)
+                pass
+            except Exception:
+                logger.exception('Failed toggle star for: %s', email_message)
+            finally:
+                if manager:
+                    manager.cleanup()
+        else:
+            logger.warning('Not syncing, no authorization for: %s', email_message.account.email_address)
 
 
 @task(name='toggle_spam_email_message', logger=logger)
@@ -566,11 +647,19 @@ def toggle_spam_email_message(email_id, spam=True):
     except EmailMessage.DoesNotExist:
         logger.warning('EmailMessage no longer exists: %s', email_id)
     else:
-        manager = GmailManager(email_message.account)
-        try:
-            logger.debug('Toggle spam label for message: %s', email_message)
-            manager.toggle_spam_email_message(email_message, spam)
-        except Exception:
-            logger.exception('Failed marking as spam: %s', email_message)
-        finally:
-            manager.cleanup()
+        if email_message.account.is_authorized:
+            manager = None
+            try:
+                manager = GmailManager(email_message.account)
+                logger.debug('Toggle spam label for message: %s', email_message)
+                manager.toggle_spam_email_message(email_message, spam)
+            except HttpAccessTokenRefreshError:
+                logger.warning('Not syncing, no authorization for: %s', email_message.account.email_address)
+                pass
+            except Exception:
+                logger.exception('Failed marking as spam: %s', email_message)
+            finally:
+                if manager:
+                    manager.cleanup()
+        else:
+            logger.warning('Not syncing, no authorization for: %s', email_message.account.email_address)

@@ -2,7 +2,7 @@ import logging
 import traceback
 from django.core.management import BaseCommand
 
-from ...manager import GmailManager, ManagerError
+from ...manager import GmailManager
 from ...models.models import EmailAccount
 
 
@@ -24,17 +24,16 @@ class Command(BaseCommand):
                 index + 1,
                 number_of_accounts,
             ))
+            manager = None
             try:
                 manager = GmailManager(email_account)
                 manager.synchronize()
-            except ManagerError, e:
-                logger.error(traceback.format_exc(e))
-                raise
             except Exception, e:
                 logger.error(traceback.format_exc(e))
                 raise
             finally:
-                manager.cleanup()
+                if manager:
+                    manager.cleanup()
 
             logger.info('sync done for %s (%s/%s)' % (
                 email_account,

@@ -208,8 +208,8 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         serializer = self.get_serializer(email, partial=True)
         add_and_remove_labels_for_message.delay(
             email.id,
-            remove_labels=request.data['data'].get('remove_labels', []),
             add_labels=request.data['data'].get('add_labels', []),
+            remove_labels=request.data['data'].get('remove_labels', []),
         )
         return Response(serializer.data)
 

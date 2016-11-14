@@ -16,10 +16,6 @@ from .models.models import EmailLabel, EmailMessage, NoEmailMessageId
 logger = logging.getLogger(__name__)
 
 
-class ManagerError(Exception):
-    pass
-
-
 class GmailManager(object):
     """
     Manager for handling in and output of EmailAccount that connects through Gmail Api.
@@ -34,15 +30,13 @@ class GmailManager(object):
         """
         Args:
             email_account (instance): EmailAccount instance
-
-        Raises:
-            ManagerError: if sync is not possible
         """
         self.email_account = email_account
         try:
             self.connector = GmailConnector(self.email_account)
         except InvalidCredentialsError:
-            raise ManagerError
+            logger.debug('Didn\'t initialize connector: invalid credentials for account %s' % email_account)
+            raise
         else:
             self.message_builder = MessageBuilder(self)
             self.label_builder = LabelBuilder(self)
@@ -299,15 +293,14 @@ class GmailManager(object):
                 logger.exception(
                     'Couldn\'t save message %s for account %s' % (message_id, self.email_account.id))
 
-    def add_and_remove_labels_for_message(self, email_message, add_labels=[], remove_labels=[], remove_all=False):
+    def add_and_remove_labels_for_message(self, email_message, add_labels=[], remove_labels=[]):
         """
-        Add and/or removes labels for the EmailMessage.
+        Add and/or removes labels from the EmailMessage.
 
         Args:
             email_message (instance): EmailMessage instance
             add_labels (list, optional): list of label_ids to add
             remove_labels (list, optional): list of label_ids to remove
-            remove_all (bool, optional): If True, all labels will be removed
         """
         # We should do some tries to update.
         for n in range(0, 6):
@@ -318,47 +311,40 @@ class GmailManager(object):
                 EmailMessage.objects.get(pk=email_message.id).delete()
                 return
 
-            labels = {}
-            removed_labels = []
-            if remove_all:
-                labels['removeLabelIds'] = message_info['labelIds']
-            else:
-                for label in remove_labels:
-                    if label in message_info.get('labelIds', []) and label != settings.GMAIL_LABEL_SENT:
-                        labels.setdefault('removeLabelIds', []).append(label)
-                        removed_labels.append(label)
+            # Initialize a label update object.
+            labels = {'addLabelIds': [], 'removeLabelIds': []}
 
-            added_labels = []
             for label in add_labels:
-                # Temporary set traceback in logging to find out what triggers adding SENT label
-                if label == settings.GMAIL_LABEL_SENT:
-                    logger.warning('trying to add label SENT: %s' % traceback.print_stack())
-
                 if label not in message_info.get('labelIds', []) and label != settings.GMAIL_LABEL_SENT:
                     if email_message.account.labels.filter(label_id=label).exists():
-                        labels.setdefault('addLabelIds', []).append(label)
-                        added_labels.append(label)
+                        labels['addLabelIds'].append(label)
 
-            if labels:
+            for label in remove_labels:
+                if label in message_info.get('labelIds', []) and label != settings.GMAIL_LABEL_SENT:
+                    labels['removeLabelIds'].append(label)
+
+            if labels['addLabelIds'] or labels['removeLabelIds']:
+                # There actually are labels to add or remove.
                 try:
                     self.connector.update_labels(email_message.message_id, labels)
                 except LabelNotFoundError:
                     logger.error('label not found, update labels failed! %s: %s' %
                                  (self.email_account, email_message.message_id))
                 except HttpError:
-                    # Other that a label error, so raise.
+                    # Other than a label error, so raise.
                     logger.error('update labels failed! %s: %s' % (self.email_account, email_message.message_id))
                     raise
                 else:
-                    if remove_all:
-                        email_message.labels.clear()
-                    else:
-                        email_message.labels.remove(
-                            *list(EmailLabel.objects.filter(label_id__in=removed_labels, account=self.email_account))
-                        )
-                        email_message.labels.add(
-                            *list(EmailLabel.objects.filter(label_id__in=added_labels, account=self.email_account))
-                        )
+                    # API call to update labelling successfull, so also update the labelling in the database.
+                    email_message.labels.remove(
+                        *list(EmailLabel.objects.filter(label_id__in=labels['removeLabelIds'],
+                                                        account=self.email_account))
+                    )
+                    email_message.labels.add(
+                        *list(EmailLabel.objects.filter(label_id__in=labels['addLabelIds'],
+                                                        account=self.email_account))
+                    )
+                    # Labels updated in the database, so no need to retry / continue the for-loop.
                     break
 
         self.update_unread_count()
@@ -388,10 +374,15 @@ class GmailManager(object):
             email_message(instance): EmailMessage instance
             read (bool, optional): If True, mark message as read
         """
+        add_labels = []
+        remove_labels = []
+
         if read:
-            self.add_and_remove_labels_for_message(email_message, remove_labels=[settings.GMAIL_LABEL_UNREAD])
+            remove_labels = [settings.GMAIL_LABEL_UNREAD]
         else:
-            self.add_and_remove_labels_for_message(email_message, add_labels=[settings.GMAIL_LABEL_UNREAD])
+            add_labels = [settings.GMAIL_LABEL_UNREAD]
+
+        self.add_and_remove_labels_for_message(email_message, add_labels, remove_labels)
 
     def toggle_spam_email_message(self, email_message, spam=True):
         """
@@ -415,15 +406,12 @@ class GmailManager(object):
 
     def archive_email_message(self, email_message):
         """
-        Archive message by removing all labels.
-
-        TODO: Archive shouldn't remove all labels, so untill LILY-1873 is fixed archive will also remove the unread
-        label.
+        Archive message by removing the inbox label.
 
         Args:
             email_message(instance): EmailMessage instance
         """
-        self.add_and_remove_labels_for_message(email_message, remove_all=True)
+        self.add_and_remove_labels_for_message(email_message, remove_labels=[settings.GMAIL_LABEL_INBOX])
 
     def trash_email_message(self, email_message):
         """

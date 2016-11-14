@@ -39,7 +39,7 @@
                                     </span>
                                 </editable-select>
                             </td>
-                            <td ng-if="vm.deal.next_step_date">
+                            <td  ng-hide="!vm.deal.next_step_date && vm.deal.next_step.name === 'None'">
                                 <strong class="margin-right-10">Next step date:</strong>
                                 <postpone type="'Deal'" object="vm.deal" date-field="'next_step_date'" tt-placement="bottom"></postpone>
                             </td>

@@ -17,8 +17,8 @@ function postponeDirective() {
     };
 }
 
-PostponeController.$inject = ['$compile', '$injector', '$scope', '$state', '$templateCache', 'HLResource', 'HLUtils'];
-function PostponeController($compile, $injector, $scope, $state, $templateCache, HLResource, HLUtils) {
+PostponeController.$inject = ['$compile', '$injector', '$scope', '$state', '$templateCache', '$timeout', 'HLResource', 'HLUtils'];
+function PostponeController($compile, $injector, $scope, $state, $templateCache, $timeout, HLResource, HLUtils) {
     var vm = this;
 
     vm.datepickerOptions = {
@@ -107,7 +107,12 @@ function PostponeController($compile, $injector, $scope, $state, $templateCache,
     function postponeWithDays(days) {
         vm.date = getFutureDate(days);
 
-        _updateDayAndCloseModal();
+
+        // Set timeout to wait for next digest cycle before being able to set
+        // the date correctly.
+        $timeout(function() {
+            _updateDayAndCloseModal();
+        });
     }
 
     function getFutureDate(days) {

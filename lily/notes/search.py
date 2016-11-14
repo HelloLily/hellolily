@@ -85,7 +85,7 @@ class NoteMapping(BaseMapping):
             },
             'content': obj.content,
             'content_type': obj.content_type.name,
-            'date': obj.sort_by_date,
+            'date': obj.created,
             'is_pinned': obj.is_pinned,
             'modified': obj.modified,
             'object_id': obj.object_id,

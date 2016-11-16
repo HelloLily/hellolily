@@ -59,6 +59,7 @@ function PreferencesUserProfileController($state, $window, HLForms, HLUtils, Upl
             'last_name': vm.user.last_name,
             'position': vm.user.position,
             'phone_number': vm.user.phone_number,
+            'internal_number': vm.user.internal_number,
         };
 
         if (vm.user.picture) {

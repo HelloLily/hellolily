@@ -28,6 +28,7 @@ angular.module('app', [
     // Modules
     'app.accounts',
     'app.base',
+    'app.calls',
     'app.cases',
     'app.contacts',
     'app.dashboard',

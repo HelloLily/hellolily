@@ -5,6 +5,7 @@ from factory import iterator, Iterator
 
 
 from lily.accounts.factories import AccountFactory
+from lily.calls.factories import CallFactory
 from lily.cases.factories import CaseFactory, CaseTypeFactory, CaseStatusFactory
 from lily.contacts.factories import ContactFactory, FunctionFactory
 from lily.deals.factories import (DealFactory, DealContactedByFactory, DealFoundThroughFactory, DealNextStepFactory,
@@ -21,7 +22,7 @@ or use an existent tenant if passed as an argument."""
 
     # please keep in sync with methods defined below
     target_choices = [
-        'all', 'users_teams', 'users_user', 'contacts_contact', 'accounts_account', 'accounts_function',
+        'all', 'users_teams', 'users_user', 'contacts_contact', 'accounts_account', 'accounts_function', 'calls_call',
         'cases_case_type', 'cases_case_status', 'cases_case', 'deals_deal_contacted_by', 'deals_deal_found_through',
         'deals_deal_next_step', 'deals_deal_status', 'deals_deal_why_customer', 'deals_deal', 'notes_note',
         'users_login',
@@ -358,3 +359,13 @@ or use an existent tenant if passed as an argument."""
         self.stdout.write('Done with notes_note.')
 
         return NoteFactory.create_batch(**kwargs)
+
+    def calls_call(self, **kwargs):
+        kwargs.update({
+            'size': kwargs.get('size', self.batch_size),
+            'tenant': kwargs.get('tenant', self.tenant),
+        })
+
+        self.stdout.write('Done with calls_call.')
+
+        return CallFactory.create_batch(**kwargs)

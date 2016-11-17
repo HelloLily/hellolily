@@ -126,7 +126,7 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
     timezone = TimeZoneField(default='Europe/Amsterdam')
 
     primary_email_account = models.ForeignKey('email.EmailAccount', blank=True, null=True)
-    webhooks = models.ManyToManyField(Webhook, null=True, blank=True)
+    webhooks = models.ManyToManyField(Webhook, blank=True)
 
     objects = LilyUserManager()
 

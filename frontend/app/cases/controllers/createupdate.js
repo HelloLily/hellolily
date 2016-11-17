@@ -355,7 +355,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
 
         // Don't load if we selected a contact.
         // Because we want to display all accounts the contact works for.
-        if (!vm.case.contact && (!vm.accounts || query.length)) {
+        if (!vm.case.contact || query.length) {
             accountsPromise = HLSearch.refreshList(query, 'Account');
 
             if (accountsPromise) {
@@ -394,7 +394,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     function refreshUsers(query) {
         var usersPromise;
 
-        if (!vm.assigned_to && (!vm.users || query.length)) {
+        if (!vm.assigned_to || query.length) {
             usersPromise = HLSearch.refreshList(query, 'User', 'is_active:true', 'full_name', 'full_name');
 
             if (usersPromise) {

@@ -402,7 +402,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
 
         // Don't load if we selected a contact.
         // Because we want to display all accounts the contact works for.
-        if (!vm.deal.contact && (!vm.accounts || query.length)) {
+        if (!vm.deal.contact || query.length) {
             accountsPromise = HLSearch.refreshList(query, 'Account');
 
             if (accountsPromise) {
@@ -441,7 +441,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
     function refreshUsers(query) {
         var usersPromise;
 
-        if (!vm.assigned_to && (!vm.users || query.length)) {
+        if (!vm.assigned_to || query.length) {
             usersPromise = HLSearch.refreshList(query, 'User', 'is_active:true', 'full_name', 'full_name');
 
             if (usersPromise) {

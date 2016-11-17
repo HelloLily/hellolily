@@ -130,6 +130,7 @@ function runApp($rootScope, $state, editableOptions, HLMessages, Tenant, UserTea
         user_id: currentUser.id,
         name: currentUser.fullName,
         email: currentUser.email,
+        company: currentUser.company,
         widget: {
             activator: '#IntercomDefaultWidget',
         },

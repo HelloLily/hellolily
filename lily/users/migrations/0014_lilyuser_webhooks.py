@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('utils', '0014_webhook'),
-        ('users', '0012_auto_20161003_1426'),
+        ('users', '0013_lilyuser_internal_number'),
     ]
 
     operations = [

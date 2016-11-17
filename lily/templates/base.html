@@ -127,7 +127,8 @@
                     fullName: '{{ user.full_name }}',
                     isSuperUser: '{{ user.is_superuser }}' == 'True',
                     displayEmailWarning: '{{ user.display_email_warning }}' == 'True',
-                    country: '{{ user.tenant.country }}'
+                    country: '{{ user.tenant.country }}',
+                    company: '{{ user.tenant.name }}',
                 };
 
                 window.intercomAppId = '{{ INTERCOM_APP_ID }}';

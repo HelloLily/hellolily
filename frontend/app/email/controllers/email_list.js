@@ -414,6 +414,22 @@ function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLa
             size: vm.table.pageSize,
             page: vm.table.page,
         }, function(data) {
+            var i;
+            var emailMessageIndex = data.hits.length;
+
+            // Make sure changes from the detail view are processed in the front end.
+            if (Settings.email.toRemove) {
+                while (emailMessageIndex--) {
+                    for (i = 0; i < Settings.email.toRemove.length; i++) {
+                        if (Settings.email.toRemove[i].id === data.hits[emailMessageIndex].id) {
+                            data.hits.splice(emailMessageIndex, 1);
+                        }
+                    }
+                }
+
+                Settings.email.toRemove = [];
+            }
+
             vm.emailMessages = data.hits;
             vm.table.totalItems = data.total;
 

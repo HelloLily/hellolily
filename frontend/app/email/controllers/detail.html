@@ -55,6 +55,23 @@
         </li>
     </ul>
 
+    <ul class="hl-button-group" ng-if="vm.currentInbox !== 'SENT'">
+        <li class="hl-button-group-btn">
+            <a class="hl-button-group-btn-link" href="javascript:void(0)" data-toggle="dropdown">
+                <i class="fa fa-folder"></i> Move to <i class="margin-left-5 small-icon lilicon hl-toggle-down-icon"></i>
+            </a>
+
+            <ul class="hl-dropdown">
+                <li class="hl-dropdown-item" ng-if="vm.currentInbox !== 'INBOX'">
+                    <a class="hl-dropdown-item-link" ng-click="vm.moveMessage('INBOX')">Inbox</a>
+                </li>
+                <li class="hl-dropdown-item" ng-repeat="accountLabel in vm.emailAccount.labels | orderBy:'name'" ng-if="accountLabel.label_type != 0">
+                    <a class="hl-dropdown-item-link" ng-click="vm.moveMessage(accountLabel.label_id)">{{ accountLabel.name }}</a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+
     <ul class="hl-button-group pull-right" ng-if="settings.email.sidebar">
         <li class="hl-button-group-btn">
             <a class="hl-button-group-btn-link" ng-click="vm.toggleSidebar('account')">

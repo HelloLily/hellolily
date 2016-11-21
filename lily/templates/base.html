@@ -129,6 +129,7 @@
                     displayEmailWarning: '{{ user.display_email_warning }}' == 'True',
                     country: '{{ user.tenant.country }}',
                     company: '{{ user.tenant.name }}',
+                    tenant: '{{ user.tenant.id }}'
                 };
 
                 window.intercomAppId = '{{ INTERCOM_APP_ID }}';

@@ -36,7 +36,16 @@ class LilyUserMapping(BaseMapping):
             },
             'email': {
                 'type': 'string',
-            }
+                'analyzer': 'email_analyzer',
+            },
+            'phone_number': {
+                'type': 'string',
+                'index_analyzer': 'normal_ngram_analyzer',
+            },
+            'internal_number': {
+                'type': 'integer',
+                'index_analyzer': 'simple',
+            },
         })
         return mapping
 
@@ -53,6 +62,8 @@ class LilyUserMapping(BaseMapping):
             'profile_picture': obj.profile_picture,
             'email': obj.email,
             'is_active': obj.is_active,
+            'phone_number': obj.phone_number,
+            'internal_number': obj.internal_number,
         }
 
 

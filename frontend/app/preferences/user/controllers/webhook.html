@@ -16,6 +16,8 @@
                                 maxlength="255"
                                 placeholder="www.example.com"
                                 type="text"
+                                ng-readonly="webhook.is_deleted"
+                                ng-class="{'hl-form-input-deleted': webhook.is_deleted}"
                                 ng-model="webhook.url" />
                         </form-group>
 
@@ -26,8 +28,16 @@
                                 maxlength="255"
                                 placeholder="Webhook name"
                                 type="text"
+                                ng-readonly="webhook.is_deleted"
+                                ng-class="{'hl-form-input-deleted': webhook.is_deleted}"
                                 ng-model="webhook.name" />
                         </form-group>
+
+                        <div class="form-inline-input">
+                            <a class="hl-primary-btn" ng-click="webhook.is_deleted = !webhook.is_deleted">
+                                <i class="form-inline-icon" ng-class="{'lilicon hl-trashcan-icon': !website.is_deleted, 'fa fa-undo': website.is_deleted}"></i>
+                            </a>
+                        </div>
                     </div>
                 </form-portlet>
 

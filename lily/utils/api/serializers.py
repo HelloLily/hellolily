@@ -137,6 +137,7 @@ class WebhookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Webhook
         fields = (
+            'id',
             'url',
             'name',
         )

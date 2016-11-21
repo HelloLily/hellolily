@@ -2,6 +2,7 @@ from django.conf.urls import url, include, patterns
 from rest_framework.routers import DefaultRouter
 
 from lily.accounts.api.views import AccountViewSet, AccountStatusViewSet
+from lily.calls.api.views import CallViewSet
 from lily.cases.api.views import CaseViewSet, CaseStatusViewSet, CaseTypeList
 from lily.contacts.api.views import ContactViewSet
 from lily.deals.api.views import (DealViewSet, DealStatusViewSet, DealNextStepList, DealNextStepViewSet,
@@ -22,6 +23,13 @@ router = DefaultRouter()
 router.register(r'accounts/statuses', AccountStatusViewSet)
 router.register(r'accounts', AccountViewSet)
 
+router.register(r'calls', CallViewSet)
+
+router.register(r'cases/statuses', CaseStatusViewSet)
+router.register(r'cases', CaseViewSet)
+
+router.register(r'contacts', ContactViewSet)
+
 router.register(r'deals/next-steps', DealNextStepViewSet)
 router.register(r'deals/why-customer', DealWhyCustomerViewSet)
 router.register(r'deals/why-lost', DealWhyLostViewSet)
@@ -37,17 +45,12 @@ router.register(r'messaging/email/templates', EmailTemplateViewSet)
 router.register(r'messaging/email/template-variables', TemplateVariableViewSet)
 router.register(r'messaging/email/shared-email-configurations', SharedEmailConfigViewSet)
 
+router.register(r'notes', NoteViewSet)
+
 router.register(r'users/team', TeamViewSet)
 router.register(r'users', LilyUserViewSet)
 
 router.register(r'tenants', TenantViewSet)
-
-router.register(r'cases/statuses', CaseStatusViewSet)
-router.register(r'cases', CaseViewSet)
-
-router.register(r'contacts', ContactViewSet)
-
-router.register(r'notes', NoteViewSet)
 
 router.register(r'utils/countries', CountryViewSet)
 

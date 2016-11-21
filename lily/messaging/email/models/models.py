@@ -217,13 +217,23 @@ class EmailMessage(models.Model):
         else:
             return ''
 
+    def fast_label_check(self, label_name):
+        """
+        Do a label check that checks if a field is prefetched, making it way
+        faster for optimized queries.
+        """
+        if hasattr(self, '_prefetched_objects_cache') and 'labels' in self._prefetched_objects_cache:
+            return label_name in [label.label_id for label in self.labels.all()]
+        else:
+            return self.labels.filter(label_id=label_name).exists()
+
     @property
     def is_trashed(self):
         # When the instance variable is present, don't evaluate the corresponding label.
         if hasattr(self, '_is_trashed'):
             return self._is_trashed
         else:
-            return self.labels.filter(label_id=settings.GMAIL_LABEL_TRASH).exists()
+            return self.fast_label_check(settings.GMAIL_LABEL_TRASH)
 
     @property
     def is_starred(self):
@@ -231,15 +241,15 @@ class EmailMessage(models.Model):
         if hasattr(self, '_is_starred'):
             return self._is_starred
         else:
-            return self.labels.filter(label_id=settings.GMAIL_LABEL_STAR).exists()
+            return self.fast_label_check(settings.GMAIL_LABEL_STAR)
 
     @property
     def is_draft(self):
-        return self.labels.filter(label_id=settings.GMAIL_LABEL_DRAFT).exists()
+        return self.fast_label_check(settings.GMAIL_LABEL_DRAFT)
 
     @property
     def is_important(self):
-        return self.labels.filter(label_id=settings.GMAIL_LABEL_IMPORTANT).exists()
+        return self.fast_label_check(settings.GMAIL_LABEL_IMPORTANT)
 
     @property
     def is_spam(self):
@@ -247,7 +257,7 @@ class EmailMessage(models.Model):
         if hasattr(self, '_is_spam'):
             return self._is_spam
         else:
-            return self.labels.filter(label_id=settings.GMAIL_LABEL_SPAM).exists()
+            return self.fast_label_check(settings.GMAIL_LABEL_SPAM)
 
     @property
     def is_archived(self):
@@ -255,7 +265,7 @@ class EmailMessage(models.Model):
         if hasattr(self, '_is_archived'):
             return self._is_archived
         else:
-            return not self.labels.filter(label_id=settings.GMAIL_LABEL_INBOX).exists()
+            return not self.fast_label_check(settings.GMAIL_LABEL_INBOX)
 
     def get_message_id(self):
         header = self.headers.filter(name__istartswith='message-id').first()

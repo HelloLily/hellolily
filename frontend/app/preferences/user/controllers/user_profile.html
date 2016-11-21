@@ -69,6 +69,18 @@
                     <field-error form="userForm" field="phone_number"></field-error>
                 </form-group>
 
+                <form-group label-title="Internal number" label-id="internal_number" field="userForm.internal_number">
+                    <input class="form-control"
+                           id="internal_number"
+                           maxlength="255"
+                           name="internal_number"
+                           placeholder="Internal number"
+                           type="text"
+                           ng-model="vm.user.internal_number">
+
+                    <field-error form="userForm" field="internal_number"></field-error>
+                </form-group>
+
                 <!--<form-group label-title="Twitter" label-id="twitter" field="userForm.twitter">-->
                     <!--<div class="input-group">-->
                         <!--<span class="input-group-addon">-->

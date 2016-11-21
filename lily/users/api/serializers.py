@@ -3,16 +3,20 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
 from lily.api.nested.mixins import RelatedSerializerMixin
+from lily.api.nested.serializers import WritableNestedSerializer
+from lily.utils.api.serializers import RelatedWebhookSerializer
+
 from ..models import Team, LilyUser
 
 
-class LilyUserSerializer(serializers.ModelSerializer):
+class LilyUserSerializer(WritableNestedSerializer):
     """
     Serializer for the LilyUser model.
     """
     full_name = serializers.CharField(read_only=True)
     profile_picture = serializers.CharField(read_only=True)
     picture = serializers.ImageField(write_only=True)
+    webhooks = RelatedWebhookSerializer(many=True, required=False, create_only=True)
 
     class Meta:
         model = LilyUser
@@ -29,10 +33,12 @@ class LilyUserSerializer(serializers.ModelSerializer):
             'is_active',
             'picture',
             'phone_number',
+            'internal_number',
             'social_media',
             'language',
             # 'timezone',
             'teams',
+            'webhooks',
         )
 
     def update(self, instance, validated_data):

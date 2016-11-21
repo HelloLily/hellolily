@@ -14,6 +14,7 @@ from timezone_field import TimeZoneField
 
 from lily.socialmedia.models import SocialMedia
 from lily.tenant.models import TenantMixin, Tenant
+from lily.utils.models.models import Webhook
 
 
 class LilyUserManager(UserManager):
@@ -118,12 +119,14 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
     )
 
     phone_number = models.CharField(_('phone number'), max_length=40, blank=True)
+    internal_number = models.IntegerField(_('internal number'), max_length=3, blank=True, null=True)
     social_media = models.ManyToManyField(SocialMedia, blank=True, verbose_name=_('list of social media'))
 
     language = models.CharField(_('language'), max_length=3, choices=settings.LANGUAGES, default='en')
     timezone = TimeZoneField(default='Europe/Amsterdam')
 
     primary_email_account = models.ForeignKey('email.EmailAccount', blank=True, null=True)
+    webhooks = models.ManyToManyField(Webhook, blank=True)
 
     objects = LilyUserManager()
 

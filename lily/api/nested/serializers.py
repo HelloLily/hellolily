@@ -112,7 +112,11 @@ class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializer
                 # Store which fields are removed to update many_related_data afterwards.
                 removed_ids = []
                 # The non-model field is_deleted isn't present in many_related_data, so use initial_data instead.
-                field_data = self.initial_data[related_field_name]
+                try:
+                    field_data = self.initial_data[related_field_name]
+                except:
+                    field_data = self.data[related_field_name]
+
                 for item in field_data:
                     if 'is_deleted' in item and item['is_deleted']:
                         getattr(self.instance, related_field_name).filter(id=item['id']).delete()

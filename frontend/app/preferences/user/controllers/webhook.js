@@ -34,6 +34,16 @@ function WebhookController(HLForms, HLResource, HLUtils, user) {
     vm.cancelWebhookEditing = cancelWebhookEditing;
     vm.addWebhook = addWebhook;
 
+    activate();
+
+    //////
+
+    function activate() {
+        if (!vm.user.webhooks.length) {
+            vm.user.webhooks = [{}];
+        }
+    }
+
     function saveWebhooks(form) {
         var formName = '[name="webhookForm"]';
         var args = {
@@ -46,6 +56,10 @@ function WebhookController(HLForms, HLResource, HLUtils, user) {
 
         HLResource.patch('User', args).$promise.then(function() {
             HLUtils.unblockUI(formName);
+        }, function(response) {
+            HLUtils.unblockUI(formName);
+
+            _handleBadResponse(response, form);
         });
     }
 
@@ -55,5 +69,9 @@ function WebhookController(HLForms, HLResource, HLUtils, user) {
 
     function addWebhook() {
         vm.user.webhooks.push({});
+    }
+
+    function _handleBadResponse(response, form) {
+        HLForms.setErrors(form, response.data);
     }
 }

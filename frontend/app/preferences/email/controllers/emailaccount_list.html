@@ -7,7 +7,7 @@
             <ul class="list-group">
                 <li class="list-group-item" ng-repeat="account in vm.ownedAccounts">
                     <a ng-click="vm.togglePrimaryAccount(account)" uib-tooltip="Toggle primary">
-                        <i ng-class="account.id == vm.currentUser.primary_email_account ? 'fa fa-star' : 'fa fa-star-o'"></i>
+                        <i ng-class="account.id == vm.currentUser.primary_email_account.id ? 'fa fa-star' : 'fa fa-star-o'"></i>
                     </a>
                     {{ account.label }} <i>({{ account.email_address }})</i>
                     <span class="pull-right">
@@ -50,7 +50,7 @@
             <ul class="list-group">
                 <li class="list-group-item"  ng-repeat="account in vm.sharedAccounts">
                     <a ng-click="vm.togglePrimaryAccount(account)" uib-tooltip="Toggle primary">
-                        <i ng-class="account.id == vm.currentUser.primary_email_account ? 'fa fa-star' : 'fa fa-star-o'"></i>
+                        <i ng-class="account.id == vm.currentUser.primary_email_account.id ? 'fa fa-star' : 'fa fa-star-o'"></i>
                     </a>
                     {{ account.label }} <i>({{ account.email_address }})</i>
                     <span class="pull-right">
@@ -76,7 +76,7 @@
             <ul class="list-group">
                 <li class="list-group-item" ng-repeat="account in vm.publicAccounts">
                     <a ng-click="vm.togglePrimaryAccount(account)" uib-tooltip="Toggle primary">
-                        <i ng-class="account.id == vm.currentUser.primary_email_account ? 'fa fa-star' : 'fa fa-star-o'"></i>
+                        <i ng-class="account.id == vm.currentUser.primary_email_account.id ? 'fa fa-star' : 'fa fa-star-o'"></i>
                     </a>
                     {{ account.label }} <i>({{ account.email_address }})</i>
                     <span class="pull-right">

@@ -160,15 +160,15 @@ function PreferencesEmailAccountList($compile, $http, $scope, $templateCache, Em
             id: 'me',
         };
 
-        if (vm.currentUser.primary_email_account === emailAccount.id) {
+        if (vm.currentUser.primary_email_account && vm.currentUser.primary_email_account.id === emailAccount.id) {
             // Unset primary email account..
             vm.currentUser.primary_email_account = null;
+            args.primary_email_account = null;
         } else {
             // Set primary email account.
-            vm.currentUser.primary_email_account = emailAccount.id;
+            vm.currentUser.primary_email_account = emailAccount;
+            args.primary_email_account = {id: vm.currentUser.primary_email_account.id};
         }
-
-        args.primary_email_account = vm.currentUser.primary_email_account;
 
         HLResource.patch('User', args);
     }

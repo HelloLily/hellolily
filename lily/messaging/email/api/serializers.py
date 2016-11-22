@@ -85,15 +85,7 @@ class EmailAccountSerializer(serializers.ModelSerializer):
 
 
 class RelatedEmailAccountSerializer(RelatedSerializerMixin, EmailAccountSerializer):
-    class Meta:
-        model = EmailAccount
-        fields = (
-            'id',
-            'email_address',
-            'label',
-            'public',
-            'is_authorized',
-        )
+    pass
 
 
 class EmailTemplateSerializer(serializers.ModelSerializer):

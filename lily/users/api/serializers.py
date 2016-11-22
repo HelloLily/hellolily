@@ -7,6 +7,7 @@ from lily.api.nested.serializers import WritableNestedSerializer
 from lily.utils.api.serializers import RelatedWebhookSerializer
 
 from ..models import Team, LilyUser
+from lily.messaging.email.api.serializers import EmailAccountSerializer
 
 
 class LilyUserSerializer(WritableNestedSerializer):
@@ -17,6 +18,7 @@ class LilyUserSerializer(WritableNestedSerializer):
     profile_picture = serializers.CharField(read_only=True)
     picture = serializers.ImageField(write_only=True)
     webhooks = RelatedWebhookSerializer(many=True, required=False, create_only=True)
+    primary_email_account = EmailAccountSerializer(allow_null=True, required=False)
 
     class Meta:
         model = LilyUser

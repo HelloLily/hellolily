@@ -7,7 +7,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('utils', '0013_auto_20160603_1535'),
+        ('utils', '0015_auto_20161121_1831'),
         ('notes', '0010_remove_polymorphic_cleanup')
     ]
 

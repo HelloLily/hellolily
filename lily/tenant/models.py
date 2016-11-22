@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
-from polymorphic import PolymorphicManager, PolymorphicModel
 from lily.utils.countries import COUNTRIES
 from lily.utils.currencies import CURRENCIES
 
@@ -21,10 +20,6 @@ class TenantManager(models.Manager):
             return super(TenantManager, self).get_queryset().filter(tenant=user.tenant)
         else:
             return super(TenantManager, self).get_queryset()
-
-
-class PolymorphicTenantManager(TenantManager, PolymorphicManager):
-    pass
 
 
 class Tenant(models.Model):
@@ -71,26 +66,12 @@ class MultiTenantMixin(models.Model):
         abstract = True
 
 
-class PolymorphicMultiTenantMixin(PolymorphicModel, MultiTenantMixin):
-    # Automatically filter any queryset by tenant if logged in and downcast to lowest possible class
-    objects = PolymorphicTenantManager()
-
-    class Meta:
-        abstract = True
-
-
 class SingleTenantMixin(models.Model):
     tenant = models.ForeignKey(Tenant, blank=True)
 
     def save(self, *args, **kwargs):
         self.tenant = Tenant.objects.get_or_create(pk=1)[0]
         return super(SingleTenantMixin, self).save(*args, **kwargs)
-
-    class Meta:
-        abstract = True
-
-
-class PolymorphicSingleTenantMixin(PolymorphicModel, SingleTenantMixin):
 
     class Meta:
         abstract = True
@@ -118,9 +99,7 @@ class NullableTenantMixin(models.Model):
 
 
 TenantMixin = SingleTenantMixin
-PolymorphicTenantMixin = PolymorphicSingleTenantMixin
 TenantObjectManager = models.Manager
 if settings.MULTI_TENANT:
     TenantMixin = MultiTenantMixin
-    PolymorphicTenantMixin = PolymorphicMultiTenantMixin
     TenantObjectManager = TenantManager

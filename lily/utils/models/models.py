@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from ..functions import parse_phone_number
-from lily.tenant.models import TenantMixin, PolymorphicTenantMixin, PolymorphicTenantManager
+from lily.tenant.models import TenantMixin
 from lily.utils.countries import COUNTRIES
 
 
@@ -126,18 +126,6 @@ class EmailAddress(TenantMixin):
         app_label = 'utils'
         verbose_name = _('email address')
         verbose_name_plural = _('email addresses')
-
-
-class HistoryListItem(PolymorphicTenantMixin):
-    """
-    A base model for all items that can appear in a History List.
-    """
-    sort_by_date = models.DateTimeField(verbose_name='date to sort by')
-
-    objects = PolymorphicTenantManager()
-
-    class Meta:
-        app_label = 'utils'
 
 
 class ExternalAppLink(TenantMixin):

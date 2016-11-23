@@ -158,7 +158,7 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
                 if (contentType !== 'case' && contentType !== 'deal') {
                     filterquery = contentType + '.id:' + currentObject.id;
 
-                    casePromise = Case.query({filterquery: filterquery + dateQuery, size: 100}).$promise;
+                    casePromise = Case.search({filterquery: filterquery + dateQuery, size: 100}).$promise;
 
                     promises.push(casePromise);  // Add promise to list of all promises for later handling
 
@@ -195,7 +195,7 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
                         });
                     });
 
-                    dealPromise = Deal.query({filterquery: filterquery + dateQuery, size: requestLength}).$promise;
+                    dealPromise = Deal.search({filterquery: filterquery + dateQuery, size: requestLength}).$promise;
                     promises.push(dealPromise);  // Add promise to list of all promises for later handling
 
                     dealPromise.then(function(results) {

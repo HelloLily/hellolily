@@ -21,10 +21,10 @@ function contactsConfig($stateProvider) {
                 return Contact.get({id: contactId}).$promise;
             }],
             caseList: ['Case', '$stateParams', function(Case, $stateParams) {
-                return Case.query({filterquery: 'contact.id:' + $stateParams.id, sort: 'expires', size: 100}).$promise;
+                return Case.search({filterquery: 'contact.id:' + $stateParams.id, sort: 'expires', size: 100}).$promise;
             }],
             dealList: ['Deal', '$stateParams', function(Deal, $stateParams) {
-                return Deal.query({filterquery: 'contact.id:' + $stateParams.id, sort: '-next_step_date'}).$promise;
+                return Deal.search({filterquery: 'contact.id:' + $stateParams.id, sort: '-next_step_date'}).$promise;
             }],
         },
     });

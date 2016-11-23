@@ -6,7 +6,7 @@ function Case($resource, CacheFactory, HLCache, HLResource, HLUtils) {
         '/api/cases/:id/',
         {},
         {
-            query: {
+            search: {
                 url: '/search/search/',
                 method: 'GET',
                 params: {
@@ -110,7 +110,7 @@ function Case($resource, CacheFactory, HLCache, HLResource, HLUtils) {
      *      }
      */
     function getCases(orderColumn, orderedAsc, filterQuery, searchQuery = '', page = 1, pageSize = 100) {
-        return _case.query({
+        return _case.search({
             q: searchQuery,
             page: page - 1,
             size: pageSize,

@@ -65,7 +65,7 @@ function MyDealsController($scope, Case, Deal, HLUtils, HLResource, LocalStorage
                 vm.table.items = HLUtils.timeCategorizeObjects(data.objects, 'next_step_date');
 
                 angular.forEach(data.objects, function(deal) {
-                    Case.query({filterquery: 'account.id:' + deal.account.id + ' AND is_archived:false'}).$promise.then(function(caseList) {
+                    Case.search({filterquery: 'account.id:' + deal.account.id + ' AND is_archived:false'}).$promise.then(function(caseList) {
                         if (caseList.objects.length > 0) {
                             deal.hasUnarchivedCases = true;
                         }

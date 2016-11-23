@@ -31,6 +31,24 @@
                         </ui-select>
                         <span class="help-text text-muted">Please type at least 2 characters to begin the search</span>
                     </form-group>
+
+                    <form-group ng-if="vm.openDeals.length">
+                        <div class="widget-suggestion">
+                            <span class="widget-suggestion-title">
+                                <i class="lilicon hl-entity-icon"></i>
+                                <span ng-if="vm.openDeals.length === 1">There's another open deal</span>
+                                <span ng-if="vm.openDeals.length > 1">There are other open deals</span>
+                            </span>
+                            <div ng-repeat="deal in vm.openDeals" class="widget-suggestion-items">
+                                <div class="widget-suggestion-item">
+                                    Check it out: <a ui-sref="base.deals.detail({ id: deal.id })">{{ deal.name }}</a>
+                                </div>
+                                <div class="widget-suggestion-item-action">
+                                    <a ng-if="!settings.email.sidebar.form" class="hl-primary-btn" ui-sref="base.deals.detail.edit({ id: deal.id })">Edit this deal</a>
+                                </div>
+                            </div>
+                        </div>
+                    </form-group>
                 </div>
 
                 <form-radio-buttons options="['Existing', 'New']" label-title="Business"

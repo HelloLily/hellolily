@@ -345,7 +345,7 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     }
 
     function _getCases(filterquery) {
-        Case.query({filterquery: filterquery, sort: '-created'}, function(data) {
+        Case.search({filterquery: filterquery, sort: '-created'}, function(data) {
             if (data.objects.length) {
                 Settings.email.data.cases = data.objects;
             }
@@ -353,7 +353,7 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     }
 
     function _getDeals(filterquery) {
-        Deal.query({filterquery: filterquery, sort: '-created'}, function(data) {
+        Deal.search({filterquery: filterquery, sort: '-created'}, function(data) {
             if (data.objects.length) {
                 Settings.email.data.deals = data.objects;
             }

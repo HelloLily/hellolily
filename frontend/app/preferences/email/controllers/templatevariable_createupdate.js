@@ -34,7 +34,8 @@ function preferencesConfig($stateProvider) {
 
 angular.module('app.preferences').controller('PreferencesTemplateVariablesCreateUpdate', PreferencesTemplateVariablesCreateUpdate);
 
-function PreferencesTemplateVariablesCreateUpdate() {
+PreferencesTemplateVariablesCreateUpdate.$inject = ['$scope'];
+function PreferencesTemplateVariablesCreateUpdate($scope) {
     HLInbox.init({textEditorId: 'id_text'});
     HLInbox.initWysihtml5();
     HLEmailTemplates.init({
@@ -42,5 +43,11 @@ function PreferencesTemplateVariablesCreateUpdate() {
         openVariable: '[[',
         closeVariable: ']]',
         textEditorId: '#id_text',
+    });
+
+    // Listen to Angular broadcast function on scope destroy.
+    $scope.$on('$destroy', function() {
+        // Properly destroy the rich text editor to prevent memory leaks.
+        HLInbox.destroyEditor();
     });
 }

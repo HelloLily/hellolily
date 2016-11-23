@@ -1,6 +1,5 @@
 import logging
 import gc
-import traceback
 
 from django.conf import settings
 from googleapiclient.errors import HttpError

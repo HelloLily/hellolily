@@ -30,10 +30,11 @@ def get_credentials(gmail_account):
     """
     storage = Storage(GmailCredentialsModel, 'id', gmail_account, 'credentials')
     credentials = storage.get()
+
     if credentials is not None and credentials.invalid is False:
         return credentials
     else:
         gmail_account.is_authorized = False
         gmail_account.save()
-        logger.error('no credentials for account %s' % gmail_account)
-        raise InvalidCredentialsError('no credentials for account %s' % gmail_account)
+        logger.error('No or invalid credentials for account %s' % gmail_account)
+        raise InvalidCredentialsError('No or invalid credentials for account %s' % gmail_account)

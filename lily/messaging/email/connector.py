@@ -6,6 +6,7 @@ import anyjson
 from django.conf import settings
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaInMemoryUpload
+from oauth2client.client import HttpAccessTokenRefreshError
 
 from .credentials import get_credentials, InvalidCredentialsError
 from .services import build_gmail_service
@@ -30,6 +31,10 @@ class MessageNotFoundError(ConnectorError):
 
 
 class LabelNotFoundError(ConnectorError):
+    pass
+
+
+class IllegalLabelError(ConnectorError):
     pass
 
 
@@ -95,11 +100,20 @@ class GmailConnector(object):
                     time.sleep(sleep_time)
                 elif error.get('code') == 400 and error.get('message') == 'labelId not found':
                     raise LabelNotFoundError
+                elif error.get('code') == 400 and error.get('message') == 'Invalid label: SENT':
+                    raise IllegalLabelError('Not allowed to set label SENT.')
                 elif error.get('code') == 404:
                     raise MessageNotFoundError
                 else:
                     logger.exception('Unkown error code for error %s' % error)
                     raise
+            except HttpAccessTokenRefreshError:
+                # Thrown when a user removes Lily from the connected apps or
+                # changes the credentials of the Google account.
+                self.email_account.is_authorized = False
+                self.email_account.save()
+                logger.error('Invalid access token for account %s' % self.email_account)
+                raise
 
         logger.warning('Service call failed after all retries')
         raise FailedServiceCallException('Service call failed after all retries')

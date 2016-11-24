@@ -16,7 +16,7 @@ class LilyUserSerializer(WritableNestedSerializer):
     """
     full_name = serializers.CharField(read_only=True)
     profile_picture = serializers.CharField(read_only=True)
-    picture = serializers.ImageField(write_only=True)
+    picture = serializers.ImageField(write_only=True, required=False)
     webhooks = RelatedWebhookSerializer(many=True, required=False, create_only=True)
     primary_email_account = EmailAccountSerializer(allow_null=True, required=False)
 
@@ -44,11 +44,7 @@ class LilyUserSerializer(WritableNestedSerializer):
         )
 
     def update(self, instance, validated_data):
-        picture = validated_data.get('picture', instance.picture)
-
-        if not picture:
-            # Because of the order in which DRF does things clearing the
-            # picture doesn't work in the update of the view.
+        if self.instance.picture is validated_data.get('picture'):
             validated_data['picture'] = None
 
         return super(LilyUserSerializer, self).update(instance, validated_data)

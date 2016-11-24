@@ -44,7 +44,7 @@ class LilyUserSerializer(WritableNestedSerializer):
         )
 
     def update(self, instance, validated_data):
-        picture = validated_data.get('picture')
+        picture = validated_data.get('picture', instance.picture)
 
         if not picture:
             # Because of the order in which DRF does things clearing the

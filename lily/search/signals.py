@@ -10,7 +10,7 @@ from django.conf import settings
 def post_save_generic(sender, instance, **kwargs):
     if settings.ES_DISABLED:
         return
-    mapping = ModelMappings.get_model_mappings().get(sender)
+    mapping = ModelMappings.model_to_mappings.get(sender)
     if mapping:
         update_in_index(instance, mapping)
     check_related(sender, instance)
@@ -21,7 +21,7 @@ def m2m_changed_generic(sender, instance, action, **kwargs):
     if settings.ES_DISABLED:
         return
     if action.startswith('post_'):
-        mapping = ModelMappings.get_model_mappings().get(type(instance))
+        mapping = ModelMappings.model_to_mappings.get(type(instance))
         if mapping:
             update_in_index(instance, mapping)
         check_related(sender, instance)
@@ -31,7 +31,7 @@ def m2m_changed_generic(sender, instance, action, **kwargs):
 def post_delete_generic(sender, instance, **kwargs):
     if settings.ES_DISABLED:
         return
-    mapping = ModelMappings.get_model_mappings().get(sender)
+    mapping = ModelMappings.model_to_mappings.get(sender)
     if mapping:
         remove_from_index(instance, mapping)
     # Remember: We UPDATE our related object, not DELETE it
@@ -44,7 +44,7 @@ def check_related(sender, instance):
     Check related models by checking if the sender is in the relations of the
     mappings.
     """
-    for mapping in ModelMappings.get_model_mappings().values():
+    for mapping in ModelMappings.mappings:
         # Use type(instance) because of sender, because m2m sender differs
         # from type(instance).
         related = mapping.get_related_models().get(type(instance))

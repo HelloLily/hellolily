@@ -1,56 +1,27 @@
-FROM ubuntu:14.04
+FROM jfloff/alpine-python:2.7
 MAINTAINER HelloLily
 
-RUN apt-get update && apt-get install -y \
-    python2.7-dev \
-    python-pip \
-    postgresql \
-    postgresql-server-dev-9.3 \
+RUN apk add --update \
+    linux-headers \
+    postgresql-dev=9.5.4-r0 \
     libxml2-dev \
-    libxslt1-dev \
-    libncurses5-dev \
+    libxslt-dev \
+    ncurses5-libs \
     rsync \
     nodejs \
-    npm \
-    libjpeg8-dev
+    libjpeg-turbo-dev
 
-RUN useradd docker
-RUN echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
-WORKDIR /home/docker
+RUN mkdir /home/docker
 ENV HOME /home/docker
+WORKDIR /home/docker
 
-ADD requirements.txt $HOME/requirements.txt
-RUN pip install -r $HOME/requirements.txt
+# https://docs.docker.com/engine/userguide/eng-image/dockerfile_best-practices/#/add-or-copy
+COPY requirements.txt $HOME/requirements.txt
+COPY requirements-dev.txt $HOME/requirements-dev.txt
 
-# Workaround for IncompleteRead error while installing requirements-dev.txt.
-# See: https://bugs.launchpad.net/ubuntu/+source/python-pip/+bug/1306991
-RUN rm -rf /usr/local/lib/python2.7/dist-packages/requests* && easy_install requests==2.3.0
-
-ADD requirements-dev.txt $HOME/requirements-dev.txt
+# Also installs the normal requirements file.
 RUN pip install -r $HOME/requirements-dev.txt
+
 RUN rm $HOME/requirements.txt $HOME/requirements-dev.txt
-
-# Switch to docker user.
-RUN chown -R docker:docker $HOME/
-USER docker
-
-# Workaround for IncompleteRead error while installing PuDB.
-# See: https://bugs.launchpad.net/ubuntu/+source/python-pip/+bug/1306991
-RUN sudo rm -rf /usr/local/lib/python2.7/dist-packages/requests* && sudo easy_install requests==2.3.0
-
-# Install PuDB.
-# PuDB does some weird folder creating stuff, leaving it unable to read with no apparent reason.
-RUN mkdir -p $HOME/.config/pudb
-RUN sudo pip install pudb
-RUN sudo chown -R docker:docker $HOME/
-
-# Expose to Selenium.
-EXPOSE 8081
-
-ENV DJANGO_SETTINGS_MODULE lily.settings.settings
-ENV DEBUG 1
-ENV SECRET_KEY abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn
-ENV DATABASE_URL postgres://hellolily:@db/hellolily
-ENV MULTI_TENANT 1
 
 WORKDIR /home/docker/hellolily

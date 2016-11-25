@@ -1,0 +1,26 @@
+engines:
+  eslint:  # Scans javascript files, configure using .eslintrc
+    enabled: true
+    channel: "eslint-3"
+  duplication:  # Scans for code duplication.
+    enabled: true
+    config:
+      languages:
+      - python
+      - javascript
+  fixme:  # Scans for comments with any of: TODO, FIXME, HACK, XXX and BUG.
+    enabled: true
+  radon:  # Scans python code complexity.
+    enabled: true
+  pep8:  # Scans python pep styleguide, configure using setup.cfg
+    enabled: true
+  scss-lint:  # Scans sass/scss files, configure in .scss-lint.yml file.
+      enabled: true
+  shellcheck:  # Scans shell scripts.
+    enabled: true
+
+ratings:
+  paths:
+  - "**.py"
+  - "frontend/app/**.*"
+  - "**.sh"

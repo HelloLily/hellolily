@@ -37,10 +37,6 @@ urlpatterns = patterns(
 )
 
 if settings.DEBUG:
-    import debug_toolbar
-    urlpatterns += patterns('', url(r'^__debug__/', include(debug_toolbar.urls)), )
-
-    # Works only in debug mode
     urlpatterns += patterns(
         '',
         (r'^media/(.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),

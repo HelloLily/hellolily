@@ -1,8 +1,10 @@
+import traceback
 from optparse import make_option
 import time
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.db import connection
 
 from lily.search.analyzers import get_analyzers
 from lily.search.connections_utils import get_es_client, get_index_name
@@ -25,11 +27,9 @@ configured mappings:
 The second way is to target a specific model:
 
     index -t contact
-
-or with other names:
-
-    index -t lily.contacts.models.Contact
+    index -t lily.contacts.models.contact
     index -t contacts_contact
+    index -t lily.contacts
 
 It is possible to specify multiple models, using comma separation."""
 
@@ -57,54 +57,99 @@ It is possible to specify multiple models, using comma separation."""
                     ),
     )
 
-    def handle(self, *args, **options):
-        es = get_es_client()
+    def handle(self, *args, **kwargs):
+        self.stdout.write('Please remember that Lily needs to be in maintenance mode. \n\n')
 
+        try:
+            self.handle_args(*args)
+            self.handle_kwargs(**kwargs)
+
+            self.es = get_es_client()
+            self.index()
+
+            if self.log_queries:
+                for query in connection.queries:
+                    print query
+        except Exception:
+            self.stderr.write('\nIndexing error.\n')
+            traceback.print_exc()
+
+    def handle_args(self, *args):
+        """
+        Validate the arguments given, this command doesn't support arguments for now.
+        """
         if args:
             self.stdout.write('Aborting, unexpected arguments %s' % list(args))
             return
 
-        if options['list']:
-            self.stdout.write('Possible models to index:\n')
-            for mapping in ModelMappings.get_model_mappings().values():
-                self.stdout.write(mapping.get_mapping_type_name())
-            return
+    def handle_kwargs(self, **kwargs):
+        """
+        Validate the keyword argument given and prepare for indexing.
+        Django makes sure there are no unspecified kwargs are passed to the command.
+        """
+        # Validate the list kwarg.
+        self.list_mappings = kwargs['list'] is True
 
-        target = options['target']
-        if target:
-            targets = target.split(',')
-        else:
-            targets = []  # (meaning all)
-        has_targets = targets != []
+        # Validate the targets kwarg.
+        targets_to_check = []
+        if kwargs['target']:
+            targets_to_check = kwargs['target'].split(',')
 
-        self.stdout.write('Please remember that Lily needs to be in maintenance mode. \n\n')
+        # Validate the targets kwarg, every one of them should be known.
+        self.validate_targets(targets_to_check)
 
-        if has_targets:
-            # Do a quick run to check if all targets are valid models.
-            check_targets = list(targets)  # make a copy
-            for target in check_targets:
-                for mapping in ModelMappings.get_model_mappings().values():
-                    if self.model_targetted(mapping, [target]):
-                        check_targets.remove(target)
+        # Validate the queries kwarg.
+        self.log_queries = kwargs['queries'] is True
+
+        # Validate the force kwarg.
+        self.force = kwargs['force'] is True
+
+    def validate_targets(self, targets_to_check):
+        """
+        Validate every target that is passed to the command.
+        """
+        invalid_targets = []
+        target_list = []
+
+        for target in targets_to_check:
+            if target in ModelMappings.app_to_mappings.keys():
+                # Target is an app.
+                target_list.append(ModelMappings.app_to_mappings[target])
+                continue
+
+            for mapping in ModelMappings.mappings:
+                if target == mapping.get_mapping_type_name():
+                    target_list.append(mapping)
+                    break
+            else:
+                # Only check this if the previous for loop didn't break.
+                for model, mapping in ModelMappings.model_to_mappings.items():
+                    if target in [model.__name__.lower(), '{0}.{1}'.format(model.__module__, model.__name__).lower()]:
+                        # Target is model name or model path.
+                        target_list.append(mapping)
                         break
-            if check_targets:
-                self.stdout.write('Aborting, following targets not recognized: %s' % check_targets)
-                return
+                else:
+                    invalid_targets.append(target)
 
-        for mapping in ModelMappings.get_model_mappings().values():
+        if invalid_targets:
+            raise Exception('The following targets were not recognized: %s' % invalid_targets)
+
+        self.target_list = target_list or ModelMappings.mappings
+
+    def index(self):
+        """
+        Do the actual indexing for all specified targets.
+        """
+        for mapping in self.target_list:
             model_name = mapping.get_mapping_type_name()
             main_index_base = settings.ES_INDEXES['default']
             main_index = get_index_name(main_index_base, mapping)
-
-            # Skip this model if there are specific targets and not specified.
-            if has_targets and not self.model_targetted(mapping, targets):
-                continue
 
             self.stdout.write('==> %s' % model_name)
 
             # Check if we currently have an index for this mapping.
             old_index = None
-            aliases = es.indices.get_aliases(name=main_index)
+            aliases = self.es.indices.get_aliases(name=main_index)
             for key, value in aliases.iteritems():
                 if value['aliases']:
                     old_index = key
@@ -112,7 +157,7 @@ It is possible to specify multiple models, using comma separation."""
 
             # Check any indices with no alias (leftovers from failed indexing).
             # Or it could be that it is still in progress,
-            aliases = es.indices.get_aliases()
+            aliases = self.es.indices.get_aliases()
             for key, value in aliases.iteritems():
                 if not key.endswith(model_name):
                     # Not the model we are looking after.
@@ -121,9 +166,9 @@ It is possible to specify multiple models, using comma separation."""
                     # This is an auto created index. Will be removed at end of command.
                     continue
                 if not value['aliases']:
-                    if options['force']:
+                    if self.force:
                         self.stdout.write('Removing leftover "%s"' % key)
-                        es.indices.delete(key)
+                        self.es.indices.delete(key)
                     else:
                         raise Exception('Found leftover %s, proceed with -f to remove.'
                                         ' Make sure indexing this model is not already running!' % key)
@@ -142,14 +187,14 @@ It is possible to specify multiple models, using comma separation."""
             temp_index = get_index_name(temp_index_base, mapping)
 
             self.stdout.write('Creating new index "%s"' % temp_index)
-            es.indices.create(temp_index, body=index_settings)
+            self.es.indices.create(temp_index, body=index_settings)
 
             # Index documents.
             self.index_documents(mapping, temp_index_base)
 
             # Switch aliases.
             if old_index:
-                es.indices.update_aliases({
+                self.es.indices.update_aliases({
                     'actions': [
                         {'remove': {'index': old_index, 'alias': main_index}},
                         {'remove': {'index': old_index, 'alias': main_index_base}},
@@ -158,15 +203,15 @@ It is possible to specify multiple models, using comma separation."""
                     ]
                 })
                 self.stdout.write('Removing previous index "%s"' % old_index)
-                es.indices.delete(old_index)
+                self.es.indices.delete(old_index)
             else:
-                if es.indices.exists(main_index):
+                if self.es.indices.exists(main_index):
                     # This is a corner case. There was no alias named index_name, but
                     # an index index_name nevertheless exists, this only happens when the index
                     # was already created (because of ES auto creation features).
                     self.stdout.write('Removing previous (presumably auto created) index "%s"' % main_index)
-                    es.indices.delete(main_index)
-                es.indices.update_aliases({
+                    self.es.indices.delete(main_index)
+                self.es.indices.update_aliases({
                     'actions': [
                         {'add': {'index': temp_index, 'alias': main_index}},
                         {'add': {'index': temp_index, 'alias': main_index_base}},
@@ -176,14 +221,12 @@ It is possible to specify multiple models, using comma separation."""
 
         self.stdout.write('Indexing finished.')
 
-        if options['queries']:
-            from django.db import connection
-            for query in connection.queries:
-                print query
-
     def index_documents(self, mapping, temp_index_base):
+        """
+        Index all non deleted objects.
+        """
         model = mapping.get_model()
-        self.stdout.write('Indexing %s' % self.full_name(model))
+        self.stdout.write('Indexing {0}.{1}'.format(model.__module__, model.__name__).lower())
 
         if mapping.has_deleted():
             model_objs = model.objects.filter(is_deleted=False)
@@ -191,22 +234,3 @@ It is possible to specify multiple models, using comma separation."""
             model_objs = model.objects.all()
 
         index_objects(mapping, model_objs, temp_index_base, print_progress=True)
-
-    def model_targetted(self, mapping, specific_targets):
-        """
-        Check if the mapping is targetted for indexing.
-        """
-        model = mapping.get_model()
-        model_short_name = model.__name__.lower()
-        model_full_name = self.full_name(model).lower()
-        model_mappings_name = mapping.get_mapping_type_name().lower()
-        for target in specific_targets:
-            if target.lower() in [model_short_name, model_full_name, model_mappings_name]:
-                return True
-        return False
-
-    def full_name(self, model):
-        """
-        Get the fully qualified name of a model.
-        """
-        return '%s.%s' % (model.__module__, model.__name__)

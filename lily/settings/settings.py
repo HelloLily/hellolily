@@ -101,7 +101,6 @@ ALLOWED_HOSTS = [
 # UPLOADED MEDIA AND STATIC FILES                                                                                     #
 #######################################################################################################################
 if DEBUG:
-    JQUERY_URL = ''  # Debug toolbar
     COLLECTFAST_ENABLED = False
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
@@ -191,9 +190,6 @@ if 'test' in sys.argv:
     SSLIFY_DISABLE = True
 elif DEBUG:
     SSLIFY_DISABLE = True
-    MIDDLEWARE_CLASSES += (
-        'debug_toolbar.middleware.DebugToolbarMiddleware',
-    )
 
 #######################################################################################################################
 # TEMPLATE SETTINGS                                                                                                   #
@@ -283,15 +279,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.messages',
 )
-#######################################################################################################################
-
-if DEBUG:
-    INSTALLED_APPS += (
-        'debug_toolbar',
-        'template_debug',  # in-template tags for debugging purposes
-        'template_timings_panel',
-        # 'debug_toolbar_line_profiler',  # Gedetailleerde
-    )
 
 #######################################################################################################################
 # EMAIL SETTINGS                                                                                                      #
@@ -621,34 +608,9 @@ MESSAGE_STORAGE = 'django.contrib.messages.storage.fallback.FallbackStorage'
 # Tenant support
 MULTI_TENANT = boolean(os.environ.get('MULTI_TENANT', 0))
 
-# Settings for 3rd party apps
-
-# django debug toolbar
-INTERNAL_IPS = (['127.0.0.1', '172.17.42.1'] +
-                (['192.168.%d.%d' % (i, j) for i in [0, 1, 23] for j in range(256)])) if DEBUG else []
-
 # dataprovider
 DATAPROVIDER_API_KEY = os.environ.get('DATAPROVIDER_API_KEY')
 DATAPROVIDER_API_URL = 'https://www.dataprovider.com/api/0.1/lookup/hostname.json'
-
-DEBUG_TOOLBAR_PATCH_SETTINGS = False
-DEBUG_TOOLBAR_PANELS = [
-    # 'debug_toolbar.panels.versions.VersionsPanel',
-    'debug_toolbar.panels.timer.TimerPanel',
-    'template_timings_panel.panels.TemplateTimings.TemplateTimings',
-    # 'debug_toolbar.panels.settings.SettingsPanel',
-    # 'debug_toolbar.panels.headers.HeadersPanel',
-    'debug_toolbar.panels.request.RequestPanel',
-    'debug_toolbar.panels.sql.SQLPanel',
-    # 'debug_toolbar.panels.staticfiles.StaticFilesPanel',
-    'debug_toolbar.panels.templates.TemplatesPanel',
-    'debug_toolbar.panels.cache.CachePanel',
-    'debug_toolbar.panels.signals.SignalsPanel',
-    'debug_toolbar.panels.logging.LoggingPanel',
-    # 'debug_toolbar.panels.redirects.RedirectsPanel',
-    'debug_toolbar.panels.profiling.ProfilingPanel',
-    # 'debug_toolbar_line_profiler.panel.ProfilingPanel',  # requires Cython and debug_toolbar_line_profiler
-]
 
 # Django Bootstrap
 # TODO: These settings can be removed once all forms are converted to Angular

@@ -19,6 +19,8 @@ function CallerInfoController($state, Account, Call) {
     vm.fetchCallerInfo = fetchCallerInfo;
 
     function fetchCallerInfo() {
+        ga('send', 'event', 'Caller info', 'Open', 'Topnav');
+
         // Get the latest call of the current user based on the internal number.
         Call.getLatestCall().$promise.then(function(callInfo) {
             var call = callInfo.call;

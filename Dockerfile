@@ -12,6 +12,7 @@ RUN apk add --update \
     libjpeg-turbo-dev
 
 RUN mkdir /home/docker
+RUN chown -R root /home/docker
 ENV HOME /home/docker
 WORKDIR /home/docker
 

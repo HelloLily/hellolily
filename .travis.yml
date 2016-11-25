@@ -80,9 +80,6 @@ script:
   - overcommit --sign
   - overcommit --run
 
-  # Recreate the .coverage file since tests otherwise cause a permission error.
-  - touch .coverage
-  
   # Once the db has started, run the tests and output coverage and results.
   - ./ci/run_tests.sh
 

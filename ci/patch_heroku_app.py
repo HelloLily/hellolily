@@ -25,5 +25,6 @@ def main(argv):
 
     send_patch_request_to_heroku_app(app_name, api_key, data_key, data_value)
 
+
 if __name__ == '__main__':
     main(sys.argv[1:4])

@@ -1,2 +1,2 @@
-flake8
+flake8==3.0.4
 requests==2.10.0

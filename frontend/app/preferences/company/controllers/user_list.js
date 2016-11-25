@@ -14,11 +14,6 @@ function preferencesConfig($stateProvider) {
         ncyBreadcrumb: {
             label: 'Users',
         },
-        resolve: {
-            userList: ['User', function(User) {
-                return User.query().$promise;
-            }],
-        },
     });
 }
 
@@ -40,19 +35,22 @@ function PreferencesCompanyUserList($compile, $scope, $templateCache, LocalStora
             descending: false,
             column: 'full_name',  // string: current sorted column
         }),
-        statusFilter: storage.get('statusFilter', 'True'),
+        statusFilter: storage.get('statusFilter', 1),
         statusFilterOpen: false,
         visibility: storage.get('visibility', {
             full_name: true,
             email: true,
             phone_number: true,
+            internal_number: true,
             is_active: true,
         }),
+        searchQuery: storage.get('searchQuery', ''),
     };
     vm.alertMessages = messages.alerts.deactivateUser;
 
     vm.openTeamModal = openTeamModal;
     vm.toggleStatus = toggleStatus;
+    vm.setSearchQuery = setSearchQuery;
 
     activate();
 
@@ -79,7 +77,12 @@ function PreferencesCompanyUserList($compile, $scope, $templateCache, LocalStora
          * Watches the model info from the table that, when changed,
          * needs a new set of accounts
          */
-        $scope.$watchGroup(['vm.table.page', 'vm.table.order.column', 'vm.table.order.descending'], function() {
+        $scope.$watchGroup([
+            'vm.table.page',
+            'vm.table.order.column',
+            'vm.table.order.descending',
+            'vm.table.searchQuery',
+        ], function() {
             _updateTableSettings();
             _updateUsers();
         });
@@ -105,31 +108,28 @@ function PreferencesCompanyUserList($compile, $scope, $templateCache, LocalStora
     function _updateTableSettings() {
         storage.put('order', vm.table.order);
         storage.put('visibility', vm.table.visibility);
+        storage.put('searchQuery', vm.table.searchQuery);
     }
 
     function _updateUsers() {
-        var column;
         var ordering;
-        if (vm.table.order.column === 'full_name') {
-            // Special case for full_name, since it's not a db field we can't really order by it.
-            if (vm.table.order.descending) {
-                column = 'first_name,-last_name';
-            } else {
-                column = 'first_name,last_name';
-            }
-        } else {
-            column = vm.table.order.column;
-        }
-        ordering = ((vm.table.order.descending) ? '-' + column : column);
+        var filterQuery = '';
 
-        User.query({
-            'is_active': vm.table.statusFilter,
-            'page': vm.table.page,
-            'page_size': vm.table.pageSize,
-            'ordering': ordering,
+        ordering = vm.table.order.descending ? '-' + vm.table.order.column : vm.table.order.column;
+
+        if (vm.table.statusFilter) {
+            filterQuery = 'is_active:' + vm.table.statusFilter;
+        }
+
+        User.search({
+            'filterquery': filterQuery,
+            'page': vm.table.page - 1,
+            'size': vm.table.pageSize,
+            'sort': ordering,
+            'q': vm.table.searchQuery,
         }, function(response) {
-            vm.table.items = response.results;
-            vm.table.totalItems = response.pagination.total;
+            vm.table.items = response.objects;
+            vm.table.totalItems = response.total;
         }, function() {
             vm.table.items = [];
             vm.table.totalItems = 0;
@@ -214,5 +214,9 @@ function PreferencesCompanyUserList($compile, $scope, $templateCache, LocalStora
                 vm.table.items.splice(index, 1);
             }
         }
+    }
+
+    function setSearchQuery(queryString) {
+        vm.table.searchQuery = queryString;
     }
 }

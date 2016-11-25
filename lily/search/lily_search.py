@@ -193,6 +193,8 @@ class LilySearch(object):
                         'contact.full_name',
                         'status',
                         'type',
+                        'phone_number',
+                        'internal_number',
                         'phone_numbers.number',
                         'account_email',
                         'sender_email_address',

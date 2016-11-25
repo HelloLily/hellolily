@@ -21,6 +21,7 @@
                         <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.full_name">Name</checkbox></li>
                         <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.email">Email</checkbox></li>
                         <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.phone_number">Phone number</checkbox></li>
+                        <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.internal_number">Internal number</checkbox></li>
                         <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.is_active">Status</checkbox></li>
                     </ul>
                 </li>
@@ -28,22 +29,30 @@
         </div>
 
         <div class="widget-filters">
-            <div class="filter-group">
-                <a class="user-status-filter-toggle" ng-click="vm.table.statusFilterOpen = !vm.table.statusFilterOpen">
-                    <i class="lilicon hl-entity-b-icon"></i><i class="fa fa-angle-down"></i>
-                </a>
-                <div class="user-status-filter-container" ng-class="{'is-open': vm.table.statusFilterOpen}">
-                    <label class="filter-group-option" ng-model="vm.table.statusFilter" uib-btn-radio="'All'">
-                        All
-                    </label>
-                    <label class="filter-group-option" ng-model="vm.table.statusFilter" uib-btn-radio="'True'">
-                        Active
-                    </label>
-                    <label class="filter-group-option" ng-model="vm.table.statusFilter" uib-btn-radio="'False'">
-                        Inactive
-                    </label>
+            <ul class="hl-button-group">
+                <li>
+                    <a class="user-status-filter-toggle" ng-click="vm.table.statusFilterOpen = !vm.table.statusFilterOpen">
+                        <i class="lilicon hl-entity-b-icon"></i><i class="fa fa-angle-down"></i>
+                    </a>
+                    <div class="user-status-filter-container" ng-class="{'is-open': vm.table.statusFilterOpen}">
+                        <label class="filter-group-option" ng-model="vm.table.statusFilter" uib-btn-radio="">
+                            All
+                        </label>
+                        <label class="filter-group-option" ng-model="vm.table.statusFilter" uib-btn-radio="1">
+                            Active
+                        </label>
+                        <label class="filter-group-option" ng-model="vm.table.statusFilter" uib-btn-radio="0">
+                            Inactive
+                        </label>
+                    </div>
+                </li>
+            </ul>
+            <form class="widget-search pull-right">
+                <div class="hl-search-field-container">
+                    <input type="text" class="hl-search-field" ng-model="vm.table.searchQuery" ng-model-options="{debounce: 300}" placeholder="Search">
+                    <button type="button" class="hl-search-btn" ng-click="vm.setSearchQuery('')" ng-disabled="!vm.table.searchQuery"></button>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 
@@ -60,6 +69,9 @@
                         </th>
                         <th ng-show="vm.table.visibility.phone_number" sort-column="phone_number" table="vm.table">
                             <span class="text-nowrap">Phone number</span>
+                        </th>
+                        <th ng-show="vm.table.visibility.internal_number" sort-column="internal_number" table="vm.table">
+                            <span class="text-nowrap">Internal number</span>
                         </th>
                         <th ng-show="vm.table.visibility.is_active" sort-column="is_active" table="vm.table" width="100px">
                             <span class="text-nowrap">Status</span>
@@ -81,6 +93,9 @@
                         </td>
                         <td ng-show="vm.table.visibility.phone_number">
                             {{ user.phone_number }}
+                        </td>
+                        <td ng-show="vm.table.visibility.internal_number">
+                            {{ user.internal_number }}
                         </td>
                         <td ng-show="vm.table.visibility.is_active">
                             <span ng-show="user.is_active" class="label label-sm label-success">

@@ -33,7 +33,7 @@ function Deal($resource, CacheFactory, HLCache, HLForms, HLResource, HLUtils) {
                     return angular.toJson(HLForms.clean(jsonData));
                 },
             },
-            query: {
+            search: {
                 url: '/search/search/',
                 method: 'GET',
                 params: {
@@ -158,7 +158,7 @@ function Deal($resource, CacheFactory, HLCache, HLForms, HLResource, HLUtils) {
     function getDeals(orderColumn, orderedDesc, filterQuery, searchQuery = '', page = 1, pageSize = 100) {
         var sort = HLUtils.getSorting(orderColumn, orderedDesc);
 
-        return _deal.query({
+        return _deal.search({
             q: searchQuery,
             page: page - 1,
             size: pageSize,

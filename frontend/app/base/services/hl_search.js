@@ -4,6 +4,7 @@ HLSearch.$inject = ['$injector', 'Tag'];
 function HLSearch($injector, Tag) {
     HLSearch.refreshList = refreshList;
     HLSearch.refreshTags = refreshTags;
+    HLSearch.getOpenCasesDeals = getOpenCasesDeals;
 
     function refreshList(query, modelName, extraFilterQuery, sortColumn = '-modified', nameColumn = 'name') {
         var items;
@@ -48,6 +49,37 @@ function HLSearch($injector, Tag) {
         tagsPromise = Tag.search({query: query, filterquery: exclude});
 
         return tagsPromise;
+    }
+
+    /**
+     * Search for open cases or deals belonging to the object's account and/or contact.
+     *
+     * @param closedStatusQuery {string}: Contains the filterquery string for the open status(es).
+     * @param object {Object}: The case or deal that's used for the queries.
+     * @param modelName {String}: Specifies if it's a case or deal.
+     */
+    function getOpenCasesDeals(closedStatusQuery, object, modelName) {
+        var filterQuery = closedStatusQuery;
+
+        if (object.id) {
+            // Filter out the current case.
+            filterQuery += ' AND NOT id: ' + object.id;
+        }
+
+        if (object.account && object.contact) {
+            filterQuery += ' AND (account.id:' + object.account.id + ' OR (account.id:' + object.account.id + ' AND contact.id:' + object.contact.id + '))';
+        } else {
+            if (object.account) {
+                filterQuery += ' AND account.id:' + object.account.id;
+            }
+
+            if (object.contact) {
+                filterQuery += ' AND contact.id:' + object.contact.id;
+            }
+        }
+
+        // Inject the model's service and execute the search query.
+        return $injector.get(modelName).search({filterquery: filterQuery}).$promise;
     }
 
     return HLSearch;

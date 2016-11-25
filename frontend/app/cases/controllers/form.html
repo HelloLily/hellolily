@@ -29,6 +29,24 @@
                     </ui-select>
                     <span class="help-text text-muted">Please type at least 2 characters to begin the search</span>
                 </form-group>
+
+                <form-group ng-if="vm.openCases.length">
+                    <div class="widget-suggestion">
+                        <span class="widget-suggestion-title">
+                            <i class="lilicon hl-entity-icon"></i>
+                            <span ng-if="vm.openCases.length === 1">There's another open case</span>
+                            <span ng-if="vm.openCases.length > 1">There are other open cases</span>
+                        </span>
+                        <div ng-repeat="case in vm.openCases" class="widget-suggestion-items">
+                            <div class="widget-suggestion-item">
+                                Check it out: <a ui-sref="base.cases.detail({ id: case.id })">{{ case.subject }}</a>
+                            </div>
+                            <div class="widget-suggestion-item-action">
+                                <a ng-if="!settings.email.sidebar.form" class="hl-primary-btn" ui-sref="base.cases.detail.edit({ id: case.id })">Edit this case</a>
+                            </div>
+                        </div>
+                    </div>
+                </form-group>
             </form-portlet>
 
             <form-portlet portlet-title="What to do?">

@@ -374,19 +374,23 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
         toastr.error('Uh oh, there seems to be a problem', 'Oops!');
     }
 
-    $scope.$watch('vm.deal.account', function() {
-        // Get contacts that work for the selected account.
+    $scope.$watch('vm.deal.account', function(newValue, oldValue) {
+        // Get contacts who work for the selected account.
         refreshContacts('');
 
         if (vm.deal.account) {
             // Mark as new business if the given account doesn't have any deals yet.
-            Deal.query({filterquery: 'account.id:' + vm.deal.account.id}).$promise.then(function(response) {
+            Deal.search({filterquery: 'account.id:' + vm.deal.account.id}).$promise.then(function(response) {
                 vm.deal.new_business = !response.objects.length;
             });
         }
+
+        if (newValue !== oldValue) {
+            _getOpenDeals();
+        }
     });
 
-    $scope.$watch('vm.deal.contact', function() {
+    $scope.$watch('vm.deal.contact', function(newValue, oldValue) {
         if (vm.deal.contact && vm.deal.contact.accounts && vm.deal.contact.accounts.length) {
             // Get accounts that the select contact works for.
             vm.accounts = vm.deal.contact.accounts;
@@ -395,7 +399,25 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
             vm.accounts = null;
             refreshAccounts('');
         }
+
+        if (newValue !== oldValue) {
+            _getOpenDeals();
+        }
     });
+
+    function _getOpenDeals() {
+        var filterQuery;
+
+        if (vm.deal.account || vm.deal.contact) {
+            filterQuery = 'NOT status.id:' + Deal.lostStatus.id + ' AND NOT status.id:' + Deal.wonStatus.id + ' AND is_archived: false';
+
+            HLSearch.getOpenCasesDeals(filterQuery, vm.deal, 'Deal').then(function(response) {
+                vm.openDeals = response.objects;
+            });
+        } else {
+            vm.openDeals = [];
+        }
+    }
 
     function refreshAccounts(query) {
         var accountsPromise;

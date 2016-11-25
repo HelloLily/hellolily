@@ -334,12 +334,16 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         toastr.error('Uh oh, there seems to be a problem', 'Oops!');
     }
 
-    $scope.$watch('vm.case.account', function() {
+    $scope.$watch('vm.case.account', function(newValue, oldValue) {
         // Get contacts that work for the selected account.
         refreshContacts('');
+
+        if (newValue !== oldValue) {
+            _getOpenCases();
+        }
     });
 
-    $scope.$watch('vm.case.contact', function() {
+    $scope.$watch('vm.case.contact', function(newValue, oldValue) {
         if (vm.case.contact && vm.case.contact.accounts && vm.case.contact.accounts.length) {
             // Get accounts that the select contact works for.
             vm.accounts = vm.case.contact.accounts;
@@ -347,6 +351,10 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             // Just get the accounts list.
             vm.accounts = null;
             refreshAccounts('');
+        }
+
+        if (newValue !== oldValue) {
+            _getOpenCases();
         }
     });
 
@@ -363,6 +371,20 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
                     vm.accounts = data.objects;
                 });
             }
+        }
+    }
+
+    function _getOpenCases() {
+        var filterQuery;
+
+        if (vm.case.account || vm.case.contact) {
+            filterQuery = 'NOT status.id:' + Case.closedStatus.id + ' AND is_archived: false';
+
+            HLSearch.getOpenCasesDeals(filterQuery, vm.case, 'Case').then(function(response) {
+                vm.openCases = response.objects;
+            });
+        } else {
+            vm.openCases = [];
         }
     }
 

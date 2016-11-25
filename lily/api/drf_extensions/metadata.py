@@ -1,7 +1,8 @@
 from __future__ import unicode_literals
 
+from collections import OrderedDict
+
 from django.utils.encoding import force_text
-from rest_framework.compat import OrderedDict
 from rest_framework.metadata import SimpleMetadata
 
 

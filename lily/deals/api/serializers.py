@@ -3,7 +3,7 @@ import datetime
 from django.utils.timezone import utc
 from django.utils.translation import ugettext_lazy as _
 
-from lily.api.fields import RegexDecimalField
+from lily.api.fields import RegexDecimalField, SanitizedHtmlCharField
 from lily.api.nested.mixins import RelatedSerializerMixin
 from lily.api.nested.serializers import WritableNestedSerializer
 from rest_framework import serializers
@@ -14,7 +14,6 @@ from lily.contacts.api.serializers import RelatedContactSerializer
 from lily.contacts.models import Function
 from lily.users.api.serializers import RelatedLilyUserSerializer
 from lily.utils.api.serializers import RelatedTagSerializer
-from lily.utils.sanitizers import HtmlSanitizer
 
 from ..models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost, DealFoundThrough, DealContactedBy, DealStatus
 
@@ -132,6 +131,9 @@ class DealSerializer(WritableNestedSerializer):
     modified = serializers.DateTimeField(read_only=True)
     content_type = ContentTypeSerializer(read_only=True)
 
+    # Custom fields.
+    description = SanitizedHtmlCharField()
+
     # Related fields.
     account = RelatedAccountSerializer()
     contact = RelatedContactSerializer(required=False, allow_null=True)
@@ -184,7 +186,6 @@ class DealSerializer(WritableNestedSerializer):
         status_id = validated_data.get('status').get('id')
         status = DealStatus.objects.get(pk=status_id)
         closed_date = validated_data.get('closed_date')
-        description = validated_data.get('description')
 
         # Set closed_date if status is lost/won and not manually provided.
         if (status.is_won or status.is_lost) and not closed_date:
@@ -196,11 +197,6 @@ class DealSerializer(WritableNestedSerializer):
             'created_by_id': user.pk,
             'closed_date': closed_date,
         })
-
-        if description:
-            validated_data.update({
-                'description': HtmlSanitizer(description).clean().render(),
-            })
 
         assigned_to = validated_data.get('assigned_to')
 
@@ -220,7 +216,6 @@ class DealSerializer(WritableNestedSerializer):
 
         status = DealStatus.objects.get(pk=status_id)
         closed_date = validated_data.get('closed_date', instance.closed_date)
-        description = validated_data.get('description')
         assigned_to = validated_data.get('assigned_to')
 
         if assigned_to:
@@ -241,11 +236,6 @@ class DealSerializer(WritableNestedSerializer):
         if assigned_to and assigned_to != user.pk and instance.assigned_to and instance.assigned_to.id != assigned_to:
             validated_data.update({
                 'newly_assigned': True,
-            })
-
-        if description:
-            validated_data.update({
-                'description': HtmlSanitizer(description).clean().render(),
             })
 
         return super(DealSerializer, self).update(instance, validated_data)

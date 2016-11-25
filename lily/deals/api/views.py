@@ -1,6 +1,5 @@
-import django_filters
-
-from rest_framework.filters import DjangoFilterBackend
+from django_filters import FilterSet
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -106,7 +105,7 @@ class DealStatusViewSet(SetTenantUserMixin, ModelViewSet):
         return super(DealStatusViewSet, self).get_queryset().all()
 
 
-class DealFilter(django_filters.FilterSet):
+class DealFilter(FilterSet):
     class Meta:
         model = Deal
         fields = {

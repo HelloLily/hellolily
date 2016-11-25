@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('utils', '0013_auto_20160603_1535'),
+        ('utils', '0016_remove_historylistitem'),
     ]
 
     operations = [

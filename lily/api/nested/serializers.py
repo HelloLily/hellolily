@@ -1,210 +1,366 @@
 import json
 import grequests
 
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
-from django.db import models, transaction
+from django.db import transaction
+from django.db.models import ForeignKey, ManyToManyField, ManyToOneRel, ManyToManyRel
+from django.utils import six
 from rest_framework import serializers
+from rest_framework.fields import empty
+from rest_framework.serializers import SerializerMetaclass
 
 from lily.api.mixins import ValidateEverythingSimultaneouslyMixin
-from lily.tags.models import Tag
 
 
+def is_dirty(instance, data):
+    """
+    Helper function to determine wheter a serializer needs to save.
+    """
+    if not instance:
+        return True
+
+    for key, value in data.items():
+        if value != getattr(instance, key):
+            return True
+
+    return False
+
+
+class WritableNestedSerializerMetaclass(SerializerMetaclass):
+    def __new__(mcs, name, bases, attrs):
+        cls = super(WritableNestedSerializerMetaclass, mcs).__new__(mcs, name, bases, attrs)
+
+        if name != 'WritableNestedSerializer':
+            cls.model_fields = {x.name: x for x in cls.Meta.model._meta.get_fields()}
+
+            cls.simple_fields = []
+
+            cls.foreign_key_fields = []
+            cls.foreign_key_reverse_fields = []
+
+            cls.generic_foreign_key_fields = []
+            cls.generic_foreign_key_reverse_fields = []
+
+            cls.many_to_many_fields = []
+            cls.many_to_many_through_fields = []
+
+            cls.many_to_many_reverse_fields = []
+            cls.many_to_many_through_reverse_fields = []
+
+            for field_name, field in cls.model_fields.items():
+                if not field.is_relation:
+                    # It's a normal field.
+                    cls.simple_fields.append(field_name)
+                    continue
+                else:
+                    # The field is some type of relation.
+                    if isinstance(field, ForeignKey):
+                        # The field is a foreign key.
+                        cls.foreign_key_fields.append(field_name)
+                        continue
+
+                    if isinstance(field, ManyToOneRel):
+                        # The field is a reverse foreign key.
+                        cls.foreign_key_reverse_fields.append(field_name)
+                        continue
+
+                    if isinstance(field, GenericForeignKey):
+                        # The field is a generic foreign key.
+                        cls.generic_foreign_key_fields.append(field_name)
+                        continue
+
+                    if isinstance(field, GenericRelation):
+                        # The field is a reverse generic foreign key.
+                        cls.generic_foreign_key_reverse_fields.append(field_name)
+                        continue
+
+                    if isinstance(field, ManyToManyField):
+                        # The field is a many to many.
+                        if hasattr(field.rel.through, 'manager'):
+                            # With a custom through table.
+                            cls.many_to_many_through_fields.append(field_name)
+                        else:
+                            # Without a custom through table.
+                            cls.many_to_many_fields.append(field_name)
+                        continue
+
+                    if isinstance(field, ManyToManyRel):
+                        # The field is a reverse many to many.
+                        if hasattr(field.through, 'manager'):
+                            cls.many_to_many_through_reverse_fields.append(field_name)
+                        else:
+                            cls.many_to_many_reverse_fields.append(field_name)
+                        continue
+
+        return cls
+
+
+@six.add_metaclass(WritableNestedSerializerMetaclass)
 class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializers.ModelSerializer):
-    """
-    Generic implementation of saving related fields.
+    simple_data = {}
+    fk_data = {}
+    fk_reverse_data = {}
+    gfk_data = {}
+    gfk_reverse_data = {}
+    m2m_data = {}
+    m2m_reverse_data = {}
+    m2m_through_data = {}
+    m2m_through_reverse_data = {}
 
-    Just put a related field serializer amongst the normal fields
-    """
-    def _separate_data(self, validated_data):
-        many_related_data = {}
-        fk_related_data = {}
-        generic_related_data = {}
+    def __init__(self, instance=None, data=empty, **kwargs):
+        super(WritableNestedSerializer, self).__init__(instance=instance, data=data, **kwargs)
 
-        # Warning: model meta class api changes in django 1.9 so these lists need to be rewritten.
-        # See https://docs.djangoproject.com/en/1.9/ref/models/meta/#migrating-from-the-old-api
-        fk_fields = [f.name for f in self.Meta.model._meta.local_fields if isinstance(f, models.ForeignKey)]
-        generic_fk_fields = [field.name for field in self.Meta.model._meta.virtual_fields]
-        many_to_many_fields = [field.name for field in self.Meta.model._meta.many_to_many]
+        # Set these here, because they're of mutable type. Inheritance uses the super data otherwise.
+        self.simple_data = {}
+        self.fk_data = {}
+        self.fk_reverse_data = {}
+        self.gfk_data = {}
+        self.gfk_reverse_data = {}
+        self.m2m_data = {}
+        self.m2m_reverse_data = {}
+        self.m2m_through_data = {}
+        self.m2m_through_reverse_data = {}
 
-        for field_name in validated_data.copy():  # Copy because a dict can't be modified during loop.
-            # Check for many to many fields.
-            if field_name in many_to_many_fields:
-                many_related_data[field_name] = validated_data.pop('%s' % field_name)
-                # Go to next field, because this one was recognized.
+    def split_data(self, data):
+        for field_name, field_data in data.items():
+            if field_name in self.simple_fields:
+                self.simple_data[field_name] = field_data
                 continue
 
-            # Check for foreign key fields.
-            if field_name in fk_fields:
-                fk_related_data[field_name] = validated_data.pop('%s' % field_name)
-                # Go to next field, because this one was recognized.
+            if field_name in self.foreign_key_fields:
+                self.fk_data[field_name] = field_data
                 continue
 
-            # Check for generic relation fields.
-            if field_name in generic_fk_fields:
-                generic_related_data[field_name] = validated_data.pop('%s' % field_name)
+            if field_name in self.foreign_key_reverse_fields:
+                self.fk_reverse_data[field_name] = field_data
+                continue
 
-        return validated_data, many_related_data, fk_related_data, generic_related_data
+            if field_name in self.generic_foreign_key_fields:
+                self.gfk_data[field_name] = field_data
+                continue
+
+            if field_name in self.generic_foreign_key_reverse_fields:
+                self.gfk_reverse_data[field_name] = field_data
+                continue
+
+            if field_name in self.many_to_many_fields:
+                self.m2m_data[field_name] = field_data
+                continue
+
+            if field_name in self.many_to_many_reverse_fields:
+                self.m2m_reverse_data[field_name] = field_data
+                continue
+
+            if field_name in self.many_to_many_through_fields:
+                self.m2m_through_data[field_name] = field_data
+                continue
+
+            if field_name in self.many_to_many_through_reverse_fields:
+                self.m2m_through_reverse_data[field_name] = field_data
+                continue
+
+    def save(self, **kwargs):
+        # Get the content type for the model of the current serializer.
+        self.ctype = ContentType.objects.get_for_model(self.Meta.model)
+        return super(WritableNestedSerializer, self).save(**kwargs)
 
     def create(self, validated_data):
-        original_validated_data = validated_data.copy()
-
-        # Prepare all data for saving.
-        (non_related_data, many_related_data,
-         fk_related_data, generic_related_data) = self._separate_data(validated_data)
+        self.split_data(validated_data)
 
         with transaction.atomic():
-            # Do save of foreign key related fields.
-            for field_name, field_data in fk_related_data.items():
-                pk = field_data.get('id')
-                serializer = self.fields[field_name]
+            # Save the foreign keys and add their id's to simple field data.
+            self.save_foreign_key_fields()
 
-                if pk:
-                    related_instance = serializer.Meta.model.objects.get(pk=pk)
+            # Save the instance using simple field data.
+            self.instance = super(WritableNestedSerializer, self).create(self.simple_data)
 
-                    # Update the related instance with new data if necessary.
-                    if not len(field_data) == 1:
-                        related_instance = serializer.update(related_instance, field_data)
-                else:
-                    related_instance = serializer.create(field_data)
+            # Save the reverse foreign keys.
+            self.save_foreign_key_reverse_fields()
 
-                # Add the id's so null constraints don't break.
-                non_related_data.update({
-                    '%s_id' % field_name: related_instance.pk,
-                })
+            # Save the generic foreign keys.
+            self.save_generic_foreign_key_fields()
 
-            instance = super(WritableNestedSerializer, self).create(non_related_data)
+            # Save the reverse generic foreign keys.
+            self.save_generic_foreign_key_reverse_fields()
 
-            # Do save of generic related fields.
-            for field_name, field_data in generic_related_data.items():
-                serializer = self.fields[field_name]
+            # Save the many to manys.
+            self.save_many_to_many_fields()
 
-                # Add the reference to the current object in the field data.
-                for item in field_data:
-                    content_type = ContentType.objects.get_for_model(instance)
-                    item.update({
-                        'content_type': content_type,
-                        'object_id': instance.pk,
-                    })
+            # Save the reverse many to manys.
+            self.save_many_to_many_reverse_fields()
 
-                serializer.create(field_data)
+            # Save the many to manys with a through model.
+            self.save_many_to_many_through_fields()
 
-            # Do save of many to many related fields.
-            for field_name, field_data in many_related_data.items():
-                serializer = self.fields[field_name]
-                related_instance_list = serializer.create([fd for fd in field_data if not fd.get('id')])
-                related_instance_list += serializer.update(instance, [fd for fd in field_data if fd.get('id')])
+            # Save the reverse many to manys with a through model.
+            self.save_many_to_many_through_reverse_fields()
 
-                getattr(instance, field_name).add(*related_instance_list)
+        self.call_webhook(validated_data, self.instance)
 
-            self.call_webhook(original_validated_data, instance)
-
-        return instance
+        return self.instance
 
     def update(self, instance, validated_data):
-        original_validated_data = validated_data.copy()
-
-        # Prepare all data for saving.
-        (non_related_data, many_related_data,
-         fk_related_data, generic_related_data) = self._separate_data(validated_data)
-
-        if self.partial:
-            for related_field_name in many_related_data:
-                # Store which fields are removed to update many_related_data afterwards.
-                removed_ids = []
-                # The non-model field is_deleted isn't present in many_related_data, so use initial_data instead.
-                try:
-                    field_data = self.initial_data[related_field_name]
-                except:
-                    field_data = self.data[related_field_name]
-
-                for item in field_data:
-                    if 'is_deleted' in item and item['is_deleted']:
-                        getattr(self.instance, related_field_name).filter(id=item['id']).delete()
-                        removed_ids.append(item['id'])
-
-                # Update many_related_data without the removed items.
-                # Keep items without an id, those will be newly created items.
-                many_related_data[related_field_name] = [
-                    item for item in many_related_data[related_field_name]
-                    if 'id' not in item or not item['id'] in removed_ids
-                ]
-
-            # Compare the current tags with the submitted tags to determine which tags should be deleted.
-            # Handle tags as a special case, because removed tags have no is_deleted flag,
-            # in fact they aren't present in initial_data at all.
-            if 'tags' in generic_related_data:
-                current_tag_ids = [tag['id'] for tag in instance.tags.all().values()]
-                submitted_existing_tag_ids = [tag['id'] for tag in generic_related_data['tags'] if 'id' in tag]
-                removed_tag_ids = set(current_tag_ids) ^ set(submitted_existing_tag_ids)
-                if len(removed_tag_ids):
-                    Tag.objects.filter(id__in=removed_tag_ids).delete()
+        self.split_data(validated_data)
 
         with transaction.atomic():
-            instance = super(WritableNestedSerializer, self).update(instance, non_related_data)
+            # Save the foreign keys and add their id's to simple field data.
+            self.save_foreign_key_fields()
 
-            # Do save of many to many related fields.
-            for field_name, field_data in many_related_data.items():
-                serializer = self.fields[field_name]
-                related_instance_list = serializer.update(None, field_data)
-                manager = getattr(instance, field_name)
+            # Save the instance.
+            self.instance = super(WritableNestedSerializer, self).update(instance, self.simple_data)
 
-                if not self.root.partial:
-                    # It's a full update, so we replace all currently linked objects with the new objects.
-                    manager.remove(*manager.exclude(id__in=[obj.id for obj in related_instance_list]))
+            # Save the reverse foreign keys and do a cleanup of unreferenced objects if necessary.
+            self.save_foreign_key_reverse_fields(cleanup=True)
 
-                manager.add(*related_instance_list)
+            # Save the generic foreign keys.
+            self.save_generic_foreign_key_fields()
 
-            # Do save of foreign key related fields.
-            for field_name, field_data in fk_related_data.items():
-                if not field_data:
-                    # Field data was null, so unset the relation.
-                    setattr(instance, field_name, None)
+            # Save the reverse generic foreign keys.
+            self.save_generic_foreign_key_reverse_fields(cleanup=True)
+
+            # Save the many to manys.
+            self.save_many_to_many_fields(cleanup=True)
+
+            # Save the reverse many to manys.
+            self.save_many_to_many_reverse_fields(cleanup=True)
+
+            # Save the many to manys with a through model.
+            self.save_many_to_many_through_fields(cleanup=True)
+
+            # Save the reverse many to manys with a through model.
+            self.save_many_to_many_through_reverse_fields(cleanup=True)
+
+        self.call_webhook(validated_data)
+
+        return self.instance
+
+    def remove(self, unmentioned_instances, field_name, manager, many):
+        # Store which fields are removed to update related_data afterwards.
+        removed_ids = []
+
+        if self.root.partial:
+            for item in self.initial_data[field_name]:
+                if 'is_deleted' in item and item['is_deleted']:
+                    removed_ids.append(item['id'])
+        else:
+            removed_ids = unmentioned_instances.keys()
+
+        # Delete the instances which were marked for deletion.
+        if many:
+            manager.remove(*manager.filter(pk__in=removed_ids))
+        else:
+            manager.filter(pk__in=removed_ids).delete()
+
+    def save_foreign_key_fields(self):
+        for field_name, field_data in self.fk_data.items():
+            related_instance = self.fields[field_name].instance
+
+            if related_instance:
+                if is_dirty(related_instance, field_data):
+                    # Something has changed, save the related object.
+                    related_instance = self.fields[field_name].save()
+
+                # Add the id's so null constraints don't break.
+                self.simple_data['%s_id' % field_name] = related_instance.pk
+            else:
+                self.simple_data['%s_id' % field_name] = None
+
+    def save_foreign_key_reverse_fields(self, cleanup=False):
+        for field_name, field_data in self.fk_reverse_data.items():
+            # Get the manager object for the reverse fk relation.
+            manager = self.fields[field_name].child.Meta.model.objects
+            # Get the related name for this foreign key.
+            related_name = '%s_id' % self.model_fields[field_name].field.name
+            # Update the field data with a reference to the instance.
+            for obj in field_data:
+                obj[related_name] = self.instance.pk
+
+            # Call the save on the listserializer.
+            instance_list, unmentioned_instances = self.fields[field_name].save(self.instance, field_data)
+
+            if cleanup:
+                self.remove(unmentioned_instances, field_name, manager, False)
+
+    def save_generic_foreign_key_fields(self):
+        if self.gfk_data:
+            raise NotImplementedError('generic_foreign_key_fields are not supported yet.')
+
+    def save_generic_foreign_key_reverse_fields(self, cleanup=False):
+        for field_name, field_data in self.gfk_reverse_data.items():
+            # Get the manager object for the reverse gfk relation.
+            manager = self.fields[field_name].child.Meta.model.objects
+            # Update the field data with the generic fk information (object_id and ctype).
+            for obj in field_data:
+                obj[self.model_fields[field_name].object_id_field_name] = self.instance.pk
+                obj[self.model_fields[field_name].content_type_field_name] = self.ctype
+
+            instance_list, unmentioned_instances = self.fields[field_name].save(self.instance, field_data)
+
+            if cleanup:
+                self.remove(unmentioned_instances, field_name, manager, False)
+
+    def save_many_to_many_fields(self, cleanup=False):
+        for field_name, field_data in self.m2m_data.items():
+            # Get the manager object for the m2m relation.
+            manager = getattr(self.instance, field_name)
+            # Call the save on the listserializer.
+            instance_list, unmentioned_instances = self.fields[field_name].save(self.instance, field_data)
+            # Add the many to many relation.
+            manager.add(*instance_list)
+
+            if cleanup:
+                self.remove(unmentioned_instances, field_name, manager, True)
+
+    def save_many_to_many_reverse_fields(self, cleanup=False):
+        for field_name, field_data in self.m2m_reverse_data.items():
+            # Get the manager object for the m2m relation.
+            manager = getattr(self.instance, field_name)
+            # Call the save on the listserializer.
+            instance_list, unmentioned_instances = self.fields[field_name].save(self.instance, field_data)
+            # Add the many to many relation.
+            manager.add(*instance_list)
+
+            if cleanup:
+                self.remove(unmentioned_instances, field_name, manager, True)
+
+    def save_many_to_many_through_fields(self, cleanup=False):
+        for field_name, field_data in self.m2m_through_data.items():
+            # Call the save on the listserializer.
+            instance_list, unmentioned_instances = self.fields[field_name].save(self.instance, field_data)
+
+            model_cls = self.model_fields[field_name].rel.through
+            forward_field_name = self.model_fields[field_name].rel.field.m2m_field_name()
+            reverse_field_name = self.model_fields[field_name].rel.field.m2m_reverse_field_name()
+
+            for obj in instance_list:
+                # Create the objects through records.
+                data = {}
+                data[forward_field_name] = self.instance
+                data[reverse_field_name] = obj
+
+                model_cls.objects.get_or_create(**data)
+
+            if cleanup:
+                removed_ids = []
+                if self.root.partial:
+                    for item in self.initial_data[field_name]:
+                        if 'is_deleted' in item and item['is_deleted']:
+                            removed_ids.append(item['id'])
                 else:
-                    pk = field_data.get('id')
+                    removed_ids = unmentioned_instances.keys()
 
-                    if pk:
-                        if pk == getattr(instance, '%s_id' % field_name):
-                            # We don't change the related instance.
-                            # Get the related instance to work with.
-                            related_instance = getattr(instance, field_name)
-                        else:
-                            # Change the related instance.
-                            # Get the new related instance to work with.
-                            related_instance = getattr(self.Meta.model, field_name).get_queryset().get(pk=pk)
-                            # Set the new related instance as linked to this instance.
-                            setattr(instance, field_name, related_instance)
+                # Delete the instances which were not in the validated data.
+                filter_kwargs = {
+                    forward_field_name: self.instance,
+                    '%s_id__in' % reverse_field_name: removed_ids,
+                }
 
-                        # Update the related instance with new data if necessary.
-                        if not len(field_data) == 1:
-                            serializer = self.fields[field_name]
-                            serializer.update(related_instance, field_data)
-                    else:
-                        serializer = self.fields[field_name]
-                        related_instance = serializer.create(field_data)
-                        # Set the new related instance as linked to this instance.
-                        setattr(instance, field_name, related_instance)
+                model_cls.objects.filter(**filter_kwargs).delete()
 
-                instance.save()
-
-            # Do save of generic related fields
-            for field_name, field_data in generic_related_data.items():
-                # Add the reference to the current object in the field data.
-                for item in field_data:
-                    item.update({
-                        'subject': instance,
-                    })
-
-                serializer = self.fields[field_name]
-                related_instance_list = serializer.update(None, field_data)
-                manager = getattr(instance, field_name)
-
-                if not self.root.partial:
-                    # It's a full update, so we replace all currently linked objects with the new objects.
-                    manager.exclude(id__in=[obj.id for obj in related_instance_list]).delete()
-
-            self.call_webhook(original_validated_data)
-
-        return instance
+    def save_many_to_many_through_reverse_fields(self, cleanup=False):
+        if self.m2m_through_reverse_data:
+            raise NotImplementedError('many_to_many_through_reverse_fields are not supported yet.')
 
     def call_webhook(self, original_validated_data, instance=None):
         user = self.context.get('request').user
@@ -249,18 +405,47 @@ class WritableNestedListSerializer(serializers.ListSerializer):
     List serializer that can be used to enable nested updates
     """
 
-    def update(self, instance, validated_data):
-        instance_list = []
+    def save(self, instance, validated_data):
+        saved_instances = []
 
-        for attrs in validated_data:
-            pk = attrs.pop('id', None)
+        field = getattr(instance, self.source)
+        instance_list = {obj.pk: obj for obj in field.all()}
+        assign_list = {}
+
+        # Loop over all the objects in validated_data.
+        for obj in validated_data:
+            pk = obj.get('id')
 
             if pk:
-                instance = self.child.Meta.model.objects.get(pk=pk)
-                obj = self.child.update(instance, attrs)
+                if pk in instance_list:
+                    # The validated data reference an existing object.
+                    instance = instance_list.pop(pk)
+                    if is_dirty(instance, obj):
+                        saved_instances.append(self.update(instance, obj))
+                else:
+                    # This is an assignment. the pk isn't in the list of referenced instances for this endpoint.
+                    assign_list[pk] = obj
             else:
-                obj = self.child.create(attrs)
+                # The validated data are trying to create a new object.
+                saved_instances.append(self.create(obj))
 
-            instance_list.append(obj)
+        saved_instances += self.assign(assign_list)
 
-        return instance_list
+        return saved_instances, instance_list
+
+    def create(self, validated_data):
+        return self.child.create(validated_data)
+
+    def update(self, instance, validated_data):
+        return self.child.update(instance, validated_data)
+
+    def assign(self, validated_data):
+        saved_instances = []
+
+        if validated_data:
+            instance_list = {obj.pk: obj for obj in self.child.Meta.model.objects.filter(pk__in=list(validated_data))}
+
+            for pk, data in validated_data.items():
+                saved_instances.append(self.update(instance_list[pk], data))
+
+        return saved_instances

@@ -37,12 +37,12 @@ class ContactTests(GenericAPITestCase):
             obj = object_list[iteration]
 
             if with_relations:
-                obj.phone_numbers.add(PhoneNumberFactory(tenant=obj.tenant))
+                obj.phone_numbers.add(*PhoneNumberFactory.create_batch(size=2, tenant=obj.tenant))
                 obj.social_media.add(SocialMediaFactory(tenant=obj.tenant))
                 obj.addresses.add(AddressFactory(tenant=obj.tenant))
                 obj.email_addresses.add(EmailAddressFactory(tenant=obj.tenant))
-                obj.functions.add(FunctionFactory(tenant=obj.tenant, contact=obj))
-                obj.tags.add(TagFactory(tenant=obj.tenant, subject=obj))
+                obj.functions.add(*FunctionFactory.create_batch(size=2, tenant=obj.tenant, contact=obj))
+                obj.tags.add(*TagFactory.create_batch(size=2, tenant=obj.tenant, subject=obj))
 
         if size > 1:
             return object_list
@@ -195,3 +195,35 @@ class ContactTests(GenericAPITestCase):
         # Partial updates should still validate the related objects
         # Partial updates should amend to the relations
         pass
+
+    def test_patch_with_deletion(self):
+        contact = self._create_object(with_relations=True)
+
+        data = {}
+        fields = {
+            'tags': list(contact.tags.all()),
+            'accounts': list(contact.accounts.all()),
+            'phone_numbers': list(contact.phone_numbers.all()),
+        }
+
+        for field_name, object_list in fields.items():
+            data[field_name] = [{
+                'id': object_list[0].pk,
+                'is_deleted': True,
+            }, {
+                'id': object_list[1].pk,
+            }]
+
+        request = self.user.patch(self.get_url(self.detail_url, kwargs={'pk': contact.pk}), data)
+
+        for field_name, object_list in fields.items():
+            self.assertNotIn(
+                object_list[0].pk,
+                [item['id'] for item in request.data.get(field_name)],
+                '%s %s was -not- deleted while it should have been.' % (field_name, object_list[0].pk)
+            )
+            self.assertIn(
+                object_list[1].pk,
+                [item['id'] for item in request.data.get(field_name)],
+                '%s %s -was- deleted while it should have been.' % (field_name, object_list[1].pk)
+            )

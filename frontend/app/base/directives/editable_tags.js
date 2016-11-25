@@ -42,6 +42,9 @@ function EditableTagsController($timeout, HLSearch, HLUtils) {
     }
 
     function updateViewModel($data) {
+        var tagIds = [];
+        var removedTags = [];
+
         var args = {
             id: vm.object.id,
         };
@@ -50,7 +53,17 @@ function EditableTagsController($timeout, HLSearch, HLUtils) {
 
         HLUtils.blockUI(form, true);
 
-        args.tags = $data;
+        for (let tag of $data.filter(x => 'id' in x)) {
+            tagIds.push(tag.id);
+        }
+
+        removedTags = vm.object.tags.filter(tag => tagIds.indexOf(tag.id) === -1);
+
+        for (let tag of removedTags) {
+            tag.is_deleted = true;
+        }
+
+        args.tags = $data.concat(removedTags);
 
         return vm.viewModel.updateModel(args).then(function(response) {
             HLUtils.unblockUI(form);

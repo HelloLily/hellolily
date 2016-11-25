@@ -1,6 +1,6 @@
-import django_filters
-
-from rest_framework.filters import DjangoFilterBackend, OrderingFilter
+from django_filters import FilterSet
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter
 from rest_framework.viewsets import ModelViewSet
 
 from lily.api.filters import ElasticSearchFilter
@@ -9,7 +9,7 @@ from .serializers import AccountSerializer, AccountStatusSerializer
 from ..models import Account, AccountStatus
 
 
-class AccountFilter(django_filters.FilterSet):
+class AccountFilter(FilterSet):
     class Meta:
         model = Account
         fields = {
@@ -26,14 +26,12 @@ class AccountFilter(django_filters.FilterSet):
             'flatname': ['exact', ],
             'iban': ['exact', ],
             'legalentity': ['exact', ],
-            'logo': ['exact', ],
             'id': ['exact', ],
             'modified': ['exact', ],
             'name': ['exact', ],
             'phone_numbers': ['exact', ],
             'social_media': ['exact', ],
             'status': ['exact', ],
-            'tags': ['exact', ],
             'taxnumber': ['exact', ],
             'websites': ['exact', ],
         }

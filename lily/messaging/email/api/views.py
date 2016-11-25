@@ -3,10 +3,9 @@ import logging
 from django.conf import settings
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
-
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, mixins, status, filters, serializers
 from rest_framework.decorators import detail_route, list_route
-from rest_framework.filters import DjangoFilterBackend
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 

@@ -1,6 +1,7 @@
-import django_filters
+from django_filters import FilterSet, CharFilter
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
-from rest_framework.filters import OrderingFilter, DjangoFilterBackend
+from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -29,14 +30,14 @@ def queryset_filter(request, queryset):
     return queryset
 
 
-class CaseFilter(django_filters.FilterSet):
+class CaseFilter(FilterSet):
     """
     Class to filter case queryset.
     """
-    type = django_filters.CharFilter(name='type__type')
-    status = django_filters.CharFilter(name='status__status')
-    not_type = django_filters.CharFilter(name='type__type', exclude=True)
-    not_status = django_filters.CharFilter(name='status__status', exclude=True)
+    type = CharFilter(name='type__type')
+    status = CharFilter(name='status__status')
+    not_type = CharFilter(name='type__type', exclude=True)
+    not_status = CharFilter(name='status__status', exclude=True)
 
     class Meta:
         model = Case

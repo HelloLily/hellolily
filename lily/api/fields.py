@@ -5,8 +5,10 @@ from django.db.models import QuerySet
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from rest_framework.fields import get_attribute
+from rest_framework.fields import get_attribute, CharField
 from rest_framework.relations import ManyRelatedField, MANY_RELATION_KWARGS
+
+from lily.utils.sanitizers import HtmlSanitizer
 
 
 class RegexDecimalField(serializers.DecimalField):
@@ -89,3 +91,20 @@ class DynamicQuerySetPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
             # Eg: 'MyRelationship(queryset=ExampleModel.objects.all())'
             queryset = queryset.all()
         return queryset
+
+
+class SanitizedHtmlCharField(CharField):
+    """
+    A field that sanitizes the incoming html.
+    """
+
+    def __init__(self, **kwargs):
+        # Override the defaults of these kwargs.
+        kwargs['allow_blank'] = kwargs.get('allow_blank', True)
+        kwargs['required'] = kwargs.get('required', False)
+
+        super(SanitizedHtmlCharField, self).__init__(**kwargs)
+
+    def to_internal_value(self, data):
+        value = super(SanitizedHtmlCharField, self).to_internal_value(data)
+        return HtmlSanitizer(value).clean().render()

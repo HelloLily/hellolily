@@ -2,6 +2,7 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
 from lily.accounts.api.serializers import RelatedAccountSerializer
+from lily.api.fields import SanitizedHtmlCharField
 from lily.api.nested.mixins import RelatedSerializerMixin
 from lily.api.nested.serializers import WritableNestedSerializer
 from lily.api.serializers import ContentTypeSerializer
@@ -10,7 +11,6 @@ from lily.contacts.models import Function
 from lily.users.api.serializers import RelatedLilyUserSerializer, RelatedTeamSerializer
 from lily.users.models import Team
 from lily.utils.api.serializers import RelatedTagSerializer
-from lily.utils.sanitizers import HtmlSanitizer
 
 from ..models import Case, CaseStatus, CaseType
 
@@ -58,6 +58,9 @@ class CaseSerializer(WritableNestedSerializer):
     modified = serializers.DateTimeField(read_only=True)
     content_type = ContentTypeSerializer(read_only=True)
 
+    # Custom fields.
+    description = SanitizedHtmlCharField()
+
     # Related fields.
     account = RelatedAccountSerializer(required=False, allow_null=True)
     contact = RelatedContactSerializer(required=False, allow_null=True)
@@ -87,17 +90,11 @@ class CaseSerializer(WritableNestedSerializer):
 
     def create(self, validated_data):
         user = self.context.get('request').user
-        description = validated_data.get('description')
         assigned_to = validated_data.get('assigned_to')
 
         validated_data.update({
             'created_by_id': user.pk,
         })
-
-        if description:
-            validated_data.update({
-                'description': HtmlSanitizer(description).clean().render(),
-            })
 
         if assigned_to and assigned_to.get('id') != user.pk:
             validated_data.update({
@@ -109,7 +106,6 @@ class CaseSerializer(WritableNestedSerializer):
     def update(self, instance, validated_data):
         user = self.context.get('request').user
         status_id = validated_data.get('status', instance.status_id)
-        description = validated_data.get('description')
         assigned_to = validated_data.get('assigned_to')
 
         if assigned_to:
@@ -124,11 +120,6 @@ class CaseSerializer(WritableNestedSerializer):
         if status.name == 'Closed' and 'is_archived' not in validated_data:
             validated_data.update({
                 'is_archived': True
-            })
-
-        if description:
-            validated_data.update({
-                'description': HtmlSanitizer(description).clean().render(),
             })
 
         # Check if the case being reassigned. If so we want to notify that user.

@@ -1,7 +1,7 @@
 from lily.tenant.factories import TenantFactory
 from lily.tests.utils import GenericAPITestCase
 
-from ..factories import AccountFactory, AccountStatusFactory
+from ..factories import AccountFactory, AccountStatusFactory, WebsiteFactory
 from ..models import Account
 from .serializers import AccountSerializer
 
@@ -17,6 +17,17 @@ class AccountTests(GenericAPITestCase):
     factory_cls = AccountFactory
     model_cls = Account
     serializer_cls = AccountSerializer
+
+    def _create_object(self, with_relations=False, size=1, **kwargs):
+        data = super(AccountTests, self)._create_object(with_relations, size, **kwargs)
+
+        if size > 1:
+            for account in data:
+                WebsiteFactory.create_batch(size=2, account=account, tenant=account.tenant)
+        else:
+            WebsiteFactory.create_batch(size=2, account=data, tenant=data.tenant)
+
+        return data
 
     def _create_object_stub(self, with_relations=True, size=1, **kwargs):
         """
@@ -44,3 +55,33 @@ class AccountTests(GenericAPITestCase):
         else:
             # If required size is 1, just give the object instead of a list.
             return object_list[0]
+
+    def test_patch_with_deletion(self):
+        account = self._create_object(with_relations=True)
+
+        data = {}
+        fields = {
+            'websites': list(account.websites.all()),
+        }
+
+        for field_name, object_list in fields.items():
+            data[field_name] = [{
+                'id': object_list[0].pk,
+                'is_deleted': True,
+            }, {
+                'id': object_list[1].pk,
+            }]
+
+        request = self.user.patch(self.get_url(self.detail_url, kwargs={'pk': account.pk}), data)
+
+        for field_name, object_list in fields.items():
+            self.assertNotIn(
+                object_list[0].pk,
+                [item['id'] for item in request.data.get(field_name)],
+                '%s %s was -not- deleted while it should have been.' % (field_name, object_list[0].pk)
+            )
+            self.assertIn(
+                object_list[1].pk,
+                [item['id'] for item in request.data.get(field_name)],
+                '%s %s -was- deleted while it should have been.' % (field_name, object_list[1].pk)
+            )

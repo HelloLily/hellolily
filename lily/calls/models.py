@@ -26,15 +26,8 @@ class Call(TenantMixin):
     caller_number = models.CharField(max_length=40)
     # The internal number of the VoIP account that has answered the call or ended the call.
     internal_number = models.CharField(max_length=5)
-    status = models.IntegerField(
-        max_length=10,
-        choices=CALL_STATUS_CHOICES,
-    )
-    type = models.IntegerField(
-        max_length=10,
-        choices=CALL_TYPE_CHOICES,
-        default=INBOUND,
-    )
+    status = models.PositiveSmallIntegerField(choices=CALL_STATUS_CHOICES)
+    type = models.PositiveSmallIntegerField(choices=CALL_TYPE_CHOICES, default=INBOUND)
 
     def __unicode__(self):
         return '%s: Call from %s to %s' % (self.unique_id, self.caller_number, self.called_number)

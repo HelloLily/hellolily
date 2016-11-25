@@ -3,7 +3,7 @@ from collections import OrderedDict
 from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import empty
-from rest_framework.serializers import get_validation_error_detail
+from rest_framework.serializers import as_serializer_error
 
 
 class ValidateEverythingSimultaneouslyMixin(object):
@@ -25,13 +25,13 @@ class ValidateEverythingSimultaneouslyMixin(object):
         try:
             self.run_validators(data)
         except (ValidationError, DjangoValidationError) as exc:
-            errors.update(get_validation_error_detail(exc))
+            errors.update(as_serializer_error(exc))
 
         try:
             data = self.validate(data)
             assert data is not None, '.validate() should return the validated data'
         except (ValidationError, DjangoValidationError) as exc:
-            errors.update(get_validation_error_detail(exc))
+            errors.update(as_serializer_error(exc))
 
         if errors:
             raise ValidationError(errors)

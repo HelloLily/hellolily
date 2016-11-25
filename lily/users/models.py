@@ -119,7 +119,7 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
     )
 
     phone_number = models.CharField(_('phone number'), max_length=40, blank=True)
-    internal_number = models.IntegerField(_('internal number'), max_length=3, blank=True, null=True)
+    internal_number = models.PositiveSmallIntegerField(_('internal number'), blank=True, null=True)
     social_media = models.ManyToManyField(SocialMedia, blank=True, verbose_name=_('list of social media'))
 
     language = models.CharField(_('language'), max_length=3, choices=settings.LANGUAGES, default='en')

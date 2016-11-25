@@ -1,3 +1,4 @@
+from lily.api.fields import SanitizedHtmlCharField
 from lily.api.nested.mixins import RelatedSerializerMixin
 from lily.api.nested.serializers import WritableNestedSerializer
 from lily.contacts.models import Contact
@@ -9,7 +10,6 @@ from lily.socialmedia.api.serializers import RelatedSocialMediaSerializer
 from lily.users.api.serializers import RelatedLilyUserSerializer
 from lily.utils.api.serializers import (RelatedAddressSerializer, RelatedEmailAddressSerializer,
                                         RelatedPhoneNumberSerializer, RelatedTagSerializer)
-from lily.utils.sanitizers import HtmlSanitizer
 
 from ..models import Account, Website, AccountStatus
 from .validators import DuplicateAccountName, HostnameValidator
@@ -83,85 +83,13 @@ class AccountSerializer(WritableNestedSerializer):
     email_addresses = RelatedEmailAddressSerializer(many=True, required=False, create_only=True)
     phone_numbers = RelatedPhoneNumberSerializer(many=True, required=False, create_only=True)
     social_media = RelatedSocialMediaSerializer(many=True, required=False, create_only=True)
+    websites = RelatedWebsiteSerializer(many=True, required=False, create_only=True)
     status = RelatedAccountStatusSerializer(assign_only=True)
     tags = RelatedTagSerializer(many=True, required=False, create_only=True)
-    websites = RelatedWebsiteSerializer(many=True, required=False, create_only=True)
 
     # Custom fields.
     name = serializers.CharField(validators=[DuplicateAccountName()])
-
-    def create(self, validated_data):
-        """
-        Reverse foreign key relations don't work yet with
-        WritableNestedSerializer, so we manually create them.
-
-        Args:
-            validated_data (dict): The validated deserialized data.
-        """
-        websites = validated_data.pop('websites', {})
-        description = validated_data.get('description')
-
-        if description:
-            validated_data.update({
-                'description': HtmlSanitizer(description).clean().render(),
-            })
-
-        account = super(AccountSerializer, self).create(validated_data)
-
-        for website in websites:
-            website['account'] = account
-            Website.objects.create(**website)
-
-        return account
-
-    def update(self, instance, validated_data):
-        """
-        Args:
-            validated_data (dict): The validated deserialized data.
-        """
-
-        # Handle websites as a special case:
-        # reverse foreign key relations don't work yet with WritableNestedSerializer, so we manually update them.
-        websites_validated_data = validated_data.pop('websites', {})
-        description = validated_data.get('description')
-
-        if description:
-            validated_data.update({
-                'description': HtmlSanitizer(description).clean().render(),
-            })
-
-        account = super(AccountSerializer, self).update(instance, validated_data)
-
-        if self.partial:
-            websites_initial_data = self.initial_data.get('websites', {})
-            for website_validated in websites_validated_data:
-                if 'id' in website_validated:
-                    website_deleted = False
-                    # The non-model field is_deleted isn't present in many_related_data,
-                    # so look in initial data to see if the website is marked as deleted.
-                    for website_initial in websites_initial_data:
-                        if 'id' in website_initial and website_initial['id'] == website_validated['id']\
-                                and 'is_deleted' in website_initial and website_initial['is_deleted']:
-                            Website.objects.filter(pk=website_validated['id']).delete()
-                            website_deleted = True
-                            continue
-
-                    if not website_deleted:
-                        Website.objects.filter(pk=website_validated.pop('id')).update(**website_validated)
-                else:
-                    website_validated['account'] = account
-                    Website.objects.create(**website_validated)
-        else:
-            # Prevent deleting websites when validated_data is empty.
-            # This is the case when adding a contact to an existing account.
-            if validated_data:  # Validated_data is empty when
-                # For a PUT operation we replace the whole resource.
-                account.websites.all().delete()
-                for website_validated in websites_validated_data:
-                    website_validated['account'] = account
-                    Website.objects.create(**website_validated)
-
-        return account
+    description = SanitizedHtmlCharField()
 
     class Meta:
         model = Account

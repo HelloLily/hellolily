@@ -1,8 +1,8 @@
 from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
 
+from lily.api.fields import SanitizedHtmlCharField
 from lily.api.nested.mixins import RelatedSerializerMixin
-from lily.utils.sanitizers import HtmlSanitizer
 from ..models import Note, NOTABLE_MODELS
 
 
@@ -15,27 +15,16 @@ class NoteSerializer(serializers.ModelSerializer):
     content_type = serializers.PrimaryKeyRelatedField(queryset=ContentType.objects.filter(model__in=NOTABLE_MODELS),
                                                       write_only=True)
     object_id = serializers.IntegerField(write_only=True)
+    content = SanitizedHtmlCharField()
 
     def create(self, validated_data):
-        content = validated_data.get('content')
         user = self.context.get('request').user
 
         validated_data.update({
             'author_id': user.pk,
-            'content': HtmlSanitizer(content).clean().render(),
         })
 
         return super(NoteSerializer, self).create(validated_data)
-
-    def update(self, instance, validated_data):
-        content = validated_data.get('content')
-
-        if content:
-            validated_data.update({
-                'content': HtmlSanitizer(content).clean().render(),
-            })
-
-        return super(NoteSerializer, self).update(instance, validated_data)
 
     class Meta:
         model = Note

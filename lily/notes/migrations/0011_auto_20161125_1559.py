@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('notes', '0007_auto_20160922_1154'),
+        ('notes', '0010_remove_polymorphic_cleanup'),
     ]
 
     operations = [

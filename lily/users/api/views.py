@@ -1,11 +1,11 @@
 import datetime
-import django_filters
+from django_filters import FilterSet
+from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.sessions.models import Session
 from rest_framework import viewsets, status
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import list_route
 from rest_framework.exceptions import PermissionDenied
-from rest_framework.filters import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser, MultiPartParser
@@ -15,7 +15,7 @@ from .serializers import TeamSerializer, LilyUserSerializer, LilyUserTokenSerial
 from ..models import Team, LilyUser
 
 
-class TeamFilter(django_filters.FilterSet):
+class TeamFilter(FilterSet):
     """
     Class to filter case queryset.
     """
@@ -51,7 +51,7 @@ class TeamViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(serializer.data)
 
 
-class LilyUserFilter(django_filters.FilterSet):
+class LilyUserFilter(FilterSet):
     class Meta:
         model = LilyUser
         fields = {

@@ -28,12 +28,24 @@
             <li><a class="btn default" tabindex="-1" data-wysihtml5-command="Outdent" title="{% trans 'Outdent, move left' %}"><i class="fa fa-outdent"></i></a></li>
             <li><a class="btn default" tabindex="-1" data-wysihtml5-action="change_view" title="{% trans 'Edit raw html' %}"><i class="fa fa-code"></i></a></li>
             <li><a class="btn default" tabindex="-1" data-wysihtml5-command="createLink" title="{% trans 'Create a link' %}"><i class="fa fa-link"></i></a></li>
+            <li><a class="btn default" tabindex="-1" data-wysihtml5-command="insertImage" title="{% trans 'Add an image' %}"><i class="fa fa-image"></i></a></li>
         </ul>
         <!-- Some wysihtml5 commands like 'createLink' require extra paramaters specified by the user (eg. href) -->
         <div data-wysihtml5-dialog="createLink" style="display: none;">
             <div class="form-group">
                 <label class="sr-only" for="wysihtml5-link">Link:</label>
                 <input id="wysihtml5-link" data-wysihtml5-dialog-field="href" value="http://" class="text form-control" placeholder="Enter link">
+            </div>
+            <div class="btn-group">
+                <a class="btn btn-default" data-wysihtml5-dialog-action="save">{% trans 'OK' %}</a>
+                <a class="btn btn-default" data-wysihtml5-dialog-action="cancel">{% trans 'Cancel' %}</a>
+            </div>
+        </div>
+
+        <div data-wysihtml5-dialog="insertImage" style="display: none;">
+            <div class="form-group">
+                <label class="sr-only" for="wysihtml5-image">Image URL:</label>
+                <input id="wysihtml5-image" data-wysihtml5-dialog-field="src" class="text form-control" value="http://" placeholder="Enter URL">
             </div>
             <div class="btn-group">
                 <a class="btn btn-default" data-wysihtml5-dialog-action="save">{% trans 'OK' %}</a>

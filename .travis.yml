@@ -20,7 +20,7 @@ env:
     - secure: "YxRY659DsaAlAyY20aNOMlCN+Anr81WPmpg36zkTpSw2VgC219HS8301HN5userqAjnkKHNo7aWbHxq37sGKm2nYXPq2T2PkvyOToc4f7+uRwJ5i6w79zXKRvp4q6sA3mwjuPuPekRnHguM3WNshm2Nxbp0Aoxlu6Npd2vYvKVM="
 
     # HEROKU_API_KEY: account used is admin.
-    - secure: "F87DeMNdaZMUSf63+K3rKFNXo/ZUN79ryiXCD+e4wLGfjfHgYZOYjV+G/PrviZ76+f4HZhjqSsAfjZWr1OJg0z7N8qzbRNXp24xHkxm2VZgF++0DLzsta/1WxeFlskWC823ec3d3ZbiFaHLdJRpSBCgtgg9QeMWS3QLldg3lqRk="
+    - secure: "Z+TBSqMgzaqd/TtdxtwxuyT2xwWCboN1cB4fAzik1WToJKhENr0/xWAy0VkNwU3tbbZabZEWDVflIPwO759XMtUgQit3zwtkHlv0PB8mlhythhe7lNiJJ3DZbGmtEZhbF8sWYx6yN1DmldxKVPb/OGC8LPEmcjESjANo/FfdxGU="
 
     # DOCKER_HUB_EMAIL
     - secure: "KDETg8s/pmEoKgcZPzU2tmW0ilU/iVLtZmCRetFMb77OigQT01pGJweYpPaFs+vx7M0fG2dmDI3mMyWRMcIMUqv17jwrl6nlLYMFjwUObUFNEwBg0lyM2atYD4JoFqd+U3rl8u4H+A+XHospsdRUBf1yTwH6EifdQ5wHUbDP8Q4="
@@ -69,7 +69,6 @@ before_script:
 
   # Echo some variables for debug purposes.
   - echo "Next action is ${NEXT_ACTION}"
-  - echo "Deploy command is ${DEPLOY_COMMAND}"
   - echo "Current datetime is $(date +'%Y%m%d%H%M')"
 
   # Always build new images for docker.

@@ -19,10 +19,10 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseListController', CaseListController);
 
-CaseListController.$inject = ['$compile', '$filter', '$scope', '$state', '$timeout', '$templateCache', 'Case',
-    'HLFilters', 'LocalStorage', 'Settings', 'User', 'UserTeams'];
-function CaseListController($compile, $filter, $scope, $state, $timeout, $templateCache, Case, HLFilters,
-                            LocalStorage, Settings, User, UserTeams) {
+CaseListController.$inject = ['$filter', '$scope', '$state', '$timeout', 'Case', 'HLFilters', 'LocalStorage',
+    'Settings', 'User', 'UserTeams'];
+function CaseListController($filter, $scope, $state, $timeout, Case, HLFilters, LocalStorage,
+                            Settings, User, UserTeams) {
     var vm = this;
 
     vm.storage = new LocalStorage('cases');
@@ -68,8 +68,6 @@ function CaseListController($compile, $filter, $scope, $state, $timeout, $templa
     vm.updateFilterQuery = updateFilterQuery;
     vm.setSearchQuery = setSearchQuery;
     vm.clearFilters = clearFilters;
-    vm.assignTo = assignTo;
-    vm.assignToMe = assignToMe;
     vm.updateModel = updateModel;
 
     activate();
@@ -77,10 +75,6 @@ function CaseListController($compile, $filter, $scope, $state, $timeout, $templa
     //////
 
     function activate() {
-        User.query({}, function(data) {
-            vm.users = data.results;
-        });
-
         // This timeout is needed because by loading from LocalStorage isn't fast enough.
         $timeout(function() {
             _getFilterOnList();
@@ -277,27 +271,5 @@ function CaseListController($compile, $filter, $scope, $state, $timeout, $templa
 
     function clearFilters(clearSpecial) {
         HLFilters.clearFilters(vm, clearSpecial);
-    }
-
-    function assignTo(myCase) {
-        swal({
-            title: messages.alerts.assignTo.title,
-            html: $compile($templateCache.get('cases/controllers/assignto.html'))($scope),
-            showCancelButton: true,
-            showCloseButton: true,
-        }).then(function(isConfirm) {
-            if (isConfirm) {
-                Case.patch({id: myCase.id, assigned_to: vm.assignee.id}).$promise.then(function() {
-                    $state.go($state.current, {}, {reload: true});
-                });
-            }
-        }).done();
-    }
-
-    function assignToMe() {
-        vm.assignee = {
-            id: currentUser.id,
-            full_name: currentUser.fullName,
-        };
     }
 }

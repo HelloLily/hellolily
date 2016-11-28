@@ -19,10 +19,8 @@ function dealsConfig($stateProvider) {
 
 angular.module('app.deals').controller('DealListController', DealListController);
 
-DealListController.$inject = ['$filter', '$scope', '$timeout', 'Deal', 'HLFilters', 'LocalStorage',
-    'Settings', 'Tenant'];
-function DealListController($filter, $scope, $timeout, Deal, HLFilters, LocalStorage,
-                            Settings, Tenant) {
+DealListController.$inject = ['$filter', '$scope', '$state', '$timeout', 'Deal', 'HLFilters', 'LocalStorage', 'Settings', 'Tenant'];
+function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, LocalStorage, Settings, Tenant) {
     var vm = this;
 
     vm.storage = new LocalStorage('deals');
@@ -111,6 +109,11 @@ function DealListController($filter, $scope, $timeout, Deal, HLFilters, LocalSto
             {
                 name: 'Assigned to me',
                 value: 'assigned_to.id:' + currentUser.id,
+                selected: false,
+            },
+            {
+                name: 'Assigned to nobody',
+                value: 'NOT(assigned_to.id:*)',
                 selected: false,
             },
             {

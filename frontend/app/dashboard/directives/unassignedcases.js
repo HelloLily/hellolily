@@ -82,7 +82,7 @@ function UnassignedCasesController($http, $scope, $state, Case, HLFilters, HLUti
 
     function assignToMe(caseObj) {
         swal({
-            text: messages.alerts.assignTo.questionText,
+            text: sprintf(messages.alerts.assignTo.questionText, {type: 'case'}),
             type: 'question',
             showCancelButton: true,
         }).then(function(isConfirm) {

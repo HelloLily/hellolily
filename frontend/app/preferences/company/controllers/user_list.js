@@ -19,9 +19,9 @@ function preferencesConfig($stateProvider) {
 
 angular.module('app.preferences').controller('PreferencesCompanyUserList', PreferencesCompanyUserList);
 
-PreferencesCompanyUserList.$inject = ['$compile', '$scope', '$templateCache', 'LocalStorage', 'Settings',
+PreferencesCompanyUserList.$inject = ['$compile', '$scope', '$templateCache', 'HLForms', 'LocalStorage', 'Settings',
     'User', 'UserTeams'];
-function PreferencesCompanyUserList($compile, $scope, $templateCache, LocalStorage, Settings, User, UserTeams) {
+function PreferencesCompanyUserList($compile, $scope, $templateCache, HLForms, LocalStorage, Settings, User, UserTeams) {
     var vm = this;
     var storage = new LocalStorage('userList');
 
@@ -141,13 +141,15 @@ function PreferencesCompanyUserList($compile, $scope, $templateCache, LocalStora
     function openTeamModal(user) {
         vm.user = user;
 
-        vm.teamList.forEach(function(team) {
-            var selected = vm.user.teams.filter(function(teamId) {
-                return teamId === team.id;
-            });
+        if (vm.user.teams) {
+            vm.teamList.forEach(function(team) {
+                var selected = vm.user.teams.filter(function(teamId) {
+                    return teamId === team.id;
+                });
 
-            team.selected = selected.length > 0;
-        });
+                team.selected = selected.length > 0;
+            });
+        }
 
         swal({
             title: sprintf(messages.alerts.preferences.userAssignTitle, {user: user.full_name}),
@@ -159,6 +161,7 @@ function PreferencesCompanyUserList($compile, $scope, $templateCache, LocalStora
             var args = {
                 id: user.id,
             };
+            var form = '[name="userTeamForm"]';
 
             if (isConfirm) {
                 // Loop over emailAccountList to extract the selected accounts.

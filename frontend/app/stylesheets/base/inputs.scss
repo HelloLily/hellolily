@@ -291,6 +291,12 @@ $inline-editable-field-height: 30px;
     color: #fff;
 }
 
+.select2-container {
+    .select2-choice {
+        background-image: none;
+    }
+}
+
 .hl-search-field-container {
     position: relative;
 

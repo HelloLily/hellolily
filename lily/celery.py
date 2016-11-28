@@ -3,7 +3,6 @@ from __future__ import absolute_import
 import os
 
 # Necessary for Celery to find iron_celery for transport ironmq://
-import iron_celery  # noqa
 from celery import Celery
 
 from django.conf import settings

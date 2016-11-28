@@ -5,21 +5,29 @@ services:
     image: rabbitmq:3.6-management  # Use latest version of 3.6 with management plugin enabled.
     ports:
       - 5672:5672
+    logging:
+      driver: "none"
 
   redis:
     image: redis:2.8  # Use latest version of 2.8.
     ports:
       - 6373:6379
-
-  db:
-    image: "hellolily/hellolily-db:latest"
-    ports:
-      - 5433:5432
+    logging:
+      driver: "none"
 
   es:
       image: elasticsearch:1.7  # Use latest version of 1.7.
       ports:
         - 9203:9200
+      logging:
+        driver: "none"
+
+  db:
+    image: "hellolily/hellolily-db:latest"
+    ports:
+      - 5433:5432
+    logging:
+      driver: "none"
 
   app:
     image: "hellolily/hellolily-app:latest"
@@ -40,7 +48,7 @@ services:
 
   web:
     extends: app
-    command: "python manage.py runserver 0:8000"
+    command: bash -c "Dockers/wait-for-it.sh -b db:5432 && python manage.py runserver 0:8000"
     links:
       - rabbit
       - redis
@@ -52,7 +60,7 @@ services:
 
   flower:
     extends: app
-    command: "flower --app=lily.celery"
+    command: bash -c "Dockers/wait-for-it.sh -b rabbit:5672 && flower --app=lily.celery"
     ports:
       - "5555:5555"
     links:
@@ -61,7 +69,7 @@ services:
 
   beat:
     extends: app
-    command: "celery worker -B --app=lily.celery --loglevel=info -Q celery -n beat.%h -c 1"
+    command: bash -c "Dockers/wait-for-it.sh -b rabbit:5672 && celery worker -B --app=lily.celery --loglevel=info -Q celery -n beat.%h -c 1"
     links:
       - rabbit
       - redis
@@ -70,7 +78,7 @@ services:
 
   worker1:
     extends: app
-    command: "celery worker --loglevel=info --app=lily.celery -Q email_async_tasks -n worker1.%h -c 12 -P eventlet"
+    command: bash -c "Dockers/wait-for-it.sh -b rabbit:5672 && celery worker --loglevel=info --app=lily.celery -Q email_async_tasks -n worker1.%h -c 12 -P eventlet"
     links:
       - rabbit
       - redis
@@ -79,7 +87,7 @@ services:
 
   worker2:
     extends: app
-    command: "celery worker --loglevel=info --app=lily.celery -Q email_scheduled_tasks,email_first_sync -n worker2.%h -c 12 -P eventlet"
+    command: bash -c "Dockers/wait-for-it.sh -b rabbit:5672 && celery worker --loglevel=info --app=lily.celery -Q email_scheduled_tasks,email_first_sync -n worker2.%h -c 12 -P eventlet"
     links:
       - rabbit
       - redis

@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('email', '0019_auto_20160922_1016'),
+        ('email', '0020_truncate_noemailmessageid_table'),
     ]
 
     operations = [

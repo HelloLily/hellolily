@@ -240,7 +240,7 @@ class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializer
         removed_ids = []
 
         if self.root.partial:
-            for item in self.initial_data[field_name]:
+            for item in self.initial_data.get(field_name, []):
                 if 'is_deleted' in item and item['is_deleted']:
                     removed_ids.append(item['id'])
         else:

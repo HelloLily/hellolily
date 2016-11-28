@@ -2,6 +2,7 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
+from lily.api.fields import CustomTimeZoneField
 from lily.api.nested.mixins import RelatedSerializerMixin
 from lily.api.nested.serializers import WritableNestedSerializer
 from lily.utils.api.serializers import RelatedWebhookSerializer
@@ -19,6 +20,7 @@ class LilyUserSerializer(WritableNestedSerializer):
     picture = serializers.ImageField(write_only=True, required=False)
     webhooks = RelatedWebhookSerializer(many=True, required=False, create_only=True)
     primary_email_account = EmailAccountSerializer(allow_null=True, required=False)
+    timezone = CustomTimeZoneField(required=False)
 
     class Meta:
         model = LilyUser
@@ -38,7 +40,7 @@ class LilyUserSerializer(WritableNestedSerializer):
             'internal_number',
             'social_media',
             'language',
-            # 'timezone',
+            'timezone',
             'teams',
             'webhooks',
         )

@@ -21,7 +21,7 @@ dist-packages/
 yarn.lock
 .ipython/
 
-celerybeat-schedule
+celerybeat-schedule.*
 celeryev.pid
 celerybeat-schedule.dir
 celerybeat-schedule.pag

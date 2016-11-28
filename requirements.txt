@@ -3,26 +3,24 @@
 #######################################################
 
 Django==1.8.15
-django-appconf==1.0.1
+django-appconf==1.0.2
 django-extensions==1.6.5
 django-filter==0.15.3
 django-sslify==0.2.7
 djangorestframework==3.5.3
-eventlet==0.18.2
-gevent==1.1rc3
-greenlet==0.4.9
-gunicorn==19.4.5
-python-dateutil==2.4.2
-pytz==2015.7
-wsgiref==0.1.2
+eventlet==0.19.0
+gevent==1.1.2
+greenlet==0.4.10
+gunicorn==19.6.0
+python-dateutil==2.6.0
+pytz==2016.7
 
 #######################################################
 ### Database & Models                               ###
 #######################################################
 
-dj-database-url==0.3.0
-django-polymorphic==0.7.1
-psycopg2==2.6.1
+dj-database-url==0.4.1
+psycopg2==2.6.2
 
 #######################################################
 ### Caching & Templates                             ###
@@ -32,7 +30,7 @@ django-activelink==0.4
 django-redis-cache==1.5.2
 django-templated-email==0.4.9
 hiredis==0.2.0
-Markdown==2.6.2 # markdown for inline docstrings on API
+Markdown==2.6.7 # markdown for inline docstrings on API
 MarkupSafe==0.23
 redis==2.10.3  # Old version is: 2.9.1
 jinja2==2.8
@@ -49,7 +47,7 @@ django-form-utils==1.0.2  # Old version is: 0.2.0  # various form tools, we use 
 django-formset-js==0.4.3
 django-jquery-js==2.1.4
 django-password-strength==1.2.0
-django-timezone-field==1.2
+django-timezone-field==2.0
 
 #######################################################
 ### Asset management                                ###
@@ -77,12 +75,8 @@ httplib2==0.9.2
 html2text==2015.6.21
 html5lib==0.9999999
 IMAPClient==0.13
-iron_celery==0.4.3  # Old version is: 0.4.0
-iron-core==1.2.0
-iron-mq==0.8
-iron-cache==0.3.2
 kombu==3.0.33
-lxml==3.4.4  # Old version is: 3.2.3, on max install with: STATIC_DEPS=true pip install lxml, because they can't code properly
+lxml==3.4.4  # Old version is: 3.2.3
 pyasn1==0.1.9
 pyasn1-modules==0.0.8
 rsa==3.4.2
@@ -107,6 +101,7 @@ fake-factory==0.5.7
 nose==1.3.7
 codeclimate-test-reporter==0.2.0
 django-test-without-migrations==0.4
+ipaddress==1.0.17
 
 #######################################################
 ### Miscellaneous                                   ###
@@ -128,29 +123,4 @@ freemail==1.2.17
 tldextract==1.7.5
 idna==2.1
 raven==5.21.0
-
-#######################################################
-### Documentation                                   ###
-#######################################################
-# Sphinx documentation builder.
-sphinx==1.3.1
-# Livereload functionality for Sphinx.
-sphinx-autobuild==0.5.2
-livereload==2.4.1
-# Allows 'Edit on github' button in Sphinx docs.
-sphinxcontrib-srclinks==0.2.1
-# The famous readthedocs theme.
-sphinx_rtd_theme==0.1.9
-PyYAML==3.11
-Pygments==2.1.3
-alabaster==0.7.7
-argh==0.26.1
-argparse==1.2.1
-docutils==0.12
-backports-abc==0.4
-backports.ssl-match-hostname==3.5.0.1
-pathtools==0.1.2
-singledispatch==3.4.0.3
-snowballstemmer==1.2.1
-tornado==4.2  # Hold back for flower. See https://github.com/mher/flower/issues/586
-watchdog==0.8.3
+contextlib2==0.5.4

@@ -3,10 +3,12 @@ import re
 from django.db.models import Manager
 from django.db.models import QuerySet
 from django.utils.translation import ugettext_lazy as _
+from django.utils import six
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from rest_framework.fields import get_attribute, CharField
+from rest_framework.fields import get_attribute, CharField, ChoiceField
 from rest_framework.relations import ManyRelatedField, MANY_RELATION_KWARGS
+from timezone_field import TimeZoneField
 
 from lily.utils.sanitizers import HtmlSanitizer
 
@@ -108,3 +110,12 @@ class SanitizedHtmlCharField(CharField):
     def to_internal_value(self, data):
         value = super(SanitizedHtmlCharField, self).to_internal_value(data)
         return HtmlSanitizer(value).clean().render()
+
+
+class CustomTimeZoneField(ChoiceField):
+    def __init__(self, **kwargs):
+        choices = kwargs.get('choices', TimeZoneField.CHOICES)
+        super(CustomTimeZoneField, self).__init__(choices, **kwargs)
+
+    def to_representation(self, obj):
+        return six.text_type(obj)

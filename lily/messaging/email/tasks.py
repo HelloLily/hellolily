@@ -492,8 +492,8 @@ def send_message(email_outbox_message_id, original_message_id=None):
         # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more.
         email_outbox_message.delete()
         sent_success = True
-        # TODO: This should probably be moved to the front end once.
-        # We can notify users about sent mails.
+        # TODO: This should probably be moved to the front end once
+        # we can notify users about sent mails.
         post_intercom_event(event_name='email-sent', user_id=email_account.owner.id)
     except HttpAccessTokenRefreshError:
         logger.warning('EmailAccount not authorized: %s', email_account.email_address)

@@ -25,10 +25,10 @@ function emailConfig($stateProvider) {
 }
 
 angular.module('app.email').controller('EmailDetail', EmailDetailController);
-EmailDetailController.$inject = ['$http', '$scope', '$state', '$stateParams', '$timeout', '$filter', 'Account', 'Case', 'Deal',
-    'EmailMessage', 'Settings', 'RecipientInformation', 'SelectedEmailAccount', 'message'];
-function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $filter, Account, Case, Deal, EmailMessage,
-                               Settings, RecipientInformation, SelectedEmailAccount, message) {
+EmailDetailController.$inject = ['$http', '$scope', '$state', '$stateParams', '$timeout', '$filter', 'Account',
+    'Case', 'Deal', 'EmailAccount', 'EmailMessage', 'Settings', 'RecipientInformation', 'SelectedEmailAccount', 'message'];
+function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $filter, Account, Case, Deal,
+                               EmailAccount, EmailMessage, Settings, RecipientInformation, SelectedEmailAccount, message) {
     var vm = this;
 
     vm.displayAllRecipients = false;
@@ -45,6 +45,7 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     vm.showSidebar = showSidebar;
     vm.toggleSidebar = toggleSidebar;
     vm.toggleStarred = toggleStarred;
+    vm.moveMessage = moveMessage;
 
     Settings.page.setAllTitles('custom', 'Email message');
 
@@ -86,7 +87,11 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
 
                 showSidebar();
             });
+
+            vm.emailAccount = EmailAccount.get({id: message.account});
         }
+
+        vm.currentInbox = Settings.email.previousInbox.params.labelId;
 
         _watchSidebarVisibility();
     }
@@ -140,6 +145,32 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     function markAsUnread() {
         EmailMessage.markAsRead(vm.message.id, false).$promise.then(function() {
             $state.go('base.email.list', {labelId: 'INBOX'});
+        });
+    }
+
+    function moveMessage(labelId) {
+        var addedLabels = [labelId];
+        var removedLabels = [];
+        var data;
+
+        if (vm.currentInbox) {
+            removedLabels = [vm.currentInbox];
+        }
+
+        // Gmail API needs to know the mutated labels (so both the added and the removed).
+        data = {
+            remove_labels: removedLabels,
+            add_labels: addedLabels,
+        };
+
+        EmailMessage.move({id: vm.message.id, data: data}).$promise.then(function() {
+            Settings.email.toRemove.push(vm.message);
+
+            if (Settings.email.previousInbox) {
+                $state.transitionTo(Settings.email.previousInbox.state, Settings.email.previousInbox.params, false);
+            } else {
+                $state.go('base.email.list', {labelId: 'INBOX'});
+            }
         });
     }
 

@@ -34,6 +34,7 @@ class Email {
         this.title = 'Welcome';
         this.previousInbox = this.storage.get('previousInbox', null);
         this.page = 0;
+        this.toRemove = [];
     }
 
     /**

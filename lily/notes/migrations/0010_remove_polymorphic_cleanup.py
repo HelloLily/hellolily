@@ -4,6 +4,8 @@ from __future__ import unicode_literals
 from django.db import migrations
 import django_extensions.db.fields
 
+# Comment for testing migrations in Travis continuous deployment.
+
 
 class Migration(migrations.Migration):
 

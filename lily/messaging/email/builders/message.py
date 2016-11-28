@@ -17,7 +17,6 @@ from python_imap.utils import get_extensions_for_type
 
 from ..models.models import EmailMessage, EmailHeader, Recipient, EmailAttachment, NoEmailMessageId
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -419,15 +418,15 @@ class MessageBuilder(object):
                     self.received_by_cc.add(recipient)
 
     def save(self):
-        # Only save if there is a sent date, otherwise its a chat message
+        # Only save if there is a sent date, otherwise it's a chat message.
         if self.message.sent_date and self.message.sender_id:
 
-            # Check for attachments
+            # Check for attachments.
             if self.attachments or self.inline_attachments:
                 self.message.has_attachment = True
 
             if not self.message.pk:
-                # Save before we can add many to many and foreign keys
+                # Save before we can add many-to-many and foreign keys.
                 try:
                     self.message.save()
                 except IntegrityError:
@@ -438,11 +437,11 @@ class MessageBuilder(object):
                     self.message.id = existing_message.id
                     self.message.save()
 
-            # Save recipients
+            # Save recipients.
             self.message.received_by.add(*self.received_by)
             self.message.received_by_cc.add(*self.received_by_cc)
 
-            # Save labels
+            # Save labels.
             if len(self.labels):
                 with transaction.atomic():
                     if self.message.pk:
@@ -451,12 +450,12 @@ class MessageBuilder(object):
             elif self.message.labels:
                 self.message.labels.clear()
 
-            # Save headers
+            # Save headers.
             if len(self.headers):
                 self.message.headers.all().delete()
                 self.message.headers.add(*self.headers)
 
-            # Save attachments
+            # Save attachments.
             if len(self.attachments):
                 self.message.attachments.all().delete()
 
@@ -464,7 +463,8 @@ class MessageBuilder(object):
 
             self.message.save()
         else:
-            logger.debug('No emailmessage, storing empty ID')
+            logger.warning('Downloaded a message other than an email.')
+
             NoEmailMessageId.objects.get_or_create(
                 message_id=self.message.message_id,
                 account=self.manager.email_account

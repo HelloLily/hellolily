@@ -2,36 +2,25 @@ angular.module('app.email').config(emailConfig);
 
 emailConfig.$inject = ['$stateProvider'];
 function emailConfig($stateProvider) {
-    // TODO: LILY-XXX: Clean up compose states and make email/template optional params
+    var emailComposeView = {
+        '@base.email': {
+            templateUrl: '/messaging/email/compose/',
+            controller: EmailComposeController,
+            controllerAs: 'vm',
+        },
+    };
+
     $stateProvider.state('base.email.compose', {
         url: '/compose',
-        views: {
-            '@base.email': {
-                templateUrl: '/messaging/email/compose/',
-                controller: EmailComposeController,
-                controllerAs: 'vm',
-            },
-        },
+        views: emailComposeView,
     });
     $stateProvider.state('base.email.composeEmail', {
         url: '/compose/{email}/{contactId}',
-        views: {
-            '@base.email': {
-                templateUrl: '/messaging/email/compose/',
-                controller: EmailComposeController,
-                controllerAs: 'vm',
-            },
-        },
+        views: emailComposeView,
     });
     $stateProvider.state('base.email.composeEmailTemplate', {
         url: '/compose/{email}/{template}',
-        views: {
-            '@base.email': {
-                templateUrl: '/messaging/email/compose/',
-                controller: EmailComposeController,
-                controllerAs: 'vm',
-            },
-        },
+        views: emailComposeView,
     });
     $stateProvider.state('base.email.draft', {
         url: '/draft/{id:[0-9]{1,}}',

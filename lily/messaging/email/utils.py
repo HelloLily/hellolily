@@ -508,6 +508,6 @@ def reindex_email_message(instance):
         return
     if not isinstance(instance, EmailMessage):
         return
-    mapping = ModelMappings.get_model_mappings().get(type(instance))
+    mapping = ModelMappings.model_to_mappings.get(type(instance))
     if mapping:
         update_in_index(instance, mapping)

@@ -135,7 +135,7 @@ class GmailManager(object):
             if 'messagesAdded' in history_item:
                 for item in history_item['messagesAdded']:
                     # Skip chat messages.
-                    if settings.GMAIL_LABEL_CHAT not in item['message']['labelIds']:
+                    if 'labelIds' in item['message'] and settings.GMAIL_LABEL_CHAT not in item['message']['labelIds']:
                         logger.debug('Message added %s' % item['message']['id'])
                         new_messages.add(item['message']['id'])
 

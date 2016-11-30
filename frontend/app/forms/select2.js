@@ -57,7 +57,7 @@
                         tags: tags,
                         tokenSeparators: [','],
                         width: '100%',
-                        createSearchChoice: function(term, data) {
+                        createSearchChoice: function(term, data) { // eslint-disable-line consistent-return
                             if ($(data).filter(function() {
                                 return this.text.localeCompare(term) === 0;
                             }).length === 0) {
@@ -258,7 +258,7 @@
                         options.tags = true;
                         options.tokenSeparators = [','];
                         // Create a new tag if there were no results
-                        options.createSearchChoice = function(term, data) {
+                        options.createSearchChoice = function(term, data) { // eslint-disable-line consistent-return
                             if ($(data).filter(function() {
                                 return this.text.localeCompare(term) === 0;
                             }).length === 0) {

@@ -57,7 +57,7 @@ class RegistrationView(FormView):
             password=form.cleaned_data['password'],
             first_name=form.cleaned_data['first_name'],
             last_name=form.cleaned_data['last_name'],
-            position=form.cleaned_data['position'],
+            position=form.cleaned_data['position']
         )
 
         user.is_active = False
@@ -82,7 +82,6 @@ class RegistrationView(FormView):
         # TODO: only create/save contact when email sent successfully
         send_templated_mail(
             template_name='activation',
-            from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[form.cleaned_data['email']],
             context={
                 'current_site': current_site,
@@ -90,7 +89,10 @@ class RegistrationView(FormView):
                 'user': user,
                 'uidb36': uidb36,
                 'token': token,
-            }
+            },
+            from_email=settings.EMAIL_PERSONAL_HOST_USER,
+            auth_user=settings.EMAIL_PERSONAL_HOST_USER,
+            auth_password=settings.EMAIL_PERSONAL_HOST_PASSWORD
         )
 
         # Show registration message
@@ -177,7 +179,6 @@ class ActivationResendView(FormView):
             # Email to the user
             send_templated_mail(
                 template_name='activation',
-                from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[form.cleaned_data['email']],
                 context={
                     'current_site': current_site,
@@ -185,7 +186,10 @@ class ActivationResendView(FormView):
                     'user': user,
                     'uidb36': uidb36,
                     'token': token,
-                }
+                },
+                from_email=settings.EMAIL_PERSONAL_HOST_USER,
+                auth_user=settings.EMAIL_PERSONAL_HOST_USER,
+                auth_password=settings.EMAIL_PERSONAL_HOST_PASSWORD
             )
 
         # Show registration message
@@ -284,14 +288,16 @@ class SendInvitationView(FormSetView):
             # Email to the user
             send_templated_mail(
                 template_name='invitation',
-                from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[form.cleaned_data['email']],
                 context={
                     'current_site': current_site,
                     'full_name': self.request.user.full_name,
                     'name': first_name,
                     'invite_link': invite_link,
-                }
+                },
+                from_email=settings.EMAIL_PERSONAL_HOST_USER,
+                auth_user=settings.EMAIL_PERSONAL_HOST_USER,
+                auth_password=settings.EMAIL_PERSONAL_HOST_PASSWORD
             )
 
             post_intercom_event(event_name='invite-sent', user_id=self.request.user.id)

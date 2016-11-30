@@ -28,7 +28,7 @@ psycopg2==2.6.2
 
 django-activelink==0.4
 django-redis-cache==1.5.2
-django-templated-email==0.4.9
+django-templated-email==2.0
 hiredis==0.2.0
 Markdown==2.6.7 # markdown for inline docstrings on API
 MarkupSafe==0.23

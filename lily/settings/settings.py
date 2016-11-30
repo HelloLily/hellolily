@@ -282,17 +282,22 @@ INSTALLED_APPS = (
 #######################################################################################################################
 # EMAIL SETTINGS                                                                                                      #
 #######################################################################################################################
-if DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# if DEBUG:
+#     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 EMAIL_USE_TLS = boolean(os.environ.get('EMAIL_USE_TLS', 0))
 EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.host.com')
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'your-username')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'your-password')
 EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 25))
 
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'example@provider.com')
-SERVER_EMAIL = os.environ.get('SERVER_EMAIL', 'example@provider.com')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'production@email.com')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'your-password')
+
+# Since you can't send from a different address than the user, prevent mistakes and force these to the default user.
+SERVER_EMAIL = EMAIL_HOST_USER
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+EMAIL_PERSONAL_HOST_USER = os.environ.get('EMAIL_PERSONAL_HOST_USER', 'lily@email.com')
+EMAIL_PERSONAL_HOST_PASSWORD = os.environ.get('EMAIL_PERSONAL_HOST_PASSWORD', 'lily-password')
 
 BLACKLISTED_EMAIL_TAGS = [
     'audio',

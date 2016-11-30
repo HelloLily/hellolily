@@ -123,6 +123,12 @@
                                         </editable-link>
                                     </td>
                                 </tr>
+                                <tr ng-if="vm.tenant.isVoysNL() && vm.deal.contact.id">
+                                    <td></td>
+                                    <td>
+                                        <a class="hl-primary-btn" ui-sref="base.quotes.create({dealId: vm.deal.id })"><i class="fa fa-plus"></i>Quote</a>
+                                    </td>
+                                </tr>
 
                                 <tr ng-if="vm.deal.account.customer_id && vm.tenant.primary_external_app_link">
                                     <td><strong>{{ vm.tenant.primary_external_app_link.name }}</strong></td>

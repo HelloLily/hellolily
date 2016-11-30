@@ -20,6 +20,18 @@ function dealsConfig($stateProvider) {
                 var id = $stateParams.id;
                 return Deal.get({id: id}).$promise;
             }],
+            dealContact: ['Contact', 'currentDeal', function(Contact, currentDeal) {
+                var contact;
+
+                if (currentDeal.contact) {
+                    contact = Contact.get({id: currentDeal.contact.id}).$promise;
+                }
+
+                return contact;
+            }],
+            user: ['User', function(User) {
+                return User.me().$promise;
+            }],
         },
     });
 }
@@ -27,9 +39,9 @@ function dealsConfig($stateProvider) {
 angular.module('app.deals').controller('DealDetailController', DealDetailController);
 
 DealDetailController.$inject = ['$compile', '$scope', '$state', '$templateCache', 'Account', 'Contact', 'Deal',
-    'HLResource', 'HLUtils', 'Settings', 'Tenant', 'currentDeal'];
+    'HLResource', 'HLUtils', 'Settings', 'Tenant', 'currentDeal', 'dealContact', 'user'];
 function DealDetailController($compile, $scope, $state, $templateCache, Account, Contact, Deal,
-                              HLResource, HLUtils, Settings, Tenant, currentDeal) {
+                              HLResource, HLUtils, Settings, Tenant, currentDeal, dealContact, user) {
     var vm = this;
 
     Settings.page.setAllTitles('detail', currentDeal.name, currentDeal.contact, currentDeal.account);
@@ -41,6 +53,8 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
     };
 
     vm.deal = currentDeal;
+    vm.deal.contact = dealContact;
+    vm.currentUser = user;
 
     vm.changeState = changeState;
     vm.updateModel = updateModel;

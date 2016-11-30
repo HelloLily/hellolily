@@ -115,8 +115,7 @@
                             <postpone type="'Case'" object="case" date-field="'expires'"></postpone>
                         </td>
                         <td ng-show="vm.table.visibility.assignedTo">
-                            <span ng-if="case.assigned_to.id">{{ ::case.assigned_to.full_name }}</span>
-                            <a ng-if="!case.assigned_to.id" ng-click="vm.assignTo(case)">Assign case</a>
+                            <assign-to type="Case" object="case"></assign-to>
                         </td>
                         <td ng-show="vm.table.visibility.createdBy">
                             {{ ::case.created_by.full_name }}

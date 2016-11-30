@@ -32,8 +32,8 @@ function HLMessages() {
                 errorText: 'There was an error processing your request.<br />Please try again.',
             },
             assignTo: {
-                title: 'Assign this case',
-                questionText: 'Assign this case to yourself?',
+                title: 'Assign this %(type)s',
+                questionText: 'Assign this %(type)s to yourself?',
             },
             deactivateUser: {
                 confirmText: 'Are you sure you want to deactivate <strong>%(name)s</strong>',

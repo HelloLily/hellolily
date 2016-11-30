@@ -71,7 +71,7 @@ class RelatedLilyUserSerializer(RelatedSerializerMixin, LilyUserSerializer):
 
 class TeamSerializer(serializers.ModelSerializer):
     """
-    Serializer for the contact model.
+    Serializer for the Team model.
     """
     users = RelatedLilyUserSerializer(many=True, source='active_users')
 

@@ -190,7 +190,7 @@
                                 <div>
                                     <editable-select field="assigned_to" view-model="vm" type="Deal" search="true"
                                                      select-options="{type: 'User', field: 'assignOptions', display: 'full_name', sortColumn: 'full_name', nameColumn: 'full_name'}">
-                                        {{ vm.deal.assigned_to.full_name }}
+                                        {{ vm.deal.assigned_to.full_name || 'Nobody' }}
                                     </editable-select>
                                 </div>
                             </li>

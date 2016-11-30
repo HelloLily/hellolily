@@ -135,7 +135,7 @@ class DealSerializer(WritableNestedSerializer):
     # Related fields.
     account = RelatedAccountSerializer()
     contact = RelatedContactSerializer(required=False, allow_null=True)
-    assigned_to = RelatedLilyUserSerializer(required=False, assign_only=True)
+    assigned_to = RelatedLilyUserSerializer(required=False, allow_null=True, assign_only=True)
     next_step = RelatedDealNextStepSerializer(assign_only=True)
     tags = RelatedTagSerializer(many=True, required=False, create_only=True)
     why_customer = RelatedDealWhyCustomerSerializer(assign_only=True)
@@ -203,11 +203,6 @@ class DealSerializer(WritableNestedSerializer):
             })
 
         assigned_to = validated_data.get('assigned_to')
-        if assigned_to is None:
-            # Deal wasn't assigned to someone, so assign to current user.
-            validated_data.update({
-                'assigned_to_id': user.pk
-            })
 
         if assigned_to and assigned_to.get('id') != user.pk:
             validated_data.update({

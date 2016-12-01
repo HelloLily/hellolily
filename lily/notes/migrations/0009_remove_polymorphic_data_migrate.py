@@ -4,6 +4,8 @@ from __future__ import unicode_literals
 from django.db import migrations
 from django.contrib.contenttypes.models import ContentType
 
+# Trigger migrations for Travis testing.
+
 
 def forwards(apps, schema_editor):
 

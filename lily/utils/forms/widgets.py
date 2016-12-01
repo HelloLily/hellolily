@@ -4,7 +4,7 @@ from bootstrap3_datetime.widgets import DateTimePicker
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.query import QuerySet
 from django.forms.formsets import BaseFormSet
-from django.forms.widgets import TextInput, Widget, RadioFieldRenderer, Textarea, ClearableFileInput
+from django.forms.widgets import TextInput, Widget, RadioFieldRenderer, Textarea
 from django.forms.utils import flatatt
 from django.utils import translation
 from django.utils.encoding import force_text
@@ -350,22 +350,3 @@ class Wysihtml5Input(Textarea):
             'value': value,
             'attrs': final_attrs,
         })
-
-
-class AvatarInput(ClearableFileInput):
-    """
-    Render the Avatar input to show the picture and add custom HTML for styling.
-    """
-
-    input_text = 'Change avatar'
-    template_with_initial = u'%(initial)s %(clear_template)s<span class="user-field-image-change">' \
-                            u'<label>%(input_text)s</label>: %(input)s' \
-                            u'</span>'
-    template_with_clear = '<span class="user-field-image-clear">' \
-                          '%(clear)s <label for="%(clear_checkbox_id)s">%(clear_checkbox_label)s</label>' \
-                          '</span>'
-    url_markup_template = '<div style="background-image:url({0});" class="user-field-image"/>'
-    clear_checkbox_label = 'Remove avatar'
-
-    def render(self, name, value, attrs=None):
-        return super(AvatarInput, self).render(name, value, attrs)

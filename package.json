@@ -6,6 +6,12 @@
     "url": "https://github.com/HelloLily/hellolily.git"
   },
   "homepage": "https://github.com/HelloLily/hellolily",
+  "engines": {
+    "node": "6.7.0"
+  },
+  "scripts": {
+    "postinstall": "gulp clean && gulp build"
+  },
   "dependencies": {
     "browserify": "13.1.0",
     "gulp-tap": "0.1.3",

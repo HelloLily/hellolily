@@ -5,6 +5,8 @@ from django.db import models, migrations
 from django.conf import settings
 import django_extensions.db.fields
 
+# Trigger migrations for Travis testing.
+
 
 class Migration(migrations.Migration):
 

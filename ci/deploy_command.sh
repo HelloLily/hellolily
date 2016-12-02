@@ -5,11 +5,11 @@ if [ "${NEXT_ACTION}" == "deploy" ]; then
     deploy_command="python manage.py collectstatic --noinput && python manage.py set_app_hash"
 
     if [ "${MIGRATION_NEEDED}" == "true" ]; then
-        deploy_command="${deploy_command} && python manage.py migrate"
+        deploy_command="${deploy_command} && yes "yes" | python manage.py migrate"
     fi
 
     if [ "${INDEXING_NEEDED}" == "true" ] ; then
-        deploy_command="${deploy_command} && python manage.py index"
+        deploy_command="${deploy_command} && python manage.py index -f"
 
         # Put every mention of an index file change into an array.
         changed_files=()

@@ -95,10 +95,10 @@ after_success:
 before_deploy:
   # If migrations are needed, set the heroku app to maintenance mode before the deploy. The maintenance mode
   # is switched off in the DEPLOY_COMMAND to make sure that maintenance mode stays on if migrations or indexing fail.
-  - if [ "${MIGRATION_NEEDED}" == "true" ] || [ "${INDEXING_NEEDED}" == "true" ] ; then python ./ci/patch_heroku_app.py "${HEROKU_APP_NAME}" "${HEROKU_API_KEY}" "maintenance" "true"; fi
+  - if [ "${MIGRATION_NEEDED}" == "true" ] || [ "${INDEXING_NEEDED}" == "true" ] ; then python ./ci/patch_heroku_app.py ${HEROKU_APP_NAME} ${HEROKU_API_KEY} maintenance true; fi
 
   # If migrations or indexing are needed, scale down all beat dynos for the duration of the deploy.
-  - if [ "${MIGRATION_NEEDED}" == "true" ] || [ "${INDEXING_NEEDED}" == "true" ] ; then python ./ci/patch_heroku_app.py "${HEROKU_APP_NAME}/formation/beat" "${HEROKU_API_KEY}" "quantity" "0"; fi
+  - if [ "${MIGRATION_NEEDED}" == "true" ] || [ "${INDEXING_NEEDED}" == "true" ] ; then python ./ci/patch_heroku_app.py ${HEROKU_APP_NAME}/formation/beat ${HEROKU_API_KEY} quantity 0; fi
 
 deploy:
   - provider: heroku

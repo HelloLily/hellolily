@@ -32,10 +32,10 @@ if [ "${NEXT_ACTION}" == "deploy" ]; then
 
     if [ "${MIGRATION_NEEDED}" == "true" ] || [ "${INDEXING_NEEDED}" == "true" ] ; then
         # Scale the beat dynos up after a successful deployment.
-        deploy_command="${deploy_command} && python ./ci/patch_heroku_app.py '${HEROKU_APP_NAME}/formation/beat' '${HEROKU_API_KEY}' 'quantity' '1'"
+        deploy_command="${deploy_command} && python ./ci/patch_heroku_app.py ${HEROKU_APP_NAME}/formation/beat ${HEROKU_API_KEY} quantity 1"
 
         # Set the heroku maintenance mode off after the deploy.
-        deploy_command="${deploy_command} && python ./ci/patch_heroku_app.py '${HEROKU_APP_NAME}' '${HEROKU_API_KEY}' 'maintenance' 'false'"
+        deploy_command="${deploy_command} && python ./ci/patch_heroku_app.py ${HEROKU_APP_NAME} ${HEROKU_API_KEY} maintenance false"
     fi
 
     echo "${deploy_command}"

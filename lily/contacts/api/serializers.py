@@ -81,9 +81,11 @@ class ContactSerializer(WritableNestedSerializer):
 
     def _handle_accounts(self, instance, account_list, update=False):
         # Create new accounts.
-        account_instances = self.fields['accounts'].create([a for a in account_list if not a.get('id')])
+        create_list = [a for a in account_list if not a.get('id')]
+        account_instances = self.fields['accounts'].create(create_list)
         # Update and link existing accounts.
-        account_instances += self.fields['accounts'].update(instance, [a for a in account_list if a.get('id')])
+        update_list = [a for a in account_list if a.get('id')]
+        account_instances += self.fields['accounts'].update(instance, update_list)
 
         function_list = []
         for ai in account_instances:

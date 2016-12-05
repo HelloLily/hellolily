@@ -3,7 +3,7 @@
 # Check for eslint.
 which eslint &> /dev/null
 if [[ "$?" == 1 ]]; then
-  echo "Please install eslint & eslint-plugin-html."
+  echo "Please install eslint"
   exit 1
 fi
 

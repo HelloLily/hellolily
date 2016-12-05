@@ -14,9 +14,6 @@
         "app": true,
         "context": true
     },
-    "plugins": [
-        "eslint-plugin-html"
-    ],
     "rules": {
         /** Based on https://raw.githubusercontent.com/airbnb/javascript/master/linters/.eslintrc */
 

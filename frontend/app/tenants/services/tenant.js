@@ -33,7 +33,7 @@ function Tenant($resource, $interpolate, HLCache, CacheFactory) {
                     }
 
                     tenant.isVoysNL = function() {
-                        return tenant.id === 50;
+                        return tenant.id === 50 || debug;
                     };
 
                     tenant.isVoysSA = function() {

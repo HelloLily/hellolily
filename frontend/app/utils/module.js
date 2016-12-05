@@ -1,2 +1,1 @@
-angular.module('app.utils', [
-]);
+angular.module('app.utils', []);

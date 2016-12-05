@@ -19,7 +19,6 @@ class Notifications(APIView):
     """
     List all notifications posted in request.messages
     """
-
     def get(self, request, format=None, *args, **kwargs):
         storage = get_messages(request)
         notifications = []

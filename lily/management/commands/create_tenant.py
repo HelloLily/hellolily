@@ -1,10 +1,12 @@
 from django.core.management.base import BaseCommand
 
-from lily.accounts.models import AccountStatus
+from lily.accounts.models import Account, AccountStatus, Website
 from lily.cases.models import CaseType, CaseStatus
 from lily.deals.models import DealContactedBy, DealFoundThrough, DealNextStep, DealWhyCustomer, DealWhyLost, DealStatus
+from lily.socialmedia.models import SocialMedia
 from lily.tenant.models import Tenant
 from lily.users.models import Team
+from lily.utils.models.models import EmailAddress
 
 
 class Command(BaseCommand):
@@ -92,6 +94,44 @@ class Command(BaseCommand):
         print 'Adding deal status options.'
         for position, name in enumerate(deal_status_list, start=1):
             DealStatus.objects.create(tenant=tenant, position=position, name=name)
+
+        # Team Lily
+        print 'Adding Team Lily to the tenant.'
+        email_address = EmailAddress.objects.create(
+            email_address='support@hellolily.com',
+            status=EmailAddress.PRIMARY_STATUS,
+            tenant=tenant,
+        )
+
+        account_status = AccountStatus.objects.get(name='Relation', tenant=tenant)
+
+        account = Account.objects.create(
+            tenant=tenant,
+            name='Team Lily',
+            description=(
+                'Team Lily has been added automatically. Feel free to add all the other companies,'
+                'organizations and other parties you get in touch with as Accounts.'
+            ),
+            status=account_status,
+        )
+
+        website = Website.objects.create(
+            website='https://hellolily.com',
+            is_primary=True,
+            account=account,
+            tenant=tenant,
+        )
+
+        twitter = SocialMedia.objects.create(
+            tenant=tenant,
+            name='twitter',
+            username='sayhellolily',
+            profile_url='https://twitter.com/sayhellolily',
+        )
+
+        account.email_addresses.add(email_address)
+        account.websites.add(website)
+        account.social_media.add(twitter)
 
         print ''
         print 'All done!'

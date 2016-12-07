@@ -20,6 +20,7 @@
                     <th>Deal</th>
                     <th>Client</th>
                     <th>Deal size</th>
+                    <th>Status</th>
                     <th>Next step</th>
                     <th style="width: 135px;">Next step date</th>
                     <th style="width: 105px;">Actions</th>
@@ -27,8 +28,8 @@
             </thead>
             <tbody ng-repeat="(key, deals) in vm.table.items">
                 <tr class="widget-table-sub-heading" ng-show="deals.length && key.length">
-                    <td colspan="6" class="text-capitalize" ng-if="key !== 'newlyAssigned'">{{ key }}</td>
-                    <td colspan="6" ng-if="key === 'newlyAssigned'">Newly assigned to you</td>
+                    <td colspan="7" class="text-capitalize" ng-if="key !== 'newlyAssigned'">{{ key }}</td>
+                    <td colspan="7" ng-if="key === 'newlyAssigned'">Newly assigned to you</td>
                 </tr>
                 <tr ng-repeat="myDeal in deals" ng-class="{'newly-assigned': key === 'newlyAssigned'}">
                     <td>
@@ -47,6 +48,9 @@
                     <td>
                         <span ng-bind-html="myDeal.amount_recurring | currencySymbol:myDeal.currency"></span> /month<span class="margin-left-5 margin-right-5">|</span>
                         <span ng-bind-html="myDeal.amount_once | currencySymbol:myDeal.currency"></span> /once
+                    </td>
+                    <td>
+                        {{ myDeal.status.name }}
                     </td>
                     <td>
                         <editable-select field="next_step" view-model="vm" type="Deal" select-type="icon_select" object="myDeal"
@@ -74,7 +78,7 @@
             </tbody>
             <tbody>
                 <tr ng-show="vm.numOfDeals == 0">
-                    <td colspan="6">No deals</td>
+                    <td colspan="7">No deals</td>
                 </tr>
             </tbody>
         </table>

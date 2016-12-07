@@ -123,7 +123,7 @@
                                         </editable-link>
                                     </td>
                                 </tr>
-                                <tr ng-if="vm.tenant.isVoysNL() && vm.deal.contact.id">
+                                <tr ng-if="(vm.tenant.isVoysNL() || vm.tenant.isVoysSA()) && vm.deal.contact.id">
                                     <td></td>
                                     <td>
                                         <a class="hl-primary-btn" ui-sref="base.quotes.create({dealId: vm.deal.id })"><i class="fa fa-plus"></i>Quote</a>

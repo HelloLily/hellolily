@@ -24,3 +24,7 @@ ratings:
   - "**.py"
   - "frontend/app/**.*"
   - "**.sh"
+
+exclude_paths:
+- "**/vendor/"
+- 

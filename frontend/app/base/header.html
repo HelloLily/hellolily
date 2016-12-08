@@ -204,7 +204,8 @@
 
         <!-- BEGIN SMALL ACTIONS -->
         <div class="hl-button-group-container hidden-md hidden-lg">
-            <ul class="hl-button-group">
+            <caller-info ng-if="currentUser.tenant == 10 || currentUser.tenant == 50"></caller-info>
+            <ul class="hl-button-group primary-actions-group">
                 <li class="hl-button-group-btn">
                     <a class="hl-button-group-btn-link" data-toggle="dropdown" data-hover="dropdown" data-close-others="true" aria-expanded="false">
                         Add <i class="fa fa-angle-down"></i>

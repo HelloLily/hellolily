@@ -64,6 +64,7 @@ function CaseListController($filter, $scope, $state, $timeout, Case, HLFilters, 
     vm.filterList = [];
     vm.filterSpecialList = [];
     vm.users = [];
+    vm.showEmptyState = false;
 
     vm.updateFilterQuery = updateFilterQuery;
     vm.setSearchQuery = setSearchQuery;
@@ -80,6 +81,7 @@ function CaseListController($filter, $scope, $state, $timeout, Case, HLFilters, 
             _getFilterOnList();
             _getFilterSpecialList();
             _setupWatchers();
+            showEmptyState();
         }, 50);
     }
 
@@ -96,6 +98,19 @@ function CaseListController($filter, $scope, $state, $timeout, Case, HLFilters, 
      */
     function setSearchQuery(queryString) {
         vm.table.searchQuery = queryString;
+    }
+
+    /**
+     * showEmptyState is used to count the total amount of cases used to show or not
+     * show the empty state.
+     *
+     */
+    function showEmptyState() {
+        Case.query({}, function(data) {
+            if (data.pagination.total === 0) {
+                vm.showEmptyState = true;
+            }
+        });
     }
 
     /**

@@ -1,0 +1,48 @@
+.empty-state-container {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+
+    &.is-inbox {
+        left: 16px;
+        right: 16px;
+        top: 1px;
+        bottom: 1px;
+        z-index: 10;
+    }
+}
+
+.empty-state-overlay {
+    background: #fff;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    opacity: 0.5;
+}
+
+.empty-state-description {
+    z-index: 99;
+    position: relative;
+    text-align: center;
+    font-size: 20px;
+    margin: auto;
+    top: 120px;
+
+    h3 {
+        font-weight: bold;
+        font-size: 18px;
+    }
+
+    p {
+        font-size: 18px;
+    }
+}
+
+.empty-state-space {
+    display: block;
+    height: 300px;
+}

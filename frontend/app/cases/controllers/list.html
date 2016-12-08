@@ -67,6 +67,16 @@
     </div>
     <div class="portlet-body flip-scroll">
         <div class="scrollable-table-container">
+            <div ng-if="vm.showEmptyState" class="empty-state-container">
+                <div class="empty-state-overlay"></div>
+                <div class="empty-state-description">
+                    <h3>Progressional overview of what’s going on</h3>
+
+                    <p>Here you’ll find what needs to be done. Keep track of your tasks.</p>
+
+                    <p>Start right now and add a <a class="hl-primary-btn" ui-sref="base.cases.create" role="button" onclick="ga('send', 'event', 'Case', 'Open', 'Case list empty state');"><i class="fa fa-plus"></i> Case</a></p>
+                </div>
+            </div>
             <table class="table table-bordered flip-content">
                 <thead class="flip-content">
                     <th ng-show="vm.table.visibility.caseId" class="width-4">No.</th>
@@ -82,7 +92,7 @@
                     <th ng-show="vm.table.visibility.tags">Tags</th>
                     <th style="width: 60px;">Edit</th>
                 </thead>
-                <tbody>
+                <tbody ng-class="vm.showEmptyState ? 'empty-state-space' : ''">
                     <tr ng-repeat="case in vm.table.items">
                         <td ng-show="vm.table.visibility.caseId">
                             {{ ::case.id }}

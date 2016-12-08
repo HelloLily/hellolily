@@ -69,6 +69,17 @@
     </div>
     <div class="portlet-body flip-scroll">
         <div class="scrollable-table-container">
+            <div ng-if="vm.showEmptyState" class="empty-state-container">
+                <div class="empty-state-overlay"></div>
+                <div class="empty-state-description">
+                    <h3>Close that deal</h3>
+
+                    <p>Track the status of your deals with this extensive overview.</p>
+                    <p>You can see what’s expired and what needs to be done in the nearby future.</p>
+
+                    <p>Add your first real deal, to find out: <a class="hl-primary-btn" ui-sref="base.deals.create" role="button" onclick="ga('send', 'event', 'Deal', 'Open', 'Deal list empty state');"><i class="fa fa-plus"></i> Deal</a></p>
+                </div>
+            </div>
             <table class="table table-bordered flip-content">
                 <thead class="flip-content">
                     <th ng-show="vm.table.visibility.name" table="vm.table" class="width-20">Subject</th>
@@ -86,7 +97,7 @@
                     <th ng-show="vm.table.visibility.tags">Tags</th>
                     <th style="width: 60px;">Edit</th>
                 </thead>
-                <tbody>
+                <tbody ng-class="vm.showEmptyState ? 'empty-state-space' : ''">
                     <tr ng-repeat="deal in vm.table.items">
                         <td ng-show="vm.table.visibility.name">
                             <strong ng-if="::deal.is_archived">(a)</strong>

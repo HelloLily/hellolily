@@ -7,11 +7,17 @@ $header-height: 80px;
 }
 
 .hl-page-name {
-    font-size: 25px;
+    font-size: 20px;
     font-weight: 500;
     color: $app-color-darkblue;
     margin: 0;
     float: left;
+
+    .large-header {
+        font-size: 25px;
+        top: 2px;
+        position: relative;
+    }
 }
 
 .page-header-logo-container {
@@ -237,4 +243,14 @@ $header-height: 80px;
     .red {
         background: $app-color-red;
     }
+}
+
+.page-header-fixed .page-container {
+    margin-top: 160px;
+}
+
+.header-account-info {
+    display: block;
+    font-size: 16px;
+    margin-top: 5px;
 }

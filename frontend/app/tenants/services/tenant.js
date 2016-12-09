@@ -1,7 +1,7 @@
 angular.module('app.tenants.services').factory('Tenant', Tenant);
 
-Tenant.$inject = ['$resource', '$interpolate', 'HLCache', 'CacheFactory'];
-function Tenant($resource, $interpolate, HLCache, CacheFactory) {
+Tenant.$inject = ['$filter', '$interpolate', '$resource', 'CacheFactory', 'HLCache'];
+function Tenant($filter, $interpolate, $resource, CacheFactory, HLCache) {
     var _tenant = $resource(
         '/api/tenants/:id/',
         {},
@@ -39,6 +39,9 @@ function Tenant($resource, $interpolate, HLCache, CacheFactory) {
                     tenant.isVoysSA = function() {
                         return tenant.id === 52;
                     };
+
+                    // Check if PandaDoc integration is set for the tenant.
+                    tenant.hasPandaDoc = $filter('contains')(tenant.integrations, 'type === 0');
 
                     return tenant;
                 },

@@ -44,8 +44,8 @@ function quoteConfig($stateProvider) {
 
 angular.module('app.quotes').controller('QuoteCreateController', QuoteCreateController);
 
-QuoteCreateController.$inject = ['$timeout', 'Settings', 'currentDeal', 'dealContact', 'tenant', 'user'];
-function QuoteCreateController($timeout, Settings, currentDeal, dealContact, tenant, user) {
+QuoteCreateController.$inject = ['$http', '$timeout', 'Settings', 'currentDeal', 'dealContact', 'tenant', 'user'];
+function QuoteCreateController($http, $timeout, Settings, currentDeal, dealContact, tenant, user) {
     var vm = this;
 
     vm.deal = currentDeal;
@@ -118,6 +118,18 @@ function QuoteCreateController($timeout, Settings, currentDeal, dealContact, ten
                 tokens: tokens,
                 recipients: recipients,
             },
+            events: {
+                onDocumentCreated: saveDocument,
+            },
+        });
+    }
+
+    function saveDocument(data) {
+        $http({
+            method: 'POST',
+            url: '/api/integrations/documents/' + vm.deal.contact.id + '/',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            data: 'deal_id=' + vm.deal.id + '&document_id=' + data.document.id,
         });
     }
 }

@@ -106,6 +106,9 @@ function Deal($resource, CacheFactory, HLCache, HLForms, HLResource, HLUtils) {
             query: {
                 isArray: false,
             },
+            getDocuments: {
+                url: '/api/integrations/documents/:contact/',
+            },
         }
     );
 

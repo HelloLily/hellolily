@@ -30,8 +30,10 @@ from oauth2client.contrib.django_orm import Storage
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
 from lily.google.token_generator import generate_token, validate_token
+from lily.integrations.models import IntegrationDetails
+from lily.integrations.credentials import get_credentials
 from lily.tenant.middleware import get_current_user
-from lily.utils.functions import is_ajax, post_intercom_event
+from lily.utils.functions import is_ajax, post_intercom_event, send_post_request
 from lily.utils.views.mixins import LoginRequiredMixin, FormActionMixin, AjaxFormMixin
 
 from .forms import (ComposeEmailForm, CreateUpdateEmailTemplateForm, CreateUpdateTemplateVariableForm,
@@ -960,6 +962,27 @@ class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
                         pass
                     else:
                         lookup.update({'account': account})
+
+            if 'document_id' in self.request.GET:
+                credentials = get_credentials(IntegrationDetails.PANDADOC)
+
+                document_id = self.request.GET.get('document_id')
+
+                # Set the status of the document to 'sent' so we can create a view session.
+                send_url = 'https://api.pandadoc.com/public/v1/documents/%s/send' % document_id
+                send_params = {'silent': True}
+
+                response = send_post_request(send_url, credentials, send_params)
+
+                session_url = 'https://api.pandadoc.com/public/v1/documents/%s/session' % document_id
+                year = 60 * 60 * 24 * 365
+                session_params = {'recipient': contact.email_addresses.first().email_address, 'lifetime': year}
+
+                response = send_post_request(session_url, credentials, session_params)
+
+                if response.status_code == 201:
+                    sign_url = 'https://app.pandadoc.com/s/%s' % response.json().get('id')
+                    lookup.update({'document': {'sign_url': sign_url}})
 
         if 'emailaccount_id' in self.request.GET:
             try:

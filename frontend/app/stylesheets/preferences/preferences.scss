@@ -1,0 +1,18 @@
+.integrations-item {
+    width: 100px;
+    height: 100px;
+    font-size: 18px;
+    text-align: center;
+    display: inline-block;
+    margin-right: 10px;
+    color: $app-color-darkblue;
+    border-color: $app-border-color;
+    border-style: solid;
+    border-radius: 3px;
+    border-width: 0;
+
+    &:hover {
+        color: $app-color-aqua;
+        text-decoration: none;
+    }
+}

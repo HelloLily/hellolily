@@ -32,6 +32,9 @@ function dealsConfig($stateProvider) {
             user: ['User', function(User) {
                 return User.me().$promise;
             }],
+            tenant: ['Tenant', function(Tenant) {
+                return Tenant.query({});
+            }],
         },
     });
 }
@@ -39,9 +42,9 @@ function dealsConfig($stateProvider) {
 angular.module('app.deals').controller('DealDetailController', DealDetailController);
 
 DealDetailController.$inject = ['$compile', '$scope', '$state', '$templateCache', 'Account', 'Contact', 'Deal',
-    'HLResource', 'HLUtils', 'Settings', 'Tenant', 'currentDeal', 'dealContact', 'user'];
+    'HLResource', 'HLUtils', 'Settings', 'Tenant', 'currentDeal', 'dealContact', 'user', 'tenant'];
 function DealDetailController($compile, $scope, $state, $templateCache, Account, Contact, Deal,
-                              HLResource, HLUtils, Settings, Tenant, currentDeal, dealContact, user) {
+                              HLResource, HLUtils, Settings, Tenant, currentDeal, dealContact, user, tenant) {
     var vm = this;
 
     Settings.page.setAllTitles('detail', currentDeal.name, currentDeal.contact, currentDeal.account);
@@ -55,6 +58,7 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
     vm.deal = currentDeal;
     vm.deal.contact = dealContact;
     vm.currentUser = user;
+    vm.tenant = tenant;
 
     vm.changeState = changeState;
     vm.updateModel = updateModel;
@@ -95,9 +99,17 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
             vm.wonStatus = Deal.wonStatus;
         });
 
-        Tenant.query({}, function(tenant) {
-            vm.tenant = tenant;
-        });
+        if (vm.tenant.hasPandaDoc && vm.deal.contact) {
+            Deal.getDocuments({contact: vm.deal.contact.id}, function(response) {
+                var documents = response.documents;
+
+                documents.forEach(function(document) {
+                    document.status = document.status.replace('document.', '');
+                });
+
+                vm.documents = documents;
+            });
+        }
     }
 
     function updateModel(data, field) {

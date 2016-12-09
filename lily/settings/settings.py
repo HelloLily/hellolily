@@ -240,6 +240,7 @@ INSTALLED_APPS = (
     'lily.notes',
     'lily.parcels',
     'lily.preferences',
+    'lily.integrations',
     'lily.provide',
     'lily.search',
     'lily.socialmedia',

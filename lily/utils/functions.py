@@ -194,3 +194,23 @@ def post_intercom_event(event_name, user_id):
     )
 
     return response
+
+
+def send_get_request(url, credentials):
+    headers = {
+        'Authorization': 'Bearer %s' % credentials.access_token
+    }
+
+    response = requests.get(url, headers=headers)
+
+    return response
+
+
+def send_post_request(url, credentials, params):
+    headers = {
+        'Authorization': 'Bearer %s' % credentials.access_token
+    }
+
+    response = requests.post(url, headers=headers, json=params)
+
+    return response

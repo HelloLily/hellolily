@@ -281,11 +281,14 @@
                         // Always get a template.
                         url = self.config.getTemplateUrl + selectedTemplate + '/';
 
+                        url += '?emailaccount_id=' + emailAccountId;
+
                         if (recipientId) {
-                            // If a recipient has been set we can set extra url parameters.
-                            url += '?contact_id=' + recipientId + '&emailaccount_id=' + emailAccountId;
-                        } else {
-                            url += '?emailaccount_id=' + emailAccountId;
+                            url += '&contact_id=' + recipientId;
+                        }
+
+                        if (self.config.documentId) {
+                            url += '&document_id=' + self.config.documentId;
                         }
 
                         $.getJSON(url, function(data) {

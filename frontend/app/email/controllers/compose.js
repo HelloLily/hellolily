@@ -18,6 +18,10 @@ function emailConfig($stateProvider) {
         url: '/compose/{email}/{contactId}',
         views: emailComposeView,
     });
+    $stateProvider.state('base.email.composeEmailDocument', {
+        url: '/compose/{email}/{contactId}/{documentId}',
+        views: emailComposeView,
+    });
     $stateProvider.state('base.email.composeEmailTemplate', {
         url: '/compose/{email}/{template}',
         views: emailComposeView,
@@ -223,6 +227,7 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
                 loadDefaultTemplate: loadDefaultTemplate,
                 recipient: recipient,
                 template: template,
+                documentId: $stateParams.documentId,
             });
 
             HLInbox.setSuccesURL($scope.previousState);

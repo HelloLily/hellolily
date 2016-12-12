@@ -23,6 +23,8 @@ yarn.lock
 
 celerybeat-schedule
 celeryev.pid
+celerybeat-schedule.dir
+celerybeat-schedule.pag
 docker-compose.local.yml
 
 coverage.xml

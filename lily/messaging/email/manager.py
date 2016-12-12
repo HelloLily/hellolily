@@ -417,15 +417,6 @@ class GmailManager(object):
 
         self.add_and_remove_labels_for_message(email_message, add_labels, remove_labels)
 
-    def archive_email_message(self, email_message):
-        """
-        Archive message by removing the inbox label.
-
-        Args:
-            email_message(instance): EmailMessage instance
-        """
-        self.add_and_remove_labels_for_message(email_message, remove_labels=[settings.GMAIL_LABEL_INBOX])
-
     def trash_email_message(self, email_message):
         """
         Trash current EmailMessage.

@@ -1,6 +1,9 @@
 import logging
+
+from django.conf import settings
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
+
 from rest_framework import viewsets, mixins, status, filters, serializers
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.filters import DjangoFilterBackend
@@ -16,7 +19,7 @@ from .serializers import (EmailLabelSerializer, EmailAccountSerializer, EmailMes
                           EmailTemplateSerializer, SharedEmailConfigSerializer, TemplateVariableSerializer)
 from ..models.models import (EmailLabel, EmailAccount, EmailMessage, EmailTemplate, SharedEmailConfig,
                              TemplateVariable)
-from ..tasks import (trash_email_message, delete_email_message, archive_email_message, toggle_read_email_message,
+from ..tasks import (trash_email_message, delete_email_message, toggle_read_email_message,
                      add_and_remove_labels_for_message, toggle_star_email_message, toggle_spam_email_message)
 
 
@@ -177,12 +180,25 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         """
         Archive an email message asynchronous through the manager and not directly on the database. Just update the
         search index by an instance variable so changes are immediately visible.
+        An email message is archived by removing the inbox label and the provided label of the current inbox.
         """
         email = self.get_object()
+
+        current_inbox = request.data['data'].get('current_inbox', '')
+
+        # Filter out labels an user should not manipulate.
+        remove_labels = []
+        if current_inbox and current_inbox not in settings.GMAIL_LABELS_DONT_MANIPULATE:
+            remove_labels.append(current_inbox)
+
+        # Archiving email should always remove the inbox label.
+        if settings.GMAIL_LABEL_INBOX not in remove_labels:
+            remove_labels.append(settings.GMAIL_LABEL_INBOX)
+
         email._is_archived = True
         reindex_email_message(email)
         serializer = self.get_serializer(email, partial=True)
-        archive_email_message.apply_async(args=(email.id,))
+        add_and_remove_labels_for_message.delay(email.id, remove_labels=remove_labels)
         return Response(serializer.data)
 
     @detail_route(methods=['put'])

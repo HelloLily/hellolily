@@ -231,6 +231,7 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
             });
 
             HLInbox.setSuccesURL($scope.previousState);
+            HLInbox.setCurrentInbox(Settings.email.previousInbox.params.labelId);
         });
     }
 

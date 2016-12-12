@@ -272,38 +272,6 @@ def toggle_read_email_message(self, email_id, read=True):
             logger.warning('Not syncing, no authorization for: %s', email_message.account.email_address)
 
 
-@task(name='archive_email_message', logger=logger, bind=True)
-def archive_email_message(self, email_id):
-    """
-    Archive message.
-
-    Args:
-        email_id (int): id of the EmailMessage
-    """
-    try:
-        email_message = EmailMessage.objects.get(pk=email_id)
-    except EmailMessage.DoesNotExist:
-        logger.warning('EmailMessage no longer exists: %s', email_id)
-    else:
-        if email_message.account.is_authorized:
-            manager = None
-            try:
-                manager = GmailManager(email_message.account)
-                logger.debug('Archiving: %s', email_message)
-                manager.archive_email_message(email_message)
-            except HttpAccessTokenRefreshError:
-                logger.warning('Not syncing, no authorization for: %s', email_message.account.email_address)
-                pass
-            except Exception as exc:
-                logger.exception('Failed archiving %s' % email_message)
-                raise self.retry(exc=exc)
-            finally:
-                if manager:
-                    manager.cleanup()
-        else:
-            logger.warning('Not syncing, no authorization for: %s', email_message.account.email_address)
-
-
 @task(name='trash_email_message', logger=logger, bind=True)
 def trash_email_message(self, email_id):
     """
@@ -340,7 +308,7 @@ def trash_email_message(self, email_id):
 
 
 @task(name='add_and_remove_labels_for_message', logger=logger, bind=True)
-def add_and_remove_labels_for_message(self, email_id, add_labels=None, remove_labels=None):
+def add_and_remove_labels_for_message(self, email_id, add_labels=[], remove_labels=[]):
     """
     Add and/or removes labels for the EmailMessage.
 

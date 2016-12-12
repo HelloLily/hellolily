@@ -39,10 +39,11 @@ from lily.utils.views.mixins import LoginRequiredMixin, FormActionMixin, AjaxFor
 from .forms import (ComposeEmailForm, CreateUpdateEmailTemplateForm, CreateUpdateTemplateVariableForm,
                     EmailAccountCreateUpdateForm, EmailTemplateFileForm, EmailTemplateSetDefaultForm)
 from .models.models import (EmailMessage, EmailAttachment, EmailAccount, EmailTemplate, DefaultEmailTemplate,
-                            EmailOutboxMessage, EmailOutboxAttachment, TemplateVariable, GmailCredentialsModel)
+                            EmailOutboxMessage, EmailOutboxAttachment, TemplateVariable, GmailCredentialsModel,
+                            EmailLabel)
 from .services import build_gmail_service
-from .tasks import (send_message, create_draft_email_message, delete_email_message, archive_email_message,
-                    update_draft_email_message)
+from .tasks import (send_message, create_draft_email_message, delete_email_message, update_draft_email_message,
+                    add_and_remove_labels_for_message)
 from .utils import (get_attachment_filename_from_url, get_email_parameter_choices, create_recipients,
                     render_email_body, replace_cid_in_html, create_reply_body_header, reindex_email_message)
 
@@ -599,12 +600,27 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
 
         success_url = self.get_success_url()
 
-        # Send and archive was pressed, so start an archive task.
+        # Send and archive was pressed.
         if task and form.data.get('archive', False) == 'true':
+            # An email message is archived by removing the inbox label and the provided label of the current inbox.
+            current_inbox = form.data.get('current_inbox', '')
+
+            # Filter out labels an user should not manipulate.
+            remove_labels = []
+            if current_inbox and current_inbox not in settings.GMAIL_LABELS_DONT_MANIPULATE:
+                remove_labels.append(current_inbox)
+
+            # Archiving email should always remove the inbox label.
+            if settings.GMAIL_LABEL_INBOX not in remove_labels:
+                remove_labels.append(settings.GMAIL_LABEL_INBOX)
+
             email_message = EmailMessage.objects.get(pk=self.object.id)
             email_message._is_archived = True
+            labels_to_remove = EmailLabel.objects.filter(label_id__in=remove_labels,
+                                                         account=self.object.account)
+            email_message.labels.remove(*labels_to_remove)
             reindex_email_message(email_message)
-            archive_email_message.apply_async(args=(self.object.id,))
+            add_and_remove_labels_for_message.delay(self.object.id, remove_labels=remove_labels)
 
         if is_ajax(self.request):
             return HttpResponse(anyjson.dumps({'task_id': task.id}), content_type='application/json')

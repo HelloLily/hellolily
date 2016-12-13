@@ -59,6 +59,9 @@ function Case($resource, CacheFactory, HLCache, HLResource, HLUtils) {
                     return statusData;
                 },
             },
+            query: {
+                isArray: false,
+            },
         }
     );
 

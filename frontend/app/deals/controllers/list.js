@@ -66,6 +66,7 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
     vm.displaySpecialFilterClear = false;
     vm.filterList = [];
     vm.filterSpecialList = [];
+    vm.showEmptyState = false;
 
     vm.updateFilterQuery = updateFilterQuery;
     vm.setSearchQuery = setSearchQuery;
@@ -82,6 +83,7 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
             _setupWatchers();
             _getFilterOnList();
             _getFilterSpecialList();
+            showEmptyState();
         }, 50);
 
         Tenant.query({}, function(tenant) {
@@ -92,6 +94,19 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
     function updateModel(data, field) {
         return Deal.updateModel(data, field).then(function() {
             _updateDeals();
+        });
+    }
+
+    /**
+     * showEmptyState is used to count the total amount of deals used to show or not
+     * show the empty state.
+     *
+     */
+    function showEmptyState() {
+        Deal.query({}, function(data) {
+            if (data.pagination.total === 0) {
+                vm.showEmptyState = true;
+            }
         });
     }
 

@@ -22,6 +22,20 @@
 </div>
 
 <div class="inbox-content">
+    <div ng-if="vm.showEmptyState" class="empty-state-container is-inbox">
+        <div class="empty-state-overlay"></div>
+        <div class="empty-state-description">
+            <h3>This is where the magic happens.</h3>
+
+            <p>From today on, you won’t need another email client.</p>
+            <p>Lily handles your email seamlessly and links them <br />
+                automagically with your Contacts, Deals and Cases. </p>
+            <p>You will have all communication just a click away.</p>
+
+            <p>To see Lily’s magic, add your <a class="hl-primary-btn" ui-sref="base.preferences.emailaccounts" role="button" onclick="ga('send', 'event', 'Email Account', 'Add', 'Email list empty state');"><i class="fa fa-plus"></i> Email account</a></p>
+
+        </div>
+    </div>
     <table class="table table-hover">
         <thead>
             <tr>
@@ -126,7 +140,7 @@
             </tr>
             <div class="clearfix"></div>
         </thead>
-        <tbody>
+        <tbody ng-class="vm.showEmptyState ? 'empty-state-space' : ''">
             <tr ng-repeat="message in vm.emailMessages" style="cursor: pointer;" ng-class="{'unread': !message.read}">
                 <td class="inbox-small-cells">
                     <checkbox model="message.checked" ng-click="vm.handleSelect($index, $event)"></checkbox>

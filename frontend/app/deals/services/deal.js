@@ -103,6 +103,9 @@ function Deal($resource, CacheFactory, HLCache, HLForms, HLResource, HLUtils) {
                 url: 'api/deals',
                 method: 'OPTIONS',
             },
+            query: {
+                isArray: false,
+            },
         }
     );
 

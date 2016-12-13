@@ -54,6 +54,8 @@ function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLa
         checkboxesAll: false,
     };
 
+    vm.showEmptyState = false;
+
     vm.setPage = setPage;
     vm.toggleCheckboxes = toggleCheckboxes;
     vm.showReplyOrForwardButtons = showReplyOrForwardButtons;
@@ -114,6 +116,16 @@ function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLa
         // Store current email account
         SelectedEmailAccount.setCurrentAccountId($stateParams.accountId);
         SelectedEmailAccount.setCurrentFolderId($stateParams.labelId);
+
+        getNumberOfEmailAccounts();
+    }
+
+    function getNumberOfEmailAccounts() {
+        EmailAccount.query({}, function(data) {
+            if (data.pagination.total === 0) {
+                vm.showEmptyState = true;
+            }
+        });
     }
 
     function setSearchQuery(queryString) {

@@ -16,6 +16,9 @@ env:
     # GITHUB_PERSONAL_ACCESS_TOKEN: account used is voipgrid-user:Travis auto merge for lily.
     - secure: "LhLYNZ9XEAuV7Hgj9bWnugKOLswcc2b6U7Ed4a1Gz8ix2T+IvPsyNcY0Aoi8S2ztrJHZLv1N8erYYFK5NhRpK17NVWAXB5+7NHGM2pSgD2op+xTMMsmI4JJfY94O9I042ES/HEHiMi6vfZS3hFaOvYOzbD5ZtXx0fb8f8bcBgHs="
 
+    # CODECLIMATE_REPO_TOKEN
+    - secure: "YxRY659DsaAlAyY20aNOMlCN+Anr81WPmpg36zkTpSw2VgC219HS8301HN5userqAjnkKHNo7aWbHxq37sGKm2nYXPq2T2PkvyOToc4f7+uRwJ5i6w79zXKRvp4q6sA3mwjuPuPekRnHguM3WNshm2Nxbp0Aoxlu6Npd2vYvKVM="
+
     # HEROKU_API_KEY: account used is admin.
     - secure: "Z+TBSqMgzaqd/TtdxtwxuyT2xwWCboN1cB4fAzik1WToJKhENr0/xWAy0VkNwU3tbbZabZEWDVflIPwO759XMtUgQit3zwtkHlv0PB8mlhythhe7lNiJJ3DZbGmtEZhbF8sWYx6yN1DmldxKVPb/OGC8LPEmcjESjANo/FfdxGU="
 
@@ -114,7 +117,7 @@ after_deploy:
 
 after_script:
   # If we're on the default branch (in our case develop), push test coverage to code climate.
-  - if [ "${TRAVIS_BRANCH}" == "develop" ]; then docker-compose -f docker-compose.new-build.yml run --rm --service-ports -e CODECLIMATE_REPO_TOKEN -e TRAVIS -e TRAVIS_BRANCH -e TRAVIS_JOB_ID -e TRAVIS_PULL_REQUEST web codeclimate-test-reporter; fi
+  - if [ "${TRAVIS_BRANCH}" == "develop" ]; then codeclimate-test-reporter; fi
 
 notifications:
   email: false

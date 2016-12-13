@@ -17,7 +17,7 @@ env:
     - secure: "LhLYNZ9XEAuV7Hgj9bWnugKOLswcc2b6U7Ed4a1Gz8ix2T+IvPsyNcY0Aoi8S2ztrJHZLv1N8erYYFK5NhRpK17NVWAXB5+7NHGM2pSgD2op+xTMMsmI4JJfY94O9I042ES/HEHiMi6vfZS3hFaOvYOzbD5ZtXx0fb8f8bcBgHs="
 
     # CODECLIMATE_REPO_TOKEN
-    - secure: "YxRY659DsaAlAyY20aNOMlCN+Anr81WPmpg36zkTpSw2VgC219HS8301HN5userqAjnkKHNo7aWbHxq37sGKm2nYXPq2T2PkvyOToc4f7+uRwJ5i6w79zXKRvp4q6sA3mwjuPuPekRnHguM3WNshm2Nxbp0Aoxlu6Npd2vYvKVM="
+    - secure: "UksgHcnHYpmvrgFn4vwIanESarRWZPYOWq9nD9a3DLqHMuy+uWF66p8WkoSw+0mQqEwuLuE870mof3JAmldXByiF7psUE5jjZSxAqna4Hg7rnm+FZIGBZwPNPGtJVtTzw45/qBp6clAYdhnVmF9v/f8FtdtFwTnuk/JNeoq+X4A="
 
     # HEROKU_API_KEY: account used is admin.
     - secure: "Z+TBSqMgzaqd/TtdxtwxuyT2xwWCboN1cB4fAzik1WToJKhENr0/xWAy0VkNwU3tbbZabZEWDVflIPwO759XMtUgQit3zwtkHlv0PB8mlhythhe7lNiJJ3DZbGmtEZhbF8sWYx6yN1DmldxKVPb/OGC8LPEmcjESjANo/FfdxGU="

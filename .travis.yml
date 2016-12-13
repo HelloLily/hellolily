@@ -117,7 +117,7 @@ after_deploy:
 
 after_script:
   # If we're on the default branch (in our case develop), push test coverage to code climate.
-  - if [ "${TRAVIS_BRANCH}" == "develop" ]; then codeclimate-test-reporter; fi
+  - if [ "${TRAVIS_BRANCH}" == "develop" ]; then sed -i -e 's+/home/docker/hellolily/++g' .coverage; codeclimate-test-reporter; fi
 
 notifications:
   email: false

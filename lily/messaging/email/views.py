@@ -34,10 +34,10 @@ from lily.integrations.models import IntegrationDetails
 from lily.integrations.credentials import get_credentials
 from lily.tenant.middleware import get_current_user
 from lily.utils.functions import is_ajax, post_intercom_event, send_post_request
-from lily.utils.views.mixins import LoginRequiredMixin, FormActionMixin, AjaxFormMixin
+from lily.utils.views.mixins import LoginRequiredMixin, FormActionMixin
 
 from .forms import (ComposeEmailForm, CreateUpdateEmailTemplateForm, CreateUpdateTemplateVariableForm,
-                    EmailAccountCreateUpdateForm, EmailTemplateFileForm, EmailTemplateSetDefaultForm)
+                    EmailAccountCreateUpdateForm, EmailTemplateFileForm)
 from .models.models import (EmailMessage, EmailAttachment, EmailAccount, EmailTemplate, DefaultEmailTemplate,
                             EmailOutboxMessage, EmailOutboxAttachment, TemplateVariable, GmailCredentialsModel,
                             EmailLabel)
@@ -138,7 +138,7 @@ class OAuth2Callback(LoginRequiredMixin, View):
 
 
 class EmailAccountUpdateView(LoginRequiredMixin, SuccessMessageMixin, FormActionMixin, StaticContextMixin, UpdateView):
-    template_name = 'form.html'
+    template_name = 'email/emailaccount_form.html'
     model = EmailAccount
     form_class = EmailAccountCreateUpdateForm
     success_message = _('%(label)s has been updated.')
@@ -907,28 +907,6 @@ class ParseEmailTemplateView(LoginRequiredMixin, FormView):
         return HttpResponse(anyjson.serialize({
             'error': True
         }), content_type='application/json')
-
-
-class EmailTemplateSetDefaultView(LoginRequiredMixin, FormActionMixin, SuccessMessageMixin, AjaxFormMixin, UpdateView):
-    template_name = 'form.html'
-    model = EmailTemplate
-    form_class = EmailTemplateSetDefaultForm
-
-    def get_success_message(self, cleaned_data):
-        default_for = self.object.default_for.all()
-        default_for_length = len(default_for)
-        if default_for_length == 0:
-            message = _('%s is no longer a default template.' % self.object)
-        elif default_for_length == 1:
-            message = _('%s has been set as default for: %s.' % (self.object, default_for[0]))
-        else:
-            message = _('%s has been set as default for: %s and %s others.' % (
-                self.object, default_for[0], default_for_length - 1
-            ))
-        return message
-
-    def get_success_url(self):
-        return '/#/preferences/emailtemplates'
 
 
 class EmailTemplateGetDefaultView(LoginRequiredMixin, View):

@@ -19,7 +19,6 @@ urlpatterns = [
     url(r'^', include('lily.utils.urls')),
     url(r'^taskmonitor/', include('taskmonitor.urls')),
     url(r'^search/', include('lily.search.urls')),
-    url(r'^preferences/', include('lily.preferences.urls')),
 
     # Django admin urls
     url(r'^admin/login/$', RedirectView.as_view(pattern_name='login', permanent=True, query_string=True)),

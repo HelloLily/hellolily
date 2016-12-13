@@ -27,7 +27,7 @@
 
             self.initListeners();
 
-            $.get('api/messaging/email/template-variables', function(data) {
+            $.get('api/messaging/email/template-variables/', function(data) {
                 var i;
                 var customVariableName;
 

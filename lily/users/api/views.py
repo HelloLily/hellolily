@@ -1,4 +1,4 @@
-import datetime
+from django.utils import timezone
 from django_filters import FilterSet
 from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.sessions.models import Session
@@ -185,7 +185,7 @@ class LilyUserViewSet(SetTenantUserMixin, viewsets.ModelViewSet):
             raise PermissionDenied
 
         user_sessions = []
-        all_sessions = Session.objects.filter(expire_date__gte=datetime.datetime.now())
+        all_sessions = Session.objects.filter(expire_date__gte=timezone.now())
 
         for session in all_sessions:
             session_data = session.get_decoded()

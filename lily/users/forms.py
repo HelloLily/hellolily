@@ -5,7 +5,6 @@ from django.forms.formsets import BaseFormSet
 from django.utils.translation import ugettext_lazy as _
 from django_password_strength.widgets import PasswordStrengthInput, PasswordConfirmationInput
 
-from lily.utils.forms import HelloLilyForm
 from lily.utils.forms.widgets import AddonTextInput
 
 from .models import LilyUser
@@ -119,7 +118,7 @@ class CustomSetPasswordForm(SetPasswordForm):
     )
 
 
-class ResendActivationForm(HelloLilyForm):
+class ResendActivationForm(forms.Form):
     """
     Form that allows a user to retry sending the activation email.
     """
@@ -158,7 +157,7 @@ class ResendActivationForm(HelloLilyForm):
         return email
 
 
-class RegistrationForm(HelloLilyForm):
+class RegistrationForm(forms.Form):
     """
     This form allows new user registration.
     """
@@ -219,7 +218,7 @@ class UserRegistrationForm(RegistrationForm):
             return self.cleaned_data['email']
 
 
-class InvitationForm(HelloLilyForm):
+class InvitationForm(forms.Form):
     """
     This is the invitation form, it is used to invite new users to join an account.
     """

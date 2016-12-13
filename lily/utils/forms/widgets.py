@@ -1,12 +1,11 @@
 import json
 
-from bootstrap3_datetime.widgets import DateTimePicker
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.query import QuerySet
 from django.forms.formsets import BaseFormSet
 from django.forms.widgets import TextInput, Widget, RadioFieldRenderer, Textarea
 from django.forms.utils import flatatt
-from django.utils import translation
 from django.utils.encoding import force_text
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
@@ -39,95 +38,6 @@ class TagInput(TextInput):
             })
 
         return super(TagInput, self).build_attrs(extra_attrs=extra_attrs, **kwargs)
-
-
-class DatePicker(DateTimePicker):
-    """
-    Our version of a DatePicker based on bootstrap3_datetime's DateTimePicker.
-    """
-    # http://docs.python.org/2/library/datetime.html#strftime-strptime-behavior
-    format_map = (
-        ('dd', r'%d'),  # Day of the month as a zero-padded decimal number
-        ('MM', r'%B'),  # Month as locale's full name
-        ('M', r'%b'),  # Month as locale's abbreviated name
-        ('mm', r'%m'),  # Month as a zero-padded decimal number
-        ('yyyy', r'%Y'),  # Year with century as a decimal number
-        ('yy', r'%y'),  # Year without century as a zero-padded decimal number
-    )
-
-    @classmethod
-    def conv_datetime_format_py2js(cls, format):
-        for js, py in cls.format_map:
-            format = format.replace(py, js)
-        return format
-
-    @classmethod
-    def conv_datetime_format_js2py(cls, format):
-        for js, py in cls.format_map:
-            format = format.replace(js, py)
-        return format
-
-    html_template = '''
-        <div%(div_attrs)s>
-            <input%(input_attrs)s/>
-            <span class="input-group-btn">
-                <button class="btn default" type="button"><i%(icon_attrs)s></i></button>
-            </span>
-        </div>'''
-
-    js_template = '''
-        <script>
-            $(function() {
-                $("#%(picker_id)s").datepicker(%(options)s);
-            });
-        </script>'''
-
-    def __init__(self, attrs=None, format=None, options=None, div_attrs=None, icon_attrs=None):
-        if not icon_attrs:
-            icon_attrs = {'class': 'fa fa-calendar'}
-        if not div_attrs:
-            div_attrs = {'class': 'input-group date'}
-        if format is None and options and options.get('format'):
-            format = self.conv_datetime_format_js2py(options.get('format'))
-        super(DatePicker, self).__init__(attrs, format)
-        if 'class' not in self.attrs:
-            self.attrs['class'] = 'form-control'
-        self.div_attrs = div_attrs and div_attrs.copy() or {}
-        self.icon_attrs = icon_attrs and icon_attrs.copy() or {}
-        self.picker_id = self.div_attrs.get('id') or None
-        if options is False:  # datetimepicker will not be initalized only when options is False
-            self.options = False
-        else:
-            self.options = options and options.copy() or {}
-            self.options['language'] = translation.get_language()
-            if not self.options.get('weekStart'):
-                self.options['weekStart'] = 1
-            if format and not self.options.get('format') and not self.attrs.get('date-format'):
-                self.options['format'] = self.conv_datetime_format_py2js(format)
-
-
-class LilyDateTimePicker(DatePicker):
-    """
-    Modified DatePicker to support times. Note: It uses bootstrap-datetimepicker
-    plugin instead of bootstrap-datepicker.
-    """
-    format_map = (
-        ('dd', r'%d'),
-        ('mm', r'%m'),
-        ('yyyy', r'%Y'),
-        ('hh', r'%H'),
-        ('ii', r'%M'),
-    )
-
-    js_template = '''
-        <script>
-            $(function() {
-                $('#%(picker_id)s input').datetimepicker(%(options)s);
-                $('#%(picker_id)s button').click(function() {
-                    $("#%(picker_id)s input").datetimepicker('show');
-                })
-            });
-        </script>'''
 
 
 class AddonTextInput(TextInput):

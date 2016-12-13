@@ -1,4 +1,6 @@
 from django.conf import settings
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.hashers import make_password
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
@@ -15,6 +17,8 @@ class LilyUserSerializer(WritableNestedSerializer):
     """
     Serializer for the LilyUser model.
     """
+    password = serializers.CharField(write_only=True, required=False, max_length=128)
+    password_confirmation = serializers.CharField(write_only=True, required=False, max_length=128)
     full_name = serializers.CharField(read_only=True)
     profile_picture = serializers.CharField(read_only=True)
     picture = serializers.ImageField(write_only=True, required=False)
@@ -30,6 +34,8 @@ class LilyUserSerializer(WritableNestedSerializer):
             'last_name',
             'full_name',
             'email',
+            'password',
+            'password_confirmation',
             'primary_email_account',
             'position',
             'profile_picture',
@@ -45,8 +51,54 @@ class LilyUserSerializer(WritableNestedSerializer):
             'webhooks',
         )
 
+    def validate_picture(self, value):
+        if value and value.size > settings.LILYUSER_PICTURE_MAX_SIZE:
+            raise serializers.ValidationError(_('File too large. Size should not exceed 300 KB.'))
+
+        return value
+
+    def validate_email(self, value):
+        if self.instance:  # If there's an instance, it means we're updating.
+            if not self.context['request'].user.pk == self.instance.pk:
+                raise serializers.ValidationError(_('You can only alter the email of your own user.'))
+        return value
+
+    def validate_password(self, value):
+        if self.instance:  # If there's an instance, it means we're updating.
+            if not self.context['request'].user.pk == self.instance.pk:
+                raise serializers.ValidationError(_('You can only alter the password of your own user.'))
+        return make_password(value)
+
+    def validate_password_confirmation(self, value):
+        if not self.context['request'].user.check_password(value):
+            raise serializers.ValidationError(_('Invalid password.'))
+
+        return value
+
+    def validate(self, attrs):
+        password = attrs.get('password')
+        password_confirmation = attrs.get('password_confirmation')
+        email = attrs.get('email')
+
+        if self.instance:  # If there's an instance, it means we're updating.
+            if password and not password_confirmation:
+                raise serializers.ValidationError({
+                    'password_confirmation': _(
+                        'When changing passwords, you need to confirm with your current password.'
+                    ),
+                })
+
+            if email and email != self.instance.email and not password_confirmation:
+                raise serializers.ValidationError({
+                    'password_confirmation': _(
+                        'When changing email adresses, you need to confirm with your current password.'
+                    ),
+                })
+
+        return super(LilyUserSerializer, self).validate(attrs)
+
     def update(self, instance, validated_data):
-        if self.instance.picture is validated_data.get('picture'):
+        if instance.picture is validated_data.get('picture'):
             validated_data['picture'] = None
 
         validated_team_list = []
@@ -66,11 +118,20 @@ class LilyUserSerializer(WritableNestedSerializer):
 
         return user
 
-    def validate_picture(self, value):
-        if value and value.size > settings.LILYUSER_PICTURE_MAX_SIZE:
-            raise serializers.ValidationError(_('File too large. Size should not exceed 300 KB.'))
+    def save(self, **kwargs):
+        if self.instance:
+            old_password = self.instance.password
+            instance = super(LilyUserSerializer, self).save(**kwargs)
+            new_password = instance.password
 
-        return value
+            if old_password != new_password:
+                # Django uses the password as part of the hash,
+                # so if password's changed update the hash to prevent logout.
+                update_session_auth_hash(self.context['request'], self.context['request'].user)
+
+            return instance
+
+        return super(LilyUserSerializer, self).save(**kwargs)
 
     def to_internal_value(self, data):
         # Reverse foreign key relations don't work yet with the WritableNestedSerializer, so we manually retrieve

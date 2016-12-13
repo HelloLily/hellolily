@@ -8,19 +8,18 @@ from django.core.urlresolvers import reverse_lazy
 from django.core.validators import validate_email
 from django.db.models.fields.files import FieldFile
 from django.db.models import Q
-from django.forms.models import modelformset_factory
+from django.forms.models import modelformset_factory, ModelForm
 from django.template.defaultfilters import linebreaksbr
 from django.utils.translation import ugettext_lazy as _
 
 from lily.contacts.models import Contact
 from lily.tenant.middleware import get_current_user
-from lily.utils.forms import HelloLilyForm, HelloLilyModelForm
 from lily.utils.forms.fields import TagsField, FormSetField
 from lily.utils.forms.mixins import FormSetFormMixin
 from lily.utils.forms.widgets import Wysihtml5Input, AjaxSelect2Widget, BootstrapRadioFieldRenderer
 
-from ..models.models import (EmailAccount, EmailTemplate, EmailOutboxAttachment, DefaultEmailTemplate,
-                             EmailTemplateAttachment, TemplateVariable, EmailAttachment)
+from ..models.models import (EmailAccount, EmailTemplate, EmailOutboxAttachment, EmailTemplateAttachment,
+                             TemplateVariable, EmailAttachment)
 from .widgets import EmailAttachmentWidget
 from ..utils import get_email_parameter_choices, TemplateParser
 
@@ -28,26 +27,22 @@ from ..utils import get_email_parameter_choices, TemplateParser
 logger = logging.getLogger(__name__)
 
 
-class EmailAccountCreateUpdateForm(HelloLilyModelForm):
+class EmailAccountCreateUpdateForm(ModelForm):
 
     class Meta:
         model = EmailAccount
-        fieldsets = (
-            (_('Your account'), {
-                'fields': [
-                    'from_name',
-                    'label',
-                    'email_address',
-                    'public',
-                ],
-            }),
+        fields = (
+            'from_name',
+            'label',
+            'email_address',
+            'public',
         )
         widgets = {
             'email_address': forms.TextInput(attrs={'readonly': 'readonly'}),
         }
 
 
-class AttachmentBaseForm(HelloLilyModelForm):
+class AttachmentBaseForm(ModelForm):
     """
     Form for uploading email attachments.
     """
@@ -59,7 +54,7 @@ class AttachmentBaseForm(HelloLilyModelForm):
         }
 
 
-class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
+class ComposeEmailForm(FormSetFormMixin, forms.Form):
     """
     Form for writing an EmailMessage as a draft, reply or forwarded message.
     """
@@ -257,7 +252,7 @@ class ComposeEmailForm(FormSetFormMixin, HelloLilyForm):
         )
 
 
-class CreateUpdateEmailTemplateForm(HelloLilyModelForm):
+class CreateUpdateEmailTemplateForm(ModelForm):
     """
     Form used for creating and updating email templates.
     """
@@ -394,68 +389,7 @@ class CreateUpdateEmailTemplateForm(HelloLilyModelForm):
         }
 
 
-class EmailTemplateSetDefaultForm(HelloLilyModelForm):
-    default_for = forms.ModelMultipleChoiceField(queryset=EmailAccount.objects.none(), required=False)
-
-    def __init__(self, *args, **kwargs):
-        super(EmailTemplateSetDefaultForm, self).__init__(*args, **kwargs)
-        user = get_current_user()
-        self.fields['default_for'].queryset = EmailAccount.objects.filter(
-            Q(owner=user) |
-            Q(public=True) |
-            Q(shared_with_users__id=user.pk)
-        ).filter(tenant=user.tenant).distinct('id')
-
-    def save(self, commit=True):
-        default_for_data = self.cleaned_data.get('default_for')
-        current_user = get_current_user()
-
-        if commit:
-            # Only save to db on commit
-            for email_account in default_for_data:
-                default_template, created = DefaultEmailTemplate.objects.get_or_create(
-                    user=current_user,
-                    account=email_account,
-                    defaults={
-                        'template': self.instance,
-                    }
-                )
-                if not created:
-                    # If default already exists, override the linked template and set to this one
-                    default_template.template = self.instance
-                    default_template.save()
-            if not default_for_data:
-                # There are no accounts submitted, delete previous defaults
-                DefaultEmailTemplate.objects.filter(
-                    user=current_user,
-                    template=self.instance
-                ).delete()
-            else:
-                # Delete defaults that were removed from selection
-                account_id_list = []
-                default_for_id_list = default_for_data.values_list('pk', flat=True)
-                for email_account in self.initial.get('default_for'):
-                    if email_account not in default_for_id_list:
-                        account_id_list.append(email_account)
-
-                DefaultEmailTemplate.objects.filter(
-                    user=current_user,
-                    template=self.instance,
-                    account_id__in=account_id_list
-                ).delete()
-
-        return self.instance
-
-    class Meta:
-        model = EmailTemplate
-        fieldsets = (
-            (_('Set as default for'), {
-                'fields': ['default_for', ],
-            }),
-        )
-
-
-class EmailTemplateFileForm(HelloLilyForm):
+class EmailTemplateFileForm(forms.Form):
     """
     Form that is used to parse uploaded template files.
     """
@@ -494,7 +428,7 @@ class EmailTemplateFileForm(HelloLilyForm):
         return cleaned_data
 
 
-class CreateUpdateTemplateVariableForm(HelloLilyModelForm):
+class CreateUpdateTemplateVariableForm(ModelForm):
     """
     Form used for creating and updating template variables.
     """

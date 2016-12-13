@@ -1,11 +1,10 @@
 from django.conf.urls import url
 
-from .views import (SetupEmailAuth, OAuth2Callback, EmailAttachmentProxy, EmailTemplateSetDefaultView,
-                    EmailTemplateGetDefaultView, EmailMessageHTMLView, EmailAccountUpdateView, EmailTemplateListView,
-                    CreateEmailTemplateView, UpdateEmailTemplateView, ParseEmailTemplateView, EmailMessageSendView,
-                    EmailTemplateDeleteView, DetailEmailTemplateView, EmailMessageDraftView, EmailMessageReplyView,
-                    EmailMessageForwardView, EmailMessageReplyAllView, CreateTemplateVariableView,
-                    UpdateTemplateVariableView)
+from .views import (SetupEmailAuth, OAuth2Callback, EmailAttachmentProxy, EmailTemplateGetDefaultView,
+                    EmailMessageHTMLView, EmailAccountUpdateView, EmailTemplateListView, CreateEmailTemplateView,
+                    UpdateEmailTemplateView, ParseEmailTemplateView, EmailMessageSendView, EmailTemplateDeleteView,
+                    DetailEmailTemplateView, EmailMessageDraftView, EmailMessageReplyView, EmailMessageForwardView,
+                    EmailMessageReplyAllView, CreateTemplateVariableView, UpdateTemplateVariableView)
 
 
 urlpatterns = [
@@ -27,9 +26,6 @@ urlpatterns = [
         EmailTemplateDeleteView.as_view(),
         name='messaging_email_template_delete'),
     url(r'^templates/parse/$', ParseEmailTemplateView.as_view(), name='messaging_email_template_parse'),
-    url(r'^templates/set-default/(?P<pk>[\d-]+)/$',
-        EmailTemplateSetDefaultView.as_view(),
-        name='messaging_email_template_set_default'),
     url(r'^templates/get-default/(?P<account_id>[\d-]+)/$',
         EmailTemplateGetDefaultView.as_view(),
         name='messaging_email_template_get_default'),

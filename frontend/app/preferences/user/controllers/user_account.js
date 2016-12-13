@@ -6,7 +6,7 @@ function preferencesConfig($stateProvider) {
         url: '/account',
         views: {
             '@base.preferences': {
-                templateUrl: 'preferences/user/account/',
+                templateUrl: 'preferences/user/controllers/user_account.html',
                 controller: PreferencesUserAccountController,
                 controllerAs: 'vm',
             },
@@ -14,17 +14,65 @@ function preferencesConfig($stateProvider) {
         ncyBreadcrumb: {
             label: 'account',
         },
+        resolve: {
+            user: ['User', function(User) {
+                return User.me().$promise;
+            }],
+        },
     });
 }
 
-/**
- * PreferencesUserAccount is a controller to show the user account page.
- */
 angular.module('app.preferences').controller('PreferencesUserAccountController', PreferencesUserAccountController);
 
-PreferencesUserAccountController.$inject = ['$scope'];
-function PreferencesUserAccountController($scope) {
-    $scope.$on('$viewContentLoaded', function() {
-        djangoPasswordStrength.initListeners();
-    });
+PreferencesUserAccountController.$inject = ['$state', 'HLForms', 'HLUtils', 'User', 'user'];
+function PreferencesUserAccountController($state, HLForms, HLUtils, User, user) {
+    var vm = this;
+
+    vm.user = user;
+
+    vm.saveUser = saveUser;
+    vm.cancelAccountEditing = cancelAccountEditing;
+
+    activate();
+
+    //////
+
+    function activate() {
+    }
+
+    function saveUser(form) {
+        var formName = '[name="userForm"]';
+
+        var args = {
+            id: 'me',
+            email: vm.user.email,
+            password_confirmation: vm.user.password_confirmation,
+        };
+
+        if (vm.user.password) {
+            // Because an empty string is sent otherwise, causing validation to fail.
+            args.password = vm.user.password;
+        }
+
+        if (vm.user.password !== vm.user.password_check) {
+            toastr.error('Your passwords don\'t match. Please fix and try again.', 'Attention!');
+        } else {
+            HLUtils.blockUI(formName, true);
+            HLForms.clearErrors(form);
+
+            User.patch(args).$promise.then(function() {
+                toastr.success('I\'ve updated your account!', 'Done');
+                $state.reload();
+            }, function(response) {
+                HLUtils.unblockUI(formName);
+                HLForms.setErrors(form, response.data);
+
+                toastr.error('Uh oh, there seems to be a problem', 'Oops!');
+            });
+        }
+    }
+
+    function cancelAccountEditing() {
+        $state.reload();
+    }
 }

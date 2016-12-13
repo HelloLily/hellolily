@@ -38,7 +38,11 @@ class UserBasedTest(object):
         tenant_2 = TenantFactory.create()
 
         # Set the authenticated user on the class.
-        cls.user_obj = LilyUser.objects.create_user(email='user1@lily.com', password=password, tenant_id=tenant_1.id)
+        cls.user_obj = LilyUser.objects.create_user(
+            email='user1@lily.com',
+            password=password,
+            tenant_id=tenant_1.id
+        )
         cls.user = APIClient()
         cls.user.login(email=cls.user_obj.email, password=password)
 
@@ -152,10 +156,11 @@ class CompareObjectsMixin(object):
             serializer._declared_fields,
             model_meta.get_field_info(self.model_cls)
         )
+
         model_field_list = [f.name for f in self.model_cls._meta.get_fields()]
 
         for field in serializer_field_list:
-            if field in model_field_list:
+            if field in model_field_list and not field:
                 # Make sure the field is in the response.
                 self.assertIn(field, api_obj)
 

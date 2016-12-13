@@ -1,55 +1,12 @@
-import itertools
-
 from django import forms
+from django.forms import ModelForm, Form
 from django.utils.translation import ugettext_lazy as _
-from form_utils.forms import BetterForm, BetterModelForm, FieldsetCollection
 
 from ..models.models import EmailAddress, PhoneNumber, Address, PHONE_TYPE_CHOICES
 from lily.utils.countries import COUNTRIES
 
 
-class HellolilyFieldsetCollection(FieldsetCollection):
-    """
-    Override the __getitem__ function to get fieldsets by index instead of name
-    """
-    def __getitem__(self, index):
-        if not self._cached_fieldsets:
-            self._gather_fieldsets()
-
-        try:
-            return next(itertools.islice(self._cached_fieldsets, index, index + 1))
-        except TypeError:
-            return list(itertools.islice(self._cached_fieldsets, index.start, index.stop, index.step))
-
-
-class HelloLilyForm(BetterForm):
-    """
-    Inherit from BetterForm django-form-utils.
-    We can add more custom form features here later.
-    """
-    @property
-    def fieldsets(self):
-        if not self._fieldset_collection:
-            self._fieldset_collection = HellolilyFieldsetCollection(self, self._fieldsets)
-        return self._fieldset_collection
-
-
-class HelloLilyModelForm(BetterModelForm):
-    """
-    Inherit from BetterModelForm django-form-utils.
-    We can add more custom form features here later.
-
-    """
-    pass
-
-    @property
-    def fieldsets(self):
-        if not self._fieldset_collection:
-            self._fieldset_collection = HellolilyFieldsetCollection(self, self._fieldsets)
-        return self._fieldset_collection
-
-
-class EmailAddressBaseForm(HelloLilyModelForm):
+class EmailAddressBaseForm(ModelForm):
     """
     Form for adding an email address, only including the status and the email fields.
     """
@@ -63,7 +20,7 @@ class EmailAddressBaseForm(HelloLilyModelForm):
         }
 
 
-class PhoneNumberBaseForm(HelloLilyModelForm):
+class PhoneNumberBaseForm(ModelForm):
     """
     Form for adding a phone number, only including the number and type/other type fields.
     """
@@ -88,7 +45,7 @@ class PhoneNumberBaseForm(HelloLilyModelForm):
         }
 
 
-class AddressBaseForm(HelloLilyModelForm):
+class AddressBaseForm(ModelForm):
     """
     Form for adding an address which includes all fields available.
     """
@@ -124,7 +81,7 @@ class AddressBaseForm(HelloLilyModelForm):
         )
 
 
-class SugarCsvImportForm(HelloLilyForm):
+class SugarCsvImportForm(Form):
     """
     Form in which a csv file can be uploaded from which
     accounts or contacts can be imported for the logged in tenant.

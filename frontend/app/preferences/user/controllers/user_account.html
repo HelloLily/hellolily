@@ -1,0 +1,70 @@
+<div class="row">
+    <div class="col-md-12">
+        <form novalidate name="userForm">
+            <form-portlet portlet-title="Email address">
+                <form-group label-title="Email address" label-id="email" field="userForm.email">
+                    <input class="form-control"
+                           id="email"
+                           maxlength="255"
+                           name="email"
+                           placeholder="Email address"
+                           type="text"
+                           ng-model="vm.user.email">
+                </form-group>
+            </form-portlet>
+
+            <form-portlet portlet-title="Change your password">
+                <form-group label-title="New password" label-id="password" field="userForm.password">
+                    <password-strength>
+                        <input class="form-control password_strength"
+                               id="password"
+                               maxlength="255"
+                               name="password"
+                               placeholder="New password"
+                               type="password"
+                               ng-model="vm.user.password">
+                    </password-strength>
+                </form-group>
+
+                <form-group label-title="Confirm new password" label-id="password_check" field="userForm.password_check">
+                    <password-confirmation>
+                        <input class="form-control password_confirmation"
+                               id="password_check"
+                               maxlength="255"
+                               name="password_check"
+                               placeholder="Confirm new password"
+                               type="password"
+                               data-confirm-with="password"
+                               ng-model="vm.user.password_check">
+                    </password-confirmation>
+                </form-group>
+            </form-portlet>
+
+            <form-portlet portlet-title="Current password">
+                <form-group label-title="Current password" label-id="password_confirmation" field="userForm.password_confirmation" required="true">
+                    <input class="form-control"
+                           id="password_confirmation"
+                           maxlength="255"
+                           name="password_confirmation"
+                           placeholder="Current password"
+                           type="password"
+                           ng-model="vm.user.password_confirmation">
+                </form-group>
+            </form-portlet>
+
+            <div class="hl-form-footer">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-2 col-lg-2"></div>
+                    <div class="col-xs-12 col-sm-9 col-md-8 col-md-7 col-lg-4">
+                        <button type="button" class="btn blue" ng-click="vm.saveUser(userForm)">
+                            <i class="fa fa-check"></i> Save
+                        </button>
+                        <button type="button" class="btn default" ng-click="vm.cancelAccountEditing()">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,8 +1,8 @@
-(function($, window, document, undefined){
+(function($, window, document, undefined) {
     window.djangoPasswordStrength = {
         config: {
             passwordClass: 'password_strength',
-            confirmationClass: 'password_confirmation'
+            confirmationClass: 'password_confirmation',
         },
 
         init: function (config) {
@@ -11,17 +11,22 @@
             if ($.isPlainObject(config)) {
                 $.extend(self.config, config);
             }
-
-            self.initListeners();
         },
 
-        initListeners: function() {
+        initListeners: function(element) {
             var self = this;
             var body = $('body');
+            var el;
 
-            $('.' + self.config.passwordClass).on('keyup', function() {
-                var password_strength_bar = $(this).parent().find('.password_strength_bar');
-                var password_strength_info = $(this).parent().find('.password_strength_info');
+            if (element) {
+                el = $(element).find('.' + self.config.passwordClass);
+            } else {
+                el = $('.' + self.config.passwordClass);
+            }
+
+            el.on('keyup', function() {
+                var password_strength_bar = $(this).closest('div').find('.password_strength_bar');
+                var password_strength_info = $(this).closest('div').find('.password_strength_info');
 
                 if( $(this).val() ) {
                     var result = zxcvbn( $(this).val() );
@@ -46,7 +51,12 @@
             });
 
             var timer = null;
-            $('.' + self.config.confirmationClass).on('keyup', function() {
+            if (element) {
+                el = $(element).find('.' + self.config.confirmationClass);
+            } else {
+                el = $('.' + self.config.confirmationClass);
+            }
+            el.on('keyup', function() {
                 var password_field;
                 var confirm_with = $(this).data('confirm-with');
 
@@ -58,8 +68,8 @@
 
                 if (timer !== null) clearTimeout(timer);
 
-                timer = setTimeout(function(){
-                    self.match_passwords(password_field);
+                timer = setTimeout(function() {
+                    self.match_passwords(password_field, el);
                 }, 400);
             });
         },
@@ -73,25 +83,25 @@
             var century = year * 100;
 
             // Provide fake gettext for when it is not available
-            if( typeof gettext !== 'function' ) { gettext = function(text) { return text; }; };
+            if ( typeof gettext !== 'function' ) { gettext = function(text) { return text; }; }
 
-            if( seconds < minute ) return gettext('only an instant');
-            if( seconds < hour) return (1 + Math.ceil(seconds / minute)) + ' ' + gettext('minutes');
-            if( seconds < day) return (1 + Math.ceil(seconds / hour)) + ' ' + gettext('hours');
-            if( seconds < month) return (1 + Math.ceil(seconds / day)) + ' ' + gettext('days');
-            if( seconds < year) return (1 + Math.ceil(seconds / month)) + ' ' + gettext('months');
-            if( seconds < century) return (1 + Math.ceil(seconds / year)) + ' ' + gettext('years');
+            if ( seconds < minute ) return gettext('only an instant');
+            if ( seconds < hour) return (1 + Math.ceil(seconds / minute)) + ' ' + gettext('minutes');
+            if ( seconds < day) return (1 + Math.ceil(seconds / hour)) + ' ' + gettext('hours');
+            if ( seconds < month) return (1 + Math.ceil(seconds / day)) + ' ' + gettext('days');
+            if ( seconds < year) return (1 + Math.ceil(seconds / month)) + ' ' + gettext('months');
+            if ( seconds < century) return (1 + Math.ceil(seconds / year)) + ' ' + gettext('years');
 
-            return 'centuries'
+            return 'centuries';
         },
 
         match_passwords: function(password_field, confirmation_fields) {
             var self = this;
-            // Optional parameter: if no specific confirmation field is given, check all
-            if( confirmation_fields === undefined ) { confirmation_fields = $('.' + self.config.confirmationClass) }
-            if( confirmation_fields === undefined ) { return; }
-
             var password = password_field.val();
+
+            // Optional parameter: if no specific confirmation field is given, check all
+            if( confirmation_fields === undefined ) { confirmation_fields = $('.' + self.config.confirmationClass); }
+            if( confirmation_fields === undefined ) { return; }
 
             confirmation_fields.each(function(index, confirm_field) {
                 var confirm_value = $(confirm_field).val();
@@ -100,9 +110,9 @@
                 if( confirm_with && confirm_with == password_field.attr('id')) {
                     if( confirm_value && password ) {
                         if (confirm_value === password) {
-                            $(confirm_field).parent().find('.password_strength_info').addClass('hidden');
+                            $(confirm_field).closest('div').find('.password_strength_info').addClass('hidden');
                         } else {
-                            $(confirm_field).parent().find('.password_strength_info').removeClass('hidden');
+                            $(confirm_field).closest('div').find('.password_strength_info').removeClass('hidden');
                         }
                     } else {
                         $(confirm_field).parent().find('.password_strength_info').addClass('hidden');
@@ -111,13 +121,13 @@
             });
 
             // If a password field other than our own has been used, add the listener here
-            if( !password_field.hasClass(self.config.passwordClass) && !password_field.data('password-listener') ) {
+            if ( !password_field.hasClass(self.config.passwordClass) && !password_field.data('password-listener') ) {
                 password_field.on('keyup', function() {
                     self.match_passwords($(this));
                 });
                 password_field.data('password-listener', true);
             }
-        }
+        },
     };
 
     // Call the init for backwards compatibility

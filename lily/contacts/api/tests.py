@@ -166,6 +166,27 @@ class ContactTests(GenericAPITestCase):
             serializer = self.serializer_cls().fields[field_name].child
             self._compare_objects(getattr(db_obj, field_name).first(), request.data[field_name][0], serializer)
 
+    def test_create_object_with_account_relation(self):
+        """
+        Test that with the creation of a contact, the website field of a related account is untouched.
+        """
+        # Create a new contact. It also creates a related account with connected websites, used in this test case.
+        contact = self._create_object(with_relations=True)
+        account = contact.accounts.prefetch_related('websites').first()
+        websites_before = list(account.websites.all())
+
+        # Create a new contact and connect it to an existing account.
+        contact = self._create_object_stub(with_relations=True)
+        contact['accounts'] = [{'id': account.pk}, ]
+
+        # Perform normal create.
+        request = self.user.post(self.get_url(self.list_url), contact)
+        self.assertStatus(request, status.HTTP_201_CREATED, contact)
+
+        # Verify that the websites of the related account are the same as before the contact creation.
+        websites_after = list(Account.objects.get(id=account.pk).websites.all())
+        self.assertListEqual(websites_before, websites_after)
+
     def test_update_object_validation(self):
         # Update of the object
         pass

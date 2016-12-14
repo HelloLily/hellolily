@@ -152,11 +152,14 @@ class AccountSerializer(WritableNestedSerializer):
                     website_validated['account'] = account
                     Website.objects.create(**website_validated)
         else:
-            # For a PUT operation we replace the whole resource.
-            account.websites.all().delete()
-            for website_validated in websites_validated_data:
-                website_validated['account'] = account
-                Website.objects.create(**website_validated)
+            # Prevent deleting websites when validated_data is empty.
+            # This is the case when adding a contact to an existing account.
+            if validated_data:  # Validated_data is empty when
+                # For a PUT operation we replace the whole resource.
+                account.websites.all().delete()
+                for website_validated in websites_validated_data:
+                    website_validated['account'] = account
+                    Website.objects.create(**website_validated)
 
         return account
 

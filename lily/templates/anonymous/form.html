@@ -14,7 +14,7 @@
         </div>
     {% endif %}
 
-    <form class="login-form {% block form-class %}{% endblock %}" id="{% block form-id %}{% endblock %}" method="post" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %} role="form">
+    <form class="login-form {% block form-class %}{% endblock %}{% if form.non_field_errors %}errors{%endif%}" id="{% block form-id %}{% endblock %}" method="post" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %} role="form">
         {% csrf_token %}
         {% block help-text %}{% endblock %}
 

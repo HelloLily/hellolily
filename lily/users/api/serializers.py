@@ -66,6 +66,16 @@ class LilyUserSerializer(WritableNestedSerializer):
 
         return value
 
+    def to_internal_value(self, data):
+        # Reverse foreign key relations don't work yet with the WritableNestedSerializer, so we manually retrieve
+        # the primery email account from the initial data.
+        internal_value = super(LilyUserSerializer, self).to_internal_value(data)
+        primary_email_account = data.get("primary_email_account")
+        internal_value.update({
+            "primary_email_account": primary_email_account
+        })
+        return internal_value
+
 
 class RelatedLilyUserSerializer(RelatedSerializerMixin, LilyUserSerializer):
 

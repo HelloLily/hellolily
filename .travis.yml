@@ -92,6 +92,9 @@ after_success:
   # Only push if the tests and merge succeeded.
   - ./ci/git_push.sh
 
+  # If we're on the default branch (in our case develop), push test coverage to code climate.
+  - if [ "${TRAVIS_BRANCH}" == "develop" ]; then docker-compose -f docker-compose.yml -f docker-compose.new-build.yml run --rm --service-ports -e CODECLIMATE_REPO_TOKEN -e TRAVIS -e TRAVIS_BRANCH -e TRAVIS_JOB_ID -e TRAVIS_PULL_REQUEST web codeclimate-test-reporter; fi
+
 before_deploy:
   # If migrations are needed, set the heroku app to maintenance mode before the deploy. The maintenance mode
   # is switched off in the DEPLOY_COMMAND to make sure that maintenance mode stays on if migrations or indexing fail.
@@ -114,10 +117,6 @@ deploy:
 after_deploy:
   # Push the new docker images to DockerHub after deploy.
   - Dockers/push.sh
-
-after_script:
-  # If we're on the default branch (in our case develop), push test coverage to code climate.
-  - if [ "${TRAVIS_BRANCH}" == "develop" ]; then sed -i -e 's+/home/docker/hellolily/++g' .coverage; codeclimate-test-reporter; fi
 
 notifications:
   email: false

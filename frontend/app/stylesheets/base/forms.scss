@@ -208,6 +208,25 @@
     }
 }
 
+// Fix for combo between our validation and bootstrap form validation.
+.errors {
+    .has-success {
+        .form-control {
+            border-color: #ebccd1;
+        }
+
+        .input-group-addon {
+            background-color: #f2dede;
+            color: #a94442;
+            border-color: #ebccd1;
+        }
+
+        .checkbox {
+            color: #333;
+        }
+    }
+}
+
 .js-form-prolyfill {
     @include prolyfill("width < 500px") {
         [class*='col-'] {

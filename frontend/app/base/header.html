@@ -150,7 +150,7 @@
     <!-- BEGIN PAGE ACTIONS -->
     <div class="hl-page-name-container">
         <h1 class="hl-page-name">
-            <span ng-if="toolbar.updateCallback">
+            <span ng-if="toolbar.updateCallback" ng-class="{'large-header': !settings.page.account}">
                 <span ng-if="toolbar.field" e-form="headerForm" e-name="{{ toolbar.field }}" e-size="{{ $data.length }}"
                       ng-dblclick="headerForm.$show()" editable-text="toolbar.object[toolbar.field]"
                       onbeforesave="toolbar.updateCallback($data, toolbar.field)" blur="submit" editable-handler input-auto-size>
@@ -179,15 +179,17 @@
                     </span>
                 </form>
             </span>
-            <span ng-if="!toolbar.updateCallback">
+            <span ng-if="!toolbar.updateCallback" class="large-header">
                 {{ settings.page.header.main }}
             </span>
-            <span ng-if="settings.page.contact">
-                for <a ui-sref="base.contacts.detail({ id: settings.page.contact.id })">{{ settings.page.contact.full_name }}</a>
-            </span>
-            <span ng-if="settings.page.account">
-                at <a ui-sref="base.accounts.detail({ id: settings.page.account.id })">{{ settings.page.account.name }}</a>
-            </span>
+            <div class="header-account-info">
+                <span ng-if="settings.page.contact">
+                    for <a ui-sref="base.contacts.detail({ id: settings.page.contact.id })">{{ settings.page.contact.full_name }}</a>
+                </span>
+                <span ng-if="settings.page.account">
+                    at <a ui-sref="base.accounts.detail({ id: settings.page.account.id })">{{ settings.page.account.name }}</a>
+                </span>
+            </div>
         </h1>
     </div>
 

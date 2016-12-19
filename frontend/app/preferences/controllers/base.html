@@ -89,6 +89,12 @@
                         Users
                     </a>
                 </li>
+                <li ng-if="currentUser.isSuperUser" ui-sref-active="active">
+                    <a ui-sref="base.preferences.admin.integrations" ui-sref-opts="{reload:true}">
+                        <i class="fa fa-plug"></i>
+                        Integrations
+                    </a>
+                </li>
             </ul>
         </div>
         <!-- END MENU -->

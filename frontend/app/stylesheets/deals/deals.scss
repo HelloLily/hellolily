@@ -50,3 +50,21 @@
         height: 1000px;
     }
 }
+
+.document-status {
+    &.draft {
+        @include colored-bullet(10px, #e9a446)
+    }
+
+    &.sent {
+        @include colored-bullet(10px, #217dfc)
+    }
+
+    &.viewed {
+        @include colored-bullet(10px, #6b30a9)
+    }
+
+    &.completed {
+        @include colored-bullet(10px, #59b671)
+    }
+}

@@ -182,6 +182,53 @@
                 </widget-body>
             </widget>
 
+            <widget widget-name="'Documents'" ng-if="vm.tenant.isVoysNL() || vm.tenant.isVoysSA()">
+                <widget-header>
+                    <div class="widget-label"></div>
+                    <div class="widget-name">Documents</div>
+                </widget-header>
+
+                <widget-body>
+                    <table class="widget-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Contact</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody ng-repeat="document in vm.documents" ng-if="vm.documents.length">
+                            <tr>
+                                <td>
+                                    <a href="https://app.pandadoc.com/a/#/documents/{{ document.id }}" target="_blank">{{ document.name }}</a>
+                                </td>
+                                <td>
+                                    <a ui-sref="base.contacts.detail({id: vm.deal.contact.id})">{{ vm.deal.contact.full_name }}</a>
+                                </td>
+                                <td>
+                                    <span class="document-status {{ document.status }}">
+                                    {{ document.status | ucfirst }}
+                                </td>
+                                <td>
+                                    <a href="https://app.pandadoc.com/a/#/documents/{{ document.id }}" class="link-no-decoration" target="_blank"><i class="lilicon hl-edit-icon"></i></a>
+                                    <a ng-if="vm.deal.contact.email_addresses.length && document.status !== 'completed'"
+                                       ui-sref="base.email.composeEmailDocument({email: vm.deal.contact.email_addresses[0].email_address, contactId: vm.deal.contact.id, documentId: document.id})"
+                                       class="link-no-decoration margin-left-10">
+                                       <i class="fa fa-envelope"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tbody ng-hide="vm.documents.length">
+                            <tr>
+                                <td colspan="4">No documents</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </widget-body>
+            </widget>
+
             <widget widget-name="'Involved'">
                 <widget-header>
                     <div class="widget-label"></div>

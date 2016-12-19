@@ -245,6 +245,10 @@
                                                      select-options="{type: 'User', field: 'assignOptions', display: 'full_name', sortColumn: 'full_name', nameColumn: 'full_name'}">
                                         {{ vm.deal.assigned_to.full_name || 'Nobody' }}
                                     </editable-select>
+
+                                    <a ng-if="vm.deal.assigned_to.id != currentUser.id" ng-click="vm.assignDeal()">
+                                        <i class="fa fa-anchor margin-left-5"></i> Assign to me
+                                    </a>
                                 </div>
                             </li>
                             <li>

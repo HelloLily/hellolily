@@ -150,7 +150,7 @@ class GmailManager(object):
 
             # Email messages with labels removed.
             for message in history_item.get('labelsRemoved', []):
-                if settings.GMAIL_LABEL_CHAT in message['message']['labelIds']:
+                if 'labelIds' in message['message'] and settings.GMAIL_LABEL_CHAT in message['message']['labelIds']:
                     continue
 
                 if message['message']['id'] not in new_messages:

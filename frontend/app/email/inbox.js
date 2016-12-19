@@ -558,5 +558,11 @@
                 $("input[name='success_url']").val(previousState);
             }
         },
+
+        setCurrentInbox: function(currentInbox) {
+            if (currentInbox !== null) {
+                $("input[name='current_inbox']").val(currentInbox);
+            }
+        },
     };
 })(jQuery, window, document);

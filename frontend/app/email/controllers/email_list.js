@@ -271,11 +271,21 @@ function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLa
     }
 
     function archiveMessages() {
+        var labelToRemove = '';
         var i;
+        var data;
+
+        if ((vm.label) && (vm.label.label_id)) {
+            labelToRemove = vm.label.label_id;
+        }
+
+        data = {
+            current_inbox: labelToRemove,
+        };
 
         for (i in vm.emailMessages) {
             if (vm.emailMessages[i].checked) {
-                EmailMessage.archive({id: vm.emailMessages[i].id});
+                EmailMessage.archive({id: vm.emailMessages[i].id, data: data});
             }
         }
         _removeCheckedMessagesFromList();

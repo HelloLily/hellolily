@@ -97,7 +97,18 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     }
 
     function archiveMessage() {
-        EmailMessage.archive({id: vm.message.id}).$promise.then(function() {
+        var labelToRemove = '';
+        var data;
+
+        if (vm.currentInbox) {
+            labelToRemove = vm.currentInbox;
+        }
+
+        data = {
+            current_inbox: labelToRemove,
+        };
+
+        EmailMessage.archive({id: vm.message.id, data: data}).$promise.then(function() {
             if (Settings.email.previousInbox) {
                 $state.transitionTo(Settings.email.previousInbox.state, Settings.email.previousInbox.params, false);
             } else {

@@ -57,10 +57,6 @@ function PreferencesCompanyUserList($compile, $scope, $templateCache, HLForms, L
     /////////////
 
     function activate() {
-        UserTeams.query().$promise.then(function(response) {
-            vm.teamList = response.results;
-        });
-
         _setupWatches();
     }
 
@@ -139,48 +135,51 @@ function PreferencesCompanyUserList($compile, $scope, $templateCache, HLForms, L
     }
 
     function openTeamModal(user) {
-        vm.user = user;
+        UserTeams.query().$promise.then(function(teamResponse) {
+            vm.teamList = teamResponse.results;
+            vm.user = user;
 
-        if (vm.user.teams) {
+            // Loop through the list of teams to check if a user is in a team
+            // and set the team to selected.
             vm.teamList.forEach(function(team) {
-                var selected = vm.user.teams.filter(function(teamId) {
-                    return teamId === team.id;
-                });
-
-                team.selected = selected.length > 0;
-            });
-        }
-
-        swal({
-            title: sprintf(messages.alerts.preferences.userAssignTitle, {user: user.full_name}),
-            html: $compile($templateCache.get('preferences/company/controllers/user_teams_modal.html'))($scope),
-            showCancelButton: true,
-            showCloseButton: true,
-        }).then(function(isConfirm) {
-            var selectedTeams = [];
-            var args = {
-                id: user.id,
-            };
-            var form = '[name="userTeamForm"]';
-
-            if (isConfirm) {
-                // Loop over emailAccountList to extract the selected accounts.
-                vm.teamList.forEach(function(team) {
-                    if (team.selected) {
-                        selectedTeams.push(team.id);
+                team.users.forEach(function(teamUser) {
+                    if (teamUser.id === vm.user.id) {
+                        team.selected = true;
                     }
                 });
+            });
 
-                args.teams = selectedTeams;
+            swal({
+                title: sprintf(messages.alerts.preferences.userAssignTitle, {user: user.full_name}),
+                html: $compile($templateCache.get('preferences/company/controllers/user_teams_modal.html'))($scope),
+                showCancelButton: true,
+                showCloseButton: true,
+            }).then(function(isConfirm) {
+                var selectedTeams = [];
+                var args = {
+                    id: user.id,
+                };
+                var form = '[name="userTeamForm"]';
 
-                User.patch(args).$promise.then(function() {
-                    toastr.success('I\'ve updated the users\' teams for you!', 'Done');
-                }, function(response) {
-                    HLForms.setErrors(form, response.data);
-                    toastr.error('Uh oh, there seems to be a problem', 'Oops!');
-                });
-            }
-        }).done();
+                if (isConfirm) {
+                    // Loop over teamList to extract the selected accounts.
+                    vm.teamList.forEach(function(team) {
+                        if (team.selected) {
+                            selectedTeams.push(team.id);
+                        }
+                    });
+
+                    args.teams = selectedTeams;
+
+                    User.patch(args).$promise.then(function() {
+                        toastr.success('I\'ve updated the users\' teams for you!', 'Done');
+                    }, function(response) {
+                        HLForms.setErrors(form, response.data);
+                        toastr.error('Uh oh, there seems to be a problem', 'Oops!');
+                    });
+                }
+            }).done();
+        });
     }
 
     function toggleStatus(user) {

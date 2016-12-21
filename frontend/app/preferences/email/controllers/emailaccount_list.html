@@ -13,8 +13,8 @@
                     <span class="pull-right">
                         <button type="button" class="btn btn-xs default" title="Sharing is caring" ng-click="vm.openShareAccountModal(account)">
                             <i class="fa fa-group"></i>
-                            <span ng-hide="account.public">{{ account.shared_with_users.length }}</span>
-                            <span ng-show="account.public">Public</span>
+                            <span ng-hide="account.isPublic">{{ account.shared_with_users.length }}</span>
+                            <span ng-show="account.isPublic">Public</span>
                         </button>
                         <a class="btn btn-xs default" title="Just manage it" ui-sref="base.preferences.emailaccounts.edit({id: account.id})">
                             <i class="lilicon hl-edit-icon"></i>
@@ -92,9 +92,9 @@
                     No company wide email accounts.
                 </li>
                 <li class="list-group-item" style="text-align: center;">
-                    <a href="/messaging/email/setup/?public=1">Add an email account, sync everything</a>
+                    <a href="/messaging/email/setup/?is_public=1">Add an email account, sync everything</a>
                     <span style="width: 30px; display: inline-block;">|</span>
-                    <a href="/messaging/email/setup/?public=1&only_new=1">Add an email account, sync starting now</a>
+                    <a href="/messaging/email/setup/?is_public=1&only_new=1">Add an email account, sync starting now</a>
                     <br />
                     <i>Gmail accounts only, link redirects to Google where you can authorize the email account you want to synchronize.</i>
                     <br />

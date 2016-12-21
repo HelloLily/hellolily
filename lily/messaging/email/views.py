@@ -62,12 +62,12 @@ FLOW = OAuth2WebServerFlow(
 
 class SetupEmailAuth(LoginRequiredMixin, View):
     def get(self, request):
-        public = request.GET.get('public', 0)
+        is_public = request.GET.get('is_public', 0)
         only_new = request.GET.get('only_new', 0)
 
         state = b64encode(anyjson.serialize({
             'token': generate_token(settings.SECRET_KEY, request.user.pk),
-            'public': public,
+            'is_public': is_public,
             'only_new': only_new,
         }))
 
@@ -127,9 +127,9 @@ class OAuth2Callback(LoginRequiredMixin, View):
         account.label = account.label or account.email_address
         account.from_name = account.from_name or ' '.join(account.email_address.split('@')[0].split('.')).title()
 
-        set_to_public = bool(int(state.get('public')))
-        if account.public is not set_to_public:
-            account.public = set_to_public
+        set_to_public = bool(int(state.get('is_public')))
+        if set_to_public:
+            account.privacy = EmailAccount.PUBLIC
 
         only_sync_new_mails = bool(int(state.get('only_new')))
         if only_sync_new_mails and created:

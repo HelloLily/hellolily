@@ -1,13 +1,13 @@
 <div slimscroll="{height: 350}" class="align-left">
     <ul class="list-unstyled">
         <li>
-            <checkbox model="vm.currentAccount.public">Make it a public account!</checkbox>
+            <checkbox model="vm.currentAccount.isPublic">Make it a public account!</checkbox>
         </li>
     </ul>
-    <div ng-hide="vm.currentAccount.public" class="margin-top-20">
+    <div ng-hide="vm.currentAccount.isPublic" class="margin-top-20">
         No, just share it with these people:
         <ul class="list-unstyled">
-            <li ng-repeat="user in vm.users track by user.id" ng-hide="vm.currentAccount.public">
+            <li ng-repeat="user in vm.users track by user.id">
                 <checkbox model="user.sharedWith" >{{ user | fullName }}</checkbox>
             </li>
         </ul>

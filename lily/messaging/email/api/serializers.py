@@ -68,7 +68,7 @@ class EmailMessageSerializer(serializers.ModelSerializer):
 class EmailAccountSerializer(serializers.ModelSerializer):
     email_address = serializers.ReadOnlyField()
     labels = EmailLabelSerializer(many=True, read_only=True)
-    public = serializers.BooleanField()
+    is_public = serializers.BooleanField()
 
     class Meta:
         model = EmailAccount
@@ -77,7 +77,7 @@ class EmailAccountSerializer(serializers.ModelSerializer):
             'email_address',
             'labels',
             'label',
-            'public',
+            'is_public',
             'shared_with_users',
             'is_authorized',
             'full_sync_finished',

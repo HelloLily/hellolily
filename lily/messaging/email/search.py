@@ -19,15 +19,19 @@ class EmailMessageMapping(BaseMapping):
         mapping = super(EmailMessageMapping, cls).get_mapping()
         mapping['properties'].update({
             'account': {
-                'type': 'integer',
-            },
-            'account_name': {
-                'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
-            },
-            'account_email': {
-                'type': 'string',
-                'analyzer': 'email_analyzer',
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'name': {
+                        'type': 'string',
+                        'index_analyzer': 'normal_edge_analyzer',
+                    },
+                    'email': {
+                        'type': 'string',
+                        'analyzer': 'email_analyzer',
+                    },
+                    'privacy': {'type': 'integer'},
+                }
             },
             'label_id': {
                 'type': 'string',
@@ -134,9 +138,12 @@ class EmailMessageMapping(BaseMapping):
         Translate an object to an index document.
         """
         return {
-            'account': obj.account.id,
-            'account_name': obj.account.label,
-            'account_email': obj.account.email_address,
+            'account': {
+                'id': obj.account.id,
+                'name': obj.account.label,
+                'email': obj.account.email_address,
+                'privacy': obj.account.privacy,
+            },
             'subject': obj.subject,
             'sent_date': obj.sent_date,
             'read': obj.read,

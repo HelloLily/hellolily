@@ -236,9 +236,9 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
                     promises.push(tenantEmailAccountPromise);
 
                     if (contentType === 'account') {
-                        emailPromise = EmailDetail.query({account_related: currentObject.id, filterquery: emailDateQuery, size: requestLength}).$promise;
+                        emailPromise = EmailDetail.search({account_related: currentObject.id, filterquery: emailDateQuery, size: requestLength}).$promise;
                     } else {
-                        emailPromise = EmailDetail.query({contact_related: currentObject.id, filterquery: emailDateQuery, size: requestLength}).$promise;
+                        emailPromise = EmailDetail.search({contact_related: currentObject.id, filterquery: emailDateQuery, size: requestLength}).$promise;
                     }
 
                     promises.push(emailPromise);

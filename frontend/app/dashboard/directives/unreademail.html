@@ -16,7 +16,7 @@
         <table id="unreadEmailBlockTarget" class="widget-table">
             <thead>
                 <tr>
-                    <th style="min-width: 100px;" sort-column="account_name" table="vm.table">Mailbox</th>
+                    <th style="min-width: 100px;" sort-column="account.name" table="vm.table">Mailbox</th>
                     <th>From</th>
                     <th>Subject</th>
                     <th style="width: 120px;" sort-column="sent_date" table="vm.table">Created</th>
@@ -25,7 +25,7 @@
             </thead>
             <tbody>
                 <tr ng-repeat="message in vm.table.items">
-                    <td class="text-overflow-hidden" style="max-width: 160px;"><span uib-tooltip="{{ message.account_name }}">{{ message.account_name }}<span></td>
+                    <td class="text-overflow-hidden" style="max-width: 160px;"><span uib-tooltip="{{ message.account.name }}">{{ message.account.name }}<span></td>
                     <td>{{ message.sender_name || message.sender_email }}</td>
                     <td><a ui-sref="base.email.detail({id: message.id})">{{ message.subject }}</a></td>
                     <td><date date="message.sent_date" show-time="true"></date></td>

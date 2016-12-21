@@ -24,9 +24,9 @@ function emailPreferencesStates($stateProvider) {
 
 angular.module('app.preferences').controller('PreferencesEmailAccountList', PreferencesEmailAccountList);
 
-PreferencesEmailAccountList.$inject = ['$compile', '$http', '$scope', '$templateCache', 'EmailAccount',
+PreferencesEmailAccountList.$inject = ['$compile', '$filter', '$http', '$scope', '$templateCache', 'EmailAccount',
     'HLResource', 'User', 'user'];
-function PreferencesEmailAccountList($compile, $http, $scope, $templateCache, EmailAccount,
+function PreferencesEmailAccountList($compile, $filter, $http, $scope, $templateCache, EmailAccount,
                                      HLResource, User, user) {
     var vm = this;
 
@@ -53,36 +53,42 @@ function PreferencesEmailAccountList($compile, $http, $scope, $templateCache, Em
     // Get relevant accounts.
     function loadAccounts() {
         // Accounts owned.
-        EmailAccount.query({owner: vm.currentUser.id}, function(data) {
-            vm.ownedAccounts = data.results;
-        });
+        EmailAccount.query({owner: vm.currentUser.id}, function(accountData) {
+            vm.ownedAccounts = accountData.results;
 
-        function checkHiddenState(account) {
-            $http.get('/api/messaging/email/shared-email-configurations/?email_account=' + account.id).success(function(d) {
-                var isHidden = false;
-                if (d.results.length) {
-                    if (d.results[0].is_hidden) {
-                        isHidden = true;
-                    }
+            // Get public accounts.
+            EmailAccount.query({privacy: EmailAccount.PUBLIC}, function(publicAccountData) {
+                if (publicAccountData.results.length) {
+                    // Filter out own public email accounts.
+                    vm.publicAccounts = $filter('xor')(publicAccountData.results, accountData.results);
                 }
-                account.hidden = isHidden;
+
+                publicAccountData.results.forEach(function(account) {
+                    _checkHiddenState(account);
+                });
             });
-        }
+        });
 
         // Accounts shared with user.
         EmailAccount.query({shared_with_users__id: vm.currentUser.id}, function(data) {
             vm.sharedAccounts = data.results;
+
             data.results.forEach(function(account) {
-                checkHiddenState(account);
+                _checkHiddenState(account);
             });
         });
+    }
 
-        // Accounts public.
-        EmailAccount.query({public: 'True'}, function(data) {
-            vm.publicAccounts = data.results;
-            data.results.forEach(function(account) {
-                checkHiddenState(account);
-            });
+    function _checkHiddenState(account) {
+        $http.get('/api/messaging/email/shared-email-configurations/?email_account=' + account.id).success(function(d) {
+            var isHidden = false;
+            if (d.results.length) {
+                if (d.results[0].is_hidden) {
+                    isHidden = true;
+                }
+            }
+
+            account.hidden = isHidden;
         });
     }
 
@@ -131,7 +137,7 @@ function PreferencesEmailAccountList($compile, $http, $scope, $templateCache, Em
 
                 if (isConfirm) {
                     // Save updated account information.
-                    if (vm.currentAccount.public) {
+                    if (vm.currentAccount.isPublic) {
                         EmailAccount.update({id: vm.currentAccount.id}, vm.currentAccount, function() {
                             swal.close();
                             loadAccounts();

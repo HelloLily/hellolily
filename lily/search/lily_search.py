@@ -182,8 +182,8 @@ class LilySearch(object):
                         'tags.name',
                         'email',
                         'email_addresses.email_address',
-                        'account_name',
                         'account.name',
+                        'account.email',
                         'accounts.name',
                         'assigned_to',
                         'created_by',
@@ -197,7 +197,6 @@ class LilySearch(object):
                         'phone_number',
                         'internal_number',
                         'phone_numbers.number',
-                        'account_email',
                         'sender_email_address',
                         'sender_name',
                         'received_by_email_address',
@@ -292,7 +291,7 @@ class LilySearch(object):
         """
         email_accounts = EmailAccount.objects.filter(
             Q(owner=user) |
-            Q(public=True) |
+            ~Q(privacy=EmailAccount.PRIVATE) |
             Q(shared_with_users__id=user.pk)
         ).filter(tenant=user.tenant, is_deleted=False).distinct('id')
 
@@ -314,9 +313,10 @@ class LilySearch(object):
                 }
             })
             return
+
         email_accounts = set(['%s' % email.email_address for email in email_accounts])
         join = ' OR '.join(email_accounts)
-        filterquery = 'account_email:(%s)' % join
+        filterquery = 'account.email:(%s)' % join
         self.filter_query(filterquery)
 
     def get_by_id(self, id_arg):

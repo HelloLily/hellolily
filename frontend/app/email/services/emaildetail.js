@@ -8,7 +8,7 @@ function EmailDetail($resource) {
             size: 100,
         },
         {
-            query: {
+            search: {
                 url: '/search/search/?type=email_emailmessage&size=:size&sort=-sent_date&filterquery=:filterquery&account_related=:account_related',
                 isArray: true,
                 transformResponse: function(data) {
@@ -25,6 +25,7 @@ function EmailDetail($resource) {
                             objects.push(emailDetail);
                         });
                     }
+
                     return objects;
                 },
             },

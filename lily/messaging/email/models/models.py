@@ -66,6 +66,14 @@ class EmailAccount(TenantMixin, DeletedMixin):
     """
     Email Account linked to a user.
     """
+    PUBLIC, READ_ONLY, METADATA, PRIVATE = range(4)
+    PRIVACY_CHOICES = (
+        (PUBLIC, _('Public')),
+        (READ_ONLY, _('Read only')),
+        (METADATA, _('Metadata only')),
+        (PRIVATE, _('Private')),
+    )
+
     email_address = models.EmailField(max_length=254)
     from_name = models.CharField(max_length=254, default='')
     label = models.CharField(max_length=254, default='')
@@ -84,16 +92,17 @@ class EmailAccount(TenantMixin, DeletedMixin):
         help_text=_('Select the users wich to share the account with.'),
         blank=True,
     )
-    public = models.BooleanField(
-        default=False,
-        help_text=_('Make the email account accessible for the whole company.')
-    )
+    privacy = models.IntegerField(choices=PRIVACY_CHOICES, default=READ_ONLY)
 
     def __unicode__(self):
         return u'%s  (%s)' % (self.label, self.email_address)
 
     def is_owned_by_user(self):
         return True
+
+    @property
+    def is_public(self):
+        return self.privacy == EmailAccount.PUBLIC
 
     class Meta:
         app_label = 'email'

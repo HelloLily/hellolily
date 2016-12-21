@@ -2,9 +2,7 @@
     <div class="timeline-avatar" ng-style="{'background-image': 'url(' + vm.item.profile_picture + ')'}"></div>
 
     <div class="timeline-content-container has-email">
-
         <div class="timeline-content-header">
-
             <div class="timeline-type">
                 <span ng-if="vm.item.right" class="timeline-mail-type-outgoing"><i class="lilicon hl-outgoing-icon"></i></span>
                 <span ng-if="!vm.item.right" class="timeline-mail-type-incoming"><i class="lilicon hl-incomming-icon"></i></span>
@@ -12,13 +10,17 @@
             </div>
 
             <div class="timeline-content">
-                <span ng-if="vm.item.subject"  class="timeline-content-title">
-                    <a ui-sref="base.email.detail({ id: vm.item.id })">
+                <span ng-if="vm.item.subject" class="timeline-content-title">
+                    <a ng-if="vm.item.account" ui-sref="base.email.detail({ id: vm.item.id })">
                         {{ ::vm.item.subject | limitTo:50 }}
                         <span ng-if="::vm.item.subject.length >= 45">...</span>
                     </a>
+                    <span ng-if="!vm.item.account">
+                        {{ ::vm.item.subject | limitTo:50 }}
+                        <span ng-if="::vm.item.subject.length >= 45">...</span>
+                    </span>
                 </span>
-                <span class="timeline-content-title" ng-if="!vm.item.subject"><i>No Subject</i></span>
+                <span class="timeline-content-title" ng-if="!vm.item.subject"><i>No subject</i></span>
                 <ul class="timeline-content-details">
                     <li ng-show="vm.item.sender_name">From:
                         <a ui-sref="base.email.composeEmail({email: vm.item.sender_email})">
@@ -50,11 +52,10 @@
                 </div>
             </div>
 
-            <a class="timeline-toggle-details" ng-click="vm.item.shown = !vm.item.shown"><i class="lilicon hl-toggle-left-icon" ng-class="vm.item.shown ? 'hl-toggle-down-icon' : 'hl-toggle-left-icon'"></i></a>
-
+            <a class="timeline-toggle-details" ng-if="vm.item.account" ng-click="vm.item.shown = !vm.item.shown"><i class="lilicon hl-toggle-left-icon" ng-class="vm.item.shown ? 'hl-toggle-down-icon' : 'hl-toggle-left-icon'"></i></a>
         </div>
 
-        <div class="content-details history-item-body" ng-show="vm.item.shown">
+        <div class="content-details history-item-body" ng-show="vm.item.account && vm.item.shown">
             <p class="detail-plain-text" ng-bind-html="vm.item.body"></p>
 
             <ul class="content-details-actions">

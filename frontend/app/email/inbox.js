@@ -288,7 +288,7 @@
                         }
 
                         if (self.config.documentId) {
-                            url += '&document_id=' + self.config.documentId;
+                            url += '&document_id=' + self.config.documentId + '&recipient_email=' + self.config.recipientEmail;
                         }
 
                         $.getJSON(url, function(data) {

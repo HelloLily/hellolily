@@ -226,6 +226,7 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
                 messageType: messageType,
                 loadDefaultTemplate: loadDefaultTemplate,
                 recipient: recipient,
+                recipientEmail: $stateParams.email,
                 template: template,
                 documentId: $stateParams.documentId,
             });

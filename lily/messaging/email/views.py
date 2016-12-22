@@ -979,30 +979,27 @@ class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
                     else:
                         lookup.update({'account': account})
 
-            if 'document_id' in self.request.GET:
-                credentials = get_credentials(IntegrationDetails.PANDADOC)
+        if 'document_id' in self.request.GET:
+            credentials = get_credentials(IntegrationDetails.PANDADOC)
 
-                document_id = self.request.GET.get('document_id')
+            document_id = self.request.GET.get('document_id')
+            recipient = self.request.GET.get('recipient_email')
 
-                # Set the status of the document to 'sent' so we can create a view session.
-                send_url = 'https://api.pandadoc.com/public/v1/documents/%s/send' % document_id
-                send_params = {'silent': True}
+            # Set the status of the document to 'sent' so we can create a view session.
+            send_url = 'https://api.pandadoc.com/public/v1/documents/%s/send' % document_id
+            send_params = {'silent': True}
 
-                response = send_post_request(send_url, credentials, send_params)
+            response = send_post_request(send_url, credentials, send_params)
 
-                session_url = 'https://api.pandadoc.com/public/v1/documents/%s/session' % document_id
-                year = 60 * 60 * 24 * 365
-                session_params = {'recipient': contact.email_addresses.first().email_address, 'lifetime': year}
+            session_url = 'https://api.pandadoc.com/public/v1/documents/%s/session' % document_id
+            year = 60 * 60 * 24 * 365
+            session_params = {'recipient': recipient, 'lifetime': year}
 
-                response = send_post_request(session_url, credentials, session_params)
+            response = send_post_request(session_url, credentials, session_params)
 
-                send_logger = logging.getLogger('email_errors_temp_logger')
-
-                send_logger.info(response.json())
-
-                if response.status_code == 201:
-                    sign_url = 'https://app.pandadoc.com/s/%s' % response.json().get('id')
-                    lookup.update({'document': {'sign_url': sign_url}})
+            if response.status_code == 201:
+                sign_url = 'https://app.pandadoc.com/s/%s' % response.json().get('id')
+                lookup.update({'document': {'sign_url': sign_url}})
 
         if 'emailaccount_id' in self.request.GET:
             try:

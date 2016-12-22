@@ -13,54 +13,24 @@
 
 {% endif %}
 
-{% for fieldset in form.fieldsets %}
-    <div class="portlet{% if fieldset.classes %} {{ fieldset.classes }}{% endif %}">
-        {% if fieldset.legend %}
-            {% if forloop.first %}
-                {% if not disable_first_title %}
-                    <div class="portlet-title">
-                        <div class="caption">
-                            <i class="icon-reorder"></i>
-                            {{ fieldset.legend }}
-                        </div>
-                    </div>
+{% for field in form %}
+    {% if not field.is_hidden %}
+        {% if field.field.is_formset %}
+            {{ field }}
+        {% else %}
+            {% if field.field.required %}
+                {% if field.field.widget|classname == 'checkboxinput' %}
+                    {% bootstrap_field field field_class=field_class|default:"col-md-4" label_class=label_class|default:"col-md-2"|add:" control-label required" form_group_class=form_group_class|default:"form-group"|add:" form-group-checkbox-field" %}
+                {% else %}
+                    {% bootstrap_field field field_class=field_class|default:"col-md-4" label_class=label_class|default:"col-md-2"|add:" control-label required" %}
                 {% endif %}
             {% else %}
-                <div class="portlet-title">
-                    <div class="caption">
-                        <i class="icon-reorder"></i>
-                        {{ fieldset.legend }}
-                    </div>
-                </div>
+                {% if field.field.widget|classname == 'checkboxinput' %}
+                    {% bootstrap_field field field_class=field_class|default:"col-md-4" label_class=label_class|default:"col-md-2"|add:" control-label" form_group_class=form_group_class|default:"form-group"|add:" form-group-checkbox-field" %}
+                {% else %}
+                    {% bootstrap_field field field_class=field_class|default:"col-md-4" label_class=label_class|default:"col-md-2"|add:" control-label" %}
+                {% endif %}
             {% endif %}
         {% endif %}
-        <div class="portlet-body form">
-            {% if fieldset.description %}
-                <h4>{{ fieldset.description }}</h4>
-            {% endif %}
-            <div class="form-body">
-                {% for field in fieldset %}
-                    {% if not field.is_hidden %}
-                        {% if field.field.is_formset %}
-                            {{ field }}
-                        {% else %}
-                            {% if field.field.required %}
-                                {% if field.field.widget|classname == 'checkboxinput' %}
-                                    {% bootstrap_field field field_class=field_class|default:"col-md-4" label_class=label_class|default:"col-md-2"|add:" control-label required" form_group_class=form_group_class|default:"form-group"|add:" form-group-checkbox-field" %}
-                                {% else %}
-                                    {% bootstrap_field field field_class=field_class|default:"col-md-4" label_class=label_class|default:"col-md-2"|add:" control-label required" %}
-                                {% endif %}
-                            {% else %}
-                                {% if field.field.widget|classname == 'checkboxinput' %}
-                                    {% bootstrap_field field field_class=field_class|default:"col-md-4" label_class=label_class|default:"col-md-2"|add:" control-label" form_group_class=form_group_class|default:"form-group"|add:" form-group-checkbox-field" %}
-                                {% else %}
-                                    {% bootstrap_field field field_class=field_class|default:"col-md-4" label_class=label_class|default:"col-md-2"|add:" control-label" %}
-                                {% endif %}
-                            {% endif %}
-                        {% endif %}
-                    {% endif %}
-                {% endfor %}
-            </div>
-        </div>
-    </div>
+    {% endif %}
 {% endfor %}

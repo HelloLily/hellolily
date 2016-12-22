@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='dealwhycustomer',
             name='position',
-            field=models.IntegerField(default=0),
+            field=models.PositiveSmallIntegerField(default=0),
         ),
         migrations.AlterField(
             model_name='dealwhylost',

@@ -26,7 +26,7 @@ class DealNextStep(TenantMixin):
 
 class DealWhyCustomer(TenantMixin):
     name = models.CharField(max_length=255)
-    position = models.IntegerField(default=0)
+    position = models.PositiveSmallIntegerField(default=0)
 
     def __unicode__(self):
         return self.name

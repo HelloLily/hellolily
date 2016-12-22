@@ -124,10 +124,6 @@ class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializer
 
     def split_data(self, data):
         for field_name, field_data in data.items():
-            if field_name in self.simple_fields:
-                self.simple_data[field_name] = field_data
-                continue
-
             if field_name in self.foreign_key_fields:
                 self.fk_data[field_name] = field_data
                 continue
@@ -159,6 +155,8 @@ class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializer
             if field_name in self.many_to_many_through_reverse_fields:
                 self.m2m_through_reverse_data[field_name] = field_data
                 continue
+
+            self.simple_data[field_name] = field_data
 
     def save(self, **kwargs):
         # Get the content type for the model of the current serializer.

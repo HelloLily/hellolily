@@ -18,12 +18,12 @@ faker = Factory.create('nl_NL')
 
 CASESTATUS_CHOICES = (
     'New',
+    'Closed',
     'Pending input',
     'Waiting on hardware',
     'Follow up',
     'Client will contact us',
     'Documentation',
-    'Closed',
 )
 
 CASETYPE_CHOICES = (

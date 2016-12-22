@@ -8,7 +8,7 @@ from lily.contacts.api.views import ContactViewSet
 from lily.deals.api.views import (DealViewSet, DealStatusViewSet, DealNextStepList, DealNextStepViewSet,
                                   DealWhyCustomerViewSet, DealContactedByViewSet, DealWhyLostViewSet,
                                   DealFoundThroughViewSet)
-from lily.integrations.api.views import PandaDocAuth, PandaDocList
+from lily.integrations.api.views import DocumentDetails, PandaDocAuth, PandaDocList
 from lily.messaging.email.api.views import (EmailLabelViewSet, EmailAccountViewSet, EmailMessageViewSet,
                                             EmailTemplateViewSet, SharedEmailConfigViewSet,
                                             TemplateVariableViewSet)
@@ -63,6 +63,7 @@ urlpatterns = patterns(
 
     url(r'integrations/auth/pandadoc$', PandaDocAuth.as_view()),
     url(r'integrations/documents/(?P<contact_id>[0-9]+)/$', PandaDocList.as_view()),
+    url(r'integrations/documents/(?P<document_id>.+)/$', DocumentDetails.as_view()),
 
     url(r'^utils/notifications/$', Notifications.as_view()),
     url(r'^utils/callername/$', CallerName.as_view()),

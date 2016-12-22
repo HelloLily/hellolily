@@ -17,6 +17,24 @@ from ..credentials import authenticate_pandadoc, get_credentials, LilyOAuthCrede
 from ..models import IntegrationCredentials, IntegrationDetails, Document
 
 
+class DocumentDetails(APIView):
+    serializer = DocumentSerializer
+    """
+    List all PandaDoc documents.
+    """
+    def get(self, request, document_id, format=None):
+        document = {}
+
+        try:
+            document = Document.objects.get(document_id=self.kwargs['document_id'])
+        except Document.DoesNotExist:
+            pass
+        else:
+            document = DocumentSerializer(document).data
+
+        return Response({'document': document})
+
+
 class PandaDocList(APIView):
     serializer = DocumentSerializer
     """

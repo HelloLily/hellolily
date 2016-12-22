@@ -996,6 +996,10 @@ class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
 
                 response = send_post_request(session_url, credentials, session_params)
 
+                send_logger = logging.getLogger('email_errors_temp_logger')
+
+                send_logger.info(response.json())
+
                 if response.status_code == 201:
                     sign_url = 'https://app.pandadoc.com/s/%s' % response.json().get('id')
                     lookup.update({'document': {'sign_url': sign_url}})

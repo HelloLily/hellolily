@@ -56,6 +56,7 @@ function AccountList($scope, $window, Settings, Account, LocalStorage) {
             customerId: false,
         }),
     };
+    vm.showEmptyState = false;
 
     vm.removeFromList = removeFromList;
     vm.setFilter = setFilter;
@@ -63,10 +64,12 @@ function AccountList($scope, $window, Settings, Account, LocalStorage) {
 
     activate();
 
-    /////////////
+    //////
 
     function activate() {
         _setupWatches();
+
+        showEmptyState();
     }
 
     Settings.page.setAllTitles('list', 'accounts');
@@ -131,6 +134,17 @@ function AccountList($scope, $window, Settings, Account, LocalStorage) {
      */
     function setFilter(queryString) {
         vm.table.filter = queryString;
+    }
+
+    /**
+     * Count the total amount of accounts used to see whether or not the empty state should be shown.
+     */
+    function showEmptyState() {
+        Account.query({}, function(data) {
+            if (data.pagination.total === 1) {
+                vm.showEmptyState = true;
+            }
+        });
     }
 
     /**

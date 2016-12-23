@@ -44,6 +44,15 @@ function ContactListController($scope, $window, Settings, Account, Contact, Loca
             modified: true,
             tags: true,
         })};
+    $scope.showEmptyState = false;
+
+    activate();
+
+    //////
+
+    function activate() {
+        showEmptyState();
+    }
 
     $scope.removeFromList = function(contact) {
         var index = $scope.table.items.indexOf(contact);
@@ -124,6 +133,17 @@ function ContactListController($scope, $window, Settings, Account, Contact, Loca
     $scope.setFilter = function(queryString) {
         $scope.table.filter = queryString;
     };
+
+    /**
+     * Count the total amount of contacts used to see whether or not the empty state should be shown.
+     */
+    function showEmptyState() {
+        Contact.query({}, function(data) {
+            if (data.pagination.total === 1) {
+                $scope.showEmptyState = true;
+            }
+        });
+    }
 
     /**
      * exportToCsv() creates an export link and opens it

@@ -40,6 +40,10 @@
     p {
         font-size: 18px;
     }
+
+    &.no-top {
+        top: 0;
+    }
 }
 
 .empty-state-space {

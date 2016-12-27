@@ -200,7 +200,7 @@ function EditableSelectController($injector, $scope, HLResource, HLSearch, HLUti
             updatePromise = es.viewModel.updateModel(args);
         } else {
             // Dealing with a generic view model (list widget, history list item) so just call the updateModel directly.
-            updatePromise = $injector.get(es.type).updateModel(args);
+            updatePromise = $injector.get(es.type).updateModel(args, es.field, es.object);
         }
 
         return updatePromise.then(function() {

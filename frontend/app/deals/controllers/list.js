@@ -92,7 +92,13 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
     }
 
     function updateModel(data, field) {
-        return Deal.updateModel(data, field).then(function() {
+        var deal = $filter('where')(vm.table.items, {id: data.id});
+
+        return Deal.updateModel(data, field, deal).then(function(response) {
+            if (response.hasOwnProperty('next_step')) {
+                deal.next_step_date = response.next_step_date;
+            }
+
             _updateDeals();
         });
     }

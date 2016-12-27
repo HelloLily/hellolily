@@ -36,7 +36,7 @@ function PreferencesEmailTemplatesList($compile, $scope, $state, $templateCache,
     }
 
     function getTemplates() {
-        EmailTemplate.query({}, function(data) {
+        EmailTemplate.query({'page_size': 200}, function(data) {
             vm.emailTemplates = data.results;
         });
     }

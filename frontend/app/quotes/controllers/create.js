@@ -66,10 +66,15 @@ function QuoteCreateController($http, $timeout, Settings, currentDeal, dealConta
     }
 
     function openPandaDoc() {
-        var recipients;
         var account;
         var address;
         var editor = new PandaDoc.DocEditor();
+        var recipients = [{
+            'first_name': vm.currentUser.first_name,
+            'last_name': vm.currentUser.last_name,
+            'email': vm.currentUser.email,
+            'roleName': 'User',
+        }];
 
         // Setup up the template variables.
         var tokens = {
@@ -85,16 +90,16 @@ function QuoteCreateController($http, $timeout, Settings, currentDeal, dealConta
             tokens['Client.FirstName'] = vm.deal.contact.first_name;
             tokens['Client.LastName'] = vm.deal.contact.last_name;
 
-            recipients = [{
+            recipients.push({
                 'first_name': vm.deal.contact.first_name,
                 'last_name': vm.deal.contact.last_name,
                 'roleName': 'Client',
-            }];
+            });
 
             if (vm.deal.contact.email_addresses.length) {
                 tokens['Client.Email'] = vm.deal.contact.email_addresses[0].email_address;
 
-                recipients[0].email = vm.deal.contact.email_addresses[0].email_address;
+                recipients[1].email = vm.deal.contact.email_addresses[0].email_address;
             }
 
             if (vm.deal.contact.accounts.length) {

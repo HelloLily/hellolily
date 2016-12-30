@@ -47,16 +47,20 @@ class LilyUserSerializer(WritableNestedSerializer):
         if self.instance.picture is validated_data.get('picture'):
             validated_data['picture'] = None
 
-        # Remove all teams from a user instance to add them after the serializer.
-        self.instance.teams.clear()
+        validated_team_list = []
 
-        validated_team_list = validated_data.pop('teams', [])
+        if 'teams' in validated_data:
+            validated_team_list = validated_data.pop('teams')
 
         user = super(LilyUserSerializer, self).update(instance, validated_data)
 
-        # Add teams to user.
-        for validated_team in validated_team_list:
-            user.teams.add(validated_team)
+        if validated_team_list:
+            # Remove all teams from a user instance to add them after the serializer.
+            self.instance.teams.clear()
+
+            # Add teams to user.
+            for validated_team in validated_team_list:
+                user.teams.add(validated_team)
 
         return user
 
@@ -70,10 +74,13 @@ class LilyUserSerializer(WritableNestedSerializer):
         # Reverse foreign key relations don't work yet with the WritableNestedSerializer, so we manually retrieve
         # the primery email account from the initial data.
         internal_value = super(LilyUserSerializer, self).to_internal_value(data)
-        primary_email_account = data.get("primary_email_account")
-        internal_value.update({
-            "primary_email_account": primary_email_account
-        })
+        primary_email_account = data.get('primary_email_account')
+
+        if primary_email_account:
+            internal_value.update({
+                'primary_email_account': primary_email_account
+            })
+
         return internal_value
 
 

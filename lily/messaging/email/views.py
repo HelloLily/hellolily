@@ -30,7 +30,6 @@ from oauth2client.contrib.django_orm import Storage
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
 from lily.google.token_generator import generate_token, validate_token
-from lily.integrations.models import IntegrationDetails
 from lily.integrations.credentials import get_credentials
 from lily.tenant.middleware import get_current_user
 from lily.utils.functions import is_ajax, post_intercom_event, send_post_request
@@ -958,7 +957,7 @@ class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
                         lookup.update({'account': account})
 
         if 'document_id' in self.request.GET:
-            credentials = get_credentials(IntegrationDetails.PANDADOC)
+            credentials = get_credentials('pandadoc')
 
             document_id = self.request.GET.get('document_id')
             recipient = self.request.GET.get('recipient_email')

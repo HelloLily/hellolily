@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
 from oauth2client.contrib.django_orm import CredentialsField
 
 from lily.contacts.models import Contact
@@ -8,18 +7,24 @@ from lily.deals.models import Deal
 from lily.tenant.models import TenantMixin
 
 
-class IntegrationDetails(TenantMixin):
-    PANDADOC, SLACK = range(2)
-    INTEGRATION_TYPES = (
-        (PANDADOC, _('PandaDoc')),
-        (SLACK, _('Slack')),
-    )
+class IntegrationType(models.Model):
+    PANDADOC, MONEYBIRD, SLACK = range(1, 4)
 
-    type = models.IntegerField(choices=INTEGRATION_TYPES)
+    name = models.CharField(max_length=255)
+    auth_url = models.CharField(max_length=255)
+    token_url = models.CharField(max_length=255)
+    scope = models.CharField(max_length=255, default='')
+
+    def __unicode__(self):
+        return self.name
+
+
+class IntegrationDetails(TenantMixin):
+    type = models.ForeignKey(IntegrationType, related_name='details')
     created = models.DateTimeField(default=timezone.now)
 
     def __unicode__(self):
-        return '%s credentials for %s' % (self.get_type_display(), self.tenant)
+        return '%s credentials for %s' % (self.type.name, self.tenant)
 
     class Meta:
         unique_together = ('tenant', 'type')

@@ -220,7 +220,7 @@ def send_get_request(url, credentials):
     return response
 
 
-def send_post_request(url, credentials, params):
+def send_post_request(url, credentials, params, patch=False, async_request=False):
     """
     Sends a POST request to the given url.
 
@@ -236,7 +236,25 @@ def send_post_request(url, credentials, params):
         'Authorization': 'Bearer %s' % credentials.access_token
     }
 
-    response = requests.post(url, headers=headers, json=params)
+    if async_request:
+        # For some reason Celery/Flower stops working when placing this with the other imports.
+        # Importing it here seems to work fine.
+        import grequests
+
+        if patch:
+            calls = (grequests.patch(url, headers=headers, json=params) for url in [url])
+        else:
+            calls = (grequests.post(url, headers=headers, json=params) for url in [url])
+
+        try:
+            response = grequests.map(calls)[0]
+        except:
+            pass
+    else:
+        if patch:
+            response = requests.patch(url, headers=headers, json=params)
+        else:
+            response = requests.post(url, headers=headers, json=params)
 
     return response
 

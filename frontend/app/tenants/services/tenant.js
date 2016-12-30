@@ -41,7 +41,10 @@ function Tenant($filter, $interpolate, $resource, CacheFactory, HLCache) {
                     };
 
                     // Check if PandaDoc integration is set for the tenant.
-                    tenant.hasPandaDoc = $filter('contains')(tenant.integrations, 'type === 0');
+                    tenant.hasPandaDoc = $filter('contains')(tenant.integrations, 'type === 1');
+
+                    // Check if Moneybird integration is set for the tenant.
+                    tenant.hasMoneybird = $filter('contains')(tenant.integrations, 'type === 2');
 
                     return tenant;
                 },

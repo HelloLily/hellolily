@@ -105,8 +105,8 @@ angular.module('app').factory('$exceptionHandler', ['$log', function($log) {
 /* Init global settings and run the app. */
 angular.module('app').run(runApp);
 
-runApp.$inject = ['$rootScope', '$state', 'editableOptions', 'HLMessages', 'Tenant', 'UserTeams'];
-function runApp($rootScope, $state, editableOptions, HLMessages, Tenant, UserTeams) {
+runApp.$inject = ['$rootScope', '$state', 'editableOptions', 'HLMessages', 'HLSockets', 'HLNotifications', 'Tenant', 'UserTeams'];
+function runApp($rootScope, $state, editableOptions, HLMessages, HLSockets, HLNotifications, Tenant, UserTeams) {
     $rootScope.$state = $state; // State to be accessed from view.
     $rootScope.currentUser = currentUser;
     $rootScope.messages = HLMessages;

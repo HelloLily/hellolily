@@ -231,6 +231,7 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
         permissions = (
             ("send_invitation", _("Can send invitations to invite new users")),
         )
+        unique_together = ('tenant', 'internal_number')
 
 
 @receiver(user_logged_out)

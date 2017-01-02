@@ -8,7 +8,7 @@ angular.module('app.accounts').config(accountConfig);
 accountConfig.$inject = ['$stateProvider'];
 function accountConfig($stateProvider) {
     $stateProvider.state('base.accounts.create', {
-        url: '/create',
+        url: '/create?name&phone_number',
         views: {
             '@': {
                 templateUrl: 'accounts/controllers/form.html',
@@ -138,6 +138,14 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
 
             vm.account = Account.create();
             vm.account.status = vm.defaultNewStatus;
+            vm.account.name = $stateParams.name;
+
+            if ($stateParams.phone_number !== '') {
+                vm.account.phone_numbers.push({
+                    'number': $stateParams.phone_number,
+                    'type': 'work',
+                });
+            }
 
             User.me().$promise.then(function(user) {
                 vm.account.assigned_to = user.id;

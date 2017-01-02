@@ -24,6 +24,8 @@ class Call(TenantMixin):
     called_number = models.CharField(max_length=40)
     # Number of the caller.
     caller_number = models.CharField(max_length=40)
+    # The name of the caller.
+    caller_name = models.CharField(max_length=255, blank=True)
     # The internal number of the VoIP account that has answered the call or ended the call.
     internal_number = models.CharField(max_length=5)
     status = models.PositiveSmallIntegerField(choices=CALL_STATUS_CHOICES)

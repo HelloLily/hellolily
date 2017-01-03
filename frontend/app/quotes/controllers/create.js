@@ -75,6 +75,7 @@ function QuoteCreateController($http, $timeout, Settings, currentDeal, dealConta
             'email': vm.currentUser.email,
             'roleName': 'User',
         }];
+        var docName;
 
         // Setup up the template variables.
         var tokens = {
@@ -113,6 +114,8 @@ function QuoteCreateController($http, $timeout, Settings, currentDeal, dealConta
                     tokens['Client.PostalCode'] = address.postal_code;
                     tokens['Client.City'] = address.city;
                 }
+
+                docName = account.name;
             }
         }
 
@@ -120,6 +123,7 @@ function QuoteCreateController($http, $timeout, Settings, currentDeal, dealConta
             el: '.hl-form-body',
             cssClass: 'pandadoc-form',
             data: {
+                docName: docName,
                 tokens: tokens,
                 recipients: recipients,
             },

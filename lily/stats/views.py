@@ -42,7 +42,7 @@ class RawDatabaseView(LoginRequiredMixin, View):
         for row in results:
             parsed_row = {}
             for key, value in row.iteritems():
-                parsed_row[key] = str(value)
+                parsed_row[key] = unicode(value, 'utf-8', errors='ignore')
             parsed_results.append(parsed_row)
         return parsed_results
 

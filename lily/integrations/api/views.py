@@ -5,6 +5,8 @@ from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.utils.translation import ugettext_lazy as _
 from oauth2client.contrib.django_orm import Storage
+from rest_framework.parsers import FormParser
+from rest_framework.parsers import JSONParser
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
@@ -18,10 +20,12 @@ from ..models import IntegrationCredentials, IntegrationDetails, Document
 
 
 class DocumentDetails(APIView):
-    serializer = DocumentSerializer
     """
     List all PandaDoc documents.
     """
+    serializer = DocumentSerializer
+    parser_classes = (JSONParser, FormParser)
+
     def get(self, request, document_id, format=None):
         document = {}
 
@@ -36,10 +40,12 @@ class DocumentDetails(APIView):
 
 
 class PandaDocList(APIView):
-    serializer = DocumentSerializer
     """
     List all PandaDoc documents.
     """
+    serializer = DocumentSerializer
+    parser_classes = (JSONParser, FormParser)
+
     def get(self, request, contact_id, format=None):
         documents = Document.objects.filter(contact=self.kwargs['contact_id'])
         temp_documents = []
@@ -74,6 +80,8 @@ class PandaDocList(APIView):
 
 
 class PandaDocAuth(APIView):
+    parser_classes = (JSONParser, FormParser)
+
     def post(self, request):
         client_id = request.POST.get('client_id')
         client_secret = request.POST.get('client_secret')

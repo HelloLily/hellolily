@@ -9,7 +9,6 @@ from lily.api.serializers import ContentTypeSerializer
 from lily.contacts.api.serializers import RelatedContactSerializer
 from lily.contacts.models import Function
 from lily.users.api.serializers import RelatedLilyUserSerializer, RelatedTeamSerializer
-from lily.users.models import Team
 from lily.utils.api.serializers import RelatedTagSerializer
 
 from ..models import Case, CaseStatus, CaseType
@@ -127,17 +126,6 @@ class CaseSerializer(WritableNestedSerializer):
             validated_data.update({
                 'newly_assigned': True,
             })
-
-        if self.partial:
-            if 'assigned_to_teams' in validated_data:
-                # Handle PATCH on assigned to teams as a special case.
-                # Removed assigned_to_teams lack the is_deleted flag, so replace the whole resource.
-                assigned_to_teams_validated_data = validated_data.pop('assigned_to_teams', {})
-                instance.assigned_to_teams.clear()
-                for team_validated in assigned_to_teams_validated_data:
-                    team = Team.objects.get(pk=team_validated['id'])
-                    if team:
-                        instance.assigned_to_teams.add(team)
 
         return super(CaseSerializer, self).update(instance, validated_data)
 

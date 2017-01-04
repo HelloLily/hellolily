@@ -133,8 +133,6 @@ function CaseDetailController($scope, Case, HLResource, HLUtils, LocalStorage, S
     function updateModel(data, field) {
         var args = HLResource.createArgs(data, field, vm.case);
         var casePriorities = Case.getCasePriorities();
-        var teamIds = [];
-        var removedTeams = [];
         var expireDate;
 
         if (field === 'subject') {
@@ -142,15 +140,11 @@ function CaseDetailController($scope, Case, HLResource, HLUtils, LocalStorage, S
         }
 
         if (args.hasOwnProperty('assigned_to_teams')) {
-            teamIds = args.assigned_to_teams.map(function(team) { return team.id; });
-
-            removedTeams = vm.case.assigned_to_teams.filter(team => teamIds.indexOf(team.id) === -1);
-
-            for (let team of removedTeams) {
-                team.is_deleted = true;
-            }
-
-            args.assigned_to_teams = args.assigned_to_teams.concat(removedTeams);
+            const oldTeams = vm.case.assigned_to_teams.map(team => ({'id': team.id}));
+            const teamIds = args.assigned_to_teams.map(team => team.id);
+            let removedTeams = oldTeams.filter(team => teamIds.indexOf(team.id) === -1);
+            for (let team of removedTeams) team.is_deleted = true;
+            args.assigned_to_teams = args.assigned_to_teams.map(team => ({'id': team.id})).concat(removedTeams);
         }
 
         if (args.hasOwnProperty('priority')) {

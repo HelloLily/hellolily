@@ -9,8 +9,8 @@ function myDealsDirective() {
     };
 }
 
-MyDealsController.$inject = ['$scope', 'Case', 'Deal', 'HLUtils', 'HLResource', 'LocalStorage', 'Tenant'];
-function MyDealsController($scope, Case, Deal, HLUtils, HLResource, LocalStorage, Tenant) {
+MyDealsController.$inject = ['$filter', '$scope', 'Case', 'Deal', 'HLUtils', 'HLResource', 'LocalStorage', 'Tenant'];
+function MyDealsController($filter, $scope, Case, Deal, HLUtils, HLResource, LocalStorage, Tenant) {
     var storage = new LocalStorage('deals');
 
     var vm = this;
@@ -84,7 +84,9 @@ function MyDealsController($scope, Case, Deal, HLUtils, HLResource, LocalStorage
     }
 
     function updateModel(data, field) {
-        return Deal.updateModel(data, field).then(function() {
+        var deal = $filter('where')(vm.table.items, {id: data.id});
+
+        return Deal.updateModel(data, field, deal).then(function(response) {
             getMyDeals();
         });
     }

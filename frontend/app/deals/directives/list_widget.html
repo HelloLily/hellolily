@@ -31,7 +31,7 @@
                     <td>{{ deal.status.name }}</td>
                     <td>
                         <editable-select field="next_step" view-model="vm" type="Deal" select-type="icon_select" object="deal" tooltip-placement="left"
-                                        uib-tooltip="{{ deal.next_step.name }}" select-options="{'classPrefix': 'step-type position-', 'classValue': 'position'}">
+                                         select-options="{'classPrefix': 'step-type position-', 'classValue': 'position'}">
                             <span class="step-type position-{{ deal.next_step.position }}">
                                 {{ deal.next_step.name }}
                             </span>

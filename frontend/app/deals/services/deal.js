@@ -142,6 +142,15 @@ function Deal($resource, CacheFactory, HLCache, HLForms, HLResource, HLUtils) {
 
         patchPromise = HLResource.patch('Deal', args).$promise;
 
+        if (deal) {
+            patchPromise.then(function(response) {
+                if (response.hasOwnProperty('next_step')) {
+                    // deal = $filter('where')(vm.table.items, {id: response.id});
+                    deal.next_step_date = response.next_step_date;
+                }
+            });
+        }
+
         return patchPromise;
     }
 

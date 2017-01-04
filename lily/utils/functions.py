@@ -1,5 +1,7 @@
 import re
 import urlparse
+import datetime
+
 from time import time
 
 import anyjson
@@ -199,6 +201,16 @@ def post_intercom_event(event_name, user_id):
 
 
 def send_get_request(url, credentials):
+    """
+    Sends a GET request to the given url.
+
+    Args:
+        url (str): The url to call.
+        credentials (obj): Object containing any authentication credentials.
+
+    Returns:
+        response (Response): Object containing the response information.
+    """
     headers = {
         'Authorization': 'Bearer %s' % credentials.access_token
     }
@@ -209,6 +221,17 @@ def send_get_request(url, credentials):
 
 
 def send_post_request(url, credentials, params):
+    """
+    Sends a POST request to the given url.
+
+    Args:
+        url (str): The url to call.
+        credentials (IntegrationCredentials): Object containing any authentication credentials.
+        params (dict): The data to be sent.
+
+    Returns:
+        response (Response): Object containing the response information.
+    """
     headers = {
         'Authorization': 'Bearer %s' % credentials.access_token
     }
@@ -216,3 +239,29 @@ def send_post_request(url, credentials, params):
     response = requests.post(url, headers=headers, json=params)
 
     return response
+
+
+def add_business_days(days_to_add, date=None):
+    """
+    Keep adding days to the given date while skipping weekends.
+
+    Args:
+        days_to_add (int): The number of days to add.
+        date (date, optional): The date to add days to.
+
+    Returns:
+        date: The date with business days added to it.
+    """
+    if not date:
+        date = datetime.datetime.utcnow().date()
+
+    while days_to_add > 0:
+        date += datetime.timedelta(days=1)
+        weekday = date.weekday()
+
+        if weekday >= 5:
+            # Skip Saturday (5) and Sunday (6).
+            continue
+        days_to_add -= 1
+
+    return date

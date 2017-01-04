@@ -114,24 +114,8 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
     }
 
     function updateModel(data, field) {
-        var nextStepDate;
         var args = HLResource.createArgs(data, field, vm.deal);
         var patchPromise;
-
-        if (args.hasOwnProperty('next_step')) {
-            if (vm.deal.next_step.date_increment !== 0) {
-                // Update next step date based on next step.
-                nextStepDate = HLUtils.addBusinessDays(vm.deal.next_step.date_increment);
-                nextStepDate = moment(nextStepDate).format('YYYY-MM-DD');
-
-                vm.deal.next_step_date = nextStepDate;
-                args.next_step_date = nextStepDate;
-            } else if (angular.equals(vm.deal.next_step, vm.noneStep)) {
-                // None step is selected, so clear the next step date.
-                vm.deal.next_step_date = null;
-                args.next_step_date = null;
-            }
-        }
 
         if (args.hasOwnProperty('status')) {
             if (vm.deal.status.id === vm.lostStatus.id) {
@@ -165,7 +149,11 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
 
         patchPromise = HLResource.patch('Deal', args).$promise;
 
-        patchPromise.then(function() {
+        patchPromise.then(function(response) {
+            if (response.hasOwnProperty('next_step')) {
+                vm.deal.next_step_date = response.next_step_date;
+            }
+
             if (args.hasOwnProperty('amount_once') || args.hasOwnProperty('amount_recurring')) {
                 $state.go($state.current, {}, {reload: true});
             }

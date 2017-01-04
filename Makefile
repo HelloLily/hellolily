@@ -1,0 +1,31 @@
+# Makefile for Lily development
+# Tabs for MacOS compatibility
+
+default: run
+
+build:
+	@docker-compose -f docker-compose.yml -f docker-compose.new-build.yml build
+	@gulp clean
+	@NODE_ENV=dev gulp build
+
+pull:
+	@docker-compose pull
+
+migrate:
+	@docker-compose run --rm web python manage.py migrate
+
+index:
+	@docker-compose run --rm web python manage.py index -f
+
+testdata:
+	@docker-compose run --rm web python manage.py testdata
+
+run:
+	@docker-compose run --rm --service-ports web & gulp watch
+
+down:
+	@docker-compose down
+
+setup: build pull migrate index testdata run
+
+.PHONY: default build pull migrate index testdata run down setup

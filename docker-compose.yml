@@ -1,31 +1,48 @@
 version: '2'
 
+networks:
+  internal:
+  # external:  # Reserved for load balancer / proxy.
+
 services:
   rabbit:
     image: rabbitmq:3.6-management  # Use latest version of 3.6 with management plugin enabled.
+    container_name: rabbit
+    networks:
+      internal:
     ports:
-      - 5672:5672
+      - "5672"
     logging:
       driver: "none"
 
   redis:
     image: redis:2.8  # Use latest version of 2.8.
+    container_name: redis
+    networks:
+      internal:
     ports:
-      - 6373:6379
+      - "6373:6379"
+    logging:
+      driver: "none"
+
+  db:
+    image: "hellolily/hellolily-db:latest"
+    container_name: db
+    networks:
+      internal:
+    ports:
+      - "5433:5432"
     logging:
       driver: "none"
 
   es:
-      image: elasticsearch:1.7  # Use latest version of 1.7.
-      ports:
-        - 9203:9200
-      logging:
-        driver: "none"
-
-  db:
-    image: "hellolily/hellolily-db:latest"
+    image: elasticsearch:1.7-alpine  # Use latest version of 1.7.
+    container_name: es
+    networks:
+      internal:
     ports:
-      - 5433:5432
+      - "9200:9200"
+      - "9300:9300"
     logging:
       driver: "none"
 
@@ -49,7 +66,9 @@ services:
   web:
     extends: app
     command: bash -c "Dockers/wait-for-it.sh -b db:5432 && python manage.py runserver 0:8000"
-    links:
+    networks:
+      - internal
+    depends_on:
       - rabbit
       - redis
       - db
@@ -61,16 +80,16 @@ services:
   flower:
     extends: app
     command: bash -c "Dockers/wait-for-it.sh -b rabbit:5672 && flower --app=lily.celery"
-    ports:
-      - "5555:5555"
-    links:
+    depends_on:
       - db
       - rabbit
+    ports:
+      - "5555"
 
   beat:
     extends: app
     command: bash -c "Dockers/wait-for-it.sh -b rabbit:5672 && celery worker -B --app=lily.celery --loglevel=info -Q celery -n beat.%h -c 1"
-    links:
+    depends_on:
       - rabbit
       - redis
       - db
@@ -79,7 +98,7 @@ services:
   worker1:
     extends: app
     command: bash -c "Dockers/wait-for-it.sh -b rabbit:5672 && celery worker --loglevel=info --app=lily.celery -Q email_async_tasks -n worker1.%h -c 12 -P eventlet"
-    links:
+    depends_on:
       - rabbit
       - redis
       - db
@@ -88,7 +107,7 @@ services:
   worker2:
     extends: app
     command: bash -c "Dockers/wait-for-it.sh -b rabbit:5672 && celery worker --loglevel=info --app=lily.celery -Q email_scheduled_tasks,email_first_sync -n worker2.%h -c 12 -P eventlet"
-    links:
+    depends_on:
       - rabbit
       - redis
       - db

@@ -262,7 +262,7 @@ class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializer
                 # Add the id's so null constraints don't break.
                 self.simple_data['%s_id' % field_name] = related_instance.pk
             else:
-                self.simple_data['%s_id' % field_name] = None
+                self.simple_data['%s_id' % field_name] = field_data['id']
 
     def save_foreign_key_reverse_fields(self, cleanup=False):
         for field_name, field_data in self.fk_reverse_data.items():

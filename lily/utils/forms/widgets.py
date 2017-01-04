@@ -257,6 +257,6 @@ class Wysihtml5Input(Textarea):
         final_attrs = self.build_attrs(attrs, name=name)
         return render_to_string('utils/wysihtml5.html', {
             'name': name,
-            'value': mark_safe(value),
+            'value': value,
             'attrs': final_attrs,
         })

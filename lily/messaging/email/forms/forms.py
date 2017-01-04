@@ -313,6 +313,7 @@ class CreateUpdateEmailTemplateForm(ModelForm):
         elif html_part:
             # For some reason sometimes nbsp's are added, so remove them
             parsed_template = TemplateParser(self.clean_nbsp(html_part))
+
             if parsed_template.is_valid():
                 cleaned_data.update({
                     'body_html': parsed_template.get_text(),
@@ -330,6 +331,9 @@ class CreateUpdateEmailTemplateForm(ModelForm):
             else:
                 self._errors['body_text'] = parsed_template.error.message
                 del cleaned_data['body_text']
+
+        print 'clean'
+        print cleaned_data
 
         return cleaned_data
 
@@ -349,7 +353,7 @@ class CreateUpdateEmailTemplateForm(ModelForm):
 
     def save(self, commit=True):
         instance = super(CreateUpdateEmailTemplateForm, self).save(False)
-        instance.body_html = linebreaksbr(instance.body_html.strip())
+        instance.body_html = linebreaksbr(instance.body_html.strip(), autoescape=False)
 
         if commit:
             instance.save()

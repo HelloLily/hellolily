@@ -233,7 +233,7 @@ class DealSerializer(WritableNestedSerializer):
         })
 
         # Check if the deal is being reassigned. If so we want to notify that user.
-        if assigned_to and assigned_to != user.pk and instance.assigned_to and instance.assigned_to.id != assigned_to:
+        if assigned_to and assigned_to != user.pk:
             validated_data.update({
                 'newly_assigned': True,
             })

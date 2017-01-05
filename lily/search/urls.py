@@ -1,6 +1,7 @@
 from django.conf.urls import url
 
-from .views import SearchView, EmailAddressSearchView, PhoneNumberSearchView, WebsiteSearchView
+from .views import (SearchView, EmailAddressSearchView, InternalNumberSearchView,
+                    PhoneNumberSearchView, WebsiteSearchView)
 
 
 urlpatterns = [
@@ -13,5 +14,8 @@ urlpatterns = [
         name='search_view'),
     url(r'^number/(?P<number>(\+)?([\d\-]+))$',
         PhoneNumberSearchView.as_view(),
+        name='search_view'),
+    url(r'^internal-number/(?P<number>(\+)?([\d\-]+))$',
+        InternalNumberSearchView.as_view(),
         name='search_view'),
 ]

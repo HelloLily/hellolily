@@ -1,9 +1,14 @@
+from datetime import date, timedelta
+
+from django.db.models import Q
 from django.http.response import HttpResponse
 from django.views.generic.base import View
 
 import anyjson
 import freemail
-from lily.accounts.models import Website
+from lily.accounts.models import Account, Website
+from lily.cases.models import Case
+from lily.deals.models import Deal
 from lily.utils.functions import parse_phone_number
 from lily.utils.views.mixins import LoginRequiredMixin
 
@@ -269,5 +274,120 @@ class PhoneNumberSearchView(LoginRequiredMixin, View):
                     return {
                         'data': hits[0].get('accounts')[0],
                     }
+
+        return {}
+
+
+class InternalNumberSearchView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        number = kwargs.get('number', None)
+
+        if number:
+            # For now we'll always convert the phone number to a certain format.
+            # In the future we might change how we handle phone numbers.
+            number = parse_phone_number(number)
+
+        results = self._search_number(number)
+
+        return HttpResponse(anyjson.dumps(results), content_type='application/json; charset=utf-8')
+
+    def _search_number(self, number):
+        """
+        Looks for a contact based on the given number and returns the internal number of the user assigned to a deal,
+        case or account based on that contact.
+
+        Args:
+            number (str): Contains the number we want to look for.
+
+        Returns:
+            internal_number (int): The internal number of the user.
+            user (int): ID of the user the internal number belongs to.
+        """
+        # Try to find a contact with the given phone number.
+        search = LilySearch(
+            tenant_id=self.request.user.tenant_id,
+            model_type='contacts_contact',
+            size=1,
+        )
+        search.filter_query('phone_numbers.number:"%s"' % number)
+
+        hits, facets, total, took = search.do_search()
+
+        user = {}
+
+        if hits[0]:
+            contact = hits[0]
+
+        week_ago = date.today() - timedelta(days=7)
+
+        if contact:
+            accounts = contact.get('accounts')
+
+            cases = Case.objects.filter(contact=contact.get('id'), is_deleted=False).order_by('-modified')
+            open_case = cases.filter(status__name='New').first()
+
+            deals = Deal.objects.filter(
+                contact=contact.get('id'),
+                status__name='Open',
+                is_deleted=False
+            ).order_by('-modified')
+            open_deal = deals.filter(status__name='Open').first()
+
+            if open_case and open_deal:
+                latest_case_note = open_case.notes.all().order_by('-modified').first()
+                latest_deal_note = open_deal.notes.all().order_by('-modified').first()
+
+                # If there is an open deal and an open case the one with the most recent note.
+                if latest_case_note and latest_deal_note:
+                    # Check the latest modified note.
+                    if latest_case_note.modified > latest_deal_note.modified:
+                        user = open_case.assigned_to
+                    else:
+                        user = open_deal.assigned_to
+                else:
+                    # No notes for both types, so check modified date.
+                    if open_case.modified > open_deal.modified:
+                        user = open_case.assigned_to
+                    else:
+                        user = open_deal.assigned_to
+            elif open_case:
+                # No open deal, so use open case.
+                user = open_case.assigned_to
+            elif open_deal:
+                # No open case, so use open deal.
+                user = open_deal.assigned_to
+            else:
+                # Get closed cases and deals.
+                latest_closed_case = cases.filter(Q(created__gte=week_ago) & Q(status__name='Closed')).first()
+                latest_closed_deal = deals.filter(Q(created__lte=week_ago) &
+                                                   (Q(status__name='Won') | Q(status__name='Lost'))).first()
+
+                if latest_closed_case and latest_closed_deal:
+                    if latest_closed_case.modified > latest_closed_deal.modified:
+                        user = latest_closed_case.assigned_to
+                    else:
+                        user = latest_closed_deal.assigned_to
+                elif latest_closed_case:
+                    # No closed deal, so use closed case.
+                    user = latest_closed_case.assigned_to
+                elif latest_closed_deal:
+                    # No closed case, so use closed deal.
+                    user = latest_closed_deal.assigned_to
+                else:
+                    if accounts:
+                        # None of the above applies, so use account if possible.
+                        account = Account.objects.get(pk=accounts[0].get('id'))
+                        user = account.assigned_to
+        else:
+            if accounts:
+                # None of the above applies, so use account if possible.
+                account = Account.objects.get(pk=accounts[0].get('id'))
+                user = account.assigned_to
+
+        if user:
+            return {
+                'internal_number': user.internal_number,
+                'user': user.id,
+            }
 
         return {}

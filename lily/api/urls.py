@@ -67,9 +67,9 @@ urlpatterns = [
     url(r'integrations/documents/(?P<document_id>.+)/$', DocumentDetails.as_view()),
     url(r'integrations/moneybird/estimates/(?P<contact_id>[0-9]+)/$', EstimatesList.as_view()),
 
-    url(r'^utils/notifications/$', Notifications.as_view()),
-    url(r'^utils/callername/$', CallerName.as_view()),
     url(r'^utils/apphash/$', AppHash.as_view()),
+    url(r'^utils/callername/$', CallerName.as_view()),
+    url(r'^utils/notifications/$', Notifications.as_view()),
 
     url(r'^provide/dataprovider/$', DataproviderView.as_view()),
 

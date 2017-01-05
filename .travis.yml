@@ -50,6 +50,7 @@ install:
   - gem install overcommit
   - npm install -g eslint
   - gem install scss_lint
+  - gem install travis --no-rdoc --no-ri
 
 # The steps are run in the following order:
   # Install apt addons

@@ -24,7 +24,7 @@ Contributing
 ============
 As an open source project, anyone is welcome to contribute to |project|,
 which can include taking part in discussions, filing bug reports, contributing
-code or documentation or proposing improvements. Please read the following 
+code or documentation or proposing improvements. Please read the following
 sections carefully if you would like to contribute.
 
 .. toctree::

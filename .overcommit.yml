@@ -13,3 +13,12 @@ PreCommit:
     on_warn: 'fail'
     flags: ['--max-line-length=119']
     exclude: ['**/migrations/**', 'lily/google/**', '**/__init__.py', 'python_imap/**', 'taskmonitor/**']
+
+  TrailingWhitespace:
+    enabled: true
+    on_warn: 'fail'
+    exclude: ['**/vendor/**/**', '**/*.svg']
+
+  TravisLint:
+    enabled: true
+    on_warn: 'fail'

@@ -466,7 +466,7 @@ class CreateUpdateTemplateVariableForm(ModelForm):
         instance = super(CreateUpdateTemplateVariableForm, self).save(False)
 
         # Convert \n to <br>
-        instance.text = linebreaksbr(instance.text.strip())
+        instance.text = linebreaksbr(instance.text.strip(), autoescape=False)
 
         if not instance.owner_id:
             instance.owner = get_current_user()

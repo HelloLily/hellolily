@@ -7,7 +7,7 @@ from googleapiclient.errors import HttpError
 from lily.celery import app
 from .builders.label import LabelBuilder
 from .builders.message import MessageBuilder
-from .connector import GmailConnector, MessageNotFoundError, LabelNotFoundError
+from .connector import GmailConnector, GeneralNotFoundError, LabelNotFoundError
 from .credentials import InvalidCredentialsError
 from .models.models import EmailLabel, EmailMessage, NoEmailMessageId
 
@@ -105,7 +105,7 @@ class GmailManager(object):
         # Fetch the info from the connector and only store it if it is still out there.
         try:
             message_info = self.connector.get_message_info(message_id)
-        except MessageNotFoundError:
+        except GeneralNotFoundError:
             logger.debug('Message already deleted from remote')
         else:
             self.message_builder.store_message_info(message_info, message_id)
@@ -273,7 +273,7 @@ class GmailManager(object):
 
         try:
             message_info = self.connector.get_short_message_info(message_id)
-        except MessageNotFoundError:
+        except GeneralNotFoundError:
             return
 
         logger.debug('Storing label info for message: %s, account %s' % (
@@ -319,7 +319,7 @@ class GmailManager(object):
         for n in range(0, 6):
             try:
                 message_info = self.connector.get_short_message_info(email_message.message_id)
-            except MessageNotFoundError:
+            except GeneralNotFoundError:
                 logger.debug('Message not available on remote.')
                 EmailMessage.objects.get(pk=email_message.id).delete()
                 return
@@ -427,7 +427,7 @@ class GmailManager(object):
         try:
             message_dict = self.connector.trash_email_message(email_message.message_id)
             full_message_dict = self.connector.get_message_info(message_dict['id'])
-        except MessageNotFoundError:
+        except GeneralNotFoundError:
             logger.debug('Message already deleted from remote')
         else:
             # Store updated message.
@@ -444,7 +444,7 @@ class GmailManager(object):
         """
         try:
             self.connector.delete_email_message(email_message.message_id)
-        except MessageNotFoundError:
+        except GeneralNotFoundError:
             logger.debug('Message already deleted from remote')
         else:
             self.update_unread_count()
@@ -462,7 +462,7 @@ class GmailManager(object):
 
         try:
             full_message_dict = self.connector.get_message_info(message_dict['id'])
-        except MessageNotFoundError:
+        except GeneralNotFoundError:
             logger.debug('Message already deleted from remote')
         else:
             # Store updated message.
@@ -482,7 +482,7 @@ class GmailManager(object):
 
         try:
             full_message_dict = self.connector.get_message_info(message_dict['message']['id'])
-        except MessageNotFoundError:
+        except GeneralNotFoundError:
             logger.debug('Message already deleted from remote')
         else:
             # Store updated message.
@@ -504,7 +504,7 @@ class GmailManager(object):
 
         try:
             full_message_dict = self.connector.get_message_info(message_dict['message']['id'])
-        except MessageNotFoundError:
+        except GeneralNotFoundError:
             logger.debug('Message already deleted from remote')
         else:
             # Store updated message.

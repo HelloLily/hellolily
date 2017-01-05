@@ -26,7 +26,7 @@ class AuthError(ConnectorError):
     pass
 
 
-class MessageNotFoundError(ConnectorError):
+class GeneralNotFoundError(ConnectorError):
     pass
 
 
@@ -103,7 +103,8 @@ class GmailConnector(object):
                 elif error.get('code') == 400 and error.get('message') == 'Invalid label: SENT':
                     raise IllegalLabelError('Not allowed to set label SENT.')
                 elif error.get('code') == 404:
-                    raise MessageNotFoundError
+                    logger.exception(error)
+                    raise GeneralNotFoundError
                 else:
                     logger.exception('Unkown error code for error %s' % error)
                     raise

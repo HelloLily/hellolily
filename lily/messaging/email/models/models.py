@@ -89,7 +89,7 @@ class EmailAccount(TenantMixin, DeletedMixin):
     )
 
     def __unicode__(self):
-        return u'%s  (%s)' % (self.label, self.email_address)
+        return u'%s  (%d: %s)' % (self.label, self.id, self.email_address)
 
     def is_owned_by_user(self):
         return True

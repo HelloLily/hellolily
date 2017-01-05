@@ -20,11 +20,11 @@ def synchronize_email_account_scheduler():
     Start new tasks for every active mailbox to start synchronizing.
     """
     for email_account in EmailAccount.objects.filter(is_authorized=True, is_deleted=False):
-        logger.debug('Scheduling sync for %s', email_account.email_address)
+        logger.debug('Scheduling sync for %s', email_account)
 
         if not email_account.history_id:
             # First synchronize
-            logger.debug('Adding task for first sync for %s', email_account.email_address)
+            logger.debug('Adding task for first sync for %s', email_account)
             first_synchronize_email_account.apply_async(
                 args=(email_account.pk,),
                 max_retries=1,
@@ -32,14 +32,14 @@ def synchronize_email_account_scheduler():
             )
         else:
             # Incremental synchronize
-            logger.info('Adding task for sync for: %s', email_account.email_address)
+            logger.info('Adding task for sync for: %s', email_account)
             synchronize_email_account.apply_async(
                 args=(email_account.pk,),
                 max_retries=1,
                 default_retry_delay=100,
             )
 
-        logger.info('Adding task for label sync for: %s', email_account.email_address)
+        logger.info('Adding task for label sync for: %s', email_account)
         synchronize_labels.apply_async(
             args=(email_account.pk,),
             max_retries=1,
@@ -68,7 +68,7 @@ def synchronize_email_account(account_id):
                 manager.sync_by_history()
                 logger.info('History page sync done for: %s', email_account)
             except HttpAccessTokenRefreshError:
-                logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
+                logger.warning('Not syncing, no authorization for: %s', email_account)
                 pass
             except Exception:
                 logger.exception('No sync for account %s' % email_account)
@@ -76,7 +76,7 @@ def synchronize_email_account(account_id):
                 if manager:
                     manager.cleanup()
         else:
-            logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
+            logger.warning('Not syncing, no authorization for: %s', email_account)
 
 
 @task(name='first_synchronize_email_account', logger=logger)
@@ -99,7 +99,7 @@ def first_synchronize_email_account(account_id):
                 logger.debug('First sync for: %s', email_account)
                 manager.full_synchronize()
             except HttpAccessTokenRefreshError:
-                logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
+                logger.warning('Not syncing, no authorization for: %s', email_account)
                 pass
             except Exception:
                 logger.exception('No sync for account %s' % email_account)
@@ -107,7 +107,7 @@ def first_synchronize_email_account(account_id):
                 if manager:
                     manager.cleanup()
         else:
-            logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
+            logger.warning('Not syncing, no authorization for: %s', email_account)
 
 
 @task(name='first_sync_finished', logger=logger)
@@ -131,7 +131,7 @@ def first_sync_finished(account_id):
                 email_account.first_sync_finished = True
                 email_account.save()
             except HttpAccessTokenRefreshError:
-                logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
+                logger.warning('Not syncing, no authorization for: %s', email_account)
                 pass
             except Exception:
                 logger.exception('Could not update first_sync_finished flag for account %s' % email_account)
@@ -139,7 +139,7 @@ def first_sync_finished(account_id):
                 if manager:
                     manager.cleanup()
         else:
-            logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
+            logger.warning('Not syncing, no authorization for: %s', email_account)
 
 
 @task(name='synchronize_labels', logger=logger)
@@ -162,7 +162,7 @@ def synchronize_labels(account_id):
                 manager.sync_labels()
                 logger.debug('Label synchronize for: %s', email_account)
             except HttpAccessTokenRefreshError:
-                logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
+                logger.warning('Not syncing, no authorization for: %s', email_account)
                 pass
             except Exception:
                 logger.exception('Could not synchronize labels for account %s' % email_account)
@@ -170,7 +170,7 @@ def synchronize_labels(account_id):
                 if manager:
                     manager.cleanup()
         else:
-            logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
+            logger.warning('Not syncing, no authorization for: %s', email_account)
 
 
 @task(name='download_email_message', logger=logger, acks_late=True, bind=True)
@@ -194,7 +194,7 @@ def download_email_message(self, account_id, message_id):
                 logger.debug('Fetch message %s for: %s' % (message_id, email_account))
                 manager.download_message(message_id)
             except HttpAccessTokenRefreshError:
-                logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
+                logger.warning('Not syncing, no authorization for: %s', email_account)
                 pass
             except Exception as exc:
                 logger.exception('Fetch message %s for: %s failed' % (message_id, email_account))
@@ -203,7 +203,7 @@ def download_email_message(self, account_id, message_id):
                 if manager:
                     manager.cleanup()
         else:
-            logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
+            logger.warning('Not syncing, no authorization for: %s', email_account)
 
 
 @task(name='update_labels_for_message', logger=logger, bind=True)
@@ -227,7 +227,7 @@ def update_labels_for_message(self, account_id, email_id):
                 logger.debug('Changing labels for: %s', email_id)
                 manager.update_labels_for_message(email_id)
             except HttpAccessTokenRefreshError:
-                logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
+                logger.warning('Not syncing, no authorization for: %s', email_account)
                 pass
             except Exception as exc:
                 logger.exception('Failed changing labels for %s' % email_id)
@@ -236,7 +236,7 @@ def update_labels_for_message(self, account_id, email_id):
                 if manager:
                     manager.cleanup()
         else:
-            logger.warning('Not syncing, no authorization for: %s', email_account.email_address)
+            logger.warning('Not syncing, no authorization for: %s', email_account)
 
 
 @task(name='toggle_read_email_message', logger=logger, acks_late=True, bind=True)
@@ -260,7 +260,7 @@ def toggle_read_email_message(self, email_id, read=True):
                 logger.debug('Toggle read: %s', email_message)
                 manager.toggle_read_email_message(email_message, read=read)
             except HttpAccessTokenRefreshError:
-                logger.warning('Not syncing, no authorization for: %s', email_message.account.email_address)
+                logger.warning('Not syncing, no authorization for: %s', email_message.account)
                 pass
             except Exception as exc:
                 logger.exception('Failed toggle read for: %s' % email_message)
@@ -269,7 +269,7 @@ def toggle_read_email_message(self, email_id, read=True):
                 if manager:
                     manager.cleanup()
         else:
-            logger.warning('Not syncing, no authorization for: %s', email_message.account.email_address)
+            logger.warning('Not syncing, no authorization for: %s', email_message.account)
 
 
 @task(name='trash_email_message', logger=logger, bind=True)
@@ -295,7 +295,7 @@ def trash_email_message(self, email_id):
                 else:
                     manager.trash_email_message(email_message)
             except HttpAccessTokenRefreshError:
-                logger.warning('Not syncing, no authorization for: %s', email_message.account.email_address)
+                logger.warning('Not syncing, no authorization for: %s', email_message.account)
                 pass
             except Exception as exc:
                 logger.exception('Failed trashing %s' % email_message)
@@ -304,7 +304,7 @@ def trash_email_message(self, email_id):
                 if manager:
                     manager.cleanup()
         else:
-            logger.warning('Not syncing, no authorization for: %s', email_message.account.email_address)
+            logger.warning('Not syncing, no authorization for: %s', email_message.account)
 
 
 @task(name='add_and_remove_labels_for_message', logger=logger, bind=True)
@@ -329,7 +329,7 @@ def add_and_remove_labels_for_message(self, email_id, add_labels=[], remove_labe
                 logger.debug('Changing labels for: %s', email_message)
                 manager.add_and_remove_labels_for_message(email_message, add_labels, remove_labels)
             except HttpAccessTokenRefreshError:
-                logger.warning('Not syncing, no authorization for: %s', email_message.account.email_address)
+                logger.warning('Not syncing, no authorization for: %s', email_message.account)
                 pass
             except Exception as exc:
                 logger.exception('Failed changing labels for %s' % email_message)
@@ -338,7 +338,7 @@ def add_and_remove_labels_for_message(self, email_id, add_labels=[], remove_labe
                 if manager:
                     manager.cleanup()
         else:
-            logger.warning('Not syncing, no authorization for: %s', email_message.account.email_address)
+            logger.warning('Not syncing, no authorization for: %s', email_message.account)
 
 
 @task(name='delete_email_message', logger=logger, bind=True)
@@ -364,7 +364,7 @@ def delete_email_message(self, email_id):
                 elif in_trash:
                     manager.delete_email_message(email_message)
             except HttpAccessTokenRefreshError:
-                logger.warning('Not syncing, no authorization for: %s', email_message.account.email_address)
+                logger.warning('Not syncing, no authorization for: %s', email_message.account)
                 pass
             except Exception as exc:
                 logger.exception('Failed deleting %s' % email_message)
@@ -373,7 +373,7 @@ def delete_email_message(self, email_id):
                 if manager:
                     manager.cleanup()
         else:
-            logger.warning('Not syncing, no authorization for: %s', email_message.account.email_address)
+            logger.warning('Not syncing, no authorization for: %s', email_message.account)
 
 
 @task(name='send_message', logger=logger)
@@ -464,7 +464,7 @@ def send_message(email_outbox_message_id, original_message_id=None):
         # we can notify users about sent mails.
         post_intercom_event(event_name='email-sent', user_id=email_account.owner.id)
     except HttpAccessTokenRefreshError:
-        logger.warning('EmailAccount not authorized: %s', email_account.email_address)
+        logger.warning('EmailAccount not authorized: %s', email_account)
         pass
     except Exception as e:
         logger.error(traceback.format_exc(e))
@@ -508,7 +508,7 @@ def create_draft_email_message(email_outbox_message_id):
         email_outbox_message.delete()
         draft_success = True
     except HttpAccessTokenRefreshError:
-        logger.warning('EmailAccount not authorized: %s', email_account.email_address)
+        logger.warning('EmailAccount not authorized: %s', email_account)
         pass
     except Exception:
         logger.exception('Couldn\'t create draft')
@@ -557,7 +557,7 @@ def update_draft_email_message(email_outbox_message_id, current_draft_pk):
         email_outbox_message.delete()
         draft_success = True
     except HttpAccessTokenRefreshError:
-        logger.warning('EmailAccount not authorized: %s', email_account.email_address)
+        logger.warning('EmailAccount not authorized: %s', email_account)
         pass
     except Exception:
         logger.exception('Couldn\'t create or update draft')
@@ -590,7 +590,7 @@ def toggle_star_email_message(email_id, star=True):
                 logger.debug('Toggle star for: %s', email_message)
                 manager.toggle_star_email_message(email_message, star)
             except HttpAccessTokenRefreshError:
-                logger.warning('Not syncing, no authorization for: %s', email_message.account.email_address)
+                logger.warning('Not syncing, no authorization for: %s', email_message.account)
                 pass
             except Exception:
                 logger.exception('Failed toggle star for: %s', email_message)
@@ -598,7 +598,7 @@ def toggle_star_email_message(email_id, star=True):
                 if manager:
                     manager.cleanup()
         else:
-            logger.warning('Not syncing, no authorization for: %s', email_message.account.email_address)
+            logger.warning('Not syncing, no authorization for: %s', email_message.account)
 
 
 @task(name='toggle_spam_email_message', logger=logger)
@@ -622,7 +622,7 @@ def toggle_spam_email_message(email_id, spam=True):
                 logger.debug('Toggle spam label for message: %s', email_message)
                 manager.toggle_spam_email_message(email_message, spam)
             except HttpAccessTokenRefreshError:
-                logger.warning('Not syncing, no authorization for: %s', email_message.account.email_address)
+                logger.warning('Not syncing, no authorization for: %s', email_message.account)
                 pass
             except Exception:
                 logger.exception('Failed marking as spam: %s', email_message)
@@ -630,4 +630,4 @@ def toggle_spam_email_message(email_id, spam=True):
                 if manager:
                     manager.cleanup()
         else:
-            logger.warning('Not syncing, no authorization for: %s', email_message.account.email_address)
+            logger.warning('Not syncing, no authorization for: %s', email_message.account)

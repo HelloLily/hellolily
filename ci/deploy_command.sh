@@ -2,7 +2,7 @@
 
 if [ "${NEXT_ACTION}" == "deploy" ]; then
     # Use no input to skip the verification step in collectstatic.
-    deploy_command="python manage.py collectstatic --noinput && python manage.py set_app_hash"
+    deploy_command="python manage.py collectstatic --noinput"
 
     if [ "${MIGRATION_NEEDED}" == "true" ]; then
         deploy_command="${deploy_command} && yes "yes" | python manage.py migrate"

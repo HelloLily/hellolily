@@ -11,9 +11,12 @@
                             {{ status.name }}
                         </span>
                     </li>
+                </ul>
 
+                <ul class="hl-button-group">
                     <li class="hl-button-group-btn">
-                        <span class="hl-button-group-btn-link" ng-click="vm.deal.is_archived = !vm.deal.is_archived">
+                        <span class="hl-button-group-btn-link" ng-attr-uib-tooltip="{{!vm.deal.is_archived && 'Archive to hide it in lists' || ''}}" ng-click="vm.deal.is_archived = !vm.deal.is_archived">
+                            <i class="fa fa-archive"></i>
                             <span ng-if="vm.deal.is_archived">Unarchive</span>
                             <span ng-if="!vm.deal.is_archived">Archive</span>
                         </span>

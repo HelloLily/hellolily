@@ -87,7 +87,9 @@ class Contact(Common, TaggedObjectMixin):
         account = self.accounts.first()
 
         if account:
-            city = account.addresses.first().city
+            address = account.addresses.first()
+            if address:
+                city = account.addresses.first().city
 
         return city
 

@@ -7,14 +7,17 @@
             <div class="widget-heading">
                 <div class="hl-button-group-container">
                     <ul class="hl-button-group" data-toggle="buttons" data-object-id="{{ ::vm.case.id }}">
-                        <li class="hl-button-group-btn" ng-repeat="status in vm.statusChoices " ng-click="vm.changeCaseStatus(status)" ng-class="{'selected': vm.case.status.name == status.name, 'disabled': vm.case.is_archived }">
+                        <li class="hl-button-group-btn" ng-repeat="status in vm.statusChoices" ng-attr-uib-tooltip="{{status.name == 'Closed' && 'Closes and archives it' || ''}}" ng-click="vm.changeCaseStatus(status)" ng-class="{'selected': vm.case.status.name == status.name, 'disabled': vm.case.is_archived }">
                             <span class="hl-button-group-btn-link">
                                 {{ status.name }}
                             </span>
                         </li>
+                    </ul>
 
-                        <li class="hl-button-group-btn">
+                    <ul class="hl-button-group" data-toggle="buttons" data-object-id="{{ ::vm.case.id }}">
+                        <li class="hl-button-group-btn" ng-attr-uib-tooltip="{{!vm.case.is_archived && 'Archive to hide it in lists' || ''}}">
                             <span class="hl-button-group-btn-link" ng-click="vm.toggleArchived()">
+                                <i class="fa fa-archive"></i>
                                 <span ng-if="vm.case.is_archived">Unarchive</span>
                                 <span ng-if="!vm.case.is_archived">Archive</span>
                             </span>

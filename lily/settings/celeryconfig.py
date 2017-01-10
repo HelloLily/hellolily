@@ -47,10 +47,10 @@ CELERY_ROUTES = (
     {'synchronize_email_account_scheduler': {
         'queue': 'email_scheduled_tasks'
     }},
-    {'synchronize_email_account': {
+    {'incremental_synchronize_email_account': {
         'queue': 'email_scheduled_tasks'
     }},
-    {'first_synchronize_email_account': {
+    {'full_synchronize_email_account': {
         # Task created by this task, will be routed to queue3.
         'queue': 'email_scheduled_tasks'
     }},

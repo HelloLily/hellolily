@@ -74,7 +74,8 @@ class EmailAccount(TenantMixin, DeletedMixin):
     # History id is a field to keep track of the sync status of a gmail box.
     history_id = models.BigIntegerField(null=True)
     temp_history_id = models.BigIntegerField(null=True)
-    first_sync_finished = models.BooleanField(default=False)
+    full_sync_finished = models.BooleanField(default=False)
+    sync_failure_count = models.PositiveSmallIntegerField(default=0)
 
     owner = models.ForeignKey(LilyUser, related_name='email_accounts_owned')
     shared_with_users = models.ManyToManyField(

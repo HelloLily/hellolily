@@ -127,7 +127,7 @@ class OAuth2Callback(LoginRequiredMixin, View):
         if only_sync_new_mails and created:
             # Setting it before the first sync means it will only fetch changes starting now.
             account.history_id = profile.get('historyId')
-            account.first_sync_finished = True
+            account.full_sync_finished = True
 
         account.save()
 

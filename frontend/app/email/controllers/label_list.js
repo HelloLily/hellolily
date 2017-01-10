@@ -6,7 +6,7 @@ function LabelListController($filter, $interval, $scope, $state, EmailAccount, p
     vm.accountList = [];
     vm.primaryEmailAccountId = primaryEmailAccountId;
     vm.labelCount = 0;
-    vm.firstAllSyncFinished = true;
+    vm.fullAllSyncFinished = true;
 
     vm.hasUnreadLabel = hasUnreadLabel;
     vm.unreadCountForLabel = unreadCountForLabel;
@@ -81,14 +81,14 @@ function LabelListController($filter, $interval, $scope, $state, EmailAccount, p
             }
             vm.labelCount = labelCount;
 
-            // Check if there is still one account syncing for the first time to set the global sync status.
+            // Check if there is still one account doing a full sync to set the global sync status.
             for (i in vm.accountList) {
-                if (!vm.accountList[i].first_sync_finished) {
+                if (!vm.accountList[i].full_sync_finished) {
                     finished = false;
                     break;
                 }
             }
-            vm.firstAllSyncFinished = finished;
+            vm.fullAllSyncFinished = finished;
         });
     }
 

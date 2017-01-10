@@ -26,7 +26,7 @@ class AuthError(ConnectorError):
     pass
 
 
-class GeneralNotFoundError(ConnectorError):
+class NotFoundError(ConnectorError):
     pass
 
 
@@ -103,8 +103,7 @@ class GmailConnector(object):
                 elif error.get('code') == 400 and error.get('message') == 'Invalid label: SENT':
                     raise IllegalLabelError('Not allowed to set label SENT.')
                 elif error.get('code') == 404:
-                    logger.exception(error)
-                    raise GeneralNotFoundError
+                    raise NotFoundError
                 else:
                     logger.exception('Unkown error code for error %s' % error)
                     raise
@@ -251,7 +250,7 @@ class GmailConnector(object):
 
     def save_history_id(self):
         """
-        Save currently set history_id to the EmailAccount
+        Save currently set history_id to the EmailAccount.
         """
         self.email_account.history_id = self.history_id
         self.email_account.save()

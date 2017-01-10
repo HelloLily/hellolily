@@ -17,23 +17,24 @@ logger = logging.getLogger(__name__)
 @task(name='synchronize_email_account_scheduler')
 def synchronize_email_account_scheduler():
     """
-    Start new tasks for every active mailbox to start synchronizing.
+    Start new tasks for every active mailbox to synchronize.
     """
     for email_account in EmailAccount.objects.filter(is_authorized=True, is_deleted=False):
         logger.debug('Scheduling sync for %s', email_account)
 
-        if not email_account.history_id:
-            # First synchronize
-            logger.debug('Adding task for first sync for %s', email_account)
-            first_synchronize_email_account.apply_async(
+        if not email_account.history_id or email_account.sync_failure_count > 0:
+            # Initiate a full sync of the email account when the history id is missing (the account is newly added) or
+            # when the account failed (404 error) on the incremental sync.
+            logger.info('Adding task for a full sync of %s', email_account)
+            full_synchronize_email_account.apply_async(
                 args=(email_account.pk,),
                 max_retries=1,
                 default_retry_delay=100,
             )
-        else:
-            # Incremental synchronize
-            logger.info('Adding task for sync for: %s', email_account)
-            synchronize_email_account.apply_async(
+        elif email_account.full_sync_finished:
+            # Incremental synchronize on email account which finished a full synchronization.
+            logger.info('Adding task for incremental sync for: %s', email_account)
+            incremental_synchronize_email_account.apply_async(
                 args=(email_account.pk,),
                 max_retries=1,
                 default_retry_delay=100,
@@ -47,10 +48,10 @@ def synchronize_email_account_scheduler():
         )
 
 
-@task(name='synchronize_email_account', logger=logger)
-def synchronize_email_account(account_id):
+@task(name='incremental_synchronize_email_account', logger=logger)
+def incremental_synchronize_email_account(account_id):
     """
-    Synchronize task for all email accounts that are connected with gmail api.
+    Incremental synchronize task for the email account.
 
     Args:
         account_id (int): id of the EmailAccount
@@ -79,10 +80,10 @@ def synchronize_email_account(account_id):
             logger.warning('Not syncing, no authorization for: %s', email_account)
 
 
-@task(name='first_synchronize_email_account', logger=logger)
-def first_synchronize_email_account(account_id):
+@task(name='full_synchronize_email_account', logger=logger)
+def full_synchronize_email_account(account_id):
     """
-    First Synchronize task for all email accounts that are connected with gmail api.
+    Full synchronize task for the email account.
 
     Args:
         account_id (int): id of the EmailAccount
@@ -96,7 +97,8 @@ def first_synchronize_email_account(account_id):
             manager = None
             try:
                 manager = GmailManager(email_account)
-                logger.debug('First sync for: %s', email_account)
+                manager.administer_full_sync_status(False)
+                logger.debug('Full sync for: %s', email_account)
                 manager.full_synchronize()
             except HttpAccessTokenRefreshError:
                 logger.warning('Not syncing, no authorization for: %s', email_account)
@@ -110,10 +112,10 @@ def first_synchronize_email_account(account_id):
             logger.warning('Not syncing, no authorization for: %s', email_account)
 
 
-@task(name='first_sync_finished', logger=logger)
-def first_sync_finished(account_id):
+@task(name='full_sync_finished', logger=logger)
+def full_sync_finished(account_id):
     """
-    Mark the email account as finished syncing for the first time.
+    Mark the email account when the full sync of the email account has finished.
 
     Args:
         account_id (int): id of the EmailAccount
@@ -127,14 +129,13 @@ def first_sync_finished(account_id):
             manager = None
             try:
                 manager = GmailManager(email_account)
-                logger.debug('Finished first email sync for: %s', email_account)
-                email_account.first_sync_finished = True
-                email_account.save()
+                manager.administer_full_sync_status(True)
+                logger.info('Finished full email sync for: %s', email_account)
             except HttpAccessTokenRefreshError:
                 logger.warning('Not syncing, no authorization for: %s', email_account)
                 pass
             except Exception:
-                logger.exception('Could not update first_sync_finished flag for account %s' % email_account)
+                logger.exception('Could not update full_sync_finished flag for account %s' % email_account)
             finally:
                 if manager:
                     manager.cleanup()

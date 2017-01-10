@@ -7,7 +7,7 @@ from googleapiclient.errors import HttpError
 from lily.celery import app
 from .builders.label import LabelBuilder
 from .builders.message import MessageBuilder
-from .connector import GmailConnector, GeneralNotFoundError, LabelNotFoundError
+from .connector import GmailConnector, NotFoundError, LabelNotFoundError
 from .credentials import InvalidCredentialsError
 from .models.models import EmailLabel, EmailMessage, NoEmailMessageId
 
@@ -79,15 +79,15 @@ class GmailManager(object):
 
         # Finally, add a task to keep track when the sync queue is finished.
         app.send_task(
-            'first_sync_finished',
+            'full_sync_finished',
             args=[self.email_account.id],
             queue='email_first_sync'
         )
 
-        self.connector.save_history_id()
         # Only if transaction was successful, we update the history ID.
-        logger.debug('Finished queuing up tasks for email sync, storing history id for %s' %
-                     self.email_account.email_address)
+        self.connector.save_history_id()
+
+        logger.debug('Finished queuing up tasks for email sync, storing history id for %s' % self.email_account)
 
     def download_message(self, message_id):
         """
@@ -105,7 +105,7 @@ class GmailManager(object):
         # Fetch the info from the connector and only store it if it is still out there.
         try:
             message_info = self.connector.get_message_info(message_id)
-        except GeneralNotFoundError:
+        except NotFoundError:
             logger.debug('Message already deleted from remote')
         else:
             self.message_builder.store_message_info(message_info, message_id)
@@ -120,7 +120,24 @@ class GmailManager(object):
         logger.info('updating history for %s with history_id %s' % (self.email_account, self.email_account.history_id))
         old_history_id = self.email_account.history_id
 
-        history = self.connector.get_history()
+        try:
+            history = self.connector.get_history()
+        except NotFoundError:
+            # A NotFoundError (http error code 404) is given when the suplied historyId is invalid.
+            # Synchronization of email can be restored by initialting a full sync on the account. This is covered
+            # in the synchronize_email_account_scheduler task by looking at the sync_failure_count.
+            self.email_account.sync_failure_count += 1
+            self.email_account.save()
+            if self.email_account.sync_failure_count > settings.MAX_SYNC_FAILURES:
+                # Repeated sync failures indicate that a full sync did not restore the 404 error, so terminate
+                # syncing on this account altogether.
+                self.email_account.is_authorized = False
+                self.email_account.save()
+                logger.error('Repeated 404 error on incremental syncing. Authorization revoked for account %s' %
+                             self.email_account)
+            return
+
+        self.connector.save_history_id()
         if not len(history):
             return
 
@@ -177,7 +194,6 @@ class GmailManager(object):
             logger.info('creating update_labels_for_message for %s', message_id)
             app.send_task('update_labels_for_message', args=[self.email_account.id, message_id])
 
-        self.connector.save_history_id()
         # Only update the unread count if the history id was updated.
         if old_history_id != self.email_account.history_id:
             self.update_unread_count()
@@ -221,11 +237,19 @@ class GmailManager(object):
         """
         Update unread count on every label.
         """
-        logger.debug('Updating unread count for every label, account %s' % self.email_account.email_address)
+        logger.debug('Updating unread count for every label, account %s' % self.email_account)
         for label in self.email_account.labels.all():
             unread_count = label.messages.filter(read=False).count()
             label.unread = unread_count
             label.save()
+
+    def administer_full_sync_status(self, full_sync_finished):
+        """
+        Keep track if a full sync is in progress and reset synchronization failure count.
+        """
+        self.email_account.full_sync_finished = full_sync_finished
+        self.email_account.sync_failure_count = 0
+        self.email_account.save()
 
     def get_label(self, label_id):
         """
@@ -273,7 +297,7 @@ class GmailManager(object):
 
         try:
             message_info = self.connector.get_short_message_info(message_id)
-        except GeneralNotFoundError:
+        except NotFoundError:
             return
 
         logger.debug('Storing label info for message: %s, account %s' % (
@@ -304,7 +328,7 @@ class GmailManager(object):
                 self.message_builder.save()
             except Exception:
                 logger.exception(
-                    'Couldn\'t save message %s for account %s' % (message_id, self.email_account.id))
+                    'Couldn\'t save message %s for account %s' % (message_id, self.email_account))
 
     def add_and_remove_labels_for_message(self, email_message, add_labels=[], remove_labels=[]):
         """
@@ -319,7 +343,7 @@ class GmailManager(object):
         for n in range(0, 6):
             try:
                 message_info = self.connector.get_short_message_info(email_message.message_id)
-            except GeneralNotFoundError:
+            except NotFoundError:
                 logger.debug('Message not available on remote.')
                 EmailMessage.objects.get(pk=email_message.id).delete()
                 return
@@ -427,7 +451,7 @@ class GmailManager(object):
         try:
             message_dict = self.connector.trash_email_message(email_message.message_id)
             full_message_dict = self.connector.get_message_info(message_dict['id'])
-        except GeneralNotFoundError:
+        except NotFoundError:
             logger.debug('Message already deleted from remote')
         else:
             # Store updated message.
@@ -444,7 +468,7 @@ class GmailManager(object):
         """
         try:
             self.connector.delete_email_message(email_message.message_id)
-        except GeneralNotFoundError:
+        except NotFoundError:
             logger.debug('Message already deleted from remote')
         else:
             self.update_unread_count()
@@ -462,7 +486,7 @@ class GmailManager(object):
 
         try:
             full_message_dict = self.connector.get_message_info(message_dict['id'])
-        except GeneralNotFoundError:
+        except NotFoundError:
             logger.debug('Message already deleted from remote')
         else:
             # Store updated message.
@@ -482,7 +506,7 @@ class GmailManager(object):
 
         try:
             full_message_dict = self.connector.get_message_info(message_dict['message']['id'])
-        except GeneralNotFoundError:
+        except NotFoundError:
             logger.debug('Message already deleted from remote')
         else:
             # Store updated message.
@@ -504,7 +528,7 @@ class GmailManager(object):
 
         try:
             full_message_dict = self.connector.get_message_info(message_dict['message']['id'])
-        except GeneralNotFoundError:
+        except NotFoundError:
             logger.debug('Message already deleted from remote')
         else:
             # Store updated message.

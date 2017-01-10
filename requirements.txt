@@ -57,7 +57,7 @@ django-pipeline==1.5.2
 futures==3.0.5
 django-statici18n==1.1.3
 django-storages==1.4
-Pillow==3.3.1
+Pillow==3.3.2
 
 #######################################################
 ### Celery & Email                                  ###

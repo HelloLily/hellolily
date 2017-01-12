@@ -227,10 +227,10 @@
     }
 }
 
-.js-form-prolyfill {
-    @include prolyfill("width < 500px") {
-        [class*='col-'] {
-            width: 100%;
-        }
-    }
-}
+// .js-form-prolyfill {
+//     @include prolyfill("width < 500px") {
+//         [class*='col-'] {
+//             width: 100%;
+//         }
+//     }
+// }

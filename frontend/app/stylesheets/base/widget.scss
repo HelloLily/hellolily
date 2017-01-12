@@ -272,13 +272,13 @@ class is applied to, so be sure it has a wrapping container.
     margin-bottom: 20px;
 }
 
-.js-cq-widget-container {
-    @include prolyfill("width < 500px") {
-        .external-link-name {
-            display: none;
-        }
-    }
-}
+// .js-cq-widget-container {
+//     @include prolyfill("width < 500px") {
+//         .external-link-name {
+//             display: none;
+//         }
+//     }
+// }
 
 .widget-table {
     .newly-assigned {

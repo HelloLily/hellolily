@@ -391,7 +391,11 @@ class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializer
 
             data = json.dumps(data, sort_keys=True, default=lambda x: str(x))
 
-            webhook_calls = (grequests.post(wh.url, data=data) for wh in [webhook])
+            headers = {
+                'Content-Type': 'application/json',
+            }
+
+            webhook_calls = (grequests.post(wh.url, data=data, headers=headers) for wh in [webhook])
 
             try:
                 # User has a webhook set, so post the data to the given URL.

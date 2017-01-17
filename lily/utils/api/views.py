@@ -1,4 +1,3 @@
-import redis
 from django.contrib.messages import get_messages
 from django.conf import settings
 from django.db.models import Q
@@ -86,8 +85,4 @@ class CountryViewSet(ModelViewSet):
 
 class AppHash(APIView):
     def get(self, request, format=None, *args, **kwargs):
-        r = redis.StrictRedis(host=settings.REDIS.hostname, port=settings.REDIS.port, password=settings.REDIS.password)
-
-        app_hash = r.get('app_hash')
-
-        return Response({'app_hash': app_hash})
+        return Response({'app_hash': settings.CURRENT_COMMIT_SHA})

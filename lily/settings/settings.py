@@ -1,10 +1,12 @@
-from datetime import datetime, timedelta
+import logging.config
 import os
+from datetime import datetime, timedelta
 from urlparse import urlparse, uses_netloc
 
+import dj_database_url
+import raven
 from django.conf import global_settings
 from django.core.urlresolvers import reverse_lazy
-import dj_database_url
 
 
 #######################################################################################################################
@@ -16,9 +18,6 @@ import dj_database_url
 def gettext_noop(s):
     return s
 
-# Don't share this with anybody
-SECRET_KEY = os.environ.get('SECRET_KEY', 'my-secret-key')
-
 
 # Turn 0 or 1 into False/True respectively
 def boolean(value):
@@ -28,6 +27,13 @@ def boolean(value):
 # Get local path for any given folder/path
 def local_path(path):
     return os.path.join(os.path.dirname(__file__), os.pardir, path)
+
+
+# Don't share this with anybody
+SECRET_KEY = os.environ.get('SECRET_KEY', 'my-secret-key')
+
+# Current git commit hash
+CURRENT_COMMIT_SHA = os.environ.get('HEROKU_SLUG_COMMIT', raven.fetch_git_sha(os.path.dirname(os.pardir)))
 
 #######################################################################################################################
 # DJANGO CONFIG                                                                                                       #
@@ -322,142 +328,92 @@ TEMPLATED_EMAIL_TEMPLATE_DIR = 'email/'
 #######################################################################################################################
 # LOGGING CONFIG                                                                                                      #
 #######################################################################################################################
-USE_LOGGING = boolean(os.environ.get('USE_LOGGING', 1))
-if USE_LOGGING:
-    LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'filters': {
-            'require_debug_false': {
-                '()': 'django.utils.log.RequireDebugFalse',
-            },
-            'require_debug_true': {
-                '()': 'django.utils.log.RequireDebugTrue',
-            },
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
         },
-        'formatters': {
-            'verbose': {
-                'format': '[%(asctime)s] (%(levelname)s) %(filename)s#%(lineno)s %(funcName)s():\n%(message)s',
-                'datefmt': '%H:%M:%S',
-            },
-            'simple': {
-                'format': '[%(asctime)s] (%(levelname)s): %(message)s'
-            },
-            'email_errors_temp_format': {
-                'format': '[%(asctime)s] (%(levelname)s) EMAIL_LOG: %(message)s'
-            }
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
         },
-        'handlers': {
-            'console': {
-                'level': 'INFO',
-                # 'filters': ['require_debug_true'],
-                'class': 'logging.StreamHandler',
-                'formatter': 'verbose'
-            },
-            'console_debug': {
-                'level': 'DEBUG',
-                # 'filters': ['require_debug_true'],
-                'class': 'logging.StreamHandler',
-                'formatter': 'verbose'
-            },
-            'null': {
-                'class': 'django.utils.log.NullHandler',
-            },
-            'mail_admins': {
-                'level': 'ERROR',
-                'filters': ['require_debug_false'],
-                'class': 'django.utils.log.AdminEmailHandler',
-                'include_html': True,
-            },
-            'email_errors_temp_handler': {
-                'level': 'INFO',
-                'class': 'logging.StreamHandler',
-                'formatter': 'email_errors_temp_format'
-            }
+    },
+    'formatters': {
+        'verbose': {
+            'format': '[%(asctime)s] %(levelname)s <%(pathname)s#%(lineno)s %(funcName)s()>: %(message)s',
+            'datefmt': '%H:%M:%S',
         },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'sentry': {
+            'level': 'INFO',
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+        },
+        'null': {
+            'class': 'django.utils.log.NullHandler',
+        },
+    },
+}
+
+if DEBUG:
+    LOGGING.update({
         'loggers': {
-            '': {
-                'handlers': ['console'],
-                'level': 'INFO',
-                'propagate': False,
-            },
-            'django': {
-                'handlers': ['mail_admins', 'console'],
-                'level': 'ERROR',
-                'propagate': False,
-            },
-            'django.request': {
-                'handlers': ['mail_admins', 'console'],
-                'level': 'ERROR',
-                'propagate': False,
-            },
-            'django.db.backends': {
-                'handlers': ['mail_admins', 'console'],
-                'level': 'ERROR',
-                'propagate': False,
-            },
-            'django.security': {
-                'handlers': ['mail_admins', 'console'],
-                'level': 'INFO',
-                'propagate': False,
-            },
-            'py.warnings': {
-                'handlers': ['console'],
-                'level': 'DEBUG',
-                'propagate': False,
-            },
-            'search': {
-                'handlers': ['console'],
-                'level': 'ERROR',
-                'propagate': True,
-            },
-            'elasticsearch': {
-                'handlers': ['console'],
-                'level': 'ERROR',
-                'propagate': True,
-            },
-            'search.trace': {
-                'handlers': ['console'],
-                'level': 'ERROR',
-                'propagate': True,
-            },
-            'sugarimport': {
-                'handlers': ['console'],
-                'level': 'INFO',
-                'propagate': True,
-            },
-            'factory': {
-                'handlers': ['console'],
-                'level': 'ERROR',
-                'propagate': True,
-            },
-            'googleapiclient.discovery': {
-                'handlers': ['console'],
-                'level': 'ERROR',
-                'propagate': True,
-            },
-            'email': {
-                'handlers': ['console_debug'],
-                'level': 'DEBUG',
-                'propagate': True,
-            },
-            'email_errors_temp_logger': {
-                'handlers': ['email_errors_temp_handler'],
-                'level': 'INFO',
-                'propagate': False,
-            },
-            'urllib3.connectionpool': {
-                'handlers': ['console'],
+            '': {  # Everything not specified below.
                 'level': 'WARNING',
+                'handlers': ['console', ],
+            },
+            'django.security': {  # More logging specifically for security related stuff.
+                'level': 'DEBUG',
+                'handlers': ['console', ],
                 'propagate': False,
             },
-        }
-    }
+            'elasticsearch.trace': {
+                'level': 'DEBUG',
+                'handlers': ['null', ],
+                'propagate': False,
+            },
+        },
+    })
 else:
-    LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': True,
-    }
+    LOGGING.update({
+        'loggers': {
+            '': {  # Everything not specified below.
+                'level': 'WARNING',
+                'handlers': ['sentry', ],
+            },
+            'django.security': {  # More logging specifically for security related stuff.
+                'level': 'INFO',
+                'handlers': ['sentry', ],
+                'propagate': False,
+            },
+            'raven': {  # Logging for Raven and all submodules.
+                'level': 'INFO',
+                'handlers': ['console', ],
+                'propagate': False,
+            },
+            'sentry': {  # Logging for Sentry and all submodules.
+                'level': 'INFO',
+                'handlers': ['console', ],
+                'propagate': False,
+            },
+            'elasticsearch.trace': {
+                'level': 'DEBUG',
+                'handlers': ['null', ],
+                'propagate': False,
+            },
+        },
+    })
+
+# Disable default logging and use only our own.
+LOGGING_CONFIG = None
+logging.config.dictConfig(LOGGING)
 
 #######################################################################################################################
 # CACHING CONFIG                                                                                                      #
@@ -594,11 +550,16 @@ REST_FRAMEWORK = {
 #######################################################################################################################
 # External app settings                                                                                               #
 #######################################################################################################################
+DATAPROVIDER_API_KEY = os.environ.get('DATAPROVIDER_API_KEY')
+DATAPROVIDER_API_URL = 'https://www.dataprovider.com/api/0.1/lookup/hostname.json'
+
 INTERCOM_APP_ID = os.environ.get('INTERCOM_APP_ID', '')
 INTERCOM_KEY = os.environ.get('INTERCOM_KEY', '')
 
-SENTRY_PUBLIC_DSN = os.environ.get('SENTRY_PUBLIC_DSN', '')
-SENTRY_DSN = os.environ.get('SENTRY_DSN', '')
+RAVEN_CONFIG = {
+    'dsn': os.environ.get('SENTRY_DSN', ''),
+    'release': CURRENT_COMMIT_SHA,
+}
 
 #######################################################################################################################
 # TESTING                                                                                                             #
@@ -618,10 +579,6 @@ MESSAGE_STORAGE = 'django.contrib.messages.storage.fallback.FallbackStorage'
 
 # Tenant support
 MULTI_TENANT = boolean(os.environ.get('MULTI_TENANT', 0))
-
-# dataprovider
-DATAPROVIDER_API_KEY = os.environ.get('DATAPROVIDER_API_KEY')
-DATAPROVIDER_API_URL = 'https://www.dataprovider.com/api/0.1/lookup/hostname.json'
 
 # Django Bootstrap
 # TODO: These settings can be removed once all forms are converted to Angular

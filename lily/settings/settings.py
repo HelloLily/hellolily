@@ -1,5 +1,7 @@
 import logging.config
 import os
+import random
+import string
 from datetime import datetime, timedelta
 from urlparse import urlparse, uses_netloc
 
@@ -15,6 +17,9 @@ from django.core.urlresolvers import reverse_lazy
 # Provide a dummy translation function without importing it from
 # django.utils.translation, because that module is depending on
 # settings itself possibly resulting in a circular import
+from raven.exceptions import InvalidGitRepository
+
+
 def gettext_noop(s):
     return s
 
@@ -33,7 +38,13 @@ def local_path(path):
 SECRET_KEY = os.environ.get('SECRET_KEY', 'my-secret-key')
 
 # Current git commit hash
-CURRENT_COMMIT_SHA = os.environ.get('HEROKU_SLUG_COMMIT', raven.fetch_git_sha(os.path.dirname(os.pardir)))
+CURRENT_COMMIT_SHA = os.environ.get('HEROKU_SLUG_COMMIT')
+
+if not CURRENT_COMMIT_SHA:
+    try:
+        CURRENT_COMMIT_SHA = raven.fetch_git_sha(os.path.dirname(os.pardir))
+    except InvalidGitRepository:
+        CURRENT_COMMIT_SHA = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(40))
 
 #######################################################################################################################
 # DJANGO CONFIG                                                                                                       #

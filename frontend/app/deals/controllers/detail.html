@@ -180,8 +180,8 @@
             </widget>
 
             <widget widget-name="'Documents'" ng-if="vm.tenant.hasPandaDoc">
-                 <widget-filters ng-if="vm.deal.contact.id">
-                    <a ui-sref="base.quotes.create({dealId: vm.deal.id })" class="btn btn-circle btn-default">
+                <widget-filters ng-if="vm.deal.contact.id">
+                    <a ng-if="vm.tenant.hasPandaDoc" ui-sref="base.integrations.pandadoc.quotes.create({dealId: vm.deal.id })" class="btn btn-circle btn-default">
                         <i class="fa fa-external-link fa-sm"></i>
                         <span class="external-link-name">Add document</span>
                     </a>

@@ -1,15 +1,17 @@
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
-
 from lily.accounts.api.serializers import RelatedAccountSerializer
 from lily.api.fields import SanitizedHtmlCharField
 from lily.api.nested.mixins import RelatedSerializerMixin
 from lily.api.nested.serializers import WritableNestedSerializer
 from lily.api.serializers import ContentTypeSerializer
+from lily.integrations.credentials import get_credentials
 from lily.socialmedia.api.serializers import RelatedSocialMediaSerializer
 from lily.utils.api.serializers import (RelatedPhoneNumberSerializer, RelatedAddressSerializer,
                                         RelatedEmailAddressSerializer, RelatedTagSerializer)
+from lily.utils.functions import send_get_request, send_post_request
+
 from ..models import Contact
 
 
@@ -80,6 +82,140 @@ class ContactSerializer(WritableNestedSerializer):
                     })
 
         return super(ContactSerializer, self).validate(data)
+
+    def create(self, validated_data):
+        instance = super(ContactSerializer, self).create(validated_data)
+
+        credentials = get_credentials('moneybird')
+
+        if credentials and credentials.integration_context.get('auto_sync'):
+            self.send_moneybird_contact(validated_data, instance, credentials)
+
+        return instance
+
+    def update(self, instance, validated_data):
+        # Save the current data for later use.
+        original_data = {
+            'full_name': instance.full_name,
+        }
+
+        email_addresses = instance.email_addresses.all()
+
+        if len(email_addresses) == 1:
+            original_data.update({
+                'original_email_address': email_addresses[0].email_address
+            })
+
+        instance = super(ContactSerializer, self).update(instance, validated_data)
+
+        credentials = get_credentials('moneybird')
+
+        if credentials and credentials.integration_context.get('auto_sync'):
+            self.send_moneybird_contact(validated_data, instance, credentials, original_data)
+
+        return instance
+
+    def send_moneybird_contact(self, validated_data, instance, credentials, original_data=None):
+        administration_id = credentials.integration_context.get('administration_id')
+        contact_url = 'https://moneybird.com/api/v2/%s/contacts'
+
+        if original_data:
+            full_name = original_data.get('full_name')
+        else:
+            full_name = instance.full_name
+
+        search_url = (contact_url + '?query=%s') % (administration_id, full_name)
+        response = send_get_request(search_url, credentials)
+        data = response.json()
+
+        patch = False
+        params = {}
+
+        if data:
+            data = data[0]
+            moneybird_id = data.get('id')
+            post_url = (contact_url + '/%s') % (administration_id, moneybird_id)
+
+            params = {
+                'id': moneybird_id,
+            }
+
+            # Existing Moneybird contact found so we want to PATCH.
+            patch = True
+        else:
+            post_url = contact_url % administration_id
+
+        if 'first_name' in validated_data:
+            params.update({'firstname': validated_data.get('first_name')})
+
+        if 'last_name' in validated_data:
+            params.update({'lastname': validated_data.get('last_name')})
+
+        accounts = instance.accounts.all()
+
+        if 'accounts' in validated_data and len(accounts) == 1:
+            params.update({'company_name': accounts[0].name})
+
+        if 'phone_numbers' in validated_data:
+            phone_numbers = []
+
+            for validated_number in validated_data.get('phone_numbers'):
+                for phone_number in instance.phone_numbers.all():
+                    if validated_number.get('number') == phone_number.number:
+                        phone_numbers.append(phone_number)
+                        break
+
+            if phone_numbers:
+                params.update({'phone': phone_numbers[0].number})
+
+        if 'addresses' in validated_data:
+            addresses = []
+
+            for validated_address in validated_data.get('addresses'):
+                for address in instance.addresses.all():
+                    if validated_address.get('address') == address.address:
+                        addresses.append(address)
+                        break
+
+            if addresses:
+                address = addresses[0]
+                params.update({
+                    'address1': address.get('address'),
+                    'zipcode': address.get('postal_code'),
+                    'city': address.get('city'),
+                    'country': address.get('country'),
+                })
+
+        if 'email_addresses' in validated_data:
+            validated_email_addresses = validated_data.get('email_addresses')
+            original_email_address = original_data.get('original_email_address')
+
+            if len(validated_email_addresses) == 1 and original_email_address:
+                if data:
+                    invoices_email = data.get('send_invoices_to_email')
+                    estimates_email = data.get('send_estimates_to_email')
+                    validated_email_address = validated_email_addresses[0].get('email_address')
+
+                    if invoices_email == estimates_email and invoices_email == original_email_address:
+                        params.update({
+                            'send_invoices_to_email': validated_email_address,
+                            'send_estimates_to_email': validated_email_address,
+                        })
+                    elif invoices_email == original_email_address:
+                        params.update({
+                            'send_invoices_to_email': validated_email_address,
+                        })
+                    elif estimates_email == original_email_address:
+                        params.update({
+                            'send_estimates_to_email': validated_email_address,
+                        })
+
+        params = {
+            'contact': params,
+            'administration_id': administration_id
+        }
+
+        response = send_post_request(post_url, credentials, params, patch, True)
 
 
 class RelatedContactSerializer(RelatedSerializerMixin, ContactSerializer):

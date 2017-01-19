@@ -7,26 +7,27 @@ from django.utils.translation import ugettext_lazy as _
 from oauth2client.contrib.django_orm import Storage
 from rest_framework.parsers import FormParser
 from rest_framework.parsers import JSONParser
-from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from lily.contacts.models import Contact
 from lily.deals.models import Deal
 from lily.utils.functions import send_get_request
 
 from .serializers import DocumentSerializer
-from ..credentials import authenticate_pandadoc, get_credentials, LilyOAuthCredentials
-from ..models import IntegrationCredentials, IntegrationDetails, Document
+from ..credentials import get_access_token, get_credentials, put_credentials, LilyOAuthCredentials
+from ..models import Document, IntegrationCredentials, IntegrationDetails, IntegrationType
+from ..tasks import import_moneybird_contacts
 
 
 class DocumentDetails(APIView):
-    """
-    List all PandaDoc documents.
-    """
     serializer = DocumentSerializer
     parser_classes = (JSONParser, FormParser)
 
     def get(self, request, document_id, format=None):
+        """
+        Get details of the given document.
+        """
         document = {}
 
         try:
@@ -40,17 +41,17 @@ class DocumentDetails(APIView):
 
 
 class PandaDocList(APIView):
-    """
-    List all PandaDoc documents.
-    """
     serializer = DocumentSerializer
     parser_classes = (JSONParser, FormParser)
 
     def get(self, request, contact_id, format=None):
+        """
+        List all PandaDoc documents.
+        """
         documents = Document.objects.filter(contact=self.kwargs['contact_id'])
         temp_documents = []
 
-        credentials = get_credentials(IntegrationDetails.PANDADOC)
+        credentials = get_credentials('pandadoc')
 
         for document in documents:
             url = 'https://api.pandadoc.com/public/v1/documents/%s/details' % document.document_id
@@ -79,12 +80,74 @@ class PandaDocList(APIView):
         return Response({'document': document})
 
 
-class PandaDocAuth(APIView):
+class MoneybirdContactImport(APIView):
+    def post(self, request):
+        credentials = get_credentials('moneybird')
+
+        # TODO: This is for the future when Moneybird adds extra webhooks.
+        # try:
+        #     token = Token.objects.get(user=self.request.user)
+        # except Token.DoesNotExist:
+        #     raise ValidationError(_('No Lily API token found. Please setup your token first.'))
+
+        # lily_url = reverse('moneybird-contacts-list', request=request) + '?' + urllib.urlencode({'key': token.key})
+
+        # webhook_url = 'https://moneybird.com/api/v2/%s/webhooks' %
+        # credentials.integration_context.get('administration_id')
+
+        # params = {
+        #     'url': lily_url,
+        # }
+
+        if not credentials:
+            errors = {
+                'no_credentials': [_('No Moneybird credentials found')]
+            }
+            return HttpResponseBadRequest(anyjson.serialize(errors), content_type='application/json')
+
+        credentials.integration_context.update({
+            'auto_sync': self.request.data.get('auto_sync'),
+        })
+
+        put_credentials('moneybird', credentials)
+
+        # TODO: Also for the webhooks parts.
+        # response = send_post_request(webhook_url, credentials, params)
+
+        import_moneybird_contacts.apply_async(args=(self.request.user.tenant.id,))
+
+        return Response({'import_started': True})
+
+
+class EstimatesList(APIView):
+    def get(self, request, contact_id, format=None):
+        """
+        List all Moneybird estimates.
+        """
+        credentials = get_credentials('moneybird')
+
+        url = 'https://moneybird.com/api/v2/%s/estimates' % credentials.integration_context.get('administration_id')
+
+        response = send_get_request(url, credentials)
+
+        data = response.json()
+
+        return Response({'estimates': data})
+
+
+class IntegrationAuth(APIView):
     parser_classes = (JSONParser, FormParser)
 
-    def post(self, request):
+    def post(self, request, integration_type):
+        """
+        Get the authentication URL for the given integration type.
+        """
         client_id = request.POST.get('client_id')
         client_secret = request.POST.get('client_secret')
+        integration_context = request.POST.get('integration_context')
+
+        if integration_context:
+            integration_context = anyjson.loads(integration_context)
 
         errors = {}
 
@@ -101,57 +164,62 @@ class PandaDocAuth(APIView):
         if errors:
             return HttpResponseBadRequest(anyjson.serialize(errors), content_type='application/json')
 
+        integration_type = IntegrationType.objects.get(name__iexact=integration_type)
+        redirect_uri = request.build_absolute_uri()
+
         params = {
             'client_id': client_id,
             'client_secret': client_secret,
-            'redirect_uri': request.build_absolute_uri(),
-            'scope': 'read+write',
+            'redirect_uri': redirect_uri,
+            'scope': integration_type.scope,
             'response_type': 'code',
         }
 
-        details, created = IntegrationDetails.objects.get_or_create(type=IntegrationDetails.PANDADOC)
+        details, created = IntegrationDetails.objects.get_or_create(type=integration_type)
 
         storage = Storage(IntegrationCredentials, 'details', details, 'credentials')
 
-        credentials = storage.get()
-
-        if not credentials:
-            credentials = LilyOAuthCredentials(
-                client_id=client_id,
-                client_secret=client_secret,
-            )
+        credentials = LilyOAuthCredentials(
+            client_id=client_id,
+            client_secret=client_secret,
+            redirect_uri=redirect_uri,
+            integration_context=integration_context,
+        )
 
         storage.put(credentials)
 
-        auth_url = 'https://app.pandadoc.com/oauth2/authorize?' + urllib.urlencode(params)
+        auth_url = integration_type.auth_url + urllib.urlencode(params)
 
         response = anyjson.serialize({'url': auth_url})
 
         return HttpResponse(response, content_type='application/json')
 
-    def get(self, request, format=None):
+    def get(self, request, integration_type, format=None):
+        """
+        Exchange a authorization code for an access token for the given integration type.
+        """
         code = str(request.GET.get('code'))
         error = request.GET.get('error')
 
         if error:
             messages.error(
                 self.request._request,  # add_message needs an HttpRequest object
-                _('Sorry, Lily needs authorization from PandaDoc to use it.')
+                _('Sorry, Please authorize Lily to use the integration.')
             )
 
-            return HttpResponseRedirect('/#/preferences/admin/integrations/pandadoc')
+            return HttpResponseRedirect('/#/preferences/admin/integrations/%s' % integration_type)
 
-        credentials = get_credentials(IntegrationDetails.PANDADOC)
+        credentials = get_credentials(integration_type)
 
         if not credentials:
             response = anyjson.serialize({'error': 'No credentials found. Please enter your credentials again'})
             return HttpResponse(response, content_type='application/json')
 
-        authenticate_pandadoc(credentials, IntegrationDetails.PANDADOC, code)
+        get_access_token(credentials, integration_type, code)
 
         messages.success(
             self.request._request,  # add_message needs an HttpRequest object
-            _('Your PandaDoc credentials have been saved.')
+            _('Your credentials have been saved.')
         )
 
         return HttpResponseRedirect('/#/preferences/admin/integrations')

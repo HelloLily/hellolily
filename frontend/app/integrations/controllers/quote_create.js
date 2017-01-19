@@ -1,16 +1,16 @@
-angular.module('app.quotes').config(quoteConfig);
+angular.module('app.integrations').config(quoteConfig);
 
 quoteConfig.$inject = ['$stateProvider'];
 function quoteConfig($stateProvider) {
-    $stateProvider.state('base.quotes', {
+    $stateProvider.state('base.integrations.pandadoc.quotes', {
         url: '/quotes',
     });
 
-    $stateProvider.state('base.quotes.create', {
+    $stateProvider.state('base.integrations.pandadoc.quotes.create', {
         url: '/create/{dealId:[0-9]{1,}}',
         views: {
             '@': {
-                templateUrl: 'quotes/controllers/form.html',
+                templateUrl: 'integrations/controllers/form.html',
                 controller: QuoteCreateController,
                 controllerAs: 'vm',
             },
@@ -42,7 +42,7 @@ function quoteConfig($stateProvider) {
     });
 }
 
-angular.module('app.quotes').controller('QuoteCreateController', QuoteCreateController);
+angular.module('app.integrations').controller('QuoteCreateController', QuoteCreateController);
 
 QuoteCreateController.$inject = ['$http', '$timeout', 'Settings', 'currentDeal', 'dealContact', 'tenant', 'user'];
 function QuoteCreateController($http, $timeout, Settings, currentDeal, dealContact, tenant, user) {

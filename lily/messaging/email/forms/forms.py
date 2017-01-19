@@ -332,9 +332,6 @@ class CreateUpdateEmailTemplateForm(ModelForm):
                 self._errors['body_text'] = parsed_template.error.message
                 del cleaned_data['body_text']
 
-        print 'clean'
-        print cleaned_data
-
         return cleaned_data
 
     def clean_nbsp(self, text):

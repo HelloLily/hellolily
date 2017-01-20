@@ -10,7 +10,7 @@ function quoteConfig($stateProvider) {
         url: '/create/{dealId:[0-9]{1,}}',
         views: {
             '@': {
-                templateUrl: 'integrations/controllers/form.html',
+                templateUrl: 'integrations/controllers/quote_form.html',
                 controller: QuoteCreateController,
                 controllerAs: 'vm',
             },

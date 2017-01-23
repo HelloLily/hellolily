@@ -100,16 +100,17 @@ class LilySearch(object):
                 ]
             }
 
-            if self.facet['filter']:
-                facet_filter_dict['and'].append(
-                    {
-                        'query': {
-                            'query_string': {
-                                'query': self.facet['filter']
+            if self.facet['filters']:
+                for facet_filter in self.facet['filters']:
+                    facet_filter_dict['and'].append(
+                        {
+                            'query': {
+                                'query_string': {
+                                    'query': facet_filter
+                                }
                             }
                         }
-                    }
-                )
+                    )
 
             facet_raw['facet_filter'] = facet_filter_dict
 

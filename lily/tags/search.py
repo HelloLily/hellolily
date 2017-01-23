@@ -25,6 +25,16 @@ class TagMapping(BaseMapping):
             'last_used': {
                 'type': 'date',
             },
+            'content_type': {
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'name': {
+                        'type': 'string',
+                        'index_analyzer': 'normal_edge_analyzer'
+                    },
+                },
+            }
         })
         return mapping
 
@@ -37,6 +47,10 @@ class TagMapping(BaseMapping):
             'name': obj.name,
             'name_flat': obj.name,
             'last_used': obj.last_used,
+            'content_type': {
+                'id': obj.content_type_id,
+                'name': obj.content_type.name,
+            },
         }
 
         return doc

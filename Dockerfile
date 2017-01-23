@@ -1,7 +1,7 @@
 FROM jfloff/alpine-python:2.7
 MAINTAINER HelloLily
 
-RUN apk add --update \
+RUN apk add --no-cache \
     linux-headers \
     postgresql-dev=9.5.4-r0 \
     libxml2-dev \

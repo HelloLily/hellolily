@@ -7,8 +7,7 @@ from time import time
 import anyjson
 import requests
 from django import forms
-
-from lily.settings import settings
+from django.conf import settings
 
 
 def autostrip(cls):

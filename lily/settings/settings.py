@@ -512,7 +512,7 @@ ES_MAXSIZE = os.environ.get('ES_MAXSIZE', 2)  # Default is 10
 ES_BLOCK = os.environ.get('ES_BLOCK', True)  # Default is False
 
 #######################################################################################################################
-# Gmail API settings                                                                                                  #
+# Gmail settings                                                                                                  #
 #######################################################################################################################
 GA_CLIENT_ID = os.environ.get('GA_CLIENT_ID', '')
 GA_CLIENT_SECRET = os.environ.get('GA_CLIENT_SECRET', '')
@@ -534,6 +534,7 @@ GMAIL_LABEL_DRAFT = os.environ.get('GMAIL_LABEL_DRAFT', 'DRAFT')
 GMAIL_LABEL_CHAT = os.environ.get('GMAIL_LABEL_CHAT', 'CHAT')
 GMAIL_LABELS_DONT_MANIPULATE = [GMAIL_LABEL_UNREAD, GMAIL_LABEL_STAR, GMAIL_LABEL_IMPORTANT, GMAIL_LABEL_SENT,
                                 GMAIL_LABEL_DRAFT, GMAIL_LABEL_CHAT]
+MAX_SYNC_FAILURES = 3
 
 #######################################################################################################################
 # Django rest settings                                                                                                #

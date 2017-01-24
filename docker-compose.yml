@@ -49,6 +49,8 @@ services:
   app:
     image: "hellolily/hellolily-app:latest"
     command: "/bin/true"
+    networks:
+      - internal
     environment:
       - PYTHONUNBUFFERED=true
       - DJANGO_SETTINGS_MODULE=lily.settings.settings

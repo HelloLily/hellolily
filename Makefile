@@ -23,9 +23,12 @@ testdata:
 run:
 	@docker-compose run --rm --service-ports web & gulp watch
 
+up:
+	@docker-compose up & gulp watch
+
 down:
 	@docker-compose down
 
-setup: build pull migrate index testdata run
+setup: build migrate index testdata run
 
-.PHONY: default build pull migrate index testdata run down setup
+.PHONY: default build pull migrate index testdata run down setup up

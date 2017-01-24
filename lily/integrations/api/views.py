@@ -35,7 +35,15 @@ class DocumentDetails(APIView):
         except Document.DoesNotExist:
             pass
         else:
+            deal = Deal.objects.get(pk=document.deal_id)
             document = DocumentSerializer(document).data
+            document.update({
+                'deal': {
+                    'id': deal.id,
+                    'status': deal.status_id,
+                    'modified': deal.modified,
+                },
+            })
 
         return Response({'document': document})
 

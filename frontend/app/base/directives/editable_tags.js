@@ -28,11 +28,11 @@ function EditableTagsController($timeout, HLSearch, HLUtils) {
     /////
 
     function activate() {
-        vm.object = vm.viewModel[vm.type.toLowerCase()];
+        vm.object = vm.viewModel[vm.type];
     }
 
     function refreshTags(query) {
-        var searchPromise = HLSearch.refreshTags(query, vm.object.tags);
+        var searchPromise = HLSearch.refreshTags(query, vm.object, vm.type);
 
         if (searchPromise) {
             searchPromise.$promise.then(function(data) {
@@ -72,7 +72,7 @@ function EditableTagsController($timeout, HLSearch, HLUtils) {
             // Just setting the value doesn't update the values model properly.
             // So use $timeout so it gets applied in the next digest cycle.
             $timeout(function() {
-                vm.viewModel[vm.type.toLowerCase()].tags = response.tags;
+                vm.viewModel[vm.type].tags = response.tags;
             });
         });
     }

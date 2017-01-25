@@ -5,6 +5,7 @@ function tagInput() {
         restrict: 'E',
         scope: {
             object: '=',
+            type: '@',
         },
         templateUrl: 'forms/directives/tag_input.html',
         controller: TagInputController,
@@ -25,7 +26,7 @@ function TagInputController($scope, $filter, HLSearch) {
     vm.addTag = addTag;
 
     function refreshTags(query) {
-        var searchPromise = HLSearch.refreshTags(query, vm.object.tags);
+        var searchPromise = HLSearch.refreshTags(query, vm.object, vm.type);
 
         if (searchPromise) {
             searchPromise.$promise.then(function(result) {

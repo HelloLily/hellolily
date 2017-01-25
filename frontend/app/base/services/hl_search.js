@@ -32,21 +32,21 @@ function HLSearch($injector, Tag) {
         return items;
     }
 
-    function refreshTags(query, tags) {
-        var exclude = '';
+    function refreshTags(searchQuery, object, type) {
         var tagsPromise;
         var i;
 
+        var tags = object.tags;
+        var contentTypeQuery = 'content_type.name:' + type;
+        var query = searchQuery + ',' + contentTypeQuery;
+        var filterquery = contentTypeQuery;
+
         // Exclude tags already selected.
         for (i = 0; i < tags.length; i++) {
-            if (i === 0) {
-                exclude += 'NOT name_flat:' + tags[i].name;
-            } else {
-                exclude += ' AND NOT name_flat:' + tags[i].name;
-            }
+            filterquery += ' AND NOT name_flat:' + tags[i].name;
         }
 
-        tagsPromise = Tag.search({query: query, filterquery: exclude});
+        tagsPromise = Tag.search({query: query, filterquery: filterquery});
 
         return tagsPromise;
     }

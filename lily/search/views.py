@@ -44,16 +44,22 @@ class SearchView(LoginRequiredMixin, View):
             kwargs['size'] = int(size)
 
         facet_field = request.GET.get('facet_field', '')
-        facet_filter = request.GET.get('facet_filter', '')
+        facet_filters = request.GET.get('facet_filter', '')
 
-        if facet_filter and not facet_filter.split(':')[1]:
-            facet_filter = ''
+        filters = []
+
+        if facet_filters:
+            facet_filters = facet_filters.split(',')
+
+            for facet_filter in facet_filters:
+                if facet_filter.split(':')[1]:
+                    filters.append(facet_filter)
 
         facet_size = request.GET.get('facet_size', 60)
         if facet_field:
             kwargs['facet'] = {
                 'field': facet_field,
-                'filter': facet_filter,
+                'filters': filters,
                 'size': facet_size,
             }
 

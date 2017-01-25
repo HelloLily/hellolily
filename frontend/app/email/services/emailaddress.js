@@ -23,7 +23,7 @@ function EmailAddress() {
             return invalidAddress;
         }
 
-        recipientsList = recipientsList.split(',');
+        recipientsList = recipients.split(',');
         recipientsList.forEach(function(recipient) {
             var email;
             var emailRegex;

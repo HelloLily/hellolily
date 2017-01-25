@@ -126,6 +126,9 @@ function QuoteCreateController($http, $timeout, Settings, currentDeal, dealConta
                 docName: docName,
                 tokens: tokens,
                 recipients: recipients,
+                metadata: {
+                    'deal': vm.deal.id,
+                },
             },
             events: {
                 onDocumentCreated: saveDocument,

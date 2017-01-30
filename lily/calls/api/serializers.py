@@ -11,6 +11,7 @@ class CallSerializer(serializers.ModelSerializer):
             'unique_id',
             'called_number',
             'caller_number',
+            'caller_name',
             'internal_number',
             'status',
             'type',

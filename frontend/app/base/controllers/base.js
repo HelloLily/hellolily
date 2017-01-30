@@ -12,8 +12,8 @@ function appConfig($stateProvider) {
 
 angular.module('app.base').controller('BaseController', BaseController);
 
-BaseController.$inject = ['$scope', '$state', 'AppHash', 'Settings', 'Notifications', 'HLShortcuts'];
-function BaseController($scope, $state, AppHash, Settings, Notifications, HLShortcuts) {
+BaseController.$inject = ['$scope', '$state', '$http', 'AppHash', 'Settings', 'HLShortcuts'];
+function BaseController($scope, $state, $http, AppHash, Settings, HLShortcuts) {
     // Make sure the settings are available everywhere.
     $scope.settings = Settings;
 
@@ -45,8 +45,8 @@ function BaseController($scope, $state, AppHash, Settings, Notifications, HLShor
     }
 
     function loadNotifications() {
-        Notifications.query(function(notifications) {  // On success
-            angular.forEach(notifications, function(message) {
+        $http.get('/api/utils/notifications/').then(function(notifications) {  // On success
+            angular.forEach(notifications.data, function(message) {
                 toastr[message.level](message.message);
             });
         }, function(error) {  // On error

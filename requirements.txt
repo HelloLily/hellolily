@@ -11,7 +11,6 @@ djangorestframework==3.5.3
 eventlet==0.19.0
 gevent==1.1.2
 greenlet==0.4.10
-gunicorn==19.6.0
 python-dateutil==2.6.0
 pytz==2015.7  # Pinned by Flower
 
@@ -21,6 +20,16 @@ pytz==2015.7  # Pinned by Flower
 
 dj-database-url==0.4.1
 psycopg2==2.6.2
+
+#######################################################
+### Channels                                        ###
+#######################################################
+
+channels==1.0.2
+daphne==1.0.1
+asgi_redis==1.0.0
+asgiref==1.0.0
+asgi_ipc==1.2.0
 
 #######################################################
 ### Caching & Templates                             ###

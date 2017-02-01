@@ -43,6 +43,10 @@ class DocumentDetails(APIView):
                     'status': deal.status_id,
                     'modified': deal.modified,
                 },
+                'assigned_to': {
+                    'id': deal.assigned_to.id,
+                    'full_name': deal.assigned_to.full_name,
+                } if deal.assigned_to else None,
             })
 
         return Response({'document': document})

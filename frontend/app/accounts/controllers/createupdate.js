@@ -1,7 +1,6 @@
 /**
  * Router definition.
  */
-var URI = require('urijs');
 
 angular.module('app.accounts').config(accountConfig);
 
@@ -58,6 +57,7 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
     var vm = this;
 
     vm.account = {};
+    vm.accountSuggestions = [];
     vm.people = [];
     vm.tags = [];
     vm.errors = {
@@ -65,13 +65,13 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
     };
     vm.useDuplicateWebsite = false;
 
-    vm.checkDomainForDuplicates = checkDomainForDuplicates;
     vm.loadDataproviderData = loadDataproviderData;
     vm.saveAccount = saveAccount;
     vm.cancelAccountCreation = cancelAccountCreation;
     vm.addRelatedField = addRelatedField;
     vm.removeRelatedField = removeRelatedField;
     vm.setStatusForCustomerId = setStatusForCustomerId;
+    vm.checkExistingAccount = checkExistingAccount;
 
     activate();
 
@@ -164,82 +164,29 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
         }
     }
 
-    function checkDomainForDuplicates(form, index) {
-        var website;
-        var domain;
-        var uri;
-        // If an index was given it means we're dealing with a related/extra
-        // website which is processed differently.
-        var isExtraWebsite = typeof index !== 'undefined';
-
-        if (isExtraWebsite) {
-            website = vm.account.websites[index].website;
-        } else {
-            website = vm.account.primaryWebsite;
-        }
-
-        if (!vm.useDuplicateWebsite && website) {
-            // The URI library only works correct when the website has a protocol-authority-delimiter,
-            // so add if missing. See https://github.com/medialize/URI.js/issues/232
-            if ((website.toLowerCase().indexOf('http://') === -1) &&
-                (website.toLowerCase().indexOf('https://') === -1)) {
-                website = '//' + website;
-            }
-            uri = new URI(website);
-            domain = uri.domain();
-
-            Account.searchByWebsite({website: domain}).$promise.then(function(result) {
-                if (result.data && result.data.id !== $stateParams.id) {
-                    swal({
-                        title: messages.alerts.accountForm.title,
-                        html: sprintf(messages.alerts.accountForm.body, {account: result.data.name, website: domain}),
-                        type: 'warning',
-                        showCancelButton: true,
-                        cancelButtonText: messages.alerts.accountForm.cancelButtonText,
-                    }).then(function(isConfirm) {
-                        if (isConfirm) {
-                            _processAccountCheck(form, isExtraWebsite);
-
-                            if (!form) {
-                                vm.useDuplicateWebsite = true;
-                            }
-                        } else {
-                            if (isExtraWebsite) {
-                                vm.account.websites[index].website = null;
-                            } else {
-                                vm.account.primaryWebsite = null;
-                            }
-
-                            vm.useDuplicateWebsite = false;
-                            $scope.$apply();
-                        }
-                    }).done();
-                } else {
-                    _processAccountCheck(form, isExtraWebsite);
-                }
+    function checkExistingAccount() {
+        var filterQuery;
+        if (!vm.account.id) {
+            filterQuery = 'domain:"' + vm.account.primaryWebsite + '"' + ' OR name:"' + vm.account.name + '"';
+            Account.search({filterquery: filterQuery}).$promise.then(function(results) {
+                vm.accountSuggestions = results.objects;
             });
-        } else {
-            _processAccountCheck(form, isExtraWebsite);
-        }
-    }
-
-    function _processAccountCheck(form, isExtraWebsite) {
-        if (form) {
-            vm.saveAccount(form);
-        } else {
-            if (!isExtraWebsite) {
-                vm.loadDataproviderData();
-            }
         }
     }
 
     function loadDataproviderData() {
+        // Clear accountSuggestions because the assumption is that the user has tried with a new account.
+        vm.accountSuggestions = [];
+
         toastr.info('Running around the world to fetch info', 'Here we go');
         vm.account.getDataproviderInfo(vm.account.primaryWebsite).then(function() {
             toastr.success('Got it!', 'Whoohoo');
         }, function() {
             toastr.error('I couldn\'t find any data', 'Sorry');
         });
+
+        // Rerun checkExistingAccount to notify the user that he is still using an existing domain.
+        vm.checkExistingAccount();
     }
 
     function addRelatedField(field) {
@@ -375,6 +322,6 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
     }
 
     $scope.$on('saveAccount', function() {
-        checkDomainForDuplicates($scope.accountForm);
+        saveAccount($scope.accountForm);
     });
 }

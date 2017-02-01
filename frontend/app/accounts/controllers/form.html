@@ -19,13 +19,14 @@
                                maxlength="255"
                                placeholder="www.example.com"
                                type="text"
-                               on-enter-key="vm.checkDomainForDuplicates()"
+                               on-enter-key="vm.checkExistingAccount()"
+                               ng-blur="vm.checkExistingAccount()"
                                ng-model="vm.account.primaryWebsite" />
                             <span class="input-group-btn">
                                 <button autocomplete="off"
                                         class="btn default"
                                         type="button"
-                                        ng-click="vm.checkDomainForDuplicates()"
+                                        ng-click="vm.loadDataproviderData()"
                                         ng-disabled="!accountForm.primaryWebsite.$valid">
                                     <i class="fa fa-magic"></i>
                                 </button>
@@ -40,7 +41,25 @@
                            name="name"
                            placeholder="Company name"
                            type="text"
+                           on-enter-key="vm.checkExistingAccount()"
+                           ng-blur="vm.checkExistingAccount()"
                            ng-model="vm.account.name">
+                </form-group>
+
+                <form-group ng-if="vm.accountSuggestions.length">
+                    <div class="widget-suggestion">
+                        <span class="widget-suggestion-title"><i class="fa fa-building-o"></i> It looks like this account already exists</span>
+                        <div ng-repeat="account in vm.accountSuggestions" class="widget-suggestion-items">
+                            <div class="widget-suggestion-item">
+                                Is this
+                                <a ui-sref="base.accounts.detail({ id: account.id })">{{ account.name }}</a>
+                                ?
+                            </div>
+                            <div class="widget-suggestion-item-action">
+                                <a ng-if="!settings.email.sidebar.form" class="hl-primary-btn" ui-sref="base.accounts.detail.edit({ id: account.id })">Edit this account</a>
+                            </div>
+                        </div>
+                    </div>
                 </form-group>
 
                 <form-group label-title="Description" label-id="id_description" field="accountForm.description">
@@ -99,10 +118,10 @@
                     </form-group>
 
                     <form-websites websites="vm.account.websites"
-                                   double-account-check="vm.checkDomainForDuplicates(form, index)"
                                    add-related-field="vm.addRelatedField(field)"
                                    remove-related-field="vm.removeRelatedField(field, index, remove)">
                     </form-websites>
+
                 </div>
             </form-portlet>
 
@@ -135,7 +154,7 @@
                 <div class="row">
                     <div ng-class="{'hidden col-xs-12': settings.email.sidebar.form, 'col-xs-12 col-sm-3 col-md-2 col-lg-2': !settings.email.sidebar.form}"></div>
                     <div ng-class="{'col-xs-12': settings.email.sidebar.form, 'col-xs-12 col-sm-9 col-md-8 col-md-7 col-lg-4': !settings.email.sidebar.form}">
-                	    <button type="button" class="btn blue" ng-click="vm.checkDomainForDuplicates(accountForm)" uib-tooltip="{{ messages.tooltips.modEnter.title }}">
+                        <button type="button" class="btn blue" ng-click="vm.saveAccount(accountForm)" uib-tooltip="{{ messages.tooltips.modEnter.title }}">
                             <i class="fa fa-check"></i> Save
                         </button>
                         <button type="button" class="btn default" ng-click="vm.cancelAccountCreation()">

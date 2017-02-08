@@ -291,7 +291,6 @@ INSTALLED_APPS = (
     'lily.utils',
 
     # 3rd party
-    'activelink',
     'bootstrap3',
     'django_extensions',
     'channels',

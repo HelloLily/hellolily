@@ -384,7 +384,7 @@ LOGGING = {
             'formatter': 'verbose',
         },
         'sentry': {
-            'level': 'INFO',
+            'level': 'WARNING',
             'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
         },
         'null': {
@@ -416,7 +416,7 @@ else:
     LOGGING.update({
         'loggers': {
             '': {  # Everything not specified below.
-                'level': 'WARNING',
+                'level': 'ERROR',
                 'handlers': ['sentry', ],
             },
             'django.security': {  # More logging specifically for security related stuff.

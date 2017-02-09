@@ -38,7 +38,7 @@ function UnreadEmailController($scope, EmailAccount, EmailMessage, HLFilters, HL
             angular.forEach(emailAccounts, function(account) {
                 filterList.push({
                     name: account.label,
-                    value: 'account:' +  account.id,
+                    value: 'account.id:' +  account.id,
                     selected: false,
                     isSpecialFilter: true,
                 });

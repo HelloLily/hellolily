@@ -1,106 +1,154 @@
-<form class="form form-horizontal" method="post" role="form">
-    <div class="portlet">
-        <div class="portlet-title">
-            <div class="caption">Your email accounts</div>
-        </div>
-        <div class="portlet-body">
-            <ul class="list-group">
-                <li class="list-group-item" ng-repeat="account in vm.ownedAccounts">
-                    <a ng-click="vm.togglePrimaryAccount(account)" uib-tooltip="Toggle primary">
-                        <i ng-class="account.id == vm.currentUser.primary_email_account.id ? 'fa fa-star' : 'fa fa-star-o'"></i>
-                    </a>
-                    {{ account.label }} <i>({{ account.email_address }})</i>
-                    <span class="pull-right">
-                        <button type="button" class="btn btn-xs default" title="Sharing is caring" ng-click="vm.openShareAccountModal(account)">
-                            <i class="fa fa-group"></i>
-                            <span ng-hide="account.isPublic">{{ account.shared_with_users.length }}</span>
-                            <span ng-show="account.isPublic">Public</span>
-                        </button>
-                        <a class="btn btn-xs default" title="Just manage it" ui-sref="base.preferences.emailaccounts.edit({id: account.id})">
-                            <i class="lilicon hl-edit-icon"></i>
-                        </a>
-                        <delete-confirmation model="EmailAccount" object="account" display-field="label" callback="vm.loadAccounts()" button-class="btn-xs default"></delete-confirmation>
-                    </span>
+<div class="portlet">
+    <div class="portlet-body flip-scroll">
+        <simple-widget>
+            <widget-header>
+                <div class="widget-name">
+                    Your email accounts
+                </div>
+            </widget-header>
 
-                    <a ng-if="!account.is_authorized" href="/messaging/email/setup/" class="notification-inline">
-                        <i class="lilicon hl-critical-prio-icon"></i>
-                         Sorry, unable to retrieve your email. Please click here, select this address on the Gmail page and press Save. Thanks for helping out!
-                    </a>
-                </li>
-                <li class="list-group-item"  ng-hide="vm.ownedAccounts.length">
-                    No email accounts setup yet
-                </li>
-                <li class="list-group-item" style="text-align: center;">
-                    <a href="/messaging/email/setup/">Add an email account, sync everything</a>
-                    <span style="width: 30px; display: inline-block;">|</span>
-                    <a href="/messaging/email/setup/?only_new=1">Add an email account, sync starting now</a>
-                    <br />
-                    <i>Gmail accounts only, link redirects to Google where you can authorize the email account you want to synchronize.</i>
-                    <br />
-                    <i>Choose whether you want to import all mail or start with a clean sheet. For now this can only be selected during setup.</i>
-                </li>
-            </ul>
-        </div>
+            <widget-body>
+                <table class="table table-bordered">
+                    <thead class="flip-content">
+                        <tr>
+                            <th>
+                                <span class="text-nowrap">Primary</span>
+                            </th>
+                            <th>
+                                <span class="text-nowrap">Email address</span>
+                            </th>
+                            <th>
+                                <span class="text-nowrap">Label</span>
+                            </th>
+                            <th>
+                                <span class="text-nowrap">Privacy setting</span>
+                            </th>
+                            <th>
+                                <span class="text-nowrap">Default email template</span>
+                            </th>
+                            <th>
+                                <span class="text-nowrap">Subscribed</span>
+                            </th>
+                            <th>
+                                <span class="text-nowrap">Shared with</span>
+                            </th>
+                            <th>
+                                <span class="text-nowrap">Options</span>
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr ng-repeat="account in vm.ownedAccounts">
+                            <td class="width-6">
+                                <input type="radio" name="primary" ng-model="vm.primaryAccount" ng-value="account.id" ng-click="vm.setPrimaryEmailAccount(account)">
+                            </td>
+                            <td>
+                                {{ account.email_address }}
+                            </td>
+                            <td>
+                                {{ account.label }}
+                            </td>
+                            <td>
+                                {{ account.privacy_display }}
+                            </td>
+                            <td>
+                                {{ account.default_template.name || '-' }}
+                            </td>
+                            <td>
+                                <label class="switch">
+                                    <input type="checkbox" ng-model="account.is_hidden" ng-change="vm.toggleHidden(account)" ng-true-value="false" ng-false-value="true">
+                                    <div class="slider round"></div>
+                                </label>
+                            </td>
+                            <td>
+                                <span ng-if="account.privacy === vm.publicPrivacy">Public</span>
+                                <span ng-if="account.privacy !== vm.publicPrivacy">
+                                    <button class="hl-primary-btn" ng-click="vm.openShareAccountModal(account)">
+                                        {{ account.shared_with_users.length }} <i class="lilicon hl-entity-icon margin-left-5"></i>
+                                    </button>
+                                </span>
+                            </td>
+                            <td>
+                                <a ui-sref="base.preferences.emailaccounts.edit({ id: account.id })" class="hl-primary-btn" title="Edit">
+                                    <i class="lilicon hl-edit-icon"></i>
+                                </a>
+                                <delete-confirmation model="EmailAccount" object="account" callback="vm.removeFromList(account)" button-class="hl-primary-btn" display-field="label"></delete-confirmation>
+                            </td>
+                        </tr>
+                        <tr ng-if="!vm.ownedAccounts.length">
+                            <td colspan="6">No email accounts setup yet</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </widget-body>
+        </simple-widget>
+
+        <simple-widget>
+            <widget-header>
+                <div class="widget-name">
+                    Email accounts shared with you
+                </div>
+            </widget-header>
+
+            <widget-body>
+                <table class="table table-bordered flip-content">
+                    <thead class="flip-content">
+                        <tr>
+                            <th>
+                                <span class="text-nowrap">Primary</span>
+                            </th>
+                            <th>
+                                <span class="text-nowrap">Email address</span>
+                            </th>
+                            <th>
+                                <span class="text-nowrap">Owned by</span>
+                            </th>
+                            <th>
+                                <span class="text-nowrap">Default email template</span>
+                            </th>
+                            <th>
+                                <span class="text-nowrap">Subscribed</span>
+                            </th>
+                            <th>
+                                <span class="text-nowrap">Shared with</span>
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr ng-repeat="account in vm.sharedAccounts">
+                            <td>
+                                <input type="radio" name="primary" ng-model="vm.primaryAccount" ng-value="account.id" ng-click="vm.setPrimaryEmailAccount(account)">
+                            </td>
+                            <td>
+                                {{ account.email_address }}
+                            </td>
+                            <td>
+                                {{ account.owner.full_name }}
+                            </td>
+                            <td>
+                                {{ account.default_template.name || '-' }}
+                            </td>
+                            <td>
+                                <label class="switch">
+                                    <input type="checkbox" ng-model="account.is_hidden" ng-change="vm.toggleHidden(account)" ng-true-value="false" ng-false-value="true">
+                                    <div class="slider round"></div>
+                                </label>
+                            </td>
+                            <td>
+                                <span ng-if="account.privacy === vm.publicPrivacy">Public</span>
+                                <span ng-if="account.privacy !== vm.publicPrivacy">{{ account.shared_with_users.length || '-' }}</span>
+                            </td>
+                        </tr>
+                        <tr ng-if="!vm.sharedAccounts.length">
+                            <td colspan="6">No email accounts shared with you</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </widget-body>
+        </simple-widget>
+
+        <a href="/messaging/email/setup" class="hl-primary-btn-green pull-right no-margin-right"><i class="fa fa-plus"></i> Add email account</a>
     </div>
-    <div class="portlet">
-        <div class="portlet-title">
-            <div class="caption">Email accounts shared with you</div>
-        </div>
-        <div class="portlet-body">
-            <ul class="list-group">
-                <li class="list-group-item"  ng-repeat="account in vm.sharedAccounts">
-                    <a ng-click="vm.togglePrimaryAccount(account)" uib-tooltip="Toggle primary">
-                        <i ng-class="account.id == vm.currentUser.primary_email_account.id ? 'fa fa-star' : 'fa fa-star-o'"></i>
-                    </a>
-                    {{ account.label }} <i>({{ account.email_address }})</i>
-                    <span class="pull-right">
-                        <div class="btn-group">
-                            <!-- By comparing with the == operator, we can have a "third" state when the
-                            boolean is not yet set at all. (And it is still being loaded by angular). -->
-                            <button type="button" class="btn btn-primary btn-xs" ng-class="{'active': account.hidden==false}" ng-click="vm.followShared(account)"><i class="fa fa-eye"></i> Follow</button>
-                            <button type="button" class="btn btn-primary btn-xs" ng-class="{'active': account.hidden==true}" ng-click="vm.hideShared(account)"><i class="fa fa-eye-slash"></i> Hide</button>
-                        </div>
-                    </span>
-                </li>
-                <li class="list-group-item"  ng-hide="vm.sharedAccounts.length">
-                    No email accounts shared with you.
-                </li>
-            </ul>
-        </div>
-    </div>
-    <div class="portlet">
-        <div class="portlet-title">
-            <div class="caption">Company email accounts</div>
-        </div>
-        <div class="portlet-body">
-            <ul class="list-group">
-                <li class="list-group-item" ng-repeat="account in vm.publicAccounts">
-                    <a ng-click="vm.togglePrimaryAccount(account)" uib-tooltip="Toggle primary">
-                        <i ng-class="account.id == vm.currentUser.primary_email_account.id ? 'fa fa-star' : 'fa fa-star-o'"></i>
-                    </a>
-                    {{ account.label }} <i>({{ account.email_address }})</i>
-                    <span class="pull-right">
-                        <div class="btn-group">
-                            <!-- By comparing with the == operator, we can have a "third" state when the
-                            boolean is not yet set at all. (And it is still being loaded by angular). -->
-                            <button type="button" class="btn btn-primary btn-xs" ng-class="{'active': account.hidden==false}" ng-click="vm.followShared(account)"><i class="fa fa-eye"></i> Follow</button>
-                            <button type="button" class="btn btn-primary btn-xs" ng-class="{'active': account.hidden==true}" ng-click="vm.hideShared(account)"><i class="fa fa-eye-slash"></i> Hide</button>
-                        </div>
-                    </span>
-                </li>
-                <li class="list-group-item" ng-hide="vm.publicAccounts.length">
-                    No company wide email accounts.
-                </li>
-                <li class="list-group-item" style="text-align: center;">
-                    <a href="/messaging/email/setup/?is_public=1">Add an email account, sync everything</a>
-                    <span style="width: 30px; display: inline-block;">|</span>
-                    <a href="/messaging/email/setup/?is_public=1&only_new=1">Add an email account, sync starting now</a>
-                    <br />
-                    <i>Gmail accounts only, link redirects to Google where you can authorize the email account you want to synchronize.</i>
-                    <br />
-                    <i>Choose whether you want to import all mail or start with a clean sheet. For now this can only be selected during setup.</i>
-                </li>
-            </ul>
-        </div>
-    </div>
-</form>
+</div>

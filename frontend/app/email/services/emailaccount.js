@@ -12,7 +12,7 @@ function EmailAccount($resource) {
                     var accounts = angular.fromJson(data);
 
                     accounts.results.forEach(function(account) {
-                        account.isPublic = (account.privacy === _emailAccount.PUBLIC);
+                        account.is_public = (account.privacy === _emailAccount.PUBLIC);
                     });
 
                     return accounts;
@@ -20,6 +20,12 @@ function EmailAccount($resource) {
             },
             update: {
                 method: 'PUT',
+            },
+            patch: {
+                method: 'PATCH',
+                params: {
+                    id: '@id',
+                },
             },
             shareWith: {
                 method: 'POST',
@@ -32,9 +38,16 @@ function EmailAccount($resource) {
                 transformResponse: function(data) {
                     var account = angular.fromJson(data);
 
-                    account.isPublic = (account.privacy === _emailAccount.PUBLIC);
+                    account.is_public = (account.privacy === _emailAccount.PUBLIC);
 
                     return account;
+                },
+            },
+            cancel: {
+                method: 'DELETE',
+                url: '/api/messaging/email/accounts/:id/cancel',
+                params: {
+                    id: '@id',
                 },
             },
         }
@@ -52,10 +65,10 @@ function EmailAccount($resource) {
     function getPrivacyOptions() {
         // Hardcoded because these are the only privacy options.
         return [
-            {id: 0, name: 'Public'},
-            {id: 1, name: 'Read only'},
-            {id: 2, name: 'Metadata'},
-            {id: 3, name: 'Private'},
+            {id: 0, name: 'Mailbox', text: 'send and read'},
+            {id: 1, name: 'Email', text: 'only read email in timeline'},
+            {id: 2, name: 'Metadata', text: 'only read date and recipients in timeline'},
+            {id: 3, name: 'Nothing', text: 'email is hidden'},
         ];
     }
 

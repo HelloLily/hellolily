@@ -18,6 +18,15 @@ function emailPreferencesStates($stateProvider) {
             user: ['User', function(User) {
                 return User.me().$promise;
             }],
+            ownedAccounts: ['EmailAccount', 'user', function(EmailAccount, user) {
+                return EmailAccount.query({owner: user.id}).$promise;
+            }],
+            sharedWithAccounts: ['EmailAccount', 'user', function(EmailAccount, user) {
+                return EmailAccount.query({shared_with_users__id: user.id}).$promise;
+            }],
+            publicAccounts: ['EmailAccount', function(EmailAccount) {
+                return EmailAccount.query({privacy: EmailAccount.PUBLIC}).$promise;
+            }],
         },
     });
 }
@@ -25,22 +34,32 @@ function emailPreferencesStates($stateProvider) {
 angular.module('app.preferences').controller('PreferencesEmailAccountList', PreferencesEmailAccountList);
 
 PreferencesEmailAccountList.$inject = ['$compile', '$filter', '$http', '$scope', '$templateCache', 'EmailAccount',
-    'HLResource', 'User', 'user'];
+    'HLResource', 'HLSearch', 'SharedEmailConfig', 'User', 'user', 'ownedAccounts', 'sharedWithAccounts', 'publicAccounts'];
 function PreferencesEmailAccountList($compile, $filter, $http, $scope, $templateCache, EmailAccount,
-                                     HLResource, User, user) {
+                                     HLResource, HLSearch, SharedEmailConfig, User, user, ownedAccounts, sharedWithAccounts, publicAccounts) {
     var vm = this;
 
     vm.ownedAccounts = [];
     vm.sharedAccounts = [];
-    vm.publicAccounts = [];
+    vm.shareAdditions = [];
+    vm.sharedWithUsers = [];
     vm.currentUser = user;
 
+    if (user.primary_email_account) {
+        vm.primaryAccount = user.primary_email_account.id;
+    }
+
+    vm.publicPrivacy = EmailAccount.PUBLIC;
+
     vm.activate = activate;
-    vm.followShared = followShared;
-    vm.hideShared = hideShared;
+    vm.toggleHidden = toggleHidden;
     vm.loadAccounts = loadAccounts;
     vm.openShareAccountModal = openShareAccountModal;
-    vm.togglePrimaryAccount = togglePrimaryAccount;
+    vm.setPrimaryEmailAccount = setPrimaryEmailAccount;
+    vm.removeFromList = removeFromList;
+    vm.addSharedUsers = addSharedUsers;
+    vm.removeSharedUser = removeSharedUser;
+    vm.refreshUsers = refreshUsers;
 
     activate();
 
@@ -50,131 +69,144 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
         loadAccounts();
     }
 
-    // Get relevant accounts.
     function loadAccounts() {
-        // Accounts owned.
-        EmailAccount.query({owner: vm.currentUser.id}, function(accountData) {
-            vm.ownedAccounts = accountData.results;
+        var sharedAccounts = sharedWithAccounts.results;
 
-            // Get public accounts.
-            EmailAccount.query({privacy: EmailAccount.PUBLIC}, function(publicAccountData) {
-                if (publicAccountData.results.length) {
-                    // Filter out own public email accounts.
-                    vm.publicAccounts = $filter('xor')(publicAccountData.results, accountData.results);
-                }
-
-                publicAccountData.results.forEach(function(account) {
-                    _checkHiddenState(account);
-                });
-            });
+        ownedAccounts.results.forEach(function(account) {
+            _checkHiddenState(account);
         });
 
-        // Accounts shared with user.
-        EmailAccount.query({shared_with_users__id: vm.currentUser.id}, function(data) {
-            vm.sharedAccounts = data.results;
+        vm.ownedAccounts = ownedAccounts.results;
 
-            data.results.forEach(function(account) {
-                _checkHiddenState(account);
-            });
+        if (publicAccounts.results.length) {
+            // Combine arrays and filter out already retrieved accounts.
+            sharedAccounts = $filter('concat')(publicAccounts.results, sharedAccounts);
+            sharedAccounts = $filter('unique')(sharedAccounts, 'id');
+        }
+
+        sharedAccounts.forEach(function(account) {
+            _checkHiddenState(account);
         });
+
+        vm.sharedAccounts = sharedAccounts;
     }
 
     function _checkHiddenState(account) {
-        $http.get('/api/messaging/email/shared-email-configurations/?email_account=' + account.id).success(function(d) {
+        SharedEmailConfig.get({id: account.id}).$promise.then(function(response) {
             var isHidden = false;
-            if (d.results.length) {
-                if (d.results[0].is_hidden) {
-                    isHidden = true;
-                }
+
+            if (response.results.length && response.results[0].is_hidden) {
+                isHidden = true;
             }
 
-            account.hidden = isHidden;
+            account.is_hidden = isHidden;
         });
     }
 
-    function updateSharedEmailSetting(accountId, isHidden) {
-        var body = {email_account: accountId};
-        if (isHidden) {
-            body.is_hidden = true;
-        }
-        $http.post('/api/messaging/email/shared-email-configurations/', body);
+    function _updateSharedEmailSetting(accountId, isHidden) {
+        var args = {
+            email_account: accountId,
+            is_hidden: isHidden || false,
+        };
+
+        HLResource.patch('SharedEmailConfig', args, 'email account');
     }
 
-    function followShared(account) {
-        account.hidden = false;
-        updateSharedEmailSetting(account.id, false);
+    function toggleHidden(account) {
+        _updateSharedEmailSetting(account.id, account.is_hidden);
     }
 
-    function hideShared(account) {
-        account.hidden = true;
-        updateSharedEmailSetting(account.id, true);
-    }
+    function openShareAccountModal(account) {
+        var i;
+        var sharedWithUsers = account.shared_with_users;
+        var filterObject = {
+            filterquery: '',
+        };
 
-    function openShareAccountModal(emailAccount) {
-        vm.currentAccount = emailAccount;
+        vm.currentAccount = account;
 
-        User.query({}, function(data) {
-            vm.users = [];
-            // Check if user has the email account already shared.
-            angular.forEach(data.results, function(userObject) {
-                // Can't share with yourself, so don't include own user.
-                if (userObject.id !== vm.currentUser.id) {
-                    if (vm.currentAccount.shared_with_users.indexOf(userObject.id) !== -1) {
-                        userObject.sharedWith = true;
-                    }
-
-                    vm.users.push(userObject);
+        if (sharedWithUsers.length) {
+            for (i = 0; i < sharedWithUsers.length; i++) {
+                if (i > 0) {
+                    filterObject.filterquery += ' OR ';
                 }
-            });
+
+                filterObject.filterquery += 'id: ' + sharedWithUsers[i];
+            }
+        }
+
+        User.search(filterObject).$promise.then(function(data) {
+            if (filterObject.filterquery) {
+                vm.sharedWithUsers = data.objects;
+            }
 
             swal({
-                title: messages.alerts.preferences.shareAccountTitle,
                 html: $compile($templateCache.get('preferences/email/controllers/emailaccount_share.html'))($scope),
                 showCancelButton: true,
                 showCloseButton: true,
             }).then(function(isConfirm) {
-                var sharedWithUsers = [];
+                var args = {
+                    id: account.id,
+                    shared_with_users: [],
+                };
+
+                if (vm.shareAdditions.length) {
+                    addSharedUsers();
+                }
 
                 if (isConfirm) {
-                    // Save updated account information.
-                    if (vm.currentAccount.isPublic) {
-                        EmailAccount.update({id: vm.currentAccount.id}, vm.currentAccount, function() {
-                            swal.close();
-                            loadAccounts();
-                        });
-                    } else {
-                        // Get ids of the users to share with.
-                        angular.forEach(vm.users, function(userObject) {
-                            if (userObject.sharedWith) {
-                                sharedWithUsers.push(userObject.id);
-                            }
-                        });
+                    // // Get IDs of the users to share with.
+                    angular.forEach(vm.sharedWithUsers, function(userObject) {
+                        args.shared_with_users.push(userObject.id);
+                    });
 
-                        // Push ids to api.
-                        EmailAccount.shareWith({id: vm.currentAccount.id}, {shared_with_users: sharedWithUsers}, function() {
-                            swal.close();
-                            loadAccounts();
-                        });
-                    }
+                    HLResource.patch('EmailAccount', args).$promise.then(function() {
+                        account.shared_with_users = args.shared_with_users;
+                        swal.close();
+                    });
                 }
             }).done();
         });
     }
 
-    function togglePrimaryAccount(emailAccount) {
+    function addSharedUsers() {
+        vm.sharedWithUsers = vm.sharedWithUsers.concat(vm.shareAdditions);
+        vm.shareAdditions = [];
+    }
+
+    function removeSharedUser(sharedUser) {
+        var index = vm.sharedWithUsers.indexOf(sharedUser);
+        vm.sharedWithUsers.splice(index, 1);
+    }
+
+    function refreshUsers(query) {
+        var usersPromise;
+        var extraQuery = ' AND NOT id:' + currentUser.id;
+
+        if (!vm.users || query.length) {
+            usersPromise = HLSearch.refreshList(query, 'User', 'is_active:true' + extraQuery, 'full_name', 'full_name');
+
+            if (usersPromise) {
+                usersPromise.$promise.then(function(data) {
+                    vm.users = data.objects;
+                });
+            }
+        }
+    }
+
+    function removeFromList(account) {
+        var index = vm.ownedAccounts.indexOf(account);
+        vm.ownedAccounts.splice(index, 1);
+        $scope.$apply();
+    }
+
+    function setPrimaryEmailAccount(account) {
         var args = {
             id: 'me',
+            primary_email_account: {
+                id: account.id,
+            },
         };
-
-        if (vm.currentUser.primary_email_account && vm.currentUser.primary_email_account.id === emailAccount.id) {
-            // Unset primary email account..
-            vm.currentUser.primary_email_account = null;
-            args.primary_email_account = null;
-        } else {
-            // Set primary email account.
-            vm.currentUser.primary_email_account = emailAccount;
-            args.primary_email_account = {id: vm.currentUser.primary_email_account.id};
-        }
 
         HLResource.patch('User', args);
     }

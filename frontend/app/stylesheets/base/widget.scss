@@ -43,6 +43,14 @@ class is applied to, so be sure it has a wrapping container.
     border-right: 1px $base-border-color solid;
     border-bottom: 1px $base-border-color solid;
     border-left: 1px $base-border-color solid;
+
+    .table {
+        margin: 0;
+
+        &.table-bordered {
+            border: 0;
+        }
+    }
 }
 
 .widget-content {
@@ -217,7 +225,6 @@ class is applied to, so be sure it has a wrapping container.
 
     @media (max-width: $breakpoint-mobile) {
         td {
-            width: 100%;
             display: inline;
         }
     }

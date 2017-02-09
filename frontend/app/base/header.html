@@ -1,245 +1,257 @@
-<div ng-if="currentUser.displayEmailWarning" class="notification-container is-alert">
-    <a ui-sref="base.preferences.emailaccounts">
-        Oops, something went wrong with one of your email accounts, could you help me fix it?
-    </a>
-</div>
-<!-- BEGIN HEADER INNER -->
-<div class="page-header-inner">
-    <!-- BEGIN LOGO -->
-    <div class="page-header-logo-container">
-        <a ui-sref="base.dashboard" class="page-header-logo">
-            <i class="lilicon hl-lily-icon"></i>
+<div ng-if="currentUser.emailAccountStatus > 0">
+    <div ng-if="$state.current.name !== 'base.preferences.emailaccounts.edit' && currentUser.displayEmailWarning" class="notification-container is-alert">
+        <a ui-sref="base.preferences.emailaccounts">
+            Oops, something went wrong with one of your email accounts, could you help me fix it?
         </a>
     </div>
-    <!-- END LOGO -->
-    <!-- BEGIN RESPONSIVE MENU TOGGLER -->
-    <a class="main-nav-toggle" ng-click="mainNavCollapsed = !mainNavCollapsed">
-        <i class="fa" ng-class="mainNavCollapsed ? 'fa-times':'fa-bars'"></i>
-    </a>
-    <!-- END RESPONSIVE MENU TOGGLER -->
-
-    <!-- BEGIN PAGE TOP -->
-    <ul class="drop-down pull-right">
-        <li class="header-user-menu drop-down-item">
-            <a class="header-user-menu-link" href="javascript:void(0);" data-toggle="dropdown" data-close-others="true">
-                <span class="header-avatar" style="background-image: url({{ currentUser.picture }});"></span>
-                <i class="lilicon hl-arrow-down-smll-icon margin-right-10"></i>
+    <!-- BEGIN HEADER INNER -->
+    <div class="page-header-inner">
+        <!-- BEGIN LOGO -->
+        <div class="page-header-logo-container">
+            <a ui-sref="base.dashboard" class="page-header-logo">
+                <i class="lilicon hl-lily-icon"></i>
             </a>
-
-            <ul class="header-user-menu-item drop-down-sub-menu right-aligned">
-                <li class="drop-down-sub-menu-item">
-                    <a ui-sref="base.preferences.user.profile" ui-sref-opts="{reload:true}">
-                        <span class="drop-down-sub-menu-icon">
-                            <i class="lilicon hl-entity-icon"></i>
-                        </span>
-                        My profile
-                    </a>
-                </li>
-                <li class="drop-down-sub-menu-item">
-                    <a ui-sref="base.preferences.user.account" ui-sref-opts="{reload:true}">
-                        <span class="drop-down-sub-menu-icon">
-                            <i class="lilicon hl-cog-icon"></i>
-                        </span>
-                        My account
-                    </a>
-                </li>
-                <li class="divider"></li>
-                <li class="drop-down-sub-menu-item">
-                    <a ui-sref="base.preferences.company.users" ui-sref-opts="{reload:true}">
-                        <span class="drop-down-sub-menu-icon">
-                            <i class="lilicon hl-cog-icon"></i>
-                        </span>
-                        Users
-                    </a>
-                </li>
-                <li class="drop-down-sub-menu-item" ng-if="currentUser.isSuperUser">
-                    <a ui-sref="base.preferences.admin.integrations" ui-sref-opts="{reload:true}">
-                        <span class="drop-down-sub-menu-icon">
-                            <i class="fa fa-plug"></i>
-                        </span>
-                        Integrations
-                    </a>
-                </li>
-                <li class="divider"></li>
-                <li class="drop-down-sub-menu-item">
-                    <a ui-sref="base.preferences.emailaccounts" ui-sref-opts="{reload:true}">
-                        <span class="drop-down-sub-menu-icon">
-                            <i class="lilicon hl-mail-icon"></i>
-                        </span>
-                        Email accounts
-                    </a>
-                </li>
-                <li class="drop-down-sub-menu-item">
-                    <a ui-sref="base.preferences.emailtemplates" ui-sref-opts="{reload:true}">
-                        <span class="drop-down-sub-menu-icon">
-                            <i class="icon-envelope-letter"></i>
-                        </span>
-                        Email templates
-                    </a>
-                </li>
-                <li class="drop-down-sub-menu-item">
-                    <a ui-sref="base.preferences.templatevariables" ui-sref-opts="{reload:true}">
-                        <span class="drop-down-sub-menu-icon">
-                            <i class="fa fa-code"></i>
-                        </span>
-                        Template variables
-                    </a>
-                </li>
-                <li class="divider"></li>
-                <li class="drop-down-sub-menu-item">
-                    <a href="/logout">
-                        <span class="drop-down-sub-menu-icon">
-                            <i class="icon-key"></i>
-                        </span>
-                        Log out
-                    </a>
-                </li>
-            </ul>
-        </li>
-    </ul>
-
-    <!-- END TOP NAVIGATION MENU -->
-
-    <!-- BEGIN MAINNAVIGATION -->
-    <ul class="main-nav" ng-class="mainNavCollapsed ? 'main-nav-toggled':''">
-        <li class="main-nav-item">
-            <a ui-sref-active="active" ui-sref="base.dashboard" ui-sref-opts="{reload:true}" ng-click="mainNavCollapsed = !mainNavCollapsed">
-                <i class="lilicon hl-dashboard-icon"></i>
-                <span class="title">Dashboard</span>
-            </a>
-        </li>
-
-        <li class="main-nav-item">
-            <a ui-sref-active="active" ui-sref="base.email" ui-sref-opts="{reload:true}" ng-click="mainNavCollapsed = !mainNavCollapsed">
-                <i class="lilicon hl-mail-icon"></i>
-                <span class="title">Email</span>
-            </a>
-        </li>
-        <li class="main-nav-item">
-            <a ui-sref-active="active" ui-sref="base.accounts" ui-sref-opts="{reload:true}" ng-click="mainNavCollapsed = !mainNavCollapsed">
-                <i class="lilicon hl-company-icon"></i>
-                <span class="title">Accounts</span>
-            </a>
-        </li>
-        <li class="main-nav-item">
-            <a ui-sref-active="active" ui-sref="base.contacts" ui-sref-opts="{reload:true}" ng-click="mainNavCollapsed = !mainNavCollapsed">
-                <i class="lilicon hl-entity-icon"></i>
-                <span class="title">Contacts</span>
-            </a>
-        </li>
-        <li class="main-nav-item">
-            <a ui-sref-active="active" ui-sref="base.deals" ui-sref-opts="{reload:true}" ng-click="mainNavCollapsed = !mainNavCollapsed">
-                <i class="lilicon hl-deals-filled-icon"></i>
-                <span class="title">Deals</span>
-            </a>
-        </li>
-        <li class="main-nav-item">
-            <a ui-sref-active="active" ui-sref="base.cases" ui-sref-opts="{reload:true}" ng-click="mainNavCollapsed = !mainNavCollapsed">
-                <i class="lilicon hl-case-icon"></i>
-                <span class="title">Cases</span>
-            </a>
-        </li>
-    </ul>
-</div>
-<!-- END HEADER INNER -->
-<!-- BEGIN SUBHEADER -->
-<div class="clearfix"></div>
-<table class="header-rainbow">
-    <tr>
-        <td class="yellow"></td>
-        <td class="purple"></td>
-        <td class="mint"></td>
-        <td class="aqua"></td>
-        <td class="red"></td>
-    </tr>
-</table>
-
-<div class="sub-header">
-    <!-- BEGIN PAGE ACTIONS -->
-    <div class="hl-page-name-container">
-        <h1 class="hl-page-name">
-            <span ng-if="toolbar.updateCallback" ng-class="{'large-header': !settings.page.account}">
-                <span ng-if="toolbar.field" e-form="headerForm" e-name="{{ toolbar.field }}" e-size="{{ $data.length }}"
-                      ng-dblclick="headerForm.$show()" editable-text="toolbar.object[toolbar.field]"
-                      onbeforesave="toolbar.updateCallback($data, toolbar.field)" blur="submit" editable-handler input-auto-size>
-                    <span>{{ settings.page.header.main | hlTruncate }}</span>
-                </span>
-                <form ng-if="toolbar.fields" editable-form name="headerForm" e-form="headerForm"
-                      ng-class="{'editable editable-click addable-click': !headerForm.$visible}"
-                      onbeforesave="toolbar.updateCallback($data, toolbar.fields)" blur="submit" editable-handler>
-                    <span ng-if="!headerForm.$visible" ng-dblclick="headerForm.$show()">
-                        {{ settings.page.header.main }}
-
-                        <span ng-if="!headerForm.$visible" class="editable-icons no-edit">
-                            <span class="editable-icon"><i class="lilicon hl-edit-icon"></i></span>
-                        </span>
-                    </span>
-                    <span ng-if="headerForm.$visible" ng-repeat="field in toolbar.fields">
-                        <span e-name="{{ field }}" e-size="{{ $data.length }}" editable-text="toolbar.object[field]" input-auto-size></span>
-                    </span>
-                    <span ng-if="headerForm.$visible">
-                        <button type="submit" class="btn" ng-disabled="headerForm.$waiting">
-                            <i class="fa fa-check"></i>
-                        </button>
-                        <button class="btn" ng-click="headerForm.$cancel()" ng-disabled="headerForm.$waiting">
-                            <i class="fa fa-close"></i>
-                        </button>
-                    </span>
-                </form>
-            </span>
-            <span ng-if="!toolbar.updateCallback" class="large-header">
-                {{ settings.page.header.main }}
-            </span>
-            <div class="header-account-info">
-                <span ng-if="settings.page.contact">
-                    for <a ui-sref="base.contacts.detail({ id: settings.page.contact.id })">{{ settings.page.contact.full_name }}</a>
-                </span>
-                <span ng-if="settings.page.account">
-                    at <a ui-sref="base.accounts.detail({ id: settings.page.account.id })">{{ settings.page.account.name }}</a>
-                </span>
-            </div>
-        </h1>
-    </div>
-
-    <div class="pull-right">
-        <!-- BEGIN LARGE ACTIONS -->
-        <div class="hidden-sm hidden-xs">
-            <caller-info ng-if="currentUser.tenant == 10 || currentUser.tenant == 50"></caller-info>
-            <a class="hl-primary-btn" ui-sref="base.accounts.create" role="button" onclick="ga('send', 'event', 'Account', 'Open', 'Topnav');"><i class="fa fa-plus"></i> Account</a>
-            <a class="hl-primary-btn" ui-sref="base.contacts.create" role="button" onclick="ga('send', 'event', 'Contact', 'Open', 'Topnav');"><i class="fa fa-plus"></i> Contact</a>
-            <a class="hl-primary-btn" ui-sref="base.deals.create" role="button" onclick="ga('send', 'event', 'Deal', 'Open', 'Topnav');"><i class="fa fa-plus"></i> Deal</a>
-            <a class="hl-primary-btn" ui-sref="base.cases.create" role="button" onclick="ga('send', 'event', 'Case', 'Open', 'Topnav');"><i class="fa fa-plus"></i> Case</a>
         </div>
-        <!-- END LARGE ACTIONS -->
+        <!-- END LOGO -->
+        <!-- BEGIN RESPONSIVE MENU TOGGLER -->
+        <a class="main-nav-toggle" ng-click="mainNavCollapsed = !mainNavCollapsed">
+            <i class="fa" ng-class="mainNavCollapsed ? 'fa-times':'fa-bars'"></i>
+        </a>
+        <!-- END RESPONSIVE MENU TOGGLER -->
 
-        <!-- BEGIN SMALL ACTIONS -->
-        <div class="hl-button-group-container hidden-md hidden-lg">
-            <caller-info ng-if="currentUser.tenant == 10 || currentUser.tenant == 50"></caller-info>
-            <ul class="hl-button-group primary-actions-group">
-                <li class="hl-button-group-btn">
-                    <a class="hl-button-group-btn-link" data-toggle="dropdown" data-hover="dropdown" data-close-others="true" aria-expanded="false">
-                        Add <i class="fa fa-angle-down"></i>
-                    </a>
+        <!-- BEGIN PAGE TOP -->
+        <ul class="drop-down pull-right">
+            <li class="header-user-menu drop-down-item">
+                <a class="header-user-menu-link" href="javascript:void(0);" data-toggle="dropdown" data-close-others="true">
+                    <span class="header-avatar" style="background-image: url({{ currentUser.picture }});"></span>
+                    <i class="lilicon hl-arrow-down-smll-icon margin-right-10"></i>
+                </a>
 
-                    <ul class="hl-dropdown aligned-to-right">
-                        <li class="hl-dropdown-item">
-                            <a class="hl-dropdown-item-link" ui-sref="base.accounts.create" onclick="ga('send', 'event', 'Account', 'Open', 'Topnav mobile');"><i class="fa fa-plus"></i> Account</a>
-                        </li>
-                        <li class="hl-dropdown-item">
-                            <a class="hl-dropdown-item-link" ui-sref="base.contacts.create" onclick="ga('send', 'event', 'Contact', 'Open', 'Topnav mobile');"><i class="fa fa-plus"></i> Contact</a>
-                        </li>
-                        <li class="hl-dropdown-item">
-                            <a class="hl-dropdown-item-link" ui-sref="base.deals.create" onclick="ga('send', 'event', 'Deal', 'Open', 'Topnav mobile');"><i class="fa fa-plus"></i> Deal</a>
-                        </li>
-                        <li class="hl-dropdown-item">
-                            <a class="hl-dropdown-item-link" ui-sref="base.cases.create" onclick="ga('send', 'event', 'Case', 'Open', 'Topnav mobile');"><i class="fa fa-plus"></i> Case</a>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-        <!-- END SMALL ACTIONS -->
+                <ul class="header-user-menu-item drop-down-sub-menu right-aligned">
+                    <li class="drop-down-sub-menu-item">
+                        <a ui-sref="base.preferences.user.profile" ui-sref-opts="{reload:true}">
+                            <span class="drop-down-sub-menu-icon">
+                                <i class="lilicon hl-entity-icon"></i>
+                            </span>
+                            My profile
+                        </a>
+                    </li>
+                    <li class="drop-down-sub-menu-item">
+                        <a ui-sref="base.preferences.user.account" ui-sref-opts="{reload:true}">
+                            <span class="drop-down-sub-menu-icon">
+                                <i class="lilicon hl-cog-icon"></i>
+                            </span>
+                            My account
+                        </a>
+                    </li>
+                    <li class="divider"></li>
+                    <li class="drop-down-sub-menu-item">
+                        <a ui-sref="base.preferences.company.users" ui-sref-opts="{reload:true}">
+                            <span class="drop-down-sub-menu-icon">
+                                <i class="lilicon hl-cog-icon"></i>
+                            </span>
+                            Users
+                        </a>
+                    </li>
+                    <li class="drop-down-sub-menu-item" ng-if="currentUser.isSuperUser">
+                        <a ui-sref="base.preferences.admin.integrations" ui-sref-opts="{reload:true}">
+                            <span class="drop-down-sub-menu-icon">
+                                <i class="fa fa-plug"></i>
+                            </span>
+                            Integrations
+                        </a>
+                    </li>
+                    <li class="divider"></li>
+                    <li class="drop-down-sub-menu-item">
+                        <a ui-sref="base.preferences.emailaccounts" ui-sref-opts="{reload:true}">
+                            <span class="drop-down-sub-menu-icon">
+                                <i class="lilicon hl-mail-icon"></i>
+                            </span>
+                            Email accounts
+                        </a>
+                    </li>
+                    <li class="drop-down-sub-menu-item">
+                        <a ui-sref="base.preferences.emailtemplates" ui-sref-opts="{reload:true}">
+                            <span class="drop-down-sub-menu-icon">
+                                <i class="icon-envelope-letter"></i>
+                            </span>
+                            Email templates
+                        </a>
+                    </li>
+                    <li class="drop-down-sub-menu-item">
+                        <a ui-sref="base.preferences.templatevariables" ui-sref-opts="{reload:true}">
+                            <span class="drop-down-sub-menu-icon">
+                                <i class="fa fa-code"></i>
+                            </span>
+                            Template variables
+                        </a>
+                    </li>
+                    <li class="divider"></li>
+                    <li class="drop-down-sub-menu-item">
+                        <a href="/logout">
+                            <span class="drop-down-sub-menu-icon">
+                                <i class="icon-key"></i>
+                            </span>
+                            Log out
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+
+        <!-- END TOP NAVIGATION MENU -->
+
+        <!-- BEGIN MAINNAVIGATION -->
+        <ul class="main-nav" ng-class="mainNavCollapsed ? 'main-nav-toggled':''">
+            <li class="main-nav-item">
+                <a ui-sref-active="active" ui-sref="base.dashboard" ui-sref-opts="{reload:true}" ng-click="mainNavCollapsed = !mainNavCollapsed">
+                    <i class="lilicon hl-dashboard-icon"></i>
+                    <span class="title">Dashboard</span>
+                </a>
+            </li>
+
+            <li class="main-nav-item">
+                <a ui-sref-active="active" ui-sref="base.email" ui-sref-opts="{reload:true}" ng-click="mainNavCollapsed = !mainNavCollapsed">
+                    <i class="lilicon hl-mail-icon"></i>
+                    <span class="title">Email</span>
+                </a>
+            </li>
+            <li class="main-nav-item">
+                <a ui-sref-active="active" ui-sref="base.accounts" ui-sref-opts="{reload:true}" ng-click="mainNavCollapsed = !mainNavCollapsed">
+                    <i class="lilicon hl-company-icon"></i>
+                    <span class="title">Accounts</span>
+                </a>
+            </li>
+            <li class="main-nav-item">
+                <a ui-sref-active="active" ui-sref="base.contacts" ui-sref-opts="{reload:true}" ng-click="mainNavCollapsed = !mainNavCollapsed">
+                    <i class="lilicon hl-entity-icon"></i>
+                    <span class="title">Contacts</span>
+                </a>
+            </li>
+            <li class="main-nav-item">
+                <a ui-sref-active="active" ui-sref="base.deals" ui-sref-opts="{reload:true}" ng-click="mainNavCollapsed = !mainNavCollapsed">
+                    <i class="lilicon hl-deals-filled-icon"></i>
+                    <span class="title">Deals</span>
+                </a>
+            </li>
+            <li class="main-nav-item">
+                <a ui-sref-active="active" ui-sref="base.cases" ui-sref-opts="{reload:true}" ng-click="mainNavCollapsed = !mainNavCollapsed">
+                    <i class="lilicon hl-case-icon"></i>
+                    <span class="title">Cases</span>
+                </a>
+            </li>
+        </ul>
     </div>
+    <!-- END HEADER INNER -->
+    <!-- BEGIN SUBHEADER -->
     <div class="clearfix"></div>
-    <!-- END PAGE ACTIONS -->
+    <table class="header-rainbow">
+        <tr>
+            <td class="yellow"></td>
+            <td class="purple"></td>
+            <td class="mint"></td>
+            <td class="aqua"></td>
+            <td class="red"></td>
+        </tr>
+    </table>
+
+    <div class="sub-header">
+        <!-- BEGIN PAGE ACTIONS -->
+        <div class="hl-page-name-container">
+            <h1 class="hl-page-name">
+                <span ng-if="toolbar.updateCallback" ng-class="{'large-header': !settings.page.account}">
+                    <span ng-if="toolbar.field" e-form="headerForm" e-name="{{ toolbar.field }}" e-size="{{ $data.length }}"
+                        ng-dblclick="headerForm.$show()" editable-text="toolbar.object[toolbar.field]"
+                        onbeforesave="toolbar.updateCallback($data, toolbar.field)" blur="submit" editable-handler input-auto-size>
+                        <span>{{ settings.page.header.main | hlTruncate }}</span>
+                    </span>
+                    <form ng-if="toolbar.fields" editable-form name="headerForm" e-form="headerForm"
+                        ng-class="{'editable editable-click addable-click': !headerForm.$visible}"
+                        onbeforesave="toolbar.updateCallback($data, toolbar.fields)" blur="submit" editable-handler>
+                        <span ng-if="!headerForm.$visible" ng-dblclick="headerForm.$show()">
+                            {{ settings.page.header.main }}
+
+                            <span ng-if="!headerForm.$visible" class="editable-icons no-edit">
+                                <span class="editable-icon"><i class="lilicon hl-edit-icon"></i></span>
+                            </span>
+                        </span>
+                        <span ng-if="headerForm.$visible" ng-repeat="field in toolbar.fields">
+                            <span e-name="{{ field }}" e-size="{{ $data.length }}" editable-text="toolbar.object[field]" input-auto-size></span>
+                        </span>
+                        <span ng-if="headerForm.$visible">
+                            <button type="submit" class="btn" ng-disabled="headerForm.$waiting">
+                                <i class="fa fa-check"></i>
+                            </button>
+                            <button class="btn" ng-click="headerForm.$cancel()" ng-disabled="headerForm.$waiting">
+                                <i class="fa fa-close"></i>
+                            </button>
+                        </span>
+                    </form>
+                </span>
+                <span ng-if="!toolbar.updateCallback" class="large-header">
+                    {{ settings.page.header.main }}
+                </span>
+                <div class="header-account-info">
+                    <span ng-if="settings.page.contact">
+                        for <a ui-sref="base.contacts.detail({ id: settings.page.contact.id })">{{ settings.page.contact.full_name }}</a>
+                    </span>
+                    <span ng-if="settings.page.account">
+                        at <a ui-sref="base.accounts.detail({ id: settings.page.account.id })">{{ settings.page.account.name }}</a>
+                    </span>
+                </div>
+            </h1>
+        </div>
+
+        <div class="pull-right">
+            <!-- BEGIN LARGE ACTIONS -->
+            <div class="hidden-sm hidden-xs">
+                <caller-info ng-if="currentUser.tenant == 10 || currentUser.tenant == 50"></caller-info>
+                <a class="hl-primary-btn" ui-sref="base.accounts.create" role="button" onclick="ga('send', 'event', 'Account', 'Open', 'Topnav');"><i class="fa fa-plus"></i> Account</a>
+                <a class="hl-primary-btn" ui-sref="base.contacts.create" role="button" onclick="ga('send', 'event', 'Contact', 'Open', 'Topnav');"><i class="fa fa-plus"></i> Contact</a>
+                <a class="hl-primary-btn" ui-sref="base.deals.create" role="button" onclick="ga('send', 'event', 'Deal', 'Open', 'Topnav');"><i class="fa fa-plus"></i> Deal</a>
+                <a class="hl-primary-btn" ui-sref="base.cases.create" role="button" onclick="ga('send', 'event', 'Case', 'Open', 'Topnav');"><i class="fa fa-plus"></i> Case</a>
+            </div>
+            <!-- END LARGE ACTIONS -->
+
+            <!-- BEGIN SMALL ACTIONS -->
+            <div class="hl-button-group-container hidden-md hidden-lg">
+                <caller-info ng-if="currentUser.tenant == 10 || currentUser.tenant == 50"></caller-info>
+                <ul class="hl-button-group primary-actions-group">
+                    <li class="hl-button-group-btn">
+                        <a class="hl-button-group-btn-link" data-toggle="dropdown" data-hover="dropdown" data-close-others="true" aria-expanded="false">
+                            Add <i class="fa fa-angle-down"></i>
+                        </a>
+
+                        <ul class="hl-dropdown aligned-to-right">
+                            <li class="hl-dropdown-item">
+                                <a class="hl-dropdown-item-link" ui-sref="base.accounts.create" onclick="ga('send', 'event', 'Account', 'Open', 'Topnav mobile');"><i class="fa fa-plus"></i> Account</a>
+                            </li>
+                            <li class="hl-dropdown-item">
+                                <a class="hl-dropdown-item-link" ui-sref="base.contacts.create" onclick="ga('send', 'event', 'Contact', 'Open', 'Topnav mobile');"><i class="fa fa-plus"></i> Contact</a>
+                            </li>
+                            <li class="hl-dropdown-item">
+                                <a class="hl-dropdown-item-link" ui-sref="base.deals.create" onclick="ga('send', 'event', 'Deal', 'Open', 'Topnav mobile');"><i class="fa fa-plus"></i> Deal</a>
+                            </li>
+                            <li class="hl-dropdown-item">
+                                <a class="hl-dropdown-item-link" ui-sref="base.cases.create" onclick="ga('send', 'event', 'Case', 'Open', 'Topnav mobile');"><i class="fa fa-plus"></i> Case</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <!-- END SMALL ACTIONS -->
+        </div>
+        <div class="clearfix"></div>
+        <!-- END PAGE ACTIONS -->
+    </div>
+</div>
+<div ng-if="currentUser.emailAccountStatus === 0">
+    <div class="page-header-inner">
+    <!-- BEGIN LOGO -->
+        <div class="page-header-logo-container">
+            <span class="page-header-logo">
+                <i class="lilicon hl-lily-icon"></i>
+            </span>
+        </div>
+    </div>
 </div>

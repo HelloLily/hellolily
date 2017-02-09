@@ -62,13 +62,8 @@ FLOW = OAuth2WebServerFlow(
 
 class SetupEmailAuth(LoginRequiredMixin, View):
     def get(self, request):
-        is_public = request.GET.get('is_public', 0)
-        only_new = request.GET.get('only_new', 0)
-
         state = b64encode(anyjson.serialize({
             'token': generate_token(settings.SECRET_KEY, request.user.pk),
-            'is_public': is_public,
-            'only_new': only_new,
         }))
 
         authorize_url = FLOW.step1_get_authorize_url(state=state)
@@ -120,28 +115,16 @@ class OAuth2Callback(LoginRequiredMixin, View):
         storage = Storage(GmailCredentialsModel, 'id', account, 'credentials')
         storage.put(credentials)
 
-        # Set account as authorized.
-        account.is_authorized = True
         account.is_deleted = False
-
-        account.label = account.label or account.email_address
-        account.from_name = account.from_name or ' '.join(account.email_address.split('@')[0].split('.')).title()
-
-        set_to_public = bool(int(state.get('is_public')))
-        if set_to_public:
-            account.privacy = EmailAccount.PUBLIC
-
-        only_sync_new_mails = bool(int(state.get('only_new')))
-        if only_sync_new_mails and created:
-            # Setting it before the first sync means it will only fetch changes starting now.
-            account.history_id = profile.get('historyId')
-            account.full_sync_finished = True
-
         account.save()
 
         post_intercom_event(event_name='email-account-added', user_id=request.user.id)
 
-        return HttpResponseRedirect('/#/preferences/emailaccounts/edit/%s' % account.pk)
+        if request.user.info and not request.user.info.email_account_status:
+            # First time setup, so we want a different view.
+            return HttpResponseRedirect('/#preferences/emailaccounts/setup/%s' % account.pk)
+        else:
+            return HttpResponseRedirect('/#/preferences/emailaccounts/edit/%s' % account.pk)
 
 
 class EmailAccountUpdateView(LoginRequiredMixin, SuccessMessageMixin, FormActionMixin, StaticContextMixin, UpdateView):
@@ -940,6 +923,7 @@ class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
     def get(self, request, *args, **kwargs):
         template = EmailTemplate.objects.get(pk=kwargs.get('template_id'))
         lookup = {'user': self.request.user}
+        errors = {}
 
         if 'account_id' in self.request.GET:
             try:
@@ -966,26 +950,35 @@ class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
                         lookup.update({'account': account})
 
         if 'document_id' in self.request.GET:
+            document_error = {
+                'document': 'Something went wrong while setting up the PandaDoc sign URL.',
+            }
             credentials = get_credentials('pandadoc')
 
-            document_id = self.request.GET.get('document_id')
-            recipient = self.request.GET.get('recipient_email')
+            if credentials:
+                document_id = self.request.GET.get('document_id')
+                recipient = self.request.GET.get('recipient_email')
 
-            # Set the status of the document to 'sent' so we can create a view session.
-            send_url = 'https://api.pandadoc.com/public/v1/documents/%s/send' % document_id
-            send_params = {'silent': True}
+                # Set the status of the document to 'sent' so we can create a view session.
+                send_url = 'https://api.pandadoc.com/public/v1/documents/%s/send' % document_id
+                send_params = {'silent': True}
 
-            response = send_post_request(send_url, credentials, send_params)
+                response = send_post_request(send_url, credentials, send_params)
 
-            session_url = 'https://api.pandadoc.com/public/v1/documents/%s/session' % document_id
-            year = 60 * 60 * 24 * 365
-            session_params = {'recipient': recipient, 'lifetime': year}
+                if response.status_code == 200:
+                    session_url = 'https://api.pandadoc.com/public/v1/documents/%s/session' % document_id
+                    year = 60 * 60 * 24 * 365
+                    session_params = {'recipient': recipient, 'lifetime': year}
 
-            response = send_post_request(session_url, credentials, session_params)
+                    response = send_post_request(session_url, credentials, session_params)
 
-            if response.status_code == 201:
-                sign_url = 'https://app.pandadoc.com/s/%s' % response.json().get('id')
-                lookup.update({'document': {'sign_url': sign_url}})
+                    if response.status_code == 201:
+                        sign_url = 'https://app.pandadoc.com/s/%s' % response.json().get('id')
+                        lookup.update({'document': {'sign_url': sign_url}})
+                    else:
+                        errors.update(document_error)
+                else:
+                    errors.update(document_error)
 
         if 'emailaccount_id' in self.request.GET:
             try:
@@ -1052,6 +1045,7 @@ class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
             'template': parsed_template,
             'template_subject': parsed_subject,
             'attachments': attachments,
+            'errors': errors,
         }), content_type='application/json')
 
 

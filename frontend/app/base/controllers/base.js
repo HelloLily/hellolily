@@ -12,8 +12,8 @@ function appConfig($stateProvider) {
 
 angular.module('app.base').controller('BaseController', BaseController);
 
-BaseController.$inject = ['$scope', '$state', '$http', 'AppHash', 'Settings', 'HLShortcuts'];
-function BaseController($scope, $state, $http, AppHash, Settings, HLShortcuts) {
+BaseController.$inject = ['$scope', '$state', '$http', 'AppHash', 'Settings', 'HLShortcuts', 'User'];
+function BaseController($scope, $state, $http, AppHash, Settings, HLShortcuts, User) {
     // Make sure the settings are available everywhere.
     $scope.settings = Settings;
 
@@ -24,6 +24,10 @@ function BaseController($scope, $state, $http, AppHash, Settings, HLShortcuts) {
     //////////
 
     function activate() {
+        User.me().$promise.then(function(response) {
+            $scope.settings.currentUser = response;
+        });
+
         $scope.$on('$stateChangeStart', function() {
             AppHash.get().$promise.then(function(response) {
                 // App hash is set, so compare with the response.

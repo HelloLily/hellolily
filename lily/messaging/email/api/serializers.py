@@ -1,10 +1,15 @@
 from django.db.models import Q
+from django.utils.translation import ugettext_lazy as _
+from oauth2client.contrib.django_orm import Storage
 from rest_framework import serializers
 
 from lily.api.fields import DynamicQuerySetPrimaryKeyRelatedField
 from lily.api.nested.mixins import RelatedSerializerMixin
+from lily.users.models import UserInfo
+
 from ..models.models import (EmailLabel, EmailAccount, EmailMessage, Recipient, EmailAttachment, EmailTemplate,
-                             SharedEmailConfig, TemplateVariable, DefaultEmailTemplate)
+                             SharedEmailConfig, TemplateVariable, DefaultEmailTemplate, GmailCredentialsModel)
+from ..services import build_gmail_service
 
 
 class SharedEmailConfigSerializer(serializers.ModelSerializer):
@@ -66,22 +71,102 @@ class EmailMessageSerializer(serializers.ModelSerializer):
 
 
 class EmailAccountSerializer(serializers.ModelSerializer):
-    email_address = serializers.ReadOnlyField()
     labels = EmailLabelSerializer(many=True, read_only=True)
     is_public = serializers.BooleanField()
+    privacy_display = serializers.CharField(source='get_privacy_display', read_only=True)
+    owner = serializers.SerializerMethodField()
+    default_template = serializers.SerializerMethodField()
+
+    def validate(self, data):
+        validated_data = super(EmailAccountSerializer, self).validate(data)
+
+        request = self.context.get('request')
+
+        if 'only_new' in request.data:
+            validated_data.update({
+                'only_new': request.data.get('only_new'),
+            })
+
+        return validated_data
+
+    def update(self, instance, validated_data):
+        user = self.context.get('request').user
+        shared_with_users = validated_data.get('shared_with_users')
+
+        if shared_with_users:
+            instance.shared_with_users.clear()
+            instance.save()
+
+            for shared_with_user in shared_with_users:
+                if shared_with_user.id == user.id:
+                    raise serializers.ValidationError({
+                        'shared_with_users': _('Can\'t share your email account with yourself')
+                    })
+
+                instance.shared_with_users.add(shared_with_user)
+
+        if not instance.is_authorized or 'only_new' in validated_data:
+            only_new = validated_data.get('only_new')
+            # Store credentials based on new email account.
+            storage = Storage(GmailCredentialsModel, 'id', instance, 'credentials')
+            credentials = storage.get()
+
+            # Setup service to retrieve email address.
+            service = build_gmail_service(credentials)
+            profile = service.users().getProfile(userId='me').execute()
+
+            if credentials:
+                instance.is_authorized = True
+
+            if only_new:
+                instance.history_id = profile.get('historyId')
+                instance.full_sync_finished = True
+
+            instance.save()
+
+        if user.info.email_account_status == UserInfo.INCOMPLETE:
+            user.info.email_account_status = UserInfo.COMPLETE
+            user.info.save()
+
+        return super(EmailAccountSerializer, self).update(instance, validated_data)
+
+    def get_owner(self, obj):
+        """
+        Using the LilyUserSerializer gives a circular import and thus an error.
+        So implement a custom function for the owner of an email account.
+        """
+        return {
+            'id': obj.owner.id,
+            'full_name': obj.owner.full_name,
+        }
+
+    def get_default_template(self, obj):
+        user = self.context.get('request').user
+        default_template = obj.default_templates.filter(user=user).first()
+
+        return {
+            'id': default_template.template.id,
+            'name': default_template.template.name,
+        } if default_template else None
 
     class Meta:
         model = EmailAccount
         fields = (
             'id',
             'email_address',
-            'labels',
-            'label',
-            'is_public',
-            'shared_with_users',
-            'is_authorized',
+            'from_name',
             'full_sync_finished',
+            'label',
+            'labels',
+            'is_authorized',
+            'is_public',
+            'owner',
+            'default_template',
+            'privacy',
+            'privacy_display',
+            'shared_with_users',
         )
+    read_only_fields = ('email_address', 'is_authorized', 'full_sync_finished', 'is_public',)
 
 
 class RelatedEmailAccountSerializer(RelatedSerializerMixin, EmailAccountSerializer):
@@ -111,16 +196,6 @@ class EmailTemplateSerializer(serializers.ModelSerializer):
         return queryset
 
     default_for = DynamicQuerySetPrimaryKeyRelatedField(many=True, queryset=get_default_for_queryset)
-
-    class Meta:
-        model = EmailTemplate
-        fields = (
-            'id',
-            'name',
-            'subject',
-            'body_html',
-            'default_for',
-        )
 
     def create(self, validated_data):
         default_for = validated_data.pop('default_for')
@@ -181,6 +256,16 @@ class EmailTemplateSerializer(serializers.ModelSerializer):
             ).delete()
 
         return super(EmailTemplateSerializer, self).update(instance, validated_data)
+
+    class Meta:
+        model = EmailTemplate
+        fields = (
+            'id',
+            'name',
+            'subject',
+            'body_html',
+            'default_for',
+        )
 
 
 class TemplateVariableSerializer(serializers.ModelSerializer):

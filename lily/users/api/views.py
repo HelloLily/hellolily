@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework.parsers import JSONParser, MultiPartParser
 
 from .serializers import TeamSerializer, LilyUserSerializer, LilyUserTokenSerializer
-from ..models import Team, LilyUser
+from ..models import Team, LilyUser, UserInfo
 
 
 class TeamFilter(FilterSet):
@@ -156,6 +156,18 @@ class LilyUserViewSet(viewsets.ModelViewSet):
 
         serializer = LilyUserTokenSerializer(request.user)
 
+        return Response(serializer.data)
+
+    @list_route(methods=['PATCH'])
+    def skip(self, request, pk=None):
+        """
+        Skip the first time email account setup.
+        """
+        user = self.request.user
+        user.info.email_account_status = UserInfo.SKIPPED
+        user.info.save()
+
+        serializer = self.get_serializer(user, partial=True)
         return Response(serializer.data)
 
     def partial_update(self, request, *args, **kwargs):

@@ -57,7 +57,7 @@ class RegistrationView(FormView):
             password=form.cleaned_data['password'],
             first_name=form.cleaned_data['first_name'],
             last_name=form.cleaned_data['last_name'],
-            position=form.cleaned_data['position']
+            position=form.cleaned_data['position'],
         )
 
         user.is_active = False

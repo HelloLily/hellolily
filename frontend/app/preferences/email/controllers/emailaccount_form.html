@@ -1,0 +1,96 @@
+<div class="row">
+    <div class="col-md-7 auto-margin">
+        <div class="portlet light">
+            <div class="portlet-title">
+                <h2>{{ vm.emailAccount.email_address }}</h2>
+
+                <form novalidate name="emailAccountForm">
+                    <form-portlet portlet-title="">
+                        <form-group label-title="From name" label-id="from_name" field="emailAccountForm.from_name" required="true">
+                            <input class="form-control" id="from_name" name="from_name" maxlength="255" placeholder="From name" type="text" ng-model="vm.emailAccount.from_name"
+                            />
+                        </form-group>
+
+                        <form-group label-title="Mailbox name" label-id="label" field="emailAccountForm.label" required="true">
+                            <input class="form-control" id="label" name="label" maxlength="255" placeholder="Label" type="text" ng-model="vm.emailAccount.label" />
+                        </form-group>
+
+                        <div>
+                            <p>Load all email?</p>
+                            <label class="display-block" for="all">
+                                <input type="radio" name="only_new" ng-model="vm.emailAccount.only_new" ng-value="0" id="all" />
+                                Yes, add everything for total overview
+                            </label>
+                        </div>
+                        <div>
+                            <label class="display-block" for="only_new">
+                                <input type="radio" name="only_new" ng-model="vm.emailAccount.only_new" ng-value="1" id="only_new" />
+                                No, only add new email and start empty
+                            </label>
+                        </div>
+
+                        <div class="widget-name">
+                            Share your email
+                        </div>
+                        <uib-tabset active="active" class="lily-tabs">
+                            <uib-tab index="0" heading="Basic">
+                                <p>Allow your colleagues to see:</p>
+                                <div class="privacy-radios">
+                                    <div ng-repeat="option in vm.privacyOptions" class="option-container">
+                                        <input type="radio" name="privacy" ng-model="vm.emailAccount.privacy" ng-value="{{ option.id }}" id="privacy_{{ option.id }}" />
+
+                                        <label for="privacy_{{ option.id }}" class="privacy-option display-inline-block">
+                                            <div>
+                                                {{ option.name }}
+                                                <small class="muted">{{ option.text }}</small>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </uib-tab>
+                            <uib-tab index="1" heading="Advanced">
+                                <p>Give specific colleagues additional permissions to your email</p>
+
+                                <div class="shared-with-users">
+                                    <div ng-repeat="user in vm.emailAccount.shared_with_users" class="user-row">
+                                        <div class="user-avatar display-inline-block" ng-style="{'background-image': 'url(' + user.profile_picture + ')'}"></div>
+                                        <span class="margin-left-15">{{ user.full_name }}</span>
+
+                                        <div class="clickable" ng-click="vm.removeSharedUser(user)"><i class="lilicon hl-close-icon"></i></div>
+                                    </div>
+                                </div>
+
+                                <form-group field="contactForm.shared_with_users">
+                                    <div class="user-share-search">
+                                        <ui-select multiple ng-model="vm.shareAdditions" theme="select2" class="form-control" name="shared_with_users" append-to-body="true">
+                                            <ui-select-match placeholder="Select people to share the account with">{{ $item.full_name }}</ui-select-match>
+                                            <ui-select-choices repeat="user in vm.users | filterItems:vm.emailAccount.shared_with_users" refresh="vm.refreshUsers($select.search)" refresh-delay="300">
+                                                <div ng-bind-html="user.full_name | highlight: $select.search"></div>
+                                            </ui-select-choices>
+                                        </ui-select>
+
+                                        <button class="hl-primary-btn-green" ng-click="vm.addSharedUsers()">Add</button>
+                                    </div>
+                                </form-group>
+                            </uib-tab>
+                        </uib-tabset>
+                    </form-portlet>
+
+                    <div class="hl-form-footer">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-9 col-md-8 col-md-7 col-lg-4">
+                                <button type="button" class="hl-primary-btn-green" ng-click="vm.saveEmailAccount(emailAccountForm)">
+                                    <i class="fa fa-check"></i> Save email account
+                                </button>
+                                <button type="button" class="btn default" ng-click="vm.cancelEditing()">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+  </div>
+</div>
+

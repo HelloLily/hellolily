@@ -203,7 +203,7 @@ the option to make the rows stripped by using `<table class="hl-table striped">`
 .scrollable-table-container {
     overflow-x: auto;
     margin-bottom: 20px;
-    border: $app-border-color 1px solid;
+    border: 1px solid $app-border-color;
 
     .table {
         margin-bottom: 0;

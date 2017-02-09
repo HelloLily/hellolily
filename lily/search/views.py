@@ -104,7 +104,7 @@ class SearchView(LoginRequiredMixin, View):
         hits, facets, total, took = search.do_search(return_fields)
 
         if model_type == 'email_emailmessage':
-            email_accounts = EmailAccount.objects.filter(tenant=user.tenant).distinct('id')
+            email_accounts = EmailAccount.objects.filter(tenant=user.tenant, is_deleted=False).distinct('id')
 
             filtered_hits = []
 
@@ -120,11 +120,10 @@ class SearchView(LoginRequiredMixin, View):
                     shared_with = (user.id in email_account.shared_with_users.values_list('id', flat=True))
                     has_full_access = (is_owner or shared_with)
 
-                    print email_account.privacy
-
                     # If the email account is set to metadata only, just set these fields.
-                    if (email_account.privacy == EmailAccount.METADATA and not has_full_access):
+                    if email_account.privacy == EmailAccount.METADATA and not has_full_access:
                         filtered_hits.append({
+                            'id': hit.get('id'),
                             'sender_name': hit.get('sender_name'),
                             'sender_email': hit.get('sender_email'),
                             'subject': hit.get('sender'),
@@ -136,11 +135,11 @@ class SearchView(LoginRequiredMixin, View):
                         })
                     elif email_account.privacy == EmailAccount.PRIVATE and not has_full_access:
                         # Private email (account), so don't add to list.
-                        pass
+                        continue
                     else:
                         filtered_hits.append(hit)
 
-                    hits = filtered_hits
+            hits = filtered_hits
 
         results = {'hits': hits, 'total': total, 'took': took}
 

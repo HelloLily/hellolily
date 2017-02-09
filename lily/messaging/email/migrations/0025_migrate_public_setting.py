@@ -32,7 +32,7 @@ def migrate_public_setting_backwards(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('email', '0023_emailaccount_privacy'),
+        ('email', '0024_emailaccount_privacy'),
     ]
 
     operations = [

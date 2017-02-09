@@ -1,0 +1,88 @@
+$base-color: #27224e;
+
+.privacy-radios {
+    color: $base-color;
+    display: flex;
+    justify-content: space-between;
+
+    .option-container {
+        flex: 1;
+    }
+
+    label {
+        height: 75px;
+        border: 1px solid $app-border-color;
+        border-radius: 3px;
+        width: 100%;
+        text-align: center;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        small {
+            display: block;
+            color: #b5b5b5;
+        }
+
+        small:before {
+            content: "(";
+        }
+
+        small:after {
+            content: ")";
+        }
+    }
+
+    > .option-container ~ .option-container {
+        margin-left: 5px;
+    }
+
+    input {
+        &[type="radio"] {
+            display: none;
+        }
+
+        &[type="radio"]:checked ~ label {
+            border: 2px solid $base-color;
+            padding-top: -1px;
+        }
+    }
+}
+
+.shared-with-users {
+    .user-row {
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid $app-border-color;
+        padding: 6px 20px;
+
+        &:first-child {
+            border-top: 1px solid $app-border-color;
+        }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            text-align: center;
+            overflow: hidden;
+            background: #ffd66f;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .clickable {
+            margin-left: auto;
+        }
+    }
+}
+
+.user-share-search {
+    display: flex;
+    background: #fdfdfe;
+    border: 1px solid $app-border-color;
+    border-radius: 3px;
+    padding: 15px;
+}

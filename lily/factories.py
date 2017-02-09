@@ -32,6 +32,7 @@ def _is_factory(member):
             issubclass(member, factory.Factory) and
             member.__module__.startswith('lily.'))
 
+
 project_apps = [app for app in settings.INSTALLED_APPS if app.startswith('lily.')]
 for app in project_apps:
     factories_name = '%s.factories' % app

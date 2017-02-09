@@ -62,7 +62,7 @@ function HLMessages() {
             },
             preferences: {
                 userAssignTitle: 'Assign %(user)s to teams',
-                shareAccountTitle: 'Yes, let me share this email account',
+                shareAccountTitle: 'Share your email',
             },
         },
         tooltips: {

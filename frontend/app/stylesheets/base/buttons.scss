@@ -194,6 +194,10 @@ $large-button: 30px;
         color: #fff;
         background: darken($app-color-mint, 10);
     }
+
+    &:focus {
+        color: #fff;
+    }
 }
 
 .hl-primary-btn-blue {
@@ -206,6 +210,10 @@ $large-button: 30px;
     &:hover {
         color: #fff;
         background: darken($app-color-aqua, 5);
+    }
+
+    &:focus {
+        color: #fff;
     }
 }
 

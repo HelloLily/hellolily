@@ -36,8 +36,11 @@ class LilyUserManager(UserManager):
         else:
             tenant = Tenant.objects.create()
 
+        # Create default onboarding info.
+        user_info = UserInfo.objects.create()
+
         user = self.model(tenant=tenant, email=email, is_staff=is_staff, is_active=True, is_superuser=is_superuser,
-                          last_login=now, date_joined=now, **extra_fields)
+                          last_login=now, date_joined=now, info=user_info, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
 
@@ -86,6 +89,17 @@ def get_lilyuser_picture_upload_path(instance, filename):
     }
 
 
+class UserInfo(models.Model):
+    INCOMPLETE, COMPLETE, SKIPPED = range(3)
+    STATUS_CHOICES = (
+        (INCOMPLETE, _('Incomplete')),
+        (COMPLETE, _('Complete')),
+        (SKIPPED, _('Skipped')),
+    )
+
+    email_account_status = models.IntegerField(choices=STATUS_CHOICES, default=INCOMPLETE)
+
+
 class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
     """
     A custom user class implementing a fully featured User model with
@@ -127,6 +141,8 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
 
     primary_email_account = models.ForeignKey('email.EmailAccount', blank=True, null=True)
     webhooks = models.ManyToManyField(Webhook, blank=True)
+
+    info = models.ForeignKey(UserInfo, blank=True, null=True)
 
     objects = LilyUserManager()
 
@@ -229,7 +245,7 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
         verbose_name_plural = _('users')
         ordering = ['first_name', 'last_name']
         permissions = (
-            ("send_invitation", _("Can send invitations to invite new users")),
+            ('send_invitation', _('Can send invitations to invite new users')),
         )
         unique_together = ('tenant', 'internal_number')
 

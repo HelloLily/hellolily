@@ -1,9 +1,10 @@
 import datetime
 import unicodedata
 
+from django.utils.timezone import utc
 from factory.declarations import SubFactory, LazyAttribute
 from factory.django import DjangoModelFactory
-from factory.fuzzy import FuzzyChoice, FuzzyDate, FuzzyText
+from factory.fuzzy import FuzzyChoice, FuzzyText
 from faker.factory import Factory
 from factory.helpers import post_generation
 
@@ -14,8 +15,8 @@ from .models.models import EmailAccount, EmailMessage, Recipient
 
 faker = Factory.create('nl_NL')
 
-past_date = datetime.date.today() - datetime.timedelta(days=10)
-future_date = datetime.date.today() + datetime.timedelta(days=10)
+current_date = datetime.datetime.now()
+past_date = current_date - datetime.timedelta(days=10)
 
 class GmailAccountFactory(factory.DjangoModelFactory):
     email_address = LazyAttribute(lambda o: unicodedata.normalize('NFD', faker.safe_email()).encode('ascii', 'ignore'))
@@ -51,7 +52,11 @@ class EmailMessageFactory(DjangoModelFactory):
     subject = LazyAttribute(lambda o: faker.word())
     sender = SubFactory(RecipientFactory)
     body_text = LazyAttribute(lambda o: faker.text())
-    sent_date = FuzzyDate(past_date, future_date)
+    sent_date = LazyAttribute(
+        lambda o: faker.date_time_between_dates(
+            past_date, current_date, utc
+        )
+    )
     account = SubFactory(EmailAccountFactory)
     message_id = FuzzyText()
 

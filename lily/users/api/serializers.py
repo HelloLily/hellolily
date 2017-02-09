@@ -9,8 +9,17 @@ from lily.api.nested.mixins import RelatedSerializerMixin
 from lily.api.nested.serializers import WritableNestedSerializer
 from lily.utils.api.serializers import RelatedWebhookSerializer
 
-from ..models import Team, LilyUser
+from ..models import Team, LilyUser, UserInfo
 from lily.messaging.email.api.serializers import EmailAccountSerializer
+
+
+class UserInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserInfo
+        fields = (
+            'id',
+            'email_account_status',
+        )
 
 
 class LilyUserSerializer(WritableNestedSerializer):
@@ -25,6 +34,7 @@ class LilyUserSerializer(WritableNestedSerializer):
     webhooks = RelatedWebhookSerializer(many=True, required=False, create_only=True)
     primary_email_account = EmailAccountSerializer(allow_null=True, required=False)
     timezone = CustomTimeZoneField(required=False)
+    info = UserInfoSerializer(read_only=True)
 
     class Meta:
         model = LilyUser
@@ -34,18 +44,18 @@ class LilyUserSerializer(WritableNestedSerializer):
             'last_name',
             'full_name',
             'email',
+            'language',
+            'info',
+            'internal_number',
+            'is_active',
             'password',
             'password_confirmation',
-            'primary_email_account',
-            'position',
-            'profile_picture',
-            'picture',
-            'is_active',
-            'picture',
             'phone_number',
-            'internal_number',
+            'picture',
+            'position',
+            'primary_email_account',
+            'profile_picture',
             'social_media',
-            'language',
             'timezone',
             'teams',
             'webhooks',

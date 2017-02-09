@@ -1,15 +1,25 @@
 <div slimscroll="{height: 350}" class="align-left">
-    <ul class="list-unstyled">
-        <li>
-            <checkbox model="vm.currentAccount.isPublic">Make it a public account!</checkbox>
-        </li>
-    </ul>
-    <div ng-hide="vm.currentAccount.isPublic" class="margin-top-20">
-        No, just share it with these people:
-        <ul class="list-unstyled">
-            <li ng-repeat="user in vm.users track by user.id">
-                <checkbox model="user.sharedWith" >{{ user | fullName }}</checkbox>
-            </li>
-        </ul>
+    <div class="widget-name">{{ messages.alerts.preferences.shareAccountTitle }}</div>
+
+    <p>Give specific colleagues additional permissions to your email</p>
+
+    <div class="shared-with-users">
+        <div ng-repeat="user in vm.sharedWithUsers" class="user-row">
+            <div class="user-avatar display-inline-block" ng-style="{'background-image': 'url(' + user.profile_picture + ')'}"></div>
+            <span class="margin-left-15">{{ user.full_name }}</span>
+
+            <div class="clickable" ng-click="vm.removeSharedUser(user)"><i class="lilicon hl-close-icon"></i></div>
+        </div>
+    </div>
+
+    <div class="user-share-search margin-top-20">
+        <ui-select multiple ng-model="vm.shareAdditions" theme="select2" class="form-control" name="shared_with_users" append-to-body="true">
+            <ui-select-match placeholder="Select people to share the account with">{{ $item.full_name }}</ui-select-match>
+            <ui-select-choices repeat="user in vm.users | filterItems:vm.sharedWithUsers" refresh="vm.refreshUsers($select.search)" refresh-delay="300">
+                <div ng-bind-html="user.full_name | highlight: $select.search"></div>
+            </ui-select-choices>
+        </ui-select>
+
+        <button class="hl-primary-btn-green" ng-click="vm.addSharedUsers()">Add</button>
     </div>
 </div>

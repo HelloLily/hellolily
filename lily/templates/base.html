@@ -66,8 +66,7 @@
         {% endblock page-spinner %}
 
         {% block page-header %}
-            <div ng-include="'base/header.html'" ng-controller="headerController" class="page-header navbar navbar-fixed-top">
-            </div>
+            <page-header ng-if="settings.currentUser" class="page-header navbar navbar-fixed-top"></page-header>
         {% endblock page-header %}
 
         <div class="clearfix"></div>
@@ -132,7 +131,8 @@
                     displayEmailWarning: '{{ user.display_email_warning }}' == 'True',
                     country: '{{ user.tenant.country }}',
                     company: '{{ user.tenant.name }}',
-                    tenant: '{{ user.tenant.id }}'
+                    tenant: '{{ user.tenant.id }}',
+                    emailAccountStatus: parseInt('{{ user.info.email_account_status }}'),
                 };
 
                 window.intercomAppId = '{{ INTERCOM_APP_ID }}';

@@ -20,6 +20,7 @@ def connect(app):
     os.environ['PGPASSWORD'] = urlparts.password
     os.system(cmd)
 
+
 if __name__ == '__main__':
     app = DEFAULT_APP
     if len(sys.argv[1:]) == 1:

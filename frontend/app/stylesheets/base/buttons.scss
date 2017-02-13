@@ -7,6 +7,8 @@ This are the standard buttons that can be used.
 <button class="hl-primary-btn">button</button>
 
 <button class="hl-primary-btn-green">button</button>
+
+<button class="hl-primary-btn-blue">button</button>
 ```
 
 */
@@ -191,6 +193,19 @@ $large-button: 30px;
     &:hover {
         color: #fff;
         background: darken($app-color-mint, 10);
+    }
+}
+
+.hl-primary-btn-blue {
+    @include hl-button($large-button);
+    background: $app-color-aqua;
+    border-color: darken($app-color-aqua, 10);
+    color: #fff;
+    font-weight: 700;
+
+    &:hover {
+        color: #fff;
+        background: darken($app-color-aqua, 5);
     }
 }
 

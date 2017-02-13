@@ -3,7 +3,7 @@ MAINTAINER HelloLily
 
 RUN apk add --no-cache \
     linux-headers \
-    postgresql-dev=9.5.4-r0 \
+    postgresql-dev=9.5.6-r0 \
     libxml2-dev \
     libxslt-dev \
     ncurses5-libs \

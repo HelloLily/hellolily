@@ -143,24 +143,19 @@ inbox to display buttons like reply, delete, archive etc.
         }
 
         &.disabled {
-            pointer-events: none;
-
             .hl-button-group-btn-link {
                 opacity: 0.3;
                 pointer-events: none;
                 cursor: not-allowed;
             }
 
-            &.selected {
+            &.selected,
+            &:hover {
                 background: #fff;
 
                 .hl-button-group-btn-link {
                     color: $app-color-darkblue;
                 }
-            }
-
-            &:hover {
-                background: $sky-grey;
             }
         }
 

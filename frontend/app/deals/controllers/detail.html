@@ -180,11 +180,20 @@
             </widget>
 
             <widget widget-name="'Documents'" ng-if="vm.tenant.hasPandaDoc">
-                <widget-filters ng-if="vm.deal.contact.id">
-                    <a ng-if="vm.tenant.hasPandaDoc" ui-sref="base.integrations.pandadoc.quotes.create({dealId: vm.deal.id })" class="btn btn-circle btn-default">
-                        <i class="fa fa-external-link fa-sm"></i>
-                        <span class="external-link-name">Add document</span>
-                    </a>
+                <widget-filters>
+                    <div class="hl-button-group-container">
+                        <ul class="hl-button-group">
+                            <li class="hl-button-group-btn"
+                                ng-class="{'disabled': !vm.deal.contact.id}"
+                                ng-attr-uib-tooltip="{{!vm.deal.contact.id && 'Please add a contact first' || '' }}"
+                            >
+                                <a class="hl-button-group-btn-link" ui-sref="base.integrations.pandadoc.quotes.create({dealId: vm.deal.id })">
+                                    <i class="fa fa-external-link fa-sm"></i>
+                                    <span class="external-link-name">Add document</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </widget-filters>
 
                 <widget-header>

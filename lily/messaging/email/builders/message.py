@@ -44,7 +44,7 @@ class MessageBuilder(object):
 
     def get_or_create_message(self, message_dict):
         """
-        Get or create Message.
+        Get or create EmailMessage.
 
         Arguments:
             message_dict (dict): with label information
@@ -53,7 +53,7 @@ class MessageBuilder(object):
             message (instance): unsaved message
             created (boolean): True if label is created
         """
-        # Reset current builder info
+        # Reset current builder info.
         self.message = None
         self.labels = []
         self.headers = []
@@ -62,10 +62,10 @@ class MessageBuilder(object):
         self.attachments = []
         self.inline_attachments = {}
 
-        # Prevent memory leaks
+        # Prevent memory leaks.
         gc.collect()
 
-        # Get or create without save
+        # Get or create without save.
         created = False
         with transaction.atomic():
             try:
@@ -87,7 +87,7 @@ class MessageBuilder(object):
 
     def store_message_info(self, message_info, message_id):
         """
-        With given dict, create or update current message
+        With given dict, create or update current message.
 
         Args:
             message_info (dict): with message info

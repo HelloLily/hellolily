@@ -91,13 +91,12 @@ class GmailManager(object):
 
     def download_message(self, message_id):
         """
-        Download message from Google and parse into an EmailMessage
+        Download message from Google and parse into an EmailMessage.
 
         Arguments:
             message_id (str): message_id of the message
         """
-
-        # If message if already downloaded, only update it
+        # If message is already downloaded, only update it.
         if EmailMessage.objects.filter(account=self.email_account, message_id=message_id).exists():
             self.update_labels_for_message(message_id)
             return
@@ -108,6 +107,7 @@ class GmailManager(object):
         except NotFoundError:
             logger.debug('Message already deleted from remote')
         else:
+            # TODO: LILY-2203 draft_id is missing when downloaded message is a draft.
             self.message_builder.store_message_info(message_info, message_id)
             self.message_builder.save()
 
@@ -196,6 +196,8 @@ class GmailManager(object):
 
         # Only update the unread count if the history id was updated.
         if old_history_id != self.email_account.history_id:
+            # TODO: Find out if there is a better place to update unread count. download_email_message tasks aren't
+            # finished yet.
             self.update_unread_count()
 
     def sync_labels(self):
@@ -205,8 +207,6 @@ class GmailManager(object):
         Fetches all the labels for the email account.
         Add, remove and rename the labels in the database retrieved from the api.
         """
-        logger.info('updating labels for %s' % self.email_account)
-
         labels = self.connector.get_label_list()
         if not len(labels):
             return
@@ -502,16 +502,16 @@ class GmailManager(object):
             email_message (instance): Email instance
         """
         # Create draft message.
-        message_dict = self.connector.create_draft_email_message(email_message.as_string())
+        draft_dict = self.connector.create_draft_email_message(email_message.as_string())
 
         try:
-            full_message_dict = self.connector.get_message_info(message_dict['message']['id'])
+            message_dict = self.connector.get_message_info(draft_dict['message']['id'])
         except NotFoundError:
             logger.debug('Message already deleted from remote')
         else:
             # Store updated message.
-            self.message_builder.store_message_info(full_message_dict, message_dict['id'])
-            self.message_builder.message.draft_id = message_dict.get('id', '')
+            self.message_builder.store_message_info(message_dict, draft_dict['message']['id'])
+            self.message_builder.message.draft_id = draft_dict.get('id', '')
             self.message_builder.save()
             self.update_unread_count()
 
@@ -524,16 +524,16 @@ class GmailManager(object):
             draft_id (string): id of current draft
         """
         # Update draft message.
-        message_dict = self.connector.update_draft_email_message(email_message.as_string(), draft_id)
+        draft_dict = self.connector.update_draft_email_message(email_message.as_string(), draft_id)
 
         try:
-            full_message_dict = self.connector.get_message_info(message_dict['message']['id'])
+            message_dict = self.connector.get_message_info(draft_dict['message']['id'])
         except NotFoundError:
             logger.debug('Message already deleted from remote')
         else:
             # Store updated message.
-            self.message_builder.store_message_info(full_message_dict, message_dict['id'])
-            self.message_builder.message.draft_id = message_dict.get('id', '')
+            self.message_builder.store_message_info(message_dict, draft_dict['message']['id'])
+            self.message_builder.message.draft_id = draft_dict.get('id', '')
             self.message_builder.save()
             self.update_unread_count()
 
@@ -544,8 +544,14 @@ class GmailManager(object):
         Args:
             email_message (instance): EmailMessage instance
         """
-        self.connector.delete_draft_email_message(email_message.draft_id)
-        self.update_unread_count()
+        try:
+            self.connector.delete_draft_email_message(email_message.draft_id)
+        except NotFoundError:
+            # Draft exists in Lily but not anymore on remote, so remove it from the database.
+            logger.debug('Draft already deleted from remote.')
+            EmailMessage.objects.filter(message_id=email_message.message_id, account=self.email_account).delete()
+        else:
+            self.update_unread_count()
 
     def cleanup(self):
         """

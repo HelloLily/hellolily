@@ -11,6 +11,9 @@ build:
 pull:
 	@docker-compose pull
 
+makemigrations:
+	@docker-compose run --rm web python manage.py makemigrations
+
 migrate:
 	@docker-compose run --rm web python manage.py migrate
 
@@ -34,4 +37,4 @@ setup: build migrate index testdata run
 help:
 	@$(MAKE) -pRrq -f $(lastword $(MAKEFILE_LIST)) : 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | egrep -v -e '^[^[:alnum:]]' -e '^$@$$' | xargs
 
-.PHONY: default build pull migrate index testdata run up down setup help
+.PHONY: default build pull makemigrations migrate index testdata run up down setup help

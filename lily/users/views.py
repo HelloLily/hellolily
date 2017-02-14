@@ -291,8 +291,9 @@ class SendInvitationView(FormSetView):
                 recipient_list=[form.cleaned_data['email']],
                 context={
                     'current_site': current_site,
-                    'full_name': self.request.user.full_name,
-                    'name': first_name,
+                    'inviter_full_name': self.request.user.full_name,
+                    'inviter_first_name': self.request.user.first_name,
+                    'recipient_first_name': first_name,
                     'invite_link': invite_link,
                 },
                 from_email=settings.EMAIL_PERSONAL_HOST_USER,

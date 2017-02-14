@@ -73,40 +73,46 @@ class GmailConnector(object):
         for n in range(0, 6):
             try:
                 return service.execute()
-            except HttpError as e:
+            except HttpError as error:
                 try:
-                    error = anyjson.loads(e.content)
+                    error = anyjson.loads(error.content)
                     # Error could be nested, so unwrap if necessary.
                     error = error.get('error', error)
-                except ValueError:
-                    logger.exception('error %s' % e)
-                    error = e
 
-                if error.get('code') == 403 and error.get('errors')[0].get('reason') in ['rateLimitExceeded',
-                                                                                         'userRateLimitExceeded']:
-                    # Apply exponential backoff.
-                    sleep_time = (2 ** n) + random.randint(0, 1000) / 1000
-                    logger.warning('Limit overrated, sleeping for %s seconds' % sleep_time)
-                    time.sleep(sleep_time)
-                elif error.get('code') == 429:
-                    # Apply exponential backoff.
-                    sleep_time = (2 ** n) + random.randint(0, 1000) / 1000
-                    logger.warning('Too many concurrent requests for user, sleeping for %d seconds' % sleep_time)
-                    time.sleep(sleep_time)
-                elif error.get('code') == 503 or error.get('code') == 500:
-                    # Apply exponential backoff.
-                    sleep_time = (2 ** n) + random.randint(0, 1000) / 1000
-                    logger.warning('Backend error, sleeping for %d seconds' % sleep_time)
-                    time.sleep(sleep_time)
-                elif error.get('code') == 400 and error.get('message') == 'labelId not found':
-                    raise LabelNotFoundError
-                elif error.get('code') == 400 and error.get('message') == 'Invalid label: SENT':
-                    raise IllegalLabelError('Not allowed to set label SENT.')
-                elif error.get('code') == 404:
-                    raise NotFoundError
-                else:
-                    logger.exception('Unkown error code for error %s' % error)
-                    raise
+                    if error.get('code') == 403 and error.get('errors')[0].get('reason') in ['rateLimitExceeded',
+                                                                                             'userRateLimitExceeded']:
+                        # Apply exponential backoff.
+                        sleep_time = (2 ** n) + random.randint(0, 1000) / 1000
+                        logger.warning('Limit overrated, sleeping for %s seconds' % sleep_time)
+                        time.sleep(sleep_time)
+                    elif error.get('code') == 429:
+                        # Apply exponential backoff.
+                        sleep_time = (2 ** n) + random.randint(0, 1000) / 1000
+                        logger.warning('Too many concurrent requests for user, sleeping for %d seconds' % sleep_time)
+                        time.sleep(sleep_time)
+                    elif error.get('code') == 503 or error.get('code') == 500:
+                        # Apply exponential backoff.
+                        sleep_time = (2 ** n) + random.randint(0, 1000) / 1000
+                        logger.warning('Backend error, sleeping for %d seconds' % sleep_time)
+                        time.sleep(sleep_time)
+                    elif error.get('code') == 400 and error.get('message') == 'labelId not found':
+                        raise LabelNotFoundError
+                    elif error.get('code') == 400 and error.get('message') == 'Invalid label: SENT':
+                        raise IllegalLabelError('Not allowed to set label SENT.')
+                    elif error.get('code') == 404:
+                        raise NotFoundError
+                    else:
+                        logger.exception('Unkown error code for error %s' % error)
+                        raise
+
+                except ValueError:
+                    # The error couldn't be loaded as json.
+                    if error.resp.status == 404:
+                        raise NotFoundError
+                    else:
+                        logger.exception('Unkown error code for error %s' % error)
+                        raise
+
             except HttpAccessTokenRefreshError:
                 # Thrown when a user removes Lily from the connected apps or
                 # changes the credentials of the Google account.

@@ -448,23 +448,6 @@ class EmailTemplateAttachment(TenantMixin):
         verbose_name_plural = _('email template attachments')
 
 
-class EmailDraft(TimeStampedModel):
-    send_from = models.ForeignKey(EmailAccount, verbose_name=_('From'), related_name='drafts')
-    send_to_normal = models.TextField(null=True, blank=True, verbose_name=_('to'))
-    send_to_cc = models.TextField(null=True, blank=True, verbose_name=_('cc'))
-    send_to_bcc = models.TextField(null=True, blank=True, verbose_name=_('bcc'))
-    subject = models.CharField(null=True, blank=True, max_length=255, verbose_name=_('subject'))
-    body_html = models.TextField(null=True, blank=True, verbose_name=_('html body'))
-
-    def __unicode__(self):
-        return u'%s - %s' % (self.send_from, self.subject)
-
-    class Meta:
-        app_label = 'email'
-        verbose_name = _('email draft')
-        verbose_name_plural = _('email drafts')
-
-
 class EmailOutboxMessage(TenantMixin, models.Model):
     bcc = models.TextField(null=True, blank=True, verbose_name=_('bcc'))
     body = models.TextField(null=True, blank=True, verbose_name=_('html body'))

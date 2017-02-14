@@ -384,7 +384,7 @@ def create_a_beautiful_soup_object(html):
         soup = BeautifulSoup(html, 'html.parser', from_encoding='utf-8')
 
         if soup.get_text() == '':
-            soup = BeautifulSoup(html, 'html5lib', from_encoding='utf-8')
+            soup = BeautifulSoup(html, 'html5lib')
 
             if soup.get_text() == '':
                 soup = BeautifulSoup(html, 'xml', from_encoding='utf-8')

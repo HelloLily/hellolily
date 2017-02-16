@@ -20,6 +20,9 @@ migrate:
 index:
 	@docker-compose run --rm web python manage.py index -f
 
+test:
+	@docker-compose run --rm --service-ports web python manage.py test
+
 testdata:
 	@docker-compose run --rm web python manage.py testdata
 

@@ -1,4 +1,4 @@
-{% load i18n staticfiles raven %}
+{% load i18n staticfiles %}
 
 <!DOCTYPE html>
 {% block html-tag %}<html lang="en" ng-app="app" ng-controller="BaseController">{% endblock html-tag %}
@@ -136,7 +136,7 @@
                 };
 
                 window.intercomAppId = '{{ INTERCOM_APP_ID }}';
-                window.sentryPublicDsn = '{% sentry_public_dsn %}';
+                window.sentryPublicDsn = '{{ SENTRY_FRONTEND_PUBLIC_DSN }}';
                 window.debug = '{{ DEBUG }}' == 'True';
             </script>
         {% endblock page-scripts %}

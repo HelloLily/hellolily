@@ -582,8 +582,13 @@ DATAPROVIDER_API_URL = 'https://www.dataprovider.com/api/0.1/lookup/hostname.jso
 INTERCOM_APP_ID = os.environ.get('INTERCOM_APP_ID', '')
 INTERCOM_KEY = os.environ.get('INTERCOM_KEY', '')
 
+# Sentry & Raven
+SENTRY_BACKEND_DSN = os.environ.get('SENTRY_BACKEND_DSN', '')
+SENTRY_BACKEND_PUBLIC_DSN = os.environ.get('SENTRY_BACKEND_DSN', '')
+SENTRY_FRONTEND_DSN = os.environ.get('SENTRY_FRONTEND_DSN', '')
+SENTRY_FRONTEND_PUBLIC_DSN = os.environ.get('SENTRY_FRONTEND_DSN', '')
 RAVEN_CONFIG = {
-    'dsn': os.environ.get('SENTRY_DSN', ''),
+    'dsn': SENTRY_BACKEND_DSN,
     'release': CURRENT_COMMIT_SHA,
 }
 

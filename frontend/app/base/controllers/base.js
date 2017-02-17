@@ -50,7 +50,11 @@ function BaseController($scope, $state, $http, AppHash, Settings, HLShortcuts) {
                 toastr[message.level](message.message);
             });
         }, function(error) {  // On error
-            toastr.error(error, 'Couldn\'t load notifications');
+            if (error.status === 403) {
+                toastr.error(error, 'You\'ve been logged out, please reload the page.');
+            } else {
+                toastr.error(error, 'Couldn\'t load notifications');
+            }
         });
     }
 
@@ -97,6 +101,9 @@ function BaseController($scope, $state, $http, AppHash, Settings, HLShortcuts) {
         switch (error.status) {
             case 404:
                 $state.go('base.404');
+                break;
+            case 403:
+                window.location.href = '/';
                 break;
             default:
                 // With JS errors, error isn't an object, but still the default case gets called.

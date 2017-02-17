@@ -19,10 +19,9 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseListController', CaseListController);
 
-CaseListController.$inject = ['$filter', '$scope', '$state', '$timeout', 'Case', 'HLFilters', 'LocalStorage',
-    'Settings', 'User', 'UserTeams'];
-function CaseListController($filter, $scope, $state, $timeout, Case, HLFilters, LocalStorage,
-                            Settings, User, UserTeams) {
+CaseListController.$inject = ['$filter', '$scope', '$timeout', 'Case', 'HLFilters', 'LocalStorage',
+    'Settings', 'UserTeams'];
+function CaseListController($filter, $scope, $timeout, Case, HLFilters, LocalStorage, Settings, UserTeams) {
     var vm = this;
 
     vm.storage = new LocalStorage('cases');

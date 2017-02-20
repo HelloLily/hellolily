@@ -12,6 +12,7 @@
                         <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.name">Subject</checkbox></li>
                         <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.client">Client</checkbox></li>
                         <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.status">Status</checkbox></li>
+                        <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.lostReason">Lost reason</checkbox></li>
                         <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.nextStep">Next step</checkbox></li>
                         <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.nextStepDate">Next step date</checkbox></li>
                         <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.assignedTo">Assigned to</checkbox></li>
@@ -85,6 +86,7 @@
                     <th ng-show="vm.table.visibility.name" table="vm.table" class="width-20">Subject</th>
                     <th ng-show="vm.table.visibility.client" class="width-10">Client</th>
                     <th ng-show="vm.table.visibility.status" sort-column="status.name" table="vm.table">Status</th>
+                    <th ng-show="vm.table.visibility.lostReason" sort-column="why_lost" table="vm.table">Lost reason</th>
                     <th ng-show="vm.table.visibility.nextStep" sort-column="next_step.name" table="vm.table">Next step</th>
                     <th ng-show="vm.table.visibility.nextStepDate" sort-column="next_step_date" table="vm.table">Next step date</th>
                     <th ng-show="vm.table.visibility.assignedTo" sort-column="assigned_to.full_name" table="vm.table">Assigned to</th>
@@ -110,6 +112,9 @@
                         </td>
                         <td ng-show="vm.table.visibility.status">
                             {{ deal.status.name }}
+                        </td>
+                        <td ng-show="vm.table.visibility.lostReason">
+                            {{ deal.why_lost }}
                         </td>
                         <td ng-show="vm.table.visibility.nextStep">
                             <editable-select field="next_step" view-model="vm" type="Deal" select-type="icon_select" object="deal"

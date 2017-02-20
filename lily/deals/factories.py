@@ -135,7 +135,10 @@ class DealFactory(DjangoModelFactory):
     status = SubFactory(DealStatusFactory, tenant=SelfAttribute('..tenant'))
     twitter_checked = FuzzyChoice([True, False])
     why_customer = SubFactory(DealWhyCustomerFactory, tenant=SelfAttribute('..tenant'))
-    why_lost = SubFactory(DealWhyLostFactory, tenant=SelfAttribute('..tenant'))
+    why_lost = SubFactory(DealWhyLostFactory,
+                          tenant=SelfAttribute('..tenant'),
+                          name=LazyAttribute(lambda o: faker.word() if o.factory_parent.status.is_lost else "")
+                          )
     closed_date = LazyAttribute(
         lambda o: faker.date_time_between_dates(
             past_date, current_date, utc

@@ -6,7 +6,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from lily.api.filters import ElasticSearchFilter
-from lily.tenant.api.mixins import SetTenantUserMixin
 from .serializers import CaseSerializer, CaseStatusSerializer, CaseTypeSerializer
 from ..models import Case, CaseStatus, CaseType
 
@@ -44,7 +43,7 @@ class CaseFilter(FilterSet):
         fields = ['type', 'status', 'not_type', 'not_status', ]
 
 
-class CaseViewSet(SetTenantUserMixin, viewsets.ModelViewSet):
+class CaseViewSet(viewsets.ModelViewSet):
     """
     Returns a list of all **active** cases in the system.
 
@@ -118,7 +117,7 @@ class TeamsCaseList(APIView):
         return Response(serializer.data)
 
 
-class CaseStatusViewSet(SetTenantUserMixin, viewsets.ModelViewSet):
+class CaseStatusViewSet(viewsets.ModelViewSet):
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
     queryset = CaseStatus.objects
     # Set the serializer class for this viewset.

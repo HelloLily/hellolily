@@ -4,7 +4,6 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.viewsets import ModelViewSet
 
 from lily.api.filters import ElasticSearchFilter
-from lily.tenant.api.mixins import SetTenantUserMixin
 from .serializers import AccountSerializer, AccountStatusSerializer
 from ..models import Account, AccountStatus
 
@@ -37,7 +36,7 @@ class AccountFilter(FilterSet):
         }
 
 
-class AccountViewSet(SetTenantUserMixin, ModelViewSet):
+class AccountViewSet(ModelViewSet):
     """
     Returns a list of all **active** accounts in the system.
 
@@ -73,7 +72,7 @@ class AccountViewSet(SetTenantUserMixin, ModelViewSet):
         return super(AccountViewSet, self).get_queryset().filter(is_deleted=False)
 
 
-class AccountStatusViewSet(SetTenantUserMixin, ModelViewSet):
+class AccountStatusViewSet(ModelViewSet):
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
     queryset = AccountStatus.objects
     # Set the serializer class for this viewset.

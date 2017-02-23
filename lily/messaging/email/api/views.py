@@ -11,7 +11,6 @@ from rest_framework.viewsets import GenericViewSet
 
 from lily.messaging.email.utils import get_email_parameter_api_dict, reindex_email_message
 from lily.search.lily_search import LilySearch
-from lily.tenant.api.mixins import SetTenantUserMixin
 from lily.users.models import LilyUser
 
 from .serializers import (EmailLabelSerializer, EmailAccountSerializer, EmailMessageSerializer,
@@ -319,7 +318,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         return Response(results)
 
 
-class EmailTemplateViewSet(SetTenantUserMixin, viewsets.ModelViewSet):
+class EmailTemplateViewSet(viewsets.ModelViewSet):
     """
     EmailTemplate API.
     """

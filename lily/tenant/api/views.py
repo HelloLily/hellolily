@@ -1,12 +1,11 @@
 from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet
 
-from lily.tenant.api.mixins import SetTenantUserMixin
 from lily.tenant.api.serializers import TenantSerializer
 from lily.tenant.models import Tenant
 
 
-class TenantViewSet(SetTenantUserMixin, mixins.UpdateModelMixin, mixins.ListModelMixin, GenericViewSet):
+class TenantViewSet(mixins.UpdateModelMixin, mixins.ListModelMixin, GenericViewSet):
     """
     Returns a list of all tenants in the system.
 

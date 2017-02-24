@@ -103,10 +103,17 @@ class OAuth2Callback(LoginRequiredMixin, View):
         profile = service.users().getProfile(userId='me').execute()
 
         # Create account based on email address.
-        account, created = EmailAccount.objects.get_or_create(
-            owner=request.user,
-            email_address=profile.get('emailAddress')
-        )
+        try:
+            account, created = EmailAccount.objects.get_or_create(
+                owner=request.user,
+                email_address=profile.get('emailAddress')
+            )
+        except EmailAccount.MultipleObjectsReturned:
+            account, created = EmailAccount.objects.get_or_create(
+                owner=request.user,
+                email_address=profile.get('emailAddress'),
+                is_deleted=False
+            )
 
         # Store credentials based on new email account.
         storage = Storage(GmailCredentialsModel, 'id', account, 'credentials')

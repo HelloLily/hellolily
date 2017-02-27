@@ -283,7 +283,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         try:
             index = (key for key, item in enumerate(history) if item['message_id'] == email.message_id).next()
         except StopIteration:
-            logger.exception('No history for message %s\nhistory:\n%s' % (email.id, history))
+            logger.debug('No history for message %s\nhistory:\n%s' % (email.id, history))
             results = {
                 'history_size': 0,
             }

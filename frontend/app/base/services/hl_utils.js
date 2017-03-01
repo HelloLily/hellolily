@@ -84,7 +84,7 @@ function HLUtils() {
             if (item[field]) {
                 day = moment(item[field]);
 
-                if (item.newly_assigned && item.assigned_to.id === currentUser.id) {
+                if (item.newly_assigned && (item.assigned_to && item.assigned_to.id === currentUser.id)) {
                     items.newlyAssigned.push(item);
                 } else if (day.isBefore(now, 'day')) {
                     items.expired.push(item);

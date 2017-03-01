@@ -34,7 +34,7 @@ function HLNotifications($state, LocalStorage, HLSockets) {
         } else {
             notification = new Notification(data.params.number + ' calling', {body: '', icon: data.icon});
         }
-        setTimeout(() => { notification.close(); }, 5000);
+        setTimeout(() => { notification.close(); }, 10000);
         ga('send', 'event', 'Caller info', 'Answer', 'Incoming call');
         notification.onclick = () => {
             switch (data.destination) {

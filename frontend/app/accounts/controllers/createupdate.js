@@ -72,6 +72,7 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
     vm.removeRelatedField = removeRelatedField;
     vm.setStatusForCustomerId = setStatusForCustomerId;
     vm.checkExistingAccount = checkExistingAccount;
+    vm.caller_number = $stateParams.phone_number;
 
     activate();
 
@@ -140,7 +141,7 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
             vm.account.status = vm.defaultNewStatus;
             vm.account.name = $stateParams.name;
 
-            if ($stateParams.phone_number !== '') {
+            if (vm.caller_number) {
                 vm.account.phone_numbers.push({
                     'number': $stateParams.phone_number,
                     'type': 'work',

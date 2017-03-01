@@ -7,6 +7,9 @@ contactConfig.$inject = ['$stateProvider'];
 function contactConfig($stateProvider) {
     $stateProvider.state('base.contacts.create', {
         url: '/create',
+        params: {
+            'account_form': null,
+        },
         views: {
             '@': {
                 templateUrl: 'contacts/controllers/form.html',
@@ -122,6 +125,13 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
                     vm.contact.accounts.push(account);
                     vm.account = account;
                 });
+            }
+
+            if ($stateParams.account_form) {
+                vm.contact.description = $stateParams.account_form.description;
+                vm.contact.email_addresses = $stateParams.account_form.email_addresses;
+                vm.contact.phone_numbers = $stateParams.account_form.phone_numbers;
+                vm.contact.addresses = $stateParams.account_form.addresses;
             }
 
             if (Settings.email.data) {

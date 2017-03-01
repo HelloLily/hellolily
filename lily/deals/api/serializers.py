@@ -239,6 +239,11 @@ class DealSerializer(WritableNestedSerializer):
             validated_data.update({
                 'newly_assigned': True,
             })
+        elif 'assigned_to' in validated_data and not assigned_to:
+            # Deal is unassigned, so clear newly assigned flag.
+            validated_data.update({
+                'newly_assigned': False,
+            })
 
         try:
             none_step = DealNextStep.objects.get(name='None')

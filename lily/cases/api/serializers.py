@@ -126,6 +126,11 @@ class CaseSerializer(WritableNestedSerializer):
             validated_data.update({
                 'newly_assigned': True,
             })
+        elif 'assigned_to' in validated_data and not assigned_to:
+            # Case is unassigned, so clear newly assigned flag.
+            validated_data.update({
+                'newly_assigned': False,
+            })
 
         return super(CaseSerializer, self).update(instance, validated_data)
 

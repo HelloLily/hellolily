@@ -4,7 +4,7 @@
 	"outputFile": "./styleguide/styleguide.html",
 	"templateFile": "./styleguide/template.html",
 	"themeFile": "./styleguide/style.css",
-	"highlightFolder": "./node_modules/markdown-styleguide-generator/node_modules/highlight.js/styles",
+	"highlightFolder": "./node_modules/highlight.js/styles",
 	"highlightStyle": "github",
 	"excludeDirs": [
 		"target",

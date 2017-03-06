@@ -122,7 +122,7 @@ class OAuth2Callback(LoginRequiredMixin, View):
 
         if request.user.info and not request.user.info.email_account_status:
             # First time setup, so we want a different view.
-            return HttpResponseRedirect('/#preferences/emailaccounts/setup/%s' % account.pk)
+            return HttpResponseRedirect('/#/preferences/emailaccounts/setup/%s' % account.pk)
         else:
             return HttpResponseRedirect('/#/preferences/emailaccounts/edit/%s' % account.pk)
 

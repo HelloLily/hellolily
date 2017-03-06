@@ -114,30 +114,36 @@ class SearchView(LoginRequiredMixin, View):
                 except EmailAccount.DoesNotExist:
                     pass
                 else:
-                    # Check if the user has full access to the email messages.
-                    # This means the user is either the owner or the email account has been shared with him/her.
-                    is_owner = email_account.owner == user
-                    shared_with = (user.id in email_account.shared_with_users.values_list('id', flat=True))
-                    has_full_access = (is_owner or shared_with)
+                    shared_config = email_account.sharedemailconfig_set.filter(user=user).first()
 
-                    # If the email account is set to metadata only, just set these fields.
-                    if email_account.privacy == EmailAccount.METADATA and not has_full_access:
-                        filtered_hits.append({
-                            'id': hit.get('id'),
-                            'sender_name': hit.get('sender_name'),
-                            'sender_email': hit.get('sender_email'),
-                            'subject': hit.get('sender'),
-                            'received_by_email': hit.get('received_by_email'),
-                            'received_by_name': hit.get('received_by_name'),
-                            'received_by_cc_email': hit.get('received_by_cc_email'),
-                            'received_by_cc_name': hit.get('received_by_cc_name'),
-                            'sent_date': hit.get('sent_date'),
-                        })
-                    elif email_account.privacy == EmailAccount.PRIVATE and not has_full_access:
-                        # Private email (account), so don't add to list.
-                        continue
-                    else:
+                    # If the email account or sharing is set to metadata only, just return these fields.
+                    metadata_only_message = {
+                        'id': hit.get('id'),
+                        'sender_name': hit.get('sender_name'),
+                        'sender_email': hit.get('sender_email'),
+                        'subject': hit.get('sender'),
+                        'received_by_email': hit.get('received_by_email'),
+                        'received_by_name': hit.get('received_by_name'),
+                        'received_by_cc_email': hit.get('received_by_cc_email'),
+                        'received_by_cc_name': hit.get('received_by_cc_name'),
+                        'sent_date': hit.get('sent_date'),
+                    }
+
+                    if email_account.owner == user:
                         filtered_hits.append(hit)
+                    else:
+                        if shared_config:
+                            privacy = shared_config.privacy
+                        else:
+                            privacy = email_account.privacy
+
+                        if privacy == EmailAccount.METADATA:
+                            filtered_hits.append(metadata_only_message)
+                        elif privacy == EmailAccount.PRIVATE:
+                            # Private email (account), so don't add to list.
+                            continue
+                        else:
+                            filtered_hits.append(hit)
 
             hits = filtered_hits
 

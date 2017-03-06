@@ -49,6 +49,7 @@ angular.module('app', [
     'app.contacts.directives',
     'app.deals.directives',
     'app.utils.directives',
+    'app.preferences.email.directives',
 
     // Google Analytics
     'angulartics',

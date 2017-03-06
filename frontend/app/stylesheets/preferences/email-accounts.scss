@@ -72,17 +72,36 @@ $base-color: #27224e;
             background-repeat: no-repeat;
             background-position: center;
         }
-
-        .clickable {
-            margin-left: auto;
-        }
     }
 }
 
-.user-share-search {
+.email-account-share {
     display: flex;
     background: #fdfdfe;
     border: 1px solid $app-border-color;
     border-radius: 3px;
     padding: 15px;
+
+    .email-account-share-search {
+        .select2-choices {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+    }
+}
+
+.email-account-share-privacy {
+    width: 30%;
+
+    .select2-choice {
+        background-color: $app-bg-color;
+        border-left: 0;
+        border-top-left-radius: 0 !important;
+        border-bottom-left-radius: 0 !important;
+
+        .select2-arrow {
+            border-left: 0;
+            background-color: $app-bg-color;
+        }
+    }
 }

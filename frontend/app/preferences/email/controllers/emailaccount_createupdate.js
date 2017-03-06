@@ -1,4 +1,4 @@
-angular.module('app.accounts').config(accountConfig);
+angular.module('app.preferences').config(accountConfig);
 
 accountConfig.$inject = ['$stateProvider'];
 function accountConfig($stateProvider) {
@@ -65,15 +65,15 @@ function accountConfig($stateProvider) {
             sharedWithUsers: ['User', 'emailAccount', function(User, emailAccount) {
                 var i;
                 var filterquery = '';
-                var sharedWithUsers = emailAccount.shared_with_users;
+                var configs = emailAccount.shared_email_configs;
 
-                if (sharedWithUsers.length) {
-                    for (i = 0; i < sharedWithUsers.length; i++) {
+                if (configs.length) {
+                    for (i = 0; i < configs.length; i++) {
                         if (i > 0) {
                             filterquery += ' OR ';
                         }
 
-                        filterquery += 'id: ' + sharedWithUsers[i];
+                        filterquery += 'id: ' + configs[i].user;
                     }
 
                     return User.search({filterquery: filterquery}).$promise;
@@ -96,29 +96,34 @@ function EmailAccountUpdateController($scope, $state, $stateParams, $timeout, HL
     vm.emailAccount = emailAccount;
     vm.emailAccount.only_new = false;
 
-    if (sharedWithUsers.objects) {
-        vm.emailAccount.shared_with_users = sharedWithUsers.objects;
-    }
-
     vm.privacyOptions = EmailAccount.getPrivacyOptions();
+    vm.privacyOverride = EmailAccount.PUBLIC;
     vm.shareAdditions = [];
 
     vm.saveEmailAccount = saveEmailAccount;
     vm.cancelEditing = cancelEditing;
     vm.refreshUsers = refreshUsers;
     vm.addSharedUsers = addSharedUsers;
-    vm.removeSharedUser = removeSharedUser;
+    vm.getConfigUsers = getConfigUsers;
 
     activate();
 
     ////
 
     function activate() {
+        var i;
+
         $timeout(function() {
             // Focus the first input on page load.
             angular.element('input')[0].focus();
             $scope.$apply();
         });
+
+        if (sharedWithUsers.objects) {
+            for (i = 0; i < sharedWithUsers.objects.length; i++) {
+                vm.emailAccount.shared_email_configs[i].user = sharedWithUsers.objects[i];
+            }
+        }
     }
 
     function cancelEditing() {
@@ -135,21 +140,29 @@ function EmailAccountUpdateController($scope, $state, $stateParams, $timeout, HL
     }
 
     function saveEmailAccount(form) {
+        var config;
+        var args;
         var cleanedAccount;
-        var args = {
-            id: vm.emailAccount.id,
-            from_name: vm.emailAccount.from_name,
-            label: vm.emailAccount.label,
-            only_new: vm.emailAccount.only_new,
-            privacy: vm.emailAccount.privacy,
-            shared_with_users: vm.emailAccount.shared_with_users,
-        };
 
         if (vm.shareAdditions.length) {
             addSharedUsers();
         }
 
-        cleanedAccount = HLForms.clean(args);
+        cleanedAccount = angular.copy(vm.emailAccount);
+
+        // Loop through users and add them to the shared email config.
+        for (config of cleanedAccount.shared_email_configs) {
+            config.user = config.user.id;
+        }
+
+        args = {
+            id: cleanedAccount.id,
+            from_name: cleanedAccount.from_name,
+            label: cleanedAccount.label,
+            only_new: cleanedAccount.only_new,
+            privacy: cleanedAccount.privacy,
+            shared_email_configs: cleanedAccount.shared_email_configs,
+        };
 
         HLForms.blockUI();
         HLForms.clearErrors(form);
@@ -183,13 +196,28 @@ function EmailAccountUpdateController($scope, $state, $stateParams, $timeout, HL
     }
 
     function addSharedUsers() {
-        vm.emailAccount.shared_with_users = vm.emailAccount.shared_with_users.concat(vm.shareAdditions);
+        var user;
+
+        for (user of vm.shareAdditions) {
+            vm.emailAccount.shared_email_configs.push({
+                user: user,
+                privacy: vm.privacyOverride,
+                email_account: vm.emailAccount.id,
+            });
+        }
+
         vm.shareAdditions = [];
     }
 
-    function removeSharedUser(user) {
-        var index = vm.emailAccount.shared_with_users.indexOf(user);
-        vm.emailAccount.shared_with_users.splice(index, 1);
+    function getConfigUsers() {
+        var users = [];
+        var config;
+
+        for (config of vm.emailAccount.shared_email_configs) {
+            users.push(config.user);
+        }
+
+        return users;
     }
 
     function refreshUsers(query) {

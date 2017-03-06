@@ -527,32 +527,32 @@ def write_json_to_disk(path, data):
         logger.info("JSON written: %s" % path)
 
 
-def has_full_access(email_account, user):
-    is_owner = email_account.owner == user
-    shared_with = (user.id in email_account.shared_with_users.values_list('id', flat=True))
-
-    return (is_owner or shared_with)
-
-
 def get_filtered_message(email_message, email_account, user):
-    # Check if the user has full access to the email messages.
-    # This means the user is either the owner or the email account has been shared with him/her.
-    full_access = has_full_access(email_account, user)
+    shared_config = email_account.sharedemailconfig_set.filter(user=user).first()
 
-    # If the email account is set to metadata only, just set these fields.
-    if (email_account.privacy == EmailAccount.METADATA and not full_access):
-        email_message = {
-            'id': email_message.id,
-            'sender': email_message.sender,
-            'subject': email_message.subject,
-            'received_by': email_message.received_by.all(),
-            'received_by_cc': email_message.received_by_cc.all(),
-            'sent_date': email_message.sent_date,
-            'account': email_message.account,
-        }
-        return email_message
-    elif email_account.privacy == EmailAccount.PRIVATE and not full_access:
-        # Private email (account), so don't return a message.
-        return None
-    else:
-        return email_message
+    # If the email account or sharing is set to metadata only, just return these fields.
+    metadata_only_message = {
+        'id': email_message.id,
+        'sender': email_message.sender,
+        'subject': email_message.subject,
+        'received_by': email_message.received_by.all(),
+        'received_by_cc': email_message.received_by_cc.all(),
+        'sent_date': email_message.sent_date,
+        'account': email_message.account,
+    }
+
+    if email_account.owner != user:
+        if shared_config:
+            privacy = shared_config.privacy
+        else:
+            privacy = email_account.privacy
+
+        if privacy == EmailAccount.METADATA:
+            return metadata_only_message
+        elif privacy == EmailAccount.PRIVATE:
+            # Sharing for this user is set to private, so don't return a message.
+            return None
+        else:
+            return email_message
+
+    return email_message

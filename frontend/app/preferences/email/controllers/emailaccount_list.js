@@ -22,7 +22,7 @@ function emailPreferencesStates($stateProvider) {
                 return EmailAccount.query({owner: user.id}).$promise;
             }],
             sharedWithAccounts: ['EmailAccount', 'user', function(EmailAccount, user) {
-                return EmailAccount.query({shared_with_users__id: user.id}).$promise;
+                return EmailAccount.query({sharedemailconfig__user__id: user.id}).$promise;
             }],
             publicAccounts: ['EmailAccount', function(EmailAccount) {
                 return EmailAccount.query({privacy: EmailAccount.PUBLIC}).$promise;
@@ -49,7 +49,9 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
         vm.primaryAccount = user.primary_email_account.id;
     }
 
+    vm.privacyOptions = EmailAccount.getPrivacyOptions();
     vm.publicPrivacy = EmailAccount.PUBLIC;
+    vm.privacyOverride = EmailAccount.PUBLIC;
 
     vm.activate = activate;
     vm.toggleHidden = toggleHidden;
@@ -58,7 +60,7 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
     vm.setPrimaryEmailAccount = setPrimaryEmailAccount;
     vm.removeFromList = removeFromList;
     vm.addSharedUsers = addSharedUsers;
-    vm.removeSharedUser = removeSharedUser;
+    vm.getConfigUsers = getConfigUsers;
     vm.refreshUsers = refreshUsers;
 
     activate();
@@ -70,7 +72,9 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
     }
 
     function loadAccounts() {
+        var publicAccount;
         var sharedAccounts = sharedWithAccounts.results;
+        var filteredPublicAccounts = [];
 
         ownedAccounts.results.forEach(function(account) {
             _checkHiddenState(account);
@@ -78,9 +82,15 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
 
         vm.ownedAccounts = ownedAccounts.results;
 
+        for (publicAccount of publicAccounts.results) {
+            if (!$filter('where')(vm.ownedAccounts, {id: publicAccount})) {
+                filteredPublicAccounts.push(publicAccount);
+            }
+        }
+
         if (publicAccounts.results.length) {
             // Combine arrays and filter out already retrieved accounts.
-            sharedAccounts = $filter('concat')(publicAccounts.results, sharedAccounts);
+            sharedAccounts = $filter('concat')(filteredPublicAccounts, sharedAccounts);
             sharedAccounts = $filter('unique')(sharedAccounts, 'id');
         }
 
@@ -106,6 +116,7 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
     function _updateSharedEmailSetting(accountId, isHidden) {
         var args = {
             email_account: accountId,
+            user: vm.currentUser.id,
             is_hidden: isHidden || false,
         };
 
@@ -118,26 +129,30 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
 
     function openShareAccountModal(account) {
         var i;
-        var sharedWithUsers = account.shared_with_users;
+        var configs = account.shared_email_configs;
         var filterObject = {
             filterquery: '',
         };
 
-        vm.currentAccount = account;
+        vm.emailAccount = account;
 
-        if (sharedWithUsers.length) {
-            for (i = 0; i < sharedWithUsers.length; i++) {
+        if (configs.length) {
+            for (i = 0; i < configs.length; i++) {
                 if (i > 0) {
                     filterObject.filterquery += ' OR ';
                 }
 
-                filterObject.filterquery += 'id: ' + sharedWithUsers[i];
+                filterObject.filterquery += 'id: ' + configs[i].user;
             }
         }
 
         User.search(filterObject).$promise.then(function(data) {
             if (filterObject.filterquery) {
-                vm.sharedWithUsers = data.objects;
+                if (data.objects) {
+                    for (i = 0; i < data.objects.length; i++) {
+                        vm.emailAccount.shared_email_configs[i].user = data.objects[i];
+                    }
+                }
             }
 
             swal({
@@ -145,9 +160,10 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
                 showCancelButton: true,
                 showCloseButton: true,
             }).then(function(isConfirm) {
+                var config;
                 var args = {
-                    id: account.id,
-                    shared_with_users: [],
+                    id: vm.emailAccount.id,
+                    shared_email_configs: vm.emailAccount.shared_email_configs,
                 };
 
                 if (vm.shareAdditions.length) {
@@ -155,13 +171,13 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
                 }
 
                 if (isConfirm) {
-                    // // Get IDs of the users to share with.
-                    angular.forEach(vm.sharedWithUsers, function(userObject) {
-                        args.shared_with_users.push(userObject.id);
-                    });
+                    // Loop through users and add them to the shared email config.
+                    for (config of args.shared_email_configs) {
+                        config.user = config.user.id;
+                    }
 
-                    HLResource.patch('EmailAccount', args).$promise.then(function() {
-                        account.shared_with_users = args.shared_with_users;
+                    HLResource.patch('EmailAccount', args).$promise.then(function(response) {
+                        vm.emailAccount.shared_email_configs = response.shared_email_configs;
                         swal.close();
                     });
                 }
@@ -170,13 +186,28 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
     }
 
     function addSharedUsers() {
-        vm.sharedWithUsers = vm.sharedWithUsers.concat(vm.shareAdditions);
+        var sharedUser;
+
+        for (sharedUser of vm.shareAdditions) {
+            vm.emailAccount.shared_email_configs.push({
+                user: sharedUser,
+                privacy: vm.privacyOverride,
+                email_account: vm.emailAccount.id,
+            });
+        }
+
         vm.shareAdditions = [];
     }
 
-    function removeSharedUser(sharedUser) {
-        var index = vm.sharedWithUsers.indexOf(sharedUser);
-        vm.sharedWithUsers.splice(index, 1);
+    function getConfigUsers() {
+        var users = [];
+        var config;
+
+        for (config of vm.emailAccount.shared_email_configs) {
+            users.push(config.user);
+        }
+
+        return users;
     }
 
     function refreshUsers(query) {

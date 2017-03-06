@@ -51,27 +51,7 @@
                             <uib-tab index="1" heading="Advanced">
                                 <p>Give specific colleagues additional permissions to your email</p>
 
-                                <div class="shared-with-users">
-                                    <div ng-repeat="user in vm.emailAccount.shared_with_users" class="user-row">
-                                        <div class="user-avatar display-inline-block" ng-style="{'background-image': 'url(' + user.profile_picture + ')'}"></div>
-                                        <span class="margin-left-15">{{ user.full_name }}</span>
-
-                                        <div class="clickable" ng-click="vm.removeSharedUser(user)"><i class="lilicon hl-close-icon"></i></div>
-                                    </div>
-                                </div>
-
-                                <form-group field="contactForm.shared_with_users">
-                                    <div class="user-share-search">
-                                        <ui-select multiple ng-model="vm.shareAdditions" theme="select2" class="form-control" name="shared_with_users" append-to-body="true">
-                                            <ui-select-match placeholder="Select people to share the account with">{{ $item.full_name }}</ui-select-match>
-                                            <ui-select-choices repeat="user in vm.users | filterItems:vm.emailAccount.shared_with_users" refresh="vm.refreshUsers($select.search)" refresh-delay="300">
-                                                <div ng-bind-html="user.full_name | highlight: $select.search"></div>
-                                            </ui-select-choices>
-                                        </ui-select>
-
-                                        <button class="hl-primary-btn-green" ng-click="vm.addSharedUsers()">Add</button>
-                                    </div>
-                                </form-group>
+                                <user-share></user-share>
                             </uib-tab>
                         </uib-tabset>
                     </form-portlet>

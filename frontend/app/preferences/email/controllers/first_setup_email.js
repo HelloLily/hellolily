@@ -1,4 +1,4 @@
-angular.module('app.accounts').config(accountConfig);
+angular.module('app.preferences').config(accountConfig);
 
 accountConfig.$inject = ['$stateProvider'];
 function accountConfig($stateProvider) {

@@ -2,9 +2,8 @@ import logging
 
 from django.conf import settings
 from django.db.models import Q
-from django.utils.translation import ugettext_lazy as _
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, mixins, status, filters, serializers
+from rest_framework import viewsets, mixins, status, filters
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
@@ -12,7 +11,7 @@ from rest_framework.viewsets import GenericViewSet
 
 from lily.messaging.email.utils import get_email_parameter_api_dict, reindex_email_message
 from lily.search.lily_search import LilySearch
-from lily.users.models import LilyUser, UserInfo
+from lily.users.models import UserInfo
 from lily.users.api.serializers import LilyUserSerializer
 
 from .serializers import (EmailLabelSerializer, EmailAccountSerializer, EmailMessageSerializer,
@@ -83,7 +82,7 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
     filter_backends = (DjangoFilterBackend,)
     filter_fields = (
         'owner',
-        'shared_with_users__id',
+        'sharedemailconfig__user__id',
         'privacy',
     )
 
@@ -94,6 +93,7 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
         if instance.owner_id is self.request.user.id:
             instance.delete()
             instance.is_authorized = False
+            instance.sharedemailconfig_set.all().delete()
         else:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
@@ -102,7 +102,7 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
         # Get a list of email accounts which are publicly shared or shared specifically with me.
         shared_email_account_list = EmailAccount.objects.filter(
             Q(privacy=EmailAccount.PUBLIC) |
-            Q(shared_with_users__id=request.user.pk)
+            (Q(sharedemailconfig__user__id=request.user.pk) & Q(sharedemailconfig__privacy=EmailAccount.PUBLIC))
         ).filter(is_deleted=False).distinct('id')
 
         # Get a list of email accounts we don't want to follow.
@@ -125,36 +125,6 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
         follow_email_account_list |= my_email_account_list
 
         serializer = self.get_serializer(follow_email_account_list, many=True)
-
-        return Response(serializer.data)
-
-    @detail_route(methods=['post'])
-    def shared(self, request, pk):
-        """
-        shared action makes it possible for the owner of the emailaccount to POST user ids to share emailaccount with.
-
-        Accepts POST dict with:
-            {
-                'shared_with_users': [<list of user ids as ints]
-            }
-
-        Returns:
-            changed EmailAccount
-        """
-        account = EmailAccount.objects.get(id=pk, owner=request.user)
-        account.shared_with_users.clear()
-        account.save()
-
-        for user_id in request.data['shared_with_users']:
-            if user_id == request.user.id:
-                raise serializers.ValidationError({
-                    'shared_with_users': _('Can\'t share your email account with yourself')
-                })
-
-            user = LilyUser.objects.get(id=user_id, tenant=request.user.tenant)
-            account.shared_with_users.add(user)
-
-        serializer = self.get_serializer(account)
 
         return Response(serializer.data)
 
@@ -206,6 +176,9 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
             email_message = get_filtered_message(email_message, email_account, user)
 
         if not email_message:
+            raise NotFound()
+
+        if not isinstance(email_message, EmailMessage) and self.action != 'retrieve':
             raise NotFound()
 
         return email_message

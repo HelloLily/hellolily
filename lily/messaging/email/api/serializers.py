@@ -5,6 +5,7 @@ from rest_framework import serializers
 
 from lily.api.fields import DynamicQuerySetPrimaryKeyRelatedField
 from lily.api.nested.mixins import RelatedSerializerMixin
+from lily.api.nested.serializers import WritableNestedSerializer
 from lily.users.models import UserInfo
 
 from ..models.models import (EmailLabel, EmailAccount, EmailMessage, Recipient, EmailAttachment, EmailTemplate,
@@ -13,21 +14,44 @@ from ..services import build_gmail_service
 
 
 class SharedEmailConfigSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = SharedEmailConfig
-        fields = ('id', 'email_account', 'is_hidden')
+        fields = (
+            'id',
+            'email_account',
+            'is_hidden',
+            'privacy',
+            'user',
+        )
+
+
+class RelatedSharedEmailConfigSerializer(RelatedSerializerMixin, SharedEmailConfigSerializer):
+    pass
 
 
 class EmailLabelSerializer(serializers.ModelSerializer):
     class Meta:
         model = EmailLabel
-        fields = ('id', 'account', 'label_type', 'label_id', 'name', 'unread')
+        fields = (
+            'id',
+            'account',
+            'label_type',
+            'label_id',
+            'name',
+            'unread',
+        )
 
 
 class RecipientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipient
-        fields = ('id', 'name', 'email_address')
+        fields = (
+            'id',
+            'name',
+            'email_address',
+        )
 
 
 class EmailAttachmentSerializer(serializers.ModelSerializer):
@@ -35,7 +59,15 @@ class EmailAttachmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = EmailAttachment
-        fields = ('id', 'inline', 'size', 'message', 'cid', 'name', 'url', )
+        fields = (
+            'id',
+            'inline',
+            'size',
+            'message',
+            'cid',
+            'name',
+            'url',
+        )
 
 
 class EmailMessageSerializer(serializers.ModelSerializer):
@@ -70,12 +102,13 @@ class EmailMessageSerializer(serializers.ModelSerializer):
         )
 
 
-class EmailAccountSerializer(serializers.ModelSerializer):
+class EmailAccountSerializer(WritableNestedSerializer):
     labels = EmailLabelSerializer(many=True, read_only=True)
     is_public = serializers.BooleanField()
     privacy_display = serializers.CharField(source='get_privacy_display', read_only=True)
     owner = serializers.SerializerMethodField()
     default_template = serializers.SerializerMethodField()
+    shared_email_configs = RelatedSharedEmailConfigSerializer(many=True, source='sharedemailconfig_set')
 
     def validate(self, data):
         validated_data = super(EmailAccountSerializer, self).validate(data)
@@ -91,19 +124,35 @@ class EmailAccountSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         user = self.context.get('request').user
-        shared_with_users = validated_data.get('shared_with_users')
+        shared_email_configs = validated_data.get('sharedemailconfig_set', None)
 
-        if shared_with_users:
-            instance.shared_with_users.clear()
-            instance.save()
+        if 'sharedemailconfig_set' in validated_data:
+            shared_email_configs = validated_data.pop('sharedemailconfig_set', None)
+            initial_configs = self.initial_data.get('shared_email_configs')
 
-            for shared_with_user in shared_with_users:
-                if shared_with_user.id == user.id:
+            for config in shared_email_configs:
+                if config.get('user').id == user.id:
                     raise serializers.ValidationError({
-                        'shared_with_users': _('Can\'t share your email account with yourself')
+                        'shared_email_configs': _('Can\'t share your email account with yourself')
                     })
 
-                instance.shared_with_users.add(shared_with_user)
+                config_id = config.get('id')
+
+                if config_id:
+                    for initial_config in initial_configs:
+                        if initial_config.get('id') == config_id:
+                            shared_config = initial_config
+
+                    if shared_config:
+                        shared_config_object = instance.sharedemailconfig_set.get(pk=shared_config.get('id'))
+
+                        if shared_config.get('is_deleted'):
+                            shared_config_object.delete()
+                        else:
+                            shared_config_object.privacy = shared_config.get('privacy')
+                            shared_config_object.save()
+                else:
+                    instance.sharedemailconfig_set.create(**config)
 
         if not instance.is_authorized or 'only_new' in validated_data:
             only_new = validated_data.get('only_new')
@@ -141,8 +190,11 @@ class EmailAccountSerializer(serializers.ModelSerializer):
         }
 
     def get_default_template(self, obj):
-        user = self.context.get('request').user
-        default_template = obj.default_templates.filter(user=user).first()
+        default_template = None
+
+        if self.context:
+            user = self.context.get('request').user
+            default_template = obj.default_templates.filter(user=user).first()
 
         return {
             'id': default_template.template.id,
@@ -164,7 +216,7 @@ class EmailAccountSerializer(serializers.ModelSerializer):
             'default_template',
             'privacy',
             'privacy_display',
-            'shared_with_users',
+            'shared_email_configs',
         )
     read_only_fields = ('email_address', 'is_authorized', 'full_sync_finished', 'is_public',)
 
@@ -269,10 +321,8 @@ class EmailTemplateSerializer(serializers.ModelSerializer):
 
 
 class TemplateVariableSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = TemplateVariable
-
         fields = (
             'id',
             'name',

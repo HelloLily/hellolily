@@ -27,10 +27,6 @@ function EmailAccount($resource) {
                     id: '@id',
                 },
             },
-            shareWith: {
-                method: 'POST',
-                url: '/api/messaging/email/accounts/:id/shared/',
-            },
             mine: {
                 method: 'GET',
                 url: '/api/messaging/email/accounts/mine/',

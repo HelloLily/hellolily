@@ -292,7 +292,7 @@ class LilySearch(object):
         email_accounts = EmailAccount.objects.filter(
             Q(owner=user) |
             Q(privacy=EmailAccount.PUBLIC) |
-            Q(shared_with_users__id=user.pk)
+            (Q(sharedemailconfig__user__id=user.pk) & Q(sharedemailconfig__privacy=EmailAccount.PUBLIC))
         ).filter(tenant=user.tenant, is_deleted=False).distinct('id')
 
         # Hide when we do not want to follow an email_account.

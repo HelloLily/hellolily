@@ -141,10 +141,10 @@ class DealSerializer(WritableNestedSerializer):
     assigned_to = RelatedLilyUserSerializer(required=False, allow_null=True, assign_only=True)
     next_step = RelatedDealNextStepSerializer(assign_only=True)
     tags = RelatedTagSerializer(many=True, required=False, create_only=True)
-    why_customer = RelatedDealWhyCustomerSerializer(assign_only=True)
     why_lost = RelatedDealWhyLostSerializer(assign_only=True, allow_null=True, required=False)
-    found_through = RelatedDealFoundThroughSerializer(assign_only=True)
-    contacted_by = RelatedDealContactedBySerializer(assign_only=True)
+    why_customer = RelatedDealWhyCustomerSerializer(assign_only=True, allow_null=True, required=False)
+    found_through = RelatedDealFoundThroughSerializer(assign_only=True, allow_null=True, required=False)
+    contacted_by = RelatedDealContactedBySerializer(assign_only=True, allow_null=True, required=False)
     status = RelatedDealStatusSerializer(assign_only=True)
 
     # Show string versions of fields.
@@ -154,6 +154,26 @@ class DealSerializer(WritableNestedSerializer):
     amount_recurring = RegexDecimalField(max_digits=19, decimal_places=2, required=True)
 
     def validate(self, attrs):
+        new_business = attrs.get('new_business')
+        why_customer = attrs.get('why_customer')
+        found_through = attrs.get('found_through')
+        contacted_by = attrs.get('contacted_by')
+
+        if new_business:
+            errors = {}
+
+            if not found_through:
+                errors.update({'found_through': _('This field may not be empty.')})
+
+            if not contacted_by:
+                errors.update({'contacted_by': _('This field may not be empty.')})
+
+            if not why_customer:
+                errors.update({'why_customer': _('This field may not be empty.')})
+
+            if errors:
+                raise serializers.ValidationError(errors)
+
         contact_id = attrs.get('contact', {})
         if isinstance(contact_id, dict):
             contact_id = contact_id.get('id')

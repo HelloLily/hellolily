@@ -118,10 +118,10 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     assigned_to = models.ForeignKey(LilyUser, null=True)
     created_by = models.ForeignKey(LilyUser, related_name='created_deals', null=True, blank=True)
     status = models.ForeignKey(DealStatus, related_name='deals')
-    found_through = models.ForeignKey(DealFoundThrough, related_name='deals')
-    contacted_by = models.ForeignKey(DealContactedBy, related_name='deals')
+    found_through = models.ForeignKey(DealFoundThrough, related_name='deals', null=True, blank=True)
+    contacted_by = models.ForeignKey(DealContactedBy, related_name='deals', null=True, blank=True)
     next_step = models.ForeignKey(DealNextStep, related_name='deals')
-    why_customer = models.ForeignKey(DealWhyCustomer, related_name='deals')
+    why_customer = models.ForeignKey(DealWhyCustomer, related_name='deals', null=True, blank=True)
     why_lost = models.ForeignKey(DealWhyLost, related_name='deals', null=True)
     newly_assigned = models.BooleanField(default=False)
 

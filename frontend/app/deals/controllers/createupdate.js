@@ -112,72 +112,76 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
         var choiceVarName = '';
         var choiceFields = ['currency'];
 
-        Deal.getNextSteps(function(response) {
-            vm.nextSteps = response.results;
+        User.me().$promise.then(function(user) {
+            vm.currentUser = user;
 
-            angular.forEach(response.results, function(nextStep) {
-                if (nextStep.name === 'None') {
-                    vm.noneStep = nextStep;
+            Deal.getNextSteps(function(response) {
+                vm.nextSteps = response.results;
+
+                angular.forEach(response.results, function(nextStep) {
+                    if (nextStep.name === 'None') {
+                        vm.noneStep = nextStep;
+                    }
+                });
+            });
+
+            Deal.getWhyCustomer(function(response) {
+                vm.whyCustomer = response.results;
+            });
+
+            Deal.getWhyLost(function(response) {
+                vm.whyLost = response.results;
+            });
+
+            Deal.getFoundThrough(function(response) {
+                vm.foundThroughChoices = response.results;
+            });
+
+            Deal.getContactedBy(function(response) {
+                vm.contactedByChoices = response.results;
+            });
+
+            Deal.getStatuses(function(response) {
+                vm.statusChoices = response.results;
+
+                vm.lostStatus = Deal.lostStatus;
+                vm.wonStatus = Deal.wonStatus;
+            });
+
+            Deal.getFormOptions(function(data) {
+                var choiceData = data.actions.POST;
+
+                for (i = 0; i < choiceFields.length; i++) {
+                    splitName = choiceFields[i].split('_');
+                    choiceVarName = splitName[0];
+
+                    // Convert to camelCase.
+                    if (splitName.length > 1) {
+                        for (j = 1; j < splitName.length; j++) {
+                            choiceVarName += splitName[j].charAt(0).toUpperCase() + splitName[j].slice(1);
+                        }
+                    }
+
+                    // Make the variable name a bit more logical (e.g. vm.currencyChoices vs vm.currency).
+                    choiceVarName += 'Choices';
+
+                    vm[choiceVarName] = choiceData[choiceFields[i]].choices;
                 }
             });
-        });
 
-        Deal.getWhyCustomer(function(response) {
-            vm.whyCustomer = response.results;
-        });
+            // Regex to determine if the given amount is valid.
+            vm.currencyRegex = /^[0-9]{1,3}(?:[0-9]*(?:[.,][0-9]{2})?|(?:,[0-9]{3})*(?:\.[0-9]{1,2})?|(?:\.[0-9]{3})*(?:,[0-9]{1,2})?)$/;
 
-        Deal.getWhyLost(function(response) {
-            vm.whyLost = response.results;
-        });
+            Tenant.query({}, function(tenant) {
+                vm.tenant = tenant;
 
-        Deal.getFoundThrough(function(response) {
-            vm.foundThroughChoices = response.results;
-        });
-
-        Deal.getContactedBy(function(response) {
-            vm.contactedByChoices = response.results;
-        });
-
-        Deal.getStatuses(function(response) {
-            vm.statusChoices = response.results;
-
-            vm.lostStatus = Deal.lostStatus;
-            vm.wonStatus = Deal.wonStatus;
-        });
-
-        Deal.getFormOptions(function(data) {
-            var choiceData = data.actions.POST;
-
-            for (i = 0; i < choiceFields.length; i++) {
-                splitName = choiceFields[i].split('_');
-                choiceVarName = splitName[0];
-
-                // Convert to camelCase.
-                if (splitName.length > 1) {
-                    for (j = 1; j < splitName.length; j++) {
-                        choiceVarName += splitName[j].charAt(0).toUpperCase() + splitName[j].slice(1);
-                    }
+                if (tenant.currency) {
+                    vm.deal.currency = tenant.currency;
                 }
+            });
 
-                // Make the variable name a bit more logical (e.g. vm.currencyChoices vs vm.currency).
-                choiceVarName += 'Choices';
-
-                vm[choiceVarName] = choiceData[choiceFields[i]].choices;
-            }
+            _getDeal();
         });
-
-        // Regex to determine if the given amount is valid.
-        vm.currencyRegex = /^[0-9]{1,3}(?:[0-9]*(?:[.,][0-9]{2})?|(?:,[0-9]{3})*(?:\.[0-9]{1,2})?|(?:\.[0-9]{3})*(?:,[0-9]{1,2})?)$/;
-
-        Tenant.query({}, function(tenant) {
-            vm.tenant = tenant;
-
-            if (tenant.currency) {
-                vm.deal.currency = tenant.currency;
-            }
-        });
-
-        _getDeal();
     }
 
     function _getDeal() {
@@ -195,6 +199,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
         } else {
             Settings.page.setAllTitles('create', 'deal');
             vm.deal = Deal.create();
+            vm.deal.assigned_to = vm.currentUser;
 
             if ($stateParams.accountId) {
                 Account.get({id: $stateParams.accountId}).$promise.then(function(account) {
@@ -265,8 +270,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
     });
 
     function assignToMe() {
-        // Bit of a hacky way to assign the current user, but we'll clean this up later.
-        vm.deal.assigned_to = {id: currentUser.id, full_name: currentUser.fullName};
+        vm.deal.assigned_to = vm.currentUser;
     }
 
     function cancelDealCreation() {

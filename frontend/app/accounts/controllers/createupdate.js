@@ -51,14 +51,13 @@ function accountConfig($stateProvider) {
 angular.module('app.accounts').controller('AccountCreateController', AccountCreateController);
 
 AccountCreateController.$inject = ['$scope', '$state', '$stateParams', '$timeout', 'Account', 'HLFields', 'HLForms',
-    'HLUtils', 'Settings', 'User', 'currentAccount'];
+    'HLSearch', 'HLUtils', 'Settings', 'User', 'currentAccount'];
 function AccountCreateController($scope, $state, $stateParams, $timeout, Account, HLFields, HLForms,
-                                 HLUtils, Settings, User, currentAccount) {
+                                 HLSearch, HLUtils, Settings, User, currentAccount) {
     var vm = this;
 
     vm.account = {};
     vm.accountSuggestions = [];
-    vm.people = [];
     vm.tags = [];
     vm.errors = {
         name: [],
@@ -72,6 +71,8 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
     vm.removeRelatedField = removeRelatedField;
     vm.setStatusForCustomerId = setStatusForCustomerId;
     vm.checkExistingAccount = checkExistingAccount;
+    vm.refreshUsers = refreshUsers;
+    vm.assignToMe = assignToMe;
     vm.caller_number = $stateParams.phone_number;
 
     activate();
@@ -79,25 +80,19 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
     ////
 
     function activate() {
-        User.query().$promise.then(function(response) {
-            angular.forEach(response.results, function(user) {
-                vm.people.push({
-                    id: user.id,
-                    // Convert to single string so searching with spaces becomes possible.
-                    name: HLUtils.getFullName(user),
-                });
+        User.me().$promise.then(function(user) {
+            vm.currentUser = user;
+
+            Account.getStatuses(function(response) {
+                vm.statusChoices = response.results;
+                vm.defaultNewStatus = Account.defaultNewStatus;
+                vm.relationStatus = Account.relationStatus;
+                vm.activeStatus = Account.activeStatus;
+
+                // Getting the statusses includes which status is the default for a new account,
+                // so get (or create) the account afterwards.
+                _getAccount();
             });
-        });
-
-        Account.getStatuses(function(response) {
-            vm.statusChoices = response.results;
-            vm.defaultNewStatus = Account.defaultNewStatus;
-            vm.relationStatus = Account.relationStatus;
-            vm.activeStatus = Account.activeStatus;
-
-            // Getting the statusses includes which status is the default for a new account,
-            // so get (or create) the account afterwards.
-            _getAccount();
         });
 
         $timeout(function() {
@@ -125,10 +120,6 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
                 vm.account.primaryWebsite = '';
             }
 
-            if (vm.account.assigned_to) {
-                vm.account.assigned_to = vm.account.assigned_to.id;
-            }
-
             if (vm.account.hasOwnProperty('social_media') && vm.account.social_media.length) {
                 angular.forEach(vm.account.social_media, function(profile) {
                     vm.account[profile.name] = profile.username;
@@ -140,6 +131,7 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
             vm.account = Account.create();
             vm.account.status = vm.defaultNewStatus;
             vm.account.name = $stateParams.name;
+            vm.account.assigned_to = vm.currentUser;
 
             if (vm.caller_number) {
                 vm.account.phone_numbers.push({
@@ -147,10 +139,6 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
                     'type': 'work',
                 });
             }
-
-            User.me().$promise.then(function(user) {
-                vm.account.assigned_to = user.id;
-            });
 
             if (Settings.email.data && Settings.email.data.website) {
                 vm.account.primaryWebsite = Settings.email.data.website;
@@ -302,6 +290,24 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
             }, function(response) {
                 _handleBadResponse(response, form);
             });
+        }
+    }
+
+    function assignToMe() {
+        vm.account.assigned_to = vm.currentUser;
+    }
+
+    function refreshUsers(query) {
+        var usersPromise;
+
+        if (!vm.assigned_to || query.length) {
+            usersPromise = HLSearch.refreshList(query, 'User', 'is_active:true', 'full_name', 'full_name');
+
+            if (usersPromise) {
+                usersPromise.$promise.then(function(data) {
+                    vm.users = data.objects;
+                });
+            }
         }
     }
 

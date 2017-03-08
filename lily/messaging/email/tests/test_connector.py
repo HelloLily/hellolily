@@ -170,10 +170,10 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
         Test the GmailConnector in retrieving all message id's without errors on the API call.
         """
         mock_api_calls = [
+            # Retrieve the history_id.
+            HttpMock('lily/messaging/email/tests/data/get_history_id.json', {'status': '200'}),
             # Retrieve a list of all the messages in the email box.
             HttpMock('lily/messaging/email/tests/data/all_message_id_list_single_page.json', {'status': '200'}),
-            # Retrieve single message for getting the history_id.
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a6008a4baa65f3.json', {'status': '200'}),
         ]
 
         # Mock the http instance with succesive http mock objects.
@@ -187,8 +187,8 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
 
         # Verify that all messages are retrieved and that the history id is set correct,
         self.assertEqual(len(messages), 10, "%d Messages found, it should be %d." % (len(messages), 10))
-        self.assertEqual(connector.history_id, u'5948',
-                         "History id %s is incorrect, it should be %s." % (connector.history_id, u'5948'))
+        self.assertEqual(connector.history_id, u'8095',
+                         "History id %s is incorrect, it should be %s." % (connector.history_id, u'8095'))
 
     @patch.object(GmailService, '_get_http')
     def test_get_all_message_id_list_paged(self, get_http_mock):
@@ -197,11 +197,11 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
         Messages are paged and need two API calls.
         """
         mock_api_calls = [
+            # Retrieve the history_id.
+            HttpMock('lily/messaging/email/tests/data/get_history_id.json', {'status': '200'}),
             # Retrieve a list of all the messages in the email box.
             HttpMock('lily/messaging/email/tests/data/all_message_id_list_paged_1.json', {'status': '200'}),
             HttpMock('lily/messaging/email/tests/data/all_message_id_list_paged_2.json', {'status': '200'}),
-            # Retrieve single message for getting the history_id.
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a6008a4baa65f3.json', {'status': '200'}),
         ]
 
         # Mock the http instance with succesive http mock objects.
@@ -215,8 +215,8 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
 
         # Verify that all messages are retrieved and that the history id is set correct,
         self.assertEqual(len(messages), 10, "%d Messages found, it should be %d." % (len(messages), 10))
-        self.assertEqual(connector.history_id, u'5948',
-                         "History id %s is incorrect, it should be %s." % (connector.history_id, u'5948'))
+        self.assertEqual(connector.history_id, u'8095',
+                         "History id %s is incorrect, it should be %s." % (connector.history_id, 8095))
 
     @patch.object(GmailConnector, 'execute_service_call')
     def test_get_all_message_id_list_http_access_token_refresh_error(self, execute_service_call_mock):
@@ -318,3 +318,81 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
         with open('lily/messaging/email/tests/data/get_label_list.json') as infile:
             json_obj = json.load(infile)
             self.assertEqual(response, json_obj['labels'])
+
+    @patch.object(GmailService, '_get_http')
+    def test_get_short_message_info(self, get_http_mock):
+        """
+        Test the GmailConnector in retrieving the short message info for a specific email message.
+        """
+        get_http_mock.side_effect = MagicMock(return_value=HttpMock(
+            'lily/messaging/email/tests/data/get_short_message_info_15a6008a4baa65f3_archived.json',
+            {'status': '200'}))
+
+        email_account = EmailAccount.objects.first()
+
+        connector = GmailConnector(email_account)
+        response = connector.get_short_message_info('15a6008a4baa65f3')
+
+        # Verify that the service call returned the correct json object.
+        with open('lily/messaging/email/tests/data/get_short_message_info_15a6008a4baa65f3_archived.json') as infile:
+            json_obj = json.load(infile)
+            self.assertEqual(response, json_obj)
+
+    @patch.object(GmailService, '_get_http')
+    def test_get_history(self, get_http_mock):
+        """
+        Test the GmailConnector in retrieving the history updates.
+        """
+        get_http_mock.side_effect = MagicMock(
+            return_value=HttpMock('lily/messaging/email/tests/data/get_history_archived.json', {'status': '200'}))
+
+        email_account = EmailAccount.objects.first()
+
+        connector = GmailConnector(email_account)
+        response = connector.get_history()
+
+        # Verify that the service call returned the correct json object.
+        with open('lily/messaging/email/tests/data/get_history_archived.json') as infile:
+            json_obj = json.load(infile)
+            self.assertEqual(response, json_obj['history'])
+
+        # Verify that the history is updated with the one from the API response.
+        self.assertEqual(connector.history_id, u'8170')
+
+    @patch.object(GmailService, '_get_http')
+    def test_save_history_id(self, get_http_mock):
+        """
+        Test the GmailConnector in saving the updated historty id to the email account.
+        """
+        get_http_mock.side_effect = MagicMock(
+            return_value=HttpMock('lily/messaging/email/tests/data/get_history_archived.json', {'status': '200'}))
+
+        email_account = EmailAccount.objects.first()
+
+        connector = GmailConnector(email_account)
+        # First do a history update, so a new history id is retreived.
+        connector.get_history()
+        # Save the history id to the email account.
+        connector.save_history_id()
+
+        # Verify that the history is indeed saved on the email account.
+        email_account.refresh_from_db()
+        self.assertEqual(email_account.history_id, 8170)
+
+    @patch.object(GmailService, '_get_http')
+    def test_get_history_id(self, get_http_mock):
+        """
+        Test the GmailConnector in retrieving the history id.
+        """
+        get_http_mock.side_effect = MagicMock(
+            return_value=HttpMock('lily/messaging/email/tests/data/get_history_id.json', {'status': '200'}))
+
+        email_account = EmailAccount.objects.first()
+
+        connector = GmailConnector(email_account)
+        response = connector.get_history_id()
+
+        # Verify that the service call returned the correct json object.
+        with open('lily/messaging/email/tests/data/get_history_id.json') as infile:
+            json_obj = json.load(infile)
+            self.assertEqual(response, json_obj)

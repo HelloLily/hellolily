@@ -1,0 +1,31 @@
+{
+  "historyId": "8142",
+  "history": [
+    {
+      "labelsRemoved": [
+        {
+          "labelIds": [
+            "Label_1"
+          ],
+          "message": {
+            "labelIds": [
+              "UNREAD",
+              "IMPORTANT",
+              "CATEGORY_PERSONAL",
+              "INBOX"
+            ],
+            "id": "15a6008a4baa65f3",
+            "threadId": "15a6008a4baa65f3"
+          }
+        }
+      ],
+      "messages": [
+        {
+          "id": "15a6008a4baa65f3",
+          "threadId": "15a6008a4baa65f3"
+        }
+      ],
+      "id": "8138"
+    }
+  ]
+}

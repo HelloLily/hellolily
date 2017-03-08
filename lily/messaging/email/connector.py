@@ -140,7 +140,6 @@ class GmailConnector(object):
                 startHistoryId=self.history_id,
                 pageToken=page_token
             ))
-
             history.extend(response.get('history', []))
 
         # History id's are for successive history pages identical, so no need to update with each nextPageToken.
@@ -158,6 +157,10 @@ class GmailConnector(object):
         Returns:
             list with messageIds and threadIds
         """
+        # First retrieve user profile including the latest history id.
+        response = self.get_history_id()
+        history_id = response.get('historyId', 0)
+
         response = self.execute_service_call(
             self.gmail_service.service.users().messages().list(
                 userId='me',
@@ -178,14 +181,9 @@ class GmailConnector(object):
             ))
             messages.extend(response.get('messages', []))
 
-        # TODO: code below doesn't retrieve latest history id. Don't update history id here? Only @ get_history?
-        # Or maybe set to 0? Think of re-initiate full sync after 404 on incremental sync.
-        if messages:
-            # The history is in reverse chronological order, so the first message has the latest history id.
-            message = self.get_message_info(messages[0]['id'])
-            if message['historyId'] > self.history_id:
-                # Store if it's past the current history id.
-                self.history_id = message['historyId']
+        if history_id > self.history_id:
+            # Store if it's past the current history id.
+            self.history_id = history_id
 
         return messages
 
@@ -364,6 +362,14 @@ class GmailConnector(object):
                 userId='me',
                 id=message_id,
                 quotaUser=self.email_account.id,
+            ))
+        return response
+
+    def get_history_id(self):
+        response = self.execute_service_call(
+            self.gmail_service.service.users().getProfile(
+                userId='me',
+                fields='historyId',
             ))
         return response
 

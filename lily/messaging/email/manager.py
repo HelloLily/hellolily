@@ -125,7 +125,6 @@ class GmailManager(object):
             # Synchronization of email can be restored by initialting a full sync on the account. This is covered
             # in the synchronize_email_account_scheduler task by looking at the sync_failure_count.
             self.email_account.sync_failure_count += 1
-            self.email_account.history_id = None  # A full resync will be initiated, so reset the history id.
             self.email_account.save()
             if self.email_account.sync_failure_count > settings.MAX_SYNC_FAILURES:
                 # Repeated sync failures indicate that a full sync did not restore the 404 error, so terminate

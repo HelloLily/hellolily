@@ -1,0 +1,110 @@
+{
+  "historyId": "8170",
+  "history": [
+    {
+      "messages": [
+        {
+          "id": "15a6008a4baa65f3",
+          "threadId": "15a6008a4baa65f3"
+        }
+      ],
+      "id": "8147"
+    },
+    {
+      "labelsRemoved": [
+        {
+          "labelIds": [
+            "INBOX"
+          ],
+          "message": {
+            "labelIds": [
+              "UNREAD",
+              "IMPORTANT",
+              "CATEGORY_PERSONAL"
+            ],
+            "id": "15a6008a4baa65f3",
+            "threadId": "15a6008a4baa65f3"
+          }
+        }
+      ],
+      "messages": [
+        {
+          "id": "15a6008a4baa65f3",
+          "threadId": "15a6008a4baa65f3"
+        }
+      ],
+      "id": "8148"
+    },
+    {
+      "messages": [
+        {
+          "id": "15a6008a4baa65f3",
+          "threadId": "15a6008a4baa65f3"
+        }
+      ],
+      "id": "8149"
+    },
+    {
+      "messages": [
+        {
+          "id": "15a6008a4baa65f3",
+          "threadId": "15a6008a4baa65f3"
+        }
+      ],
+      "id": "8150"
+    },
+    {
+      "messages": [
+        {
+          "id": "15a600682d97904e",
+          "threadId": "15a600682d97904e"
+        }
+      ],
+      "id": "8152"
+    },
+    {
+      "labelsRemoved": [
+        {
+          "labelIds": [
+            "INBOX"
+          ],
+          "message": {
+            "labelIds": [
+              "UNREAD",
+              "Label_2",
+              "IMPORTANT",
+              "CATEGORY_PERSONAL"
+            ],
+            "id": "15a600682d97904e",
+            "threadId": "15a600682d97904e"
+          }
+        }
+      ],
+      "messages": [
+        {
+          "id": "15a600682d97904e",
+          "threadId": "15a600682d97904e"
+        }
+      ],
+      "id": "8153"
+    },
+    {
+      "messages": [
+        {
+          "id": "15a600682d97904e",
+          "threadId": "15a600682d97904e"
+        }
+      ],
+      "id": "8154"
+    },
+    {
+      "messages": [
+        {
+          "id": "15a600682d97904e",
+          "threadId": "15a600682d97904e"
+        }
+      ],
+      "id": "8155"
+    }
+  ]
+}

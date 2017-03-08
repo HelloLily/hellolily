@@ -1,0 +1,69 @@
+{
+  "historyId": "9841",
+  "history": [
+    {
+      "messages": [
+        {
+          "id": "15af6279f554fd15",
+          "threadId": "15af6279f554fd15"
+        }
+      ],
+      "id": "9737",
+      "messagesAdded": [
+        {
+          "message": {
+            "labelIds": [
+              "UNREAD",
+              "IMPORTANT",
+              "CATEGORY_PERSONAL",
+              "INBOX"
+            ],
+            "id": "15af6279f554fd15",
+            "threadId": "15af6279f554fd15"
+          }
+        }
+      ]
+    },
+    {
+      "messages": [
+        {
+          "id": "15af6279e8b72e9c",
+          "threadId": "15af6279e8b72e9c"
+        }
+      ],
+      "id": "9784",
+      "messagesAdded": [
+        {
+          "message": {
+            "labelIds": [
+              "UNREAD",
+              "IMPORTANT",
+              "CATEGORY_PERSONAL",
+              "INBOX"
+            ],
+            "id": "15af6279e8b72e9c",
+            "threadId": "15af6279e8b72e9c"
+          }
+        }
+      ]
+    },
+    {
+      "messages": [
+        {
+          "id": "15af6279f554fd15",
+          "threadId": "15af6279f554fd15"
+        }
+      ],
+      "id": "9833"
+    },
+    {
+      "messages": [
+        {
+          "id": "15af6279e8b72e9c",
+          "threadId": "15af6279e8b72e9c"
+        }
+      ],
+      "id": "9834"
+    }
+  ]
+}

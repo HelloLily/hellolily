@@ -1,7 +1,10 @@
 import logging
 import re
 import mimetypes
+import json
+import os
 
+from datetime import datetime
 from bs4 import BeautifulSoup
 import html2text
 from urllib import unquote
@@ -29,6 +32,8 @@ _EMAIL_PARAMETER_API_DICT = {}
 _EMAIL_PARAMETER_CHOICES = {}
 
 logger = logging.getLogger(__name__)
+
+DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
 
 def get_field_names(field):
@@ -511,3 +516,13 @@ def reindex_email_message(instance):
     mapping = ModelMappings.model_to_mappings.get(type(instance))
     if mapping:
         update_in_index(instance, mapping)
+
+
+def fullpath(filename):
+    return os.path.join(DATA_DIR, "{:%H%M%S%f}".format(datetime.now()) + '-' + filename)
+
+
+def write_json_to_disk(path, data):
+    with open(path, 'w') as outfile:
+        json.dump(data, outfile, indent=4)
+        logger.info("JSON written: %s" % path)

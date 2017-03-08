@@ -1,0 +1,88 @@
+{
+  "internalDate": "1487669425000",
+  "historyId": "5415",
+  "payload": {
+    "mimeType": "multipart/alternative",
+    "headers": [
+      {
+        "name": "MIME-Version",
+        "value": "1.0"
+      },
+      {
+        "name": "Received",
+        "value": "by 11.22.333.444 with HTTP; Tue, 21 Feb 2017 01:30:25 -0800 (PST)"
+      },
+      {
+        "name": "Date",
+        "value": "Tue, 21 Feb 2017 10:30:25 +0100"
+      },
+      {
+        "name": "Delivered-To",
+        "value": "user1@example.com"
+      },
+      {
+        "name": "Message-ID",
+        "value": "<KeXZrqpVBNUilAtzPsRnQwfWNFxBMjLUbLGsnRWdILcsaFrIHsm@mail.gmail.com>"
+      },
+      {
+        "name": "Subject",
+        "value": "Lorem ipsum dolor sit amet"
+      },
+      {
+        "name": "From",
+        "value": "Firstname Lastname <user1@example.com>"
+      },
+      {
+        "name": "To",
+        "value": "user2@example.com"
+      },
+      {
+        "name": "Content-Type",
+        "value": "multipart/alternative; boundary=f403045e63ce9f503f05490707c4"
+      }
+    ],
+    "parts": [
+      {
+        "mimeType": "text/plain",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "text/plain; charset=UTF-8"
+          }
+        ],
+        "body": {
+          "data": "Y29uc2VjdGV0dXIgYWRpcGlzY2luZyBlbGl0LiBWaXZhbXVzIGhlbmRyZXJpdCB0ZW1wdXMgbGlndWxhLg0K",
+          "size": 63
+        },
+        "partId": "0",
+        "filename": ""
+      },
+      {
+        "mimeType": "text/html",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "text/html; charset=UTF-8"
+          }
+        ],
+        "body": {
+          "data": "PGRpdiBkaXI9Imx0ciI-Y29uc2VjdGV0dXIgYWRpcGlzY2luZyBlbGl0LiBWaXZhbXVzIA0KaGVuZHJlcml0IHRlbXB1cyBsaWd1bGEuPGJyPjwvZGl2Pg0K",
+          "size": 90
+        },
+        "partId": "1",
+        "filename": ""
+      }
+    ],
+    "body": {
+      "size": 0
+    },
+    "filename": ""
+  },
+  "snippet": "consectetur adipiscing elit. Vivamus hendrerit tempus ligula.",
+  "sizeEstimate": 786,
+  "threadId": "15a6001f325c4e9d",
+  "labelIds": [
+    "SENT"
+  ],
+  "id": "15a6001f325c4e9d"
+}

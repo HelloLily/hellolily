@@ -1,0 +1,80 @@
+{
+  "internalDate": "1487669770000",
+  "historyId": "5789",
+  "payload": {
+    "mimeType": "multipart/alternative",
+    "headers": [
+      {
+        "name": "MIME-Version",
+        "value": "1.0"
+      },
+      {
+        "name": "Received",
+        "value": "by 11.22.333.444 with HTTP; Tue, 21 Feb 2017 01:36:10 -0800 (PST)"
+      },
+      {
+        "name": "Date",
+        "value": "Tue, 21 Feb 2017 10:36:10 +0100"
+      },
+      {
+        "name": "Message-ID",
+        "value": "<AjcmjYqvpjOMnJIqPKURJNTcfOYTZclTYptaXnnqMQkDkzbKKnx@mail.gmail.com>"
+      },
+      {
+        "name": "Subject",
+        "value": "Curabitur arcu nunc"
+      },
+      {
+        "name": "From",
+        "value": "Firstname Lastname <user1@example.com>"
+      },
+      {
+        "name": "Content-Type",
+        "value": "multipart/alternative; boundary=001a113a0fac3097f90549071c7d"
+      }
+    ],
+    "parts": [
+      {
+        "mimeType": "text/plain",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "text/plain; charset=UTF-8"
+          }
+        ],
+        "body": {
+          "data": "SW50ZWdlciBhcmN1IG51bmMsIGVmZmljaXR1ciB1dCBuaXNsIGZhY2lsaXNpcywgcG9zdWVyZSBibGFuZGl0IHRlbGx1cy4gDQpNYWVjZW5hcyBpYWN1bGlzIGRpYW0gaW4gbG9yZW0gaW1wZXJkaWV0LCB2ZWwgbWF0dGlzIGVyYXQgZmVybWVudHVtLiANCmludGVyZHVtIG5vbiBwdWx2aW5hciBuZWMsIHZlc3RpYnVsdW0gc2VkIG9yY2kNCg==",
+          "size": 193
+        },
+        "partId": "0",
+        "filename": ""
+      },
+      {
+        "mimeType": "text/html",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "text/html; charset=UTF-8"
+          }
+        ],
+        "body": {
+          "data": "PGRpdiBkaXI9Imx0ciI-SW50ZWdlciBhcmN1IG51bmMsIGVmZmljaXR1ciB1dCBuaXNsIGZhY2lsaXNpcywgcG9zdWVyZSBibGFuZGl0IHRlbGx1cy4gDQpNYWVjZW5hcyBpYWN1bGlzIGRpYW0gaW4gbG9yZW0gaW1wZXJkaWV0LCB2ZWwgbWF0dGlzIGVyYXQgZmVybWVudHVtLiBpbnRlcmR1bSBub24gcHVsdmluYXIgbmVjLCB2ZXN0aWJ1bHVtIHNlZCBvcmNpPC9kaXY-DQo=",
+          "size": 212
+        },
+        "partId": "1",
+        "filename": ""
+      }
+    ],
+    "body": {
+      "size": 0
+    },
+    "filename": ""
+  },
+  "snippet": "Integer arcu nunc, efficitur ut nisl facilisis, posuere blandit tellus. Maecenas iaculis diam in lorem imperdiet, vel mattis erat fermentum. interdum non pulvinar nec, vestibulum sed orci",
+  "sizeEstimate": 959,
+  "threadId": "15a600737124149d",
+  "labelIds": [
+    "DRAFT"
+  ],
+  "id": "15a600737124149d"
+}

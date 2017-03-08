@@ -1,0 +1,103 @@
+{
+  "internalDate": "1487669863000",
+  "historyId": "5948",
+  "payload": {
+    "mimeType": "multipart/alternative",
+    "headers": [
+      {
+        "name": "Delivered-To",
+        "value": "user1@example.com"
+      },
+      {
+        "name": "Received",
+        "value": "by 10.12.152.161 with SMTP id meopk63x2qzq4za;        Tue, 21 Feb 2017 01:37:43 -0800 (PST)"
+      },
+      {
+        "name": "Received",
+        "value": "from mail-yw0-x233.google.com (mail-sd6-y345.google.com. [4625:a452:2234:b20::234])        by mx.google.com with ESMTPS id hd83740028d738770.64.1231.53.23.01.33.43        for <user1@example.com>        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);        Tue, 21 Feb 2017 01:37:43 -0800 (PST)"
+      },
+      {
+        "name": "Received",
+        "value": "by mail-yw0-x233.google.com with SMTP id p1soyvuae9sai1w.1        for <user1@example.com>; Tue, 21 Feb 2017 01:37:43 -0800 (PST)"
+      },
+      {
+        "name": "MIME-Version",
+        "value": "1.0"
+      },
+      {
+        "name": "Received",
+        "value": "by 10.129.161.7 with HTTP; Tue, 21 Feb 2017 01:37:43 -0800 (PST)"
+      },
+      {
+        "name": "From",
+        "value": "Firstname Lastname <user2@example.com>"
+      },
+      {
+        "name": "Date",
+        "value": "Tue, 21 Feb 2017 10:37:43 +0100"
+      },
+      {
+        "name": "Message-ID",
+        "value": "<SoxqSiXdzjXtaWipBdycKdmYUbrGSYMbXCxrrJokefdRNCGvMCp@mail.gmail.com>"
+      },
+      {
+        "name": "Subject",
+        "value": "sit amet finibus velit fringilla sed"
+      },
+      {
+        "name": "To",
+        "value": "user1@example.com"
+      },
+      {
+        "name": "Content-Type",
+        "value": "multipart/alternative; boundary=001a114e6864c156d00549072186"
+      }
+    ],
+    "parts": [
+      {
+        "mimeType": "text/plain",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "text/plain; charset=UTF-8"
+          }
+        ],
+        "body": {
+          "data": "U3VzcGVuZGlzc2Ugbm9uIHR1cnBpcyBtYXNzYS4gQWVuZWFuIHRlbXBvciByaXN1cyBqdXN0bywgYWMgZmV1Z2lhdCBzYXBpZW4NCmhlbmRyZXJpdCBjb21tb2RvLiBEb25lYyB2aXRhZSBsdWN0dXMgYXJjdS4NCg==",
+          "size": 121
+        },
+        "partId": "0",
+        "filename": ""
+      },
+      {
+        "mimeType": "text/html",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "text/html; charset=UTF-8"
+          }
+        ],
+        "body": {
+          "data": "PGRpdiBkaXI9Imx0ciI-U3VzcGVuZGlzc2Ugbm9uIHR1cnBpcyBtYXNzYS4gQWVuZWFuIHRlbXBvciByaXN1cyBqdXN0bywgYWMgZmV1Z2lhdCBzYXBpZW4gaGVuZHJlcml0IGNvbW1vZG8uIERvbmVjIHZpdGFlIGx1Y3R1cyBhcmN1Ljxicj48L2Rpdj4NCg==",
+          "size": 145
+        },
+        "partId": "1",
+        "filename": ""
+      }
+    ],
+    "body": {
+      "size": 0
+    },
+    "filename": ""
+  },
+  "snippet": "Suspendisse non turpis massa. Aenean tempor risus justo, ac feugiat sapien hendrerit commodo. Donec vitae luctus arcu.",
+  "sizeEstimate": 3628,
+  "threadId": "15a6008a4baa65f3",
+  "labelIds": [
+    "UNREAD",
+    "IMPORTANT",
+    "CATEGORY_PERSONAL",
+    "INBOX"
+  ],
+  "id": "15a6008a4baa65f3"
+}

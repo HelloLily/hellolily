@@ -1,0 +1,107 @@
+{
+  "internalDate": "1487669577000",
+  "historyId": "6002",
+  "payload": {
+    "mimeType": "multipart/alternative",
+    "headers": [
+      {
+        "name": "Delivered-To",
+        "value": "user1@example.com"
+      },
+      {
+        "name": "Received",
+        "value": "by 10.12.152.161 with SMTP id a7g3v8ryypz9yfe;        Tue, 21 Feb 2017 01:32:58 -0800 (PST)"
+      },
+      {
+        "name": "Received",
+        "value": "from mail-yw0-x22f.google.com (mail-yw0-x22f.google.com. [2607:f8b0:4002:c05::22f])        by mx.google.com with ESMTPS id q4si3421460ywj.74.2017.02.21.01.32.58        for <user1@example.com>        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);        Tue, 21 Feb 2017 01:32:58 -0800 (PST)"
+      },
+      {
+        "name": "Received",
+        "value": "by mail-yw0-x22f.google.com with SMTP id o0sg4oyarkfthq8.2        for <user1@example.com>; Tue, 21 Feb 2017 01:32:58 -0800 (PST)"
+      },
+      {
+        "name": "MIME-Version",
+        "value": "1.0"
+      },
+      {
+        "name": "Received",
+        "value": "by 10.129.161.7 with HTTP; Tue, 21 Feb 2017 01:32:57 -0800 (PST)"
+      },
+      {
+        "name": "From",
+        "value": "Firstname Lastname <user2@example.com>"
+      },
+      {
+        "name": "Date",
+        "value": "Tue, 21 Feb 2017 10:32:57 +0100"
+      },
+      {
+        "name": "Message-ID",
+        "value": "<mENWhttDVhTUYgVWkXdcacWYvYvOhjaVqNGKeMkFsWEpgODNOXd@mail.gmail.com>"
+      },
+      {
+        "name": "Subject",
+        "value": "rutrum viverra augue dignissim a"
+      },
+      {
+        "name": "To",
+        "value": "user1@example.com"
+      },
+      {
+        "name": "Content-Type",
+        "value": "multipart/alternative; boundary=94eb2c087d62bf9a4905490710c5"
+      }
+    ],
+    "parts": [
+      {
+        "mimeType": "text/plain",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "text/plain; charset=UTF-8"
+          }
+        ],
+        "body": {
+          "data": "UGhhc2VsbHVzIHRlbXB1cywgcXVhbSBuZWMgY29udmFsbGlzIG1hdHRpcywgbWFzc2EgZWxpdCBzYWdpdHRpcyBlc3QsIGENCnJob25jdXMgbnVuYyByaXN1cyBhYyBvcmNpLiBQcmFlc2VudCBibGFuZGl0IGNvbmRpbWVudHVtIG1hZ25hLCBhYyBhbGlxdWFtDQpsZW8gcmhvbmN1cyBjb25zZXF1YXQuDQo=",
+          "size": 173
+        },
+        "partId": "0",
+        "filename": ""
+      },
+      {
+        "mimeType": "text/html",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "text/html; charset=UTF-8"
+          },
+          {
+            "name": "Content-Transfer-Encoding",
+            "value": "quoted-printable"
+          }
+        ],
+        "body": {
+          "data": "PGRpdiBkaXI9Imx0ciI-UGhhc2VsbHVzIHRlbXB1cywgcXVhbSBuZWMgY29udmFsbGlzIA0KbWF0dGlzLCBtYXNzYSBlbGl0IHNhZ2l0dGlzIGVzdCwgYSByaG9uY3VzIG51bmMgcmlzdXMgYWMgb3JjaS4gUHJhZXNlbnQgDQpibGFuZGl0IGNvbmRpbWVudHVtIG1hZ25hLCBhYyBhbGlxdWFtIGxlbyByaG9uY3VzIGNvbnNlcXVhdC7CoDxicj48L2Rpdj4NCg==",
+          "size": 202
+        },
+        "partId": "1",
+        "filename": ""
+      }
+    ],
+    "body": {
+      "size": 0
+    },
+    "filename": ""
+  },
+  "snippet": "Phasellus tempus, quam nec convallis mattis, massa elit sagittis est, a rhoncus nunc risus ac orci. Praesent blandit condimentum magna, ac aliquam leo rhoncus consequat.",
+  "sizeEstimate": 3791,
+  "threadId": "15a60044bb3e2a7a",
+  "labelIds": [
+    "Label_1",
+    "IMPORTANT",
+    "CATEGORY_PERSONAL",
+    "INBOX"
+  ],
+  "id": "15a60044bb3e2a7a"
+}

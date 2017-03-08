@@ -3,16 +3,16 @@
         <div class="widget-heading" ng-if="settings.email.sidebar.form">
             <div class="widget-name">
                 <div class="widget-title">
-                    Add account
+                    {{ vm.account.id ? "Edit" : "Add" }} account
                 </div>
             </div>
             <div class="clearfix"></div>
         </div>
 
-        <div class="alert alert-warning" ng-if="vm.caller_number !== undefined">
+        <div class="alert alert-warning" ng-if="vm.callerNumber !== undefined">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             <strong class="margin-right-10">Add as a contact to an existing account instead?</strong>
-            <a class="hl-primary-btn" ui-sref="base.contacts.create({account_form: vm.account})" role="button"><i class="fa fa-plus"></i> Contact</a>
+            <a class="hl-primary-btn" ui-sref="base.contacts.create({accountForm: vm.account})" role="button"><i class="fa fa-plus"></i> Contact</a>
         </div>
 
         <form novalidate class="hl-form-body" name="accountForm">
@@ -62,7 +62,8 @@
                                 ?
                             </div>
                             <div class="widget-suggestion-item-action">
-                                <a ng-if="!settings.email.sidebar.form" class="hl-primary-btn" ui-sref="base.accounts.detail.edit({ id: account.id })">Edit this account</a>
+                                <a ng-if="!settings.email.sidebar.form" class="hl-primary-btn" ui-sref="base.accounts.detail.edit({ id: account.id, accountForm: vm.account })">Merge with account</a>
+                                <a ng-if="settings.email.sidebar.form" class="hl-primary-btn" ng-mousedown="vm.mergeAccountData(account.id)">Merge</a>
                             </div>
                         </div>
                     </div>

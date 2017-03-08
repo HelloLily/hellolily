@@ -8,7 +8,7 @@ function contactConfig($stateProvider) {
     $stateProvider.state('base.contacts.create', {
         url: '/create',
         params: {
-            'account_form': null,
+            'accountForm': null,
         },
         views: {
             '@': {
@@ -29,6 +29,10 @@ function contactConfig($stateProvider) {
 
     $stateProvider.state('base.contacts.detail.edit', {
         url: '/edit',
+        params: {
+            'accountForm': null,
+            'contactForm': null,
+        },
         views: {
             '@': {
                 templateUrl: 'contacts/controllers/form.html',
@@ -78,7 +82,7 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
                                        HLFields, HLForms, HLResource, HLSearch, Settings, currentContact) {
     var vm = this;
 
-    vm.contact = {};
+    vm.contact = currentContact || {};
     vm.errors = {
         name: [],
     };
@@ -89,15 +93,26 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
     vm.removeRelatedField = removeRelatedField;
     vm.refreshAccounts = refreshAccounts;
     vm.checkExistingContact = checkExistingContact;
+    vm.contactForm = $stateParams.contactForm;
+    vm.accountForm = $stateParams.accountForm;
     vm.mergeContactData = mergeContactData;
 
     activate();
 
+    $scope.$watch('settings.email.sidebar.contactId', function(newValue, oldValue) {
+        if (newValue) {
+            Contact.get({id: newValue}).$promise.then(function(result) {
+                vm.contact = _mergeData(result, Settings.email.sidebar.contactForm);
+                activate();
+            });
+        }
+    }, true);
+
     ////
 
     function activate() {
+        vm.contactSuggestions = [];
         _getContact();
-
         $timeout(function() {
             // Focus the first input on page load.
             angular.element('.form-control')[0].focus();
@@ -107,9 +122,14 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
 
     function _getContact() {
         // Fetch the contact or create empty contact.
-        if (currentContact) {
-            vm.contact = currentContact;
-            Settings.page.setAllTitles('edit', currentContact.full_name);
+
+        if (vm.contact.hasOwnProperty('id')) {
+            Settings.page.setAllTitles('edit', vm.contact.full_name);
+
+            if (vm.contactForm) {
+                // Merge form data with current contact
+                vm.contact = _mergeData(vm.contact, vm.contactForm);
+            }
 
             if (vm.contact.hasOwnProperty('social_media') && vm.contact.social_media.length) {
                 angular.forEach(vm.contact.social_media, function(profile) {
@@ -127,11 +147,11 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
                 });
             }
 
-            if ($stateParams.account_form) {
-                vm.contact.description = $stateParams.account_form.description;
-                vm.contact.email_addresses = $stateParams.account_form.email_addresses;
-                vm.contact.phone_numbers = $stateParams.account_form.phone_numbers;
-                vm.contact.addresses = $stateParams.account_form.addresses;
+            if ($stateParams.accountForm) {
+                vm.contact.description = $stateParams.accountForm.description;
+                vm.contact.email_addresses = $stateParams.accountForm.email_addresses;
+                vm.contact.phone_numbers = $stateParams.accountForm.phone_numbers;
+                vm.contact.addresses = $stateParams.accountForm.addresses;
             }
 
             if (Settings.email.data) {
@@ -160,6 +180,28 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
                 }
             }
         }
+    }
+
+    function _mergeData(primary, form) {
+        if (form.description) {
+            primary.description = `${form.description}\n\n${primary.description}`;
+        }
+
+        // Don't add account if it already exists in the other contact
+        primary.accounts = primary.accounts.concat(
+            form.accounts.filter(account => {
+                if (primary.accounts.find(x => x.id === account.id)) return false;
+                return true;
+            })
+        );
+
+        primary.email_addresses = primary.email_addresses.concat(form.email_addresses);
+        primary.phone_numbers = primary.phone_numbers.concat(form.phone_numbers);
+        primary.addresses = primary.addresses.concat(form.addresses);
+        if (!primary.twitter && form.twitter) primary.twitter = form.twitter;
+        if (!primary.linkedin && form.linkedin) primary.linkedin = form.linkedin;
+        primary.tags = primary.tags.concat(form.tags);
+        return primary;
     }
 
     function addRelatedField(field) {
@@ -255,7 +297,13 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
             // If there's an ID set it means we're dealing with an existing contact, so update it
             copiedContact.$update(function() {
                 toastr.success('I\'ve updated the contact for you!', 'Done');
-                $state.go('base.contacts.detail', {id: copiedContact.id}, {reload: true});
+                if (Settings.email.sidebar.form === 'contact') {
+                    Settings.email.sidebar.form = null;
+                    Settings.email.sidebar.contact = true;
+                    Settings.email.data.contact = vm.contact;
+                } else {
+                    $state.go('base.contacts.detail', {id: copiedContact.id}, {reload: true});
+                }
             }, function(response) {
                 _handleBadResponse(response, form);
             });
@@ -296,27 +344,14 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
         }
     }
 
-    function mergeContactData(contact) {
-        var args = {
-            id: contact.id,
-            accounts: [],
-            email_addresses: vm.contact.email_addresses,
-        };
-
-        angular.forEach(vm.contact.accounts, function(account) {
-            if (account) {
-                args.accounts.push({id: account.id});
-            }
-        });
-
-        HLResource.patch('Contact', args).$promise.then(function() {
-            _postSave(contact);
-        });
+    function mergeContactData(contactId) {
+        Settings.email.sidebar.form = 'contact';
+        Settings.email.sidebar.contactId = contactId;
+        Settings.email.sidebar.contactForm = vm.contact;
     }
 
     function _postSave(contact) {
         new Intercom('trackEvent', 'contact-created');
-
         if (Settings.email.sidebar.form === 'contact') {
             Settings.email.sidebar.form = null;
             Settings.email.sidebar.contact = true;

@@ -710,6 +710,7 @@ class EmailMessageReplyView(EmailMessageReplyOrForwardView):
                 'body_html': create_reply_body_header(self.object) + mark_safe(self.object.reply_body),
             },
         })
+
         return kwargs
 
     def get_email_headers(self):

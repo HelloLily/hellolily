@@ -111,6 +111,10 @@
                 var $this = $(this);
                 var _data = $this.data();
 
+                if (_data.hasOwnProperty('tags')) {
+                    _data.tags = true;
+                }
+
                 // _data.tags is a marker for AjaxSelect2Widget which indicates
                 // that it expects multiple values as input.
 
@@ -277,7 +281,6 @@
                         options.tags = true;
                         options.multiple = true;
                     }
-
 
                     $this.select2(options);
                     // Set the initial form value from a JSON encoded data attribute called data-initial

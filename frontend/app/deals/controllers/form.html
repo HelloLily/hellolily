@@ -56,26 +56,28 @@
                                     field="vm.deal.new_business" sidebar="settings.email.sidebar.form">
                 </form-radio-buttons>
 
-                <form-group label-title="Found us through" label-id="id_found_through" field="dealForm.found_through" required="true">
-                    <select name="found_through" ng-model="vm.deal.found_through"
-                            ng-options="found_through.name for found_through in vm.foundThroughChoices track by found_through.id" class="form-control">
-                        <option value="" hidden>Select a channel</option>
-                    </select>
-                </form-group>
+                <div ng-if="vm.deal.new_business">
+                    <form-group label-title="Found us through" label-id="id_found_through" field="dealForm.found_through" required="true">
+                        <select name="found_through" ng-model="vm.deal.found_through"
+                                ng-options="found_through.name for found_through in vm.foundThroughChoices track by found_through.id" class="form-control">
+                            <option value="" hidden>Select a channel</option>
+                        </select>
+                    </form-group>
 
-                <form-group label-title="Contacted us by" label-id="id_contacted_by" field="dealForm.contacted_by" required="true">
-                    <select name="contacted_by" ng-model="vm.deal.contacted_by"
-                            ng-options="contacted_by.name for contacted_by in vm.contactedByChoices track by contacted_by.id" class="form-control">
-                        <option value="" hidden>Select a medium</option>
-                    </select>
-                </form-group>
+                    <form-group label-title="Contacted us by" label-id="id_contacted_by" field="dealForm.contacted_by" required="true">
+                        <select name="contacted_by" ng-model="vm.deal.contacted_by"
+                                ng-options="contacted_by.name for contacted_by in vm.contactedByChoices track by contacted_by.id" class="form-control">
+                            <option value="" hidden>Select a medium</option>
+                        </select>
+                    </form-group>
 
-                <form-group label-title="Why customer" label-id="id_why_customer" field="dealForm.why_customer" required="true">
-                    <select name="why_customer" ng-model="vm.deal.why_customer"
-                            ng-options="why_customer.name for why_customer in vm.whyCustomer track by why_customer.id" class="form-control">
-                        <option value="" hidden>Select a reason</option>
-                    </select>
-                </form-group>
+                    <form-group label-title="Why customer" label-id="id_why_customer" field="dealForm.why_customer" required="true">
+                        <select name="why_customer" ng-model="vm.deal.why_customer"
+                                ng-options="why_customer.name for why_customer in vm.whyCustomer track by why_customer.id" class="form-control">
+                            <option value="" hidden>Select a reason</option>
+                        </select>
+                    </form-group>
+                </div>
             </form-portlet>
 
             <form-portlet portlet-title="What is it?">

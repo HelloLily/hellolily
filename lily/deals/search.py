@@ -169,8 +169,14 @@ class DealMapping(BaseMapping):
                 'type': 'boolean',
             },
             'why_customer': {
-                'type': 'string',
-                'index_analyzer': 'normal_edge_analyzer',
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'name': {
+                        'type': 'string',
+                        'analyzer': 'normal_edge_analyzer',
+                    },
+                },
             },
             'why_lost': {
                 'type': 'string',
@@ -239,7 +245,7 @@ class DealMapping(BaseMapping):
             'found_through': {
                 'id': obj.found_through.id,
                 'name': obj.found_through.name,
-            },
+            } if obj.found_through else None,
             'is_archived': obj.is_archived,
             'is_checked': obj.is_checked,
             'modified': obj.modified,
@@ -265,6 +271,9 @@ class DealMapping(BaseMapping):
                 'object_id': tag.object_id,
             } for tag in obj.tags.all()],
             'twitter_checked': obj.twitter_checked,
-            'why_customer': obj.why_customer.name if obj.why_customer else None,
+            'why_customer': {
+                'id': obj.why_customer.id,
+                'name': obj.why_customer.name,
+            } if obj.why_customer else None,
             'why_lost': obj.why_lost.name if obj.why_lost else None,
         }

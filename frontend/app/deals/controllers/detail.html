@@ -139,17 +139,17 @@
                                     </td>
                                 </tr>
 
-                                <tr><td colspan="2"><hr></td></tr>
+                                <tr ng-if="vm.deal.found_through || vm.deal.contacted_by || vm.deal.why_customer"><td colspan="2"><hr></td></tr>
 
-                                <tr>
+                                <tr ng-if="vm.deal.found_through">
                                     <td><strong>Found us through</strong></td>
                                     <td><editable-select field="found_through" view-model="vm" type="Deal">{{ vm.deal.found_through.name }}</editable-select></td>
                                 </tr>
-                                <tr>
+                                <tr ng-if="vm.deal.contacted_by">
                                     <td><strong>Contacted us by</strong></td>
                                     <td><editable-select field="contacted_by" view-model="vm" type="Deal">{{ vm.deal.contacted_by.name }}</editable-select></td>
                                 </tr>
-                                <tr>
+                                <tr ng-if="vm.deal.why_customer">
                                     <td><strong>Why customer</strong></td>
                                     <td><editable-select field="why_customer" view-model="vm" type="Deal">{{ vm.deal.why_customer.name }}</editable-select></td>
                                 </tr>
@@ -185,8 +185,7 @@
                         <ul class="hl-button-group">
                             <li class="hl-button-group-btn"
                                 ng-class="{'disabled': !vm.deal.contact.id}"
-                                ng-attr-uib-tooltip="{{!vm.deal.contact.id && 'Please add a contact first' || '' }}"
-                            >
+                                ng-attr-uib-tooltip="{{!vm.deal.contact.id && 'Please add a contact first' || '' }}">
                                 <a class="hl-button-group-btn-link" ui-sref="base.integrations.pandadoc.quotes.create({dealId: vm.deal.id })">
                                     <i class="fa fa-external-link fa-sm"></i>
                                     <span class="external-link-name">Add document</span>

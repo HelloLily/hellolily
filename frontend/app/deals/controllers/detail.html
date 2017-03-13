@@ -2,7 +2,7 @@
 </div>
 
 <div ng-if="vm.deal.id" class="row">
-    <div class="col-md-8">
+    <div class="col-md-8" ng-if="vm.deal.id">
         <div class="widget-container">
             <div class="widget-heading">
                 <ul class="hl-button-group">
@@ -65,11 +65,20 @@
             </div>
         </div>
 
-        <history-list target="'deal'" object="vm.deal"></history-list>
+        <checkbox model="vm.mergeHistory" class="pull-right">Merge history lists</checkbox>
+
+        <span ng-if="vm.mergeHistory">
+            <history-list ng-if="vm.deal.id" target="'deal'" object="vm.deal" extra-object="{object: vm.deal.account, target: 'account'}" date-start="vm.dealStart" date-end="vm.dealEnd"></history-list>
+        </span>
+
+        <span ng-if="!vm.mergeHistory">
+            <history-list ng-if="vm.deal.id" target="'deal'" object="vm.deal"></history-list>
+            <history-list ng-if="vm.deal.account.id" target="'account'" object="vm.deal.account" date-start="vm.dealStart" date-end="vm.dealEnd" parent-object="vm.deal"></history-list>
+        </span>
     </div>
 
     <div>
-        <div class="col-md-4">
+        <div ng-if="vm.deal.id" class="col-md-4">
             <widget widget-name="'Detail'">
                 <widget-header>
                     <div class="widget-label deal"></div>
@@ -276,9 +285,9 @@
                 </widget-body>
             </widget>
 
-            <account-detail-widget ng-if="vm.account" account="vm.account"></account-detail-widget>
+            <account-detail-widget ng-if="vm.deal.account" account="vm.deal.account"></account-detail-widget>
 
-            <contact-detail-widget ng-if="vm.contact" contact="vm.contact"></contact-detail-widget>
+            <contact-detail-widget ng-if="vm.deal.contact" contact="vm.deal.contact"></contact-detail-widget>
         </div>
     </div>
 </div>

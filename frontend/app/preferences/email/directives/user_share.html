@@ -4,11 +4,12 @@
             <div class="user-avatar display-inline-block" ng-style="{'background-image': 'url(' + config.user.profile_picture + ')'}"></div>
             <span class="margin-left-15">{{ config.user.full_name }}</span>
 
-            <select name="privacy" ng-model="config.privacy"
-                    ng-options="option.id as option.name for option in vm.privacyOptions"
-                    class="form-control display-inline-block">
-                <option value="" hidden>Privacy</option>
-            </select>
+            <ui-select ng-model="config.privacy" theme="select2" class="form-control email-account-share-privacy pull-right" name="privacy" append-to-body="true" search-enabled="false">
+                <ui-select-match placeholder="Privacy">{{ $select.selected.name }}</ui-select-match>
+                <ui-select-choices repeat="option.id as option in vm.privacyOptions">
+                    <div ng-bind-html="option.name"></div>
+                </ui-select-choices>
+            </ui-select>
 
             <div class="clickable" ng-click="config.is_deleted = true"><i class="lilicon hl-close-icon"></i></div>
         </div>

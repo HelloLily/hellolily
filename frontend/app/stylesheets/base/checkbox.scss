@@ -47,7 +47,12 @@ $checkbox-size: 14px;
 .switch {
     position: relative;
     display: inline-block;
-    width: 60px;
+    width: 48px;
+    height: 10px;
+    margin: 0;
+    -webkit-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
 
     input {
         display: none;

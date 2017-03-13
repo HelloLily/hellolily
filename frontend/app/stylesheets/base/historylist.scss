@@ -703,19 +703,11 @@
             border-top-left-radius: $base-border-radius;
             border-bottom-left-radius: $base-border-radius;
             border-left: 1px solid $base-border-color;
-
-            .radio-button-inset {
-                border-top-left-radius: $base-border-radius;
-            }
         }
 
         &:last-child {
             border-top-right-radius: $base-border-radius;
             border-bottom-right-radius: $base-border-radius;
-
-            .radio-button-inset {
-                border-top-right-radius: $base-border-radius;
-            }
         }
 
         &:hover,

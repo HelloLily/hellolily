@@ -105,12 +105,8 @@
                     <div>
                         <label class="priority-button" ng-repeat="priority in vm.casePriorities"
                                ng-class="{0: 'low-priority-indicator', 1: 'medium-priority-indicator', 2: 'high-priority-indicator', 3: 'critical-priority-indicator'}[$index]">
-                            {{ priority.name }}
-                            <input id="id_priority-{{ $index }}"
-                                type="radio"
-                                ng-model="vm.case.priority"
-                                ng-value="$index"
-                                class="pull-right" />
+                            <input id="id_priority-{{ $index }}" type="radio" ng-model="vm.case.priority" ng-value="$index" class="radio-button-input" />
+                            <span class="radio-button-label">{{ priority.name }}</span>
                         </label>
                     </div>
                 </form-group>
@@ -169,13 +165,13 @@
                 <div class="row">
                     <div ng-class="{'hidden col-xs-12': settings.email.sidebar.form, 'col-xs-12 col-sm-3 col-md-2 col-lg-2': !settings.email.sidebar.form}"></div>
                     <div ng-class="{'col-xs-12': settings.email.sidebar.form, 'col-xs-12 col-sm-9 col-md-8 col-md-7 col-lg-4': !settings.email.sidebar.form}">
-                        <button type="button" class="btn blue" ng-click="vm.saveCase(caseForm)" uib-tooltip="{{ messages.tooltips.modEnter.title }}">
+                        <button type="button" class="hl-primary-btn-blue" ng-click="vm.saveCase(caseForm)" uib-tooltip="{{ messages.tooltips.modEnter.title }}">
                             <i class="fa fa-check"></i> Save
                         </button>
-                        <button type="button" class="btn blue" ng-click="vm.saveCase(caseForm, true)">
+                        <button type="button" class="hl-primary-btn-green" ng-click="vm.saveCase(caseForm, true)">
                             <i class="fa fa-check"></i> Save and archive
                         </button>
-                        <button type="button" class="btn default" ng-click="vm.cancelCaseCreation()">
+                        <button type="button" class="hl-primary-btn" ng-click="vm.cancelCaseCreation()">
                             Cancel
                         </button>
                     </div>

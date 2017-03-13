@@ -37,101 +37,161 @@ Radio buttons can be used to offer the user a selection range.
 ```
 <div class="radio-button-group">
     <label class="radio-button">
-        <div class="radio-button-inset">
-            <input type="radio">
-            Option 1
-        </div>
+        <input type="radio" class="radio-button-input" name="example_1">
+        <span class="radio-button-label">Option 1</span>
     </label>
 
-    <label class="radio-button no-radio-bullets">
-        <div class="radio-button-inset">
-            <input type="radio">
-            Option 2
-        </div>
+    <label class="radio-button disabled">
+        <input type="radio" class="radio-button-input" name="example_1" disabled>
+        <span class="radio-button-label">Option 2</span>
     </label>
 
     <label class="radio-button active">
-        <div class="radio-button-inset">
-            <input type="radio" checked>
-            Option 3
-        </div>
+        <input type="radio" class="radio-button-input" name="example_1" checked>
+        <span class="radio-button-label">Option 3</span>
+    </label>
+</div>
+
+</br>
+</br>
+
+<div class="radio-button-group radio-button-list">
+    <label class="radio-button">
+        <input type="radio" class="radio-button-input" name="example_2">
+        <span class="radio-button-label">Option 1</span>
+    </label>
+
+    <label class="radio-button">
+        <input type="radio" class="radio-button-input" name="example_2" checked>
+        <span class="radio-button-label">Option 2</span>
     </label>
 </div>
 ```
 
 By adding the class *.no-radio-bullets* the radio bullets are not being shown.
+The radio buttons can also be displayed as a vertical list by adding the class
+*.radio-button-list* to the parent container .radio-button-group
 */
+
 
 .radio-button-group {
     display: inline-block;
+    margin: 0;
+    padding: 0;
 
     .radio-button {
-        line-height: 30px;
-        border: 1px solid $base-border-color;
-        border-left: 0;
-        background: $lily-header-bg;
+        line-height: 31px;
+        border: 1px $app-border-color solid;
+        border-bottom-width: 2px;
+        color: $app-color-darkblue;
+        border-left-width: 0;
+        background: #fff;
         margin: 0;
+        padding: 0 8px;
         display: inline-block;
+        float: left;
 
-        &:hover,
+        &:hover {
+            color: $app-color-mint;
+        }
+
+        &:first-child {
+            border-radius: $base-border-radius 0 0 $base-border-radius;
+            border-left-width: 1px;
+        }
+
+        &:last-child {
+            border-radius: 0 $base-border-radius $base-border-radius 0;
+        }
+
         &.active {
             background: $lily-white-tone-hover;
-
-            .radio-button-inset {
-                border-top: 1px $lily-header-bg solid;
-            }
         }
 
         &.disabled {
             background: darken($lily-header-bg, 3);
-            pointer-events: none;
-
-            .radio-button-inset {
-                border-top: 1px transparent solid;
-                color: darken($lily-header-bg, 10);
-                cursor: not-allowed;
-            }
-        }
-
-        &:first-child {
-            border-top-left-radius: $base-border-radius;
-            border-bottom-left-radius: $base-border-radius;
-            border-left: 1px solid $base-border-color;
-
-            .radio-button-inset {
-                border-top-left-radius: $base-border-radius;
-            }
-        }
-
-        &:last-child {
-            border-top-right-radius: $base-border-radius;
-            border-bottom-right-radius: $base-border-radius;
-
-            .radio-button-inset {
-                border-top-right-radius: $base-border-radius;
-            }
-        }
-
-        &.no-radio-bullets {
-            input {
-                &[type="radio"] {
-                    display: none;
-                }
-            }
+            color: darken($lily-header-bg, 10);
+            cursor: not-allowed;
         }
     }
 
-    .radio-button-inset {
-        cursor: pointer;
-        padding: 0 10px;
-        border-top: 1px #fff solid;
-        border-bottom: 3px transparent solid;
+    &.radio-button-list {
+        .radio-button {
+            line-height: 33px;
+            float: none;
+            display: block;
+            border-bottom-width: 0;
+            border-left-width: 1px;
 
-        input {
-            cursor: pointer;
+            &:first-child {
+                border-radius: $base-border-radius $base-border-radius 0 0;
+            }
+
+            &:last-child {
+                border-bottom-width: 2px;
+                border-radius: 0 0 $base-border-radius $base-border-radius;
+            }
         }
     }
 }
+
+.radio-button-input {
+    display: none;
+
+    +.radio-button-label {
+        line-height: 16px;
+        position: relative;
+        margin-left: 21px;
+
+        &:after {
+            position: absolute;
+            left: -21px;
+            top: 0;
+            content: "";
+            margin: 0;
+            width: 16px;
+            height: 16px;
+            border-radius: 8px;
+            background: #fff;
+            border: 1px $app-border-color solid;
+            box-sizing: border-box;
+            -webkit-box-shadow: inset 1px 1px 3px 0 rgba(0, 0, 0, 0.1);
+            -moz-box-shadow: inset 1px 1px 3px 0 rgba(0, 0, 0, 0.1);
+            box-shadow: inset 1px 1px 3px 0 rgba(0, 0, 0, 0.1);
+            text-align: center;
+            font-family: "FontAwesome";
+            font-size: 10px;
+            font-weight: 300;
+            color: #fff;
+            cursor: pointer;
+        }
+    }
+
+    &:checked {
+        +.radio-button-label {
+
+            &:after {
+                content: "\f00c";
+                background: $app-color-mint;
+                -webkit-box-shadow: none;
+                -moz-box-shadow: none;
+                box-shadow: none;
+                border: 0;
+            }
+        }
+    }
+
+    &:disabled {
+        +.radio-button-label {
+            &:after {
+                border-color: darken($lily-header-bg, 8);
+                pointer-events: none;
+                background: transparent;
+            }
+        }
+    }
+}
+
 
 $small-button: 20px;
 $large-button: 30px;

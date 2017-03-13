@@ -2,17 +2,13 @@
     <div ng-class="{'has-error': field.$invalid}">
         <div class="radio-button-group" ng-class="{'required': vm.required}">
             <label ng-if="!vm.reverse" ng-repeat="option in vm.options" class="radio-button" ng-class="{'active': vm.field == $index}">
-                <div class="radio-button-inset">
-                    <input id="id_{{ vm.inputName }}-{{ $index }}" name="{{ vm.inputName }}" ng-model="vm.field" type="radio" ng-value="$index">
-                    {{ option }}
-                </div>
+                <input id="id_{{ vm.inputName }}-{{ $index }}" name="{{ vm.inputName }}" ng-model="vm.field" type="radio" class="radio-button-input" ng-value="$index">
+                <span class="radio-button-label">{{ option }}</span>
             </label>
 
             <label ng-if="vm.reverse" ng-repeat="option in vm.options | reverse" class="radio-button" ng-class="{'active': vm.field == vm.options.indexOf(option)}">
-                <div class="radio-button-inset">
-                    <input id="id_{{ vm.inputName }}-{{ vm.options.indexOf(option) }}" name="{{ vm.inputName }}" ng-model="vm.field" type="radio" ng-value="vm.options.indexOf(option)">
-                    {{ option }}
-                </div>
+                <input id="id_{{ vm.inputName }}-{{ vm.options.indexOf(option) }}" name="{{ vm.inputName }}" ng-model="vm.field" type="radio" class="radio-button-input" ng-value="vm.options.indexOf(option)">
+                <span class="radio-button-label">{{ option }}</span>
             </label>
         </div>
     </div>

@@ -159,6 +159,14 @@ label {
             content: "(required)";
         }
     }
+
+    &.no-label {
+        font-weight: normal;
+    }
+
+    &.display-block {
+        display: block;
+    }
 }
 
 .help-text {
@@ -448,8 +456,28 @@ table {
     margin-right: 30px;
 }
 
+.margin-top-40 {
+    margin-top: 40px;
+}
+
+.margin-top-30 {
+    margin-top: 30px;
+}
+
 .margin-top-20 {
     margin-top: 20px;
+}
+
+.margin-bottom-20 {
+    margin-bottom: 20px;
+}
+
+.margin-bottom-30 {
+    margin-bottom: 30px;
+}
+
+.margin-bottom-40 {
+    margin-bottom: 40px;
 }
 
 .margin-bottom-5 {

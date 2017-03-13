@@ -41,7 +41,10 @@
                     <tbody>
                         <tr ng-repeat="account in vm.ownedAccounts">
                             <td class="width-6">
-                                <input type="radio" name="primary" ng-model="vm.primaryAccount" ng-value="account.id" ng-click="vm.setPrimaryEmailAccount(account)">
+                                <span ng-click="vm.setPrimaryEmailAccount(account)">
+                                    <input type="radio" name="primary" ng-model="vm.primaryAccount" ng-value="account.id" class="radio-button-input">
+                                    <span class="radio-button-label"></span>
+                                </span>
                             </td>
                             <td>
                                 {{ account.email_address }}
@@ -119,7 +122,10 @@
                     <tbody>
                         <tr ng-repeat="account in vm.sharedAccounts">
                             <td>
-                                <input type="radio" name="primary" ng-model="vm.primaryAccount" ng-value="account.id" ng-click="vm.setPrimaryEmailAccount(account)">
+                                <div>
+                                    <input type="radio" name="primary" ng-model="vm.primaryAccount" ng-value="account.id" ng-click="vm.setPrimaryEmailAccount(account)" class="radio-button-input">
+                                    <span class="radio-button-label"></span>
+                                </div>
                             </td>
                             <td>
                                 {{ account.email_address }}

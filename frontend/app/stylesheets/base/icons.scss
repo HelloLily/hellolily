@@ -45,54 +45,95 @@
 }
 
 .step-type {
+    @include colored-bullet(10px, $bullet-color-1);
     &.position-0 {
-        @include colored-bullet(10px, $bullet-color-1)
+        @include colored-bullet(10px, $bullet-color-1);
     }
 
     &.position-1 {
-        @include colored-bullet(10px, $bullet-color-2)
+        @include colored-bullet(10px, $bullet-color-2);
     }
 
     &.position-2 {
-        @include colored-bullet(10px, $bullet-color-3)
+        @include colored-bullet(10px, $bullet-color-3);
     }
 
     &.position-3 {
-        @include colored-bullet(10px, $bullet-color-4)
+        @include colored-bullet(10px, $bullet-color-4);
     }
 
     &.position-4 {
-        @include colored-bullet(10px, $bullet-color-5)
+        @include colored-bullet(10px, $bullet-color-5);
     }
 
     &.position-5 {
-        @include colored-bullet(10px, $bullet-color-6)
+        @include colored-bullet(10px, $bullet-color-6);
+    }
+
+    &.position-6 {
+        @include colored-bullet(10px, $bullet-color-7);
+    }
+
+    &.position-7 {
+        @include colored-bullet(10px, $bullet-color-8);
+    }
+
+    &.position-8 {
+        @include colored-bullet(10px, $bullet-color-9);
+    }
+
+    &.position-9 {
+        @include colored-bullet(10px, $bullet-color-10);
+    }
+
+    &.position-10 {
+        @include colored-bullet(10px, $bullet-color-11);
     }
 }
 
 .step-type-label {
     &.position-0 {
-        @include colored-label(24px, $bullet-color-1)
+        @include colored-label(24px, $bullet-color-1);
     }
 
     &.position-1 {
-        @include colored-label(24px, $bullet-color-2)
+        @include colored-label(24px, $bullet-color-2);
     }
 
     &.position-2 {
-        @include colored-label(24px, $bullet-color-3)
+        @include colored-label(24px, $bullet-color-3);
     }
 
     &.position-3 {
-        @include colored-label(24px, $bullet-color-4)
+        @include colored-label(24px, $bullet-color-4);
     }
 
     &.position-4 {
-        @include colored-label(24px, $bullet-color-5)
+        @include colored-label(24px, $bullet-color-5);
     }
 
     &.position-5 {
-        @include colored-label(24px, $bullet-color-6)
+        @include colored-label(24px, $bullet-color-6);
+    }
+
+    &.position-6 {
+        @include colored-label(24px, $bullet-color-7);
+    }
+
+    &.position-7 {
+        @include colored-label(24px, $bullet-color-8);
+    }
+
+    &.position-8 {
+        @include colored-label(24px, $bullet-color-9);
+    }
+
+    &.position-9 {
+        @include colored-label(24px, $bullet-color-10);
+    }
+
+    &.position-10 {
+        @include colored-label(24px, $bullet-color-11);
     }
 }
 

@@ -149,11 +149,16 @@ gulp.task('clean', [], function() {
     ]);
 });
 
-gulp.task('app-js', [], function() {
+gulp.task('app-js', [], function(cb) {
     return gulp.src(config.app.js.src, {read: false})
         .pipe(tap(function(file) {
             // Replace file contents with browserify's bundle stream.
-            file.contents = browserify(file.path, {debug: true}).bundle();
+            file.contents = browserify(file.path, {debug: true}).bundle()
+            .on('error', function(err) {
+                gutil.log(gutil.colors.red('Browserify error') + err);
+                gutil.beep();
+                cb();
+            });
         }))
         // Transform streaming contents into buffer contents
         // (because gulp-sourcemaps does not support streaming contents).
@@ -196,7 +201,7 @@ gulp.task('app-css', [], function() {
         .pipe(ifElse(isWatcher, livereload))
         .pipe(ifElse(!isProduction, function() {
             return shell(['styleguide']);
-        }))
+        }));
 });
 
 /**

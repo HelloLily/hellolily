@@ -257,21 +257,22 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
     @detail_route(methods=['get'])
     def history(self, request, pk):
         """
-        Returns what happened to an email.
+        Returns what happened to an email; did the user reply or forwarded the email message.
         """
         email = self.get_object()
 
         account_email = email.account.email_address
         sent_from_account = (account_email == email.sender.email_address)
 
+        # Get the messages in the thread for the current email message.
         search = LilySearch(
             request.user.tenant_id,
             model_type='email_emailmessage',
             sort='sent_date',
+            size=100  # Paged results, when a thread is containing more that 100 results StopIteration could be thrown.
         )
-
         search.filter_query('thread_id:%s' % email.thread_id)
-        history, facets, total, took = search.do_search([
+        thread, facets, total, took = search.do_search([
             'message_id',
             'received_by_email',
             'received_by_cc_email',
@@ -281,40 +282,43 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         ])
 
         try:
-            index = (key for key, item in enumerate(history) if item['message_id'] == email.message_id).next()
+            # Get the index of the current email message in the thread.
+            index = (key for key, item in enumerate(thread) if item['message_id'] == email.message_id).next()
         except StopIteration:
-            logger.debug('No history for message %s\nhistory:\n%s' % (email.id, history))
-            results = {
-                'history_size': 0,
-            }
+            logger.exception('Number of messages larger that search page size for message %s.' % email.id)
+            results = {}
             return Response(results)
 
-        messages_after = history[index + 1:]
+        # Only look at the messages in the thread after the current email message.
+        messages_after = thread[index + 1:]
 
-        results = {
-            'history': history,
-            'history_size': total,
-        }
-        if messages_after:
-            if sent_from_account:
-                next_messages = [item for item in messages_after if item['sender_email'] != account_email]
-                if len(next_messages):
-                    next_message = next_messages[0]
-                    email_addresses = next_message.get('received_by_email', []) + \
-                        next_message.get('received_by_cc_email', [])
-                    if email_addresses.count(email.account.email_address):
-                        results['replied_with'] = next_message
+        results = {}
+
+        if not messages_after or sent_from_account:
+            # Current email message is the last in the thread or is send by the user and therefor not a possible reply
+            # or forwarded email message.
+            return Response(results)
+
+        # The current email message isn't the last in the thread. So look the follow up messages in the thread to
+        # determine what actions occured on the current email message. Current email message is not send from the
+        # account of the user, so it is a received email message. So determine is we replied or forwarded it.
+
+        # Get all the outgoing follow up messages in the thread.
+        next_messages = [item for item in messages_after if item['sender_email'] == account_email]
+        if len(next_messages):
+            # We only need to look at the first follow up message in the thread.
+            # TODO LILY-2244: improve search filter above so it leads to the only / first follow up message.
+            next_message = next_messages[0]
+
+            # Get all the mail addresses where the follow up message was sent to.
+            email_addresses = next_message.get('received_by_email', []) + next_message.get('received_by_cc_email', [])
+
+            if email_addresses.count(email.sender.email_address):
+                # The sender of the current, received email message is one of the reciepents of the follow up message,
+                # so it is a reply message.
+                results['replied_with'] = next_message
             else:
-                # If the message was received, we want to know if we did something with it
-                next_messages = [item for item in messages_after if item['sender_email'] == account_email]
-                if len(next_messages):
-                    next_message = next_messages[0]
-                    email_addresses = next_message.get('received_by_email', []) + \
-                        next_message.get('received_by_cc_email', [])
-                    if email_addresses.count(email.sender.email_address):
-                        results['replied_with'] = next_message
-                    else:
-                        results['forwarded_with'] = next_message
+                results['forwarded_with'] = next_message
 
         return Response(results)
 

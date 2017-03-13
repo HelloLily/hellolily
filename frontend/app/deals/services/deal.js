@@ -128,7 +128,7 @@ function Deal($resource, CacheFactory, HLCache, HLForms, HLResource, HLUtils) {
             currency: 'EUR',
             amount_once: '0',
             amount_recurring: '0',
-            assigned_to: {id: currentUser.id, full_name: currentUser.fullName},
+            assigned_to: null,
         });
     }
 

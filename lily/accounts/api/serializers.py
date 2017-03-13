@@ -94,6 +94,7 @@ class AccountSerializer(WritableNestedSerializer):
     class Meta:
         model = Account
         fields = (
+            'id',
             'addresses',
             'assigned_to',
             'bankaccountnumber',
@@ -108,7 +109,6 @@ class AccountSerializer(WritableNestedSerializer):
             'iban',
             'legalentity',
             # 'logo',
-            'id',
             'modified',
             'name',
             'phone_numbers',

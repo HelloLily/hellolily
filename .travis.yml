@@ -20,7 +20,7 @@ env:
     - secure: "YxRY659DsaAlAyY20aNOMlCN+Anr81WPmpg36zkTpSw2VgC219HS8301HN5userqAjnkKHNo7aWbHxq37sGKm2nYXPq2T2PkvyOToc4f7+uRwJ5i6w79zXKRvp4q6sA3mwjuPuPekRnHguM3WNshm2Nxbp0Aoxlu6Npd2vYvKVM="
 
     # HEROKU_API_KEY: account used is admin.
-    - secure: "HheF3up6WRNEkaVoqfC8S6GaxEtX6aXEtM4oyzDtFXgdfJtCSnHwoc2eq1d7Qlu84DcudQndu3ora26eDpGBUqLPVfvSJG9vxyuZhMdcbOcj+kwSWxRnuxePPFMDSZEQ0ndpmF40aS9kZ/j3zDuSAPqcQg6i+B7cu/z1L1/Eg/Q="
+    - secure: "bnTbxShq5R/ixa+vhP/1UcznW0k4x1yeEYqrswDTTgMBZFpRXkoLkzSKhNjyvnX+o3PvaawJka9rDXhAxhbcVBgfUxeHo5DcxrmGtENWEIxmksHNPAeYl99iehtTkgmzxqfcmYFqemvlqhvIUUiy+NeCtwgmI6bFf7ZgYW6UqT4="
 
     # DOCKER_HUB_EMAIL
     - secure: "KDETg8s/pmEoKgcZPzU2tmW0ilU/iVLtZmCRetFMb77OigQT01pGJweYpPaFs+vx7M0fG2dmDI3mMyWRMcIMUqv17jwrl6nlLYMFjwUObUFNEwBg0lyM2atYD4JoFqd+U3rl8u4H+A+XHospsdRUBf1yTwH6EifdQ5wHUbDP8Q4="

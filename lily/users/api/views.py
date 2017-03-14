@@ -56,6 +56,7 @@ class LilyUserFilter(FilterSet):
         model = LilyUser
         fields = {
             'is_active': ['exact', ],
+            'teams': ['isnull', ],
         }
 
 

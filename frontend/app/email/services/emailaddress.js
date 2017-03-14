@@ -29,6 +29,7 @@ function EmailAddress() {
             var emailRegex;
             var matches;
             var isValid;
+            var splitRecipient;
 
             if (recipient !== '') {
                 splitRecipient = recipient.split('" ');

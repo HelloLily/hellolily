@@ -15,8 +15,8 @@ function usersFilter() {
     };
 }
 
-UsersFilterController.$inject = ['LocalStorage', 'UserTeams'];
-function UsersFilterController(LocalStorage, UserTeams) {
+UsersFilterController.$inject = ['LocalStorage', 'User', 'UserTeams'];
+function UsersFilterController(LocalStorage, User, UserTeams) {
     var vm = this;
     var storage = new LocalStorage(vm.storageName);
 
@@ -26,6 +26,7 @@ function UsersFilterController(LocalStorage, UserTeams) {
     vm.currentUser = currentUser;
     vm.users = [];
     vm.teams = [];
+    vm.unassignedUsers = [];
 
     vm.toggleUser = toggleUser;
     vm.loadTeams = loadTeams;
@@ -35,11 +36,10 @@ function UsersFilterController(LocalStorage, UserTeams) {
         var userObj;
         var users;
         var ownTeam;
-        var teams;
+        var unassignedUser;
+        var teams = [];
 
-        UserTeams.query(function(response) {
-            teams = [];
-
+        UserTeams.query().$promise.then(function(response) {
             angular.forEach(response.results, function(team) {
                 if (team && team.users.length) {
                     users = [];
@@ -79,6 +79,16 @@ function UsersFilterController(LocalStorage, UserTeams) {
 
             vm.teams = teams;
         });
+
+        User.query({teams__isnull: 'True'}).$promise.then(function(response) {
+            var unassignedUsers = [];
+
+            for (unassignedUser of response.results) {
+                unassignedUsers.push(unassignedUser);
+            }
+
+            vm.unassignedUsers = unassignedUsers;
+        });
     }
 
     function toggleUser(team, userId) {
@@ -108,7 +118,6 @@ function UsersFilterController(LocalStorage, UserTeams) {
                 }
             }
 
-            //
             if (vm.teamsSelection.indexOf(team.id) > -1) {
                 vm.teamsSelection.splice(vm.teamsSelection.indexOf(team.id), 1);
             }
@@ -161,6 +170,15 @@ function UsersFilterController(LocalStorage, UserTeams) {
                 }
             });
         });
+
+        // No team submitted so we're dealing with users that haven't been assigned to a team.
+        if (!team && userId !== currentUser.id) {
+            angular.forEach(vm.unassignedUsers, function(user) {
+                if (vm.usersSelection.indexOf(user.id) > -1 && vm.usersDisplayNames.indexOf(user.full_name) === -1) {
+                    vm.usersDisplayNames.push(user.full_name);
+                }
+            });
+        }
 
         // Check if the currentUser is in the selection at the
         // first name to the names to display.

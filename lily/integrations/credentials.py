@@ -18,17 +18,20 @@ def get_credentials(integration_type, tenant=None):
     Returns:
         credentials (obj): Credentials for the given type.
     """
-    integration_type = IntegrationType.objects.get(name__iexact=integration_type)
-
     try:
-        if tenant:
-            # Calling from an 'anonymous' views (e.g. tasks). So add tenant filter.
-            details = IntegrationDetails.objects.get(type=integration_type.id, tenant=tenant.id)
-        else:
-            # Logged in user is making the call, so TenantMixin is applied.
-            details = IntegrationDetails.objects.get(type=integration_type.id)
-    except IntegrationDetails.DoesNotExist:
+        integration_type = IntegrationType.objects.get(name__iexact=integration_type)
+    except IntegrationType.DoesNotExist:
         details = None
+    else:
+        try:
+            if tenant:
+                # Calling from an 'anonymous' views (e.g. tasks). So add tenant filter.
+                details = IntegrationDetails.objects.get(type=integration_type.id, tenant=tenant.id)
+            else:
+                # Logged in user is making the call, so TenantMixin is applied.
+                details = IntegrationDetails.objects.get(type=integration_type.id)
+        except IntegrationDetails.DoesNotExist:
+            details = None
 
     if details:
         storage = Storage(IntegrationCredentials, 'details', details, 'credentials')

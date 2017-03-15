@@ -104,6 +104,8 @@ function Deal($resource, CacheFactory, HLCache, HLForms, HLResource, HLUtils) {
     _deal.create = create;
     _deal.updateModel = updateModel;
 
+    _deal.getStatuses();
+
     /////////
 
     function create() {

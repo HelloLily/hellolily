@@ -168,6 +168,19 @@
                         </span>
                     </div>
                 </form-group>
+            </form-portlet>
+
+            <form-portlet portlet-title="Who is going to do this?">
+                <form-group label-title="Assigned to teams" label-id="id_assigned_to_teams" field="dealForm.assigned_to_teams">
+                    <ui-select multiple ng-model="vm.deal.assigned_to_teams" theme="select2" class="form-control" name="assigned_to_teams" append-to-body="true">
+                        <ui-select-match placeholder="Select one or more team(s)">{{ $item.name }}</ui-select-match>
+                        <ui-select-choices repeat="team in vm.teams | filterBy:['name']:$select.search">
+                            <div ng-bind-html="team.name | highlight: $select.search"></div>
+                        </ui-select-choices>
+                    </ui-select>
+
+                    <button class="btn btn-link assign-me-btn" ng-click="vm.assignToMyTeams()">Assign to my teams</button>
+                </form-group>
 
                 <form-group label-title="Assigned to" label-id="id_assigned_to" field="dealForm.assigned_to">
                     <ui-select ng-model="vm.deal.assigned_to" theme="select2" class="form-control" name="assigned_to" append-to-body="true">

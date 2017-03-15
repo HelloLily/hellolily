@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
 from lily.tags.models import TaggedObjectMixin
-from lily.users.models import LilyUser
+from lily.users.models import LilyUser, Team
 from lily.tenant.models import TenantMixin
 from lily.utils.currencies import CURRENCIES
 from lily.utils.models.mixins import DeletedMixin, ArchivedMixin
@@ -115,7 +115,8 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     # Related Fields.
     account = models.ForeignKey(Account)
     contact = models.ForeignKey(Contact, null=True, blank=True)
-    assigned_to = models.ForeignKey(LilyUser, null=True)
+    assigned_to_teams = models.ManyToManyField(Team, blank=True)
+    assigned_to = models.ForeignKey(LilyUser, null=True, blank=True)
     created_by = models.ForeignKey(LilyUser, related_name='created_deals', null=True, blank=True)
     status = models.ForeignKey(DealStatus, related_name='deals')
     found_through = models.ForeignKey(DealFoundThrough, related_name='deals', null=True, blank=True)

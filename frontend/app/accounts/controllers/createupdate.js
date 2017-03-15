@@ -27,6 +27,9 @@ function accountConfig($stateProvider) {
 
     $stateProvider.state('base.accounts.detail.edit', {
         url: '/edit',
+        params: {
+            'accountForm': null,
+        },
         views: {
             '@': {
                 templateUrl: 'accounts/controllers/form.html',
@@ -56,7 +59,7 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
                                  HLSearch, HLUtils, Settings, User, currentAccount) {
     var vm = this;
 
-    vm.account = {};
+    vm.account = currentAccount || {};
     vm.accountSuggestions = [];
     vm.tags = [];
     vm.errors = {
@@ -73,13 +76,25 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
     vm.checkExistingAccount = checkExistingAccount;
     vm.refreshUsers = refreshUsers;
     vm.assignToMe = assignToMe;
-    vm.caller_number = $stateParams.phone_number;
+    vm.callerNumber = $stateParams.phone_number;
+    vm.accountForm = $stateParams.accountForm;
+    vm.mergeAccountData = mergeAccountData;
 
     activate();
+
+    $scope.$watch('settings.email.sidebar.accountId', function(newValue, oldValue) {
+        if (newValue) {
+            Account.get({id: newValue}).$promise.then(function(result) {
+                vm.account = _mergeData(result, Settings.email.sidebar.accountForm);
+                activate();
+            });
+        }
+    }, true);
 
     ////
 
     function activate() {
+        vm.accountSuggestions = [];
         User.me().$promise.then(function(user) {
             vm.currentUser = user;
 
@@ -106,12 +121,15 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
         var company;
 
         // Fetch the account or create empty account
-        if (currentAccount) {
-            Settings.page.setAllTitles('edit', currentAccount.name);
+        if (vm.account.hasOwnProperty('id')) {
+            Settings.page.setAllTitles('edit', vm.account.name);
 
-            vm.account = currentAccount;
+            if (vm.accountForm) {
+                // Merge form data with current account
+                vm.account = _mergeData(vm.account, vm.accountForm);
+            }
 
-            angular.forEach(currentAccount.websites, function(website) {
+            angular.forEach(vm.account.websites, function(website) {
                 if (website.is_primary) {
                     vm.account.primaryWebsite = website.website;
                 }
@@ -133,7 +151,7 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
             vm.account.name = $stateParams.name;
             vm.account.assigned_to = vm.currentUser;
 
-            if (vm.caller_number) {
+            if (vm.callerNumber) {
                 vm.account.phone_numbers.push({
                     'number': $stateParams.phone_number,
                     'type': 'work',
@@ -151,6 +169,20 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
                 });
             }
         }
+    }
+
+    function _mergeData(primary, form) {
+        if (!primary.primaryWebsite) primary.primaryWebsite = form.primaryWebsite;
+        if (form.description) {
+            primary.description = `${form.description}\n\n${primary.description}`;
+        }
+        primary.email_addresses = primary.email_addresses.concat(form.email_addresses);
+        primary.phone_numbers = primary.phone_numbers.concat(form.phone_numbers);
+        primary.addresses = primary.addresses.concat(form.addresses);
+        primary.websites = primary.websites.concat(form.websites);
+        if (!primary.twitter && form.twitter) primary.twitter = form.twitter;
+        primary.tags = primary.tags.concat(form.tags);
+        return primary;
     }
 
     function checkExistingAccount() {
@@ -198,6 +230,12 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
                 $state.go('base.accounts');
             }
         }
+    }
+
+    function mergeAccountData(accountId) {
+        Settings.email.sidebar.form = 'account';
+        Settings.email.sidebar.accountId = accountId;
+        Settings.email.sidebar.accountForm = vm.account;
     }
 
     function saveAccount(form) {
@@ -264,7 +302,19 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
             // If there's an ID set it means we're dealing with an existing account, so update it.
             vm.account.$update(function() {
                 toastr.success('I\'ve updated the account for you!', 'Done');
-                $state.go('base.accounts.detail', {id: vm.account.id}, {reload: true});
+                if (Settings.email.sidebar.form === 'account') {
+                    if (!Settings.email.data.contact.id) {
+                        Settings.email.sidebar.form = 'contact';
+                        Settings.email.data.account = vm.account;
+                    } else {
+                        Settings.email.sidebar.account = true;
+                        Settings.email.sidebar.form = null;
+                    }
+
+                    Settings.email.data.account = vm.account;
+                } else {
+                    $state.go('base.accounts.detail', {id: vm.account.id}, {reload: true});
+                }
             }, function(response) {
                 _handleBadResponse(response, form);
             });

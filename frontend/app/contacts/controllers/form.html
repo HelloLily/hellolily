@@ -3,7 +3,7 @@
         <div class="widget-heading" ng-if="settings.email.sidebar.form">
             <div class="widget-name">
                 <div class="widget-title">
-                    Add contact
+                    {{ vm.contact.id ? "Edit" : "Add" }} contact
                 </div>
             </div>
             <div class="clearfix"></div>
@@ -58,8 +58,8 @@
                                 ?
                             </div>
                             <div class="widget-suggestion-item-action">
-                                <a ng-if="!settings.email.sidebar.form" class="hl-primary-btn" ui-sref="base.contacts.detail.edit({ id: contact.id })">Edit this contact</a>
-                                <a ng-if="settings.email.sidebar.form" class="hl-primary-btn" ng-mousedown="vm.mergeContactData(contact)">Merge</a>
+                                <a ng-if="!settings.email.sidebar.form" class="hl-primary-btn" ui-sref="base.contacts.detail.edit({ id: contact.id, contactForm: vm.contact })">Merge with contact</a>
+                                <a ng-if="settings.email.sidebar.form" class="hl-primary-btn" ng-mousedown="vm.mergeContactData(contact.id)">Merge</a>
                             </div>
                         </div>
                     </div>

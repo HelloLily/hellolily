@@ -632,3 +632,39 @@ def toggle_spam_email_message(email_id, spam=True):
                     manager.cleanup()
         else:
             logger.warning('Not syncing, no authorization for: %s', email_message.account)
+
+
+@task(name='delete_email_account', trail=False)
+def delete_email_account(account_id):
+    """
+    This task is used by the cleanup_deleted_email_accounts task to do the actual deleting of accounts.
+
+    We delete email messages first, because the database will time out on bigger accounts otherwise.
+    The deleting of email messages is done per 100 messages because that is the batch size django also uses.
+    This task gets repeated untill all of the messages are deleted before it deletes the account itself.
+    """
+    # Get random 100 email messages for deletion, disable ordering (SLOW) and only fetch id's in a flat list.
+    message_ids = EmailMessage.objects.filter(account_id=account_id).order_by()[0:100].values_list('id', flat=True)
+
+    if message_ids:
+        # Use an __in query because you can't delete with a LIMIT in the query.
+        EmailMessage.objects.filter(pk__in=message_ids).order_by().delete()
+        delete_email_account.delay(account_id=account_id)
+    else:
+        # There are no more messages for this account, so we can delete it.
+        EmailAccount.objects.filter(pk=account_id).delete()
+
+
+@task(name='cleanup_deleted_email_accounts', trail=False)
+def cleanup_deleted_email_accounts():
+    """
+    Cleanup accounts that are marked for deletion by the soft delete.
+
+    This task does not sync anything to google, it's just that deleting big email accounts
+    takes too damn long, so we want to do it in the background.
+    """
+    account_list = EmailAccount.objects.filter(is_deleted=True)
+
+    for account in account_list:
+        logger.warning('Permanently deleting email account: %s with id %s.' % (account.emailaddress, account.pk))
+        delete_email_account.delay(account_id=account.pk)

@@ -86,8 +86,7 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
 
     def perform_destroy(self, instance):
         if instance.owner_id is self.request.user.id:
-            instance.is_deleted = True
-            instance.save()
+            instance.delete()
         else:
             return Response(status=status.HTTP_403_FORBIDDEN)
 

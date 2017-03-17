@@ -28,6 +28,16 @@ $checkbox-size: 14px;
         }
     }
 
+    &.indeterminate {
+        &:before {
+            font-size: 12px;
+            font-family: "FontAwesome";
+            line-height: $checkbox-size - 2px;
+            text-align: center;
+            content: "\f068";
+        }
+    }
+
     &:after {
         content: "";
         display: inline-block;

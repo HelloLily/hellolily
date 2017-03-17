@@ -18,7 +18,6 @@
                             <div ng-bind-html="account.name | highlight: $select.search"></div>
                         </ui-select-choices>
                     </ui-select>
-                    <span class="help-text text-muted">Please type at least 2 characters to begin the search</span>
                 </form-group>
                 <form-group label-title="Contact" label-id="id_contact" field="caseForm.contact">
                     <ui-select ng-model="vm.case.contact" theme="select2" class="form-control" name="contact" append-to-body="true">
@@ -27,7 +26,6 @@
                             <div ng-bind-html="contact.full_name | highlight: $select.search"></div>
                         </ui-select-choices>
                     </ui-select>
-                    <span class="help-text text-muted">Please type at least 2 characters to begin the search</span>
                 </form-group>
 
                 <form-group ng-if="vm.openCases.length">
@@ -154,7 +152,6 @@
                             <div ng-bind-html="user.full_name | highlight: $select.search"></div>
                         </ui-select-choices>
                     </ui-select>
-                    <span class="help-text text-muted">Please type at least 2 characters to begin the search</span>
 
                     <button class="btn btn-link assign-me-btn" ng-click="vm.assignToMe()">Assign to me</button>
                 </form-group>

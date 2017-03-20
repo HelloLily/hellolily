@@ -65,6 +65,7 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
         object: currentDeal,
         field: 'name',
         updateCallback: updateModel,
+        formName: 'dealHeaderForm',
     };
 
     vm.deal = currentDeal;

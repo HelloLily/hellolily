@@ -97,9 +97,6 @@ class EmailAccount(TenantMixin, DeletedMixin):
     def __unicode__(self):
         return u'%s (%s)' % (self.label, self.email_address)
 
-    def is_owned_by_user(self):
-        return True
-
     @property
     def is_public(self):
         return self.privacy == EmailAccount.PUBLIC

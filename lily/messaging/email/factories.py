@@ -8,9 +8,8 @@ from factory.fuzzy import FuzzyChoice, FuzzyText
 from faker.factory import Factory
 from factory.helpers import post_generation
 
-from factory.declarations import LazyAttribute
-from faker.factory import Factory
 from lily.tenant.factories import TenantFactory
+from lily.users.factories import LilyUserFactory
 from .models.models import EmailAccount, EmailMessage, Recipient
 
 faker = Factory.create('nl_NL')
@@ -18,7 +17,8 @@ faker = Factory.create('nl_NL')
 current_date = datetime.datetime.now()
 past_date = current_date - datetime.timedelta(days=10)
 
-class GmailAccountFactory(factory.DjangoModelFactory):
+
+class GmailAccountFactory(DjangoModelFactory):
     email_address = LazyAttribute(lambda o: unicodedata.normalize('NFD', faker.safe_email()).encode('ascii', 'ignore'))
     from_name = LazyAttribute(lambda o: faker.first_name().lower())
     label = from_name
@@ -26,6 +26,7 @@ class GmailAccountFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = EmailAccount
+
 
 class EmailAccountFactory(DjangoModelFactory):
     tenant = SubFactory(TenantFactory)

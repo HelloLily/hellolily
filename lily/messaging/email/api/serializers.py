@@ -10,7 +10,7 @@ from lily.users.models import UserInfo
 
 from ..models.models import (EmailLabel, EmailAccount, EmailMessage, Recipient, EmailAttachment, EmailTemplate,
                              SharedEmailConfig, TemplateVariable, DefaultEmailTemplate, GmailCredentialsModel)
-from ..services import build_gmail_service
+from ..services import GmailService
 
 
 class SharedEmailConfigSerializer(serializers.ModelSerializer):
@@ -110,6 +110,8 @@ class EmailAccountSerializer(WritableNestedSerializer):
     default_template = serializers.SerializerMethodField()
     shared_email_configs = RelatedSharedEmailConfigSerializer(many=True, source='sharedemailconfig_set')
 
+    gmail_service = None
+
     def validate(self, data):
         validated_data = super(EmailAccountSerializer, self).validate(data)
 
@@ -161,8 +163,8 @@ class EmailAccountSerializer(WritableNestedSerializer):
             credentials = storage.get()
 
             # Setup service to retrieve email address.
-            service = build_gmail_service(credentials)
-            profile = service.users().getProfile(userId='me').execute()
+            self.gmail_service = GmailService(credentials)
+            profile = self.gmail_service.service.users().getProfile(userId='me').execute()
 
             if credentials:
                 instance.is_authorized = True

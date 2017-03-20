@@ -521,6 +521,7 @@ def reindex_email_message(instance):
 def fullpath(filename):
     return os.path.join(DATA_DIR, "{:%H%M%S%f}".format(datetime.now()) + '-' + filename)
 
+
 def write_json_to_disk(path, data):
     with open(path, 'w') as outfile:
         json.dump(data, outfile, indent=4)

@@ -73,10 +73,10 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
 
     function loadAccounts() {
         var publicAccount;
-        var sharedAccounts = sharedWithAccounts.results;
+        var sharedAccounts = [];
         var filteredPublicAccounts = [];
 
-        ownedAccounts.results.forEach(function(account) {
+        ownedAccounts.results.map((account) => {
             _checkHiddenState(account);
         });
 
@@ -94,8 +94,11 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
             sharedAccounts = $filter('unique')(sharedAccounts, 'id');
         }
 
-        sharedAccounts.forEach(function(account) {
-            _checkHiddenState(account);
+        sharedWithAccounts.results.map((account) => {
+            if (account.owner.id !== vm.currentUser.id) {
+                _checkHiddenState(account);
+                sharedAccounts.push(account);
+            }
         });
 
         vm.sharedAccounts = sharedAccounts;
@@ -177,7 +180,15 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
                     }
 
                     HLResource.patch('EmailAccount', args).$promise.then(function(response) {
-                        vm.emailAccount.shared_email_configs = response.shared_email_configs;
+                        var emailConfigs = [];
+
+                        response.shared_email_configs.map((newConfig) => {
+                            if (vm.emailAccount.owner.id !== newConfig.user) {
+                                emailConfigs.push(newConfig);
+                            }
+                        });
+
+                        vm.emailAccount.shared_email_configs = emailConfigs;
                         swal.close();
                     });
                 }
@@ -232,13 +243,19 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
     }
 
     function setPrimaryEmailAccount(account) {
-        var args = {
-            id: 'me',
-            primary_email_account: {
-                id: account.id,
-            },
-        };
+        var args;
 
-        HLResource.patch('User', args);
+        if (vm.primaryAccount !== account.id) {
+            args = {
+                id: 'me',
+                primary_email_account: {
+                    id: account.id,
+                },
+            };
+
+            vm.primaryAccount = account.id;
+
+            HLResource.patch('User', args);
+        }
     }
 }

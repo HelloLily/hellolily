@@ -6,13 +6,23 @@ function EmailAccount($resource) {
         '/api/messaging/email/accounts/:id/',
         null,
         {
+            get: {
+                transformResponse: function(data) {
+                    var account = angular.fromJson(data);
+
+                    account.shared_email_configs = _emailAccount.filterEmailConfigs(account);
+
+                    return account;
+                },
+            },
             query: {
                 isArray: false,
                 transformResponse: function(data) {
                     var accounts = angular.fromJson(data);
 
-                    accounts.results.forEach(function(account) {
+                    accounts.results.map((account) => {
                         account.is_public = (account.privacy === _emailAccount.PUBLIC);
+                        account.shared_email_configs = _emailAccount.filterEmailConfigs(account);
                     });
 
                     return accounts;
@@ -50,6 +60,7 @@ function EmailAccount($resource) {
     );
 
     _emailAccount.getPrivacyOptions = getPrivacyOptions;
+    _emailAccount.filterEmailConfigs = filterEmailConfigs;
 
     _emailAccount.PUBLIC = 0;
     _emailAccount.READONLY = 1;
@@ -61,11 +72,24 @@ function EmailAccount($resource) {
     function getPrivacyOptions() {
         // Hardcoded because these are the only privacy options.
         return [
-            {id: 0, name: 'Mailbox', text: 'send and read'},
+            {id: 0, name: 'Entire mailbox', text: 'send and read'},
             {id: 1, name: 'Email', text: 'only read email in timeline'},
-            {id: 2, name: 'Metadata', text: 'only read date and recipients in timeline'},
+            {id: 2, name: 'Limited info', text: 'only read date and recipients in timeline'},
             {id: 3, name: 'Nothing', text: 'email is hidden'},
         ];
+    }
+
+    function filterEmailConfigs(account) {
+        var configs = [];
+
+        // Filter out the email configuration for the user's own account.
+        account.shared_email_configs.map((config) => {
+            if (account.owner.id !== config.user) {
+                configs.push(config);
+            }
+        });
+
+        return configs;
     }
 
     return _emailAccount;

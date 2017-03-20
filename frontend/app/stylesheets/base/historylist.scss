@@ -99,7 +99,7 @@
     background-color: #fff;
     height: 100%;
     position: absolute;
-    left: 47px;
+    left: 33px;
 
     &:after {
         content: " ";
@@ -117,6 +117,16 @@
     @media (max-width: $breakpoint-mobile) {
         left: 38px;
     }
+}
+
+.hidden-content {
+    background: repeating-linear-gradient(45deg, lighten($app-bg-color, 3), lighten($app-bg-color, 3) 10px, #fff 10px, #fff 20px);
+    color: $app-color-grey;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: 500;
+    font-size: 10px;
+    border-bottom-width: 0 !important;
 }
 
 .history-list-item,
@@ -148,7 +158,6 @@
 .timeline-item-container {
     width: 100%;
     box-sizing: border-box;
-    min-height: 70px;
     position: relative;
 
 }
@@ -156,7 +165,6 @@
 .timeline-item-form-container {
     width: 100%;
     box-sizing: border-box;
-    min-height: 70px;
     position: relative;
     margin-bottom: 20px;
 
@@ -219,7 +227,6 @@
     background-color: #fff;
     margin-left: 90px;
     border: 1px solid $lily-border-dark;
-    min-height: 70px;
     position: relative;
 
     &:before {
@@ -265,6 +272,12 @@
     &.has-email {
         &:before {
             background-color: $email-color;
+        }
+    }
+
+    &.has-nothing {
+        &:before {
+            display: none;
         }
     }
 
@@ -348,7 +361,6 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color: $app-color-darkblue;
-    margin-bottom: 10px;
     display: block;
     padding-right: 140px;
 

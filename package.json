@@ -13,19 +13,21 @@
     "postinstall": "gulp clean && gulp build"
   },
   "dependencies": {
-    "browserify": "13.1.0",
-    "gulp-tap": "0.1.3",
-    "sweetalert2": "4.1",
-    "sprintf-js": "1.0.3",
-    "gulp-buffer": "0.0.2",
-    "raven-js": "3.7.0",
-    "autolinker": "1.1.1",
-    "ui-select": "0.19.4",
-    "ng-file-upload": "12.2.12",
-    "urijs": "1.18.2",
     "angular-elastic": "2.5.1",
+    "angular-ui-bootstrap": "2.2.0",
     "angular-xeditable": "0.5.0",
-    "angular-ui-bootstrap": "2.2.0"
+    "autolinker": "1.1.1",
+    "browserify": "13.1.0",
+    "google-libphonenumber": "^2.0.13",
+    "gulp-buffer": "0.0.2",
+    "gulp-tap": "0.1.3",
+    "libphonenumber-js": "0.3.14",
+    "ng-file-upload": "12.2.12",
+    "raven-js": "3.7.0",
+    "sprintf-js": "1.0.3",
+    "sweetalert2": "4.1",
+    "ui-select": "0.19.4",
+    "urijs": "1.18.2"
   },
   "devDependencies": {
     "babel-cli": "6.14.0",

@@ -182,6 +182,7 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
         primary.websites = primary.websites.concat(form.websites);
         if (!primary.twitter && form.twitter) primary.twitter = form.twitter;
         primary.tags = primary.tags.concat(form.tags);
+
         return primary;
     }
 

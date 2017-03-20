@@ -14,7 +14,7 @@ function countrySelector(Country) {
                 scope.countries = countries;
             });
 
-            if (currentUser.country) {
+            if (!scope.address.country && currentUser.country) {
                 // Set the default country as the tenant's country.
                 scope.address.country = currentUser.country;
             }

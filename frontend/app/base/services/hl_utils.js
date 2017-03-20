@@ -1,43 +1,34 @@
+var numberFormat = require('google-libphonenumber').PhoneNumberFormat;
+var phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
+
 angular.module('app.services').service('HLUtils', HLUtils);
 
+HLUtils.$inject = ['Tenant'];
 function HLUtils() {
-    this.formatPhoneNumber = function(phoneNumber) {
-        var newNumber;
+    this.formatPhoneNumber = function(phoneNumber, address = null) {
+        var parsedNumber;
+        var phoneNumberType;
+        var country;
 
         if (!phoneNumber.number || phoneNumber.number.match(/[a-z]/i)) {
             // If letters are found, skip formatting: it may not be a phone field after all.
             return false;
         }
 
-        // Format phone number
-        newNumber = phoneNumber.number
-            .replace('(0)', '')
-            .replace(/\s|\(|\-|\)|\.|\\|\/|\–|x|:|\*/g, '')
-            .replace(/^00/, '+');
-
-        if (newNumber.length === 0) {
-            return false;
+        if (address && address.country) {
+            country = address.country;
+        } else {
+            country = currentUser.country;
         }
 
-        // Check if it's a mobile phone number.
-        if (newNumber.match(/^\+31([\(0\)]+)?6|^06/)) {
-            // Set phone number type to mobile.
+        parsedNumber = phoneUtil.parse(phoneNumber.number, country);
+        phoneNumberType = phoneUtil.getNumberType(parsedNumber);
+
+        if (phoneNumberType === numberFormat.MOBILE) {
             phoneNumber.type = 'mobile';
         }
 
-        if (!newNumber.startsWith('+')) {
-            if (newNumber.startsWith('0')) {
-                newNumber = newNumber.substring(1);
-            }
-
-            newNumber = '+31' + newNumber;
-        }
-
-        if (newNumber.startsWith('+310')) {
-            newNumber = '+31' + newNumber.substring(4);
-        }
-
-        phoneNumber.number = newNumber;
+        phoneNumber.number = phoneUtil.format(parsedNumber, numberFormat.E164);
 
         return phoneNumber;
     };

@@ -1,12 +1,18 @@
 import factory
+import unicodedata
 
-from lily.users.factories import LilyUserFactory
-
+from factory.declarations import LazyAttribute
+from faker.factory import Factory
 from .models.models import EmailAccount, EmailMessage, EmailHeader, EmailLabel
+
+faker = Factory.create('nl_NL')
 
 
 class GmailAccountFactory(factory.DjangoModelFactory):
-    user = factory.SubFactory(LilyUserFactory)
+    email_address = LazyAttribute(lambda o: unicodedata.normalize('NFD', faker.safe_email()).encode('ascii', 'ignore'))
+    from_name = LazyAttribute(lambda o: faker.first_name().lower())
+    label = from_name
+    is_authorized = True
 
     class Meta:
         model = EmailAccount

@@ -9,7 +9,7 @@ from googleapiclient.http import MediaInMemoryUpload
 from oauth2client.client import HttpAccessTokenRefreshError
 
 from .credentials import get_credentials, InvalidCredentialsError
-from .services import build_gmail_service
+from .services import GmailService
 
 logger = logging.getLogger(__name__)
 
@@ -39,25 +39,19 @@ class IllegalLabelError(ConnectorError):
 
 
 class GmailConnector(object):
-    service = None
+    gmail_service = None
 
     def __init__(self, email_account):
         self.email_account = email_account
         self.history_id = self.email_account.history_id
 
-        self.service = self.create_service()
-
-    def create_service(self):
-        """
-        Get or create GMail api service
-        """
         try:
             credentials = get_credentials(self.email_account)
         except InvalidCredentialsError:
             logger.exception('cannot sync account, no valid credentials')
             raise
         else:
-            return build_gmail_service(credentials)
+            self.gmail_service = GmailService(credentials)
 
     def execute_service_call(self, service):
         """
@@ -67,12 +61,12 @@ class GmailConnector(object):
 
         Args:
             service (instance): service instance
-        Returns:
+        Returns
             response from service instance
         """
         for n in range(0, 6):
             try:
-                return service.execute()
+                return self.gmail_service.execute_service(service)
             except HttpError as error:
                 try:
                     error = anyjson.loads(error.content)
@@ -112,7 +106,6 @@ class GmailConnector(object):
                     else:
                         logger.exception('Unkown error code for error %s' % error)
                         raise
-
             except HttpAccessTokenRefreshError:
                 # Thrown when a user removes Lily from the connected apps or
                 # changes the credentials of the Google account.
@@ -121,7 +114,7 @@ class GmailConnector(object):
                 logger.error('Invalid access token for account %s' % self.email_account)
                 raise
 
-        logger.warning('Service call failed after all retries')
+        logger.exception('Service call failed after all retries')
         raise FailedServiceCallException('Service call failed after all retries')
 
     def get_history(self):
@@ -131,7 +124,7 @@ class GmailConnector(object):
         Returns:
             list with messageIds and threadIds
         """
-        response = self.execute_service_call(self.service.users().history().list(
+        response = self.execute_service_call(self.gmail_service.service.users().history().list(
             userId='me',
             startHistoryId=self.history_id,
             quotaUser=self.email_account.id,
@@ -142,11 +135,12 @@ class GmailConnector(object):
         # Check if there are more pages.
         while 'nextPageToken' in response:
             page_token = response.get('nextPageToken')
-            response = self.execute_service_call(self.service.users().history().list(
+            response = self.execute_service_call(self.gmail_service.service.users().history().list(
                 userId='me',
                 startHistoryId=self.history_id,
                 pageToken=page_token
             ))
+
             history.extend(response.get('history', []))
 
         # History id's are for successive history pages identical, so no need to update with each nextPageToken.
@@ -164,26 +158,28 @@ class GmailConnector(object):
         Returns:
             list with messageIds and threadIds
         """
-        response = self.execute_service_call(self.service.users().messages().list(
-            userId='me',
-            quotaUser=self.email_account.id,
-            q='!in:chats',
-        ))
+        response = self.execute_service_call(
+            self.gmail_service.service.users().messages().list(
+                userId='me',
+                quotaUser=self.email_account.id,
+                q='!in:chats',
+            ))
 
         messages = response['messages'] if 'messages' in response else []
 
         # Check if there are more pages.
         while 'nextPageToken' in response:
             page_token = response['nextPageToken']
-            response = self.execute_service_call(
-                self.service.users().messages().list(
-                    userId='me',
-                    pageToken=page_token,
-                    quotaUser=self.email_account.id,
-                    q='!in:chats',
-                ))
+            response = self.execute_service_call(self.gmail_service.service.users().messages().list(
+                userId='me',
+                quotaUser=self.email_account.id,
+                pageToken=page_token,
+                q='!in:chats',
+            ))
             messages.extend(response.get('messages', []))
 
+        # TODO: code below doesn't retrieve latest history id. Don't update history id here? Only @ get_history?
+        # Or maybe set to 0? Think of re-initiate full sync after 404 on incremental sync.
         if messages:
             # The history is in reverse chronological order, so the first message has the latest history id.
             message = self.get_message_info(messages[0]['id'])
@@ -203,11 +199,12 @@ class GmailConnector(object):
         Returns:
             dict with message info
         """
-        return self.execute_service_call(self.service.users().messages().get(
+        response = self.execute_service_call(self.gmail_service.service.users().messages().get(
             userId='me',
             id=message_id,
             quotaUser=self.email_account.id,
         ))
+        return response
 
     def get_label_list(self):
         """
@@ -216,7 +213,7 @@ class GmailConnector(object):
         Returns:
             list with label info
         """
-        response = self.execute_service_call(self.service.users().labels().list(
+        response = self.execute_service_call(self.gmail_service.service.users().labels().list(
             userId='me',
             quotaUser=self.email_account.id,
         ))
@@ -231,11 +228,12 @@ class GmailConnector(object):
 
         Return dict with label info
         """
-        return self.execute_service_call(self.service.users().labels().get(
+        response = self.execute_service_call(self.gmail_service.service.users().labels().get(
             userId='me',
             id=label_id,
             quotaUser=self.email_account.id,
         ))
+        return response
 
     def get_short_message_info(self, message_id):
         """
@@ -247,19 +245,20 @@ class GmailConnector(object):
         Returns:
             dict with message info, with threadId & labels
         """
-        return self.execute_service_call(self.service.users().messages().get(
+        response = self.execute_service_call(self.gmail_service.service.users().messages().get(
             userId='me',
             id=message_id,
             fields='labelIds,threadId',
             quotaUser=self.email_account.id,
         ))
+        return response
 
     def save_history_id(self):
         """
         Save currently set history_id to the EmailAccount.
         """
         self.email_account.history_id = self.history_id
-        self.email_account.save()
+        self.email_account.save(update_fields=["history_id"])
 
     def get_attachment(self, message_id, attachment_id):
         """
@@ -272,38 +271,42 @@ class GmailConnector(object):
         Returns:
             dict with attachment info
         """
-        return self.execute_service_call(
-            self.service.users().messages().attachments().get(
+        response = self.execute_service_call(
+            self.gmail_service.service.users().messages().attachments().get(
                 userId='me',
                 messageId=message_id,
                 id=attachment_id,
                 quotaUser=self.email_account.id,
             ))
+        return response
 
     def update_labels(self, message_id, labels):
-        return self.execute_service_call(
-            self.service.users().messages().modify(
+        response = self.execute_service_call(
+            self.gmail_service.service.users().messages().modify(
                 userId='me',
                 id=message_id,
                 body=labels,
                 quotaUser=self.email_account.id,
             ))
+        return response
 
     def trash_email_message(self, message_id):
-        return self.execute_service_call(
-            self.service.users().messages().trash(
+        response = self.execute_service_call(
+            self.gmail_service.service.users().messages().trash(
                 userId='me',
                 id=message_id,
                 quotaUser=self.email_account.id,
             ))
+        return response
 
     def delete_email_message(self, message_id):
-        return self.execute_service_call(
-            self.service.users().messages().delete(
+        response = self.execute_service_call(
+            self.gmail_service.service.users().messages().delete(
                 userId='me',
                 id=message_id,
                 quotaUser=self.email_account.id,
             ))
+        return response
 
     def send_email_message(self, message_string, thread_id=None):
         message_dict = {}
@@ -315,13 +318,14 @@ class GmailConnector(object):
         )
         if thread_id:
             message_dict.update({'threadId': thread_id})
-        return self.execute_service_call(
-            self.service.users().messages().send(
+        response = self.execute_service_call(
+            self.gmail_service.service.users().messages().send(
                 userId='me',
                 body=message_dict,
                 media_body=media,
                 quotaUser=self.email_account.id,
             ))
+        return response
 
     def create_draft_email_message(self, message_string):
         media = MediaInMemoryUpload(
@@ -330,12 +334,13 @@ class GmailConnector(object):
             chunksize=settings.GMAIL_CHUNK_SIZE,
             resumable=True
         )
-        return self.execute_service_call(
-            self.service.users().drafts().create(
+        response = self.execute_service_call(
+            self.gmail_service.service.users().drafts().create(
                 userId='me',
                 media_body=media,
                 quotaUser=self.email_account.id,
             ))
+        return response
 
     def update_draft_email_message(self, message_string, draft_id):
         media = MediaInMemoryUpload(
@@ -344,26 +349,28 @@ class GmailConnector(object):
             chunksize=settings.GMAIL_CHUNK_SIZE,
             resumable=True
         )
-        return self.execute_service_call(
-            self.service.users().drafts().update(
+        response = self.execute_service_call(
+            self.gmail_service.service.users().drafts().update(
                 userId='me',
                 media_body=media,
                 id=draft_id,
                 quotaUser=self.email_account.id,
             ))
+        return response
 
     def delete_draft_email_message(self, message_id):
-        return self.execute_service_call(
-            self.service.users().drafts().delete(
+        response = self.execute_service_call(
+            self.gmail_service.service.users().drafts().delete(
                 userId='me',
                 id=message_id,
                 quotaUser=self.email_account.id,
             ))
+        return response
 
     def cleanup(self):
         """
         Cleanup references, to prevent reference cycle
         """
-        self.service = None
+        self.gmail_service = None
         self.email_account = None
         self.history_id = None

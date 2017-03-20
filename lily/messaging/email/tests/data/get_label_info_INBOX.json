@@ -1,0 +1,11 @@
+{
+  "name": "INBOX",
+  "messagesTotal": 5,
+  "messageListVisibility": "hide",
+  "threadsUnread": 4,
+  "messagesUnread": 4,
+  "labelListVisibility": "labelShow",
+  "threadsTotal": 5,
+  "type": "system",
+  "id": "INBOX"
+}

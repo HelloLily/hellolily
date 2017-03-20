@@ -1,6 +1,6 @@
-from django.test import TestCase
-
 from python_imap.utils import convert_html_to_text
+
+from django.test import TestCase
 
 
 class ConvertHTMLToTextTestCase(TestCase):

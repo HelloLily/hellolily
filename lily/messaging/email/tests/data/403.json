@@ -1,0 +1,13 @@
+{
+  "error": {
+    "errors": [
+      {
+        "domain": "global",
+        "reason": "rateLimitExceeded",
+        "message": "Too many requests have been sent within a given time span"
+      }
+    ],
+    "code": 403,
+    "message": "Too many requests have been sent within a given time span"
+  }
+}

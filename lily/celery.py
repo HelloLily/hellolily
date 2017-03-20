@@ -5,6 +5,7 @@ import os
 # Necessary for Celery to find iron_celery for transport ironmq://
 from celery import Celery
 
+from django.apps import apps
 from django.conf import settings
 
 # Set the default Django settings module.
@@ -15,4 +16,4 @@ app = Celery('lily', broker=settings.BROKER_URL)
 # Using a string here means the worker will not have to
 # pickle the object when using Windows.
 app.config_from_object('django.conf:settings')
-app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
+app.autodiscover_tasks(lambda: [n.name for n in apps.get_app_configs()])

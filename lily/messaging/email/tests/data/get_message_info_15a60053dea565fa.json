@@ -1,0 +1,103 @@
+{
+  "internalDate": "1487669639000",
+  "historyId": "6052",
+  "payload": {
+    "mimeType": "multipart/alternative",
+    "headers": [
+      {
+        "name": "Delivered-To",
+        "value": "user1@example.com"
+      },
+      {
+        "name": "Received",
+        "value": "by 10.12.152.161 with SMTP id q53jpstitvhrst5;        Tue, 21 Feb 2017 01:34:00 -0800 (PST)"
+      },
+      {
+        "name": "Received",
+        "value": "from mail-yw0-x22d.google.com (mail-yw0-x22d.google.com. [2607:f8b0:4002:c05::22d])        by mx.google.com with ESMTPS id l34si2626211ybe.47.2017.02.21.01.34.00        for <user1@example.com>        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);        Tue, 21 Feb 2017 01:34:00 -0800 (PST)"
+      },
+      {
+        "name": "Received",
+        "value": "by mail-yw0-x22d.google.com with SMTP id 6t19tls2cyqmzc2.2        for <user1@example.com>; Tue, 21 Feb 2017 01:34:00 -0800 (PST)"
+      },
+      {
+        "name": "MIME-Version",
+        "value": "1.0"
+      },
+      {
+        "name": "Received",
+        "value": "by 10.129.161.7 with HTTP; Tue, 21 Feb 2017 01:33:59 -0800 (PST)"
+      },
+      {
+        "name": "From",
+        "value": "Firstname Lastname <user2@example.com>"
+      },
+      {
+        "name": "Date",
+        "value": "Tue, 21 Feb 2017 10:33:59 +0100"
+      },
+      {
+        "name": "Message-ID",
+        "value": "<QxLzrWIfFBEpYcqhcaWyCukuaoAKkMkimpajwApeuFLmGgzVPTA@mail.gmail.com>"
+      },
+      {
+        "name": "Subject",
+        "value": "diam vehicula consectetur egestas"
+      },
+      {
+        "name": "To",
+        "value": "user1@example.com"
+      },
+      {
+        "name": "Content-Type",
+        "value": "multipart/alternative; boundary=001a1147f9d26f287105490714a3"
+      }
+    ],
+    "parts": [
+      {
+        "mimeType": "text/plain",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "text/plain; charset=UTF-8"
+          }
+        ],
+        "body": {
+          "data": "YXVndWUgcHVydXMgdmVzdGlidWx1bSB2ZWxpdCwgZWdldCBkaWduaXNzaW0gcXVhbSBlcmF0IGV1IHRvcnRvci4gTnVuYw0Kdm9sdXRwYXQgbm9uIGVzdCB2YXJpdXMgaGVuZHJlcml0LiBWaXZhbXVzIHBsYWNlcmF0IGxvYm9ydGlzIGFsaXF1YW0uDQo=",
+          "size": 143
+        },
+        "partId": "0",
+        "filename": ""
+      },
+      {
+        "mimeType": "text/html",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "text/html; charset=UTF-8"
+          }
+        ],
+        "body": {
+          "data": "PGRpdiBkaXI9Imx0ciI-YXVndWUgcHVydXMgdmVzdGlidWx1bSB2ZWxpdCwgZWdldCBkaWduaXNzaW0gcXVhbSBlcmF0IGV1IHRvcnRvci4gTnVuYyB2b2x1dHBhdCBub24gZXN0IHZhcml1cyBoZW5kcmVyaXQuIFZpdmFtdXMgcGxhY2VyYXQgbG9ib3J0aXMgYWxpcXVhbS48YnI-PC9kaXY-DQo=",
+          "size": 167
+        },
+        "partId": "1",
+        "filename": ""
+      }
+    ],
+    "body": {
+      "size": 0
+    },
+    "filename": ""
+  },
+  "snippet": "augue purus vestibulum velit, eget dignissim quam erat eu tortor. Nunc volutpat non est varius hendrerit. Vivamus placerat lobortis aliquam.",
+  "sizeEstimate": 3671,
+  "threadId": "15a60053dea565fa",
+  "labelIds": [
+    "UNREAD",
+    "Label_1",
+    "IMPORTANT",
+    "CATEGORY_PERSONAL"
+  ],
+  "id": "15a60053dea565fa"
+}

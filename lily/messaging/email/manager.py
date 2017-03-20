@@ -83,10 +83,8 @@ class GmailManager(object):
             args=[self.email_account.id],
             queue='email_first_sync'
         )
-
         # Only if transaction was successful, we update the history ID.
         self.connector.save_history_id()
-
         logger.debug('Finished queuing up tasks for email sync, storing history id for %s' % self.email_account)
 
     def download_message(self, message_id):
@@ -249,7 +247,7 @@ class GmailManager(object):
         """
         self.email_account.full_sync_finished = full_sync_finished
         self.email_account.sync_failure_count = 0
-        self.email_account.save()
+        self.email_account.save(update_fields=["full_sync_finished", "sync_failure_count"])
 
     def get_label(self, label_id):
         """

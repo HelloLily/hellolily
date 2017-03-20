@@ -3,15 +3,27 @@ import httplib2
 from googleapiclient.discovery import build
 
 
-def build_gmail_service(credentials):
-    """
-    Build a Gmail service object.
+class GmailService(object):
+    http = None
+    service = None
 
-    Args:
-      credentials (instance): OAuth 2.0 credentials.
+    def __init__(self, credentials):
+        self.http = self.authorize(credentials)
+        self.service = self.build_service()
 
-    Returns:
-      Gmail service object.
-    """
-    http = credentials.authorize(httplib2.Http())
-    return build('gmail', 'v1', http=http)
+    def authorize(self, credentials):
+        return credentials.authorize(httplib2.Http())
+
+    def build_service(self):
+        return build('gmail', 'v1', http=self.http)
+
+    def execute_service(self, service):
+        return service.execute(http=self._get_http())
+
+    def _get_http(self):
+        """
+        Return the currenct http instance. Method added to enable mocking.
+
+        :return: current http instance
+        """
+        return self.http

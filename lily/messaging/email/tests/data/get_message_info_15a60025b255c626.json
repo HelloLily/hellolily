@@ -1,0 +1,88 @@
+{
+  "internalDate": "1487669451000",
+  "historyId": "5457",
+  "payload": {
+    "mimeType": "multipart/alternative",
+    "headers": [
+      {
+        "name": "MIME-Version",
+        "value": "1.0"
+      },
+      {
+        "name": "Received",
+        "value": "by 11.22.333.444 with HTTP; Tue, 21 Feb 2017 01:30:51 -0800 (PST)"
+      },
+      {
+        "name": "Date",
+        "value": "Tue, 21 Feb 2017 10:30:51 +0100"
+      },
+      {
+        "name": "Delivered-To",
+        "value": "user1@example.com"
+      },
+      {
+        "name": "Message-ID",
+        "value": "<jEmmEWKTQwTtSbTAeNjTahoHQTWhVmCVUGWqgqmZkrnEOlycgXT@mail.gmail.com>"
+      },
+      {
+        "name": "Subject",
+        "value": "imperdiet arcu quis, aliquet lorem"
+      },
+      {
+        "name": "From",
+        "value": "Firstname Lastname <user1@example.com>"
+      },
+      {
+        "name": "To",
+        "value": "user3@example.com"
+      },
+      {
+        "name": "Content-Type",
+        "value": "multipart/alternative; boundary=f403045f8c723148b405490709b4"
+      }
+    ],
+    "parts": [
+      {
+        "mimeType": "text/plain",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "text/plain; charset=UTF-8"
+          }
+        ],
+        "body": {
+          "data": "RnVzY2Ugc2VtcGVyIGxhY3VzIGV4LCBydXRydW0gdml2ZXJyYSBhdWd1ZSBkaWduaXNzaW0gYS4gUGhhc2VsbHVzIHRlbXB1cywNCnF1YW0gbmVjIGNvbnZhbGxpcyBtYXR0aXMsIG1hc3NhIGVsaXQgc2FnaXR0aXMgZXN0LA0K",
+          "size": 129
+        },
+        "partId": "0",
+        "filename": ""
+      },
+      {
+        "mimeType": "text/html",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "text/html; charset=UTF-8"
+          }
+        ],
+        "body": {
+          "data": "PGRpdiBkaXI9Imx0ciI-RnVzY2Ugc2VtcGVyIGxhY3VzIGV4LCBydXRydW0gDQp2aXZlcnJhIGF1Z3VlIGRpZ25pc3NpbSBhLiBQaGFzZWxsdXMgdGVtcHVzLCBxdWFtIG5lYyBjb252YWxsaXMgbWF0dGlzLCANCm1hc3NhIGVsaXQgc2FnaXR0aXMgZXN0LCA8YnI-PC9kaXY-DQo=",
+          "size": 158
+        },
+        "partId": "1",
+        "filename": ""
+      }
+    ],
+    "body": {
+      "size": 0
+    },
+    "filename": ""
+  },
+  "snippet": "Fusce semper lacus ex, rutrum viverra augue dignissim a. Phasellus tempus, quam nec convallis mattis, massa elit sagittis est,",
+  "sizeEstimate": 916,
+  "threadId": "15a60025b255c626",
+  "labelIds": [
+    "SENT"
+  ],
+  "id": "15a60025b255c626"
+}

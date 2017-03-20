@@ -40,7 +40,7 @@ from .forms import (ComposeEmailForm, CreateUpdateEmailTemplateForm, CreateUpdat
 from .models.models import (EmailMessage, EmailAttachment, EmailAccount, EmailTemplate, DefaultEmailTemplate,
                             EmailOutboxMessage, EmailOutboxAttachment, TemplateVariable, GmailCredentialsModel,
                             EmailLabel)
-from .services import build_gmail_service
+from .services import GmailService
 from .tasks import (send_message, create_draft_email_message, delete_email_message, update_draft_email_message,
                     add_and_remove_labels_for_message)
 from .utils import (get_attachment_filename_from_url, get_email_parameter_choices, create_recipients,
@@ -99,8 +99,9 @@ class OAuth2Callback(LoginRequiredMixin, View):
         credentials = FLOW.step2_exchange(code=request.GET.get('code'))
 
         # Setup service to retrieve email address.
-        service = build_gmail_service(credentials)
-        profile = service.users().getProfile(userId='me').execute()
+        gmail_service = GmailService(credentials)
+
+        profile = gmail_service.service.users().getProfile(userId='me').execute()
 
         # Create account based on email address.
         try:

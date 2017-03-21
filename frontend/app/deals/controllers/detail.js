@@ -20,6 +20,15 @@ function dealsConfig($stateProvider) {
                 var id = $stateParams.id;
                 return Deal.get({id: id}).$promise;
             }],
+            dealAccount: ['Account', 'currentDeal', function(Account, currentDeal) {
+                var account;
+
+                if (currentDeal.account) {
+                    account = Account.get({id: currentDeal.account.id}).$promise;
+                }
+
+                return account;
+            }],
             dealContact: ['Contact', 'currentDeal', function(Contact, currentDeal) {
                 var contact;
 
@@ -42,10 +51,13 @@ function dealsConfig($stateProvider) {
 angular.module('app.deals').controller('DealDetailController', DealDetailController);
 
 DealDetailController.$inject = ['$compile', '$scope', '$state', '$templateCache', 'Account', 'Contact', 'Deal',
-    'HLResource', 'HLUtils', 'Settings', 'Tenant', 'currentDeal', 'dealContact', 'user', 'tenant'];
+    'HLResource', 'HLUtils', 'LocalStorage', 'Settings', 'Tenant', 'currentDeal', 'dealAccount', 'dealContact',
+    'user', 'tenant'];
 function DealDetailController($compile, $scope, $state, $templateCache, Account, Contact, Deal,
-                              HLResource, HLUtils, Settings, Tenant, currentDeal, dealContact, user, tenant) {
+                              HLResource, HLUtils, LocalStorage, Settings, Tenant, currentDeal, dealAccount, dealContact,
+                              user, tenant) {
     var vm = this;
+    var storage = new LocalStorage('dealDetail');
 
     Settings.page.setAllTitles('detail', currentDeal.name, currentDeal.contact, currentDeal.account);
     Settings.page.toolbar.data = {
@@ -56,9 +68,11 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
     };
 
     vm.deal = currentDeal;
+    vm.deal.account = dealAccount;
     vm.deal.contact = dealContact;
     vm.currentUser = user;
     vm.tenant = tenant;
+    vm.mergeHistory = storage.get('mergeHistory', false);
 
     vm.changeState = changeState;
     vm.updateModel = updateModel;
@@ -69,17 +83,7 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
     //////
 
     function activate() {
-        if (vm.deal.account) {
-            Account.get({id: vm.deal.account.id}).$promise.then(function(account) {
-                vm.account = account;
-            });
-        }
-
-        if (vm.deal.contact) {
-            Contact.get({id: vm.deal.contact.id}).$promise.then(function(contact) {
-                vm.contact = contact;
-            });
-        }
+        var dealEnd;
 
         Deal.getNextSteps(function(response) {
             angular.forEach(response.results, function(nextStep) {
@@ -111,6 +115,16 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
                 vm.documents = documents;
             });
         }
+
+        vm.dealStart = moment(vm.deal.created).subtract(2, 'days').format('YYYY-MM-DD');
+
+        if (vm.deal.status.id === vm.lostStatus || vm.deal.status.id === vm.wonStatus) {
+            dealEnd = moment(vm.deal.modified);
+        } else {
+            dealEnd = moment();
+        }
+
+        vm.dealEnd = dealEnd.add(2, 'days').format('YYYY-MM-DD');
     }
 
     function updateModel(data, field) {
@@ -225,4 +239,8 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
 
         return updateModel(currentUser.id, 'assigned_to');
     }
+
+    $scope.$watch('vm.mergeHistory', function() {
+        storage.put('mergeHistory', vm.mergeHistory);
+    });
 }

@@ -18,6 +18,9 @@ function caseConfig($stateProvider) {
             currentCase: function() {
                 return null;
             },
+            teams: ['UserTeams', function(UserTeams) {
+                return UserTeams.query().$promise;
+            }],
         },
     });
 
@@ -37,6 +40,9 @@ function caseConfig($stateProvider) {
             currentCase: function() {
                 return null;
             },
+            teams: ['UserTeams', function(UserTeams) {
+                return UserTeams.query().$promise;
+            }],
         },
     });
 
@@ -56,6 +62,9 @@ function caseConfig($stateProvider) {
             currentCase: function() {
                 return null;
             },
+            teams: ['UserTeams', function(UserTeams) {
+                return UserTeams.query().$promise;
+            }],
         },
     });
 
@@ -76,6 +85,9 @@ function caseConfig($stateProvider) {
                 var id = $stateParams.id;
                 return Case.get({id: id}).$promise;
             }],
+            teams: ['UserTeams', function(UserTeams) {
+                return UserTeams.query().$promise;
+            }],
         },
     });
 }
@@ -83,13 +95,13 @@ function caseConfig($stateProvider) {
 angular.module('app.cases').controller('CaseCreateUpdateController', CaseCreateUpdateController);
 
 CaseCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'Case', 'Contact', 'HLForms',
-    'HLSearch', 'HLUtils', 'Settings', 'UserTeams', 'User', 'currentCase'];
+    'HLSearch', 'HLUtils', 'Settings', 'UserTeams', 'User', 'currentCase', 'teams'];
 function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case, Contact, HLForms,
-                                    HLSearch, HLUtils, Settings, UserTeams, User, currentCase) {
+                                    HLSearch, HLUtils, Settings, UserTeams, User, currentCase, teams) {
     var vm = this;
 
     vm.case = {};
-    vm.teams = [];
+    vm.teams = teams.results;
     vm.caseTypes = [];
     vm.casePriorities = [];
     vm.datepickerOptions = {
@@ -112,30 +124,34 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     function activate() {
         _getTeams();
 
-        Case.getCaseTypes(function(data) {
-            vm.caseTypes = data;
+        User.me().$promise.then(function(user) {
+            vm.currentUser = user;
 
-            angular.forEach(data, function(caseType) {
-                if (caseType.name.indexOf('Config') > -1) {
-                    vm.configCaseType = caseType.id;
-                }
+            Case.getCaseTypes(function(data) {
+                vm.caseTypes = data;
+
+                angular.forEach(data, function(caseType) {
+                    if (caseType.name.indexOf('Config') > -1) {
+                        vm.configCaseType = caseType.id;
+                    }
+                });
             });
+
+            Case.getStatuses(function(response) {
+                vm.statusChoices = response.results;
+
+                vm.case.status = vm.statusChoices[0];
+            });
+
+            vm.casePriorities = Case.getCasePriorities();
+
+            //TODO: This should be an API call.
+            vm.parcelProviders = [
+                {id: 1, name: 'DPD'},
+            ];
+
+            _getCase();
         });
-
-        Case.getStatuses(function(response) {
-            vm.statusChoices = response.results;
-
-            vm.case.status = vm.statusChoices[0];
-        });
-
-        vm.casePriorities = Case.getCasePriorities();
-
-        //TODO: This should be an API call.
-        vm.parcelProviders = [
-            {id: 1, name: 'DPD'},
-        ];
-
-        _getCase();
     }
 
     function _getCase() {
@@ -150,6 +166,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         } else {
             Settings.page.setAllTitles('create', 'case');
             vm.case = Case.create();
+            vm.case.assigned_to = vm.currentUser;
 
             if ($stateParams.accountId) {
                 Account.get({id: $stateParams.accountId}).$promise.then(function(account) {
@@ -209,18 +226,13 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     });
 
     function _getTeams() {
-        UserTeams.query().$promise.then(function(response) {
-            vm.teams = response.results;
-        });
-
-        UserTeams.mine(function(teams) {
-            vm.ownTeams = teams;
+        UserTeams.mine(function(myTeams) {
+            vm.ownTeams = myTeams;
         });
     }
 
     function assignToMe() {
-        // Bit of a hacky way to assign the current user, but we'll clean this up later.
-        vm.case.assigned_to = {id: currentUser.id, full_name: currentUser.fullName};
+        vm.case.assigned_to = vm.currentUser;
     }
 
     function assignToMyTeams() {
@@ -304,8 +316,6 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         if (cleanedCase.id) {
             // If there's an ID set it means we're dealing with an existing contact, so update it.
             cleanedCase.$update(function() {
-                new Intercom('trackEvent', 'case-created');
-
                 toastr.success('I\'ve updated the case for you!', 'Done');
                 $state.go('base.cases.detail', {id: cleanedCase.id}, {reload: true});
             }, function(response) {
@@ -313,6 +323,8 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             });
         } else {
             cleanedCase.$save(function() {
+                new Intercom('trackEvent', 'case-created');
+
                 toastr.success('I\'ve saved the case for you!', 'Yay');
 
                 if (Settings.email.sidebar.form === 'cases') {
@@ -355,6 +367,21 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
 
         if (newValue !== oldValue) {
             _getOpenCases();
+        }
+    });
+
+    $scope.$watch('vm.case.assigned_to', function() {
+        var team;
+        var assignToTeams = [];
+
+        if (vm.case.assigned_to) {
+            for (team of vm.teams) {
+                if (vm.case.assigned_to.teams && vm.case.assigned_to.teams.indexOf(team.id) > -1) {
+                    assignToTeams.push(team);
+                }
+            }
+
+            vm.case.assigned_to_teams = assignToTeams;
         }
     });
 

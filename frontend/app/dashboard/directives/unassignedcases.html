@@ -3,7 +3,7 @@
         <div class="widget-label cases"></div>
         <div class="widget-name">
             <i class="lilicon hl-case-icon"></i>
-            {{vm.team.name}} cases
+            {{ vm.team.name }} cases
             <span class="label-amount">{{ vm.table.items.length }}</span><span class="label-amount high-prio" ng-if="vm.highPrioCases" uib-tooltip="Critical priority">{{ vm.highPrioCases }}</span>
         </div>
     </widget-header>
@@ -26,7 +26,7 @@
             </thead>
             <tbody>
                 <tr ng-hide="vm.table.items.length">
-                    <td colspan="6">There are no unassigned cases for this team...</td>
+                    <td colspan="6">There are no unassigned cases for this team</td>
                 </tr>
                 <tr ng-repeat="case in vm.table.items">
                     <td><a ui-sref="base.cases.detail({ id: case.id })">{{ case.id }}</a></td>

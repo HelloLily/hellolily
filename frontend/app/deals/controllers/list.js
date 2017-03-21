@@ -14,13 +14,18 @@ function dealsConfig($stateProvider) {
         ncyBreadcrumb: {
             label: 'Deals',
         },
+        resolve: {
+            teams: ['UserTeams', function(UserTeams) {
+                return UserTeams.mine().$promise;
+            }],
+        },
     });
 }
 
 angular.module('app.deals').controller('DealListController', DealListController);
 
-DealListController.$inject = ['$filter', '$scope', '$state', '$timeout', 'Deal', 'HLFilters', 'LocalStorage', 'Settings', 'Tenant'];
-function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, LocalStorage, Settings, Tenant) {
+DealListController.$inject = ['$filter', '$scope', '$state', '$timeout', 'Deal', 'HLFilters', 'LocalStorage', 'Settings', 'Tenant', 'teams'];
+function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, LocalStorage, Settings, Tenant, teams) {
     var vm = this;
 
     vm.storage = new LocalStorage('deals');
@@ -119,6 +124,7 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
 
     function _getFilterOnList() {
         var filterList;
+        var myTeamIds = [];
 
         // Use the value from storage first.
         // (Because it is faster; loading the list uses AJAX requests).
@@ -160,6 +166,20 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
                 id: 'is_archived',
             },
         ];
+
+        if (teams.length) {
+            // Get a list with id's of all my teams.
+            teams.forEach(function(team) {
+                myTeamIds.push(team.id);
+            });
+
+            // Create a filter for cases assigned to one of my teams.
+            filterList.push({
+                name: 'My teams\' deals',
+                value: 'assigned_to_teams:(' + myTeamIds.join(' OR ') + ')',
+                selected: false,
+            });
+        }
 
         Deal.getStatuses(function(response) {
             angular.forEach(response.results, function(status) {

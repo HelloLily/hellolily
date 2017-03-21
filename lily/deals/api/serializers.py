@@ -12,7 +12,7 @@ from lily.accounts.api.serializers import RelatedAccountSerializer
 from lily.api.serializers import ContentTypeSerializer
 from lily.contacts.api.serializers import RelatedContactSerializer
 from lily.contacts.models import Function
-from lily.users.api.serializers import RelatedLilyUserSerializer
+from lily.users.api.serializers import RelatedLilyUserSerializer, RelatedTeamSerializer
 from lily.utils.api.serializers import RelatedTagSerializer
 from lily.utils.functions import add_business_days
 
@@ -139,6 +139,7 @@ class DealSerializer(WritableNestedSerializer):
     account = RelatedAccountSerializer()
     contact = RelatedContactSerializer(required=False, allow_null=True)
     assigned_to = RelatedLilyUserSerializer(required=False, allow_null=True, assign_only=True)
+    assigned_to_teams = RelatedTeamSerializer(many=True, required=False, assign_only=True)
     next_step = RelatedDealNextStepSerializer(assign_only=True)
     tags = RelatedTagSerializer(many=True, required=False, create_only=True)
     why_lost = RelatedDealWhyLostSerializer(assign_only=True, allow_null=True, required=False)
@@ -295,6 +296,7 @@ class DealSerializer(WritableNestedSerializer):
             'amount_once',
             'amount_recurring',
             'assigned_to',
+            'assigned_to_teams',
             'card_sent',
             'closed_date',
             'contact',

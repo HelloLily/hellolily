@@ -18,6 +18,9 @@ function dealConfig($stateProvider) {
             currentDeal: function() {
                 return null;
             },
+            teams: ['UserTeams', function(UserTeams) {
+                return UserTeams.query().$promise;
+            }],
         },
     });
 
@@ -37,6 +40,9 @@ function dealConfig($stateProvider) {
             currentDeal: function() {
                 return null;
             },
+            teams: ['UserTeams', function(UserTeams) {
+                return UserTeams.query().$promise;
+            }],
         },
     });
 
@@ -56,6 +62,9 @@ function dealConfig($stateProvider) {
             currentDeal: function() {
                 return null;
             },
+            teams: ['UserTeams', function(UserTeams) {
+                return UserTeams.query().$promise;
+            }],
         },
     });
 
@@ -76,6 +85,9 @@ function dealConfig($stateProvider) {
                 var id = $stateParams.id;
                 return Deal.get({id: id}).$promise;
             }],
+            teams: ['UserTeams', function(UserTeams) {
+                return UserTeams.query().$promise;
+            }],
         },
     });
 }
@@ -83,9 +95,9 @@ function dealConfig($stateProvider) {
 angular.module('app.deals').controller('DealCreateUpdateController', DealCreateUpdateController);
 
 DealCreateUpdateController.$inject = ['$filter', '$scope', '$state', '$stateParams', 'Account', 'Contact', 'Deal',
-    'HLForms', 'HLSearch', 'HLUtils', 'Settings', 'Tenant', 'User', 'currentDeal'];
+    'HLForms', 'HLSearch', 'HLUtils', 'Settings', 'Tenant', 'User', 'UserTeams', 'currentDeal', 'teams'];
 function DealCreateUpdateController($filter, $scope, $state, $stateParams, Account, Contact, Deal, HLForms,
-                                    HLSearch, HLUtils, Settings, Tenant, User, currentDeal) {
+                                    HLSearch, HLUtils, Settings, Tenant, User, UserTeams, currentDeal, teams) {
     var vm = this;
 
     vm.deal = {};
@@ -93,8 +105,10 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
         startingDay: 1,
     };
     vm.configDealType = 0;
+    vm.teams = teams.results;
 
     vm.assignToMe = assignToMe;
+    vm.assignToMyTeams = assignToMyTeams;
     vm.cancelDealCreation = cancelDealCreation;
     vm.saveDeal = saveDeal;
     vm.refreshAccounts = refreshAccounts;
@@ -111,6 +125,8 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
         var splitName = '';
         var choiceVarName = '';
         var choiceFields = ['currency'];
+
+        _getTeams();
 
         User.me().$promise.then(function(user) {
             vm.currentUser = user;
@@ -273,6 +289,10 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
         vm.deal.assigned_to = vm.currentUser;
     }
 
+    function assignToMyTeams() {
+        vm.deal.assigned_to_teams = vm.ownTeams;
+    }
+
     function cancelDealCreation() {
         if ($scope.settings.email.sidebar.form === 'createDeal') {
             $scope.settings.email.sidebar.form = null;
@@ -288,7 +308,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
     }
 
     function saveDeal(form, archive) {
-        var copiedDeal;
+        var cleanedDeal;
 
         // Check if a deal is being saved (and archived) via the + deal page
         // or via a supercard.
@@ -335,26 +355,27 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
             vm.deal.is_archived = true;
         }
 
-        copiedDeal = angular.copy(vm.deal);
+        // Clean modifies the object, so preserve the state by copying the object (in case of errors).
+        cleanedDeal = HLForms.clean(angular.copy(vm.deal));
 
-        if (copiedDeal.next_step_date) {
-            copiedDeal.next_step_date = moment(copiedDeal.next_step_date).format('YYYY-MM-DD');
+        if (cleanedDeal.next_step_date) {
+            cleanedDeal.next_step_date = moment(cleanedDeal.next_step_date).format('YYYY-MM-DD');
         }
 
-        if (copiedDeal.why_lost && copiedDeal.status.id !== vm.lostStatus.id) {
-            copiedDeal.why_lost = null;
+        if (cleanedDeal.why_lost && cleanedDeal.status.id !== vm.lostStatus.id) {
+            cleanedDeal.why_lost = null;
         }
 
-        if (copiedDeal.id) {
+        if (cleanedDeal.id) {
             // If there's an ID set it means we're dealing with an existing deal, so update it.
-            copiedDeal.$update(function() {
+            cleanedDeal.$update(function() {
                 toastr.success('I\'ve updated the deal for you!', 'Done');
-                $state.go('base.deals.detail', {id: copiedDeal.id}, {reload: true});
+                $state.go('base.deals.detail', {id: cleanedDeal.id}, {reload: true});
             }, function(response) {
                 _handleBadResponse(response, form);
             });
         } else {
-            copiedDeal.$save(function() {
+            cleanedDeal.$save(function() {
                 new Intercom('trackEvent', 'deal-created');
 
                 toastr.success('I\'ve saved the deal for you!', 'Yay');
@@ -364,7 +385,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
 
                     Metronic.unblockUI();
                 } else {
-                    $state.go('base.deals.detail', {id: copiedDeal.id});
+                    $state.go('base.deals.detail', {id: cleanedDeal.id});
                 }
             }, function(response) {
                 _handleBadResponse(response, form);
@@ -422,6 +443,21 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
             vm.openDeals = [];
         }
     }
+
+    $scope.$watch('vm.deal.assigned_to', function() {
+        var team;
+        var assignToTeams = [];
+
+        if (vm.deal.assigned_to) {
+            for (team of vm.teams) {
+                if (vm.deal.assigned_to.teams && vm.deal.assigned_to.teams.indexOf(team.id) > -1) {
+                    assignToTeams.push(team);
+                }
+            }
+
+            vm.deal.assigned_to_teams = assignToTeams;
+        }
+    });
 
     function refreshAccounts(query) {
         var accountsPromise;
@@ -492,6 +528,12 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
         }
 
         return true;
+    }
+
+    function _getTeams() {
+        UserTeams.mine(function(response) {
+            vm.ownTeams = response;
+        });
     }
 
     $scope.$on('saveDeal', function() {

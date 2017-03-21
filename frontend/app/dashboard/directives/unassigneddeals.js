@@ -6,7 +6,9 @@ function unassignedDealsDirective() {
         controller: UnassignedDealsController,
         controllerAs: 'vm',
         bindToController: true,
-        scope: true,
+        scope: {
+            team: '=',
+        },
     };
 }
 
@@ -14,7 +16,7 @@ UnassignedDealsController.$inject = ['$http', '$scope', '$state', 'Deal', 'HLFil
 function UnassignedDealsController($http, $scope, $state, Deal, HLFilters, HLUtils, LocalStorage) {
     var vm = this;
 
-    vm.storageName = 'unassignedDealsWidget';
+    vm.storageName = 'unassignedDealsForTeam' + vm.team.id + 'Widget';
     vm.storage = new LocalStorage(vm.storageName);
     vm.storedFilterList = vm.storage.get('filterListSelected', null);
     vm.highPrioDeals = 0;
@@ -56,9 +58,9 @@ function UnassignedDealsController($http, $scope, $state, Deal, HLFilters, HLUti
     }
 
     function updateTable() {
-        var filterQuery = 'is_archived:false AND _missing_:assigned_to.id';
+        var filterQuery = 'is_archived:false AND _missing_:assigned_to.id AND assigned_to_teams:' + vm.team.id;
 
-        HLUtils.blockUI('#unassignedDealsBlockTarget', true);
+        HLUtils.blockUI('#unassignedDealsBlockTarget' + vm.team.id, true);
 
         if (vm.table.filterQuery) {
             filterQuery += ' AND ' + vm.table.filterQuery;
@@ -67,7 +69,7 @@ function UnassignedDealsController($http, $scope, $state, Deal, HLFilters, HLUti
         Deal.getDeals(vm.table.order.column, vm.table.order.descending, filterQuery).then(function(data) {
             vm.table.items = data.objects;
 
-            HLUtils.unblockUI('#unassignedDealsBlockTarget');
+            HLUtils.unblockUI('#unassignedDealsBlockTarget' + vm.team.id);
         });
     }
 

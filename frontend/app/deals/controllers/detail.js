@@ -146,6 +146,14 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
             }
         }
 
+        if (args.hasOwnProperty('assigned_to_teams')) {
+            const oldTeams = vm.deal.assigned_to_teams.map(team => ({'id': team.id}));
+            const teamIds = args.assigned_to_teams.map(team => team.id);
+            let removedTeams = oldTeams.filter(team => teamIds.indexOf(team.id) === -1);
+            for (let team of removedTeams) team.is_deleted = true;
+            args.assigned_to_teams = args.assigned_to_teams.map(team => ({'id': team.id})).concat(removedTeams);
+        }
+
         if (args.hasOwnProperty('customer_id')) {
             vm.deal.account.customer_id = args.customer_id;
 

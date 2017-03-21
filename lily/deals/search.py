@@ -47,6 +47,9 @@ class DealMapping(BaseMapping):
                     },
                 },
             },
+            'assigned_to_teams': {
+                'type': 'integer',
+            },
             'card_sent': {
                 'type': 'boolean',
             },
@@ -223,6 +226,7 @@ class DealMapping(BaseMapping):
                 'id': obj.assigned_to.id,
                 'full_name': obj.assigned_to.full_name,
             } if obj.assigned_to else None,
+            'assigned_to_teams': [team.id for team in obj.assigned_to_teams.all()],
             'card_sent': obj.card_sent,
             'closed_date': obj.closed_date,
             'contact': {

@@ -260,7 +260,7 @@
                     <div class="widget-content">
                         <ul class="case-detail-block-list">
                             <li>
-                                <strong>Assignee: </strong>
+                                <strong>Assigned to: </strong>
                                 <div>
                                     <editable-select field="assigned_to" view-model="vm" type="Deal" search="true"
                                                      select-options="{type: 'User', field: 'assignOptions', display: 'full_name', sortColumn: 'full_name', nameColumn: 'full_name'}">
@@ -270,6 +270,18 @@
                                     <a ng-if="vm.deal.assigned_to.id != currentUser.id" ng-click="vm.assignDeal()">
                                         <i class="fa fa-anchor margin-left-5"></i> Assign to me
                                     </a>
+                                </div>
+                            </li>
+                            <li>
+                                <strong>Assigned to teams: </strong>
+                                <div>
+                                    <editable-select field="assigned_to_teams" view-model="vm" type="Deal" search="true" multiple="true"
+                                                     select-options="{type: 'UserTeams', placeholder: 'Select one or more team(s)', sortColumn: 'name'}">
+                                        <div ng-repeat="team in vm.deal.assigned_to_teams">
+                                            {{ team.name }}
+                                        </div>
+                                        <span ng-if="!vm.deal.assigned_to_teams.length">Not assigned to any team(s)</span>
+                                    </editable-select>
                                 </div>
                             </li>
                             <li>

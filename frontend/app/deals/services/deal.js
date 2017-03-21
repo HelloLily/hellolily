@@ -11,26 +11,14 @@ function Deal($resource, CacheFactory, HLCache, HLForms, HLResource, HLUtils) {
                 params: {
                     id: '@id',
                 },
-                transformRequest: function(data) {
-                    var jsonData = angular.copy(data);
-                    return angular.toJson(HLForms.clean(jsonData));
-                },
             },
             save: {
                 method: 'POST',
-                transformRequest: function(data) {
-                    var jsonData = angular.copy(data);
-                    return angular.toJson(HLForms.clean(jsonData));
-                },
             },
             patch: {
                 method: 'PATCH',
                 params: {
                     id: '@id',
-                },
-                transformRequest: function(data) {
-                    var jsonData = angular.copy(data);
-                    return angular.toJson(HLForms.clean(jsonData));
                 },
             },
             search: {

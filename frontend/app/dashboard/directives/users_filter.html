@@ -1,14 +1,14 @@
 <ul class="hl-button-group">
     <li class="hl-button-group-btn">
-        <a class="hl-button-group-btn-link" href="javascript:;" data-toggle="dropdown" ng-click="vm.loadTeams()">
+        <a class="hl-button-group-btn-link" href="javascript:;" data-toggle="dropdown">
             <i class="lilicon hl-entity-icon"></i>
 
             <span class="hidden-480">
-                <span ng-show="vm.usersDisplayNames.length >= 3">
-                    {{ vm.usersDisplayNames.length }} selected
+                <span ng-show="vm.nameDisplay.length >= 3">
+                    {{ vm.nameDisplay.length }} selected
                 </span>
-                <span ng-show="vm.usersDisplayNames.length < 3" ng-repeat="display in vm.usersDisplayNames">
-                    {{ display }}{{ $last ? '' : ', '}}
+                <span ng-show="vm.nameDisplay.length < 3" ng-repeat="name in vm.nameDisplay">
+                    {{ name }}{{ $last ? '' : ', '}}
                 </span>
             </span>
 
@@ -16,26 +16,27 @@
         </a>
 
         <ul class="hl-dropdown js-hold-on-click">
-            <li class="hl-dropdown-item" ng-click="vm.toggleUser('', vm.currentUser.id)">
-                <div class="hl-checkbox" ng-class="{'checked': vm.usersSelection.indexOf(vm.currentUser.id) > -1}"></div>
+            <li class="hl-dropdown-item" ng-click="vm.toggleUser('', vm.currentUser)">
+                <div class="hl-checkbox" ng-class="{'checked': vm.currentUser.selected}"></div>
                 {{ vm.currentUser.fullName }}
             </li>
             <div ng-repeat="team in vm.teams">
-                <li class="hl-dropdown-item" ng-click="vm.toggleUser(team)">
-                    <div class="hl-checkbox" ng-class="{'checked': vm.teamsSelection.indexOf(team.id) > -1}"></div>
-                    {{ team.name }}
+                <li class="hl-dropdown-item">
+                    <span ng-click="vm.toggleUser(team)">
+                        <div class="hl-checkbox" ng-class="{'checked': team.selected, 'indeterminate': (!team.selected && (team.users | where: {selected: true}).length )}"></div>
+                        {{ team.name }}
+                    </span>
+
+                    <span class="pull-right" ng-click="vm.toggleCollapsed(team)">
+                        <i class="lilicon" ng-class="{'hl-toggle-down-icon': !team.collapsed, 'hl-toggle-left-icon': team.collapsed}"></i>
+                    </span>
                 </li>
 
-                <li class="hl-dropdown-item padding-left-30" ng-repeat="user in team.users" ng-click="vm.toggleUser(team, user.id)">
-                    <div class="hl-checkbox" ng-class="{'checked': vm.usersSelection.indexOf(user.id) > -1}"></div>
-                    {{ user.full_name }}
-                </li>
-            </div>
-
-            <div ng-repeat="user in vm.unassignedUsers">
-                <li class="hl-dropdown-item" ng-click="vm.toggleUser('', user.id)">
-                    <div class="hl-checkbox" ng-class="{'checked': vm.usersSelection.indexOf(user.id) > -1}"></div>
-                    {{ user.full_name }}
+                <li ng-if="!team.collapsed" class="hl-dropdown-item padding-left-30" ng-repeat="user in team.users">
+                    <span ng-click="vm.toggleUser(team, user)">
+                        <div class="hl-checkbox" ng-class="{'checked': user.selected}"></div>
+                        {{ user.full_name }}
+                    </span>
                 </li>
             </div>
         </ul>

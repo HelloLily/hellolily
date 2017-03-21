@@ -52,4 +52,9 @@
 
 .user-filter {
     margin-left: 0;
+
+    .hl-dropdown-item {
+        border-top: 1px lighten($base-border-color, 10) solid;
+        border-bottom: 0;
+    }
 }

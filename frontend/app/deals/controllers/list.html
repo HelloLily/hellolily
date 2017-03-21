@@ -55,11 +55,10 @@
             </ul>
 
             <list-filter filter-label="'Next steps'" view-model="vm"></list-filter>
-
         </div>
         <div class="widget-filters">
             <due-date-filter filter-store="vm.table.dueDateFilter" filter-field="'next_step_date'" type="'deal'" class="due-date-filter"></due-date-filter>
-            <users-filter users-store="vm.table.usersFilter" storage-name="'dealUsersFilter'" allow-empty="true" class="user-filter"></users-filter>
+            <users-filter users-store="vm.table.usersFilter" storage-name="dealUsersFilter" allow-empty="true" class="user-filter"></users-filter>
             <form class="widget-search pull-right">
                 <div class="hl-search-field-container">
                     <input type="text" class="hl-search-field" ng-model="vm.table.searchQuery" ng-model-options="{debounce: 300}" placeholder="Search">

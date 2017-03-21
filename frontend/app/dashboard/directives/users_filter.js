@@ -5,7 +5,7 @@ function usersFilter() {
         restrict: 'E',
         scope: {
             usersStore: '=',
-            storageName: '=',
+            storageName: '@',
             allowEmpty: '=',
         },
         templateUrl: 'dashboard/directives/users_filter.html',
@@ -15,193 +15,199 @@ function usersFilter() {
     };
 }
 
-UsersFilterController.$inject = ['LocalStorage', 'User', 'UserTeams'];
-function UsersFilterController(LocalStorage, User, UserTeams) {
+UsersFilterController.$inject = ['$filter', '$timeout', 'LocalStorage', 'User', 'UserTeams'];
+function UsersFilterController($filter, $timeout, LocalStorage, User, UserTeams) {
     var vm = this;
     var storage = new LocalStorage(vm.storageName);
 
-    vm.usersSelection = storage.get('usersFilter', [currentUser.id]);
-    vm.usersDisplayNames = storage.get('usersDisplayFilter', [currentUser.firstName]);
-    vm.teamsSelection = storage.get('teamsFilter', []);
+    vm.storedNameDisplay = storage.get('nameDisplay', []);
+    vm.storedTeamsSelection = storage.get('teamsSelection', []);
+    vm.storedCurrentUserSelected = storage.get('currentUserSelected', false);
     vm.currentUser = currentUser;
-    vm.users = [];
     vm.teams = [];
-    vm.unassignedUsers = [];
 
     vm.toggleUser = toggleUser;
     vm.loadTeams = loadTeams;
+    vm.toggleCollapsed = toggleCollapsed;
+
+    activate();
+
+    //////
+
+    function activate() {
+        $timeout(function() {
+            loadTeams();
+
+            vm.currentUser.selected = vm.storedCurrentUserSelected;
+            vm.nameDisplay = vm.storedNameDisplay;
+        }, 50);
+    }
 
     function loadTeams() {
-        var teamObj;
-        var userObj;
-        var users;
-        var ownTeam;
-        var unassignedUser;
-        var teams = [];
-
         UserTeams.query().$promise.then(function(response) {
-            angular.forEach(response.results, function(team) {
-                if (team && team.users.length) {
-                    users = [];
-                    ownTeam = false;
+            User.query({teams__isnull: 'True'}).$promise.then(function(userResponse) {
+                var teamObj;
+                var userObj;
+                var users;
+                var ownTeam;
+                var unassignedUser;
+                var teams = [];
+                var unassignedTeam = {
+                    users: [],
+                    name: 'Not in team',
+                    selected: false,
+                    collapsed: true,
+                };
 
-                    angular.forEach(team.users, function(user) {
-                        // Create a user object.
-                        userObj = {
-                            id: user.id,
-                            full_name: user.full_name,
+                for (unassignedUser of userResponse.results) {
+                    unassignedTeam.users.push(unassignedUser);
+                }
+
+                angular.forEach(response.results, function(team) {
+                    if (team && team.users.length) {
+                        users = [];
+                        ownTeam = false;
+
+                        angular.forEach(team.users, function(user) {
+                            // Create a user object.
+                            userObj = {
+                                id: user.id,
+                                full_name: user.full_name,
+                                selected: false,
+                            };
+
+                            // Do not add the current user to the users array.
+                            if (currentUser.id === user.id) {
+                                ownTeam = true;
+                            } else {
+                                users.push(userObj);
+                            }
+                        });
+
+                        // Create a team object.
+                        teamObj = {
+                            id: team.id,
+                            name: team.name,
+                            users: users,
+                            collapsed: !ownTeam,
+                            selected: false,
                         };
 
-                        // Do not add the current user to the users array.
-                        if (currentUser.id === user.id) {
-                            ownTeam = true;
+                        // If it is a team of the currentUser at that one
+                        // to the top of the array.
+                        if (ownTeam) {
+                            teams.unshift(teamObj);
                         } else {
-                            users.push(userObj);
+                            teams.push(teamObj);
                         }
-                    });
-
-                    // Create a team object.
-                    teamObj = {
-                        id: team.id,
-                        name: team.name,
-                        users: users,
-                    };
-
-                    // If it is a team of the currentUser at that one
-                    // to the top of the array.
-                    if (ownTeam) {
-                        teams.unshift(teamObj);
-                    } else {
-                        teams.push(teamObj);
                     }
+                });
+
+                if (unassignedTeam.users.length) {
+                    teams.push(unassignedTeam);
                 }
+
+                // Loop through stored teams and set current teams to the state of the stored teams.
+                vm.storedTeamsSelection.map((storedTeam) => {
+                    teams = teams.map((team) => {
+                        if (storedTeam.id === team.id) {
+                            team.selected = storedTeam.selected;
+                            team.collapsed = storedTeam.collapsed;
+                        }
+
+                        // Loop through stored users and set current users to the state of the stored users.
+                        storedTeam.users.map((storedUser) => {
+                            team.users = team.users.map((user) => {
+                                if (storedUser.id === user.id) {
+                                    user.selected = storedUser.selected;
+                                }
+
+                                return user;
+                            });
+                        });
+
+                        return team;
+                    });
+                });
+
+                vm.teams = teams;
             });
-
-            vm.teams = teams;
-        });
-
-        User.query({teams__isnull: 'True'}).$promise.then(function(response) {
-            var unassignedUsers = [];
-
-            for (unassignedUser of response.results) {
-                unassignedUsers.push(unassignedUser);
-            }
-
-            vm.unassignedUsers = unassignedUsers;
         });
     }
 
-    function toggleUser(team, userId) {
-        var selectionIndex;
+    function toggleUser(selectedTeam, selectedUser) {
         var selectedFilter = [];
+        var names = [];
         var filter;
 
-        if (userId) {
-            selectionIndex = vm.usersSelection.indexOf(userId);
+        if (selectedUser) {
+            selectedUser.selected = !selectedUser.selected;
 
-            // If the selected id is already in the array remove it.
-            // Otherwise add it to the selected users.
-            if (selectionIndex > -1) {
-                vm.usersSelection.splice(selectionIndex, 1);
-            } else {
-                vm.usersSelection.push(userId);
-            }
-
-            // If the selected id is the same as the currentUser.
-            // Check to see if the user needs to be removed from the
-            // names to display.
-            if (userId === currentUser.id) {
-                if (selectionIndex > -1) {
-                    vm.usersDisplayNames.splice(selectionIndex, 1);
-                } else {
-                    vm.usersDisplayNames.push(currentUser.fullName);
-                }
-            }
-
-            if (vm.teamsSelection.indexOf(team.id) > -1) {
-                vm.teamsSelection.splice(vm.teamsSelection.indexOf(team.id), 1);
+            if (selectedTeam) {
+                selectedTeam.selected = false;
             }
         } else {
-            selectionIndex = vm.teamsSelection.indexOf(team.id);
+            selectedTeam.selected = !selectedTeam.selected;
 
-            // If the selected team id is already in the array remove it.
-            // Otherwise add it to the array.
-            if (selectionIndex > -1) {
-                vm.teamsSelection.splice(selectionIndex, 1);
-            } else {
-                vm.teamsSelection.push(team.id);
+            selectedTeam.users.map((teamUser) => {
+                teamUser.selected = selectedTeam.selected;
+
+                vm.teams.map((team) => {
+                    if (team.id !== selectedTeam.id) {
+                        team.users.map((user) => {
+                            if (user.id === teamUser.id) {
+                                user.selected = teamUser.selected;
+                            }
+                        });
+                    }
+                });
+            });
+        }
+
+        vm.teams.map((team) => {
+            // 'Not in team' isn't an actual team, so check for 'id' property.
+            if (team.hasOwnProperty('id') && team.selected) {
+                selectedFilter.push('assigned_to_teams.id:' + team.id);
             }
 
-            // Loop through the teams to see if the user needs to be removed
-            // from the selected users array.
-            angular.forEach(vm.teams, function(teams) {
-                if (teams.id === team.id) {
-                    angular.forEach(teams.users, function(users) {
-                        var userIdx = vm.usersSelection.indexOf(users.id);
-
-                        if (selectionIndex > -1) {
-                            if (userIdx > -1) {
-                                vm.usersSelection.splice(userIdx, 1);
-                            }
-                        } else {
-                            if (userIdx <= -1) {
-                                vm.usersSelection.push(users.id);
-                            }
-                        }
-                    });
+            team.users.map((user) => {
+                if (selectedUser && selectedUser.id === user.id) {
+                    user.selected = selectedUser.selected;
                 }
-            });
-        }
 
-        if (!vm.allowEmpty) {
-            // When everyone is unselected add the currentUser to the selection.
-            if (vm.usersSelection.length === 0) {
-                vm.usersSelection.unshift(currentUser.id);
-            }
-        }
-
-        // Generate the names to display for the selected users.
-        vm.usersDisplayNames = [];
-        angular.forEach(vm.teams, function(teams) {
-            angular.forEach(teams.users, function(user) {
-                // User is selected, but hasn't been added to the displayed names yet.
-                if (vm.usersSelection.indexOf(user.id) > -1 && vm.usersDisplayNames.indexOf(user.full_name) === -1) {
-                    vm.usersDisplayNames.push(user.full_name);
+                if (user.selected) {
+                    selectedFilter.push('assigned_to.id:' + user.id);
+                    names.push(user.full_name);
                 }
             });
         });
 
-        // No team submitted so we're dealing with users that haven't been assigned to a team.
-        if (!team && userId !== currentUser.id) {
-            angular.forEach(vm.unassignedUsers, function(user) {
-                if (vm.usersSelection.indexOf(user.id) > -1 && vm.usersDisplayNames.indexOf(user.full_name) === -1) {
-                    vm.usersDisplayNames.push(user.full_name);
-                }
-            });
+        if (vm.currentUser.selected) {
+            selectedFilter.push('assigned_to.id:' + vm.currentUser.id);
+            names.push(vm.currentUser.fullName);
         }
 
-        // Check if the currentUser is in the selection at the
-        // first name to the names to display.
-        if (vm.usersSelection.indexOf(currentUser.id) > -1) {
-            vm.usersDisplayNames.push(currentUser.fullName);
+        if (!vm.allowEmpty && !selectedFilter.length) {
+            // Nothing selected but allowEmpty is set, so add current user to filter.
+            filter = 'assigned_to.id:' + vm.currentUser.id;
+            vm.currentUser.selected = true;
+            names.push(vm.currentUser.fullName);
+        } else {
+            selectedFilter = $filter('unique')(selectedFilter);
+            filter = selectedFilter.join(' OR ');
         }
 
-        // Generate elastic search string.
-        angular.forEach(vm.usersSelection, function(id) {
-            selectedFilter.push('assigned_to.id:' + id);
-        });
+        vm.nameDisplay = $filter('unique')(names);
 
-        angular.forEach(vm.teamsSelection, function(id) {
-            selectedFilter.push('assigned_to_teams:' + id);
-        });
-
-        filter = selectedFilter.join(' OR ');
-
-        // Put stuff in the local storage.
-        storage.put('usersFilter', vm.usersSelection);
-        storage.put('usersDisplayFilter', vm.usersDisplayNames);
-        storage.put('teamsFilter', vm.teamsSelection);
+        storage.put('nameDisplay', vm.nameDisplay);
+        storage.put('teamsSelection', vm.teams);
+        storage.put('currentUserSelected', vm.currentUser.selected);
 
         vm.usersStore = filter;
+    }
+
+    function toggleCollapsed(team) {
+        team.collapsed = !team.collapsed;
+        storage.put('teamsSelection', vm.teams);
     }
 }

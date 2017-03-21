@@ -219,8 +219,12 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         vm.case.expires = moment(vm.case.expires).toDate();
     }
 
-    $scope.$watch('vm.case.priority', function() {
-        if (vm.case.expires) {
+    $scope.$watch('vm.case.priority', function(newValue, oldValue) {
+        if (newValue !== oldValue) {
+            if (!vm.case.expires) {
+                vm.case.expires = moment();
+            }
+
             vm.case.expires = HLUtils.addBusinessDays(vm.casePriorities[vm.case.priority].dateIncrement);
         }
     });
@@ -308,10 +312,9 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             vm.case.is_archived = true;
         }
 
-        vm.case.expires = moment(vm.case.expires).format('YYYY-MM-DD');
-
         // Clean modifies the object, so preserve the state by copying the object (in case of errors).
         cleanedCase = HLForms.clean(angular.copy(vm.case));
+        cleanedCase.expires = moment(cleanedCase.expires).format('YYYY-MM-DD');
 
         if (cleanedCase.id) {
             // If there's an ID set it means we're dealing with an existing contact, so update it.

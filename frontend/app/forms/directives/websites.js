@@ -23,5 +23,11 @@ function formWebsites() {
 
 FormWebsitesController.$inject = [];
 function FormWebsitesController() {
+    var vm = this;
 
+    var websites = vm.websites.filter(website => website.is_primary === false);
+
+    if (!(websites.length)) {
+        vm.addRelatedField({field: 'website'});
+    }
 }

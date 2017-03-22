@@ -28,7 +28,7 @@
                            ng-class="{'hl-form-input-deleted': phone.is_deleted}"
                            ng-blur="er.formatPhoneNumber(phone, er.model.addresses[0])"
                            ng-model="phone.number"
-                           autofocus-if="$index == 0" />
+                           autofocus-if="$index == er.items.length - 1" />
                 </div>
             </div>
             <div class="col-md-5 hl-flex-container">

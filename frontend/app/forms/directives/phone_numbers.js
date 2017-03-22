@@ -27,6 +27,10 @@ FormPhoneNumbersController.$inject = ['HLUtils'];
 function FormPhoneNumbersController(HLUtils) {
     var vm = this;
 
+    if (!vm.phoneNumbers.length) {
+        vm.addRelatedField({field: 'phoneNumber'});
+    }
+
     vm.telephoneTypes = [
         {key: 'work', value: 'Work'},
         {key: 'mobile', value: 'Mobile'},

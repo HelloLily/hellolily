@@ -121,7 +121,8 @@
                         <form-phone-numbers phone-numbers="vm.contact.phone_numbers"
                                             add-related-field="vm.addRelatedField(field)"
                                             remove-related-field="vm.removeRelatedField(field, index, remove)"
-                                            show-icon="vm.account.phone_numbers.length">
+                                            show-icon="vm.account.phone_numbers.length"
+                                            address="vm.account.addresses[0] || vm.contact.addresses[0]">
                             <i class="lilicon hl-entity-icon"></i>
                         </form-phone-numbers>
                     </form-group>

@@ -98,8 +98,6 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
     _account.updateModel = updateModel;
 
     _account.prototype.getDataproviderInfo = getDataproviderInfo;
-    _account.prototype.addRelatedField = addRelatedField;
-    _account.prototype.removeRelatedField = removeRelatedField;
 
     //////
 
@@ -231,63 +229,6 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
         return deferred.promise;
     }
 
-    function addRelatedField(field) {
-        var account = this;
-        var status = 1;
-        var isPrimary = false;
-
-        switch (field) {
-            case 'emailAddress':
-                // Default status is 'Other'
-                if (account.email_addresses.length === 0) {
-                    // No email addresses added yet, so first one is primary
-                    status = 2;
-                    isPrimary = true;
-                }
-
-                account.email_addresses.push({is_primary: isPrimary, status: status});
-                break;
-            case 'phoneNumber':
-                account.phone_numbers.push({type: 'work'});
-                break;
-            case 'address':
-                account.addresses.push({type: 'visiting'});
-                break;
-            case 'website':
-                account.websites.push({website: '', is_primary: false});
-                break;
-            default:
-                break;
-        }
-    }
-
-    function removeRelatedField(field, index, remove) {
-        var account = this;
-        var websiteIndex;
-
-        switch (field) {
-            case 'emailAddress':
-                account.email_addresses[index].is_deleted = remove;
-                break;
-            case 'phoneNumber':
-                account.phone_numbers[index].is_deleted = remove;
-                break;
-            case 'address':
-                account.addresses[index].is_deleted = remove;
-                break;
-            case 'website':
-                // index is a whole website object in this case.
-                websiteIndex = account.websites.indexOf(index);
-
-                if (websiteIndex  !== -1) {
-                    account.websites[websiteIndex].is_deleted = remove;
-                }
-                break;
-            default:
-                break;
-        }
-    }
-
     _account.prototype._storeDataproviderInfo = function(data) {
         var account = this;
 
@@ -300,8 +241,8 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
 
         // Add related fields
         account._addEmailAddresses(data);
-        account._addPhoneNumbers(data);
         account._addAddresses(data);
+        account._addPhoneNumbers(data);
     };
 
     _account.prototype._addEmailAddresses = function(data) {
@@ -327,28 +268,6 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
         });
     };
 
-    _account.prototype._addPhoneNumbers = function(data) {
-        var account = this;
-        var formattedPhoneNumber;
-
-        angular.forEach(data.phone_numbers, function(phoneNumber) {
-            var add = true;
-
-            angular.forEach(account.phone_numbers, function(accountPhoneNumber) {
-                // Check if phone number already exists
-                if (phoneNumber === accountPhoneNumber.number) {
-                    add = false;
-                }
-            });
-
-            if (add) {
-                formattedPhoneNumber = HLUtils.formatPhoneNumber({number: phoneNumber, type: 'work'});
-
-                account.phone_numbers.push(formattedPhoneNumber);
-            }
-        });
-    };
-
     _account.prototype._addAddresses = function(data) {
         var account = this;
         var add = true;
@@ -367,6 +286,33 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
 
             if (add) {
                 account.addresses.push(address);
+            }
+        });
+    };
+
+    _account.prototype._addPhoneNumbers = function(data) {
+        var account = this;
+        var formattedPhoneNumber;
+        var address;
+
+        angular.forEach(data.phone_numbers, function(phoneNumber) {
+            var add = true;
+
+            angular.forEach(account.phone_numbers, function(accountPhoneNumber) {
+                // Check if phone number already exists
+                if (phoneNumber === accountPhoneNumber.number) {
+                    add = false;
+                }
+            });
+
+            if (add) {
+                if (account.addresses.length) {
+                    address = account.addresses[0];
+                }
+
+                formattedPhoneNumber = HLUtils.formatPhoneNumber({number: phoneNumber, type: 'work'}, address);
+
+                account.phone_numbers.push(formattedPhoneNumber);
             }
         });
     };

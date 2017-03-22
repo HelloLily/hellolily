@@ -9,6 +9,7 @@ function formPhoneNumbers() {
             addRelatedField: '&',
             removeRelatedField: '&',
             showIcon: '=',
+            address: '=',
         },
         templateUrl: 'forms/directives/phone_numbers.html',
         controller: FormPhoneNumbersController,

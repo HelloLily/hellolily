@@ -26,7 +26,7 @@
                            placeholder="Phone number"
                            ng-readonly="phone.is_deleted"
                            ng-class="{'hl-form-input-deleted': phone.is_deleted}"
-                           ng-blur="er.formatPhoneNumber(phone)"
+                           ng-blur="er.formatPhoneNumber(phone, er.model.addresses[0])"
                            ng-model="phone.number"
                            autofocus-if="$index == 0" />
                 </div>

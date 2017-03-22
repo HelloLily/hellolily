@@ -15,7 +15,7 @@ class NoteSerializer(serializers.ModelSerializer):
     content_type = serializers.PrimaryKeyRelatedField(queryset=ContentType.objects.filter(model__in=NOTABLE_MODELS),
                                                       write_only=True)
     object_id = serializers.IntegerField(write_only=True)
-    content = SanitizedHtmlCharField()
+    content = SanitizedHtmlCharField(required=True)
 
     def create(self, validated_data):
         user = self.context.get('request').user

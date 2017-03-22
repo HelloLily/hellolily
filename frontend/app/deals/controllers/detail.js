@@ -132,12 +132,14 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
         var patchPromise;
 
         if (args.hasOwnProperty('status')) {
+            args.status = args.status.id;
+
             if (vm.deal.status.id === vm.lostStatus.id) {
                 // If the status is 'Lost', set the next step to 'None'.
                 vm.deal.next_step = vm.noneStep;
                 vm.deal.next_step_date = null;
 
-                args.next_step = vm.noneStep;
+                args.next_step = vm.noneStep.id;
                 args.next_step_date = null;
             } else {
                 vm.deal.why_lost = null;

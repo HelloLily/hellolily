@@ -364,7 +364,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
             cleanedDeal.next_step_date = moment(cleanedDeal.next_step_date).format('YYYY-MM-DD');
         }
 
-        if (cleanedDeal.why_lost && cleanedDeal.status.id !== vm.lostStatus.id) {
+        if (cleanedDeal.why_lost && cleanedDeal.status !== vm.lostStatus.id) {
             cleanedDeal.why_lost = null;
         }
 

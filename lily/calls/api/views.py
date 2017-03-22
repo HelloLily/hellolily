@@ -9,14 +9,13 @@ from rest_framework.response import Response
 
 from lily.users.models import LilyUser
 from lily.search.functions import search_number
-from lily.tenant.api.mixins import SetTenantUserMixin
 from lily.utils.functions import parse_phone_number
 
 from .serializers import CallSerializer
 from ..models import Call
 
 
-class CallViewSet(SetTenantUserMixin, viewsets.ModelViewSet):
+class CallViewSet(viewsets.ModelViewSet):
     """
     Returns a list of all calls in the system.
     """

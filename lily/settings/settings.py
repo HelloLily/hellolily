@@ -560,10 +560,9 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated'
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        # 'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
-        'lily.api.drf_extensions.authentication.TokenGETAuthentication',
+        # Authenticate with multiple classes and set the tenant user afterwards.
+        # If you want to add another authentication option, do it in this class instead of here.
+        'lily.api.drf_extensions.authentication.LilyApiAuthentication',
     ),
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',

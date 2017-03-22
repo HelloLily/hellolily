@@ -6,7 +6,6 @@ from django.conf import settings
 from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 
-from lily.tenant.api.mixins import SetTenantUserMixin
 from lily.utils.functions import parse_address, parse_phone_number
 
 from rest_framework.exceptions import APIException
@@ -14,7 +13,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 
-class DataproviderView(SetTenantUserMixin, APIView):
+class DataproviderView(APIView):
     """
     View that makes an API call to Dataprovider to look up information for an account.
     """

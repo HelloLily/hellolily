@@ -10,7 +10,6 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser, MultiPartParser
 
-from lily.tenant.api.mixins import SetTenantUserMixin
 from .serializers import TeamSerializer, LilyUserSerializer, LilyUserTokenSerializer
 from ..models import Team, LilyUser
 
@@ -60,7 +59,7 @@ class LilyUserFilter(FilterSet):
         }
 
 
-class LilyUserViewSet(SetTenantUserMixin, viewsets.ModelViewSet):
+class LilyUserViewSet(viewsets.ModelViewSet):
     """
     Returns a list of all users in the system, filtered by default on active status.
 

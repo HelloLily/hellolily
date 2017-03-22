@@ -5,10 +5,9 @@ from lily.api.filters import ElasticSearchFilter
 
 from lily.contacts.api.serializers import ContactSerializer
 from lily.contacts.models import Contact
-from lily.tenant.api.mixins import SetTenantUserMixin
 
 
-class ContactViewSet(SetTenantUserMixin, viewsets.ModelViewSet):
+class ContactViewSet(viewsets.ModelViewSet):
     """
     Returns a list of all **active** contacts in the system.
 

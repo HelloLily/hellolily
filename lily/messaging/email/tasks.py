@@ -666,5 +666,5 @@ def cleanup_deleted_email_accounts():
     account_list = EmailAccount.objects.filter(is_deleted=True)
 
     for account in account_list:
-        logger.warning('Permanently deleting email account: %s with id %s.' % (account.emailaddress, account.pk))
+        logger.warning('Permanently deleting email account: %s with id %s.' % (account.email_address, account.pk))
         delete_email_account.delay(account_id=account.pk)

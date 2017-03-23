@@ -70,6 +70,8 @@ function Case($resource, CacheFactory, HLCache, HLResource, HLUtils) {
     _case.getCasePriorities = getCasePriorities;
     _case.updateModel = updateModel;
 
+    _case.getStatuses();
+
     /////////
 
     function create() {

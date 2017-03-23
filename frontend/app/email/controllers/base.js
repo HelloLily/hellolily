@@ -58,6 +58,9 @@ function emailConfig($stateProvider, $urlRouterProvider) {
                     currentCase: function() {
                         return null;
                     },
+                    teams: ['UserTeams', function(UserTeams) {
+                        return UserTeams.query().$promise;
+                    }],
                 },
             },
             'createDeal@base.email': {
@@ -68,6 +71,9 @@ function emailConfig($stateProvider, $urlRouterProvider) {
                     currentDeal: function() {
                         return null;
                     },
+                    teams: ['UserTeams', function(UserTeams) {
+                        return UserTeams.query().$promise;
+                    }],
                 },
             },
         },

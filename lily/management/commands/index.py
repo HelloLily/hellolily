@@ -113,25 +113,33 @@ It is possible to specify multiple models, using comma separation."""
         invalid_targets = []
         target_list = []
 
-        for target in targets_to_check:
-            if target in ModelMappings.app_to_mappings.keys():
-                # Target is an app.
-                target_list.append(ModelMappings.app_to_mappings[target])
-                continue
+        if len(targets_to_check) == 1 and targets_to_check[0] == 'all_but_mail':
+            all_targets = ModelMappings.app_to_mappings.keys()
+            target_list += [
+                ModelMappings.app_to_mappings[target] for target in all_targets if target != 'lily.messaging.email'
+            ]
+        else:
+            for target in targets_to_check:
+                if target in ModelMappings.app_to_mappings.keys():
+                    # Target is an app.
+                    target_list.append(ModelMappings.app_to_mappings[target])
+                    continue
 
-            for mapping in ModelMappings.mappings:
-                if target == mapping.get_mapping_type_name():
-                    target_list.append(mapping)
-                    break
-            else:
-                # Only check this if the previous for loop didn't break.
-                for model, mapping in ModelMappings.model_to_mappings.items():
-                    if target in [model.__name__.lower(), '{0}.{1}'.format(model.__module__, model.__name__).lower()]:
-                        # Target is model name or model path.
+                for mapping in ModelMappings.mappings:
+                    if target == mapping.get_mapping_type_name():
                         target_list.append(mapping)
                         break
                 else:
-                    invalid_targets.append(target)
+                    # Only check this if the previous for loop didn't break.
+                    for model, mapping in ModelMappings.model_to_mappings.items():
+                        if target in [
+                            model.__name__.lower(), '{0}.{1}'.format(model.__module__, model.__name__).lower()
+                        ]:
+                            # Target is model name or model path.
+                            target_list.append(mapping)
+                            break
+                    else:
+                        invalid_targets.append(target)
 
         if invalid_targets:
             raise Exception('The following targets were not recognized: %s' % invalid_targets)

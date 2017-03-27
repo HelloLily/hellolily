@@ -57,7 +57,7 @@
         <div class="widget-filters">
             <due-date-filter filter-store="vm.table.dueDateFilter" type="'case'" class="due-date-filter"></due-date-filter>
             <users-filter users-store="vm.table.usersFilter" storage-name="caseUsersFilter" allow-empty="true" class="user-filter"></users-filter>
-            <form class="widget-search pull-right">
+            <form class="widget-search">
                 <div class="hl-search-field-container">
                     <input type="text" class="hl-search-field" ng-model="vm.table.searchQuery" ng-model-options="{debounce: 300}" placeholder="Search">
                     <button type="button" class="hl-search-btn" ng-click="vm.setSearchQuery('')" ng-disabled="!vm.table.searchQuery"></button>

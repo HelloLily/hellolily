@@ -82,7 +82,7 @@ inbox to display buttons like reply, delete, archive etc.
     margin: 0;
     list-style: none;
     margin-right: 10px;
-    float: left;
+    display: inline-block;
 
     &.pull-right {
         margin-right: 0;

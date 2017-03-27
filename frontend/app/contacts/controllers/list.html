@@ -1,30 +1,31 @@
-<div class="portlet light">
-    <div class="portlet-title">
+<div class="widget-container">
+    <div class="widget-heading hl-card-heading">
+        <div class="widget-title">
+            <ul class="hl-button-group">
+                <li class="hl-button-group-btn">
+                    <a class="hl-button-group-btn-link" href="javascript:;" data-toggle="dropdown">
+                        <i class="fa fa-columns"></i>
+                        Columns
+                        <i class="margin-left-5 small-icon lilicon hl-toggle-down-icon"></i>
+                    </a>
 
-        <ul class="hl-button-group">
-            <li class="hl-button-group-btn">
-                <a class="hl-button-group-btn-link" href="javascript:;" data-toggle="dropdown">
-                    <i class="fa fa-columns"></i>
-                    Columns
-                    <i class="margin-left-5 small-icon lilicon hl-toggle-down-icon"></i>
-                </a>
+                    <ul class="hl-dropdown js-hold-on-click">
+                        <li class="hl-dropdown-item"><checkbox model="table.visibility.name">Name</checkbox></li>
+                        <li class="hl-dropdown-item"><checkbox model="table.visibility.contactInformation">Contact information</checkbox></li>
+                        <li class="hl-dropdown-item"><checkbox model="table.visibility.worksAt">Works at</checkbox></li>
+                        <li class="hl-dropdown-item"><checkbox model="table.visibility.created">Created</checkbox></li>
+                        <li class="hl-dropdown-item"><checkbox model="table.visibility.modified">Modified</checkbox></li>
+                        <li class="hl-dropdown-item"><checkbox model="table.visibility.tags">Tags</checkbox></li>
+                    </ul>
+                </li>
+            </ul>
 
-                <ul class="hl-dropdown js-hold-on-click">
-                    <li class="hl-dropdown-item"><checkbox model="table.visibility.name">Name</checkbox></li>
-                    <li class="hl-dropdown-item"><checkbox model="table.visibility.contactInformation">Contact information</checkbox></li>
-                    <li class="hl-dropdown-item"><checkbox model="table.visibility.worksAt">Works at</checkbox></li>
-                    <li class="hl-dropdown-item"><checkbox model="table.visibility.created">Created</checkbox></li>
-                    <li class="hl-dropdown-item"><checkbox model="table.visibility.modified">Modified</checkbox></li>
-                    <li class="hl-dropdown-item"><checkbox model="table.visibility.tags">Tags</checkbox></li>
-                </ul>
-            </li>
-        </ul>
-
-        <ul class="hl-button-group">
-            <li class="hl-button-group-btn">
-                <span class="hl-button-group-btn-link" ng-click="exportToCsv()">Export contacts</span>
-            </li>
-        </ul>
+            <ul class="hl-button-group">
+                <li class="hl-button-group-btn">
+                    <span class="hl-button-group-btn-link" ng-click="exportToCsv()">Export contacts</span>
+                </li>
+            </ul>
+        </div>
 
         <div class="widget-tools">
             <form class="widget-search pull-right">
@@ -35,112 +36,122 @@
             </form>
         </div>
     </div>
-    <div class="portlet-body flip-scroll">
-        <div class="scrollable-table-container">
-            <table class="table table-bordered flip-content">
-                <thead class="flip-content">
-                    <tr>
-                        <th ng-show="table.visibility.name" sort-column="last_name" table="table" class="width-22">
-                            <span class="text-nowrap">
-                                Name
-                                </span>
-                        </th>
-                        <th ng-show="table.visibility.contactInformation" class="width-22">
-                            <span class="text-nowrap">
-                                Contact information
-                            </span>
-                        </th>
-                        <th ng-show="table.visibility.worksAt" sort-column="accounts.name" table="table" class="width-22">
-                            <span class="text-nowrap">
-                                Works at
-                            </span>
-                        </th>
-                        <th ng-show="table.visibility.created" sort-column="created" table="table" class="width-10">
-                            <span class="text-nowrap">
-                                Created
-                            </span>
-                        </th>
-                        <th ng-show="table.visibility.modified" sort-column="modified" table="table" class="width-10">
-                            <span class="text-nowrap">
-                                Modified
-                            </span>
-                        </th>
-                        <th ng-show="table.visibility.tags">
-                            <span class="text-nowrap">
-                                Tags
-                            </span>
-                        </th>
-                        <th class="list-actions" width="105px">
-                            <span class="text-nowrap">
-                                Options
-                            </span>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="contact in table.items">
-                        <td ng-show="table.visibility.name">
-                            <a class="list-link" ui-sref="base.contacts.detail({ id: contact.id })" title="{{ ::contact.full_name }}">
-                                <i class="lilicon hl-entity-icon"></i>
-                                <span class="list-link-name">{{ ::contact.full_name }}</span>
-                            </a>
-                        </td>
-                        <td ng-show="table.visibility.contactInformation">
-                            <div ng-repeat="email in contact.email_addresses | filter: {status: '!'+ 0}">
-                                <a ui-sref="base.email.composeEmail({ email: email.email_address })" title="{{ ::email.email_address }}">
-                                    <i class="lilicon hl-mail-icon"></i>
-                                    {{ email.email_address }}
-                                </a>
-                            </div>
-                            <div ng-if="contact.accounts" ng-repeat="account in contact.accounts">
-                                <div ng-if="!contact.primary_email_address && account.primary_email_address">
-                                    <i class="lilicon hl-company-icon margin-right-5" uib-tooltip="{{ $root.messages.contact.accountListInfoTooltip }}"></i>
-                                    <a ui-sref="base.email.composeEmail({ email: account.primary_email_address })">
-                                        {{ account.primary_email_address }}
-                                    </a>
-                                </div>
 
-                                <div ng-if="!contact.phone_numbers && account.phone_numbers.length">
-                                    <i class="lilicon hl-company-icon margin-right-5" uib-tooltip="{{ $root.messages.contact.accountListInfoTooltip }}"></i>
-                                    <a href="tel:{{ account.phone_numbers[0].number }}">
-                                        {{ account.phone_numbers[0].number }}
-                                    </a>
-                                </div>
-                            </div>
-                            <div ng-repeat="phone in contact.phone_numbers track by $index" ng-if="phone.type == 'mobile' || phone.type == 'work'">
-                                <a href="tel:{{ phone.number }}">
-                                    <i ng-class="{work: 'lilicon hl-phone-filled-icon', mobile: 'fa fa-mobile-phone'}[phone.type]"></i>
-                                    {{ phone.number }}
+    <div class="widget-body">
+        <table class="hl-table">
+            <thead>
+                <tr>
+                    <th class="hl-table-column" ng-show="table.visibility.name" sort-column="last_name" table="table">
+                        <span class="text-nowrap">
+                            Name
+                        </span>
+                    </th>
+                    <th class="hl-table-column" ng-show="table.visibility.contactInformation">
+                        <span class="text-nowrap">
+                            Contact information
+                        </span>
+                    </th>
+                    <th class="hl-table-column" ng-show="table.visibility.worksAt" sort-column="accounts.name" table="table">
+                        <span class="text-nowrap">
+                            Works at
+                        </span>
+                    </th>
+                    <th class="hl-table-column" ng-show="table.visibility.created" sort-column="created" table="table">
+                        <span class="text-nowrap">
+                            Created
+                        </span>
+                    </th>
+                    <th class="hl-table-column" ng-show="table.visibility.modified" sort-column="modified" table="table">
+                        <span class="text-nowrap">
+                            Modified
+                        </span>
+                    </th>
+                    <th class="hl-table-column" ng-show="table.visibility.tags">
+                        <span class="text-nowrap">
+                            Tags
+                        </span>
+                    </th>
+                    <th class="hl-table-column" width="105px">
+                        <span class="text-nowrap">
+                            Options
+                        </span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="contact in table.items">
+                    <td class="hl-table-column" ng-show="table.visibility.name">
+                        <a class="list-link" ui-sref="base.contacts.detail({ id: contact.id })" title="{{ ::contact.full_name }}">
+                            <i class="lilicon hl-entity-icon"></i>
+                            <span class="list-link-name">{{ ::contact.full_name }}</span>
+                        </a>
+                    </td>
+
+                    <td class="hl-table-column" ng-show="table.visibility.contactInformation">
+                        <div ng-repeat="email in contact.email_addresses | filter: {status: '!'+ 0}">
+                            <a ui-sref="base.email.composeEmail({ email: email.email_address })" title="{{ ::email.email_address }}">
+                                <i class="lilicon hl-mail-icon"></i>
+                                {{ email.email_address }}
+                            </a>
+                        </div>
+                        <div ng-if="contact.accounts" ng-repeat="account in contact.accounts">
+                            <div ng-if="!contact.primary_email_address && account.primary_email_address">
+                                <i class="lilicon hl-company-icon margin-right-5" uib-tooltip="{{ $root.messages.contact.accountListInfoTooltip }}"></i>
+                                <a ui-sref="base.email.composeEmail({ email: account.primary_email_address })">
+                                    {{ account.primary_email_address }}
                                 </a>
                             </div>
-                        </td>
-                        <td ng-show="table.visibility.worksAt">
-                            <div ng-repeat="account in contact.accounts">
-                                <a ui-sref="base.accounts.detail({id: account.id})">{{ account.name }}</a>
+
+                            <div ng-if="!contact.phone_numbers && account.phone_numbers.length">
+                                <i class="lilicon hl-company-icon margin-right-5" uib-tooltip="{{ $root.messages.contact.accountListInfoTooltip }}"></i>
+                                <a href="tel:{{ account.phone_numbers[0].number }}">
+                                    {{ account.phone_numbers[0].number }}
+                                </a>
                             </div>
-                        </td>
-                        <td ng-show="table.visibility.created">
-                            <date date="contact.created"></date>
-                        </td>
-                        <td ng-show="table.visibility.modified">
-                            <date date="contact.modified"></date>
-                        </td>
-                        <td ng-show="table.visibility.tags">
-                            <span ng-repeat="tag in contact.tags">
-                                <a href="javascript:void(0)" ng-click="setFilter(tag.name)">{{ ::tag.name }}</a>
-                                <br>
-                            </span>
-                        </td>
-                        <td>
-                            <a ui-sref="base.contacts.detail.edit({ id: contact.id })" class="base-icon" title="Edit">
-                                <i class="lilicon hl-edit-icon"></i>
+                        </div>
+                        <div ng-repeat="phone in contact.phone_numbers track by $index" ng-if="phone.type == 'mobile' || phone.type == 'work'">
+                            <a href="tel:{{ phone.number }}">
+                                <i ng-class="{work: 'lilicon hl-phone-filled-icon', mobile: 'fa fa-mobile-phone'}[phone.type]"></i>
+                                {{ phone.number }}
                             </a>
-                            <delete-confirmation model="Contact" object="contact" callback="removeFromList(contact)" button-class="base-icon"></delete-confirmation>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+                        </div>
+                    </td>
+
+                    <td class="hl-table-column" ng-show="table.visibility.worksAt">
+                        <div ng-repeat="account in contact.accounts">
+                            <a ui-sref="base.accounts.detail({id: account.id})">{{ account.name }}</a>
+                        </div>
+                    </td>
+
+                    <td class="hl-table-column" ng-show="table.visibility.created">
+                        <date date="contact.created"></date>
+                    </td>
+
+                    <td class="hl-table-column" ng-show="table.visibility.modified">
+                        <date date="contact.modified"></date>
+                    </td>
+
+                    <td class="hl-table-column" ng-show="table.visibility.tags">
+                        <span ng-repeat="tag in contact.tags">
+                            <a href="javascript:void(0)" ng-click="setFilter(tag.name)">{{ ::tag.name }}</a>
+                            <br>
+                        </span>
+                    </td>
+                    <td class="hl-table-column">
+                        <a ui-sref="base.contacts.detail.edit({ id: contact.id })" class="base-icon" title="Edit">
+                            <i class="lilicon hl-edit-icon"></i>
+                        </a>
+                        <delete-confirmation model="Contact" object="contact" callback="removeFromList(contact)" button-class="base-icon"></delete-confirmation>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td class="hl-table-column" colspan="7"><hl-pagination values="table"></hl-pagination></td>
+                </tr>
+            </tfoot>
+        </table>
+
 
         <div ng-if="showEmptyState">
             <div class="empty-state-description no-top">
@@ -152,5 +163,4 @@
             </div>
         </div>
     </div>
-    <hl-pagination values="table"></hl-pagination>
 </div>

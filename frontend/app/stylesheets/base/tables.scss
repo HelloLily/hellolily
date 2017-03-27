@@ -37,6 +37,11 @@ the option to make the rows stripped by using `<table class="hl-table striped">`
                 <td class="hl-table-column">Remove</td>
             </tr>
         </tbody>
+        <tfoot>
+            <tr>
+                <td class="hl-table-column" colspan="3">Footer</td>
+            </tr>
+        </tfoot>
     </table>
 </div>
 ```
@@ -91,6 +96,15 @@ the option to make the rows stripped by using `<table class="hl-table striped">`
         }
     }
 
+    tfoot {
+        tr:last-child {
+            td {
+                border-top: 1px $app-border-color solid;
+                border-bottom: 0;
+            }
+        }
+    }
+
     th {
         &.hl-table-column {
             text-align: left;
@@ -116,7 +130,7 @@ the option to make the rows stripped by using `<table class="hl-table striped">`
     }
 }
 
-
+// OLD
 
 .widget-table {
     width: 100%;

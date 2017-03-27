@@ -1,6 +1,7 @@
 FROM jfloff/alpine-python:2.7
 MAINTAINER HelloLily
 
+RUN echo 'http://dl-cdn.alpinelinux.org/alpine/v3.4/main' >> /etc/apk/repositories
 RUN apk add --no-cache \
     linux-headers \
     postgresql-dev=9.5.6-r0 \

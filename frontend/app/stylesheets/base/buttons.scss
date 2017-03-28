@@ -205,7 +205,6 @@ $large-button: 30px;
     border-style: solid;
     line-height: $button-size;
     padding: 0 ($button-size / 4);
-    color: $app-color-darkblue;
     border-radius: 3px;
     text-transform: uppercase;
     font-weight: 500;
@@ -221,13 +220,20 @@ $large-button: 30px;
     }
 
     &:focus {
-        color: $app-color-darkblue;
         text-decoration: none;
     }
 }
 
+.hl-primary-btn,
+.hl-primary-btn-green,
+.hl-primary-btn-blue,
+.hl-primary-btn-smll {
+    outline: none;
+}
+
 .hl-primary-btn {
     @include hl-button($large-button);
+    color: $app-color-darkblue;
 
     .fa-plus {
         font-size: 10px;

@@ -303,6 +303,7 @@ $inline-editable-field-height: 30px;
     .hl-search-field {
         @include input-field(30px);
         margin-right: 20px;
+        padding-right: 32px;
 
         &.ng-not-empty + .hl-search-btn {
             background: $critical-prio-color;

@@ -100,18 +100,68 @@ class GmailManagerTests(UserBasedTest, APITestCase):
         get_label_mock.side_effect = labels
 
         manager = GmailManager(email_account)
-        # Message isn't present in de db, so it will do a mocked API call.
+        # Message isn't present in the db, so it will do a mocked API call.
         manager.download_message('15a6008a4baa65f3')
 
         # Verify that the email message is stored in the db.
         self.assertEqual(EmailMessage.objects.filter(account=email_account, message_id='15a6008a4baa65f3').exists(),
                          True)
 
-    def test_download_message_exists(self):
+        # Verify that the email message has the correct labels.
+        email_message = EmailMessage.objects.get(account=email_account, message_id='15a6008a4baa65f3')
+        email_message_labels = set(email_message.labels.all().values_list('label_id', flat=True))
+        self.assertEqual(email_message_labels, set(['UNREAD', 'IMPORTANT', 'CATEGORY_PERSONAL', 'INBOX']))
+
+    @patch.object(GmailConnector, 'get_short_message_info')
+    @patch.object(GmailConnector, 'get_message_info')
+    def test_download_message_exists(self, get_message_info_mock, get_short_message_info_mock):
         """
         Test the GmailManager on updating an existing message.
         """
-        pass
+        email_account = EmailAccount.objects.first()
+        manager = GmailManager(email_account)
+
+        labels = [
+            EmailLabel.objects.create(account=email_account, label_id=settings.GMAIL_LABEL_UNREAD,
+                                      label_type=EmailLabel.LABEL_SYSTEM),
+            EmailLabel.objects.create(account=email_account, label_id=settings.GMAIL_LABEL_IMPORTANT,
+                                      label_type=EmailLabel.LABEL_SYSTEM),
+            EmailLabel.objects.create(account=email_account, label_id='CATEGORY_PERSONAL',
+                                      label_type=EmailLabel.LABEL_SYSTEM),
+            EmailLabel.objects.create(account=email_account, label_id=settings.GMAIL_LABEL_INBOX,
+                                      label_type=EmailLabel.LABEL_SYSTEM),
+        ]
+
+        with open('lily/messaging/email/tests/data/get_message_info_15a6008a4baa65f3.json') as infile:
+            json_obj = json.load(infile)
+
+            get_message_info_mock.return_value = json_obj
+
+        # Patch get_label as a context manager so mocking is disabled after the message is downloaded for the first
+        # time.
+        with patch.object(GmailManager, 'get_label') as get_label_mock:
+            get_label_mock.side_effect = labels
+
+            # Message isn't present in the db, so it will do a mocked API call.
+            manager.download_message('15a6008a4baa65f3')
+
+        # The message with labels is now present in the database so downloading it again will only update it's labels.
+        with open('lily/messaging/email/tests/data/get_short_message_info_15a6008a4baa65f3_archived.json') as infile:
+            json_obj = json.load(infile)
+
+            get_short_message_info_mock.return_value = json_obj
+
+        try:
+            manager.download_message('15a6008a4baa65f3')
+        except StopIteration:
+            # Because the email message is already in the database it should not do a (mocked) API call again.
+            self.fail('StopIteration should have been raised.')
+
+        # Verify that the email message has the correct labels after the updated short message info with the Inbox
+        # label removed.
+        email_message = EmailMessage.objects.get(account=email_account, message_id='15a6008a4baa65f3')
+        email_message_labels = set(email_message.labels.all().values_list('label_id', flat=True))
+        self.assertEqual(email_message_labels, set(['UNREAD', 'IMPORTANT', 'CATEGORY_PERSONAL']))
 
     @patch.object(GmailConnector, 'get_label_list')
     def test_sync_labels(self, get_label_list_mock):
@@ -143,7 +193,7 @@ class GmailManagerTests(UserBasedTest, APITestCase):
 
         email_account = EmailAccount.objects.first()
         manager = GmailManager(email_account)
-        # Label isn't present in de db, so it will do a mocked API call.
+        # Label isn't present in the db, so it will do a mocked API call.
         label = manager.get_label(settings.GMAIL_LABEL_INBOX)
 
         # Verify that the Inbox label is present in the database.
@@ -151,11 +201,32 @@ class GmailManagerTests(UserBasedTest, APITestCase):
         self.assertEqual(
             EmailLabel.objects.filter(account=email_account, label_id=settings.GMAIL_LABEL_INBOX).exists(), True)
 
-    def test_get_label_exists(self):
+    @patch.object(GmailConnector, 'get_label_info')
+    def test_get_label_exists(self, get_label_info_mock):
         """
         Test the GmailManager on getting the label info from the database.
         """
-        pass
+        with open('lily/messaging/email/tests/data/get_label_info_INBOX.json') as infile:
+            json_obj = json.load(infile)
+
+            get_label_info_mock.return_value = json_obj
+
+        email_account = EmailAccount.objects.first()
+        manager = GmailManager(email_account)
+        # Label isn't present in the db, so it will do a mocked API call.
+        label = manager.get_label(settings.GMAIL_LABEL_INBOX)
+
+        # Verify that the Inbox label is present in the database.
+        self.assertIsNotNone(label)
+        self.assertEqual(
+            EmailLabel.objects.filter(account=email_account, label_id=settings.GMAIL_LABEL_INBOX).exists(), True)
+
+        try:
+            # Retrieve the same label again.
+            manager.get_label(settings.GMAIL_LABEL_INBOX)
+        except StopIteration:
+            # Because the label is already in the database it should not do a (mocked) API call again.
+            self.fail('StopIteration should have been raised.')
 
     def test_administer_full_sync_status_true(self):
         """

@@ -1,0 +1,83 @@
+{
+  "internalDate": "1490188464000",
+  "historyId": "9833",
+  "payload": {
+    "mimeType": "multipart/alternative",
+    "headers": [
+      {
+        "name": "Received",
+        "value": "by 10.12.152.183 with SMTP id f52cip305463qvd;        Wed, 22 Mar 2017 06:14:36 -0700 (PDT)"
+      },
+      {
+        "name": "MIME-Version",
+        "value": "1.0"
+      },
+      {
+        "name": "From",
+        "value": "Firstname Lastname <user1@example.com>"
+      },
+      {
+        "name": "Date",
+        "value": "Wed, 22 Mar 2017 13:14:24 +0000"
+      },
+      {
+        "name": "Message-ID",
+        "value": "<CAHwiXvt84xMoXiuhiChMr4RSd2khyDxyYXjDQ27+yTdEwuDAg@mail.gmail.com>"
+      },
+      {
+        "name": "Subject",
+        "value": "Duis congue ex tortor"
+      },
+      {
+        "name": "Content-Type",
+        "value": "multipart/alternative; boundary=001a11496508b859a2054b518a80"
+      }
+    ],
+    "parts": [
+      {
+        "mimeType": "text/plain",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "text/plain; charset=UTF-8"
+          }
+        ],
+        "body": {
+          "data": "dmVsIGZhY2lsaXNpcyBtYXNzYSBjb252YWxsaXMgdmVsLiBEb25lYyBjb21tb2RvIGF1Z3VlIGlkIGVzdCBwb3N1ZXJlDQp2ZXN0aWJ1bHVtLiBJbnRlZ2VyIHRpbmNpZHVudCB0aW5jaWR1bnQgc2VtcGVyLiBTZWQgbmlzbCB0ZWxsdXMsIHNlbXBlciBzaXQNCmFtZXQgaWFjdWxpcyBub24sIGx1Y3R1cyBzaXQgYW1ldCBtYXVyaXMuIEFsaXF1YW0gZXJhdCB2b2x1dHBhdC4NCg==",
+          "size": 214
+        },
+        "partId": "0",
+        "filename": ""
+      },
+      {
+        "mimeType": "text/html",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "text/html; charset=UTF-8"
+          }
+        ],
+        "body": {
+          "data": "PGRpdiBkaXI9Imx0ciI-dmVsIGZhY2lsaXNpcyBtYXNzYSBjb252YWxsaXMgdmVsLiBEb25lYyBjb21tb2RvIA0KYXVndWUgaWQgZXN0IHBvc3VlcmUgdmVzdGlidWx1bS4gSW50ZWdlciB0aW5jaWR1bnQgdGluY2lkdW50IHNlbXBlci4gU2VkDQogbmlzbCB0ZWxsdXMsIHNlbXBlciBzaXQgYW1ldCBpYWN1bGlzIG5vbiwgbHVjdHVzIHNpdCBhbWV0IG1hdXJpcy4gDQpBbGlxdWFtIGVyYXQgdm9sdXRwYXQuPC9kaXY-DQo=",
+          "size": 239
+        },
+        "partId": "1",
+        "filename": ""
+      }
+    ],
+    "body": {
+      "size": 0
+    },
+    "filename": ""
+  },
+  "snippet": "vel facilisis massa convallis vel. Donec commodo augue id est posuere vestibulum. Integer tincidunt tincidunt semper. Sed nisl tellus, semper sit amet iaculis non, luctus sit amet mauris. Aliquam erat",
+  "sizeEstimate": 3745,
+  "threadId": "15af6279f554fd15",
+  "labelIds": [
+    "UNREAD",
+    "IMPORTANT",
+    "CATEGORY_PERSONAL",
+    "INBOX"
+  ],
+  "id": "15af6279f554fd15"
+}

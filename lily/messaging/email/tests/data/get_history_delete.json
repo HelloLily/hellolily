@@ -1,0 +1,28 @@
+{
+  "historyId": "9733",
+  "history": [
+    {
+      "messagesDeleted": [
+        {
+          "message": {
+            "labelIds": [
+              "UNREAD",
+              "IMPORTANT",
+              "TRASH",
+              "CATEGORY_PERSONAL"
+            ],
+            "id": "15a6008a4baa65f3",
+            "threadId": "15a6008a4baa65f3"
+          }
+        }
+      ],
+      "messages": [
+        {
+          "id": "15a6008a4baa65f3",
+          "threadId": "15a6008a4baa65f3"
+        }
+      ],
+      "id": "9726"
+    }
+  ]
+}

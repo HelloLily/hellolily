@@ -33,7 +33,7 @@ _EMAIL_PARAMETER_CHOICES = {}
 
 logger = logging.getLogger(__name__)
 
-DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
+DATA_DIR = os.path.join(os.path.dirname(__file__), 'tests/data')
 
 
 def get_field_names(field):

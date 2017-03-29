@@ -1,0 +1,83 @@
+{
+  "internalDate": "1490188464000",
+  "historyId": "9834",
+  "payload": {
+    "mimeType": "multipart/alternative",
+    "headers": [
+      {
+        "name": "Received",
+        "value": "by 10.12.152.183 with SMTP id f52csp324464qvd;        Wed, 22 Mar 2017 06:14:36 -0700 (PDT)"
+      },
+      {
+        "name": "MIME-Version",
+        "value": "1.0"
+      },
+      {
+        "name": "From",
+        "value": "Firstname Lastname <user1@example.com>"
+      },
+      {
+        "name": "Date",
+        "value": "Wed, 22 Mar 2017 13:14:24 +0000"
+      },
+      {
+        "name": "Message-ID",
+        "value": "<CAHwiXvtCpx879=s1Lhp971PrkGjakj5P+V0aD7y-ZWdNB56wUQ@mail.gmail.com>"
+      },
+      {
+        "name": "Subject",
+        "value": "Vivamus tristique magna vel sollicitudin varius."
+      },
+      {
+        "name": "Content-Type",
+        "value": "multipart/alternative; boundary=94eb2c113682b87ab0054b518a57"
+      }
+    ],
+    "parts": [
+      {
+        "mimeType": "text/plain",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "text/plain; charset=UTF-8"
+          }
+        ],
+        "body": {
+          "data": "QWxpcXVhbSBlbGVpZmVuZCBwaGFyZXRyYSBsaWd1bGEsIGlkIGZldWdpYXQgaXBzdW0gbGFvcmVldCBhLiBBZW5lYW4gc2VkDQp2b2x1dHBhdCBtYWduYSwgdXQgdml2ZXJyYSB0dXJwaXMuIE1vcmJpIHN1c2NpcGl0LCB1cm5hIGluIHBlbGxlbnRlc3F1ZQ0KdmVuZW5hdGlzLCBtYXVyaXMgZWxpdCBwbGFjZXJhdCBqdXN0bywgc2l0IGFtZXQgdmVzdGlidWx1bSBwdXJ1cyBkdWkgaWQNCm1hc3NhLiBJbiB2aXRhZSBsaWJlcm8gZXQgbnVuYyBmYWNpbGlzaXMgaW1wZXJkaWV0LiBTZWQgcGhhcmV0cmEgYWxpcXVldA0KbHVjdHVzLg0K",
+          "size": 303
+        },
+        "partId": "0",
+        "filename": ""
+      },
+      {
+        "mimeType": "text/html",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "text/html; charset=UTF-8"
+          }
+        ],
+        "body": {
+          "data": "PGRpdiBkaXI9Imx0ciI-QWxpcXVhbSBlbGVpZmVuZCANCnBoYXJldHJhIGxpZ3VsYSwgaWQgZmV1Z2lhdCBpcHN1bSBsYW9yZWV0IGEuIEFlbmVhbiBzZWQgdm9sdXRwYXQgbWFnbmEsIA0KdXQgdml2ZXJyYSB0dXJwaXMuIE1vcmJpIHN1c2NpcGl0LCB1cm5hIGluIHBlbGxlbnRlc3F1ZSB2ZW5lbmF0aXMsIA0KbWF1cmlzIGVsaXQgcGxhY2VyYXQganVzdG8sIHNpdCBhbWV0IHZlc3RpYnVsdW0gcHVydXMgZHVpIGlkIG1hc3NhLiBJbiANCnZpdGFlIGxpYmVybyBldCBudW5jIGZhY2lsaXNpcyBpbXBlcmRpZXQuIFNlZCBwaGFyZXRyYSBhbGlxdWV0IGx1Y3R1cy4NCjwvZGl2Pg0K",
+          "size": 330
+        },
+        "partId": "1",
+        "filename": ""
+      }
+    ],
+    "body": {
+      "size": 0
+    },
+    "filename": ""
+  },
+  "snippet": "Aliquam eleifend pharetra ligula, id feugiat ipsum laoreet a. Aenean sed volutpat magna, ut viverra turpis. Morbi suscipit, urna in pellentesque venenatis, mauris elit placerat justo, sit amet",
+  "sizeEstimate": 3951,
+  "threadId": "15af6279e8b72e9c",
+  "labelIds": [
+    "UNREAD",
+    "IMPORTANT",
+    "CATEGORY_PERSONAL",
+    "INBOX"
+  ],
+  "id": "15af6279e8b72e9c"
+}

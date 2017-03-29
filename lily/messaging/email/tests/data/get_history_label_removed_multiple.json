@@ -1,0 +1,58 @@
+{
+  "historyId": "9545",
+  "history": [
+    {
+      "labelsRemoved": [
+        {
+          "labelIds": [
+            "Label_2"
+          ],
+          "message": {
+            "labelIds": [
+              "UNREAD",
+              "IMPORTANT",
+              "CATEGORY_PERSONAL",
+              "INBOX"
+            ],
+            "id": "15a600682d97904e",
+            "threadId": "15a600682d97904e"
+          }
+        }
+      ],
+      "messages": [
+        {
+          "id": "15a600682d97904e",
+          "threadId": "15a600682d97904e"
+        }
+      ],
+      "id": "9540"
+    },
+    {
+      "labelsRemoved": [
+        {
+          "labelIds": [
+            "Label_2"
+          ],
+          "message": {
+            "labelIds": [
+              "UNREAD",
+              "Label_1",
+              "IMPORTANT",
+              "CATEGORY_PERSONAL",
+              "INBOX"
+            ],
+            "id": "15a60053f67f5de4",
+            "threadId": "15a60053f67f5de4"
+          }
+        }
+      ],
+      "messages": [
+        {
+          "id": "15a60053f67f5de4",
+          "threadId": "15a60053f67f5de4"
+        }
+      ],
+      "id": "9541"
+    }
+  ]
+}

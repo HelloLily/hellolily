@@ -1,0 +1,78 @@
+{
+  "historyId": "8336",
+  "history": [
+    {
+      "messages": [
+        {
+          "id": "15a6008a4baa65f3",
+          "threadId": "15a6008a4baa65f3"
+        }
+      ],
+      "id": "8278"
+    },
+    {
+      "labelsAdded": [
+        {
+          "labelIds": [
+            "STARRED"
+          ],
+          "message": {
+            "labelIds": [
+              "UNREAD",
+              "IMPORTANT",
+              "STARRED",
+              "CATEGORY_PERSONAL",
+              "INBOX"
+            ],
+            "id": "15a6008a4baa65f3",
+            "threadId": "15a6008a4baa65f3"
+          }
+        }
+      ],
+      "messages": [
+        {
+          "id": "15a6008a4baa65f3",
+          "threadId": "15a6008a4baa65f3"
+        }
+      ],
+      "id": "8279"
+    },
+    {
+      "messages": [
+        {
+          "id": "15a600682d97904e",
+          "threadId": "15a600682d97904e"
+        }
+      ],
+      "id": "8309"
+    },
+    {
+      "labelsAdded": [
+        {
+          "labelIds": [
+            "STARRED"
+          ],
+          "message": {
+            "labelIds": [
+              "UNREAD",
+              "Label_2",
+              "IMPORTANT",
+              "STARRED",
+              "CATEGORY_PERSONAL",
+              "INBOX"
+            ],
+            "id": "15a600682d97904e",
+            "threadId": "15a600682d97904e"
+          }
+        }
+      ],
+      "messages": [
+        {
+          "id": "15a600682d97904e",
+          "threadId": "15a600682d97904e"
+        }
+      ],
+      "id": "8310"
+    }
+  ]
+}

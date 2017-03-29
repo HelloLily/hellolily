@@ -69,7 +69,7 @@
                         <span class="text-nowrap">Tags</span>
                     </th>
                     <th class="hl-table-column" width="105px">
-                        <span class="text-nowrap">Options</span>
+                        <span class="text-nowrap">Actions</span>
                     </th>
                 </tr>
             </thead>
@@ -112,10 +112,10 @@
                         </span>
                     </td>
                     <td class="hl-table-column">
-                        <a ui-sref="base.accounts.detail.edit({ id: account.id })" class="base-icon" title="Edit">
+                        <a ui-sref="base.accounts.detail.edit({ id: account.id })" class="hl-primary-btn-smll" title="Edit">
                             <i class="lilicon hl-edit-icon"></i>
                         </a>
-                        <delete-confirmation model="Account" object="account" callback="vm.removeFromList(account)" button-class="base-icon"></delete-confirmation>
+                        <delete-confirmation model="Account" object="account" callback="vm.removeFromList(account)" button-class="hl-primary-btn-smll"></delete-confirmation>
                     </td>
                 </tr>
             </tbody>

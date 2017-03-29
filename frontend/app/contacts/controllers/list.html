@@ -73,7 +73,7 @@
                     </th>
                     <th class="hl-table-column" width="105px">
                         <span class="text-nowrap">
-                            Options
+                            Actions
                         </span>
                     </th>
                 </tr>
@@ -138,10 +138,10 @@
                         </span>
                     </td>
                     <td class="hl-table-column">
-                        <a ui-sref="base.contacts.detail.edit({ id: contact.id })" class="base-icon" title="Edit">
+                        <a ui-sref="base.contacts.detail.edit({ id: contact.id })" class="hl-primary-btn-smll" title="Edit">
                             <i class="lilicon hl-edit-icon"></i>
                         </a>
-                        <delete-confirmation model="Contact" object="contact" callback="removeFromList(contact)" button-class="base-icon"></delete-confirmation>
+                        <delete-confirmation model="Contact" object="contact" callback="removeFromList(contact)" button-class="hl-primary-btn-smll"></delete-confirmation>
                     </td>
                 </tr>
             </tbody>

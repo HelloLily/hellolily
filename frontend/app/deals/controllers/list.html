@@ -100,7 +100,7 @@
                 <th class="hl-table-column" ng-show="vm.table.visibility.closedDate" sort-column="closed_date" table="vm.table">Closed date</th>
                 <th class="hl-table-column" ng-show="vm.table.visibility.createdBy" sort-column="created_by.full_name" table="vm.table">Created by</th>
                 <th class="hl-table-column" ng-show="vm.table.visibility.tags">Tags</th>
-                <th class="hl-table-column" style="width: 60px;">Edit</th>
+                <th class="hl-table-column" style="width: 60px;">Actions</th>
             </thead>
             <tbody ng-class="vm.showEmptyState ? 'empty-state-space' : ''">
                 <tr ng-repeat="deal in vm.table.items">
@@ -160,7 +160,7 @@
                         </span>
                     </td>
                     <td class="hl-table-column" >
-                        <a ui-sref="base.deals.detail.edit({ id: deal.id })" class="base-icon" title="Edit">
+                        <a ui-sref="base.deals.detail.edit({ id: deal.id })" class="hl-primary-btn-smll" title="Edit">
                             <i class="lilicon hl-edit-icon"></i>
                         </a>
                     </td>

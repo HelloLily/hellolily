@@ -285,7 +285,8 @@ $large-button: 30px;
 
 .hl-primary-btn-smll {
     @include hl-button($small-button);
-    font-size: 11px;
+    color: $app-color-darkblue;
+    font-size: 12px;
 
     i {
         font-size: 12px;

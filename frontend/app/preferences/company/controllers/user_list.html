@@ -106,14 +106,14 @@
                             </span>
                         </td>
                         <td>
-                            <button class="btn base-icon" ng-click="vm.openTeamModal(user)" title="Manage teams">
+                            <button class="hl-primary-btn-smll" ng-click="vm.openTeamModal(user)" title="Manage teams">
                                 <i class="lilicon hl-entities-icon"></i>
                             </button>
 
-                            <delete-confirmation ng-show="user.is_active && user.id != currentUser.id" model="User" object="user" message-object="vm.alertMessages" callback="vm.toggleStatus(user)" button-class="base-icon" icon-class="lilicon hl-entity-status-inactive-icon" help-text="Deactivate user">
+                            <delete-confirmation ng-show="user.is_active && user.id != currentUser.id" model="User" object="user" message-object="vm.alertMessages" callback="vm.toggleStatus(user)" button-class="hl-primary-btn-smll" icon-class="lilicon hl-entity-status-inactive-icon" help-text="Deactivate user">
                             </delete-confirmation>
 
-                            <button ng-hide="user.is_active" class="btn base-icon" ng-click="vm.toggleStatus(user)" title="Activate">
+                            <button ng-hide="user.is_active" class="hl-primary-btn-smll" ng-click="vm.toggleStatus(user)" title="Activate">
                                 <i class="lilicon hl-entity-status-active-icon"></i>
                             </button>
                         </td>

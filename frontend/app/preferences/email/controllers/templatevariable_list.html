@@ -1,53 +1,82 @@
-<div class="portlet">
-    <div class="portlet-title">
-        <div class="caption">Your template variables</div>
+<div class="widget-heading">
+    <div class="widget-title">
+        <div class="widget-name">Your template variables</div>
     </div>
-    <div class="portlet-body">
-        <ul class="list-group">
-            <li class="list-group-item" ng-repeat="variable in vm.templateVariables">
-                {{ variable.name }}
-                <span class="pull-right">
-                    <a ng-click="vm.previewTemplateVariable(variable)" class="btn btn-xs default">
+    <div class="widget-tools">
+        <a class="hl-primary-btn pull-right" ui-sref="base.preferences.templatevariables.create"><i class="fa fa-plus"></i> Add an email template variable</a>
+    </div>
+    <div class="clearfix"></div>
+</div>
+<div class="widget-body">
+    <table class="hl-table">
+        <thead>
+            <tr>
+                <th class="hl-table-column">Template variable name</th>
+                <th class="hl-table-column align-right">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="variable in vm.templateVariables">
+                <td class="hl-table-column">{{ variable.name }}</td>
+                <td class="hl-table-column align-right">
+                    <a ng-click="vm.previewTemplateVariable(variable)" class="hl-primary-btn-smll">
                         <span><i class="fa fa-eye"></i> Preview</span>
                     </a>
-                    <a ui-sref="base.preferences.templatevariables.edit({id: variable.id})" class="btn btn-xs default">
+                    <a ui-sref="base.preferences.templatevariables.edit({id: variable.id})" class="hl-primary-btn-smll">
                         <span><i class="lilicon hl-edit-icon"></i> Edit</span>
                     </a>
-                    <delete-confirmation model="TemplateVariable" object="variable" callback="vm.removeFromList(variable)" button-class="btn-xs">
+                    <delete-confirmation model="TemplateVariable" object="variable" callback="vm.removeFromList(variable)" button-class="hl-primary-btn-smll">
                         Delete
                     </delete-confirmation>
-                </span>
-            </li>
-            <li class="list-group-item" ng-hide="vm.templateVariables.length">
-                No template variables yet. You should create one!
-            </li>
-            <li class="list-group-item">
-                <a ui-sref="base.preferences.templatevariables.create">Add an email template variable</a>
-            </li>
-        </ul>
-    </div>
+                </td>
+            </tr>
+            <tr ng-if="!vm.templateVariables.length">
+                <td class="hl-table-column" colspan="2">
+                    <div class="margin-bottom-10 align-center">No template variables yet. You should create one!</div>
+                    <div class="align-center">
+                        <a class="hl-primary-btn" ui-sref="base.preferences.templatevariables.create">
+                            Add an email template variable
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </div>
 
-<div class="portlet">
-    <div class="portlet-title">
-        <div class="caption">Public template variables</div>
+
+<div class="widget-heading">
+    <div class="widget-title">
+        <div class="widget-name">Public template variables</div>
     </div>
-    <div class="portlet-body">
-        <ul class="list-group">
-            <li class="list-group-item" ng-repeat="variable in vm.publicTemplateVariables">
-                {{ variable.name }}
-                <span class="pull-right">
-                    <a ui-sref="base.preferences.templatevariables.edit({id: variable.id})" class="btn btn-xs default">
+    <div class="clearfix"></div>
+</div>
+
+<div class="widget-body">
+    <table class="hl-table">
+        <thead>
+            <tr>
+                <th class="hl-table-column">Template variable name</th>
+                <th class="hl-table-column align-right">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="variable in vm.publicTemplateVariables">
+                <td class="hl-table-column">{{ variable.name }}</td>
+                <td class="hl-table-column align-right">
+                    <a ui-sref="base.preferences.templatevariables.edit({id: variable.id})" class="hl-primary-btn-smll">
                         <span><i class="lilicon hl-edit-icon"></i> Edit</span>
                     </a>
-                    <a ng-click="vm.previewTemplateVariable(variable)" class="btn btn-xs default">
+                    <a ng-click="vm.previewTemplateVariable(variable)" class="hl-primary-btn-smll">
                         <span><i class="fa fa-eye"></i> Preview</span>
                     </a>
-                </span>
-            </li>
-            <li class="list-group-item" ng-hide="vm.publicTemplateVariables.length">
-                No public template variables yet.
-            </li>
-        </ul>
-    </div>
+                </td>
+            </tr>
+            <tr ng-if="!vm.publicTemplateVariables.length">
+                <td class="hl-table-column align-center" colspan="2">
+                    No public template variables yet.
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </div>

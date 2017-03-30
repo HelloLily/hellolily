@@ -216,6 +216,8 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
             Settings.page.setAllTitles('create', 'deal');
             vm.deal = Deal.create();
             vm.deal.assigned_to = vm.currentUser;
+            // Set new business on default when creating a deal.
+            vm.deal.new_business = true;
 
             if ($stateParams.accountId) {
                 Account.get({id: $stateParams.accountId}).$promise.then(function(account) {
@@ -405,7 +407,9 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
         // Get contacts who work for the selected account.
         refreshContacts('');
 
-        if (vm.deal.account) {
+        // Only set business to 'existing' when adding a new deal or
+        // changing to an account that has deals.
+        if ((vm.deal.account && vm.deal.id && oldValue && newValue !== oldValue) || (!vm.deal.id && newValue !== oldValue)) {
             // Mark as new business if the given account doesn't have any deals yet.
             Deal.search({filterquery: 'account.id:' + vm.deal.account.id}).$promise.then(function(response) {
                 vm.deal.new_business = !response.objects.length;

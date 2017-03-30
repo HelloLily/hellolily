@@ -1,41 +1,46 @@
-<div class="row">
-    <div class="col-md-12">
-        <div class="portlet light">
-            <div class="portlet-body">
+<div class="widget-heading">
+    <div class="widget-title">
+        <div class="widget-name">My profile</div>
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+<div class="widget-body">
+    <div class="widget-content">
+        <div class="row">
+            <div class="col-md-12">
                 <form novalidate name="userForm">
                     <form-portlet portlet-title="Personal information">
                         <form-group label-title="First name" label-id="first_name" field="userForm.first_name" required="true">
                             <input class="form-control"
-                                id="first_name"
-                                maxlength="255"
-                                name="first_name"
-                                placeholder="First name"
-                                type="text"
-                                ng-model="vm.user.first_name">
-
+                                   id="first_name"
+                                   maxlength="255"
+                                   name="first_name"
+                                   placeholder="First name"
+                                   type="text"
+                                   ng-model="vm.user.first_name">
                             <field-error form="userForm" field="first_name"></field-error>
                         </form-group>
 
                         <form-group label-title="Last name" label-id="last_name" field="userForm.last_name" required="true">
                             <input class="form-control"
-                                id="last_name"
-                                maxlength="255"
-                                name="last_name"
-                                placeholder="Last name"
-                                type="text"
-                                ng-model="vm.user.last_name">
-
+                                   id="last_name"
+                                   maxlength="255"
+                                   name="last_name"
+                                   placeholder="Last name"
+                                   type="text"
+                                   ng-model="vm.user.last_name">
                             <field-error form="userForm" field="last_name"></field-error>
                         </form-group>
 
                         <form-group label-title="Position" label-id="position" field="userForm.position">
                             <input class="form-control"
-                                id="position"
-                                maxlength="255"
-                                name="position"
-                                placeholder="Position"
-                                type="text"
-                                ng-model="vm.user.position">
+                                   id="position"
+                                   maxlength="255"
+                                   name="position"
+                                   placeholder="Position"
+                                   type="text"
+                                   ng-model="vm.user.position">
 
                             <field-error form="userForm" field="position"></field-error>
                         </form-group>
@@ -51,10 +56,6 @@
                                 <div>
                                     <div class="btn btn-default margin-top-10" ngf-select ng-model="vm.user.picture" name="picture" ngf-pattern="'image/*'"
                                         ngf-accept="'image/*'" ngf-max-size="300kb" ng-model-options="{allowInvalid: true}">Select</div>
-
-                                <span class="help-block" ng-show="userForm.picture.$error.maxSize" ng-class="{'col-xs-12': vm.sidebar}">
-                                    The file you uploaded exceeds the maximum picture size of 300kb.
-                                </span>
                                 </div>
 
                                 <p class="help-text margin-top-10">Maximum picture size is 300kb.</p>
@@ -65,24 +66,24 @@
                     <form-portlet portlet-title="Contact information">
                         <form-group label-title="Phone number" label-id="phone_number" field="userForm.phone_number">
                             <input class="form-control"
-                                id="phone_number"
-                                maxlength="255"
-                                name="phone_number"
-                                placeholder="Phone number"
-                                type="text"
-                                ng-model="vm.user.phone_number">
+                                   id="phone_number"
+                                   maxlength="255"
+                                   name="phone_number"
+                                   placeholder="Phone number"
+                                   type="text"
+                                   ng-model="vm.user.phone_number">
 
                             <field-error form="userForm" field="phone_number"></field-error>
                         </form-group>
 
                         <form-group label-title="Internal number" label-id="internal_number" field="userForm.internal_number">
                             <input class="form-control"
-                                id="internal_number"
-                                maxlength="255"
-                                name="internal_number"
-                                placeholder="Internal number"
-                                type="text"
-                                ng-model="vm.user.internal_number">
+                                   id="internal_number"
+                                   maxlength="255"
+                                   name="internal_number"
+                                   placeholder="Internal number"
+                                   type="text"
+                                   ng-model="vm.user.internal_number">
                         </form-group>
 
                         <!--<form-group label-title="Twitter" label-id="twitter" field="userForm.twitter">-->
@@ -130,10 +131,10 @@
                         <div class="row">
                             <div class="col-xs-12 col-sm-3 col-md-2 col-lg-2"></div>
                             <div class="col-xs-12 col-sm-9 col-md-8 col-md-7 col-lg-4">
-                                <button type="button" class="hl-primary-btn-blue" ng-click="vm.saveUser(userForm)">
+                                <button type="button" class="btn blue" ng-click="vm.saveUser(userForm)">
                                     <i class="fa fa-check"></i> Save
                                 </button>
-                                <button type="button" class="hl-primary-btn" ng-click="vm.cancelProfileEditing()">
+                                <button type="button" class="btn default" ng-click="vm.cancelProfileEditing()">
                                     Cancel
                                 </button>
                             </div>

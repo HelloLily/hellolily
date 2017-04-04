@@ -11,7 +11,6 @@
                            type="text"
                            ng-model="vm.user.first_name">
 
-                    <field-error form="userForm" field="first_name"></field-error>
                 </form-group>
 
                 <form-group label-title="Last name" label-id="last_name" field="userForm.last_name" required="true">
@@ -23,7 +22,6 @@
                            type="text"
                            ng-model="vm.user.last_name">
 
-                    <field-error form="userForm" field="last_name"></field-error>
                 </form-group>
 
                 <form-group label-title="Position" label-id="position" field="userForm.position">
@@ -42,13 +40,17 @@
                     <div>
                         <img ngf-src="vm.user.picture" class="user-field-image">
 
-                        <button ng-show="vm.user.picture" class="btn no-background" ng-click="vm.user.picture = null" title="Remove picture">
+                        <button ng-show="vm.user.picture" class="btn no-background" type="button" ng-click="vm.user.picture = null" title="Remove picture">
                             <i class="lilicon hl-trashcan-icon font-size-18"></i>
                         </button>
 
                         <div>
                             <div class="btn btn-default margin-top-10" ngf-select ng-model="vm.user.picture" name="picture" ngf-pattern="'image/*'"
                                 ngf-accept="'image/*'" ngf-max-size="300kb" ng-model-options="{allowInvalid: true}">Select</div>
+
+                                <span class="help-block" ng-show="userForm.picture.$error.maxSize" ng-class="{'col-xs-12': vm.sidebar}">
+                                    The file you uploaded exceeds the maximum picture size of 300kb.
+                                </span>
                         </div>
 
                         <p class="help-text margin-top-10">Maximum picture size is 300kb.</p>

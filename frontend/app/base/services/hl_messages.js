@@ -63,6 +63,38 @@ function HLMessages() {
             preferences: {
                 userAssignTitle: 'Assign %(user)s to teams',
                 shareAccountTitle: 'Share your email',
+                twoFactorAuth: {
+                    disable: {
+                        confirmText: 'You are about to disable two-factor authentication. This compromises your account security, are you sure?',
+                        confirmButtonText: 'Yes, disable',
+                        successTitle: 'Disabled!',
+                        successText: 'Two factor auth was successfully disabled.',
+                    },
+                    removeBackupPhoneNumber: {
+                        title: 'Are you sure?',
+                        html: 'This means you will no longer be able to login using this phone number.',
+                        confirmButtonText: 'Yes, remove it',
+                        error: {
+                            title: 'Error',
+                            html: 'There was an error processing your request.<br />Please try again.',
+                        },
+                    },
+                    endSession: {
+                        title: 'Are you sure?',
+                        html: 'This means that you will be logged out from this device.',
+                        confirmButtonText: 'Yes, end this session',
+                        error: {
+                            title: 'Error',
+                            html: 'There was an error processing your request.<br />Please try again.',
+                        },
+                    },
+                },
+                disableTwoFactorAuth: {
+                    confirmText: 'You are about to disable two-factor authentication. This compromises your account security, are you sure?',
+                    confirmButtonText: 'Yes, disable',
+                    successTitle: 'Disabled!',
+                    successText: 'Two factor auth was successfully disabled.',
+                },
             },
         },
         historyList: {

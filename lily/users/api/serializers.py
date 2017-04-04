@@ -1,8 +1,11 @@
 from django.conf import settings
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.hashers import make_password
+from django.utils.timesince import timesince, timeuntil
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
+from user_sessions.models import Session
+from user_sessions.templatetags.user_sessions import device
 
 from lily.api.fields import CustomTimeZoneField
 from lily.api.nested.mixins import RelatedSerializerMixin
@@ -205,3 +208,43 @@ class LilyUserTokenSerializer(serializers.ModelSerializer):
     class Meta:
         model = LilyUser
         fields = ('auth_token',)
+
+
+class SessionSerializer(serializers.ModelSerializer):
+    """
+    Serializer for User sessions.
+    """
+    device = serializers.SerializerMethodField()
+    expires_in = serializers.SerializerMethodField()
+    last_login = serializers.SerializerMethodField()
+    is_current = serializers.SerializerMethodField()
+
+    # TODO: location will use geoip2, which was introduced in django 1.9, so add this field after upgrading.
+    # location = serializers.SerializerMethodField()
+
+    def get_device(self, obj):
+        return device(obj.user_agent)
+
+    def get_expires_in(self, obj):
+        return timeuntil(obj.expire_date)
+
+    def get_last_login(self, obj):
+        return timesince(obj.last_activity)
+
+    def get_is_current(self, obj):
+        if obj.session_key == self.context['request'].session.session_key:
+            return True
+
+        return False
+
+    class Meta:
+        model = Session
+        fields = (
+            'session_key',
+            'device',
+            'expires_in',
+            'last_login',
+            'ip',
+            'is_current',
+            # 'location',
+        )

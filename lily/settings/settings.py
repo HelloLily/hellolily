@@ -206,8 +206,8 @@ AWS_HEADERS = {
 #######################################################################################################################
 # LOGIN SETTINGS                                                                                                      #
 #######################################################################################################################
-LOGIN_URL = reverse_lazy('login')
-LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'base_view'
 LOGOUT_URL = reverse_lazy('logout')
 # Also used as timeout for activation link.
 PASSWORD_RESET_TIMEOUT_DAYS = os.environ.get('PASSWORD_RESET_TIMEOUT_DAYS', 7)
@@ -218,19 +218,45 @@ AUTHENTICATION_BACKENDS = (
 )
 
 #######################################################################################################################
+# TWO FACTOR AUTH                                                                                                     #
+#######################################################################################################################
+TWO_FACTOR_PATCH_ADMIN = False  # No need because we disabled it.
+TWO_FACTOR_SMS_GATEWAY = 'two_factor.gateways.twilio.gateway.Twilio'
+TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN')
+TWILIO_CALLER_ID = os.environ.get('TWILIO_CALLER_ID')
+
+if DEBUG:
+    TWO_FACTOR_SMS_GATEWAY = 'two_factor.gateways.fake.Fake'
+
+#######################################################################################################################
+# USER SESSIONS                                                                                                       #
+#######################################################################################################################
+SESSION_ENGINE = 'user_sessions.backends.db'
+
+#######################################################################################################################
+# USER SESSIONS                                                                                                       #
+#######################################################################################################################
+# TODO: check how to install the libmaxminddb c library on heroku.
+GEOIP_PATH = local_path('geoip/')
+
+#######################################################################################################################
 # MIDDLEWARE CLASSES                                                                                                  #
 #######################################################################################################################
 MIDDLEWARE_CLASSES = (
     # See https://docs.djangoproject.com/en/dev/ref/middleware/#middleware-ordering for ordering hints
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    # 'django.contrib.sessions.middleware.SessionMiddleware',  # Replaced by user_sessions.
+    'user_sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django_otp.middleware.OTPMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'lily.tenant.middleware.TenantMiddleware',
+    'two_factor.middleware.threadlocals.ThreadLocals',
 )
 
 #######################################################################################################################
@@ -313,13 +339,19 @@ INSTALLED_APPS = (
     'rest_framework',
     'rest_framework.authtoken',
     'raven.contrib.django.raven_compat',
+    'django_otp',
+    'django_otp.plugins.otp_static',
+    'django_otp.plugins.otp_totp',
+    'two_factor',
+    'otp_yubikey',
+    'user_sessions',
 
     # Django
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.humanize',
-    'django.contrib.sessions',
+    'django.contrib.sessions',  # TODO: remove once we're on django 1.9 (breaks the login of tests in 1.8)
     'django.contrib.sites',
     'django.contrib.staticfiles',
     'django.contrib.messages',
@@ -413,6 +445,11 @@ if DEBUG:
                 'handlers': ['null', ],
                 'propagate': False,
             },
+            'two_factor': {
+                'level': 'DEBUG',
+                'handlers': ['console', ],
+                'propagate': False,
+            }
         },
     })
 else:
@@ -629,6 +666,7 @@ MULTI_TENANT = boolean(os.environ.get('MULTI_TENANT', 0))
 BOOTSTRAP3 = {
     'horizontal_label_class': 'col-md-2',
     'horizontal_field_class': 'col-md-4',
+    'set_required': False,
 }
 
 from .celeryconfig import *  # noqa

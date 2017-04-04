@@ -50,9 +50,16 @@ var config = {
             },
         },
         sass: {
-            src: ['frontend/app/stylesheets/**/*.scss'],
+            src: [
+                'frontend/app/stylesheets/**/*.scss',
+                '!frontend/app/stylesheets/login.scss',
+                ],
             base: 'frontend/app/stylesheets/app.scss',
             fileName: 'app.css',
+            login: {
+                src: ['frontend/app/stylesheets/login.scss'],
+                fileName: 'login.css',
+            },
         },
         templates: {
             src: [
@@ -204,6 +211,27 @@ gulp.task('app-css', [], function() {
         }));
 });
 
+gulp.task('login-css', [], function() {
+    return gulp.src(config.app.sass.login.src)
+        .pipe(ifElse(!isProduction, function() {
+            return sourcemaps.init();
+        }))
+        .pipe(sass({includePaths: ['./node_modules/']}))
+        .pipe(rebaseUrls({root: config.cdn.root}))
+        .pipe(cdnizer({
+            defaultCDNBase: config.cdn.defaultBase,
+            files: config.cdn.src,
+        }))
+        .pipe(ifElse(isProduction, uglifyCss))
+        .pipe(rename(config.app.sass.login.fileName))
+        .pipe(ifElse(!isProduction, function() {
+            return sourcemaps.write();
+        }))
+        .pipe(gulp.dest(config.app.buildDir))
+        .pipe(ifElse(isWatcher, size))
+        .pipe(ifElse(isWatcher, livereload))
+});
+
 /**
  * App templates.
  */
@@ -305,7 +333,7 @@ gulp.task('heroku-assets', [], function() {
  * Concatenate, minify and make source maps of all js and css.
  */
 gulp.task('build', ['app-js', 'app-css', 'app-templates', 'app-assets', 'vendor-js', 'vendor-css', 'vendor-assets',
-    'analytics', 'heroku-assets'], function() {});
+    'analytics', 'heroku-assets', 'login-css'], function() {});
 
 /**
  * Watch for changes

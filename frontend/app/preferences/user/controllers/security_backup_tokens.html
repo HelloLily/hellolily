@@ -1,0 +1,16 @@
+<h3>Your backup tokens</h3>
+
+<p>These are your current backup tokens, they will be regenerated after you've used them all.</p>
+
+<table class="hl-table">
+    <thead>
+        <tr>
+            <th class="hl-table-column">Backup Token</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="token in vm.twoFactor.backup_tokens">
+            <td class="hl-table-column align-left">{{ token }}</td>
+        </tr>
+    </tbody>
+</table>

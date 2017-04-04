@@ -1,16 +1,22 @@
 from django.utils import timezone
 from django_filters import FilterSet
 from django_filters.rest_framework import DjangoFilterBackend
-from django.contrib.sessions.models import Session
-from rest_framework import viewsets, status
+from django_otp import devices_for_user
+from django_otp.plugins.otp_static.models import StaticToken
+from rest_framework import mixins, viewsets, status
 from rest_framework.authtoken.models import Token
-from rest_framework.decorators import list_route
+from rest_framework.decorators import list_route, detail_route
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser, MultiPartParser
+from two_factor.models import PhoneDevice
+from two_factor.templatetags.two_factor import mask_phone_number, format_phone_number
+from two_factor.utils import default_device, backup_phones
+from user_sessions.models import Session
 
-from .serializers import TeamSerializer, LilyUserSerializer, LilyUserTokenSerializer
+from .utils import get_info_text_for_device
+from .serializers import TeamSerializer, LilyUserSerializer, LilyUserTokenSerializer, SessionSerializer
 from ..models import Team, LilyUser, UserInfo
 
 
@@ -196,18 +202,80 @@ class LilyUserViewSet(viewsets.ModelViewSet):
         if request.user == user_to_delete:
             raise PermissionDenied
 
-        user_sessions = []
-        all_sessions = Session.objects.filter(expire_date__gte=timezone.now())
-
-        for session in all_sessions:
-            session_data = session.get_decoded()
-
-            if user_to_delete.pk == session_data.get('_auth_user_id'):
-                user_sessions.append(session.pk)
-
-        # By using the __in filter we limit the number of queries to 2, instead of a delete query per session.
-        Session.objects.filter(pk__in=user_sessions).delete()
+        request.user.session_set.all().delete()
 
         # Don't call super, since that only fires another query using self.get_object().
         self.perform_destroy(user_to_delete)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class TwoFactorDevicesViewSet(viewsets.ViewSet):
+    """
+    A simple ViewSet for listing or disabling two factor devices.
+    """
+    def list(self, request):
+        try:
+            token_set = request.user.staticdevice_set.first().token_set.all()
+        except AttributeError:
+            token_set = []
+
+        return Response({
+            'default': get_info_text_for_device(default_device(request.user)),
+            'backup_phone_numbers': [
+                {
+                    'id': phone.pk,
+                    'number': mask_phone_number(format_phone_number(phone.number)),
+                } for phone in backup_phones(request.user)
+            ],
+            'backup_tokens': [token.token for token in token_set],
+        })
+
+    @list_route(methods=['get', 'post', ])
+    def regenerate_tokens(self, request):
+        number_of_tokens = 10
+        token_list = []
+
+        device = request.user.staticdevice_set.get_or_create(name='backup')[0]
+        device.token_set.all().delete()
+
+        for n in range(number_of_tokens):
+            token = device.token_set.create(token=StaticToken.random_token())
+            token_list.append(token.token)
+
+        return Response(token_list, status=status.HTTP_201_CREATED)
+
+    @list_route(methods=['delete', ])
+    def disable(self, request, pk=None):
+        for device in devices_for_user(request.user):
+            device.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @detail_route(methods=['delete', ])
+    def remove_phone(self, request, pk=None):
+        try:
+            request.user.phonedevice_set.get(name='backup', pk=pk).delete()
+        except PhoneDevice.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class SessionViewSet(mixins.RetrieveModelMixin,
+                     mixins.ListModelMixin,
+                     # mixins.UpdateModelMixin,
+                     mixins.DestroyModelMixin,
+                     viewsets.GenericViewSet):
+    """
+    A simple ViewSet for listing or deleting sessions.
+    """
+    # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
+    queryset = Session.objects
+    # Set the serializer class for this viewset.
+    serializer_class = SessionSerializer
+
+    def get_queryset(self):
+        """
+        Set the queryset here so it filters on tenant and works with pagination.
+        """
+        return self.request.user.session_set.filter(expire_date__gt=timezone.now()).order_by('-last_activity')

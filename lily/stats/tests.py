@@ -20,10 +20,6 @@ class StatsTests(TestCase):
                 'team_id': team.id,
             }))
 
-            if response.status_code != 200:
-                import ipdb
-                ipdb.set_trace()
-
             self.assertEqual(response.status_code, 200)
 
         for pattern in deal_patterns:

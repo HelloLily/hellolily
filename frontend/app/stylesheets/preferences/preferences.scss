@@ -16,3 +16,63 @@
         text-decoration: none;
     }
 }
+
+.field-label {
+    display: block;
+    font-weight: 500;
+}
+
+.field-wrapper {
+    ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    // scss-lint:disable QualifyingElement
+    input[type="text"] {
+        @include input-field(30px);
+        width: auto;
+        margin-bottom: 20px;
+    }
+
+    input[type="number"] {
+        @include input-field(30px);
+        width: auto;
+        margin-bottom: 20px;
+    }
+    // scss-lint:enable QualifyingElement
+}
+
+.qr-code {
+    text-align: center;
+}
+
+.col-2-row {
+    display: block;
+    margin: 0 -5px;
+
+    .column {
+        padding: 0 5px;
+        width: 50%;
+        float: left;
+
+        .hl-primary-btn,
+        .hl-primary-btn-blue {
+            width: 100%;
+        }
+    }
+}
+
+// scss-lint:disable IdSelector, SelectorFormat
+.auth-token-input,
+#id_generator-token {
+    width: 100% !important;
+}
+// scss-lint:enable IdSelector, SelectorFormat
+
+.backup-phone-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}

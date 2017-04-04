@@ -1,0 +1,20 @@
+<h3>Your backup phone numbers</h3>
+
+<table class="hl-table">
+    <thead>
+        <tr>
+            <th class="hl-table-column">Phone number</th>
+            <th class="hl-table-column">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="phone in vm.twoFactor.backup_phone_numbers">
+            <td class="hl-table-column align-left">{{ phone.number }}</td>
+            <td class="hl-table-column align-left" style="width: 100px;">
+                <button class="btn hl-primary-btn" ng-click="vm.openRemoveBackupPhoneNumberModal(phone)">
+                    <i class="lilicon hl-trashcan-icon"></i>
+                </button>
+            </td>
+        </tr>
+    </tbody>
+</table>

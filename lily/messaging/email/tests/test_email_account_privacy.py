@@ -63,7 +63,6 @@ class EmailAccountPrivacyTests(TestCase):
             stripped_messages.append({
                 'id': email_message.id,
                 'sender': email_message.sender,
-                'subject': email_message.subject,
                 'received_by': email_message.received_by.all(),
                 'received_by_cc': email_message.received_by_cc.all(),
                 'sent_date': email_message.sent_date,

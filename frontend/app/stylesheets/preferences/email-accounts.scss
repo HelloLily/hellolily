@@ -4,16 +4,20 @@ $base-color: #27224e;
     color: $base-color;
     display: flex;
     justify-content: space-between;
+    flex-wrap: wrap;
+    margin: 0 -5px;
 
-    .option-container {
-        flex: 1;
+    .privacy-option-container {
+        flex-grow: 1;
+        padding: 5px;
     }
 
     label {
-        height: 75px;
+        height: 100%;
         border: 1px solid $app-border-color;
         border-radius: 3px;
         width: 100%;
+        box-sizing: border-box;
         text-align: center;
         cursor: pointer;
         display: flex;
@@ -34,10 +38,6 @@ $base-color: #27224e;
         }
     }
 
-    > .option-container ~ .option-container {
-        margin-left: 5px;
-    }
-
     input {
         &[type="radio"] {
             display: none;
@@ -50,6 +50,10 @@ $base-color: #27224e;
     }
 }
 
+.privacy-option {
+    padding: 5px;
+}
+
 .privacy-examples {
     border: 1px $app-border-color solid;
     border-radius: $base-border-radius;
@@ -59,6 +63,11 @@ $base-color: #27224e;
 
 .privacy-example {
     position: relative;
+}
+
+.privacy-info {
+    font-size: 14px;
+    margin: 20px 0;
 }
 
 .privacy-example-title {

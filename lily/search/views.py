@@ -121,12 +121,12 @@ class SearchView(LoginRequiredMixin, View):
                         'id': hit.get('id'),
                         'sender_name': hit.get('sender_name'),
                         'sender_email': hit.get('sender_email'),
-                        'subject': hit.get('sender'),
                         'received_by_email': hit.get('received_by_email'),
                         'received_by_name': hit.get('received_by_name'),
                         'received_by_cc_email': hit.get('received_by_cc_email'),
                         'received_by_cc_name': hit.get('received_by_cc_name'),
                         'sent_date': hit.get('sent_date'),
+                        'privacy': hit.get('account').get('privacy'),
                     }
 
                     if email_account.owner == user:
@@ -136,6 +136,10 @@ class SearchView(LoginRequiredMixin, View):
                             privacy = shared_config.privacy
                         else:
                             privacy = email_account.privacy
+
+                        metadata_only_message.update({
+                            'privacy': privacy,
+                        })
 
                         if privacy == EmailAccount.METADATA:
                             filtered_hits.append(metadata_only_message)

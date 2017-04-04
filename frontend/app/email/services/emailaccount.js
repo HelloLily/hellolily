@@ -72,10 +72,10 @@ function EmailAccount($resource) {
     function getPrivacyOptions() {
         // Hardcoded because these are the only privacy options.
         return [
-            {id: 0, name: 'Entire mailbox', text: 'send and read'},
-            {id: 1, name: 'Email', text: 'only read email in timeline'},
-            {id: 2, name: 'Limited info', text: 'only read date and recipients in timeline'},
-            {id: 3, name: 'Nothing', text: 'email is hidden'},
+            {id: 0, name: 'Group inbox', text: 'Used by multiple people'},
+            {id: 1, name: 'Public personal inbox', text: 'Colleagues can see my email'},
+            {id: 2, name: 'Personal inbox, with shared metadata', text: 'The content of email is hidden, only meta data is visible'},
+            {id: 3, name: 'Private inbox', text: 'Nothing is shared, you lose Lily superpowers'},
         ];
     }
 

@@ -34,9 +34,9 @@
                     </div>
                     <uib-tabset active="active" class="lily-tabs">
                         <uib-tab index="0" heading="Basic">
-                            <p>Enable your colleagues to see:</p>
+                            <p>This inbox is a:</p>
                             <div class="privacy-radios">
-                                <div ng-repeat="option in vm.privacyOptions" class="option-container">
+                                <div ng-repeat="option in vm.privacyOptions" class="privacy-option-container">
                                     <input type="radio" name="privacy" ng-model="vm.emailAccount.privacy" ng-value="{{ option.id }}" id="privacy_{{ option.id }}" />
 
                                     <label for="privacy_{{ option.id }}" class="privacy-option display-inline-block">
@@ -48,14 +48,13 @@
                                 </div>
                             </div>
 
-                            <h3 class="privacy-example-title">Example of timeline</h3>
-                            <div class="privacy-examples">
-                                <div ng-if="vm.emailAccount.privacy == 0" class="privacy-example">
-                                    Choose to share the entire Mailbox, so colleagues can
-                                    also send emails from that email address. Really handy
-                                    for general email accounts such as an 'info@' address.
-                                </div>
+                            <h3 ng-if="!vm.emailAccount.privacy == 0" class="privacy-example-title">Example of timeline</h3>
 
+                            <div ng-if="vm.emailAccount.privacy == 0" class="privacy-info">
+                                <i class="lilicon hl-info-icon blue"></i> Used by multiple people in the company, ergo info@ or support@
+                            </div>
+
+                            <div class="privacy-examples" ng-if="!vm.emailAccount.privacy == 0">
                                 <div ng-if="vm.emailAccount.privacy == 1" class="privacy-example">
                                     <div class="vertical-line"></div>
                                     <div class="history-item">
@@ -85,7 +84,10 @@
                                                 </div>
 
                                                 <div class="content-details history-item-body" ng-hide="vm.item.shown">
-                                                    <p class="detail-plain-text">Hi! I just wanted to show an example of what your colleagues can read.</br></br>Love lily!</p>
+                                                    <p class="detail-plain-text">Hi! I just wanted to show an example of what your colleagues can read.
+
+                                                        </br></br>Love lily!
+                                                    </p>
                                                     <ul class="content-details-actions">
                                                         <li><a><i class="fa fa-eye"></i> View</a></li>
                                                         <li><a><i class="fa fa-mail-reply"></i> Reply</a></li>
@@ -126,7 +128,7 @@
                                                 </div>
 
                                                 <div class="content-details history-item-body hidden-content" ng-hide="vm.item.shown">
-                                                    The content of this email is not visible to you because {{ vm.emailAccount.email_address }} is set to disclose limited information
+                                                    {{ $root.messages.historyList.emailMetadataMessage }}
                                                 </div>
                                             </div>
                                         </div>

@@ -65,6 +65,9 @@ function HLMessages() {
                 shareAccountTitle: 'Share your email',
             },
         },
+        historyList: {
+            emailMetadataMessage: 'The content of this email is not visible to you because the owner has chosen not to share the full message',
+        },
         tooltips: {
             modEnter: {
                 title: mod + '+Enter',

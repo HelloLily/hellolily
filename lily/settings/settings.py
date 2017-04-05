@@ -82,6 +82,10 @@ CHANNEL_LAYERS = {
         "BACKEND": "asgi_redis.RedisChannelLayer",
         "CONFIG": {
             "hosts": [REDIS_URL, ],
+            "channel_capacity": {
+                "http.request": 200,
+                "http.response*": 10,
+            },
         },
         "ROUTING": "lily.routing.channel_routing",
     },
@@ -511,6 +515,7 @@ def es_url_to_dict(url):
             'use_ssl': use_ssl,
             'http_auth': '%s:%s' % (parse.username, parse.password)}
     return tuple(sorted(host.items()))
+
 
 ES_PROVIDER_ENV = os.environ.get('ES_PROVIDER_ENV', 'ES_DEV_URL')
 ES_URLS = [es_url_to_dict(os.environ.get(ES_PROVIDER_ENV, 'http://es:9200'))]

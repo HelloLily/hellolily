@@ -302,6 +302,7 @@ INSTALLED_APPS = (
     # Lily
     'lily',  # required for management commands
     'lily.accounts',
+    'lily.billing',
     'lily.calls',
     'lily.cases',
     'lily.changes',
@@ -639,6 +640,9 @@ RAVEN_CONFIG = {
     'dsn': SENTRY_BACKEND_DSN,
     'release': CURRENT_COMMIT_SHA,
 }
+
+CHARGEBEE_API_KEY = os.environ.get('CHARGEBEE_API_KEY', '')
+CHARGEBEE_SITE = os.environ.get('CHARGEBEE_SITE', 'hellolily-test')
 
 #######################################################################################################################
 # TESTING                                                                                                             #

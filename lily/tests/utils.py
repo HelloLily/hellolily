@@ -7,7 +7,7 @@ from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client.client import OAuth2Credentials
 
 from decimal import Decimal
-from django.contrib.auth.models import AnonymousUser
+from django.contrib.auth.models import AnonymousUser, Group
 from django.db.models import Manager, Model
 from rest_framework import status
 from rest_framework.reverse import reverse
@@ -46,6 +46,9 @@ class UserBasedTest(object):
             password=password,
             tenant_id=tenant_1.id
         )
+        account_admin = Group.objects.get_or_create(name='account_admin')[0]
+        cls.user_obj.groups.add(account_admin)
+
         cls.user = APIClient()
         cls.user.login(email=cls.user_obj.email, password=password)
 

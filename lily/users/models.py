@@ -250,6 +250,10 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
             digestmod=hashlib.sha256
         ).hexdigest()
 
+    @property
+    def is_admin(self):
+        return self.groups.filter(name='account_admin').exists() or self.is_superuser
+
     def __unicode__(self):
         return self.full_name
 

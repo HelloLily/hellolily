@@ -67,6 +67,9 @@ function HLMessages() {
             preferences: {
                 userAssignTitle: 'Assign %(user)s to teams',
                 shareAccountTitle: 'Share your email',
+                subscriptionCancelTitle: 'Are you sure?',
+                subscriptionCancelText: 'You are about to cancel your subscription. This will revert your account back to the free plan after the next billing date. Are you sure you want to continue?',
+                confirmButtonText: 'Yes, cancel!',
                 twoFactorAuth: {
                     disable: {
                         confirmText: 'You are about to disable two-factor authentication. This compromises your account security, are you sure?',
@@ -99,6 +102,11 @@ function HLMessages() {
                     successTitle: 'Disabled!',
                     successText: 'Two factor auth was successfully disabled.',
                 },
+            },
+            general: {
+                errorTitle: 'Error',
+                errorText: 'There was an error processing your request.<br />Please try again.'
+                
             },
         },
         activityStream: {

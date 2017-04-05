@@ -4,12 +4,14 @@ from django.contrib.auth.hashers import make_password
 from django.utils.timesince import timesince, timeuntil
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
+from rest_framework.exceptions import PermissionDenied
 from user_sessions.models import Session
 from user_sessions.templatetags.user_sessions import device
 
 from lily.api.fields import CustomTimeZoneField
 from lily.api.nested.mixins import RelatedSerializerMixin
 from lily.api.nested.serializers import WritableNestedSerializer
+from lily.billing.functions import update_subscription
 from lily.utils.api.serializers import RelatedWebhookSerializer
 
 from ..models import Team, LilyUser, UserInfo
@@ -113,6 +115,17 @@ class LilyUserSerializer(WritableNestedSerializer):
     def update(self, instance, validated_data):
         if instance.picture is validated_data.get('picture'):
             validated_data['picture'] = None
+
+        if 'is_active' in validated_data:
+            if self.context.get('request').user.is_admin:
+                is_active = validated_data.get('is_active')
+
+                # Only continue if we're actually activating a user.
+                if is_active != instance.is_active and is_active:
+                    # Increment the plan's quantity.
+                    update_subscription(instance.tenant, 1)
+            else:
+                raise PermissionDenied
 
         validated_team_list = None
 

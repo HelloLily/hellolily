@@ -13,6 +13,7 @@ from rest_framework.views import APIView
 from lily.contacts.models import Contact
 from lily.deals.models import Deal
 from lily.utils.functions import send_get_request
+from lily.utils.api.permissions import IsAccountAdmin
 
 from .serializers import DocumentSerializer
 from ..credentials import get_access_token, get_credentials, put_credentials, LilyOAuthCredentials
@@ -149,6 +150,7 @@ class EstimatesList(APIView):
 
 class IntegrationAuth(APIView):
     parser_classes = (JSONParser, FormParser)
+    permission_classes = (IsAccountAdmin, )
 
     def post(self, request, integration_type):
         """

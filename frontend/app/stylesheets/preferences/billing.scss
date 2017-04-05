@@ -1,0 +1,68 @@
+.credit-card {
+    background: url("../images/vendor/cards-sprite.png") no-repeat;
+    width: 32px;
+    height: 23px;
+    float: left;
+    margin-right: 4px;
+
+    .cc-visa {
+        background-position: 0 0;
+    }
+
+    .cc-mastercard {
+        background-position: -45px 0;
+    }
+
+    .cc-american-express {
+        background-position: -91px 0;
+    }
+
+    .cc-discover {
+        background-position: -136px 0;
+    }
+
+    .cc-diners-club {
+        background-position: -181px 0;
+    }
+
+    .cc-jcb {
+        background-position: -226px 0;
+    }
+}
+
+.subscription-status {
+    padding: 1px 6px;
+    font-size: 12px;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    position: relative;
+    margin: 0 3px;
+    display: inline-block;
+    color: #fff;
+
+    &.future {
+        background: #91388c;
+    }
+
+    &.in-trial {
+        background: #e8ba4a;
+    }
+
+    &.active {
+        background: #69ad22;
+    }
+
+    &.non-renewing {
+        background: #555f78;
+    }
+
+    &.cancelled {
+        background: #cc3335;
+    }
+}
+
+.cancel-subscription {
+    text-align: right;
+    margin-top: 10px;
+}

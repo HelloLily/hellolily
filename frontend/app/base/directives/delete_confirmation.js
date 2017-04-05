@@ -51,8 +51,8 @@ function DeleteConfirmationController($state, HLResource, Settings) {
                 'confirmTitle': vm.messageObject.confirmTitle || messages.alerts.delete.confirmTitle,
                 'confirmText': vm.messageObject.confirmText || messages.alerts.delete.confirmText,
                 'confirmButtonText': vm.messageObject.confirmButtonText || messages.alerts.delete.confirmButtonText,
-                'errorTitle': vm.messageObject.errorTitle || messages.alerts.delete.errorTitle,
-                'errorText': vm.messageObject.errorText || messages.alerts.delete.errorText,
+                'errorTitle': vm.messageObject.errorTitle || messages.alerts.general.errorTitle,
+                'errorText': vm.messageObject.errorText || messages.alerts.general.errorText,
                 'successTitle': vm.messageObject.successTitle || messages.alerts.delete.successTitle,
                 'successText': vm.messageObject.successText || messages.alerts.delete.successText,
             };

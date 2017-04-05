@@ -26,6 +26,8 @@ from templated_email import send_templated_mail
 
 from lily.utils.functions import post_intercom_event
 
+from lily.billing.functions import update_subscription
+
 from .utils import get_info_text_for_device
 from .serializers import TeamSerializer, LilyUserSerializer, LilyUserTokenSerializer, SessionSerializer
 from ..models import Team, LilyUser, UserInfo
@@ -276,17 +278,29 @@ class LilyUserViewSet(viewsets.ModelViewSet):
         """
         user_to_delete = self.get_object()
 
-        # Prevent the user from deactivating him/herself.
-        if request.user == user_to_delete:
-            raise PermissionDenied
+        if request.user.tenant.id != user_to_delete.tenant.id:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
-        request.user.session_set.all().delete()
+        if request.user.is_admin:
+            tenant = user_to_delete.tenant
 
-        # Don't call super, since that only fires another query using self.get_object().
-        self.perform_destroy(user_to_delete)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+            # Prevent the user from deactivating him/herself.
+            if request.user == user_to_delete:
+                raise PermissionDenied
 
+            user_sessions = []
+            all_sessions = Session.objects.filter(expire_date__gte=timezone.now())
 
+            for session in all_sessions:
+                session_data = session.get_decoded()
+
+                if user_to_delete.pk == session_data.get('_auth_user_id'):
+                    user_sessions.append(session.pk)
+
+            # By using the __in filter we limit the number of queries to 2, instead of a delete query per session.
+            Session.objects.filter(pk__in=user_sessions).delete()
+            
+            
 class TwoFactorDevicesViewSet(viewsets.ViewSet):
     """
     A simple ViewSet for listing or disabling two factor devices.
@@ -336,9 +350,16 @@ class TwoFactorDevicesViewSet(viewsets.ViewSet):
         except PhoneDevice.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        return Response(status=status.HTTP_204_NO_CONTENT)
+            # Don't call super, since that only fires another query using self.get_object().
+            self.perform_destroy(user_to_delete)
 
+            update_subscription(tenant, -1)
 
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+            
+            
 class SessionViewSet(mixins.RetrieveModelMixin,
                      mixins.ListModelMixin,
                      mixins.DestroyModelMixin,

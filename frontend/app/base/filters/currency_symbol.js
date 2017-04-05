@@ -13,7 +13,14 @@ function currencySymbol($filter) {
         'CHF': '&#67;&#72;&#70; ',
     };
 
-    return function(amount, currency) {
-        return $filter('currency')(amount, currencySymbols[currency]);
+    return function(amount, currency, divide = false) {
+        let newAmount = amount;
+
+        if (divide) {
+            // Divide the amount by 100 so we get the proper amount;
+            newAmount /= 100;
+        }
+
+        return $filter('currency')(newAmount, currencySymbols[currency]);
     };
 }

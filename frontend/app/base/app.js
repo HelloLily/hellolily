@@ -2,6 +2,7 @@
 var Raven = require('raven-js');
 
 window.sprintf = require('sprintf-js').sprintf;
+window.moment = require('moment');
 
 require('angular-xeditable');
 require('angular-ui-bootstrap');

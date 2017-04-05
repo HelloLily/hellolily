@@ -101,6 +101,12 @@
                         Integrations
                     </a>
                 </li>
+                <li ng-if="currentUser.isAdmin" ui-sref-active="active">
+                    <a ui-sref="base.preferences.admin.billing" ui-sref-opts="{reload:true}">
+                        <i class="fa fa-credit-card"></i>
+                        Billing
+                    </a>
+                </li>
             </ul>
         </div>
         <!-- END MENU -->

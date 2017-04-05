@@ -4,6 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from lily.utils.countries import COUNTRIES
 from lily.utils.forms.widgets import AddonTextInput
+from lily.utils.countries import COUNTRIES
 
 from lily.users.models import LilyUser
 
@@ -85,6 +86,15 @@ class TenantRegistrationForm(UserRegistrationForm):
         self.fields['tenant_name'].widget.attrs['placeholder'] = _('Enter the name of your company')
         self.fields['email'].widget.attrs['placeholder'] = _('youremail@example.com')
         self.fields['email'].label = _('Email address')
+
+
+class TenantRegistrationForm(RegistrationForm):
+    """
+    This form allows new tenant registration.
+    """
+    tenant_name = forms.CharField(label=_('Company name'), max_length=255)
+    # country = forms.
+    country = forms.ChoiceField(COUNTRIES)
 
 
 class AcceptInvitationForm(UserRegistrationForm):

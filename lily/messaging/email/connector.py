@@ -97,6 +97,12 @@ class GmailConnector(object):
                         raise NotFoundError
                     else:
                         logger.exception('Unkown error code for error %s' % error)
+                        if service.body_size < 25000:
+                            # Log the actual API call to Google in case of an error. But restrict on the (arbitrary
+                            # chosen) body_size. Size can be very large due to inline images / html tags.
+                            logger.exception(service.to_json())
+                        else:
+                            logger.exception('Did not log api call, body size to large: %d' % service.body_size)
                         raise
 
                 except ValueError:
@@ -105,6 +111,10 @@ class GmailConnector(object):
                         raise NotFoundError
                     else:
                         logger.exception('Unkown error code for error %s' % error)
+                        if service.body_size < 25000:
+                            logger.exception(service.to_json())
+                        else:
+                            logger.exception('Did not log api call, body size to large: %d' % service.body_size)
                         raise
             except HttpAccessTokenRefreshError:
                 # Thrown when a user removes Lily from the connected apps or
@@ -140,6 +150,7 @@ class GmailConnector(object):
                 startHistoryId=self.history_id,
                 pageToken=page_token
             ))
+
             history.extend(response.get('history', []))
 
         # History id's are for successive history pages identical, so no need to update with each nextPageToken.
@@ -202,6 +213,12 @@ class GmailConnector(object):
             id=message_id,
             quotaUser=self.email_account.id,
         ))
+
+        history_id = response.get('historyId', self.history_id)
+        if history_id > self.history_id:
+            # Store new history id if it's past the current one.
+            self.history_id = history_id
+
         return response
 
     def get_label_list(self):

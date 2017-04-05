@@ -1,10 +1,7 @@
-<div class="hl-form-field" ng-repeat="website in vm.websites | filter: {is_primary:false}">
-    <label for="id_website-{{ $index }}" ng-show="$first">
-        Extra website
-    </label>
+<div class="hl-related-form-field" ng-repeat="website in vm.websites | filter: {is_primary:false}" ng-class="{'has-error': form['websites-website-' + $index].$invalid }">
     <div class="row hl-row-sm">
         <div class="col-md-12 hl-flex-container">
-            <input class="form-control hl-form-input margin-right-5 hl-flex-1"
+            <input class="form-control hl-form-input margin-right-10 hl-flex-1"
                    id="id_website-{{ $index }}"
                    maxlength="255"
                    name="websites-website-{{ $index }}"
@@ -21,14 +18,13 @@
             <a ng-click="vm.removeRelatedField({field: 'website', index: $index, remove: true})" class="hl-primary-btn hl-form-input-btn" title="Delete this row" ng-hide="website.is_deleted">
                 <i class="lilicon hl-trashcan-icon"></i>
             </a>
+            <a ng-click="vm.addRelatedField({field: 'website'})"
+               class="margin-left-5 hl-primary-btn hl-form-input-btn" title="Add new website"
+               ng-if="$index === vm.websites.length - 1">
+               <i class="fa fa-plus"></i>
+            </a>
+            <div  class="form-add-spacer" ng-if="$index !== (vm.websites.length - 1)"></div>
         </div>
     </div>
     <field-error form="form" field="websites-website" index="$index"></field-error>
-</div>
-
-<div class="hl-form-field">
-    <label ng-hide="(vm.websites|filter:{is_primary:false}).length">
-        Extra website
-    </label>
-    <div><a ng-click="vm.addRelatedField({field:'website'})" class="form-control-static">Add a website</a></div>
 </div>

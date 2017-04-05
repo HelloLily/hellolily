@@ -370,6 +370,14 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
 
         HLForms.setErrors(form, response.data);
 
+        // Recreate empty related fields
+        if (!vm.account.email_addresses.length) vm.addRelatedField('emailAddress');
+        if (!vm.account.phone_numbers.length) vm.addRelatedField('phoneNumber');
+        if (!vm.account.addresses.length) vm.addRelatedField('address');
+        if (!vm.account.websites.filter(website => website.is_primary === false).length) {
+            vm.addRelatedField('website');
+        }
+
         toastr.error('Uh oh, there seems to be a problem', 'Oops!');
     }
 

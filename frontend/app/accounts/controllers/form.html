@@ -105,14 +105,14 @@
             <form-portlet portlet-title="Contact information">
                 <div ng-class="{'supercard-form': settings.email.sidebar.form}">
 
-                    <form-group label-title="Email">
+                    <form-group ng-if="vm.account.email_addresses" label-title="Email">
                         <form-email-addresses email-addresses="vm.account.email_addresses"
                                               add-related-field="vm.addRelatedField(field)"
                                               remove-related-field="vm.removeRelatedField(field, index, remove)">
                         </form-email-addresses>
                     </form-group>
 
-                    <form-group label-title="Phone number">
+                    <form-group ng-if="vm.account.phone_numbers" label-title="Phone number">
                         <form-phone-numbers phone-numbers="vm.account.phone_numbers"
                                             add-related-field="vm.addRelatedField(field)"
                                             remove-related-field="vm.removeRelatedField(field, index, remove)"
@@ -120,17 +120,19 @@
                         </form-phone-numbers>
                     </form-group>
 
-                    <form-group label-title="Address">
+                    <form-group ng-if="vm.account.addresses" label-title="Address">
                         <form-addresses addresses="vm.account.addresses"
                                         add-related-field="vm.addRelatedField(field)"
                                         remove-related-field="vm.removeRelatedField(field, index, remove)">
                         </form-addresses>
                     </form-group>
 
-                    <form-websites websites="vm.account.websites"
-                                   add-related-field="vm.addRelatedField(field)"
-                                   remove-related-field="vm.removeRelatedField(field, index, remove)">
-                    </form-websites>
+                    <form-group ng-if="vm.account.websites" label-title="Extra website">
+                        <form-websites websites="vm.account.websites"
+                                       add-related-field="vm.addRelatedField(field)"
+                                       remove-related-field="vm.removeRelatedField(field, index, remove)">
+                        </form-websites>
+                    </form-group>
 
                 </div>
             </form-portlet>

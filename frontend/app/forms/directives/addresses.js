@@ -26,6 +26,10 @@ FormAddressesController.$inject = [];
 function FormAddressesController() {
     var vm = this;
 
+    if (!vm.addresses.length) {
+        vm.addRelatedField({field: 'address'});
+    }
+
     vm.addressTypes = [
         {key: 'visiting', value: 'Visiting address'},
         {key: 'billing', value: 'Billing address'},

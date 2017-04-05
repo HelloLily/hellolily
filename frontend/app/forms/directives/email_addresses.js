@@ -27,6 +27,10 @@ FormEmailAddressesController.$inject = ['HLUtils'];
 function FormEmailAddressesController(HLUtils) {
     var vm = this;
 
+    if (vm.emailAddresses && !vm.emailAddresses.length) {
+        vm.addRelatedField({field: 'emailAddress'});
+    }
+
     vm.setPrimaryEmailAddress = HLUtils.setPrimaryEmailAddress;
 
     if (!vm.label) {

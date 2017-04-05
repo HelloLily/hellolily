@@ -57,6 +57,10 @@
     }
 }
 
+.hl-related-form-field {
+    margin-bottom: 20px;
+}
+
 .hl-form-table {
     display: table;
     width: 100%;
@@ -111,7 +115,6 @@
 .hl-form-input {
     float: left;
     width: 100%;
-    margin: 5px 0;
 }
 
 .hl-form-input-deleted {
@@ -123,7 +126,7 @@
 }
 
 .hl-form-input-btn {
-    margin: 5px 0;
+    margin: 0;
 }
 
 .hl-form-icon {
@@ -206,6 +209,14 @@
     .form-inline-icon {
         padding-top: 10px;
     }
+}
+
+.form-add-spacer {
+    width: 30px;
+}
+
+.form-add-bin-spacer {
+    width: 134px;
 }
 
 // Fix for combo between our validation and bootstrap form validation.

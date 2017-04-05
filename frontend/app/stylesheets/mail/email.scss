@@ -498,20 +498,46 @@
     }
 }
 
-.create-sidebar .portlet.light {
-    padding: 0;
-
-    .form-body {
-        padding: 15px;
+.create-sidebar {
+    .create-sidebar-margin-bottom-10px {
+        margin-bottom: 10px;
     }
 
-    .form-horizontal {
-        border: 1px solid $lily-border-dark;
+    .create-sidebar-input-col {
+        width: 100%;
+
+        &-4 {
+            width: 33.33333333%;
+        }
+
+        &-6 {
+            width: 50%;
+        }
+
+        &-8 {
+            width: 66.66666667%;
+        }
     }
 
-    .inbox-view-header {
-        margin-bottom: 0;
-        border-bottom: 0;
+    .form-add-bin-spacer {
+        display: none;
+    }
+
+    .portlet.light {
+        padding: 0;
+
+        .form-body {
+            padding: 15px;
+        }
+
+        .form-horizontal {
+            border: 1px solid $lily-border-dark;
+        }
+
+        .inbox-view-header {
+            margin-bottom: 0;
+            border-bottom: 0;
+        }
     }
 }
 

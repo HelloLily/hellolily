@@ -383,6 +383,11 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
     function _handleBadResponse(response, form) {
         HLForms.setErrors(form, response.data);
 
+        // Recreate empty related fields
+        if (!vm.contact.email_addresses.length) vm.addRelatedField('emailAddress');
+        if (!vm.contact.phone_numbers.length) vm.addRelatedField('phoneNumber');
+        if (!vm.contact.addresses.length) vm.addRelatedField('address');
+
         toastr.error('Uh oh, there seems to be a problem', 'Oops!');
     }
 

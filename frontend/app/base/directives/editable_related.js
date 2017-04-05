@@ -86,16 +86,16 @@ function EditableRelatedController(HLFields, HLResource, HLUtils) {
                     isPrimary = true;
                 }
 
-                er.items.unshift({is_primary: isPrimary, status: status});
+                er.items.push({is_primary: isPrimary, status: status});
                 break;
             case 'phone_numbers':
-                er.items.unshift({type: 'work'});
+                er.items.push({type: 'work'});
                 break;
             case 'addresses':
-                er.items.unshift({type: 'visiting'});
+                er.items.push({type: 'visiting'});
                 break;
             case 'websites':
-                er.items.unshift({website: '', is_primary: false});
+                er.items.push({website: '', is_primary: false});
                 break;
             default:
                 break;

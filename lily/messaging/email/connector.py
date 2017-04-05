@@ -1,11 +1,13 @@
 import logging
 import random
 import time
-
 import anyjson
+
+from StringIO import StringIO
+
 from django.conf import settings
 from googleapiclient.errors import HttpError
-from googleapiclient.http import MediaInMemoryUpload
+from googleapiclient.http import MediaIoBaseUpload
 from oauth2client.client import HttpAccessTokenRefreshError
 
 from .credentials import get_credentials, InvalidCredentialsError
@@ -324,15 +326,16 @@ class GmailConnector(object):
         return response
 
     def send_email_message(self, message_string, thread_id=None):
+        # Possible TODO: only use MediaIOBaseUpload on large email bodys instead of always:
+        # http://stackoverflow.com/questions/27875858/#33155212
+        fd = StringIO(message_string)
+        media = MediaIoBaseUpload(fd, mimetype='message/rfc822', chunksize=settings.GMAIL_CHUNK_SIZE,
+                                  resumable=settings.GMAIL_UPLOAD_RESUMABLE)
+
         message_dict = {}
-        media = MediaInMemoryUpload(
-            message_string,
-            mimetype='message/rfc822',
-            chunksize=settings.GMAIL_CHUNK_SIZE,
-            resumable=True
-        )
         if thread_id:
             message_dict.update({'threadId': thread_id})
+
         response = self.execute_service_call(
             self.gmail_service.service.users().messages().send(
                 userId='me',
@@ -343,12 +346,16 @@ class GmailConnector(object):
         return response
 
     def create_draft_email_message(self, message_string):
-        media = MediaInMemoryUpload(
-            message_string,
+        # Possible TODO: only use MediaIOBaseUpload on large email bodys instead of always:
+        # http://stackoverflow.com/questions/27875858/#33155212
+        fd = StringIO(message_string)
+        media = MediaIoBaseUpload(
+            fd,
             mimetype='message/rfc822',
             chunksize=settings.GMAIL_CHUNK_SIZE,
-            resumable=True
+            resumable=settings.GMAIL_UPLOAD_RESUMABLE
         )
+
         response = self.execute_service_call(
             self.gmail_service.service.users().drafts().create(
                 userId='me',
@@ -358,12 +365,16 @@ class GmailConnector(object):
         return response
 
     def update_draft_email_message(self, message_string, draft_id):
-        media = MediaInMemoryUpload(
-            message_string,
+        # Possible TODO: only use MediaIOBaseUpload on large email bodys instead of always:
+        # http://stackoverflow.com/questions/27875858/#33155212
+        fd = StringIO(message_string)
+        media = MediaIoBaseUpload(
+            fd,
             mimetype='message/rfc822',
             chunksize=settings.GMAIL_CHUNK_SIZE,
-            resumable=True
+            resumable=settings.GMAIL_UPLOAD_RESUMABLE
         )
+
         response = self.execute_service_call(
             self.gmail_service.service.users().drafts().update(
                 userId='me',

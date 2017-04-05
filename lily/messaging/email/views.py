@@ -51,8 +51,8 @@ logger = logging.getLogger(__name__)
 
 
 FLOW = OAuth2WebServerFlow(
-    client_id=settings.GA_CLIENT_ID,
-    client_secret=settings.GA_CLIENT_SECRET,
+    client_id=settings.GOOGLE_OAUTH2_CLIENT_ID,
+    client_secret=settings.GOOGLE_OAUTH2_CLIENT_SECRET,
     redirect_uri=settings.GMAIL_CALLBACK_URL,
     scope='https://mail.google.com/',
     prompt='consent',

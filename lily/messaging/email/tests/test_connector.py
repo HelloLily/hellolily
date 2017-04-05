@@ -9,7 +9,7 @@ from lily.messaging.email.connector import GmailConnector, FailedServiceCallExce
 from lily.messaging.email.factories import GmailAccountFactory
 from lily.messaging.email.models.models import EmailAccount
 from lily.messaging.email.services import GmailService
-from lily.tests.utils import UserBasedTest
+from lily.tests.utils import UserBasedTest, get_dummy_credentials
 
 from mock import MagicMock, patch
 
@@ -21,9 +21,10 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
 
     def setUp(self):
         # Patch the creation of a Gmail API service without the need for authorized credentials.
+        credentials = get_dummy_credentials()
         self.get_credentials_mock_patcher = patch('lily.messaging.email.connector.get_credentials')
         get_credentials_mock = self.get_credentials_mock_patcher.start()
-        get_credentials_mock.return_value = None
+        get_credentials_mock.return_value = credentials
 
         self.authorize_mock_patcher = patch.object(GmailService, 'authorize')
         authorize_mock = self.authorize_mock_patcher.start()
@@ -31,7 +32,7 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
 
         self.build_service_mock_patcher = patch.object(GmailService, 'build_service')
         build_service_mock = self.build_service_mock_patcher.start()
-        build_service_mock.return_value = build('gmail', 'v1')
+        build_service_mock.return_value = build('gmail', 'v1', credentials=credentials)
 
     @classmethod
     def setUpTestData(cls):
@@ -162,7 +163,7 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
         except HttpAccessTokenRefreshError:
             pass
 
-        self.assertEqual(email_account.is_authorized, False, "Email account shouldn't be authorized.")
+        self.assertFalse(email_account.is_authorized, "Email account shouldn't be authorized.")
 
     @patch.object(GmailService, '_get_http')
     def test_get_all_message_id_list(self, get_http_mock):
@@ -238,8 +239,8 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
             pass
 
         # Verify that no messages are retrieved and that the history id is not set,
-        self.assertEqual(messages, None)
-        self.assertEqual(connector.history_id, None)
+        self.assertIsNone(messages)
+        self.assertIsNone(connector.history_id)
 
     @patch.object(GmailConnector, 'execute_service_call')
     def test_get_all_message_id_list_failed_service_call_error(self, execute_service_call_mock):
@@ -261,8 +262,8 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
             pass
 
         # Verify that no messages are retrieved and that the history id is not set,
-        self.assertEqual(messages, None)
-        self.assertEqual(connector.history_id, None)
+        self.assertIsNone(messages)
+        self.assertIsNone(connector.history_id)
 
     @patch.object(GmailService, '_get_http')
     def test_get_message_info(self, get_http_mock):
@@ -282,6 +283,9 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
         with open('lily/messaging/email/tests/data/get_message_info_15a6008a4baa65f3.json') as infile:
             json_obj = json.load(infile)
             self.assertEqual(response, json_obj)
+
+        # Verify that the history id is retrieved from the get API response.
+        self.assertEqual(connector.history_id, u'5948')
 
     @patch.object(GmailService, '_get_http')
     def test_get_label_info(self, get_http_mock):
@@ -394,5 +398,54 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
 
         # Verify that the service call returned the correct json object.
         with open('lily/messaging/email/tests/data/get_history_id.json') as infile:
+            json_obj = json.load(infile)
+            self.assertEqual(response, json_obj)
+
+    @patch.object(GmailService, '_get_http')
+    def test_send_email_message(self, get_http_mock):
+        """
+        Test the GmailConnector on sending a email message.
+        """
+        get_http_mock.side_effect = MagicMock(
+            return_value=HttpMock('lily/messaging/email/tests/data/send_email_message.json', {'status': '200'}))
+
+        email_account = EmailAccount.objects.first()
+        email_outbox_message = """Content-Type: multipart/related;
+ boundary="===============0529811256475331541=="
+MIME-Version: 1.0
+Subject: Mauris ex tortor, hendrerit non sem eu, mollis varius purus.
+From: "Firstname Lastname" <user1@example.com>
+To: user2@example.com
+
+--===============0529811256475331541==
+Content-Type: multipart/alternative;
+ boundary="===============6835128886458232912=="
+MIME-Version: 1.0
+
+--===============6835128886458232912==
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+
+In hac habitasse platea dictumst. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos
+himenaeos. Ut aliquet elit sed augue bibendum malesuada.
+
+--===============6835128886458232912==
+MIME-Version: 1.0
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+<html><body><br/>In hac habitasse platea dictumst. Class aptent taciti sociosqu ad litora torquent per conubia nostra,
+per inceptos himenaeos. Ut aliquet elit sed augue bibendum malesuada.</body></html>
+--===============6835128886458232912==--
+
+--===============0529811256475331541==--"""
+
+        connector = GmailConnector(email_account)
+        response = connector.send_email_message(email_outbox_message)
+
+        # Verify that the service call returned the correct json object.
+        with open('lily/messaging/email/tests/data/send_email_message.json') as infile:
             json_obj = json.load(infile)
             self.assertEqual(response, json_obj)

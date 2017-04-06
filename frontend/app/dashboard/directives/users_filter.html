@@ -17,7 +17,7 @@
 
         <ul class="hl-dropdown js-hold-on-click">
             <li class="hl-dropdown-item no-border">
-                <span class="pointer" ng-click="vm.toggleUser('', vm.currentUser)">
+                <span class="clickable" ng-click="vm.toggleUser('', vm.currentUser)">
                     <div class="hl-checkbox" ng-class="{'checked': vm.currentUser.selected}"></div>
                     {{ vm.currentUser.fullName }}
                 </span>
@@ -25,7 +25,7 @@
 
             <div ng-repeat="team in vm.teams">
                 <li class="hl-dropdown-item">
-                    <span class="pointer" ng-click="vm.toggleUser(team)">
+                    <span class="clickable" ng-click="vm.toggleUser(team)">
                         <div class="hl-checkbox" ng-class="{'checked': team.selected, 'indeterminate': (!team.selected && (team.users | where: {selected: true}).length )}"></div>
                         {{ team.name }}
                     </span>
@@ -38,7 +38,7 @@
                 <li ng-if="!team.collapsed" class="hl-dropdown-sub-items">
                     <ul class="hl-dropdown-sub-menu">
                         <li class="hl-dropdown-sub-menu-item" ng-repeat="user in team.users">
-                            <span class="pointer" ng-click="vm.toggleUser(team, user)">
+                            <span class="clickable" ng-click="vm.toggleUser(team, user)">
                                 <div class="hl-checkbox" ng-class="{'checked': user.selected}"></div>
                                 {{ user.full_name }}
                             </span>

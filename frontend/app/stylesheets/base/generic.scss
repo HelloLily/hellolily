@@ -514,10 +514,6 @@ table {
     }
 }
 
-.pointer {
-    cursor: pointer;
-}
-
 .display-inline-block {
     display: inline-block;
 }
@@ -644,4 +640,10 @@ option {
     float: none;
     margin-left: auto;
     margin-right: auto;
+}
+
+.hide-on-tablet {
+    @media (max-width: $breakpoint-tablet) {
+        display: none;
+    }
 }

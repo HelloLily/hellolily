@@ -381,11 +381,11 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         }
     });
 
-    $scope.$watch('vm.case.assigned_to', function() {
+    $scope.$watch('vm.case.assigned_to', function(newValue, oldValue) {
         var team;
         var assignToTeams = [];
 
-        if (vm.case.assigned_to) {
+        if (vm.case.assigned_to && oldValue && newValue !== oldValue) {
             for (team of vm.teams) {
                 if (vm.case.assigned_to.teams && vm.case.assigned_to.teams.indexOf(team.id) > -1) {
                     assignToTeams.push(team);

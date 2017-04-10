@@ -361,6 +361,10 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
             if (!vm.deal.contact) {
                 vm.deal.contact = null;
             }
+
+            if (!vm.deal.assigned_to) {
+                vm.deal.assigned_to = null;
+            }
         }
 
         if (archive) {
@@ -458,11 +462,11 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
         }
     }
 
-    $scope.$watch('vm.deal.assigned_to', function() {
+    $scope.$watch('vm.deal.assigned_to', function(newValue, oldValue) {
         var team;
         var assignToTeams = [];
 
-        if (vm.deal.assigned_to) {
+        if (vm.deal.assigned_to && oldValue && newValue !== oldValue) {
             for (team of vm.teams) {
                 if (vm.deal.assigned_to.teams && vm.deal.assigned_to.teams.indexOf(team.id) > -1) {
                     assignToTeams.push(team);

@@ -10,8 +10,6 @@ can_merge() {
 }
 
 do_merge() {
-    cd "${REPO_DIR}" || exit 1
-
     echo "Checking out master."
     git checkout master || exit 1
 

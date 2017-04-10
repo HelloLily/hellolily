@@ -4,7 +4,7 @@ if [ "${TRAVIS_EVENT_TYPE}" == "cron" ]; then
     # Assume we are on the develop branch, because that's the only one with a cron job.
     echo 'merge'
 elif [ "${TRAVIS_BRANCH}" == "develop" ] && [ "${TRAVIS_EVENT_TYPE}" == "push" ]; then
-    if [ "$(git log --since='yesterday 23:00' --format=oneline -- '**/migrations/*' '**/search.py' | wc -l)" == "0" ]; then
+    if [ "${MIGRATION_NEEDED}" == "false" ] && [ "${INDEXING_NEEDED}" == "false" ]; then
         # Migration/index is not needed.
         echo 'merge'
     else

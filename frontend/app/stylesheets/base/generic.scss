@@ -159,6 +159,14 @@ label {
             content: "(required)";
         }
     }
+
+    &.no-label {
+        font-weight: normal;
+    }
+
+    &.display-block {
+        display: block;
+    }
 }
 
 .help-text {
@@ -448,8 +456,28 @@ table {
     margin-right: 30px;
 }
 
+.margin-top-40 {
+    margin-top: 40px;
+}
+
+.margin-top-30 {
+    margin-top: 30px;
+}
+
 .margin-top-20 {
     margin-top: 20px;
+}
+
+.margin-bottom-20 {
+    margin-bottom: 20px;
+}
+
+.margin-bottom-30 {
+    margin-bottom: 30px;
+}
+
+.margin-bottom-40 {
+    margin-bottom: 40px;
 }
 
 .margin-bottom-5 {
@@ -567,6 +595,10 @@ option {
     display: none;
 }
 
+.width-30 {
+    width: 30%;
+}
+
 .width-100 {
     width: 100%;
 }
@@ -580,11 +612,27 @@ option {
     }
 }
 
-.swal2-modal h2 {
-    font-size: 24px;
+.swal2-modal {
+    font-family: inherit;
+    padding: 15px;
+
+    h2 {
+        font-size: 24px;
+    }
+
+    .swal2-content {
+        font-size: inherit;
+        line-height: inherit;
+    }
 }
 
 .spacer-5 {
     height: 5px;
     display: block;
+}
+
+.auto-margin {
+    float: none;
+    margin-left: auto;
+    margin-right: auto;
 }

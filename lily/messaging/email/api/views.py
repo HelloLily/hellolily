@@ -2,16 +2,17 @@ import logging
 
 from django.conf import settings
 from django.db.models import Q
-from django.utils.translation import ugettext_lazy as _
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, mixins, status, filters, serializers
+from rest_framework import viewsets, mixins, status, filters
 from rest_framework.decorators import detail_route, list_route
+from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from lily.messaging.email.utils import get_email_parameter_api_dict, reindex_email_message
 from lily.search.lily_search import LilySearch
-from lily.users.models import LilyUser
+from lily.users.models import UserInfo
+from lily.users.api.serializers import LilyUserSerializer
 
 from .serializers import (EmailLabelSerializer, EmailAccountSerializer, EmailMessageSerializer,
                           EmailTemplateSerializer, SharedEmailConfigSerializer, TemplateVariableSerializer)
@@ -19,6 +20,7 @@ from ..models.models import (EmailLabel, EmailAccount, EmailMessage, EmailTempla
                              TemplateVariable)
 from ..tasks import (trash_email_message, delete_email_message, toggle_read_email_message,
                      add_and_remove_labels_for_message, toggle_star_email_message, toggle_spam_email_message)
+from ..utils import get_filtered_message
 
 
 logger = logging.getLogger(__name__)
@@ -51,13 +53,17 @@ class SharedEmailConfigViewSet(viewsets.ModelViewSet):
         email_account_id = self.request.data['email_account']
         try:
             shared_email_setting = self.get_queryset().get(email_account_id=email_account_id)
-            shared_email_setting.is_hidden = 'is_hidden' in self.request.data
-            shared_email_setting.save()
         except SharedEmailConfig.DoesNotExist:
             serializer.save(tenant_id=self.request.user.tenant_id, user=self.request.user)
+        else:
+            if 'is_hidden' in self.request.data:
+                shared_email_setting.is_hidden = self.request.data.get('is_hidden')
+                shared_email_setting.save()
 
     def perform_update(self, serializer):
-        is_hidden = 'is_hidden' in self.request.data
+        if 'is_hidden' in self.request.data:
+            is_hidden = self.request.data.get('is_hidden')
+
         serializer.save(tenant_id=self.request.user.tenant_id, user=self.request.user, is_hidden=is_hidden)
 
     def get_queryset(self):
@@ -69,15 +75,15 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
                           mixins.UpdateModelMixin,
                           viewsets.ReadOnlyModelViewSet):
 
-    queryset = EmailLabel.objects.all()
+    queryset = EmailAccount.objects.all()
     serializer_class = EmailAccountSerializer
 
     # Set all filter backends that this viewset uses.
     filter_backends = (DjangoFilterBackend,)
     filter_fields = (
         'owner',
-        'shared_with_users__id',
-        'public',
+        'sharedemailconfig__user__id',
+        'privacy',
     )
 
     def get_queryset(self):
@@ -86,6 +92,8 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
     def perform_destroy(self, instance):
         if instance.owner_id is self.request.user.id:
             instance.delete()
+            instance.is_authorized = False
+            instance.sharedemailconfig_set.all().delete()
         else:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
@@ -93,13 +101,12 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
     def mine(self, request):
         # Get a list of email accounts which are publicly shared or shared specifically with me.
         shared_email_account_list = EmailAccount.objects.filter(
-            Q(public=True) |
-            Q(shared_with_users__id=request.user.pk)
+            Q(privacy=EmailAccount.PUBLIC) |
+            (Q(sharedemailconfig__user__id=request.user.pk) & Q(sharedemailconfig__privacy=EmailAccount.PUBLIC))
         ).filter(is_deleted=False).distinct('id')
 
         # Get a list of email accounts we don't want to follow.
         email_account_exclude_list = SharedEmailConfig.objects.filter(
-            user=request.user,
             is_hidden=True
         ).values_list('email_account_id', flat=True)
 
@@ -121,36 +128,30 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
 
         return Response(serializer.data)
 
-    @detail_route(methods=['post'])
-    def shared(self, request, pk):
+    @detail_route(methods=['delete'])
+    def cancel(self, request, pk):
         """
-        shared action makes it possible for the owner of the emailaccount to POST user ids to share emailaccount with.
-
-        Accepts POST dict with:
-            {
-                'shared_with_users': [<list of user ids as ints]
-            }
+        Cancel creation of an email account and deletes it.
 
         Returns:
-            changed EmailAccount
+
         """
-        account = EmailAccount.objects.get(id=pk, owner=request.user)
-        account.shared_with_users.clear()
-        account.public = False
-        account.save()
+        user = request.user
+        account = EmailAccount.objects.get(id=pk, owner=user)
 
-        for user_id in request.data['shared_with_users']:
-            if user_id == request.user.id:
-                raise serializers.ValidationError({
-                    'shared_with_users': _('Can\'t share your email account with yourself')
-                })
+        if not account.is_authorized:
+            # Account is being added, so delete it.
+            account.delete()
 
-            user = LilyUser.objects.get(id=user_id, tenant=request.user.tenant)
-            account.shared_with_users.add(user)
+        if not user.info.email_account_status:
+            # First time setup, so set status to skipped.
+            user.info.email_account_status = UserInfo.SKIPPED
+            user.info.save()
 
-        serializer = self.get_serializer(account)
+            serializer = LilyUserSerializer(user, partial=True)
+            return Response(serializer.data)
 
-        return Response(serializer.data)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class EmailMessageViewSet(mixins.RetrieveModelMixin,
@@ -162,8 +163,44 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
     queryset = EmailMessage.objects.all()
     serializer_class = EmailMessageSerializer
 
+    def get_object(self):
+        pk = int(self.kwargs['pk'])
+        email_message = EmailMessage.objects.get(pk=pk)
+        user = self.request.user
+
+        try:
+            email_account = EmailAccount.objects.get(pk=email_message.account.id)
+        except EmailAccount.DoesNotExist:
+            email_message = None
+        else:
+            email_message = get_filtered_message(email_message, email_account, user)
+
+        if not email_message:
+            raise NotFound()
+
+        if not isinstance(email_message, EmailMessage) and self.action != 'retrieve':
+            raise NotFound()
+
+        return email_message
+
     def get_queryset(self):
-        return EmailMessage.objects.filter(account__tenant=self.request.user.tenant)
+        user = self.request.user
+        email_messages = EmailMessage.objects.filter(account__tenant=user.tenant)
+
+        # Get all email accounts.
+        email_accounts = EmailAccount.objects.filter(tenant=user.tenant, is_deleted=False).distinct('id')
+
+        filtered_queryset = []
+
+        for email_message in email_messages:
+            email_account = email_accounts.get(pk=email_message.account.id)
+
+            filtered_message = get_filtered_message(email_message, email_account, user)
+
+            if filtered_message:
+                filtered_queryset.append(filtered_message)
+
+        return filtered_queryset
 
     def perform_update(self, serializer):
         """

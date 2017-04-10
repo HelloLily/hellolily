@@ -1,7 +1,19 @@
-angular.module('app.base').controller('headerController', headerController);
+angular.module('app.base').directive('pageHeader', pageHeader);
 
-headerController.$inject = ['$scope'];
-function headerController($scope) {
+pageHeader.$inject = [];
+function pageHeader() {
+    return {
+        restrict: 'E',
+        scope: true,
+        templateUrl: 'base/header.html',
+        controller: PageHeaderController,
+        controllerAs: 'vm',
+        bindToController: true,
+    };
+}
+
+PageHeaderController.$inject = ['$scope'];
+function PageHeaderController($scope) {
     $scope.$on('$includeContentLoaded', function() {
         Layout.initHeader(); // init header
     });

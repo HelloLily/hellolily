@@ -1,6 +1,6 @@
-angular.module('app.dashboard.directives').directive('widget', widget);
+angular.module('app.dashboard.directives').directive('widget', simpleWidget);
 
-function widget() {
+function simpleWidget() {
     return {
         restrict: 'E',
         scope: {
@@ -11,7 +11,7 @@ function widget() {
             widgetDynamicHeight: '=',
         },
         templateUrl: 'base/directives/widget.html',
-        controller: WidgetController,
+        controller: SimpleWidget,
         controllerAs: 'vm',
         bindToController: true,
         transclude: {
@@ -22,8 +22,8 @@ function widget() {
     };
 }
 
-WidgetController.$inject = ['$scope', '$state', 'LocalStorage'];
-function WidgetController($scope, $state, LocalStorage) {
+SimpleWidget.$inject = ['$scope', '$state', 'LocalStorage'];
+function SimpleWidget($scope, $state, LocalStorage) {
     var vm = this;
     var storage = new LocalStorage($state.current.name + 'widgetInfo');
     var widgetStatus = {

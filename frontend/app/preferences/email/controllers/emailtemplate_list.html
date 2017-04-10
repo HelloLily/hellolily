@@ -1,48 +1,56 @@
 <div class="portlet">
-    <div class="portlet-title">
-        <div class="caption">Your email templates</div>
-        <a class="hl-primary-btn pull-right" ui-sref="base.preferences.emailtemplates.create"><i class="fa fa-plus"></i> Add an email template</a>
-    </div>
-    <div class="spacer-5"></div>
+    <div class="portlet-body flip-scroll">
+        <div class="clearfix">
+            <a class="hl-primary-btn-green pull-right margin-bottom-10" ui-sref="base.preferences.emailtemplates.create"><i class="fa fa-plus"></i> Add an email template</a>
+        </div>
 
-    <div class="hl-table-container">
-        <table class="hl-table">
-            <thead>
-                <tr>
-                    <th class="hl-table-column">Template name</th>
-                    <th class="hl-table-column"><span class="pull-right">Options</span></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="template in vm.emailTemplates track by template.id">
-                    <td class="hl-table-column">
-                        {{ template.name }}
-                        <span ng-if="template.default_for.length > 0" class="label-default">
-                            Default for {{ template.default_for.length }} address(es)
-                        </span>
-                    </td>
-                    <td class="hl-table-column">
-                        <span class="pull-right">
-                            <a ng-click="vm.makeDefault(template)" class="hl-primary-btn-smll">
-                                <i class="fa fa-star"></i> Manage defaults
-                            </a>
+        <simple-widget>
+            <widget-header>
+                <div class="widget-name">
+                    Your email templates
+                </div>
+            </widget-header>
 
-                            <a ui-sref="base.preferences.emailtemplates.edit({id: template.id})" class="hl-primary-btn-smll">
-                                <i class="lilicon hl-edit-icon"></i> Edit
-                            </a>
+            <widget-body>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Template name</th>
+                            <th><span class="pull-right">Options</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="template in vm.emailTemplates track by template.id">
+                            <td>
+                                {{ template.name }}
+                                <span ng-if="template.default_for.length > 0" class="label-default">
+                                    Default for {{ template.default_for.length }} address(es)
+                                </span>
+                            </td>
+                            <td>
+                                <span class="pull-right">
+                                    <a ng-click="vm.makeDefault(template)" class="hl-primary-btn-smll">
+                                        <i class="fa fa-star"></i> Manage defaults
+                                    </a>
 
-                            <delete-confirmation model="EmailTemplate" object="template" callback="vm.removeFromList(template)" button-class="hl-primary-btn-smll">
-                                Delete
-                            </delete-confirmation>
-                        </span>
-                    </td>
-                </tr>
-                <tr ng-hide="vm.emailTemplates.length">
-                    <td>
-                        No templates yet. You should create one!
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                                    <a ui-sref="base.preferences.emailtemplates.edit({id: template.id})" class="hl-primary-btn-smll">
+                                        <i class="lilicon hl-edit-icon"></i> Edit
+                                    </a>
+
+                                    <delete-confirmation model="EmailTemplate" object="template" callback="vm.removeFromList(template)" button-class="hl-primary-btn-smll">
+                                        Delete
+                                    </delete-confirmation>
+                                </span>
+                            </td>
+                        </tr>
+                        <tr ng-hide="vm.emailTemplates.length">
+                            <td colspan="2">
+                                No templates yet. You should create one!
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </widget-body>
+        </simple-widget>
     </div>
 </div>

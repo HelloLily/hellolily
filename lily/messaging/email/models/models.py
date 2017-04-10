@@ -64,8 +64,16 @@ def get_outbox_attachment_upload_path(instance, filename):
 
 class EmailAccount(TenantMixin, DeletedMixin):
     """
-    Email Account linked to a user.
+    Email account linked to a user.
     """
+    PUBLIC, READ_ONLY, METADATA, PRIVATE = range(4)
+    PRIVACY_CHOICES = (
+        (PUBLIC, _('Mailbox')),
+        (READ_ONLY, _('Email')),
+        (METADATA, _('Metadata')),
+        (PRIVATE, _('Nothing')),
+    )
+
     email_address = models.EmailField(max_length=254)
     from_name = models.CharField(max_length=254, default='')
     label = models.CharField(max_length=254, default='')
@@ -84,16 +92,14 @@ class EmailAccount(TenantMixin, DeletedMixin):
         help_text=_('Select the users wich to share the account with.'),
         blank=True,
     )
-    public = models.BooleanField(
-        default=False,
-        help_text=_('Make the email account accessible for the whole company.')
-    )
+    privacy = models.IntegerField(choices=PRIVACY_CHOICES, default=READ_ONLY)
 
     def __unicode__(self):
-        return u'%s  (%s)' % (self.label, self.email_address)
+        return u'%s (%s)' % (self.label, self.email_address)
 
-    def is_owned_by_user(self):
-        return True
+    @property
+    def is_public(self):
+        return self.privacy == EmailAccount.PUBLIC
 
     class Meta:
         app_label = 'email'
@@ -106,6 +112,7 @@ class SharedEmailConfig(TenantMixin):
     email_account = models.ForeignKey(EmailAccount)
     user = models.ForeignKey(LilyUser)
     is_hidden = models.BooleanField(default=False)
+    privacy = models.IntegerField(choices=EmailAccount.PRIVACY_CHOICES, default=EmailAccount.PUBLIC)
 
     class Meta:
         app_label = 'email'
@@ -114,7 +121,7 @@ class SharedEmailConfig(TenantMixin):
 
 class GmailCredentialsModel(models.Model):
     """
-    OAuth2 credentials for gmail api
+    OAuth2 credentials for Gmail API.
     """
     id = models.OneToOneField(EmailAccount, primary_key=True)
     credentials = CredentialsField()
@@ -125,7 +132,7 @@ class GmailCredentialsModel(models.Model):
 
 class EmailLabel(models.Model):
     """
-    Label for EmailAccount and EmailMessage
+    Label for EmailAccount and EmailMessage.
     """
     LABEL_SYSTEM, LABEL_USER = range(2)
     LABEL_TYPES = (
@@ -149,7 +156,7 @@ class EmailLabel(models.Model):
 
 class Recipient(models.Model):
     """
-    Name and email address of a recipient
+    Name and email address of a recipient.
     """
     name = models.CharField(max_length=1000, null=True)
     email_address = models.CharField(max_length=1000, null=True, db_index=True)
@@ -164,7 +171,7 @@ class Recipient(models.Model):
 
 class EmailMessage(models.Model):
     """
-    EmailMessage has all information from an email message
+    EmailMessage has all information from an email message.
     """
     account = models.ForeignKey(EmailAccount, related_name='messages')
     body_html = models.TextField(default='')
@@ -299,7 +306,7 @@ class EmailMessage(models.Model):
 
 class EmailHeader(models.Model):
     """
-    Headers for an EmailMessage
+    Headers for an EmailMessage.
     """
     message = models.ForeignKey(EmailMessage, related_name='headers')
     name = models.CharField(max_length=100)
@@ -314,7 +321,7 @@ class EmailHeader(models.Model):
 
 class EmailAttachment(models.Model):
     """
-    Email attachment for an EmailMessage
+    Email attachment for an EmailMessage.
     """
     attachment = models.FileField(upload_to=get_attachment_upload_path, max_length=255)
     cid = models.TextField(default='')
@@ -342,7 +349,7 @@ class EmailAttachment(models.Model):
 
 class NoEmailMessageId(models.Model):
     """
-    Place to store message_ids that are not an email
+    Place to store message_ids that are not an email.
     """
     account = models.ForeignKey(EmailAccount, related_name='no_messages')
     message_id = models.CharField(max_length=50, db_index=True)

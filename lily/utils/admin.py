@@ -13,6 +13,7 @@ class PhoneNumberAdmin(admin.ModelAdmin):
         'other_type',
     )
 
+
 admin.site.register(Address)
 admin.site.register(EmailAddress)
 admin.site.register(ExternalAppLink)

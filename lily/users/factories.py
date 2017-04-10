@@ -13,7 +13,7 @@ from timezone_field import TimeZoneField
 from lily.settings.settings import LANGUAGES
 from lily.tenant.factories import TenantFactory
 
-from .models import Team, LilyUser
+from .models import Team, LilyUser, UserInfo
 
 
 faker = Factory.create('nl_NL')
@@ -55,6 +55,12 @@ class LilyUserFactory(DjangoModelFactory):
                 # A list of teams were passed in, use them.
                 for team in extracted:
                     self.teams.add(team)
+
+    @post_generation
+    def info(self, create, extracted, **kwargs):
+        if create:
+            self.info = UserInfo.objects.create()
+            self.save()
 
     class Meta:
         model = LilyUser

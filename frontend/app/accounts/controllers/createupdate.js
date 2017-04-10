@@ -1,6 +1,3 @@
-/**
- * Router definition.
- */
 
 angular.module('app.accounts').config(accountConfig);
 

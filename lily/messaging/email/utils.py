@@ -24,7 +24,7 @@ from lily.search.scan_search import ModelMappings
 from lily.search.indexing import update_in_index
 
 from .decorators import get_safe_template
-from .models.models import EmailAttachment, EmailMessage
+from .models.models import EmailAttachment, EmailMessage, EmailAccount
 from .sanitize import sanitize_html_email
 
 _EMAIL_PARAMETER_DICT = {}
@@ -526,3 +526,33 @@ def write_json_to_disk(path, data):
     with open(path, 'w') as outfile:
         json.dump(data, outfile, indent=4)
         logger.info("JSON written: %s" % path)
+
+
+def get_filtered_message(email_message, email_account, user):
+    shared_config = email_account.sharedemailconfig_set.filter(user=user).first()
+
+    # If the email account or sharing is set to metadata only, just return these fields.
+    metadata_only_message = {
+        'id': email_message.id,
+        'sender': email_message.sender,
+        'received_by': email_message.received_by.all(),
+        'received_by_cc': email_message.received_by_cc.all(),
+        'sent_date': email_message.sent_date,
+        'account': email_message.account,
+    }
+
+    if email_account.owner != user:
+        if shared_config:
+            privacy = shared_config.privacy
+        else:
+            privacy = email_account.privacy
+
+        if privacy == EmailAccount.METADATA:
+            return metadata_only_message
+        elif privacy == EmailAccount.PRIVATE:
+            # Sharing for this user is set to private, so don't return a message.
+            return None
+        else:
+            return email_message
+
+    return email_message

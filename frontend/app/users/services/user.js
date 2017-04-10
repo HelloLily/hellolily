@@ -94,6 +94,10 @@ function User($resource, CacheFactory) {
             getAssignOptions: {
                 url: '/api/users/',
             },
+            skipEmailAccountSetup: {
+                method: 'PATCH',
+                url: '/api/users/skip',
+            },
         }
     );
 

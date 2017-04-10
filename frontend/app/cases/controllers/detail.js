@@ -57,6 +57,7 @@ function CaseDetailController($scope, Case, HLResource, HLUtils, LocalStorage, S
         object: currentCase,
         field: 'subject',
         updateCallback: updateModel,
+        formName: 'caseHeaderForm',
     };
 
     vm.case = currentCase;

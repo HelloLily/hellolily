@@ -418,6 +418,10 @@
             var emailTemplate;
             var message;
 
+            if (data.errors.document) {
+                toastr.error(data.errors.document, 'Oops');
+            }
+
             // Check if an email template has already been loaded.
             if (currentTemplate.length) {
                 if (currentTemplate.html().length) {

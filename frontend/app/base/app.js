@@ -49,6 +49,7 @@ angular.module('app', [
     'app.contacts.directives',
     'app.deals.directives',
     'app.utils.directives',
+    'app.preferences.email.directives',
 
     // Google Analytics
     'angulartics',
@@ -83,8 +84,8 @@ function appConfig($breadcrumbProvider, $controllerProvider, $httpProvider, $res
     $urlRouterProvider.otherwise('/');
 
     swal.setDefaults({
-        confirmButtonClass: 'btn btn-primary',
-        cancelButtonClass: 'btn btn-default',
+        confirmButtonClass: 'hl-primary-btn-blue',
+        cancelButtonClass: 'hl-primary-btn',
         buttonsStyling: false,
     });
 }

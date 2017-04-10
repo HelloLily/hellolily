@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from lily.tenant.admin import TenantFilter
 from lily.tenant.admin import TenantFilteredChoicesMixin
-from .models import LilyUser, Team
+from .models import LilyUser, Team, UserInfo
 
 
 @admin.register(LilyUser)
@@ -53,6 +53,8 @@ class LilyUserAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
         else:
             # Creating new user.
             obj.set_password(obj.password)
+            # Create default onboarding info.
+            obj.info = UserInfo.objects.create()
 
         obj.save()
 

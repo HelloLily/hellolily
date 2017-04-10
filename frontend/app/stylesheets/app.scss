@@ -27,6 +27,7 @@
 @import "base/filter-group";
 @import "base/tables";
 @import "base/tags";
+@import "base/tabs";
 @import "cases/cases";
 @import "deals/deals";
 @import "mail/inbox";
@@ -34,6 +35,7 @@
 @import "base/errors";
 @import "base/generic";
 @import "preferences/preferences";
+@import "preferences/email-accounts";
 
 
 body {

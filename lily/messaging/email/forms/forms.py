@@ -35,7 +35,7 @@ class EmailAccountCreateUpdateForm(ModelForm):
             'from_name',
             'label',
             'email_address',
-            'public',
+            'privacy',
         )
         widgets = {
             'email_address': forms.TextInput(attrs={'readonly': 'readonly'}),
@@ -137,8 +137,8 @@ class ComposeEmailForm(FormSetFormMixin, forms.Form):
         user = get_current_user()
         self.email_accounts = EmailAccount.objects.filter(
             Q(owner=user) |
-            Q(shared_with_users=user) |
-            Q(public=True)
+            Q(privacy=EmailAccount.PUBLIC) |
+            (Q(sharedemailconfig__user__id=user.pk) & Q(sharedemailconfig__privacy=EmailAccount.PUBLIC))
         ).filter(tenant=user.tenant, is_deleted=False).distinct('id')
 
         # Only provide choices you have access to

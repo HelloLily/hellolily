@@ -75,7 +75,7 @@ class AddonTextInput(TextInput):
 
         button_attrs = {} if not button_attrs else button_attrs
         if not button_attrs.get('class'):
-            button_attrs.update({'class': 'btn default'})
+            button_attrs.update({'class': 'hl-primary-btn'})
         if not button_attrs.get('type'):
             button_attrs.update({'type': 'button'})
         if not button_attrs.get('data-loading-text'):

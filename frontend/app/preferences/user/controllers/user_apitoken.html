@@ -1,56 +1,60 @@
 <div class="row">
     <div class="col-md-12">
-        <div class="form-body form-horizontal">
-            <div class="portlet">
-                <div class="portlet-title">
-                    <div class="caption">
-                        <i class="icon-reorder"></i>
-                        Token
-                    </div>
-                </div>
-                <div class="portlet-body">
-                    <div class="form-body">
-                        <div class="form-group">
-                            <label class="col-md-2 control-label">Your API Token</label>
-                            <div class="col-md-4">
-                                <div class="form-control" ng-show="vm.token">{{ vm.token }}</div>
-                                <div class="form-control" ng-hide="vm.token">No token generated for you</div>
+        <div class="portlet light">
+            <div class="portlet-body">
+                <div class="form-body form-horizontal">
+                    <div class="portlet">
+                        <div class="portlet-title">
+                            <div class="caption">
+                                <i class="icon-reorder"></i>
+                                Token
+                            </div>
+                        </div>
+                        <div class="portlet-body">
+                            <div class="form-body">
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label">Your API Token</label>
+                                    <div class="col-md-4">
+                                        <div class="form-control" ng-show="vm.token">{{ vm.token }}</div>
+                                        <div class="form-control" ng-hide="vm.token">No token generated for you</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="portlet-body">
+                            <div class="form-body">
+                                <div class="form-group">
+                                    <div class="col-md-4 col-md-offset-2">
+                                        <p ng-hide="vm.token" class="alert alert-warning">
+                                            You need to generate a token before you can use it in your API calls
+                                        </p>
+                                        <p>
+                                            You can use your token with an authorization header:<br/>
+                                            <code ng-show="vm.token">Authorization: Token {{ vm.token }}</code>
+                                            <code ng-hide="vm.token">Authorization: Token &lt;your token&gt;</code>
+                                        </p>
+                                        <p>
+                                            Or you can use your token with an url parameter:<br/>
+                                            <code ng-show="vm.token">/api/endpoint/?key={{ vm.token }}</code>
+                                            <code ng-hide="vm.token">/api/endpoint/?key=&lt;your token&gt;</code>
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="portlet-body">
-                    <div class="form-body">
-                        <div class="form-group">
-                            <div class="col-md-4 col-md-offset-2">
-                                <p ng-hide="vm.token" class="alert alert-warning">
-                                    You need to generate a token before you can use it in your API calls
-                                </p>
-                                <p>
-                                    You can use your token with an authorization header:<br/>
-                                    <code ng-show="vm.token">Authorization: Token {{ vm.token }}</code>
-                                    <code ng-hide="vm.token">Authorization: Token &lt;your token&gt;</code>
-                                </p>
-                                <p>
-                                    Or you can use your token with an url parameter:<br/>
-                                    <code ng-show="vm.token">/api/endpoint/?key={{ vm.token }}</code>
-                                    <code ng-hide="vm.token">/api/endpoint/?key=&lt;your token&gt;</code>
-                                </p>
-                            </div>
+                <div class="form-actions">
+                    <div class="row">
+                        <div class="col-md-offset-2 col-md-10">
+                            <button ng-click="vm.deleteToken()" class="btn btn-danger">
+                                Delete token
+                            </button>
+                            <button class="btn btn-primary" ng-click="vm.generateToken()">
+                                Create new token
+                            </button>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-        <div class="form-actions">
-            <div class="row">
-                <div class="col-md-offset-2 col-md-10">
-                    <button ng-click="vm.deleteToken()" class="btn btn-danger">
-                        Delete token
-                    </button>
-                    <button class="btn btn-primary" ng-click="vm.generateToken()">
-                        Create new token
-                    </button>
                 </div>
             </div>
         </div>

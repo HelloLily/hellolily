@@ -1,0 +1,154 @@
+$base-color: #27224e;
+
+.privacy-radios {
+    color: $base-color;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin: 0 -5px;
+
+    .privacy-option-container {
+        flex-grow: 1;
+        padding: 5px;
+    }
+
+    label {
+        height: 100%;
+        border: 1px solid $app-border-color;
+        border-radius: 3px;
+        width: 100%;
+        box-sizing: border-box;
+        text-align: center;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        small {
+            display: block;
+            color: #b5b5b5;
+        }
+
+        small:before {
+            content: "(";
+        }
+
+        small:after {
+            content: ")";
+        }
+    }
+
+    input {
+        &[type="radio"] {
+            display: none;
+        }
+
+        &[type="radio"]:checked ~ label {
+            border: 2px solid $base-color;
+            padding-top: -1px;
+        }
+    }
+}
+
+.privacy-option {
+    padding: 5px;
+}
+
+.privacy-examples {
+    border: 1px $app-border-color solid;
+    border-radius: $base-border-radius;
+    padding: 20px;
+    background: $app-bg-color;
+}
+
+.privacy-example {
+    position: relative;
+}
+
+.privacy-info {
+    font-size: 14px;
+    margin: 20px 0;
+}
+
+.privacy-example-title {
+    text-transform: uppercase;
+    color: $app-color-grey;
+    font-size: 12px;
+    font-weight: 500;
+    margin: 20px 0 5px;
+}
+
+.shared-with-users {
+    .user-row {
+        display: flex;
+        -webkit-justify-content: space-between; /* Safari */
+        justify-content: space-between;
+        border-bottom: 1px solid $app-border-color;
+        padding: 6px 20px;
+
+        &:first-child {
+            border-top: 1px solid $app-border-color;
+        }
+
+        .user-info {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            margin-bottom: 0 !important;
+        }
+
+        .sharing-actions {
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            text-align: center;
+            overflow: hidden;
+            background: #ffd66f;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+    }
+}
+
+.email-account-share-privacy {
+    .select2-choice {
+        background-color: $app-bg-color;
+
+        .select2-arrow {
+            border-left: 0;
+            background-color: $app-bg-color;
+        }
+    }
+}
+
+.email-account-share {
+    display: flex;
+    background: #fdfdfe;
+    border: 1px solid $app-border-color;
+    border-radius: 3px;
+    padding: 15px;
+
+    .email-account-share-search {
+        .select2-choices {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+    }
+
+    .email-account-share-privacy {
+        width: 30%;
+
+        .select2-choice {
+            border-left: 0;
+            border-top-left-radius: 0 !important;
+            border-bottom-left-radius: 0 !important;
+        }
+    }
+}

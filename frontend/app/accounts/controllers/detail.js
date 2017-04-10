@@ -47,6 +47,7 @@ function AccountDetailController(Account, Settings, currentAccount, caseList, co
         object: currentAccount,
         field: 'name',
         updateCallback: updateModel,
+        formName: 'accountHeaderForm',
     };
 
     vm.account = currentAccount;

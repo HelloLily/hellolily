@@ -9,6 +9,7 @@ import freemail
 from lily.accounts.models import Account, Website
 from lily.cases.models import Case
 from lily.deals.models import Deal
+from lily.messaging.email.models.models import EmailAccount
 from lily.utils.functions import parse_phone_number
 from lily.utils.views.mixins import LoginRequiredMixin
 from lily.search.functions import search_number
@@ -31,6 +32,8 @@ class SearchView(LoginRequiredMixin, View):
                 took (int): milliseconds Elastic search took to get the results
         """
         kwargs = {}
+        user = self.request.user
+
         model_type = request.GET.get('type')
         if model_type:
             kwargs['model_type'] = model_type
@@ -88,7 +91,7 @@ class SearchView(LoginRequiredMixin, View):
 
         user_email_related = request.GET.get('user_email_related', '')
         if user_email_related:
-            search.user_email_related(self.request.user)
+            search.user_email_related(user)
 
         filterquery = request.GET.get('filterquery', '')
         if filterquery:
@@ -99,6 +102,54 @@ class SearchView(LoginRequiredMixin, View):
             return_fields = None
 
         hits, facets, total, took = search.do_search(return_fields)
+
+        if model_type == 'email_emailmessage':
+            email_accounts = EmailAccount.objects.filter(tenant=user.tenant, is_deleted=False).distinct('id')
+
+            filtered_hits = []
+
+            for hit in hits:
+                try:
+                    email_account = email_accounts.get(pk=hit.get('account').get('id'))
+                except EmailAccount.DoesNotExist:
+                    pass
+                else:
+                    shared_config = email_account.sharedemailconfig_set.filter(user=user).first()
+
+                    # If the email account or sharing is set to metadata only, just return these fields.
+                    metadata_only_message = {
+                        'id': hit.get('id'),
+                        'sender_name': hit.get('sender_name'),
+                        'sender_email': hit.get('sender_email'),
+                        'received_by_email': hit.get('received_by_email'),
+                        'received_by_name': hit.get('received_by_name'),
+                        'received_by_cc_email': hit.get('received_by_cc_email'),
+                        'received_by_cc_name': hit.get('received_by_cc_name'),
+                        'sent_date': hit.get('sent_date'),
+                        'privacy': hit.get('account').get('privacy'),
+                    }
+
+                    if email_account.owner == user:
+                        filtered_hits.append(hit)
+                    else:
+                        if shared_config:
+                            privacy = shared_config.privacy
+                        else:
+                            privacy = email_account.privacy
+
+                        metadata_only_message.update({
+                            'privacy': privacy,
+                        })
+
+                        if privacy == EmailAccount.METADATA:
+                            filtered_hits.append(metadata_only_message)
+                        elif privacy == EmailAccount.PRIVATE:
+                            # Private email (account), so don't add to list.
+                            continue
+                        else:
+                            filtered_hits.append(hit)
+
+            hits = filtered_hits
 
         results = {'hits': hits, 'total': total, 'took': took}
 

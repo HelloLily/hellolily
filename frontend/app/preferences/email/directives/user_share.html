@@ -1,0 +1,41 @@
+<div>
+    <div class="shared-with-users">
+        <div ng-repeat="config in vm.emailAccount.shared_email_configs" ng-if="!config.is_deleted" class="user-row">
+            <div class="user-info">
+                <div class="user-avatar display-inline-block" ng-style="{'background-image': 'url(' + config.user.profile_picture + ')'}"></div>
+                <span class="margin-left-15">{{ config.user.full_name }}</span>
+            </div>
+
+            <div class="sharing-actions">
+                <ui-select ng-model="config.privacy" theme="select2" class="form-control email-account-share-privacy" name="privacy" append-to-body="true" search-enabled="false">
+                    <ui-select-match placeholder="Privacy">{{ $select.selected.name }}</ui-select-match>
+                    <ui-select-choices repeat="option.id as option in vm.privacyOptions">
+                        <div ng-bind-html="option.name"></div>
+                    </ui-select-choices>
+                </ui-select>
+
+                <div class="clickable margin-left-10" ng-click="config.is_deleted = true"><i class="lilicon hl-close-icon"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <form-group field="contactForm.shared_with_users">
+        <div class="email-account-share">
+            <ui-select multiple ng-model="vm.shareAdditions" theme="select2" class="form-control email-account-share-search" name="shared_with_users" append-to-body="true">
+                <ui-select-match placeholder="Select people to share the account with">{{ $item.full_name }}</ui-select-match>
+                <ui-select-choices repeat="user in vm.users | filterItems:vm.getConfigUsers()" refresh="vm.refreshUsers($select.search)" refresh-delay="300">
+                    <div ng-bind-html="user.full_name | highlight: $select.search"></div>
+                </ui-select-choices>
+            </ui-select>
+
+            <ui-select ng-model="vm.privacyOverride" theme="select2" class="form-control email-account-share-privacy" name="share-privacy" append-to-body="true" search-enabled="false">
+                <ui-select-match placeholder="Privacy">{{ $select.selected.name }}</ui-select-match>
+                <ui-select-choices repeat="option.id as option in vm.privacyOptions">
+                    <div ng-bind-html="option.name"></div>
+                </ui-select-choices>
+            </ui-select>
+
+            <button class="hl-primary-btn-green" ng-click="vm.addSharedUsers()">Add</button>
+        </div>
+    </form-group>
+</div>

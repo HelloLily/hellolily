@@ -404,7 +404,7 @@ function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLa
         }
 
         if ($stateParams.accountId) {
-            filterquery.push('account:' + $stateParams.accountId);
+            filterquery.push('account.id:' + $stateParams.accountId);
 
             if ($stateParams.labelId) {
                 // Get the label for the given accountId.

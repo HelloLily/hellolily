@@ -2,9 +2,20 @@ angular.module('app.services').service('HLResource', HLResource);
 
 HLResource.$inject = ['$injector'];
 function HLResource($injector) {
-    this.patch = function(model, args) {
+    this.patch = function(model, args, successTextOverride = null) {
         return $injector.get(model).patch(args, function() {
-            toastr.success('I\'ve updated the ' + model.toLowerCase() + ' for you!', 'Done');
+            var modelText;
+
+            if (successTextOverride) {
+                modelText = successTextOverride;
+            } else {
+                // Split the model name by capital letters.
+                // Join the split string with spaces.
+                // Lowercase the whole string.
+                modelText = model.split(/(?=[A-Z])/).join(' ').toLowerCase();
+            }
+
+            toastr.success('I\'ve updated the ' + modelText + ' for you!', 'Done');
         }, function() {
             toastr.error('Something went wrong while saving the field, please try again.', 'Oops!');
             // For now return an empty string, we'll implement proper errors later.

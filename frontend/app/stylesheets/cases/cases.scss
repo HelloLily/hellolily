@@ -201,7 +201,16 @@ td .label-sm {
 }
 
 @mixin case-priority-border-indicator($color) {
-    border-left: 6px $color solid;
+    &:before {
+        content: "";
+        width: 6px;
+        background: $color;
+        position: absolute;
+        border-radius: $base-border-radius 0 0 $base-border-radius;
+        top: -1px;
+        bottom: -2px;
+        left: -1px;
+    }
 }
 
 .low-priority-color {
@@ -221,8 +230,10 @@ td .label-sm {
 }
 
 .priority-button {
+    position: relative;
     padding: 5px 12px !important;
-    border: 1px solid #e5e5e5;
+    border: 1px solid $app-border-color;
+    border-bottom-width: 2px;
     border-radius: $base-border-radius;
     width: 49%;
     margin-bottom: 1.5%;

@@ -16,27 +16,34 @@
         </a>
 
         <ul class="hl-dropdown js-hold-on-click">
-            <li class="hl-dropdown-item" ng-click="vm.toggleUser('', vm.currentUser)">
-                <div class="hl-checkbox" ng-class="{'checked': vm.currentUser.selected}"></div>
-                {{ vm.currentUser.fullName }}
+            <li class="hl-dropdown-item no-border">
+                <span class="clickable" ng-click="vm.toggleUser('', vm.currentUser)">
+                    <div class="hl-checkbox" ng-class="{'checked': vm.currentUser.selected}"></div>
+                    {{ vm.currentUser.fullName }}
+                </span>
             </li>
+
             <div ng-repeat="team in vm.teams">
                 <li class="hl-dropdown-item">
-                    <span ng-click="vm.toggleUser(team)">
+                    <span class="clickable" ng-click="vm.toggleUser(team)">
                         <div class="hl-checkbox" ng-class="{'checked': team.selected, 'indeterminate': (!team.selected && (team.users | where: {selected: true}).length )}"></div>
                         {{ team.name }}
                     </span>
 
                     <span class="pull-right" ng-click="vm.toggleCollapsed(team)">
-                        <i class="lilicon" ng-class="{'hl-toggle-down-icon': !team.collapsed, 'hl-toggle-left-icon': team.collapsed}"></i>
+                        <i class="fa rotate" ng-class="{'fa-angle-down': !team.collapsed, 'fa-angle-left': team.collapsed}"></i>
                     </span>
                 </li>
 
-                <li ng-if="!team.collapsed" class="hl-dropdown-item padding-left-30" ng-repeat="user in team.users">
-                    <span ng-click="vm.toggleUser(team, user)">
-                        <div class="hl-checkbox" ng-class="{'checked': user.selected}"></div>
-                        {{ user.full_name }}
-                    </span>
+                <li ng-if="!team.collapsed" class="hl-dropdown-sub-items">
+                    <ul class="hl-dropdown-sub-menu">
+                        <li class="hl-dropdown-sub-menu-item" ng-repeat="user in team.users">
+                            <span class="clickable" ng-click="vm.toggleUser(team, user)">
+                                <div class="hl-checkbox" ng-class="{'checked': user.selected}"></div>
+                                {{ user.full_name }}
+                            </span>
+                        </li>
+                    </ul>
                 </li>
             </div>
         </ul>

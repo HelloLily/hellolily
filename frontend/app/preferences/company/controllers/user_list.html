@@ -1,126 +1,132 @@
-<div class="portlet light">
-    <div class="portlet-title">
-        <div class="hl-button-group-container pull-left">
-            <ul class="hl-button-group">
-                <li class="hl-button-group-btn">
-                    <a class="hl-button-group-btn-link" ui-sref="base.preferences.company.users.inviteUser">
-                        <i class="fa fa-plus"></i> User
-                    </a>
-                </li>
-            </ul>
+<div class="widget-heading">
+    <div class="widget-title">
+        <ul class="hl-button-group">
+            <li class="hl-button-group-btn">
+                <a class="hl-button-group-btn-link" ui-sref="base.preferences.company.users.inviteUser">
+                    <i class="fa fa-plus"></i> User
+                </a>
+            </li>
+        </ul>
 
-            <ul class="hl-button-group">
-                <li class="hl-button-group-btn">
-                    <a class="hl-button-group-btn-link" href="javascript:;" data-toggle="dropdown">
-                        <i class="fa fa-columns"></i>
-                        Columns
-                        <i class="margin-left-5 small-icon lilicon hl-toggle-down-icon"></i>
-                    </a>
+        <ul class="hl-button-group">
+            <li class="hl-button-group-btn">
+                <a class="hl-button-group-btn-link" href="javascript:;" data-toggle="dropdown">
+                    <i class="fa fa-columns"></i>
+                    Columns
+                    <i class="margin-left-5 small-icon lilicon hl-toggle-down-icon"></i>
+                </a>
 
-                    <ul class="hl-dropdown js-hold-on-click">
-                        <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.full_name">Name</checkbox></li>
-                        <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.email">Email</checkbox></li>
-                        <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.phone_number">Phone number</checkbox></li>
-                        <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.internal_number">Internal number</checkbox></li>
-                        <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.is_active">Status</checkbox></li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
+                <ul class="hl-dropdown js-hold-on-click">
+                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.full_name">Name</checkbox></li>
+                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.email">Email</checkbox></li>
+                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.phone_number">Phone number</checkbox></li>
+                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.internal_number">Internal number</checkbox></li>
+                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.is_active">Status</checkbox></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
 
-        <div class="widget-filters">
-            <ul class="hl-button-group">
-                <li>
-                    <a class="user-status-filter-toggle" ng-click="vm.table.statusFilterOpen = !vm.table.statusFilterOpen">
-                        <i class="lilicon hl-entity-b-icon"></i><i class="fa fa-angle-down"></i>
-                    </a>
-                    <div class="user-status-filter-container" ng-class="{'is-open': vm.table.statusFilterOpen}">
-                        <label class="filter-group-option" ng-model="vm.table.statusFilter" uib-btn-radio="">
-                            All
-                        </label>
-                        <label class="filter-group-option" ng-model="vm.table.statusFilter" uib-btn-radio="1">
-                            Active
-                        </label>
-                        <label class="filter-group-option" ng-model="vm.table.statusFilter" uib-btn-radio="0">
-                            Inactive
-                        </label>
-                    </div>
-                </li>
-            </ul>
-            <form class="widget-search pull-right">
-                <div class="hl-search-field-container">
-                    <input type="text" class="hl-search-field" ng-model="vm.table.searchQuery" ng-model-options="{debounce: 300}" placeholder="Search">
-                    <button type="button" class="hl-search-btn" ng-click="vm.setSearchQuery('')" ng-disabled="!vm.table.searchQuery"></button>
+    <div class="widget-tools">
+        <form>
+            <div class="hl-search-field-container">
+                <input type="text" class="hl-search-field" ng-model="vm.table.searchQuery" ng-model-options="{debounce: 300}" placeholder="Search">
+                <button type="button" class="hl-search-btn" ng-click="vm.setSearchQuery('')" ng-disabled="!vm.table.searchQuery"></button>
+            </div>
+        </form>
+    </div>
+
+    <div class="widget-filters">
+        <ul class="hl-button-group">
+            <li>
+                <a class="user-status-filter-toggle" ng-click="vm.table.statusFilterOpen = !vm.table.statusFilterOpen">
+                    <i class="lilicon hl-entity-b-icon"></i><i class="fa fa-angle-down"></i>
+                </a>
+                <div class="user-status-filter-container" ng-class="{'is-open': vm.table.statusFilterOpen}">
+                    <label class="filter-group-option" ng-model="vm.table.statusFilter" uib-btn-radio="">
+                        All
+                    </label>
+                    <label class="filter-group-option" ng-model="vm.table.statusFilter" uib-btn-radio="1">
+                        Active
+                    </label>
+                    <label class="filter-group-option" ng-model="vm.table.statusFilter" uib-btn-radio="0">
+                        Inactive
+                    </label>
                 </div>
-            </form>
-        </div>
+            </li>
+        </ul>
     </div>
+    <div class="clearfix"></div>
+</div>
 
-    <div class="portlet-body flip-scroll">
-        <div class="scrollable-table-container">
-            <table class="table table-bordered flip-content">
-                <thead class="flip-content">
-                    <tr>
-                        <th ng-show="vm.table.visibility.full_name" sort-column="full_name" table="vm.table">
-                            <span class="text-nowrap">Name</span>
-                        </th>
-                        <th ng-show="vm.table.visibility.email" sort-column="email" table="vm.table">
-                            <span class="text-nowrap">Email</span>
-                        </th>
-                        <th ng-show="vm.table.visibility.phone_number" sort-column="phone_number" table="vm.table">
-                            <span class="text-nowrap">Phone number</span>
-                        </th>
-                        <th ng-show="vm.table.visibility.internal_number" sort-column="internal_number" table="vm.table">
-                            <span class="text-nowrap">Internal number</span>
-                        </th>
-                        <th ng-show="vm.table.visibility.is_active" sort-column="is_active" table="vm.table" width="100px">
-                            <span class="text-nowrap">Status</span>
-                        </th>
-                        <th width="105px">
-                            <span class="text-nowrap">Options</span>
-                        </th>
-                    </tr>
-                </thead>
+<div class="widget-body">
+    <table class="hl-table">
+        <thead class="flip-content">
+            <tr>
+                <th class="hl-table-column" ng-show="vm.table.visibility.full_name" sort-column="full_name" table="vm.table">
+                    <span class="text-nowrap">Name</span>
+                </th>
+                <th class="hl-table-column" ng-show="vm.table.visibility.email" sort-column="email" table="vm.table">
+                    <span class="text-nowrap">Email</span>
+                </th>
+                <th class="hl-table-column" ng-show="vm.table.visibility.phone_number" sort-column="phone_number" table="vm.table">
+                    <span class="text-nowrap">Phone number</span>
+                </th>
+                <th class="hl-table-column" ng-show="vm.table.visibility.internal_number" sort-column="internal_number" table="vm.table">
+                    <span class="text-nowrap">Internal number</span>
+                </th>
+                <th class="hl-table-column" ng-show="vm.table.visibility.is_active" sort-column="is_active" table="vm.table" width="100px">
+                    <span class="text-nowrap">Status</span>
+                </th>
+                <th class="hl-table-column" width="105px">
+                    <span class="text-nowrap">Options</span>
+                </th>
+            </tr>
+        </thead>
 
-                <tbody>
-                    <tr ng-repeat="user in vm.table.items">
-                        <td ng-show="vm.table.visibility.full_name">
-                            <span ng-if="user.id != currentUser.id">{{ user.full_name }}</span>
-                            <span ng-if="user.id == currentUser.id">{{ user.full_name }} (you)</span>
-                        </td>
-                        <td ng-show="vm.table.visibility.email">
-                            {{ user.email }}
-                        </td>
-                        <td ng-show="vm.table.visibility.phone_number">
-                            {{ user.phone_number }}
-                        </td>
-                        <td ng-show="vm.table.visibility.internal_number">
-                            {{ user.internal_number }}
-                        </td>
-                        <td ng-show="vm.table.visibility.is_active">
-                            <span ng-show="user.is_active" class="label label-sm label-success">
-                                Active
-                            </span>
-                            <span ng-hide="user.is_active" class="label label-sm label-default">
-                                Inactive
-                            </span>
-                        </td>
-                        <td>
-                            <button class="btn base-icon" ng-click="vm.openTeamModal(user)" title="Manage teams">
-                                <i class="lilicon hl-entities-icon"></i>
-                            </button>
+        <tbody>
+            <tr ng-repeat="user in vm.table.items">
+                <td class="hl-table-column" ng-show="vm.table.visibility.full_name">
+                    <span ng-if="user.id != currentUser.id">{{ user.full_name }}</span>
+                    <span ng-if="user.id == currentUser.id">{{ user.full_name }} (you)</span>
+                </td>
+                <td class="hl-table-column" ng-show="vm.table.visibility.email">
+                    {{ user.email }}
+                </td>
+                <td class="hl-table-column" ng-show="vm.table.visibility.phone_number">
+                    {{ user.phone_number }}
+                </td>
+                <td class="hl-table-column" ng-show="vm.table.visibility.internal_number">
+                    {{ user.internal_number }}
+                </td>
+                <td class="hl-table-column" ng-show="vm.table.visibility.is_active">
+                    <span ng-show="user.is_active" class="label label-sm label-success">
+                        Active
+                    </span>
+                    <span ng-hide="user.is_active" class="label label-sm label-default">
+                        Inactive
+                    </span>
+                </td>
+                <td class="hl-table-column">
+                    <button class="hl-primary-btn-smll" ng-click="vm.openTeamModal(user)" title="Manage teams">
+                        <i class="lilicon hl-entities-icon"></i>
+                    </button>
 
-                            <delete-confirmation ng-show="user.is_active && user.id != currentUser.id" model="User" object="user" message-object="vm.alertMessages" callback="vm.toggleStatus(user)" button-class="base-icon" icon-class="lilicon hl-entity-status-inactive-icon" help-text="Deactivate user">
-                            </delete-confirmation>
+                    <delete-confirmation ng-show="user.is_active && user.id != currentUser.id" model="User" object="user" message-object="vm.alertMessages" callback="vm.toggleStatus(user)" button-class="hl-primary-btn-smll" icon-class="lilicon hl-entity-status-inactive-icon" help-text="Deactivate user">
+                    </delete-confirmation>
 
-                            <button ng-hide="user.is_active" class="btn base-icon" ng-click="vm.toggleStatus(user)" title="Activate">
-                                <i class="lilicon hl-entity-status-active-icon"></i>
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <hl-pagination values="vm.table"></hl-pagination>
+                    <button ng-hide="user.is_active" class="hl-primary-btn-smll" ng-click="vm.toggleStatus(user)" title="Activate">
+                        <i class="lilicon hl-entity-status-active-icon"></i>
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td class="hl-table-column" colspan="6">
+                    <hl-pagination values="vm.table"></hl-pagination>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
 </div>

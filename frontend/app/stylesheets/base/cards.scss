@@ -10,6 +10,19 @@
         float: none !important;
     }
 
+    @media (max-width: $breakpoint-laptop) {
+        .widget-title {
+            float: none;
+            display: block;
+            
+            &:after {
+                content: "";
+                display: block;
+                clear: both;
+            }
+        }
+    }
+
     .widget-title {
         width: 100%;
         padding: 10px 5px 10px 15px;

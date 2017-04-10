@@ -1,34 +1,37 @@
-<div class="portlet light">
-    <div class="portlet-title">
-        <ul class="hl-button-group">
-            <li class="hl-button-group-btn">
-                <a class="hl-button-group-btn-link" href="javascript:;" data-toggle="dropdown">
-                    <i class="fa fa-columns"></i>
-                    Columns
-                    <i class="margin-left-5 small-icon lilicon hl-toggle-down-icon"></i>
-                </a>
 
-                <ul class="hl-dropdown js-hold-on-click">
-                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.name">Account</checkbox></li>
-                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.contactInformation">Contact information</checkbox></li>
-                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.assignedTo">Assigned to</checkbox></li>
-                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.created">Created</checkbox></li>
-                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.modified">Modified</checkbox></li>
-                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.status">Status</checkbox></li>
-                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.tags">Tags</checkbox></li>
-                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.customerId">Customer ID</checkbox></li>
-                </ul>
-            </li>
-        </ul>
+<div class="widget-container">
+    <div class="widget-heading hl-card-heading">
+        <div class="widget-title">
+            <ul class="hl-button-group">
+                <li class="hl-button-group-btn">
+                    <a class="hl-button-group-btn-link" href="javascript:;" data-toggle="dropdown">
+                        <i class="fa fa-columns"></i>
+                        Columns
+                        <i class="margin-left-5 small-icon lilicon hl-toggle-down-icon"></i>
+                    </a>
 
-        <ul class="hl-button-group">
-            <li class="hl-button-group-btn">
-                <span class="hl-button-group-btn-link" ng-click="vm.exportToCsv()">Export accounts</span>
-            </li>
-        </ul>
+                    <ul class="hl-dropdown js-hold-on-click">
+                        <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.name">Account</checkbox></li>
+                        <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.contactInformation">Contact information</checkbox></li>
+                        <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.assignedTo">Assigned to</checkbox></li>
+                        <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.created">Created</checkbox></li>
+                        <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.modified">Modified</checkbox></li>
+                        <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.status">Status</checkbox></li>
+                        <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.tags">Tags</checkbox></li>
+                        <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.customerId">Customer ID</checkbox></li>
+                    </ul>
+                </li>
+            </ul>
+
+            <ul class="hl-button-group">
+                <li class="hl-button-group-btn">
+                    <span class="hl-button-group-btn-link" ng-click="vm.exportToCsv()">Export accounts</span>
+                </li>
+            </ul>
+        </div>
 
         <div class="widget-tools">
-            <form class="widget-search pull-right">
+            <form class="widget-search">
                 <div class="hl-search-field-container">
                     <input type="text" class="hl-search-field" ng-model="vm.table.filter" ng-model-options="{debounce: 300}" placeholder="Search">
                     <button type="button" class="hl-search-btn" ng-click="vm.setFilter('')" ng-disabled="!vm.table.filter"></button>
@@ -37,98 +40,100 @@
         </div>
     </div>
 
-    <div class="portlet-body flip-scroll">
-        <div class="scrollable-table-container">
-            <table class="table table-bordered flip-content">
-                <thead class="flip-content">
-                    <tr>
-                        <th ng-show="vm.table.visibility.customerId" sort-column="customer_id" table="vm.table" class="width-10">
-                            <span class="text-nowrap">Customer ID</span>
-                        </th>
-                        <th ng-show="vm.table.visibility.name" sort-column="name" table="vm.table" class="width-22">
-                            <span class="text-nowrap">Account</span>
-                        </th>
-                        <th ng-show="vm.table.visibility.contactInformation" class="width-22">
-                            <span class="text-nowrap">Contact information</span>
-                        </th>
-                        <th ng-show="vm.table.visibility.assignedTo" sort-column="assigned_to" table="vm.table" class="width-22">
-                            <span class="text-nowrap">Assigned to</span>
-                        </th>
-                        <th ng-show="vm.table.visibility.created" sort-column="created" table="vm.table" class="width-10">
-                            <span class="text-nowrap">Created</span>
-                        </th>
-                        <th ng-show="vm.table.visibility.modified" sort-column="modified" table="vm.table" class="width-10">
-                            <span class="text-nowrap">Modified</span>
-                        </th>
-                        <th ng-show="vm.table.visibility.status" sort-column="status" table="vm.table" class="width-10">
-                            <span class="text-nowrap">Status</span>
-                        </th>
-                        <th ng-show="vm.table.visibility.tags" table="vm.table" class="width-10">
-                            <span class="text-nowrap">Tags</span>
-                        </th>
-                        <th class="list-actions" width="105px">
-                            <span class="text-nowrap">Options</span>
-                        </th>
-                    </tr>
-                </thead>
+    <div class="widget-body">
+        <table class="hl-table">
+            <thead>
+                <tr>
+                    <th class="hl-table-column"  ng-show="vm.table.visibility.customerId" sort-column="customer_id" table="vm.table">
+                        <span class="text-nowrap">Customer ID</span>
+                    </th>
+                    <th class="hl-table-column" ng-show="vm.table.visibility.name" sort-column="name" table="vm.table">
+                        <span class="text-nowrap">Account</span>
+                    </th>
+                    <th class="hl-table-column" ng-show="vm.table.visibility.contactInformation">
+                        <span class="text-nowrap">Contact information</span>
+                    </th>
+                    <th class="hl-table-column" ng-show="vm.table.visibility.assignedTo" sort-column="assigned_to" table="vm.table">
+                        <span class="text-nowrap">Assigned to</span>
+                    </th>
+                    <th class="hl-table-column" ng-show="vm.table.visibility.created" sort-column="created" table="vm.table">
+                        <span class="text-nowrap">Created</span>
+                    </th>
+                    <th class="hl-table-column" ng-show="vm.table.visibility.modified" sort-column="modified" table="vm.table">
+                        <span class="text-nowrap">Modified</span>
+                    </th>
+                    <th class="hl-table-column" ng-show="vm.table.visibility.status" sort-column="status" table="vm.table">
+                        <span class="text-nowrap">Status</span>
+                    </th>
+                    <th class="hl-table-column" ng-show="vm.table.visibility.tags" table="vm.table">
+                        <span class="text-nowrap">Tags</span>
+                    </th>
+                    <th class="hl-table-column" width="105px">
+                        <span class="text-nowrap">Actions</span>
+                    </th>
+                </tr>
+            </thead>
 
-                <tbody>
-                    <tr ng-repeat="account in vm.table.items">
-                        <td ng-show="vm.table.visibility.customerId">
-                            {{ ::account.customer_id }}
-                        </td>
-                        <td ng-show="vm.table.visibility.name">
-                            <a class="list-link" ui-sref="base.accounts.detail({ id: account.id })" title="{{ ::account.name }}">
-                                <i class="lilicon hl-company-icon"></i>
-                                <span class="list-link-name">{{ ::account.name }}</span>
+            <tbody>
+                <tr ng-repeat="account in vm.table.items">
+                    <td class="hl-table-column" ng-show="vm.table.visibility.customerId">
+                        {{ ::account.customer_id }}
+                    </td>
+                    <td class="hl-table-column" ng-show="vm.table.visibility.name">
+                        <a class="list-link" ui-sref="base.accounts.detail({ id: account.id })" title="{{ ::account.name }}">
+                            <i class="lilicon hl-company-icon"></i>
+                            <span class="list-link-name">{{ ::account.name }}</span>
+                        </a>
+                    </td>
+                    <td class="hl-table-column" ng-show="vm.table.visibility.contactInformation">
+                        <div ng-repeat="email in account.email_addresses | filter: {status: '!' + 0}">
+                            <a ui-sref="base.email.composeEmail({ email:email.email_address })" title="{{ ::email.email_address }}">
+                                <i class="lilicon hl-mail-icon"></i>
+                                {{ email.email_address }}
                             </a>
-                        </td>
-                        <td ng-show="vm.table.visibility.contactInformation">
-                            <div ng-repeat="email in account.email_addresses | filter: {status: '!' + 0}">
-                                <a ui-sref="base.email.composeEmail({ email:email.email_address })" title="{{ ::email.email_address }}">
-                                    <i class="lilicon hl-mail-icon"></i>
-                                    {{ email.email_address }}
-                                </a>
-                            </div>
-                            <div ng-repeat="phone in account.phone_numbers track by $index" ng-if="phone.type == 'mobile' || phone.type == 'work'">
-                                <a href="tel:{{ phone.number }}">
-                                    <i ng-class="{work: 'lilicon hl-phone-filled-icon', mobile: 'fa fa-mobile-phone'}[phone.type]"></i>
-                                    {{ phone.number }}
-                                </a>
-                            </div>
-                        </td>
-                        <td ng-show="vm.table.visibility.assignedTo">
-                            {{ ::account.assigned_to }}
-                        </td>
-                        <td ng-show="vm.table.visibility.created"><date date="account.created"></date></td>
-                        <td ng-show="vm.table.visibility.modified"><date date="account.modified"></date></td>
-                        <td ng-show="vm.table.visibility.status">{{ account.status.name }}</date></td>
-                        <td ng-show="vm.table.visibility.tags">
-                            <span ng-repeat="tag in account.tags">
-                                <a href="javascript:void(0)" ng-click="vm.setFilter(tag.name)">{{ ::tag.name }}</a>
-                                <br>
-                            </span>
-                        </td>
-                        <td>
-                            <a ui-sref="base.accounts.detail.edit({ id: account.id })" class="base-icon" title="Edit">
-                                <i class="lilicon hl-edit-icon"></i>
+                        </div>
+                        <div ng-repeat="phone in account.phone_numbers track by $index" ng-if="phone.type == 'mobile' || phone.type == 'work'">
+                            <a href="tel:{{ phone.number }}">
+                                <i ng-class="{work: 'lilicon hl-phone-filled-icon', mobile: 'fa fa-mobile-phone'}[phone.type]"></i>
+                                {{ phone.number }}
                             </a>
-                            <delete-confirmation model="Account" object="account" callback="vm.removeFromList(account)" button-class="base-icon"></delete-confirmation>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+                        </div>
+                    </td>
+                    <td class="hl-table-column" ng-show="vm.table.visibility.assignedTo">
+                        {{ ::account.assigned_to }}
+                    </td>
+                    <td class="hl-table-column" ng-show="vm.table.visibility.created"><date date="account.created"></date></td>
+                    <td class="hl-table-column" ng-show="vm.table.visibility.modified"><date date="account.modified"></date></td>
+                    <td class="hl-table-column" ng-show="vm.table.visibility.status">{{ account.status.name }}</date></td>
+                    <td class="hl-table-column" ng-show="vm.table.visibility.tags">
+                        <span ng-repeat="tag in account.tags">
+                            <a href="javascript:void(0)" ng-click="vm.setFilter(tag.name)">{{ ::tag.name }}</a>
+                            <br>
+                        </span>
+                    </td>
+                    <td class="hl-table-column">
+                        <a ui-sref="base.accounts.detail.edit({ id: account.id })" class="hl-primary-btn-smll" title="Edit">
+                            <i class="lilicon hl-edit-icon"></i>
+                        </a>
+                        <delete-confirmation model="Account" object="account" callback="vm.removeFromList(account)" button-class="hl-primary-btn-smll"></delete-confirmation>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td class="hl-table-column" colspan="9"><hl-pagination values="vm.table"></hl-pagination></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
 
-        <div ng-if="vm.showEmptyState">
-            <div class="empty-state-description no-top">
-                <h3>Progressional overview of what’s going on</h3>
+    <div ng-if="vm.showEmptyState">
+        <div class="empty-state-description no-top">
+            <h3>Progressional overview of what’s going on</h3>
 
-                <p>Accounts are a collection of contacts within the same organization, company or group.</p>
-                <p>You can easily see who you’ve been talking to and when.</p>
-                <p>See the full communication history and gain insights about them, if you add them as an <a class="hl-primary-btn" ui-sref="base.accounts.create" role="button" onclick="ga('send', 'event', 'Account', 'Open', 'Account list empty state');"><i class="fa fa-plus"></i> Account</a></p>
-            </div>
+            <p>Accounts are a collection of contacts within the same organization, company or group.</p>
+            <p>You can easily see who you’ve been talking to and when.</p>
+            <p>See the full communication history and gain insights about them, if you add them as an <a class="hl-primary-btn" ui-sref="base.accounts.create" role="button" onclick="ga('send', 'event', 'Account', 'Open', 'Account list empty state');"><i class="fa fa-plus"></i> Account</a></p>
         </div>
     </div>
-    <hl-pagination values="vm.table"></hl-pagination>
 </div>

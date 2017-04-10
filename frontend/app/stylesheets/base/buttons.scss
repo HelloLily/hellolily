@@ -205,7 +205,6 @@ $large-button: 30px;
     border-style: solid;
     line-height: $button-size;
     padding: 0 ($button-size / 4);
-    color: $app-color-darkblue;
     border-radius: 3px;
     text-transform: uppercase;
     font-weight: 500;
@@ -221,13 +220,20 @@ $large-button: 30px;
     }
 
     &:focus {
-        color: $app-color-darkblue;
         text-decoration: none;
     }
 }
 
+.hl-primary-btn,
+.hl-primary-btn-green,
+.hl-primary-btn-blue,
+.hl-primary-btn-smll {
+    outline: none;
+}
+
 .hl-primary-btn {
     @include hl-button($large-button);
+    color: $app-color-darkblue;
 
     .fa-plus {
         font-size: 10px;
@@ -277,9 +283,23 @@ $large-button: 30px;
     }
 }
 
+.hl-primary-btn-red {
+    @include hl-button($large-button);
+    background: $app-color-red;
+    border-color: darken($app-color-red, 20);
+    color: #fff;
+    font-weight: 700;
+
+    &:hover {
+        color: #fff;
+        background: darken($app-color-red, 5);
+    }
+}
+
 .hl-primary-btn-smll {
     @include hl-button($small-button);
-    font-size: 11px;
+    color: $app-color-darkblue;
+    font-size: 12px;
 
     i {
         font-size: 12px;

@@ -631,8 +631,19 @@ option {
     display: block;
 }
 
+.spacer-40 {
+    height: 40px;
+    display: block;
+}
+
 .auto-margin {
     float: none;
     margin-left: auto;
     margin-right: auto;
+}
+
+.hide-on-tablet {
+    @media (max-width: $breakpoint-tablet) {
+        display: none;
+    }
 }

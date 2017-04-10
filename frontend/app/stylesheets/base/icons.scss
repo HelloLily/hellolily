@@ -122,27 +122,6 @@ i {
     }
 }
 
-.base-icon {
-    float: left;
-    padding: 0 3px;
-    margin: 0;
-    color: $app-color-grey;
-    border-radius: $base-border-radius;
-    font-size: 12px;
-    height: 21px;
-    width: 30px;
-    line-height: 21px;
-    text-align: center;
-    background: $light-border-color;
-    margin-right: 8px;
-    border: 1px $app-border-color solid;
-
-    &:hover {
-        color: $app-color-aqua;
-        text-decoration: none;
-    }
-}
-
 .page-toolbar .lilicon {
     color: $app-color-grey;
 }

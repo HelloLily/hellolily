@@ -27,13 +27,13 @@
             <ul class="nav">
                 <li ui-sref-active="active">
                     <a ui-sref="base.preferences.user.profile" ui-sref-opts="{reload:true}">
-                        <i class="fa fa-user"></i>
+                        <i class="lilicon hl-entity-icon"></i>
                         My profile
                     </a>
                 </li>
                 <li ui-sref-active="active">
                     <a ui-sref="base.preferences.user.account" ui-sref-opts="{reload:true}">
-                        <i class="fa fa-cog"></i>
+                        <i class="lilicon hl-cog-icon"></i>
                         My account
                     </a>
                 </li>
@@ -85,7 +85,7 @@
             <ul class="nav">
                 <li ui-sref-active="active">
                     <a ui-sref="base.preferences.company.users" ui-sref-opts="{reload:true}">
-                        <i class="fa fa-users"></i>
+                        <i class="lilicon hl-entities-icon"></i>
                         Users
                     </a>
                 </li>
@@ -108,13 +108,13 @@
             <ul class="nav">
                 <li ui-sref-active="active">
                     <a ui-sref="base.preferences.emailaccounts" ui-sref-opts="{reload:true}">
-                        <i class="fa fa-envelope"></i>
+                        <i class="lilicon hl-mail-icon"></i>
                         Email accounts
                     </a>
                 </li>
                 <li ui-sref-active="active">
                     <a ui-sref="base.preferences.emailtemplates" ui-sref-opts="{reload:true}">
-                        <i class="fa fa-file-code-o"></i>
+                        <i class="icon-envelope-letter"></i>
                         Email templates
                     </a>
                 </li>
@@ -134,8 +134,10 @@
 
 <!-- BEGIN PROFILE CONTENT -->
 <div class="profile-content">
-    <div ui-view>
-        Here comes a preference pane kind of view.
+    <div class="widget-container">
+        <div ui-view>
+            Here comes a preference pane kind of view.
+        </div>
     </div>
 </div>
 <!-- END PROFILE CONTENT -->

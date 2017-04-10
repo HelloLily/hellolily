@@ -26,7 +26,6 @@ class is applied to, so be sure it has a wrapping container.
 */
 
 .widget-container {
-    background: #fff;
     margin-bottom: 30px;
     position: relative;
 }
@@ -40,6 +39,7 @@ class is applied to, so be sure it has a wrapping container.
 }
 
 .widget-body {
+    background: #fff;
     border-right: 1px $base-border-color solid;
     border-bottom: 1px $base-border-color solid;
     border-left: 1px $base-border-color solid;

@@ -120,7 +120,7 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
         # Get a list of my email accounts.
         my_email_account_list = EmailAccount.objects.filter(
             owner=request.user
-        ).filter(is_deleted=False)
+        ).filter(is_deleted=False).distinct('id')
 
         # Combine my email accounts with the accounts that I follow.
         follow_email_account_list |= my_email_account_list

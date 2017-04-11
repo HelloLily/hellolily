@@ -32,7 +32,7 @@ from lily.contacts.models import Contact
 from lily.google.token_generator import generate_token, validate_token
 from lily.integrations.credentials import get_credentials
 from lily.tenant.middleware import get_current_user
-from lily.utils.functions import is_ajax, post_intercom_event, send_post_request
+from lily.utils.functions import is_ajax, post_intercom_event, send_get_request, send_post_request
 from lily.utils.views.mixins import LoginRequiredMixin, FormActionMixin
 
 from .forms import (ComposeEmailForm, CreateUpdateEmailTemplateForm, CreateUpdateTemplateVariableForm,
@@ -959,13 +959,22 @@ class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
                 document_id = self.request.GET.get('document_id')
                 recipient = self.request.GET.get('recipient_email')
 
-                # Set the status of the document to 'sent' so we can create a view session.
-                send_url = 'https://api.pandadoc.com/public/v1/documents/%s/send' % document_id
-                send_params = {'silent': True}
+                details_url = 'https://api.pandadoc.com/public/v1/documents/%s' % document_id
 
-                response = send_post_request(send_url, credentials, send_params)
+                response = send_get_request(details_url, credentials)
 
                 if response.status_code == 200:
+                    # Only documents with the 'draft' status can be set to sent.
+                    if response.json().get('status') == 'document.draft':
+                        # Set the status of the document to 'sent' so we can create a view session.
+                        send_url = 'https://api.pandadoc.com/public/v1/documents/%s/send' % document_id
+                        send_params = {'silent': True}
+                        response = send_post_request(send_url, credentials, send_params)
+
+                        if response.status_code != 200:
+                            errors.update(document_error)
+
+                    # Document has been 'sent' so create the session.
                     session_url = 'https://api.pandadoc.com/public/v1/documents/%s/session' % document_id
                     year = 60 * 60 * 24 * 365
                     session_params = {'recipient': recipient, 'lifetime': year}
@@ -976,9 +985,9 @@ class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
                         sign_url = 'https://app.pandadoc.com/s/%s' % response.json().get('id')
                         lookup.update({'document': {'sign_url': sign_url}})
                     else:
-                        errors.update(document_error)
+                        errors.update('The PandaDoc sign URL could not be set up because the recipient isn\'t correct')
                 else:
-                    errors.update(document_error)
+                    errors.update('The document doesn\'t seem to be valid.')
 
         if 'emailaccount_id' in self.request.GET:
             try:

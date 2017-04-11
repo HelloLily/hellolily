@@ -19,7 +19,7 @@ from lily.utils.forms.mixins import FormSetFormMixin
 from lily.utils.forms.widgets import Wysihtml5Input, AjaxSelect2Widget, BootstrapRadioFieldRenderer
 
 from ..models.models import (EmailAccount, EmailTemplate, EmailOutboxAttachment, EmailTemplateAttachment,
-                             TemplateVariable, EmailAttachment)
+                             TemplateVariable, EmailAttachment, SharedEmailConfig)
 from .widgets import EmailAttachmentWidget
 from ..utils import get_email_parameter_choices, TemplateParser
 
@@ -135,11 +135,31 @@ class ComposeEmailForm(FormSetFormMixin, forms.Form):
         self.fields['template'].queryset = EmailTemplate.objects.order_by('name')
 
         user = get_current_user()
-        self.email_accounts = EmailAccount.objects.filter(
-            Q(owner=user) |
+
+        # Get a list of email accounts which are publicly shared or shared specifically with me.
+        shared_email_account_list = EmailAccount.objects.filter(
             Q(privacy=EmailAccount.PUBLIC) |
-            (Q(sharedemailconfig__user__id=user.pk) & Q(sharedemailconfig__privacy=EmailAccount.PUBLIC))
+            Q(sharedemailconfig__user__id=user.pk)
         ).filter(tenant=user.tenant, is_deleted=False).distinct('id')
+
+        # Get a list of email accounts we don't want to follow.
+        email_account_exclude_list = SharedEmailConfig.objects.filter(
+            user=user,
+            is_hidden=True
+        ).values_list('email_account_id', flat=True)
+
+        # Exclude those email accounts from the accounts that are shared with me.
+        # So it's a list of email accounts I want to follow.
+        follow_email_account_list = shared_email_account_list.exclude(
+            id__in=email_account_exclude_list
+        )
+
+        # Get a list of my email accounts.
+        my_email_account_list = EmailAccount.objects.filter(
+            owner=user
+        ).filter(tenant=user.tenant, is_deleted=False).distinct('id')
+
+        self.email_accounts = follow_email_account_list | my_email_account_list
 
         # Only provide choices you have access to
         self.fields['send_from'].choices = [(email_account.id, email_account) for email_account in self.email_accounts]

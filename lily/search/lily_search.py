@@ -289,22 +289,25 @@ class LilySearch(object):
         Args:
             user (User): The user to use with the search
         """
-        email_accounts = EmailAccount.objects.filter(
-            Q(owner=user) |
+        # Get a list of email accounts which are publicly shared or shared specifically with me.
+        shared_email_account_list = EmailAccount.objects.filter(
             Q(privacy=EmailAccount.PUBLIC) |
-            (Q(sharedemailconfig__user__id=user.pk) & Q(sharedemailconfig__privacy=EmailAccount.PUBLIC))
-        ).filter(tenant=user.tenant, is_deleted=False).distinct('id')
+            Q(sharedemailconfig__user__id=user.pk)
+        ).filter(is_deleted=False).distinct('id')
 
-        # Hide when we do not want to follow an email_account.
+        # Get a list of email accounts we don't want to follow.
         email_account_exclude_list = SharedEmailConfig.objects.filter(
+            user=user,
             is_hidden=True
         ).values_list('email_account_id', flat=True)
 
-        email_accounts = email_accounts.exclude(
+        # Exclude those email accounts from the accounts that are shared with me.
+        # So it's a list of email accounts I want to follow.
+        follow_email_account_list = shared_email_account_list.exclude(
             id__in=email_account_exclude_list
         )
 
-        if not email_accounts:
+        if not follow_email_account_list:
             # Disable results if no email at all for account.
             self.raw_filters.append({
                 'limit': {
@@ -313,7 +316,7 @@ class LilySearch(object):
             })
             return
 
-        email_accounts = set(['%s' % email.email_address for email in email_accounts])
+        email_accounts = set(['%s' % email.email_address for email in follow_email_account_list])
         join = ' OR '.join(email_accounts)
         filterquery = 'account.email:(%s)' % join
         self.filter_query(filterquery)

@@ -100,21 +100,32 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
     @list_route()
     def mine(self, request):
         # Get a list of email accounts which are publicly shared or shared specifically with me.
-        email_account_list = EmailAccount.objects.filter(
-            Q(owner=request.user) |
+        shared_email_account_list = EmailAccount.objects.filter(
             Q(privacy=EmailAccount.PUBLIC) |
-            (Q(sharedemailconfig__user__id=request.user.pk) & Q(sharedemailconfig__privacy=EmailAccount.PUBLIC))
+            Q(sharedemailconfig__user__id=request.user.pk)
         ).filter(is_deleted=False).distinct('id')
 
+        # Get a list of email accounts we don't want to follow.
         email_account_exclude_list = SharedEmailConfig.objects.filter(
+            user=request.user,
             is_hidden=True
         ).values_list('email_account_id', flat=True)
 
-        email_account_list = email_account_list.exclude(
+        # Exclude those email accounts from the accounts that are shared with me.
+        # So it's a list of email accounts I want to follow.
+        follow_email_account_list = shared_email_account_list.exclude(
             id__in=email_account_exclude_list
         )
 
-        serializer = self.get_serializer(email_account_list, many=True)
+        # Get a list of my email accounts.
+        my_email_account_list = EmailAccount.objects.filter(
+            owner=request.user
+        ).filter(is_deleted=False)
+
+        # Combine my email accounts with the accounts that I follow.
+        follow_email_account_list |= my_email_account_list
+
+        serializer = self.get_serializer(follow_email_account_list, many=True)
 
         return Response(serializer.data)
 

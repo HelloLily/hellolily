@@ -83,15 +83,9 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
         vm.ownedAccounts = ownedAccounts.results;
 
         for (publicAccount of publicAccounts.results) {
-            if (!$filter('where')(vm.ownedAccounts, {id: publicAccount})) {
+            if (publicAccount.owner.id !== vm.currentUser.id) {
                 filteredPublicAccounts.push(publicAccount);
             }
-        }
-
-        if (publicAccounts.results.length) {
-            // Combine arrays and filter out already retrieved accounts.
-            sharedAccounts = $filter('concat')(filteredPublicAccounts, sharedAccounts);
-            sharedAccounts = $filter('unique')(sharedAccounts, 'id');
         }
 
         sharedWithAccounts.results.map((account) => {
@@ -99,6 +93,16 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
                 _checkHiddenState(account);
                 sharedAccounts.push(account);
             }
+        });
+
+        if (publicAccounts.results.length) {
+            // Combine arrays and filter out already retrieved accounts.
+            sharedAccounts = $filter('concat')(filteredPublicAccounts, sharedAccounts);
+            sharedAccounts = $filter('unique')(sharedAccounts, 'id');
+        }
+
+        sharedAccounts.map((account) => {
+            _checkHiddenState(account);
         });
 
         vm.sharedAccounts = sharedAccounts;

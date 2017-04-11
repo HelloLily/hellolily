@@ -34,9 +34,13 @@
                 <tr ng-repeat="deal in vm.table.items">
                     <td><a ui-sref="base.deals.detail({ id: deal.id })">{{ deal.name }}</a></td>
                     <td>
-                        <a ui-sref="base.contacts.detail({ id: deal.contact.id })" ng-if="::deal.contact">{{ ::deal.contact.full_name }}</a>
+                        <deleted-indicator object="deal.contact" field="full_name">
+                            <a ui-sref="base.contacts.detail({ id: deal.contact.id })">{{ ::deal.contact.full_name }}</a>
+                        </deleted-indicator>
                         <span ng-if="deal.contact && deal.account"> at </span>
-                        <a ui-sref="base.accounts.detail({ id: deal.account.id })">{{ ::deal.account.name }}</a>
+                        <deleted-indicator object="deal.account" field="name">
+                             <a ui-sref="base.accounts.detail({ id: deal.account.id })">{{ ::deal.account.name }}</a>
+                        </deleted-indicator>
                     </td>
                     <td>
                         <span ng-bind-html="deal.amount_recurring | currencySymbol:deal.currency"></span> /month<span class="margin-left-5 margin-right-5">|</span>

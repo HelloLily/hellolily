@@ -160,6 +160,14 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
 
         // Fetch the case or create an empty one.
         if (currentCase) {
+            if (currentCase.account && currentCase.account.is_deleted) {
+                currentCase.account = null;
+            }
+
+            if (currentCase.contact && currentCase.contact.is_deleted) {
+                currentCase.contact = null;
+            }
+
             vm.case = currentCase;
 
             Settings.page.setAllTitles('edit', currentCase.subject);

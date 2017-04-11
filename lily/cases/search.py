@@ -26,6 +26,7 @@ class CaseMapping(BaseMapping):
                         'type': 'string',
                         'analyzer': 'normal_edge_analyzer',
                     },
+                    'is_deleted': {'type': 'boolean'},
                 },
             },
             'assigned_to': {
@@ -49,6 +50,7 @@ class CaseMapping(BaseMapping):
                         'type': 'string',
                         'analyzer': 'normal_edge_analyzer',
                     },
+                    'is_deleted': {'type': 'boolean'},
                 },
             },
             'created': {
@@ -159,6 +161,7 @@ class CaseMapping(BaseMapping):
             'account': {
                 'id': obj.account.id,
                 'name': obj.account.name,
+                'is_deleted': obj.account.is_deleted,
             } if obj.account else None,
             'assigned_to': {
                 'id': obj.assigned_to.id,
@@ -168,6 +171,7 @@ class CaseMapping(BaseMapping):
             'contact': {
                 'id': obj.contact.id,
                 'full_name': obj.contact.full_name,
+                'is_deleted': obj.contact.is_deleted,
             } if obj.contact else None,
             'content_type': obj.content_type.id,
             'created': obj.created,

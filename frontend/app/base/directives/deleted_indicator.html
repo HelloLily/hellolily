@@ -1,0 +1,8 @@
+<span ng-if="object">
+    <span ng-if="!object.is_deleted">
+        <ng-transclude></ng-transclude>
+    </span>
+    <span ng-if="object.is_deleted" class="deleted-indicator">
+        &nbsp;<i class="lilicon hl-trashcan-icon" uib-tooltip="{{ object[field] }} is deleted"></i> {{ object[field] }}
+    </span>
+</span>

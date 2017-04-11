@@ -193,11 +193,15 @@
                 </span>
                 <div class="header-account-info">
                     <span ng-if="settings.page.contact">
-                        for <a ui-sref="base.contacts.detail({ id: settings.page.contact.id })">{{ settings.page.contact.full_name }}</a>
+                        for
+                        <deleted-indicator object="settings.page.contact" field="full_name">
+                            <a ui-sref="base.contacts.detail({ id: settings.page.contact.id })">{{ settings.page.contact.full_name }}</a>
+                        </deleted-indicator>
                     </span>
-                    <span ng-if="settings.page.account">
-                        at <a ui-sref="base.accounts.detail({ id: settings.page.account.id })">{{ settings.page.account.name }}</a>
-                    </span>
+                    <span ng-if="settings.page.contact && settings.page.account">at</span>
+                    <deleted-indicator object="settings.page.account" field="name">
+                        <a ui-sref="base.accounts.detail({ id: settings.page.account.id })">{{ settings.page.account.name }}</a>
+                    </deleted-indicator>
                 </div>
             </h1>
         </div>

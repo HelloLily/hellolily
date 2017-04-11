@@ -24,7 +24,7 @@ function caseConfig($stateProvider) {
                 var account;
 
                 if (currentCase.account) {
-                    account = Account.get({id: currentCase.account.id}).$promise;
+                    account = Account.get({id: currentCase.account.id, filter_deleted: 'False'}).$promise;
                 }
 
                 return account;
@@ -33,7 +33,7 @@ function caseConfig($stateProvider) {
                 var contact;
 
                 if (currentCase.contact) {
-                    contact = Contact.get({id: currentCase.contact.id}).$promise;
+                    contact = Contact.get({id: currentCase.contact.id, filter_deleted: 'False'}).$promise;
                 }
 
                 return contact;

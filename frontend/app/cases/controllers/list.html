@@ -107,9 +107,13 @@
                         <a ui-sref="base.cases.detail({ id: case.id })" title="{{ ::case.subject }}">{{ ::case.subject }}</a>
                     </td>
                     <td class="hl-table-column" ng-show="vm.table.visibility.client">
-                        <a ui-sref="base.contacts.detail({ id: case.contact.id })" ng-if="::case.contact">{{ ::case.contact.full_name }}</a>
+                        <deleted-indicator object="case.contact" field="full_name">
+                            <a ui-sref="base.contacts.detail({ id: case.contact.id })" ng-if="case.contact">{{ case.contact.full_name }}</a>
+                        </deleted-indicator>
                         <span ng-if="case.contact && case.account"> at </span>
-                        <a ui-sref="base.accounts.detail({ id: case.account.id })">{{ ::case.account.name }}</a>
+                        <deleted-indicator object="case.account" field="name">
+                            <a ui-sref="base.accounts.detail({ id: case.account.id })">{{ case.account.name }}</a>
+                        </deleted-indicator>
                     </td>
                     <td class="hl-table-column" ng-show="vm.table.visibility.type">
                         {{ ::case.type.name }}

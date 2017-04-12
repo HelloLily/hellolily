@@ -138,6 +138,7 @@ class ComposeEmailForm(FormSetFormMixin, forms.Form):
 
         # Get a list of email accounts which are publicly shared or shared specifically with me.
         shared_email_account_list = EmailAccount.objects.filter(
+            Q(owner=user) |
             Q(privacy=EmailAccount.PUBLIC) |
             Q(sharedemailconfig__user__id=user.pk)
         ).filter(tenant=user.tenant, is_deleted=False).distinct('id')
@@ -154,12 +155,7 @@ class ComposeEmailForm(FormSetFormMixin, forms.Form):
             id__in=email_account_exclude_list
         )
 
-        # Get a list of my email accounts.
-        my_email_account_list = EmailAccount.objects.filter(
-            owner=user
-        ).filter(tenant=user.tenant, is_deleted=False).distinct('id')
-
-        self.email_accounts = follow_email_account_list | my_email_account_list
+        self.email_accounts = follow_email_account_list
 
         # Only provide choices you have access to
         self.fields['send_from'].choices = [(email_account.id, email_account) for email_account in self.email_accounts]

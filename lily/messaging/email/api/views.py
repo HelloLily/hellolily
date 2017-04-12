@@ -101,6 +101,7 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
     def mine(self, request):
         # Get a list of email accounts which are publicly shared or shared specifically with me.
         shared_email_account_list = EmailAccount.objects.filter(
+            Q(owner=request.user) |
             Q(privacy=EmailAccount.PUBLIC) |
             Q(sharedemailconfig__user__id=request.user.pk)
         ).filter(is_deleted=False).distinct('id')
@@ -116,14 +117,6 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
         follow_email_account_list = shared_email_account_list.exclude(
             id__in=email_account_exclude_list
         )
-
-        # Get a list of my email accounts.
-        my_email_account_list = EmailAccount.objects.filter(
-            owner=request.user
-        ).filter(is_deleted=False).distinct('id')
-
-        # Combine my email accounts with the accounts that I follow.
-        follow_email_account_list |= my_email_account_list
 
         serializer = self.get_serializer(follow_email_account_list, many=True)
 

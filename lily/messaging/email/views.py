@@ -953,6 +953,7 @@ class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
             credentials = get_credentials('pandadoc')
 
             if credentials:
+                error_message = None
                 document_id = self.request.GET.get('document_id')
                 recipient = self.request.GET.get('recipient_email')
 

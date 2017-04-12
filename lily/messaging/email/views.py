@@ -950,9 +950,6 @@ class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
                         lookup.update({'account': account})
 
         if 'document_id' in self.request.GET:
-            document_error = {
-                'document': 'Something went wrong while setting up the PandaDoc sign URL.',
-            }
             credentials = get_credentials('pandadoc')
 
             if credentials:
@@ -972,7 +969,7 @@ class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
                         response = send_post_request(send_url, credentials, send_params)
 
                         if response.status_code != 200:
-                            errors.update(document_error)
+                            error_message = 'Something went wrong while setting up the PandaDoc sign URL.'
 
                     # Document has been 'sent' so create the session.
                     session_url = 'https://api.pandadoc.com/public/v1/documents/%s/session' % document_id
@@ -985,9 +982,15 @@ class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
                         sign_url = 'https://app.pandadoc.com/s/%s' % response.json().get('id')
                         lookup.update({'document': {'sign_url': sign_url}})
                     else:
-                        errors.update('The PandaDoc sign URL could not be set up because the recipient isn\'t correct')
+                        error_message = ('The PandaDoc sign URL could not be created \
+                                          because the recipient isn\'t correct')
                 else:
-                    errors.update('The document doesn\'t seem to be valid.')
+                    error_message = 'The document doesn\'t seem to be valid.'
+
+                if error_message:
+                    errors.update({
+                        'document': error_message
+                    })
 
         if 'emailaccount_id' in self.request.GET:
             try:

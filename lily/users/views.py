@@ -442,13 +442,14 @@ class AcceptInvitationView(FormView):
         """
         Create LilyUser.
         """
-        user = LilyUser()
-        user.email = self.email
-        user.first_name = form.cleaned_data['first_name']
-        user.last_name = form.cleaned_data['last_name']
-        user.set_password(form.cleaned_data['password'])
-        user.tenant_id = self.tenant_id
-        user.save()
+        # Create and save user
+        LilyUser.objects.create_user(
+            email=self.email,
+            password=form.cleaned_data['password'],
+            first_name=form.cleaned_data['first_name'],
+            last_name=form.cleaned_data['last_name'],
+            tenant_id=self.tenant_id,
+        )
 
         return self.get_success_url()
 

@@ -1,0 +1,15 @@
+{% load i18n %}
+
+{% block subject %}{% trans 'Your first impression of' %} {{ current_site.name }}{% endblock %}
+
+{% block plain %}
+Hi {{ first_name }},
+
+We hope you're in for a treat! With {{ current_site.name }} you will finally get the overview of all your clients and better collaboration with colleagues you desire.
+
+What are your first thoughts, concerns or questions so far? We would really like to hear your honest opinion!
+
+Greetings,
+
+Team {{ current_site.name }}
+{% endblock %}

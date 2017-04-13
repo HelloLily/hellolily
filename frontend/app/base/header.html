@@ -205,7 +205,7 @@
         <div class="pull-right">
             <!-- BEGIN LARGE ACTIONS -->
             <div class="hidden-sm hidden-xs">
-                <caller-info ng-if="currentUser.tenant == 10 || currentUser.tenant == 50"></caller-info>
+                <caller-info ng-if="currentUser.internalNumber"></caller-info>
                 <a class="hl-primary-btn" ui-sref="base.accounts.create" role="button" onclick="ga('send', 'event', 'Account', 'Open', 'Topnav');"><i class="fa fa-plus"></i> Account</a>
                 <a class="hl-primary-btn" ui-sref="base.contacts.create" role="button" onclick="ga('send', 'event', 'Contact', 'Open', 'Topnav');"><i class="fa fa-plus"></i> Contact</a>
                 <a class="hl-primary-btn" ui-sref="base.deals.create" role="button" onclick="ga('send', 'event', 'Deal', 'Open', 'Topnav');"><i class="fa fa-plus"></i> Deal</a>
@@ -215,7 +215,7 @@
 
             <!-- BEGIN SMALL ACTIONS -->
             <div class="hl-button-group-container hidden-md hidden-lg">
-                <caller-info ng-if="currentUser.tenant == 10 || currentUser.tenant == 50"></caller-info>
+                <caller-info ng-if="currentUser.internalNumber"></caller-info>
                 <ul class="hl-button-group primary-actions-group">
                     <li class="hl-button-group-btn">
                         <a class="hl-button-group-btn-link" data-toggle="dropdown" data-hover="dropdown" data-close-others="true" aria-expanded="false">

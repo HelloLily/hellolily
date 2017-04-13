@@ -1,0 +1,119 @@
+{
+  "internalDate": "1491220484000",
+  "historyId": "11019",
+  "payload": {
+    "mimeType": "multipart/related",
+    "headers": [
+      {
+        "name": "Received",
+        "value": "from 293879599902 named unknown by gmailapi.google.com with HTTPREST; Mon, 3 Apr 2017 04:54:44 -0700"
+      },
+      {
+        "name": "Content-Type",
+        "value": "multipart/related; boundary=\"===============0529811256475331541==\""
+      },
+      {
+        "name": "MIME-Version",
+        "value": "1.0"
+      },
+      {
+        "name": "Subject",
+        "value": "Mauris ex tortor, hendrerit non sem eu, mollis varius purus."
+      },
+      {
+        "name": "From",
+        "value": "Firstname Lastname <user1@example.com>"
+      },
+      {
+        "name": "To",
+        "value": "user2@example.com"
+      },
+      {
+        "name": "Date",
+        "value": "Mon, 3 Apr 2017 04:54:44 -0700"
+      },
+      {
+        "name": "Message-Id",
+        "value": "<CADssDq1XKbLLnz6njBc+xpG6xPs8ZA3aQ=kPg1g75p2j=e2efg@mail.gmail.com>"
+      }
+    ],
+    "parts": [
+      {
+        "mimeType": "multipart/alternative",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "multipart/alternative; boundary=\"===============6835128886458232912==\""
+          },
+          {
+            "name": "MIME-Version",
+            "value": "1.0"
+          }
+        ],
+        "parts": [
+          {
+            "mimeType": "text/plain",
+            "headers": [
+              {
+                "name": "MIME-Version",
+                "value": "1.0"
+              },
+              {
+                "name": "Content-Type",
+                "value": "text/plain; charset=\"utf-8\""
+              },
+              {
+                "name": "Content-Transfer-Encoding",
+                "value": "7bit"
+              }
+            ],
+            "body": {
+              "data": "ICAKSW4gaGFjIGhhYml0YXNzZSBwbGF0ZWEgZGljdHVtc3QuIENsYXNzIGFwdGVudCB0YWNpdGkgc29jaW9zcXUgYWQgbGl0b3JhIHRvcnF1ZW50IHBlciBjb251YmlhIG5vc3RyYSwgcGVyIGluY2VwdG9zIGhpbWVuYWVvcy4gVXQgYWxpcXVldCBlbGl0IHNlZCBhdWd1ZSBiaWJlbmR1bSBtYWxlc3VhZGEuCg==",
+              "size": 175
+            },
+            "partId": "0.0",
+            "filename": ""
+          },
+          {
+            "mimeType": "text/html",
+            "headers": [
+              {
+                "name": "MIME-Version",
+                "value": "1.0"
+              },
+              {
+                "name": "Content-Type",
+                "value": "text/html; charset=\"utf-8\""
+              },
+              {
+                "name": "Content-Transfer-Encoding",
+                "value": "7bit"
+              }
+            ],
+            "body": {
+              "data": "PGh0bWw-PGJvZHk-PGJyLz5JbiBoYWMgaGFiaXRhc3NlIHBsYXRlYSBkaWN0dW1zdC4gQ2xhc3MgYXB0ZW50IHRhY2l0aSBzb2Npb3NxdSBhZCBsaXRvcmEgdG9ycXVlbnQgcGVyIGNvbnViaWEgbm9zdHJhLCBwZXIgaW5jZXB0b3MgaGltZW5hZW9zLiBVdCBhbGlxdWV0IGVsaXQgc2VkIGF1Z3VlIGJpYmVuZHVtIG1hbGVzdWFkYS48L2JvZHk-PC9odG1sPg==",
+              "size": 202
+            },
+            "partId": "0.1",
+            "filename": ""
+          }
+        ],
+        "body": {
+          "size": 0
+        },
+        "filename": ""
+      }
+    ],
+    "body": {
+      "size": 0
+    },
+    "filename": ""
+  },
+  "snippet": "In hac habitasse platea dictumst. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Ut aliquet elit sed augue bibendum malesuada.",
+  "sizeEstimate": 1351,
+  "threadId": "15b33aad2c5dbe4a",
+  "labelIds": [
+    "SENT"
+  ],
+  "id": "15b33aad2c5dbe4a"
+}

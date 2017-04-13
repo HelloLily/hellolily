@@ -533,15 +533,23 @@ ES_BLOCK = os.environ.get('ES_BLOCK', True)  # Default is False
 #######################################################################################################################
 # Gmail settings                                                                                                  #
 #######################################################################################################################
-GA_CLIENT_ID = os.environ.get('GA_CLIENT_ID', '')
-GA_CLIENT_SECRET = os.environ.get('GA_CLIENT_SECRET', '')
+GOOGLE_OAUTH2_CLIENT_ID = os.environ.get('GOOGLE_OAUTH2_CLIENT_ID', '')
+GOOGLE_OAUTH2_CLIENT_SECRET = os.environ.get('GOOGLE_OAUTH2_CLIENT_SECRET', '')
 GMAIL_FULL_MESSAGE_BATCH_SIZE = os.environ.get('GMAIL_FULL_MESSAGE_BATCH_SIZE', 300)
 GMAIL_LABEL_UPDATE_BATCH_SIZE = os.environ.get('GMAIL_LABEL_UPDATE_BATCH_SIZE', 500)
 GMAIL_PARTIAL_SYNC_LIMIT = os.environ.get('GMAIL_PARTIAL_SYNC_LIMIT', 899)
 GMAIL_CALLBACK_URL = os.environ.get('GMAIL_CALLBACK_URL', 'http://localhost:8000/messaging/email/callback/')
 GMAIL_SYNC_DELAY_INTERVAL = 1
 GMAIL_SYNC_LOCK_LIFETIME = 300
-GMAIL_CHUNK_SIZE = 1024 * 1024
+# A chuck size of -1 indicates that the entire file should be uploaded in a single request. If the underlying platform
+# supports streams, such as Python 2.6 or later, then this can be very efficient as it avoids multiple connections, and
+# also avoids loading the entire file into memory before sending it.
+GMAIL_CHUNK_SIZE = -1
+# Disable resumable uploads.
+# https://developers.google.com/api-client-library/python/guide/media_upload#resumable-media-chunked-upload
+# With resumable uploads enabled, tests on sending email behave different when mocking. In the old situation resumable
+# was enabled but code handling failing uploads was missing.
+GMAIL_UPLOAD_RESUMABLE = False
 GMAIL_LABEL_INBOX = os.environ.get('GMAIL_LABEL_INBOX', 'INBOX')
 GMAIL_LABEL_SPAM = os.environ.get('GMAIL_LABEL_SPAM', 'SPAM')
 GMAIL_LABEL_TRASH = os.environ.get('GMAIL_LABEL_TRASH', 'TRASH')

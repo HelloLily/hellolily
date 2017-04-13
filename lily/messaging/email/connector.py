@@ -1,11 +1,13 @@
 import logging
 import random
 import time
-
 import anyjson
+
+from StringIO import StringIO
+
 from django.conf import settings
 from googleapiclient.errors import HttpError
-from googleapiclient.http import MediaInMemoryUpload
+from googleapiclient.http import MediaIoBaseUpload
 from oauth2client.client import HttpAccessTokenRefreshError
 
 from .credentials import get_credentials, InvalidCredentialsError
@@ -97,6 +99,12 @@ class GmailConnector(object):
                         raise NotFoundError
                     else:
                         logger.exception('Unkown error code for error %s' % error)
+                        if service.body_size < 25000:
+                            # Log the actual API call to Google in case of an error. But restrict on the (arbitrary
+                            # chosen) body_size. Size can be very large due to inline images / html tags.
+                            logger.exception(service.to_json())
+                        else:
+                            logger.exception('Did not log api call, body size to large: %d' % service.body_size)
                         raise
 
                 except ValueError:
@@ -105,6 +113,10 @@ class GmailConnector(object):
                         raise NotFoundError
                     else:
                         logger.exception('Unkown error code for error %s' % error)
+                        if service.body_size < 25000:
+                            logger.exception(service.to_json())
+                        else:
+                            logger.exception('Did not log api call, body size to large: %d' % service.body_size)
                         raise
             except HttpAccessTokenRefreshError:
                 # Thrown when a user removes Lily from the connected apps or
@@ -140,6 +152,7 @@ class GmailConnector(object):
                 startHistoryId=self.history_id,
                 pageToken=page_token
             ))
+
             history.extend(response.get('history', []))
 
         # History id's are for successive history pages identical, so no need to update with each nextPageToken.
@@ -202,6 +215,12 @@ class GmailConnector(object):
             id=message_id,
             quotaUser=self.email_account.id,
         ))
+
+        history_id = response.get('historyId', self.history_id)
+        if history_id > self.history_id:
+            # Store new history id if it's past the current one.
+            self.history_id = history_id
+
         return response
 
     def get_label_list(self):
@@ -307,15 +326,16 @@ class GmailConnector(object):
         return response
 
     def send_email_message(self, message_string, thread_id=None):
+        # Possible TODO: only use MediaIOBaseUpload on large email bodys instead of always:
+        # http://stackoverflow.com/questions/27875858/#33155212
+        fd = StringIO(message_string)
+        media = MediaIoBaseUpload(fd, mimetype='message/rfc822', chunksize=settings.GMAIL_CHUNK_SIZE,
+                                  resumable=settings.GMAIL_UPLOAD_RESUMABLE)
+
         message_dict = {}
-        media = MediaInMemoryUpload(
-            message_string,
-            mimetype='message/rfc822',
-            chunksize=settings.GMAIL_CHUNK_SIZE,
-            resumable=True
-        )
         if thread_id:
             message_dict.update({'threadId': thread_id})
+
         response = self.execute_service_call(
             self.gmail_service.service.users().messages().send(
                 userId='me',
@@ -326,12 +346,16 @@ class GmailConnector(object):
         return response
 
     def create_draft_email_message(self, message_string):
-        media = MediaInMemoryUpload(
-            message_string,
+        # Possible TODO: only use MediaIOBaseUpload on large email bodys instead of always:
+        # http://stackoverflow.com/questions/27875858/#33155212
+        fd = StringIO(message_string)
+        media = MediaIoBaseUpload(
+            fd,
             mimetype='message/rfc822',
             chunksize=settings.GMAIL_CHUNK_SIZE,
-            resumable=True
+            resumable=settings.GMAIL_UPLOAD_RESUMABLE
         )
+
         response = self.execute_service_call(
             self.gmail_service.service.users().drafts().create(
                 userId='me',
@@ -341,12 +365,16 @@ class GmailConnector(object):
         return response
 
     def update_draft_email_message(self, message_string, draft_id):
-        media = MediaInMemoryUpload(
-            message_string,
+        # Possible TODO: only use MediaIOBaseUpload on large email bodys instead of always:
+        # http://stackoverflow.com/questions/27875858/#33155212
+        fd = StringIO(message_string)
+        media = MediaIoBaseUpload(
+            fd,
             mimetype='message/rfc822',
             chunksize=settings.GMAIL_CHUNK_SIZE,
-            resumable=True
+            resumable=settings.GMAIL_UPLOAD_RESUMABLE
         )
+
         response = self.execute_service_call(
             self.gmail_service.service.users().drafts().update(
                 userId='me',

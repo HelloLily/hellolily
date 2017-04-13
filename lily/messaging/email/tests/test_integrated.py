@@ -1,3 +1,4 @@
+import anyjson
 from django.conf import settings
 from googleapiclient.discovery import build
 from googleapiclient.http import HttpMock
@@ -6,10 +7,10 @@ from rest_framework.test import APITestCase
 
 from lily.celery import app
 from lily.messaging.email.factories import GmailAccountFactory
-from lily.messaging.email.models.models import EmailAccount, EmailMessage
+from lily.messaging.email.models.models import EmailAccount, EmailMessage, EmailOutboxMessage
 from lily.messaging.email.services import GmailService
-from lily.messaging.email.tasks import synchronize_email_account_scheduler
-from lily.tests.utils import UserBasedTest
+from lily.messaging.email.tasks import synchronize_email_account_scheduler, send_message
+from lily.tests.utils import UserBasedTest, get_dummy_credentials
 
 from mock import patch
 
@@ -93,9 +94,10 @@ class EmailTests(UserBasedTest, APITestCase):
         app.conf.update(CELERY_ALWAYS_EAGER=True)
 
         # Patch the creation of a Gmail API service without the need for authorized credentials.
+        credentials = get_dummy_credentials()
         self.get_credentials_mock_patcher = patch('lily.messaging.email.connector.get_credentials')
         get_credentials_mock = self.get_credentials_mock_patcher.start()
-        get_credentials_mock.return_value = None
+        get_credentials_mock.return_value = credentials
 
         self.authorize_mock_patcher = patch.object(GmailService, 'authorize')
         authorize_mock = self.authorize_mock_patcher.start()
@@ -103,7 +105,7 @@ class EmailTests(UserBasedTest, APITestCase):
 
         self.build_service_mock_patcher = patch.object(GmailService, 'build_service')
         build_service_mock = self.build_service_mock_patcher.start()
-        build_service_mock.return_value = build('gmail', 'v1')
+        build_service_mock.return_value = build('gmail', 'v1', credentials=credentials)
 
         # Reset changes made to the email account in a test.
         self.email_account.refresh_from_db()
@@ -740,7 +742,7 @@ class EmailTests(UserBasedTest, APITestCase):
                                            history_id_after=9733)
 
         # Verify that the correct email message is gone.
-        self.assertEqual(EmailMessage.objects.filter(message_id='15a6008a4baa65f3').exists(), False)
+        self.assertFalse(EmailMessage.objects.filter(message_id='15a6008a4baa65f3').exists())
 
     def test_incremental_synchronize_new_messages(self):
         """
@@ -771,13 +773,78 @@ class EmailTests(UserBasedTest, APITestCase):
         verify_label_data[settings.GMAIL_LABEL_IMPORTANT] = [True, 9, 8]
 
         self._test_incremental_synchronize(mock_api_calls=mock_api_calls, label_data_after=verify_label_data,
-                                           history_id_after=9841)
+                                           history_id_after=9834)
 
         # Verify that the label mutation is applied on the correct email messages.
         verify_labels = self.verify_label_availability_default.copy()
 
         self._test_email_message('15af6279f554fd15', label_data=verify_labels)
         self._test_email_message('15af6279e8b72e9c', label_data=verify_labels)
+
+    @patch.object(GmailService, '_get_http')
+    def test_send_message(self, get_http_mock):
+        """
+        Do a full synchronize of one email account. Afterwards send out an email message.
+
+        Verifies that the correct (number of) labels and related emails are stored in the database and that the
+        history id and synchronisation status are administered correctly.
+        """
+        mock_api_calls = self.mock_api_calls_default + [
+            #
+            HttpMock('lily/messaging/email/tests/data/send_email_message.json', {'status': '200'}),
+            # Retrieve a list of all available labels.
+            HttpMock('lily/messaging/email/tests/data/get_message_info_15b33aad2c5dbe4a.json', {'status': '200'}),
+        ]
+
+        # Mock the http instance with succesive http mock objects.
+        get_http_mock.side_effect = mock_api_calls
+
+        email_outbox_message = EmailOutboxMessage.objects.create(
+            subject="Mauris ex tortor, hendrerit non sem eu, mollis varius purus.",
+            send_from=self.email_account,
+            to=anyjson.dumps("user2@example.com"),
+            cc=anyjson.dumps(None),
+            bcc=anyjson.dumps(None),
+            body="<html><body><br/>In hac habitasse platea dictumst. Class aptent taciti sociosqu ad litora torquent "
+                 "per conubia nostra, per inceptos himenaeos. Ut aliquet elit sed augue bibendum malesuada."
+                 "</body></html>",
+            headers={},
+            mapped_attachments=0,
+            template_attachment_ids='',
+            original_message_id=None,
+            tenant=self.user_obj.tenant
+        )
+
+        synchronize_email_account_scheduler()
+
+        # Call the task to send out the email message.
+        send_message(email_outbox_message.id)
+
+        # Verify the correct number of API calls.
+        self.assertEqual(get_http_mock.call_count, len(mock_api_calls), "Number of API call was %d but should be %d." %
+                         (get_http_mock.call_count, len(mock_api_calls)))
+
+        # Verify that the number of emails per label is updated with the send email message.
+        label_data_after = self.verify_label_data_default.copy()
+        label_data_after['all_mail'] = [True, 11, 7]
+        label_data_after[settings.GMAIL_LABEL_SENT] = [True, 3, 0]
+        self._label_test(self.email_account, label_data_after)
+
+        # Verify that the specific email message has the correct labels.
+        verify_labels = self.verify_label_availability_default.copy()
+        verify_labels[settings.GMAIL_LABEL_INBOX] = False
+        verify_labels[settings.GMAIL_LABEL_UNREAD] = False
+        verify_labels[settings.GMAIL_LABEL_IMPORTANT] = False
+        verify_labels[settings.GMAIL_LABEL_SENT] = True
+        self._test_email_message('15b33aad2c5dbe4a', label_data=verify_labels)
+
+        # Verify history id.
+        self.email_account.refresh_from_db()
+        self.assertEqual(self.email_account.history_id, 11019, "The history id of the email account was incorrect.")
+
+        # Verify that the prepared outgoing message is removed from the database
+        self.assertFalse(EmailOutboxMessage.objects.filter(id=email_outbox_message.id).exists(),
+                         'The prepared outbox message should not be in the database anymore.')
 
     @patch.object(GmailService, '_get_http')
     def _test_full_synchronize(self, get_http_mock, mock_api_calls, label_data_after, authorized_before=True,
@@ -872,7 +939,7 @@ class EmailTests(UserBasedTest, APITestCase):
                 else:
                     # Mail with label_name should not be present in the database.
                     exists = email_account.labels.filter(label_id=label_name).exists()
-                    self.assertEqual(exists, False, "Label %s shouldn't be in the database." % label_name)
+                    self.assertFalse(exists, "Label %s shouldn't be in the database." % label_name)
 
     def _verify_email_account_state(self, email_account, authorized, history_id, full_sync_finished):
         """

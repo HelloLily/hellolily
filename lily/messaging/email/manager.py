@@ -108,6 +108,7 @@ class GmailManager(object):
             # TODO: LILY-2203 draft_id is missing when downloaded message is a draft.
             self.message_builder.store_message_info(message_info, message_id)
             self.message_builder.save()
+            self.connector.save_history_id()
 
     def sync_by_history(self):
         """
@@ -456,6 +457,7 @@ class GmailManager(object):
             self.message_builder.store_message_info(full_message_dict, message_dict['id'])
             self.message_builder.save()
             self.update_unread_count()
+            self.connector.save_history_id()
 
     def delete_email_message(self, email_message):
         """
@@ -481,7 +483,6 @@ class GmailManager(object):
         """
         # Send message.
         message_dict = self.connector.send_email_message(email_message.as_string(), thread_id)
-
         try:
             full_message_dict = self.connector.get_message_info(message_dict['id'])
         except NotFoundError:
@@ -491,6 +492,7 @@ class GmailManager(object):
             self.message_builder.store_message_info(full_message_dict, message_dict['id'])
             self.message_builder.save()
             self.update_unread_count()
+            self.connector.save_history_id()
 
     def create_draft_email_message(self, email_message):
         """
@@ -512,6 +514,7 @@ class GmailManager(object):
             self.message_builder.message.draft_id = draft_dict.get('id', '')
             self.message_builder.save()
             self.update_unread_count()
+            self.connector.save_history_id()
 
     def update_draft_email_message(self, email_message, draft_id):
         """
@@ -534,6 +537,7 @@ class GmailManager(object):
             self.message_builder.message.draft_id = draft_dict.get('id', '')
             self.message_builder.save()
             self.update_unread_count()
+            self.connector.save_history_id()
 
     def delete_draft_email_message(self, email_message):
         """

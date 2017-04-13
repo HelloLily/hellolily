@@ -1,7 +1,10 @@
 from urllib import urlencode
 
-from datetime import datetime, date
+from datetime import datetime, timedelta, date
 import json
+
+from oauth2client import GOOGLE_TOKEN_URI
+from oauth2client.client import OAuth2Credentials
 
 from decimal import Decimal
 from django.contrib.auth.models import AnonymousUser
@@ -446,3 +449,22 @@ class GenericAPITestCase(CompareObjectsMixin, UserBasedTest, APITestCase):
         request = self.other_tenant_user.delete(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}))
         self.assertStatus(request, status.HTTP_404_NOT_FOUND)
         self.assertEqual(request.data, {u'detail': u'Not found.'})
+
+
+def get_dummy_credentials():
+    access_token = 'foo'
+    client_id = 'some_client_id'
+    client_secret = 'cOuDdkfjxxnv+'
+    refresh_token = '1/0/a.df219fjls0'
+    token_expiry = datetime.utcnow() + timedelta(minutes=10)
+    user_agent = 'refresh_checker/1.0'
+
+    return OAuth2Credentials(
+        access_token,
+        client_id,
+        client_secret,
+        refresh_token,
+        token_expiry,
+        GOOGLE_TOKEN_URI,
+        user_agent
+    )

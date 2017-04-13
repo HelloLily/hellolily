@@ -90,6 +90,8 @@ function UnassignedCasesController($http, $scope, $state, Case, HLFilters, HLUti
                 Case.patch({id: caseObj.id, assigned_to: currentUser.id}).$promise.then(function() {
                     var index = vm.table.items.indexOf(caseObj);
                     vm.table.items.splice(index, 1);
+
+                    $state.reload();
                 });
             }
         }).done();

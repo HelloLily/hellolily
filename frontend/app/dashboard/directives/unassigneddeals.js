@@ -96,6 +96,8 @@ function UnassignedDealsController($http, $scope, $state, Deal, HLFilters, HLUti
                 Deal.patch({id: dealObj.id, assigned_to: currentUser.id}).$promise.then(function() {
                     var index = vm.table.items.indexOf(dealObj);
                     vm.table.items.splice(index, 1);
+
+                    $state.reload();
                 });
             }
         }).done();

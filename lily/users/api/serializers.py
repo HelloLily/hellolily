@@ -111,14 +111,14 @@ class LilyUserSerializer(WritableNestedSerializer):
         if instance.picture is validated_data.get('picture'):
             validated_data['picture'] = None
 
-        validated_team_list = []
+        validated_team_list = None
 
         if 'teams' in validated_data:
             validated_team_list = validated_data.pop('teams')
 
         user = super(LilyUserSerializer, self).update(instance, validated_data)
 
-        if validated_team_list:
+        if validated_team_list is not None:
             # Remove all teams from a user instance to add them after the serializer.
             self.instance.teams.clear()
 

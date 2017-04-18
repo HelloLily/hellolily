@@ -3,8 +3,8 @@
         <div class="widget-label contact"></div>
         <div class="widget-name">
             <i class="lilicon hl-entity-icon"></i>
-            <a ng-if="vm.clickableHeader" ui-sref="base.contacts.detail({ id: vm.settings.email.data.contact.id || vm.contact.id })">{{ vm.contact.full_name }}</a>
-            <span ng-if="!vm.clickableHeader">{{ vm.contact.full_name }}</span>
+            <a ng-if="vm.clickableHeader && !vm.contact.is_deleted" ui-sref="base.contacts.detail({ id: vm.settings.email.data.contact.id || vm.contact.id })">{{ vm.contact.full_name }}</a>
+            <span ng-if="!vm.clickableHeader || vm.contact.is_deleted">{{ vm.contact.full_name }}</span>
         </div>
     </widget-header>
 

@@ -38,12 +38,16 @@
                         </a>
                     </td>
                     <td>
-                        <a ng-if="myDeal.hasUnarchivedCases" ui-sref="base.accounts.detail({ id: deal.account.id })" class="danger-icon" uib-tooltip="This account has an unarchived case">
+                        <span ng-if="myDeal.hasUnarchivedCases" class="danger-icon" uib-tooltip="This account has an unarchived case">
                             <i class="font-size-16 lilicon hl-case-icon"></i>
-                        </a>
-                        <a ui-sref="base.contacts.detail({ id: myDeal.contact.id })" ng-if="myDeal.contact"> {{ myDeal.contact.full_name }}</a>
-                        <span ng-if="myDeal.contact && myDeal.account.name"> at</span>
-                        <a ui-sref="base.accounts.detail({ id: myDeal.account.id })" ng-if="myDeal.account"> {{ myDeal.account.name }}</a>
+                        </span>
+                        <deleted-indicator object="myDeal.contact" field="full_name">
+                            <a ui-sref="base.contacts.detail({ id: myDeal.contact.id })" ng-if="myDeal.contact"> {{ myDeal.contact.full_name }}</a>
+                        </deleted-indicator>
+                        <span ng-if="myDeal.contact && myDeal.account.name"> at </span>
+                        <deleted-indicator object="myDeal.account" field="name">
+                            <a ui-sref="base.accounts.detail({ id: myDeal.account.id })" ng-if="myDeal.account"> {{ myDeal.account.name }}</a>
+                        </deleted-indicator>
                     </td>
                     <td>
                         <span ng-bind-html="myDeal.amount_recurring | currencySymbol:myDeal.currency"></span> /month<span class="margin-left-5 margin-right-5">|</span>

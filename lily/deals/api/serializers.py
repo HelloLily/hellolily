@@ -310,6 +310,7 @@ class DealSerializer(WritableNestedSerializer):
             'found_through',
             'is_archived',
             'is_checked',
+            'is_deleted',
             'modified',
             'name',
             'new_business',

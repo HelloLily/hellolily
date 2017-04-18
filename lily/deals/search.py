@@ -29,6 +29,7 @@ class DealMapping(BaseMapping):
                         'type': 'string',
                         'index_analyzer': 'normal_edge_analyzer',
                     },
+                    'is_deleted': {'type': 'boolean'},
                 }
             },
             'amount_once': {
@@ -64,6 +65,7 @@ class DealMapping(BaseMapping):
                         'type': 'string',
                         'analyzer': 'normal_edge_analyzer',
                     },
+                    'is_deleted': {'type': 'boolean'},
                 },
             },
             'contacted_by': {
@@ -219,6 +221,7 @@ class DealMapping(BaseMapping):
                 'id': obj.account.id,
                 'name': obj.account.name,
                 'customer_id': obj.account.customer_id,
+                'is_deleted': obj.account.is_deleted,
             } if obj.account else None,
             'amount_once': obj.amount_once,
             'amount_recurring': obj.amount_recurring,
@@ -232,6 +235,7 @@ class DealMapping(BaseMapping):
             'contact': {
                 'id': obj.contact.id,
                 'full_name': obj.contact.full_name,
+                'is_deleted': obj.contact.is_deleted,
             } if obj.contact else None,
             'contacted_by': {
                 'id': obj.contacted_by.id,

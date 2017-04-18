@@ -69,6 +69,10 @@ class AccountViewSet(ModelViewSet):
         """
         Set the queryset here so it filters on tenant and works with pagination.
         """
+        if 'filter_deleted' in self.request.GET:
+            if self.request.GET.get('filter_deleted') == 'False':
+                return super(AccountViewSet, self).get_queryset()
+
         return super(AccountViewSet, self).get_queryset().filter(is_deleted=False)
 
 

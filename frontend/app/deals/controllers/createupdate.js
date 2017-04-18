@@ -206,6 +206,14 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
 
         // Fetch the contact or create empty contact.
         if (currentDeal) {
+            if (currentDeal.account && currentDeal.account.is_deleted) {
+                currentDeal.account = null;
+            }
+
+            if (currentDeal.contact && currentDeal.contact.is_deleted) {
+                currentDeal.contact = null;
+            }
+
             vm.deal = currentDeal;
 
             vm.deal.amount_once = $filter('currency')(vm.deal.amount_once, '');

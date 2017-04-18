@@ -54,6 +54,7 @@ class ContactSerializer(WritableNestedSerializer):
             'full_name',
             'gender',
             'gender_display',
+            'is_deleted',
             'last_name',
             'modified',
             'phone_numbers',
@@ -63,6 +64,7 @@ class ContactSerializer(WritableNestedSerializer):
             'tags',
             'title',
         )
+        read_only_fields = ('is_deleted', )
 
     def validate(self, data):
         if not isinstance(data, dict):
@@ -238,4 +240,6 @@ class RelatedContactSerializer(RelatedSerializerMixin, ContactSerializer):
             'description',
             'salutation',
             'salutation_display',
+            'is_deleted',
         )
+        read_only_fields = ('is_deleted', )

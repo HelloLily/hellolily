@@ -107,6 +107,7 @@ class AccountSerializer(WritableNestedSerializer):
             'email_addresses',
             'flatname',
             'iban',
+            'is_deleted',
             'legalentity',
             # 'logo',
             'modified',
@@ -118,6 +119,7 @@ class AccountSerializer(WritableNestedSerializer):
             'taxnumber',
             'websites',
         )
+        read_only_fields = ('is_deleted', )
 
 
 class RelatedAccountSerializer(RelatedSerializerMixin, AccountSerializer):
@@ -145,4 +147,6 @@ class RelatedAccountSerializer(RelatedSerializerMixin, AccountSerializer):
             'email_addresses',
             'phone_numbers',
             'addresses',
+            'is_deleted',
         )
+        read_only_fields = ('is_deleted', )

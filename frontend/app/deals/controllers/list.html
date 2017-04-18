@@ -109,9 +109,13 @@
                         <a ui-sref="base.deals.detail({ id: deal.id })" title="{{ deal.name }}">{{ deal.name }}</a>
                     </td>
                     <td class="hl-table-column" ng-show="vm.table.visibility.client">
-                        <a ui-sref="base.contacts.detail({ id: deal.contact.id })" ng-if="::deal.contact">{{ ::deal.contact.full_name }}</a>
+                        <deleted-indicator object="deal.contact" field="full_name">
+                             <a ui-sref="base.contacts.detail({ id: deal.contact.id })">{{ ::deal.contact.full_name }}</a>
+                        </deleted-indicator>
                         <span ng-if="deal.contact && deal.account"> at </span>
-                        <a ui-sref="base.accounts.detail({ id: deal.account.id })">{{ ::deal.account.name }}</a>
+                        <deleted-indicator object="deal.account" field="name">
+                             <a ui-sref="base.accounts.detail({ id: deal.account.id })">{{ ::deal.account.name }}</a>
+                        </deleted-indicator>
                     </td>
                     <td class="hl-table-column" ng-show="vm.table.visibility.status">
                         {{ deal.status.name }}

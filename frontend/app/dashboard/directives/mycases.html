@@ -44,13 +44,13 @@
                         </a>
                     </td>
                     <td>
-                        <a ui-sref="base.contacts.detail({ id: myCase.contact.id })" ng-if="myCase.contact">
-                            {{ myCase.contact.full_name }}
-                        </a>
+                        <deleted-indicator ng-if="myCase.contact" object="myCase.contact" field="full_name">
+                            <a ui-sref="base.contacts.detail({ id: myCase.contact.id })">{{ myCase.contact.full_name }}</a>
+                        </deleted-indicator>
                         <span ng-if="myCase.contact && myCase.account"> at </span>
-                        <a ui-sref="base.accounts.detail({ id: myCase.account.id })" ng-if="myCase.account">
-                            {{ myCase.account.name }}
-                        </a>
+                        <deleted-indicator ng-if="myCase.account" object="myCase.account" field="name">
+                            <a ui-sref="base.accounts.detail({ id: myCase.account.id })">{{ myCase.account.name }}</a>
+                        </deleted-indicator>
                     </td>
                     <td>
                         {{ myCase.type.name }}

@@ -24,7 +24,7 @@ function dealsConfig($stateProvider) {
                 var account;
 
                 if (currentDeal.account) {
-                    account = Account.get({id: currentDeal.account.id}).$promise;
+                    account = Account.get({id: currentDeal.account.id, filter_deleted: 'False'}).$promise;
                 }
 
                 return account;
@@ -33,7 +33,7 @@ function dealsConfig($stateProvider) {
                 var contact;
 
                 if (currentDeal.contact) {
-                    contact = Contact.get({id: currentDeal.contact.id}).$promise;
+                    contact = Contact.get({id: currentDeal.contact.id, filter_deleted: 'False'}).$promise;
                 }
 
                 return contact;

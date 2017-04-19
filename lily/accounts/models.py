@@ -67,7 +67,7 @@ class Account(Common, TaggedObjectMixin):
     cocnumber = models.CharField(max_length=20, blank=True)
     iban = models.CharField(max_length=40, blank=True)
     bic = models.CharField(max_length=20, blank=True)
-    assigned_to = models.ForeignKey(LilyUser, null=True, blank=True)
+    assigned_to = models.ForeignKey(LilyUser, null=True, blank=True, on_delete=models.SET_NULL)
 
     import_id = models.CharField(max_length=100, default='', blank=True, db_index=True)
 

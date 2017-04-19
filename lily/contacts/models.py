@@ -156,7 +156,7 @@ class Function(DeletedMixin):
     title = models.CharField(max_length=50, blank=True)
     department = models.CharField(max_length=50, blank=True)
     # Limited relation: only possible with contacts related to the same account
-    manager = models.ForeignKey(Contact, related_name='manager', blank=True, null=True)
+    manager = models.ForeignKey(Contact, related_name='manager', blank=True, null=True, on_delete=models.SET_NULL)
     is_active = models.BooleanField(default=True)
     phone_numbers = models.ManyToManyField(PhoneNumber)
     email_addresses = models.ManyToManyField(EmailAddress)

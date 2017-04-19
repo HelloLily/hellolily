@@ -139,10 +139,10 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
     language = models.CharField(_('language'), max_length=3, choices=settings.LANGUAGES, default='en')
     timezone = TimeZoneField(default='Europe/Amsterdam')
 
-    primary_email_account = models.ForeignKey('email.EmailAccount', blank=True, null=True)
+    primary_email_account = models.ForeignKey('email.EmailAccount', blank=True, null=True, on_delete=models.SET_NULL)
     webhooks = models.ManyToManyField(Webhook, blank=True)
 
-    info = models.ForeignKey(UserInfo, blank=True, null=True)
+    info = models.ForeignKey(UserInfo, blank=True, null=True, on_delete=models.SET_NULL)
 
     objects = LilyUserManager()
 

@@ -1,6 +1,7 @@
 import os
 from datetime import timedelta
 
+from celery.schedules import crontab
 from kombu import Queue
 
 from .settings import DEBUG, TIME_ZONE, REDIS_URL
@@ -71,5 +72,9 @@ CELERYBEAT_SCHEDULE = {
     'synchronize_labels_scheduler': {
         'task': 'synchronize_labels_scheduler',
         'schedule': timedelta(seconds=3600),  # Once every hour.
+    },
+    'cleanup_deleted_email_accounts_scheduler': {
+        'task': 'cleanup_deleted_email_accounts',
+        'schedule': crontab(hour=1, minute=0),  # Every night at one o'clock
     },
 }

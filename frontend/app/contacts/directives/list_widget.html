@@ -15,14 +15,10 @@
 
     <widget-filters>
         <div class="hl-button-group-container" ng-if="!vm.settings.email.sidebar.contact">
-            <ul class="hl-button-group">
-                <li class="hl-button-group-btn">
-                    <a class="hl-button-group-btn-link" ui-sref="{{ vm.addLink || 'base.contacts.create' }}" ng-click="vm.googleAnalyticsEvent()">
-                        <i class="fa fa-plus"></i>
-                        <span class="external-link-name">Contact</span>
-                    </a>
-                </li>
-            </ul>
+            <a class="hl-primary-btn" ui-sref="{{ vm.addLink || 'base.contacts.create' }}" ng-click="vm.googleAnalyticsEvent()">
+                <i class="fa fa-plus"></i>
+                <span class="external-link-name">Contact</span>
+            </a>
         </div>
     </widget-filters>
 

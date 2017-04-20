@@ -234,8 +234,6 @@ class DealSerializer(WritableNestedSerializer):
         status_id = validated_data.get('status', instance.status_id)
         next_step = validated_data.get('next_step')
 
-        print validated_data
-
         if isinstance(status_id, dict):
             status_id = status_id.get('id')
 

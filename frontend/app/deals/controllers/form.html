@@ -183,7 +183,6 @@
                 </form-group>
 
                 <form-group label-title="Assigned to" label-id="id_assigned_to" field="dealForm.assigned_to">
-                    {{ vm.deal.assigned_to }}
                     <ui-select ng-model="vm.deal.assigned_to" theme="select2" class="form-control" name="assigned_to" append-to-body="true">
                         <ui-select-match placeholder="Assign to..." allow-clear="true">{{ $select.selected.full_name }}</ui-select-match>
                         <ui-select-choices repeat="user in vm.users" refresh="vm.refreshUsers($select.search)" refresh-delay="300">

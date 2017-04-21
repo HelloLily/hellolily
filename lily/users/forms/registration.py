@@ -93,7 +93,6 @@ class TenantRegistrationForm(RegistrationForm):
     This form allows new tenant registration.
     """
     tenant_name = forms.CharField(label=_('Company name'), max_length=255)
-    # country = forms.
     country = forms.ChoiceField(COUNTRIES)
 
 

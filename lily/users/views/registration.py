@@ -9,16 +9,16 @@ from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 from django.core.management import call_command
 from django.core.urlresolvers import reverse_lazy
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import redirect, render
 from django.views.generic import TemplateView, FormView
 from django.utils.http import base36_to_int, int_to_base36
 from django.utils.translation import ugettext_lazy as _
 from templated_email import send_templated_mail
 
-
-from lily.billing.models import Billing
+from lily.billing.models import Plan, Billing
 from lily.tenant.models import Tenant
+from lily.utils.functions import is_ajax, post_intercom_event, has_required_tier
 from lily.tenant.models import Tenant
 
 from lily.users.forms.registration import AcceptInvitationForm, ResendActivationMailForm, TenantRegistrationForm
@@ -132,7 +132,10 @@ class TenantRegistrationView(RegistrationView):
         """
         Register a new user.
         """
-        chargebee.configure(settings.CHARGEBEE_API_KEY, settings.CHARGEBEE_SITE)
+        # Do not accept any valid form when registration is closed.
+        if not settings.REGISTRATION_POSSIBLE:
+            messages.error(self.request, _('I\'m sorry, but I can\'t let anyone register at the moment.'))
+            return redirect(reverse_lazy('login'))
 
         plan = self.request.GET.get('plan')
 
@@ -142,11 +145,6 @@ class TenantRegistrationView(RegistrationView):
             # TODO: Better error handling here.
             messages.error(self.request, _('I\'m sorry, but the selected plan isn\'t valid.'))
             return HttpResponseRedirect('/registration/company')
-
-        # Do not accept any valid form when registration is closed.
-        if not settings.REGISTRATION_POSSIBLE:
-            messages.error(self.request, _('I\'m sorry, but I can\'t let anyone register at the moment.'))
-            return redirect(reverse_lazy('login'))
 
         tenant = Tenant.objects.create(
             name=form.cleaned_data['tenant_name'],
@@ -176,8 +174,9 @@ class TenantRegistrationView(RegistrationView):
             },
         })
 
-        tenant.billing.subscription_id = result.subscription.id
         tenant.billing.customer_id = result.customer.id
+        tenant.billing.subscription_id = result.subscription.id
+        tenant.billing.plan = Plan.objects.get(name='lily-personal')
         tenant.billing.save()
 
         # Add to admin group
@@ -295,6 +294,12 @@ class ActivationResendView(FormView):
         """
         return redirect(reverse_lazy('login'))
 
+
+    def dispatch(self, request, *args, **kwargs):
+        if not has_required_tier():
+            return HttpResponseForbidden()
+
+        return super(SendInvitationView, self).dispatch(request, *args, **kwargs)
 
 class AcceptInvitationView(FormView):
     """
@@ -418,7 +423,7 @@ class AcceptInvitationView(FormView):
         )
 
         # Update the current subscription.
-        update_subscription(user.tenant, 1)
+        user.tenant.billing.update_subscription(1)
 
         if tenant.lilyuser_set.count() == 1:
             # Add to admin group.

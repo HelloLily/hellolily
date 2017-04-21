@@ -1,7 +1,9 @@
 import json
 
+from mock import patch
 from rest_framework import status
 
+from lily.billing.models import Billing
 from lily.tenant.middleware import set_current_user
 from lily.tests.utils import GenericAPITestCase
 from lily.users.api.serializers import LilyUserSerializer
@@ -89,9 +91,20 @@ class LilyUserTests(GenericAPITestCase):
         db_obj = self.model_cls.objects.get(pk=created_id)
         self._compare_objects(db_obj, request.data)
 
-    def test_delete_object_authenticated(self):
+    @patch.object(Billing, 'update_subscription')
+    @patch.object(Billing, 'get_subscription')
+    def test_delete_object_authenticated(self, get_subscription_mock, update_subscription_mock):
         set_current_user(self.user_obj)
         db_obj = self._create_object()
+
+        get_subscription_mock.return_value = {
+            'subscription': {
+                'id': 'L14OolZysKbMfGRY',
+                'plan_quantity': 5,
+            }
+        }
+
+        update_subscription_mock.return_value = True
 
         request = self.user.delete(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}))
         self.assertStatus(request, status.HTTP_204_NO_CONTENT)

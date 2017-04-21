@@ -54,6 +54,7 @@ class TenantTests(CompareObjectsMixin, UserBasedTest, APITestCase):
             obj = self.factory_cls.stub(**kwargs).__dict__
 
             obj['external_app_links'] = ExternalAppLinkFactory.stub(**app_link_kwargs).__dict__
+            del obj['billing']
 
             object_list.append(obj)
 

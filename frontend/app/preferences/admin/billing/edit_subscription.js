@@ -3,7 +3,7 @@ angular.module('app.preferences').config(subscriptionConfig);
 subscriptionConfig.$inject = ['$stateProvider'];
 function subscriptionConfig($stateProvider) {
     $stateProvider.state('base.preferences.admin.billing.edit', {
-        url: '/change',
+        url: '/change/',
         views: {
             '@base.preferences': {
                 templateUrl: 'preferences/admin/billing/edit_subscription.html',
@@ -28,7 +28,13 @@ function EditSubscriptionController($scope, $state, $window, Billing, HLForms, p
 
     vm.subscription = plans.subscription;
     vm.currentPlan = plans.current_plan;
-    vm.selectedPlan = plans.current_plan.id;
+
+    if (vm.currentPlan) {
+        vm.selectedPlan = plans.current_plan.id;
+    } else {
+        vm.selectedPlan = null;
+    }
+
     vm.plans = plans.plans;
 
     vm.saveSubsciption = saveSubsciption;

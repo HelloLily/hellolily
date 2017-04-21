@@ -3,6 +3,7 @@ from django.contrib.sites.models import Site
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
+from rest_framework.exceptions import PermissionDenied
 from templated_email import send_templated_mail
 
 from lily.api.fields import DynamicQuerySetPrimaryKeyRelatedField
@@ -132,11 +133,35 @@ class EmailAccountSerializer(WritableNestedSerializer):
 
         return validated_data
 
+    def create(self, validated_data):
+        tenant = self.context.get('request').user.tenant
+        email_account_count = EmailAccount.objects.filter(owner=self.request.user).count()
+
+        if tenant.billing.is_free_plan and email_account_count >= settings.FREE_PLAN_EMAIL_ACCOUNT_LIMIT:
+            raise serializers.ValidationError({
+                'limit_reached': _('You\'ve reached the limit of email accounts for the free plan.'),
+            })
+
+        return super(EmailAccountSerializer, self).create(validated_data)
+
     def update(self, instance, validated_data):
         user = self.context.get('request').user
+        shared_email_configs = validated_data.get('sharedemailconfig_set', None)
+
+        if 'privacy' in validated_data:
+            privacy = validated_data.get('privacy')
+            default_privacy = self.model_fields.get('privacy').default
+
+            if user.tenant.billing.is_free_plan and privacy != default_privacy:
+                raise PermissionDenied
 
         if 'sharedemailconfig_set' in validated_data:
             shared_email_configs = validated_data.pop('sharedemailconfig_set', None)
+
+            if shared_email_configs:
+                if user.tenant.billing.is_free_plan:
+                    raise PermissionDenied
+
             initial_configs = self.initial_data.get('shared_email_configs')
 
             for config in shared_email_configs:

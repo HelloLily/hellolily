@@ -133,9 +133,18 @@
                     displayEmailWarning: '{{ user.display_email_warning }}' == 'True',
                     country: '{{ user.tenant.country }}',
                     company: '{{ user.tenant.name }}',
-                    tenant: '{{ user.tenant.id }}',
+                    tenant: {
+                        id: '{{ user.tenant.id }}',
+                        planTier: '{{ user.tenant.billing.plan.tier }}',
+                        isFreePlan: '{{ user.tenant.billing.is_free_plan }}' == 'True',
+                    },
                     emailAccountStatus: parseInt('{{ user.info.email_account_status }}'),
                     user_hash: "{{ user.user_hash }}",
+                    limitReached: {
+                        accounts: '{{ limit_reached.accounts }}' == 'True',
+                        contacts: '{{ limit_reached.contacts }}' == 'True',
+                        email_accounts: '{{ limit_reached.email_accounts }}' == 'True',
+                    } || null,
                 };
 
                 window.intercomAppId = '{{ INTERCOM_APP_ID }}';

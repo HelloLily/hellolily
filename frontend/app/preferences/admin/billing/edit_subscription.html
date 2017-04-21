@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-md-12">
         <form novalidate class="hl-form-body" name="subscriptionForm">
-            <form-portlet portlet-title="Current plan">
+            <form-portlet portlet-title="Current plan" ng-if="vm.currentPlan">
                 <div class="margin-top-10">
                     Name: {{ vm.currentPlan.name }}
                 </div>
@@ -18,7 +18,7 @@
                     <div ng-repeat="plan in vm.plans">
                         <label class="radio-button" for="{{ plan.plan.id }}">
                             <input type="radio" name="{{ plan.plan.id }}" ng-model="vm.selectedPlan" ng-value="plan.plan.id" id="{{ plan.plan.id }}" class="radio-button-input" />
-                            <span>{{ plan.plan.name }}</span>
+                            <span class="radio-button-label">{{ plan.plan.name }}</span>
                         </label>
                         <span class="pull-right" ng-bind-html="plan.plan.price | currencySymbol:plan.plan.currency_code:true"></span>
                         <div class="text-muted">{{ plan.plan.description }}</div>

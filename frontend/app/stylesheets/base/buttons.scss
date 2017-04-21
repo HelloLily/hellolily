@@ -222,6 +222,11 @@ $large-button: 30px;
     &:focus {
         text-decoration: none;
     }
+
+    &.disabled {
+        pointer-events: none;
+        opacity: 0.50;
+    }
 }
 
 .hl-primary-btn,

@@ -42,6 +42,7 @@ class AccountTests(GenericAPITestCase):
             obj = self.factory_cls.stub(**kwargs).__dict__
             if with_relations:
                 obj['tenant'] = TenantFactory.stub().__dict__
+                del obj['tenant']['billing']
                 obj['status'] = {'id': status.pk}
             else:
                 # Delete the related objects, since they can't be serialized.

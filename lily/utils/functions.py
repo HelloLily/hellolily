@@ -10,6 +10,8 @@ import requests
 from django import forms
 from django.conf import settings
 
+from lily.tenant.middleware import get_current_user
+
 
 def autostrip(cls):
     """
@@ -301,3 +303,20 @@ def add_business_days(days_to_add, date=None):
         days_to_add -= 1
 
     return date
+
+
+def has_required_tier(required_tier=1):
+    """
+    Check if the current payment plan has access to the feature.
+    This is done by comparing the tenant's current tier with the required tier.
+
+    Args:
+        required_tier (int): The minimum required tier to access the feature.
+
+    Returns:
+        (boolean): Whether or not the tier requirement is met.
+    """
+    user = get_current_user()
+    current_tier = user.tenant.billing.plan.tier
+
+    return current_tier >= required_tier

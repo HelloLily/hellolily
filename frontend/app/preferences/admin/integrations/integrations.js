@@ -16,6 +16,6 @@ function integrationsConfig($stateProvider) {
 
 angular.module('app.preferences').controller('PreferencesIntegrationsController', PreferencesIntegrationsController);
 
-PreferencesIntegrationsController.$inject = ['$scope'];
-function PreferencesIntegrationsController($scope) {
+PreferencesIntegrationsController.$inject = [];
+function PreferencesIntegrationsController() {
 }

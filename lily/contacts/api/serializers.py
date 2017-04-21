@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
@@ -113,6 +114,14 @@ class ContactSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
         return super(ContactSerializer, self).validate(data)
 
     def create(self, validated_data):
+        tenant = self.context.get('request').user.tenant
+        contact_count = Contact.objects.filter(is_deleted=False).count()
+
+        if tenant.billing.is_free_plan and contact_count >= settings.FREE_PLAN_ACCOUNT_CONTACT_LIMIT:
+            raise serializers.ValidationError({
+                'limit_reached': _('You\'ve reached the limit of contacts for the free plan.'),
+            })
+
         instance = super(ContactSerializer, self).create(validated_data)
 
         credentials = get_credentials('moneybird')

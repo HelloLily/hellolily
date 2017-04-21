@@ -120,6 +120,7 @@ function HLMessages() {
             newlyAssignedDeal: 'Add it to \'My deals\'',
             emailAccountConnectionWarning: 'To solve email issues, please click to add this email account again',
             emailAccountPublicTooltip: 'All colleagues in %(company)s',
+            featureUnavailable: 'This feature is unavailable for your current plan. Click here to go to the billing page.',
         },
     };
 }

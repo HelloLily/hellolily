@@ -136,7 +136,7 @@ function runApp($rootScope, $state, editableOptions, HLMessages, HLSockets, HLNo
         email: currentUser.email,
         company: {
             name: currentUser.company,
-            id: currentUser.tenant,
+            id: currentUser.tenant.id,
         },
         widget: {
             activator: '#IntercomDefaultWidget',

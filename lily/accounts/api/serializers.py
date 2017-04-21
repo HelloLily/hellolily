@@ -1,3 +1,6 @@
+from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
+
 from lily.api.fields import SanitizedHtmlCharField
 from lily.api.nested.mixins import RelatedSerializerMixin
 from lily.api.nested.serializers import WritableNestedSerializer
@@ -91,6 +94,19 @@ class AccountSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
     # Custom fields.
     name = serializers.CharField(validators=[DuplicateAccountName()])
     description = SanitizedHtmlCharField()
+
+    def create(self, validated_data):
+        tenant = self.context.get('request').user.tenant
+        account_count = Account.objects.filter(is_deleted=False).count()
+
+        if tenant.billing.is_free_plan and account_count >= settings.FREE_PLAN_ACCOUNT_CONTACT_LIMIT:
+            raise serializers.ValidationError({
+                'limit_reached': _('You\'ve reached the limit of accounts for the free plan.'),
+            })
+
+        instance = super(AccountSerializer, self).create(validated_data)
+
+        return instance
 
     class Meta:
         model = Account

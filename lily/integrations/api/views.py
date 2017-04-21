@@ -13,7 +13,7 @@ from rest_framework.views import APIView
 from lily.contacts.models import Contact
 from lily.deals.models import Deal
 from lily.utils.functions import send_get_request
-from lily.utils.api.permissions import IsAccountAdmin
+from lily.utils.api.permissions import IsAccountAdmin, IsFeatureAvailable
 
 from .serializers import DocumentSerializer
 from ..credentials import get_access_token, get_credentials, put_credentials, LilyOAuthCredentials
@@ -94,23 +94,10 @@ class PandaDocList(APIView):
 
 
 class MoneybirdContactImport(APIView):
+    permission_classes = (IsAccountAdmin, IsFeatureAvailable)
+
     def post(self, request):
         credentials = get_credentials('moneybird')
-
-        # TODO: This is for the future when Moneybird adds extra webhooks.
-        # try:
-        #     token = Token.objects.get(user=self.request.user)
-        # except Token.DoesNotExist:
-        #     raise ValidationError(_('No Lily API token found. Please setup your token first.'))
-
-        # lily_url = reverse('moneybird-contacts-list', request=request) + '?' + urllib.urlencode({'key': token.key})
-
-        # webhook_url = 'https://moneybird.com/api/v2/%s/webhooks' %
-        # credentials.integration_context.get('administration_id')
-
-        # params = {
-        #     'url': lily_url,
-        # }
 
         if not credentials:
             errors = {
@@ -123,9 +110,6 @@ class MoneybirdContactImport(APIView):
         })
 
         put_credentials('moneybird', credentials)
-
-        # TODO: Also for the webhooks parts.
-        # response = send_post_request(webhook_url, credentials, params)
 
         import_moneybird_contacts.apply_async(args=(self.request.user.tenant.id,))
 
@@ -150,7 +134,7 @@ class EstimatesList(APIView):
 
 class IntegrationAuth(APIView):
     parser_classes = (JSONParser, FormParser)
-    permission_classes = (IsAccountAdmin, )
+    permission_classes = (IsAccountAdmin, IsFeatureAvailable)
 
     def post(self, request, integration_type):
         """

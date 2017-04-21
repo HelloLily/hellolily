@@ -5,6 +5,7 @@ import string
 from datetime import datetime, timedelta
 from urlparse import urlparse, uses_netloc
 
+import chargebee
 import dj_database_url
 import raven
 from django.conf import global_settings
@@ -529,6 +530,13 @@ else:
     }
 
 #######################################################################################################################
+# SUBSCRIPTION LIMITS                                                                                                 #
+#######################################################################################################################
+# Limits for the free plan.
+FREE_PLAN_ACCOUNT_CONTACT_LIMIT = os.environ.get('FREE_PLAN_ACCOUNT_CONTACT_LIMIT', 1000)
+FREE_PLAN_EMAIL_ACCOUNT_LIMIT = os.environ.get('FREE_PLAN_EMAIL_ACCOUNT_LIMIT', 2)
+
+#######################################################################################################################
 # ELASTICSEARCH                                                                                                       #
 #######################################################################################################################
 # Set this property to true to run without a local Elasticsearch.
@@ -606,7 +614,7 @@ REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated'
+        'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': (
         # Authenticate with multiple classes and set the tenant user afterwards.
@@ -643,6 +651,7 @@ RAVEN_CONFIG = {
 
 CHARGEBEE_API_KEY = os.environ.get('CHARGEBEE_API_KEY', '')
 CHARGEBEE_SITE = os.environ.get('CHARGEBEE_SITE', 'hellolily-test')
+chargebee.configure(CHARGEBEE_API_KEY, CHARGEBEE_SITE)
 
 #######################################################################################################################
 # TESTING                                                                                                             #

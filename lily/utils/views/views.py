@@ -13,9 +13,12 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import FormView
 from django.views.generic.base import View, TemplateView, RedirectView
 
-from lily.messaging.email.models.models import EmailAttachment
+from lily.accounts.models import Account
+from lily.contacts.models import Contact
+from lily.messaging.email.models.models import EmailAccount, EmailAttachment
 from lily.users.models import LilyUser
 from lily.utils.models.models import PhoneNumber
+from lily.utils.functions import has_required_tier
 from ..forms import SugarCsvImportForm
 from ..tasks import import_sugar_csv
 from .mixins import LoginRequiredMixin
@@ -238,6 +241,20 @@ class BaseView(LoginRequiredMixin, TemplateView):
             'SENTRY_FRONTEND_PUBLIC_DSN': settings.SENTRY_FRONTEND_PUBLIC_DSN,
             'DEBUG': settings.DEBUG,
         })
+
+        if not has_required_tier(1):
+            account_count = Account.objects.filter(is_deleted=False).count()
+            contact_count = Contact.objects.filter(is_deleted=False).count()
+            email_account_count = EmailAccount.objects.filter(is_deleted=False).count()
+
+            kwargs.update({
+                'limit_reached': {
+                    'accounts': account_count >= settings.FREE_PLAN_ACCOUNT_CONTACT_LIMIT,
+                    'contacts': contact_count >= settings.FREE_PLAN_ACCOUNT_CONTACT_LIMIT,
+                    'email_accounts': email_account_count >= settings.FREE_PLAN_EMAIL_ACCOUNT_LIMIT,
+                },
+            })
+
         return kwargs
 
 

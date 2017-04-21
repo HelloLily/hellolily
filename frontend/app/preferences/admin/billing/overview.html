@@ -8,7 +8,7 @@
             </widget-header>
 
             <widget-body>
-                <div class="widget-content">
+                <div class="widget-content" ng-if="vm.subscription">
                     <table class="widget-content-table">
                         <tbody>
                             <tr>
@@ -37,9 +37,12 @@
                         </tbody>
                     </table>
 
-                    <div ng-if="vm.subscription.status !== 'cancelled'" class="cancel-subscription">
+                    <div ng-if="vm.subscription.status !== 'cancelled' && !currentUser.tenant.isFreePlan" class="cancel-subscription">
                         <a ng-click="vm.cancelSubscription()">Cancel subscription</a>
                     </div>
+                </div>
+                <div class="widget-content" ng-if="!vm.subscription">
+                    No subscription setup yet <a ui-sref="base.preferences.admin.billing.edit"><i class="lilicon hl-edit-icon"></i> Set up subscription</a>
                 </div>
             </widget-body>
         </widget>
@@ -103,7 +106,7 @@
             </widget-body>
         </widget>
 
-        <!--<widget widget-name="'Billing information'" widget-class="'col-md-12'" widget-dynamic-height="true">
+        <widget widget-name="'Billing information'" widget-class="'col-md-12'" widget-dynamic-height="true">
             <widget-header>
                 <div class="widget-name">
                     Billing information
@@ -111,9 +114,22 @@
             </widget-header>
 
             <widget-body>
-
+                <div class="widget-content" ng-if="vm.customer.billing_address">
+                    <div ng-if="vm.customer.billing_address">
+                        {{ vm.customer.billing_address.first_name }} {{ vm.customer.billing_address.last_name }}
+                        <br />
+                        {{ vm.customer.billing_address.company }}
+                        <br />
+                        {{ vm.customer.billing_address.line1 }}, {{ vm.customer.billing_address.city }}
+                        <br />
+                        {{ vm.customer.billing_address.country_display }}
+                    </div>
+                    <div ng-if="!vm.customer.billing_address">
+                        No billing information found
+                    </div>
+                </div>
             </widget-body>
-        </widget>-->
+        </widget>
 
         <widget widget-name="'Payment history'" widget-class="'col-md-12'" widget-dynamic-height="true">
             <widget-header>

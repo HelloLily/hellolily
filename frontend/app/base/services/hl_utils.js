@@ -152,4 +152,14 @@ function HLUtils() {
             return String.fromCharCode(asciiChar);
         });
     };
+
+    this.getTemplate = (defaultTemplate, tier = 1) => {
+        let template = defaultTemplate;
+
+        if (currentUser.tenant.planTier < tier) {
+            template = 'base/directives/feature_unavailable.html';
+        }
+
+        return template;
+    };
 }

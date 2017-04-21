@@ -15,6 +15,9 @@ function billingOverviewConfig($stateProvider) {
             billingInfo: ['Billing', (Billing) => {
                 return Billing.getBillingInfo().$promise;
             }],
+            countries: ['Country', (Country) => {
+                return Country.getList();
+            }],
         },
     });
 }
@@ -22,8 +25,8 @@ function billingOverviewConfig($stateProvider) {
 
 angular.module('app.base').controller('BillingOverviewController', BillingOverviewController);
 
-BillingOverviewController.$inject = ['$scope', '$state', '$window', 'Billing', 'billingInfo'];
-function BillingOverviewController($scope, $state, $window, Billing, billingInfo) {
+BillingOverviewController.$inject = ['$filter', '$scope', '$state', '$window', 'Billing', 'billingInfo', 'countries'];
+function BillingOverviewController($filter, $scope, $state, $window, Billing, billingInfo, countries) {
     var vm = this;
 
     vm.card = billingInfo.card;
@@ -36,6 +39,16 @@ function BillingOverviewController($scope, $state, $window, Billing, billingInfo
     vm.downloadInvoice = downloadInvoice;
     vm.cancelSubscription = cancelSubscription;
     vm.getTrialRemaining = getTrialRemaining;
+
+    activate();
+
+    ////
+
+    function activate() {
+        if (vm.customer.billing_address) {
+            vm.customer.billing_address.country_display = _getCountryName(vm.customer.billing_address.country);
+        }
+    }
 
     function downloadInvoice(invoiceId) {
         Billing.downloadInvoice({'invoice_id': invoiceId}).$promise.then((response) => {
@@ -67,9 +80,17 @@ function BillingOverviewController($scope, $state, $window, Billing, billingInfo
     }
 
     function getTrialRemaining(trialEndDate) {
-        var trialEnd = moment.unix(trialEndDate);
+        let trialEnd = moment.unix(trialEndDate);
 
         return trialEnd.fromNow(true);
+    }
+
+    function _getCountryName(countryCode) {
+        let filtered = countries.filter((country) => {
+            return country.value === countryCode;
+        });
+
+        return filtered.length ? filtered[0].display_name : '';
     }
 }
 

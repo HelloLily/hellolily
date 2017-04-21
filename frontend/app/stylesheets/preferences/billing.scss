@@ -37,7 +37,6 @@
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     position: relative;
-    margin: 0 3px;
     display: inline-block;
     color: #fff;
 
@@ -65,4 +64,48 @@
 .cancel-subscription {
     text-align: right;
     margin-top: 10px;
+}
+
+.unavailable-marker {
+    font-size: 0.8em;
+    padding: 2px;
+    border: 2px solid $app-border-color !important;
+    border-radius: $base-border-radius;
+    margin-top: -2px;
+}
+
+.unavailable-feature {
+    color: #d8d8d8;
+    display: flex;
+    justify-content: space-between;
+
+    .drop-down-sub-menu-item {
+        width: 20px;
+    }
+}
+
+.nav {
+    li a,
+    .unavailable-feature {
+        font-size: 16px;
+        font-weight: 400;
+        display: block;
+        padding: 10px 15px;
+        text-decoration: none;
+
+        i {
+            font-size: 16px;
+            margin-right: 8px;
+        }
+    }
+}
+
+.drop-down-sub-menu-item {
+    .unavailable-feature {
+        width: 100%;
+        padding: 0 30px 0 10px;
+        display: block;
+        text-decoration: none;
+        white-space: nowrap;
+    }
 }

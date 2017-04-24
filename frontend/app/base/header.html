@@ -161,7 +161,7 @@
             <h1 class="hl-page-name">
                 <span ng-if="toolbar.updateCallback" ng-class="{'large-header': !settings.page.account}">
                     <span ng-if="toolbar.field" e-form="{{ toolbar.formName }}" e-name="vm.{{ toolbar.formName }}" e-size="{{ $data.length }}"
-                        ng-dblclick="vm[toolbar.formName].$show()" editable-text="toolbar.object[toolbar.field]"
+                        ng-dblclick="vm.openForm($form)" editable-text="toolbar.object[toolbar.field]"
                         onbeforesave="toolbar.updateCallback($data, toolbar.field)" blur="submit" editable-handler input-auto-size>
                         <span>{{ settings.page.header.main | hlTruncate }}</span>
                     </span>

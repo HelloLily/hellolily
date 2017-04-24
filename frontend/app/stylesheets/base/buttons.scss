@@ -305,3 +305,36 @@ $large-button: 30px;
         font-size: 12px;
     }
 }
+
+/* SG
+# Buttons/Inline form buttons #
+
+Inline form buttons can be used to include a button after an input field,
+for example the magic wand used to get dataprovider data from a website.
+```
+<div class="input-group">
+    <input class="form-control" name="example_2"/>
+        <span class="input-group-btn">
+            <button autocomplete="off"
+                    class="hl-primary-btn hl-inline-form-button"
+                    type="button"
+                <i class="fa fa-magic"></i>
+            </button>
+        </span>
+</div>
+```
+*/
+
+.hl-inline-form-button {
+    vertical-align: top;
+    border-radius: 4px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    height: 34px;
+    margin-right: 0;
+
+    i {
+        position: relative;
+        top: 2px;
+    }
+}

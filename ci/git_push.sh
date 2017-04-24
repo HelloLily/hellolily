@@ -10,8 +10,6 @@ can_merge() {
 }
 
 do_push() {
-    cd "${REPO_DIR}" || exit 1
-
     echo "Pushing to ${GITHUB_REPO}"
     # Redirect to /dev/null to avoid secret leakage.
     git push "${GITHUB_URI}" master >/dev/null 2>&1

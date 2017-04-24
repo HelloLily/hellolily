@@ -32,15 +32,15 @@ env:
     - secure: "eVlQ3Y5X7/5Ql2GauLXnNs4Apl0TovMuc0aVCgU5uG0Ngcl2PfgQaXW+XjEx72k9uLmYcDsgG0C9RPIiZo9FRqJmbVAdSyGmXCUS4QCJocebyz1ivfhPK0Qb2RhI9PQtk/8DRtzpALnxujUHs1SZ0nPw5H5sgimRo/DQJgLjWUU="
 
     - TZ=Europe/Amsterdam
+    - HEROKU_APP_NAME="hellolily"
     - GITHUB_REPO="HelloLily/hellolily"
     - GITHUB_URI="https://${GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/${GITHUB_REPO}"
     - GIT_COMMITTER_EMAIL="travis@travis"
     - GIT_COMMITTER_NAME="Travis CI"
-    - REPO_DIR="$(mktemp -d)"
-    - NEXT_ACTION="$(ci/deploy_check.sh)"
-    - HEROKU_APP_NAME="hellolily"
+    - GIT_SHALLOW="$(ci/git_make_unshallow.sh)"
     - MIGRATION_NEEDED="$(ci/migration_needed.sh)"
     - INDEXING_NEEDED="$(ci/indexing_needed.sh)"
+    - NEXT_ACTION="$(ci/next_action.sh)"
     - DEPLOY_COMMAND="$(ci/deploy_command.sh)"
 
 language: python
@@ -65,12 +65,12 @@ install:
   # after_script
 
 before_script:
-  # Since Travis does a partial checkout, we need to get the whole thing.
-  - git clone "https://github.com/${GITHUB_REPO}" "${REPO_DIR}"
-
   # Echo some variables for debug purposes.
-  - echo "Next action is ${NEXT_ACTION}"
-  - echo "Current datetime is $(date +'%Y%m%d%H%M')"
+  - echo "Git is shallow; ${GIT_SHALLOW}"
+  - echo "Migration is needed; ${MIGRATION_NEEDED}"
+  - echo "Indexing is needed; ${INDEXING_NEEDED}"
+  - echo "Next action is; ${NEXT_ACTION}"
+  - echo "Current datetime is; $(date +'%Y%m%d%H%M')"
 
   # Always build new images for docker.
   - docker-compose -f docker-compose.yml -f docker-compose.new-build.yml build

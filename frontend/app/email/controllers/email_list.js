@@ -48,7 +48,7 @@ function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLa
         page: Settings.email.page,
         pageSize: 20,  // number of items per page
         totalItems: 0, // total number of items
-        filter: storage.get('searchQuery', ''),  // search filter
+        searchQuery: storage.get('searchQuery', ''),  // search filter
     };
     vm.opts = {
         checkboxesAll: false,
@@ -129,27 +129,24 @@ function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLa
     }
 
     function setSearchQuery(queryString) {
-        vm.table.filter = queryString;
+        vm.setPage(0);
+
+        vm.table.searchQuery = queryString;
     }
 
     function watchTable() {
         // Check for search input and pagination
         $scope.$watchGroup([
-            'vm.table.filter',
+            'vm.table.searchQuery',
             'vm.table.page',
         ], function(newValues, oldValues) {
-            // Reset page if we start searching
-            if (oldValues[0] === '' && newValues[0] !== '') {
-                vm.setPage(0);
-            }
-
             _updateTableSettings();
             _reloadMessages();
         });
     }
 
     function _updateTableSettings() {
-        storage.put('searchQuery', vm.table.filter);
+        storage.put('searchQuery', vm.table.searchQuery);
 
         Settings.email.page = vm.table.page;
     }
@@ -432,7 +429,7 @@ function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLa
 
         EmailMessage.search({
             filterquery: filterquery,
-            q: vm.table.filter,
+            q: vm.table.searchQuery,
             size: vm.table.pageSize,
             page: vm.table.page,
         }, function(data) {

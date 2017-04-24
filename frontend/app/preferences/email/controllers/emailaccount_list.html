@@ -121,11 +121,11 @@
 
                     <tbody>
                         <tr ng-repeat="account in vm.sharedAccounts">
-                            <td>
-                                <div>
-                                    <input type="radio" name="primary" ng-model="vm.primaryAccount" ng-value="account.id" ng-click="vm.setPrimaryEmailAccount(account)" class="radio-button-input">
+                            <td class="width-6">
+                                <span ng-if="vm.hasFullAccess(account)" ng-click="vm.setPrimaryEmailAccount(account)">
+                                    <input type="radio" name="primary" ng-model="vm.primaryAccount" ng-value="account.id" class="radio-button-input">
                                     <span class="radio-button-label"></span>
-                                </div>
+                                </span>
                             </td>
                             <td>
                                 {{ account.email_address }}
@@ -137,7 +137,7 @@
                                 {{ account.default_template.name || '-' }}
                             </td>
                             <td>
-                                <label class="switch">
+                                <label ng-if="vm.hasFullAccess(account)" class="switch">
                                     <input type="checkbox" ng-model="account.is_hidden" ng-change="vm.toggleHidden(account)" ng-true-value="false" ng-false-value="true">
                                     <div class="slider round"></div>
                                 </label>

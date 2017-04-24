@@ -81,7 +81,7 @@
 
             <form-portlet portlet-title="Contact information">
                     <form-group label-title="Email">
-                        <table class="hl-form-table hl-form-fixed-data" ng-if="vm.account.email_addresses">
+                        <table class="hl-form-table hl-form-fixed-data margin-bottom-10" ng-if="vm.account.email_addresses">
                             <tbody>
                                 <tr ng-repeat="emailAddress in vm.account.email_addresses">
                                     <td class="hl-form-table-column entity-icon-container">
@@ -104,7 +104,7 @@
                     </form-group>
 
                     <form-group label-title="Phone number">
-                        <table class="hl-form-table hl-form-fixed-data" ng-if="vm.account.phone_numbers">
+                        <table class="hl-form-table hl-form-fixed-data margin-bottom-10" ng-if="vm.account.phone_numbers">
                             <tbody>
                                 <tr ng-repeat="phoneNumber in vm.account.phone_numbers">
                                     <td class="hl-form-table-column entity-icon-container">
@@ -128,7 +128,7 @@
                     </form-group>
 
                     <form-group label-title="Address">
-                        <table class="hl-form-table hl-form-fixed-data" ng-if="vm.account.addresses">
+                        <table class="hl-form-table hl-form-fixed-data margin-bottom-10" ng-if="vm.account.addresses">
                             <tbody ng-repeat="address in vm.account.addresses">
                                 <tr>
                                     <td class="hl-form-table-column entity-icon-container" rowspan="3">

@@ -1,3 +1,4 @@
+var numberType = require('google-libphonenumber').PhoneNumberType;
 var numberFormat = require('google-libphonenumber').PhoneNumberFormat;
 var phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
 
@@ -24,7 +25,7 @@ function HLUtils() {
         parsedNumber = phoneUtil.parse(phoneNumber.number, country);
         phoneNumberType = phoneUtil.getNumberType(parsedNumber);
 
-        if (phoneNumberType === numberFormat.MOBILE) {
+        if (phoneNumberType === numberType.MOBILE) {
             phoneNumber.type = 'mobile';
         }
 

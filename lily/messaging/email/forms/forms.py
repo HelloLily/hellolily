@@ -140,7 +140,7 @@ class ComposeEmailForm(FormSetFormMixin, forms.Form):
         shared_email_account_list = EmailAccount.objects.filter(
             Q(owner=user) |
             Q(privacy=EmailAccount.PUBLIC) |
-            Q(sharedemailconfig__user__id=user.pk)
+            (Q(sharedemailconfig__user__id=user.pk) & Q(sharedemailconfig__privacy=EmailAccount.PUBLIC))
         ).filter(tenant=user.tenant, is_deleted=False).distinct('id')
 
         # Get a list of email accounts we don't want to follow.

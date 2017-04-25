@@ -62,6 +62,7 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
     vm.addSharedUsers = addSharedUsers;
     vm.getConfigUsers = getConfigUsers;
     vm.refreshUsers = refreshUsers;
+    vm.hasFullAccess = hasFullAccess;
 
     activate();
 
@@ -261,5 +262,21 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
 
             HLResource.patch('User', args);
         }
+    }
+
+    function hasFullAccess(account) {
+        let fullAccess = false;
+
+        if (account.privacy === EmailAccount.PUBLIC) {
+            fullAccess = true;
+        } else if (account.shared_email_configs.length) {
+            account.shared_email_configs.map((config) => {
+                if (config.user === user.id && config.privacy === EmailAccount.PUBLIC) {
+                    fullAccess = true;
+                }
+            });
+        }
+
+        return fullAccess;
     }
 }

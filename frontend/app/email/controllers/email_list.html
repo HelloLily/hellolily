@@ -1,7 +1,7 @@
 <div class="widget-heading">
     <div class="widget-title">
-        <div class="widget-name" ng-show="vm.table.filter">Search: {{ vm.table.filter }}</div>
-        <div class="widget-name" ng-hide="vm.table.filter">
+        <div class="widget-name" ng-show="vm.table.searchQuery">Search: {{ vm.table.searchQuery }}</div>
+        <div class="widget-name" ng-hide="vm.table.searchQuery">
             <span ng-show="vm.account">{{ vm.account.email_address }}</span>
             <span ng-hide="vm.account">All mailboxes</span>
             <span ng-show="vm.label.name"> - {{ vm.label.name }}</span>
@@ -12,8 +12,8 @@
     <div class="widget-tools">
         <form class="widget-search">
             <div class="hl-search-field-container">
-                <input type="text" class="hl-search-field" placeholder="Search" ng-model="vm.table.filter" ng-model-options="{debounce: 300}">
-                <button type="button" ng-click="vm.table.filter = ''" class="hl-search-btn"></button>
+                <input type="text" class="hl-search-field" ng-model="vm.table.searchQuery" ng-model-options="{debounce: 300}" placeholder="Search">
+                <button type="button" class="hl-search-btn" ng-click="vm.setSearchQuery('')" ng-disabled="!vm.table.searchQuery"></button>
             </div>
         </form>
     </div>

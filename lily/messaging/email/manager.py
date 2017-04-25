@@ -108,7 +108,6 @@ class GmailManager(object):
             # TODO: LILY-2203 draft_id is missing when downloaded message is a draft.
             self.message_builder.store_message_info(message_info, message_id)
             self.message_builder.save()
-            self.connector.save_history_id()
 
     def sync_by_history(self):
         """
@@ -123,7 +122,7 @@ class GmailManager(object):
             history = self.connector.get_history()
         except NotFoundError:
             # A NotFoundError (http error code 404) is given when the suplied historyId is invalid.
-            # Synchronization of email can be restored by initialting a full sync on the account. This is covered
+            # Synchronization of email can be restored by initiating a full sync on the account. This is covered
             # in the synchronize_email_account_scheduler task by looking at the sync_failure_count.
             self.email_account.sync_failure_count += 1
             self.email_account.save()
@@ -131,6 +130,7 @@ class GmailManager(object):
                 # Repeated sync failures indicate that a full sync did not restore the 404 error, so terminate
                 # syncing on this account altogether.
                 self.email_account.is_authorized = False
+                self.email_account.is_syncing = False
                 self.email_account.save()
                 logger.error('Repeated 404 error on incremental syncing. Authorization revoked for account %s' %
                              self.email_account)
@@ -242,13 +242,13 @@ class GmailManager(object):
             label.unread = unread_count
             label.save()
 
-    def administer_full_sync_status(self, full_sync_finished):
+    def administer_sync_status(self, is_syncing):
         """
-        Keep track if a full sync is in progress and reset synchronization failure count.
+        Keep track if the email account is synchronizing and reset synchronization failure count.
         """
-        self.email_account.full_sync_finished = full_sync_finished
+        self.email_account.is_syncing = is_syncing
         self.email_account.sync_failure_count = 0
-        self.email_account.save(update_fields=["full_sync_finished", "sync_failure_count"])
+        self.email_account.save(update_fields=["is_syncing", "sync_failure_count"])
 
     def get_label(self, label_id):
         """
@@ -457,7 +457,6 @@ class GmailManager(object):
             self.message_builder.store_message_info(full_message_dict, message_dict['id'])
             self.message_builder.save()
             self.update_unread_count()
-            self.connector.save_history_id()
 
     def delete_email_message(self, email_message):
         """
@@ -492,7 +491,6 @@ class GmailManager(object):
             self.message_builder.store_message_info(full_message_dict, message_dict['id'])
             self.message_builder.save()
             self.update_unread_count()
-            self.connector.save_history_id()
 
     def create_draft_email_message(self, email_message):
         """
@@ -514,7 +512,6 @@ class GmailManager(object):
             self.message_builder.message.draft_id = draft_dict.get('id', '')
             self.message_builder.save()
             self.update_unread_count()
-            self.connector.save_history_id()
 
     def update_draft_email_message(self, email_message, draft_id):
         """
@@ -537,7 +534,6 @@ class GmailManager(object):
             self.message_builder.message.draft_id = draft_dict.get('id', '')
             self.message_builder.save()
             self.update_unread_count()
-            self.connector.save_history_id()
 
     def delete_draft_email_message(self, email_message):
         """

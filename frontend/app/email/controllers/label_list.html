@@ -15,7 +15,7 @@
             <collapsable-button></collapsable-button>
             <div class="clearfix"></div>
         </li>
-        <li class="email-nav-syncing" tooltip-placement="bottom" uib-tooltip="Fetching your email. This could take a moment" ng-if="!vm.fullAllSyncFinished">
+        <li class="email-nav-syncing" tooltip-placement="bottom" uib-tooltip="Fetching your email. This could take a moment" ng-if="vm.syncInProgress">
             Importing your email
         </li>
         <collapsable-content>
@@ -55,7 +55,7 @@
             <collapsable-button></collapsable-button>
             <div class="clearfix"></div>
         </li>
-        <li class="email-nav-syncing" tooltip-placement="bottom" uib-tooltip="Fetching your email. This could take a moment" ng-if="!account.full_sync_finished">
+        <li class="email-nav-syncing" tooltip-placement="bottom" uib-tooltip="Fetching your email. This could take a moment" ng-if="account.is_syncing">
             Importing your email
         </li>
         <li ng-if="!account.is_authorized" >

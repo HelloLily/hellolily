@@ -22,17 +22,16 @@ def synchronize_email_account_scheduler():
     for email_account in EmailAccount.objects.filter(is_authorized=True, is_deleted=False):
         logger.debug('Scheduling sync for %s', email_account)
 
-        if not email_account.history_id or email_account.sync_failure_count > 0:
-            # Initiate a full sync of the email account when the history id is missing (the account is newly added) or
-            # when the account failed (404 error) on the incremental sync.
+        if email_account.full_sync_needed:
+            # Initiate a full sync of the email account.
             logger.info('Adding task for a full sync of %s', email_account)
             full_synchronize_email_account.apply_async(
                 args=(email_account.pk,),
                 max_retries=1,
                 default_retry_delay=100,
             )
-        elif email_account.full_sync_finished:
-            # Incremental synchronize on email account which finished a full synchronization.
+        elif not email_account.is_syncing:
+            # The email account is done with a full synchroniazation, so initiate an incremental synchronization.
             logger.info('Adding task for incremental sync for: %s', email_account)
             incremental_synchronize_email_account.apply_async(
                 args=(email_account.pk,),
@@ -97,7 +96,7 @@ def full_synchronize_email_account(account_id):
             manager = None
             try:
                 manager = GmailManager(email_account)
-                manager.administer_full_sync_status(False)
+                manager.administer_sync_status(True)
                 logger.debug('Full sync for: %s', email_account)
                 manager.full_synchronize()
             except HttpAccessTokenRefreshError:
@@ -129,18 +128,18 @@ def full_sync_finished(account_id):
             manager = None
             try:
                 manager = GmailManager(email_account)
-                manager.administer_full_sync_status(True)
+                manager.administer_sync_status(False)
                 logger.info('Finished full email sync for: %s', email_account)
             except HttpAccessTokenRefreshError:
-                logger.warning('Not syncing, no authorization for: %s', email_account)
+                logger.warning('No authorization for: %s', email_account)
                 pass
             except Exception:
-                logger.exception('Could not update full_sync_finished flag for account %s' % email_account)
+                logger.exception('Could not update sync status for account %s' % email_account)
             finally:
                 if manager:
                     manager.cleanup()
         else:
-            logger.warning('Not syncing, no authorization for: %s', email_account)
+            logger.warning('No authorization for: %s', email_account)
 
 
 @task(name='synchronize_labels', logger=logger)

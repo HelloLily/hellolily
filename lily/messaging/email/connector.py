@@ -122,6 +122,7 @@ class GmailConnector(object):
                 # Thrown when a user removes Lily from the connected apps or
                 # changes the credentials of the Google account.
                 self.email_account.is_authorized = False
+                self.email_account.is_syncing = False
                 self.email_account.save()
                 logger.error('Invalid access token for account %s' % self.email_account)
                 raise

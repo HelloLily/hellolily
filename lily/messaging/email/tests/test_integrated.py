@@ -282,7 +282,7 @@ class EmailTests(UserBasedTest, APITestCase):
         # initial synchronize.
         # So make sure history_id is indeed missing and that the email account is in the right state.
         self._verify_email_account_state(email_account=email_account, authorized=True, history_id=None,
-                                         full_sync_finished=False)
+                                         is_syncing=False)
 
         synchronize_email_account_scheduler()
 
@@ -308,7 +308,7 @@ class EmailTests(UserBasedTest, APITestCase):
         self._label_test(email_account, verify_label_data)
 
         self._verify_email_account_state(email_account=email_account, authorized=False, history_id=None,
-                                         full_sync_finished=False)
+                                         is_syncing=False)
 
     def test_incremental_synchronize_no_history(self):
         """
@@ -773,7 +773,7 @@ class EmailTests(UserBasedTest, APITestCase):
         verify_label_data[settings.GMAIL_LABEL_IMPORTANT] = [True, 9, 8]
 
         self._test_incremental_synchronize(mock_api_calls=mock_api_calls, label_data_after=verify_label_data,
-                                           history_id_after=9834)
+                                           history_id_after=9841)
 
         # Verify that the label mutation is applied on the correct email messages.
         verify_labels = self.verify_label_availability_default.copy()
@@ -790,7 +790,6 @@ class EmailTests(UserBasedTest, APITestCase):
         history id and synchronisation status are administered correctly.
         """
         mock_api_calls = self.mock_api_calls_default + [
-            #
             HttpMock('lily/messaging/email/tests/data/send_email_message.json', {'status': '200'}),
             # Retrieve a list of all available labels.
             HttpMock('lily/messaging/email/tests/data/get_message_info_15b33aad2c5dbe4a.json', {'status': '200'}),
@@ -840,7 +839,7 @@ class EmailTests(UserBasedTest, APITestCase):
 
         # Verify history id.
         self.email_account.refresh_from_db()
-        self.assertEqual(self.email_account.history_id, 11019, "The history id of the email account was incorrect.")
+        self.assertEqual(self.email_account.history_id, 8095, "The history id of the email account was incorrect.")
 
         # Verify that the prepared outgoing message is removed from the database
         self.assertFalse(EmailOutboxMessage.objects.filter(id=email_outbox_message.id).exists(),
@@ -848,15 +847,15 @@ class EmailTests(UserBasedTest, APITestCase):
 
     @patch.object(GmailService, '_get_http')
     def _test_full_synchronize(self, get_http_mock, mock_api_calls, label_data_after, authorized_before=True,
-                               history_id_before=None, full_sync_finished_before=False, authorized_after=True,
-                               history_id_after=8095, full_sync_finished_after=True):
+                               history_id_before=None, is_syncing_before=False, authorized_after=True,
+                               history_id_after=8095, is_syncing_after=False):
 
         # Mock the http instance with succesive http mock objects.
         get_http_mock.side_effect = mock_api_calls
 
         # Make sure history_id is indeed missing and that the email account is in the right state.
         self._verify_email_account_state(email_account=self.email_account, authorized=authorized_before,
-                                         history_id=history_id_before, full_sync_finished=full_sync_finished_before)
+                                         history_id=history_id_before, is_syncing=is_syncing_before)
 
         # Calling the scheduler once, with a missing history_id for the email account, it will effectively do a full
         # initial synchronize.
@@ -874,12 +873,12 @@ class EmailTests(UserBasedTest, APITestCase):
 
         # Verify that the email account is in the right state after the synchronization has finished.
         self._verify_email_account_state(email_account=self.email_account, authorized=authorized_after,
-                                         history_id=history_id_after, full_sync_finished=full_sync_finished_after)
+                                         history_id=history_id_after, is_syncing=is_syncing_after)
 
     @patch.object(GmailService, '_get_http')
     def _test_incremental_synchronize(self, get_http_mock, mock_api_calls, label_data_after, authorized_before=True,
-                                      history_id_before=None, full_sync_finished_before=False, authorized_after=True,
-                                      history_id_after=8095, full_sync_finished_after=True):
+                                      history_id_before=None, is_syncing_before=False, authorized_after=True,
+                                      history_id_after=8095, is_syncing_after=False):
         # Mock the http instance with succesive http mock objects.
         get_http_mock.side_effect = mock_api_calls
 
@@ -887,7 +886,7 @@ class EmailTests(UserBasedTest, APITestCase):
 
         # Make sure history_id is indeed missing and that the email account is in the right state.
         self._verify_email_account_state(email_account=email_account, authorized=authorized_before,
-                                         history_id=history_id_before, full_sync_finished=full_sync_finished_before)
+                                         history_id=history_id_before, is_syncing=is_syncing_before)
 
         # Calling the scheduler once, with a missing history_id for the email account, it will effectively do a full
         # initial synchronize.
@@ -907,7 +906,7 @@ class EmailTests(UserBasedTest, APITestCase):
 
         # Verify that the email account is in the right state after the synchronization has finished.
         self._verify_email_account_state(email_account=email_account, authorized=authorized_after,
-                                         history_id=history_id_after, full_sync_finished=full_sync_finished_after)
+                                         history_id=history_id_after, is_syncing=is_syncing_after)
 
     def _label_test(self, email_account, label_data):
         """
@@ -941,7 +940,7 @@ class EmailTests(UserBasedTest, APITestCase):
                     exists = email_account.labels.filter(label_id=label_name).exists()
                     self.assertFalse(exists, "Label %s shouldn't be in the database." % label_name)
 
-    def _verify_email_account_state(self, email_account, authorized, history_id, full_sync_finished):
+    def _verify_email_account_state(self, email_account, authorized, history_id, is_syncing):
         """
         Verify if the email account is in the right state.
         """
@@ -952,9 +951,9 @@ class EmailTests(UserBasedTest, APITestCase):
         # Verify history id.
         self.assertEqual(email_account.history_id, history_id, "The history id of the email account was incorrect.")
 
-        # Verify the status of the full synchronisation finished.
-        self.assertEqual(email_account.full_sync_finished, full_sync_finished,
-                         "Status of the full synchronisation for %s incorrect." % email_account)
+        # Verify if full synchronisation is in progress.
+        self.assertEqual(email_account.is_syncing, is_syncing,
+                         "Status of is_syncing for %s incorrect." % email_account)
 
     def _test_email_message(self, message_id, label_data):
         """

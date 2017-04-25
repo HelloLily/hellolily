@@ -227,26 +227,26 @@ class GmailManagerTests(UserBasedTest, APITestCase):
             # Because the label is already in the database it should not do a (mocked) API call again.
             self.fail('StopIteration should have been raised.')
 
-    def test_administer_full_sync_status_true(self):
+    def test_administer_sync_status_true(self):
         """
-        Test the GmailManager on setting the full sync status to finished on the email account.
+        Test the GmailManager on setting the full sync status to in progress on the email account.
         """
         email_account = EmailAccount.objects.first()
         manager = GmailManager(email_account)
-        manager.administer_full_sync_status(True)
+        manager.administer_sync_status(True)
 
-        self.assertTrue(email_account.full_sync_finished)
+        self.assertTrue(email_account.is_syncing)
         self.assertEqual(email_account.sync_failure_count, 0)
 
-    def test_administer_full_sync_status_false(self):
+    def test_administer_sync_status_false(self):
         """
-        Test the GmailManager on setting the full sync status to not finished on the email account.
+        Test the GmailManager on setting the full sync status to not in progress on the email account.
         """
         email_account = EmailAccount.objects.first()
         manager = GmailManager(email_account)
-        manager.administer_full_sync_status(False)
+        manager.administer_sync_status(False)
 
-        self.assertFalse(email_account.full_sync_finished)
+        self.assertFalse(email_account.is_syncing)
         self.assertEqual(email_account.sync_failure_count, 0)
 
     @patch.object(GmailConnector, 'get_label_info')

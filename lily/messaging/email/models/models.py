@@ -82,7 +82,7 @@ class EmailAccount(TenantMixin, DeletedMixin):
     # History id is a field to keep track of the sync status of a gmail box.
     history_id = models.BigIntegerField(null=True)
     temp_history_id = models.BigIntegerField(null=True)
-    full_sync_finished = models.BooleanField(default=False)
+    is_syncing = models.BooleanField(default=False)
     sync_failure_count = models.PositiveSmallIntegerField(default=0)
 
     owner = models.ForeignKey(LilyUser, related_name='email_accounts_owned')
@@ -100,6 +100,12 @@ class EmailAccount(TenantMixin, DeletedMixin):
     @property
     def is_public(self):
         return self.privacy == EmailAccount.PUBLIC
+
+    @property
+    def full_sync_needed(self):
+        # Return if a full sync is needed on the account if it's newly added (history id missing) or it failed with a
+        # history sync except when it is busy syncing already.
+        return (not self.history_id or self.sync_failure_count > 0) and not self.is_syncing
 
     class Meta:
         app_label = 'email'

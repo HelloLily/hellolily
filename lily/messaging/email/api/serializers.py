@@ -171,7 +171,7 @@ class EmailAccountSerializer(WritableNestedSerializer):
 
             if only_new:
                 instance.history_id = profile.get('historyId')
-                instance.full_sync_finished = True
+                instance.is_syncing = False
 
             instance.save()
 
@@ -209,7 +209,7 @@ class EmailAccountSerializer(WritableNestedSerializer):
             'id',
             'email_address',
             'from_name',
-            'full_sync_finished',
+            'is_syncing',
             'label',
             'labels',
             'is_authorized',
@@ -220,7 +220,7 @@ class EmailAccountSerializer(WritableNestedSerializer):
             'privacy_display',
             'shared_email_configs',
         )
-    read_only_fields = ('email_address', 'is_authorized', 'full_sync_finished', 'is_public',)
+    read_only_fields = ('email_address', 'is_authorized', 'is_syncing', 'is_public',)
 
 
 class RelatedEmailAccountSerializer(RelatedSerializerMixin, EmailAccountSerializer):

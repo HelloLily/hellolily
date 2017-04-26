@@ -187,6 +187,7 @@ class LilySearch(object):
                         'accounts.name',
                         'assigned_to',
                         'created_by',
+                        'customer_id',
                         'subject',
                         'name^2',
                         'name_words^10',

@@ -237,6 +237,10 @@
     }
 }
 
+.no-resize {
+    resize: none !important;
+}
+
 // .js-form-prolyfill {
 //     @include prolyfill("width < 500px") {
 //         [class*='col-'] {

@@ -184,7 +184,11 @@ $inline-editable-field-height: 30px;
     line-height: $inline-editable-field-height;
     border-color: $lily-grey;
     border-radius: $base-border-radius;
-    max-height: 30px;
+    resize: vertical;
+
+    :not(textarea) {
+        max-height: 30px;
+    }
 
     &:focus {
         border-color: $lily-grey;

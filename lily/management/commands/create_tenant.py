@@ -7,6 +7,7 @@ from lily.accounts.models import Account, AccountStatus, Website
 from lily.cases.models import Case, CaseType, CaseStatus
 from lily.deals.models import DealContactedBy, DealFoundThrough, DealNextStep, DealWhyCustomer, DealWhyLost, DealStatus
 from lily.contacts.models import Contact, Function
+from lily.messaging.email.models.models import EmailTemplate
 from lily.socialmedia.models import SocialMedia
 from lily.tenant.models import Tenant
 from lily.users.models import LilyUser, Team
@@ -68,10 +69,10 @@ class Command(BaseCommand):
 
             # DealNextStep
             deal_next_step_dict = {
-                'Contact': '2',
+                'Contact': '1',
                 'Follow up': '5',
-                'Waiting on client': '5',
-                'Aftersales': '15',
+                'Waiting on client': '10',
+                'Aftersales': '20',
                 'None': '0'
             }
             print 'Adding deal next steps.'
@@ -80,22 +81,32 @@ class Command(BaseCommand):
                 DealNextStep.objects.create(tenant=tenant, position=position, name=name, date_increment=date_increment)
 
             # DealWhyCustomer
-            deal_why_customer_list = ['Unknown', 'Other', ]
+            deal_why_customer_list = [
+                'Not happy with current supplier',
+                'Start of new business',
+                'Expansion of current business',
+                'Interested in our product(s)',
+                'Other',
+            ]
             print 'Adding deal why customer options.'
             for position, name in enumerate(deal_why_customer_list, start=1):
                 DealWhyCustomer.objects.create(tenant=tenant, position=position, name=name)
 
             # DealWhyLost
             deal_why_lost_list = [
-                'Too expensive', 'No response after inquiry', 'No response to quote', 'We replied too late',
-                'Not a customer for us', 'Missing features', 'Other',
+                'Too expensive',
+                'No response after inquiry',
+                'No response to quote',
+                'We replied too late',
+                'Not a customer for us',
+                'Missing features', 'Other',
             ]
             print 'Adding deal why lost options.'
             for position, name in enumerate(deal_why_lost_list, start=1):
                 DealWhyLost.objects.create(tenant=tenant, position=position, name=name)
 
             # DealStatus
-            deal_status_list = ['Open', 'Won', 'Lost', ]
+            deal_status_list = ['New', 'Open', 'Won', 'Lost', ]
             print 'Adding deal status options.'
             for position, name in enumerate(deal_status_list, start=1):
                 DealStatus.objects.create(tenant=tenant, position=position, name=name)
@@ -182,6 +193,17 @@ class Command(BaseCommand):
                 priority=Case.LOW_PRIO,
                 expires=date.today() + timedelta(days=7),
                 assigned_to=LilyUser.objects.filter(tenant=tenant).first(),
+                tenant=tenant,
+            )
+
+            print 'Adding example email template.'
+            EmailTemplate.objects.create(
+                name='Example signature',
+                subject='',
+                body_html=('Regards,<br>'
+                           '[[ user.full_name ]]<br>'
+                           'Phone: [[ user.phone_number ]]<br>'
+                           'Email: [[ user.current_email_address ]]'),
                 tenant=tenant,
             )
 

@@ -38,6 +38,10 @@ $header-height: 80px;
     }
 }
 
+.page-header-inner + .clearfix {
+    background: $app-color-darkblue;
+}
+
 .page-header-logo {
     color: #fff;
     font-size: 46px;

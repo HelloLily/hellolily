@@ -230,6 +230,11 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
         var usersPromise;
         var extraQuery = ' AND NOT id:' + currentUser.id;
 
+        if (vm.users && vm.users.length && !query.length) {
+            // Clear the previous list so we can retreive the whole list again.
+            vm.users = null;
+        }
+
         if (!vm.users || query.length) {
             usersPromise = HLSearch.refreshList(query, 'User', 'is_active:true' + extraQuery, 'full_name', 'full_name');
 

@@ -1,13 +1,15 @@
+from datetime import date, timedelta
+
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from lily.accounts.models import Account, AccountStatus, Website
-from lily.cases.models import CaseType, CaseStatus
+from lily.cases.models import Case, CaseType, CaseStatus
 from lily.deals.models import DealContactedBy, DealFoundThrough, DealNextStep, DealWhyCustomer, DealWhyLost, DealStatus
 from lily.contacts.models import Contact, Function
 from lily.socialmedia.models import SocialMedia
 from lily.tenant.models import Tenant
-from lily.users.models import Team
+from lily.users.models import LilyUser, Team
 from lily.utils.models.models import EmailAddress
 
 
@@ -159,6 +161,29 @@ class Command(BaseCommand):
                 )
                 Function.objects.create(account=account, contact=contact_instance)
                 contact_instance.email_addresses.add(contact_email)
+
+            print 'Adding first case'
+
+            description = (
+                'A case can be used for tasks which take more than a couple of minutes to complete.'
+                '\nFor example extensive customer service or technical questions.'
+                '\n\nTo solve this case, send an email to Team Lily with your first thoughts, concerns or questions.'
+                '\nAfterwards, close this case by clicking \'Closed\' since you\'ve solved it.'
+                '\nThat\'s it, you\'ve completed your first case!'
+            )
+
+            Case.objects.create(
+                account=account,
+                contact=Contact.objects.filter(tenant=tenant).first(),
+                subject='Team Lily needs your input!',
+                description=description,
+                status=CaseStatus.objects.get(name='New', tenant=tenant),
+                type=CaseType.objects.get(name='Support', tenant=tenant),
+                priority=Case.LOW_PRIO,
+                expires=date.today() + timedelta(days=7),
+                assigned_to=LilyUser.objects.filter(tenant=tenant).first(),
+                tenant=tenant,
+            )
 
             print ''
             print 'All done!'

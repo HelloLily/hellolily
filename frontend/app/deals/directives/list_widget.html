@@ -6,14 +6,10 @@
 
     <widget-filters>
         <div class="hl-button-group-container" ng-if="!vm.settings.email.sidebar.deal">
-            <ul class="hl-button-group">
-                <li class="hl-button-group-btn">
-                    <a class="hl-button-group-btn-link" ui-sref="{{ vm.addLink || 'base.deals.create' }}" ng-click="vm.googleAnalyticsEvent()">
-                        <i class="fa fa-plus"></i>
-                        <span class="external-link-name">Deal</span>
-                    </a>
-                </li>
-            </ul>
+            <a class="hl-primary-btn" ui-sref="{{ vm.addLink || 'base.deals.create' }}" ng-click="vm.googleAnalyticsEvent()">
+                <i class="fa fa-plus"></i>
+                <span class="external-link-name">Deal</span>
+            </a>
         </div>
     </widget-filters>
 

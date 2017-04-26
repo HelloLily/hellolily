@@ -186,7 +186,7 @@ $inline-editable-field-height: 30px;
     border-radius: $base-border-radius;
     resize: vertical;
 
-    :not(textarea) {
+    &:not(textarea) {
         max-height: 30px;
     }
 

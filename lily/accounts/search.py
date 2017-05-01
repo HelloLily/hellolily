@@ -40,6 +40,7 @@ class AccountMapping(BaseMapping):
             },
             'customer_id': {
                 'type': 'string',
+                'index_analyzer': 'normal_ngram_analyzer',
             },
             'created': {
                 'type': 'date',

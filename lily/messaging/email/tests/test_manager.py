@@ -5,7 +5,7 @@ from googleapiclient.discovery import build
 from rest_framework.test import APITestCase
 
 from lily.messaging.email.connector import GmailConnector
-from lily.messaging.email.factories import GmailAccountFactory
+from lily.messaging.email.factories import GmailAccountFactory, EmailMessageFactory, EmailLabelFactory
 from lily.messaging.email.manager import GmailManager
 from lily.messaging.email.models.models import EmailAccount, EmailMessage, EmailLabel, EmailOutboxMessage
 from lily.messaging.email.services import GmailService
@@ -59,7 +59,6 @@ class GmailManagerTests(UserBasedTest, APITestCase):
 
         with open('lily/messaging/email/tests/data/all_message_id_list_single_page.json') as infile:
             json_obj = json.load(infile)
-
             messages = json_obj['messages']
             get_all_message_id_list_mock.return_value = messages
 
@@ -77,41 +76,36 @@ class GmailManagerTests(UserBasedTest, APITestCase):
         self.assertEqual(no_call_full_sync_finished, 1)
 
     @patch.object(GmailConnector, 'get_message_info')
-    @patch.object(GmailManager, 'get_label')
-    def test_download_message(self, get_label_mock, get_message_info_mock):
+    def test_download_message(self, get_message_info_mock):
         """
         Test the GmailManager on downloading a message and that it is stored in the database.
         """
-        with open('lily/messaging/email/tests/data/get_message_info_15a6008a4baa65f3.json') as infile:
-            json_obj = json.load(infile)
+        message_id = '15a6008a4baa65f3'
 
+        with open('lily/messaging/email/tests/data/get_message_info_{0}.json'.format(message_id)) as infile:
+            json_obj = json.load(infile)
             get_message_info_mock.return_value = json_obj
 
         email_account = EmailAccount.objects.first()
 
-        labels = [
-            EmailLabel.objects.create(account=email_account, label_id=settings.GMAIL_LABEL_UNREAD,
-                                      label_type=EmailLabel.LABEL_SYSTEM),
-            EmailLabel.objects.create(account=email_account, label_id=settings.GMAIL_LABEL_IMPORTANT,
-                                      label_type=EmailLabel.LABEL_SYSTEM),
-            EmailLabel.objects.create(account=email_account, label_id='CATEGORY_PERSONAL',
-                                      label_type=EmailLabel.LABEL_SYSTEM),
-            EmailLabel.objects.create(account=email_account, label_id=settings.GMAIL_LABEL_INBOX,
-                                      label_type=EmailLabel.LABEL_SYSTEM),
-        ]
-        get_label_mock.side_effect = labels
+        labels = [settings.GMAIL_LABEL_UNREAD, settings.GMAIL_LABEL_IMPORTANT, settings.GMAIL_LABEL_PERSONAL,
+                  settings.GMAIL_LABEL_INBOX]
+        for label in labels:
+            EmailLabelFactory.create(account=email_account, label_id=label)
 
         manager = GmailManager(email_account)
         # Message isn't present in the db, so it will do a mocked API call.
-        manager.download_message('15a6008a4baa65f3')
+        manager.download_message(message_id)
 
         # Verify that the email message is stored in the db.
-        self.assertTrue(EmailMessage.objects.filter(account=email_account, message_id='15a6008a4baa65f3').exists())
+        self.assertTrue(EmailMessage.objects.filter(account=email_account, message_id=message_id).exists())
 
         # Verify that the email message has the correct labels.
-        email_message = EmailMessage.objects.get(account=email_account, message_id='15a6008a4baa65f3')
+        email_message = EmailMessage.objects.get(account=email_account, message_id=message_id)
         email_message_labels = set(email_message.labels.all().values_list('label_id', flat=True))
-        self.assertEqual(email_message_labels, set(['UNREAD', 'IMPORTANT', 'CATEGORY_PERSONAL', 'INBOX']))
+        self.assertEqual(email_message_labels, set(
+            [settings.GMAIL_LABEL_UNREAD, settings.GMAIL_LABEL_IMPORTANT, settings.GMAIL_LABEL_PERSONAL,
+             settings.GMAIL_LABEL_INBOX]))
 
     @patch.object(GmailConnector, 'get_short_message_info')
     @patch.object(GmailConnector, 'get_message_info')
@@ -119,59 +113,51 @@ class GmailManagerTests(UserBasedTest, APITestCase):
         """
         Test the GmailManager on updating an existing message.
         """
+        message_id = '15a6008a4baa65f3'
+
         email_account = EmailAccount.objects.first()
         manager = GmailManager(email_account)
 
-        labels = [
-            EmailLabel.objects.create(account=email_account, label_id=settings.GMAIL_LABEL_UNREAD,
-                                      label_type=EmailLabel.LABEL_SYSTEM),
-            EmailLabel.objects.create(account=email_account, label_id=settings.GMAIL_LABEL_IMPORTANT,
-                                      label_type=EmailLabel.LABEL_SYSTEM),
-            EmailLabel.objects.create(account=email_account, label_id='CATEGORY_PERSONAL',
-                                      label_type=EmailLabel.LABEL_SYSTEM),
-            EmailLabel.objects.create(account=email_account, label_id=settings.GMAIL_LABEL_INBOX,
-                                      label_type=EmailLabel.LABEL_SYSTEM),
-        ]
+        labels = [settings.GMAIL_LABEL_UNREAD, settings.GMAIL_LABEL_IMPORTANT, settings.GMAIL_LABEL_PERSONAL,
+                  settings.GMAIL_LABEL_INBOX]
+        for label in labels:
+            EmailLabelFactory.create(account=email_account, label_id=label)
 
-        with open('lily/messaging/email/tests/data/get_message_info_15a6008a4baa65f3.json') as infile:
+        with open('lily/messaging/email/tests/data/get_message_info_{0}.json'.format(message_id)) as infile:
             json_obj = json.load(infile)
-
             get_message_info_mock.return_value = json_obj
 
-        # Patch get_label as a context manager so mocking is disabled after the message is downloaded for the first
-        # time.
-        with patch.object(GmailManager, 'get_label') as get_label_mock:
-            get_label_mock.side_effect = labels
-
-            # Message isn't present in the db, so it will do a mocked API call.
-            manager.download_message('15a6008a4baa65f3')
+        # Message isn't present in the db, so it will do a mocked API call.
+        manager.download_message(message_id)
 
         # The message with labels is now present in the database so downloading it again will only update it's labels.
-        with open('lily/messaging/email/tests/data/get_short_message_info_15a6008a4baa65f3_archived.json') as infile:
+        with open('lily/messaging/email/tests/data/get_short_message_info_{0}_archived.json'.format(
+                message_id)) as infile:
             json_obj = json.load(infile)
-
             get_short_message_info_mock.return_value = json_obj
 
         try:
-            manager.download_message('15a6008a4baa65f3')
+            manager.download_message(message_id)
         except StopIteration:
             # Because the email message is already in the database it should not do a (mocked) API call again.
             self.fail('StopIteration should have been raised.')
 
         # Verify that the email message has the correct labels after the updated short message info with the Inbox
         # label removed.
-        email_message = EmailMessage.objects.get(account=email_account, message_id='15a6008a4baa65f3')
+        email_message = EmailMessage.objects.get(account=email_account, message_id=message_id)
         email_message_labels = set(email_message.labels.all().values_list('label_id', flat=True))
-        self.assertEqual(email_message_labels, set(['UNREAD', 'IMPORTANT', 'CATEGORY_PERSONAL']))
+        self.assertEqual(email_message_labels, set(
+            [settings.GMAIL_LABEL_UNREAD, settings.GMAIL_LABEL_IMPORTANT, settings.GMAIL_LABEL_PERSONAL]))
 
     @patch.object(GmailConnector, 'get_label_list')
     def test_sync_labels(self, get_label_list_mock):
         """
         Test the GmailManager on synchronizing the labels for the email account.
         """
+
+        # First test adding new labels.
         with open('lily/messaging/email/tests/data/get_label_list.json') as infile:
             json_obj = json.load(infile)
-
             labels = json_obj['labels']
             get_label_list_mock.return_value = labels
 
@@ -182,6 +168,9 @@ class GmailManagerTests(UserBasedTest, APITestCase):
         # Verify that the correct number of labels are present in the database.
         self.assertEqual(EmailLabel.objects.filter(account=email_account).count(), len(labels))
 
+        # TODO: Add test renaming a label.
+        # TODO: Add test removing a label.
+
     @patch.object(GmailConnector, 'get_label_info')
     def test_get_label(self, get_label_info_mock):
         """
@@ -189,7 +178,6 @@ class GmailManagerTests(UserBasedTest, APITestCase):
         """
         with open('lily/messaging/email/tests/data/get_label_info_INBOX.json') as infile:
             json_obj = json.load(infile)
-
             get_label_info_mock.return_value = json_obj
 
         email_account = EmailAccount.objects.first()
@@ -208,7 +196,6 @@ class GmailManagerTests(UserBasedTest, APITestCase):
         """
         with open('lily/messaging/email/tests/data/get_label_info_INBOX.json') as infile:
             json_obj = json.load(infile)
-
             get_label_info_mock.return_value = json_obj
 
         email_account = EmailAccount.objects.first()
@@ -257,20 +244,19 @@ class GmailManagerTests(UserBasedTest, APITestCase):
         Test the GmailManager on sending a new email message.
         """
 
+        message_id = '15b33aad2c5dbe4a'
+
         # Mock the responses of the API calls.
         with open('lily/messaging/email/tests/data/send_email_message.json') as infile:
             json_obj = json.load(infile)
-
             send_email_message_mock.return_value = json_obj
 
-        with open('lily/messaging/email/tests/data/get_message_info_15b33aad2c5dbe4a.json') as infile:
+        with open('lily/messaging/email/tests/data/get_message_info_{0}.json'.format(message_id)) as infile:
             json_obj = json.load(infile)
-
             get_message_info_mock.return_value = json_obj
 
         with open('lily/messaging/email/tests/data/get_label_info_SENT.json') as infile:
             json_obj = json.load(infile)
-
             get_label_info_mock.return_value = json_obj
 
         email_account = EmailAccount.objects.first()
@@ -283,7 +269,7 @@ class GmailManagerTests(UserBasedTest, APITestCase):
             to=anyjson.dumps("user2@example.com"),
             cc=anyjson.dumps(None),
             bcc=anyjson.dumps(None),
-            body="<html><body><br/>In hac habitasse platea dictumst. Class aptent taciti sociosqu ad litora torquent "
+            body="<html><body>In hac habitasse platea dictumst. Class aptent taciti sociosqu ad litora torquent "
                  "per conubia nostra, per inceptos himenaeos. Ut aliquet elit sed augue bibendum malesuada."
                  "</body></html>",
             headers={},
@@ -297,9 +283,133 @@ class GmailManagerTests(UserBasedTest, APITestCase):
         manager.send_email_message(email_outbox_message.message())
 
         # Verify that is stored in the database as an email message.
-        self.assertTrue(EmailMessage.objects.filter(account=email_account, message_id='15b33aad2c5dbe4a').exists())
+        self.assertTrue(EmailMessage.objects.filter(account=email_account, message_id=message_id).exists(),
+                        "Send message missing from the database.")
 
         # Verify that the email message has the correct labels.
-        email_message = EmailMessage.objects.get(account=email_account, message_id='15b33aad2c5dbe4a')
+        email_message = EmailMessage.objects.get(account=email_account, message_id=message_id)
         email_message_labels = set(email_message.labels.all().values_list('label_id', flat=True))
-        self.assertEqual(email_message_labels, set(['SENT']))
+        self.assertEqual(email_message_labels, set([settings.GMAIL_LABEL_SENT]), "Send message mssing the SEND label.")
+
+        # Verify that the email emssage has the correct thread id. Because the email message is not part of a thread,
+        # the thread_id should be the same as the message_id.
+        self.assertEqual(email_message.thread_id, message_id, "Message_id and thread_id should be the same.")
+
+    @patch.object(GmailConnector, 'get_label_info')
+    @patch.object(GmailConnector, 'send_email_message')
+    @patch.object(GmailConnector, 'get_message_info')
+    def test_send_email_message_reply(self, get_message_info_mock, send_email_message_mock, get_label_info_mock):
+        """
+        Test the GmailManager on replying on an email message.
+        """
+
+        message_id = '15b3e2894fa3648d'
+        thread_id = '15a6008a4baa65f3'
+
+        # Mock the responses of the API calls.
+        with open('lily/messaging/email/tests/data/send_email_message_reply.json') as infile:
+            json_obj = json.load(infile)
+            send_email_message_mock.return_value = json_obj
+
+        with open('lily/messaging/email/tests/data/get_message_info_{0}.json'.format(message_id)) as infile:
+            json_obj = json.load(infile)
+            get_message_info_mock.return_value = json_obj
+
+        with open('lily/messaging/email/tests/data/get_label_info_SENT.json') as infile:
+            json_obj = json.load(infile)
+            get_label_info_mock.return_value = json_obj
+
+        email_account = EmailAccount.objects.first()
+        manager = GmailManager(email_account)
+
+        # Prepare an email message that will be send out.
+        email_outbox_message = EmailOutboxMessage.objects.create(
+            subject="Mauris ex tortor, hendrerit non sem eu, mollis varius purus.",
+            send_from=email_account,
+            to=anyjson.dumps("user2@example.com"),
+            cc=anyjson.dumps(None),
+            bcc=anyjson.dumps(None),
+            body="<html><body>Maecenas metus turpis, eleifend at dignissim ac, feugiat vel erat. Aenean at urna "
+                 "convallis, egestas massa sed, rhoncus est.<br><br>Firstname Lastname (user1@example.com) wrote on "
+                 "22 March 2017 13:14:<hr><div dir=\"ltr\">Aliquam eleifend pharetra ligula, id feugiat ipsum laoreet "
+                 "a. Aenean sed volutpat magna, ut viverra turpis. Morbi suscipit, urna in pellentesque venenatis, "
+                 "mauris elit placerat justo, sit amet vestibulum purus dui id massa. In vitae libero et nunc "
+                 "facilisis imperdiet. Sed pharetra aliquet luctus.</div></body></html>",
+            headers={},
+            mapped_attachments=0,
+            template_attachment_ids='',
+            original_message_id=None,
+            tenant=self.user_obj.tenant
+        )
+
+        # Send the email message, it will be a reply because a thead id is passed.
+        manager.send_email_message(email_outbox_message.message(), thread_id=thread_id)
+
+        # Verify that is stored in the database as an email message.
+        self.assertTrue(EmailMessage.objects.filter(account=email_account, message_id=message_id).exists(),
+                        "Send reply message missing from the database.")
+
+        # Verify that the email message has the correct labels.
+        email_message = EmailMessage.objects.get(account=email_account, message_id=message_id)
+        email_message_labels = set(email_message.labels.all().values_list('label_id', flat=True))
+        self.assertEqual(email_message_labels, set([settings.GMAIL_LABEL_SENT]), "Send message mssing the SEND label.")
+
+        # Verify that the email emssage has the correct thread id.
+        self.assertEqual(email_message.thread_id, thread_id,
+                         "Message {0} should have thread_id {1}.".format(email_message.message_id, thread_id))
+
+    @patch.object(GmailConnector, 'trash_email_message')
+    @patch.object(GmailConnector, 'get_message_info')
+    def test_trash_email_message(self, get_message_info_mock, trash_email_message_mock):
+        """
+        Test the GmailManager on trashing an email message.
+        """
+        message_id = '15af6279f554fd15'
+
+        # Mock the responses of the API call.
+        with open('lily/messaging/email/tests/data/trash_email_message_{0}.json'.format(message_id)) as infile:
+            json_obj = json.load(infile)
+            trash_email_message_mock.return_value = json_obj
+
+        with open('lily/messaging/email/tests/data/get_message_info_{0}_trash.json'.format(message_id)) as infile:
+            json_obj = json.load(infile)
+            get_message_info_mock.return_value = json_obj
+
+        email_account = EmailAccount.objects.first()
+        email_message = EmailMessageFactory.create(account=email_account, message_id=message_id)
+        labels = [settings.GMAIL_LABEL_UNREAD, settings.GMAIL_LABEL_IMPORTANT, settings.GMAIL_LABEL_TRASH,
+                  settings.GMAIL_LABEL_PERSONAL, settings.GMAIL_LABEL_INBOX]
+        for label in labels:
+            EmailLabelFactory.create(account=email_account, label_id=label)
+        manager = GmailManager(email_account)
+
+        manager.trash_email_message(email_message)
+
+        # Verify that the email message is trashed by looking at the labels, ie. INBOX is not presnt and TRASH is.
+        email_message_labels = set(email_message.labels.all().values_list('label_id', flat=True))
+        self.assertEqual(email_message_labels, set(
+            [settings.GMAIL_LABEL_UNREAD, settings.GMAIL_LABEL_IMPORTANT, settings.GMAIL_LABEL_TRASH,
+             settings.GMAIL_LABEL_PERSONAL]))
+
+    def test_cleanup(self):
+        """
+        Test if the GmailManager cleans up the right data.
+        """
+
+        # Initialze a manager.
+        email_account = EmailAccount.objects.first()
+        manager = GmailManager(email_account)
+
+        # Establish that the cleanup method up to test has actual data to cleanup.
+        self.assertIsNotNone(manager.message_builder)
+        self.assertIsNotNone(manager.label_builder)
+        self.assertIsNotNone(manager.connector)
+        self.assertIsNotNone(manager.email_account)
+
+        manager.cleanup()
+
+        # Verify that data is cleaned up.
+        self.assertIsNone(manager.message_builder)
+        self.assertIsNone(manager.label_builder)
+        self.assertIsNone(manager.connector)
+        self.assertIsNone(manager.email_account)

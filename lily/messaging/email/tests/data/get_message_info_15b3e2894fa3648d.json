@@ -1,0 +1,119 @@
+{
+  "internalDate": "1491396498000",
+  "historyId": "11306",
+  "payload": {
+    "mimeType": "multipart/related",
+    "headers": [
+      {
+        "name": "Received",
+        "value": "from 293294599902 named unknown by gmailapi.google.com with HTTPREST; Wed, 5 Apr 2017 08:48:18 -0400"
+      },
+      {
+        "name": "Content-Type",
+        "value": "multipart/related; boundary=\"===============5742432823491254756==\""
+      },
+      {
+        "name": "MIME-Version",
+        "value": "1.0"
+      },
+      {
+        "name": "Subject",
+        "value": "Re: Vivamus tristique magna vel sollicitudin varius."
+      },
+      {
+        "name": "From",
+        "value": "Firstname Lastname <user1@example.com>"
+      },
+      {
+        "name": "To",
+        "value": "user2@example.com"
+      },
+      {
+        "name": "Date",
+        "value": "Wed, 5 Apr 2017 08:48:18 -0400"
+      },
+      {
+        "name": "Message-Id",
+        "value": "<CADssDh2fuH=pSDVKHmUbDvwrZNnT0oSWvmEbSwYt2+W8Qd_Ejw@mail.gmail.com>"
+      }
+    ],
+    "parts": [
+      {
+        "mimeType": "multipart/alternative",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "multipart/alternative; boundary=\"===============5485526581581336823==\""
+          },
+          {
+            "name": "MIME-Version",
+            "value": "1.0"
+          }
+        ],
+        "parts": [
+          {
+            "mimeType": "text/plain",
+            "headers": [
+              {
+                "name": "MIME-Version",
+                "value": "1.0"
+              },
+              {
+                "name": "Content-Type",
+                "value": "text/plain; charset=\"utf-8\""
+              },
+              {
+                "name": "Content-Transfer-Encoding",
+                "value": "7bit"
+              }
+            ],
+            "body": {
+              "data": "ICAKTWFlY2VuYXMgbWV0dXMgdHVycGlzLCBlbGVpZmVuZCBhdCBkaWduaXNzaW0gYWMsIGZldWdpYXQgdmVsIGVyYXQuIEFlbmVhbiBhdCB1cm5hIGNvbnZhbGxpcywgZWdlc3RhcyBtYXNzYSBzZWQsIHJob25jdXMgZXN0LiAgCiAgCkFyamVuIEYuIFZlbGxpbmdhIChhcmplbkBhZnZlbGxpbmdhLm5sKSB3cm90ZSBvbiAyMiBNYXJjaCAyMDE3IDEzOjE0OgoKKiAqICoKCkFsaXF1YW0gZWxlaWZlbmQgcGhhcmV0cmEgbGlndWxhLCBpZCBmZXVnaWF0IGlwc3VtIGxhb3JlZXQgYS4gQWVuZWFuIHNlZCB2b2x1dHBhdCBtYWduYSwgdXQgdml2ZXJyYSB0dXJwaXMuIE1vcmJpIHN1c2NpcGl0LCB1cm5hIGluIHBlbGxlbnRlc3F1ZSB2ZW5lbmF0aXMsIG1hdXJpcyBlbGl0IHBsYWNlcmF0IGp1c3RvLCBzaXQgYW1ldCB2ZXN0aWJ1bHVtIHB1cnVzIGR1aSBpZCBtYXNzYS4gSW4gdml0YWUgbGliZXJvIGV0IG51bmMgZmFjaWxpc2lzIGltcGVyZGlldC4gU2VkIHBoYXJldHJhIGFsaXF1ZXQgbHVjdHVzLiAK",
+              "size": 510
+            },
+            "partId": "0.0",
+            "filename": ""
+          },
+          {
+            "mimeType": "text/html",
+            "headers": [
+              {
+                "name": "MIME-Version",
+                "value": "1.0"
+              },
+              {
+                "name": "Content-Type",
+                "value": "text/html; charset=\"utf-8\""
+              },
+              {
+                "name": "Content-Transfer-Encoding",
+                "value": "7bit"
+              }
+            ],
+            "body": {
+              "data": "PGh0bWw-PGJvZHk-PGJyLz5NYWVjZW5hcyBtZXR1cyB0dXJwaXMsIGVsZWlmZW5kIGF0IGRpZ25pc3NpbSBhYywgZmV1Z2lhdCB2ZWwgZXJhdC4gQWVuZWFuIGF0IHVybmEgY29udmFsbGlzLCBlZ2VzdGFzIG1hc3NhIHNlZCwgcmhvbmN1cyBlc3QuPGJyLz48YnIvPkFyamVuIEYuIFZlbGxpbmdhIChhcmplbkBhZnZlbGxpbmdhLm5sKSB3cm90ZSBvbiAyMiBNYXJjaCAyMDE3IDEzOjE0Ojxoci8-PGRpdiBkaXI9Imx0ciI-QWxpcXVhbSBlbGVpZmVuZCANCnBoYXJldHJhIGxpZ3VsYSwgaWQgZmV1Z2lhdCBpcHN1bSBsYW9yZWV0IGEuIEFlbmVhbiBzZWQgdm9sdXRwYXQgbWFnbmEsIA0KdXQgdml2ZXJyYSB0dXJwaXMuIE1vcmJpIHN1c2NpcGl0LCB1cm5hIGluIHBlbGxlbnRlc3F1ZSB2ZW5lbmF0aXMsIA0KbWF1cmlzIGVsaXQgcGxhY2VyYXQganVzdG8sIHNpdCBhbWV0IHZlc3RpYnVsdW0gcHVydXMgZHVpIGlkIG1hc3NhLiBJbiANCnZpdGFlIGxpYmVybyBldCBudW5jIGZhY2lsaXNpcyBpbXBlcmRpZXQuIFNlZCBwaGFyZXRyYSBhbGlxdWV0IGx1Y3R1cy4NCjwvZGl2PjwvYm9keT48L2h0bWw-",
+              "size": 567
+            },
+            "partId": "0.1",
+            "filename": ""
+          }
+        ],
+        "body": {
+          "size": 0
+        },
+        "filename": ""
+      }
+    ],
+    "body": {
+      "size": 0
+    },
+    "filename": ""
+  },
+  "snippet": "Maecenas metus turpis, eleifend at dignissim ac, feugiat vel erat. Aenean at urna convallis, egestas massa sed, rhoncus est. Arjen F. Vellinga (arjen@afvellinga.nl) wrote on 22 March 2017 13:14:",
+  "sizeEstimate": 2043,
+  "threadId": "15a6008a4baa65f3",
+  "labelIds": [
+    "SENT"
+  ],
+  "id": "15b3e2894fa3648d"
+}

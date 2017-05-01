@@ -349,9 +349,9 @@ def delete_email_message(self, email_id):
     Args:
         email_id (int): id of the EmailMessage
     """
+    # TODO: LILY-1906 Email messages are never deleted.
     try:
         email_message = EmailMessage.objects.get(pk=email_id)
-        in_trash = email_message.is_trashed
     except EmailMessage.DoesNotExist:
         logger.warning('EmailMessage no longer exists: %s', email_id)
     else:
@@ -361,7 +361,7 @@ def delete_email_message(self, email_id):
                 manager = GmailManager(email_message.account)
                 if email_message.is_draft:
                     manager.delete_draft_email_message(email_message)
-                elif in_trash:
+                elif email_message.is_trashed:
                     manager.delete_email_message(email_message)
             except HttpAccessTokenRefreshError:
                 logger.warning('Not syncing, no authorization for: %s', email_message.account)

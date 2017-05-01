@@ -449,6 +449,8 @@ class GmailManager(object):
         """
         try:
             message_dict = self.connector.trash_email_message(email_message.message_id)
+            # TODO: LILY-2320 Trashing is just updating the labels, so remove unnecessary api call to get the complete
+            # message info again. Update is needed on the message builder.
             full_message_dict = self.connector.get_message_info(message_dict['id'])
         except NotFoundError:
             logger.debug('Message already deleted from remote')

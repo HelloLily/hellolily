@@ -338,11 +338,13 @@ class EmailTests(UserBasedTest, APITestCase):
         history id and synchronisation status are administered correctly. Also verify that the history update is
         reflected correctly on the right email message.
         """
+        message_id = '15a6008a4baa65f3'
+
         mock_api_calls = self.mock_api_calls_default + [
             # Retrieve the history updates since the first full synchronisation.
             HttpMock('lily/messaging/email/tests/data/get_history_label_added.json', {'status': '200'}),
             # Retrieve the message to which the single label was added.
-            HttpMock('lily/messaging/email/tests/data/get_short_message_info_15a6008a4baa65f3_label_added.json',
+            HttpMock('lily/messaging/email/tests/data/get_short_message_info_{0}_label_added.json'.format(message_id),
                      {'status': '200'}),
             # Retrieve a list of all available labels.
             HttpMock('lily/messaging/email/tests/data/get_label_list.json', {'status': '200'}),
@@ -359,7 +361,7 @@ class EmailTests(UserBasedTest, APITestCase):
         verify_labels = self.verify_label_availability_default.copy()
         verify_labels['Label_1'] = True
 
-        self._test_email_message('15a6008a4baa65f3', label_data=verify_labels)
+        self._test_email_message(message_id, label_data=verify_labels)
 
     def test_incremental_synchronize_label_added_multiple(self):
         """
@@ -370,14 +372,19 @@ class EmailTests(UserBasedTest, APITestCase):
         history id and synchronisation status are administered correctly. Also verify that the history update is
         reflected correctly on the right email message.
         """
+        message_id_1 = '15a60067ef5e0bf9'
+        message_id_2 = '15a600682d97904e'
+
         mock_api_calls = self.mock_api_calls_default + [
             # Retrieve the history updates since the first full synchronisation.
             HttpMock('lily/messaging/email/tests/data/get_history_label_added_multiple.json', {'status': '200'}),
             # Retrieve the messages to which the label was added.
-            HttpMock('lily/messaging/email/tests/data/get_short_message_info_15a600682d97904e_label_added.json',
-                     {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_short_message_info_15a60067ef5e0bf9_label_added.json',
-                     {'status': '200'}),
+            HttpMock(
+                'lily/messaging/email/tests/data/get_short_message_info_{0}_label_added.json'.format(message_id_2),
+                {'status': '200'}),
+            HttpMock(
+                'lily/messaging/email/tests/data/get_short_message_info_{0}_label_added.json'.format(message_id_1),
+                {'status': '200'}),
             # Retrieve a list of all available labels.
             HttpMock('lily/messaging/email/tests/data/get_label_list.json', {'status': '200'}),
         ]
@@ -394,11 +401,11 @@ class EmailTests(UserBasedTest, APITestCase):
 
         verify_labels['Label_1'] = True
         verify_labels[settings.GMAIL_LABEL_STAR] = True
-        self._test_email_message('15a60067ef5e0bf9', label_data=verify_labels)
+        self._test_email_message(message_id_1, label_data=verify_labels)
 
         verify_labels['Label_2'] = True
         verify_labels[settings.GMAIL_LABEL_STAR] = False
-        self._test_email_message('15a600682d97904e', label_data=verify_labels)
+        self._test_email_message(message_id_2, label_data=verify_labels)
 
     def test_incremental_synchronize_label_removed(self):
         """
@@ -409,12 +416,15 @@ class EmailTests(UserBasedTest, APITestCase):
         history id and synchronisation status are administered correctly. Also verify that the history update is
         reflected correctly on the right email message.
         """
+        message_id = '15a6008a4baa65f3'
+
         mock_api_calls = self.mock_api_calls_default + [
             # Retrieve the history updates since the first full synchronisation.
             HttpMock('lily/messaging/email/tests/data/get_history_label_removed.json', {'status': '200'}),
             # Retrieve the message to which the single label was removed.
-            HttpMock('lily/messaging/email/tests/data/get_short_message_info_15a6008a4baa65f3_label_removed.json',
-                     {'status': '200'}),
+            HttpMock(
+                'lily/messaging/email/tests/data/get_short_message_info_{0}_label_removed.json'.format(message_id),
+                {'status': '200'}),
             # Retrieve a list of all available labels.
             HttpMock('lily/messaging/email/tests/data/get_label_list.json', {'status': '200'}),
         ]
@@ -425,25 +435,30 @@ class EmailTests(UserBasedTest, APITestCase):
         # Verify that the label mutation is applied on the correct email message.
         verify_labels = self.verify_label_availability_default.copy()
 
-        self._test_email_message('15a6008a4baa65f3', label_data=verify_labels)
+        self._test_email_message(message_id, label_data=verify_labels)
 
     def test_incremental_synchronize_label_removed_multiple(self):
         """
-        Do a full synchronize and one succesive history update on one email account. A label is added to two email
+        Do a full synchronize and one succesive history update on one email account. A label is removed for two email
         messages.
 
         Verifies that the correct (number of) labels and related emails are stored in the database and that the
         history id and synchronisation status are administered correctly. Also verify that the history update is
         reflected correctly on the right email message.
         """
+        message_id_1 = '15a600682d97904e'
+        message_id_2 = '15a60053f67f5de4'
+
         mock_api_calls = self.mock_api_calls_default + [
             # Retrieve the history updates since the first full synchronisation.
             HttpMock('lily/messaging/email/tests/data/get_history_label_removed_multiple.json', {'status': '200'}),
             # Retrieve the messages to which the single label was removed.
-            HttpMock('lily/messaging/email/tests/data/get_short_message_info_15a60053f67f5de4_label_added.json',
-                     {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_short_message_info_15a600682d97904e_label_added_2.json',
-                     {'status': '200'}),
+            HttpMock(
+                'lily/messaging/email/tests/data/get_short_message_info_{0}_label_removed.json'.format(message_id_1),
+                {'status': '200'}),
+            HttpMock(
+                'lily/messaging/email/tests/data/get_short_message_info_{0}_label_removed.json'.format(message_id_2),
+                {'status': '200'}),
             # Retrieve a list of all available labels.
             HttpMock('lily/messaging/email/tests/data/get_label_list.json', {'status': '200'}),
         ]
@@ -457,10 +472,9 @@ class EmailTests(UserBasedTest, APITestCase):
 
         # Verify that the label mutation is applied on the correct email messages.
         verify_labels = self.verify_label_availability_default.copy()
+        self._test_email_message(message_id_1, label_data=verify_labels)
         verify_labels['Label_1'] = True
-        self._test_email_message('15a600682d97904e', label_data=verify_labels)
-        verify_labels['Label_1'] = False
-        self._test_email_message('15a60053f67f5de4', label_data=verify_labels)
+        self._test_email_message(message_id_2, label_data=verify_labels)
 
     def test_incremental_synchronize_archived(self):
         """
@@ -470,13 +484,16 @@ class EmailTests(UserBasedTest, APITestCase):
         history id and synchronisation status are administered correctly. Also verify that the history update is
         reflected correctly on the right email message.
         """
+        message_id_1 = '15a6008a4baa65f3'
+        message_id_2 = '15a600682d97904e'
+
         mock_api_calls = self.mock_api_calls_default + [
             # Retrieve the history updates since the first full synchronisation.
             HttpMock('lily/messaging/email/tests/data/get_history_archived.json', {'status': '200'}),
             # Retrieve the archived messages.
-            HttpMock('lily/messaging/email/tests/data/get_short_message_info_15a6008a4baa65f3_archived.json',
+            HttpMock('lily/messaging/email/tests/data/get_short_message_info_{0}_archived.json'.format(message_id_1),
                      {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_short_message_info_15a600682d97904e_archived.json',
+            HttpMock('lily/messaging/email/tests/data/get_short_message_info_{0}_archived.json'.format(message_id_2),
                      {'status': '200'}),
             # Retrieve a list of all available labels.
             HttpMock('lily/messaging/email/tests/data/get_label_list.json', {'status': '200'}),
@@ -494,9 +511,9 @@ class EmailTests(UserBasedTest, APITestCase):
         verify_labels = self.verify_label_availability_default.copy()
         verify_labels[settings.GMAIL_LABEL_INBOX] = False
 
-        self._test_email_message('15a6008a4baa65f3', label_data=verify_labels)
+        self._test_email_message(message_id_1, label_data=verify_labels)
         verify_labels['Label_2'] = True
-        self._test_email_message('15a600682d97904e', label_data=verify_labels)
+        self._test_email_message(message_id_2, label_data=verify_labels)
 
     def test_incremental_synchronize_starred(self):
         """
@@ -506,13 +523,16 @@ class EmailTests(UserBasedTest, APITestCase):
         history id and synchronisation status are administered correctly. Also verify that the history update is
         reflected correctly on the right email message.
         """
+        message_id_1 = '15a6008a4baa65f3'
+        message_id_2 = '15a600682d97904e'
+
         mock_api_calls = self.mock_api_calls_default + [
             # Retrieve the history updates since the first full synchronisation.
             HttpMock('lily/messaging/email/tests/data/get_history_starred.json', {'status': '200'}),
             # Retrieve the starred messages.
-            HttpMock('lily/messaging/email/tests/data/get_short_message_info_15a6008a4baa65f3_starred.json',
+            HttpMock('lily/messaging/email/tests/data/get_short_message_info_{0}_starred.json'.format(message_id_1),
                      {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_short_message_info_15a600682d97904e_starred.json',
+            HttpMock('lily/messaging/email/tests/data/get_short_message_info_{0}_starred.json'.format(message_id_2),
                      {'status': '200'}),
             # Retrieve a list of all available labels.
             HttpMock('lily/messaging/email/tests/data/get_label_list.json', {'status': '200'}),
@@ -529,9 +549,9 @@ class EmailTests(UserBasedTest, APITestCase):
         verify_labels = self.verify_label_availability_default.copy()
         verify_labels[settings.GMAIL_LABEL_STAR] = True
 
-        self._test_email_message('15a6008a4baa65f3', label_data=verify_labels)
+        self._test_email_message(message_id_1, label_data=verify_labels)
         verify_labels['Label_2'] = True
-        self._test_email_message('15a600682d97904e', label_data=verify_labels)
+        self._test_email_message(message_id_2, label_data=verify_labels)
 
     def test_incremental_synchronize_label_read(self):
         """
@@ -542,13 +562,16 @@ class EmailTests(UserBasedTest, APITestCase):
         history id and synchronisation status are administered correctly. Also verify that the history update is
         reflected correctly on the right email message.
         """
+        message_id_1 = '15a6008a4baa65f3'
+        message_id_2 = '15a600682d97904e'
+
         mock_api_calls = self.mock_api_calls_default + [
             # Retrieve the history updates since the first full synchronisation.
             HttpMock('lily/messaging/email/tests/data/get_history_read.json', {'status': '200'}),
             # Retrieve the messages which were read.
-            HttpMock('lily/messaging/email/tests/data/get_short_message_info_15a6008a4baa65f3_read.json',
+            HttpMock('lily/messaging/email/tests/data/get_short_message_info_{0}_read.json'.format(message_id_1),
                      {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_short_message_info_15a600682d97904e_read.json',
+            HttpMock('lily/messaging/email/tests/data/get_short_message_info_{0}_read.json'.format(message_id_2),
                      {'status': '200'}),
             # Retrieve a list of all available labels.
             HttpMock('lily/messaging/email/tests/data/get_label_list.json', {'status': '200'}),
@@ -569,9 +592,9 @@ class EmailTests(UserBasedTest, APITestCase):
         verify_labels = self.verify_label_availability_default.copy()
         verify_labels[settings.GMAIL_LABEL_UNREAD] = False
 
-        self._test_email_message('15a6008a4baa65f3', label_data=verify_labels)
+        self._test_email_message(message_id_1, label_data=verify_labels)
         verify_labels['Label_2'] = True
-        self._test_email_message('15a600682d97904e', label_data=verify_labels)
+        self._test_email_message(message_id_2, label_data=verify_labels)
 
     def test_incremental_synchronize_label_unread(self):
         """
@@ -582,11 +605,13 @@ class EmailTests(UserBasedTest, APITestCase):
         history id and synchronisation status are administered correctly. Also verify that the history update is
         reflected correctly on the right email message.
         """
+        message_id = '15a60044bb3e2a7a'
+
         mock_api_calls = self.mock_api_calls_default + [
             # Retrieve the history updates since the first full synchronisation.
             HttpMock('lily/messaging/email/tests/data/get_history_unread.json', {'status': '200'}),
             # Retrieve the message which were marked unread.
-            HttpMock('lily/messaging/email/tests/data/get_short_message_info_15a60044bb3e2a7a_unread.json',
+            HttpMock('lily/messaging/email/tests/data/get_short_message_info_{0}_unread.json'.format(message_id),
                      {'status': '200'}),
             # Retrieve a list of all available labels.
             HttpMock('lily/messaging/email/tests/data/get_label_list.json', {'status': '200'}),
@@ -608,7 +633,7 @@ class EmailTests(UserBasedTest, APITestCase):
         verify_labels[settings.GMAIL_LABEL_UNREAD] = True
         verify_labels['Label_1'] = True
 
-        self._test_email_message('15a60044bb3e2a7a', label_data=verify_labels)
+        self._test_email_message(message_id, label_data=verify_labels)
 
     def test_incremental_synchronize_label_spam(self):
         """
@@ -619,11 +644,13 @@ class EmailTests(UserBasedTest, APITestCase):
         history id and synchronisation status are administered correctly. Also verify that the history update is
         reflected correctly on the right email message.
         """
+        message_id = '15a6008a4baa65f3'
+
         mock_api_calls = self.mock_api_calls_default + [
             # Retrieve the history updates since the first full synchronisation.
             HttpMock('lily/messaging/email/tests/data/get_history_spam.json', {'status': '200'}),
             # Retrieve the message which were marked spam.
-            HttpMock('lily/messaging/email/tests/data/get_short_message_info_15a6008a4baa65f3_spam.json',
+            HttpMock('lily/messaging/email/tests/data/get_short_message_info_{0}_spam.json'.format(message_id),
                      {'status': '200'}),
             # Retrieve a list of all available labels.
             HttpMock('lily/messaging/email/tests/data/get_label_list.json', {'status': '200'}),
@@ -646,7 +673,7 @@ class EmailTests(UserBasedTest, APITestCase):
         verify_labels[settings.GMAIL_LABEL_INBOX] = False
         verify_labels[settings.GMAIL_LABEL_IMPORTANT] = False  # Marking mail as spam also removes the important label.
 
-        self._test_email_message('15a6008a4baa65f3', label_data=verify_labels)
+        self._test_email_message(message_id, label_data=verify_labels)
 
     def test_incremental_synchronize_label_unspam(self):
         """
@@ -657,11 +684,13 @@ class EmailTests(UserBasedTest, APITestCase):
         history id and synchronisation status are administered correctly. Also verify that the history update is
         reflected correctly on the right email message.
         """
+        message_id = '15a6008a4baa65f3'
+
         mock_api_calls = self.mock_api_calls_default + [
             # Retrieve the history updates since the first full synchronisation.
             HttpMock('lily/messaging/email/tests/data/get_history_unspam.json', {'status': '200'}),
             # Retrieve the message which were unmarked as spam.
-            HttpMock('lily/messaging/email/tests/data/get_short_message_info_15a6008a4baa65f3_unspam.json',
+            HttpMock('lily/messaging/email/tests/data/get_short_message_info_{0}_unspam.json'.format(message_id),
                      {'status': '200'}),
             # Retrieve a list of all available labels.
             HttpMock('lily/messaging/email/tests/data/get_label_list.json', {'status': '200'}),
@@ -680,7 +709,7 @@ class EmailTests(UserBasedTest, APITestCase):
         # Unmarking mail as spam, doesn't restore the important label.
         verify_labels[settings.GMAIL_LABEL_IMPORTANT] = False
 
-        self._test_email_message('15a6008a4baa65f3', label_data=verify_labels)
+        self._test_email_message(message_id, label_data=verify_labels)
 
     def test_incremental_synchronize_trash(self):
         """
@@ -690,11 +719,13 @@ class EmailTests(UserBasedTest, APITestCase):
         history id and synchronisation status are administered correctly. Also verify that the history update is
         reflected correctly on the right email message.
         """
+        message_id = '15a6008a4baa65f3'
+
         mock_api_calls = self.mock_api_calls_default + [
             # Retrieve the history updates since the first full synchronisation.
             HttpMock('lily/messaging/email/tests/data/get_history_trashed.json', {'status': '200'}),
             # Retrieve the trashed message.
-            HttpMock('lily/messaging/email/tests/data/get_short_message_info_15a6008a4baa65f3_trashed.json',
+            HttpMock('lily/messaging/email/tests/data/get_short_message_info_{0}_trashed.json'.format(message_id),
                      {'status': '200'}),
             # Retrieve a list of all available labels.
             HttpMock('lily/messaging/email/tests/data/get_label_list.json', {'status': '200'}),
@@ -714,7 +745,7 @@ class EmailTests(UserBasedTest, APITestCase):
         verify_labels[settings.GMAIL_LABEL_INBOX] = False
         verify_labels[settings.GMAIL_LABEL_TRASH] = True
 
-        self._test_email_message('15a6008a4baa65f3', label_data=verify_labels)
+        self._test_email_message(message_id, label_data=verify_labels)
 
     def test_incremental_synchronize_delete(self):
         """
@@ -724,6 +755,8 @@ class EmailTests(UserBasedTest, APITestCase):
         history id and synchronisation status are administered correctly. Also verify that the history update is
         reflected correctly on the right email message.
         """
+        message_id = '15a6008a4baa65f3'
+
         mock_api_calls = self.mock_api_calls_default + [
             # Retrieve the history updates since the first full synchronisation.
             HttpMock('lily/messaging/email/tests/data/get_history_delete.json', {'status': '200'}),
@@ -742,7 +775,7 @@ class EmailTests(UserBasedTest, APITestCase):
                                            history_id_after=9733)
 
         # Verify that the correct email message is gone.
-        self.assertFalse(EmailMessage.objects.filter(message_id='15a6008a4baa65f3').exists())
+        self.assertFalse(EmailMessage.objects.filter(message_id=message_id).exists())
 
     def test_incremental_synchronize_new_messages(self):
         """
@@ -753,13 +786,16 @@ class EmailTests(UserBasedTest, APITestCase):
         history id and synchronisation status are administered correctly. Also verify that the history update is
         reflected correctly on the right email message.
         """
+        message_id_1 = '15af6279f554fd15'
+        message_id_2 = '15af6279e8b72e9c'
+
         mock_api_calls = self.mock_api_calls_default + [
             # Retrieve the history updates since the first full synchronisation.
             HttpMock('lily/messaging/email/tests/data/get_history_new_messages.json', {'status': '200'}),
             # Retrieve the new messages.
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15af6279f554fd15_new.json',
+            HttpMock('lily/messaging/email/tests/data/get_message_info_{0}_new.json'.format(message_id_1),
                      {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15af6279e8b72e9c_new.json',
+            HttpMock('lily/messaging/email/tests/data/get_message_info_{0}_new.json'.format(message_id_2),
                      {'status': '200'}),
             # Retrieve a list of all available labels.
             HttpMock('lily/messaging/email/tests/data/get_label_list.json', {'status': '200'}),
@@ -778,8 +814,8 @@ class EmailTests(UserBasedTest, APITestCase):
         # Verify that the label mutation is applied on the correct email messages.
         verify_labels = self.verify_label_availability_default.copy()
 
-        self._test_email_message('15af6279f554fd15', label_data=verify_labels)
-        self._test_email_message('15af6279e8b72e9c', label_data=verify_labels)
+        self._test_email_message(message_id_1, label_data=verify_labels)
+        self._test_email_message(message_id_2, label_data=verify_labels)
 
     @patch.object(GmailService, '_get_http')
     def test_send_message(self, get_http_mock):
@@ -789,10 +825,12 @@ class EmailTests(UserBasedTest, APITestCase):
         Verifies that the correct (number of) labels and related emails are stored in the database and that the
         history id and synchronisation status are administered correctly.
         """
+        message_id = '15b33aad2c5dbe4a'
+
         mock_api_calls = self.mock_api_calls_default + [
             HttpMock('lily/messaging/email/tests/data/send_email_message.json', {'status': '200'}),
-            # Retrieve a list of all available labels.
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15b33aad2c5dbe4a.json', {'status': '200'}),
+            HttpMock('lily/messaging/email/tests/data/get_message_info_{0}.json'.format(message_id),
+                     {'status': '200'}),
         ]
 
         # Mock the http instance with succesive http mock objects.
@@ -835,7 +873,7 @@ class EmailTests(UserBasedTest, APITestCase):
         verify_labels[settings.GMAIL_LABEL_UNREAD] = False
         verify_labels[settings.GMAIL_LABEL_IMPORTANT] = False
         verify_labels[settings.GMAIL_LABEL_SENT] = True
-        self._test_email_message('15b33aad2c5dbe4a', label_data=verify_labels)
+        self._test_email_message(message_id, label_data=verify_labels)
 
         # Verify history id.
         self.email_account.refresh_from_db()
@@ -938,7 +976,7 @@ class EmailTests(UserBasedTest, APITestCase):
                 else:
                     # Mail with label_name should not be present in the database.
                     exists = email_account.labels.filter(label_id=label_name).exists()
-                    self.assertFalse(exists, "Label %s shouldn't be in the database." % label_name)
+                    self.assertFalse(exists, "Label {0} shouldn't be in the database.".format(label_name))
 
     def _verify_email_account_state(self, email_account, authorized, history_id, is_syncing):
         """
@@ -946,14 +984,14 @@ class EmailTests(UserBasedTest, APITestCase):
         """
         # Verify authorization.
         self.assertEqual(email_account.is_authorized, authorized,
-                         "Account authorization for %s incorrect." % email_account)
+                         "Account authorization for {0} incorrect.".format(email_account))
 
         # Verify history id.
         self.assertEqual(email_account.history_id, history_id, "The history id of the email account was incorrect.")
 
         # Verify if full synchronisation is in progress.
         self.assertEqual(email_account.is_syncing, is_syncing,
-                         "Status of is_syncing for %s incorrect." % email_account)
+                         "Status of is_syncing for {0} incorrect.".format(email_account))
 
     def _test_email_message(self, message_id, label_data):
         """
@@ -962,4 +1000,4 @@ class EmailTests(UserBasedTest, APITestCase):
         message = EmailMessage.objects.filter(message_id=message_id).first()
         for label_name, label_available in label_data.items():
             exists = message.labels.filter(label_id=label_name).exists()
-            self.assertEqual(exists, label_available, "Label %s error on message %s." % (label_name, message_id))
+            self.assertEqual(exists, label_available, "Label {0} error on message {1}.".format(label_name, message_id))

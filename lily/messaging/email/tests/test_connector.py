@@ -284,8 +284,8 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
             json_obj = json.load(infile)
             self.assertEqual(response, json_obj)
 
-        # Verify that the history id is retrieved from the get API response.
-        self.assertEqual(connector.history_id, u'5948')
+        # Verify that the history id is not retrieved from the get API response.
+        self.assertEqual(connector.history_id, None)
 
     @patch.object(GmailService, '_get_http')
     def test_get_label_info(self, get_http_mock):

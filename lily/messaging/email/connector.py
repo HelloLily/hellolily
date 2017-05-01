@@ -217,11 +217,6 @@ class GmailConnector(object):
             quotaUser=self.email_account.id,
         ))
 
-        history_id = response.get('historyId', self.history_id)
-        if history_id > self.history_id:
-            # Store new history id if it's past the current one.
-            self.history_id = history_id
-
         return response
 
     def get_label_list(self):

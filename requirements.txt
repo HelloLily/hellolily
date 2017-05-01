@@ -131,3 +131,4 @@ tldextract==1.7.5
 idna==2.1
 raven==5.21.0
 contextlib2==0.5.4
+phonenumberslite==8.4.2

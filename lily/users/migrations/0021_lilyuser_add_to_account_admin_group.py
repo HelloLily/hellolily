@@ -44,6 +44,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('users', '0020_set_user_info'),
         ('tenant', '0004_tenant_currency'),
+        ('auth', '0006_require_contenttypes_0002')
     ]
 
     operations = [

@@ -8,26 +8,29 @@ from lily.users.factories import LilyUserFactory
 
 
 class EmailAccountPrivacyTests(TestCase):
+
+    def setUp(self):
+        self.tenant = TenantFactory.create()
+        self.users = LilyUserFactory.create_batch(size=3)
+        self.owner = self.users[0]
+
     def test_public_account(self):
         """
         Test if having an email account set to public returns all data for everyone.
         """
-        tenant = TenantFactory.create()
-        users = LilyUserFactory.create_batch(size=3)
-        owner = users[0]
-        email_account = EmailAccountFactory.create(tenant=tenant, privacy=EmailAccount.PUBLIC, owner=owner)
+        email_account = EmailAccountFactory.create(tenant=self.tenant, privacy=EmailAccount.PUBLIC, owner=self.owner)
         # Share the email account with a user.
         config = {
-            'user': users[1],
+            'user': self.users[1],
             'email_account': email_account,
             'privacy': EmailAccount.PUBLIC,
-            'tenant': tenant,
+            'tenant': self.tenant,
         }
         email_account.sharedemailconfig_set.create(**config)
 
         email_messages = EmailMessageFactory.create_batch(account=email_account, size=10)
 
-        for user in users:
+        for user in self.users:
             filtered_messages = []
 
             for email_message in email_messages:
@@ -42,16 +45,13 @@ class EmailAccountPrivacyTests(TestCase):
         """
         Test if having an email account set to metadata only returns filtered data for unauthorized users.
         """
-        tenant = TenantFactory.create()
-        users = LilyUserFactory.create_batch(size=3)
-        owner = users[0]
-        email_account = EmailAccountFactory.create(tenant=tenant, privacy=EmailAccount.METADATA, owner=owner)
+        email_account = EmailAccountFactory.create(tenant=self.tenant, privacy=EmailAccount.METADATA, owner=self.owner)
         # Share the email account with a user.
         config = {
-            'user': users[1],
+            'user': self.users[1],
             'email_account': email_account,
             'privacy': EmailAccount.PUBLIC,
-            'tenant': tenant,
+            'tenant': self.tenant,
         }
         email_account.sharedemailconfig_set.create(**config)
 
@@ -69,7 +69,7 @@ class EmailAccountPrivacyTests(TestCase):
                 'account': email_message.account,
             })
 
-        for user in users:
+        for user in self.users:
             filtered_messages = []
 
             for email_message in email_messages:
@@ -78,7 +78,7 @@ class EmailAccountPrivacyTests(TestCase):
                 if filtered_message:
                     filtered_messages.append(filtered_message)
 
-            if self.can_view_full_message(email_account, user):
+            if self._can_view_full_message(email_account, user):
                 self.assertEqual(filtered_messages, email_messages)
             else:
                 # Comparing lists of dicts doesn't seem to work properly.
@@ -90,22 +90,19 @@ class EmailAccountPrivacyTests(TestCase):
         """
         Test if having an email account set to private returns no data for unauthorized users.
         """
-        tenant = TenantFactory.create()
-        users = LilyUserFactory.create_batch(size=3)
-        owner = users[0]
-        email_account = EmailAccountFactory.create(tenant=tenant, privacy=EmailAccount.PRIVATE, owner=owner)
+        email_account = EmailAccountFactory.create(tenant=self.tenant, privacy=EmailAccount.PRIVATE, owner=self.owner)
         # Share the email account with a user.
         config = {
-            'user': users[1],
+            'user': self.users[1],
             'email_account': email_account,
             'privacy': EmailAccount.PUBLIC,
-            'tenant': tenant,
+            'tenant': self.tenant,
         }
         email_account.sharedemailconfig_set.create(**config)
 
         email_messages = EmailMessageFactory.create_batch(account=email_account, size=10)
 
-        for user in users:
+        for user in self.users:
             filtered_messages = []
 
             for email_message in email_messages:
@@ -114,12 +111,12 @@ class EmailAccountPrivacyTests(TestCase):
                 if filtered_message:
                     filtered_messages.append(filtered_message)
 
-            if self.can_view_full_message(email_account, user):
+            if self._can_view_full_message(email_account, user):
                 self.assertEqual(filtered_messages, email_messages)
             else:
                 self.assertEqual(filtered_messages, [])
 
-    def can_view_full_message(self, email_account, user):
+    def _can_view_full_message(self, email_account, user):
         shared_config = email_account.sharedemailconfig_set.filter(user=user).first()
 
         if email_account.owner == user:

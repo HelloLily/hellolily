@@ -619,7 +619,7 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
 
     def send_message(self, email_outbox_message):
         """
-        Creates a task to asynchronously reply on an email message.
+        Creates a task to asynchronously send out a reply or forward an email message.
 
         Args:
             email_outbox_message (instance): EmailOutboxMessage instance

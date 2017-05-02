@@ -4,13 +4,13 @@ import unicodedata
 from django.utils.timezone import utc
 from factory.declarations import SubFactory, LazyAttribute
 from factory.django import DjangoModelFactory
-from factory.fuzzy import FuzzyChoice, FuzzyText
+from factory.fuzzy import FuzzyChoice, FuzzyText, FuzzyInteger
 from faker.factory import Factory
 from factory.helpers import post_generation
 
 from lily.tenant.factories import TenantFactory
 from lily.users.factories import LilyUserFactory
-from .models.models import EmailAccount, EmailMessage, Recipient
+from .models.models import EmailAccount, EmailMessage, Recipient, EmailLabel
 
 faker = Factory.create('nl_NL')
 
@@ -78,3 +78,14 @@ class EmailMessageFactory(DjangoModelFactory):
 
     class Meta:
         model = EmailMessage
+
+
+class EmailLabelFactory(DjangoModelFactory):
+    account = SubFactory(EmailAccountFactory)
+    label_type = FuzzyChoice(dict(EmailLabel.LABEL_TYPES).keys())
+    label_id = FuzzyText()
+    name = label_id
+    unread = FuzzyInteger(0, 42)
+
+    class Meta:
+        model = EmailLabel

@@ -230,6 +230,7 @@ class GmailConnector(object):
             userId='me',
             quotaUser=self.email_account.id,
         ))
+
         return response['labels']
 
     def get_label_info(self, label_id):
@@ -313,6 +314,7 @@ class GmailConnector(object):
         return response
 
     def delete_email_message(self, message_id):
+        # TODO: LILY-1906 Email messages are never deleted.
         response = self.execute_service_call(
             self.gmail_service.service.users().messages().delete(
                 userId='me',
@@ -325,8 +327,12 @@ class GmailConnector(object):
         # Possible TODO: only use MediaIOBaseUpload on large email bodys instead of always:
         # http://stackoverflow.com/questions/27875858/#33155212
         fd = StringIO(message_string)
-        media = MediaIoBaseUpload(fd, mimetype='message/rfc822', chunksize=settings.GMAIL_CHUNK_SIZE,
-                                  resumable=settings.GMAIL_UPLOAD_RESUMABLE)
+        media = MediaIoBaseUpload(
+            fd,
+            mimetype='message/rfc822',
+            chunksize=settings.GMAIL_CHUNK_SIZE,
+            resumable=settings.GMAIL_UPLOAD_RESUMABLE
+        )
 
         message_dict = {}
         if thread_id:
@@ -339,6 +345,7 @@ class GmailConnector(object):
                 media_body=media,
                 quotaUser=self.email_account.id,
             ))
+
         return response
 
     def create_draft_email_message(self, message_string):
@@ -399,7 +406,7 @@ class GmailConnector(object):
 
     def cleanup(self):
         """
-        Cleanup references, to prevent reference cycle
+        Cleanup references, to prevent reference cycle.
         """
         self.gmail_service = None
         self.email_account = None

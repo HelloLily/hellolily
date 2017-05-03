@@ -1,9 +1,12 @@
+import os
 import traceback
 import time
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import connection
+
+from slacker import Slacker
 
 from lily.search.analyzers import get_analyzers
 from lily.search.connections_utils import get_es_client, get_index_name
@@ -72,9 +75,19 @@ It is possible to specify multiple models, using comma separation."""
             if self.log_queries:
                 for query in connection.queries:
                     print query
-        except Exception:
+        except Exception, e:
             self.stderr.write('\nIndexing error.\n')
             traceback.print_exc()
+
+            heroku_env = os.environ.get('HEROKU_ENV')
+            if heroku_env == 'production':
+                travis_build = os.environ.get('TRAVIS_BUILD_ID')
+                travis_link = 'https://travis-ci.org/HelloLily/hellolily/builds/{0}'.format(travis_build)
+                slack = Slacker(os.environ.get('SLACK_API_TOKEN'))
+                slack.chat.post_message(
+                    '#lily-ci',
+                    'Indexing failed with reason `{0}` in Travis build {1}.'.format(repr(e), travis_link)
+                )
 
     def handle_args(self, *args):
         """

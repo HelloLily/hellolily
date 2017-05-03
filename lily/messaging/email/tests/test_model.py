@@ -1,7 +1,7 @@
 from datetime import datetime
 from rest_framework.test import APITestCase
 
-from lily.messaging.email.factories import GmailAccountFactory, EmailAccountFactory, EmailMessageFactory
+from lily.messaging.email.factories import EmailAccountFactory, EmailMessageFactory
 from lily.messaging.email.models.models import EmailMessage, Recipient, EmailLabel, EmailHeader, EmailAccount
 from lily.messaging.email.utils import get_filtered_message
 from lily.settings import settings
@@ -21,7 +21,7 @@ class EmailMessageTests(UserBasedTest, APITestCase):
         super(EmailMessageTests, cls).setUpTestData()
 
         # Create an email account for the user.
-        cls.email_account = GmailAccountFactory.create(owner_id=cls.user_obj.id, tenant_id=cls.user_obj.tenant_id)
+        cls.email_account = EmailAccountFactory.create(owner=cls.user_obj, tenant=cls.user_obj.tenant)
 
         # Create a default recipient
         recipient = Recipient.objects.create(
@@ -183,7 +183,7 @@ class EmailAccountTests(UserBasedTest, APITestCase):
         super(EmailAccountTests, cls).setUpTestData()
 
         # Create an email account for the user.
-        cls.email_account = GmailAccountFactory.create(owner_id=cls.user_obj.id, tenant_id=cls.user_obj.tenant_id)
+        cls.email_account = EmailAccountFactory.create(owner=cls.user_obj, tenant=cls.user_obj.tenant)
 
     def test_full_sync_needed_1(self):
         """

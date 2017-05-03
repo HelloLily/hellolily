@@ -5,7 +5,7 @@ from googleapiclient.discovery import build
 from rest_framework.test import APITestCase
 
 from lily.messaging.email.connector import GmailConnector
-from lily.messaging.email.factories import GmailAccountFactory, EmailMessageFactory, EmailLabelFactory
+from lily.messaging.email.factories import EmailAccountFactory, EmailMessageFactory, EmailLabelFactory
 from lily.messaging.email.manager import GmailManager
 from lily.messaging.email.models.models import EmailAccount, EmailMessage, EmailLabel, EmailOutboxMessage
 from lily.messaging.email.services import GmailService
@@ -41,7 +41,7 @@ class GmailManagerTests(UserBasedTest, APITestCase):
         super(GmailManagerTests, cls).setUpTestData()
 
         # Create an email account for the user.
-        GmailAccountFactory.create(owner_id=cls.user_obj.id, tenant_id=cls.user_obj.tenant_id)
+        EmailAccountFactory.create(owner=cls.user_obj, tenant=cls.user_obj.tenant)
 
     def tearDown(self):
         self.get_credentials_mock_patcher.stop()

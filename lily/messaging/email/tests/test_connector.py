@@ -6,7 +6,7 @@ from oauth2client.client import HttpAccessTokenRefreshError
 from rest_framework.test import APITestCase
 
 from lily.messaging.email.connector import GmailConnector, FailedServiceCallException
-from lily.messaging.email.factories import GmailAccountFactory
+from lily.messaging.email.factories import EmailAccountFactory
 from lily.messaging.email.models.models import EmailAccount
 from lily.messaging.email.services import GmailService
 from lily.tests.utils import UserBasedTest, get_dummy_credentials
@@ -40,7 +40,7 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
         super(GmailConnectorTests, cls).setUpTestData()
 
         # Create an email account for the user.
-        GmailAccountFactory.create(owner_id=cls.user_obj.id, tenant_id=cls.user_obj.tenant_id)
+        EmailAccountFactory.create(owner=cls.user_obj, tenant=cls.user_obj.tenant)
 
     def tearDown(self):
         self.get_credentials_mock_patcher.stop()

@@ -18,23 +18,13 @@ current_date = datetime.datetime.now()
 past_date = current_date - datetime.timedelta(days=10)
 
 
-class GmailAccountFactory(DjangoModelFactory):
-    email_address = LazyAttribute(lambda o: unicodedata.normalize('NFD', faker.safe_email()).encode('ascii', 'ignore'))
-    from_name = LazyAttribute(lambda o: faker.first_name().lower())
-    label = from_name
-    is_authorized = True
-
-    class Meta:
-        model = EmailAccount
-
-
 class EmailAccountFactory(DjangoModelFactory):
     tenant = SubFactory(TenantFactory)
     owner = SubFactory(LilyUserFactory)
     email_address = LazyAttribute(lambda o: unicodedata.normalize('NFD', faker.safe_email()).encode('ascii', 'ignore'))
     from_name = LazyAttribute(lambda o: faker.name())
     label = LazyAttribute(lambda o: faker.word())
-    is_authorized = False
+    is_authorized = True
     privacy = FuzzyChoice(dict(EmailAccount.PRIVACY_CHOICES).keys())
 
     class Meta:

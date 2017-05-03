@@ -68,12 +68,13 @@ class GmailManagerTests(UserBasedTest, APITestCase):
 
         # Count the number of times the send_task mock was called to download a new message or to administer the
         # synchronization finished.
-        no_call_download_email_message = sum(
+        call_download_email_message_count = sum(
             call[0][0] == 'download_email_message' for call in send_task_mock.call_args_list)
-        no_call_full_sync_finished = sum(call[0][0] == 'full_sync_finished' for call in send_task_mock.call_args_list)
+        call_full_sync_finished_count = sum(
+            call[0][0] == 'full_sync_finished' for call in send_task_mock.call_args_list)
 
-        self.assertEqual(no_call_download_email_message, len(messages))
-        self.assertEqual(no_call_full_sync_finished, 1)
+        self.assertEqual(call_download_email_message_count, len(messages))
+        self.assertEqual(call_full_sync_finished_count, 1)
 
     @patch.object(GmailConnector, 'get_message_info')
     def test_download_message(self, get_message_info_mock):
@@ -154,22 +155,61 @@ class GmailManagerTests(UserBasedTest, APITestCase):
         """
         Test the GmailManager on synchronizing the labels for the email account.
         """
-
-        # First test adding new labels.
+        mock_list = []
+        # Mock adding new labels.
         with open('lily/messaging/email/tests/data/get_label_list.json') as infile:
             json_obj = json.load(infile)
-            labels = json_obj['labels']
-            get_label_list_mock.return_value = labels
+            api_labels_count = len(json_obj['labels'])
+            mock_list.append(json_obj['labels'])
+
+        # Mock renaming two labels.
+        with open('lily/messaging/email/tests/data/get_label_list_rename.json') as infile:
+            json_obj = json.load(infile)
+            mock_list.append(json_obj['labels'])
+
+        # Mock removing two labels.
+        with open('lily/messaging/email/tests/data/get_label_list_remove.json') as infile:
+            json_obj = json.load(infile)
+            mock_list.append(json_obj['labels'])
+
+        get_label_list_mock.side_effect = mock_list
 
         email_account = EmailAccount.objects.first()
         manager = GmailManager(email_account)
-        manager.sync_labels()
+        manager.sync_labels()  # First mock will add new labels to the database.
 
         # Verify that the correct number of labels are present in the database.
-        self.assertEqual(EmailLabel.objects.filter(account=email_account).count(), len(labels))
+        self.assertEqual(EmailLabel.objects.filter(account=email_account).count(), api_labels_count)
 
-        # TODO: Add test renaming a label.
-        # TODO: Add test removing a label.
+        # Verify the names of the two labels before the rename.
+        label_1 = EmailLabel.objects.get(account=email_account, label_id='Label_1')
+        label_2 = EmailLabel.objects.get(account=email_account, label_id='Label_2')
+        self.assertEqual('label one', label_1.name, 'Label name before renaming is incorrect.')
+        self.assertEqual('label two', label_2.name, 'Label name before renaming is incorrect.')
+
+        manager.sync_labels()  # Second mock will rename two labels in the database.
+
+        # Verify that the correct number of labels are still present in the database.
+        self.assertEqual(EmailLabel.objects.filter(account=email_account).count(), api_labels_count)
+
+        # Verify the names of the two labels after the rename.
+        label_1.refresh_from_db()
+        label_2.refresh_from_db()
+        self.assertEqual('label one renamed', label_1.name, 'Label name after renaming is incorrect.')
+        self.assertEqual('label two renamed', label_2.name, 'Label name after renaming is incorrect.')
+
+        # Verify that the two specific labels are present before removing.
+        self.assertTrue(EmailLabel.objects.filter(account=email_account, label_id='Label_1').exists())
+        self.assertTrue(EmailLabel.objects.filter(account=email_account, label_id='Label_2').exists())
+
+        manager.sync_labels()  # Third mock will remove two labels from the database.
+
+        # Verify that the correct number of labels present in the database, which is 2 less then initially were added.
+        self.assertEqual(EmailLabel.objects.filter(account=email_account).count(), api_labels_count - 2)
+
+        # Verify that the two specific labels are removed.
+        self.assertFalse(EmailLabel.objects.filter(account=email_account, label_id='Label_1').exists())
+        self.assertFalse(EmailLabel.objects.filter(account=email_account, label_id='Label_2').exists())
 
     @patch.object(GmailConnector, 'get_label_info')
     def test_get_label(self, get_label_info_mock):

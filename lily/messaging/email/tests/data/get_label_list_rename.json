@@ -1,0 +1,110 @@
+{
+  "labels": [
+    {
+      "type": "system",
+      "labelListVisibility": "labelHide",
+      "messageListVisibility": "hide",
+      "id": "CATEGORY_PERSONAL",
+      "name": "CATEGORY_PERSONAL"
+    },
+    {
+      "type": "system",
+      "labelListVisibility": "labelHide",
+      "messageListVisibility": "hide",
+      "id": "CATEGORY_SOCIAL",
+      "name": "CATEGORY_SOCIAL"
+    },
+    {
+      "type": "user",
+      "labelListVisibility": "labelShow",
+      "messageListVisibility": "show",
+      "id": "Label_1",
+      "name": "label one renamed"
+    },
+    {
+      "type": "system",
+      "labelListVisibility": "labelHide",
+      "messageListVisibility": "hide",
+      "id": "CATEGORY_UPDATES",
+      "name": "CATEGORY_UPDATES"
+    },
+    {
+      "type": "system",
+      "labelListVisibility": "labelHide",
+      "messageListVisibility": "hide",
+      "id": "CATEGORY_FORUMS",
+      "name": "CATEGORY_FORUMS"
+    },
+    {
+      "type": "system",
+      "labelListVisibility": "labelHide",
+      "messageListVisibility": "hide",
+      "id": "CHAT",
+      "name": "CHAT"
+    },
+    {
+      "type": "user",
+      "id": "Label_2",
+      "name": "label two renamed"
+    },
+    {
+      "type": "system",
+      "labelListVisibility": "labelShow",
+      "messageListVisibility": "hide",
+      "id": "SENT",
+      "name": "SENT"
+    },
+    {
+      "type": "system",
+      "labelListVisibility": "labelShow",
+      "messageListVisibility": "hide",
+      "id": "INBOX",
+      "name": "INBOX"
+    },
+    {
+      "type": "system",
+      "labelListVisibility": "labelHide",
+      "messageListVisibility": "hide",
+      "id": "TRASH",
+      "name": "TRASH"
+    },
+    {
+      "type": "system",
+      "labelListVisibility": "labelHide",
+      "messageListVisibility": "hide",
+      "id": "CATEGORY_PROMOTIONS",
+      "name": "CATEGORY_PROMOTIONS"
+    },
+    {
+      "type": "system",
+      "id": "DRAFT",
+      "name": "DRAFT"
+    },
+    {
+      "type": "system",
+      "labelListVisibility": "labelHide",
+      "messageListVisibility": "hide",
+      "id": "SPAM",
+      "name": "SPAM"
+    },
+    {
+      "type": "system",
+      "labelListVisibility": "labelShow",
+      "messageListVisibility": "hide",
+      "id": "STARRED",
+      "name": "STARRED"
+    },
+    {
+      "type": "system",
+      "id": "UNREAD",
+      "name": "UNREAD"
+    },
+    {
+      "type": "system",
+      "labelListVisibility": "labelHide",
+      "messageListVisibility": "hide",
+      "id": "IMPORTANT",
+      "name": "IMPORTANT"
+    }
+  ]
+}

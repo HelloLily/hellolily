@@ -206,31 +206,55 @@ class GmailManager(object):
         Fetches all the labels for the email account.
         Add, remove and rename the labels in the database retrieved from the api.
         """
-        labels = self.connector.get_label_list()
-        if not len(labels):
-            return
 
-        # Loop over all the labels retrieved from the api, not just the labels missing in the db.
-        # By this, renamed labels in gmail are also updated in the db.
-        for label in labels:
-            self.label_builder.get_or_create_label(label)
+        # Get all labels from Google.
+        api_labels = self.connector.get_label_list()
+        # Get all labels from the database.
+        db_labels = self.email_account.labels.all()
 
-        # Determine which labels to remove from the database.
-        set_api_labels = set([x['id'] for x in labels])
-        set_existing_labels = set(self.email_account.labels.all().values_list('label_id', flat=True))
-        set_remove_labels = set_existing_labels.difference(set_api_labels)
-        if len(set_remove_labels):
-            remove_labels = EmailLabel.objects.filter(
+        # Create sets of the API and database labels.
+        api_label_set = set(label['id'] for label in api_labels)
+        db_label_set = set(label.label_id for label in db_labels)
+
+        # Determine with set operations which labels to remove and which to create or update.
+        create_label_ids = api_label_set - db_label_set  # Labels that exist in Gmail but not in our db.
+        update_label_ids = api_label_set & db_label_set  # Labels that exist both in Gmail and in our db.
+        delete_label_ids = db_label_set - api_label_set  # Labels that exist in our db but not in Gmail.
+
+        # Apply database changes.
+        if create_label_ids:
+            bulk = []
+            for api_label in api_labels:
+                if api_label['id'] in create_label_ids:
+                    label_type = EmailLabel.LABEL_SYSTEM if api_label['type'] == 'system' else EmailLabel.LABEL_USER
+                    bulk.append(
+                        EmailLabel(
+                            account=self.email_account,
+                            label_id=api_label['id'],
+                            name=api_label['name'],
+                            label_type=label_type
+                        )
+                    )
+
+            EmailLabel.objects.bulk_create(bulk)
+
+        if update_label_ids:
+            # Use dict comprehension to get dictonaries with the label_id as the keys and
+            api_label_dict = {label['id']: label['name'] for label in api_labels}  # the name as the value.
+            db_label_dict = {label.label_id: label for label in db_labels}  # the label as the value.
+            for label_id in update_label_ids:
+                if api_label_dict[label_id] != db_label_dict[label_id].name:
+                    # Only update labels with a changed name.
+                    label = db_label_dict[label_id]
+                    label.name = api_label_dict[label_id]
+                    label.save()
+
+        if delete_label_ids:
+            # TODO: LILY-2342 Research that removing a label isn't deleting messages on cascade.
+            EmailLabel.objects.filter(
                 account=self.email_account,
-                label_id__in=set_remove_labels
-            )
-
-            if EmailMessage.objects.filter(account=self.email_account, labels=remove_labels).count() == 0:
-                # There are no emails attached, so remove the labels.
-                EmailLabel.objects.filter(
-                    account=self.email_account,
-                    label_id__in=set_remove_labels
-                ).delete()
+                label_id__in=delete_label_ids
+            ).delete()
 
     def update_unread_count(self):
         """

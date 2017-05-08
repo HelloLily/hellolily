@@ -29,10 +29,11 @@ function accountConfig($stateProvider) {
  */
 angular.module('app.accounts').controller('AccountList', AccountList);
 
-AccountList.$inject = ['$scope', '$window', 'Settings', 'Account', 'LocalStorage'];
-function AccountList($scope, $window, Settings, Account, LocalStorage) {
+AccountList.$inject = ['$filter', '$scope', '$window', 'Settings', 'Account', 'LocalStorage', 'HLFilters'];
+function AccountList($filter, $scope, $window, Settings, Account, LocalStorage, HLFilters) {
     var vm = this;
-    var storage = new LocalStorage('accountList');
+    vm.storage = new LocalStorage('accountList');
+    vm.storedFilterList = vm.storage.get('filterListSelected', null);
     /**
      * Stores all the information to correctly display the table.
      */
@@ -40,12 +41,12 @@ function AccountList($scope, $window, Settings, Account, LocalStorage) {
         page: 1,  // current page of pagination: 1-index
         pageSize: 20,  // number of items per page
         totalItems: 0, // total number of items
-        filter: storage.get('filter', ''),  // search filter
-        order: storage.get('order', {
+        filter: vm.storage.get('filter', ''),  // search filter
+        order: vm.storage.get('order', {
             descending: true,
             column: 'modified',  // string: current sorted column
         }),
-        visibility: storage.get('visibility', {
+        visibility: vm.storage.get('visibility', {
             name: true,
             contactInformation: true,
             assignedTo: true,
@@ -59,6 +60,7 @@ function AccountList($scope, $window, Settings, Account, LocalStorage) {
     vm.showEmptyState = false;
 
     vm.removeFromList = removeFromList;
+    vm.filterList = [];
     vm.setFilter = setFilter;
     vm.exportToCsv = exportToCsv;
 
@@ -68,8 +70,8 @@ function AccountList($scope, $window, Settings, Account, LocalStorage) {
 
     function activate() {
         _setupWatches();
-
         showEmptyState();
+        _getFilterOnList();
     }
 
     Settings.page.setAllTitles('list', 'accounts');
@@ -84,9 +86,39 @@ function AccountList($scope, $window, Settings, Account, LocalStorage) {
      * _updateTableSettings() puts the scope variables in local storage
      */
     function _updateTableSettings() {
-        storage.put('filter', vm.table.filter);
-        storage.put('order', vm.table.order);
-        storage.put('visibility', vm.table.visibility);
+        vm.storage.put('filter', vm.table.filter);
+        vm.storage.put('order', vm.table.order);
+        vm.storage.put('visibility', vm.table.visibility);
+        vm.storage.put('filterListSelected', vm.filterList);
+    }
+
+    function _getFilterOnList() {
+        var filterList = [];
+
+        // Use the value from storage first.
+        // (Because it is faster; loading the list uses AJAX requests).
+        if (vm.storedFilterList) {
+            vm.filterList = vm.storedFilterList;
+        }
+
+        Account.getStatuses(function(response) {
+            angular.forEach(response.results, function(status) {
+                filterList.push({
+                    name: status.name,
+                    value: 'status.id:' + status.id,
+                    selected: false,
+                    isSpecialFilter: true,
+                });
+            });
+
+            // Merge previous stored selection with new filters.
+            HLFilters.getStoredSelections(filterList, vm.storedFilterList);
+
+            vm.filterList = filterList;
+
+            // Watch doesn't get triggered here, so manually call _updateTableSettings.
+            _updateTableSettings();
+        });
     }
 
     /**
@@ -100,7 +132,8 @@ function AccountList($scope, $window, Settings, Account, LocalStorage) {
             vm.table.page,
             vm.table.pageSize,
             vm.table.order.column,
-            vm.table.order.descending
+            vm.table.order.descending,
+            vm.table.filterQuery
         ).then(function(data) {
             vm.table.items = data.accounts;
             vm.table.totalItems = data.total;
@@ -112,7 +145,13 @@ function AccountList($scope, $window, Settings, Account, LocalStorage) {
          * Watches the model info from the table that, when changed,
          * needs a new set of accounts
          */
-        $scope.$watchGroup(['vm.table.page', 'vm.table.order.column', 'vm.table.order.descending', 'vm.table.filter'], function() {
+        $scope.$watchGroup([
+            'vm.table.page',
+            'vm.table.order.column',
+            'vm.table.order.descending',
+            'vm.table.filter',
+            'vm.table.filterQuery',
+        ], function() {
             _updateTableSettings();
             _updateAccounts();
         });
@@ -124,6 +163,26 @@ function AccountList($scope, $window, Settings, Account, LocalStorage) {
         $scope.$watchCollection('vm.table.visibility', function() {
             _updateTableSettings();
         });
+
+        /**
+         * Watches the filters so when the values are retrieved from local storage,
+         * the filterQuery changes and a new set of deals is fetched
+         */
+        $scope.$watch('vm.filterList', function() {
+            updateFilterQuery();
+
+            vm.selectedFilters = $filter('filter')(vm.filterList, {selected: true});
+        }, true);
+    }
+
+    /**
+     * setSearchQuery() sets the search query of the table
+     *
+     * @param queryString string: string that will be set as the new search query on the table
+     */
+
+    function updateFilterQuery() {
+        HLFilters.updateFilterQuery(vm, true);
     }
 
 

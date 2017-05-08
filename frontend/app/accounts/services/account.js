@@ -109,6 +109,7 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
      * @param pageSize {int}: current page size of pagination
      * @param orderColumn {string}: current sorting of accounts
      * @param orderedAsc {boolean}: current ordering
+     * @param filterQuery {string}: Contains the filters which are used in Elasticsearch.
      *
      * @returns Promise object: when promise is completed:
      *      {
@@ -116,7 +117,7 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
      *          total int: total number of account objects
      *      }
      */
-    function getAccounts(queryString, page, pageSize, orderColumn, orderedAsc) {
+    function getAccounts(queryString, page, pageSize, orderColumn, orderedAsc, filterQuery) {
         var sort = '';
         if (orderedAsc) sort += '-';
         sort += orderColumn;
@@ -130,6 +131,7 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
                 page: page - 1,
                 size: pageSize,
                 sort: sort,
+                filterquery: filterQuery,
             },
         }).then(function(response) {
             return {

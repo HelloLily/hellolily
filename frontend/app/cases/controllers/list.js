@@ -85,7 +85,13 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, LocalSto
     }
 
     function updateModel(data, field) {
-        return Case.updateModel(data, field).then(function() {
+        let filtered = $filter('where')(vm.table.items, {id: data.id});
+
+        if (filtered.length) {
+            filtered = filtered[0];
+        }
+
+        return Case.updateModel(data, field, filtered).then(() => {
             _updateCases();
         });
     }

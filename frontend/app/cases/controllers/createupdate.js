@@ -233,7 +233,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
                 vm.case.expires = moment();
             }
 
-            vm.case.expires = HLUtils.addBusinessDays(vm.casePriorities[vm.case.priority].dateIncrement);
+            vm.case.expires = HLUtils.addBusinessDays(vm.casePriorities[vm.case.priority].date_increment);
         }
     });
 

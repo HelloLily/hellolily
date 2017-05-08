@@ -41,9 +41,11 @@ function HLSearch($injector, Tag) {
         var query = searchQuery + ',' + contentTypeQuery;
         var filterquery = contentTypeQuery;
 
-        // Exclude tags already selected.
-        for (i = 0; i < tags.length; i++) {
-            filterquery += ' AND NOT name_flat:' + tags[i].name;
+        if (tags) {
+            // Exclude tags already selected.
+            for (i = 0; i < tags.length; i++) {
+                filterquery += ' AND NOT name_flat:' + tags[i].name;
+            }
         }
 
         tagsPromise = Tag.search({query: query, filterquery: filterquery});

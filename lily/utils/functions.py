@@ -5,6 +5,7 @@ import datetime
 from time import time
 
 import anyjson
+import phonenumbers
 import requests
 from django import forms
 from django.conf import settings
@@ -87,6 +88,11 @@ def parse_phone_number(raw_number):
         number = '+' + number
 
     return number
+
+
+def format_phone_number(number, country_code=None, number_format=phonenumbers.PhoneNumberFormat.NATIONAL):
+    parsed_number = phonenumbers.parse(number, country_code)
+    return phonenumbers.format_number(parsed_number, number_format).replace(' ', '')
 
 
 def parse_address(address):

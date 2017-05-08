@@ -3,6 +3,7 @@ from lily.contacts.models import Function
 from lily.search.base_mapping import BaseMapping
 from lily.socialmedia.models import SocialMedia
 from lily.tags.models import Tag
+from lily.utils.functions import format_phone_number
 from lily.utils.models.models import EmailAddress, PhoneNumber, Address
 
 from .models import Account
@@ -76,6 +77,10 @@ class AccountMapping(BaseMapping):
                 'properties': {
                     'id': {'type': 'integer'},
                     'number': {
+                        'type': 'string',
+                        'index_analyzer': 'normal_ngram_analyzer',
+                    },
+                    'formatted_number': {
                         'type': 'string',
                         'index_analyzer': 'normal_ngram_analyzer',
                     },
@@ -198,6 +203,7 @@ class AccountMapping(BaseMapping):
             'phone_numbers': [{
                 'id': phone_number.id,
                 'number': phone_number.number,
+                'formatted_number': format_phone_number(phone_number.number),
                 'type': phone_number.type,
                 'status': phone_number.status,
                 'status_name': phone_number.get_status_display(),

@@ -2,6 +2,7 @@ from lily.accounts.models import Account
 
 from lily.search.base_mapping import BaseMapping
 from lily.tags.models import Tag
+from lily.utils.functions import format_phone_number
 from lily.utils.models.models import EmailAddress, PhoneNumber, Address
 from lily.socialmedia.models import SocialMedia
 
@@ -29,7 +30,20 @@ class ContactMapping(BaseMapping):
                         'analyzer': 'normal_edge_analyzer',
                     },
                     'customer_id': {'type': 'string'},
-                    'function': {'type': 'string'}
+                    'function': {'type': 'string'},
+                    'phone_numbers': {
+                        'type': 'object',
+                        'properties': {
+                            'number': {
+                                'type': 'string',
+                                'index_analyzer': 'normal_ngram_analyzer',
+                            },
+                            'formatted_number': {
+                                'type': 'string',
+                                'index_analyzer': 'normal_ngram_analyzer',
+                            },
+                        },
+                    }
                 }
             },
             'full_name': {
@@ -89,6 +103,10 @@ class ContactMapping(BaseMapping):
                 'properties': {
                     'id': {'type': 'integer'},
                     'number': {
+                        'type': 'string',
+                        'index_analyzer': 'normal_ngram_analyzer',
+                    },
+                    'formatted_number': {
                         'type': 'string',
                         'index_analyzer': 'normal_ngram_analyzer',
                     },
@@ -176,6 +194,7 @@ class ContactMapping(BaseMapping):
             'phone_numbers': [{
                 'id': phone_number.id,
                 'number': phone_number.number,
+                'formatted_number': format_phone_number(phone_number.number),
                 'type': phone_number.type,
                 'status': phone_number.status,
                 'status_name': phone_number.get_status_display(),
@@ -202,7 +221,11 @@ class ContactMapping(BaseMapping):
                 'id': function.account_id,
                 'name': function.account.name if function.account.name else '',
                 'customer_id': function.account.customer_id,
-                'function': function.title
+                'function': function.title,
+                'phone_numbers': [{
+                    'number': phone_number.number,
+                    'formatted_number': format_phone_number(phone_number.number),
+                } for phone_number in function.account.phone_numbers.all()],
             }
 
             doc.setdefault('accounts', []).append(account)

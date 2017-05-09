@@ -91,8 +91,14 @@ def parse_phone_number(raw_number):
 
 
 def format_phone_number(number, country_code=None, number_format=phonenumbers.PhoneNumberFormat.NATIONAL):
-    parsed_number = phonenumbers.parse(number, country_code)
-    return phonenumbers.format_number(parsed_number, number_format).replace(' ', '')
+    try:
+        parsed_number = phonenumbers.parse(number, country_code)
+    except:
+        parsed_number = ''
+    else:
+        parsed_number = phonenumbers.format_number(parsed_number, number_format).replace(' ', '')
+
+    return parsed_number
 
 
 def parse_address(address):

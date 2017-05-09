@@ -229,7 +229,7 @@ class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializer
             # Save the reverse many to manys with a through model.
             self.save_many_to_many_through_reverse_fields(cleanup=True)
 
-        self.call_webhook(validated_data)
+        self.call_webhook(validated_data, self.instance)
 
         return self.instance
 
@@ -381,12 +381,15 @@ class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializer
                 data = {
                     'type': model,
                     'data': original_validated_data,
+                    'object': self.data,
+                    'event': 'create',
                 }
             else:
                 data = {
                     'type': model,
                     'data': original_validated_data,
                     'object': self.data,
+                    'event': 'update',
                 }
 
             data = json.dumps(data, sort_keys=True, default=lambda x: str(x))

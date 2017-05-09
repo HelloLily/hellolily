@@ -12,7 +12,7 @@ from .forms import CustomPasswordResetForm, CustomSetPasswordForm
 
 urlpatterns = [
     # Registration
-    url(r'^registration/$', RegistrationView.as_view(), name='registration'),
+    url(r'^register/$', RegistrationView.as_view(), name='register'),
 
     # Activation
     url(r'^activation/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/$', ActivationView.as_view(), name='activation'),

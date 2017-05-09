@@ -3,11 +3,12 @@ from hashlib import sha256
 
 import anyjson
 from django.conf import settings
-from django.contrib import messages
+from django.contrib import messages, auth
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.auth.views import login
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
+from django.core.management import call_command
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
@@ -19,10 +20,10 @@ from django.utils.translation import ugettext_lazy as _
 from extra_views import FormSetView
 from templated_email import send_templated_mail
 
-
 from lily.utils.functions import is_ajax, post_intercom_event
+from lily.tenant.models import Tenant
 
-from .forms import (CustomAuthenticationForm, RegistrationForm, ResendActivationForm, InvitationForm,
+from .forms import (CustomAuthenticationForm, TenantRegistrationForm, ResendActivationForm, InvitationForm,
                     InvitationFormset, UserRegistrationForm)
 from .models import LilyUser
 
@@ -32,7 +33,7 @@ class RegistrationView(FormView):
     This view shows and handles the registration form, when valid register a new user.
     """
     template_name = 'users/registration.html'
-    form_class = RegistrationForm
+    form_class = TenantRegistrationForm
 
     def get(self, request, *args, **kwargs):
         # Show a different template when registration is closed.
@@ -51,13 +52,21 @@ class RegistrationView(FormView):
             messages.error(self.request, _('I\'m sorry, but I can\'t let anyone register at the moment.'))
             return redirect(reverse_lazy('login'))
 
+        tenant_name = form.cleaned_data['tenant_name']
+        tenant_country = form.cleaned_data['country']
+
+        tenant = Tenant.objects.create(
+            name=tenant_name,
+            country=tenant_country,
+        )
+
         # Create and save user
         user = LilyUser.objects.create_user(
             email=form.cleaned_data['email'],
             password=form.cleaned_data['password'],
             first_name=form.cleaned_data['first_name'],
             last_name=form.cleaned_data['last_name'],
-            position=form.cleaned_data['position'],
+            tenant_id=tenant.id,
         )
 
         user.is_active = False
@@ -141,12 +150,17 @@ class ActivationView(TemplateView):
             # Show template as per normal TemplateView behaviour
             return TemplateView.get(self, request, *args, **kwargs)
 
+        call_command('create_tenant', tenant=user.tenant.id)
+
         # Set is_active to True and save the user
         user.is_active = True
         user.save()
 
-        # Redirect to dashboard
-        return redirect(reverse_lazy('login'))
+        # Programmatically login the user.
+        user.backend = settings.AUTHENTICATION_BACKENDS[0]
+        auth.login(request, user)
+
+        return redirect(reverse_lazy('base_view'))
 
 
 class ActivationResendView(FormView):

@@ -1,19 +1,98 @@
 {% extends 'anonymous/form.html' %}
 
-{% load bootstrap3 i18n %}
+{% load bootstrap3 i18n staticfiles %}
 
-{% block head-title %}{% trans 'Registration' %}{% endblock %}
-{% block page-title %}{% trans 'Registration' %}{% endblock %}
+{% block head-title %}{% trans 'Register company' %}{% endblock %}
+{% block page-title %}{% trans 'Register company' %}{% endblock %}
 
-{% block form-class %}form-horizontal{% endblock %}
-
-{% block form-bootstrap-field %}
-    {% bootstrap_field field field_class="col-md-8" label_class="col-md-4 control-label" %}
+{% block form-portlet %}
 {% endblock %}
 
-{% block form-actions-extra-class %}float-rigtht{% endblock %}
+{% block page-content %}
+    <div class="row">
+        <div class="col-xs-12 col-sm-8 col-md-8 col-lg-6 col-sm-offset-2 col-md-offset-2 col-lg-offset-3">
+            {% if form.non_field_errors %}
+                <div class="error">
+                    {% for error in form.non_field_errors %}
+                        {{ error }}
+                        {% if not forloop.last %}
+                            <br />
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
 
-{% block form-actions-btn-text %}
-    {% trans 'Register' %}
-    <i class="m-icon-swapright m-icon-white"></i>
-{% endblock %}
+            {% block content %}
+                <form class="hl-form-body no-border {% if form.non_field_errors %}errors{%endif%}" id="{% block form-id %}{% endblock %}" method="post" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %} role="form">
+                    {% csrf_token %}
+                    {% block help-text %}{% endblock %}
+
+                    {% for field in form.hidden_fields %}
+                        {{ field }}
+                    {% endfor %}
+
+                    {% block form-fields %}
+                        <div class="hl-form-section">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-2 col-lg-2">
+                                    <div class="hl-form-section-heading">
+                                        Who are you?
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-12 col-sm-9 col-md-8">
+                                    <div class="hl-form-section-content">
+                                        {% for field in form.visible_fields %}
+                                            {% if not field.name == 'email' and not field.name == 'password' %}
+                                                {% bootstrap_field field form_group_class="hl-form-field" label_class="required" %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="hl-form-section">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-3 col-md-2 col-lg-2">
+                                    <div class="hl-form-section-heading">
+                                        Login credentials
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-12 col-sm-9 col-md-8">
+                                    <div class="hl-form-section-content">
+                                        {% for field in form.visible_fields %}
+                                            {% if field.name == 'email' or field.name == 'password' %}
+                                                {% bootstrap_field field form_group_class="hl-form-field" label_class="required" %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endblock %}
+
+                    {% block form-actions %}
+                        <div class="col-xs-12 col-sm-3 col-md-2 col-lg-2"></div>
+                        <button type="submit" class="hl-primary-btn-blue">Register</button>
+                    {% endblock %}
+                </form>
+            {% endblock %}
+        </div>
+    </div>
+{% endblock page-content %}
+
+{% block page-scripts %}
+    <script>
+        $(document).ready(function() {
+            // Reveal password by default and create an inner toggle
+            $('#id_password').hideShowPassword(false, true, {
+                toggle: {
+                    className: 'hideshowpassword-toggle',
+                },
+            });
+        });
+    </script>
+{% endblock page-scripts %}
+

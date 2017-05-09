@@ -55,6 +55,8 @@ function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLa
     };
 
     vm.showEmptyState = false;
+    vm.syncInProgress = false;
+    vm.syncMessage = false;
 
     vm.setPage = setPage;
     vm.toggleCheckboxes = toggleCheckboxes;
@@ -124,6 +126,9 @@ function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLa
         EmailAccount.query({}, function(data) {
             if (data.pagination.total === 0) {
                 vm.showEmptyState = true;
+            } else {
+                let synced = data.results.filter(account => account.is_syncing === false);
+                vm.syncInProgress = synced.length ? false : true;
             }
         });
     }
@@ -450,6 +455,7 @@ function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLa
             }
 
             vm.emailMessages = data.hits;
+            vm.syncMessage = vm.syncInProgress && data.hits.length === 0;
             vm.table.totalItems = data.total;
 
             HLUtils.unblockUI('#emailBase');

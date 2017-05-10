@@ -68,6 +68,11 @@
             .on('click', cf.insertButton, function(event) {
                 var templateVariable = $(cf.templateVariableField).html();
 
+                if (templateVariable.includes('profile_picture')) {
+                    // Since it's an image we have to manually insert the proper tag.
+                    templateVariable = '<img id="profile-picture" src="' + currentUser.picture + '" />';
+                }
+
                 HLInbox.getEditor().focus();
                 HLInbox.getEditor().composer.commands.exec('insertHTML', templateVariable);
 
@@ -224,6 +229,8 @@
             $containerDiv[0].innerHTML = HLInbox.getEditor().getValue();
             // Remove resize div
             $containerDiv.find('#resize-div').remove();
+            // Replace preview picture with Django compatible variable.
+            $containerDiv.find('#profile-picture').attr('src', '[[ user.profile_picture ]]');
 
             /**
              * You'd expect HLInbox.getEditor().setValue or $('#id_body_html').html

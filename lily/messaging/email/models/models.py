@@ -84,6 +84,7 @@ class EmailAccount(TenantMixin, DeletedMixin):
     temp_history_id = models.BigIntegerField(null=True)
     is_syncing = models.BooleanField(default=False)
     sync_failure_count = models.PositiveSmallIntegerField(default=0)
+    only_new = models.NullBooleanField(default=False)
 
     owner = models.ForeignKey(LilyUser, related_name='email_accounts_owned')
     shared_with_users = models.ManyToManyField(

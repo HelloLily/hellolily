@@ -6,13 +6,14 @@ from django.utils.translation import ugettext_lazy as _
 
 from lily.utils.views import RedirectSetMessageView
 from .views import (AcceptInvitationView, RegistrationView, ActivationView, ActivationResendView, LoginView,
-                    SendInvitationView)
+                    SendInvitationView, ConfirmationView)
 from .forms import CustomPasswordResetForm, CustomSetPasswordForm
 
 
 urlpatterns = [
     # Registration
     url(r'^register/$', RegistrationView.as_view(), name='register'),
+    url(r'^register/confirmation/$', ConfirmationView.as_view(), name='confirmation'),
 
     # Activation
     url(r'^activation/(?P<uidb36>[0-9A-Za-z]+)-(?P<token>.+)/$', ActivationView.as_view(), name='activation'),

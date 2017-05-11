@@ -94,8 +94,7 @@ function EmailAccountUpdateController($scope, $state, $stateParams, $timeout, HL
     var vm = this;
 
     vm.emailAccount = emailAccount;
-    vm.emailAccount.only_new = false;
-
+    vm.onlyNew = null;
     vm.privacyOptions = EmailAccount.getPrivacyOptions();
     vm.privacyOverride = EmailAccount.PUBLIC;
     vm.shareAdditions = [];
@@ -159,10 +158,13 @@ function EmailAccountUpdateController($scope, $state, $stateParams, $timeout, HL
             id: cleanedAccount.id,
             from_name: cleanedAccount.from_name,
             label: cleanedAccount.label,
-            only_new: cleanedAccount.only_new,
             privacy: cleanedAccount.privacy,
             shared_email_configs: cleanedAccount.shared_email_configs,
         };
+
+        if (vm.emailAccount.only_new === null && vm.onlyNew !== null) {
+            args.only_new = vm.onlyNew;
+        }
 
         HLForms.blockUI();
         HLForms.clearErrors(form);

@@ -116,6 +116,10 @@ class OAuth2Callback(LoginRequiredMixin, View):
         storage.put(credentials)
 
         account.is_deleted = False
+
+        if created:
+            account.only_new = None
+
         account.save()
 
         post_intercom_event(event_name='email-account-added', user_id=request.user.id)

@@ -305,7 +305,7 @@ def add_business_days(days_to_add, date=None):
     return date
 
 
-def has_required_tier(required_tier=1):
+def has_required_tier(required_tier):
     """
     Check if the current payment plan has access to the feature.
     This is done by comparing the tenant's current tier with the required tier.

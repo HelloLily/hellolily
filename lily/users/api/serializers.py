@@ -91,7 +91,7 @@ class LilyUserSerializer(WritableNestedSerializer):
         return value
 
     def create(self, validated_data):
-        if not has_required_tier():
+        if not has_required_tier(1):
             raise PermissionDenied
 
         return super(LilyUserSerializer, self).create(validated_data)

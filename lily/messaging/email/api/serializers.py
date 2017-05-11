@@ -153,6 +153,9 @@ class EmailAccountSerializer(WritableNestedSerializer):
             default_privacy = self.model_fields.get('privacy').default
 
             if user.tenant.billing.is_free_plan and privacy != default_privacy:
+                # If the tenant is on the free plan they aren't allowed to change the privacy settings.
+                # So if the privacy is in the request we want to check
+                # if it's something other than the fields' default value.
                 raise PermissionDenied
 
         if 'sharedemailconfig_set' in validated_data:

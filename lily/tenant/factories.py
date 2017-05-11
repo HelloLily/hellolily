@@ -1,7 +1,7 @@
 from factory import LazyAttribute, post_generation
 from factory.django import DjangoModelFactory
 from factory.declarations import SubFactory
-from factory.fuzzy import FuzzyChoice, FuzzyInteger
+from factory.fuzzy import FuzzyChoice
 from faker.factory import Factory
 
 from lily.billing.models import Plan, Billing
@@ -13,8 +13,8 @@ faker = Factory.create('nl_NL')
 
 
 class PlanFactory(DjangoModelFactory):
-    name = LazyAttribute(lambda o: faker.word())
-    tier = FuzzyInteger(0, 2)
+    name = LazyAttribute(lambda o: faker.pystr())
+    tier = 2
 
     class Meta:
         model = Plan

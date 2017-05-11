@@ -19,7 +19,6 @@ from templated_email import send_templated_mail
 from lily.billing.models import Plan, Billing
 from lily.tenant.models import Tenant
 from lily.utils.functions import is_ajax, post_intercom_event, has_required_tier
-from lily.tenant.models import Tenant
 
 from lily.users.forms.registration import AcceptInvitationForm, ResendActivationMailForm, TenantRegistrationForm
 from lily.users.models import LilyUser
@@ -81,12 +80,28 @@ class RegistrationView(FormView):
             messages.error(self.request, _('I\'m sorry, but I can\'t let anyone register at the moment.'))
             return redirect(reverse_lazy('login'))
 
+        plan_id = self.request.GET.get('plan')
+
+        try:
+            chargebee.Plan.retrieve(plan_id)
+        except:
+            # TODO: Better error handling here.
+            messages.error(self.request, _('I\'m sorry, but the selected plan isn\'t valid.'))
+            return HttpResponseRedirect('/register/?plan=%s' % plan_id)
+
         tenant_name = form.cleaned_data['tenant_name']
         tenant_country = form.cleaned_data['country']
+
+        try:
+            plan = Plan.objects.get(name=plan_id)
+        except Plan.DoesNotExist:
+            messages.error(self.request, _('I\'m sorry, but the selected plan isn\'t valid.'))
+            return HttpResponseRedirect('/register/?plan=' % plan_id)
 
         tenant = Tenant.objects.create(
             name=tenant_name,
             country=tenant_country,
+            billing=Billing.objects.create(plan=plan),
         )
 
         # Create and save user
@@ -113,87 +128,14 @@ class RegistrationView(FormView):
             _('Registration completed. I\'ve sent you an email, please check it to activate your account.')
         )
 
-        return self.get_success_url()
+        self.request.session['user'] = user.id
 
-    def send_email(self, user, email):
-            recipient_list=[email],
+        return self.get_success_url()
 
     def get_success_url(self):
         """
         Redirect to the success url.
         """
-        return redirect(reverse_lazy('login'))
-
-
-class TenantRegistrationView(RegistrationView):
-    form_class = TenantRegistrationForm
-
-    def form_valid(self, form):
-        """
-        Register a new user.
-        """
-        # Do not accept any valid form when registration is closed.
-        if not settings.REGISTRATION_POSSIBLE:
-            messages.error(self.request, _('I\'m sorry, but I can\'t let anyone register at the moment.'))
-            return redirect(reverse_lazy('login'))
-
-        plan = self.request.GET.get('plan')
-
-        try:
-            chargebee.Plan.retrieve(plan)
-        except:
-            # TODO: Better error handling here.
-            messages.error(self.request, _('I\'m sorry, but the selected plan isn\'t valid.'))
-            return HttpResponseRedirect('/registration/company')
-
-        tenant = Tenant.objects.create(
-            name=form.cleaned_data['tenant_name'],
-            country=form.cleaned_data['country'],
-            billing=Billing.objects.create(),
-        )
-
-        # Create and save user
-        user = LilyUser.objects.create_user(
-            email=form.cleaned_data['email'],
-            password=form.cleaned_data['password'],
-            first_name=form.cleaned_data['first_name'],
-            last_name=form.cleaned_data['last_name'],
-            tenant_id=tenant.id,
-        )
-
-        user.is_active = False
-        user.save()
-
-        result = chargebee.Subscription.create({
-            'plan_id': plan,
-            'customer': {
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-                'email': user.email,
-                'company': tenant.name,
-            },
-        })
-
-        tenant.billing.customer_id = result.customer.id
-        tenant.billing.subscription_id = result.subscription.id
-        tenant.billing.plan = Plan.objects.get(name='lily-personal')
-        tenant.billing.save()
-
-        # Add to admin group
-        account_admin = Group.objects.get_or_create(name='account_admin')[0]
-        user.groups.add(account_admin)
-
-        self.send_email(user, form.cleaned_data['email'])
-
-        messages.success(
-            self.request,
-            _('Registration completed. I\'ve sent you an email, please check it to activate your account.')
-        )
-
-        self.request.session['user'] = user.id
-
-        return self.get_success_url()
-
         return redirect(reverse_lazy('confirmation'))
 
 
@@ -220,6 +162,7 @@ class ConfirmationView(TemplateView):
         )
 
         return redirect(reverse_lazy('confirmation'))
+
 
 class ActivationView(TemplateView):
     """
@@ -254,6 +197,22 @@ class ActivationView(TemplateView):
         # Set is_active to True and save the user.
         user.is_active = True
         user.save()
+
+        tenant = user.tenant
+
+        result = chargebee.Subscription.create({
+            'plan_id': tenant.billing.plan.name,
+            'customer': {
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'email': user.email,
+                'company': tenant.name,
+            },
+        })
+
+        tenant.billing.customer_id = result.customer.id
+        tenant.billing.subscription_id = result.subscription.id
+        tenant.billing.save()
 
         # Programmatically login the user.
         user.backend = settings.AUTHENTICATION_BACKENDS[0]
@@ -296,7 +255,7 @@ class ActivationResendView(FormView):
 
 
     def dispatch(self, request, *args, **kwargs):
-        if not has_required_tier():
+        if not has_required_tier(1) or not request.user.is_admin:
             return HttpResponseForbidden()
 
         return super(SendInvitationView, self).dispatch(request, *args, **kwargs)

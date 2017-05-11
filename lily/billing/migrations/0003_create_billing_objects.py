@@ -9,21 +9,28 @@ def create_billing_objects(apps, schema_editor):
     Billing = apps.get_model('billing', 'Billing')
     Plan = apps.get_model('billing', 'Plan')
     Tenant = apps.get_model('tenant', 'Tenant')
+    Group = apps.get_model('auth', 'Group')
 
     plans = Plan.objects.all()
+    plan_id = 'lily-professional'
 
     for tenant in Tenant.objects.all():
+        tenant_users = tenant.lilyuser_set
+
         tenant.billing = Billing.objects.create()
 
         # Get the tenant admin (or first one in case of multiple).
-        admin_user = tenant.lilyuser_set.filter(groups__name='account_admin').first()
+        admin_user = tenant_users.filter(groups__name='account_admin').first()
 
         if not admin_user:
-            admin_user = tenant.lilyuser_set.first()
+            admin_user = tenant_users.first()
+            account_admin_group = Group.objects.get_or_create(name='account_admin')[0]
+            admin_user.groups.add(account_admin_group)
+            admin_user.save()
 
         if admin_user:
             result = chargebee.Subscription.create({
-                'plan_id': 'lily-personal',
+                'plan_id': plan_id,
                 'customer': {
                     'first_name': admin_user.first_name,
                     'last_name': admin_user.last_name,
@@ -34,7 +41,7 @@ def create_billing_objects(apps, schema_editor):
 
             tenant.billing.customer_id = result.customer.id
             tenant.billing.subscription_id = result.subscription.id
-            tenant.billing.plan = plans.get(name='lily-personal')
+            tenant.billing.plan = plans.get(name=plan_id)
             tenant.billing.save()
 
         tenant.save()

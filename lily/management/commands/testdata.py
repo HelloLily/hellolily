@@ -1,4 +1,5 @@
 import chargebee
+from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand, CommandError
 from factory import iterator, Iterator
@@ -118,7 +119,7 @@ or use an existent tenant if passed as an argument."""
         admin_user.groups.add(account_admin_group)
 
         result = chargebee.Subscription.create({
-            'plan_id': 'lily-personal',
+            'plan_id': settings.CHARGEBEE_FREE_PLAN_NAME,
             'plan_quantity': self.tenant.lilyuser_set.count(),
             'customer': {
                 'first_name': admin_user.first_name,
@@ -131,7 +132,7 @@ or use an existent tenant if passed as an argument."""
         self.tenant.billing = Billing.objects.create(
             customer_id=result.customer.id,
             subscription_id=result.subscription.id,
-            plan=Plan.objects.get(name='lily-personal')
+            plan=Plan.objects.get(name=settings.CHARGEBEE_FREE_PLAN_NAME)
         )
 
         self.tenant.save()

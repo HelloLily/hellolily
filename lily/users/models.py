@@ -235,10 +235,6 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
         return user_team
 
     @property
-    def is_admin(self):
-        return self.groups.filter(name='account_admin').exists() or self.is_superuser
-
-    @property
     def display_email_warning(self):
         return self.email_accounts_owned.filter(is_authorized=False, is_deleted=False).exists()
 

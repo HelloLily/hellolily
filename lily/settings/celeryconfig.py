@@ -43,6 +43,8 @@ CELERY_QUEUES = (
     Queue('email_scheduled_tasks', routing_key='email_scheduled_tasks'),
     # Initial fetch of messages.
     Queue('email_first_sync', routing_key='email_first_sync'),
+    # Miscellaneous tasks.
+    Queue('other_tasks', routing_key='other_tasks'),
 )
 CELERY_ROUTES = (
     {'synchronize_email_account_scheduler': {
@@ -63,11 +65,18 @@ CELERY_ROUTES = (
         # When task is created in first sync, this task will be routed to email_first_sync.
         'queue': 'email_scheduled_tasks'
     }},
+    {'check_subscriptions': {
+        'queue': 'other_tasks'
+    }},
 )
 CELERYBEAT_SCHEDULE = {
     'synchronize_email_account_scheduler': {
         'task': 'synchronize_email_account_scheduler',
         'schedule': timedelta(seconds=int(os.environ.get('EMAIL_SYNC_INTERVAL', 60))),
+    },
+    'check_subscriptions': {
+        'task': 'check_subscriptions',
+        'schedule': timedelta(seconds=int(os.environ.get('CHECK_SUBSCRIPTION_INTERVAL', 60 * 60 * 24))),
     },
     'synchronize_labels_scheduler': {
         'task': 'synchronize_labels_scheduler',

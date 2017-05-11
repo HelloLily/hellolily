@@ -8,8 +8,8 @@ class Plan(models.Model):
 
 
 class Billing(models.Model):
-    subscription_id = models.CharField(max_length=255, blank=True, unique=True)
-    customer_id = models.CharField(max_length=255, blank=True, unique=True)
+    subscription_id = models.CharField(max_length=255, blank=True)
+    customer_id = models.CharField(max_length=255, blank=True)
     plan = models.ForeignKey(Plan)
     cancels_on = models.DateTimeField(blank=True, null=True)
 
@@ -41,16 +41,19 @@ class Billing(models.Model):
 
         return card
 
-    def update_subscription(self, amount):
+    def update_subscription(self, increment):
         subscription = self.get_subscription()
 
         if subscription:
-            amount = subscription.plan_quantity + amount
+            amount = subscription.plan_quantity + increment
 
-            # Update the amount of users for the subscription.
-            chargebee.Subscription.update(subscription.id, {
-                'plan_quantity': amount,
-            })
+            if amount >= 1:
+                # Update the amount of users for the subscription.
+                chargebee.Subscription.update(subscription.id, {
+                    'plan_quantity': amount,
+                })
+
+            return True
 
         return False
 

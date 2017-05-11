@@ -93,7 +93,7 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
         return EmailAccount.objects.filter(is_deleted=False).distinct('id')
 
     def perform_destroy(self, instance):
-        if instance.owner_id is self.request.user.id:
+        if instance.owner_id == self.request.user.id:
             instance.delete()
             instance.is_authorized = False
             instance.sharedemailconfig_set.all().delete()

@@ -105,8 +105,7 @@ function HLMessages() {
             },
             general: {
                 errorTitle: 'Error',
-                errorText: 'There was an error processing your request.<br />Please try again.'
-                
+                errorText: 'There was an error processing your request.<br />Please try again.',
             },
         },
         activityStream: {

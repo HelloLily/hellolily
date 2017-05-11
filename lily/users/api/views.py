@@ -291,19 +291,18 @@ class LilyUserViewSet(viewsets.ModelViewSet):
             if request.user == user_to_delete:
                 raise PermissionDenied
 
-            user_sessions = []
-            all_sessions = Session.objects.filter(expire_date__gte=timezone.now())
+            user_to_delete.session_set.all().delete()
 
-            for session in all_sessions:
-                session_data = session.get_decoded()
+            # Don't call super, since that only fires another query using self.get_object().
+            self.perform_destroy(user_to_delete)
 
-                if user_to_delete.pk == session_data.get('_auth_user_id'):
-                    user_sessions.append(session.pk)
+            tenant.billing.update_subscription(-1)
 
-            # By using the __in filter we limit the number of queries to 2, instead of a delete query per session.
-            Session.objects.filter(pk__in=user_sessions).delete()
-            
-            
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+
 class TwoFactorDevicesViewSet(viewsets.ViewSet):
     """
     A simple ViewSet for listing or disabling two factor devices.
@@ -353,16 +352,9 @@ class TwoFactorDevicesViewSet(viewsets.ViewSet):
         except PhoneDevice.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-            # Don't call super, since that only fires another query using self.get_object().
-            self.perform_destroy(user_to_delete)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
-            tenant.billing.update_subscription(-1)
 
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-            
-            
 class SessionViewSet(mixins.RetrieveModelMixin,
                      mixins.ListModelMixin,
                      mixins.DestroyModelMixin,

@@ -1,7 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from factory import iterator, Iterator
 
-
 from lily.accounts.factories import AccountFactory
 from lily.calls.factories import CallFactory
 from lily.cases.factories import CaseFactory, CaseTypeFactory, CaseStatusFactory

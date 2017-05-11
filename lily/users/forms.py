@@ -5,6 +5,7 @@ from django.forms.formsets import BaseFormSet
 from django.utils.translation import ugettext_lazy as _
 from django_password_strength.widgets import PasswordStrengthInput, PasswordConfirmationInput
 
+from lily.utils.countries import COUNTRIES
 from lily.utils.forms.widgets import AddonTextInput
 
 from .models import LilyUser
@@ -165,13 +166,8 @@ class RegistrationForm(forms.Form):
     password = forms.CharField(
         label=_('Password'),
         min_length=6,
-        widget=PasswordStrengthInput(),
+        widget=forms.PasswordInput(),
         help_text='Password should be at least 6 characters long.',
-    )
-    password_repeat = forms.CharField(
-        label=_('Confirm password'),
-        min_length=6,
-        widget=PasswordConfirmationInput(confirm_with='password'),
     )
 
     first_name = forms.CharField(label=_('First name'), max_length=255)
@@ -183,19 +179,20 @@ class RegistrationForm(forms.Form):
         else:
             return self.cleaned_data['email']
 
-    def clean(self):
-        """
-        Form validation: passwords should match and email should be unique.
-        """
-        cleaned_data = super(RegistrationForm, self).clean()
 
-        password = cleaned_data.get('password')
-        password_repeat = cleaned_data.get('password_repeat')
+class TenantRegistrationForm(RegistrationForm):
+    """
+    This form allows new tenant registration.
+    """
+    tenant_name = forms.CharField(label=_('Company name'), max_length=255)
+    country = forms.ChoiceField(COUNTRIES)
 
-        if password != password_repeat:
-            self._errors['password'] = self.error_class([_('The two password fields didn\'t match.')])
-
-        return cleaned_data
+    def __init__(self, *args, **kwargs):
+        super(TenantRegistrationForm, self).__init__(*args, **kwargs)
+        self.fields['first_name'].widget.attrs['placeholder'] = _('Enter your first name')
+        self.fields['last_name'].widget.attrs['placeholder'] = _('Enter your last name')
+        self.fields['tenant_name'].widget.attrs['placeholder'] = _('Enter the name of your company')
+        self.fields['email'].widget.attrs['placeholder'] = _('youremail@example.com')
 
 
 class UserRegistrationForm(RegistrationForm):

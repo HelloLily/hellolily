@@ -3,14 +3,15 @@ from hashlib import sha256
 
 import anyjson
 from django.conf import settings
-from django.contrib import messages
+from django.contrib import messages, auth
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.auth.views import login
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
+from django.core.management import call_command
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.views.generic import View, TemplateView, FormView
@@ -19,12 +20,41 @@ from django.utils.translation import ugettext_lazy as _
 from extra_views import FormSetView
 from templated_email import send_templated_mail
 
-
 from lily.utils.functions import is_ajax, post_intercom_event
+from lily.tenant.models import Tenant
 
-from .forms import (CustomAuthenticationForm, RegistrationForm, ResendActivationForm, InvitationForm,
+from .forms import (CustomAuthenticationForm, TenantRegistrationForm, ResendActivationForm, InvitationForm,
                     InvitationFormset, UserRegistrationForm)
 from .models import LilyUser
+
+
+def send_activation_mail(request, user):
+    # Get the current site or empty string.
+    try:
+        current_site = Site.objects.get_current()
+    except Site.DoesNotExist:
+        current_site = ''
+
+    # Generate uidb36 and token for the activation link.
+    uidb36 = int_to_base36(user.pk)
+    token_generator = PasswordResetTokenGenerator()
+    token = token_generator.make_token(user)
+
+    # Email to the user
+    send_templated_mail(
+        template_name='activation',
+        recipient_list=[user.email],
+        context={
+            'current_site': current_site,
+            'protocol': request.is_secure() and 'https' or 'http',
+            'user': user,
+            'uidb36': uidb36,
+            'token': token,
+        },
+        from_email=settings.EMAIL_PERSONAL_HOST_USER,
+        auth_user=settings.EMAIL_PERSONAL_HOST_USER,
+        auth_password=settings.EMAIL_PERSONAL_HOST_PASSWORD
+    )
 
 
 class RegistrationView(FormView):
@@ -32,7 +62,7 @@ class RegistrationView(FormView):
     This view shows and handles the registration form, when valid register a new user.
     """
     template_name = 'users/registration.html'
-    form_class = RegistrationForm
+    form_class = TenantRegistrationForm
 
     def get(self, request, *args, **kwargs):
         # Show a different template when registration is closed.
@@ -51,55 +81,39 @@ class RegistrationView(FormView):
             messages.error(self.request, _('I\'m sorry, but I can\'t let anyone register at the moment.'))
             return redirect(reverse_lazy('login'))
 
+        tenant_name = form.cleaned_data['tenant_name']
+        tenant_country = form.cleaned_data['country']
+
+        tenant = Tenant.objects.create(
+            name=tenant_name,
+            country=tenant_country,
+        )
+
         # Create and save user
         user = LilyUser.objects.create_user(
             email=form.cleaned_data['email'],
             password=form.cleaned_data['password'],
             first_name=form.cleaned_data['first_name'],
             last_name=form.cleaned_data['last_name'],
-            position=form.cleaned_data['position'],
+            tenant_id=tenant.id,
         )
 
         user.is_active = False
         user.save()
 
-        # Add to admin group
+        # Add to admin group.
         account_admin = Group.objects.get_or_create(name='account_admin')[0]
         user.groups.add(account_admin)
 
-        # Get the current site
-        try:
-            current_site = Site.objects.get_current()
-        except Site.DoesNotExist:
-            current_site = ''
+        send_activation_mail(self.request, user)
 
-        # Generate uidb36 and token for the activation link
-        uidb36 = int_to_base36(user.pk)
-        token_generator = PasswordResetTokenGenerator()
-        token = token_generator.make_token(user)
-
-        # Send an activation mail
-        # TODO: only create/save contact when email sent successfully
-        send_templated_mail(
-            template_name='activation',
-            recipient_list=[form.cleaned_data['email']],
-            context={
-                'current_site': current_site,
-                'protocol': self.request.is_secure() and 'https' or 'http',
-                'user': user,
-                'uidb36': uidb36,
-                'token': token,
-            },
-            from_email=settings.EMAIL_PERSONAL_HOST_USER,
-            auth_user=settings.EMAIL_PERSONAL_HOST_USER,
-            auth_password=settings.EMAIL_PERSONAL_HOST_PASSWORD
-        )
-
-        # Show registration message
+        # Show registration message.
         messages.success(
             self.request,
             _('Registration completed. I\'ve sent you an email, please check it to activate your account.')
         )
+
+        self.request.session['user'] = user.id
 
         return self.get_success_url()
 
@@ -107,14 +121,39 @@ class RegistrationView(FormView):
         """
         Redirect to the success url.
         """
-        return redirect(reverse_lazy('login'))
+        return redirect(reverse_lazy('confirmation'))
+
+
+class ConfirmationView(TemplateView):
+    """
+    This view shows a confirmation screen after successfully registering.
+    """
+    template_name = 'users/confirmation.html'
+
+    def get(self, request, *args, **kwargs):
+        user = LilyUser.objects.get(pk=request.session['user'])
+
+        return render(request, self.template_name, {'user': user})
+
+    def post(self, request, *args, **kwargs):
+        user = LilyUser.objects.get(pk=request.session['user'])
+
+        send_activation_mail(self.request, user)
+
+        # Show registration message.
+        messages.success(
+            self.request,
+            _('Reactivation successful. I\'ve sent you an email, please check it to activate your account.')
+        )
+
+        return redirect(reverse_lazy('confirmation'))
 
 
 class ActivationView(TemplateView):
     """
     This view checks whether the activation link is valid and acts accordingly.
     """
-    # Template is only shown when something went wrong
+    # Template is only shown when something went wrong.
     template_name = 'users/activation_failed.html'
     token_generator = PasswordResetTokenGenerator()
 
@@ -131,22 +170,24 @@ class ActivationView(TemplateView):
             user = LilyUser.objects.get(id=user_id)
             token = kwargs['token']
         except (ValueError, LilyUser.DoesNotExist):
-            # Show template as per normal TemplateView behaviour
+            # Show template as per normal TemplateView behaviour.
             return TemplateView.get(self, request, *args, **kwargs)
 
-        if self.token_generator.check_token(user, token):
-            # Show activation message
-            messages.info(request, _('I\'ve activated your account, please login.'))
-        else:
-            # Show template as per normal TemplateView behaviour
+        if not self.token_generator.check_token(user, token):
+            # Show template as per normal TemplateView behaviour.
             return TemplateView.get(self, request, *args, **kwargs)
 
-        # Set is_active to True and save the user
+        call_command('create_tenant', tenant=user.tenant.id)
+
+        # Set is_active to True and save the user.
         user.is_active = True
         user.save()
 
-        # Redirect to dashboard
-        return redirect(reverse_lazy('login'))
+        # Programmatically login the user.
+        user.backend = settings.AUTHENTICATION_BACKENDS[0]
+        auth.login(request, user)
+
+        return redirect(reverse_lazy('base_view'))
 
 
 class ActivationResendView(FormView):
@@ -160,45 +201,19 @@ class ActivationResendView(FormView):
         """
         If ResendActivationForm passed the validation, generate new token and send an email.
         """
-        token_generator = PasswordResetTokenGenerator()
         users = LilyUser.objects.filter(
             email__iexact=form.cleaned_data['email']
         )
 
-        # Get the current site or empty string
-        try:
-            current_site = Site.objects.get_current()
-        except Site.DoesNotExist:
-            current_site = ''
+        send_activation_mail(self.request, users[0])
 
-        for user in users:
-            # Generate uidb36 and token for the activation link
-            uidb36 = int_to_base36(user.pk)
-            token = token_generator.make_token(user)
-
-            # Email to the user
-            send_templated_mail(
-                template_name='activation',
-                recipient_list=[form.cleaned_data['email']],
-                context={
-                    'current_site': current_site,
-                    'protocol': self.request.is_secure() and 'https' or 'http',
-                    'user': user,
-                    'uidb36': uidb36,
-                    'token': token,
-                },
-                from_email=settings.EMAIL_PERSONAL_HOST_USER,
-                auth_user=settings.EMAIL_PERSONAL_HOST_USER,
-                auth_password=settings.EMAIL_PERSONAL_HOST_PASSWORD
-            )
-
-        # Show registration message
+        # Show registration message.
         messages.success(
             self.request,
             _('Reactivation successful. I\'ve sent you an email, please check it to activate your account.')
         )
 
-        # Redirect to success url
+        # Redirect to success url.
         return self.get_success_url()
 
     def get_success_url(self):
@@ -257,7 +272,7 @@ class SendInvitationView(FormSetView):
         protocol = self.request.is_secure() and 'https' or 'http'
         date_string = date.today().strftime('%d%m%Y')
 
-        # Get the current site or empty string
+        # Get the current site or empty string.
         try:
             current_site = Site.objects.get_current()
         except Site.DoesNotExist:
@@ -285,7 +300,7 @@ class SendInvitationView(FormSetView):
                 'hash': hash,
             }))
 
-            # Email to the user
+            # Email to the user.
             send_templated_mail(
                 template_name='invitation',
                 recipient_list=[form.cleaned_data['email']],
@@ -404,7 +419,7 @@ class AcceptInvitationView(FormView):
         Returns:
             Boolean: True if link is valid
         """
-        # Default value is false, only set to true if all checks have passed
+        # Default value is false, only set to true if all checks have passed.
         self.valid_link = False
 
         if LilyUser.objects.filter(email__iexact=self.email).exists():
@@ -416,25 +431,25 @@ class AcceptInvitationView(FormView):
                 self.datestring,
                 settings.SECRET_KEY
         )).hexdigest():
-            # hash should be correct
+            # hash should be correct.
             return self.valid_link
 
         if not len(self.datestring) == 8:
-            # Date should always be a string with a length of 8 characters
+            # Date should always be a string with a length of 8 characters.
             return self.valid_link
         else:
             today = date.today()
             try:
-                # Check if it is a valid date
+                # Check if it is a valid date.
                 dateobj = date(int(self.datestring[4:8]), int(self.datestring[2:4]), int(self.datestring[:2]))
             except ValueError:
                 return self.valid_link
             else:
                 if (today < dateobj) or ((today - timedelta(days=settings.USER_INVITATION_TIMEOUT_DAYS)) > dateobj):
-                    # Check if the link is not too old and not in the future
+                    # Check if the link is not too old and not in the future.
                     return self.valid_link
 
-        # Every check was passed successfully, link is valid
+        # Every check was passed successfully, link is valid.
         self.valid_link = True
         return self.valid_link
 
@@ -442,7 +457,7 @@ class AcceptInvitationView(FormView):
         """
         Create LilyUser.
         """
-        # Create and save user
+        # Create and save user.
         LilyUser.objects.create_user(
             email=self.email,
             password=form.cleaned_data['password'],

@@ -15,18 +15,35 @@ from lily.utils.models.models import EmailAddress
 
 
 class Command(BaseCommand):
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--tenant',
+            action='store',
+            dest='tenant',
+            default='',
+            help='Specify a tenant to create the data for, or leave blank to manually set tenant info.'
+        )
+
     def handle(self, **options):
         """
         Create a new tenant and fill it with sensible default values.
         """
-        tenant_name = raw_input('Enter name for the new Tenant: ')
-        tenant_country = raw_input('Enter the country for the new Tenant [NL]: ') or 'NL'
+        tenant_id = None
+
+        if options['tenant']:
+            tenant_id = options['tenant']
+            tenant = Tenant.objects.get(pk=tenant_id)
+        else:
+            tenant_name = raw_input('Enter name for the new tenant: ')
+            tenant_country = raw_input('Enter the country for the new tenant [NL]: ') or 'NL'
+
         print ''
-        print 'Thank you! creating the Tenant now!'
+        print 'Thank you! creating the tenant now!'
         print ''
 
         with transaction.atomic():
-            tenant = Tenant.objects.create(name=tenant_name, country=tenant_country)
+            if not tenant_id:
+                tenant = Tenant.objects.create(name=tenant_name, country=tenant_country)
 
             # Team
             team_list = ['Sales', 'Customer care', 'Finance', ]

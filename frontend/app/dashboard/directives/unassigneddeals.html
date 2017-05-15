@@ -2,23 +2,25 @@
     <widget-header>
         <div class="widget-label deals"></div>
         <div class="widget-name">
-            <i class="lilicon hl-deal-icon"></i>
-            {{ vm.team.name || 'New'}} deals
+            <i class="lilicon hl-deals-filled-icon"></i>
+            Unassigned deals
             <span class="label-amount">{{ vm.table.items.length }}</span>
         </div>
     </widget-header>
 
     <widget-filters>
-        <list-filter filter-label="'Deal types'" view-model="vm"></list-filter>
+        <list-filter filter-label="'Deal types'" view-model="vm" hide-special="true"></list-filter>
+        <list-filter filter-label="'Teams'" view-model="vm" only-special="true" filter-icon="lilicon hl-entities-icon"></list-filter>
     </widget-filters>
 
     <widget-body>
-        <table id="unassignedDealsBlockTarget{{ vm.team.id }}" class="widget-table">
+        <table id="unassignedDealsBlockTarget" class="widget-table">
             <thead>
                 <tr>
                     <th>Deal</th>
                     <th>Client</th>
                     <th>Deal size</th>
+                    <th>Team(s)</th>
                     <th sort-column="next_step" table="vm.table">Next step</th>
                     <th sort-column="next_step_date" table="vm.table">Next step date</th>
                     <th></th>
@@ -27,8 +29,7 @@
             <tbody>
                 <tr ng-hide="vm.table.items.length">
                     <td colspan="6">
-                        <span ng-if="vm.team">There are no unassigned deals for this team</span>
-                        <span ng-if="!vm.team">There are no new deals</span>
+                        There are no unassigned deals
                     </td>
                 </tr>
                 <tr ng-repeat="deal in vm.table.items">
@@ -45,6 +46,11 @@
                     <td>
                         <span ng-bind-html="deal.amount_recurring | currencySymbol:deal.currency"></span> /month<span class="margin-left-5 margin-right-5">|</span>
                         <span ng-bind-html="deal.amount_once | currencySymbol:deal.currency"></span> /once
+                    </td>
+                    <td>
+                        <div ng-repeat="team in deal.assigned_to_teams">
+                            {{ (vm.teams | where:{id: team})[0].name }}
+                        </div>
                     </td>
                     <td>
                         <editable-select field="next_step" view-model="vm" type="Deal" select-type="icon_select" object="deal"

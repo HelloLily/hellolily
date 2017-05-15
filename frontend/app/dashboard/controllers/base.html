@@ -1,8 +1,9 @@
 <div class="row">
     <my-cases></my-cases>
     <my-deals></my-deals>
+    <unassigned-cases teams="db.teams"></unassigned-cases>
+    <unassigned-deals teams="db.teams"></unassigned-deals>
     <unread-email></unread-email>
-    <teams></teams>
     <div ng-if="db.tenant.isVoysNL()" deals-to-check></div>
 </div>
 

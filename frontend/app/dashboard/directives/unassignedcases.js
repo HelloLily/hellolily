@@ -7,7 +7,7 @@ function unassignedCasesDirective() {
         controllerAs: 'vm',
         bindToController: true,
         scope: {
-            team: '=',
+            teams: '=',
         },
     };
 }
@@ -16,8 +16,9 @@ UnassignedCasesController.$inject = ['$http', '$scope', '$state', 'Case', 'HLFil
 function UnassignedCasesController($http, $scope, $state, Case, HLFilters, HLUtils, LocalStorage) {
     var vm = this;
 
-    vm.storageName = 'unassignedCasesForTeam' + vm.team.id + 'Widget';
+    vm.storageName = 'unassignedCasesForTeamWidget';
     vm.storage = new LocalStorage(vm.storageName);
+    vm.storedFilterSpecialList = vm.storage.get('filterSpecialListSelected', null);
     vm.storedFilterList = vm.storage.get('filterListSelected', null);
     vm.highPrioCases = 0;
     vm.table = {
@@ -27,6 +28,7 @@ function UnassignedCasesController($http, $scope, $state, Case, HLFilters, HLUti
         }),
         items: [],
     };
+    vm.filterSpecialList = [];
 
     vm.assignToMe = assignToMe;
     vm.updateTable = updateTable;
@@ -38,10 +40,30 @@ function UnassignedCasesController($http, $scope, $state, Case, HLFilters, HLUti
     function activate() {
         _watchTable();
 
-        Case.getCaseTypes(function(caseTypes) {
-            var filterList = [];
+        let filterSpecialList = [{
+            name: 'Unassigned',
+            value: '_missing_:assigned_to_teams',
+            selected: false,
+            isSpecialFilter: true,
+            separate: true,
+        }];
 
-            angular.forEach(caseTypes, function(caseType) {
+        vm.teams.map((team) => {
+            filterSpecialList.unshift({
+                name: team.name,
+                value: 'assigned_to_teams:' + team.id,
+                selected: team.selected,
+                isSpecialFilter: true,
+                separate: true,
+            });
+        });
+
+        vm.filterSpecialList = filterSpecialList;
+
+        Case.getCaseTypes((caseTypes) =>  {
+            let filterList = [];
+
+            angular.forEach(caseTypes, (caseType) => {
                 filterList.push({
                     name: caseType.name,
                     value: 'type.id:' + caseType.id,
@@ -58,9 +80,9 @@ function UnassignedCasesController($http, $scope, $state, Case, HLFilters, HLUti
 
     function updateTable() {
         var i;
-        var filterQuery = 'is_archived:false AND _missing_:assigned_to.id AND assigned_to_teams:' + vm.team.id;
+        var filterQuery = 'is_archived:false AND _missing_:assigned_to.id';
 
-        HLUtils.blockUI('#unassignedCasesBlockTarget' + vm.team.id, true);
+        HLUtils.blockUI('#unassignedCasesBlockTarget', true);
 
         if (vm.table.filterQuery) {
             filterQuery += ' AND ' + vm.table.filterQuery;
@@ -76,7 +98,7 @@ function UnassignedCasesController($http, $scope, $state, Case, HLFilters, HLUti
                 }
             }
 
-            HLUtils.unblockUI('#unassignedCasesBlockTarget' + vm.team.id);
+            HLUtils.unblockUI('#unassignedCasesBlockTarget');
         });
     }
 

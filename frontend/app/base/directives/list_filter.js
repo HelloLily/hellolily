@@ -7,6 +7,9 @@ function listFilter() {
             filterLabel: '=',
             filterLabelPlural: '=',
             viewModel: '=',
+            hideSpecial: '@?',
+            onlySpecial: '@?',
+            filterIcon: '@?',
         },
         templateUrl: 'base/directives/list_filter.html',
         controller: ListFilterController,
@@ -33,20 +36,24 @@ function ListFilterController($filter, $timeout, HLFilters) {
 
     function activate() {
         var update = false;
+
         if (vm.viewModel.storedFilterList) {
             vm.viewModel.filterList = vm.viewModel.storedFilterList;
             update = true;
         }
 
-        if (vm.viewModel.storedFilterSpecialList) {
+        if (vm.viewModel.storedFilterSpecialList && !vm.hideSpecial) {
             vm.viewModel.filterSpecialList = vm.viewModel.storedFilterSpecialList;
             update = true;
         }
 
+        // Always update the display in case we have things selected by default.
+        // Update the filter query only if we're not already updating it.
+        updateFilterDisplayName(!update);
+
         if (update) {
             updateAllSelected();
             updateFilterQuery();
-            updateFilterDisplayName();
         }
     }
 
@@ -55,7 +62,7 @@ function ListFilterController($filter, $timeout, HLFilters) {
 
         var filterList = vm.viewModel.filterList;
 
-        if (vm.viewModel.filterSpecialList) {
+        if (vm.viewModel.filterSpecialList && !vm.hideSpecial) {
             filterList = vm.viewModel.filterSpecialList;
         }
 
@@ -86,9 +93,10 @@ function ListFilterController($filter, $timeout, HLFilters) {
     }
 
     function updateAllSelected() {
-        // Keep the All selected checkbox in sync whether or not all items are selected.
+        // Keep the 'Select all' checkbox in sync whether or not all items are selected.
         var filterList = vm.viewModel.filterList;
-        if (vm.viewModel.filterSpecialList) {
+
+        if (vm.viewModel.filterSpecialList && !vm.hideSpecial) {
             filterList = vm.viewModel.filterSpecialList;
         }
 
@@ -112,12 +120,12 @@ function ListFilterController($filter, $timeout, HLFilters) {
         vm.viewModel.storage.put('filterSpecialListSelected', vm.viewModel.filterSpecialList);
     }
 
-    function updateFilterDisplayName() {
+    function updateFilterDisplayName(updateQuery = false) {
         var filterList = vm.viewModel.filterList;
         var selectedItems = [];
         var label = vm.filterLabel;
 
-        if (vm.viewModel.filterSpecialList) {
+        if (vm.viewModel.filterSpecialList && !vm.hideSpecial) {
             filterList = vm.viewModel.filterSpecialList;
         }
 
@@ -133,6 +141,10 @@ function ListFilterController($filter, $timeout, HLFilters) {
             }
 
             vm.displayClearButton = true;
+
+            if (updateQuery) {
+                updateFilterQuery();
+            }
         } else {
             vm.displayClearButton = false;
         }

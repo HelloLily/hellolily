@@ -26,8 +26,14 @@ function dashboardConfig($stateProvider, $urlRouterProvider) {
             label: 'Dashboard',
         },
         resolve: {
-            user: ['User', function(User) {
+            user: ['User', (User) => {
                 return User.me().$promise;
+            }],
+            myTeams: ['UserTeams', (UserTeams) => {
+                return UserTeams.mine().$promise;
+            }],
+            teams: ['UserTeams', (UserTeams) => {
+                return UserTeams.query().$promise;
             }],
         },
     });
@@ -35,12 +41,13 @@ function dashboardConfig($stateProvider, $urlRouterProvider) {
 
 angular.module('app.dashboard').controller('DashboardController', DashboardController);
 
-DashboardController.$inject = ['$compile', '$scope', '$state', '$templateCache', 'LocalStorage', 'Settings', 'Tenant'];
-function DashboardController($compile, $scope, $state, $templateCache, LocalStorage, Settings, Tenant) {
+DashboardController.$inject = ['$compile', '$scope', '$state', '$templateCache', 'LocalStorage', 'Settings', 'Tenant', 'myTeams', 'teams'];
+function DashboardController($compile, $scope, $state, $templateCache, LocalStorage, Settings, Tenant, myTeams, teams) {
     var db = this;
     var storage = new LocalStorage($state.current.name + 'widgetInfo');
 
     db.widgetSettings = storage.get('', {});
+    db.teams = teams.results;
 
     db.openWidgetSettingsModal = openWidgetSettingsModal;
 
@@ -53,6 +60,10 @@ function DashboardController($compile, $scope, $state, $templateCache, LocalStor
     function activate() {
         Tenant.query({}, function(tenant) {
             db.tenant = tenant;
+        });
+
+        db.teams.map((team) => {
+            team.selected = (myTeams.filter(myTeam => myTeam.id === team.id).length ? true : false);
         });
     }
 

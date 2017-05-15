@@ -5,6 +5,7 @@ function HLFilters() {
         // Update the filter based on the separate filters.
         var filterStrings = [];
         var specialFilterStrings = [];
+        var separateFilterStrings = [];
         var filterList = viewModel.filterList;
 
         viewModel.table.filterQuery = '';
@@ -25,7 +26,11 @@ function HLFilters() {
             } else {
                 if (filter.selected) {
                     if (filter.isSpecialFilter) {
-                        specialFilterStrings.push(filter.value);
+                        if (filter.separate) {
+                            separateFilterStrings.push(filter.value);
+                        } else {
+                            specialFilterStrings.push(filter.value);
+                        }
                     } else {
                         filterStrings.push(filter.value);
                     }
@@ -37,9 +42,13 @@ function HLFilters() {
             filterStrings.push(viewModel.table.dueDateFilter);
         }
 
-        // If we have type filter, we join them OR-wise.
+        // If we have a special filter, we join them OR-wise.
         if (specialFilterStrings.length > 0) {
             filterStrings.push('(' + specialFilterStrings.join(' OR ') + ')');
+        }
+
+        if (separateFilterStrings.length > 0) {
+            filterStrings.push('(' + separateFilterStrings.join(' OR ') + ')');
         }
 
         if (viewModel.table.usersFilter) {

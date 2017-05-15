@@ -7,7 +7,7 @@ function unassignedDealsDirective() {
         controllerAs: 'vm',
         bindToController: true,
         scope: {
-            team: '=',
+            teams: '=',
         },
     };
 }
@@ -16,14 +16,10 @@ UnassignedDealsController.$inject = ['$http', '$scope', '$state', 'Deal', 'HLFil
 function UnassignedDealsController($http, $scope, $state, Deal, HLFilters, HLUtils, LocalStorage) {
     var vm = this;
 
-    if (vm.team) {
-        vm.storageName = 'unassignedDealsForTeam' + vm.team.id + 'Widget';
-    } else {
-        vm.storageName = 'unassignedDealsWidget';
-    }
-
+    vm.storageName = 'unassignedDealsWidget';
     vm.storage = new LocalStorage(vm.storageName);
     vm.storedFilterList = vm.storage.get('filterListSelected', null);
+    vm.storedFilterSpecialList = vm.storage.get('filterSpecialListSelected', null);
     vm.highPrioDeals = 0;
     vm.table = {
         order: vm.storage.get('order', {
@@ -32,6 +28,7 @@ function UnassignedDealsController($http, $scope, $state, Deal, HLFilters, HLUti
         }),
         items: [],
     };
+    vm.filterSpecialList = [];
 
     vm.assignToMe = assignToMe;
     vm.updateTable = updateTable;
@@ -42,6 +39,28 @@ function UnassignedDealsController($http, $scope, $state, Deal, HLFilters, HLUti
 
     function activate() {
         _watchTable();
+
+        let filterSpecialList = [{
+            name: 'Unassigned',
+            value: '_missing_:assigned_to_teams',
+            selected: false,
+            isSpecialFilter: true,
+            separate: true,
+        }];
+
+        vm.teams.map((team) => {
+            filterSpecialList.unshift({
+                name: team.name,
+                value: 'assigned_to_teams:' + team.id,
+                selected: team.selected,
+                isSpecialFilter: true,
+                separate: true,
+            });
+        });
+
+        filterSpecialList.push();
+
+        vm.filterSpecialList = filterSpecialList;
 
         Deal.getNextSteps(function(response) {
             var filterList = [];
@@ -65,13 +84,6 @@ function UnassignedDealsController($http, $scope, $state, Deal, HLFilters, HLUti
     function updateTable() {
         var filterQuery = 'is_archived:false AND _missing_:assigned_to.id';
         var blockTarget = '#unassignedDealsBlockTarget';
-
-        if (vm.team) {
-            filterQuery += ' AND assigned_to_teams:' + vm.team.id;
-            blockTarget += vm.team.id;
-        } else {
-            filterQuery += ' AND _missing_:assigned_to_teams';
-        }
 
         HLUtils.blockUI(blockTarget, true);
 

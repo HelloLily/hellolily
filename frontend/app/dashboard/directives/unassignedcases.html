@@ -1,32 +1,34 @@
-<widget widget-name="'Unassigned ' + vm.team.name + ' cases'" widget-class="'col-md-6'" widget-scrollable="true" widget-closeable="true">
+<widget widget-name="'Unassigned cases'" widget-class="'col-md-6'" widget-scrollable="true" widget-closeable="true">
     <widget-header>
         <div class="widget-label cases"></div>
         <div class="widget-name">
             <i class="lilicon hl-case-icon"></i>
-            {{ vm.team.name }} cases
+            Unassigned cases
             <span class="label-amount">{{ vm.table.items.length }}</span><span class="label-amount high-prio" ng-if="vm.highPrioCases" uib-tooltip="Critical priority">{{ vm.highPrioCases }}</span>
         </div>
     </widget-header>
 
     <widget-filters>
-        <list-filter filter-label="'Case types'" view-model="vm"></list-filter>
+        <list-filter filter-label="'Case types'" view-model="vm" hide-special="true"></list-filter>
+        <list-filter filter-label="'Teams'" view-model="vm" only-special="true" filter-icon="lilicon hl-entities-icon"></list-filter>
     </widget-filters>
 
     <widget-body>
-        <table id="unassignedCasesBlockTarget{{ vm.team.id }}" class="widget-table">
+        <table id="unassignedCasesBlockTarget" class="widget-table">
             <thead>
                 <tr>
                     <th>Case nr.</th>
                     <th>Subject</th>
                     <th>Client</th>
                     <th sort-column="priority" table="vm.table">Prio</th>
+                    <th>Team(s)</th>
                     <th sort-column="created" table="vm.table">Created</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
                 <tr ng-hide="vm.table.items.length">
-                    <td colspan="6">There are no unassigned cases for this team</td>
+                    <td colspan="6">There are no unassigned cases</td>
                 </tr>
                 <tr ng-repeat="case in vm.table.items">
                     <td><a ui-sref="base.cases.detail({ id: case.id })">{{ case.id }}</a></td>
@@ -37,6 +39,11 @@
                                          select-options="{field: 'casePriorities', 'classPrefix': 'lilicon hl-prio-icon-', 'classValue': 'name'}">
                             <i class="lilicon hl-prio-icon-{{ case.priority_display | lowercase }}" tooltip-placement="left" uib-tooltip="{{ case.priority_display }}"></i>
                         </editable-select>
+                    </td>
+                    <td>
+                        <div ng-repeat="team in case.assigned_to_teams">
+                            {{ (vm.teams | where:{id: team})[0].name }}
+                        </div>
                     </td>
                     <td><date date="case.created" show-time="true"></date></td>
                     <td><a ng-click="vm.assignToMe(case)"><i class="fa fa-anchor"></i> Assign to me</a></td>

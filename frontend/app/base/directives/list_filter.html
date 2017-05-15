@@ -1,4 +1,4 @@
-<ul class="hl-button-group">
+<ul class="hl-button-group" ng-if="!vm.onlySpecial">
     <li class="hl-button-group-btn">
         <a class="hl-button-group-btn-link" href="javascript:;" data-toggle="dropdown">
             <i class="lilicon hl-cog-icon"></i>
@@ -17,15 +17,43 @@
                 <span ng-hide="vm.allSelected">Select all</span>
             </li>
 
-            <li class="hl-dropdown-item" ng-if="!vm.viewModel.filterSpecialList" ng-repeat="filter in vm.viewModel.filterList" ng-click="vm.toggleFilter(filter)">
+            <li class="hl-dropdown-item" ng-if="vm.viewModel.filterList.length" ng-repeat="filter in vm.viewModel.filterList" ng-click="vm.toggleFilter(filter)">
                 <div class="hl-checkbox" ng-class="{'checked': filter.selected}"></div>
                 {{ filter.name }}
             </li>
 
-            <li class="hl-dropdown-item" ng-if="vm.viewModel.filterSpecialList" ng-repeat="filter in vm.viewModel.filterSpecialList" ng-click="vm.toggleFilter(filter)">
+            <li class="hl-dropdown-item" ng-if="vm.viewModel.filterSpecialList && !vm.hideSpecial" ng-repeat="filter in vm.viewModel.filterSpecialList" ng-click="vm.toggleFilter(filter)">
                 <div class="hl-checkbox" ng-class="{'checked': filter.selected}"></div>
                 {{ filter.name }}
             </li>
         </ul>
     </li>
 </ul>
+
+<ul class="hl-button-group" ng-if="vm.viewModel.filterSpecialList && vm.onlySpecial">
+    <li class="hl-button-group-btn">
+        <a class="hl-button-group-btn-link" href="javascript:;" data-toggle="dropdown">
+            <i class="{{ vm.filterIcon || 'lilicon hl-cog-icon' }}"></i>
+            <span class="hide-on-tablet">{{ vm.filterDisplayName }}</span>
+            <i class="margin-left-5 small-icon lilicon hl-toggle-down-icon"></i>
+        </a>
+
+        <span class="hl-button-group-btn-clear" ng-click="vm.setAll(false)" ng-if="vm.displayClearButton">
+            <i class="fa fa-remove"></i>
+        </span>
+
+        <ul class="hl-dropdown js-hold-on-click">
+            <li class="hl-dropdown-item" ng-click="vm.setAll()">
+                <div class="hl-checkbox" ng-class="{'checked': vm.allSelected}"></div>
+                <span ng-show="vm.allSelected">All selected</span>
+                <span ng-hide="vm.allSelected">Select all</span>
+            </li>
+
+            <li class="hl-dropdown-item" ng-repeat="filter in vm.viewModel.filterSpecialList" ng-click="vm.toggleFilter(filter)">
+                <div class="hl-checkbox" ng-class="{'checked': filter.selected}"></div>
+                {{ filter.name }}
+            </li>
+        </ul>
+    </li>
+</ul>
+

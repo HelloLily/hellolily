@@ -41,10 +41,13 @@
                     <tbody>
                         <tr ng-repeat="account in vm.ownedAccounts">
                             <td class="width-6">
-                                <span ng-click="vm.setPrimaryEmailAccount(account)">
+                                <span ng-show="account.is_authorized" ng-click="vm.setPrimaryEmailAccount(account)">
                                     <input type="radio" name="primary" ng-model="vm.primaryAccount" ng-value="account.id" class="radio-button-input">
                                     <span class="radio-button-label"></span>
                                 </span>
+                                <a ng-show="!account.is_authorized" href="/messaging/email/setup/" class="email-connection-warning link-no-decoration margin-left-10" uib-tooltip="{{ $root.messages.tooltips.emailAccountConnectionWarning }}" tooltip-placement="right">
+                                    <i class="fa fa-exclamation-triangle"></i>
+                                </a>
                             </td>
                             <td>
                                 {{ account.email_address }}

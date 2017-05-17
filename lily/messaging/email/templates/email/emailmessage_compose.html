@@ -24,7 +24,7 @@
                     <button class="hl-button-group-btn-link" type="submit" name="submit-send" send-checker send-draft><i class="fa fa-check"></i> Send</button>
                 </li>
 
-                {% if form.message_type == 'reply' or form.message_type == 'forward' %}
+                {% if form.message_type == 'reply' or form.message_type == 'reply_all' or form.message_type == 'forward' %}
                     <li class="hl-button-group-btn">
                         <button class="hl-button-group-btn-link" type="submit" name="submit-send-archive" send-and-archive><i class="fa fa-archive"></i> {% trans 'Send and archive' %}</button>
                     </li>

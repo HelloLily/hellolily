@@ -20,20 +20,24 @@ function emailConfig($stateProvider) {
                     return {};
                 });
             }],
+            emailAccount: ['EmailAccount', 'message', (EmailAccount, message) => {
+                return EmailAccount.get({id: message.account});
+            }],
         },
     });
 }
 
 angular.module('app.email').controller('EmailDetail', EmailDetailController);
 EmailDetailController.$inject = ['$http', '$scope', '$state', '$stateParams', '$timeout', '$filter', 'Account',
-    'Case', 'Deal', 'EmailAccount', 'EmailMessage', 'Settings', 'RecipientInformation', 'SelectedEmailAccount', 'message'];
+    'Case', 'Deal', 'EmailMessage', 'Settings', 'RecipientInformation', 'SelectedEmailAccount', 'message', 'emailAccount'];
 function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $filter, Account, Case, Deal,
-                               EmailAccount, EmailMessage, Settings, RecipientInformation, SelectedEmailAccount, message) {
+                               EmailMessage, Settings, RecipientInformation, SelectedEmailAccount, message, emailAccount) {
     var vm = this;
 
     vm.displayAllRecipients = false;
     vm.message = message;
     vm.onlyPlainText = false;
+    vm.emailAccount = emailAccount;
 
     vm.archiveMessage = archiveMessage;
     vm.trashMessage = trashMessage;
@@ -46,6 +50,7 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     vm.toggleSidebar = toggleSidebar;
     vm.toggleStarred = toggleStarred;
     vm.moveMessage = moveMessage;
+    vm.showMoveToButton = showMoveToButton;
 
     Settings.page.setAllTitles('custom', 'Email message');
 
@@ -87,8 +92,6 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
 
                 showSidebar();
             });
-
-            vm.emailAccount = EmailAccount.get({id: message.account});
         }
 
         vm.currentInbox = Settings.email.previousInbox.params.labelId;
@@ -353,6 +356,18 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
                 $state.go('base.email.list', {labelId: 'INBOX'});
             }
         });
+    }
+
+    function showMoveToButton() {
+        let filtered = [];
+
+        if (vm.emailAccount.labels && vm.emailAccount.labels.length) {
+            filtered = vm.emailAccount.labels.filter((label) => {
+                return label.label_type !== 0 && label.label_id !== vm.currentInbox;
+            });
+        }
+
+        return filtered.length ? true : false;
     }
 
     function _toggleListWidget(modelName, toggleList) {

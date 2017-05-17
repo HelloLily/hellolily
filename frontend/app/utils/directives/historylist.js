@@ -108,10 +108,10 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
 
                 filterquery = '(content_type:' + contentType + ' AND object_id:' + currentObject.id + ')';
 
-                if (contentType === 'account' && currentObject.contact) {
+                if (contentType === 'account' && currentObject.contacts) {
                     // Show all notes of contacts linked to the account.
-                    for (i = 0; i < currentObject.contact.length; i++) {
-                        filterquery += ' OR (content_type:contact AND object_id:' + currentObject.contact[i] + ')';
+                    for (i = 0; i < currentObject.contacts.length; i++) {
+                        filterquery += ' OR (content_type:contact AND object_id:' + currentObject.contacts[i].id + ')';
                     }
                 }
 

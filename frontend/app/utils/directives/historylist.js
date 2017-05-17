@@ -116,12 +116,12 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
                 }
 
                 if (scope.extraObject) {
-                    filterquery += ' OR (content_type:' + scope.extraObject.target + ' AND object_id:' + scope.extraObject.object.id + ')';
+                    filterquery += ' OR (content_type:' + scope.extraObject.target + ' AND object_id:' + scope.extraObject.object.id + dateQuery + ')';
                 }
 
                 filterquery = '(' + filterquery + ')';
 
-                notePromise = NoteDetail.query({filterquery: filterquery + dateQuery, size: requestLength}).$promise;
+                notePromise = NoteDetail.query({filterquery: filterquery, size: requestLength}).$promise;
 
                 promises.push(notePromise);  // Add promise to list of all promises for later handling
 
@@ -138,7 +138,7 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
                         }
 
                         // If it's a contact's note, add extra attribute to the note
-                        // so we can identify it in the template
+                        // so we can identify it in the template.
                         if (scope.target === 'account' && note.content_type === 'contact') {
                             note.showContact = true;
                         }

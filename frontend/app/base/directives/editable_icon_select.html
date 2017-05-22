@@ -11,6 +11,16 @@
         <editable-ui-select-choices repeat="item.id as item in es.choices">
             <span class="{{ es.selectOptions.classPrefix }}{{ item[es.selectOptions.classValue] | lowercase }}"></span>
             {{ item[es.optionDisplay] }}
+            <span class="small text-muted">
+                <span ng-show="es.type === 'Deal' && item[es.optionDisplay] !== 'None'">
+                    (+{{ item.date_increment }} days)
+                </span>
+                <span ng-show="es.type === 'Case'">
+                    <span ng-show="item.date_increment > 1">(in {{ item.date_increment }} days)</span>
+                    <span ng-show="item.date_increment === 1">(tomorrow)</span>
+                    <span ng-show="item.date_increment === 0">(today)</span>
+                </span>
+            </span>
         </editable-ui-select-choices>
     </div>
 </form>

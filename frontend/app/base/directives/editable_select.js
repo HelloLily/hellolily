@@ -31,6 +31,7 @@ function editableSelect() {
 EditableSelectController.$inject = ['$injector', '$scope', 'HLResource', 'HLSearch', 'HLUtils'];
 function EditableSelectController($injector, $scope, HLResource, HLSearch, HLUtils) {
     var es = this;
+    es.showDateIncrement = false;
 
     es.getChoices = getChoices;
     es.refreshChoices = refreshChoices;
@@ -81,6 +82,8 @@ function EditableSelectController($injector, $scope, HLResource, HLSearch, HLUti
                 es.placeholder = es.selectOptions.placeholder;
             }
         }
+
+        es.showDateIncrement = (es.type === 'Case' || es.type === 'Deal');
 
         // Setup the form name so we can block the element while saving data.
         es.formName = es.field.split('_').join('') + 'Form';

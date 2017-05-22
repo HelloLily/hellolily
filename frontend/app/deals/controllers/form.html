@@ -147,10 +147,16 @@
                 </form-group>
 
                 <form-group label-title="Next step" label-id="id_next_step" field="dealForm.next_step" required="true">
-                    <select name="next_step" ng-model="vm.deal.next_step"
-                            ng-options="next_step.name for next_step in vm.nextSteps track by next_step.id" class="form-control">
-                        <option value="" hidden>Select what's next</option>
-                    </select>
+                    <ui-select ng-model="vm.deal.next_step" theme="select2" class="form-control" name="next_step" append-to-body="true" search-enabled="false">
+                        <ui-select-match placeholder="Select what's next"><span class="step-type position-{{ $select.selected.position }}"></span> {{ $select.selected.name }}</ui-select-match>
+                        <ui-select-choices repeat="next_step in vm.nextSteps">
+                            <span class="step-type position-{{ next_step.position }}"></span>
+                            <span ng-bind-html="next_step.name | highlight: $select.search"></span>
+                            <span class="small text-muted" ng-if="next_step.name !== 'None'">
+                                (+{{ next_step.date_increment }} days)
+                            </span>
+                        </ui-select-choices>
+                    </ui-select>
                 </form-group>
 
                 <form-group label-title="Next step date" label-id="id_next_step_date" field="dealForm.next_step_date">

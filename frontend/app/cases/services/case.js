@@ -93,7 +93,21 @@ function Case($resource, CacheFactory, HLCache, HLResource, HLUtils) {
             Settings.page.setAllTitles('detail', data);
         }
 
+        if (args.hasOwnProperty('priority')) {
+            // Automatically increment expiry date based on the priority.
+            let casePriorities = _case.getCasePriorities();
+            let expireDate = HLUtils.addBusinessDays(casePriorities[args.priority].date_increment);
+            expireDate = moment(expireDate).format('YYYY-MM-DD');
+            args.expires = expireDate;
+        }
+
         patchPromise = HLResource.patch('Case', args).$promise;
+
+        if (caseObject) {
+            patchPromise.then((response) => {
+                caseObject.expires = response.expires;
+            });
+        }
 
         return patchPromise;
     }
@@ -129,10 +143,10 @@ function Case($resource, CacheFactory, HLCache, HLResource, HLUtils) {
     function getCasePriorities() {
         // Hardcoded because these are the only case priorities.
         return [
-            {id: 0, name: 'Low', dateIncrement: 5},
-            {id: 1, name: 'Medium', dateIncrement: 3},
-            {id: 2, name: 'High', dateIncrement: 1},
-            {id: 3, name: 'Critical', dateIncrement: 0},
+            {id: 0, name: 'Low', date_increment: 5},
+            {id: 1, name: 'Medium', date_increment: 3},
+            {id: 2, name: 'High', date_increment: 1},
+            {id: 3, name: 'Critical', date_increment: 0},
         ];
     }
 

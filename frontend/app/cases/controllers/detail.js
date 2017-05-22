@@ -149,7 +149,7 @@ function CaseDetailController($scope, Case, HLResource, HLUtils, LocalStorage, S
         }
 
         if (args.hasOwnProperty('priority')) {
-            expireDate = HLUtils.addBusinessDays(casePriorities[vm.case.priority].dateIncrement);
+            expireDate = HLUtils.addBusinessDays(casePriorities[vm.case.priority].date_increment);
             expireDate = moment(expireDate).format('YYYY-MM-DD');
 
             vm.case.expires = expireDate;

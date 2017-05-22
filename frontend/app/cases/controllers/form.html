@@ -106,7 +106,14 @@
                         <label class="priority-button" ng-repeat="priority in vm.casePriorities"
                                ng-class="{0: 'low-priority-indicator', 1: 'medium-priority-indicator', 2: 'high-priority-indicator', 3: 'critical-priority-indicator'}[$index]">
                             <input id="id_priority-{{ $index }}" type="radio" ng-model="vm.case.priority" ng-value="$index" class="radio-button-input" />
-                            <span class="radio-button-label">{{ priority.name }}</span>
+                            <span class="radio-button-label">
+                                {{ priority.name }}
+                                <span class="small text-muted">
+                                    <span ng-if="priority.date_increment > 1">(in {{ priority.date_increment }} days)</span>
+                                    <span ng-if="priority.date_increment === 1">(tomorrow)</span>
+                                    <span ng-if="priority.date_increment === 0">(today)</span>
+                                </span>
+                            </span>
                         </label>
                     </div>
                 </form-group>

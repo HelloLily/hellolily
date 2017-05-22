@@ -152,3 +152,10 @@ $base-color: #27224e;
         }
     }
 }
+
+.email-connection-warning {
+    i {
+        color: $alert-warning-color;
+        font-size: 1.5em;
+    }
+}

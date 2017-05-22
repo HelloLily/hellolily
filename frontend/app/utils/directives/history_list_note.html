@@ -12,7 +12,7 @@
                 <span ng-if="vm.item.showContact" class="timeline-content-title"><a ui-sref="base.contacts.detail({id: vm.item.object_id})">{{ ::vm.item.subject }}</a></span>
                 <span ng-if="!vm.item.showContact" class="timeline-content-title">{{ ::vm.item.subject }}</span>
                 <ul class="timeline-content-details">
-                    <li>Created by: {{ ::vm.item.author.full_name }}</li>
+                    <li>Added by: {{ ::vm.item.author.full_name }}</li>
                 </ul>
 
                 <div class="timeline-date" title="Created on {{ ::vm.item.date | date:'dd MMM yyyy - HH:mm' }}">

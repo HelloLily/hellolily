@@ -76,6 +76,7 @@ function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLa
     vm.goToDraft = goToDraft;
     vm.setSearchQuery = setSearchQuery;
     vm.handleSelect = handleSelect;
+    vm.showMoveToButton = showMoveToButton;
 
     function handleSelect(index, event) {
         // Keep track of the previously clicked item.
@@ -368,6 +369,14 @@ function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLa
 
     function goToDraft(messageId) {
         window.open('/messaging/email/draft/' + messageId + '/', '_self');
+    }
+
+    function showMoveToButton() {
+        let filtered = vm.account.labels.filter((label) => {
+            return label.label_type !== 0 && label.label_id !== vm.label.label_id;
+        });
+
+        return filtered.length ? true : false;
     }
 
     function _reloadMessages() {

@@ -76,7 +76,7 @@
                         </li>
                     </ul>
 
-                    <ul class="hl-button-group" ng-if="vm.account && (vm.emailMessages | where:{checked: true}).length && vm.label.label_id !== 'SENT'">
+                    <ul class="hl-button-group" ng-if="vm.account && (vm.emailMessages | where:{checked: true}).length && vm.label.label_id !== 'SENT' && vm.showMoveToButton()">
                         <li class="hl-button-group-btn">
                             <a class="hl-button-group-btn-link" href="javascript:void(0)" data-toggle="dropdown">
                                 <i class="fa fa-folder"></i> Move to <i class="margin-left-5 small-icon lilicon hl-toggle-down-icon"></i>

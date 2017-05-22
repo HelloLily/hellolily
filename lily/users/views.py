@@ -457,17 +457,27 @@ class AcceptInvitationView(FormView):
         """
         Create LilyUser.
         """
+        tenant = Tenant.objects.get(pk=self.tenant_id)
+
         # Create and save user.
-        LilyUser.objects.create_user(
+        user = LilyUser.objects.create_user(
             email=self.email,
             password=form.cleaned_data['password'],
             first_name=form.cleaned_data['first_name'],
             last_name=form.cleaned_data['last_name'],
-            tenant_id=self.tenant_id,
+            tenant_id=tenant.id,
         )
+
+        if tenant.lilyuser_set.count() == 1:
+            # Add to admin group.
+            account_admin = Group.objects.get_or_create(name='account_admin')[0]
+            user.groups.add(account_admin)
+
+        # Programmatically login the user.
+        user.backend = settings.AUTHENTICATION_BACKENDS[0]
+        auth.login(self.request, user)
 
         return self.get_success_url()
 
     def get_success_url(self):
-        messages.success(self.request, _('Welcome to Lily! You can now log in with the information you provided.'))
-        return redirect(reverse_lazy('login'))
+        return redirect(reverse_lazy('base_view'))

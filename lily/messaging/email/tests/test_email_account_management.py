@@ -27,11 +27,6 @@ class SetupEmailAuthViewTests(UserBasedTest, APITestCase):
     def setUp(self):
         self.factory = RequestFactory()
 
-    @classmethod
-    def setUpTestData(cls):
-        # Create a user, handled by UserBasedTest.
-        super(SetupEmailAuthViewTests, cls).setUpTestData()
-
     @patch.object(OAuth2WebServerFlow, 'step1_get_authorize_url')
     def test_get(self, step1_get_authorize_url_mock):
         """
@@ -72,11 +67,6 @@ class OAuth2CallbackViewTests(UserBasedTest, APITestCase):
         self.build_service_mock_patcher = patch.object(GmailService, 'build_service')
         build_service_mock = self.build_service_mock_patcher.start()
         build_service_mock.return_value = build('gmail', 'v1', credentials=self.credentials)
-
-    @classmethod
-    def setUpTestData(cls):
-        # Create a user, handled by UserBasedTest.
-        super(OAuth2CallbackViewTests, cls).setUpTestData()
 
     def tearDown(self):
         self.get_credentials_mock_patcher.stop()

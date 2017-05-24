@@ -41,8 +41,8 @@ from .models.models import (EmailMessage, EmailAttachment, EmailAccount, EmailTe
                             EmailOutboxMessage, EmailOutboxAttachment, TemplateVariable, GmailCredentialsModel,
                             EmailLabel)
 from .services import GmailService
-from .tasks import (send_message, create_draft_email_message, delete_email_message, update_draft_email_message,
-                    add_and_remove_labels_for_message)
+from .tasks import (send_message, create_draft_email_message, update_draft_email_message,
+                    add_and_remove_labels_for_message, trash_email_message)
 from .utils import (get_attachment_filename_from_url, get_email_parameter_choices, create_recipients,
                     render_email_body, replace_cid_in_html, create_reply_body_header, reindex_email_message)
 
@@ -450,7 +450,7 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
         """
         Removes the current draft.
         """
-        task = delete_email_message.apply_async(args=(self.object.id,))
+        task = trash_email_message.apply_async(args=(self.object.id,))
 
         if not task:
             messages.error(

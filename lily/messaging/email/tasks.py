@@ -275,7 +275,7 @@ def toggle_read_email_message(self, email_id, read=True):
 @task(name='trash_email_message', logger=logger, bind=True)
 def trash_email_message(self, email_id):
     """
-    Trash message.
+    Trash email message / draft or delete already trashed email message.
 
     Args:
         email_id (int): id of the EmailMessage
@@ -289,16 +289,20 @@ def trash_email_message(self, email_id):
             manager = None
             try:
                 manager = GmailManager(email_message.account)
-                logger.debug('Trashing: %s', email_message)
                 if email_message.is_draft:
+                    logger.debug('Trashing draft: %s', email_message)
                     manager.delete_draft_email_message(email_message)
+                elif email_message.is_trashed:
+                    logger.debug('Deleting email message: %s', email_message)
+                    manager.delete_email_message(email_message)
                 else:
+                    logger.debug('Trashing email message: %s', email_message)
                     manager.trash_email_message(email_message)
             except HttpAccessTokenRefreshError:
                 logger.warning('Not syncing, no authorization for: %s', email_message.account)
                 pass
             except Exception as exc:
-                logger.exception('Failed trashing %s' % email_message)
+                logger.exception('Failed deleting / trashing %s' % email_message)
                 raise self.retry(exc=exc)
             finally:
                 if manager:
@@ -333,41 +337,6 @@ def add_and_remove_labels_for_message(self, email_id, add_labels=[], remove_labe
                 pass
             except Exception as exc:
                 logger.exception('Failed changing labels for %s' % email_message)
-                raise self.retry(exc=exc)
-            finally:
-                if manager:
-                    manager.cleanup()
-        else:
-            logger.warning('Not syncing, no authorization for: %s', email_message.account)
-
-
-@task(name='delete_email_message', logger=logger, bind=True)
-def delete_email_message(self, email_id):
-    """
-    Delete message.
-
-    Args:
-        email_id (int): id of the EmailMessage
-    """
-    # TODO: LILY-1906 Email messages are never deleted.
-    try:
-        email_message = EmailMessage.objects.get(pk=email_id)
-    except EmailMessage.DoesNotExist:
-        logger.warning('EmailMessage no longer exists: %s', email_id)
-    else:
-        if email_message.account.is_authorized:
-            manager = None
-            try:
-                manager = GmailManager(email_message.account)
-                if email_message.is_draft:
-                    manager.delete_draft_email_message(email_message)
-                elif email_message.is_trashed:
-                    manager.delete_email_message(email_message)
-            except HttpAccessTokenRefreshError:
-                logger.warning('Not syncing, no authorization for: %s', email_message.account)
-                pass
-            except Exception as exc:
-                logger.exception('Failed deleting %s' % email_message)
                 raise self.retry(exc=exc)
             finally:
                 if manager:
@@ -659,7 +628,7 @@ def cleanup_deleted_email_accounts():
     """
     Cleanup accounts that are marked for deletion by the soft delete.
 
-    This task does not sync anything to google, it's just that deleting big email accounts
+    This task does not sync anything to Google, it's just that deleting big email accounts
     takes too damn long, so we want to do it in the background.
     """
     account_list = EmailAccount.objects.filter(is_deleted=True)

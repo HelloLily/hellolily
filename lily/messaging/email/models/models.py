@@ -283,6 +283,10 @@ class EmailMessage(models.Model):
         else:
             return not self.fast_label_check(settings.GMAIL_LABEL_INBOX)
 
+    @property
+    def is_deleted(self):
+        return hasattr(self, '_is_deleted') and self._is_deleted
+
     def get_message_id(self):
         header = self.headers.filter(name__istartswith='message-id').first()
         if header:

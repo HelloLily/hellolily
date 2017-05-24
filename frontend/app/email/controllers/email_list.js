@@ -393,13 +393,15 @@ function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLa
                 filterquery.push('is_trashed:false');
                 filterquery.push('is_spam:false');
             } else if ($stateParams.labelId === 'TRASH') {
-                filterquery.push('is_trashed:true');
+                filterquery.push('(is_trashed:true OR is_deleted:false)');
                 filterquery.push('is_spam:false');
             } else if ($stateParams.labelId === 'SPAM') {
                 filterquery.push('is_spam:true');
                 filterquery.push('is_trashed:false');
             } else if ($stateParams.labelId === 'DRAFT') {
                 filterquery.push('is_draft:true');
+                // Discarded drafts are marked as trashed, so don't show them in the listing anymore.
+                filterquery.push('is_trashed:false');
             } else {
                 // User labels.
                 filterquery.push('label_id:' + $stateParams.labelId);

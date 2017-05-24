@@ -4,8 +4,7 @@ HLSockets.$inject = ['$state', '$timeout', '$rootScope', 'Settings'];
 function HLSockets($state, $timeout, $rootScope, Settings) {
     const wsEnabled = 'WebSocket' in window &&
         'Notification' in window &&
-        Notification.permission !== 'denied' &&
-        currentUser.internalNumber;
+        Notification.permission !== 'denied';
 
     const listeners = {};
     let ws = null;
@@ -28,6 +27,13 @@ function HLSockets($state, $timeout, $rootScope, Settings) {
         listeners[type] = listeners[type] || [];
         listeners[type].push(callback);
         return this;
+    };
+
+    this.unbind = (type, callback) => {
+        const index = listeners[type].indexOf(callback);
+        if (index > -1) {
+            listeners[type].splice(index, 1);
+        }
     };
 
     this.close = (reason = '') => {

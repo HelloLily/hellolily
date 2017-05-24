@@ -9,8 +9,8 @@ function myDealsDirective() {
     };
 }
 
-MyDealsController.$inject = ['$filter', '$scope', 'Case', 'Deal', 'HLUtils', 'HLResource', 'LocalStorage', 'Tenant'];
-function MyDealsController($filter, $scope, Case, Deal, HLUtils, HLResource, LocalStorage, Tenant) {
+MyDealsController.$inject = ['$filter', '$scope', 'Case', 'Deal', 'HLUtils', 'HLResource', 'HLSockets', 'LocalStorage', 'Tenant'];
+function MyDealsController($filter, $scope, Case, Deal, HLUtils, HLResource, HLSockets, LocalStorage, Tenant) {
     var storage = new LocalStorage('deals');
 
     var vm = this;
@@ -30,6 +30,12 @@ function MyDealsController($filter, $scope, Case, Deal, HLUtils, HLResource, Loc
     vm.acceptDeal = acceptDeal;
     vm.updateModel = updateModel;
 
+    HLSockets.bind('deal-assigned', getMyDeals);
+
+    $scope.$on('$destroy', () => {
+        HLSockets.unbind('deal-assigned', getMyDeals);
+    });
+
     activate();
 
     /////
@@ -38,12 +44,12 @@ function MyDealsController($filter, $scope, Case, Deal, HLUtils, HLResource, Loc
         _watchTable();
     }
 
-    function getMyDeals() {
+    function getMyDeals(blockUI = false) {
         var field = 'next_step.position';
         var descending = false;
         var filterQuery = 'is_archived:false AND NOT next_step.name:"None"';
 
-        HLUtils.blockUI('#myDealsBlockTarget', true);
+        if (blockUI) HLUtils.blockUI('#myDealsBlockTarget', true);
 
         if (vm.table.dueDateFilter) {
             filterQuery += ' AND ' + vm.table.dueDateFilter;
@@ -73,7 +79,7 @@ function MyDealsController($filter, $scope, Case, Deal, HLUtils, HLResource, Loc
                 });
             }
 
-            HLUtils.unblockUI('#myDealsBlockTarget');
+            if (blockUI) HLUtils.unblockUI('#myDealsBlockTarget');
 
             vm.numOfDeals = data.objects.length;
         });
@@ -102,7 +108,7 @@ function MyDealsController($filter, $scope, Case, Deal, HLUtils, HLResource, Loc
 
     function _watchTable() {
         $scope.$watchGroup(['vm.table.dueDateFilter', 'vm.table.usersFilter'], function() {
-            getMyDeals();
+            getMyDeals(true);
             storage.put('order', vm.table.order);
             storage.put('dueDateFilter', vm.table.dueDateFilter);
             storage.put('usersFilter', vm.table.usersFilter);

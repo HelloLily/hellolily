@@ -9,8 +9,8 @@ function myCasesDirective() {
     };
 }
 
-MyCasesController.$inject = ['$filter', '$scope', 'Case', 'HLUtils', 'HLResource', 'LocalStorage'];
-function MyCasesController($filter, $scope, Case, HLUtils, HLResource, LocalStorage) {
+MyCasesController.$inject = ['$filter', '$scope', 'Case', 'HLUtils', 'HLResource', 'HLSockets', 'LocalStorage'];
+function MyCasesController($filter, $scope, Case, HLUtils, HLResource, HLSockets, LocalStorage) {
     var storage = new LocalStorage('myCasesWidget');
     var vm = this;
 
@@ -30,6 +30,12 @@ function MyCasesController($filter, $scope, Case, HLUtils, HLResource, LocalStor
     vm.acceptCase = acceptCase;
     vm.updateModel = updateModel;
 
+    HLSockets.bind('case-assigned', getMyCases);
+
+    $scope.$on('$destroy', () => {
+        HLSockets.unbind('case-assigned', getMyCases);
+    });
+
     activate();
 
     /////
@@ -38,7 +44,7 @@ function MyCasesController($filter, $scope, Case, HLUtils, HLResource, LocalStor
         _watchTable();
     }
 
-    function getMyCases() {
+    function getMyCases(blockUI = false) {
         var field = 'expires';
         var descending = false;
 
@@ -54,7 +60,7 @@ function MyCasesController($filter, $scope, Case, HLUtils, HLResource, LocalStor
             filterQuery += ' AND assigned_to.id:' + currentUser.id;
         }
 
-        HLUtils.blockUI('#myCasesBlockTarget', true);
+        if (blockUI) HLUtils.blockUI('#myCasesBlockTarget', true);
 
         if (vm.table.dueDateFilter !== '') {
             field = vm.table.order.column;
@@ -84,7 +90,7 @@ function MyCasesController($filter, $scope, Case, HLUtils, HLResource, LocalStor
                 }
             }
 
-            HLUtils.unblockUI('#myCasesBlockTarget');
+            if (blockUI) HLUtils.unblockUI('#myCasesBlockTarget');
 
             vm.numOfCases = objects.length;
         });
@@ -92,7 +98,7 @@ function MyCasesController($filter, $scope, Case, HLUtils, HLResource, LocalStor
 
     function updateModel(data, field) {
         return Case.updateModel(data, field).then(function() {
-            getMyCases();
+            getMyCases(true);
         });
     }
 

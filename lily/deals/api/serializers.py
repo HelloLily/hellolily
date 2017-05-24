@@ -1,5 +1,7 @@
 import datetime
+import anyjson
 
+from channels import Group
 from django.utils.timezone import utc
 from django.utils.translation import ugettext_lazy as _
 
@@ -222,9 +224,23 @@ class DealSerializer(WritableNestedSerializer):
 
         assigned_to = validated_data.get('assigned_to')
 
-        if assigned_to and assigned_to.get('id') != user.pk:
-            validated_data.update({
-                'newly_assigned': True,
+        if assigned_to:
+            Group('tenant-%s' % user.tenant.id).send({
+                'text': anyjson.serialize({
+                    'event': 'deal-assigned',
+                }),
+            })
+
+            if assigned_to.get('id') != user.pk:
+                validated_data.update({
+                    'newly_assigned': True,
+                })
+
+        else:
+            Group('tenant-%s' % user.tenant.id).send({
+                'text': anyjson.serialize({
+                    'event': 'deal-unassigned',
+                }),
             })
 
         return super(DealSerializer, self).create(validated_data)
@@ -285,6 +301,23 @@ class DealSerializer(WritableNestedSerializer):
                     validated_data.update({
                         'next_step_date': None,
                     })
+
+        if 'assigned_to' in validated_data or instance.assigned_to_id:
+            Group('tenant-%s' % user.tenant.id).send({
+                'text': anyjson.serialize({
+                    'event': 'deal-assigned',
+                }),
+            })
+
+        if (not instance.assigned_to_id or
+                instance.assigned_to_id and
+                'assigned_to' in validated_data and
+                not validated_data.get('assigned_to')):
+            Group('tenant-%s' % user.tenant.id).send({
+                'text': anyjson.serialize({
+                    'event': 'deal-unassigned',
+                }),
+            })
 
         return super(DealSerializer, self).update(instance, validated_data)
 

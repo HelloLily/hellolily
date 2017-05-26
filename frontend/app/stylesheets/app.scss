@@ -103,3 +103,9 @@ a {
     background: lighten($app-color-darkblue, 30) !important;
     opacity: 0.1 !important;
 }
+
+table {
+    .blockOverlay {
+        z-index: 997 !important;
+    }
+}

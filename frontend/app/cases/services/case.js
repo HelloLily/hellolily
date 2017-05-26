@@ -13,17 +13,23 @@ function Case($resource, CacheFactory, HLCache, HLResource, HLUtils) {
                     type: 'cases_case',
                 },
                 transformResponse: function(data) {
-                    var jsonData = angular.fromJson(data);
-                    var objects = [];
-                    if (jsonData && jsonData.hits && jsonData.hits.length > 0) {
-                        jsonData.hits.forEach(function(obj) {
-                            objects.push(obj);
-                        });
+                    let jsonData = angular.fromJson(data);
+                    let objects = [];
+                    let total = 0;
+
+                    if (jsonData) {
+                        if (jsonData.hits && jsonData.hits.length > 0) {
+                            jsonData.hits.forEach(function(obj) {
+                                objects.push(obj);
+                            });
+                        }
+
+                        total = jsonData.total;
                     }
 
                     return {
                         objects: objects,
-                        total: jsonData.total,
+                        total: total,
                     };
                 },
             },

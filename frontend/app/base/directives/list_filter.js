@@ -131,7 +131,7 @@ function ListFilterController($filter, $timeout, HLFilters) {
 
         selectedItems = $filter('filter')(filterList, {selected: true});
 
-        if (selectedItems.length) {
+        if (selectedItems && selectedItems.length) {
             if (selectedItems.length < 3) {
                 label = selectedItems.map(function(item) {
                     return item.name;

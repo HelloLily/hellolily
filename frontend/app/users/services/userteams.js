@@ -13,18 +13,23 @@ function UserTeams($resource) {
                 url: '/search/search/?type=users_team&filterquery=:filterquery',
                 method: 'GET',
                 transformResponse: function(data) {
-                    var jsonData = angular.fromJson(data);
-                    var objects = [];
+                    let jsonData = angular.fromJson(data);
+                    let objects = [];
+                    let total = 0;
 
-                    if (jsonData && jsonData.hits && jsonData.hits.length > 0) {
-                        jsonData.hits.forEach(function(obj) {
-                            objects.push(obj);
-                        });
+                    if (jsonData) {
+                        if (jsonData.hits && jsonData.hits.length > 0) {
+                            jsonData.hits.forEach(function(obj) {
+                                objects.push(obj);
+                            });
+                        }
+
+                        total = jsonData.total;
                     }
 
                     return {
                         objects: objects,
-                        total: jsonData.total,
+                        total: total,
                     };
                 },
             },

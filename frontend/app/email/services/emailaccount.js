@@ -41,13 +41,6 @@ function EmailAccount($resource) {
                 method: 'GET',
                 url: '/api/messaging/email/accounts/mine/',
                 isArray: true,
-                transformResponse: function(data) {
-                    var account = angular.fromJson(data);
-
-                    account.is_public = (account.privacy === _emailAccount.PUBLIC);
-
-                    return account;
-                },
             },
             cancel: {
                 method: 'DELETE',

@@ -28,25 +28,30 @@ function Deal($resource, CacheFactory, HLCache, HLForms, HLResource, HLUtils) {
                     type: 'deals_deal',
                 },
                 transformResponse: function(data) {
-                    var jsonData = angular.fromJson(data);
-                    var objects = [];
+                    let jsonData = angular.fromJson(data);
+                    let objects = [];
+                    let total = 0;
 
-                    if (jsonData && jsonData.hits && jsonData.hits.length > 0) {
-                        jsonData.hits.forEach(function(obj) {
-                            var deal = $.extend(obj, {
-                                historyType: 'deal',
-                                color: 'blue',
-                                date: obj.modified,
-                                total_size: jsonData.total,
+                    if (jsonData) {
+                        if (jsonData.hits && jsonData.hits.length > 0) {
+                            jsonData.hits.forEach(function(obj) {
+                                var deal = $.extend(obj, {
+                                    historyType: 'deal',
+                                    color: 'blue',
+                                    date: obj.modified,
+                                    total_size: jsonData.total,
+                                });
+
+                                objects.push(deal);
                             });
+                        }
 
-                            objects.push(deal);
-                        });
+                        total = jsonData.total;
                     }
 
                     return {
                         objects: objects,
-                        total: jsonData.total,
+                        total: total,
                     };
                 },
             },

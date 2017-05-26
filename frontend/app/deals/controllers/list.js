@@ -24,8 +24,8 @@ function dealsConfig($stateProvider) {
 
 angular.module('app.deals').controller('DealListController', DealListController);
 
-DealListController.$inject = ['$filter', '$scope', '$state', '$timeout', 'Deal', 'HLFilters', 'LocalStorage', 'Settings', 'Tenant', 'teams'];
-function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, LocalStorage, Settings, Tenant, teams) {
+DealListController.$inject = ['$filter', '$scope', '$state', '$timeout', 'Deal', 'HLFilters', 'HLUtils', 'LocalStorage', 'Settings', 'Tenant', 'teams'];
+function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, HLUtils, LocalStorage, Settings, Tenant, teams) {
     var vm = this;
 
     vm.storage = new LocalStorage('deals');
@@ -243,6 +243,9 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
      * Updates table.items and table.totalItems
      */
     function _updateDeals() {
+        let blockTarget = '#tableBlockTarget';
+        HLUtils.blockUI(blockTarget, true);
+
         Deal.getDeals(
             vm.table.order.column,
             vm.table.order.descending,
@@ -253,6 +256,8 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
         ).then(function(data) {
             vm.table.items = data.objects;
             vm.table.totalItems = data.total;
+
+            HLUtils.unblockUI(blockTarget);
         });
     }
 

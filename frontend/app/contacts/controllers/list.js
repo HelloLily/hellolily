@@ -18,8 +18,8 @@ function contactsConfig($stateProvider) {
 
 angular.module('app.contacts').controller('ContactListController', ContactListController);
 
-ContactListController.$inject = ['$scope', '$window', 'Settings', 'Account', 'Contact', 'LocalStorage'];
-function ContactListController($scope, $window, Settings, Account, Contact, LocalStorage) {
+ContactListController.$inject = ['$scope', '$window', 'Settings', 'Account', 'Contact', 'HLUtils', 'LocalStorage'];
+function ContactListController($scope, $window, Settings, Account, Contact, HLUtils, LocalStorage) {
     var storage = new LocalStorage('contactList');
 
     Settings.page.setAllTitles('list', 'contacts');
@@ -75,7 +75,10 @@ function ContactListController($scope, $window, Settings, Account, Contact, Loca
      * Updates table.items and table.totalItems
      */
     function updateContacts() {
-        var sort = $scope.table.order.column;
+        let blockTarget = '#tableBlockTarget';
+        HLUtils.blockUI(blockTarget, true);
+
+        let sort = $scope.table.order.column;
         if ($scope.table.order.descending) {
             sort = '-'.concat(sort);
         }
@@ -100,6 +103,8 @@ function ContactListController($scope, $window, Settings, Account, Contact, Loca
             });
 
             $scope.table.totalItems = data.total;
+
+            HLUtils.unblockUI(blockTarget);
         });
     }
 

@@ -19,9 +19,9 @@ function caseConfig($stateProvider) {
 
 angular.module('app.cases').controller('CaseListController', CaseListController);
 
-CaseListController.$inject = ['$filter', '$scope', '$timeout', 'Case', 'HLFilters', 'LocalStorage',
+CaseListController.$inject = ['$filter', '$scope', '$timeout', 'Case', 'HLFilters', 'HLUtils', 'LocalStorage',
     'Settings', 'UserTeams'];
-function CaseListController($filter, $scope, $timeout, Case, HLFilters, LocalStorage, Settings, UserTeams) {
+function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils, LocalStorage, Settings, UserTeams) {
     var vm = this;
 
     vm.storage = new LocalStorage('cases');
@@ -226,6 +226,9 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, LocalSto
      * Updates table.items and table.totalItems.
      */
     function _updateCases() {
+        let blockTarget = '#tableBlockTarget';
+        HLUtils.blockUI(blockTarget, true);
+
         Case.getCases(
             vm.table.order.column,
             vm.table.order.descending,
@@ -236,6 +239,8 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, LocalSto
         ).then(function(data) {
             vm.table.items = data.objects;
             vm.table.totalItems = data.total;
+
+            HLUtils.unblockUI(blockTarget);
         });
     }
 

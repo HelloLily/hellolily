@@ -29,8 +29,8 @@ function accountConfig($stateProvider) {
  */
 angular.module('app.accounts').controller('AccountList', AccountList);
 
-AccountList.$inject = ['$filter', '$scope', '$window', 'Settings', 'Account', 'LocalStorage', 'HLFilters'];
-function AccountList($filter, $scope, $window, Settings, Account, LocalStorage, HLFilters) {
+AccountList.$inject = ['$filter', '$scope', '$window', 'Settings', 'Account', 'LocalStorage', 'HLFilters', 'HLUtils'];
+function AccountList($filter, $scope, $window, Settings, Account, LocalStorage, HLFilters, HLUtils) {
     var vm = this;
     vm.storage = new LocalStorage('accountList');
     vm.storedFilterList = vm.storage.get('filterListSelected', null);
@@ -127,6 +127,9 @@ function AccountList($filter, $scope, $window, Settings, Account, LocalStorage, 
      * Updates table.items and table.totalItems
      */
     function _updateAccounts() {
+        let blockTarget = '#tableBlockTarget';
+        HLUtils.blockUI(blockTarget, true);
+
         Account.getAccounts(
             vm.table.filter,
             vm.table.page,
@@ -137,6 +140,8 @@ function AccountList($filter, $scope, $window, Settings, Account, LocalStorage, 
         ).then(function(data) {
             vm.table.items = data.accounts;
             vm.table.totalItems = data.total;
+
+            HLUtils.unblockUI(blockTarget);
         });
     }
 

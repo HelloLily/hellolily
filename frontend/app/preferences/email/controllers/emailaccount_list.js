@@ -137,6 +137,7 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
 
     function openShareAccountModal(account) {
         var i;
+        var j;
         var configs = account.shared_email_configs;
         var filterObject = {
             filterquery: '',
@@ -158,7 +159,11 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
             if (filterObject.filterquery) {
                 if (data.objects) {
                     for (i = 0; i < data.objects.length; i++) {
-                        vm.emailAccount.shared_email_configs[i].user = data.objects[i];
+                        for (j = 0; j < vm.emailAccount.shared_email_configs.length; j++) {
+                            if (vm.emailAccount.shared_email_configs[j].user === data.objects[i].id) {
+                                vm.emailAccount.shared_email_configs[j].user = data.objects[i];
+                            }
+                        }
                     }
                 }
             }

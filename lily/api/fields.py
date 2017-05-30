@@ -2,10 +2,8 @@ import re
 
 from django.db.models import Manager
 from django.db.models import QuerySet
-from django.utils.translation import ugettext_lazy as _
 from django.utils import six
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 from rest_framework.fields import get_attribute, CharField, ChoiceField
 from rest_framework.relations import ManyRelatedField, MANY_RELATION_KWARGS
 from timezone_field import TimeZoneField
@@ -15,8 +13,7 @@ from lily.utils.sanitizers import HtmlSanitizer
 
 class RegexDecimalField(serializers.DecimalField):
     def to_internal_value(self, data):
-        if not data:
-            raise ValidationError(_('This field is required'))
+        data = super(RegexDecimalField, self).to_internal_value(data)
 
         # Regex to get the decimal value.
         regex = '([.,][0-9]{1,2}$)'

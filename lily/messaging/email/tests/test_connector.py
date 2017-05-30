@@ -6,12 +6,12 @@ from oauth2client.client import HttpAccessTokenRefreshError
 from rest_framework.test import APITestCase
 
 from lily.messaging.email.connector import GmailConnector, FailedServiceCallException
-from lily.messaging.email.factories import GmailAccountFactory
+from lily.messaging.email.factories import EmailAccountFactory
 from lily.messaging.email.models.models import EmailAccount
 from lily.messaging.email.services import GmailService
 from lily.tests.utils import UserBasedTest, get_dummy_credentials
 
-from mock import MagicMock, patch
+from mock import patch
 
 
 class GmailConnectorTests(UserBasedTest, APITestCase):
@@ -40,7 +40,7 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
         super(GmailConnectorTests, cls).setUpTestData()
 
         # Create an email account for the user.
-        GmailAccountFactory.create(owner_id=cls.user_obj.id, tenant_id=cls.user_obj.tenant_id)
+        EmailAccountFactory.create(owner=cls.user_obj, tenant=cls.user_obj.tenant)
 
     def tearDown(self):
         self.get_credentials_mock_patcher.stop()
@@ -53,9 +53,8 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
         Test if the execute service call returns the content of the json file.
         """
         # Mock the http instance.
-        get_http_mock.side_effect = MagicMock(
-            return_value=HttpMock('lily/messaging/email/tests/data/all_message_id_list_single_page.json',
-                                  {'status': '200'}))
+        get_http_mock.return_value = HttpMock('lily/messaging/email/tests/data/all_message_id_list_single_page.json',
+                                              {'status': '200'})
 
         email_account = EmailAccount.objects.first()
 
@@ -270,9 +269,8 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
         """
         Test the GmailConnector in retrieving the info of a single email message.
         """
-        get_http_mock.side_effect = MagicMock(
-            return_value=HttpMock('lily/messaging/email/tests/data/get_message_info_15a6008a4baa65f3.json',
-                                  {'status': '200'}))
+        get_http_mock.return_value = HttpMock('lily/messaging/email/tests/data/get_message_info_15a6008a4baa65f3.json',
+                                              {'status': '200'})
 
         email_account = EmailAccount.objects.first()
 
@@ -292,8 +290,8 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
         """
         Test the GmailConnector in retrieving the info of a single label.
         """
-        get_http_mock.side_effect = MagicMock(
-            return_value=HttpMock('lily/messaging/email/tests/data/get_label_info_INBOX.json', {'status': '200'}))
+        get_http_mock.return_value = HttpMock('lily/messaging/email/tests/data/get_label_info_INBOX.json',
+                                              {'status': '200'})
 
         email_account = EmailAccount.objects.first()
 
@@ -310,8 +308,7 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
         """
         Test the GmailConnector in retrieving the list of the available labels.
         """
-        get_http_mock.side_effect = MagicMock(
-            return_value=HttpMock('lily/messaging/email/tests/data/get_label_list.json', {'status': '200'}))
+        get_http_mock.return_value = HttpMock('lily/messaging/email/tests/data/get_label_list.json', {'status': '200'})
 
         email_account = EmailAccount.objects.first()
 
@@ -329,9 +326,9 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
         Test the GmailConnector in retrieving the short message info for a specific email message.
         """
         message_id = '15a6008a4baa65f3'
-        get_http_mock.side_effect = MagicMock(return_value=HttpMock(
+        get_http_mock.return_value = HttpMock(
             'lily/messaging/email/tests/data/get_short_message_info_{0}_archived.json'.format(message_id),
-            {'status': '200'}))
+            {'status': '200'})
 
         email_account = EmailAccount.objects.first()
 
@@ -349,8 +346,8 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
         """
         Test the GmailConnector in retrieving the history updates.
         """
-        get_http_mock.side_effect = MagicMock(
-            return_value=HttpMock('lily/messaging/email/tests/data/get_history_archived.json', {'status': '200'}))
+        get_http_mock.return_value = HttpMock('lily/messaging/email/tests/data/get_history_archived.json',
+                                              {'status': '200'})
 
         email_account = EmailAccount.objects.first()
 
@@ -370,8 +367,8 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
         """
         Test the GmailConnector in saving the updated historty id to the email account.
         """
-        get_http_mock.side_effect = MagicMock(
-            return_value=HttpMock('lily/messaging/email/tests/data/get_history_archived.json', {'status': '200'}))
+        get_http_mock.return_value = HttpMock('lily/messaging/email/tests/data/get_history_archived.json',
+                                              {'status': '200'})
 
         email_account = EmailAccount.objects.first()
 
@@ -390,8 +387,7 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
         """
         Test the GmailConnector in retrieving the history id.
         """
-        get_http_mock.side_effect = MagicMock(
-            return_value=HttpMock('lily/messaging/email/tests/data/get_history_id.json', {'status': '200'}))
+        get_http_mock.return_value = HttpMock('lily/messaging/email/tests/data/get_history_id.json', {'status': '200'})
 
         email_account = EmailAccount.objects.first()
 
@@ -408,8 +404,8 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
         """
         Test the GmailConnector on sending an email message.
         """
-        get_http_mock.side_effect = MagicMock(
-            return_value=HttpMock('lily/messaging/email/tests/data/send_email_message.json', {'status': '200'}))
+        get_http_mock.return_value = HttpMock('lily/messaging/email/tests/data/send_email_message.json',
+                                              {'status': '200'})
 
         email_account = EmailAccount.objects.first()
         email_outbox_message = """Content-Type: multipart/related;
@@ -459,8 +455,8 @@ per inceptos himenaeos. Ut aliquet elit sed augue bibendum malesuada.</body></ht
         """
         message_id = '15af6279e8b72e9c'
 
-        get_http_mock.side_effect = MagicMock(
-            return_value=HttpMock('lily/messaging/email/tests/data/send_email_message_reply.json', {'status': '200'}))
+        get_http_mock.return_value = HttpMock('lily/messaging/email/tests/data/send_email_message_reply.json',
+                                              {'status': '200'})
 
         email_account = EmailAccount.objects.first()
         email_outbox_message = """Content-Type: multipart/related;
@@ -510,9 +506,8 @@ per inceptos himenaeos. Ut aliquet elit sed augue bibendum malesuada.</body></ht
         """
         message_id = '15af6279f554fd15'
 
-        get_http_mock.side_effect = MagicMock(
-            return_value=HttpMock('lily/messaging/email/tests/data/trash_email_message_{0}.json'.format(message_id),
-                                  {'status': '200'}))
+        get_http_mock.return_value = HttpMock(
+            'lily/messaging/email/tests/data/trash_email_message_{0}.json'.format(message_id), {'status': '200'})
 
         email_account = EmailAccount.objects.first()
         connector = GmailConnector(email_account)

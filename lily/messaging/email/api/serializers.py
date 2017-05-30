@@ -2,17 +2,17 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
-from oauth2client.contrib.django_orm import Storage
 from rest_framework import serializers
 from templated_email import send_templated_mail
 
 from lily.api.fields import DynamicQuerySetPrimaryKeyRelatedField
 from lily.api.nested.mixins import RelatedSerializerMixin
 from lily.api.nested.serializers import WritableNestedSerializer
+from lily.messaging.email.credentials import get_credentials
 from lily.users.models import UserInfo
 
 from ..models.models import (EmailLabel, EmailAccount, EmailMessage, Recipient, EmailAttachment, EmailTemplate,
-                             SharedEmailConfig, TemplateVariable, DefaultEmailTemplate, GmailCredentialsModel)
+                             SharedEmailConfig, TemplateVariable, DefaultEmailTemplate)
 from ..services import GmailService
 
 
@@ -125,7 +125,7 @@ class EmailAccountSerializer(WritableNestedSerializer):
                 'only_new': request.data.get('only_new'),
             })
 
-        if self.instance.only_new is None and 'only_new' not in validated_data:
+        if self.instance and self.instance.only_new is None and 'only_new' not in validated_data:
             raise serializers.ValidationError({
                 'only_new': [_('Please select one of the email sync options')]
             })
@@ -134,7 +134,6 @@ class EmailAccountSerializer(WritableNestedSerializer):
 
     def update(self, instance, validated_data):
         user = self.context.get('request').user
-        shared_email_configs = validated_data.get('sharedemailconfig_set', None)
 
         if 'sharedemailconfig_set' in validated_data:
             shared_email_configs = validated_data.pop('sharedemailconfig_set', None)
@@ -165,19 +164,20 @@ class EmailAccountSerializer(WritableNestedSerializer):
                     instance.sharedemailconfig_set.create(**config)
 
         if not instance.is_authorized or 'only_new' in validated_data:
-            only_new = validated_data.get('only_new')
-            # Store credentials based on new email account.
-            storage = Storage(GmailCredentialsModel, 'id', instance, 'credentials')
-            credentials = storage.get()
-
-            # Setup service to retrieve email address.
-            self.gmail_service = GmailService(credentials)
-            profile = self.gmail_service.service.users().getProfile(userId='me').execute()
-
+            # Authorize the email account based on previous stored credentials.
+            credentials = get_credentials(instance)
             if credentials:
                 instance.is_authorized = True
 
+            # When the user only wants to synchronize only new email messages, retrieve the history id of the email
+            # account. That history id is used for the successive (history) sync to retrieve only the changes starting
+            # from this moment.
+            only_new = validated_data.get('only_new')
             if only_new:
+                # Setup service to retrieve history id from Google.
+                gmail_service = GmailService(credentials)
+                profile = gmail_service.execute_service(gmail_service.service.users().getProfile(userId='me'))
+
                 instance.history_id = profile.get('historyId')
                 instance.is_syncing = False
 
@@ -187,7 +187,7 @@ class EmailAccountSerializer(WritableNestedSerializer):
             user.info.email_account_status = UserInfo.COMPLETE
             user.info.save()
 
-            # Send a mail to the first email account in the tenant.
+            # Send an email to the first email account in the tenant.
             if EmailAccount.objects.count() == 1:
                 # Get the current site.
                 try:

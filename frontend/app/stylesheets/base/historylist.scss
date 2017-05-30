@@ -266,7 +266,6 @@
     .history-item-body {
         .detail-plain-text {
             padding: 15px;
-            border-bottom: 1px $app-border-color solid;
             max-height: 400px;
             overflow-y: auto;
             margin: -15px -15px 15px;
@@ -416,9 +415,9 @@
     position: absolute;
     line-height: 22px;
     font-size: 12px;
-    top: 0;
+    top: 10px;
     bottom: 0;
-    right: 50px;
+    right: 20px;
     color: #afb5c2;
 
     @media (max-width: $breakpoint-mobile) {
@@ -449,10 +448,8 @@
 
 .content-details {
     width: 100%;
-    border-top: 1px solid $lily-border-dark;
-    border-bottom: 1px solid lighten($lily-border-dark, 10);
     background-color: #fff;
-    padding: 15px;
+    padding: 15px 15px 0;
 
     p {
         line-height: 24px;
@@ -466,7 +463,15 @@
 .content-history-container {
     width: 100%;
     background-color: #fff;
-    padding: 20px;
+    padding: 0 20px;
+
+    &.add-note-inline {
+        padding-top: 15px;
+
+        .form-control {
+            border-top-left-radius: 0;
+        }
+    }
 
     &.content-history-add-note-form {
         padding-left: 70px;
@@ -586,6 +591,7 @@
 .content-history-note-body {
     background-color: $lily-white-tone-hover;
     margin-left: 50px;
+    margin-right: 150px;
     border-radius: $base-border-radius;
     padding: 10px;
     white-space: pre-wrap;
@@ -600,6 +606,20 @@
     padding: 0;
     display: inline-block;
     margin-bottom: 0;
+
+    &.add-note-buttons {
+        margin-bottom: -19px;
+
+        li {
+            &:first-child {
+                border-bottom-left-radius: 0;
+            }
+
+            &:last-child {
+                border-bottom-right-radius: 0;
+            }
+        }
+    }
 
     li {
         list-style-type: none;

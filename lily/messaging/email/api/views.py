@@ -18,7 +18,7 @@ from .serializers import (EmailLabelSerializer, EmailAccountSerializer, EmailMes
                           EmailTemplateSerializer, SharedEmailConfigSerializer, TemplateVariableSerializer)
 from ..models.models import (EmailLabel, EmailAccount, EmailMessage, EmailTemplate, SharedEmailConfig,
                              TemplateVariable)
-from ..tasks import (trash_email_message, delete_email_message, toggle_read_email_message,
+from ..tasks import (trash_email_message, toggle_read_email_message,
                      add_and_remove_labels_for_message, toggle_star_email_message, toggle_spam_email_message)
 from ..utils import get_filtered_message
 
@@ -211,7 +211,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         """
         Delete an email message asynchronous through the manager and not directly on the database.
         """
-        delete_email_message.apply_async(args=(instance.id,))
+        trash_email_message.apply_async(args=(instance.id,))
 
     @detail_route(methods=['put'])
     def archive(self, request, pk=None):
@@ -246,6 +246,8 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         search index by an instance variable so changes are immediately visible.
         """
         email = self.get_object()
+        if email.is_trashed:
+            email._is_deleted = True
         email._is_trashed = True
         reindex_email_message(email)
         serializer = self.get_serializer(email, partial=True)

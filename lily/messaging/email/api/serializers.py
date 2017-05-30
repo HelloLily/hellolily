@@ -125,7 +125,7 @@ class EmailAccountSerializer(WritableNestedSerializer):
                 'only_new': request.data.get('only_new'),
             })
 
-        if self.instance.only_new is None and 'only_new' not in validated_data:
+        if self.instance and self.instance.only_new is None and 'only_new' not in validated_data:
             raise serializers.ValidationError({
                 'only_new': [_('Please select one of the email sync options')]
             })

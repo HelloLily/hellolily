@@ -9,7 +9,7 @@
     </widget-header>
 
     <widget-filters>
-        <a ng-href="{{ vm.tenant.primary_external_app_link.getUrl(vm.account.customer_id) }}" target="_blank" class="btn btn-circle btn-default" ng-if="vm.account.customer_id && vm.tenant.primary_external_app_link">
+        <a ng-href="{{ vm.tenant.primary_external_app_link.getUrl(vm.account.customer_id) }}" target="_blank" class="hl-primary-btn" ng-if="vm.account.customer_id && vm.tenant.primary_external_app_link">
             <i class="fa fa-external-link fa-sm"></i>
             <span class="external-link-name">{{ vm.tenant.primary_external_app_link.name }}</span>
         </a>

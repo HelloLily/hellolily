@@ -77,6 +77,7 @@ class Email {
 class Header {
     constructor() {
         this.main = 'Lily';
+        this.id = null;
     }
 
     /**
@@ -130,11 +131,12 @@ class Page {
      * @param {Contact} contact - A contact object to set the page context to.
      * @param {Account} account - An account object to set the page context to.
      */
-    setAllTitles(pageType, objectInfo, contact = null, account = null) {
+    setAllTitles(pageType, objectInfo, contact = null, account = null, id = null) {
         // Make sure sidebar forms don't set the titles/headers.
         if (!this.email.sidebar.form) {
             this.title = objectInfo.charAt(0).toUpperCase() + objectInfo.slice(1);
             this.header.setMain(pageType, objectInfo);
+            this.header.id = id;
             this.contact = contact;
             this.account = account;
         }

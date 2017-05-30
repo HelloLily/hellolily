@@ -2,86 +2,11 @@
 </div>
 
 <div ng-if="vm.deal.id" class="row">
-    <div class="col-md-8" ng-if="vm.deal.id">
-        <div class="widget-container">
-            <div class="widget-heading">
-                <ul class="hl-button-group">
-                    <li class="hl-button-group-btn" ng-repeat="status in vm.statusChoices" ng-click="vm.changeState(status)" ng-class="{'selected': vm.deal.status.id == status.id, 'radio-button disabled': vm.deal.is_archived }">
-                        <span class="hl-button-group-btn-link">
-                            {{ status.name }}
-                        </span>
-                    </li>
-                </ul>
-
-                <ul class="hl-button-group">
-                    <li class="hl-button-group-btn">
-                        <span class="hl-button-group-btn-link" ng-attr-uib-tooltip="{{!vm.deal.is_archived && 'Archive to hide it in lists' || ''}}" ng-click="vm.deal.is_archived = !vm.deal.is_archived">
-                            <i class="fa fa-archive"></i>
-                            <span ng-if="vm.deal.is_archived">Unarchive</span>
-                            <span ng-if="!vm.deal.is_archived">Archive</span>
-                        </span>
-                    </li>
-                </ul>
-
-                <div class="pull-right">
-                    <strong class="margin-right-5">Last edited:</strong><date add-time="true" date="vm.deal.modified"></date>
-                </div>
-
-                <div class="clearfix"></div>
-            </div>
-
-            <div class="widget-body">
-                <table class="widget-table align-table">
-                    <tbody>
-                        <tr>
-                            <td>
-                                <strong class="margin-right-10">Next step:</strong>
-                                <editable-select field="next_step" view-model="vm" type="Deal" select-type="icon_select" select-options="{'classPrefix': 'step-type position-', 'classValue': 'position'}">
-                                    <span ng-if="vm.deal.next_step" class="step-type position-{{ vm.deal.next_step.position }}">
-                                        {{ vm.deal.next_step.name }}
-                                    </span>
-                                </editable-select>
-                            </td>
-                            <td  ng-hide="!vm.deal.next_step_date && vm.deal.next_step.name === 'None'">
-                                <strong class="margin-right-10">Next step date:</strong>
-                                <postpone type="'Deal'" object="vm.deal" date-field="'next_step_date'" tt-placement="bottom"></postpone>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <div class="widget-content">
-                    <div class="widget-content-section">
-                        <div><strong>Description</strong></div>
-                        <editable-textarea view-model="vm" field="description" object="vm.deal"></editable-textarea>
-                    </div>
-
-                    <div class="widget-content-section">
-                        <div><strong>Tags</strong></div>
-                        <editable-tags view-model="vm" type="deal"></editable-tags>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-        <checkbox model="vm.mergeHistory" class="pull-right">Merge history lists</checkbox>
-
-        <span ng-if="vm.mergeHistory">
-            <history-list ng-if="vm.deal.id" target="'deal'" object="vm.deal" extra-object="{object: vm.deal.account, target: 'account'}" date-start="vm.dealStart" date-end="vm.dealEnd"></history-list>
-        </span>
-
-        <span ng-if="!vm.mergeHistory">
-            <history-list ng-if="vm.deal.id" target="'deal'" object="vm.deal"></history-list>
-            <history-list ng-if="vm.deal.account.id" target="'account'" object="vm.deal.account" date-start="vm.dealStart" date-end="vm.dealEnd" parent-object="vm.deal"></history-list>
-        </span>
-    </div>
-
     <div>
         <div ng-if="vm.deal.id" class="col-md-4">
             <widget widget-name="'Detail'">
                 <widget-header>
-                    <div class="widget-label deal"></div>
+                    <div class="widget-label deals"></div>
                     <div class="widget-name">Deal details</div>
                 </widget-header>
                 <widget-body>
@@ -301,5 +226,70 @@
 
             <contact-detail-widget ng-if="vm.deal.contact" contact="vm.deal.contact"></contact-detail-widget>
         </div>
+    </div>
+
+    <div class="col-md-8" ng-if="vm.deal.id">
+        <div class="widget-container">
+            <div class="widget-heading">
+                <ul class="hl-button-group">
+                    <li class="hl-button-group-btn" ng-repeat="status in vm.statusChoices" ng-click="vm.changeState(status)" ng-class="{'selected': vm.deal.status.id == status.id, 'radio-button disabled': vm.deal.is_archived }">
+                        <span class="hl-button-group-btn-link">
+                            {{ status.name }}
+                        </span>
+                    </li>
+                </ul>
+
+                <div class="pull-right">
+                    <strong class="margin-right-5">Last edited:</strong><date add-time="true" date="vm.deal.modified"></date>
+                </div>
+
+                <div class="clearfix"></div>
+            </div>
+
+            <div class="widget-body">
+                <table class="widget-table align-table">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <strong class="margin-right-10">Next step:</strong>
+                                <editable-select field="next_step" view-model="vm" type="Deal" select-type="icon_select" select-options="{'classPrefix': 'step-type position-', 'classValue': 'position'}">
+                                    <span ng-if="vm.deal.next_step" class="step-type position-{{ vm.deal.next_step.position }}">
+                                        {{ vm.deal.next_step.name }}
+                                    </span>
+                                </editable-select>
+                            </td>
+                            <td  ng-hide="!vm.deal.next_step_date && vm.deal.next_step.name === 'None'">
+                                <strong class="margin-right-10">Next step date:</strong>
+                                <postpone type="'Deal'" object="vm.deal" date-field="'next_step_date'" tt-placement="bottom"></postpone>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="widget-content">
+                    <div class="widget-content-section">
+                        <div><strong>Description</strong></div>
+                        <editable-textarea view-model="vm" field="description" object="vm.deal"></editable-textarea>
+                    </div>
+
+                    <div class="widget-content-section">
+                        <div><strong>Tags</strong></div>
+                        <editable-tags view-model="vm" type="deal"></editable-tags>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <checkbox model="vm.mergeHistory" class="pull-right">Merge history lists</checkbox>
+
+        <span ng-if="vm.mergeHistory">
+            <history-list ng-if="vm.deal.id" target="'deal'" object="vm.deal" extra-object="{object: vm.deal.account, target: 'account'}" date-start="vm.dealStart" date-end="vm.dealEnd"></history-list>
+        </span>
+
+        <span ng-if="!vm.mergeHistory">
+            <history-list ng-if="vm.deal.id" target="'deal'" object="vm.deal"></history-list>
+            <history-list ng-if="vm.deal.account.id" target="'account'" object="vm.deal.account" date-start="vm.dealStart" date-end="vm.dealEnd" parent-object="vm.deal"></history-list>
+        </span>
     </div>
 </div>

@@ -1,39 +1,29 @@
 <div class="timeline-item-container">
     <div class="timeline-avatar has-date" ng-style="{'background-image': 'url(' + vm.item.author.profile_picture + ')'}"></div>
-
     <div class="timeline-content-container has-note">
-
         <div class="timeline-content-header">
-            <div class="timeline-type">
-                <i class="lilicon" ng-class="{0: 'hl-note-icon', 1: 'hl-phone-icon', 2: 'hl-calendar-icon'}[vm.item.type]"></i>
-            </div>
-
-            <div class="timeline-content">
+            <div>
                 <span ng-if="vm.item.showContact" class="timeline-content-title"><a ui-sref="base.contacts.detail({id: vm.item.object_id})">{{ ::vm.item.subject }}</a></span>
                 <span ng-if="!vm.item.showContact" class="timeline-content-title">{{ ::vm.item.subject }}</span>
-                <ul class="timeline-content-details">
-                    <li>Added by: {{ ::vm.item.author.full_name }}</li>
-                </ul>
 
                 <div class="timeline-date" title="Created on {{ ::vm.item.date | date:'dd MMM yyyy - HH:mm' }}">
                     {{ ::vm.item.date | date:'dd MMM yyyy - HH:mm' }}
                 </div>
             </div>
-
-            <a class="timeline-toggle-details" ng-click="vm.item.shown = !vm.item.shown"><i class="lilicon hl-toggle-left-icon" ng-class="vm.item.shown ? 'hl-toggle-down-icon' : 'hl-toggle-left-icon'"></i></a>
+            <div class="pull-right display-inline-block">
+                <ul class="content-details-actions">
+                    <li ng-if="!vm.item.is_pinned"><a ng-click="vm.history.pinNote(vm.item, true)"><i class="lilicon hl-pin-icon"></i> Pin note</a></li>
+                    <li ng-if="vm.item.is_pinned"><a ng-click="vm.history.pinNote(vm.item, false)"><i class="fa fa-times"></i>Unpin note</a></li>
+                    <li style="margin-right: 0;">
+                        <delete-confirmation model="Note" object="vm.item" callback="vm.history.removeFromList(vm.item)" button-class="btn-link no-background no-padding">
+                            Delete
+                        </delete-confirmation>
+                    </li>
+                </ul>
+            </div>
         </div>
-        <div class="content-details history-item-body" ng-show="vm.item.shown">
+        <div class="content-details history-item-body">
             <editable-textarea extra-class="detail-plain-text" view-model="vm" field="content" object="vm.item"></editable-textarea>
-
-            <ul class="content-details-actions">
-                <li ng-if="!vm.item.is_pinned"><a ng-click="vm.history.pinNote(vm.item, true)"><i class="lilicon hl-pin-icon"></i> Pin note</a></li>
-                <li ng-if="vm.item.is_pinned"><a ng-click="vm.history.pinNote(vm.item, false)"><i class="fa fa-times"></i>Unpin note</a></li>
-                <li>
-                    <delete-confirmation model="Note" object="vm.item" callback="vm.history.removeFromList(vm.item)" button-class="btn-link no-background no-padding">
-                        Delete
-                    </delete-confirmation>
-                </li>
-            </ul>
         </div>
     </div>
 </div>

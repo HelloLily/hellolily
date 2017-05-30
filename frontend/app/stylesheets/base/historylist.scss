@@ -265,7 +265,7 @@
 
     .history-item-body {
         .detail-plain-text {
-            padding: 15px;
+            padding: 15px 15px 0;
             max-height: 400px;
             overflow-y: auto;
             margin: -15px -15px 15px;
@@ -548,7 +548,7 @@
     li {
         display: inline;
         list-style-type: none;
-        margin-right: 20px;
+        margin-right: 10px;
 
         .btn {
             color: $app-color-aqua;

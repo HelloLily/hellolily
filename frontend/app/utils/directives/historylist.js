@@ -132,11 +132,6 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
                             note.author = userObject;
                         });
 
-                        // Set notes shown property to true to have toggled open as default.
-                        if (note.is_pinned) {
-                            note.shown = true;
-                        }
-
                         // If it's a contact's note, add extra attribute to the note
                         // so we can identify it in the template.
                         if (scope.target === 'account' && note.content_type === 'contact') {
@@ -311,10 +306,6 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
                                     orderedHistoryList.nonPinned[key] = {isVisible: true, items: []};
                                 }
 
-                                // if (scope.target === 'case' && item.historyType === 'note' && item.content_type === 'case') {
-                                //     item.shown = true;
-                                // }
-
                                 item.shown = true;
 
                                 orderedHistoryList.nonPinned[key].items.push(item);
@@ -323,12 +314,6 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
                             }
                         }
                     });
-
-                    // Get first key in the nonPinned list to target the first
-                    // item in the history items to set the property to shown.
-                    // if (scope.target !== 'case' && Object.keys(orderedHistoryList.nonPinned).length) {
-                    //     orderedHistoryList.nonPinned[Object.keys(orderedHistoryList.nonPinned)[0]].items[0].shown = true;
-                    // }
 
                     scope.history.list = orderedHistoryList;
 

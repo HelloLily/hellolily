@@ -12,8 +12,8 @@ function unassignedCasesDirective() {
     };
 }
 
-UnassignedCasesController.$inject = ['$http', '$scope', '$state', 'Case', 'HLFilters', 'HLUtils', 'LocalStorage'];
-function UnassignedCasesController($http, $scope, $state, Case, HLFilters, HLUtils, LocalStorage) {
+UnassignedCasesController.$inject = ['$http', '$scope', '$state', '$timeout', 'Case', 'HLFilters', 'HLUtils', 'LocalStorage'];
+function UnassignedCasesController($http, $scope, $state, $timeout, Case, HLFilters, HLUtils, LocalStorage) {
     var vm = this;
 
     vm.storageName = 'unassignedCasesForTeamWidget';
@@ -28,6 +28,7 @@ function UnassignedCasesController($http, $scope, $state, Case, HLFilters, HLUti
         }),
         items: [],
     };
+    vm.filterList = [];
     vm.filterSpecialList = [];
 
     vm.assignToMe = assignToMe;
@@ -38,44 +39,48 @@ function UnassignedCasesController($http, $scope, $state, Case, HLFilters, HLUti
     /////
 
     function activate() {
-        _watchTable();
-
-        let filterSpecialList = [{
-            name: 'Unassigned',
-            value: '_missing_:assigned_to_teams',
-            selected: false,
-            isSpecialFilter: true,
-            separate: true,
-        }];
-
-        vm.teams.map((team) => {
-            filterSpecialList.unshift({
-                name: team.name,
-                value: 'assigned_to_teams:' + team.id,
-                selected: team.selected,
+        $timeout(() => {
+            let filterSpecialList = [{
+                name: 'Unassigned',
+                value: '_missing_:assigned_to_teams',
+                selected: false,
                 isSpecialFilter: true,
                 separate: true,
-            });
-        });
+            }];
 
-        vm.filterSpecialList = filterSpecialList;
-
-        Case.getCaseTypes((caseTypes) =>  {
-            let filterList = [];
-
-            angular.forEach(caseTypes, (caseType) => {
-                filterList.push({
-                    name: caseType.name,
-                    value: 'type.id:' + caseType.id,
-                    selected: false,
+            vm.teams.map((team) => {
+                filterSpecialList.unshift({
+                    name: team.name,
+                    value: 'assigned_to_teams:' + team.id,
+                    selected: team.selected,
                     isSpecialFilter: true,
+                    separate: true,
                 });
             });
 
-            HLFilters.getStoredSelections(filterList, vm.storedFilterList);
+            HLFilters.getStoredSelections(filterSpecialList, vm.storedFilterSpecialList);
 
-            vm.filterList = filterList;
-        });
+            vm.filterSpecialList = filterSpecialList;
+
+            Case.getCaseTypes((caseTypes) =>  {
+                let filterList = [];
+
+                angular.forEach(caseTypes, (caseType) => {
+                    filterList.push({
+                        name: caseType.name,
+                        value: 'type.id:' + caseType.id,
+                        selected: false,
+                        isSpecialFilter: true,
+                    });
+                });
+
+                HLFilters.getStoredSelections(filterList, vm.storedFilterList);
+
+                vm.filterList = filterList;
+            });
+
+            _watchTable();
+        }, 50);
     }
 
     function updateTable() {

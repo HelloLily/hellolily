@@ -276,6 +276,10 @@
         &:before {
             background-color: $email-color;
         }
+
+        .detail-plain-text {
+            height: 350px;
+        }
     }
 
     &.has-nothing {
@@ -354,7 +358,6 @@
 }
 
 .timeline-content {
-    margin-left: 60px;
     position: relative;
 }
 
@@ -364,8 +367,6 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color: $app-color-darkblue;
-    display: block;
-    padding-right: 140px;
 
     a {
         color: $lily-dark-blue;
@@ -412,13 +413,10 @@
 }
 
 .timeline-date {
-    position: absolute;
     line-height: 22px;
     font-size: 12px;
-    top: 10px;
-    bottom: 0;
-    right: 20px;
     color: #afb5c2;
+    float: right;
 
     @media (max-width: $breakpoint-mobile) {
         position: relative;

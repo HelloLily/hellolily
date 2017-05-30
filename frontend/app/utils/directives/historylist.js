@@ -311,9 +311,11 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
                                     orderedHistoryList.nonPinned[key] = {isVisible: true, items: []};
                                 }
 
-                                if (scope.target === 'case' && item.historyType === 'note' && item.content_type === 'case') {
-                                    item.shown = true;
-                                }
+                                // if (scope.target === 'case' && item.historyType === 'note' && item.content_type === 'case') {
+                                //     item.shown = true;
+                                // }
+
+                                item.shown = true;
 
                                 orderedHistoryList.nonPinned[key].items.push(item);
                             } else {
@@ -324,9 +326,9 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
 
                     // Get first key in the nonPinned list to target the first
                     // item in the history items to set the property to shown.
-                    if (scope.target !== 'case' && Object.keys(orderedHistoryList.nonPinned).length) {
-                        orderedHistoryList.nonPinned[Object.keys(orderedHistoryList.nonPinned)[0]].items[0].shown = true;
-                    }
+                    // if (scope.target !== 'case' && Object.keys(orderedHistoryList.nonPinned).length) {
+                    //     orderedHistoryList.nonPinned[Object.keys(orderedHistoryList.nonPinned)[0]].items[0].shown = true;
+                    // }
 
                     scope.history.list = orderedHistoryList;
 

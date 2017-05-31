@@ -285,10 +285,6 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
         email_outbox_message.original_attachment_ids = ','.join(original_attachment_ids)
         email_outbox_message.save()
 
-        # Remove an old draft when sending an email message or saving a new draft.
-        if self.object and self.remove_old_message:
-            self.remove_draft()
-
         return email_outbox_message
 
     def get_original_attachment_ids(self, form):
@@ -444,6 +440,10 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
                 task.id, email_outbox_message.id, task.traceback
             ))
 
+        # Remove the old draft when sending an email message.
+        if self.object and self.remove_old_message:
+            self.remove_draft()
+
         return task
 
     def remove_draft(self):
@@ -451,6 +451,13 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
         Removes the current draft.
         """
         task = trash_email_message.apply_async(args=(self.object.id,))
+
+        try:
+            email = EmailMessage.objects.get(pk=self.object.id)
+            email._is_trashed = True  # Make sure the draft isn't shown immediately anymore.
+            reindex_email_message(email)
+        except EmailMessage.DoesNotExist:
+            pass
 
         if not task:
             messages.error(
@@ -515,6 +522,13 @@ class EmailMessageDraftView(EmailMessageComposeView):
         current_draft_pk = self.kwargs.get('pk', None)
 
         if current_draft_pk:
+            try:
+                email = EmailMessage.objects.get(pk=current_draft_pk)
+                email._is_trashed = True  # Make sure the old draft isn't shown immediately anymore.
+                reindex_email_message(email)
+            except EmailMessage.DoesNotExist:
+                pass
+
             task = update_draft_email_message.apply_async(
                 args=(email_outbox_message.id, current_draft_pk,),
                 max_retries=1,

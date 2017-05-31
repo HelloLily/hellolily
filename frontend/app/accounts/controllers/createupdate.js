@@ -168,19 +168,38 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
         }
     }
 
-    function _mergeData(primary, form) {
+    function _mergeData(primary, dirtyForm) {
+        const form = HLFields.cleanRelatedFields(dirtyForm);
+
         if (!primary.primaryWebsite) primary.primaryWebsite = form.primaryWebsite;
         if (form.description) {
             primary.description = `${form.description}\n\n${primary.description}`;
         }
-        primary.email_addresses = primary.email_addresses.concat(form.email_addresses);
-        primary.phone_numbers = primary.phone_numbers.concat(form.phone_numbers);
-        primary.addresses = primary.addresses.concat(form.addresses);
-        primary.websites = primary.websites.concat(form.websites);
+        primary.email_addresses = _concatUnique(primary.email_addresses, form.email_addresses, ['email_address']);
+        primary.phone_numbers = _concatUnique(primary.phone_numbers, form.phone_numbers, ['number']);
+        primary.addresses = _concatUnique(primary.addresses, form.addresses, ['address', 'city', 'postal_code']);
+        primary.websites = _concatUnique(primary.websites, form.websites, ['website']);
         if (!primary.twitter && form.twitter) primary.twitter = form.twitter;
-        primary.tags = primary.tags.concat(form.tags);
-
+        primary.tags = _concatUnique(primary.tags, form.tags, ['name']);
         return primary;
+    }
+
+    function _concatUnique(primary, secondary, unique) {
+        // Remove items already present in primary from secondary.
+        let result = secondary.filter(function(secondaryItem) {
+            // Check if all unique keys are the same, remove item from array if they are.
+            let count = 0;
+
+            unique.map(key => {
+                if (primary.find(primaryItem => primaryItem[key] === secondaryItem[key])) {
+                    count++;
+                }
+            });
+
+            return count !== unique.length;
+        });
+
+        return primary.concat(result);
     }
 
     function checkExistingAccount() {

@@ -22,4 +22,14 @@
     <a href="{% url 'login' %}">
         {% trans 'Back to login' %}
     </a>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function(event) {
+            var regex = new RegExp("[?&]email(=([^&#]*)|&|#|$)")
+            var result = regex.exec(window.location.href);
+            if(result) {
+                document.getElementById('id_email').value = decodeURIComponent(result[2]);
+            }
+        });
+    </script>
 {% endblock %}

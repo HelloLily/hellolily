@@ -94,7 +94,7 @@
 
                     {% if wizard.steps.current == 'auth' %}
                         <div class="align-center">
-                            <a class="link" href="{% url 'password_reset' %}">
+                            <a class="link" href="{% url 'password_reset' %}" id="reset_password">
                                 {% trans 'Forgot your password?' %}
                             </a>
                         </div>
@@ -103,9 +103,25 @@
                                 {% trans 'Resend activation email' %}
                             </a>
                         </div>
+                        <div class="spacer-20"></div>
+                        <div class="align-center">
+                            <div class="register-text">Don’t have an account?</div>
+                            <a class="link" href="https://hellolily.com/pricing/">
+                                {% trans 'Select a plan and register' %}
+                            </a>
+                        </div>
                     {% endif %}
                 </div>
             </div>
         </div>
+        <script>
+            document.getElementById('reset_password').addEventListener('click', function(event){
+                email = document.getElementById('id_auth-username').value;
+                if(email.length) {
+                    event.preventDefault();
+                    window.location = "{% url 'password_reset' %}?email=" + encodeURIComponent(email);
+                }
+            });
+        </script>
     </body>
 </html>

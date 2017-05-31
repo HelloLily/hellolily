@@ -79,6 +79,13 @@ function EmailMessage($resource, $q) {
                     id: '@id',
                 },
             },
+            extract: {
+                method: 'POST',
+                url: '/api/messaging/email/email/:id/extract/',
+                params: {
+                    id: '@id',
+                },
+            },
         }
     );
 

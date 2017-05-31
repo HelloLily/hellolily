@@ -94,7 +94,9 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
             });
         }
 
-        vm.currentInbox = Settings.email.previousInbox.params.labelId;
+        if (Settings.email.previousInbox) {
+            vm.currentInbox = Settings.email.previousInbox.params.labelId;
+        }
 
         _watchSidebarVisibility();
     }
@@ -293,13 +295,22 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     }
 
     function _setupContactInfo() {
-        var senderParts = vm.message.sender.name.split(' ');
+        let senderParts = vm.message.sender.name.split(' ');
+
+        let account = null;
+
+        if (Settings.email.data.account) {
+            account = Settings.email.data.account.id;
+        }
 
         Settings.email.data.contact = {
             firstName: senderParts[0],
             lastName: senderParts.slice(1).join(' '),
             emailAddress: vm.message.sender.email_address,
         };
+
+        // Set the promise so we can resolve it later.
+        Settings.email.data.contact.phoneNumbers = EmailMessage.extract({id: vm.message.id, account: account});
     }
 
     function toggleSidebar(modelName, toggleList) {

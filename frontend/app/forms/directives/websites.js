@@ -27,7 +27,7 @@ function FormWebsitesController() {
 
     var websites = vm.websites.filter(website => website.is_primary === false);
 
-    if (!(websites.length)) {
+    if (!websites.length) {
         vm.addRelatedField({field: 'website'});
     }
 }

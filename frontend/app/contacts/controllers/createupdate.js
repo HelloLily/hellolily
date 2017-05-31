@@ -77,9 +77,9 @@ function contactConfig($stateProvider) {
 angular.module('app.contacts').controller('ContactCreateUpdateController', ContactCreateUpdateController);
 
 ContactCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', '$timeout', 'Account',
-    'Contact', 'HLFields', 'HLForms', 'HLResource', 'HLSearch', 'Settings', 'currentContact'];
+    'Contact', 'HLFields', 'HLForms', 'HLResource', 'HLSearch', 'HLUtils', 'Settings', 'currentContact'];
 function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, Account, Contact,
-                                       HLFields, HLForms, HLResource, HLSearch, Settings, currentContact) {
+                                       HLFields, HLForms, HLResource, HLSearch, HLUtils, Settings, currentContact) {
     var vm = this;
 
     vm.contact = currentContact || {};
@@ -157,6 +157,8 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
             if (Settings.email.data) {
                 // Auto fill data if it's available
                 if (Settings.email.data.contact) {
+                    let contact = Settings.email.data.contact;
+
                     if (Settings.email.data.contact.firstName) {
                         vm.contact.first_name = Settings.email.data.contact.firstName;
                     }
@@ -171,6 +173,22 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
                         vm.contact.email_addresses.push({
                             email_address: Settings.email.data.contact.emailAddress,
                             status: 2,
+                        });
+                    }
+
+                    if (contact.phoneNumbers) {
+                        contact.phoneNumbers.$promise.then((data) => {
+                            if (data.phone_numbers.length) {
+                                // Phone number was added through the phoneNumbers directive.
+                                // So clear it and add extracted phone number(s).
+                                if (vm.contact.phone_numbers.length && !vm.contact.phone_numbers[0].hasOwnProperty('number')) {
+                                    vm.contact.phone_numbers.shift();
+                                }
+
+                                data.phone_numbers.map((number) => {
+                                    vm.contact.phone_numbers.push(HLUtils.formatPhoneNumber({type: 'work', number: number}));
+                                });
+                            }
                         });
                     }
                 }

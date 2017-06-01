@@ -170,6 +170,7 @@ class RelatedLilyUserSerializer(RelatedSerializerMixin, LilyUserSerializer):
             'first_name',
             'last_name',
             'full_name',
+            'profile_picture',
         )
 
 

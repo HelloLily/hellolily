@@ -206,6 +206,10 @@
             line-height: 40px;
         }
     }
+
+    &.inline-avatar {
+        position: relative;
+    }
 }
 
 .timeline-info-header {

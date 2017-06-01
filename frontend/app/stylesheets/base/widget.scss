@@ -51,6 +51,11 @@ class is applied to, so be sure it has a wrapping container.
             border: 0;
         }
     }
+
+    &.no-background {
+        background: none;
+        border: 0;
+    }
 }
 
 .widget-content {
@@ -190,19 +195,19 @@ class is applied to, so be sure it has a wrapping container.
 
     td {
         vertical-align: top;
+        line-height: 28px;
 
         &:first-child {
-            font-weight: bold;
             width: 160px;
         }
     }
 
     tr {
-        margin-bottom: 20px;
+        margin-bottom: 10px;
         display: block;
 
         &:last-child {
-            margin-bottom: 0;
+            margin-bottom: 20px;
         }
 
         &.has-no-info {
@@ -219,6 +224,22 @@ class is applied to, so be sure it has a wrapping container.
         margin-bottom: 10px;
 
         &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    tbody {
+        tr:first-child {
+            font-weight: bold;
+        }
+
+        tr:last-child {
+            margin-bottom: 30px;
+        }
+    }
+
+    tbody:last-child {
+        tr:last-child {
             margin-bottom: 0;
         }
     }

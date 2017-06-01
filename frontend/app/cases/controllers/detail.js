@@ -51,7 +51,7 @@ function CaseDetailController($scope, Case, HLResource, HLUtils, LocalStorage, S
     var vm = this;
     var storage = new LocalStorage('caseDetail');
 
-    Settings.page.setAllTitles('detail', currentCase.subject, currentCase.contact, currentCase.account);
+    Settings.page.setAllTitles('detail', currentCase.subject, currentCase.contact, currentCase.account, currentCase.id);
     Settings.page.toolbar.data = {
         model: 'Case',
         object: currentCase,
@@ -137,7 +137,7 @@ function CaseDetailController($scope, Case, HLResource, HLUtils, LocalStorage, S
         var expireDate;
 
         if (field === 'subject') {
-            Settings.page.setAllTitles('detail', data, vm.case.contact, vm.case.account);
+            Settings.page.setAllTitles('detail', data, vm.case.contact, vm.case.account, vm.case.id);
         }
 
         if (args.hasOwnProperty('assigned_to_teams')) {

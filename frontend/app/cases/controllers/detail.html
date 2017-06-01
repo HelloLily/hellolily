@@ -2,58 +2,177 @@
 </div>
 
 <div class="row">
-    <div class="col-md-8">
-        <div class="widget-container" ng-if="vm.case.id">
-            <div class="widget-heading">
-                <div class="hl-button-group-container">
-                    <ul class="hl-button-group" data-toggle="buttons" data-object-id="{{ ::vm.case.id }}">
-                        <li class="hl-button-group-btn" ng-repeat="status in vm.statusChoices" ng-attr-uib-tooltip="{{status.name == 'Closed' && 'Closes and archives it' || ''}}" ng-click="vm.changeCaseStatus(status)" ng-class="{'selected': vm.case.status.name == status.name, 'disabled': vm.case.is_archived }">
-                            <span class="hl-button-group-btn-link">
-                                {{ status.name }}
-                            </span>
-                        </li>
-                    </ul>
+    <div ng-if="vm.case.id" class="col-md-3">
+        <widget widget-name="'Case details'">
+            <widget-header>
+                <div class="widget-label cases"></div>
+                <div class="widget-name">Case details</div>
+            </widget-header>
 
-                    <ul class="hl-button-group" data-toggle="buttons" data-object-id="{{ ::vm.case.id }}">
-                        <li class="hl-button-group-btn" ng-attr-uib-tooltip="{{!vm.case.is_archived && 'Archive to hide it in lists' || ''}}">
-                            <span class="hl-button-group-btn-link" ng-click="vm.toggleArchived()">
-                                <i class="fa fa-archive"></i>
-                                <span ng-if="vm.case.is_archived">Unarchive</span>
-                                <span ng-if="!vm.case.is_archived">Archive</span>
-                            </span>
-                        </li>
-                    </ul>
+            <widget-body>
+                <div class="widget-content case-detail-info">
+                    <table class="widget-content-table no-align no-bold">
+                        <tbody>
+                            <tr><td colspan="2">Contact info</td></tr>
+                            <tr ng-if="vm.case.account.customer_id && vm.tenant.primary_external_app_link">
+                                <td>External link</td>
+                                <td><a ng-href="{{ vm.tenant.primary_external_app_link.getUrl(vm.case.account.customer_id) }}" target="_blank"><span class="external-link-name">{{ vm.tenant.primary_external_app_link.name }} <i class="fa fa-external-link margin-left-5"></i></span></a></td>
+                            </tr>
+                            <tr>
+                                <td>Email</td>
+                                <td>
+                                    <div ng-if="vm.case.contact && !vm.case.contact.email_addresses.length">
+                                        <div ng-repeat="email in vm.case.account.email_addresses">
+                                            <i class="lilicon hl-company-icon margin-right-10" uib-tooltip="{{ $root.messages.contact.accountInfoTooltip }}"></i>
+                                            <a ui-sref="base.email.composeEmail({email: email.email_address})">
+                                                {{ email.email_address }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <editable-related ng-if="vm.case.contact" model="vm.case.contact" type="Contact" field="email_addresses"></editable-related>
+                                    <editable-related ng-if="!vm.case.contact" model="vm.case.account" type="Account" field="email_addresses"></editable-related>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>Phone</td>
+                                <td>
+                                    <div ng-if="vm.case.contact && !vm.case.contact.phone_numbers.length">
+                                        <div ng-repeat="phone in vm.case.account.phone_numbers">
+                                            <i class="lilicon hl-company-icon margin-right-10" uib-tooltip="{{ $root.messages.contact.accountInfoTooltip }}"></i>
+                                            <a href="tel:{{ phone.number }}">
+                                                {{ phone.number }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <editable-related ng-if="vm.case.contact" model="vm.case.contact" type="Contact" field="phone_numbers"></editable-related>
+                                    <editable-related ng-if="!vm.case.contact" model="vm.case.account" type="Account" field="phone_numbers"></editable-related>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>Address</td>
+                                <td>
+                                    <div ng-if="vm.case.contact && !vm.case.contact.addresses.length">
+                                        <div ng-repeat="address in vm.case.account.addresses">
+                                            <div class="display-inline-block">
+                                                <i class="lilicon hl-company-icon margin-right-10" uib-tooltip="{{ $root.messages.contact.accountInfoTooltip }}"></i>
+                                            </div>
+                                            <div class="display-inline-block vertical-align-top">
+                                                {{ address.address }}
+                                                <br/>
+                                                {{ address.postal_code }}, {{ address.city }}
+                                                <br/>
+                                                {{ address.country }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <editable-related ng-if="vm.case.contact" model="vm.case.contact" type="Contact" field="addresses"></editable-related>
+                                    <editable-related ng-if="!vm.case.contact" model="vm.case.account" type="Account" field="addresses"></editable-related>
+                                </td>
+                            </tr>
+                        </tbody>
+
+                        <tbody>
+                            <tr><td colspan="2">Case info</td></tr>
+                            <tr>
+                                <td>Priority & type</td>
+                                <td>
+                                    <editable-select field="priority" view-model="vm" type="Case" choice-field="true" select-type="icon_select"
+                                                    select-options="{field: 'casePriorities', 'classPrefix': 'lilicon hl-prio-icon-', 'classValue': 'name'}">
+                                        <i class="lilicon hl-prio-icon-{{ vm.case.priority_display | lowercase }}" tooltip-placement="left" uib-tooltip="{{ vm.case.priority_display }}"></i>
+                                    </editable-select>
+
+                                    <editable-select field="type" view-model="vm" type="Case" select-options="{field: 'caseTypes'}">
+                                        {{ vm.case.type.name }}
+                                    </editable-select>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>Expires on</td>
+                                <td><postpone type="'Case'" object="vm.case" date-field="'expires'" show-icon="false"></postpone></td>
+                            </tr>
+
+                            <tr>
+                                <td>Assigned to</td>
+                                <td>
+                                    <editable-select field="assigned_to" view-model="vm" type="Case" search="true"
+                                                     select-options="{type: 'User', display: 'full_name', placeholder: 'Assign to...', allowClear: true, sortColumn: 'full_name', nameColumn: 'full_name'}">
+                                        {{ vm.case.assigned_to.full_name || 'Nobody'}}
+                                    </editable-select>
+                                    <a ng-if="vm.case.assigned_to.id != currentUser.id" ng-click="vm.assignCase()" uib-tooltip="Assign to me">
+                                        <i class="fa fa-anchor margin-left-5 margin-right-5"></i>
+                                    </a>
+
+                                    <span ng-if="vm.case.assigned_to_teams.length" class="margin-left-5 margin-right-5">
+                                        <strong>from</strong>
+                                    </span>
+
+                                    <editable-select field="assigned_to_teams" view-model="vm" type="Case" search="true" multiple="true"
+                                                     select-options="{type: 'UserTeams', placeholder: 'Select one or more team(s)', sortColumn: 'name'}">
+                                        <span ng-repeat="team in vm.case.assigned_to_teams">
+                                            {{ team.name }}{{ $last ? '' : ', '}}
+                                        </span>
+                                        <span ng-if="!vm.case.assigned_to_teams.length"><i class="lilicon hl-entities-icon"></i></span>
+                                    </editable-select>
+                                </td>
+                            </tr>
+                        </tbody>
+
+                        <tbody>
+                            <tr><td colspan="2">Tags</td></tr>
+                            <tr>
+                                <td colspan="2">
+                                    <editable-tags view-model="vm" type="case"></editable-tags>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
+            </widget-body>
+        </widget>
+    </div>
 
-                <div class="clearfix"></div>
-            </div>
-            <div class="widget-body">
-                <table class="widget-table align-table">
-                    <tbody>
-                        <tr>
-                            <td><strong>Case ID:</strong> #{{ vm.case.id }}</td>
-                            <td>
-                                <strong>Type:</strong>
-                                <editable-select class="margin-left-10" field="type" view-model="vm" type="Case" select-options="{field: 'caseTypes'}">
-                                    {{ vm.case.type.name }}
-                                </editable-select>
-                            </td>
-                            <td>
-                                <strong>Priority:</strong>
-                                <editable-select class="margin-left-10" field="priority" view-model="vm" type="Case" choice-field="true" select-type="icon_select"
-                                                 select-options="{field: 'casePriorities', 'classPrefix': 'lilicon hl-prio-icon-', 'classValue': 'name'}">
-                                    <span class="lilicon" ng-class="{0: 'hl-prio-icon-low', 1: 'hl-prio-icon-medium', 2: 'hl-prio-icon-high', 3: 'hl-prio-icon-critical'}[vm.case.priority]"></span>
-                                    {{ vm.case.priority_display }}
-                                </editable-select>
-                            </td>
-                            <td><strong>Expires on:</strong> <postpone class="margin-left-5" type="'Case'" object="vm.case" date-field="'expires'"></postpone></td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="widget-content">
-                    <div class="widget-content-section">
-                        <div><strong>Description</strong></div>
-                        <editable-textarea view-model="vm" field="description" object="vm.case"></editable-textarea>
+    <div class="col-md-9">
+        <div class="details-main">
+            <div class="timeline-avatar inline-avatar" ng-if="vm.case.assigned_to" ng-style="{'background-image': 'url(' + vm.case.assigned_to.profile_picture + ')'}"></div>
+            <div class="timeline-avatar inline-avatar" ng-if="!vm.case.assigned_to" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png');"></div>
+
+            <div class="widget-container" ng-if="vm.case.id">
+                <div class="widget-heading">
+                    <div class="hl-button-group-container">
+                        <ul class="hl-button-group" data-toggle="buttons" data-object-id="{{ ::vm.case.id }}">
+                            <li class="hl-button-group-btn" ng-repeat="status in vm.statusChoices" ng-attr-uib-tooltip="{{status.name == 'Closed' && 'Closes and archives it' || ''}}" ng-attr-tooltip-placement="bottom" ng-click="vm.changeCaseStatus(status)" ng-class="{'selected': vm.case.status.name == status.name, 'disabled': vm.case.is_archived }">
+                                <span class="hl-button-group-btn-link">
+                                    {{ status.name }}
+                                </span>
+                            </li>
+                        </ul>
+
+                        <ul class="hl-button-group pull-right" data-toggle="buttons" data-object-id="{{ ::vm.case.id }}">
+                            <li class="hl-button-group-btn" ng-attr-uib-tooltip="{{ !vm.case.is_archived && 'Archive to hide it in lists' || ''}}" ng-attr-tooltip-placement="bottom">
+                                <span class="hl-button-group-btn-link" ng-click="vm.toggleArchived()">
+                                    <i class="fa fa-archive"></i>
+                                    <span ng-if="vm.case.is_archived">Unarchive</span>
+                                    <span ng-if="!vm.case.is_archived">Archive</span>
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="clearfix"></div>
+                </div>
+                <div class="widget-body">
+                    <div class="widget-content height-200" slimscroll="{allowPageScroll: true}" class="scroll-body">
+                        <div class="widget-content-section">
+                            <div>
+                                <span class="text-muted pull-right lineheight-28">{{ vm.case.created | date:"dd MMMM y H:mm" }}</span>
+
+                                <editable-text field="subject" object="vm.case" update-callback="vm.updateModel"><strong>{{ vm.case.subject }}</strong></editable-text>
+                            </div>
+                            <editable-textarea view-model="vm" field="description" object="vm.case"></editable-textarea>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -69,78 +188,5 @@
             <history-list ng-if="vm.case.id" target="'case'" object="vm.case"></history-list>
             <history-list ng-if="vm.case.account.id" target="'account'" object="vm.case.account" date-start="vm.caseStart" date-end="vm.caseEnd" parent-object="vm.case"></history-list>
         </span>
-    </div>
-
-    <div ng-if="vm.case.id" class="col-md-4">
-        <account-detail-widget ng-if="vm.case.account" account="vm.case.account"></account-detail-widget>
-
-        <contact-detail-widget ng-if="vm.case.contact" contact="vm.case.contact"></contact-detail-widget>
-
-        <widget widget-name="'More info'">
-            <widget-header>
-                <div class="widget-label"></div>
-                <div class="widget-name">
-                    <i class="fa fa-info"></i>
-                    More info
-                </div>
-            </widget-header>
-
-            <widget-body>
-                <div class="widget-content case-detail-info">
-                    <table class="widget-content-table">
-                        <tbody>
-                            <tr>
-                                <td>Assigned to</td>
-                                <td>
-                                    <editable-select field="assigned_to" view-model="vm" type="Case" search="true"
-                                                     select-options="{type: 'User', display: 'full_name', placeholder: 'Assign to...', allowClear: true, sortColumn: 'full_name', nameColumn: 'full_name'}">
-                                        {{ vm.case.assigned_to.full_name || 'Nobody'}}
-                                    </editable-select>
-                                    <a ng-if="vm.case.assigned_to.id != currentUser.id" ng-click="vm.assignCase()">
-                                        <i class="fa fa-anchor margin-left-5"></i> Assign to me
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Assigned to teams:</td>
-                                <td>
-                                    <editable-select field="assigned_to_teams" view-model="vm" type="Case" search="true" multiple="true"
-                                                     select-options="{type: 'UserTeams', placeholder: 'Select one or more team(s)', sortColumn: 'name'}">
-                                        <div ng-repeat="team in vm.case.assigned_to_teams">
-                                            {{ team.name }}
-                                        </div>
-                                        <span ng-if="!vm.case.assigned_to_teams.length">Not assigned to any team(s)</span>
-                                    </editable-select>
-                                </td>
-                            </tr>
-
-                            <tr><td>Created by</td> <td>{{ vm.case.created_by.full_name || 'Unknown' }}</td></tr>
-                            <tr><td>Created on</td> <td>{{ vm.case.created | date:"dd MMMM y H:mm" }}</td></tr>
-
-                            <tr>
-                                <td>Expires on</td>
-                                <td><postpone type="'Case'" object="vm.case" date-field="'expires'"></postpone></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </widget-body>
-        </widget>
-
-        <widget widget-name="'Tags'">
-            <widget-header>
-                <div class="widget-label"></div>
-                <div class="widget-name">
-                    <i class="fa fa-tag"></i>
-                    Tags
-                </div>
-            </widget-header>
-
-            <widget-body>
-                <div class="widget-content">
-                    <editable-tags view-model="vm" type="case"></editable-tags>
-                </div>
-            </widget-body>
-        </widget>
     </div>
 </div>

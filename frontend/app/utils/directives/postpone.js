@@ -9,6 +9,7 @@ function postponeDirective() {
             dateField: '=',
             callback: '&',
             ttPlacement: '@', // use tt instead of 'tooltip' for distinction.
+            showIcon: '@?',
         },
         templateUrl: 'utils/directives/postpone.html',
         controller: PostponeController,
@@ -44,6 +45,10 @@ function PostponeController($compile, $injector, $scope, $state, $templateCache,
         vm.date = vm.date.toDate();
 
         _watchCloseDatePicker();
+
+        if (!vm.showIcon) {
+            vm.showIcon = true;
+        }
     }
 
     /**

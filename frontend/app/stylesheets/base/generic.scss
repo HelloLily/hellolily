@@ -229,6 +229,10 @@ label {
     padding-bottom: 0 !important;
 }
 
+.height-200 {
+    height: 200px;
+}
+
 .height-250 {
     height: 250px;
 }
@@ -538,6 +542,10 @@ table {
     margin-top: 0;
 }
 
+.lineheight-28 {
+    line-height: 28px;
+}
+
 .lineheight-30 {
     line-height: 30px;
 }
@@ -658,6 +666,17 @@ option {
 
 .deleted-indicator {
     color: #b5b5b5;
+}
+
+.details-main {
+    .timeline-avatar {
+        float: left;
+    }
+
+    .widget-container {
+        margin-left: 90px;
+        overflow: hidden;
+    }
 }
 
 .text-red {

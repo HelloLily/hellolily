@@ -63,7 +63,7 @@
                                                 <br/>
                                                 {{ address.postal_code }}, {{ address.city }}
                                                 <br/>
-                                                {{ address.country }}
+                                                {{ address.country_display }}
                                             </div>
                                         </div>
                                     </div>
@@ -164,7 +164,7 @@
                     <div class="clearfix"></div>
                 </div>
                 <div class="widget-body">
-                    <div class="widget-content height-200" slimscroll="{allowPageScroll: true}" class="scroll-body">
+                    <div class="widget-content height-300" slimscroll="{allowPageScroll: true}" class="scroll-body">
                         <div class="widget-content-section">
                             <div>
                                 <span class="text-muted pull-right lineheight-28">{{ vm.case.created | date:"dd MMMM y H:mm" }}</span>

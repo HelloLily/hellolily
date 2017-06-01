@@ -372,14 +372,16 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         """
         email = self.get_object()
         account = request.data['account']
+        country = None
 
         if account:
             account = Account.objects.get(pk=account)
 
             if account.addresses:
-                country = account.addresses.first().country
-            else:
-                country = None
+                address = account.addresses.first()
+
+                if address:
+                    country = address.country
         else:
             country = self.request.user.tenant.country or None
 

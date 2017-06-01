@@ -95,7 +95,7 @@ class GmailManager(object):
             message_id (str): message_id of the message
         """
         # If message is already downloaded, only update it.
-        if EmailMessage.objects.filter(account=self.email_account, message_id=message_id).exists():
+        if EmailMessage.objects.filter(account=self.email_account, message_id=message_id).order_by().exists():
             self.update_labels_for_message(message_id)
             return
 
@@ -181,7 +181,9 @@ class GmailManager(object):
                 new_messages.discard(message['message']['id'])
                 edit_labels.discard(message['message']['id'])
 
-                EmailMessage.objects.filter(message_id=message['message']['id'], account=self.email_account).delete()
+                EmailMessage.objects.filter(
+                    message_id=message['message']['id'], account=self.email_account
+                ).order_by().delete()
 
         # Create tasks to download email messages.
         for message_id in new_messages:

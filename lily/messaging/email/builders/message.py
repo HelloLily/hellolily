@@ -67,18 +67,17 @@ class MessageBuilder(object):
 
         # Get or create without save.
         created = False
-        with transaction.atomic():
-            try:
-                self.message = EmailMessage.objects.get(
-                    message_id=message_dict['id'],
-                    account=self.manager.email_account,
-                )
-            except EmailMessage.DoesNotExist:
-                self.message = EmailMessage(
-                    message_id=message_dict['id'],
-                    account=self.manager.email_account,
-                )
-                created = True
+        try:
+            self.message = EmailMessage.objects.get(
+                message_id=message_dict['id'],
+                account=self.manager.email_account,
+            )
+        except EmailMessage.DoesNotExist:
+            self.message = EmailMessage(
+                message_id=message_dict['id'],
+                account=self.manager.email_account,
+            )
+            created = True
 
         if 'threadId' in message_dict:
             self.message.thread_id = message_dict['threadId']

@@ -3,12 +3,14 @@ import logging
 from django.conf import settings
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
+import phonenumbers
 from rest_framework import viewsets, mixins, status, filters
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
+from lily.accounts.models import Account
 from lily.messaging.email.utils import get_email_parameter_api_dict, reindex_email_message
 from lily.search.lily_search import LilySearch
 from lily.users.models import UserInfo
@@ -362,6 +364,39 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
                 results['forwarded_with'] = next_message
 
         return Response(results)
+
+    @detail_route(methods=['post'])
+    def extract(self, request, pk=None):
+        """
+        Attempt to extract phone numbers from the given email message. If account is given it will
+        """
+        email = self.get_object()
+        account = request.data['account']
+
+        if account:
+            account = Account.objects.get(pk=account)
+
+            if account.addresses:
+                country = account.addresses.first().country
+            else:
+                country = None
+        else:
+            country = self.request.user.tenant.country or None
+
+        phone_numbers = []
+
+        # We can't extract phone numbers without a country.
+        if country:
+            for match in phonenumbers.PhoneNumberMatcher(email.body_text, country):
+                number_format = phonenumbers.PhoneNumberFormat.NATIONAL
+                number = match.number
+
+                number = phonenumbers.format_number(number, number_format).replace(' ', '')
+
+                if number not in phone_numbers:
+                    phone_numbers.append(number)
+
+        return Response({'phone_numbers': phone_numbers})
 
 
 class EmailTemplateViewSet(viewsets.ModelViewSet):

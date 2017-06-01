@@ -12,8 +12,8 @@ function unassignedDealsDirective() {
     };
 }
 
-UnassignedDealsController.$inject = ['$http', '$scope', '$state', 'Deal', 'HLFilters', 'HLUtils', 'LocalStorage'];
-function UnassignedDealsController($http, $scope, $state, Deal, HLFilters, HLUtils, LocalStorage) {
+UnassignedDealsController.$inject = ['$http', '$scope', '$state', '$timeout', 'Deal', 'HLFilters', 'HLUtils', 'LocalStorage'];
+function UnassignedDealsController($http, $scope, $state, $timeout, Deal, HLFilters, HLUtils, LocalStorage) {
     var vm = this;
 
     vm.storageName = 'unassignedDealsWidget';
@@ -28,6 +28,7 @@ function UnassignedDealsController($http, $scope, $state, Deal, HLFilters, HLUti
         }),
         items: [],
     };
+    vm.filterList = [];
     vm.filterSpecialList = [];
 
     vm.assignToMe = assignToMe;
@@ -38,47 +39,49 @@ function UnassignedDealsController($http, $scope, $state, Deal, HLFilters, HLUti
     /////
 
     function activate() {
-        _watchTable();
-
-        let filterSpecialList = [{
-            name: 'Unassigned',
-            value: '_missing_:assigned_to_teams',
-            selected: false,
-            isSpecialFilter: true,
-            separate: true,
-        }];
-
-        vm.teams.map((team) => {
-            filterSpecialList.unshift({
-                name: team.name,
-                value: 'assigned_to_teams:' + team.id,
-                selected: team.selected,
+        $timeout(() => {
+            let filterSpecialList = [{
+                name: 'Unassigned',
+                value: '_missing_:assigned_to_teams',
+                selected: false,
                 isSpecialFilter: true,
                 separate: true,
-            });
-        });
+            }];
 
-        filterSpecialList.push();
-
-        vm.filterSpecialList = filterSpecialList;
-
-        Deal.getNextSteps(function(response) {
-            var filterList = [];
-
-            angular.forEach(response.results, function(nextStep) {
-                filterList.push({
-                    name: nextStep.name,
-                    value: 'next_step.id:' + nextStep.id,
-                    selected: false,
-                    position: nextStep.position,
+            vm.teams.map((team) => {
+                filterSpecialList.unshift({
+                    name: team.name,
+                    value: 'assigned_to_teams:' + team.id,
+                    selected: team.selected,
                     isSpecialFilter: true,
+                    separate: true,
                 });
             });
 
-            HLFilters.getStoredSelections(filterList, vm.storedFilterList);
+            HLFilters.getStoredSelections(filterSpecialList, vm.storedFilterSpecialList);
 
-            vm.filterList = filterList;
-        });
+            vm.filterSpecialList = filterSpecialList;
+
+            Deal.getNextSteps((response) => {
+                let filterList = [];
+
+                angular.forEach(response.results, (nextStep) => {
+                    filterList.push({
+                        name: nextStep.name,
+                        value: 'next_step.id:' + nextStep.id,
+                        selected: false,
+                        position: nextStep.position,
+                        isSpecialFilter: true,
+                    });
+                });
+
+                HLFilters.getStoredSelections(filterList, vm.storedFilterList);
+
+                vm.filterList = filterList;
+            });
+
+            _watchTable();
+        }, 50);
     }
 
     function updateTable() {

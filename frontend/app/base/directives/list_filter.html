@@ -17,7 +17,7 @@
                 <span ng-hide="vm.allSelected">Select all</span>
             </li>
 
-            <li class="hl-dropdown-item" ng-if="vm.viewModel.filterList.length" ng-repeat="filter in vm.viewModel.filterList" ng-click="vm.toggleFilter(filter)">
+            <li class="hl-dropdown-item" ng-if="vm.viewModel.filterList.length && filter.isSpecialFilter" ng-repeat="filter in vm.viewModel.filterList" ng-click="vm.toggleFilter(filter)">
                 <div class="hl-checkbox" ng-class="{'checked': filter.selected}"></div>
                 {{ filter.name }}
             </li>

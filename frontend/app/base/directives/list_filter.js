@@ -121,9 +121,9 @@ function ListFilterController($filter, $timeout, HLFilters) {
     }
 
     function updateFilterDisplayName(updateQuery = false) {
-        var filterList = vm.viewModel.filterList;
-        var selectedItems = [];
-        var label = vm.filterLabel;
+        let filterList = vm.viewModel.filterList;
+        let selectedItems = [];
+        let label = vm.filterLabel;
 
         if (vm.viewModel.filterSpecialList && !vm.hideSpecial) {
             filterList = vm.viewModel.filterSpecialList;
@@ -133,7 +133,7 @@ function ListFilterController($filter, $timeout, HLFilters) {
 
         if (selectedItems && selectedItems.length) {
             if (selectedItems.length < 3) {
-                label = selectedItems.map(function(item) {
+                label = selectedItems.map((item) => {
                     return item.name;
                 }).join(' + ');
             } else {

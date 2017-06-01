@@ -105,6 +105,7 @@ function LabelListController($filter, $interval, $scope, $state, EmailAccount, p
     }
 
     function hasUnreadLabel(account, labelId) {
-        return unreadCountForLabel(account, labelId) > 0;
+        // return unreadCountForLabel(account, labelId) > 0;
+        return false;
     }
 }

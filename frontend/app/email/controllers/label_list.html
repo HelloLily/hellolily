@@ -92,7 +92,7 @@
             </li>
             <li ng-repeat="label in account.labels | orderBy:'name'" ng-if="label.label_type != 0" ui-sref-active="active">
                 <a class="email-nav-item" ui-sref="base.email.accountList({labelId: label.label_id, accountId: account.id})" ui-sref-opts="{reload:true}">
-                    {{ label.name }}<span class="unread-count" ng-show="label.unread">{{ label.unread }}</span></a>
+                    {{ label.name }}</a>
             </li>
             <li ui-sref-active="active">
                 <a class="email-nav-item" ui-sref="base.email.accountAllList({accountId: account.id})">All mail</a>

@@ -262,11 +262,12 @@ class GmailManager(object):
         """
         Update unread count on every label.
         """
-        logger.debug('Updating unread count for every label, account %s' % self.email_account)
-        for label in self.email_account.labels.all():
-            unread_count = label.messages.filter(read=False).count()
-            label.unread = unread_count
-            label.save()
+        pass
+        # logger.debug('Updating unread count for every label, account %s' % self.email_account)
+        # for label in self.email_account.labels.all():
+        #     unread_count = label.messages.filter(read=False).count()
+        #     label.unread = unread_count
+        #     label.save()
 
     def administer_sync_status(self, is_syncing):
         """

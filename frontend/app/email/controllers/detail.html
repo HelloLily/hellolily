@@ -156,7 +156,7 @@
         {{ vm.message.body_text }}
     </div>
 
-    <div ng-if="vm.message.id" class="inbox-attached margin-bottom-25" ng-show="vm.message.attachments.length">
+    <div ng-if="vm.message.id" class="inbox-attached m-b-25" ng-show="vm.message.attachments.length">
         <div ng-repeat="attachment in normal_attachments = (vm.message.attachments | filter: {inline: false})">
             <div>
                 <strong>{{ attachment.name }}</strong>

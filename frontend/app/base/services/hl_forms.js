@@ -9,24 +9,19 @@ function HLForms($timeout) {
      * @param data (object): object containing all the errors
      *
      */
-    this.setErrors = function(form, data) {
-        var field;
-        var i;
-        var key;
-        var formField;
-
+    this.setErrors = (form, data) => {
         // Unblock the UI so user can retry filling in the form.
         Metronic.unblockUI();
 
         // We don't want to continue if the returned errors aren't properly formatted.
         if (typeof data === 'object') {
-            for (field in data) {
+            for (let field in data) {
                 // Errors are always in the <field>: Array format, so iterate over the array.
-                for (i = 0; i < data[field].length; i++) {
+                for (let i = 0; i < data[field].length; i++) {
                     // Related fields are always an object, so check for that.
                     if (typeof data[field][i] === 'object') {
-                        for (key in data[field][i]) {
-                            formField = [field, key, i].join('-');
+                        for (let key in data[field][i]) {
+                            const formField = [field, key, i].join('-');
 
                             // The error is always the first element, so get it and set as the error message.
                             form[formField].$error = {message: data[field][i][key][0]};
@@ -40,7 +35,7 @@ function HLForms($timeout) {
                 }
             }
 
-            $timeout(function() {
+            $timeout(() => {
                 angular.element('.form-control.ng-invalid:first').focus();
             });
         }
@@ -50,8 +45,8 @@ function HLForms($timeout) {
      * Clear all errors of the form (in case of new errors).
      * @param form (object): The form from which the errors should be cleared.
      */
-    this.clearErrors = function(form) {
-        angular.forEach(form, function(value, key) {
+    this.clearErrors = form => {
+        angular.forEach(form, (value, key) => {
             if (typeof value === 'object' && value.hasOwnProperty('$modelValue')) {
                 form[key].$error = {};
                 form[key].$setValidity(key, true);
@@ -63,17 +58,18 @@ function HLForms($timeout) {
      * Clean the fields of the given view model.
      * @param viewModel (object): The view model that's being created/updated.
      */
-    this.clean = function(viewModel) {
+    this.clean = viewModel => {
         // We don't want to clean certain fields.
-        var ignoredFields = ['tags'];
-        var ids = [];
+        const ignoredFields = ['tags'];
 
-        angular.forEach(viewModel, function(fieldValue, field) {
+        angular.forEach(viewModel, (fieldValue, field) => {
             if (ignoredFields.indexOf(field) < 0 && fieldValue) {
                 // We don't want to send whole objects to the API, because they're not accepted.
                 // So loop through all fields and extract IDs.
                 if (fieldValue.constructor === Array) {
-                    angular.forEach(fieldValue, function(item) {
+                    let ids = [];
+
+                    angular.forEach(fieldValue, item => {
                         if (typeof item === 'object') {
                             if (item.hasOwnProperty('id')) {
                                 ids.push(item.id);
@@ -101,8 +97,12 @@ function HLForms($timeout) {
     /**
      * Block the UI, giving the user feedback about the form.
      */
-    this.blockUI = function() {
-        // animate shows a CSS animation instead of the standard 'Loading' text.
+    this.blockUI = () => {
+        // Animate shows a CSS animation instead of the standard 'Loading' text.
         Metronic.blockUI({animate: true});
+    };
+
+    this.unblockUI = () => {
+        Metronic.unblockUI();
     };
 }

@@ -229,6 +229,8 @@
             <account-detail-widget ng-if="vm.deal.account" account="vm.deal.account"></account-detail-widget>
 
             <contact-detail-widget ng-if="vm.deal.contact" contact="vm.deal.contact"></contact-detail-widget>
+
+            <time-logger object="vm.deal"></time-logger>
         </div>
     </div>
 
@@ -261,7 +263,7 @@
                     <tbody>
                         <tr>
                             <td>
-                                <strong class="margin-right-10">Next step:</strong>
+                                <strong class="m-r-10">Next step:</strong>
                                 <editable-select field="next_step" view-model="vm" type="Deal" select-type="icon_select" select-options="{'classPrefix': 'step-type position-', 'classValue': 'position'}">
                                     <span ng-if="vm.deal.next_step" class="step-type position-{{ vm.deal.next_step.position }}">
                                         {{ vm.deal.next_step.name }}
@@ -269,7 +271,7 @@
                                 </editable-select>
                             </td>
                             <td  ng-hide="!vm.deal.next_step_date && vm.deal.next_step.name === 'None'">
-                                <strong class="margin-right-10">Next step date:</strong>
+                                <strong class="m-r-10">Next step date:</strong>
                                 <postpone type="'Deal'" object="vm.deal" date-field="'next_step_date'" tt-placement="bottom"></postpone>
                             </td>
                         </tr>

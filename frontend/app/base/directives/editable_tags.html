@@ -1,6 +1,6 @@
 <div ng-if="vm.object.tags" ng-class="{'form-inline': vm.tagForm.$visible}">
     <div class="form-inline-section">
-        <form data-editable-form name="vm.tagForm" class="display-inline-block margin-right-10 editable-multi">
+        <form data-editable-form name="vm.tagForm" class="display-inline-block m-r-10 editable-multi">
             <div editable-ui-select="vm.object.tags" data-e-multiple data-onbeforesave="vm.updateViewModel($data)"
                  data-e-form="tagForm" data-e-theme="select2" data-e-class="editable-select2"
                  data-e-ng-model="vm.object.tags" class="editable editable-click" data-e-tagging="vm.addTagChoice" editable-handler>

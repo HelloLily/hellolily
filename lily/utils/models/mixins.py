@@ -45,7 +45,7 @@ class Common(DeletedMixin, TenantMixin):
     social_media = models.ManyToManyField(SocialMedia, blank=True, verbose_name=_('list of social media'))
     addresses = AddressFormSetField(Address, blank=True, verbose_name=_('list of addresses'))
     email_addresses = EmailAddressFormSetField(EmailAddress, blank=True, verbose_name=_('list of email addresses'))
-    notes = GenericRelation('notes.Note', content_type_field='content_type', object_id_field='object_id',
+    notes = GenericRelation('notes.Note', content_type_field='gfk_content_type', object_id_field='gfk_object_id',
                             verbose_name='list of notes')
 
     @property

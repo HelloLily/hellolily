@@ -29,21 +29,21 @@ class NoteMapping(BaseMapping):
             'content': {
                 'type': 'string',
             },
-            'content_type': {
+            'date': {
+                'type': 'date',
+            },
+            'gfk_content_type': {
                 'type': 'string',
                 'index_analyzer': 'keyword',
             },
-            'date': {
-                'type': 'date',
+            'gfk_object_id': {
+                'type': 'integer',
             },
             'is_pinned': {
                 'type': 'boolean',
             },
             'modified': {
                 'type': 'date',
-            },
-            'object_id': {
-                'type': 'integer',
             },
             'subject': {
                 'type': 'string',
@@ -84,11 +84,12 @@ class NoteMapping(BaseMapping):
                 'id': obj.author.id,
             },
             'content': obj.content,
-            'content_type': obj.content_type.name,
+            'content_type': obj.content_type.id,
             'date': obj.created,
+            'gfk_content_type': obj.gfk_content_type.name,
+            'gfk_object_id': obj.gfk_object_id,
             'is_pinned': obj.is_pinned,
             'modified': obj.modified,
-            'object_id': obj.object_id,
             'subject': str(obj.subject),
             'type': obj.type,
             'type_display': obj.get_type_display(),

@@ -142,6 +142,10 @@
                         isFreePlan: '{{ user.tenant.billing.is_free_plan }}' == 'True',
                         trialStarted: '{{ user.tenant.billing.trial_started }}' == 'True',
                     },
+                    timeLogging: {
+                        enabled: '{{ user.tenant.timelogging_enabled }}' == 'True',
+                        billingDefault: '{{ user.tenant.billing_default }}' == 'True',
+                    },
                     emailAccountStatus: parseInt('{{ user.info.email_account_status }}'),
                     user_hash: '{{ user.user_hash }}',
                     limitReached: {

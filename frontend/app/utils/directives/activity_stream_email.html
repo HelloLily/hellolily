@@ -22,24 +22,26 @@
             </div>
         </div>
 
-        <div class="stream-item-activity" ng-if="vm.item.privacy !== 2">
-            <div ng-if="vm.item.subject">
-                <a ng-if="vm.item.account" ui-sref="base.email.detail({ id: vm.item.id })" class="stream-item-activity-link">
-                    {{ ::vm.item.subject | limitTo:50 }}
-                    <span ng-if="::vm.item.subject.length >= 45">...</span>
-                </a>
-                <div ng-if="!vm.item.account">
-                    {{ ::vm.item.subject | limitTo:50 }}
-                    <span ng-if="::vm.item.subject.length >= 45">...</span>
-                </div>
-            </div>
-            <div ng-if="!vm.item.subject">
-                No subject
-            </div>
-        </div>
+        <div class="stream-item-activity">
+            <span ng-if="vm.item.privacy !== 2">
+                <span ng-if="vm.item.subject">
+                    <a ng-if="vm.item.account" ui-sref="base.email.detail({ id: vm.item.id })" class="stream-item-activity-link">
+                        {{ ::vm.item.subject | limitTo:50 }}
+                        <span ng-if="::vm.item.subject.length >= 45">...</span>
+                    </a>
+                    <div ng-if="!vm.item.account">
+                        {{ ::vm.item.subject | limitTo:50 }}
+                        <span ng-if="::vm.item.subject.length >= 45">...</span>
+                    </div>
+                </span>
+                <span ng-if="!vm.item.subject">
+                    No subject
+                </span>
+            </span>
 
-        <div class="stream-item-activity" ng-if="vm.item.privacy == 2">
-            <span ng-if="!vm.item.subject">[Subject hidden]</span>
+            <span ng-if="vm.item.privacy == 2">
+                <span ng-if="!vm.item.subject">[Subject hidden]</span>
+            </span>
         </div>
 
         <div class="stream-item-content is-email">

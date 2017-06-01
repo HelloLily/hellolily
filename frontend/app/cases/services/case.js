@@ -2,7 +2,7 @@ angular.module('app.cases.services').factory('Case', Case);
 
 Case.$inject = ['$resource', 'CacheFactory', 'HLCache', 'HLResource', 'HLUtils'];
 function Case($resource, CacheFactory, HLCache, HLResource, HLUtils) {
-    var _case = $resource(
+    const _case = $resource(
         '/api/cases/:id/',
         {},
         {
@@ -28,8 +28,8 @@ function Case($resource, CacheFactory, HLCache, HLResource, HLUtils) {
                     }
 
                     return {
-                        objects: objects,
-                        total: total,
+                        objects,
+                        total,
                     };
                 },
             },

@@ -1,0 +1,61 @@
+<div class="portlet">
+    <div class="portlet-body flip-scroll">
+        <simple-widget>
+            <widget-header>
+                <div class="widget-name">
+                    Additional features
+                </div>
+            </widget-header>
+
+            <widget-body>
+                <table class="table table-bordered">
+                    <thead class="flip-content">
+                        <tr>
+                            <th>
+                                <span class="text-nowrap">Name</span>
+                            </th>
+                            <th>
+                                <span class="text-nowrap">Description</span>
+                            </th>
+                            <th>
+                                <span class="text-nowrap">Status</span>
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr>
+                            <td>
+                                Time logging 
+                            </td>
+                            <td>
+                                Enable this feature so users can log hours on cases and deals.
+                            </td>
+                            <td>
+                                <label class="switch">
+                                    <input type="checkbox" ng-model="vm.tenant.timelogging_enabled" ng-change="vm.saveSettings()">
+                                    <div class="slider round"></div>
+                                </label>
+                            </td>
+                        </tr>
+
+                        <tr ng-if="vm.tenant.timelogging_enabled">
+                            <td>
+                                Billable default value
+                            </td>
+                            <td>
+                                Sets the default for the 'Billable' value for logged hours.
+                            </td>
+                            <td>
+                                <label class="switch">
+                                    <input type="checkbox" ng-model="vm.tenant.billing_default" ng-change="vm.saveSettings()">
+                                    <div class="slider round"></div>
+                                </label>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </widget-body>
+        </simple-widget>
+    </div>
+</div>

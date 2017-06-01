@@ -11,27 +11,27 @@ function ActivityStreamItemDirective($compile, $http, $templateCache) {
             deleteCallback: '&?',
             updateCallback: '&?',
         },
-        link: function(scope, element, attrs) {
-            var getTemplate = function(activityType) {
-                var templateLoader;
-                var baseUrl = 'utils/directives/activity_stream_';
-                var templateMap = {
+        link: (scope, element, attrs) => {
+            const getTemplate = activityType => {
+                const baseUrl = 'utils/directives/activity_stream_';
+                const templateMap = {
                     case: 'case.html',
                     deal: 'deal.html',
                     email: 'email.html',
                     note: 'note.html',
                     call: 'call.html',
                     change: 'change.html',
+                    timelog: 'timelog.html',
                 };
 
-                var templateUrl = baseUrl + templateMap[activityType];
-                templateLoader = $http.get(templateUrl, {cache: $templateCache});
+                const templateUrl = baseUrl + templateMap[activityType];
+                const templateLoader = $http.get(templateUrl, {cache: $templateCache});
 
                 return templateLoader;
             };
-            getTemplate(scope.vm.item.activityType).success(function(html) {
+            getTemplate(scope.vm.item.activityType).success(html => {
                 element.replaceWith($compile(html)(scope));
-            }).then(function() {
+            }).then(() => {
                 element.replaceWith($compile(element.html())(scope));
             });
         },
@@ -43,7 +43,7 @@ function ActivityStreamItemDirective($compile, $http, $templateCache) {
 
 ActivityStreamItemController.$inject = ['$scope', '$state'];
 function ActivityStreamItemController($scope, $state) {
-    var vm = this;
+    const vm = this;
 
     vm.replyOnEmail = replyOnEmail;
     vm.removeFromList = removeFromList;
@@ -52,7 +52,7 @@ function ActivityStreamItemController($scope, $state) {
 
     function replyOnEmail() {
         // Check if the emailaccount belongs to the current contact or account.
-        angular.forEach(vm.object.email_addresses, function(emailAddress) {
+        angular.forEach(vm.object.email_addresses, emailAddress => {
             if (emailAddress.email_address === vm.item.sender_email && emailAddress.status === 0) {
                 // Is status is inactive, try to find other email address.
                 _replyToGoodEmailAddress();
@@ -61,14 +61,14 @@ function ActivityStreamItemController($scope, $state) {
 
         function _replyToGoodEmailAddress() {
             // Try to find primary.
-            angular.forEach(vm.object.email_addresses, function(emailAddress) {
+            angular.forEach(vm.object.email_addresses, emailAddress => {
                 if (emailAddress.status === 2) {
                     $state.go('base.email.replyOtherEmail', {id: vm.item.id, email: emailAddress.email_address});
                 }
             });
 
             // Other will do as alternative.
-            angular.forEach(vm.object.email_addresses, function(emailAddress) {
+            angular.forEach(vm.object.email_addresses, emailAddress => {
                 if (emailAddress.status === 1) {
                     $state.go('base.email.replyOtherEmail', {id: vm.item.id, email: emailAddress.email_address});
                 }

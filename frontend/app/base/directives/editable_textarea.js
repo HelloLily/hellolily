@@ -18,6 +18,7 @@ function editableTextarea() {
             field: '@',
             object: '=',
             extraClass: '@',
+            modelName: '@?',
         },
         templateUrl: 'base/directives/editable_textarea.html',
         controller: EditableTextAreaController,
@@ -40,6 +41,10 @@ function EditableTextAreaController($injector, $timeout, HLUtils) {
 
     function activate() {
         vm.selectModel = vm.object[vm.field];
+
+        if (!vm.modelName && vm.object.activityType) {
+            vm.modelName = vm.object.activityType.charAt(0).toUpperCase() + vm.object.activityType.slice(1);
+        }
     }
 
     function convertToHTML() {
@@ -48,25 +53,22 @@ function EditableTextAreaController($injector, $timeout, HLUtils) {
     }
 
     function updateViewModel($data) {
-        var patchPromise;
-        var modelName;
-        var args = {
+        const args = {
             id: vm.object.id,
+            [vm.field]: $data,
         };
 
-        args[vm.field] = $data;
+        let patchPromise;
 
         if (vm.object.activityType) {
-            modelName = vm.object.activityType.charAt(0).toUpperCase() + vm.object.activityType.slice(1);
-
-            patchPromise = $injector.get(modelName).updateModel(args);
+            patchPromise = $injector.get(vm.modelName).updateModel(args);
         } else {
             patchPromise = vm.viewModel.updateModel(args);
         }
 
-        return patchPromise.then(function(data) {
+        return patchPromise.then(data => {
             // Set the encoded value so it get's properly displayed in the frontend.
-            $timeout(function() {
+            $timeout(() => {
                 // Just setting the value doesn't update the values model properly.
                 // So use $timeout so it gets applied in the next digest cycle.
                 vm.object[vm.field] = data[vm.field];

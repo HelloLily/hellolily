@@ -175,6 +175,8 @@ function PostponeController($compile, $injector, $scope, $state, $templateCache,
             title: messages.alerts.postpone[vm.type.toLowerCase() + 'Title'],
             html: $compile($templateCache.get('utils/controllers/postpone.html'))($scope),
             showCloseButton: true,
+            showCancelButton: true,
+            confirmButtonText: 'Postpone',
         }).then(isConfirm => {
             if (isConfirm) {
                 _updateDayAndCloseModal();

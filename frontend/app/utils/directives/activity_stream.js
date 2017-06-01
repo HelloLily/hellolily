@@ -1,9 +1,9 @@
 angular.module('app.utils.directives').directive('activityStream', ActivityStreamDirective);
 
 ActivityStreamDirective.$inject = ['$filter', '$q', '$state', 'Account', 'Case', 'Change', 'Contact', 'Deal',
-    'EmailAccount', 'EmailDetail', 'HLGravatar', 'HLResource', 'HLUtils', 'HLForms', 'Note', 'NoteDetail', 'User'];
+    'EmailAccount', 'EmailDetail', 'HLGravatar', 'HLResource', 'HLUtils', 'HLForms', 'Note', 'TimeLog', 'User'];
 function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Contact, Deal, EmailAccount,
-    EmailDetail, HLGravatar, HLResource, HLUtils, HLForms, Note, NoteDetail, User) {
+    EmailDetail, HLGravatar, HLResource, HLUtils, HLForms, Note, TimeLog, User) {
     return {
         restrict: 'E',
         replace: true,
@@ -16,12 +16,12 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
             parentObject: '=?',
         },
         templateUrl: 'utils/directives/activity_stream.html',
-        link: function(scope, element, attrs) {
+        link: (scope, element, attrs) => {
             const HOURS_BETWEEN_CHANGES = 1;
             const DATE_FORMAT = 'D MMM. YYYY';
+            const PAGE_SIZE = 50;
 
-            var page = 0;
-            var pageSize = 50;
+            let page = 0;
 
             scope.activity = {};
             scope.activity.list = [];
@@ -33,6 +33,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                 'email': {name: 'Emails', visible: false},
                 'call': {name: 'Calls', visible: false},
                 'change': {name: 'Changes', visible: false},
+                'timelog': {name: 'Logged time', visible: false},
             };
             scope.activity.activeFilter = '';
             scope.activity.showMoreText = 'Show more';
@@ -51,6 +52,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                 'accounts': 'Works at',
             };
             scope.activity.mergeChanges = true;
+            scope.activity.parentObject = scope.parentObject;
 
             scope.activity.loadMore = loadMore;
             scope.activity.reloadActivity = reloadActivity;
@@ -78,22 +80,19 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
             }
 
             function filterType(value) {
-                var key;
-                var selectedCount;
-
                 scope.activity.activeFilter = value;
                 // Loop through the months to hide the month name when there
                 // aren't any items in that month that are shown due to
                 // the filter that is being selected.
-                for (key in scope.activity.list.nonPinned) {
-                    selectedCount = $filter('filter')(scope.activity.list.nonPinned[key].items, {activityType: value}).length;
+                for (let key in scope.activity.list.nonPinned) {
+                    const selectedCount = $filter('filter')(scope.activity.list.nonPinned[key].items, {activityType: value}).length;
                     scope.activity.list.nonPinned[key].isVisible = !!selectedCount;
                 }
             }
 
             function loadMore() {
                 if (!scope.object.$resolved) {
-                    scope.object.$promise.then(function(obj) {
+                    scope.object.$promise.then(obj => {
                         _fetchActivity(obj);
                     });
                 } else {
@@ -107,62 +106,53 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
             }
 
             function _fetchActivity(obj) {
-                var activity = [];
-                var promises = [];
-                var neededLength = (page + 1) * pageSize;
-                var requestLength = neededLength + 1;
-                var notePromise;
-                var dateQuery = '';
-                var emailDateQuery = '';
-                var casePromise;
-                var dealPromise;
-                var tenantEmailAccountPromise;
-                var emailPromise;
-                let changePromise;
-                var i;
-                var filterquery;
-                var currentObject = obj;
-                var contentType = scope.target;
-                let callPromise;
+                const activity = [];
+                const promises = [];
+                const requestLength = ((page + 1) * PAGE_SIZE) + 1;
+
+                let dateQuery = '';
+                let emailDateQuery = '';
+                let contentType = scope.target;
+                let currentObject = obj;
                 let targetPlural = scope.target + 's';
 
                 if (scope.dateStart && scope.dateEnd) {
-                    dateQuery = ' AND modified:[' + scope.dateStart + ' TO ' + scope.dateEnd + ']';
-                    emailDateQuery = 'sent_date:[' + scope.dateStart + ' TO ' + scope.dateEnd + ']';
+                    dateQuery = ` AND modified:[${scope.dateStart} TO ${scope.dateEnd}]`;
+                    emailDateQuery = `sent_date:[${scope.dateStart} TO ${scope.dateEnd}]`;
                 }
 
                 page += 1;
 
-                filterquery = '(content_type:' + contentType + ' AND object_id:' + currentObject.id + ')';
+                let filterquery = `(gfk_content_type: ${contentType} AND gfk_object_id: ${currentObject.id})`;
 
                 if (contentType === 'account' && currentObject.contacts) {
                     // Show all notes of contacts linked to the account.
-                    for (i = 0; i < currentObject.contacts.length; i++) {
-                        filterquery += ' OR (content_type:contact AND object_id:' + currentObject.contacts[i].id + ')';
+                    for (let i = 0; i < currentObject.contacts.length; i++) {
+                        filterquery += ` OR (gfk_content_type:contact AND gfk_object_id: ${currentObject.contacts[i].id})`;
                     }
                 }
 
                 if (scope.extraObject) {
-                    filterquery += ' OR (content_type:' + scope.extraObject.target + ' AND object_id:' + scope.extraObject.object.id + dateQuery + ')';
+                    filterquery += ` OR (gfk_content_type: ${scope.extraObject.target} AND gfk_object_id: ${scope.extraObject.object.id} ${dateQuery})`;
                 }
 
-                filterquery = '(' + filterquery + ')';
+                filterquery = `(${filterquery})`;
 
-                notePromise = NoteDetail.query({filterquery: filterquery, size: requestLength}).$promise;
+                const notePromise = Note.search({filterquery, size: requestLength}).$promise;
 
                 // Add promise to list of all promises for later handling.
                 promises.push(notePromise);
 
-                notePromise.then(function(results) {
-                    results.forEach(function(note) {
+                notePromise.then(results => {
+                    results.forEach(note => {
                         // Get user for notes to show profile picture correctly.
-                        User.get({id: note.author.id, is_active: 'All'}, function(userObject) {
+                        User.get({id: note.author.id, is_active: 'All'}, userObject => {
                             note.author = userObject;
                         });
 
                         // If it's a contact's note, add extra attribute to the note
                         // so we can identify it in the template.
-                        if (scope.target === 'account' && note.content_type === 'contact') {
+                        if (scope.target === 'account' && note.gfk_content_type === 'contact') {
                             note.showContact = true;
                         }
 
@@ -170,16 +160,17 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                     });
                 });
 
-                changePromise = Change.query({id: currentObject.id, model: targetPlural}).$promise;
+                const changePromise = Change.query({id: currentObject.id, model: targetPlural}).$promise;
 
                 promises.push(changePromise);  // Add promise to list of all promises for later handling
 
                 changePromise.then(results => {
                     let changes = [];
-                    let previousTime;
-                    let futureTime;
 
                     if (scope.activity.mergeChanges) {
+                        let previousTime;
+                        let futureTime;
+
                         // Merge individual changes to a single change if they're within a certain time period.
                         results.objects.map((change, index) => {
                             let currentTime = moment(change.created);
@@ -319,6 +310,12 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                     });
                 });
 
+                if (currentObject.hasOwnProperty('timeLogs')) {
+                    currentObject.timeLogs.forEach(timeLog => {
+                        activity.push(timeLog);
+                    });
+                }
+
                 if (scope.extraObject) {
                     currentObject = scope.extraObject.object;
                     contentType = scope.extraObject.target;
@@ -330,23 +327,23 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                 if (contentType !== 'case' && contentType !== 'deal') {
                     filterquery = contentType + '.id:' + currentObject.id;
 
-                    casePromise = Case.search({filterquery: filterquery + dateQuery, size: 100}).$promise;
+                    const casePromise = Case.search({filterquery: filterquery + dateQuery, size: 100}).$promise;
 
                     // Add promise to list of all promises for later handling.
                     promises.push(casePromise);
 
-                    casePromise.then(function(response) {
-                        response.objects.forEach(function(caseItem) {
+                    casePromise.then(response => {
+                        response.objects.forEach(caseItem => {
                             // Get user object for the assigned to user.
                             if (caseItem.assigned_to) {
-                                User.get({id: caseItem.assigned_to.id, is_active: 'All'}, function(userObject) {
+                                User.get({id: caseItem.assigned_to.id, is_active: 'All'}, userObject => {
                                     caseItem.assigned_to = userObject;
                                 });
                             }
 
                             if (caseItem.created_by) {
                                 // Get user object for the created by user.
-                                User.get({id: caseItem.created_by.id, is_active: 'All'}, function(userObject) {
+                                User.get({id: caseItem.created_by.id, is_active: 'All'}, userObject => {
                                     caseItem.created_by = userObject;
                                 });
                             }
@@ -354,11 +351,11 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                             caseItem.activityType = 'case';
 
                             activity.push(caseItem);
-                            NoteDetail.query({filterquery: 'content_type:case AND object_id:' + caseItem.id, size: 15})
-                                .$promise.then(function(notes) {
-                                    angular.forEach(notes, function(note) {
+                            Note.search({filterquery: 'gfk_content_type:case AND gfk_object_id:' + caseItem.id, size: 15})
+                                .$promise.then(notes => {
+                                    notes.map(note => {
                                         // Get user for notes to show profile picture correctly.
-                                        User.get({id: note.author.id, is_active: 'All'}, function(author) {
+                                        User.get({id: note.author.id, is_active: 'All'}, author => {
                                             note.author = author;
                                         });
                                     });
@@ -368,33 +365,33 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                         });
                     });
 
-                    dealPromise = Deal.search({filterquery: filterquery + dateQuery, size: requestLength}).$promise;
+                    const dealPromise = Deal.search({filterquery: filterquery + dateQuery, size: requestLength}).$promise;
                     // Add promise to list of all promises for later handling.
                     promises.push(dealPromise);
 
-                    dealPromise.then(function(results) {
-                        results.objects.forEach(function(deal) {
+                    dealPromise.then(results => {
+                        results.objects.forEach(deal => {
                             if (deal.assigned_to) {
                                 // Get user object for the assigned to user.
-                                User.get({id: deal.assigned_to.id, is_active: 'All'}, function(userObject) {
+                                User.get({id: deal.assigned_to.id, is_active: 'All'}, userObject => {
                                     deal.assigned_to = userObject;
                                 });
                             }
 
                             if (deal.created_by) {
                                 // Get user object to show profile picture correctly.
-                                User.get({id: deal.created_by.id, is_active: 'All'}, function(userObject) {
+                                User.get({id: deal.created_by.id, is_active: 'All'}, userObject => {
                                     deal.created_by = userObject;
                                 });
                             }
 
-                            NoteDetail.query({
-                                filterquery: 'content_type:deal AND object_id:' + deal.id,
+                            Note.search({
+                                filterquery: 'gfk_content_type:deal AND gfk_object_id:' + deal.id,
                                 size: 5,
-                            }).$promise.then(function(notes) {
-                                angular.forEach(notes, function(note) {
+                            }).$promise.then(notes => {
+                                notes.map(note => {
                                     // Get user for notes to show profile picture correctly.
-                                    User.get({id: note.author.id, is_active: 'All'}, function(author) {
+                                    User.get({id: note.author.id, is_active: 'All'}, author => {
                                         note.author = author;
                                     });
                                 });
@@ -405,6 +402,8 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                             activity.push(deal);
                         });
                     });
+
+                    let callPromise;
 
                     if (contentType === 'account') {
                         callPromise = Account.getCalls({id: currentObject.id}).$promise;
@@ -417,7 +416,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
 
                     callPromise.then(data => {
                         data.results.map(call => {
-                            NoteDetail.query({filterquery: 'content_type:call AND object_id:' + call.id, size: 15})
+                            Note.search({filterquery: 'content_type:call AND object_id:' + call.id, size: 15})
                                 .$promise.then(notes => {
                                     angular.forEach(notes, note => {
                                         // Get user for notes to show profile picture correctly.
@@ -433,54 +432,63 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                         });
                     });
 
-                    tenantEmailAccountPromise = EmailAccount.query().$promise;
+                    const tenantEmailAccountPromise = EmailAccount.query().$promise;
                     promises.push(tenantEmailAccountPromise);
 
+                    const params = {
+                        filterquery: emailDateQuery,
+                        size: requestLength,
+                    };
+
                     if (contentType === 'account') {
-                        emailPromise = EmailDetail.search({account_related: currentObject.id, filterquery: emailDateQuery, size: requestLength}).$promise;
+                        params.account_related = currentObject.id;
                     } else {
-                        emailPromise = EmailDetail.search({contact_related: currentObject.id, filterquery: emailDateQuery, size: requestLength}).$promise;
+                        params.contact_related = currentObject.id;
                     }
+
+                    const emailPromise = EmailDetail.search(params).$promise;
 
                     promises.push(emailPromise);
 
-                    $q.all([tenantEmailAccountPromise, emailPromise]).then(function(results) {
-                        var tenantEmailAccountList = results[0].results;
-                        var emailMessageList = results[1];
+                    $q.all([tenantEmailAccountPromise, emailPromise]).then(results => {
+                        let tenantEmailAccountList = results[0].results;
+                        let emailMessageList = results[1];
 
-                        emailMessageList.forEach(function(email) {
-                            User.search({filterquery: 'email:' + email.sender_email, is_active: 'All'}).$promise.then(function(userResults) {
-                                if (userResults.objects[0]) {
-                                    email.profile_picture = userResults.objects[0].profile_picture;
-                                } else {
-                                    email.profile_picture = HLGravatar.getGravatar(email.sender_email);
-                                }
-                            });
+                        emailMessageList.forEach(email => {
+                            if (!email.is_draft) {
+                                User.search({filterquery: 'email:' + email.sender_email, is_active: 'All'}).$promise.then(userResults => {
+                                    if (userResults.objects[0]) {
+                                        email.profile_picture = userResults.objects[0].profile_picture;
+                                    } else {
+                                        email.profile_picture = HLGravatar.getGravatar(email.sender_email);
+                                    }
+                                });
 
-                            tenantEmailAccountList.forEach(function(emailAddress) {
-                                if (emailAddress.email_address === email.sender_email) {
-                                    email.right = true;
-                                }
-                            });
+                                tenantEmailAccountList.forEach(emailAddress => {
+                                    if (emailAddress.email_address === email.sender_email) {
+                                        email.right = true;
+                                    }
+                                });
 
-                            activity.push(email);
+                                activity.push(email);
+                            }
                         });
                     });
                 }
 
                 // Get all activity types and add them to a common activity stream.
-                $q.all(promises).then(function() {
-                    var orderedActivityStream = {pinned: [], nonPinned: {}, totalItems: activity.length};
+                $q.all(promises).then(() => {
+                    const orderedActivityStream = {pinned: [], nonPinned: {}, totalItems: activity.length};
 
                     // To properly sort the activity list we need to compare dates
                     // because email doesn't have the modified key we decided
                     // to add an extra key called activitySortDate which the list
                     // uses to sort properly. We add the sent_date of email to the
                     // object, and the modified date for the other types.
-                    for (i = 0; i < activity.length; i++) {
+                    for (let i = 0; i < activity.length; i++) {
                         if (activity[i].activityType === 'email') {
                             activity[i].activitySortDate = activity[i].sent_date;
-                        } else if (['note', 'change', 'call'].includes(activity[i].activityType)) {
+                        } else if (['note', 'change', 'call', 'timelog'].includes(activity[i].activityType)) {
                             // We want to sort certain objects on created date.
                             activity[i].activitySortDate = activity[i].date;
                         } else {
@@ -489,7 +497,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                     }
 
                     $filter('orderBy')(activity, 'activitySortDate', true).forEach(item => {
-                        var parentObjectId = scope.parentObject ? scope.parentObject.id : null;
+                        const parentObjectId = scope.parentObject ? scope.parentObject.id : null;
 
                         scope.activity.types[item.activityType].visible = true;
 
@@ -498,8 +506,8 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                         } else {
                             // Exclude the current item from the activity list.
                             if (item.id !== scope.object.id && item.id !== parentObjectId) {
-                                let date = item.activitySortDate;
-                                let key = moment(date).year() + '-' + (moment(date).month() + 1);
+                                const date = item.activitySortDate;
+                                const key = moment(date).year() + '-' + (moment(date).month() + 1);
 
                                 if (!orderedActivityStream.nonPinned.hasOwnProperty(key)) {
                                     orderedActivityStream.nonPinned[key] = {isVisible: true, items: []};
@@ -522,15 +530,15 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
 
             function addNote(note, form) {
                 if (note.content) {
-                    note.content_type = scope.object.content_type.id;
-                    note.object_id = scope.object.id;
+                    note.gfk_content_type = scope.object.content_type.id;
+                    note.gfk_object_id = scope.object.id;
 
-                    Note.save(note, function() {
+                    Note.save(note, () => {
                         // Success.
                         scope.note.content = '';
                         toastr.success('I\'ve created the note for you!', 'Done');
                         reloadActivity();
-                    }, function(response) {
+                    }, response => {
                         // Error.
                         HLForms.setErrors(form, response.data);
                         toastr.error('Uh oh, there seems to be a problem', 'Oops!');
@@ -539,21 +547,20 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
             }
 
             function pinNote(note, isPinned) {
-                Note.update({id: note.id}, {is_pinned: isPinned}, function() {
+                Note.update({id: note.id}, {is_pinned: isPinned}, () => {
                     $state.go($state.current, {}, {reload: true});
                 });
             }
 
             function removeFromList(item) {
-                var month = moment(item.modified).format('M');
-                var year = moment(item.modified).format('YYYY');
-                var index;
+                const month = moment(item.modified).format('M');
+                const year = moment(item.modified).format('YYYY');
 
                 if (item.is_pinned) {
-                    index = scope.activity.list.pinned.indexOf(item);
+                    const index = scope.activity.list.pinned.indexOf(item);
                     scope.activity.list.pinned.splice(index, 1);
                 } else {
-                    index = scope.activity.list.nonPinned[year + '-' + month].items.indexOf(item);
+                    const index = scope.activity.list.nonPinned[year + '-' + month].items.indexOf(item);
                     scope.activity.list.nonPinned[year + '-' + month].items.splice(index, 1);
                 }
 

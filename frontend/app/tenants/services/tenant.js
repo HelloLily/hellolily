@@ -9,10 +9,16 @@ function Tenant($filter, $interpolate, $resource, CacheFactory, HLCache) {
             getAccountAdmin: {
                 url: '/api/tenants/admin/',
             },
+            patch: {
+                method: 'PATCH',
+                params: {
+                    id: '@id',
+                },
+            },
             query: {
                 isArray: false,
                 cache: CacheFactory.get('dataCache'),
-                transformResponse: function(data) {
+                transformResponse: data => {
                     var tenant = angular.fromJson(data);
                     var externalAppLinkList = [];
 
@@ -20,8 +26,8 @@ function Tenant($filter, $interpolate, $resource, CacheFactory, HLCache) {
                         tenant = tenant[0];
                     }
 
-                    tenant.external_app_links.forEach(function(externalAppLink) {
-                        externalAppLink.getUrl = function(customerId) {
+                    tenant.external_app_links.forEach(externalAppLink => {
+                        externalAppLink.getUrl = customerId => {
                             // Substitute customer_id placeholder in the url with the actual customer id.
                             return $interpolate(externalAppLink.url)({'customer_id': customerId});
                         };
@@ -35,11 +41,11 @@ function Tenant($filter, $interpolate, $resource, CacheFactory, HLCache) {
                         tenant.primary_external_app_link = externalAppLinkList[0];
                     }
 
-                    tenant.isVoysNL = function() {
+                    tenant.isVoysNL = () => {
                         return tenant.id === 50 || debug;
                     };
 
-                    tenant.isVoysSA = function() {
+                    tenant.isVoysSA = () => {
                         return tenant.id === 52;
                     };
 

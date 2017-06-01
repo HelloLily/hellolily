@@ -131,3 +131,18 @@
         }
     }
 }
+
+.profile-sidebar-portlet {
+    padding: 0 !important;
+    border-radius: 0;
+    border: 1px solid $base-border-color;
+
+    .profile-userpic {
+        margin: 30px 0;
+    }
+
+    .profile-usermenu {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+}

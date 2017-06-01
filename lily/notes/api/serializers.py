@@ -3,18 +3,22 @@ from rest_framework import serializers
 
 from lily.api.fields import SanitizedHtmlCharField
 from lily.api.nested.mixins import RelatedSerializerMixin
+from lily.api.serializers import ContentTypeSerializer
 from ..models import Note, NOTABLE_MODELS
 
 
 class NoteSerializer(serializers.ModelSerializer):
     """
-    Serializer for the contact model.
+    Serializer for the note model.
     """
     # Show string versions of fields.
+    content_type = ContentTypeSerializer(read_only=True)
     author = serializers.StringRelatedField(read_only=True)
-    content_type = serializers.PrimaryKeyRelatedField(queryset=ContentType.objects.filter(model__in=NOTABLE_MODELS),
-                                                      write_only=True)
-    object_id = serializers.IntegerField(write_only=True)
+    gfk_content_type = serializers.PrimaryKeyRelatedField(
+        queryset=ContentType.objects.filter(model__in=NOTABLE_MODELS),
+        write_only=True,
+    )
+    gfk_object_id = serializers.IntegerField(write_only=True)
     content = SanitizedHtmlCharField(required=True)
 
     def create(self, validated_data):
@@ -34,20 +38,21 @@ class NoteSerializer(serializers.ModelSerializer):
             'content',
             'content_type',
             'created',
+            'gfk_content_type',
+            'gfk_object_id',
             'is_pinned',
             'modified',
-            'object_id',
             'type',
         )
 
 
 class RelatedNoteSerializer(RelatedSerializerMixin, NoteSerializer):
     """
-    Serializer used to serialize tags from reference of another serializer.
+    Serializer used to serialize notes from reference of another serializer.
     """
     # We set required to False because, as a related serializer, we don't know the object_id yet during validation
     # of a POST request. The instance has not yet been created.
-    object_id = serializers.IntegerField(required=False)
+    gfk_object_id = serializers.IntegerField(required=False)
 
     class Meta:
         model = Note
@@ -57,8 +62,9 @@ class RelatedNoteSerializer(RelatedSerializerMixin, NoteSerializer):
             'content',
             'content_type',
             'created',
+            'gfk_content_type',
+            'gfk_object_id',
             'is_pinned',
             'modified',
-            'object_id',
             'type',
         )

@@ -12,6 +12,7 @@ import os
 import textwrap
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import InMemoryUploadedFile, TemporaryUploadedFile
 from django.core.files.storage import default_storage
 from django.core.mail import SafeMIMEText, SafeMIMEMultipart
@@ -306,6 +307,13 @@ class EmailMessage(models.Model):
             return parseaddr(header.value)[1]
         else:
             return self.sender.email_address
+
+    @property
+    def content_type(self):
+        """
+        Return the content type (Django model) for this model
+        """
+        return ContentType.objects.get(app_label="email", model="emailmessage")
 
     def __unicode__(self):
         return u'%s: %s' % (self.sender, self.snippet)

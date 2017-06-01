@@ -15,7 +15,7 @@ from lily.api.mixins import ValidateEverythingSimultaneouslyMixin
 
 def is_dirty(instance, data):
     """
-    Helper function to determine wheter a serializer needs to save.
+    Helper function to determine whether a serializer needs to save.
     """
     if not instance:
         return True

@@ -240,11 +240,13 @@
 
     position: relative;
     padding: 10px 0;
+    margin-top: 2px;
 
     &.is-deal,
     &.is-case,
     &.is-email,
-    &.is-note {
+    &.is-note,
+    &.is-timelog {
         margin-left: 5px;
 
         &:before {
@@ -380,7 +382,6 @@
 
 .stream-subitem-avatar {
     display: inline-block;
-    float: left;
     width: 40px;
     height: 40px;
     line-height: 40px;

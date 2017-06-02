@@ -39,7 +39,10 @@ function ListFilterController($filter, $timeout, HLFilters) {
 
         if (vm.viewModel.storedFilterList) {
             vm.viewModel.filterList = vm.viewModel.storedFilterList;
-            update = true;
+
+            if (!vm.hideSpecial) {
+                update = true;
+            }
         }
 
         if (vm.viewModel.storedFilterSpecialList && !vm.hideSpecial) {
@@ -142,7 +145,7 @@ function ListFilterController($filter, $timeout, HLFilters) {
 
             vm.displayClearButton = true;
 
-            if (updateQuery) {
+            if (updateQuery && !vm.hideSpecial) {
                 updateFilterQuery();
             }
         } else {

@@ -206,7 +206,7 @@ AWS_HEADERS = {
 #######################################################################################################################
 # LOGIN SETTINGS                                                                                                      #
 #######################################################################################################################
-LOGIN_URL = 'login'
+LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = 'base_view'
 LOGOUT_URL = reverse_lazy('logout')
 # Also used as timeout for activation link.

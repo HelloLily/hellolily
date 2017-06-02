@@ -1,6 +1,11 @@
+from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
+from django.utils.http import is_safe_url
 from django.views.decorators.cache import never_cache
 from django.views.decorators.debug import sensitive_post_parameters
 from django_otp.plugins.otp_static.models import StaticToken, StaticDevice
@@ -28,6 +33,27 @@ class TwoFactorLoginView(LoginView):
         ('token', TwoFactorAuthenticationTokenForm),
         ('backup', BackupTokenForm),
     )
+
+    def dispatch(self, request, *args, **kwargs):
+        redirect_to = request.GET.get(REDIRECT_FIELD_NAME, '')
+        if (
+                redirect_to.startswith(settings.STATIC_URL) or
+                redirect_to.startswith(settings.MEDIA_URL) or
+                redirect_to == reverse('favicon')
+        ):
+            redirect_to = '/'
+            request.GET = request.GET.copy()
+            request.GET[REDIRECT_FIELD_NAME] = redirect_to
+
+        if request.method == 'GET':
+            if request.user.is_authenticated() and request.path == settings.LOGIN_URL:
+                # Ensure the user-originating redirection url is safe.
+                if not is_safe_url(url=redirect_to, host=request.get_host()):
+                    redirect_to = reverse('base_view')
+
+                return HttpResponseRedirect(redirect_to)
+
+        return super(TwoFactorLoginView, self).dispatch(request, *args, **kwargs)
 
     def done(self, form_list, **kwargs):
         device = getattr(self.get_user(), 'otp_device', None)

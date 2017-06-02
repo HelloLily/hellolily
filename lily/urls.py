@@ -30,10 +30,14 @@ urlpatterns = [
 
     url(r'^$', BaseView.as_view(), name='base_view'),
 
-    url(r'^favicon.ico$', RedirectView.as_view(
-        url=settings.STATIC_URL + 'app/images/favicons/favicon.ico',
-        permanent=True
-    )),
+    url(
+        regex=r'^favicon.ico$',
+        view=RedirectView.as_view(
+            url=settings.STATIC_URL + 'app/images/favicons/favicon.ico',
+            permanent=True
+        ),
+        name='favicon'
+    ),
     url(r'^404.html$', TemplateView.as_view(template_name='404.html')),
     url(r'^500.html$', TemplateView.as_view(template_name='500.html')),
 ]

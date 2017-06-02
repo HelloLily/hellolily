@@ -68,4 +68,8 @@ CELERYBEAT_SCHEDULE = {
         'task': 'synchronize_email_account_scheduler',
         'schedule': timedelta(seconds=int(os.environ.get('EMAIL_SYNC_INTERVAL', 60))),
     },
+    'synchronize_labels_scheduler': {
+        'task': 'synchronize_labels_scheduler',
+        'schedule': timedelta(seconds=3600),  # Once every hour.
+    },
 }

@@ -1,5 +1,8 @@
+import newrelic.agent
 from channels import Group
 from channels.generic.websockets import WebsocketConsumer
+from channels.handler import ViewConsumer
+from channels.staticfiles import StaticFilesConsumer
 
 
 class LilyConsumer(WebsocketConsumer):
@@ -28,3 +31,15 @@ class LilyConsumer(WebsocketConsumer):
             Group("tenant-%s" % message.user.tenant_id).discard(message.reply_channel)
             for team in message.user.teams.all():
                 Group("team-%s" % team.id).discard(message.reply_channel)
+
+
+class LilyViewConsumer(ViewConsumer):
+    @newrelic.agent.background_task()
+    def __call__(self, message):
+        return super(LilyViewConsumer, self).__call__(message)
+
+
+class LilyStaticFilesConsumer(StaticFilesConsumer):
+    @newrelic.agent.background_task()
+    def __call__(self, message):
+        return super(LilyStaticFilesConsumer, self).__call__(message)

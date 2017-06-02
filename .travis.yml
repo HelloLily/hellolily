@@ -48,7 +48,7 @@ language: python
 install:
   - pip install -r requirements.travis.txt
   - gem install overcommit
-  - npm install -g eslint
+  - travis_retry npm install -g eslint
   - gem install scss_lint
   - gem install travis --no-rdoc --no-ri
 

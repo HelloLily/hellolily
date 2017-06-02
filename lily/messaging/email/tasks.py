@@ -40,11 +40,6 @@ def synchronize_email_account_scheduler():
             )
 
         logger.info('Adding task for label sync for: %s', email_account)
-
-
-@task(name='synchronize_labels_scheduler')
-def synchronize_labels_scheduler():
-    for email_account in EmailAccount.objects.filter(is_authorized=True, is_deleted=False):
         synchronize_labels.apply_async(
             args=(email_account.pk,),
             max_retries=1,

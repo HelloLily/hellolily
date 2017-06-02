@@ -127,7 +127,7 @@
                     email: '{{ user.email }}',
                     internalNumber: parseInt('{{ user.internal_number }}') || false,
                     fullName: '{{ user.full_name }}',
-                    isSuperUser: '{{ user.is_superuser }}' == 'True',
+                    isAdmin: '{{ user.is_admin }}' == 'True',
                     displayEmailWarning: '{{ user.display_email_warning }}' == 'True',
                     country: '{{ user.tenant.country }}',
                     company: '{{ user.tenant.name }}',

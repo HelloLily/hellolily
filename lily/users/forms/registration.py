@@ -130,7 +130,7 @@ class SendInvitationForm(forms.Form):
     def clean_email(self):
         email = self.cleaned_data['email']
         try:
-            LilyUser.objects.get(email__iexact=email)
+            LilyUser.objects.get(email__iexact=email, is_active=True)
         except LilyUser.DoesNotExist:
             return email
         else:

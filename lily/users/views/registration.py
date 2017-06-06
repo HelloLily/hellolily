@@ -396,7 +396,7 @@ class AcceptInvitationView(FormView):
         # Default value is false, only set to true if all checks have passed.
         self.valid_link = False
 
-        if LilyUser.objects.filter(email__iexact=self.email).exists():
+        if LilyUser.objects.filter(email__iexact=self.email, is_active=True).exists():
             return self.valid_link
 
         if not self.hash == sha256('%s-%s-%s-%s' % (

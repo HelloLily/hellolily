@@ -39,8 +39,6 @@ def synchronize_email_account_scheduler():
                 default_retry_delay=100,
             )
 
-        logger.info('Adding task for label sync for: %s', email_account)
-
 
 @task(name='synchronize_labels_scheduler')
 def synchronize_labels_scheduler():
@@ -50,6 +48,7 @@ def synchronize_labels_scheduler():
             max_retries=1,
             default_retry_delay=100,
         )
+        logger.info('Adding task for label sync for: %s', email_account)
 
 
 @task(name='incremental_synchronize_email_account', logger=logger)

@@ -147,9 +147,9 @@ class MessageBuilder(object):
             headers (dict): of name, value headers
         """
         for header in headers:
-            header_name = header['name']
+            header_name = header['name'].lower()
             header_value = header['value']
-            if header_name == 'Date':
+            if header_name == 'date':
                 date = email.utils.parsedate_tz(header_value)
                 if date:
                     self.message.sent_date = datetime.datetime.fromtimestamp(email.utils.mktime_tz(date), pytz.UTC)
@@ -161,9 +161,9 @@ class MessageBuilder(object):
                     else:
                         if date:
                             self.message.sent_date = date
-            elif header_name == 'Subject':
+            elif header_name == 'subject':
                 self.message.subject = header_value
-            elif header_name.lower() in ['to', 'from', 'cc', 'delivered-to']:
+            elif header_name in ['to', 'from', 'cc', 'delivered-to']:
                 self._create_recipients(header_name, header_value)
             else:
                 self.headers.append(EmailHeader(

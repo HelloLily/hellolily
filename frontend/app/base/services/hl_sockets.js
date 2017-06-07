@@ -18,7 +18,10 @@ function HLSockets($state, $timeout, $rootScope, Settings) {
         ws.onclose = () => this.dispatch('close');
         ws.onmessage = message => {
             const data = JSON.parse(message.data);
-            this.dispatch(data.event, data.data);
+            if ('error' in data && data.error === 'unauthenticated') {
+                location.reload();
+            }
+            if ('event' in data) this.dispatch(data.event, data.data);
         };
     }
 

@@ -20,7 +20,7 @@ function EmailAccount($resource) {
                 transformResponse: function(data) {
                     var accounts = angular.fromJson(data);
 
-                    if (account.results && account.results.length) {
+                    if (accounts.results && accounts.results.length) {
                         accounts.results.map((account) => {
                             account.is_public = (account.privacy === _emailAccount.PUBLIC);
                             account.shared_email_configs = _emailAccount.filterEmailConfigs(account);

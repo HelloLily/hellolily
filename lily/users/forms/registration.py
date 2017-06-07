@@ -85,6 +85,7 @@ class TenantRegistrationForm(UserRegistrationForm):
         self.fields['last_name'].widget.attrs['placeholder'] = _('Enter your last name')
         self.fields['tenant_name'].widget.attrs['placeholder'] = _('Enter the name of your company')
         self.fields['email'].widget.attrs['placeholder'] = _('youremail@example.com')
+        self.fields['email'].label = _('Email address')
 
 
 class AcceptInvitationForm(UserRegistrationForm):

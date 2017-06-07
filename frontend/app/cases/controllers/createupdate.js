@@ -193,27 +193,31 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
                 });
             }
 
-            if (Settings.email.data && (Settings.email.data.account || Settings.email.data.contact)) {
-                // Auto fill data if it's available.
-                if (Settings.email.data.contact && Settings.email.data.contact.id) {
-                    if (Settings.email.data && Settings.email.data.account) {
-                        // Check if the contact actually works at the account.
-                        filterquery = 'accounts.id:' + Settings.email.data.account.id;
+            if (Settings.email.data) {
+                vm.case.description = $state.href('base.email.detail', {id: Settings.email.data.id}, {absolute: true});
 
-                        Contact.search({filterquery: filterquery}).$promise.then(function(colleagues) {
-                            for (i = 0; i < colleagues.objects.length; i++) {
-                                if (colleagues.objects[i].id === Settings.email.data.contact.id) {
-                                    vm.case.contact = Settings.email.data.contact.id;
+                if (Settings.email.data.account || Settings.email.data.contact) {
+                    // Auto fill data if it's available.
+                    if (Settings.email.data.contact && Settings.email.data.contact.id) {
+                        if (Settings.email.data && Settings.email.data.account) {
+                            // Check if the contact actually works at the account.
+                            filterquery = 'accounts.id:' + Settings.email.data.account.id;
+
+                            Contact.search({filterquery: filterquery}).$promise.then(function(colleagues) {
+                                for (i = 0; i < colleagues.objects.length; i++) {
+                                    if (colleagues.objects[i].id === Settings.email.data.contact.id) {
+                                        vm.case.contact = Settings.email.data.contact.id;
+                                    }
                                 }
-                            }
-                        });
-                    } else {
-                        vm.case.contact = Settings.email.data.contact.id;
+                            });
+                        } else {
+                            vm.case.contact = Settings.email.data.contact.id;
+                        }
                     }
-                }
 
-                if (Settings.email.data && Settings.email.data.account) {
-                    vm.case.account = Settings.email.data.account.id;
+                    if (Settings.email.data && Settings.email.data.account) {
+                        vm.case.account = Settings.email.data.account.id;
+                    }
                 }
             }
 

@@ -196,6 +196,8 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
         var accountIds = [];
         var contact;
 
+        Settings.email.data.id = vm.message.id;
+
         if (vm.message.sender && vm.message.sender.email_address) {
             $http.get('/search/emailaddress/' + vm.message.sender.email_address)
                 .success(function(data) {

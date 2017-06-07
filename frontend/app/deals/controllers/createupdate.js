@@ -244,27 +244,31 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
                 });
             }
 
-            if (Settings.email.data && (Settings.email.data.account ||
-                (Settings.email.data.contact && Settings.email.data.contact.accounts))) {
-                // Auto fill data if it's available.
-                if (Settings.email.data.contact && Settings.email.data.contact.id) {
-                    if (Settings.email.data && Settings.email.data.account) {
-                        filterquery = 'accounts.id:' + Settings.email.data.account.id;
+            if (Settings.email.data) {
+                vm.deal.description = $state.href('base.email.detail', {id: Settings.email.data.id}, {absolute: true});
 
-                        Contact.search({filterquery: filterquery}).$promise.then(function(colleagues) {
-                            for (i = 0; i < colleagues.objects.length; i++) {
-                                if (colleagues.objects[i].id === Settings.email.data.contact.id) {
-                                    vm.deal.contact = Settings.email.data.contact.id;
+                if ((Settings.email.data.account ||
+                    (Settings.email.data.contact && Settings.email.data.contact.accounts))) {
+                    // Auto fill data if it's available.
+                    if (Settings.email.data.contact && Settings.email.data.contact.id) {
+                        if (Settings.email.data && Settings.email.data.account) {
+                            filterquery = 'accounts.id:' + Settings.email.data.account.id;
+
+                            Contact.search({filterquery: filterquery}).$promise.then(function(colleagues) {
+                                for (i = 0; i < colleagues.objects.length; i++) {
+                                    if (colleagues.objects[i].id === Settings.email.data.contact.id) {
+                                        vm.deal.contact = Settings.email.data.contact.id;
+                                    }
                                 }
-                            }
-                        });
-                    } else {
-                        vm.deal.contact = Settings.email.data.contact.id;
+                            });
+                        } else {
+                            vm.deal.contact = Settings.email.data.contact.id;
+                        }
                     }
-                }
 
-                if (Settings.email.data && Settings.email.data.account) {
-                    vm.deal.account = Settings.email.data.account.id;
+                    if (Settings.email.data && Settings.email.data.account) {
+                        vm.deal.account = Settings.email.data.account.id;
+                    }
                 }
             }
         }

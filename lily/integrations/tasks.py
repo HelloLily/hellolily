@@ -45,17 +45,23 @@ def import_moneybird_contacts(tenant_id):
                 # 3. If no object exists, create a new one (and add to set for related objects).
                 try:
                     with transaction.atomic():
-                        contact_dict = {
-                            'first_name': contact_data.get('firstname'),
-                            'last_name': contact_data.get('lastname'),
-                            'tenant': tenant,
-                            'is_deleted': False
-                        }
-                        # Since we have the possibility to resync we want to update contacts that might already exist.
-                        contact = Contact.objects.filter(**contact_dict).last()
+                        contact = None
+                        first_name = contact_data.get('firstname')
+                        last_name = contact_data.get('lastname', '')
 
-                        if not contact:
-                            contact = Contact.objects.create(**contact_dict)
+                        if first_name:
+                            contact_dict = {
+                                'first_name': first_name,
+                                'last_name': last_name,
+                                'tenant': tenant,
+                                'is_deleted': False
+                            }
+                            # Since we have the possibility to resync we want to update
+                            # contacts that might already exist.
+                            contact = Contact.objects.filter(**contact_dict).last()
+
+                            if not contact:
+                                contact = Contact.objects.create(**contact_dict)
 
                         company = contact_data.get('company_name')
 
@@ -71,8 +77,16 @@ def import_moneybird_contacts(tenant_id):
                             if not account:
                                 account = Account.objects.create(**account_dict)
 
-                            # Contacts and accounts are linked through functions.
-                            Function.objects.get_or_create(account=account, contact=contact)
+                            if contact:
+                                # Contacts and accounts are linked through functions.
+                                Function.objects.get_or_create(account=account, contact=contact)
+
+                        if contact:
+                            # Save all contact info to the contact if there is one.
+                            contact_object = contact
+                        else:
+                            # Otherwise use the account.
+                            contact_object = account
 
                         invoices_email = contact_data.get('send_invoices_to_email')
                         estimates_email = contact_data.get('send_estimates_to_email')
@@ -85,11 +99,11 @@ def import_moneybird_contacts(tenant_id):
                                 'email_address': invoices_email,
                                 'tenant': tenant,
                             }
-                            invoices_email_address = contact.email_addresses.filter(**invoices_email_dict).last()
+                            invoices_email_address = contact_object.email_addresses.filter(**invoices_email_dict)
 
-                            if not invoices_email_address:
+                            if not invoices_email_address.last():
                                 invoices_email_address = EmailAddress.objects.create(**invoices_email_dict)
-                                contact.email_addresses.add(invoices_email_address)
+                                contact_object.email_addresses.add(invoices_email_address)
 
                         if estimates_email and not invoices_email == estimates_email:
                             # No point in adding two of the same email addresses.
@@ -97,22 +111,22 @@ def import_moneybird_contacts(tenant_id):
                                 'email_address': estimates_email,
                                 'tenant': tenant,
                             }
-                            estimates_email_address = contact.email_addresses.filter(**estimates_email_dict).last()
+                            estimates_email_address = contact_object.email_addresses.filter(**estimates_email_dict)
 
-                            if not estimates_email_address:
+                            if not estimates_email_address.last():
                                 estimates_email_address = EmailAddress.objects.create(**estimates_email_dict)
-                                contact.email_addresses.add(estimates_email_address)
+                                contact_object.email_addresses.add(estimates_email_address)
 
                         if phone:
                             phone_number_dict = {
                                 'number': phone,
                                 'tenant': tenant,
                             }
-                            phone_number = contact.phone_numbers.filter(**phone_number_dict).last()
+                            phone_number = contact_object.phone_numbers.filter(**phone_number_dict).last()
 
                             if not phone_number:
                                 phone_number = PhoneNumber.objects.create(**phone_number_dict)
-                                contact.phone_numbers.add(phone_number)
+                                contact_object.phone_numbers.add(phone_number)
 
                         if address:
                             postal_code = contact_data.get('zipcode')
@@ -131,7 +145,7 @@ def import_moneybird_contacts(tenant_id):
 
                             if not address:
                                 address = Address.objects.create(**address_dict)
-                                contact.addresses.add(address)
+                                contact_object.addresses.add(address)
 
                             if alternate_address:
                                 address_dict = ({
@@ -144,9 +158,9 @@ def import_moneybird_contacts(tenant_id):
 
                                 if not alternate_address:
                                     alternate_address = Address.objects.create(**address_dict)
-                                    contact.addresses.add(alternate_address)
+                                    contact_object.addresses.add(alternate_address)
 
-                        contact.save()
+                        contact_object.save()
                 except Exception as e:
                     logger.error(e)
 

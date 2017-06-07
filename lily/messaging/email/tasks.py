@@ -455,10 +455,7 @@ def send_message(email_outbox_message_id, original_message_id=None):
 @task(name='create_draft_email_message', logger=logger)
 def create_draft_email_message(email_outbox_message_id):
     """
-    Send EmailOutboxMessage.
-
-    Args:
-        email_outbox_message_id (int): id of the EmailOutboxMessage
+    Create a draft of an email message according to the provided EmailOutboxMessage.
     """
     draft_success = False
     try:
@@ -475,9 +472,12 @@ def create_draft_email_message(email_outbox_message_id):
     manager = None
     try:
         manager = GmailManager(email_account)
+
+        # Create the draft.
         manager.create_draft_email_message(email_outbox_message.message())
         logger.debug('Message saved as draft for: %s', email_account)
-        # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more
+
+        # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more.
         email_outbox_message.delete()
         draft_success = True
     except HttpAccessTokenRefreshError:
@@ -496,11 +496,7 @@ def create_draft_email_message(email_outbox_message_id):
 @task(name='update_draft_email_message', logger=logger)
 def update_draft_email_message(email_outbox_message_id, current_draft_pk):
     """
-    Send EmailOutboxMessage.
-
-    Args:
-        email_outbox_message_id (int): id of the EmailOutboxMessage
-        current_draft_pk (int): id of the EmailMessage that is the current draft
+    Update a draft of an email message accordingly to the provided EmailOutboxMessage and the current draft id.
     """
     draft_success = False
     email_outbox_message = EmailOutboxMessage.objects.get(pk=email_outbox_message_id)
@@ -516,15 +512,9 @@ def update_draft_email_message(email_outbox_message_id, current_draft_pk):
     try:
         manager = GmailManager(email_account)
 
-        if current_draft.draft_id:
-            # Update current draft.
-            manager.update_draft_email_message(email_outbox_message.message(), draft_id=current_draft.draft_id)
-            logger.debug('Updated draft for: %s', email_account)
-        else:
-            # There is no draft pk stored, just remove and create a new draft.
-            manager.create_draft_email_message(email_outbox_message.message())
-            manager.delete_email_message(current_draft)
-            logger.debug('Message saved as draft and removed current draft, for: %s', email_account)
+        # Update current draft.
+        manager.update_draft_email_message(email_outbox_message.message(), draft_id=current_draft.draft_id)
+        logger.debug('Updated draft for: %s', email_account)
 
         # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more.
         email_outbox_message.delete()

@@ -77,9 +77,9 @@ function UnassignedCasesController($http, $scope, $state, $timeout, Case, HLFilt
                 HLFilters.getStoredSelections(filterList, vm.storedFilterList);
 
                 vm.filterList = filterList;
-            });
 
-            _watchTable();
+                _watchTable();
+            });
         }, 50);
     }
 
@@ -125,7 +125,7 @@ function UnassignedCasesController($http, $scope, $state, $timeout, Case, HLFilt
     }
 
     function _watchTable() {
-        $scope.$watchGroup(['vm.table.order.descending', 'vm.table.order.column'], function() {
+        $scope.$watchGroup(['vm.table.order.descending', 'vm.table.order.column'], function(newValue, oldValue) {
             vm.storage.put('order', vm.table.order);
             updateTable();
         });

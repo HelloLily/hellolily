@@ -78,9 +78,9 @@ function UnassignedDealsController($http, $scope, $state, $timeout, Deal, HLFilt
                 HLFilters.getStoredSelections(filterList, vm.storedFilterList);
 
                 vm.filterList = filterList;
-            });
 
-            _watchTable();
+                _watchTable();
+            });
         }, 50);
     }
 

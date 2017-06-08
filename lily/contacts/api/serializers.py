@@ -189,14 +189,18 @@ class ContactSerializer(WritableNestedSerializer):
                 })
 
         if 'email_addresses' in validated_data:
+            original_email_address = None
             validated_email_addresses = validated_data.get('email_addresses')
-            original_email_address = original_data.get('original_email_address')
 
-            if len(validated_email_addresses) == 1 and original_email_address:
-                if data:
+            if original_data:
+                original_email_address = original_data.get('original_email_address')
+
+            if len(validated_email_addresses) == 1:
+                validated_email_address = validated_email_addresses[0].get('email_address')
+
+                if data and original_email_address:
                     invoices_email = data.get('send_invoices_to_email')
                     estimates_email = data.get('send_estimates_to_email')
-                    validated_email_address = validated_email_addresses[0].get('email_address')
 
                     if invoices_email == estimates_email and invoices_email == original_email_address:
                         params.update({
@@ -211,6 +215,11 @@ class ContactSerializer(WritableNestedSerializer):
                         params.update({
                             'send_estimates_to_email': validated_email_address,
                         })
+                else:
+                    params.update({
+                        'send_invoices_to_email': validated_email_address,
+                        'send_estimates_to_email': validated_email_address,
+                    })
 
         params = {
             'contact': params,

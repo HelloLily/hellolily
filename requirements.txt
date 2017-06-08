@@ -143,3 +143,4 @@ contextlib2==0.5.4
 phonenumberslite==8.8.1
 slacker==0.9.42
 chargebee==2.2.8
+tablib==0.11.5

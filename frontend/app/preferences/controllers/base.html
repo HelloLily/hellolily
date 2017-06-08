@@ -113,6 +113,12 @@
                         Billing
                     </a>
                 </li>
+                <li ng-if="currentUser.isAdmin" ui-sref-active="active">
+                    <a ui-sref="base.preferences.admin.import" ui-sref-opts="{reload:true}">
+                        <i class="lilicon hl-entities-icon"></i>
+                        Import
+                    </a>
+                </li>
             </ul>
         </div>
         <!-- END MENU -->

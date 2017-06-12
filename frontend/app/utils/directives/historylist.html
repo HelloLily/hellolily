@@ -6,8 +6,9 @@
     </div>
 
     <div class="col-md-12">
+        <div class="vertical-line"></div>
+
         <div class="timeline-item-form-container" ng-if="!parentObject">
-            <div class="vertical-line"></div>
             <div class="timeline-avatar is-type">
                 <i class="lilicon hl-note-icon"></i>
             </div>
@@ -16,6 +17,12 @@
                 <div class="timeline-content-header">
                     <form role="form" name="noteForm" on-mod-enter-key="history.addNote(note, noteForm)">
                         <div class="form-body">
+                            <div class="form-group">
+                                <textarea required class="form-control no-resize" id="id_content" msd-elastic ng-model="note.content" name="content" placeholder="Write your note here"></textarea>
+                                <field-error form="noteForm" field="content"></field-error>
+                            </div>
+                        </div>
+                        <div>
                             <ul class="timeline-content-type-buttons">
                                 <li ng-model="note.type" uib-btn-radio="0">
                                     <i class="lilicon hl-note-icon"></i>
@@ -30,13 +37,8 @@
                                    Meetup
                                </li>
                             </ul>
-                            <div class="form-group">
-                                <textarea required class="form-control no-resize" id="id_content" msd-elastic ng-model="note.content" name="content" placeholder="Write your note here"></textarea>
-                                <field-error form="noteForm" field="content"></field-error>
-                            </div>
-                        </div>
-                        <div class="form-actions text-right">
-                            <button type="submit" class="hl-primary-btn-blue" name="submit-form" ng-click="history.addNote(note, noteForm)" uib-tooltip="{{ $root.messages.tooltips.modEnter.title }}">
+
+                            <button type="submit" class="hl-primary-btn-blue pull-right" name="submit-form" ng-click="history.addNote(note, noteForm)" uib-tooltip="{{ $root.messages.tooltips.modEnter.title }}">
                                 <i class="fa fa-check"></i>
                                 Add note
                             </button>

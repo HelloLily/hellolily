@@ -1,17 +1,6 @@
 <div class="history-item-body next" on-mod-enter-key="vm.addNote()">
     <div class="form-body">
         <div class="form-group">
-            <ul class="timeline-content-type-buttons">
-                <li ng-model="vm.note.type" uib-btn-radio="0">
-                    <i class="lilicon hl-note-icon"></i> Note
-                </li>
-               <li ng-model="vm.note.type" uib-btn-radio="1">
-                   <i class="fa fa-phone"></i> Call
-               </li>
-               <li ng-model="vm.note.type" uib-btn-radio="2">
-                   <i class="lilicon hl-calendar-icon"></i> Meetup
-               </li>
-           </ul>
             <textarea class="form-control no-resize"
                 msd-elastic
                 ng-model="vm.note.content"
@@ -21,6 +10,21 @@
     </div>
 
     <div class="form-actions">
-        <button class="btn grey-gallery" ng-click="vm.addNote()">Place</button>
+        <ul class="timeline-content-type-buttons">
+            <li ng-model="vm.note.type" uib-btn-radio="0">
+                <i class="lilicon hl-note-icon"></i> Note
+            </li>
+            <li ng-model="vm.note.type" uib-btn-radio="1">
+                <i class="fa fa-phone"></i> Call
+            </li>
+            <li ng-model="vm.note.type" uib-btn-radio="2">
+                <i class="lilicon hl-calendar-icon"></i> Meetup
+            </li>
+        </ul>
+
+        <button class="hl-primary-btn-blue pull-right" ng-click="vm.addNote()" uib-tooltip="{{ $root.messages.tooltips.modEnter.title }}">
+            <i class="fa fa-check"></i>
+            Add note
+        </button>
     </div>
 </div>

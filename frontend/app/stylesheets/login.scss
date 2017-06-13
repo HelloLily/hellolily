@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto');
 
+$help-text: #d5d5d5;
+$darker-help-text: #888;
+$app-color-aqua: #2ab8e0;
+
 .login-bg {
     margin: 0;
     padding: 0;
@@ -21,17 +25,25 @@
     padding: 40px;
 }
 
-.login-container {
+.login-container,
+.register-container {
     font-family: 'Roboto', sans-serif;
     background: #fff;
-    max-width: 300px;
     padding: 40px;
     margin: 0 auto;
 }
 
+.login-container {
+    max-width: 300px;
+}
+
+.register-container {
+    max-width: 500px;
+}
+
 .hl-primary-btn-blue {
     color: #fff;
-    background: #2ab8e0;
+    background: $app-color-aqua;
     border-color: #1b98bc;
     box-sizing: border-box;
     display: inline-block;
@@ -49,10 +61,17 @@
     width: 100%;
     text-align: center;
     font-weight: 700;
+    cursor: pointer;
+
+    &:hover {
+        color: #fff;
+        background: darken($app-color-aqua, 5);
+    }
 
     &:focus {
         border-color: #1a87a6;
         outline: none;
+        color: #fff;
     }
 }
 
@@ -96,7 +115,8 @@
     position: relative;
     margin-bottom: 20px;
 
-    input {
+    input,
+    select {
         width: 100%;
         box-sizing: border-box;
         margin: 0;
@@ -113,13 +133,35 @@
         &:focus {
             transition: border-color, 0.3s;
             outline: none;
-            border-color: #2ab8e0;
+            border-color: $app-color-aqua;
 
             +.errorlist {
-                border-color: #2ab8e0;
+                border-color: $app-color-aqua;
                 transition: border-color, 0.3s;
             }
         }
+
+        &::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+            color: $help-text;
+        }
+
+        &::-moz-placeholder { /* Firefox 19+ */
+            color: $help-text;
+        }
+
+        &:-ms-input-placeholder { /* IE 10+ */
+            color: $help-text;
+        }
+    }
+
+    select {
+        background: #fff;
+        color: $help-text;
+        -webkit-appearance: none;
+        background-image: linear-gradient(45deg, transparent 50%, $darker-help-text 50%), linear-gradient(135deg, $darker-help-text 50%, transparent 50%);
+        background-position: calc(100% - 21px) calc(1em + 2px), calc(100% - 15px) calc(1em + 2px);
+        background-size: 6px 6px, 6px 6px;
+        background-repeat: no-repeat;
     }
 }
 
@@ -127,7 +169,7 @@
     display: block;
     margin-bottom: 5px;
     text-transform: uppercase;
-    color: #b4b4c0;
+    color: darken($darker-help-text, 25%);
     opacity: 0.6;
     letter-spacing: 0.5px;
     font-size: 12px;
@@ -160,7 +202,7 @@
 }
 
 .link {
-    color: #2ab8e0;
+    color: $app-color-aqua;
     font-size: 14px;
     line-height: 20px;
     background: none;
@@ -197,4 +239,35 @@
 
 .register-text {
     font-size: 0.9em;
+}
+
+.help {
+    font-size: 0.75em;
+    color: $help-text;
+}
+
+.hideshowpassword-toggle {
+    background: transparent;
+    border: 0;
+    border-radius: 0.25em;
+    color: $darker-help-text;
+    cursor: pointer;
+    font-size: 0.75em;
+    font-weight: bold;
+    margin-right: 0.5em;
+    padding: 0.5em;
+    text-transform: uppercase;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+}
+
+.hideshowpassword-toggle:hover,
+.hideshowpassword-toggle:focus {
+    background-color: #eee;
+    color: #555;
+    outline: transparent;
+}
+
+strong {
+    color: $darker-help-text;
 }

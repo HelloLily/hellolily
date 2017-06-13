@@ -53,7 +53,7 @@ var config = {
             src: [
                 'frontend/app/stylesheets/**/*.scss',
                 '!frontend/app/stylesheets/login.scss',
-                ],
+            ],
             base: 'frontend/app/stylesheets/app.scss',
             fileName: 'app.css',
             login: {
@@ -106,6 +106,16 @@ var config = {
                 '!frontend/vendor/**/*.js',
                 '!frontend/vendor/**/*.html',
             ],
+        },
+    },
+    anonymousVendor: {
+        buildDir: 'lily/static/vendor/',
+        js: {
+            src: [
+                'frontend/vendor/**/*jquery.min.js',
+                'frontend/vendor/**/hideShowPassword.min.js',
+            ],
+            fileName: 'anonymous_vendor.js',
         },
     },
     cdn: {
@@ -283,6 +293,25 @@ gulp.task('vendor-js', [], function() {
         .pipe(ifElse(isWatcher, livereload));
 });
 
+gulp.task('anonymous-vendor-js', [], function() {
+    return gulp.src(config.anonymousVendor.js.src)
+        .pipe(ifElse(!isProduction, function() {
+            return sourcemaps.init();
+        }))
+
+        .pipe(cached('anonymous-vendor-js'))
+        .pipe(ifElse(isProduction, uglify))
+        .pipe(remember('anonymous-vendor-js'))
+
+        .pipe(concat(config.anonymousVendor.js.fileName))
+        .pipe(ifElse(!isProduction, function() {
+            return sourcemaps.write('.');
+        }))
+        .pipe(gulp.dest(config.anonymousVendor.buildDir))
+        .pipe(ifElse(isWatcher, size))
+        .pipe(ifElse(isWatcher, livereload));
+});
+
 gulp.task('vendor-css', [], function() {
     return gulp.src(config.vendor.css.src)
         .pipe(ifElse(!isProduction, function() {
@@ -332,7 +361,7 @@ gulp.task('heroku-assets', [], function() {
 /**
  * Concatenate, minify and make source maps of all js and css.
  */
-gulp.task('build', ['app-js', 'app-css', 'app-templates', 'app-assets', 'vendor-js', 'vendor-css', 'vendor-assets',
+gulp.task('build', ['app-js', 'app-css', 'app-templates', 'app-assets', 'vendor-js', 'anonymous-vendor-js', 'vendor-css', 'vendor-assets',
     'analytics', 'heroku-assets', 'login-css'], function() {});
 
 /**

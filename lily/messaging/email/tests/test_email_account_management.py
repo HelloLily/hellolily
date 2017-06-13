@@ -250,8 +250,10 @@ class EmailAccountManagementTests(UserBasedTest, APITestCase):
         only_new = False
         privacy = EmailAccount.PRIVATE
         # Share one of my email account with another user.
-        shared_email_configs = [{"user": self.other_tenant_user_obj.pk, "privacy": EmailAccount.PUBLIC,
+        shared_email_configs = [{"user": self.superuser_obj.pk, "privacy": EmailAccount.PUBLIC,
                                  "email_account": self.email_accounts[0].pk}]
+        # TODO: Sharing with a user of an other tenant is possible via tests, should be restricted by tenant.
+        # But it is restricted in the frontend.
 
         stub_dict = {'id': email_account.pk, 'from_name': from_name, 'label': label, 'only_new': only_new,
                      'privacy': privacy, 'shared_email_configs': shared_email_configs}
@@ -265,7 +267,7 @@ class EmailAccountManagementTests(UserBasedTest, APITestCase):
         email_account.refresh_from_db()
         self.assertEqual(email_account.privacy, EmailAccount.PRIVATE)
         sec = SharedEmailConfig.objects.filter(email_account=self.email_accounts[0].pk)[0]
-        self.assertEqual(sec.user, self.other_tenant_user_obj)
+        self.assertEqual(sec.user, self.superuser_obj)
         self.assertEqual(sec.privacy, EmailAccount.PUBLIC)
 
     def test_private_revert_sharing(self):
@@ -279,7 +281,7 @@ class EmailAccountManagementTests(UserBasedTest, APITestCase):
         only_new = False
         privacy = EmailAccount.PRIVATE
         # Share one of my email accounts with another user.
-        shared_email_configs = [{"user": self.other_tenant_user_obj.pk, "privacy": EmailAccount.PUBLIC,
+        shared_email_configs = [{"user": self.superuser_obj.pk, "privacy": EmailAccount.PUBLIC,
                                  "email_account": self.email_accounts[0].pk}]
 
         stub_dict = {'id': email_account.pk, 'from_name': from_name, 'label': label, 'only_new': only_new,

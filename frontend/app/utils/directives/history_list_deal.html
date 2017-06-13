@@ -3,106 +3,63 @@
     <div class="timeline-avatar" ng-if="!vm.item.assigned_to" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png');"></div>
 
     <div class="timeline-content-container has-deal">
-
         <div class="timeline-content-header">
-
-            <div class="timeline-type">
-                <i class="lilicon hl-deals-filled-icon"></i>
+            <span class="timeline-content-title">
+                <a ui-sref="base.deals.detail({ id: vm.item.id })">
+                    {{ ::vm.item.name }} ({{ ::vm.item.archived ? 'archived' : vm.item.status.name}})
+                </a>
+            </span>
+            <div class="timeline-date" title="Modified on {{ ::vm.item.modified | date:'dd MMM yyyy - HH:mm' }}">
+                {{ ::vm.item.modified | date:'dd MMM yyyy - HH:mm' }}
             </div>
-
-            <div class="timeline-content">
-                <span class="timeline-content-title"><a ui-sref="base.deals.detail({ id: vm.item.id })">{{ ::vm.item.name }}</a></span>
-                <ul class="timeline-content-details">
-                    <li>Status: <strong>{{ ::vm.item.stage_name}} ({{ ::vm.item.archived ? 'archived' : 'active'}})</strong></li>
-                    <li>
-                        Next step:
-                        <span uib-tooltip="{{ vm.item.next_step.name }}" tooltip-placement="left" class="step-type" ng-if="vm.item.next_step" class="step-type position-{{ vm.item.next_step.position }}">
-                            <strong class="margin-left-5" ng-show="vm.item.next_step_date"><date date="vm.item.next_step_date"></date></strong>
-                            <strong class="margin-left-5" ng-show="!vm.item.next_step_date">
-                                <editable-select field="next_step" view-model="vm" type="Deal" select-type="icon_select" object="vm.item" tooltip-placement="left"
-                                                uib-tooltip="{{ vm.item.next_step.name }}" select-options="{'classPrefix': 'step-type position-', 'classValue': 'position'}">
-                                    <span class="step-type position-{{ vm.item.next_step.position }}">
-                                        {{ vm.item.next_step.name }}
-                                    </span>
-                                </editable-select>
-                            </strong>
-                        </span>
-                    </li>
-                    <li>Amount once: <strong class="margin-left-5" ng-bind-html="::vm.item.amount_once | currencySymbol:vm.item.currency"></strong></li>
-                    <li>Amount recurring: <strong class="margin-left-5" ng-bind-html="::vm.item.amount_recurring | currencySymbol:vm.item.currency"></strong></li>
-                </ul>
-                <div class="timeline-date" title="Modified on {{ ::vm.item.modified | date:'dd MMM yyyy - HH:mm' }}">
-                    {{ ::vm.item.modified | date:'dd MMM yyyy - HH:mm' }}
-                </div>
-            </div>
-
-            <a class="timeline-toggle-details" ng-click="vm.item.shown = !vm.item.shown"><i class="lilicon hl-toggle-left-icon" ng-class="vm.item.shown ? 'hl-toggle-down-icon' : 'hl-toggle-left-icon'"></i></a>
-
         </div>
 
-        <div ng-show="vm.item.shown">
-            <div class="content-details history-item-body">
-                <editable-textarea extra-class="detail-plain-text" view-model="vm" field="description" object="vm.item"></editable-textarea>
+        <div class="content-details history-item-body">
+            <editable-textarea extra-class="detail-plain-text" view-model="vm" field="description" object="vm.item"></editable-textarea>
+        </div>
 
-                <ul class="content-details-actions">
-                    <li><a ui-sref="base.deals.detail({ id: vm.item.id })"><i class="fa fa-eye"></i> View</a></li>
-                    <li><a ui-sref="base.deals.detail.edit({ id: vm.item.id })"><i class="lilicon hl-edit-icon"></i> Edit</a></li>
+        <div class="content-details-additional">
+            <div class="content-history-divider"></div>
+
+            <div class="content-history-container">
+                <ul class="content-history-list">
+                    <li ng-repeat="note in vm.item.notes">
+                        <div class="content-history-note-header">
+                            <div class="content-history-avatar" ng-style="{'background-image': 'url(' + note.author.profile_picture + ')'}"></div>
+                            <div class="content-history-date">{{ ::note.modified | date:'dd MMM yyyy - HH:mm' }}</div>
+                        </div>
+                        <div class="content-history-note-body">
+                            <editable-textarea view-model="vm" field="content" object="note"></editable-textarea>
+                        </div>
+                    </li>
                     <li>
-                        <delete-confirmation model="Deal" object="vm.item" callback="vm.deleteCallback()" button-class="btn-link no-background no-padding">
-                            Delete
-                        </delete-confirmation>
+                        <div class="content-history-note-header">
+                            <div ng-if="vm.item.created_by" class="content-history-avatar" ng-style="{'background-image': 'url(' + vm.item.created_by.profile_picture + ')'}"></div>
+                            <div ng-if="!vm.item.created_by" class="content-history-avatar" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png');"></div>
+                            <div class="content-history-desc">
+                                {{ ::vm.item.created_by.full_name || 'An unknown entity' }} created the deal <a ui-sref="base.deals.detail({ id: vm.item.id })">{{ ::vm.item.name }}</a>
+                            </div>
+
+                            <div class="content-history-date">{{ ::vm.item.created | date:'dd MMM yyyy - HH:mm' }}</div>
+                            <div class="clearfix"></div>
+                        </div>
                     </li>
                 </ul>
             </div>
 
-            <div class="content-details-additional">
-                <div class="content-history-divider"></div>
-
-                <div class="content-history-container">
-                    <ul class="content-history-list">
-                        <li>
-                            <div class="content-history-note-header">
-                                <div class="content-history-avatar is-note">
-                                    <i class="lilicon hl-note-icon"></i>
-                                </div>
+            <div class="content-history-container add-note-inline">
+                <ul class="content-history-list">
+                    <li>
+                        <div class="content-history-note-header">
+                            <div class="content-history-avatar is-note">
+                                <i class="lilicon hl-note-icon"></i>
                             </div>
-                            <div class="content-history-note-body has-form">
-                                <history-add-note item="vm.item"></history-add-note>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="content-history-container">
-                    <ul class="content-history-list">
-                        <li ng-repeat="note in vm.item.notes">
-                            <div class="content-history-note-header">
-                                <div class="content-history-avatar" ng-style="{'background-image': 'url(' + note.author.profile_picture + ')'}"></div>
-                                <div class="content-history-desc">
-                                    {{ note.author.full_name }} added a note <span ng-if="note.type === 1">(Callback)</span> <span ng-if="note.type === 2">(Meetup)</span>
-                                </div>
-                                <div class="content-history-date">{{ ::note.modified | date:'dd MMM yyyy - HH:mm' }}</div>
-                                <div class="clearfix"></div>
-                            </div>
-                            <div class="content-history-note-body">
-                                <editable-textarea view-model="vm" field="content" object="note"></editable-textarea>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="content-history-note-header">
-
-                                <div ng-if="vm.item.created_by" class="content-history-avatar" ng-style="{'background-image': 'url(' + vm.item.created_by.profile_picture + ')'}"></div>
-                                <div ng-if="!vm.item.created_by" class="content-history-avatar" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png');"></div>
-                                <div class="content-history-desc">
-                                    {{ ::vm.item.created_by.full_name || 'An unknown entity' }} created the deal <a ui-sref="base.deals.detail({ id: vm.item.id })">{{ ::vm.item.name }}</a>
-                                </div>
-
-                                <div class="content-history-date">{{ ::vm.item.created | date:'dd MMM yyyy - HH:mm' }}</div>
-                                <div class="clearfix"></div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
+                        </div>
+                        <div class="content-history-note-body has-form">
+                            <history-add-note item="vm.item"></history-add-note>
+                        </div>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>

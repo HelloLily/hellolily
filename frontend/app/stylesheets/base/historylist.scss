@@ -265,8 +265,7 @@
 
     .history-item-body {
         .detail-plain-text {
-            padding: 15px;
-            border-bottom: 1px $app-border-color solid;
+            padding: 15px 15px 0;
             max-height: 400px;
             overflow-y: auto;
             margin: -15px -15px 15px;
@@ -276,6 +275,10 @@
     &.has-email {
         &:before {
             background-color: $email-color;
+        }
+
+        .detail-plain-text {
+            height: 350px;
         }
     }
 
@@ -355,7 +358,6 @@
 }
 
 .timeline-content {
-    margin-left: 60px;
     position: relative;
 }
 
@@ -365,8 +367,6 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color: $app-color-darkblue;
-    display: block;
-    padding-right: 140px;
 
     a {
         color: $lily-dark-blue;
@@ -413,13 +413,13 @@
 }
 
 .timeline-date {
-    position: absolute;
     line-height: 22px;
     font-size: 12px;
-    top: 0;
+    top: 10px;
     bottom: 0;
-    right: 50px;
+    right: 20px;
     color: #afb5c2;
+    float: right;
 
     @media (max-width: $breakpoint-mobile) {
         position: relative;
@@ -449,10 +449,8 @@
 
 .content-details {
     width: 100%;
-    border-top: 1px solid $lily-border-dark;
-    border-bottom: 1px solid lighten($lily-border-dark, 10);
     background-color: #fff;
-    padding: 15px;
+    padding: 15px 15px 0;
 
     p {
         line-height: 24px;
@@ -466,7 +464,15 @@
 .content-history-container {
     width: 100%;
     background-color: #fff;
-    padding: 20px;
+    padding: 0 20px;
+
+    &.add-note-inline {
+        padding-top: 15px;
+
+        .form-control {
+            border-top-left-radius: 0;
+        }
+    }
 
     &.content-history-add-note-form {
         padding-left: 70px;
@@ -542,7 +548,7 @@
     li {
         display: inline;
         list-style-type: none;
-        margin-right: 20px;
+        margin-right: 10px;
 
         .btn {
             color: $app-color-aqua;
@@ -586,6 +592,7 @@
 .content-history-note-body {
     background-color: $lily-white-tone-hover;
     margin-left: 50px;
+    margin-right: 150px;
     border-radius: $base-border-radius;
     padding: 10px;
     white-space: pre-wrap;

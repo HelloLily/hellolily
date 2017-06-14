@@ -194,7 +194,10 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             }
 
             if (Settings.email.data) {
-                vm.case.description = $state.href('base.email.detail', {id: Settings.email.data.id}, {absolute: true});
+                // Only prefill the case description with e-mail data if the sidebar is active.
+                if (Settings.email.sidebar.isVisible) {
+                    vm.case.description = $state.href('base.email.detail', {id: Settings.email.data.id}, {absolute: true});
+                }
 
                 if (Settings.email.data.account || Settings.email.data.contact) {
                     // Auto fill data if it's available.

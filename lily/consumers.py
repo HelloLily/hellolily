@@ -1,3 +1,5 @@
+import json
+
 import newrelic.agent
 from channels import Group
 from channels.generic.websockets import WebsocketConsumer
@@ -11,7 +13,9 @@ class LilyConsumer(WebsocketConsumer):
     def connect(self, message, **kwargs):
         if message.user.is_anonymous():
             message.reply_channel.send({
-                "text": 'Unauthenticated',
+                "text": json.dumps({
+                    'error': 'unauthenticated',
+                }),
                 "close": True,
             })
         else:

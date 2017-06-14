@@ -10,8 +10,8 @@ function dealsToCheckDirective() {
     };
 }
 
-DealsToCheckController.$inject = ['$scope', 'Deal', 'HLResource', 'HLUtils', 'LocalStorage', 'UserTeams'];
-function DealsToCheckController($scope, Deal, HLResource, HLUtils, LocalStorage, UserTeams) {
+DealsToCheckController.$inject = ['$scope', 'Deal', 'HLResource', 'HLUtils', 'HLSockets', 'LocalStorage', 'UserTeams'];
+function DealsToCheckController($scope, Deal, HLResource, HLUtils, HLSockets, LocalStorage, UserTeams) {
     var storage = new LocalStorage('dealsToCheckWidget');
     var vm = this;
 
@@ -26,6 +26,13 @@ function DealsToCheckController($scope, Deal, HLResource, HLUtils, LocalStorage,
 
     };
     vm.markDealAsChecked = markDealAsChecked;
+
+    HLSockets.bind('deal-assigned', _getDealsToCheck);
+
+    $scope.$on('$destroy', () => {
+        HLSockets.unbind('deal-assigned', _getDealsToCheck);
+    });
+
     activate();
 
     ///////////
@@ -35,11 +42,11 @@ function DealsToCheckController($scope, Deal, HLResource, HLUtils, LocalStorage,
         _getUsers();
     }
 
-    function _getDealsToCheck() {
+    function _getDealsToCheck(blockUI = false) {
         Deal.getStatuses(function() {
             var filterQuery = 'status.id:' + Deal.wonStatus.id + ' AND is_checked:false AND new_business:true AND is_archived:false';
 
-            HLUtils.blockUI('#dealsToCheckBlockTarget', true);
+            if (blockUI) HLUtils.blockUI('#dealsToCheckBlockTarget', true);
 
             if (vm.table.usersFilter) {
                 filterQuery += ' AND (' + vm.table.usersFilter + ')';
@@ -50,7 +57,7 @@ function DealsToCheckController($scope, Deal, HLResource, HLUtils, LocalStorage,
             Deal.getDeals(vm.table.order.column, vm.table.order.descending, filterQuery).then(function(data) {
                 vm.table.items = data.objects;
 
-                HLUtils.unblockUI('#dealsToCheckBlockTarget');
+                if (blockUI) HLUtils.unblockUI('#dealsToCheckBlockTarget');
             });
         });
     }
@@ -65,7 +72,7 @@ function DealsToCheckController($scope, Deal, HLResource, HLUtils, LocalStorage,
 
     function _watchTable() {
         $scope.$watchGroup(['vm.table.order.descending', 'vm.table.order.column', 'vm.table.usersFilter'], function() {
-            _getDealsToCheck();
+            _getDealsToCheck(true);
             storage.put('order', vm.table.order);
             storage.put('usersFilter', vm.table.usersFilter);
         });

@@ -12,8 +12,8 @@ function unassignedDealsDirective() {
     };
 }
 
-UnassignedDealsController.$inject = ['$http', '$scope', '$state', '$timeout', 'Deal', 'HLFilters', 'HLUtils', 'LocalStorage'];
-function UnassignedDealsController($http, $scope, $state, $timeout, Deal, HLFilters, HLUtils, LocalStorage) {
+UnassignedDealsController.$inject = ['$http', '$scope', '$state', '$timeout', 'Deal', 'HLFilters', 'HLUtils', 'HLSockets', 'LocalStorage'];
+function UnassignedDealsController($http, $scope, $state, $timeout, Deal, HLFilters, HLUtils, HLSockets, LocalStorage) {
     var vm = this;
 
     vm.storageName = 'unassignedDealsWidget';
@@ -33,6 +33,12 @@ function UnassignedDealsController($http, $scope, $state, $timeout, Deal, HLFilt
 
     vm.assignToMe = assignToMe;
     vm.updateTable = updateTable;
+
+    HLSockets.bind('deal-unassigned', updateTable);
+
+    $scope.$on('$destroy', () => {
+        HLSockets.unbind('deal-unassigned', updateTable);
+    });
 
     activate();
 
@@ -84,11 +90,11 @@ function UnassignedDealsController($http, $scope, $state, $timeout, Deal, HLFilt
         }, 50);
     }
 
-    function updateTable() {
+    function updateTable(blockUI = false) {
         var filterQuery = 'is_archived:false AND _missing_:assigned_to.id';
         var blockTarget = '#unassignedDealsBlockTarget';
 
-        HLUtils.blockUI(blockTarget, true);
+        if (blockUI) HLUtils.blockUI(blockTarget, true);
 
         if (vm.table.filterQuery) {
             filterQuery += ' AND ' + vm.table.filterQuery;
@@ -97,7 +103,7 @@ function UnassignedDealsController($http, $scope, $state, $timeout, Deal, HLFilt
         Deal.getDeals(vm.table.order.column, vm.table.order.descending, filterQuery).then(function(data) {
             vm.table.items = data.objects;
 
-            HLUtils.unblockUI(blockTarget);
+            if (blockUI) HLUtils.unblockUI(blockTarget);
         });
     }
 
@@ -120,7 +126,7 @@ function UnassignedDealsController($http, $scope, $state, $timeout, Deal, HLFilt
 
     function _watchTable() {
         $scope.$watchGroup(['vm.table.order.descending', 'vm.table.order.column'], function() {
-            updateTable();
+            updateTable(true);
             vm.storage.put('order', vm.table.order);
         });
     }

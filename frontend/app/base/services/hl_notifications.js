@@ -17,9 +17,6 @@ function HLNotifications($state, LocalStorage, HLSockets) {
                 Notification.requestPermission(function(permission) {
                     if (permission === 'granted') {
                         _makeNotification(data);
-                    } else if (permission === 'denied') {
-                        // Close the WebSocket connection as it serves no purpose anymore.
-                        HLSockets.close('Notification access denied');
                     }
                 });
             }

@@ -9,9 +9,10 @@ function unreadEmailDirective() {
     };
 }
 
-UnreadEmailController.$inject = ['$scope', 'EmailAccount', 'EmailMessage', 'HLFilters', 'HLUtils', 'LocalStorage'];
-function UnreadEmailController($scope, EmailAccount, EmailMessage, HLFilters, HLUtils, LocalStorage) {
+UnreadEmailController.$inject = ['$scope', '$interval', 'EmailAccount', 'EmailMessage', 'HLFilters', 'HLUtils', 'LocalStorage'];
+function UnreadEmailController($scope, $interval, EmailAccount, EmailMessage, HLFilters, HLUtils, LocalStorage) {
     var vm = this;
+    let reloadInterval;
 
     vm.storage = new LocalStorage('unreadEmailWidget');
     vm.storedFilterList = vm.storage.get('filterListSelected', null);
@@ -24,6 +25,15 @@ function UnreadEmailController($scope, EmailAccount, EmailMessage, HLFilters, HL
     };
 
     vm.updateTable = updateTable;
+
+    reloadInterval = $interval(updateTable, 60000);
+
+    $scope.$on('$destroy', function() {
+        if (reloadInterval) {
+            $interval.cancel(reloadInterval);
+            reloadInterval = null;
+        }
+    });
 
     activate();
 
@@ -50,11 +60,11 @@ function UnreadEmailController($scope, EmailAccount, EmailMessage, HLFilters, HL
         });
     }
 
-    function updateTable() {
+    function updateTable(blockUI = false) {
         var sort = HLUtils.getSorting(vm.table.order.column, vm.table.order.descending);
         var filterQuery = 'read:false AND label_id:INBOX';
 
-        HLUtils.blockUI('#unreadEmailBlockTarget', true);
+        if (blockUI) HLUtils.blockUI('#unreadEmailBlockTarget', true);
 
         if (vm.table.filterQuery) {
             filterQuery += ' AND ' + vm.table.filterQuery;
@@ -66,13 +76,13 @@ function UnreadEmailController($scope, EmailAccount, EmailMessage, HLFilters, HL
         }, function(data) {
             vm.table.items = data.hits;
 
-            HLUtils.unblockUI('#unreadEmailBlockTarget');
+            if (blockUI) HLUtils.unblockUI('#unreadEmailBlockTarget');
         });
     }
 
     function _watchTable() {
         $scope.$watchGroup(['vm.table.order.descending', 'vm.table.order.column'], function() {
-            updateTable();
+            updateTable(true);
             vm.storage.put('order', vm.table.order);
         });
     }

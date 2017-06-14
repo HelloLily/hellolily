@@ -5,8 +5,22 @@ from .indexing import update_in_index, remove_from_index
 from .scan_search import ModelMappings
 from django.conf import settings
 
+from functools import wraps
+
+
+def skip_signal():
+    def _skip_signal(signal_func):
+        @wraps(signal_func)
+        def _decorator(sender, instance, **kwargs):
+            if hasattr(instance, 'skip_signal') and instance.skip_signal:
+                return None
+            return signal_func(sender, instance, **kwargs)
+        return _decorator
+    return _skip_signal
+
 
 @receiver(post_save)
+@skip_signal()
 def post_save_generic(sender, instance, **kwargs):
     if settings.ES_DISABLED:
         return
@@ -17,6 +31,7 @@ def post_save_generic(sender, instance, **kwargs):
 
 
 @receiver(m2m_changed)
+@skip_signal()
 def m2m_changed_generic(sender, instance, action, **kwargs):
     if settings.ES_DISABLED:
         return

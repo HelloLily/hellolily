@@ -277,19 +277,26 @@ class GmailManager(object):
         self.email_account.sync_failure_count = 0
         self.email_account.save(update_fields=["is_syncing", "sync_failure_count"])
 
-    def get_label(self, label_id):
+    def get_label(self, label_id, use_db=True):
         """
         Returns the label given the label_id.
 
         Args:
             label_id (string): label_id of the label
+            use_db (bool): First try to retrieve the label from the database.
 
         Returns:
             EmailLabel instance
         """
-        try:
-            label = EmailLabel.objects.get(account=self.email_account, label_id=label_id)
-        except EmailLabel.DoesNotExist:
+        label = None
+
+        if use_db:
+            try:
+                label = EmailLabel.objects.get(account=self.email_account, label_id=label_id)
+            except EmailLabel.DoesNotExist:
+                pass
+
+        if not label:
             label_info = self.connector.get_label_info(label_id)
             label = self.label_builder.get_or_create_label(label_info)[0]
 

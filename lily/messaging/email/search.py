@@ -137,6 +137,10 @@ class EmailMessageMapping(BaseMapping):
         """
         Translate an object to an index document.
         """
+        labels = obj.labels.all()
+        received_by = obj.received_by.all()
+        received_by_cc = obj.received_by_cc.all()
+
         return {
             'account': {
                 'id': obj.account.id,
@@ -149,16 +153,14 @@ class EmailMessageMapping(BaseMapping):
             'read': obj.read,
             'snippet': obj.snippet,
             'has_attachment': obj.has_attachment,
-            'label_id': [label.label_id for label in obj.labels.all() if label.label_id],
-            'label_name': [label.name for label in obj.labels.all() if label.name],
+            'label_id': [label.label_id for label in labels if label.label_id],
+            'label_name': [label.name for label in labels if label.name],
             'sender_email': obj.sender.email_address,
             'sender_name': obj.sender.name,
-            'received_by_email':
-                [receiver.email_address for receiver in obj.received_by.all() if receiver.email_address],
-            'received_by_name': [receiver.name for receiver in obj.received_by.all() if receiver.name],
-            'received_by_cc_email':
-                [receiver.email_address for receiver in obj.received_by_cc.all() if receiver.email_address],
-            'received_by_cc_name': [receiver.name for receiver in obj.received_by_cc.all() if receiver.name],
+            'received_by_email': [receiver.email_address for receiver in received_by if receiver.email_address],
+            'received_by_name': [receiver.name for receiver in received_by if receiver.name],
+            'received_by_cc_email': [receiver.email_address for receiver in received_by_cc if receiver.email_address],
+            'received_by_cc_name': [receiver.name for receiver in received_by_cc if receiver.name],
             'message_id': obj.message_id,
             'thread_id': obj.thread_id,
             'body': obj.body_text or cls.body_html_parsed(obj),

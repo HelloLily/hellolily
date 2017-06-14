@@ -4,14 +4,14 @@ set -e
 
 if [ "${TRAVIS_BRANCH}" == "master" ]; then
     # If we're on master check the current commit range.
-    if [ $(git log ${TRAVIS_COMMIT_RANGE} --format=oneline -- '**/search.py' | wc -l) -gt 0 ]; then
+    if [ $(git log ${TRAVIS_COMMIT_RANGE} --format=oneline -- '**/search.py' -- ':(exclude)**/email/search.py' | wc -l) -gt 0 ]; then
         echo "true"
     else
         echo "false"
     fi
 elif [ "${TRAVIS_BRANCH}" == "develop" ]; then
     # If we're on develop, compare to master.
-    if [ $(git diff --name-only develop..master -- '**/search.py' | wc -l) -gt 0 ]; then
+    if [ $(git diff --name-only develop..master -- '**/search.py' -- ':(exclude)**/email/search.py' | wc -l) -gt 0 ]; then
         echo "true"
     else
         echo "false"

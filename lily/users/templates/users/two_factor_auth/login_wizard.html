@@ -68,22 +68,23 @@
                         {{ wizard.management_form }}
                         {% include 'users/two_factor_auth/_form_fields.html' with form=wizard.form %}
 
-                        {% if other_devices %}
-                        <p>{% trans "Or, alternatively, use one of your backup phones:" %}</p>
-                        <p>
-                            {% for other in other_devices %}
-                                <button name="challenge_device" value="{{ other.persistent_id }}"
-                                        class="hl-primary-btn-blue" type="submit">
-                                    {{ other|device_action }}
-                                </button>
-                            {% endfor %}
-                        </p>
-                        {% endif %}
-
                         {% include 'users/two_factor_auth/_wizard_actions.html' %}
 
-                        {% if backup_tokens %}
+                        {% if other_devices or backup_tokens %}
                             <div class="spacer-20"></div>
+                        {% endif %}
+
+                        {% if other_devices %}
+                            {% for other in other_devices %}
+                                <div class="align-center">
+                                    <button name="challenge_device" type="submit" value="{{ other.persistent_id }}" class="link">
+                                        {{ other|device_action }}
+                                    </button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        {% if backup_tokens %}
                             <div class="align-center">
                                 <button name="wizard_goto_step" type="submit" value="backup" class="link">
                                     {% trans "Use Backup Token" %}

@@ -382,7 +382,8 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
 
                 if address:
                     country = address.country
-        else:
+
+        if not country:
             country = self.request.user.tenant.country or None
 
         phone_numbers = []

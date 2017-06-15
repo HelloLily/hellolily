@@ -224,7 +224,7 @@ class SessionSerializer(serializers.ModelSerializer):
     # location = serializers.SerializerMethodField()
 
     def get_device(self, obj):
-        return device(obj.user_agent)
+        return device(obj.user_agent) if obj.user_agent else 'Unkown'
 
     def get_expires_in(self, obj):
         return timeuntil(obj.expire_date)

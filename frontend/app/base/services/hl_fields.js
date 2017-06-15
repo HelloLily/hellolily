@@ -79,7 +79,12 @@ function HLFields() {
                     isPrimary = true;
                 }
 
-                object.email_addresses.push({is_primary: isPrimary, status: status});
+                if (isPrimary) {
+                    object.email_addresses.unshift({is_primary: isPrimary, status: status});
+                } else {
+                    object.email_addresses.push({is_primary: isPrimary, status: status});
+                }
+
                 break;
             case 'phoneNumber':
                 object.phone_numbers.push({type: 'work'});

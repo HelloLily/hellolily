@@ -46,11 +46,6 @@ function HLUtils() {
         }
     };
 
-    this.getFullName = function(user) {
-        // Join strings in array while ignoring empty values.
-        return [user.first_name, user.last_name].filter(function(val) { return val; }).join(' ');
-    };
-
     this.getSorting = function(field, descending) {
         var sort = '';
         sort += descending ? '-' : '';

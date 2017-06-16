@@ -232,7 +232,8 @@ if DEBUG:
 #######################################################################################################################
 # USER SESSIONS                                                                                                       #
 #######################################################################################################################
-SESSION_ENGINE = 'user_sessions.backends.db'
+SESSION_ENGINE = 'user_sessions.backends.db'  # For http requests
+CHANNEL_SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # For websocket connections
 
 #######################################################################################################################
 # USER SESSIONS                                                                                                       #
@@ -344,14 +345,14 @@ INSTALLED_APPS = (
     'django_otp.plugins.otp_totp',
     'two_factor',
     'otp_yubikey',
-    'user_sessions',
+    'user_sessions',  # Sessions used for http requests
 
     # Django
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.humanize',
-    'django.contrib.sessions',  # TODO: remove once we're on django 1.9 (breaks the login of tests in 1.8)
+    'django.contrib.sessions',  # Sessions used for websocket connections
     'django.contrib.sites',
     'django.contrib.staticfiles',
     'django.contrib.messages',

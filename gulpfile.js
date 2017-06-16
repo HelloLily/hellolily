@@ -180,18 +180,14 @@ gulp.task('app-js', [], function(cb) {
         // Transform streaming contents into buffer contents
         // (because gulp-sourcemaps does not support streaming contents).
         .pipe(buffer())
-        .pipe(ifElse(!isProduction, function() {
-            return sourcemaps.init();
-        }))
-        .pipe(cached('app-js'))
-        .pipe(babel({presets: ['es2015'], compact: false}))
-        .pipe(wrap('(function(angular){\'use strict\';<%= contents %>})(angular);'))
-        .pipe(ifElse(isProduction, uglify))
-        .pipe(remember('app-js'))
-        .pipe(concat(config.app.js.fileName))
-        .pipe(ifElse(!isProduction, function() {
-            return sourcemaps.write('.');
-        }))
+        .pipe(sourcemaps.init())
+            .pipe(cached('app-js'))
+            .pipe(babel({presets: ['es2015'], compact: false}))
+            .pipe(wrap('(function(angular){\'use strict\';<%= contents %>})(angular);'))
+            .pipe(ifElse(isProduction, uglify))
+            .pipe(remember('app-js'))
+            .pipe(concat(config.app.js.fileName))
+        .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest(config.app.buildDir))
         .pipe(ifElse(isWatcher, size))
         .pipe(ifElse(isWatcher, livereload));
@@ -199,20 +195,16 @@ gulp.task('app-js', [], function(cb) {
 
 gulp.task('app-css', [], function() {
     return gulp.src(config.app.sass.base)
-        .pipe(ifElse(!isProduction, function() {
-            return sourcemaps.init();
-        }))
-        .pipe(sass({includePaths: ['./node_modules/']}))
-        .pipe(rebaseUrls({root: config.cdn.root}))
-        .pipe(cdnizer({
-            defaultCDNBase: config.cdn.defaultBase,
-            files: config.cdn.src,
-        }))
-        .pipe(ifElse(isProduction, uglifyCss))
-        .pipe(rename(config.app.sass.fileName))
-        .pipe(ifElse(!isProduction, function() {
-            return sourcemaps.write();
-        }))
+        .pipe(sourcemaps.init())
+            .pipe(sass({includePaths: ['./node_modules/']}))
+            .pipe(rebaseUrls({root: config.cdn.root}))
+            .pipe(cdnizer({
+                defaultCDNBase: config.cdn.defaultBase,
+                files: config.cdn.src,
+            }))
+            .pipe(ifElse(isProduction, uglifyCss))
+            .pipe(rename(config.app.sass.fileName))
+        .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest(config.app.buildDir))
         .pipe(ifElse(isWatcher, size))
         .pipe(ifElse(isWatcher, livereload))
@@ -223,23 +215,19 @@ gulp.task('app-css', [], function() {
 
 gulp.task('login-css', [], function() {
     return gulp.src(config.app.sass.login.src)
-        .pipe(ifElse(!isProduction, function() {
-            return sourcemaps.init();
-        }))
-        .pipe(sass({includePaths: ['./node_modules/']}))
-        .pipe(rebaseUrls({root: config.cdn.root}))
-        .pipe(cdnizer({
-            defaultCDNBase: config.cdn.defaultBase,
-            files: config.cdn.src,
-        }))
-        .pipe(ifElse(isProduction, uglifyCss))
-        .pipe(rename(config.app.sass.login.fileName))
-        .pipe(ifElse(!isProduction, function() {
-            return sourcemaps.write();
-        }))
+        .pipe(sourcemaps.init())
+            .pipe(sass({includePaths: ['./node_modules/']}))
+            .pipe(rebaseUrls({root: config.cdn.root}))
+            .pipe(cdnizer({
+                defaultCDNBase: config.cdn.defaultBase,
+                files: config.cdn.src,
+            }))
+            .pipe(ifElse(isProduction, uglifyCss))
+            .pipe(rename(config.app.sass.login.fileName))
+        .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest(config.app.buildDir))
         .pipe(ifElse(isWatcher, size))
-        .pipe(ifElse(isWatcher, livereload))
+        .pipe(ifElse(isWatcher, livereload));
 });
 
 /**
@@ -276,18 +264,12 @@ gulp.task('app-assets', [], function() {
  */
 gulp.task('vendor-js', [], function() {
     return gulp.src(config.vendor.js.src)
-        .pipe(ifElse(!isProduction, function() {
-            return sourcemaps.init();
-        }))
-
-        .pipe(cached('vendor-js'))
-        .pipe(ifElse(isProduction, uglify))
-        .pipe(remember('vendor-js'))
-
-        .pipe(concat(config.vendor.js.fileName))
-        .pipe(ifElse(!isProduction, function() {
-            return sourcemaps.write('.');
-        }))
+        .pipe(sourcemaps.init())
+            .pipe(cached('vendor-js'))
+            .pipe(ifElse(isProduction, uglify))
+            .pipe(remember('vendor-js'))
+            .pipe(concat(config.vendor.js.fileName))
+        .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest(config.vendor.buildDir))
         .pipe(ifElse(isWatcher, size))
         .pipe(ifElse(isWatcher, livereload));
@@ -295,18 +277,13 @@ gulp.task('vendor-js', [], function() {
 
 gulp.task('anonymous-vendor-js', [], function() {
     return gulp.src(config.anonymousVendor.js.src)
-        .pipe(ifElse(!isProduction, function() {
-            return sourcemaps.init();
-        }))
+        .pipe(sourcemaps.init())
+            .pipe(cached('anonymous-vendor-js'))
+            .pipe(ifElse(isProduction, uglify))
+            .pipe(remember('anonymous-vendor-js'))
 
-        .pipe(cached('anonymous-vendor-js'))
-        .pipe(ifElse(isProduction, uglify))
-        .pipe(remember('anonymous-vendor-js'))
-
-        .pipe(concat(config.anonymousVendor.js.fileName))
-        .pipe(ifElse(!isProduction, function() {
-            return sourcemaps.write('.');
-        }))
+            .pipe(concat(config.anonymousVendor.js.fileName))
+        .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest(config.anonymousVendor.buildDir))
         .pipe(ifElse(isWatcher, size))
         .pipe(ifElse(isWatcher, livereload));
@@ -314,22 +291,18 @@ gulp.task('anonymous-vendor-js', [], function() {
 
 gulp.task('vendor-css', [], function() {
     return gulp.src(config.vendor.css.src)
-        .pipe(ifElse(!isProduction, function() {
-            return sourcemaps.init({loadMaps: true});
-        }))
-        .pipe(cached('vendor-css'))
-        .pipe(rebaseUrls({root: config.cdn.root}))
-        .pipe(cdnizer({
-            defaultCDNBase: config.cdn.defaultBase,
-            files: config.cdn.src,
-        }))
-        .pipe(ifElse(isProduction, uglifyCss))
-        .pipe(remember('vendor-css'))
+        .pipe(sourcemaps.init())
+            .pipe(cached('vendor-css'))
+            .pipe(rebaseUrls({root: config.cdn.root}))
+            .pipe(cdnizer({
+                defaultCDNBase: config.cdn.defaultBase,
+                files: config.cdn.src,
+            }))
+            .pipe(ifElse(isProduction, uglifyCss))
+            .pipe(remember('vendor-css'))
 
-        .pipe(concat(config.vendor.css.fileName))
-        .pipe(ifElse(!isProduction, function() {
-            return sourcemaps.write('.');
-        }))
+            .pipe(concat(config.vendor.css.fileName))
+        .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest(config.vendor.buildDir))
         .pipe(ifElse(isWatcher, size))
         .pipe(ifElse(isWatcher, livereload));

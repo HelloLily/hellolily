@@ -50,7 +50,7 @@
     "gulp-sass": "2.3.2",
     "gulp-shell": "0.5.1",
     "gulp-size": "2.0.0",
-    "gulp-sourcemaps": "1.5.2",
+    "gulp-sourcemaps": "2.6.0",
     "gulp-uglify": "2.0.0",
     "gulp-uglifycss": "1.0.4",
     "gulp-util": "3.0.7",

@@ -125,17 +125,17 @@ function PreferencesUserSecurityController($compile, $scope, $state, $templateCa
 
                 return new Promise(function(resolve) {
                     UserSession.delete({session_key: session.session_key},
-                    function() {
-                        // Delete was successful, so continue.
-                        resolve();
-                    }, function(error) {
-                        // Otherwise show error alert.
-                        swal({
-                            title: vm.messages.endSession.error.title,
-                            html: vm.messages.endSession.error.html,
-                            type: 'error',
+                        function() {
+                            // Delete was successful, so continue.
+                            resolve();
+                        }, function(error) {
+                            // Otherwise show error alert.
+                            swal({
+                                title: vm.messages.endSession.error.title,
+                                html: vm.messages.endSession.error.html,
+                                type: 'error',
+                            });
                         });
-                    });
                 });
             },
         }).then(function(isConfirm) {

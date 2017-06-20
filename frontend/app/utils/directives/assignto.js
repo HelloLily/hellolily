@@ -17,7 +17,7 @@ function assignToDirective() {
 AssignToController.$inject = ['$compile', '$injector', '$scope', '$state', '$templateCache', '$timeout',
     'HLResource', 'HLSearch', 'HLUtils'];
 function AssignToController($compile, $injector, $scope, $state, $templateCache, $timeout,
-                            HLResource, HLSearch, HLUtils) {
+    HLResource, HLSearch, HLUtils) {
     var vm = this;
 
     vm.assignTo = assignTo;

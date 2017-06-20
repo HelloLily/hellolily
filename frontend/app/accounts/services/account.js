@@ -3,7 +3,7 @@ angular.module('app.accounts.services').factory('Account', Account);
 Account.$inject = ['$filter', '$http', '$q', '$resource', 'HLResource', 'HLUtils', 'HLCache',
     'CacheFactory', 'Settings'];
 function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
-                 CacheFactory, Settings) {
+    CacheFactory, Settings) {
     var _account = $resource(
         '/api/accounts/:id/',
         null,

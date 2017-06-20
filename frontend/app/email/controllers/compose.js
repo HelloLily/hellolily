@@ -110,7 +110,7 @@ angular.module('app.email').controller('EmailComposeController', EmailComposeCon
 EmailComposeController.$inject = ['$scope', '$state', '$stateParams', '$templateCache', '$q', 'Settings', 'Contact',
     'EmailMessage', 'EmailTemplate', 'SelectedEmailAccount'];
 function EmailComposeController($scope, $state, $stateParams, $templateCache, $q, Settings, Contact, EmailMessage,
-                                EmailTemplate, SelectedEmailAccount) {
+    EmailTemplate, SelectedEmailAccount) {
     var vm = this;
 
     Settings.page.setAllTitles('custom', 'Compose email');

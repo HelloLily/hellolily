@@ -53,7 +53,7 @@ angular.module('app.accounts').controller('AccountCreateController', AccountCrea
 AccountCreateController.$inject = ['$scope', '$state', '$stateParams', '$timeout', 'Account', 'HLFields', 'HLForms',
     'HLSearch', 'HLUtils', 'Settings', 'User', 'currentAccount'];
 function AccountCreateController($scope, $state, $stateParams, $timeout, Account, HLFields, HLForms,
-                                 HLSearch, HLUtils, Settings, User, currentAccount) {
+    HLSearch, HLUtils, Settings, User, currentAccount) {
     var vm = this;
 
     vm.account = currentAccount || {};

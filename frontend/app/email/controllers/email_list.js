@@ -38,7 +38,7 @@ angular.module('app.email').controller('EmailListController', EmailListControlle
 EmailListController.$inject = ['$scope', '$state', '$stateParams', 'EmailAccount', 'EmailLabel', 'EmailMessage',
     'HLUtils', 'LocalStorage', 'SelectedEmailAccount', 'Settings'];
 function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLabel, EmailMessage,
-                             HLUtils, LocalStorage, SelectedEmailAccount, Settings) {
+    HLUtils, LocalStorage, SelectedEmailAccount, Settings) {
     var storage = new LocalStorage('inbox');
     var vm = this;
 

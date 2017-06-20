@@ -31,7 +31,7 @@ angular.module('app.email').controller('EmailDetail', EmailDetailController);
 EmailDetailController.$inject = ['$http', '$scope', '$state', '$stateParams', '$timeout', '$filter', 'Account',
     'Case', 'Deal', 'EmailMessage', 'Settings', 'RecipientInformation', 'SelectedEmailAccount', 'message', 'emailAccount'];
 function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $filter, Account, Case, Deal,
-                               EmailMessage, Settings, RecipientInformation, SelectedEmailAccount, message, emailAccount) {
+    EmailMessage, Settings, RecipientInformation, SelectedEmailAccount, message, emailAccount) {
     var vm = this;
 
     vm.displayAllRecipients = false;

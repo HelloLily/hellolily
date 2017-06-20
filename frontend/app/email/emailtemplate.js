@@ -65,47 +65,47 @@
             var cf = self.config;
 
             $('body')
-            .on('click', cf.insertButton, function(event) {
-                var templateVariable = $(cf.templateVariableField).html();
+                .on('click', cf.insertButton, function(event) {
+                    var templateVariable = $(cf.templateVariableField).html();
 
-                if (templateVariable.includes('profile_picture')) {
-                    // Since it's an image we have to manually insert the proper tag.
-                    templateVariable = '<img id="profile-picture" src="' + currentUser.picture + '" />';
-                }
+                    if (templateVariable.includes('profile_picture')) {
+                        // Since it's an image we have to manually insert the proper tag.
+                        templateVariable = '<img id="profile-picture" src="' + currentUser.picture + '" />';
+                    }
 
-                HLInbox.getEditor().focus();
-                HLInbox.getEditor().composer.commands.exec('insertHTML', templateVariable);
+                    HLInbox.getEditor().focus();
+                    HLInbox.getEditor().composer.commands.exec('insertHTML', templateVariable);
 
-                event.preventDefault();
-            })
-            .on('change', cf.variablesField, function() {
-                self.updateVariableOptions();
-            })
-            .on('click', cf.fileUploadField, function(event) {
-                $(cf.bodyFileField).click();
-                event.preventDefault();
-            })
-            .on('change', cf.valuesField, function() {
-                self.handleValueChange.call(self, this);
-            })
-            .on('change', cf.bodyFileField, function() {
-                self.handleBodyFileChange.call(self, this);
-            })
-            .on('click', cf.attachmentDeleteButton, function() {
-                var attachmentRow = $(this).closest('.form-group');
-                self.toggleMarkDeleted(attachmentRow);
-            })
-            .on('click', cf.attachmentUndoDeleteButton, function() {
-                var attachmentRow = $(this).closest('.form-group');
-                self.toggleMarkDeleted(attachmentRow);
-            })
-            .on('click', cf.submitButton, function(event) {
-                self.handleFormSubmit(this, event);
-            })
-            .on('click', cf.variablePreviewButton, function(event) {
-                event.preventDefault();
-                swal(cf.customVariablePreviewText).done();
-            });
+                    event.preventDefault();
+                })
+                .on('change', cf.variablesField, function() {
+                    self.updateVariableOptions();
+                })
+                .on('click', cf.fileUploadField, function(event) {
+                    $(cf.bodyFileField).click();
+                    event.preventDefault();
+                })
+                .on('change', cf.valuesField, function() {
+                    self.handleValueChange.call(self, this);
+                })
+                .on('change', cf.bodyFileField, function() {
+                    self.handleBodyFileChange.call(self, this);
+                })
+                .on('click', cf.attachmentDeleteButton, function() {
+                    var attachmentRow = $(this).closest('.form-group');
+                    self.toggleMarkDeleted(attachmentRow);
+                })
+                .on('click', cf.attachmentUndoDeleteButton, function() {
+                    var attachmentRow = $(this).closest('.form-group');
+                    self.toggleMarkDeleted(attachmentRow);
+                })
+                .on('click', cf.submitButton, function(event) {
+                    self.handleFormSubmit(this, event);
+                })
+                .on('click', cf.variablePreviewButton, function(event) {
+                    event.preventDefault();
+                    swal(cf.customVariablePreviewText).done();
+                });
 
             // Set heading properly after change
             toolbar = $(cf.wysiHtmlToolbar);

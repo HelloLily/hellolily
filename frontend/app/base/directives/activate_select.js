@@ -14,10 +14,10 @@ function activateSelect($timeout) {
             // that needs to be looked at.
             // scope.$watch('$form.$visible', function() {
             //     $timeout(function() {
-                    // Open the select on the next digest cycle.
-                    // if ($select) {
-                        // $select.activate();
-                    // }
+            //         Open the select on the next digest cycle.
+            //         if ($select) {
+            //             $select.activate();
+            //         }
             //     });
             // });
         },

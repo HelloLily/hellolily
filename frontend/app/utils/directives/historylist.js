@@ -3,7 +3,7 @@ angular.module('app.utils.directives').directive('historyList', HistoryListDirec
 HistoryListDirective.$inject = ['$filter', '$q', '$state', 'Case', 'Deal', 'EmailAccount', 'EmailDetail', 'HLGravatar',
     'HLResource', 'HLUtils', 'HLForms', 'Note', 'NoteDetail', 'User'];
 function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, EmailDetail, HLGravatar,
-                              HLResource, HLUtils, HLForms, Note, NoteDetail, User) {
+    HLResource, HLUtils, HLForms, Note, NoteDetail, User) {
     return {
         restrict: 'E',
         replace: true,

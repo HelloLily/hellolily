@@ -90,7 +90,7 @@ angular.module('app.preferences').controller('EmailAccountCreateController', Ema
 EmailAccountUpdateController.$inject = ['$scope', '$state', '$stateParams', '$timeout', 'HLForms', 'HLSearch',
     'EmailAccount', 'emailAccount', 'User', 'sharedWithUsers'];
 function EmailAccountUpdateController($scope, $state, $stateParams, $timeout, HLForms, HLSearch,
-                                      EmailAccount, emailAccount, User, sharedWithUsers) {
+    EmailAccount, emailAccount, User, sharedWithUsers) {
     var vm = this;
 
     vm.emailAccount = emailAccount;

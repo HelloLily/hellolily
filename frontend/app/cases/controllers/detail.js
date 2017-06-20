@@ -47,7 +47,7 @@ angular.module('app.cases').controller('CaseDetailController', CaseDetailControl
 CaseDetailController.$inject = ['$scope', 'Case', 'HLResource', 'HLUtils', 'LocalStorage', 'Settings', 'Tenant',
     'currentCase', 'caseAccount', 'caseContact', 'Case'];
 function CaseDetailController($scope, Case, HLResource, HLUtils, LocalStorage, Settings, Tenant, currentCase,
-                              caseAccount, caseContact) {
+    caseAccount, caseContact) {
     var vm = this;
     var storage = new LocalStorage('caseDetail');
 

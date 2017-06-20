@@ -36,7 +36,7 @@ angular.module('app.preferences').controller('PreferencesEmailAccountList', Pref
 PreferencesEmailAccountList.$inject = ['$compile', '$filter', '$http', '$scope', '$templateCache', 'EmailAccount',
     'HLResource', 'HLSearch', 'SharedEmailConfig', 'User', 'user', 'ownedAccounts', 'sharedWithAccounts', 'publicAccounts'];
 function PreferencesEmailAccountList($compile, $filter, $http, $scope, $templateCache, EmailAccount,
-                                     HLResource, HLSearch, SharedEmailConfig, User, user, ownedAccounts, sharedWithAccounts, publicAccounts) {
+    HLResource, HLSearch, SharedEmailConfig, User, user, ownedAccounts, sharedWithAccounts, publicAccounts) {
     var vm = this;
 
     vm.ownedAccounts = [];

@@ -97,7 +97,7 @@ angular.module('app.deals').controller('DealCreateUpdateController', DealCreateU
 DealCreateUpdateController.$inject = ['$filter', '$scope', '$state', '$stateParams', 'Account', 'Contact', 'Deal',
     'HLForms', 'HLSearch', 'HLUtils', 'Settings', 'Tenant', 'User', 'UserTeams', 'currentDeal', 'teams'];
 function DealCreateUpdateController($filter, $scope, $state, $stateParams, Account, Contact, Deal, HLForms,
-                                    HLSearch, HLUtils, Settings, Tenant, User, UserTeams, currentDeal, teams) {
+    HLSearch, HLUtils, Settings, Tenant, User, UserTeams, currentDeal, teams) {
     var vm = this;
 
     vm.deal = {};

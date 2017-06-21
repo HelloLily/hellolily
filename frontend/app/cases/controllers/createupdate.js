@@ -97,7 +97,7 @@ angular.module('app.cases').controller('CaseCreateUpdateController', CaseCreateU
 CaseCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', 'Account', 'Case', 'Contact', 'HLForms',
     'HLSearch', 'HLUtils', 'Settings', 'UserTeams', 'User', 'currentCase', 'teams'];
 function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case, Contact, HLForms,
-                                    HLSearch, HLUtils, Settings, UserTeams, User, currentCase, teams) {
+    HLSearch, HLUtils, Settings, UserTeams, User, currentCase, teams) {
     var vm = this;
 
     vm.case = {};

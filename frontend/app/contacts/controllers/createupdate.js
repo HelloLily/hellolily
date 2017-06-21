@@ -79,7 +79,7 @@ angular.module('app.contacts').controller('ContactCreateUpdateController', Conta
 ContactCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', '$timeout', 'Account',
     'Contact', 'HLFields', 'HLForms', 'HLResource', 'HLSearch', 'HLUtils', 'Settings', 'currentContact'];
 function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, Account, Contact,
-                                       HLFields, HLForms, HLResource, HLSearch, HLUtils, Settings, currentContact) {
+    HLFields, HLForms, HLResource, HLSearch, HLUtils, Settings, currentContact) {
     var vm = this;
 
     vm.contact = currentContact || {};

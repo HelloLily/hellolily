@@ -54,8 +54,8 @@ DealDetailController.$inject = ['$compile', '$scope', '$state', '$templateCache'
     'HLResource', 'HLUtils', 'LocalStorage', 'Settings', 'Tenant', 'currentDeal', 'dealAccount', 'dealContact',
     'user', 'tenant'];
 function DealDetailController($compile, $scope, $state, $templateCache, Account, Contact, Deal,
-                              HLResource, HLUtils, LocalStorage, Settings, Tenant, currentDeal, dealAccount, dealContact,
-                              user, tenant) {
+    HLResource, HLUtils, LocalStorage, Settings, Tenant, currentDeal, dealAccount, dealContact,
+    user, tenant) {
     var vm = this;
     var storage = new LocalStorage('dealDetail');
 

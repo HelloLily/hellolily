@@ -14,49 +14,49 @@
             </div>
         </div>
 
-        <div class="content-details history-item-body">
+        <div class="content-details activity-item-body">
             <editable-textarea extra-class="detail-plain-text" view-model="vm" field="description" object="vm.item"></editable-textarea>
         </div>
 
         <div class="content-details-additional">
-            <div class="content-history-divider"></div>
+            <div class="content-activity-divider"></div>
 
-            <div class="content-history-container">
-                <ul class="content-history-list">
+            <div class="content-activity-container">
+                <ul class="content-activity-stream">
                     <li ng-repeat="note in vm.item.notes">
-                        <div class="content-history-note-header">
-                            <div class="content-history-avatar" ng-style="{'background-image': 'url(' + note.author.profile_picture + ')'}"></div>
-                            <div class="content-history-date">{{ ::note.modified | date:'dd MMM yyyy - HH:mm' }}</div>
+                        <div class="content-activity-note-header">
+                            <div class="content-activity-avatar" ng-style="{'background-image': 'url(' + note.author.profile_picture + ')'}"></div>
+                            <div class="content-activity-date">{{ ::note.modified | date:'dd MMM yyyy - HH:mm' }}</div>
                         </div>
-                        <div class="content-history-note-body">
+                        <div class="content-activity-note-body">
                             <editable-textarea view-model="vm" field="content" object="note"></editable-textarea>
                         </div>
                     </li>
                     <li>
-                        <div class="content-history-note-header">
-                            <div ng-if="vm.item.created_by" class="content-history-avatar" ng-style="{'background-image': 'url(' + vm.item.created_by.profile_picture + ')'}"></div>
-                            <div ng-if="!vm.item.created_by" class="content-history-avatar" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png');"></div>
-                            <div class="content-history-desc">
+                        <div class="content-activity-note-header">
+                            <div ng-if="vm.item.created_by" class="content-activity-avatar" ng-style="{'background-image': 'url(' + vm.item.created_by.profile_picture + ')'}"></div>
+                            <div ng-if="!vm.item.created_by" class="content-activity-avatar" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png');"></div>
+                            <div class="content-activity-desc">
                                 {{ ::vm.item.created_by.full_name || 'An unknown entity' }} created the deal <a ui-sref="base.deals.detail({ id: vm.item.id })">{{ ::vm.item.name }}</a>
                             </div>
 
-                            <div class="content-history-date">{{ ::vm.item.created | date:'dd MMM yyyy - HH:mm' }}</div>
+                            <div class="content-activity-date">{{ ::vm.item.created | date:'dd MMM yyyy - HH:mm' }}</div>
                             <div class="clearfix"></div>
                         </div>
                     </li>
                 </ul>
             </div>
 
-            <div class="content-history-container add-note-inline">
-                <ul class="content-history-list">
+            <div class="content-activity-container add-note-inline">
+                <ul class="content-activity-stream">
                     <li>
-                        <div class="content-history-note-header">
-                            <div class="content-history-avatar is-note">
+                        <div class="content-activity-note-header">
+                            <div class="content-activity-avatar is-note">
                                 <i class="lilicon hl-note-icon"></i>
                             </div>
                         </div>
-                        <div class="content-history-note-body has-form">
-                            <history-add-note item="vm.item"></history-add-note>
+                        <div class="content-activity-note-body has-form">
+                            <activity-add-note item="vm.item"></activity-add-note>
                         </div>
                     </li>
                 </ul>

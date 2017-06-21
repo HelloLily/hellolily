@@ -48,8 +48,8 @@ function EditableTextAreaController($injector, $timeout, HLUtils) {
 
         args[vm.field] = $data;
 
-        if (vm.object.historyType) {
-            modelName = vm.object.historyType.charAt(0).toUpperCase() + vm.object.historyType.slice(1);
+        if (vm.object.activityType) {
+            modelName = vm.object.activityType.charAt(0).toUpperCase() + vm.object.activityType.slice(1);
 
             patchPromise = $injector.get(modelName).updateModel(args);
         } else {

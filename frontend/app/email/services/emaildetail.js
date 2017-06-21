@@ -17,7 +17,7 @@ function EmailDetail($resource) {
                     if (jsonData && jsonData.hits && jsonData.hits.length > 0) {
                         jsonData.hits.forEach(function(obj) {
                             var emailDetail = $.extend(obj, {
-                                historyType: 'email',
+                                activityType: 'email',
                                 color: 'green',
                                 date: obj.sent_date,
                                 right: false,

@@ -12,17 +12,17 @@
             </div>
             <div class="pull-right display-inline-block">
                 <ul class="content-details-actions">
-                    <li ng-if="!vm.item.is_pinned"><a ng-click="vm.history.pinNote(vm.item, true)"><i class="lilicon hl-pin-icon"></i> Pin note</a></li>
-                    <li ng-if="vm.item.is_pinned"><a ng-click="vm.history.pinNote(vm.item, false)"><i class="fa fa-times"></i>Unpin note</a></li>
+                    <li ng-if="!vm.item.is_pinned"><a ng-click="vm.activity.pinNote(vm.item, true)"><i class="lilicon hl-pin-icon"></i> Pin note</a></li>
+                    <li ng-if="vm.item.is_pinned"><a ng-click="vm.activity.pinNote(vm.item, false)"><i class="fa fa-times"></i>Unpin note</a></li>
                     <li style="margin-right: 0;">
-                        <delete-confirmation model="Note" object="vm.item" callback="vm.history.removeFromList(vm.item)" button-class="btn-link no-background no-padding">
+                        <delete-confirmation model="Note" object="vm.item" callback="vm.activity.removeFromList(vm.item)" button-class="btn-link no-background no-padding">
                             Delete
                         </delete-confirmation>
                     </li>
                 </ul>
             </div>
         </div>
-        <div class="content-details history-item-body">
+        <div class="content-details activity-item-body">
             <editable-textarea extra-class="detail-plain-text" view-model="vm" field="content" object="vm.item"></editable-textarea>
         </div>
     </div>

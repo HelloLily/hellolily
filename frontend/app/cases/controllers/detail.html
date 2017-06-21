@@ -187,15 +187,15 @@
             </div>
         </div>
 
-        <checkbox model="vm.mergeHistory" class="pull-right">Merge history lists</checkbox>
+        <checkbox model="vm.mergeStreams" class="pull-right">Merge activity streams</checkbox>
 
-        <span ng-if="vm.mergeHistory">
-            <history-list ng-if="vm.case.id" target="'case'" object="vm.case" extra-object="{object: vm.case.account, target: 'account'}" date-start="vm.caseStart" date-end="vm.caseEnd"></history-list>
+        <span ng-if="vm.mergeStreams">
+            <activity-stream ng-if="vm.case.id" target="'case'" object="vm.case" extra-object="{object: vm.case.account, target: 'account'}" date-start="vm.caseStart" date-end="vm.caseEnd"></activity-stream>
         </span>
 
-        <span ng-if="!vm.mergeHistory">
-            <history-list ng-if="vm.case.id" target="'case'" object="vm.case"></history-list>
-            <history-list ng-if="vm.case.account.id" target="'account'" object="vm.case.account" date-start="vm.caseStart" date-end="vm.caseEnd" parent-object="vm.case"></history-list>
+        <span ng-if="!vm.mergeStreams">
+            <activity-stream ng-if="vm.case.id" target="'case'" object="vm.case"></activity-stream>
+            <activity-stream ng-if="vm.case.account.id" target="'account'" object="vm.case.account" date-start="vm.caseStart" date-end="vm.caseEnd" parent-object="vm.case"></activity-stream>
         </span>
     </div>
 </div>

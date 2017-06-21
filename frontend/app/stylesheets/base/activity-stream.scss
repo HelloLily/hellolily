@@ -1,9 +1,9 @@
-@mixin history-item-heading($color) {
-    .history-item-heading {
+@mixin activity-item-heading($color) {
+    .activity-item-heading {
         background: $color;
     }
 
-    .history-item-badge {
+    .activity-item-badge {
         background: $color;
     }
 
@@ -14,10 +14,10 @@
         padding: 5px 10px;
     }
 
-    &.history-item-right {
+    &.activity-item-right {
         margin-right: 50px;
 
-        .history-item-badge {
+        .activity-item-badge {
             right: 0;
 
             &:before {
@@ -27,10 +27,10 @@
         }
     }
 
-    &.history-item-left {
+    &.activity-item-left {
         margin-left: 50px;
 
-        .history-item-badge {
+        .activity-item-badge {
             left: 0;
 
             &:before {
@@ -41,34 +41,34 @@
     }
 }
 
-.history-timeline {
+.activity-timeline {
     list-style: none;
     padding: 20px 0;
     position: relative;
 }
 
-.history-timeline-list-item {
+.activity-timeline-list-item {
     margin-bottom: 20px;
     position: relative;
 }
 
-.case-history-item {
-    @include history-item-heading($case-color);
+.case-activity-item {
+    @include activity-item-heading($case-color);
 }
 
-.email-history-item {
-    @include history-item-heading($email-color);
+.email-activity-item {
+    @include activity-item-heading($email-color);
 }
 
-.deal-history-item {
-    @include history-item-heading($deal-color);
+.deal-activity-item {
+    @include activity-item-heading($deal-color);
 }
 
-.note-history-item {
-    @include history-item-heading($note-color);
+.note-activity-item {
+    @include activity-item-heading($note-color);
 }
 
-.history-item-badge {
+.activity-item-badge {
     border-radius: 8px;
     position: absolute;
     width: 40px;
@@ -129,8 +129,8 @@
     border-bottom-width: 0 !important;
 }
 
-.history-list-item,
-.history-item {
+.activity-stream-item,
+.activity-item {
     margin-bottom: 20px;
 
     &:last-of-type {
@@ -138,7 +138,7 @@
     }
 }
 
-.history-list-item.pinned-items {
+.activity-stream-item.pinned-items {
     .timeline-content-container.has-note:before {
         background: $app-color-red;
     }
@@ -263,7 +263,7 @@
         }
     }
 
-    .history-item-body {
+    .activity-item-body {
         .detail-plain-text {
             padding: 15px 15px 0;
             max-height: 400px;
@@ -461,7 +461,7 @@
     }
 }
 
-.content-history-container {
+.content-activity-container {
     width: 100%;
     background-color: #fff;
     padding: 0 20px;
@@ -474,12 +474,12 @@
         }
     }
 
-    &.content-history-add-note-form {
+    &.content-activity-add-note-form {
         padding-left: 70px;
     }
 }
 
-.content-history-list {
+.content-activity-stream {
     margin: 0;
     padding: 0;
 
@@ -494,7 +494,7 @@
     }
 }
 
-.content-history-desc {
+.content-activity-desc {
     float: left;
     color: $lily-dark-blue;
     max-width: 75%;
@@ -503,13 +503,13 @@
     white-space: nowrap;
 }
 
-.content-history-date {
+.content-activity-date {
     font-size: 12px;
     float: right;
     color: #afb5c2;
 }
 
-.content-history-avatar {
+.content-activity-avatar {
     height: 40px;
     width: 40px;
     margin-right: 11px;
@@ -566,7 +566,7 @@
     }
 }
 
-.history-item-body {
+.activity-item-body {
     p {
         white-space: pre-wrap;
     }
@@ -576,7 +576,7 @@
     position: relative;
 }
 
-.content-history-divider {
+.content-activity-divider {
     position: absolute;
     left: 0;
     bottom: 0;
@@ -585,11 +585,11 @@
     border-right: 2px solid lighten($lily-border-dark, 10);
 }
 
-.content-history-note-header {
+.content-activity-note-header {
     line-height: 40px;
 }
 
-.content-history-note-body {
+.content-activity-note-body {
     background-color: $lily-white-tone-hover;
     margin-left: 50px;
     margin-right: 150px;

@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-md-12" ng-if="!parentObject">
         <ul class="mix-filter text-center">
-            <li ng-repeat="(typeKey, typeVal) in history.types" ng-if="typeVal.visible" ng-class="{'active': history.activeFilter == typeKey}" ng-click="history.filterType(typeKey)">{{ typeVal.name }}</li>
+            <li ng-repeat="(typeKey, typeVal) in activity.types" ng-if="typeVal.visible" ng-class="{'active': activity.activeFilter == typeKey}" ng-click="activity.filterType(typeKey)">{{ typeVal.name }}</li>
         </ul>
     </div>
 
@@ -15,7 +15,7 @@
 
             <div class="timeline-content-container">
                 <div class="timeline-content-header">
-                    <form role="form" name="noteForm" on-mod-enter-key="history.addNote(note, noteForm)">
+                    <form role="form" name="noteForm" on-mod-enter-key="activity.addNote(note, noteForm)">
                         <div class="form-body">
                             <div class="form-group">
                                 <textarea required class="form-control no-resize" id="id_content" msd-elastic ng-model="note.content" name="content" placeholder="Write your note here"></textarea>
@@ -38,7 +38,7 @@
                                </li>
                             </ul>
 
-                            <button type="submit" class="hl-primary-btn-blue pull-right" name="submit-form" ng-click="history.addNote(note, noteForm)" uib-tooltip="{{ $root.messages.tooltips.modEnter.title }}">
+                            <button type="submit" class="hl-primary-btn-blue pull-right" name="submit-form" ng-click="activity.addNote(note, noteForm)" uib-tooltip="{{ $root.messages.tooltips.modEnter.title }}">
                                 <i class="fa fa-check"></i>
                                 Add note
                             </button>
@@ -48,32 +48,32 @@
             </div>
         </div>
 
-        <div id="historyListBlockTarget">
-            <div class="timeline-info-header" ng-if="history.list.totalItems && parentObject">
-                <h3 class="text-center">Latest {{ target }} history</h3>
+        <div id="activityStreamBlockTarget">
+            <div class="timeline-info-header" ng-if="activity.list.totalItems && parentObject">
+                <h3 class="text-center">Latest {{ target }} activity</h3>
 
                 <ul class="mix-filter text-center">
-                    <li ng-repeat="(typeKey, typeVal) in history.types" ng-if="typeVal.visible" ng-class="{'active': history.activeFilter == typeKey}" ng-click="history.filterType(typeKey)">{{ typeVal.name }}</li>
+                    <li ng-repeat="(typeKey, typeVal) in activity.types" ng-if="typeVal.visible" ng-class="{'active': activity.activeFilter == typeKey}" ng-click="activity.filterType(typeKey)">{{ typeVal.name }}</li>
                 </ul>
             </div>
 
-            <div ng-show="history.list.pinned.length">
+            <div ng-show="activity.list.pinned.length">
                 <div class="timeline-time">
                     Pinned
                 </div>
             </div>
 
-            <div ng-repeat="item in history.list.pinned" class="history-list-item pinned-items">
-                <history-list-item item="item" history="history" object="object" delete-callback="history.removeFromList(item)" update-callback="history.updateModel"></history-list-item>
+            <div ng-repeat="item in activity.list.pinned" class="activity-stream-item pinned-items">
+                <activity-stream-item item="item" activity="activity" object="object" delete-callback="activity.removeFromList(item)" update-callback="activity.updateModel"></activity-stream-item>
             </div>
 
-            <div ng-repeat="(key, value) in history.list.nonPinned" class="history-list-item" ng-show="value.isVisible">
+            <div ng-repeat="(key, value) in activity.list.nonPinned" class="activity-stream-item" ng-show="value.isVisible">
                 <div class="timeline-time">
                     <date date="key" date-format="MMMM yyyy"></date>
                 </div>
 
-                <div ng-repeat="item in value.items" class="history-item" ng-show="!history.activeFilter || history.activeFilter == item.historyType">
-                    <history-list-item item="item" history="history" object="object" delete-callback="history.removeFromList(item)" update-callback="history.updateModel"></history-list-item>
+                <div ng-repeat="item in value.items" class="activity-item" ng-show="!activity.activeFilter || activity.activeFilter == item.activityType">
+                    <activity-stream-item item="item" activity="activity" object="object" delete-callback="activity.removeFromList(item)" update-callback="activity.updateModel"></activity-stream-item>
                 </div>
             </div>
         </div>

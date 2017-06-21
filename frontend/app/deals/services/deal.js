@@ -36,7 +36,7 @@ function Deal($resource, CacheFactory, HLCache, HLForms, HLResource, HLUtils) {
                         if (jsonData.hits && jsonData.hits.length > 0) {
                             jsonData.hits.forEach(function(obj) {
                                 var deal = $.extend(obj, {
-                                    historyType: 'deal',
+                                    activityType: 'deal',
                                     color: 'blue',
                                     date: obj.modified,
                                     total_size: jsonData.total,

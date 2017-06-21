@@ -306,6 +306,7 @@ INSTALLED_APPS = (
     'lily.accounts',
     'lily.calls',
     'lily.cases',
+    'lily.changes',
     'lily.contacts',
     'lily.deals',
     'lily.google',

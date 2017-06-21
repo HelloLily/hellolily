@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from lily.api.filters import ElasticSearchFilter
+from lily.api.mixins import ModelChangesMixin
 
 from .serializers import (DealSerializer, DealNextStepSerializer, DealWhyCustomerSerializer, DealWhyLostSerializer,
                           DealFoundThroughSerializer, DealContactedBySerializer, DealStatusSerializer)
@@ -132,7 +133,7 @@ class DealFilter(FilterSet):
         }
 
 
-class DealViewSet(ModelViewSet):
+class DealViewSet(ModelChangesMixin, ModelViewSet):
     """
     Returns a list of all **active** deals in the system.
 

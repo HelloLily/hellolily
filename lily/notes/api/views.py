@@ -9,7 +9,6 @@ class NoteViewSet(mixins.CreateModelMixin,
                   mixins.RetrieveModelMixin,
                   mixins.UpdateModelMixin,
                   mixins.DestroyModelMixin,
-                  # mixins.ListModelMixin,  # No list because that will be in the historylist
                   GenericViewSet):
     """
     This viewset contains all possible ways to manipulate a Note.

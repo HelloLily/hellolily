@@ -4,6 +4,7 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.viewsets import ModelViewSet
 
 from lily.api.filters import ElasticSearchFilter
+from lily.api.mixins import ModelChangesMixin
 from .serializers import AccountSerializer, AccountStatusSerializer
 from ..models import Account, AccountStatus
 
@@ -36,7 +37,7 @@ class AccountFilter(FilterSet):
         }
 
 
-class AccountViewSet(ModelViewSet):
+class AccountViewSet(ModelChangesMixin, ModelViewSet):
     """
     Returns a list of all **active** accounts in the system.
 

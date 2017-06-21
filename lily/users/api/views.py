@@ -263,7 +263,6 @@ class TwoFactorDevicesViewSet(viewsets.ViewSet):
 
 class SessionViewSet(mixins.RetrieveModelMixin,
                      mixins.ListModelMixin,
-                     # mixins.UpdateModelMixin,
                      mixins.DestroyModelMixin,
                      viewsets.GenericViewSet):
     """

@@ -159,7 +159,7 @@
                                 <td>
                                     <a href="https://app.pandadoc.com/a/#/documents/{{ document.id }}" class="link-no-decoration" target="_blank"><i class="lilicon hl-edit-icon"></i></a>
                                     <a ng-if="vm.deal.contact.email_addresses.length && document.status !== 'completed'"
-                                       ui-sref="base.email.composeEmailDocument({email: vm.deal.contact.email_addresses[0].email_address, contactId: vm.deal.contact.id, documentId: document.id})"
+                                       ui-sref="base.email.composeEmailDocument({email: vm.deal.contact.email_addresses[0].email_address, documentId: document.id})"
                                        class="link-no-decoration margin-left-10">
                                        <i class="fa fa-envelope"></i>
                                     </a>

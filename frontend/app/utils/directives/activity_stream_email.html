@@ -61,11 +61,11 @@
             </div>
         </div>
 
-        <div class="content-details history-item-body" ng-if="vm.item.account && vm.item.shown">
+        <div class="content-details activity-item-body" ng-if="vm.item.account && vm.item.shown">
             <p class="detail-plain-text" ng-bind-html="vm.item.body"></p>
         </div>
-        <div class="content-details history-item-body hidden-content" ng-if="!vm.item.account && vm.item.shown">
-            {{ $root.messages.historyList.emailMetadataMessage }}
+        <div class="content-details activity-item-body hidden-content" ng-if="!vm.item.account && vm.item.shown">
+            {{ $root.messages.activityStream.emailMetadataMessage }}
         </div>
     </div>
 </div>

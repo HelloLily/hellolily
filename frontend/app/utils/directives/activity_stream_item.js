@@ -1,20 +1,20 @@
-angular.module('app.utils.directives').directive('historyListItem', HistoryListItemDirective);
+angular.module('app.utils.directives').directive('activityStreamItem', ActivityStreamItemDirective);
 
-HistoryListItemDirective.$inject = ['$compile', '$http', '$templateCache'];
-function HistoryListItemDirective($compile, $http, $templateCache) {
+ActivityStreamItemDirective.$inject = ['$compile', '$http', '$templateCache'];
+function ActivityStreamItemDirective($compile, $http, $templateCache) {
     return {
         restrict: 'E',
         scope: {
             item: '=',
-            history: '=',
+            activity: '=',
             object: '=',
             deleteCallback: '&?',
             updateCallback: '&?',
         },
         link: function(scope, element, attrs) {
-            var getTemplate = function(historyType) {
+            var getTemplate = function(activityType) {
                 var templateLoader;
-                var baseUrl = 'utils/directives/history_list_';
+                var baseUrl = 'utils/directives/activity_stream_';
                 var templateMap = {
                     case: 'case.html',
                     deal: 'deal.html',
@@ -22,25 +22,25 @@ function HistoryListItemDirective($compile, $http, $templateCache) {
                     note: 'note.html',
                 };
 
-                var templateUrl = baseUrl + templateMap[historyType];
+                var templateUrl = baseUrl + templateMap[activityType];
                 templateLoader = $http.get(templateUrl, {cache: $templateCache});
 
                 return templateLoader;
             };
-            getTemplate(scope.vm.item.historyType).success(function(html) {
+            getTemplate(scope.vm.item.activityType).success(function(html) {
                 element.replaceWith($compile(html)(scope));
             }).then(function() {
                 element.replaceWith($compile(element.html())(scope));
             });
         },
-        controller: HistoryListItemController,
+        controller: ActivityStreamItemController,
         bindToController: true,
         controllerAs: 'vm',
     };
 }
 
-HistoryListItemController.$inject = ['$state'];
-function HistoryListItemController($state) {
+ActivityStreamItemController.$inject = ['$state'];
+function ActivityStreamItemController($state) {
     var vm = this;
 
     vm.replyOnEmail = replyOnEmail;

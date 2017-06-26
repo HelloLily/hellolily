@@ -73,7 +73,7 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
     vm.deal.contact = dealContact;
     vm.currentUser = user;
     vm.tenant = tenant;
-    vm.mergeHistory = storage.get('mergeHistory', false);
+    vm.mergeStreams = storage.get('mergeStreams', false);
 
     vm.changeState = changeState;
     vm.updateModel = updateModel;
@@ -251,7 +251,7 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
         return updateModel(currentUser.id, 'assigned_to');
     }
 
-    $scope.$watch('vm.mergeHistory', function() {
-        storage.put('mergeHistory', vm.mergeHistory);
+    $scope.$watch('vm.mergeStreams', function() {
+        storage.put('mergeStreams', vm.mergeStreams);
     });
 }

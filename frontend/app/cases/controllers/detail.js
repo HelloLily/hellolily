@@ -63,7 +63,7 @@ function CaseDetailController($scope, Case, HLResource, HLUtils, LocalStorage, S
     vm.case = currentCase;
     vm.case.account = caseAccount;
     vm.case.contact = caseContact;
-    vm.mergeHistory = storage.get('mergeHistory', false);
+    vm.mergeStreams = storage.get('mergeStreams', false);
 
     vm.getPriorityDisplay = getPriorityDisplay;
     vm.changeCaseStatus = changeCaseStatus;
@@ -188,7 +188,7 @@ function CaseDetailController($scope, Case, HLResource, HLUtils, LocalStorage, S
         updateModel(vm.case.is_archived, 'is_archived');
     }
 
-    $scope.$watch('vm.mergeHistory', function() {
-        storage.put('mergeHistory', vm.mergeHistory);
+    $scope.$watch('vm.mergeStreams', function() {
+        storage.put('mergeStreams', vm.mergeStreams);
     });
 }

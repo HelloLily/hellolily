@@ -1,20 +1,20 @@
-angular.module('app.utils.directives').directive('historyAddNote', historyAddNoteDirective);
+angular.module('app.utils.directives').directive('activityAddNote', activityAddNoteDirective);
 
-function historyAddNoteDirective() {
+function activityAddNoteDirective() {
     return {
         restrict: 'E',
         scope: {
             item: '=',
         },
-        templateUrl: 'utils/directives/history_add_note.html',
-        controller: HistoryAddNoteController,
+        templateUrl: 'utils/directives/activity_stream_add_note.html',
+        controller: ActivityAddNoteController,
         controllerAs: 'vm',
         bindToController: true,
     };
 }
 
-HistoryAddNoteController.$inject = ['$http', '$state', 'Note', 'User'];
-function HistoryAddNoteController($http, $state, Note, User) {
+ActivityAddNoteController.$inject = ['$http', '$state', 'Note', 'User'];
+function ActivityAddNoteController($http, $state, Note, User) {
     var vm = this;
     vm.note = new Note({content_type: vm.item.content_type, object_id: vm.item.id, type: 0});
 
@@ -24,7 +24,7 @@ function HistoryAddNoteController($http, $state, Note, User) {
         if (vm.note.content) {
             vm.note.$save(function(response) {
                 // Set user object to note to correctly show profile pic and name
-                // when adding a new note in the historylist.
+                // when adding a new note in the activity stream.
                 User.get({id: currentUser.id}, function(author) {
                     response.author = author;
                 });

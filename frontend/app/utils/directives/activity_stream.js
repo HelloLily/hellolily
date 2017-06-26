@@ -1,8 +1,8 @@
-angular.module('app.utils.directives').directive('historyList', HistoryListDirective);
+angular.module('app.utils.directives').directive('activityStream', ActivityStreamDirective);
 
-HistoryListDirective.$inject = ['$filter', '$q', '$state', 'Case', 'Deal', 'EmailAccount', 'EmailDetail', 'HLGravatar',
+ActivityStreamDirective.$inject = ['$filter', '$q', '$state', 'Case', 'Deal', 'EmailAccount', 'EmailDetail', 'HLGravatar',
     'HLResource', 'HLUtils', 'HLForms', 'Note', 'NoteDetail', 'User'];
-function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, EmailDetail, HLGravatar,
+function ActivityStreamDirective($filter, $q, $state, Case, Deal, EmailAccount, EmailDetail, HLGravatar,
     HLResource, HLUtils, HLForms, Note, NoteDetail, User) {
     return {
         restrict: 'E',
@@ -15,28 +15,28 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
             extraObject: '=?',
             parentObject: '=?',
         },
-        templateUrl: 'utils/directives/historylist.html',
+        templateUrl: 'utils/directives/activity_stream.html',
         link: function(scope, element, attrs) {
             var page = 0;
             var pageSize = 50;
 
-            scope.history = {};
-            scope.history.list = [];
-            scope.history.types = {
+            scope.activity = {};
+            scope.activity.list = [];
+            scope.activity.types = {
                 '': {name: 'All', visible: true},
                 'note': {name: 'Notes', visible: false},
                 'case': {name: 'Cases', visible: false},
                 'deal': {name: 'Deals', visible: false},
                 'email': {name: 'Emails', visible: false},
             };
-            scope.history.activeFilter = '';
-            scope.history.showMoreText = 'Show more';
-            scope.history.loadMore = loadMore;
-            scope.history.reloadHistory = reloadHistory;
-            scope.history.addNote = addNote;
-            scope.history.pinNote = pinNote;
-            scope.history.removeFromList = removeFromList;
-            scope.history.filterType = filterType;
+            scope.activity.activeFilter = '';
+            scope.activity.showMoreText = 'Show more';
+            scope.activity.loadMore = loadMore;
+            scope.activity.reloadactivity = reloadactivity;
+            scope.activity.addNote = addNote;
+            scope.activity.pinNote = pinNote;
+            scope.activity.removeFromList = removeFromList;
+            scope.activity.filterType = filterType;
 
             scope.note = {};
             scope.note.type = 0;
@@ -46,9 +46,9 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
             ////////
 
             function activate() {
-                HLUtils.blockUI('#historyListBlockTarget', true);
+                HLUtils.blockUI('#activityStreamBlockTarget', true);
                 // Somehow calling autosize on page content load does not work
-                // in the historylist.
+                // in the activity stream.
                 autosize($('textarea'));
                 loadMore();
             }
@@ -57,33 +57,33 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
                 var key;
                 var selectedCount;
 
-                scope.history.activeFilter = value;
+                scope.activity.activeFilter = value;
                 // Loop through the months to hide the monthname when there
                 // aren't any items in that month that are shown due to
                 // the filter that is being selected.
-                for (key in scope.history.list.nonPinned) {
-                    selectedCount = $filter('filter')(scope.history.list.nonPinned[key].items, {historyType: value}).length;
-                    scope.history.list.nonPinned[key].isVisible = !!selectedCount;
+                for (key in scope.activity.list.nonPinned) {
+                    selectedCount = $filter('filter')(scope.activity.list.nonPinned[key].items, {activityType: value}).length;
+                    scope.activity.list.nonPinned[key].isVisible = !!selectedCount;
                 }
             }
 
             function loadMore() {
                 if (!scope.object.$resolved) {
                     scope.object.$promise.then(function(obj) {
-                        _fetchHistory(obj);
+                        _fetchactivity(obj);
                     });
                 } else {
-                    _fetchHistory(scope.object);
+                    _fetchactivity(scope.object);
                 }
             }
 
-            function reloadHistory() {
+            function reloadactivity() {
                 page -= 1;
                 loadMore();
             }
 
-            function _fetchHistory(obj) {
-                var history = [];
+            function _fetchactivity(obj) {
+                var activity = [];
                 var promises = [];
                 var neededLength = (page + 1) * pageSize;
                 var requestLength = neededLength + 1;
@@ -138,7 +138,7 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
                             note.showContact = true;
                         }
 
-                        history.push(note);
+                        activity.push(note);
                     });
                 });
 
@@ -148,7 +148,7 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
                 }
 
                 // We don't have to fetch extra objects for the case or deal
-                // history list. So continue if we have an extra object or if
+                // activity list. So continue if we have an extra object or if
                 // we're dealing with something else than a case or deal.
                 if (contentType !== 'case' && contentType !== 'deal') {
                     filterquery = contentType + '.id:' + currentObject.id;
@@ -173,9 +173,9 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
                                 });
                             }
 
-                            caseItem.historyType = 'case';
+                            caseItem.activityType = 'case';
 
-                            history.push(caseItem);
+                            activity.push(caseItem);
                             NoteDetail.query({filterquery: 'content_type:case AND object_id:' + caseItem.id, size: 15})
                                 .$promise.then(function(notes) {
                                     angular.forEach(notes, function(note) {
@@ -223,7 +223,7 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
                                 deal.notes = notes;
                             });
 
-                            history.push(deal);
+                            activity.push(deal);
                         });
                     });
 
@@ -257,42 +257,42 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
                                 }
                             });
 
-                            history.push(email);
+                            activity.push(email);
                         });
                     });
                 }
 
-                // Get all history types and add them to a common history.
+                // Get all activity types and add them to a common activity stream.
                 $q.all(promises).then(function() {
-                    var orderedHistoryList = {pinned: [], nonPinned: {}, totalItems: history.length};
+                    var orderedActivityStream = {pinned: [], nonPinned: {}, totalItems: activity.length};
 
-                    // To properly sort the history list we need to compare dates
+                    // To properly sort the activity list we need to compare dates
                     // because email doesn't have the modified key we decided
-                    // to add an extra key called historySortDate which the list
+                    // to add an extra key called activitySortDate which the list
                     // uses to sort properly. We add the sent_date of email to the
                     // object, and the modified date for the other types.
-                    for (i = 0; i < history.length; i++) {
-                        if (history[i].historyType === 'email') {
-                            history[i].historySortDate = history[i].sent_date;
-                        } else if (history[i].historyType === 'note') {
+                    for (i = 0; i < activity.length; i++) {
+                        if (activity[i].activityType === 'email') {
+                            activity[i].activitySortDate = activity[i].sent_date;
+                        } else if (activity[i].activityType === 'note') {
                             // We want to sort notes on created date.
-                            history[i].historySortDate = history[i].date;
+                            activity[i].activitySortDate = activity[i].date;
                         } else {
-                            history[i].historySortDate = history[i].modified;
+                            activity[i].activitySortDate = activity[i].modified;
                         }
                     }
 
-                    $filter('orderBy')(history, 'historySortDate', true).forEach(function(item) {
+                    $filter('orderBy')(activity, 'activitySortDate', true).forEach(function(item) {
                         var date = '';
                         var key = '';
                         var parentObjectId = scope.parentObject ? scope.parentObject.id : null;
 
-                        scope.history.types[item.historyType].visible = true;
+                        scope.activity.types[item.activityType].visible = true;
 
                         if (item.is_pinned) {
-                            orderedHistoryList.pinned.push(item);
+                            orderedActivityStream.pinned.push(item);
                         } else {
-                            // Exclude the current item from the history list.
+                            // Exclude the current item from the activity list.
                             if (item.id !== scope.object.id && item.id !== parentObjectId) {
                                 if (item.hasOwnProperty('modified')) {
                                     date = item.modified;
@@ -302,22 +302,22 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
 
                                 key = moment(date).year() + '-' + (moment(date).month() + 1);
 
-                                if (!orderedHistoryList.nonPinned.hasOwnProperty(key)) {
-                                    orderedHistoryList.nonPinned[key] = {isVisible: true, items: []};
+                                if (!orderedActivityStream.nonPinned.hasOwnProperty(key)) {
+                                    orderedActivityStream.nonPinned[key] = {isVisible: true, items: []};
                                 }
 
                                 item.shown = true;
 
-                                orderedHistoryList.nonPinned[key].items.push(item);
+                                orderedActivityStream.nonPinned[key].items.push(item);
                             } else {
-                                orderedHistoryList.totalItems -= 1;
+                                orderedActivityStream.totalItems -= 1;
                             }
                         }
                     });
 
-                    scope.history.list = orderedHistoryList;
+                    scope.activity.list = orderedActivityStream;
 
-                    HLUtils.unblockUI('#historyListBlockTarget');
+                    HLUtils.unblockUI('#activityStreamBlockTarget');
                 });
             }
 
@@ -329,7 +329,7 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
                     // Success.
                     scope.note.content = '';
                     toastr.success('I\'ve created the note for you!', 'Done');
-                    reloadHistory();
+                    reloadactivity();
                 }, function(response) {
                     // Error.
                     HLForms.setErrors(form, response.data);
@@ -349,17 +349,17 @@ function HistoryListDirective($filter, $q, $state, Case, Deal, EmailAccount, Ema
                 var index;
 
                 if (item.is_pinned) {
-                    index = scope.history.list.pinned.indexOf(item);
-                    scope.history.list.pinned.splice(index, 1);
+                    index = scope.activity.list.pinned.indexOf(item);
+                    scope.activity.list.pinned.splice(index, 1);
                 } else {
-                    index = scope.history.list.nonPinned[year + '-' + month].items.indexOf(item);
-                    scope.history.list.nonPinned[year + '-' + month].items.splice(index, 1);
+                    index = scope.activity.list.nonPinned[year + '-' + month].items.indexOf(item);
+                    scope.activity.list.nonPinned[year + '-' + month].items.splice(index, 1);
                 }
 
                 // We might be deleting the last object of a certain month.
                 // Check if there are still items and hide the block if needed.
-                if (!scope.history.list.nonPinned[year + '-' + month].items.length) {
-                    scope.history.list.nonPinned[year + '-' + month].isVisible = false;
+                if (!scope.activity.list.nonPinned[year + '-' + month].items.length) {
+                    scope.activity.list.nonPinned[year + '-' + month].isVisible = false;
                 }
 
                 scope.$apply();

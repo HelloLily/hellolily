@@ -58,7 +58,7 @@
                             <div class="privacy-examples" ng-if="!vm.emailAccount.privacy == 0">
                                 <div ng-if="vm.emailAccount.privacy == 1" class="privacy-example">
                                     <div class="vertical-line"></div>
-                                    <div class="history-item">
+                                    <div class="activity-item">
                                         <div class="timeline-item-container">
                                             <div class="timeline-avatar is-type">
                                                 <i class="lilicon hl-entity-icon"></i>
@@ -84,7 +84,7 @@
                                                     <a class="timeline-toggle-details" ng-click="vm.item.shown = !vm.item.shown"><i class="lilicon hl-toggle-left-icon" ng-class="!vm.item.shown ? 'hl-toggle-down-icon' : 'hl-toggle-left-icon'"></i></a>
                                                 </div>
 
-                                                <div class="content-details history-item-body" ng-hide="vm.item.shown">
+                                                <div class="content-details activity-item-body" ng-hide="vm.item.shown">
                                                     <p class="detail-plain-text">Hi! I just wanted to show an example of what your colleagues can read.
 
                                                         </br></br>Love lily!
@@ -102,7 +102,7 @@
 
                                 <div ng-if="vm.emailAccount.privacy == 2" class="privacy-example">
                                     <div class="vertical-line"></div>
-                                    <div class="history-item">
+                                    <div class="activity-item">
                                         <div class="timeline-item-container">
                                             <div class="timeline-avatar is-type">
                                                 <i class="lilicon hl-entity-icon"></i>
@@ -128,8 +128,8 @@
                                                     <a class="timeline-toggle-details" ng-click="vm.item.shown = !vm.item.shown"><i class="lilicon hl-toggle-left-icon" ng-class="!vm.item.shown ? 'hl-toggle-down-icon' : 'hl-toggle-left-icon'"></i></a>
                                                 </div>
 
-                                                <div class="content-details history-item-body hidden-content" ng-hide="vm.item.shown">
-                                                    {{ $root.messages.historyList.emailMetadataMessage }}
+                                                <div class="content-details activity-item-body hidden-content" ng-hide="vm.item.shown">
+                                                    {{ $root.messages.activityStream.emailMetadataMessage }}
                                                 </div>
                                             </div>
                                         </div>

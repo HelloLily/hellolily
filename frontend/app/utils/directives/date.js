@@ -37,7 +37,7 @@ function DateController() {
                 }
             }
         } else {
-            // Setting format to date to correctly use in the historylist.
+            // Setting format to date to correctly use in the activity stream.
             vm.date = date.format();
         }
     }

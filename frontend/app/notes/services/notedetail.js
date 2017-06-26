@@ -29,7 +29,7 @@ function NoteDetail($resource) {
 
                     if (jsonData && jsonData.hits && jsonData.hits.length > 0) {
                         jsonData.hits.forEach(function(obj) {
-                            var noteObject = $.extend(obj, {historyType: 'note', color: 'yellow'});
+                            var noteObject = $.extend(obj, {activityType: 'note', color: 'yellow'});
                             objects.push(noteObject);
                         });
                     }

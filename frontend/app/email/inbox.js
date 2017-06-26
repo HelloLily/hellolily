@@ -47,6 +47,9 @@
         initListeners: function() {
             var self = this;
             var cf = self.config;
+            var parts = [];
+            var recipients = [];
+            var element;
 
             $('body')
                 .on('click', cf.inboxCcInput, function() {
@@ -103,6 +106,26 @@
                 if (event.which === 13) {
                     event.preventDefault();
                 }
+            });
+
+            $('.inbox-compose input').on('paste', function(event) {
+                element = $(this).closest('.select2-container');
+
+                // Delegate to next cycle.
+                setTimeout(function() {
+                    parts = event.target.value.trim().split(' ');
+                    recipients = element.select2('data');
+
+                    parts.map(email => {
+                        recipients.push({
+                            id: email,
+                            text: email,
+                            object_id: null,
+                        });
+                    });
+
+                    element.select2('data', recipients);
+                }, 0);
             });
         },
 

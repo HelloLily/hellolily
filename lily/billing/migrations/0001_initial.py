@@ -26,6 +26,7 @@ class Migration(migrations.Migration):
                 ('customer_id', models.CharField(max_length=255, blank=True)),
                 ('plan', models.ForeignKey(blank=True, to='billing.Plan', null=True)),
                 ('cancels_on', models.DateTimeField(null=True, blank=True)),
+                ('trial_started', models.BooleanField(default=False)),
             ],
         ),
     ]

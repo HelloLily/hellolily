@@ -305,7 +305,7 @@ def add_business_days(days_to_add, date=None):
     return date
 
 
-def has_required_tier(required_tier):
+def has_required_tier(required_tier, tenant=None):
     """
     Check if the current payment plan has access to the feature.
     This is done by comparing the tenant's current tier with the required tier.
@@ -316,7 +316,10 @@ def has_required_tier(required_tier):
     Returns:
         (boolean): Whether or not the tier requirement is met.
     """
-    user = get_current_user()
-    current_tier = user.tenant.billing.plan.tier
+    if not tenant:
+        user = get_current_user()
+        tenant = user.tenant
+
+    current_tier = tenant.billing.plan.tier
 
     return current_tier >= required_tier

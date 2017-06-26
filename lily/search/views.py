@@ -326,8 +326,6 @@ class InternalNumberSearchView(LoginRequiredMixin, View):
 
         results = self._search_number(number)
 
-        print results
-
         response_format = request.GET.get('format')
 
         if response_format and response_format.lower() == 'ack':

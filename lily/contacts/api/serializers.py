@@ -12,7 +12,7 @@ from lily.integrations.credentials import get_credentials
 from lily.socialmedia.api.serializers import RelatedSocialMediaSerializer
 from lily.utils.api.serializers import (RelatedPhoneNumberSerializer, RelatedAddressSerializer,
                                         RelatedEmailAddressSerializer, RelatedTagSerializer)
-from lily.utils.functions import send_get_request, send_post_request
+from lily.utils.functions import send_get_request, send_post_request, has_required_tier
 
 from ..models import Contact, Function
 
@@ -126,7 +126,7 @@ class ContactSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
 
         credentials = get_credentials('moneybird')
 
-        if credentials and credentials.integration_context.get('auto_sync'):
+        if has_required_tier(1) and credentials and credentials.integration_context.get('auto_sync'):
             self.send_moneybird_contact(validated_data, instance, credentials)
 
         return instance
@@ -148,7 +148,7 @@ class ContactSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
 
         credentials = get_credentials('moneybird')
 
-        if credentials and credentials.integration_context.get('auto_sync'):
+        if has_required_tier(1) and credentials and credentials.integration_context.get('auto_sync'):
             self.send_moneybird_contact(validated_data, instance, credentials, original_data)
 
         return instance

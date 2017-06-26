@@ -12,10 +12,10 @@ function billingOverviewConfig($stateProvider) {
             },
         },
         resolve: {
-            billingInfo: ['Billing', (Billing) => {
+            billingInfo: ['Billing', Billing => {
                 return Billing.getBillingInfo().$promise;
             }],
-            countries: ['Country', (Country) => {
+            countries: ['Country', Country => {
                 return Country.getList();
             }],
         },
@@ -39,6 +39,7 @@ function BillingOverviewController($filter, $scope, $state, $window, Billing, bi
     vm.downloadInvoice = downloadInvoice;
     vm.cancelSubscription = cancelSubscription;
     vm.getTrialRemaining = getTrialRemaining;
+    vm.startTrial = startTrial;
 
     activate();
 
@@ -51,29 +52,45 @@ function BillingOverviewController($filter, $scope, $state, $window, Billing, bi
     }
 
     function downloadInvoice(invoiceId) {
-        Billing.downloadInvoice({'invoice_id': invoiceId}).$promise.then((response) => {
+        Billing.downloadInvoice({'invoice_id': invoiceId}).$promise.then(response => {
             $window.location.assign(response.url);
         });
     }
 
     function cancelSubscription() {
         swal({
-            title: messages.alerts.preferences.subscriptionCancelTitle,
-            html: messages.alerts.preferences.subscriptionCancelText,
+            title: messages.alerts.preferences.subscription.cancelTitle,
+            html: messages.alerts.preferences.subscription.cancelText,
             type: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#f3565d',
             confirmButtonText: messages.alerts.preferences.confirmButtonText,
-        }).then((isConfirm) => {
+        }).then(isConfirm => {
             if (isConfirm) {
-                Billing.cancel().$promise.then((response) => {
+                Billing.cancel().$promise.then(response => {
                     if (response.success) {
                         $state.reload();
                     } else {
                         toastr.error('Uh oh, there seems to be a problem', 'Oops!');
                     }
-                }, (error) => {
+                }, error => {
                     toastr.error('Uh oh, there seems to be a problem', 'Oops!');
+                });
+            }
+        }).done();
+    }
+
+    function startTrial() {
+        swal({
+            title: messages.alerts.preferences.subscription.trialStartTitle,
+            html: messages.alerts.preferences.subscription.trialStartText,
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonText: messages.alerts.preferences.subscription.trialConfirm,
+        }).then(isConfirm => {
+            if (isConfirm) {
+                Billing.startTrial().$promise.then(response => {
+                    $window.location.reload();
                 });
             }
         }).done();
@@ -86,7 +103,7 @@ function BillingOverviewController($filter, $scope, $state, $window, Billing, bi
     }
 
     function _getCountryName(countryCode) {
-        let filtered = countries.filter((country) => {
+        let filtered = countries.filter(country => {
             return country.value === countryCode;
         });
 

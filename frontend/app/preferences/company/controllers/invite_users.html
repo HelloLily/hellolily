@@ -5,62 +5,71 @@
     </div>
     <div class="widget-body">
         <div class="widget-content">
-        <form novalidate name="inviteForm">
-            <div class="row">
-                <div class="col-md-6 col-md-offset-2">
-                    <div class="hl-related-form-field" ng-repeat="invite in vm.invites" ng-class="{'has-error': inviteForm['invites-name-' + $index].$invalid }">
-                        <div class="row">
-                            <div class="col-md-6 hl-flex-container no-padding-right">
-                                <input class="form-control hl-form-input hl-flex-1"
-                                    maxlength="255"
-                                    name="invites-name-{{ $index }}"
-                                    placeholder="First name"
-                                    ng-class="{'hl-form-input-deleted': invite.is_deleted}"
-                                    type="text"
-                                    ng-model="invite.first_name"
-                                    ng-readonly="invite.is_deleted">
-                            </div>
-
-                            <div class="col-md-6 hl-flex-container">
-                                <input class="form-control hl-form-input margin-right-10"
-                                    maxlength="255"
-                                    name="invites-email_address-{{ $index }}"
-                                    placeholder="Email address"
-                                    ng-class="{'hl-form-input-deleted': invite.is_deleted}"
-                                    type="text"
-                                    ng-model="invite.email_address"
-                                    ng-readonly="invite.is_deleted">
-
-                                <div class="field-actions">
-                                    <a ng-click="invite.is_deleted = !invite.is_deleted"
-                                        class="hl-primary-btn hl-form-input-btn" title="{{ invite.is_deleted ? 'Undo' : 'Delete' }}">
-                                        <i ng-class="{'fa fa-undo': invite.is_deleted, 'lilicon hl-trashcan-icon': !invite.is_deleted}"></i>
-                                    </a>
-                                    <a ng-click="vm.addInvite()" ng-if="$last"
-                                        class="margin-left-5 hl-primary-btn hl-form-input-btn" title="Add new invite">
-                                        <i class="fa fa-plus"></i>
-                                    </a>
+            <form novalidate name="inviteForm">
+                <div class="row">
+                    <div class="col-md-6 col-md-offset-2">
+                        <div class="widget-suggestion margin-bottom-20" ng-if="!currentUser.tenant.isFreePlan">
+                            <div class="widget-suggestion-items">
+                                <div class="widget-suggestion-item">
+                                    Adding users adds extra costs to your team's subscription. Ask <strong>{{ vm.accountAdmin.full_name }}</strong> if you’re not sure about this.
                                 </div>
                             </div>
                         </div>
 
-                        <field-error form="inviteForm" field="invites-name" index="$index"></field-error>
-                    </div>
-                </div>
-            </div>
+                        <div class="hl-related-form-field" ng-repeat="invite in vm.invites" ng-class="{'has-error': inviteForm['invites-name-' + $index].$invalid }">
+                            <div class="row">
+                                <div class="col-md-6 hl-flex-container no-padding-right">
+                                    <input class="form-control hl-form-input hl-flex-1"
+                                        maxlength="255"
+                                        name="invites-name-{{ $index }}"
+                                        placeholder="First name"
+                                        ng-class="{'hl-form-input-deleted': invite.is_deleted}"
+                                        type="text"
+                                        ng-model="invite.first_name"
+                                        ng-readonly="invite.is_deleted">
+                                </div>
 
-            <div class="hl-form-footer">
-                <div class="row">
-                    <div class="col-md-6 col-md-offset-2">
-                        <button type="button" class="hl-primary-btn-blue no-margin" ng-click="vm.sendInvites(inviteForm)" uib-tooltip="{{ messages.tooltips.modEnter.title }}">
-                            <i class="fa fa-check"></i> Send invite(s)
-                        </button>
-                        <button type="button" class="hl-primary-btn" ng-click="vm.cancelSendInvites()">
-                            Cancel
-                        </button>
+                                <div class="col-md-6 hl-flex-container">
+                                    <input class="form-control hl-form-input margin-right-10"
+                                        maxlength="255"
+                                        name="invites-email_address-{{ $index }}"
+                                        placeholder="Email address"
+                                        ng-class="{'hl-form-input-deleted': invite.is_deleted}"
+                                        type="text"
+                                        ng-model="invite.email_address"
+                                        ng-readonly="invite.is_deleted">
+
+                                    <div class="field-actions">
+                                        <a ng-click="invite.is_deleted = !invite.is_deleted"
+                                            class="hl-primary-btn hl-form-input-btn" title="{{ invite.is_deleted ? 'Undo' : 'Delete' }}">
+                                            <i ng-class="{'fa fa-undo': invite.is_deleted, 'lilicon hl-trashcan-icon': !invite.is_deleted}"></i>
+                                        </a>
+                                        <a ng-click="vm.addInvite()" ng-if="$last"
+                                            class="margin-left-5 hl-primary-btn hl-form-input-btn" title="Add new invite">
+                                            <i class="fa fa-plus"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <field-error form="inviteForm" field="invites-name" index="$index"></field-error>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </form>
+
+                <div class="hl-form-footer">
+                    <div class="row">
+                        <div class="col-md-6 col-md-offset-2">
+                            <button type="button" class="hl-primary-btn-blue no-margin" ng-click="vm.sendInvites(inviteForm)" uib-tooltip="{{ messages.tooltips.modEnter.title }}">
+                                <i class="fa fa-check"></i> Send invite(s)
+                            </button>
+                            <button type="button" class="hl-primary-btn" ng-click="vm.cancelSendInvites()">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 </div>

@@ -14,19 +14,25 @@ function preferencesInviteConfig($stateProvider) {
         ncyBreadcrumb: {
             label: 'Invites',
         },
+        resolve: {
+            accountAdmin: ['Tenant', Tenant => {
+                return Tenant.getAccountAdmin().$promise;
+            }],
+        },
     });
 }
 
 angular.module('app.preferences').controller('InviteUsersController', InviteUsersController);
 
-InviteUsersController.$inject = ['$state', 'HLForms', 'Settings', 'User'];
-function InviteUsersController($state, HLForms, Settings, User) {
+InviteUsersController.$inject = ['$state', 'HLForms', 'Settings', 'User', 'accountAdmin'];
+function InviteUsersController($state, HLForms, Settings, User, accountAdmin) {
     let vm = this;
 
     vm.invites = [{
         first_name: '',
         email: '',
     }];
+    vm.accountAdmin = accountAdmin.admin;
 
     vm.sendInvites = sendInvites;
     vm.addInvite = addInvite;

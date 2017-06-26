@@ -9,7 +9,7 @@ from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 from django.core.management import call_command
 from django.core.urlresolvers import reverse_lazy
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.views.generic import TemplateView, FormView
 from django.utils.http import base36_to_int, int_to_base36
@@ -18,7 +18,6 @@ from templated_email import send_templated_mail
 
 from lily.billing.models import Plan, Billing
 from lily.tenant.models import Tenant
-from lily.utils.functions import is_ajax, post_intercom_event, has_required_tier
 
 from lily.users.forms.registration import AcceptInvitationForm, ResendActivationMailForm, TenantRegistrationForm
 from lily.users.models import LilyUser
@@ -80,23 +79,10 @@ class RegistrationView(FormView):
             messages.error(self.request, _('I\'m sorry, but I can\'t let anyone register at the moment.'))
             return redirect(reverse_lazy('login'))
 
-        plan_id = self.request.GET.get('plan')
-
-        try:
-            chargebee.Plan.retrieve(plan_id)
-        except:
-            # TODO: Better error handling here.
-            messages.error(self.request, _('I\'m sorry, but the selected plan isn\'t valid.'))
-            return HttpResponseRedirect('/register/?plan=%s' % plan_id)
-
         tenant_name = form.cleaned_data['tenant_name']
         tenant_country = form.cleaned_data['country']
 
-        try:
-            plan = Plan.objects.get(name=plan_id)
-        except Plan.DoesNotExist:
-            messages.error(self.request, _('I\'m sorry, but the selected plan isn\'t valid.'))
-            return HttpResponseRedirect('/register/?plan=' % plan_id)
+        plan = Plan.objects.get(name=settings.CHARGEBEE_FREE_PLAN_NAME)
 
         tenant = Tenant.objects.create(
             name=tenant_name,
@@ -253,12 +239,6 @@ class ActivationResendView(FormView):
         """
         return redirect(reverse_lazy('login'))
 
-
-    def dispatch(self, request, *args, **kwargs):
-        if not has_required_tier(1) or not request.user.is_admin:
-            return HttpResponseForbidden()
-
-        return super(SendInvitationView, self).dispatch(request, *args, **kwargs)
 
 class AcceptInvitationView(FormView):
     """

@@ -1,3 +1,4 @@
+from datetime import datetime
 import logging
 
 import chargebee
@@ -17,8 +18,19 @@ def check_subscriptions():
     for tenant in tenants:
         subscription = tenant.billing.get_subscription()
         billing = tenant.billing
+        convert_to_free = False
+
+        if subscription.plan_id == settings.CHARGEBEE_PRO_TRIAL_PLAN_NAME:
+            # Once the free pro trial is done we will convert to the free plan.
+            trial_end = datetime.fromtimestamp(subscription.trial_end)
+
+            if datetime.now() > trial_end:
+                convert_to_free = True
 
         if subscription.status == 'cancelled':
+            convert_to_free = True
+
+        if convert_to_free:
             # Subscription was set to cancelled for whatever reason (expired trial, card declined, etc)
             chargebee.Subscription.update(subscription.id, {
                 'plan_id': settings.CHARGEBEE_FREE_PLAN_NAME,

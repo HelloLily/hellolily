@@ -652,6 +652,9 @@ RAVEN_CONFIG = {
 CHARGEBEE_API_KEY = os.environ.get('CHARGEBEE_API_KEY', '')
 CHARGEBEE_SITE = os.environ.get('CHARGEBEE_SITE', 'hellolily-test')
 CHARGEBEE_FREE_PLAN_NAME = os.environ.get('CHARGEBEE_FREE_PLAN_NAME', 'lily-personal')
+CHARGEBEE_TEAM_PLAN_NAME = os.environ.get('CHARGEBEE_TEAM_PLAN_NAME', 'lily-team')
+CHARGEBEE_PRO_PLAN_NAME = os.environ.get('CHARGEBEE_PRO_PLAN_NAME', 'lily-professional')
+CHARGEBEE_PRO_TRIAL_PLAN_NAME = os.environ.get('CHARGEBEE_PRO_TRIAL_PLAN_NAME', 'lily-professional-trial')
 
 chargebee.configure(CHARGEBEE_API_KEY, CHARGEBEE_SITE)
 

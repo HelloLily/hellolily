@@ -1,183 +1,190 @@
-<div class="portlet">
-    <div class="portlet-body flip-scroll">
-        <widget widget-name="'Subscription'" widget-class="'col-md-12'" widget-dynamic-height="true">
-            <widget-header>
-                <div class="widget-name">
-                    Subscription
-                </div>
-            </widget-header>
+<div class="portlet-body flip-scroll">
+    <widget widget-name="'Subscription'" widget-class="'col-md-12'" widget-dynamic-height="true">
+        <widget-header>
+            <div class="widget-name">
+                Subscription
+            </div>
+        </widget-header>
 
-            <widget-body>
-                <div class="widget-content" ng-if="vm.subscription">
-                    <table class="widget-content-table">
-                        <tbody>
-                            <tr>
-                                <td>Status</td>
-                                <td>
+        <widget-body>
+            <div class="widget-content" ng-if="vm.subscription">
+                <table class="widget-content-table">
+                    <tbody>
+                        <tr>
+                            <td>Status</td>
+                            <td>
+                                <span ng-if="!currentUser.tenant.isFreePlan">
                                     <span class="subscription-status {{ vm.subscription.status.replace('_', '-') }}">{{ vm.subscription.status.replace('_', ' ') | ucfirst }}</span>
                                     <span ng-if="vm.subscription.status === 'in_trial'">({{ vm.getTrialRemaining(vm.subscription.trial_end) }} remaining)</span>
-                                    </td>
-                            </tr>
-                            <tr>
-                                <td>Plan</td>
-                                <td>{{ vm.plan.name }} <a ui-sref="base.preferences.admin.billing.edit"><i class="lilicon hl-edit-icon"></i> Change</a></td>
-                            </tr>
-                            <tr>
-                                <td>Price x user</td>
-                                <td><span ng-bind-html="vm.plan.price | currencySymbol:vm.plan.currency_code:true"></span> x {{ vm.subscription.plan_quantity }}</td>
-                            </tr>
-                            <tr>
-                                <td>Total</td>
-                                <td><span ng-bind-html="vm.plan.price * vm.subscription.plan_quantity | currencySymbol:vm.plan.currency_code:true"></span></td>
-                            </tr>
-                            <tr>
-                                <td>Next bill date</td>
-                                <td><date date="vm.subscription.next_billing_at" unix="true"></date></td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <div ng-if="vm.subscription.status !== 'cancelled' && !currentUser.tenant.isFreePlan" class="cancel-subscription">
-                        <a ng-click="vm.cancelSubscription()">Cancel subscription</a>
-                    </div>
-                </div>
-                <div class="widget-content" ng-if="!vm.subscription">
-                    No subscription setup yet <a ui-sref="base.preferences.admin.billing.edit"><i class="lilicon hl-edit-icon"></i> Set up subscription</a>
-                </div>
-            </widget-body>
-        </widget>
-
-        <widget widget-name="'Payment method'" widget-class="'col-md-12'" widget-dynamic-height="true">
-            <widget-header>
-                <div class="widget-name">
-                    Payment method
-                    <div class="pull-right">
-                        <a ui-sref="base.preferences.admin.billing.card" class="link-no-decoration"><i class="lilicon hl-edit-icon"></i></a>
-                    </div>
-                </div>
-            </widget-header>
-
-            <widget-body>
-                <div class="widget-content">
-                    <table class="widget-content-table" ng-if="vm.paymentMethod === 'card'">
-                        <tbody>
-                            <tr>
-                                <td>Payment method</td>
-                                <td>Credit card</td>
-                            </tr>
-                            <tr>
-                                <td>First name</td>
-                                <td>{{ vm.card.first_name }}</td>
-                            </tr>
-                            <tr>
-                                <td>Last name</td>
-                                <td>{{ vm.card.last_name }}</td>
-                            </tr>
-                            <tr>
-                                <td>Card type</td>
-                                <td><span class="credit-card"><i class="cc-{{ vm.card.card_type.replace('_', '-') }}"></span></i></td>
-                            </tr>
-                            <tr>
-                                <td>Card number</td>
-                                <td>{{ vm.card.masked_number }}</td>
-                            </tr>
-                            <tr>
-                                <td>Expiry</td>
-                                <td>{{ vm.card.expiry_month }}/{{ vm.card.expiry_year }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <table class="widget-content-table" ng-if="vm.paymentMethod === 'paypal_express_checkout'">
-                        <tbody>
-                            <tr>
-                                <td>Payment method</td>
-                                <td>PayPal</td>
-                            </tr>
-                            <tr>
-                                <td>Billing agreement ID</td>
-                                <td>{{ vm.customer.payment_method.reference_id }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div ng-if="!vm.paymentMethod">
-                        No payment method found
-                    </div>
-                </div>
-            </widget-body>
-        </widget>
-
-        <widget widget-name="'Billing information'" widget-class="'col-md-12'" widget-dynamic-height="true">
-            <widget-header>
-                <div class="widget-name">
-                    Billing information
-                </div>
-            </widget-header>
-
-            <widget-body>
-                <div class="widget-content" ng-if="vm.customer.billing_address">
-                    <div ng-if="vm.customer.billing_address">
-                        {{ vm.customer.billing_address.first_name }} {{ vm.customer.billing_address.last_name }}
-                        <br />
-                        {{ vm.customer.billing_address.company }}
-                        <br />
-                        {{ vm.customer.billing_address.line1 }}, {{ vm.customer.billing_address.city }}
-                        <br />
-                        {{ vm.customer.billing_address.country_display }}
-                    </div>
-                    <div ng-if="!vm.customer.billing_address">
-                        No billing information found
-                    </div>
-                </div>
-            </widget-body>
-        </widget>
-
-        <widget widget-name="'Payment history'" widget-class="'col-md-12'" widget-dynamic-height="true">
-            <widget-header>
-                <div class="widget-name">
-                    Payment history
-                </div>
-            </widget-header>
-
-            <widget-body>
-                <!--Status	Date	Invoice Number	Amount	-->
-                <table class="widget-table">
-                    <thead>
+                                </span>
+                                <span ng-if="currentUser.tenant.isFreePlan">
+                                    <span class="subscription-status active">Active</span>
+                                </span>
+                            </td>
+                        </tr>
                         <tr>
-                            <th>Invoice number</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                            <th>Paid on</th>
-                            <th>Amount</th>
-                            <th></th>
+                            <td>Plan</td>
+                            <td>{{ vm.plan.name }} <a class="hl-primary-btn-smll margin-left-10" ui-sref="base.preferences.admin.billing.edit"><i class="lilicon hl-edit-icon"></i> Update</a></td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        <tr ng-repeat="invoice in vm.invoices">
-                            <td>
-                                {{ invoice.invoice.id }}
-                            </td>
-                            <td>
-                                {{ invoice.invoice.status.replace('_', ' ') | ucfirst }}
-                            </td>
-                            <td>
-                                <date date="invoice.invoice.date" unix="true"></date>
-                            </td>
-                            <td>
-                                <date date="invoice.invoice.paid_at" unix="true"></date>
-                            </td>
-                            <td>
-                                <span ng-bind-html="invoice.invoice.total | currencySymbol:invoice.invoice.currency_code:true"></span>
-                            </td>
-                            <td>
-                                <a ng-click="vm.downloadInvoice(invoice.invoice.id)">Download</a>
-                            </td>
+                        <tr>
+                            <td>Price per user</td>
+                            <td><span ng-bind-html="vm.plan.price | currencySymbol:vm.plan.currency_code:true"></span> x {{ vm.subscription.plan_quantity }} users</td>
                         </tr>
-                        <tr ng-show="!vm.invoices.length">
-                            <td colspan="5">No invoices</td>
+                        <tr>
+                            <td>Total per month</td>
+                            <td><span ng-bind-html="vm.plan.price * vm.subscription.plan_quantity | currencySymbol:vm.plan.currency_code:true"></span></td>
+                        </tr>
+                        <tr ng-if="!currentUser.tenant.isFreePlan">
+                            <td>Next billing date</td>
+                            <td><date date="vm.subscription.next_billing_at" unix="true"></date></td>
                         </tr>
                     </tbody>
                 </table>
-            </widget-body>
-        </widget>
-    </div>
+
+                <div ng-if="vm.subscription.status !== 'cancelled' && !currentUser.tenant.isFreePlan" class="cancel-subscription">
+                    <a ng-click="vm.cancelSubscription()">Cancel subscription</a>
+                </div>
+
+                <div ng-if="!currentUser.tenant.trialStarted">
+                    <a ng-click="vm.startTrial()">Start trial</a>
+                </div>
+            </div>
+            <div class="widget-content" ng-if="!vm.subscription">
+                No subscription setup yet <a ui-sref="base.preferences.admin.billing.edit"><i class="lilicon hl-edit-icon"></i> Set up subscription</a>
+            </div>
+        </widget-body>
+    </widget>
+
+    <widget widget-name="'Payment method'" widget-class="'col-md-12'" widget-dynamic-height="true">
+        <widget-header>
+            <div class="widget-name">
+                Payment method
+                <div class="pull-right">
+                    <a ui-sref="base.preferences.admin.billing.card" class="link-no-decoration"><i class="lilicon hl-edit-icon"></i></a>
+                </div>
+            </div>
+        </widget-header>
+
+        <widget-body>
+            <div class="widget-content">
+                <table class="widget-content-table" ng-if="vm.paymentMethod === 'card'">
+                    <tbody>
+                        <tr>
+                            <td>Payment method</td>
+                            <td>Credit card</td>
+                        </tr>
+                        <tr>
+                            <td>First name</td>
+                            <td>{{ vm.card.first_name }}</td>
+                        </tr>
+                        <tr>
+                            <td>Last name</td>
+                            <td>{{ vm.card.last_name }}</td>
+                        </tr>
+                        <tr>
+                            <td>Card type</td>
+                            <td><span class="credit-card"><i class="cc-{{ vm.card.card_type.replace('_', '-') }}"></span></i></td>
+                        </tr>
+                        <tr>
+                            <td>Card number</td>
+                            <td>{{ vm.card.masked_number }}</td>
+                        </tr>
+                        <tr>
+                            <td>Expiry</td>
+                            <td>{{ vm.card.expiry_month }}/{{ vm.card.expiry_year }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="widget-content-table" ng-if="vm.paymentMethod === 'paypal_express_checkout'">
+                    <tbody>
+                        <tr>
+                            <td>Payment method</td>
+                            <td>PayPal</td>
+                        </tr>
+                        <tr>
+                            <td>Billing agreement ID</td>
+                            <td>{{ vm.customer.payment_method.reference_id }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div ng-if="!vm.paymentMethod">
+                    No payment method found
+                </div>
+            </div>
+        </widget-body>
+    </widget>
+
+    <widget widget-name="'Billing information'" widget-class="'col-md-12'" widget-dynamic-height="true">
+        <widget-header>
+            <div class="widget-name">
+                Billing information
+            </div>
+        </widget-header>
+
+        <widget-body>
+            <div class="widget-content" ng-if="vm.customer.billing_address">
+                <div ng-if="vm.customer.billing_address">
+                    {{ vm.customer.billing_address.first_name }} {{ vm.customer.billing_address.last_name }}
+                    <br />
+                    {{ vm.customer.billing_address.company }}
+                    <br />
+                    {{ vm.customer.billing_address.line1 }}, {{ vm.customer.billing_address.city }}
+                    <br />
+                    {{ vm.customer.billing_address.country_display }}
+                </div>
+                <div ng-if="!vm.customer.billing_address">
+                    No billing information found
+                </div>
+            </div>
+        </widget-body>
+    </widget>
+
+    <widget widget-name="'Payment history'" widget-class="'col-md-12'" widget-dynamic-height="true">
+        <widget-header>
+            <div class="widget-name">
+                Payment history
+            </div>
+        </widget-header>
+
+        <widget-body>
+            <!--Status	Date	Invoice Number	Amount	-->
+            <table class="widget-table">
+                <thead>
+                    <tr>
+                        <th>Invoice number</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Paid on</th>
+                        <th>Amount</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="invoice in vm.invoices">
+                        <td>
+                            {{ invoice.invoice.id }}
+                        </td>
+                        <td>
+                            {{ invoice.invoice.status.replace('_', ' ') | ucfirst }}
+                        </td>
+                        <td>
+                            <date date="invoice.invoice.date" unix="true"></date>
+                        </td>
+                        <td>
+                            <date date="invoice.invoice.paid_at" unix="true"></date>
+                        </td>
+                        <td>
+                            <span ng-bind-html="invoice.invoice.total | currencySymbol:invoice.invoice.currency_code:true"></span>
+                        </td>
+                        <td>
+                            <a ng-click="vm.downloadInvoice(invoice.invoice.id)">Download</a>
+                        </td>
+                    </tr>
+                    <tr ng-show="!vm.invoices.length">
+                        <td colspan="5">No invoices</td>
+                    </tr>
+                </tbody>
+            </table>
+        </widget-body>
+    </widget>
 </div>

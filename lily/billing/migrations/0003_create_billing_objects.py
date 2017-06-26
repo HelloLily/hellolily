@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 import chargebee
+from django.conf import settings
 from django.db import migrations, models
 
 
@@ -12,7 +13,7 @@ def create_billing_objects(apps, schema_editor):
     Group = apps.get_model('auth', 'Group')
 
     plans = Plan.objects.all()
-    plan_id = 'lily-professional'
+    plan_id = settings.CHARGEBEE_PRO_TRIAL_PLAN_NAME
 
     for tenant in Tenant.objects.all():
         tenant_users = tenant.lilyuser_set
@@ -31,6 +32,7 @@ def create_billing_objects(apps, schema_editor):
         if admin_user:
             result = chargebee.Subscription.create({
                 'plan_id': plan_id,
+                'plan_quantity': tenant_users.count(),
                 'customer': {
                     'first_name': admin_user.first_name,
                     'last_name': admin_user.last_name,
@@ -42,6 +44,7 @@ def create_billing_objects(apps, schema_editor):
             tenant.billing.customer_id = result.customer.id
             tenant.billing.subscription_id = result.subscription.id
             tenant.billing.plan = plans.get(name=plan_id)
+            tenant.billing.trial_started = True
             tenant.billing.save()
 
         tenant.save()

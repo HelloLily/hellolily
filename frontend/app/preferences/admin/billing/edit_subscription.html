@@ -24,32 +24,23 @@
                         <div class="text-muted">{{ plan.plan.description }}</div>
                     </div>
                 </form-group>
+
+                <a href="https://hellolily.com/pricing" target="_blank">More info about plans and pricing</a>
             </form-portlet>
 
             <div class="hl-form-footer">
                 <div class="row">
-                    <button type="button" class="btn blue" ng-click="vm.saveSubsciption(subscriptionForm)">
-                        <i class="fa fa-check"></i> Save
-                    </button>
-                    <button type="button" class="btn default" ng-click="vm.cancelEditSubscription()">
-                        Cancel
-                    </button>
+                    <div class="col-xs-12 col-sm-3 col-md-2 col-lg-2"></div>
+                    <div class="col-xs-12 col-sm-9 col-md-8 col-md-7 col-lg-4">
+                        <button type="button" class="hl-primary-btn-blue" ng-click="vm.saveSubsciption(subscriptionForm)">
+                            <i class="fa fa-check"></i> Save
+                        </button>
+                        <button type="button" class="hl-primary-btn" ng-click="vm.cancelEditSubscription()">
+                            Cancel
+                        </button>
+                    </div>
                 </div>
             </div>
         </form>
-
-        <div class="modal fade" id="paymentModal" tabindex="-1" role="dialog" aria-labelledby="paymentModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content" style="max-width: 540px;">
-                    <div class="modal-header">
-                        <h4 class="modal-title text-center">
-                            Payment Information
-                        </h4>
-                    </div>
-                    <div class="modal-body"  data-cb-modal-body="body" style="padding-left: 0px;padding-right: 0px;">
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </div>

@@ -10,7 +10,8 @@ def create_plan_objects(apps, schema_editor):
     plans = [
         {'name': 'lily-personal', 'tier': 0},
         {'name': 'lily-team', 'tier': 1},
-        {'name': 'lily-professional', 'tier': 2}
+        {'name': 'lily-professional', 'tier': 2},
+        {'name': 'lily-professional-trial', 'tier': 2}
     ]
 
     for plan in plans:

@@ -54,6 +54,8 @@ class DocumentDetails(APIView):
 
 
 class PandaDocList(APIView):
+    permission_classes = (IsFeatureAvailable)
+
     serializer = DocumentSerializer
     parser_classes = (JSONParser, FormParser)
 

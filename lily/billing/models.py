@@ -12,6 +12,7 @@ class Billing(models.Model):
     customer_id = models.CharField(max_length=255, blank=True)
     plan = models.ForeignKey(Plan)
     cancels_on = models.DateTimeField(blank=True, null=True)
+    trial_started = models.BooleanField(default=False)
 
     @property
     def is_free_plan(self):

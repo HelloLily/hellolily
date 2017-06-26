@@ -44,7 +44,17 @@ function EditSubscriptionController($scope, $state, $window, Billing, HLForms, p
         HLForms.blockUI();
 
         Billing.patch({'plan_id': vm.selectedPlan}).$promise.then((response) => {
-            $window.location.href = response.url;
+            if (response.url) {
+                $window.location.href = response.url;
+            } else {
+                if (response.success) {
+                    // Free plan so just redirect back to overview page.
+                    toastr.success('Your subscription has been changed', 'Success!');
+                    $state.go('base.preferences.admin.billing');
+                } else {
+                    toastr.error('Your subscription couldn\'t be changed. Please try again', 'Error');
+                }
+            }
         }, (error) => {
             Metronic.unblockUI();
         });

@@ -15,11 +15,11 @@ function emailConfig($stateProvider) {
         views: emailComposeView,
     });
     $stateProvider.state('base.email.composeEmail', {
-        url: '/compose/{email}/{contactId}',
+        url: '/compose/{email}',
         views: emailComposeView,
     });
     $stateProvider.state('base.email.composeEmailDocument', {
-        url: '/compose/{email}/{contactId}/{documentId}',
+        url: '/compose/{email}/{documentId}',
         views: emailComposeView,
     });
     $stateProvider.state('base.email.composeEmailTemplate', {

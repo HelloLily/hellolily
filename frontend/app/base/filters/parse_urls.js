@@ -15,6 +15,8 @@ parseUrls.$inject = [];
 function parseUrls() {
     return function(text) {
         return Autolinker.link(text, {
+            stripPrefix: false,
+            stripTrailingSlash: false,
             replaceFn: function(match) {
                 var email;
                 switch (match.getType()) {

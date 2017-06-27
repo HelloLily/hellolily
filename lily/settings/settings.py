@@ -247,6 +247,7 @@ GEOIP_PATH = local_path('geoip/')
 MIDDLEWARE_CLASSES = (
     # See https://docs.djangoproject.com/en/dev/ref/middleware/#middleware-ordering for ordering hints
     'django.middleware.security.SecurityMiddleware',
+    'lily.middleware.SetRemoteAddrFromForwardedFor',
     # 'django.contrib.sessions.middleware.SessionMiddleware',  # Replaced by user_sessions.
     'user_sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',

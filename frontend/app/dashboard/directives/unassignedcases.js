@@ -86,7 +86,7 @@ function UnassignedCasesController($http, $scope, $state, $timeout, Case, HLFilt
 
                 _watchTable();
             });
-        }, 50);
+        }, 100);
     }
 
     function updateTable(blockUI = false) {

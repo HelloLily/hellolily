@@ -87,7 +87,7 @@ function UnassignedDealsController($http, $scope, $state, $timeout, Deal, HLFilt
 
                 _watchTable();
             });
-        }, 50);
+        }, 100);
     }
 
     function updateTable(blockUI = false) {

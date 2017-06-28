@@ -116,10 +116,14 @@
                         </deleted-indicator>
                     </td>
                     <td class="hl-table-column" ng-show="vm.table.visibility.type">
-                        {{ ::case.type.name }}
+                        <editable-select field="type" view-model="vm" type="Case" object="case" select-options="{field: 'caseTypes'}">
+                            {{  case.type.name }}
+                        </editable-select>
                     </td>
                     <td class="hl-table-column" ng-show="vm.table.visibility.status">
-                        {{ ::case.status.name }}
+                        <editable-select field="status" view-model="vm" type="Case" object="case" select-options="{field: 'statuses'}">
+                            {{  case.status.name }}
+                        </editable-select>
                     </td>
                     <td class="hl-table-column" ng-show="vm.table.visibility.priority" class="priority-cell">
                         <editable-select field="priority" view-model="vm" type="Case" object="case" choice-field="true" select-type="icon_select"

@@ -53,10 +53,14 @@
                         </deleted-indicator>
                     </td>
                     <td>
-                        {{ myCase.type.name }}
+                        <editable-select field="type" view-model="vm" type="Case" object="myCase" select-options="{field: 'caseTypes'}">
+                            {{  myCase.type.name }}
+                        </editable-select>
                     </td>
                     <td>
-                        {{ myCase.status.name }}
+                        <editable-select field="status" view-model="vm" type="Case" object="myCase" select-options="{field: 'statuses'}">
+                            {{  myCase.status.name }}
+                        </editable-select>
                     </td>
                     <td class="priority-cell">
                         <editable-select field="priority" view-model="vm" type="Case" object="myCase" choice-field="true" select-type="icon_select"

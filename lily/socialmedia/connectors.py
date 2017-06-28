@@ -57,7 +57,7 @@ class BaseConnector(object):
         """
 
         # We want clean usernames in the database, so strip certain characters.
-        username = username.lstrip('@')
+        username = username.replace('@', '')
 
         if self._username_regex.match(username):
             if autofill:

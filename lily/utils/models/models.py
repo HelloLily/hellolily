@@ -128,6 +128,7 @@ class EmailAddress(TenantMixin):
         app_label = 'utils'
         verbose_name = _('email address')
         verbose_name_plural = _('email addresses')
+        ordering = ['-status']
 
 
 class ExternalAppLink(TenantMixin):

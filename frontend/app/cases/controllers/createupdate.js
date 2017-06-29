@@ -175,6 +175,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             Settings.page.setAllTitles('create', 'case');
             vm.case = Case.create();
             vm.case.assigned_to = vm.currentUser;
+            vm.case.assigned_to_teams = vm.ownTeams;
 
             if ($stateParams.accountId) {
                 Account.get({id: $stateParams.accountId}).$promise.then(function(account) {

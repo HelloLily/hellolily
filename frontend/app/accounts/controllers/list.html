@@ -126,15 +126,15 @@
                 </tr>
             </tfoot>
         </table>
-    </div>
 
-    <div ng-if="vm.showEmptyState">
-        <div class="empty-state-description no-top">
-            <h3>Progressional overview of what’s going on</h3>
+        <div ng-if="vm.showEmptyState">
+            <div class="empty-state-description no-top">
+                <h3>Progressional overview of what’s going on</h3>
 
-            <p>Accounts are a collection of contacts within the same organization, company or group.</p>
-            <p>You can easily see who you’ve been talking to and when.</p>
-            <p>See the full communication history and gain insights about them, if you add them as an <a class="hl-primary-btn" ui-sref="base.accounts.create" role="button" onclick="ga('send', 'event', 'Account', 'Open', 'Account list empty state');"><i class="fa fa-plus"></i> Account</a></p>
+                <p>Accounts are a collection of contacts within the same organization, company or group.</p>
+                <p>You can easily see who you’ve been talking to and when.</p>
+                <p>See the full communication history and gain insights about them, if you add them as an <a class="hl-primary-btn" ui-sref="base.accounts.create" role="button" onclick="ga('send', 'event', 'Account', 'Open', 'Account list empty state');"><i class="fa fa-plus"></i> Account</a></p>
+            </div>
         </div>
     </div>
 </div>

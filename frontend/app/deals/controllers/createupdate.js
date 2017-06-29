@@ -224,6 +224,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
             Settings.page.setAllTitles('create', 'deal');
             vm.deal = Deal.create();
             vm.deal.assigned_to = vm.currentUser;
+            vm.deal.assigned_to_teams = vm.ownTeams;
             // Set new business on default when creating a deal.
             vm.deal.new_business = true;
 

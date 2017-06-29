@@ -85,14 +85,15 @@ class ModelChangesMixin(object):
             diffkeys = [k for k in old_data if old_data.get(k) != new_data.get(k)]
 
             for key in diffkeys:
-                value = request.data[key]
+                if key in request.data:
+                    value = request.data[key]
 
-                # PATCH usually just sends the ID, while PUT usually sends an object.
-                # For consistency we just want to store the ID.
-                if isinstance(value, dict) and len(value) == 1 and value.get('id'):
-                    value = value.get('id')
+                    # PATCH usually just sends the ID, while PUT usually sends an object.
+                    # For consistency we just want to store the ID.
+                    if isinstance(value, dict) and len(value) == 1 and value.get('id'):
+                        value = value.get('id')
 
-                data.update({key: value})
+                    data.update({key: value})
         else:
             data = request.data
 

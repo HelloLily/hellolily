@@ -44,7 +44,8 @@ from .services import GmailService
 from .tasks import (send_message, create_draft_email_message, update_draft_email_message,
                     add_and_remove_labels_for_message, trash_email_message)
 from .utils import (get_attachment_filename_from_url, get_email_parameter_choices, create_recipients,
-                    render_email_body, replace_cid_in_html, create_reply_body_header, reindex_email_message)
+                    render_email_body, replace_cid_in_html, create_reply_body_header, reindex_email_message,
+                    extract_script_tags)
 
 
 logger = logging.getLogger(__name__)
@@ -233,6 +234,8 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
 
                 attachments = EmailAttachment.objects.filter(message_id=self.object.pk)
 
+                # Strip malicious/unwanted content when replying.
+                self.object.body_html = extract_script_tags(self.object.body_html)
                 self.object.body_html = replace_cid_in_html(self.object.body_html, attachments, request)
             except EmailMessage.DoesNotExist:
                 pass

@@ -90,7 +90,6 @@ function Contact($filter, $resource, HLResource, Settings) {
     }
 
     function updateModel(data, field, contact) {
-        var accounts = [];
         var args;
         var patchPromise;
 
@@ -109,11 +108,11 @@ function Contact($filter, $resource, HLResource, Settings) {
         }
 
         if (args.hasOwnProperty('accounts')) {
-            args.accounts.forEach(function(account) {
-                accounts.push(account.id);
-            });
-
-            args.accounts = accounts;
+            const oldAccounts = contact.accounts.map(team => ({'id': team.id}));
+            const accountIds = args.accounts.map(team => team.id);
+            let removedAccounts = oldAccounts.filter(team => accountIds.indexOf(team.id) === -1);
+            for (let team of removedAccounts) team.is_deleted = true;
+            args.accounts = args.accounts.map(team => ({'id': team.id})).concat(removedAccounts);
         }
 
         patchPromise = HLResource.patch('Contact', args).$promise;

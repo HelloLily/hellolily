@@ -141,6 +141,7 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
         var configs = account.shared_email_configs;
         var filterObject = {
             filterquery: '',
+            size: 50,
         };
 
         vm.emailAccount = account;

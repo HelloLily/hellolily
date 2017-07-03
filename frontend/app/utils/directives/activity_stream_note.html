@@ -1,20 +1,24 @@
 <div class="timeline-item-container">
-    <div class="timeline-avatar has-date" ng-style="{'background-image': 'url(' + vm.item.author.profile_picture + ')'}"></div>
-    <div class="timeline-content-container has-note">
-        <div class="timeline-content-header">
-            <div>
-                <span ng-if="vm.item.showContact" class="timeline-content-title"><a ui-sref="base.contacts.detail({id: vm.item.object_id})">{{ ::vm.item.subject }}</a></span>
-                <span ng-if="!vm.item.showContact" class="timeline-content-title">{{ ::vm.item.subject }}</span>
-
-                <div class="timeline-date" title="Created on {{ ::vm.item.date | date:'dd MMM yyyy - HH:mm' }}">
-                    {{ ::vm.item.date | date:'dd MMM yyyy - HH:mm' }}
-                </div>
+    <div class="activity-stream-image has-date" ng-style="{'background-image': 'url(' + vm.item.author.profile_picture + ')'}"></div>
+    <div class="activity-stream-item">
+        <div class="stream-item-head" title="Created on {{ ::vm.item.date | date:'dd MMM yyyy - HH:mm' }}">
+            <div class="stream-item-date">
+                {{ ::vm.item.date | date:'dd MMM yyyy - HH:mm' }}
             </div>
-            <div class="pull-right display-inline-block">
-                <ul class="content-details-actions">
-                    <li ng-if="!vm.item.is_pinned"><a ng-click="vm.activity.pinNote(vm.item, true)"><i class="lilicon hl-pin-icon"></i> Pin note</a></li>
-                    <li ng-if="vm.item.is_pinned"><a ng-click="vm.activity.pinNote(vm.item, false)"><i class="fa fa-times"></i>Unpin note</a></li>
-                    <li style="margin-right: 0;">
+            <div class="stream-item-actions">
+                <ul class="stream-item-actions-list">
+                    <li ng-if="!vm.item.is_pinned" class="stream-item-actions-list-item">
+                        <a ng-click="vm.activity.pinNote(vm.item, true)">
+                            <i class="lilicon hl-pin-icon"></i> Pin note
+                        </a>
+                    </li>
+                    <li ng-if="vm.item.is_pinned" class="stream-item-actions-list-item">
+                        <a ng-click="vm.activity.pinNote(vm.item, false)">
+                            <i class="fa fa-times"></i>Unpin note
+                        </a>
+                    </li>
+
+                    <li class="stream-item-actions-list-item">
                         <delete-confirmation model="Note" object="vm.item" callback="vm.activity.removeFromList(vm.item)" button-class="btn-link no-background no-padding">
                             Delete
                         </delete-confirmation>
@@ -22,8 +26,15 @@
                 </ul>
             </div>
         </div>
-        <div class="content-details activity-item-body">
-            <editable-textarea extra-class="detail-plain-text" view-model="vm" field="content" object="vm.item"></editable-textarea>
+
+        <div class="stream-item-activity">
+            {{ ::vm.item.author.full_name }} created a<i class="margin-left-5 yellow lilicon hl-note-icon"></i> note
+        </div>
+
+        <div class="stream-item-content is-note">
+            <div class="stream-item-description">
+                <editable-textarea extra-class="detail-plain-text" view-model="vm" field="content" object="vm.item"></editable-textarea>
+            </div>
         </div>
     </div>
 </div>

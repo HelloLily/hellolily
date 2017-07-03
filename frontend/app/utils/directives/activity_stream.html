@@ -1,20 +1,22 @@
 <div class="row">
-    <div class="col-md-12" ng-if="!parentObject">
-        <ul class="mix-filter text-center">
-            <li ng-repeat="(typeKey, typeVal) in activity.types" ng-if="typeVal.visible" ng-class="{'active': activity.activeFilter == typeKey}" ng-click="activity.filterType(typeKey)">{{ typeVal.name }}</li>
-        </ul>
-    </div>
-
     <div class="col-md-12">
-        <div class="vertical-line"></div>
-
-        <div class="timeline-item-form-container" ng-if="!parentObject">
-            <div class="timeline-avatar is-type">
-                <i class="lilicon hl-note-icon"></i>
+        <div class="spacer-40" ng-if="activity.list.totalItems && parentObject"></div>
+        <div class="activity-stream">
+            <div class="activity-stream-filter" ng-if="!parentObject">
+                <ul class="hl-button-list">
+                    <li class="hl-button-list-item" ng-repeat="(typeKey, typeVal) in activity.types" ng-if="typeVal.visible" ng-class="{'active': activity.activeFilter == typeKey}" ng-click="activity.filterType(typeKey)">
+                        <span class="hl-button-list-option">{{ typeVal.name }}</span>
+                    </li>
+                </ul>
             </div>
 
-            <div class="timeline-content-container">
-                <div class="timeline-content-header">
+
+            <div class="activity-stream-comment" ng-if="!parentObject">
+                <div class="activity-stream-image is-type">
+                    <i class="lilicon hl-note-icon"></i>
+                </div>
+
+                <div class="activity-stream-item">
                     <form role="form" name="noteForm" on-mod-enter-key="activity.addNote(note, noteForm)">
                         <div class="form-body">
                             <div class="form-group">
@@ -46,34 +48,37 @@
                     </form>
                 </div>
             </div>
-        </div>
 
-        <div id="activityStreamBlockTarget">
-            <div class="timeline-info-header" ng-if="activity.list.totalItems && parentObject">
+            <div class="activity-stream-filter" ng-if="activity.list.totalItems && parentObject">
                 <h3 class="text-center">Latest {{ target }} activity</h3>
-
-                <ul class="mix-filter text-center">
-                    <li ng-repeat="(typeKey, typeVal) in activity.types" ng-if="typeVal.visible" ng-class="{'active': activity.activeFilter == typeKey}" ng-click="activity.filterType(typeKey)">{{ typeVal.name }}</li>
+                <ul class="hl-button-list text-center">
+                    <li class="hl-button-list-item" ng-repeat="(typeKey, typeVal) in activity.types" ng-if="typeVal.visible" ng-class="{'active': activity.activeFilter == typeKey}" ng-click="activity.filterType(typeKey)">
+                        <span class="hl-button-list-option">{{ typeVal.name }}</span>
+                    </li>
                 </ul>
             </div>
 
-            <div ng-show="activity.list.pinned.length">
-                <div class="timeline-time">
-                    Pinned
-                </div>
-            </div>
+            <div class="activity-stream-content" id="activityStreamBlockTarget">
 
-            <div ng-repeat="item in activity.list.pinned" class="activity-stream-item pinned-items">
-                <activity-stream-item item="item" activity="activity" object="object" delete-callback="activity.removeFromList(item)" update-callback="activity.updateModel"></activity-stream-item>
-            </div>
 
-            <div ng-repeat="(key, value) in activity.list.nonPinned" class="activity-stream-item" ng-show="value.isVisible">
-                <div class="timeline-time">
-                    <date date="key" date-format="MMMM yyyy"></date>
+                <div ng-show="activity.list.pinned.length">
+                    <div class="timeline-time">
+                        Pinned
+                    </div>
                 </div>
 
-                <div ng-repeat="item in value.items" class="activity-item" ng-show="!activity.activeFilter || activity.activeFilter == item.activityType">
+                <div ng-repeat="item in activity.list.pinned" class="pinned-items">
                     <activity-stream-item item="item" activity="activity" object="object" delete-callback="activity.removeFromList(item)" update-callback="activity.updateModel"></activity-stream-item>
+                </div>
+
+                <div ng-repeat="(key, value) in activity.list.nonPinned" ng-show="value.isVisible">
+                    <div class="timeline-time">
+                        <date date="key" date-format="MMMM yyyy"></date>
+                    </div>
+
+                    <div ng-repeat="item in value.items" class="activity-item" ng-show="!activity.activeFilter || activity.activeFilter == item.activityType">
+                        <activity-stream-item item="item" activity="activity" object="object" delete-callback="activity.removeFromList(item)" update-callback="activity.updateModel"></activity-stream-item>
+                    </div>
                 </div>
             </div>
         </div>

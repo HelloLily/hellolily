@@ -1,64 +1,89 @@
-<div class="timeline-item-container">
-    <div class="timeline-avatar" ng-if="vm.item.assigned_to" ng-style="{'background-image': 'url(' + vm.item.assigned_to.profile_picture + ')'}"></div>
-    <div class="timeline-avatar" ng-if="!vm.item.assigned_to" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png');"></div>
+<div class="activity-stream-item-container">
+    <div class="activity-stream-image has-case" ng-if="vm.item.assigned_to" ng-style="{'background-image': 'url(' + vm.item.assigned_to.profile_picture + ')'}"></div>
+    <div class="activity-stream-image has-case" ng-if="!vm.item.assigned_to" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png');"></div>
 
-    <div class="timeline-content-container has-case">
-        <div class="timeline-content-header">
-            <span class="timeline-content-title">
-                <i class="lilicon hl-prio-icon-{{ vm.item.priority_display | lowercase }}" tooltip-placement="left" uib-tooltip="{{ vm.item.priority_display }}"></i>
-                <a ui-sref="base.cases.detail({ id: vm.item.id })">{{ ::vm.item.subject }} ({{ ::vm.item.archived ? 'archived' : vm.item.status.name }})</a>
-            </span>
-            <div class="timeline-date" title="Modified on {{ ::vm.item.modified | date:'dd MMM yyyy - HH:mm' }}">
-                {{ ::vm.item.modified | date:'dd MMM yyyy - HH:mm' }}
-            </div>
+    <div class="activity-stream-item">
+        <div class="stream-item-date" title="Modified on {{ ::vm.item.modified | date:'dd MMM yyyy - HH:mm' }}">
+            {{ ::vm.item.modified | date:'dd MMM yyyy - HH:mm' }}
         </div>
 
-        <div class="content-details activity-item-body">
-            <editable-textarea extra-class="detail-plain-text" view-model="vm" field="description" object="vm.item"></editable-textarea>
+        <div class="stream-item-activity">
+            <a ui-sref="base.cases.detail({ id: vm.item.id })" class="stream-item-activity-link">
+                {{ ::vm.item.subject }}
+            </a>
         </div>
 
-        <div class="content-details-additional">
-            <div class="content-activity-divider"></div>
+        <div class="stream-item-content is-case">
+            <div class="stream-item-meta">
+                <div class="stream-item-meta-object">
+                    <div class="stream-item-meta-title">Status:</div>
+                    {{ vm.item.status.name }} <span ng-if="vm.item.archived">(archived)</span>
+                </div>
 
-            <div class="content-activity-container">
-                <ul class="content-activity-stream">
-                    <li ng-repeat="note in vm.item.notes">
-                        <div class="content-activity-note-header">
-                            <div class="content-activity-avatar" ng-style="{'background-image': 'url(' + note.author.profile_picture + ')'}"></div>
-                            <div class="content-activity-date">{{ ::note.date | date:'dd MMM yyyy - HH:mm' }}</div>
-                        </div>
-                        <div class="content-activity-note-body">
-                            <editable-textarea view-model="vm" field="content" object="note"></editable-textarea>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="content-activity-note-header">
-                            <div ng-if="vm.item.created_by" class="content-activity-avatar" ng-style="{'background-image': 'url(' + vm.item.created_by.profile_picture + ')'}"></div>
-                            <div ng-if="!vm.item.created_by" class="content-activity-avatar" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png');"></div>
-                            <div class="content-activity-desc">
-                                {{ ::vm.item.created_by.full_name || 'An unknown entity' }} created the case <a ui-sref="base.cases.detail({ id: vm.item.id })">{{ ::vm.item.subject }}</a>
-                            </div>
+                <div class="stream-item-meta-object">
+                    <div class="stream-item-meta-title">Priority:</div>
+                    <editable-select field="priority" view-model="vm.item" type="Case" object="vm.item" choice-field="true" select-type="icon_select"
+                                    select-options="{field: 'casePriorities', 'classPrefix': 'lilicon hl-prio-icon-', 'classValue': 'name'}">
+                        <i class="lilicon hl-prio-icon-{{ vm.item.priority_display | lowercase }}" tooltip-placement="left" uib-tooltip="{{ vm.item.priority_display }}"></i>
+                    </editable-select>
+                </div>
 
-                            <div class="content-activity-date">{{ ::vm.item.created | date:'dd MMM yyyy - HH:mm' }}</div>
-                            <div class="clearfix"></div>
-                        </div>
-                    </li>
-                </ul>
+                <div class="stream-item-meta-object">
+                    <div class="stream-item-meta-title">Type:</div>
+                    <editable-select field="type" view-model="vm.item" type="Case" object="vm.item" select-options="{field: 'caseTypes'}">
+                        {{ vm.item.type.name }}
+                    </editable-select>
+                </div>
+
+                <div class="stream-item-meta-object">
+                    <div class="stream-item-meta-title">Expires:</div>
+                    <postpone type="'Case'" object="vm.item" date-field="'expires'"</postpone>
+                </div>
             </div>
 
-            <div class="content-activity-container add-note-inline">
-                <ul class="content-activity-stream">
-                    <li>
-                        <div class="content-activity-note-header">
-                            <div class="content-activity-avatar is-note">
-                                <i class="lilicon hl-note-icon"></i>
+            <div class="stream-item-description">
+                <editable-textarea extra-class="detail-plain-text" view-model="vm" field="description" object="vm.item"></editable-textarea>
+
+                <div class="stream-subitem">
+                    <div class="stream-subitem-timeline"></div>
+
+                    <div class="stream-subitem-object" ng-repeat="note in vm.item.notes">
+                        <div class="stream-subitem-image">
+                            <div class="stream-subitem-avatar" ng-style="{'background-image': 'url(' + note.author.profile_picture + ')'}"></div>
+                        </div>
+
+                        <div class="stream-subitem-main">
+                            <div class="stream-subitem-date">{{ ::note.date | date:'dd MMM yyyy - HH:mm' }}</div>
+                            <div class="stream-subitem-title"> {{ ::note.author.full_name }} created a <i class="lilicon hl-note-icon margin-left-5 yellow font-size-16"></i> note</div>
+                            <div class="stream-subitem-content">
+                                <editable-textarea view-model="vm" field="content" object="note"></editable-textarea>
                             </div>
                         </div>
-                        <div class="content-activity-note-body has-form">
+                    </div>
+
+                    <div class="stream-subitem-object">
+                        <div class="stream-subitem-image">
+                            <div ng-if="vm.item.created_by" class="stream-subitem-avatar" ng-style="{'background-image': 'url(' + vm.item.created_by.profile_picture + ')'}"></div>
+                            <div ng-if="!vm.item.created_by" class="stream-subitem-avatar" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png');"></div>
+                        </div>
+
+                        <div class="stream-subitem-main">
+                            <div class="stream-subitem-date">{{ ::vm.item.created | date:'dd MMM yyyy - HH:mm' }}</div>
+                            <div  class="stream-subitem-title">
+                                {{ ::vm.item.created_by.full_name || 'An unknown entity' }} created the <i class="lilicon hl-case-icon purple margin-left-5 font-size-16"></i> case <a ui-sref="base.cases.detail({ id: vm.item.id })">{{ ::vm.item.name }}</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stream-subitem-object">
+                        <div class="stream-subitem-image">
+                            <div class="stream-subitem-avatar is-note"><i class="lilicon hl-note-icon"></i></div>
+                        </div>
+                        <div class="stream-subitem-main small-note-field no-padding">
                             <activity-add-note item="vm.item"></activity-add-note>
                         </div>
-                    </li>
-                </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

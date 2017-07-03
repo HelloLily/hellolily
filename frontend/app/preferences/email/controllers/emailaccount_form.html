@@ -57,43 +57,49 @@
 
                             <div class="privacy-examples" ng-if="!vm.emailAccount.privacy == 0">
                                 <div ng-if="vm.emailAccount.privacy == 1" class="privacy-example">
-                                    <div class="vertical-line"></div>
-                                    <div class="activity-item">
-                                        <div class="timeline-item-container">
-                                            <div class="timeline-avatar is-type">
-                                                <i class="lilicon hl-entity-icon"></i>
-                                            </div>
-                                            <div class="timeline-content-container has-email">
-                                                <div class="timeline-content-header">
-                                                    <div class="timeline-type">
-                                                        <span class="timeline-mail-type-incoming">
-                                                            <i class="lilicon hl-incomming-icon"></i>
-                                                        </span>
-                                                        <i class="lilicon hl-mail-icon"></i>
-                                                    </div>
-                                                    <div class="timeline-content">
-                                                        <span class="timeline-content-title">
-                                                            <a href="#">Example for your convenience</a>
-                                                        </span>
-                                                        <ul class="timeline-content-details">
-                                                            <li>From: <a>Lily</a></li>
-                                                            <li>To: <a>{{ vm.emailAccount.email_address }}</a></li>
-                                                        </ul>
-                                                        <div class="timeline-date">23 Mar 2017 - 13:37</div>
-                                                    </div>
-                                                    <a class="timeline-toggle-details" ng-click="vm.item.shown = !vm.item.shown"><i class="lilicon hl-toggle-left-icon" ng-class="!vm.item.shown ? 'hl-toggle-down-icon' : 'hl-toggle-left-icon'"></i></a>
-                                                </div>
+                                    <div class="activity-stream">
+                                        <div class="activity-stream-content">
+                                            <div class="timeline-item-container">
+                                                <div class="activity-stream-image"><i class="lilicon hl-entity-icon"></i></div>
 
-                                                <div class="content-details activity-item-body" ng-hide="vm.item.shown">
-                                                    <p class="detail-plain-text">Hi! I just wanted to show an example of what your colleagues can read.
+                                                <div class="activity-stream-item has-email">
+                                                    <div class="stream-item-head">
+                                                        <div class="stream-item-date">
+                                                            23 Mar 2017 - 13:37
+                                                        </div>
+                                                        <div class="stream-item-actions">
+                                                            <ul class="stream-item-actions-list">
+                                                                <li class="stream-item-actions-list-item">
+                                                                    <a href="#"><i class="fa fa-mail-reply"></i> Reply</a>
+                                                                </li>
+                                                                <li class="stream-item-actions-list-item">
+                                                                    <a href="#"><i class="fa fa-mail-forward"></i> Forward</a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
 
-                                                        </br></br>Love lily!
-                                                    </p>
-                                                    <ul class="content-details-actions">
-                                                        <li><a><i class="fa fa-eye"></i> View</a></li>
-                                                        <li><a><i class="fa fa-mail-reply"></i> Reply</a></li>
-                                                        <li><a><i class="fa fa-mail-forward"></i> Forward</a></li>
-                                                    </ul>
+                                                    <div class="stream-item-activity">
+                                                        <a class="stream-item-activity-link" href="#">Example for your convenience</a>
+                                                    </div>
+
+                                                    <div class="stream-item-content is-email">
+                                                        <div class="stream-item-meta">
+                                                            <div class="stream-item-meta-object">
+                                                                <div class="stream-item-meta-title">From:</div>
+                                                                <a href="#">Lily</a>
+                                                            </div>
+                                                            <div class="stream-item-meta-object">
+                                                                <div class="stream-item-meta-title">To:</div>
+                                                                <a href="#">{{ vm.emailAccount.email_address }}</a>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="stream-item-description">
+                                                            Hi! I just wanted to show an example of what your colleagues can read.</br></br>
+                                                            Love Lily!
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -101,35 +107,38 @@
                                 </div>
 
                                 <div ng-if="vm.emailAccount.privacy == 2" class="privacy-example">
-                                    <div class="vertical-line"></div>
-                                    <div class="activity-item">
-                                        <div class="timeline-item-container">
-                                            <div class="timeline-avatar is-type">
-                                                <i class="lilicon hl-entity-icon"></i>
-                                            </div>
-                                            <div class="timeline-content-container has-email">
-                                                <div class="timeline-content-header">
-                                                    <div class="timeline-type">
-                                                        <span class="timeline-mail-type-incoming">
-                                                            <i class="lilicon hl-incomming-icon"></i>
-                                                        </span>
-                                                        <i class="lilicon hl-mail-icon"></i>
-                                                    </div>
-                                                    <div class="timeline-content">
-                                                        <span class="timeline-content-title">
-                                                            <i class="fa fa-lock"></i> [Subject hidden]
-                                                        </span>
-                                                        <ul class="timeline-content-details">
-                                                            <li>From: <a>Lily</a></li>
-                                                            <li>To: <a>{{ vm.emailAccount.email_address }}</a></li>
-                                                        </ul>
-                                                        <div class="timeline-date">23 Mar 2017 - 13:37</div>
-                                                    </div>
-                                                    <a class="timeline-toggle-details" ng-click="vm.item.shown = !vm.item.shown"><i class="lilicon hl-toggle-left-icon" ng-class="!vm.item.shown ? 'hl-toggle-down-icon' : 'hl-toggle-left-icon'"></i></a>
-                                                </div>
+                                    <div class="activity-stream">
+                                        <div class="activity-stream-content">
+                                            <div class="timeline-item-container">
+                                                <div class="activity-stream-image"><i class="lilicon hl-entity-icon"></i></div>
 
-                                                <div class="content-details activity-item-body hidden-content" ng-hide="vm.item.shown">
-                                                    {{ $root.messages.activityStream.emailMetadataMessage }}
+                                                <div class="activity-stream-item has-email">
+                                                    <div class="stream-item-head">
+                                                        <div class="stream-item-date">
+                                                            23 Mar 2017 - 13:37
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="stream-item-activity">
+                                                        <i class="fa fa-lock"></i> [Subject hidden]
+                                                    </div>
+
+                                                    <div class="stream-item-content is-email">
+                                                        <div class="stream-item-meta">
+                                                            <div class="stream-item-meta-object">
+                                                                <div class="stream-item-meta-title">From:</div>
+                                                                <a href="#">Lily</a>
+                                                            </div>
+                                                            <div class="stream-item-meta-object">
+                                                                <div class="stream-item-meta-title">To:</div>
+                                                                <a href="#">{{ vm.emailAccount.email_address }}</a>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="stream-item-description hidden-content">
+                                                            {{ $root.messages.activityStream.emailMetadataMessage }}
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>

@@ -651,6 +651,11 @@ option {
     display: block;
 }
 
+.spacer-20 {
+    height: 20px;
+    display: block;
+}
+
 .spacer-40 {
     height: 40px;
     display: block;
@@ -678,7 +683,6 @@ option {
     }
 
     .widget-container {
-        margin-left: 90px;
         overflow: hidden;
     }
 }

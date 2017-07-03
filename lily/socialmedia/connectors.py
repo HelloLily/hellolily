@@ -136,7 +136,7 @@ class Twitter(BaseConnector):
     _username_regex = re.compile(r'[a-z0-9._-]+$', re.IGNORECASE)
     _profile_url_base = 'https://twitter.com/%(username)s'
     _profile_url_paths = (
-        re.compile(r'/(?P<username>[a-z0-9._-]+)$', re.IGNORECASE),
+        re.compile(r'/(?P<username>[a-z0-9._-]+)/?$', re.IGNORECASE),
     )
     _profile_url_allowed_query_params = ()
 
@@ -149,7 +149,7 @@ class LinkedIn(BaseConnector):
     _username_regex = re.compile('[a-z0-9._-]+$', re.IGNORECASE)
     _profile_url_base = 'https://www.linkedin.com/in/%(username)s'
     _profile_url_paths = (
-        re.compile(r'/in/(?P<username>[a-z0-9._-]*)$', re.IGNORECASE),
-        re.compile(r'/profile/view\?*.(id=(?P<username>\w{39}))', re.IGNORECASE),
+        re.compile(r'/in/(?P<username>[a-z0-9._-]*)/?$', re.IGNORECASE),
+        re.compile(r'/profile/view\?*.(id=(?P<username>\w{39}))/?', re.IGNORECASE),
     )
     _profile_url_allowed_query_params = ('id', )

@@ -1,6 +1,6 @@
 <div class="hl-related-form-field" ng-repeat="phoneNumber in vm.phoneNumbers" ng-class="{'has-error': form['phone_numbers-number-' + $index].$invalid }">
     <div class="row hl-row-sm">
-        <div class="col-md-8 create-sidebar-input-col hl-flex-container">
+        <div class="col-md-7 create-sidebar-input-col hl-flex-container">
             <i class="hl-form-icon" ng-if="vm.showIcon" ng-transclude uib-tooltip="{{ $root.messages.contact.contactInfoTooltip }}"/>
             <input class="form-control hl-form-input hl-flex-1 create-sidebar-margin-bottom-10px"
                    id="id_phone_numbers-number-{{ $index }}"
@@ -14,7 +14,7 @@
                    ng-blur="vm.formatPhoneNumber(phoneNumber, vm.address)">
         </div>
 
-        <div class="col-md-4 create-sidebar-input-col hl-flex-container">
+        <div class="col-md-5 create-sidebar-input-col hl-flex-container">
             <label class="hidden control-label" for="id_phone_numbers-type-{{ $index }}">
                 Phone number type
             </label>

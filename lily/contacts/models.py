@@ -82,14 +82,29 @@ class Contact(Common, TaggedObjectMixin):
         return self._primary_email
 
     @property
+    def city(self):
+        """
+        Return the city of the contact, otherwise return the city of the account the contact belongs to.
+        """
+        city = ''
+
+        address = self.addresses.first()
+        if address:
+            city = address.city
+            if not city:
+                city = self.account_city
+        else:
+            city = self.account_city
+
+        return city
+
+    @property
     def account_city(self):
         city = ''
-        account = self.accounts.first()
 
+        account = self.accounts.first()
         if account:
-            address = account.addresses.first()
-            if address:
-                city = account.addresses.first().city
+            city = account.city
 
         return city
 
@@ -135,11 +150,40 @@ class Contact(Common, TaggedObjectMixin):
         """
         return ' '.join([self.first_name, self.last_name]).strip()
 
+    @property
+    def address(self):
+        """
+        Return the full address of the contact, otherwise return the address of the account the contact belongs to.
+        """
+        address_full = ''
+
+        address = self.addresses.first()
+        if address:
+            address_full = address.full
+            if not address_full:
+                address_full = self.account_address
+        else:
+            address_full = self.account_address
+
+        return address_full
+
+    @property
+    def account_address(self):
+        address_full = ''
+
+        account = self.accounts.first()
+        if account:
+            address = account.addresses.first()
+            if address:
+                address_full = address.full
+
+        return address_full
+
     def __unicode__(self):
         return self.full_name
 
-    EMAIL_TEMPLATE_PARAMETERS = ['first_name', 'last_name', 'full_name', 'twitter', 'linkedin',
-                                 'work_phone', 'mobile_phone', 'primary_email', 'account_city']
+    EMAIL_TEMPLATE_PARAMETERS = ['first_name', 'last_name', 'full_name', 'twitter', 'linkedin', 'work_phone',
+                                 'mobile_phone', 'primary_email', 'account_city', 'address', 'city']
 
     class Meta:
         ordering = ['last_name', 'first_name']

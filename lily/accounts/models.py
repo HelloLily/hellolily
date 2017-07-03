@@ -136,6 +136,26 @@ class Account(Common, TaggedObjectMixin):
         except:
             return None
 
+    @property
+    def city(self):
+        city = ''
+
+        address = self.addresses.first()
+        if address:
+            city = address.city
+
+        return city
+
+    @property
+    def address(self):
+        address_full = ''
+
+        address = self.addresses.first()
+        if address:
+            address_full = address.full
+
+        return address_full
+
     def get_contacts(self):
         if not hasattr(self, '_contacts'):
             functions = self.functions.all()
@@ -155,7 +175,7 @@ class Account(Common, TaggedObjectMixin):
 
         return super(Account, self).save(*args, **kwargs)
 
-    EMAIL_TEMPLATE_PARAMETERS = ['name', 'work_phone', 'any_email_address']
+    EMAIL_TEMPLATE_PARAMETERS = ['name', 'work_phone', 'any_email_address', 'city', 'address']
 
     class Meta:
         ordering = ['name']

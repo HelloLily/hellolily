@@ -96,7 +96,6 @@ def get_email_parameter_choices():
     The email parameter choices consists of all possible variables for email templates.
 
     This function returns parameters organized by model name, for easy selecting.
-
     """
     if not _EMAIL_PARAMETER_CHOICES:
         for model in apps.get_models():
@@ -227,12 +226,12 @@ def get_attachment_filename_from_url(url):
 def render_email_body(html, mapped_attachments, request):
     """
     Update all the target attributes in the <a> tag.
-    After that replace the cid information in the html
+    After that replace the cid information in the html.
 
     Args:
         html (string): HTML string of the email body to be sent.
-        mapped_attachments (list): List of linked attachments to the email
-        request (instance): The django request
+        mapped_attachments (list): List of linked attachments to the email.
+        request (instance): The Django request.
 
     Returns:
         html body (string)
@@ -240,7 +239,8 @@ def render_email_body(html, mapped_attachments, request):
     if html is None:
         return None
 
-    email_body = replace_anchors_in_html(html)
+    email_body = extract_script_tags(html)
+    email_body = replace_anchors_in_html(email_body)
     email_body = replace_cid_in_html(email_body, mapped_attachments, request)
 
     return email_body
@@ -252,8 +252,8 @@ def replace_cid_in_html(html, mapped_attachments, request):
 
     Args:
         html (string): HTML string of the email body to be sent.
-        mapped_attachments (list): List of linked attachments to the email
-        request (instance): The django request
+        mapped_attachments (list): List of linked attachments to the email.
+        request (instance): The Django request.
 
     Returns:
         html body (string)
@@ -302,8 +302,8 @@ def replace_cid_and_change_headers(html, pk):
 
     Args:
         html (string): HTML string of the email body to be sent.
-        mapped_attachments (list): List of linked attachments to the email
-        request (instance): The django request
+        mapped_attachments (list): List of linked attachments to the email.
+        request (instance): The Django request.
 
     Returns:
         body_html (string),
@@ -402,7 +402,7 @@ def create_a_beautiful_soup_object(html):
 
 def replace_anchors_in_html(html):
     """
-    Make all anchors open outside the iframe
+    Make all anchors open outside the iframe.
     """
     if html is None:
         return None
@@ -417,6 +417,21 @@ def replace_anchors_in_html(html):
             'target': '_blank',
             'rel': 'noopener noreferrer',
         })
+
+    return soup.encode_contents()
+
+
+def extract_script_tags(html):
+    if html is None:
+        return None
+
+    soup = create_a_beautiful_soup_object(html)
+
+    if not soup or soup.get_text == '':
+        return html
+
+    for item in soup.findAll('script'):
+        item.extract()
 
     return soup.encode_contents()
 

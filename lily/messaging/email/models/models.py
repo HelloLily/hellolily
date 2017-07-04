@@ -210,6 +210,7 @@ class EmailMessage(models.Model):
         if self.body_html:
             # In case of html, wrap body in blockquote tag.
             soup = create_a_beautiful_soup_object(self.body_html)
+
             if not soup.html:
                 # Haven't figured out yet how to do this elegantly.
                 html = '<html>%s</html>' % self.body_html

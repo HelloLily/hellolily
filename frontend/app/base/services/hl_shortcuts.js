@@ -62,7 +62,8 @@ function HLShortcuts($state, $timeout, $rootScope, Settings) {
                 // the case.
                 $rootScope.$broadcast('saveCase');
             }, 'keyup');
-        } else if (state === 'base.contacts.detail.edit' || state === 'base.contacts.create') {
+        } else if (state === 'base.contacts.detail.edit' || state === 'base.contacts.create' ||
+                   state === 'base.contacts.create.fromAccount') {
             Mousetrap.bindGlobal('mod+enter', function() {
                 // Broadcast event for contact/controllers/createupdate.js to save
                 // the contact.

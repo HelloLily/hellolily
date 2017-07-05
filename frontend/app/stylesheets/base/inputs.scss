@@ -130,6 +130,20 @@ $inline-editable-field-height: 30px;
             }
         }
     }
+
+    p {
+        &:last-child {
+            display: inline-block;
+            -webkit-margin-after: 0;
+            -webkit-margin-end: 0;
+        }
+    }
+
+    .editable-textarea {
+        >* {
+            line-height: initial;
+        }
+    }
 }
 
 .editable-buttons button {

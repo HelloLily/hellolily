@@ -112,7 +112,7 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
      */
     function showEmptyState() {
         Case.query({}, function(data) {
-            if (data.pagination.total === 0) {
+            if (data.pagination.total === 1) {
                 vm.showEmptyState = true;
             }
         });

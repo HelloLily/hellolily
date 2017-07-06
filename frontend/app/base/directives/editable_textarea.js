@@ -1,3 +1,5 @@
+const marked = require('marked');
+
 angular.module('app.directives').directive('editableTextarea', editableTextarea);
 
 function editableTextarea() {
@@ -22,7 +24,7 @@ function EditableTextAreaController($injector, $timeout, HLUtils) {
     var vm = this;
 
     vm.updateViewModel = updateViewModel;
-    vm.decodeText = decodeText;
+    vm.convertToHTML = convertToHTML;
 
     activate();
 
@@ -32,11 +34,9 @@ function EditableTextAreaController($injector, $timeout, HLUtils) {
         vm.selectModel = vm.object[vm.field];
     }
 
-    function decodeText() {
-        // Convert the HTML entities to human readable characters.
-        if (vm.selectModel) {
-            vm.selectModel = HLUtils.decodeHtmlEntities(vm.selectModel);
-        }
+    function convertToHTML() {
+        // Convert Markdown to HTML.
+        return vm.selectModel ? marked(vm.selectModel) : '';
     }
 
     function updateViewModel($data) {

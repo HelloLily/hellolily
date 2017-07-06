@@ -690,3 +690,13 @@ option {
 .text-green {
     color: $app-color-mint;
 }
+
+pre {
+    code {
+        border: 0;
+    }
+}
+
+code {
+    box-shadow: none;
+}

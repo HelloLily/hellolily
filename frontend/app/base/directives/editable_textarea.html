@@ -5,12 +5,11 @@
         ng-dblclick="textAreaForm.$show()"
         editable-textarea="vm.selectModel"
         onbeforesave="vm.updateViewModel($data)"
-        onshow="vm.decodeText()"
         blur="ignore"
         input-data="{{ $data }}"
         e-msd-elastic
         editable-handler>
-        <span ng-bind-html="(vm.object[vm.field] | parseUrls) || ('No ' + vm.field)"></span>
+        <span ng-bind-html="vm.convertToHTML() || ('No ' + vm.field) | parseUrls" class="editable-textarea"></span>
 
         <div class="editable-icons no-edit">
             <span class="editable-icon"><i class="lilicon hl-edit-icon"></i></span>

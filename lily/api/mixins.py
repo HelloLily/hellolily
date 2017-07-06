@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import as_serializer_error
 
 from lily.changes.models import Change
+from lily.utils.functions import format_phone_number
 
 
 class ValidateEverythingSimultaneouslyMixin(object):
@@ -129,3 +130,46 @@ class ModelChangesMixin(object):
             })
 
         return Response({'changes': changes})
+
+
+class PhoneNumberFormatMixin(object):
+    def get_country(self, instance):
+        country = None
+
+        if instance.addresses.exists():
+            country = instance.addresses.first().country
+
+        if not country:
+            country = instance.tenant.country
+
+        return country
+
+    def create(self, validated_data):
+        instance = super(PhoneNumberFormatMixin, self).create(validated_data)
+
+        phone_numbers = instance.phone_numbers.all()
+
+        if phone_numbers:
+            country = self.get_country(instance)
+
+            if country:
+                for phone in phone_numbers:
+                    phone.number = format_phone_number(phone.number, country, True)
+                    phone.save()
+
+        return instance
+
+    def update(self, instance, validated_data):
+        instance = super(PhoneNumberFormatMixin, self).update(instance, validated_data)
+
+        phone_numbers = instance.phone_numbers.all()
+
+        if phone_numbers:
+            country = self.get_country(instance)
+
+            if country:
+                for phone in phone_numbers:
+                    phone.number = format_phone_number(phone.number, country, True)
+                    phone.save()
+
+        return instance

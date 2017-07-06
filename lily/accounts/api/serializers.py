@@ -1,6 +1,7 @@
 from lily.api.fields import SanitizedHtmlCharField
 from lily.api.nested.mixins import RelatedSerializerMixin
 from lily.api.nested.serializers import WritableNestedSerializer
+from lily.api.mixins import PhoneNumberFormatMixin
 from lily.contacts.models import Contact
 from lily.utils.functions import clean_website
 from rest_framework import serializers
@@ -68,7 +69,7 @@ class RelatedAccountStatusSerializer(RelatedSerializerMixin, AccountStatusSerial
     pass
 
 
-class AccountSerializer(WritableNestedSerializer):
+class AccountSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
     """
     Serializer for the account model.
     """

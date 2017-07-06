@@ -1,7 +1,6 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from ..functions import parse_phone_number
 from lily.tenant.models import TenantMixin
 from lily.utils.countries import COUNTRIES
 
@@ -45,11 +44,6 @@ class PhoneNumber(TenantMixin):
 
     def __unicode__(self):
         return self.number
-
-    def save(self, *args, **kwargs):
-        self.number = parse_phone_number(self.number)
-
-        return super(PhoneNumber, self).save(*args, **kwargs)
 
     class Meta:
         app_label = 'utils'

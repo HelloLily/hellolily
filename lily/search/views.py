@@ -326,6 +326,39 @@ class InternalNumberSearchView(LoginRequiredMixin, View):
 
         results = self._search_number(number)
 
+        print results
+
+        response_format = request.GET.get('format')
+
+        if response_format and response_format.lower() == 'ack':
+            name = ''
+            internal_number = results.get('internal_number', '')
+
+            result = search_number(request.user.tenant_id, number, False)
+            data = result.get('data')
+            accounts = data.get('accounts')
+            contacts = data.get('contacts')
+
+            if contacts:
+                name = contacts[0].full_name
+            elif accounts:
+                name = accounts[0].name
+
+            if name:
+                response = 'status=ACK&callername=%s' % name
+
+                if internal_number:
+                    response += '&destination=%s' % internal_number
+            else:
+                response = 'status=NAK'
+
+            return HttpResponse(response, content_type='text/plain; charset=utf-8')
+        else:
+            user = results.get('user')
+
+            if user:
+                results['user'] = user.id
+
         return HttpResponse(anyjson.dumps(results), content_type='application/json; charset=utf-8')
 
     def _search_number(self, number):
@@ -351,8 +384,10 @@ class InternalNumberSearchView(LoginRequiredMixin, View):
         hits, facets, total, took = search.do_search()
 
         user = {}
+        contact = None
+        accounts = []
 
-        if hits[0]:
+        if hits:
             contact = hits[0]
 
         week_ago = date.today() - timedelta(days=7)
@@ -416,15 +451,25 @@ class InternalNumberSearchView(LoginRequiredMixin, View):
                         account = Account.objects.get(pk=accounts[0].get('id'))
                         user = account.assigned_to
         else:
-            if accounts:
-                # None of the above applies, so use account if possible.
-                account = Account.objects.get(pk=accounts[0].get('id'))
+            # Try to find an account with the given phone number.
+            search = LilySearch(
+                tenant_id=self.request.user.tenant_id,
+                model_type='accounts_account',
+                size=1,
+            )
+            search.filter_query('phone_numbers.number:"%s"' % number)
+
+            hits, facets, total, took = search.do_search()
+
+            if hits:
+                # None of the above applies, so use an account if possible.
+                account = Account.objects.get(pk=hits[0].get('id'))
                 user = account.assigned_to
 
         if user:
             return {
                 'internal_number': user.internal_number,
-                'user': user.id,
+                'user': user,
             }
 
         return {}

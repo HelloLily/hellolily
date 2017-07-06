@@ -1,6 +1,6 @@
 <div class="hl-related-form-field" ng-repeat="address in vm.addresses" ng-class="{'has-error': form['addresses-address-' + $index].$invalid }">
     <div class="row hl-row-sm margin-bottom-10">
-        <div class="col-md-8 create-sidebar-input-col-8 hl-flex-container">
+        <div class="col-md-7 create-sidebar-input-col-8 hl-flex-container">
             <i class="hl-form-icon" ng-transclude uib-tooltip="{{ $root.messages.contact.contactInfoTooltip }}"></i>
             <input class="form-control hl-form-input hl-flex-1"
                    id="id_addresses-address-{{ $index }}"
@@ -13,7 +13,7 @@
                    ng-readonly="address.is_deleted">
         </div>
 
-        <div class="col-md-4 create-sidebar-input-col-4 hl-flex-container">
+        <div class="col-md-5 create-sidebar-input-col-4 hl-flex-container">
             <label class="hidden control-label" for="id_addresses-postal_code-{{ $index }}">Postal code</label>
             <input class="form-control hl-form-input"
                    id="id_addresses-postal_code-{{ $index }}"

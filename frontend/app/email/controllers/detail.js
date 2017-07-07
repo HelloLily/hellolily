@@ -159,8 +159,12 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     }
 
     function markAsUnread() {
-        EmailMessage.markAsRead(vm.message.id, false).$promise.then(function() {
-            $state.go('base.email.list', {labelId: 'INBOX'});
+        EmailMessage.markAsRead(vm.message.id, false).$promise.then(() => {
+            if (Settings.email.previousInbox) {
+                $state.transitionTo(Settings.email.previousInbox.state, Settings.email.previousInbox.params, false);
+            } else {
+                $state.go('base.email.list', {labelId: 'INBOX'});
+            }
         });
     }
 

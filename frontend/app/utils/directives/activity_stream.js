@@ -322,19 +322,21 @@ function ActivityStreamDirective($filter, $q, $state, Case, Deal, EmailAccount, 
             }
 
             function addNote(note, form) {
-                note.content_type = scope.object.content_type.id;
-                note.object_id = scope.object.id;
+                if (note.content) {
+                    note.content_type = scope.object.content_type.id;
+                    note.object_id = scope.object.id;
 
-                Note.save(note, function() {
-                    // Success.
-                    scope.note.content = '';
-                    toastr.success('I\'ve created the note for you!', 'Done');
-                    reloadactivity();
-                }, function(response) {
-                    // Error.
-                    HLForms.setErrors(form, response.data);
-                    toastr.error('Uh oh, there seems to be a problem', 'Oops!');
-                });
+                    Note.save(note, function() {
+                        // Success.
+                        scope.note.content = '';
+                        toastr.success('I\'ve created the note for you!', 'Done');
+                        reloadactivity();
+                    }, function(response) {
+                        // Error.
+                        HLForms.setErrors(form, response.data);
+                        toastr.error('Uh oh, there seems to be a problem', 'Oops!');
+                    });
+                }
             }
 
             function pinNote(note, isPinned) {

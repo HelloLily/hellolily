@@ -21,6 +21,8 @@ function AccountDetailWidgetController($scope, Account, Settings, Tenant) {
     var vm = this;
 
     vm.settings = Settings;
+    vm.assignAccount = assignAccount;
+    vm.currentUser = currentUser;
 
     activate();
 
@@ -40,5 +42,16 @@ function AccountDetailWidgetController($scope, Account, Settings, Tenant) {
 
     function updateModel(data, field) {
         return Account.updateModel(data, field, vm.account);
+    }
+
+    function assignAccount() {
+        vm.account.assigned_to = currentUser;
+        vm.account.assigned_to.full_name = currentUser.fullName;
+
+        // Broadcast function to update model correctly after dynamically
+        // changing the assignee by using the 'assign to me' link.
+        $scope.$broadcast('activateEditableSelect', currentUser.id);
+
+        return updateModel(currentUser.id, 'assigned_to');
     }
 }

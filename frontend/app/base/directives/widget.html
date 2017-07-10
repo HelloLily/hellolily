@@ -9,7 +9,6 @@
                 <div class="widget-title" ng-transclude="widgetHeader"></div>
                 <div class="widget-filters" ng-transclude="widgetFilters"></div>
                 <div class="widget-tools">
-                    {{ vm.widgetInfo.status }}
                     <a class="widget-collapse" ng-click="vm.toggleCollapse()">
                         <i class="lilicon" ng-class="{1: 'hl-toggle-up-icon', 2: 'hl-toggle-down-icon', 3: 'hl-toggle-left-icon'}[vm.widgetInfo.status]"></i>
                     </a>

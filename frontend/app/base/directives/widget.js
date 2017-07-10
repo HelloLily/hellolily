@@ -96,7 +96,10 @@ function SimpleWidget($scope, $state, LocalStorage) {
             }
 
             vm.widgetInfo.status = widgetStatus.collapsed;
-            vm.widgetClass = halfWidth;
+
+            if (vm.widgetExpandable) {
+                vm.widgetClass = halfWidth;
+            }
         } else if (vm.widgetInfo.status === widgetStatus.expanded) {
             // Check if the fade is initially set to prevent it from showing up
             // when the widget isn't scrollable.
@@ -105,7 +108,10 @@ function SimpleWidget($scope, $state, LocalStorage) {
             }
 
             vm.widgetInfo.status = widgetStatus.visible;
-            vm.widgetClass = halfWidth;
+
+            if (vm.widgetExpandable) {
+                vm.widgetClass = halfWidth;
+            }
         } else {
             if (vm.widgetExpandable) {
                 vm.widgetInfo.status = widgetStatus.expanded;

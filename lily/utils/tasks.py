@@ -17,3 +17,11 @@ def import_sugar_csv(model, path, tenant, sugar_import):
         else:
             logger.info('importing from other file started')
         call_command('sugarcsvimport', model, path, tenant, sugar_import, verbosity=0)
+
+
+@task(name='clear_sessions_scheduler')
+def clear_sessions_scheduler():
+    """
+    Call the Django provided management command to clear expired sessions.
+    """
+    call_command('clearsessions', interactive=False)

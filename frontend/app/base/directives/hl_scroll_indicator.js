@@ -20,12 +20,11 @@ function hlScrollIndicator($timeout, $window) {
                     // So for those cases we subtract 11 from the scrollHeight
                     // which is roughly equal to the height of the scroll indicator.
                     var endReached = (elm.offsetHeight + elm.scrollTop >= elm.scrollHeight - 11);
-                    var widgetStatus = scope.vm.widgetInfo.status;
 
                     // Show the scroll indicator if we've:
                     // Reached the end of the scrollable area
                     // or if our widget is expanded and already at max-height.
-                    scope.vm.showFade = !endReached || (maxHeight && widgetStatus === 3);
+                    scope.vm.showFade = !endReached || (maxHeight && scope.vm.widgetInfo.expandHeight);
                 };
 
                 var appliedCheck = function() {

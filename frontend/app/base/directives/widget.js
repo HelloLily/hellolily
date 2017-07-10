@@ -9,6 +9,7 @@ function simpleWidget() {
             widgetClass: '=',
             widgetScrollable: '=',
             widgetDynamicHeight: '=',
+            widgetExpandable: '<',
         },
         templateUrl: 'base/directives/widget.html',
         controller: SimpleWidget,
@@ -37,18 +38,18 @@ function SimpleWidget($scope, $state, LocalStorage) {
 
     vm.toggleCollapse = toggleCollapse;
     vm.removeWidget = removeWidget;
-    vm.expandToggle = expandToggle;
+    vm.heightToggle = heightToggle;
 
     activate();
 
     ////////////
 
     function activate() {
-        // Get visibility status of the widget
+        // Get visibility status of the widget.
         var widgetInfo = storage.getObjectValue(vm.storageName, {});
 
         if (typeof widgetInfo === 'object' && !Object.keys(widgetInfo).length) {
-            // No locally stored value, so set status to visible
+            // No locally stored value, so set status to visible.
             widgetInfo.status = widgetStatus.visible;
             widgetInfo.name = vm.widgetName;
         }
@@ -60,13 +61,16 @@ function SimpleWidget($scope, $state, LocalStorage) {
     }
 
     function _getWidgetStorageName() {
-        // Strip all whitespace and make the name lowercase
+        // Strip all whitespace and make the name lowercase.
         return vm.widgetName.replace(/\s+/g, '').toLowerCase();
     }
 
     function _watchWidgetVisibility() {
-        // Check the status of a widget for changes and update the locally stored value
-        $scope.$watch('vm.widgetInfo.status', function() {
+        // Check the status of a widget for changes and update the locally stored value.
+        $scope.$watchGroup([
+            'vm.widgetInfo.status',
+            'vm.widgetInfo.expandHeight',
+        ], () => {
             _updateWidgetStorage();
         });
     }
@@ -81,7 +85,10 @@ function SimpleWidget($scope, $state, LocalStorage) {
     }
 
     function toggleCollapse() {
-        if (vm.widgetInfo.status === widgetStatus.visible || vm.widgetInfo.status === widgetStatus.expanded) {
+        let halfWidth = 'col-md-6';
+        let fullWidth = 'col-md-12';
+
+        if (vm.widgetInfo.status === widgetStatus.visible) {
             // Check if the fade is initially set to prevent it from showing up
             // when the widget isn't scrollable.
             if ($scope.vm.showFade) {
@@ -89,21 +96,32 @@ function SimpleWidget($scope, $state, LocalStorage) {
             }
 
             vm.widgetInfo.status = widgetStatus.collapsed;
-        } else {
-            if ($scope.vm.showFade === false) {
-                $scope.vm.showFade = true;
+            vm.widgetClass = halfWidth;
+        } else if (vm.widgetInfo.status === widgetStatus.expanded) {
+            // Check if the fade is initially set to prevent it from showing up
+            // when the widget isn't scrollable.
+            if ($scope.vm.showFade) {
+                $scope.vm.showFade = false;
             }
 
             vm.widgetInfo.status = widgetStatus.visible;
+            vm.widgetClass = halfWidth;
+        } else {
+            if (vm.widgetExpandable) {
+                vm.widgetInfo.status = widgetStatus.expanded;
+                vm.widgetClass = fullWidth;
+            } else {
+                vm.widgetInfo.status = widgetStatus.visible;
+            }
+
+            if ($scope.vm.showFade === false) {
+                $scope.vm.showFade = true;
+            }
         }
     }
 
-    function expandToggle() {
-        if (vm.widgetInfo.status === widgetStatus.visible) {
-            vm.widgetInfo.status = widgetStatus.expanded;
-        } else {
-            vm.widgetInfo.status = widgetStatus.visible;
-        }
+    function heightToggle() {
+        vm.widgetInfo.expandHeight = !vm.widgetInfo.expandHeight;
     }
 
     function removeWidget() {

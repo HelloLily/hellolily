@@ -50,8 +50,6 @@ function DealsToCheckController($scope, Deal, HLResource, HLUtils, HLSockets, Lo
 
             if (vm.table.usersFilter) {
                 filterQuery += ' AND (' + vm.table.usersFilter + ')';
-            } else {
-                filterQuery += ' AND assigned_to.id:' + currentUser.id;
             }
 
             Deal.getDeals(vm.table.order.column, vm.table.order.descending, filterQuery).then(function(data) {

@@ -6,7 +6,6 @@ function usersFilter() {
         scope: {
             usersStore: '=',
             storageName: '@',
-            allowEmpty: '=',
         },
         templateUrl: 'dashboard/directives/users_filter.html',
         controller: UsersFilterController,
@@ -187,15 +186,8 @@ function UsersFilterController($filter, $timeout, LocalStorage, User, UserTeams)
             names.push(vm.currentUser.fullName);
         }
 
-        if (!vm.allowEmpty && !selectedFilter.length) {
-            // Nothing selected but allowEmpty is set, so add current user to filter.
-            filter = 'assigned_to.id:' + vm.currentUser.id;
-            vm.currentUser.selected = true;
-            names.push(vm.currentUser.fullName);
-        } else {
-            selectedFilter = $filter('unique')(selectedFilter);
-            filter = selectedFilter.join(' OR ');
-        }
+        selectedFilter = $filter('unique')(selectedFilter);
+        filter = selectedFilter.join(' OR ');
 
         vm.nameDisplay = $filter('unique')(names);
 

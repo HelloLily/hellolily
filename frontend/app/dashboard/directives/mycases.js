@@ -56,8 +56,6 @@ function MyCasesController($filter, $scope, Case, HLUtils, HLResource, HLSockets
 
         if (vm.table.usersFilter) {
             filterQuery += ' AND (' + vm.table.usersFilter + ')';
-        } else {
-            filterQuery += ' AND assigned_to.id:' + currentUser.id;
         }
 
         if (blockUI) HLUtils.blockUI('#myCasesBlockTarget', true);

@@ -57,8 +57,6 @@ function MyDealsController($filter, $scope, Case, Deal, HLUtils, HLResource, HLS
 
         if (vm.table.usersFilter) {
             filterQuery += ' AND (' + vm.table.usersFilter + ')';
-        } else {
-            filterQuery += ' AND assigned_to.id:' + currentUser.id;
         }
 
         Deal.getDeals(field, descending, filterQuery).then(function(data) {

@@ -1,0 +1,11 @@
+<span class="display-inline-block vertical-align-top">
+    {{ $ctrl.address.address }}
+
+    <span ng-if="$ctrl.address.postal_code || $ctrl.address.city">
+        <br />
+        {{ $ctrl.address.postal_code }}<span ng-if="$ctrl.address.postal_code && $ctrl.address.city">,</span> {{ $ctrl.address.city }}
+    </span>
+
+    <br />
+    {{ $ctrl.address.country_display }}
+</span>

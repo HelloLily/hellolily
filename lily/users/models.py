@@ -1,4 +1,5 @@
 import hashlib
+import hmac
 import urllib
 
 from django.conf import settings
@@ -240,6 +241,14 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
     @property
     def display_email_warning(self):
         return self.email_accounts_owned.filter(is_authorized=False, is_deleted=False).exists()
+
+    @property
+    def user_hash(self):
+        return hmac.new(
+            settings.INTERCOM_HMAC_SECRET,
+            str(self.pk),
+            digestmod=hashlib.sha256
+        ).hexdigest()
 
     def __unicode__(self):
         return self.full_name

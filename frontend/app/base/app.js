@@ -139,6 +139,7 @@ function runApp($rootScope, $state, editableOptions, HLMessages, HLSockets, HLNo
         widget: {
             activator: '#IntercomDefaultWidget',
         },
+        user_hash: currentUser.user_hash,
     });
 
     // Only setup if we're in the live app.

@@ -634,6 +634,7 @@ DATAPROVIDER_API_URL = 'https://www.dataprovider.com/api/0.1/lookup/hostname.jso
 
 INTERCOM_APP_ID = os.environ.get('INTERCOM_APP_ID', '')
 INTERCOM_KEY = os.environ.get('INTERCOM_KEY', '')
+INTERCOM_HMAC_SECRET = os.environ.get('INTERCOM_HMAC_SECRET', '')
 
 # Sentry & Raven
 SENTRY_BACKEND_DSN = os.environ.get('SENTRY_BACKEND_DSN', '')

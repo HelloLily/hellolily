@@ -133,6 +133,7 @@
                     company: '{{ user.tenant.name }}',
                     tenant: '{{ user.tenant.id }}',
                     emailAccountStatus: parseInt('{{ user.info.email_account_status }}'),
+                    user_hash: "{{ user.user_hash }}",
                 };
 
                 window.intercomAppId = '{{ INTERCOM_APP_ID }}';

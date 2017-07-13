@@ -52,6 +52,10 @@
                                          select-options="{type: 'User', field: 'assignOptions', display: 'full_name', sortColumn: 'full_name', nameColumn: 'full_name'}">
                             {{ vm.account.assigned_to.full_name || 'Nobody' }}
                         </editable-select>
+
+                        <a ng-if="vm.account.assigned_to.id != vm.currentUser.id" ng-click="vm.assignAccount()" uib-tooltip="Assign to me">
+                            <i class="fa fa-anchor margin-left-5 margin-right-5"></i>
+                        </a>
                     </td>
                 </tr>
 

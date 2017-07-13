@@ -68,7 +68,7 @@
                                 </label>
                             </td>
                             <td>
-                                <span ng-if="account.privacy === vm.publicPrivacy">Public</span>
+                                <span ng-if="account.privacy === vm.publicPrivacy" uib-tooltip="{{ vm.publicAccountTooltip }}">All</span>
                                 <span ng-if="account.privacy !== vm.publicPrivacy">
                                     <button class="hl-primary-btn" ng-click="vm.openShareAccountModal(account)">
                                         {{ account.shared_email_configs.length }} <i class="lilicon hl-entity-icon margin-left-5"></i>
@@ -146,7 +146,7 @@
                                 </label>
                             </td>
                             <td>
-                                <span ng-if="account.privacy === vm.publicPrivacy">Public</span>
+                                <span ng-if="account.privacy === vm.publicPrivacy" uib-tooltip="{{ vm.publicAccountTooltip }}">All</span>
                                 <span ng-if="account.privacy !== vm.publicPrivacy">{{ account.shared_email_configs.length || '-' }}</span>
                             </td>
                         </tr>

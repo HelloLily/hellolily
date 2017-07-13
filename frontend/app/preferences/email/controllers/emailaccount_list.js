@@ -70,6 +70,8 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
 
     function activate() {
         loadAccounts();
+
+        vm.publicAccountTooltip = sprintf(messages.tooltips.emailAccountPublicTooltip, {company: currentUser.company});
     }
 
     function loadAccounts() {

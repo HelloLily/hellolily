@@ -107,6 +107,7 @@ function HLMessages() {
             newlyAssignedCase: 'Add it to \'My cases\'',
             newlyAssignedDeal: 'Add it to \'My deals\'',
             emailAccountConnectionWarning: 'To solve email issues, please click to add this email account again',
+            emailAccountPublicTooltip: 'All colleagues in %(company)s',
         },
     };
 }

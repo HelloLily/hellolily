@@ -23,23 +23,19 @@
 }
 
 .field-wrapper {
+    margin-bottom: 20px;
+
     ul {
-        margin: 0;
-        padding: 0;
         list-style: none;
     }
 
     // scss-lint:disable QualifyingElement
     input[type="text"] {
         @include input-field(30px);
-        width: auto;
-        margin-bottom: 20px;
     }
 
     input[type="number"] {
         @include input-field(30px);
-        width: auto;
-        margin-bottom: 20px;
     }
     // scss-lint:enable QualifyingElement
 }

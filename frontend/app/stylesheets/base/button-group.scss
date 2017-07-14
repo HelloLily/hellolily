@@ -241,3 +241,76 @@ inbox to display buttons like reply, delete, archive etc.
         margin-bottom: 0;
     }
 }
+
+.hl-button-list {
+    float: right;
+    position: relative;
+    margin: 0;
+    list-style: none;
+}
+
+.hl-button-list-item {
+    float: left;
+    display: inline-block;
+    position: relative;
+    line-height: $button-height - 4px;
+    font-weight: 400;
+    background: #fff;
+    border: 1px $app-border-color solid;
+    border-bottom-width: 2px;
+    border-left-width: 0;
+    padding: 0 10px;
+
+    &:first-child {
+        border-left-width: 1px;
+        border-top-left-radius: 3px;
+        border-bottom-left-radius: 3px;
+    }
+
+    &:last-child {
+        border-top-right-radius: 3px;
+        border-bottom-right-radius: 3px;
+    }
+
+    &.active {
+        .hl-button-list-option {
+            &:before {
+                content: "\f00c";
+                background: $app-color-mint;
+                -webkit-box-shadow: none;
+                -moz-box-shadow: none;
+                box-shadow: none;
+                border: 0;
+            }
+        }
+    }
+}
+
+.hl-button-list-option {
+    position: relative;
+    margin-left: 21px;
+
+    &:before {
+        left: -21px;
+        top: 0;
+        position: absolute;
+        content: "";
+        display: inline-block;
+        height: 16px;
+        width: 16px;
+        line-height: 16px;
+        background: #fff;
+        border-radius: 50%;
+        box-sizing: border-box;
+        -webkit-box-shadow: inset 1px 1px 3px 0 rgba(0, 0, 0, 0.1);
+        -moz-box-shadow: inset 1px 1px 3px 0 rgba(0, 0, 0, 0.1);
+        box-shadow: inset 1px 1px 3px 0 rgba(0, 0, 0, 0.1);
+        text-align: center;
+        font-family: "FontAwesome";
+        font-size: 10px;
+        font-weight: 300;
+        color: #fff;
+        cursor: pointer;
+        border: 1px $app-border-color solid;
+    }
+}

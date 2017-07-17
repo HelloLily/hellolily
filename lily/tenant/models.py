@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.db import models
-from django.db.models import Q
 from lily.utils.countries import COUNTRIES
 from lily.utils.currencies import CURRENCIES
 
@@ -34,19 +33,6 @@ class Tenant(models.Model):
         return unicode("%s %s" % (self._meta.verbose_name.title(), self.pk))
 
 
-class NullableTenantManager(models.Manager):
-    """
-    Allows the tenant of a model to be null.
-    """
-    def get_queryset(self):
-        user = get_current_user()
-        if user and user.is_authenticated():
-            return super(NullableTenantManager, self).get_queryset().filter(Q(tenant=user.tenant) |
-                                                                            Q(tenant__isnull=True))
-        else:
-            return super(NullableTenantManager, self).get_queryset()
-
-
 class MultiTenantMixin(models.Model):
     # Automatically filter any queryset by tenant if logged in
     objects = TenantManager()
@@ -72,27 +58,6 @@ class SingleTenantMixin(models.Model):
     def save(self, *args, **kwargs):
         self.tenant = Tenant.objects.get_or_create(pk=1)[0]
         return super(SingleTenantMixin, self).save(*args, **kwargs)
-
-    class Meta:
-        abstract = True
-
-
-class NullableTenantMixin(models.Model):
-    """
-    Mixin which can be used to allow the tenant of an object to be null.
-    Not inheriting from TenantMixin since tenant needs to be null and fields can't be overwritten.
-    """
-    objects = NullableTenantManager()
-    tenant = models.ForeignKey(Tenant, blank=True, null=True)
-
-    def save(self, *args, **kwargs):
-        user = get_current_user()
-
-        # Only set the tenant if it's a new tenant and a user is logged in
-        if not self.id and user and user.is_authenticated() and not self.tenant_id:
-            self.tenant = user.tenant
-
-        return super(NullableTenantMixin, self).save(*args, **kwargs)
 
     class Meta:
         abstract = True

@@ -48,20 +48,22 @@ class Case(TenantMixin, TaggedObjectMixin, DeletedMixin, ArchivedMixin):
     subject = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     status = models.ForeignKey(CaseStatus, related_name='cases')
-    type = models.ForeignKey(CaseType, null=True, blank=True, related_name='cases')
+    type = models.ForeignKey(CaseType, related_name='cases')
 
     assigned_to_teams = models.ManyToManyField(Team, related_name='assigned_to_teams', blank=True)
-    assigned_to = models.ForeignKey(LilyUser, related_name='assigned_cases', null=True, blank=True)
-    created_by = models.ForeignKey(LilyUser, related_name='created_cases', null=True, blank=True)
+    assigned_to = models.ForeignKey(LilyUser, related_name='assigned_cases', null=True, blank=True,
+                                    on_delete=models.SET_NULL)
+    created_by = models.ForeignKey(LilyUser, related_name='created_cases', null=True, blank=True,
+                                   on_delete=models.SET_NULL)
 
-    account = models.ForeignKey(Account, null=True, blank=True)
-    contact = models.ForeignKey(Contact, null=True, blank=True)
+    account = models.ForeignKey(Account, null=True, blank=True, on_delete=models.SET_NULL)
+    contact = models.ForeignKey(Contact, null=True, blank=True, on_delete=models.SET_NULL)
 
     notes = GenericRelation('notes.Note', content_type_field='content_type', object_id_field='object_id')
 
     expires = models.DateField(default=week_from_now)
 
-    parcel = models.ForeignKey(Parcel, null=True, blank=True)
+    parcel = models.ForeignKey(Parcel, null=True, blank=True, on_delete=models.SET_NULL)
     billing_checked = models.BooleanField(default=False)
     newly_assigned = models.BooleanField(default=False)
 

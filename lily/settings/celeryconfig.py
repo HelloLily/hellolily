@@ -75,6 +75,10 @@ CELERYBEAT_SCHEDULE = {
     },
     'clear_sessions_scheduler': {
         'task': 'clear_sessions_scheduler',
-        'schedule': crontab(minute=0, hour=0),  # Execute daily at midnight.
+        'schedule': crontab(hour=1, minute=0),  # Every night at one o'clock.
+    },
+    'cleanup_deleted_email_accounts_scheduler': {
+        'task': 'cleanup_deleted_email_accounts',
+        'schedule': crontab(hour=1, minute=0),  # Every night at one o'clock.
     },
 }

@@ -1,11 +1,13 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, status
+from rest_framework.decorators import list_route
 from rest_framework.filters import OrderingFilter
+from rest_framework.response import Response
 
 from lily.api.filters import ElasticSearchFilter
 from lily.api.mixins import ModelChangesMixin
 
 from lily.contacts.api.serializers import ContactSerializer
-from lily.contacts.models import Contact
+from lily.contacts.models import Contact, Function
 
 
 class ContactViewSet(ModelChangesMixin, viewsets.ModelViewSet):
@@ -55,3 +57,22 @@ class ContactViewSet(ModelChangesMixin, viewsets.ModelViewSet):
                 return super(ContactViewSet, self).get_queryset()
 
         return super(ContactViewSet, self).get_queryset().filter(is_deleted=False)
+
+    @list_route(methods=['patch', ])
+    def toggle_activation(self, request):
+        """
+        Toggle if the contact is active at account.
+        """
+        contact_id = request.data.get('contact')
+        account_id = request.data.get('account')
+        is_active = request.data.get('is_active')
+
+        try:
+            func = Function.objects.get(contact=contact_id, account=account_id)
+        except Function.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        else:
+            func.is_active = is_active
+            func.save()
+
+            return Response(status=status.HTTP_200_OK)

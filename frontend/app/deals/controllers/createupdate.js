@@ -507,8 +507,8 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
                 accountQuery += ' AND ';
             }
 
-            // Only show contacts of the selected account.
-            accountQuery += 'accounts.id:' + vm.deal.account.id;
+            // Only show active contacts of the selected account.
+            accountQuery += 'active_at:' + vm.deal.account.id;
         }
 
         contactsPromise = HLSearch.refreshList(query, 'Contact', accountQuery, '', 'full_name');

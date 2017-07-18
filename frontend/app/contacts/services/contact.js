@@ -14,6 +14,16 @@ function Contact($filter, $resource, HLResource, Settings) {
 
                     jsonData.primary_email_address = $filter('primaryEmail')(jsonData.email_addresses);
 
+                    jsonData.active_at_account = [];
+                    angular.forEach(jsonData.functions, function(func) {
+                        var accountId = func.account;
+                        angular.forEach(jsonData.accounts, function(account) {
+                            if (accountId === account.id) {
+                                jsonData.active_at_account[accountId] = func.is_active;
+                            }
+                        });
+                    });
+
                     return jsonData;
                 },
             },
@@ -64,6 +74,10 @@ function Contact($filter, $resource, HLResource, Settings) {
                         total: total,
                     };
                 },
+            },
+            toggleActiveAtAccount: {
+                method: 'PATCH',
+                url: '/api/contacts/toggle_activation/',
             },
         }
     );

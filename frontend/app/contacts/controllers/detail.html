@@ -28,7 +28,7 @@
 <div ng-if="vm.contact.id" class="row">
     <div ng-if="vm.contact.accounts.length" class="col-md-4 col-lg-push-8">
         <div ng-repeat="account in vm.contact.accounts">
-            <list-widget title="{{ account.name }}"
+            <list-widget ng-if="vm.contact.active_at_account[account.id]" title="{{ account.name }}"
                          list="account.colleagueList"
                          module="contacts"
                          object="account"

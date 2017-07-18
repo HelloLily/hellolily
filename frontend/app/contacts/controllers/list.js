@@ -97,6 +97,7 @@ function ContactListController($scope, $window, Settings, Account, Contact, HLUt
                         Account.get({id: account.id}, {cache: true}).$promise.then(function(accountData) {
                             account.primary_email_address = accountData.primary_email_address;
                             account.phone_numbers = accountData.phone_numbers;
+                            account.is_active = (contact.active_at.indexOf(account.id) !== -1);
                         });
                     });
                 }

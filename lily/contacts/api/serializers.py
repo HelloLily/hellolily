@@ -13,7 +13,22 @@ from lily.utils.api.serializers import (RelatedPhoneNumberSerializer, RelatedAdd
                                         RelatedEmailAddressSerializer, RelatedTagSerializer)
 from lily.utils.functions import send_get_request, send_post_request
 
-from ..models import Contact
+from ..models import Contact, Function
+
+
+class FunctionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Function
+        fields = (
+            'id',
+            'account',
+            'is_active',
+        )
+
+
+class RelatedFunctionSerializer(RelatedSerializerMixin, FunctionSerializer):
+    pass
 
 
 class ContactSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
@@ -36,6 +51,7 @@ class ContactSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
     social_media = RelatedSocialMediaSerializer(many=True, required=False, create_only=True)
     accounts = RelatedAccountSerializer(many=True, required=False)
     tags = RelatedTagSerializer(many=True, required=False, create_only=True)
+    functions = RelatedFunctionSerializer(many=True, required=False, create_only=True)
 
     # Show string versions of fields.
     gender_display = serializers.CharField(source='get_gender_display', read_only=True)
@@ -64,6 +80,7 @@ class ContactSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
             'social_media',
             'tags',
             'title',
+            'functions',
         )
         read_only_fields = ('is_deleted', )
 
@@ -251,5 +268,6 @@ class RelatedContactSerializer(RelatedSerializerMixin, ContactSerializer):
             'salutation',
             'salutation_display',
             'is_deleted',
+            'functions',
         )
         read_only_fields = ('is_deleted', )

@@ -112,14 +112,14 @@
                         <div ng-repeat="phone in contact.phone_numbers track by $index" ng-if="phone.type == 'mobile' || phone.type == 'work'">
                             <a href="tel:{{ phone.number }}">
                                 <i ng-class="{work: 'lilicon hl-phone-filled-icon', mobile: 'fa fa-mobile-phone'}[phone.type]"></i>
-                                {{ phone.number }}
+                                {{ phone.number }} <span ng-if="!account.is_active">(inactive)</span>
                             </a>
                         </div>
                     </td>
 
                     <td class="hl-table-column" ng-show="table.visibility.worksAt">
                         <div ng-repeat="account in contact.accounts">
-                            <a ui-sref="base.accounts.detail({id: account.id})">{{ account.name }}</a>
+                            <a ui-sref="base.accounts.detail({id: account.id})">{{ account.name }}</a> <span ng-if="!account.is_active">(inactive)</span>
                         </div>
                     </td>
 

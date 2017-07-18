@@ -221,6 +221,7 @@
                         <deleted-indicator object="settings.page.account" field="name">
                             <a ui-sref="base.accounts.detail({ id: settings.page.account.id })">{{ settings.page.account.name }}</a>
                         </deleted-indicator>
+                        <span ng-if="!settings.page.active">(inactive)</span>
                     </div>
                 </h1>
             </div>

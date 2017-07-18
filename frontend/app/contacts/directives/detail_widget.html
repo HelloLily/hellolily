@@ -74,7 +74,7 @@
                 <td>
                     <editable-select field="accounts" view-model="vm" type="Contact" search="true" multiple="true" select-options="{type: 'Account', placeholder: 'Works at...'}">
                         <div ng-repeat="account in vm.contact.accounts">
-                            <a ui-sref="base.accounts.detail({id: account.id })">{{ account.name }}</a>
+                            <a ui-sref="base.accounts.detail({id: account.id })">{{ account.name }}</a> <span ng-if="!vm.contact.active_at_account[account.id]">(Inactive)</span>
                         </div>
                         <span ng-if="!vm.contact.accounts.length">Not linked to any accounts</span>
                     </editable-select>

@@ -443,8 +443,8 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
                 accountQuery += ' AND ';
             }
 
-            // Only show contacts of the selected account.
-            accountQuery += 'accounts.id:' + vm.case.account.id;
+            // Only show active contacts of the selected account.
+            accountQuery += 'active_at:' + vm.case.account.id;
         }
 
         contactsPromise = HLSearch.refreshList(query, 'Contact', accountQuery, '', 'full_name');

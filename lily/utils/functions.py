@@ -90,7 +90,14 @@ def parse_phone_number(raw_number):
     return number
 
 
-def format_phone_number(number, country_code=None, number_format=phonenumbers.PhoneNumberFormat.NATIONAL):
+def format_phone_number(number, country_code=None, international=False):
+    if international:
+        # Parse phone number including country code.
+        number_format = phonenumbers.PhoneNumberFormat.E164
+    else:
+        # Otherwise exclude country code.
+        number_format = phonenumbers.PhoneNumberFormat.NATIONAL
+
     try:
         parsed_number = phonenumbers.parse(number, country_code)
     except:

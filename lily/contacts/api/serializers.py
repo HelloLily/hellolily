@@ -5,6 +5,7 @@ from lily.accounts.api.serializers import RelatedAccountSerializer
 from lily.api.fields import SanitizedHtmlCharField
 from lily.api.nested.mixins import RelatedSerializerMixin
 from lily.api.nested.serializers import WritableNestedSerializer
+from lily.api.mixins import PhoneNumberFormatMixin
 from lily.api.serializers import ContentTypeSerializer
 from lily.integrations.credentials import get_credentials
 from lily.socialmedia.api.serializers import RelatedSocialMediaSerializer
@@ -15,7 +16,7 @@ from lily.utils.functions import send_get_request, send_post_request
 from ..models import Contact
 
 
-class ContactSerializer(WritableNestedSerializer):
+class ContactSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
     """
     Serializer for the contact model.
     """
@@ -182,10 +183,10 @@ class ContactSerializer(WritableNestedSerializer):
             if addresses:
                 address = addresses[0]
                 params.update({
-                    'address1': address.get('address'),
-                    'zipcode': address.get('postal_code'),
-                    'city': address.get('city'),
-                    'country': address.get('country'),
+                    'address1': address.address,
+                    'zipcode': address.postal_code,
+                    'city': address.city,
+                    'country': address.country,
                 })
 
         if 'email_addresses' in validated_data:

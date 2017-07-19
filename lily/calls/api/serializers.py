@@ -15,4 +15,5 @@ class CallSerializer(serializers.ModelSerializer):
             'internal_number',
             'status',
             'type',
+            'created',
         )

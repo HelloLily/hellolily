@@ -1,9 +1,9 @@
 angular.module('app.utils.directives').directive('activityStream', ActivityStreamDirective);
 
-ActivityStreamDirective.$inject = ['$filter', '$q', '$state', 'Case', 'Deal', 'EmailAccount', 'EmailDetail', 'HLGravatar',
-    'HLResource', 'HLUtils', 'HLForms', 'Note', 'NoteDetail', 'User'];
-function ActivityStreamDirective($filter, $q, $state, Case, Deal, EmailAccount, EmailDetail, HLGravatar,
-    HLResource, HLUtils, HLForms, Note, NoteDetail, User) {
+ActivityStreamDirective.$inject = ['$filter', '$q', '$state', 'Account', 'Case', 'Contact', 'Deal', 'EmailAccount', 'EmailDetail',
+    'HLGravatar', 'HLResource', 'HLUtils', 'HLForms', 'Note', 'NoteDetail', 'User'];
+function ActivityStreamDirective($filter, $q, $state, Account, Case, Contact, Deal, EmailAccount, EmailDetail,
+    HLGravatar, HLResource, HLUtils, HLForms, Note, NoteDetail, User) {
     return {
         restrict: 'E',
         replace: true,
@@ -28,6 +28,7 @@ function ActivityStreamDirective($filter, $q, $state, Case, Deal, EmailAccount, 
                 'case': {name: 'Cases', visible: false},
                 'deal': {name: 'Deals', visible: false},
                 'email': {name: 'Emails', visible: false},
+                'call': {name: 'Calls', visible: false},
             };
             scope.activity.activeFilter = '';
             scope.activity.showMoreText = 'Show more';
@@ -98,6 +99,7 @@ function ActivityStreamDirective($filter, $q, $state, Case, Deal, EmailAccount, 
                 var filterquery;
                 var currentObject = obj;
                 var contentType = scope.target;
+                let callPromise;
 
                 if (scope.dateStart && scope.dateEnd) {
                     dateQuery = ' AND modified:[' + scope.dateStart + ' TO ' + scope.dateEnd + ']';
@@ -123,7 +125,8 @@ function ActivityStreamDirective($filter, $q, $state, Case, Deal, EmailAccount, 
 
                 notePromise = NoteDetail.query({filterquery: filterquery, size: requestLength}).$promise;
 
-                promises.push(notePromise);  // Add promise to list of all promises for later handling
+                // Add promise to list of all promises for later handling.
+                promises.push(notePromise);
 
                 notePromise.then(function(results) {
                     results.forEach(function(note) {
@@ -155,7 +158,8 @@ function ActivityStreamDirective($filter, $q, $state, Case, Deal, EmailAccount, 
 
                     casePromise = Case.search({filterquery: filterquery + dateQuery, size: 100}).$promise;
 
-                    promises.push(casePromise);  // Add promise to list of all promises for later handling
+                    // Add promise to list of all promises for later handling.
+                    promises.push(casePromise);
 
                     casePromise.then(function(response) {
                         response.objects.forEach(function(caseItem) {
@@ -191,7 +195,8 @@ function ActivityStreamDirective($filter, $q, $state, Case, Deal, EmailAccount, 
                     });
 
                     dealPromise = Deal.search({filterquery: filterquery + dateQuery, size: requestLength}).$promise;
-                    promises.push(dealPromise);  // Add promise to list of all promises for later handling
+                    // Add promise to list of all promises for later handling.
+                    promises.push(dealPromise);
 
                     dealPromise.then(function(results) {
                         results.objects.forEach(function(deal) {
@@ -224,6 +229,21 @@ function ActivityStreamDirective($filter, $q, $state, Case, Deal, EmailAccount, 
                             });
 
                             activity.push(deal);
+                        });
+                    });
+
+                    if (contentType === 'account') {
+                        callPromise = Account.getCalls({id: currentObject.id}).$promise;
+                    } else {
+                        callPromise = Contact.getCalls({id: currentObject.id}).$promise;
+                    }
+
+                    // Add promise to list of all promises for later handling.
+                    promises.push(callPromise);
+
+                    callPromise.then(results => {
+                        results.objects.map(call => {
+                            activity.push(call);
                         });
                     });
 
@@ -274,7 +294,7 @@ function ActivityStreamDirective($filter, $q, $state, Case, Deal, EmailAccount, 
                     for (i = 0; i < activity.length; i++) {
                         if (activity[i].activityType === 'email') {
                             activity[i].activitySortDate = activity[i].sent_date;
-                        } else if (activity[i].activityType === 'note') {
+                        } else if (activity[i].activityType === 'note' || activity[i].activityType === 'call') {
                             // We want to sort notes on created date.
                             activity[i].activitySortDate = activity[i].date;
                         } else {

@@ -79,6 +79,29 @@ function Contact($filter, $resource, HLResource, Settings) {
                 method: 'PATCH',
                 url: '/api/contacts/toggle_activation/',
             },
+            getCalls: {
+                url: '/api/contacts/:id/calls',
+                transformResponse: data => {
+                    let jsonData = angular.fromJson(data);
+                    let objects = [];
+
+                    if (jsonData) {
+                        if (jsonData.objects && jsonData.objects.length > 0) {
+                            jsonData.objects.map(call => {
+                                call.activityType = 'call';
+                                call.color = 'yellow';
+                                call.date = call.created;
+
+                                objects.push(call);
+                            });
+                        }
+                    }
+
+                    return {
+                        objects: objects,
+                    };
+                },
+            },
         }
     );
 

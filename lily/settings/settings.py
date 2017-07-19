@@ -221,7 +221,7 @@ AUTHENTICATION_BACKENDS = (
 # TWO FACTOR AUTH                                                                                                     #
 #######################################################################################################################
 TWO_FACTOR_PATCH_ADMIN = False  # No need because we disabled it.
-TWO_FACTOR_SMS_GATEWAY = 'two_factor.gateways.twilio.gateway.Twilio'
+TWO_FACTOR_SMS_GATEWAY = 'lily.users.gateway.LilyGateway'
 TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID')
 TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN')
 TWILIO_CALLER_ID = os.environ.get('TWILIO_CALLER_ID')

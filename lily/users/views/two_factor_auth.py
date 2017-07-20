@@ -9,15 +9,13 @@ from django.utils.http import is_safe_url
 from django.views.decorators.cache import never_cache
 from django.views.decorators.debug import sensitive_post_parameters
 from django_otp.plugins.otp_static.models import StaticToken, StaticDevice
-from two_factor.forms import (
-    MethodForm, TOTPDeviceForm, PhoneNumberForm, YubiKeyDeviceForm, BackupTokenForm
-)
+from two_factor.forms import MethodForm, TOTPDeviceForm, YubiKeyDeviceForm, BackupTokenForm
 from two_factor.models import PhoneDevice
 from two_factor.views import LoginView, SetupView, PhoneSetupView
 from two_factor.views.utils import class_view_decorator
 
 from lily.users.forms.two_factor_auth import (
-    TwoFactorPhoneNumberMethodForm, TwoFactorAuthenticationForm, TwoFactorAuthenticationTokenForm,
+    TwoFactorPhoneNumberForm, TwoFactorAuthenticationForm, TwoFactorAuthenticationTokenForm,
     TwoFactorDeviceValidationForm
 )
 
@@ -75,7 +73,7 @@ class TwoFactorSetupView(SetupView):
     form_list = (
         ('method', MethodForm),
         ('generator', TOTPDeviceForm),
-        ('sms', PhoneNumberForm),
+        ('sms', TwoFactorPhoneNumberForm),
         ('validation', TwoFactorDeviceValidationForm),
         ('yubikey', YubiKeyDeviceForm),
     )
@@ -95,7 +93,7 @@ class TwoFactorPhoneSetupView(PhoneSetupView):
     template_name = 'users/two_factor_auth/phone_register.html'
     success_url = FRONTEND_TWO_FACTOR_URL
     form_list = (
-        ('setup', TwoFactorPhoneNumberMethodForm),
+        ('setup', TwoFactorPhoneNumberForm),
         ('validation', TwoFactorDeviceValidationForm),
     )
 

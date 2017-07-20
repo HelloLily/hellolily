@@ -1,8 +1,9 @@
+import phonenumbers
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.utils.translation import ugettext_lazy as _
-from two_factor.forms import AuthenticationTokenForm, DeviceValidationForm
-from two_factor.models import PhoneDevice
+from phonenumbers import NumberParseException, PhoneNumberType
+from two_factor.forms import AuthenticationTokenForm, DeviceValidationForm, PhoneNumberForm
 from two_factor.utils import totp_digits
 from two_factor.validators import validate_international_phonenumber
 
@@ -23,9 +24,13 @@ class TwoFactorDeviceValidationForm(DeviceValidationForm):
                                widget=forms.NumberInput(attrs={'class': 'auth-token-input'}))
 
 
-class TwoFactorPhoneNumberMethodForm(forms.ModelForm):
-    number = forms.CharField(label=_("Phone Number"), validators=[validate_international_phonenumber])
+class TwoFactorPhoneNumberForm(PhoneNumberForm):
+    def clean_number(self):
+        try:
+            data = phonenumbers.parse(self.cleaned_data['number'], None)
 
-    class Meta:
-        model = PhoneDevice
-        fields = ('number', )
+            if not phonenumbers.number_type(data) == PhoneNumberType.MOBILE:
+                raise forms.ValidationError('Please enter a valid mobile phone number.')
+
+        except NumberParseException:
+            raise forms.ValidationError(validate_international_phonenumber.message)

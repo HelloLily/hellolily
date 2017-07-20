@@ -324,6 +324,7 @@ INSTALLED_APPS = (
     'lily.timelogs',
     'lily.users',
     'lily.utils',
+    'lily.email',
 
     # 3rd party
     'bootstrap3',
@@ -347,6 +348,8 @@ INSTALLED_APPS = (
     'two_factor',
     'otp_yubikey',
     'user_sessions',  # Sessions used for http requests
+    'email_wrapper_lib',
+    'microsoft_mail_client',
 
     # Django
     'django.contrib.admin',
@@ -392,6 +395,36 @@ BLACKLISTED_EMAIL_TAGS = [
 
 # django-templated-email
 TEMPLATED_EMAIL_TEMPLATE_DIR = 'email/'
+
+# V3
+OAUTH2_REDIRECT_URI = os.environ.get('OAUTH2_REDIRECT_URI', '').rstrip('/')
+
+GOOGLE_OAUTH2_CLIENT_ID = os.environ.get('GOOGLE_OAUTH2_CLIENT_ID', '')
+GOOGLE_OAUTH2_CLIENT_SECRET = os.environ.get('GOOGLE_OAUTH2_CLIENT_SECRET', '')
+
+MICROSOFT_OAUTH2_CLIENT_ID = os.environ.get('MICROSOFT_OAUTH2_CLIENT_ID', '')
+MICROSOFT_OAUTH2_CLIENT_SECRET = os.environ.get('MICROSOFT_OAUTH2_CLIENT_SECRET', '')
+
+SYNC_MESSAGE_BATCH_SIZE = 10
+
+# CELERY_BROKER_URL = 'amqp://guest:guest@rabbit:5672//'
+# CELERY_TIMEZONE = 'Europe/Amsterdam'
+# CELERY_BROKER_POOL_LIMIT = 60
+# CELERY_BROKER_CONNECTION_TIMEOUT = 20
+# CELERY_ACCEPT_CONTENT = ['pickle', ]
+# CELERY_SEND_TASK_SENT_EVENT = True
+# CELERY_TRACK_STARTED = True
+# CELERYD_CONCURRENCY = 4
+# CELERYD_PREFETCH_MULTIPLIER = 2
+# CELERYD_MAX_TASKS_PER_CHILD = 1337
+# CELERY_TASK_SERIALIZER = 'pickle'
+# CELERY_MESSAGE_COMPRESSION = 'gzip'
+# CELERYD_TASK_TIME_LIMIT = 3 * 60  # 3 minutes max execution time for tasks.
+# CELERY_DEFAULT_DELIVERY_MODE = 'transient'
+# CELERY_RESULT_BACKEND = 'rpc://'
+# CELERY_RESULT_SERIALIZER = 'pickle'
+# CELERY_TASK_RESULT_EXPIRES = 5 * 60  # 5 minutes storage time for results.
+
 
 #######################################################################################################################
 # LOGGING CONFIG                                                                                                      #

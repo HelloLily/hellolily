@@ -11,6 +11,7 @@ admin.autodiscover()
 urlpatterns = [
     url(r'^accounts/', include('lily.accounts.urls')),
     url(r'^contacts/', include('lily.contacts.urls')),
+    url(r'^email/', include('lily.email.urls')),
     url(r'^messaging/email/', include('lily.messaging.email.urls')),
     url(r'^stats/', include('lily.stats.urls')),
     url(r'^taskmonitor/', include('taskmonitor.urls')),

@@ -1,0 +1,2 @@
+class BatchRequestException(Exception):
+    pass

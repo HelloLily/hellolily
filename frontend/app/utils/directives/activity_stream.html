@@ -1,66 +1,88 @@
 <div class="row">
     <div class="col-md-12">
-        <div class="spacer-40" ng-if="activity.list.totalItems && parentObject"></div>
+        <div class="spacer-40" ng-if="parentObject"></div>
+
         <div class="activity-stream">
-            <div class="activity-stream-filter" ng-if="!parentObject">
-                <ul class="hl-button-list">
-                    <li class="hl-button-list-item" ng-repeat="(typeKey, typeVal) in activity.types" ng-if="typeVal.visible" ng-class="{'active': activity.activeFilter == typeKey}" ng-click="activity.filterType(typeKey)">
-                        <span class="hl-button-list-option">{{ typeVal.name }}</span>
-                    </li>
-                </ul>
-            </div>
-
-
-            <div class="activity-stream-comment" ng-if="!parentObject">
-                <div class="activity-stream-image is-type">
-                    <i class="lilicon hl-note-icon"></i>
+            <div ng-if="!parentObject">
+                <div class="activity-stream-filter">
+                    <ul class="hl-button-list">
+                        <li class="hl-button-list-item" ng-repeat="(typeKey, typeVal) in activity.types" ng-if="typeVal.visible" ng-class="{'active': activity.activeFilter == typeKey}" ng-click="activity.filterType(typeKey)">
+                            <span class="hl-button-list-option">{{ typeVal.name }}</span>
+                        </li>
+                    </ul>
                 </div>
 
-                <div class="activity-stream-item">
-                    <form role="form" name="noteForm" on-mod-enter-key="activity.addNote(note, noteForm)">
-                        <div class="form-body">
-                            <div class="form-group">
-                                <textarea required class="form-control no-resize" id="id_content" msd-elastic ng-model="note.content" name="content" placeholder="Write your note here"></textarea>
-                                <field-error form="noteForm" field="content"></field-error>
+
+                <div class="activity-stream-comment">
+                    <div class="activity-stream-image is-type">
+                        <i class="lilicon hl-note-icon"></i>
+                    </div>
+
+                    <div class="activity-stream-item">
+                        <form role="form" name="noteForm" on-mod-enter-key="activity.addNote(note, noteForm)">
+                            <div class="form-body">
+                                <div class="form-group">
+                                    <textarea required class="form-control no-resize" id="id_content" msd-elastic ng-model="note.content" name="content" placeholder="Write your note here"></textarea>
+                                    <field-error form="noteForm" field="content"></field-error>
+                                </div>
                             </div>
-                        </div>
-                        <div>
-                            <ul class="timeline-content-type-buttons">
-                                <li ng-model="note.type" uib-btn-radio="0">
-                                    <i class="lilicon hl-note-icon"></i>
-                                    Note
-                                </li>
-                               <li ng-model="note.type" uib-btn-radio="1">
-                                   <i class="fa fa-phone"></i>
-                                   Call
-                               </li>
-                               <li ng-model="note.type" uib-btn-radio="2">
-                                   <i class="lilicon hl-calendar-icon"></i>
-                                   Meetup
-                               </li>
-                            </ul>
+                            <div>
+                                <ul class="timeline-content-type-buttons">
+                                    <li ng-model="note.type" uib-btn-radio="0">
+                                        <i class="lilicon hl-note-icon"></i>
+                                        Note
+                                    </li>
+                                   <li ng-model="note.type" uib-btn-radio="1">
+                                       <i class="fa fa-phone"></i>
+                                       Call
+                                   </li>
+                                   <li ng-model="note.type" uib-btn-radio="2">
+                                       <i class="lilicon hl-calendar-icon"></i>
+                                       Meetup
+                                   </li>
+                                </ul>
 
-                            <button type="submit" class="hl-primary-btn-blue pull-right" name="submit-form" ng-click="activity.addNote(note, noteForm)" uib-tooltip="{{ $root.messages.tooltips.modEnter.title }}">
-                                <i class="fa fa-check"></i>
-                                Add note
-                            </button>
-                        </div>
-                    </form>
+                                <button type="submit" class="hl-primary-btn-blue pull-right" name="submit-form" ng-click="activity.addNote(note, noteForm)" uib-tooltip="{{ $root.messages.tooltips.modEnter.title }}">
+                                    <i class="fa fa-check"></i>
+                                    Add note
+                                </button>
+                                <div class="clearfix"></div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
 
-            <div class="activity-stream-filter" ng-if="activity.list.totalItems && parentObject">
+            <div class="activity-stream-filter" ng-if="parentObject">
                 <h3 class="text-center">Latest {{ target }} activity</h3>
                 <ul class="hl-button-list text-center">
-                    <li class="hl-button-list-item" ng-repeat="(typeKey, typeVal) in activity.types" ng-if="typeVal.visible" ng-class="{'active': activity.activeFilter == typeKey}" ng-click="activity.filterType(typeKey)">
+                    <li class="hl-button-list-item" ng-repeat="(typeKey, typeVal) in activity.types" ng-if="typeVal.visible && activity.list.totalItems" ng-class="{'active': activity.activeFilter == typeKey}" ng-click="activity.filterType(typeKey)">
                         <span class="hl-button-list-option">{{ typeVal.name }}</span>
                     </li>
                 </ul>
             </div>
 
             <div class="activity-stream-content" id="activityStreamBlockTarget">
+                <div ng-if="!activity.list.totalItems">
+                    <div class="timeline-item-container">
+                        <div class="activity-stream-image">
+                            <i class="fa fa-hourglass-start"></i>
+                        </div>
 
+                        <div class="activity-stream-item">
+                            <div class="stream-item-head">
+                                <div class="stream-item-date">
+                                    Until now
+                                </div>
+                            </div>
 
+                            <div class="stream-item-activity">
+                                I have no activities to display yet
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
                 <div ng-show="activity.list.pinned.length">
                     <div class="timeline-time">
                         Pinned

@@ -21,6 +21,7 @@ function ActivityStreamItemDirective($compile, $http, $templateCache) {
                     email: 'email.html',
                     note: 'note.html',
                     call: 'call.html',
+                    change: 'change.html',
                 };
 
                 var templateUrl = baseUrl + templateMap[activityType];

@@ -12,7 +12,6 @@
                     </ul>
                 </div>
 
-
                 <div class="activity-stream-comment">
                     <div class="activity-stream-image is-type">
                         <i class="lilicon hl-note-icon"></i>
@@ -94,11 +93,15 @@
                 </div>
 
                 <div ng-repeat="(key, value) in activity.list.nonPinned" ng-show="value.isVisible">
-                    <div class="timeline-time">
+                    <div class="timeline-time clickable" ng-click="value.collapsed = !value.collapsed">
                         <date date="key" date-format="MMMM yyyy"></date>
+
+                        <span class="pull-right">
+                            <i class="lilicon" ng-class="{'hl-toggle-down-icon': !value.collapsed, 'hl-toggle-up-icon': value.collapsed}"></i>
+                        </span>
                     </div>
 
-                    <div ng-repeat="item in value.items" class="activity-item" ng-show="!activity.activeFilter || activity.activeFilter == item.activityType">
+                    <div ng-repeat="item in value.items" class="activity-item" ng-show="(!activity.activeFilter || activity.activeFilter == item.activityType) && !value.collapsed">
                         <activity-stream-item item="item" activity="activity" object="object" delete-callback="activity.removeFromList(item)" update-callback="activity.updateModel"></activity-stream-item>
                     </div>
                 </div>

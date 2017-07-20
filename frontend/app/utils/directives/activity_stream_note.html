@@ -28,10 +28,12 @@
         </div>
 
         <div class="stream-item-activity">
-            {{ ::vm.item.author.full_name }} created a<i class="margin-left-5 yellow lilicon hl-note-icon"></i> note
+            {{ ::vm.item.author.full_name }} created a
+            <span ng-if="vm.item.is_pinned">pinned <i class="margin-left-5 red lilicon hl-note-icon"></i> note</span>
+            <span ng-if="!vm.item.is_pinned"><i class="margin-left-5 yellow lilicon hl-note-icon"></i> note</span>
         </div>
 
-        <div class="stream-item-content is-note">
+        <div ng-class="{'pinned': vm.item.is_pinned}" class="stream-item-content is-note">
             <div class="stream-item-description">
                 <editable-textarea extra-class="detail-plain-text" view-model="vm" field="content" object="vm.item"></editable-textarea>
             </div>

@@ -2,11 +2,12 @@
     width: 100%;
     box-sizing: border-box;
     position: relative;
+    min-height: 100px;
 }
 
 .timeline-content-type-buttons {
+    display: none; //UX experiment
     padding: 0;
-    display: inline-block;
     margin-bottom: 0;
 
     li {
@@ -151,8 +152,9 @@
     background-repeat: no-repeat;
     background-position: center;
 
-    .lilicon {
-        font-size: 25px;
+    .lilicon,
+    .fa {
+        font-size: 24px;
         line-height: 46px;
     }
 }
@@ -261,6 +263,12 @@
     }
 
     &.is-note {
+        &.pinned {
+            &:before {
+                background: $app-color-red;
+            }
+        }
+
         &:before {
             background: $app-color-yellow;
         }
@@ -269,12 +277,18 @@
 
 .stream-item-description {
     margin: -1px 0;
-    padding: 5px 5px 5px 10px;
+    padding: 10px;
     border: 1px $app-bg-color solid;
     background: #fcfcfe;
+    line-height: 22px;
 
     .editable {
         display: flex;
+    }
+
+    &.has-scroll {
+        max-height: 400px;
+        overflow-y: auto;
     }
 
     &.hidden-content {
@@ -314,6 +328,7 @@
 }
 
 .stream-item-meta-title {
+    display: inline-block;
     font-weight: 500;
     line-height: 20px;
 }

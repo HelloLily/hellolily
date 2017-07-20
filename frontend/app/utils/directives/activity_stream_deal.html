@@ -19,36 +19,6 @@
                     <div class="stream-item-meta-title">Status:</div>
                     {{ :: vm.item.status.name }} <span ng-if="vm.item.archived">(archived)</span>
                 </div>
-
-                <div class="stream-item-meta-object" ng-if="vm.item.next_step">
-                    <div class="stream-item-meta-title">Next step:</div>
-                    <editable-select field="next_step" view-model="vm" type="Deal" select-type="icon_select" object="vm.item"
-                                     select-options="{'classPrefix': 'step-type position-', 'classValue': 'position'}"
-                                     data-e-class="stream-inline-field">
-                        <span class="step-type position-{{ vm.item.next_step.position }}">
-                            {{ vm.item.next_step.name }}
-                        </span>
-                    </editable-select>
-                </div>
-
-                <div class="stream-item-meta-object">
-                    <div class="stream-item-meta-title">Next step date:</div>
-                    <postpone type="'Deal'" object="vm.item" date-field="'next_step_date'" tt-placement="bottom"></postpone>
-                </div>
-
-                <div class="stream-item-meta-object">
-                    <div class="stream-item-meta-title">Amount once:</div>
-                    <editable-text field="amount_once" object="vm.item" update-callback="vm.updateModel">
-                        <span ng-bind-html="vm.item.amount_once | currencySymbol:vm.item.currency"></span>
-                    </editable-text>
-                </div>
-
-                <div class="stream-item-meta-object">
-                    <div class="stream-item-meta-title">Recurring amount:</div>
-                    <editable-text field="amount_recurring" object="vm.item" update-callback="vm.updateModel">
-                        <span ng-bind-html="vm.item.amount_recurring | currencySymbol:vm.item.currency"></span>
-                    </editable-text>
-                </div>
             </div>
 
             <div class="stream-item-description">
@@ -83,7 +53,7 @@
                         </div>
                     </div>
 
-                    <div class="stream-subitem-object">
+                    <div class="stream-subitem-object display-none">
                         <div class="stream-subitem-image">
                             <div class="stream-subitem-avatar is-note"><i class="lilicon hl-note-icon"></i></div>
                         </div>

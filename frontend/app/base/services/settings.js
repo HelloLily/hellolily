@@ -131,7 +131,7 @@ class Page {
      * @param {Contact} contact - A contact object to set the page context to.
      * @param {Account} account - An account object to set the page context to.
      */
-    setAllTitles(pageType, objectInfo, contact = null, account = null, id = null) {
+    setAllTitles(pageType, objectInfo, contact = null, account = null, id = null, active = true) {
         // Make sure sidebar forms don't set the titles/headers.
         if (!this.email.sidebar.form) {
             this.title = objectInfo.charAt(0).toUpperCase() + objectInfo.slice(1);
@@ -139,6 +139,7 @@ class Page {
             this.header.id = id;
             this.contact = contact;
             this.account = account;
+            this.active = active;
         }
     }
 }

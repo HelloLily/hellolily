@@ -141,8 +141,8 @@
                                 }
 
                                 if ($this.hasClass(cf.tagsAjaxClass) && !_data.tags) {
-                                    // Search for contacts and accounts containing the search term, but only those with an email address.
-                                    filterQuery = '((_type:contacts_contact AND (full_name:(' + term + ') OR email_addresses.email_address:(' + term + '))) ' +
+                                    // Search for contacts and accounts containing the search term, but only those with an email address and are active at an account.
+                                    filterQuery = '((_type:contacts_contact AND active_at:(*) AND (full_name:(' + term + ') OR email_addresses.email_address:(' + term + '))) ' +
                                         'OR (_type:accounts_account AND (full_name:(' + term + ') OR email_addresses.email_address:(' + term + ')))) ' +
                                         'AND email_addresses.email_address:*';
 

@@ -132,6 +132,9 @@ class ContactMapping(BaseMapping):
             'modified': {
                 'type': 'date',
             },
+            'active_at': {
+                'type': 'integer',
+            },
         })
         return mapping
 
@@ -169,6 +172,8 @@ class ContactMapping(BaseMapping):
         """
         Translate an object to an index document.
         """
+        functions = obj.functions.filter(account__is_deleted=False)
+
         doc = {
             'addresses': [{
                 'address': address.address,
@@ -212,9 +217,8 @@ class ContactMapping(BaseMapping):
                 'object_id': tag.object_id,
             } for tag in obj.tags.all()],
             'title': obj.title,
+            'active_at': [f.account_id for f in functions if f.is_active]
         }
-
-        functions = obj.functions.filter(account__is_deleted=False)
 
         for function in functions:
             account = {
@@ -222,6 +226,7 @@ class ContactMapping(BaseMapping):
                 'name': function.account.name if function.account.name else '',
                 'customer_id': function.account.customer_id,
                 'function': function.title,
+                'is_active': function.is_active,
                 'phone_numbers': [{
                     'number': phone_number.number,
                     'formatted_number': format_phone_number(phone_number.number),

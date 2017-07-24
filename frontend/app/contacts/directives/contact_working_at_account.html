@@ -1,0 +1,18 @@
+<h3>Toggle activation</h3>
+
+<p>For each account you can toggle if <strong>{{ vm.object.full_name }}</strong> is still active there. This won't affect the visablilty of past communication.</p>
+
+<table class="hl-table">
+    <thead>
+        <tr>
+            <th class="hl-table-column">Account</th>
+            <th class="hl-table-column">Active</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="account in vm.object.accounts">
+            <td class="hl-table-column align-left">{{ account.name }}</td>
+            <td class="hl-table-column align-left"><checkbox model="vm.object.active_at_account[account.id]" ng-click="vm.toggleActivationForContact(account)"></checkbox></td>
+        </tr>
+    </tbody>
+</table>

@@ -51,8 +51,12 @@ function CaseDetailController($scope, Case, HLResource, HLUtils, LocalStorage, S
     var vm = this;
     var storage = new LocalStorage('caseDetail');
 
+    var activeAt = true;
+    if (caseContact) {
+        activeAt = caseContact.active_at_account[currentCase.account.id];
+    }
     Settings.page.setAllTitles('detail', currentCase.subject, currentCase.contact, currentCase.account, currentCase.id,
-        null, caseContact.active_at_account[currentCase.account.id]);
+        activeAt);
     Settings.page.toolbar.data = {
         model: 'Case',
         object: currentCase,

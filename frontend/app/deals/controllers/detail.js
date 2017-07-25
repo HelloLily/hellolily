@@ -59,8 +59,11 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
     var vm = this;
     var storage = new LocalStorage('dealDetail');
 
-    Settings.page.setAllTitles('detail', currentDeal.name, currentDeal.contact, currentDeal.account, null,
-        dealContact.active_at_account[currentDeal.account.id]);
+    var activeAt = true;
+    if (dealContact) {
+        activeAt = dealContact.active_at_account[currentDeal.account.id];
+    }
+    Settings.page.setAllTitles('detail', currentDeal.name, currentDeal.contact, currentDeal.account, null, activeAt);
     Settings.page.toolbar.data = {
         model: 'Deal',
         object: currentDeal,

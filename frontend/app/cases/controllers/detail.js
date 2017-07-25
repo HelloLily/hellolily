@@ -52,7 +52,7 @@ function CaseDetailController($scope, Case, HLResource, HLUtils, LocalStorage, S
     var storage = new LocalStorage('caseDetail');
 
     var activeAt = true;
-    if (caseContact) {
+    if (caseContact && currentCase.account) {
         activeAt = caseContact.active_at_account[currentCase.account.id];
     }
     Settings.page.setAllTitles('detail', currentCase.subject, currentCase.contact, currentCase.account, currentCase.id,

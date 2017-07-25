@@ -131,17 +131,50 @@ $inline-editable-field-height: 30px;
         }
     }
 
-    p {
-        &:last-child {
-            display: inline-block;
-            -webkit-margin-after: 0;
-            -webkit-margin-end: 0;
-        }
-    }
-
     .editable-textarea {
-        >* {
-            line-height: initial;
+        line-height: 20px;
+
+        ul {
+            margin-bottom: 0;
+        }
+
+        li {
+            line-height: 14px;
+        }
+
+        p {
+            margin: 0;
+        }
+
+        p+p {
+            margin-top: 0.8em;
+        }
+
+        p:last-child {
+            margin: 4px 0;
+            display: inline-block;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5 {
+            margin-bottom: 0;
+        }
+
+        blockquote {
+            font-size: 1.2em;
+            border-left: 2px solid $app-color-darkblue !important;
+
+            p {
+                margin-bottom: 0;
+                display: inline-block;
+            }
+        }
+
+        .editable-has-buttons {
+            line-height: 20px !important;
         }
     }
 }

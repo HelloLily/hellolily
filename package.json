@@ -21,7 +21,7 @@
     "google-libphonenumber": "^2.0.13",
     "gulp-buffer": "0.0.2",
     "gulp-tap": "0.1.3",
-    "marked": "0.3.6",
+    "markdown-it": "^8.3.1",
     "ng-file-upload": "12.2.12",
     "raven-js": "3.7.0",
     "sprintf-js": "1.0.3",

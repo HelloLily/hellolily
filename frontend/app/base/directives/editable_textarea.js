@@ -1,4 +1,12 @@
-const marked = require('marked');
+var md = require('markdown-it')();
+
+md.renderer.rules.blockquote_open = (tokens, index) => {
+    return '<blockquote class="blockquote">';
+};
+
+md.renderer.rules.table_open = (tokens, index) => {
+    return '<table class="table">';
+};
 
 angular.module('app.directives').directive('editableTextarea', editableTextarea);
 
@@ -36,7 +44,7 @@ function EditableTextAreaController($injector, $timeout, HLUtils) {
 
     function convertToHTML() {
         // Convert Markdown to HTML.
-        return vm.selectModel ? marked(vm.selectModel) : '';
+        return vm.selectModel ? md.render(vm.selectModel) : '';
     }
 
     function updateViewModel($data) {

@@ -28,7 +28,7 @@ function HLFields() {
                             cleanedValues.push(fieldValue);
                         }
 
-                        if (fieldValue.address && (fieldValue.city || fieldValue.postal_code)) {
+                        if (fieldValue.address) {
                             cleanedValues.push(fieldValue);
                         }
 
@@ -55,8 +55,7 @@ function HLFields() {
         var cleanedValues = [];
 
         angular.forEach(items, function(item) {
-            if (item.email_address || item.number || (item.address && (item.city ||
-                item.postal_code)) || item.website) {
+            if (item.email_address || item.number || item.address || item.website) {
                 if (item.id || !item.hasOwnProperty('is_deleted')) {
                     cleanedValues.push(item);
                 }

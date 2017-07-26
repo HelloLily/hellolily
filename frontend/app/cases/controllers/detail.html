@@ -58,13 +58,7 @@
                                             <div class="display-inline-block">
                                                 <i class="lilicon hl-company-icon margin-right-10" uib-tooltip="{{ $root.messages.contact.accountInfoTooltip }}"></i>
                                             </div>
-                                            <div class="display-inline-block vertical-align-top">
-                                                {{ address.address }}
-                                                <br/>
-                                                {{ address.postal_code }}, {{ address.city }}
-                                                <br/>
-                                                {{ address.country_display }}
-                                            </div>
+                                            <address address="address"></address>
                                         </div>
                                     </div>
                                     <editable-related ng-if="vm.case.contact" model="vm.case.contact" type="Contact" field="addresses"></editable-related>

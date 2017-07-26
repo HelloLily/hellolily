@@ -50,7 +50,12 @@ function EditableLinkController() {
         args[el.field] = $data;
 
         if (el.socialMediaName) {
-            args.name = el.socialMediaName;
+            if ($data) {
+                args.name = el.socialMediaName;
+            } else {
+                args.is_deleted = true;
+            }
+
             patchPromise = el.viewModel.updateModel(args, el.socialMediaName);
         } else {
             patchPromise = el.viewModel.updateModel(args).$promise;

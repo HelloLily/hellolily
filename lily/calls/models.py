@@ -30,6 +30,7 @@ class Call(TenantMixin):
     internal_number = models.CharField(max_length=5)
     status = models.PositiveSmallIntegerField(choices=CALL_STATUS_CHOICES)
     type = models.PositiveSmallIntegerField(choices=CALL_TYPE_CHOICES, default=INBOUND)
+    created = models.DateTimeField(auto_now_add=True, null=True)
 
     def __unicode__(self):
         return '%s: Call from %s to %s' % (self.unique_id, self.caller_number, self.called_number)

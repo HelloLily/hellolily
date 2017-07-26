@@ -1,0 +1,21 @@
+<div class="timeline-item-container is-call">
+    <div class="activity-stream-image">
+        <i class="lilicon hl-phone-icon"></i>
+    </div>
+    <div class="activity-stream-item">
+        <div class="stream-item-head" title="Created on {{ ::vm.item.date | date:'dd MMM yyyy - HH:mm' }}">
+            <div class="stream-item-date">
+                {{ ::vm.item.date | date:'dd MMM yyyy - HH:mm' }}
+            </div>
+        </div>
+
+        <div class="stream-item-activity">
+            <span ng-if="!vm.item.contact && vm.item.account">Somebody from {{ ::vm.item.account }}</span>
+            <span ng-if="vm.item.contact">{{ ::vm.item.contact }}</span>
+            called with {{ ::vm.item.user || 'unknown' }}
+        </div>
+
+        <div class="stream-item-content">
+        </div>
+    </div>
+</div>

@@ -1,4 +1,3 @@
-import cgi
 from urlparse import urlparse
 
 from django.conf import settings
@@ -35,7 +34,8 @@ class HtmlSanitizer(object):
         self.html = html
 
     def clean(self):
-        self.html = cgi.escape(self.html)
+        # Probably not needed anymore since the Markdown lib sanitizes the HTML.
+        # self.html = cgi.escape(self.html)
 
         return self
 

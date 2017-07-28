@@ -291,8 +291,6 @@
             </div>
         </div>
 
-        <checkbox model="vm.mergeStreams" class="pull-right">Merge activity streams</checkbox>
-
         <span ng-if="vm.mergeStreams">
             <activity-stream ng-if="vm.deal.id" target="'deal'" object="vm.deal" extra-object="{object: vm.deal.account, target: 'account'}" date-start="vm.dealStart" date-end="vm.dealEnd"></activity-stream>
         </span>

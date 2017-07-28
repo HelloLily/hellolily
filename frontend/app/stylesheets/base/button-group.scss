@@ -274,9 +274,11 @@ inbox to display buttons like reply, delete, archive etc.
 
     &.active {
         .hl-button-list-option {
+            @include type-indicator();
+
             &:before {
                 content: "\f00c";
-                background: $app-color-mint;
+                background: $app-color-darkblue;
                 -webkit-box-shadow: none;
                 -moz-box-shadow: none;
                 box-shadow: none;

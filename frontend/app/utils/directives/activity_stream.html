@@ -6,8 +6,8 @@
             <div ng-if="!parentObject">
                 <div class="activity-stream-filter">
                     <ul class="hl-button-list">
-                        <li class="hl-button-list-item" ng-repeat="(typeKey, typeVal) in activity.types" ng-if="typeVal.visible" ng-class="{'active': activity.activeFilter == typeKey}" ng-click="activity.filterType(typeKey)">
-                            <span class="hl-button-list-option">{{ typeVal.name }}</span>
+                        <li class="hl-button-list-item clickable" ng-repeat="(typeKey, typeVal) in activity.types" ng-if="typeVal.visible" ng-class="{'active': activity.activeFilter == typeKey}" ng-click="activity.filterType(typeKey)">
+                            <span class="hl-button-list-option is-{{ typeKey }}">{{ typeVal.name }}</span>
                         </li>
                     </ul>
                 </div>
@@ -55,8 +55,8 @@
             <div class="activity-stream-filter" ng-if="parentObject">
                 <h3 class="text-center">Latest {{ target }} activity</h3>
                 <ul class="hl-button-list text-center">
-                    <li class="hl-button-list-item" ng-repeat="(typeKey, typeVal) in activity.types" ng-if="typeVal.visible && activity.list.totalItems" ng-class="{'active': activity.activeFilter == typeKey}" ng-click="activity.filterType(typeKey)">
-                        <span class="hl-button-list-option">{{ typeVal.name }}</span>
+                    <li class="hl-button-list-item clickable" ng-repeat="(typeKey, typeVal) in activity.types" ng-if="typeVal.visible && activity.list.totalItems" ng-class="{'active': activity.activeFilter == typeKey}" ng-click="activity.filterType(typeKey)">
+                        <span class="hl-button-list-option is-{{ typeKey }}">{{ typeVal.name }}</span>
                     </li>
                 </ul>
             </div>

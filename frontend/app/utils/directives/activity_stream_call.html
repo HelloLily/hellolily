@@ -13,9 +13,39 @@
             <span ng-if="!vm.item.contact && vm.item.account">Somebody from {{ ::vm.item.account }}</span>
             <span ng-if="vm.item.contact">{{ ::vm.item.contact }}</span>
             called with {{ ::vm.item.user || 'unknown' }}
+
+            <span class="stream-note-toggle" ng-click="vm.item.showNotes = !vm.item.showNotes"><i class="lilicon hl-note-icon"></i></span>
         </div>
 
         <div class="stream-item-content">
+            <div class="stream-item-description" ng-show="vm.item.showNotes">
+                <div class="stream-subitem">
+                    <div class="stream-subitem-timeline"></div>
+
+                    <div class="stream-subitem-object" ng-repeat="note in vm.item.notes">
+                        <div class="stream-subitem-image">
+                            <div class="stream-subitem-avatar" ng-style="{'background-image': 'url(' + note.author.profile_picture + ')'}"></div>
+                        </div>
+
+                        <div class="stream-subitem-main">
+                            <div class="stream-subitem-date">{{ ::note.date | date:'dd MMM yyyy - HH:mm' }}</div>
+                            <div class="stream-subitem-title"> {{ ::note.author.full_name }} created a <i class="lilicon hl-note-icon margin-left-5 yellow font-size-16"></i> note</div>
+                            <div class="stream-subitem-content">
+                                <editable-textarea view-model="vm" field="content" object="note"></editable-textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stream-subitem-object">
+                        <div class="stream-subitem-image">
+                            <div class="stream-subitem-avatar is-note"><i class="lilicon hl-note-icon"></i></div>
+                        </div>
+                        <div class="stream-subitem-main small-note-field no-padding">
+                            <activity-add-note item="vm.item"></activity-add-note>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

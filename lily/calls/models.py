@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
 from lily.tenant.models import TenantMixin
@@ -31,6 +33,14 @@ class Call(TenantMixin):
     status = models.PositiveSmallIntegerField(choices=CALL_STATUS_CHOICES)
     type = models.PositiveSmallIntegerField(choices=CALL_TYPE_CHOICES, default=INBOUND)
     created = models.DateTimeField(auto_now_add=True, null=True)
+    notes = GenericRelation('notes.Note', content_type_field='content_type', object_id_field='object_id')
+
+    @property
+    def content_type(self):
+        """
+        Return the content type (Django model) for this model.
+        """
+        return ContentType.objects.get(app_label='calls', model='call')
 
     def __unicode__(self):
         return '%s: Call from %s to %s' % (self.unique_id, self.caller_number, self.called_number)

@@ -136,14 +136,22 @@ class AccountViewSet(ModelChangesMixin, ModelViewSet):
                 contact_calls = CallSerializer(call_objects, many=True).data
 
                 for call in contact_calls:
-                    call['contact'] = contact.full_name
+                    add_call = True
 
-                    user = LilyUser.objects.filter(internal_number=call.get('internal_number'), tenant=tenant).first()
+                    for account_call in calls:
+                        if call.get('id') == account_call.get('id'):
+                            add_call = False
+                            account_call['contact'] = contact.full_name
 
-                    if user:
-                        call['user'] = user.full_name
+                    if add_call:
+                        call['contact'] = contact.full_name
 
-                    calls.append(call)
+                        user = LilyUser.objects.filter(internal_number=call.get('internal_number'), tenant=tenant).first()
+
+                        if user:
+                            call['user'] = user.full_name
+
+                        calls.append(call)
 
         return Response({'objects': calls})
 

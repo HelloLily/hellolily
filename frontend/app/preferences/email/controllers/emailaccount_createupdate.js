@@ -76,7 +76,7 @@ function accountConfig($stateProvider) {
                         filterquery += 'id: ' + configs[i].user;
                     }
 
-                    return User.search({filterquery: filterquery}).$promise;
+                    return User.search({filterquery: filterquery, size: 100}).$promise;
                 }
 
                 return [];

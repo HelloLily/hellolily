@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import as_serializer_error
 
 from lily.changes.models import Change
+from lily.socialmedia.models import SocialMedia
 from lily.utils.functions import format_phone_number
 
 
@@ -67,12 +68,11 @@ class ModelChangesMixin(object):
     def update(self, request, *args, **kwargs):
         partial = kwargs.get('partial', False)
         action = 'patch' if partial else 'put'
-        ignored_fields = ['modified', 'id']
+        ignored_fields = ['modified', 'id', 'full_name']
 
-        if not partial:
-            # Store the old data so we can compare changes.
-            serializer = self.get_serializer(instance=self.get_object())
-            old_data = serializer.data
+        # Store the old data so we can compare changes.
+        serializer = self.get_serializer(instance=self.get_object())
+        old_data = serializer.data
 
         response = super(ModelChangesMixin, self).update(request, *args, **kwargs)
 
@@ -80,23 +80,88 @@ class ModelChangesMixin(object):
         serializer = self.get_serializer(instance=obj)
         new_data = serializer.data
 
-        if not partial:
-            data = {}
-            # Compare old and new data and store those keys.
-            diffkeys = [k for k in old_data if old_data.get(k) != new_data.get(k)]
+        # Social media fields are saved in a 'special' way.
+        # Since we want to show changes per social media type we split all the data.
+        if 'social_media' in request.data:
+            for item in old_data.get('social_media'):
+                social_type = item.get('name')
 
-            for key in diffkeys:
-                if key in request.data:
-                    value = request.data[key]
+                if social_type not in old_data:
+                    old_data[social_type] = []
 
-                    # PATCH usually just sends the ID, while PUT usually sends an object.
-                    # For consistency we just want to store the ID.
-                    if isinstance(value, dict) and len(value) == 1 and value.get('id'):
-                        value = value.get('id')
+                old_data[social_type].append(item)
 
-                    data.update({key: value})
-        else:
-            data = request.data
+            del old_data['social_media']
+
+            for item in new_data.get('social_media'):
+                social_type = item.get('name')
+
+                if social_type not in new_data:
+                    new_data[social_type] = []
+
+                new_data[social_type].append(item)
+
+            del new_data['social_media']
+
+            for key in dict(SocialMedia.SOCIAL_NAME_CHOICES).keys():
+                if key in old_data and key not in new_data:
+                    new_data[key] = []
+                elif key in new_data and key not in old_data:
+                    old_data[key] = []
+
+        data = {}
+        # Compare old and new data and store those keys.
+        diffkeys = [k for k in old_data if old_data.get(k) != new_data.get(k)]
+
+        for key in diffkeys:
+            is_social_media = (key in dict(SocialMedia.SOCIAL_NAME_CHOICES).keys())
+
+            if key in request.data or is_social_media:
+                # We don't want to display an ID in the change log,
+                # so fetch the display name if possible.
+                choice_field_name = key + '_display'
+
+                if choice_field_name in old_data:
+                    old = old_data.get(choice_field_name)
+                else:
+                    old = old_data.get(key)
+
+                if isinstance(old, dict):
+                    if 'name' in old:
+                        old = old.get('name')
+                    elif 'full_name' in old:
+                        old = old.get('full_name')
+
+                if choice_field_name in new_data:
+                    new = new_data.get(choice_field_name)
+                else:
+                    new = new_data.get(key)
+
+                if isinstance(new, dict):
+                    if 'name' in new:
+                        new = new.get('name')
+                    elif 'full_name' in new:
+                        new = new.get('full_name')
+
+                # Related fields (e.g. phone numbers) are always lists.
+                if is_social_media or isinstance(request.data[key], list):
+                    if len(old) > len(new):
+                        for item in old:
+                            # If the item has been deleted we still want to register the change.
+                            if not any(x.get('id') == item.get('id') for x in new):
+                                new.append({
+                                    'id': item.get('id'),
+                                    'is_deleted': True,
+                                })
+
+                change = {
+                    key: {
+                        'old': old,
+                        'new': new,
+                    }
+                }
+
+                data.update(change)
 
         # Remove keys we don't want to track.
         for key in data.keys():
@@ -121,15 +186,21 @@ class ModelChangesMixin(object):
         changes = []
 
         for change in change_objects:
+            user = {
+                'id': change.user.id,
+                'full_name': change.user.full_name,
+                'profile_picture': change.user.profile_picture,
+            }
+
             changes.append({
                 'id': change.id,
                 'action': change.action,
                 'data': json.loads(change.data),
-                'user': change.user.full_name,
+                'user': user,
                 'created': change.created,
             })
 
-        return Response({'changes': changes})
+        return Response({'objects': changes})
 
 
 class PhoneNumberFormatMixin(object):

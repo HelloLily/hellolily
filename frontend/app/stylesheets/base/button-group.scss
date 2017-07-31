@@ -250,7 +250,6 @@ inbox to display buttons like reply, delete, archive etc.
 }
 
 .hl-button-list-item {
-    float: left;
     display: inline-block;
     position: relative;
     line-height: $button-height - 4px;
@@ -260,6 +259,7 @@ inbox to display buttons like reply, delete, archive etc.
     border-bottom-width: 2px;
     border-left-width: 0;
     padding: 0 10px;
+    cursor: pointer;
 
     &:first-child {
         border-left-width: 1px;

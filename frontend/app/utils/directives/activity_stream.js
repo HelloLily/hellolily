@@ -1,9 +1,9 @@
 angular.module('app.utils.directives').directive('activityStream', ActivityStreamDirective);
 
-ActivityStreamDirective.$inject = ['$filter', '$q', '$state', 'Account', 'Case', 'Contact', 'Deal', 'EmailAccount', 'EmailDetail',
-    'HLGravatar', 'HLResource', 'HLUtils', 'HLForms', 'Note', 'NoteDetail', 'User'];
-function ActivityStreamDirective($filter, $q, $state, Account, Case, Contact, Deal, EmailAccount, EmailDetail,
-    HLGravatar, HLResource, HLUtils, HLForms, Note, NoteDetail, User) {
+ActivityStreamDirective.$inject = ['$filter', '$q', '$state', 'Account', 'Case', 'Change', 'Contact', 'Deal',
+    'EmailAccount', 'EmailDetail', 'HLGravatar', 'HLResource', 'HLUtils', 'HLForms', 'Note', 'NoteDetail', 'User'];
+function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Contact, Deal, EmailAccount,
+    EmailDetail, HLGravatar, HLResource, HLUtils, HLForms, Note, NoteDetail, User) {
     return {
         restrict: 'E',
         replace: true,
@@ -17,6 +17,9 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Contact, De
         },
         templateUrl: 'utils/directives/activity_stream.html',
         link: function(scope, element, attrs) {
+            const HOURS_BETWEEN_CHANGES = 1;
+            const DATE_FORMAT = 'D MMM. YYYY';
+
             var page = 0;
             var pageSize = 50;
 
@@ -29,15 +32,35 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Contact, De
                 'deal': {name: 'Deals', visible: false},
                 'email': {name: 'Emails', visible: false},
                 'call': {name: 'Calls', visible: false},
+                'change': {name: 'Changes', visible: false},
             };
             scope.activity.activeFilter = '';
             scope.activity.showMoreText = 'Show more';
+            scope.activity.changeLogMapping = {
+                'phone_numbers': 'number',
+                'email_addresses': 'email_address',
+                'websites': 'website',
+                'assigned_to_teams': 'name',
+                'tags': 'name',
+                'linkedin': 'username',
+                'twitter': 'username',
+                'accounts': 'name',
+            };
+            scope.activity.displayNameMapping = {
+                'assigned_to_teams': 'Teams',
+                'accounts': 'Works at',
+            };
+            scope.activity.mergeChanges = true;
+
             scope.activity.loadMore = loadMore;
-            scope.activity.reloadactivity = reloadactivity;
+            scope.activity.reloadActivity = reloadActivity;
             scope.activity.addNote = addNote;
             scope.activity.pinNote = pinNote;
             scope.activity.removeFromList = removeFromList;
             scope.activity.filterType = filterType;
+            scope.activity.getValueRelated = getValueRelated;
+            scope.activity.getChangeDisplayName = getChangeDisplayName;
+            scope.activity.toggleMergeChanges = toggleMergeChanges;
 
             scope.note = {};
             scope.note.type = 0;
@@ -59,7 +82,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Contact, De
                 var selectedCount;
 
                 scope.activity.activeFilter = value;
-                // Loop through the months to hide the monthname when there
+                // Loop through the months to hide the month name when there
                 // aren't any items in that month that are shown due to
                 // the filter that is being selected.
                 for (key in scope.activity.list.nonPinned) {
@@ -71,19 +94,19 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Contact, De
             function loadMore() {
                 if (!scope.object.$resolved) {
                     scope.object.$promise.then(function(obj) {
-                        _fetchactivity(obj);
+                        _fetchActivity(obj);
                     });
                 } else {
-                    _fetchactivity(scope.object);
+                    _fetchActivity(scope.object);
                 }
             }
 
-            function reloadactivity() {
+            function reloadActivity() {
                 page -= 1;
                 loadMore();
             }
 
-            function _fetchactivity(obj) {
+            function _fetchActivity(obj) {
                 var activity = [];
                 var promises = [];
                 var neededLength = (page + 1) * pageSize;
@@ -95,11 +118,13 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Contact, De
                 var dealPromise;
                 var tenantEmailAccountPromise;
                 var emailPromise;
+                let changePromise;
                 var i;
                 var filterquery;
                 var currentObject = obj;
                 var contentType = scope.target;
                 let callPromise;
+                let targetPlural = scope.target + 's';
 
                 if (scope.dateStart && scope.dateEnd) {
                     dateQuery = ' AND modified:[' + scope.dateStart + ' TO ' + scope.dateEnd + ']';
@@ -142,6 +167,155 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Contact, De
                         }
 
                         activity.push(note);
+                    });
+                });
+
+                changePromise = Change.query({id: currentObject.id, model: targetPlural}).$promise;
+
+                promises.push(changePromise);  // Add promise to list of all promises for later handling
+
+                changePromise.then(results => {
+                    let changes = [];
+                    let previousTime;
+                    let futureTime;
+
+                    if (scope.activity.mergeChanges) {
+                        // Merge individual changes to a single change if they're within a certain time period.
+                        results.objects.map((change, index) => {
+                            let currentTime = moment(change.created);
+                            let addNewChange = false;
+
+                            if (index) {
+                                let previousChange = changes[changes.length - 1];
+
+                                if (previousChange.user.id === change.user.id) {
+                                    if (currentTime.isBetween(previousTime, futureTime)) {
+                                        change.data = Object.assign(previousChange.data, change.data);
+                                        // Data was merged, so remove the previous entry and add the edited change.
+                                        changes.pop();
+                                    } else {
+                                        addNewChange = true;
+                                    }
+                                } else {
+                                    addNewChange = true;
+                                }
+                            } else {
+                                addNewChange = true;
+                            }
+
+                            changes.push(change);
+
+                            if (addNewChange) {
+                                previousTime = currentTime;
+                                futureTime = moment(currentTime).add(HOURS_BETWEEN_CHANGES, 'hours');
+                            }
+                        });
+                    } else {
+                        changes = results.objects;
+                    }
+
+                    changes.map(change => {
+                        // Normal fields with a single change.
+                        change.normal = {};
+                        // Fields which can contain multiple values (e.g. phone numbers).
+                        change.related = {};
+                        // Store all changes keys.
+                        change.changedKeys = [];
+
+                        for (let key in change.data) {
+                            if (Array.isArray(change.data[key].new)) {
+                                change.related[key] = [];
+
+                                let oldData = change.data[key].old;
+                                let newData = change.data[key].new;
+
+                                newData.map(newItem => {
+                                    let changeItem = {};
+                                    let oldItem;
+                                    let field = getValueRelated(key);
+
+                                    let found = oldData.some(oldDataItem => {
+                                        oldItem = oldDataItem;
+                                        return oldItem.hasOwnProperty('id') && oldItem.id === newItem.id;
+                                    });
+
+                                    if (found) {
+                                        // Old item exists, but new item is deleted.
+                                        if (newItem.hasOwnProperty('is_deleted')) {
+                                            changeItem = {
+                                                'old': oldItem[field] || oldItem,
+                                                'new': null,
+                                            };
+                                        } else {
+                                            // Both old and new item exist, so it's an edit.
+                                            changeItem = {
+                                                'old': oldItem[field] || oldItem,
+                                                'new': newItem[field] || newItem,
+                                            };
+                                        }
+                                    } else {
+                                        // No old item, so it's an addition.
+                                        changeItem = {
+                                            'old': null,
+                                            'new': newItem[field] || newItem,
+                                        };
+                                    }
+
+                                    let displayName = getChangeDisplayName(key, true);
+
+                                    change.related[key].push(changeItem);
+                                    change.related[key].displayName = displayName;
+
+                                    if (!change.changedKeys.includes(displayName)) {
+                                        change.changedKeys.push(displayName);
+                                    }
+                                });
+                            } else {
+                                let data = change.data[key];
+                                let oldDataEmpty = (data.old === undefined || data.old === '' || data.old === null);
+                                let newDataEmpty = (data.new === undefined || data.new === '' || data.new === null);
+
+                                if (!oldDataEmpty && !newDataEmpty) {
+                                    data.changeType = 'edit';
+                                } else if (!oldDataEmpty && newDataEmpty) {
+                                    data.changeType = 'delete';
+                                } else {
+                                    data.changeType = 'add';
+                                }
+
+                                if (!oldDataEmpty) {
+                                    let oldDate = moment(new Date(data.old.toString()));
+
+                                    if (oldDate.isValid()) {
+                                        data.old = oldDate.format(DATE_FORMAT);
+                                    }
+                                }
+
+                                if (!newDataEmpty) {
+                                    let newDate = moment(new Date(data.new.toString()));
+
+                                    if (newDate.isValid()) {
+                                        data.new = newDate.format(DATE_FORMAT);
+                                    }
+                                }
+
+                                let displayName = getChangeDisplayName(key);
+
+                                change.normal[key] = data;
+                                change.normal[key].displayName = getChangeDisplayName(key);
+
+                                if (!change.changedKeys.includes(displayName)) {
+                                    change.changedKeys.push(displayName);
+                                }
+                            }
+                        }
+
+                        // Our data was put in other keys, so just remove the data key.
+                        delete change.data;
+
+                        change.relatedCount = Object.keys(change.related).length;
+
+                        activity.push(change);
                     });
                 });
 
@@ -294,8 +468,8 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Contact, De
                     for (i = 0; i < activity.length; i++) {
                         if (activity[i].activityType === 'email') {
                             activity[i].activitySortDate = activity[i].sent_date;
-                        } else if (activity[i].activityType === 'note' || activity[i].activityType === 'call') {
-                            // We want to sort notes on created date.
+                        } else if (['note', 'change', 'call'].includes(activity[i].activityType)) {
+                            // We want to sort certain objects on created date.
                             activity[i].activitySortDate = activity[i].date;
                         } else {
                             activity[i].activitySortDate = activity[i].modified;
@@ -350,7 +524,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Contact, De
                         // Success.
                         scope.note.content = '';
                         toastr.success('I\'ve created the note for you!', 'Done');
-                        reloadactivity();
+                        reloadActivity();
                     }, function(response) {
                         // Error.
                         HLForms.setErrors(form, response.data);
@@ -385,6 +559,37 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Contact, De
                 }
 
                 scope.$apply();
+            }
+
+            function getValueRelated(field) {
+                // Since every model has a different field which contains the value
+                // we set up a mapping and retreive the proper field.
+                return scope.activity.changeLogMapping[field];
+            }
+
+            function getChangeDisplayName(field, capitalize = false) {
+                // For certain fields we don't want to show the field as it's named in the database.
+                // So we set up a mapping and retrieve a nicer name.
+                // Also cleans up underscores for all other fields.
+                let displayName;
+
+                if (scope.activity.displayNameMapping.hasOwnProperty(field)) {
+                    displayName = scope.activity.displayNameMapping[field];
+                } else {
+                    // Replace underscore and uppercase first letter.
+                    displayName = field.replace(/_/g, ' ');
+
+                    if (capitalize) {
+                        displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+                    }
+                }
+
+                return displayName;
+            }
+
+            function toggleMergeChanges() {
+                scope.activity.mergeChanges = !scope.activity.mergeChanges;
+                reloadActivity();
             }
         },
     };

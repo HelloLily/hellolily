@@ -1,0 +1,80 @@
+<div class="timeline-item-container">
+    <div class="activity-stream-image has-date" ng-style="{'background-image': 'url(' + vm.item.user.profile_picture + ')'}"></div>
+    <div class="activity-stream-item">
+        <div class="stream-item-head" title="Created on {{ ::vm.item.date | date:'dd MMM yyyy - HH:mm' }}">
+            <div class="stream-item-date">
+                {{ ::vm.item.date | date:'dd MMM yyyy - HH:mm' }}
+            </div>
+        </div>
+
+        <div class="stream-item-activity">
+            <div class="clickable" ng-click="vm.item.showDetails = !vm.item.showDetails">
+                {{ ::vm.item.user.full_name }} made changes to
+                <span ng-if="vm.item.changedKeys.length <= 3" ng-repeat="key in vm.item.changedKeys">
+                    <span ng-if="$last">&nbsp;and </span>
+                    <span>{{ key | lowercase }}</span><span ng-if="!$last && vm.item.changedKeys.length === 3">,</span>
+                </span>
+                <span ng-if="vm.item.changedKeys.length > 3">{{ vm.item.changedKeys.length }} fields</span>
+
+                <span class="pull-right">
+                    <i class="change-log-toggle lilicon" ng-class="{'hl-toggle-down-icon': !vm.item.showDetails, 'hl-toggle-up-icon': vm.item.showDetails}"></i>
+                </span>
+            </div>
+
+            <div class="change-log" ng-show="vm.item.showDetails">
+                <span ng-repeat="(key, value) in vm.item.normal" class="change-normal">
+                    <ul>
+                        <li>
+                            <span ng-if="value.changeType === 'edit'">
+                                Changed <strong>{{ value.displayName }}</strong> from
+
+                                <i ng-if="key === 'priority'"class="margin-left-5 lilicon hl-prio-icon-{{ value.old | lowercase }}"></i>
+                                <span ng-if="key === 'next_step'" class="step-type position-{{ value.position }}"></span>
+                                <strong>{{ value.old | hlTruncate }}</strong>
+                                to
+
+                                <i ng-if="key === 'priority'" class="margin-left-5 lilicon hl-prio-icon-{{ value.new | lowercase }}"></i>
+                                <span ng-if="key === 'next_step'" class="step-type position-{{ value.position }}"></span>
+                                <strong>{{ value.new | hlTruncate }}</strong>
+                            </span>
+
+                            <span ng-if="value.changeType === 'delete'">
+                                Removed <strong>{{ value.displayName }}</strong>
+                            </span>
+
+                            <span ng-if="value.changeType === 'add'">
+                                Added <strong>{{ value.displayName }}</strong>
+                            </span>
+                        </li>
+                    </ul>
+                </span>
+
+                <table class="change-related" ng-if="vm.item.relatedCount">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Before</th>
+                            <th>After</th>
+                        </tr>
+                    </thead>
+                    <tbody ng-repeat="(key, item) in vm.item.related">
+                        <tr ng-repeat="value in item">
+                            <td><span ng-if="!$index">{{ item.displayName }}</span></td>
+                            <td class="change-item change-item-before" ng-class="{'change-item-empty': !value.old}">
+                                <span ng-if="key !== 'addresses'">{{ value.old }}</span>
+                                <span ng-if="key === 'addresses'"><address address="value.old"></address></span>
+                            </td>
+                            <td class="change-item change-item-after" ng-class="{'change-item-empty': !value.new}">
+                                <span ng-if="key !== 'addresses'">{{ value.new }}</span>
+                                <span ng-if="key === 'addresses'"><address address="value.new"></address></span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="stream-item-content">
+        </div>
+    </div>
+</div>

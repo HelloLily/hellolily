@@ -30,6 +30,7 @@ angular.module('app', [
     'app.base',
     'app.calls',
     'app.cases',
+    'app.changes',
     'app.contacts',
     'app.dashboard',
     'app.deals',

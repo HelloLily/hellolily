@@ -476,9 +476,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                         }
                     }
 
-                    $filter('orderBy')(activity, 'activitySortDate', true).forEach(function(item) {
-                        var date = '';
-                        var key = '';
+                    $filter('orderBy')(activity, 'activitySortDate', true).forEach(item => {
                         var parentObjectId = scope.parentObject ? scope.parentObject.id : null;
 
                         scope.activity.types[item.activityType].visible = true;
@@ -488,13 +486,8 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                         } else {
                             // Exclude the current item from the activity list.
                             if (item.id !== scope.object.id && item.id !== parentObjectId) {
-                                if (item.hasOwnProperty('modified')) {
-                                    date = item.modified;
-                                } else {
-                                    date = item.sent_date;
-                                }
-
-                                key = moment(date).year() + '-' + (moment(date).month() + 1);
+                                let date = item.activitySortDate;
+                                let key = moment(date).year() + '-' + (moment(date).month() + 1);
 
                                 if (!orderedActivityStream.nonPinned.hasOwnProperty(key)) {
                                     orderedActivityStream.nonPinned[key] = {isVisible: true, items: []};

@@ -11,7 +11,7 @@
             <div class="clickable" ng-click="vm.item.showDetails = !vm.item.showDetails">
                 {{ ::vm.item.user.full_name }} made changes to
                 <span ng-if="vm.item.changedKeys.length <= 3" ng-repeat="key in vm.item.changedKeys">
-                    <span ng-if="$last">&nbsp;and </span>
+                    <span ng-if="$last && vm.item.changedKeys.length > 1">&nbsp;and </span>
                     <span>{{ key | lowercase }}</span><span ng-if="!$last && vm.item.changedKeys.length === 3">,</span>
                 </span>
                 <span ng-if="vm.item.changedKeys.length > 3">{{ vm.item.changedKeys.length }} fields</span>

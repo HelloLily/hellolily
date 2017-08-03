@@ -6,7 +6,6 @@ Django==1.8.18
 django-appconf==1.0.2
 django-extensions==1.7.5
 django-filter==0.15.3
-django-sslify==0.2.7
 djangorestframework==3.5.3
 eventlet==0.19.0
 gevent==1.1.2

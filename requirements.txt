@@ -115,7 +115,6 @@ mock==2.0.0
 #######################################################
 
 django-two-factor-auth==1.5.0
-django-formtools==2.0
 django-otp==0.3.11
 django-otp-yubikey==0.3.5
 YubiOTP==0.2.1

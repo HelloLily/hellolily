@@ -221,6 +221,15 @@ inbox to display buttons like reply, delete, archive etc.
             line-height: 30px;
         }
     }
+
+    .default-line-height {
+        line-height: $button-height - 2px;
+
+        .hl-button-group-btn-link {
+            border-bottom: 0;
+            padding: 1px 10px;
+        }
+    }
 }
 
 .widget-filters {

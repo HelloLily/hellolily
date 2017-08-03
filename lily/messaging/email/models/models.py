@@ -370,6 +370,16 @@ class NoEmailMessageId(models.Model):
         app_label = 'email'
 
 
+class EmailTemplateFolder(TenantMixin):
+    name = models.CharField(max_length=255)
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        app_label = 'email'
+
+
 class EmailTemplate(TenantMixin, TimeStampedModel):
     """
     Emails can be composed using templates.
@@ -384,6 +394,7 @@ class EmailTemplate(TenantMixin, TimeStampedModel):
     subject = models.CharField(verbose_name=_('message subject'), max_length=255, blank=True)
     body_html = models.TextField(verbose_name=_('html part'), blank=True)
     default_for = models.ManyToManyField(EmailAccount, through='DefaultEmailTemplate')
+    folder = models.ForeignKey(EmailTemplateFolder, related_name='email_templates', blank=True, null=True)
 
     def __unicode__(self):
         return u'%s' % self.name

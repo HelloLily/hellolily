@@ -32,6 +32,6 @@ function EditableTextController(HLUtils) {
     }
 
     function updateViewModel(data) {
-        return vm.updateCallback()(data, vm.field);
+        return vm.updateCallback()(data, vm.field, vm.object);
     }
 }

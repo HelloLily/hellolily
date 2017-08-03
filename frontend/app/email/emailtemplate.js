@@ -245,6 +245,10 @@
 
             $form.submit();
         },
+
+        destroyEditor: function() {
+            $('body').off();
+        },
     };
 })(jQuery, window, document);
 

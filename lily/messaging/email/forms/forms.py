@@ -18,8 +18,8 @@ from lily.utils.forms.fields import TagsField, FormSetField
 from lily.utils.forms.mixins import FormSetFormMixin
 from lily.utils.forms.widgets import Wysihtml5Input, AjaxSelect2Widget, BootstrapRadioFieldRenderer
 
-from ..models.models import (EmailAccount, EmailTemplate, EmailOutboxAttachment, EmailTemplateAttachment,
-                             TemplateVariable, EmailAttachment, SharedEmailConfig)
+from ..models.models import (EmailAccount, EmailTemplateFolder, EmailTemplate, EmailOutboxAttachment,
+                             EmailTemplateAttachment, TemplateVariable, EmailAttachment, SharedEmailConfig)
 from .widgets import EmailAttachmentWidget
 from ..utils import get_email_parameter_choices, TemplateParser
 
@@ -275,6 +275,12 @@ class CreateUpdateEmailTemplateForm(ModelForm):
     id = forms.IntegerField(label=_('Template ID'), required=False)
     variables = forms.ChoiceField(label=_('Insert variable'), choices=[['', 'Select a category']], required=False)
     values = forms.ChoiceField(label=_('Insert value'), choices=[['', 'Select a variable']], required=False)
+    folder = forms.ModelChoiceField(
+        label=_('Folder'),
+        queryset=EmailTemplateFolder.objects,
+        empty_label=_('Choose a folder'),
+        required=False
+    )
 
     attachments = FormSetField(
         queryset=EmailTemplateAttachment.objects,
@@ -293,6 +299,8 @@ class CreateUpdateEmailTemplateForm(ModelForm):
         email_parameter_choices = get_email_parameter_choices()
         self.fields['variables'].choices += [[x, x] for x in email_parameter_choices.keys()]
         self.fields['variables'].choices.append(['Custom variables', 'Custom variables'])
+
+        self.fields['folder'].queryset = EmailTemplateFolder.objects.order_by('name')
 
         for value in email_parameter_choices:
             for val in email_parameter_choices[value]:
@@ -395,7 +403,7 @@ class CreateUpdateEmailTemplateForm(ModelForm):
 
     class Meta:
         model = EmailTemplate
-        fields = ('id', 'name', 'subject', 'variables', 'values', 'body_html', 'attachments')
+        fields = ('id', 'name', 'subject', 'folder', 'variables', 'values', 'body_html', 'attachments')
         widgets = {
             'values': forms.Select(attrs={
                 'disabled': 'disabled',

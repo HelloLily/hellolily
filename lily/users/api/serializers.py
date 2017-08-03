@@ -161,7 +161,6 @@ class LilyUserSerializer(WritableNestedSerializer):
 
 
 class RelatedLilyUserSerializer(RelatedSerializerMixin, LilyUserSerializer):
-
     class Meta:
         model = LilyUser
 

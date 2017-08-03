@@ -11,8 +11,8 @@ from lily.api.nested.serializers import WritableNestedSerializer
 from lily.messaging.email.credentials import get_credentials
 from lily.users.models import UserInfo
 
-from ..models.models import (EmailLabel, EmailAccount, EmailMessage, Recipient, EmailAttachment, EmailTemplate,
-                             SharedEmailConfig, TemplateVariable, DefaultEmailTemplate)
+from ..models.models import (EmailLabel, EmailAccount, EmailMessage, Recipient, EmailAttachment, EmailTemplateFolder,
+                             EmailTemplate, SharedEmailConfig, TemplateVariable, DefaultEmailTemplate)
 from ..services import GmailService
 
 
@@ -348,6 +348,19 @@ class EmailTemplateSerializer(serializers.ModelSerializer):
             'subject',
             'body_html',
             'default_for',
+            'folder',
+        )
+
+
+class EmailTemplateFolderSerializer(serializers.ModelSerializer):
+    email_templates = EmailTemplateSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = EmailTemplateFolder
+        fields = (
+            'id',
+            'name',
+            'email_templates',
         )
 
 

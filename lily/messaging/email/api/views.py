@@ -2,7 +2,7 @@ import logging
 
 from django.conf import settings
 from django.db.models import Q
-from django_filters.rest_framework import DjangoFilterBackend
+from django_filters.rest_framework import DjangoFilterBackend, FilterSet
 import phonenumbers
 from rest_framework import viewsets, mixins, status, filters
 from rest_framework.decorators import detail_route, list_route
@@ -17,9 +17,10 @@ from lily.users.models import UserInfo
 from lily.users.api.serializers import LilyUserSerializer
 
 from .serializers import (EmailLabelSerializer, EmailAccountSerializer, EmailMessageSerializer,
-                          EmailTemplateSerializer, SharedEmailConfigSerializer, TemplateVariableSerializer)
-from ..models.models import (EmailLabel, EmailAccount, EmailMessage, EmailTemplate, SharedEmailConfig,
-                             TemplateVariable)
+                          EmailTemplateFolderSerializer, EmailTemplateSerializer, SharedEmailConfigSerializer,
+                          TemplateVariableSerializer)
+from ..models.models import (EmailLabel, EmailAccount, EmailMessage, EmailTemplateFolder, EmailTemplate,
+                             SharedEmailConfig, TemplateVariable)
 from ..tasks import (trash_email_message, toggle_read_email_message,
                      add_and_remove_labels_for_message, toggle_star_email_message, toggle_spam_email_message)
 from ..utils import get_filtered_message
@@ -402,14 +403,14 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         return Response({'phone_numbers': phone_numbers})
 
 
-class EmailTemplateViewSet(viewsets.ModelViewSet):
+class EmailTemplateFolderViewSet(viewsets.ModelViewSet):
     """
-    EmailTemplate API.
+    EmailTemplateFolder API.
     """
     # Set the queryset, this takes care of setting the `base_name`.
-    queryset = EmailTemplate.objects
+    queryset = EmailTemplateFolder.objects
     # Set the serializer class for this viewset.
-    serializer_class = EmailTemplateSerializer
+    serializer_class = EmailTemplateFolderSerializer
     # Set all filter backends that this viewset uses.
     filter_backends = (filters.OrderingFilter, )
 
@@ -420,7 +421,75 @@ class EmailTemplateViewSet(viewsets.ModelViewSet):
         """
         Set the queryset here so it filters on tenant.
         """
+        folders = super(EmailTemplateFolderViewSet, self).get_queryset().all()
+
+        for folder in folders:
+            folder.email_templates = folder.email_templates.order_by('name')
+
+        return folders
+
+    def destroy(self, request, *args, **kwargs):
+        """
+        Unlink all email templates from the folder and then delete the folder.
+        """
+        folder = self.get_object()
+
+        templates = folder.email_templates.all()
+
+        for template in templates:
+            template.folder = None
+            template.save()
+
+        # Don't call super, since that only fires another query using self.get_object().
+        self.perform_destroy(folder)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class EmailTemplateFilter(FilterSet):
+    class Meta:
+        model = EmailTemplate
+        fields = {
+            'folder': ['isnull', ],
+        }
+
+
+class EmailTemplateViewSet(viewsets.ModelViewSet):
+    """
+    EmailTemplate API.
+    """
+    # Set the queryset, this takes care of setting the `base_name`.
+    queryset = EmailTemplate.objects
+    # Set the serializer class for this viewset.
+    serializer_class = EmailTemplateSerializer
+    # Set all filter backends that this viewset uses.
+    filter_backends = (filters.OrderingFilter, filters.DjangoFilterBackend)
+
+    filter_class = EmailTemplateFilter
+
+    # OrderingFilter: set the default ordering fields.
+    ordering = ('name', )
+
+    def get_queryset(self):
+        """
+        Set the queryset here so it filters on tenant.
+        """
         return super(EmailTemplateViewSet, self).get_queryset().all()
+
+    @list_route(methods=['PATCH'])
+    def move(self, request):
+        templates = request.data.get('templates')
+        folder = request.data.get('folder')
+
+        if folder:
+            folder = EmailTemplateFolder.objects.get(pk=folder)
+
+        templates = EmailTemplate.objects.filter(id__in=templates)
+
+        for template in templates:
+            template.folder = folder
+            template.save()
+
+        return Response(status=status.HTTP_200_OK)
 
 
 class TemplateVariableViewSet(mixins.DestroyModelMixin,

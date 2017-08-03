@@ -328,7 +328,6 @@ INSTALLED_APPS = (
     'django_extensions',
     'channels',
     'collectfast',
-    'protractor',
     'templated_email',
     'storages',
     'taskmonitor',

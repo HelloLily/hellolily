@@ -2,17 +2,11 @@ from django.conf.urls import url
 
 
 from lily.users.views.registration import (
-    AcceptInvitationView, RegistrationView, ActivationView, ActivationResendView, SendInvitationView,
-    ConfirmationView
+    AcceptInvitationView, RegistrationView, ActivationView, ActivationResendView, ConfirmationView
 )
 
 
 registration_urls = [
-    url(
-        regex=r'^invitation/invite/$',
-        view=SendInvitationView.as_view(),
-        name='invitation_invite',
-    ),
     url(
         regex=r'^invitation/accept/(?P<first_name>.+)/(?P<email>.+)/(?P<tenant_id>[0-9]+)-(?P<date>[0-9]+)-(?P<hash>.+)/$',  # noqa
         view=AcceptInvitationView.as_view(),

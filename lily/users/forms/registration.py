@@ -3,7 +3,6 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from lily.utils.countries import COUNTRIES
-from lily.users.forms.utils import RequiredFirstFormFormset
 from lily.utils.forms.widgets import AddonTextInput
 
 from lily.users.models import LilyUser
@@ -106,59 +105,3 @@ class AcceptInvitationForm(UserRegistrationForm):
             raise ValidationError(code='invalid', message=_('You can\'t change the email address of the invitation.'))
         else:
             return self.cleaned_data['email']
-
-
-class SendInvitationForm(forms.Form):
-    """
-    This is the invitation form, it is used to invite new users to join an account.
-    """
-    first_name = forms.CharField(
-        label=_('First name'),
-        max_length=255,
-        widget=forms.TextInput(attrs={
-            'placeholder': _('First name')
-        })
-    )
-    email = forms.EmailField(
-        label=_('Email'),
-        max_length=255,
-        required=True,
-        widget=forms.TextInput(attrs={
-            'placeholder': _('Email address')
-        })
-    )
-
-    def clean_email(self):
-        email = self.cleaned_data['email']
-        try:
-            LilyUser.objects.get(email__iexact=email, is_active=True)
-        except LilyUser.DoesNotExist:
-            return email
-        else:
-            raise ValidationError(code='invalid', message=_('This email address is already linked to a user.'))
-
-
-# ------------------------------------------------------------------------------------------------
-# Formsets
-# ------------------------------------------------------------------------------------------------
-class InvitationFormset(RequiredFirstFormFormset):
-    """
-    This formset is sending invitations to users based on email addresses.
-    """
-    def clean(self):
-        """Checks that no two email addresses are the same."""
-        super(InvitationFormset, self).clean()
-
-        if any(self.errors):
-            # Don't bother validating the formset unless each form is valid on its own
-            return
-        emails = []
-        for i in range(0, self.total_form_count()):
-            form = self.forms[i]
-            email = form.cleaned_data['email']
-            if email and email in emails:
-                raise ValidationError(
-                    code='invalid',
-                    message=_('You can\'t invite someone more than once (email addresses must be unique).')
-                )
-            emails.append(email)

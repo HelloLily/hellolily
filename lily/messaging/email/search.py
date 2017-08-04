@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 from lily.search.base_mapping import BaseMapping
 
 from .models.models import EmailMessage
-from python_imap.utils import convert_br_to_newline
+from lily.messaging.email.utils import convert_br_to_newline
 
 
 class EmailMessageMapping(BaseMapping):

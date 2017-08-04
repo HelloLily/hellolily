@@ -10,7 +10,7 @@ from django import template
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
-from python_imap.folder import INBOX, SENT, DRAFTS, TRASH, SPAM
+from lily.messaging.email.utils import INBOX, SENT, DRAFTS, TRASH, SPAM
 
 
 register = template.Library()

@@ -13,7 +13,7 @@ from django.core.files import File
 from django.db import transaction
 import pytz
 
-from python_imap.utils import get_extensions_for_type
+from lily.messaging.email.utils import get_extensions_for_type
 
 from ..models.models import EmailMessage, EmailHeader, Recipient, EmailAttachment, NoEmailMessageId
 

@@ -334,7 +334,6 @@ INSTALLED_APPS = (
     'elasticutils',
     'statici18n',
     'timezone_field',
-    'test_without_migrations',
     'django_nose',
     'django_password_strength',
     'djangoformsetjs',
@@ -648,7 +647,6 @@ RAVEN_CONFIG = {
 #######################################################################################################################
 # TESTING                                                                                                             #
 #######################################################################################################################
-TEST_WITHOUT_MIGRATIONS_COMMAND = 'django_nose.management.commands.test.Command'
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 NOSE_ARGS = ['--nocapture', '--nologcapture']
 

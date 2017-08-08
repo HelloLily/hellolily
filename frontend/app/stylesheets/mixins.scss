@@ -38,3 +38,36 @@ Yourself) and maintainable.
     background: $color;
     border-radius: 3px;
 }
+
+@mixin type-indicator() {
+    &.is-deal {
+        &:before {
+            background: $app-color-mint;
+        }
+    }
+
+    &.is-case {
+        &:before {
+            background: $app-color-purple;
+        }
+    }
+
+    &.is-email {
+        &:before {
+            background: $app-color-aqua;
+        }
+    }
+
+    &.is-note,
+    &.is-call {
+        &.pinned {
+            &:before {
+                background: $app-color-red;
+            }
+        }
+
+        &:before {
+            background: $app-color-yellow;
+        }
+    }
+}

@@ -91,6 +91,7 @@ class AccountViewSet(ModelChangesMixin, ModelViewSet):
         calls = []
         account = self.get_object()
         contacts = account.get_contacts()
+        tenant = self.request.user.tenant
 
         # Get calls made from a phone number which belongs to the account.
         for number in account.phone_numbers.all():
@@ -112,7 +113,7 @@ class AccountViewSet(ModelChangesMixin, ModelViewSet):
                 if len(contacts) == 1:
                     call['contact'] = contacts[0].full_name
 
-                user = LilyUser.objects.filter(internal_number=call.get('internal_number')).first()
+                user = LilyUser.objects.filter(internal_number=call.get('internal_number'), tenant=tenant).first()
 
                 if user:
                     call['user'] = user.full_name
@@ -137,7 +138,7 @@ class AccountViewSet(ModelChangesMixin, ModelViewSet):
                 for call in contact_calls:
                     call['contact'] = contact.full_name
 
-                    user = LilyUser.objects.filter(internal_number=call.get('internal_number')).first()
+                    user = LilyUser.objects.filter(internal_number=call.get('internal_number'), tenant=tenant).first()
 
                     if user:
                         call['user'] = user.full_name

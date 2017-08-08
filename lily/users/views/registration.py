@@ -1,7 +1,6 @@
 from datetime import date, timedelta
 from hashlib import sha256
 
-import anyjson
 from django.conf import settings
 from django.contrib import messages, auth
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
@@ -9,22 +8,16 @@ from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 from django.core.management import call_command
 from django.core.urlresolvers import reverse_lazy
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
-from django.template import RequestContext
-from django.template.loader import render_to_string
 from django.views.generic import TemplateView, FormView
 from django.utils.http import base36_to_int, int_to_base36
 from django.utils.translation import ugettext_lazy as _
-from extra_views import FormSetView
 from templated_email import send_templated_mail
 
-from lily.utils.functions import is_ajax, post_intercom_event
 from lily.tenant.models import Tenant
 
-from lily.users.forms.registration import (
-    AcceptInvitationForm, ResendActivationMailForm, SendInvitationForm, InvitationFormset, TenantRegistrationForm
-)
+from lily.users.forms.registration import AcceptInvitationForm, ResendActivationMailForm, TenantRegistrationForm
 from lily.users.models import LilyUser
 
 
@@ -221,104 +214,6 @@ class ActivationResendView(FormView):
         Redirect to the success url.
         """
         return redirect(reverse_lazy('login'))
-
-
-class SendInvitationView(FormSetView):
-    """
-    This view is used to invite new people to the site. It works with a formset to allow easy
-    adding of multiple invitations. It also checks whether the call is done via ajax or via a normal
-    form, to use ajax append ?xhr to the url.
-    """
-    template_name = 'users/registration/invitation_form.html'
-    form_template_name = 'utils/templates/formset_invitation.html'
-    form_class = SendInvitationForm
-    formset_class = InvitationFormset
-    extra = 1
-    can_delete = True
-
-    def formset_valid(self, formset):
-        """
-        This function is called when the formset is deemed valid.
-        An email is sent to all email fields which are filled in.
-        If the request is done via ajax give json back with a success message, otherwise
-        redirect to the success url.
-        """
-        protocol = self.request.is_secure() and 'https' or 'http'
-        date_string = date.today().strftime('%d%m%Y')
-
-        # Get the current site or empty string.
-        try:
-            current_site = Site.objects.get_current()
-        except Site.DoesNotExist:
-            current_site = ''
-
-        for form in formset:
-            if form in formset.deleted_forms:
-                continue
-
-            first_name = form.cleaned_data.get('first_name')
-
-            email = form.cleaned_data.get('email')
-            tenant_id = self.request.user.tenant_id
-            hash = sha256('%s-%s-%s-%s' % (
-                tenant_id,
-                email,
-                date_string,
-                settings.SECRET_KEY
-            )).hexdigest()
-            invite_link = '%s://%s%s' % (protocol, current_site, reverse_lazy('invitation_accept', kwargs={
-                'tenant_id': tenant_id,
-                'first_name': first_name,
-                'email': email,
-                'date': date_string,
-                'hash': hash,
-            }))
-
-            # Email to the user.
-            send_templated_mail(
-                template_name='invitation',
-                recipient_list=[form.cleaned_data['email']],
-                context={
-                    'current_site': current_site,
-                    'inviter_full_name': self.request.user.full_name,
-                    'inviter_first_name': self.request.user.first_name,
-                    'recipient_first_name': first_name,
-                    'invite_link': invite_link,
-                },
-                from_email=settings.EMAIL_PERSONAL_HOST_USER,
-                auth_user=settings.EMAIL_PERSONAL_HOST_USER,
-                auth_password=settings.EMAIL_PERSONAL_HOST_PASSWORD
-            )
-
-            post_intercom_event(event_name='invite-sent', user_id=self.request.user.id)
-
-        if is_ajax(self.request):
-            return HttpResponse(anyjson.serialize({
-                'error': False,
-                'html': _('The invitations were sent successfully'),
-            }), content_type='application/json')
-        return HttpResponseRedirect(self.get_success_url())
-
-    def formset_invalid(self, formset):
-        """
-        This function is called when the formset didn't pass validation.
-        If the request is done via ajax, send back a json object with the error set to true and
-        the form rendered into a string.
-        """
-        if is_ajax(self.request):
-            context = RequestContext(self.request, self.get_context_data(formset=formset))
-            return HttpResponse(anyjson.serialize({
-                'error': True,
-                'html': render_to_string(self.form_template_name, context)
-            }), content_type='application/json')
-        return self.render_to_response(self.get_context_data(formset=formset))
-
-    def get_success_url(self):
-        """
-        return the success url and set a succes message.
-        """
-        messages.success(self.request, _('I did it! I\'ve sent the invitations successfully.'))
-        return '/#/preferences/company/users'
 
 
 class AcceptInvitationView(FormView):

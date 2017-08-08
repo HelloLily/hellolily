@@ -103,6 +103,10 @@ function User($resource, CacheFactory) {
                 method: 'PATCH',
                 url: '/api/users/skip',
             },
+            invite: {
+                method: 'POST',
+                url: '/api/users/invite/',
+            },
         }
     );
 

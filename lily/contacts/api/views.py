@@ -87,6 +87,7 @@ class ContactViewSet(ModelChangesMixin, viewsets.ModelViewSet):
         """
         phone_numbers = []
         contact = self.get_object()
+        tenant = self.request.user.tenant
 
         for number in contact.phone_numbers.all():
             phone_numbers.append(number.number)
@@ -106,7 +107,7 @@ class ContactViewSet(ModelChangesMixin, viewsets.ModelViewSet):
             for call in calls:
                 call['contact'] = contact.full_name
 
-                user = LilyUser.objects.filter(internal_number=call.get('internal_number')).first()
+                user = LilyUser.objects.filter(internal_number=call.get('internal_number'), tenant=tenant).first()
 
                 if user:
                     call['user'] = user.full_name

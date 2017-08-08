@@ -35,6 +35,12 @@ logger = logging.getLogger(__name__)
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'tests/data')
 
+DRAFTS = '\\Drafts'
+INBOX = '\\Inbox'
+SENT = '\\Sent'
+SPAM = '\\Spam'
+TRASH = '\\Trash'
+
 
 def get_field_names(field):
     """
@@ -571,3 +577,38 @@ def get_filtered_message(email_message, email_account, user):
             return email_message
 
     return email_message
+
+
+def convert_br_to_newline(soup, newline='\n'):
+    """
+    Replace html line breaks with spaces to prevent lines appended after one another.
+    """
+    for linebreak in soup.find_all('br'):
+        linebreak.replaceWith(newline)
+
+    return soup
+
+
+def get_extensions_for_type(general_type):
+    # For known mimetypes, use some extensions we know to be good or we prefer
+    # above others.. This solves some issues when the first of the available
+    # extensions doesn't make any sense, e.g.
+    # >>> get_extensions_for_type('txt')
+    # 'asc'
+    preferred_types_map = {
+        'text/plain': '.txt',
+        'text/html': '.html',
+    }
+
+    if general_type in preferred_types_map:
+        yield preferred_types_map[general_type]
+
+    if not mimetypes.inited:
+        mimetypes.init()
+
+    for ext in mimetypes.types_map:
+        if mimetypes.types_map[ext] == general_type or mimetypes.types_map[ext].split('/')[0] == general_type:
+            yield ext
+
+    # return at least an extension for unknown mimetypes
+    yield '.bak'

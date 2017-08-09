@@ -111,3 +111,18 @@ class NoAttachmentId(Error):
 class NoDestinationFolderId(Error):
     """No destination folder id provided."""
     pass
+
+
+class BatchIdError(Error):
+    """There is an error with the batch id."""
+    pass
+
+
+class BatchMaxSizeError(Error):
+    """Maximum capacity batch size exceeded."""
+    pass
+
+
+class CallbackError(Error):
+    """No callback provided."""
+    pass

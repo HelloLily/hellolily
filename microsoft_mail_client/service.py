@@ -1,3 +1,7 @@
+from microsoft_mail_client.constants import (
+    SUPPORTED_API_VERSIONS, WRITABLE_MESSAGE_PROPERTIES, INFERENCE_CLASSIFICATION_OPTIONS, SETTING_OPTIONS,
+    SETTING_AUTOMATIC_REPLIES, WRITABLE_FILE_PROPERTIES, WRITABLE_ITEM_PROPERTIES, WRITABLE_REFERENCE_PROPERTIES
+)
 from microsoft_mail_client.http import HttpRequest
 from microsoft_mail_client.errors import (
     UnknownApiVersion, NoFolderId, NoMessageId, NoComment, NoRecipients, NoMessage, InvalidClassification,
@@ -8,77 +12,16 @@ from microsoft_mail_client.errors import (
 
 # TODO: On email threading / conversation:
 # stackoverflow.com/questions/41161515/best-way-to-achieve-conversation-view-for-mail-folder-using-outlook-rest-api
-# TODO: On batching: https://msdn.microsoft.com/en-us/office/office365/api/batch-outlook-rest-requests
 # TODO: On push notifications: https://docs.microsoft.com/en-us/outlook/rest/webhooks
 # TODO: On archiving mail: https://stackoverflow.com/questions/41065083/outlook-rest-api-and-mail-archive-action
 
-API_VERSION_V2 = 'v2.0'
-SUPPORTED_API_VERSIONS = [API_VERSION_V2]
 
-# Default / Sytstem folders.
-FOLDER_INBOX = 'Inbox'
-FOLDER_DRAFTS = 'Drafts'
-FOLDER_SENT_ITEMS = 'SentItems'
-FOLDER_DELETED_ITEMS = 'DeletedItems'
-FOLDER_ALL_ITEMS = 'AllItems'
-SYSTEM_FOLDERS = [FOLDER_INBOX, FOLDER_DRAFTS, FOLDER_SENT_ITEMS, FOLDER_DELETED_ITEMS, FOLDER_ALL_ITEMS]
-
-# Writeble properties.
-WP_ATTACHMENT = 'Attachments'
-WP_BCC_RECIPIENTS = 'BccRecipients'
-WP_BODY = 'Body'
-WP_CATEGORIES = 'Categories'
-WP_CC_RECIPIENTS = 'CcRecipients'
-WP_FROM = 'From'
-WP_IMPORTANCE = 'Importance'
-WP_INFERENCE_CLASSIFICATION = 'InferenceClassification'
-WP_IS_DELEIVERY_RECEIPT_REQUESTED = 'IsDeliveryReceiptRequested'
-WP_IS_READ = 'IsRead'
-WP_IS_READ_RECEIPT_REQUESTED = 'IsReadReceiptRequested'
-WP_MULTI_VALUE_EXTENTED_PROPERTIES = 'MultiValueExtendedProperties'
-WP_SENDER = 'Sender'
-WP_SINGLE_VALUE_EXTENTED_PROPERTIES = 'SingleValueExtendedProperties'
-WP_SUBJECT = 'Subject'
-WP_TO_RECIPIENTS = 'ToRecipients'
-WP_CONTENT_TYPE = 'ContentType'
-WP_IS_INLINE = 'IsInline'
-WP_NAME = 'Name'
-WP_ITEM = 'Item'
-WP_SIZE = 'Size'
-WP_IS_FOLDER = 'IsFolder'
-WP_PERMISSION = 'Permission'
-WP_PREVIEW_URL = 'PreviewUrl'
-WP_PROVIDER_TYPE = 'ProviderType'
-WP_SOURCE_URL = 'SourceUrl'
-WP_THUMBNAL_URL = 'ThumbnailUrl'
-
-WRITABLE_MESSAGE_PROPERTIES = [WP_ATTACHMENT, WP_BCC_RECIPIENTS, WP_BODY, WP_CATEGORIES, WP_CC_RECIPIENTS, WP_FROM,
-                               WP_IMPORTANCE, WP_INFERENCE_CLASSIFICATION, WP_IS_DELEIVERY_RECEIPT_REQUESTED,
-                               WP_IS_READ, WP_IS_READ_RECEIPT_REQUESTED, WP_MULTI_VALUE_EXTENTED_PROPERTIES, WP_SENDER,
-                               WP_SINGLE_VALUE_EXTENTED_PROPERTIES, WP_SUBJECT, WP_TO_RECIPIENTS]
-WRITABLE_FILE_PROPERTIES = [WP_CONTENT_TYPE, WP_IS_INLINE, WP_NAME]
-WRITABLE_ITEM_PROPERTIES = [WP_CONTENT_TYPE, WP_ITEM, WP_IS_INLINE, WP_NAME, WP_SIZE]
-WRITABLE_REFERENCE_PROPERTIES = [WP_CONTENT_TYPE, WP_IS_FOLDER, WP_IS_INLINE, WP_NAME, WP_PERMISSION, WP_PREVIEW_URL,
-                                 WP_PROVIDER_TYPE, WP_SOURCE_URL, WP_THUMBNAL_URL]
-
-# Focused inbox classifications.
-INFERENCE_CLASSIFICATION_FOCUSED = 'focussed'
-INFERENCE_CLASSIFICATION_OTHER = 'other'
-INFERENCE_CLASSIFICATION_OPTIONS = [INFERENCE_CLASSIFICATION_FOCUSED, INFERENCE_CLASSIFICATION_OTHER]
-
-# Mailbox settings properties.
-SETTING_AUTOMATIC_REPLIES = 'AutomaticRepliesSetting'
-SETTING_TIME_ZONE = 'TimeZone'
-SETTING_LANGUAGE = 'Language'
-SETTING_OPTIONS = [SETTING_AUTOMATIC_REPLIES, SETTING_TIME_ZONE, SETTING_LANGUAGE]
-
-
-def build(version, credentials=None):
+def build(version, user_email, credentials=None):
     # Returns a Resource object with methods for interacting with the Microsoft 365 email API.
     if version not in SUPPORTED_API_VERSIONS:
         raise UnknownApiVersion("Version: {0}".format(version))
 
-    return Resource(version, credentials)
+    return Resource(version, user_email, credentials)
 
 
 class Resource(object):
@@ -87,9 +30,10 @@ class Resource(object):
     """
 
     def __init__(self, version, user_email, credentials):
-        self._version = version
-        self._user_email = user_email
-        self._credentials = credentials
+        # TODO: Handle credentials=None or don't allow.
+        self.version = version
+        self.user_email = user_email
+        self.credentials = credentials
 
         # TODO: use uritemplate.expand() like google api does.
         self._base_url = 'https://outlook.office.com/api/{0}/users/{1}'.format(version, user_email)
@@ -100,8 +44,8 @@ class Resource(object):
         self._batch_url = "https://outlook.office.com/api/{0}/users('{0}')/$batch".format(version, user_email)
 
         self._authorization_headers = {
-            'Authorization': 'Bearer {0}'.format(self._credentials.access_token),
-            'X-AnchorMailbox': self._user_email,
+            'Authorization': 'Bearer {0}'.format(self.credentials.access_token),
+            'X-AnchorMailbox': self.user_email,
         }
 
     def get_messages(self, folder_id=None, allow_unsafe=False, body_content_type=None, query_parameters=None):
@@ -115,7 +59,7 @@ class Resource(object):
         :param query_parameters: use OData query parameters to control the results.
         :return: HttpRequest object.
         """
-        headers = None
+        headers = {}
         if allow_unsafe:
             headers = {
                 'Prefer': 'outlook.allow-unsafe-html',
@@ -126,10 +70,7 @@ class Resource(object):
                 additional_headers = {
                     'Prefer': 'outlook.body-content-type="{0}'.format(body_content_type),
                 }
-                if headers:
-                    headers.update(additional_headers)
-                else:
-                    headers = additional_headers
+                headers = additional_headers
 
         url = self._base_url.format('/messages')
         if folder_id:
@@ -152,7 +93,7 @@ class Resource(object):
         if not message_id:
             raise NoMessageId()
 
-        headers = None
+        headers = {}
         if allow_unsafe:
             headers = {
                 'Prefer': 'outlook.allow-unsafe-html',
@@ -163,10 +104,7 @@ class Resource(object):
                 additional_headers = {
                     'Prefer': 'outlook.body-content-type="{0}'.format(body_content_type),
                 }
-                if headers:
-                    headers.update(additional_headers)
-                else:
-                    headers = additional_headers
+                headers = additional_headers
 
         url = self._base_url.format('/messages/{0}').format(message_id)
 
@@ -200,7 +138,7 @@ class Resource(object):
         if not folder_id:
             raise NoFolderId()
 
-        headers = None
+        headers = {}
         if not skip_token:
             headers = {
                 'Prefer': 'odata.track-changes',
@@ -210,10 +148,7 @@ class Resource(object):
             additional_headers = {
                 'Prefer': 'odata.maxpagesize={0}'.format(max_page_size),
             }
-            if headers:
-                headers.update(additional_headers)
-            else:
-                headers = additional_headers
+            headers = additional_headers
 
         if delta_token and delta_token not in query_parameters:
             query_parameters.update({'deltatoken': delta_token})
@@ -315,10 +250,11 @@ class Resource(object):
 
         :param message_id: replying to this message.
         :param message: dict with key 'comment' with the actual comment as a value. So excluding the body of original
-               message. https://stackoverflow.com/questions/41937948/how-to-properly-respond-to-an-email-using-the-outlook-rest-api
+               message.
+               stackoverflow.com/questions/41937948/how-to-properly-respond-to-an-email-using-the-outlook-rest-api
         :return: HttpRequest object.
         """
-        return self.sent_reply_message(message_id, message, TabError)
+        return self.sent_reply_message(message_id, message, True)
 
     def draft_reply_message(self, message_id, message, reply_all=False):
         """
@@ -384,7 +320,7 @@ class Resource(object):
             'ToRecipients': recipients['ToRecipients'],
         }
 
-        return HttpRequest(uri=url, method='POST', headers=self._authorization_headers, payload=message)
+        return HttpRequest(uri=url, method='POST', headers=self._authorization_headers, payload=payload)
 
     def draft_forward_message(self, message_id, message, recipients):
         """
@@ -411,7 +347,7 @@ class Resource(object):
             'ToRecipients': recipients['ToRecipients'],
         }
 
-        return HttpRequest(uri=url, method='POST', headers=self._authorization_headers, payload=message)
+        return HttpRequest(uri=url, method='POST', headers=self._authorization_headers, payload=payload)
 
     def update_message(self, message_id, properties):
         """
@@ -560,7 +496,7 @@ class Resource(object):
         if option:
             url = self._base_url.format('/MailboxSettings/{0}').format(option)
 
-        headers = None
+        headers = {}
         if outlook_time_zone:
             headers = {
                 'Prefer': 'outlook.timezone',
@@ -614,12 +550,12 @@ class Resource(object):
         """
         self.get_attachments(message_id, query_parameters=query_parameters)
 
-    def create_file_attachment(self, message_id, file, name, properties=None):
+    def create_file_attachment(self, message_id, attachment, name, properties=None):
         """
         Add a file attachment to a message.
 
         :param message_id: attach file to this message.
-        :param file: file to attach. base64-encoded.
+        :param attachment: file to attach. base64-encoded.
         :param name: name of the attachement.
         :param properties: additional writable file properties. Optional.
         :return: HttpRequest object.
@@ -639,7 +575,7 @@ class Resource(object):
 
         payload = {
             '@odata.type': '#Microsoft.OutlookServices.FileAttachment',
-            'ContentBytes': file,
+            'ContentBytes': attachment,
         }
 
         if name not in properties:
@@ -770,7 +706,7 @@ class Resource(object):
         :return: HttpRequest object.
         """
         url = self._base_url.format('/MailFolders')
-        if not folder_id
+        if not folder_id:
             url = self._base_url.format('/MailFolders/{0}/childfolders').format(folder_id)
 
         return HttpRequest(uri=url, method='GET', headers=self._authorization_headers, parameters=query_parameters)
@@ -783,7 +719,7 @@ class Resource(object):
         :param query_parameters: use OData query parameters to control the results.
         :return: HttpRequest object.
         """
-        if not folder_id
+        if not folder_id:
             raise NoFolderId
 
         url = self._base_url.format('/MailFolders/{0}').format(folder_id)
@@ -801,7 +737,7 @@ class Resource(object):
         :param query_parameters:
         :return: HttpRequest object.
         """
-        headers = None
+        headers = {}
         if delta_token:
             # Incremental synchronization.
             headers = {

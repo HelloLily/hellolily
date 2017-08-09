@@ -134,7 +134,6 @@ simplejson==3.8.2
 chardet==2.3.0  # Old version in case of issues is: 2.1.1
 newrelic==2.52.0.40
 pycrypto==2.6.1  # Old version is: 2.6
-Pympler==0.4.1
 requests==2.7.0
 grequests==0.3.0
 unicodecsv==0.13.0

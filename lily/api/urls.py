@@ -11,7 +11,7 @@ from lily.deals.api.views import (DealViewSet, DealStatusViewSet, DealNextStepLi
 from lily.integrations.api.views import (DocumentDetails, EstimatesList, IntegrationAuth, MoneybirdContactImport,
                                          PandaDocList)
 from lily.messaging.email.api.views import (EmailLabelViewSet, EmailAccountViewSet, EmailMessageViewSet,
-                                            EmailTemplateViewSet, SharedEmailConfigViewSet,
+                                            EmailTemplateFolderViewSet, EmailTemplateViewSet, SharedEmailConfigViewSet,
                                             TemplateVariableViewSet)
 from lily.notes.api.views import NoteViewSet
 from lily.provide.api.views import DataproviderView
@@ -43,6 +43,7 @@ router.register(r'deals', DealViewSet)
 router.register(r'messaging/email/labels', EmailLabelViewSet)
 router.register(r'messaging/email/accounts', EmailAccountViewSet)
 router.register(r'messaging/email/email', EmailMessageViewSet)
+router.register(r'messaging/email/folders', EmailTemplateFolderViewSet)
 router.register(r'messaging/email/templates', EmailTemplateViewSet)
 router.register(r'messaging/email/template-variables', TemplateVariableViewSet)
 router.register(r'messaging/email/shared-email-configurations', SharedEmailConfigViewSet)

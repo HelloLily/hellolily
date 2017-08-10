@@ -20,12 +20,22 @@ function preferencesConfig($stateProvider) {
 
 angular.module('app.preferences').controller('PreferencesEmailTemplatesList', PreferencesEmailTemplatesList);
 
-PreferencesEmailTemplatesList.$inject = ['$compile', '$scope', '$state', '$templateCache', 'EmailAccount', 'EmailTemplate'];
-function PreferencesEmailTemplatesList($compile, $scope, $state, $templateCache, EmailAccount, EmailTemplate) {
-    var vm = this;
+PreferencesEmailTemplatesList.$inject = ['$compile', '$scope', '$state', '$timeout', '$templateCache', 'EmailAccount',
+    'EmailTemplate', 'EmailTemplateFolder'];
+function PreferencesEmailTemplatesList($compile, $scope, $state, $timeout, $templateCache, EmailAccount,
+    EmailTemplate, EmailTemplateFolder) {
+    let vm = this;
 
+    vm.templateFolders = [];
+    vm.newFolder = EmailTemplateFolder.create();
+
+    vm.getTemplates = getTemplates;
     vm.makeDefault = makeDefault;
-    vm.removeFromList = removeFromList;
+    vm.removeTemplate = removeTemplate;
+    vm.addFolder = addFolder;
+    vm.updateFolderName = updateFolderName;
+    vm.moveTemplates = moveTemplates;
+    vm.checkSelected = checkSelected;
 
     activate();
 
@@ -36,18 +46,35 @@ function PreferencesEmailTemplatesList($compile, $scope, $state, $templateCache,
     }
 
     function getTemplates() {
-        EmailTemplate.query({'page_size': 200}, function(data) {
-            vm.emailTemplates = data.results;
+        EmailTemplateFolder.query().$promise.then(templateFolders => {
+            let templateCount = 0;
+
+            templateFolders.results.map(folder => {
+                templateCount += folder.email_templates.length;
+            });
+
+            vm.templateFolders = templateFolders.results;
+
+            vm.templateCount = templateCount;
+
+            EmailTemplate.query({folder__isnull: 'True'}).$promise.then(templates => {
+                vm.templateFolders.push({
+                    name: 'Not in folder',
+                    email_templates: templates.results,
+                });
+
+                vm.templateCount += templates.results.length;
+            });
         });
     }
 
     function makeDefault(emailTemplate) {
-        EmailAccount.mine().$promise.then(function(emailAccounts) {
+        EmailAccount.mine().$promise.then(emailAccounts => {
             vm.emailAccounts = emailAccounts;
 
-            vm.emailAccounts.forEach(function(emailAccount) {
+            vm.emailAccounts.forEach(emailAccount => {
                 // For every email account in emailTemplate.default_for set selected to true.
-                var selected = emailTemplate.default_for.filter(function(accountId) {
+                let selected = emailTemplate.default_for.filter(accountId => {
                     return accountId === emailAccount.id;
                 });
 
@@ -58,13 +85,13 @@ function PreferencesEmailTemplatesList($compile, $scope, $state, $templateCache,
                 html: $compile($templateCache.get('preferences/email/controllers/emailtemplate_default.html'))($scope),
                 showCancelButton: true,
                 showCloseButton: true,
-            }).then(function(isConfirm) {
-                var args = emailTemplate;
-                var selectedAccounts = [];
+            }).then(isConfirm => {
+                let args = emailTemplate;
+                let selectedAccounts = [];
 
                 if (isConfirm) {
                     // Loop over email accounts to extract the selected accounts.
-                    vm.emailAccounts.forEach(function(emailAccount) {
+                    vm.emailAccounts.map(emailAccount => {
                         if (emailAccount.selected) {
                             selectedAccounts.push(emailAccount.id);
                         }
@@ -72,11 +99,10 @@ function PreferencesEmailTemplatesList($compile, $scope, $state, $templateCache,
 
                     args.default_for = selectedAccounts;
 
-                    EmailTemplate.update(args).$promise.then(function() {
-                        getTemplates();
+                    EmailTemplate.update(args).$promise.then(() => {
                         swal.close();
                         toastr.success('I\'ve updated the email template for you!', 'Done');
-                    }, function(response) {
+                    }, response => {
                         HLForms.setErrors(form, response.data);
                         toastr.error('Uh oh, there seems to be a problem', 'Oops!');
                     });
@@ -85,10 +111,51 @@ function PreferencesEmailTemplatesList($compile, $scope, $state, $templateCache,
         });
     }
 
-    function removeFromList(emailtemplate) {
-        var index = vm.emailTemplates.indexOf(emailtemplate);
-        vm.emailTemplates.splice(index, 1);
+    function removeTemplate(folder, template) {
+        let index = folder.email_templates.indexOf(template);
+        folder.email_templates.splice(index, 1);
 
         $scope.$apply();
+    }
+
+    function addFolder() {
+        vm.newFolder.$save(response => {
+            toastr.success('Folder has been saved', 'Yay');
+
+            vm.templateFolders.unshift(response);
+            vm.newFolder = EmailTemplateFolder.create();
+        });
+    }
+
+    function updateFolderName(data, folder) {
+        const field = 'name';
+
+        return EmailTemplateFolder.updateModel(data, field, folder);
+    }
+
+    function moveTemplates(folder) {
+        let moveTo = folder ? folder.id : null;
+
+        if (vm.templateIds.length) {
+            EmailTemplate.move({templates: vm.templateIds, folder: moveTo}).$promise.then(() => {
+                toastr.success('Email templates have been moved', 'Done');
+
+                getTemplates();
+            });
+        }
+    }
+
+    function checkSelected() {
+        let templateIds = [];
+
+        vm.templateFolders.map(templateFolder => {
+            templateFolder.email_templates.map(template => {
+                if (template.selected) {
+                    templateIds.push(template.id);
+                }
+            });
+        });
+
+        vm.templateIds = templateIds;
     }
 }

@@ -15,6 +15,10 @@ function EmailTemplate($resource) {
                     id: '@id',
                 },
             },
+            move: {
+                method: 'PATCH',
+                url: '/api/messaging/email/templates/move/',
+            },
         }
     );
 

@@ -3,22 +3,63 @@
         <div class="widget-name">Your email templates</div>
     </div>
     <div class="widget-tools">
-        <a class="hl-primary-btn pull-right" ui-sref="base.preferences.emailtemplates.create"><i class="fa fa-plus"></i> Add an email template</a>
+        <ul class="hl-button-group margin-right-5" ng-if="vm.templateIds.length">
+            <li class="hl-button-group-btn default-line-height">
+                <a class="hl-button-group-btn-link" href="javascript:void(0)" data-toggle="dropdown">
+                    <i class="fa fa-folder"></i> Move to <i class="margin-left-5 small-icon lilicon hl-toggle-down-icon"></i>
+                </a>
+
+                <ul class="hl-dropdown">
+                    <li class="hl-dropdown-item" ng-repeat="folder in vm.templateFolders">
+                        <a class="hl-dropdown-item-link" href="javascript:void(0)" ng-click="vm.moveTemplates(folder)">{{ folder.name }}</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+
+        <a class="hl-primary-btn" ng-click="newFolderForm.$show()"><i class="fa fa-plus"></i> Email folder</a>
+        <a class="hl-primary-btn" ui-sref="base.preferences.emailtemplates.create"><i class="fa fa-plus"></i> Email template</a>
     </div>
     <div class="clearfix"></div>
 </div>
 <div class="widget-body">
-    <table class="hl-table">
+    <table class="hl-table email-templates-list">
         <thead>
             <tr>
                 <th class="hl-table-column">Template name</th>
                 <th class="hl-table-column"><span class="pull-right">Actions</span></th>
             </tr>
         </thead>
-        <tbody>
-            <tr ng-repeat="template in vm.emailTemplates track by template.id">
-                <td class="hl-table-column">
+        <tr ng-show="newFolderForm.$visible">
+            <td colspan="2" class="email-template-folder-header">
+                <span editable-text="vm.newFolder.name" e-form="newFolderForm" onbeforesave="vm.addFolder()" blur="ignore"></span>
+            </td>
+        </tr>
+        <tbody ng-repeat="folder in vm.templateFolders" ng-if="folder.id || (!folder.id && folder.email_templates.length)">
+            <tr>
+                <td colspan="2" class="email-template-folder-header">
+                    <span ng-show="folder.id" editable-text="folder.name" e-form="folderNameForm" onbeforesave="vm.updateFolderName($data, folder)" blur="ignore" editable-handler>{{ folder.name }}</span>
+                    <span ng-if="!folder.id" class="folder-name">{{ folder.name }}</span>
+
+                    <span class="pull-right">
+                        <button ng-if="folder.id" class="hl-primary-btn no-border no-background" ng-click="folderNameForm.$show()">
+                            <i class="lilicon hl-edit-icon"></i>
+                        </button>
+
+                        <delete-confirmation ng-if="folder.id" model="EmailTemplateFolder" object="folder" callback="vm.getTemplates()" button-class="hl-primary-btn no-border no-background"></delete-confirmation>
+
+                        <button ng-if="folder.email_templates.length"  class="hl-primary-btn no-border no-background" ng-click="folder.collapsed = !folder.collapsed" >
+                            <i class="lilicon" ng-class="{'hl-toggle-up-icon': !folder.collapsed, 'hl-toggle-down-icon': folder.collapsed}"></i>
+                        </button>
+                    </span>
+                </td>
+            </tr>
+            <tr ng-repeat="template in folder.email_templates track by template.id" ng-if="!folder.collapsed">
+                <td class="hl-table-column indented">
+                    <checkbox model="template.selected" ng-click="vm.checkSelected()"></checkbox>
+
                     {{ template.name }}
+
                     <span ng-if="template.default_for.length > 0" class="label-default">
                         Default for {{ template.default_for.length }} address(es)
                     </span>
@@ -30,20 +71,23 @@
                         </a>
 
                         <a ui-sref="base.preferences.emailtemplates.edit({id: template.id})" class="hl-primary-btn-smll">
-                            <i class="lilicon hl-edit-icon"></i> Edit
+                            <i class="lilicon hl-edit-icon"></i>
                         </a>
 
-                        <delete-confirmation model="EmailTemplate" object="template" callback="vm.removeFromList(template)" button-class="hl-primary-btn-smll">
-                            Delete
-                        </delete-confirmation>
+                        <delete-confirmation model="EmailTemplate" object="template" callback="vm.removeTemplate(folder, template)" button-class="hl-primary-btn-smll"></delete-confirmation>
                     </span>
                 </td>
             </tr>
-            <tr ng-if="!vm.emailTemplates.length">
-                <td class="hl-table-column" colspan="2">
-                    No templates yet. You should create one!
-                </td>
-            </tr>
         </tbody>
+        <tr ng-if="!vm.templateFolders.length">
+            <td class="hl-table-column" colspan="2">
+                No folders yet. You should create one!
+            </td>
+        </tr>
+        <tr ng-if="!vm.templateCount">
+            <td class="hl-table-column" colspan="2">
+                No templates yet. You should create one!
+            </td>
+        </tr>
     </table>
 </div>

@@ -48,6 +48,7 @@ function PreferencesEmailTemplatesCreateUpdate($scope) {
     $scope.$on('$destroy', function() {
         // Properly destroy the rich text editor to prevent memory leaks.
         HLInbox.destroyEditor();
+        HLEmailTemplates.destroyEditor();
     });
 }
 

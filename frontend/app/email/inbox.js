@@ -408,6 +408,8 @@
                 editor.destroy();
                 editor = null;
             }
+
+            $('body').off();
         },
 
         loadDefaultEmailTemplate: function() {

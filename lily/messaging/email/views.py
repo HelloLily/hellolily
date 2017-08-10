@@ -978,7 +978,7 @@ class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
                 document_id = self.request.GET.get('document_id')
                 recipient = self.request.GET.get('recipient_email')
 
-                details_url = 'https://api.pandadoc.com/public/v1/documents/%s' % document_id
+                details_url = 'https://api.pandadoc.com/public/v1/documents/%s/details' % document_id
 
                 response = send_get_request(details_url, credentials)
 
@@ -992,6 +992,18 @@ class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
 
                         if response.status_code != 200:
                             error_message = 'Something went wrong while setting up the PandaDoc sign URL.'
+
+                    metadata = response.json().get('metadata')
+
+                    if metadata and metadata.get('account'):
+                        account_id = metadata.get('account')
+
+                        try:
+                            account = Account.objects.get(pk=account_id)
+                        except Account.DoesNotExist:
+                            pass
+                        else:
+                            lookup.update({'account': account})
 
                     # Document has been 'sent' so create the session.
                     session_url = 'https://api.pandadoc.com/public/v1/documents/%s/session' % document_id

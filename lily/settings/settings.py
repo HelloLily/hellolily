@@ -336,7 +336,6 @@ INSTALLED_APPS = (
     'timezone_field',
     'django_nose',
     'django_password_strength',
-    'djangoformsetjs',
     'rest_framework',
     'rest_framework.authtoken',
     'raven.contrib.django.raven_compat',

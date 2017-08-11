@@ -48,7 +48,6 @@ jinja2==2.8
 
 django-bootstrap3==6.1.0
 django-braces==1.8.1
-django-formset-js==0.4.3
 django-jquery-js==2.1.4
 django-password-strength==1.2.1
 django-timezone-field==2.0

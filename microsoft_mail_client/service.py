@@ -1,8 +1,10 @@
+from collections import defaultdict
+
 from microsoft_mail_client.constants import (
     SUPPORTED_API_VERSIONS, WRITABLE_MESSAGE_PROPERTIES, INFERENCE_CLASSIFICATION_OPTIONS, SETTING_OPTIONS,
     SETTING_AUTOMATIC_REPLIES, WRITABLE_FILE_PROPERTIES, WRITABLE_ITEM_PROPERTIES, WRITABLE_REFERENCE_PROPERTIES
 )
-from microsoft_mail_client.http import HttpRequest
+from microsoft_mail_client.http import HttpRequest, BatchHttpRequest
 from microsoft_mail_client.errors import (
     UnknownApiVersion, NoFolderId, NoMessageId, NoComment, NoRecipients, NoMessage, InvalidClassification,
     InvalidSettingsOption, NoFileName, NoFile, InvalidWritableFileProperty, InvalidWritableItemProperty, NoItem,
@@ -48,6 +50,11 @@ class Resource(object):
             'X-AnchorMailbox': self.user_email,
         }
 
+        self._authorization_batch_headers = {
+            'Authorization': 'Bearer {0}'.format(self.credentials.access_token),
+            'Host': 'outlook.office.com',
+        }
+
     def get_messages(self, folder_id=None, allow_unsafe=False, body_content_type=None, query_parameters=None):
         """
         Get a message collection from the entire mailbox of the signed-in user (including the Deleted Items and Clutter
@@ -59,18 +66,13 @@ class Resource(object):
         :param query_parameters: use OData query parameters to control the results.
         :return: HttpRequest object.
         """
-        headers = {}
+        headers = defaultdict(list)
         if allow_unsafe:
-            headers = {
-                'Prefer': 'outlook.allow-unsafe-html',
-            }
+            headers['Prefer'].append('outlook.allow-unsafe-html')
 
         if body_content_type:
             if body_content_type in ['text', 'html']:
-                additional_headers = {
-                    'Prefer': 'outlook.body-content-type="{0}'.format(body_content_type),
-                }
-                headers = additional_headers
+                headers['Prefer'].append('outlook.body-content-type="{0}'.format(body_content_type))
 
         url = self._base_url.format('/messages')
         if folder_id:
@@ -93,18 +95,13 @@ class Resource(object):
         if not message_id:
             raise NoMessageId()
 
-        headers = {}
+        headers = defaultdict(list)
         if allow_unsafe:
-            headers = {
-                'Prefer': 'outlook.allow-unsafe-html',
-            }
+            headers['Prefer'].append('outlook.allow-unsafe-html')
 
         if body_content_type:
             if body_content_type in ['text', 'html']:
-                additional_headers = {
-                    'Prefer': 'outlook.body-content-type="{0}'.format(body_content_type),
-                }
-                headers = additional_headers
+                headers['Prefer'].append('outlook.body-content-type="{0}'.format(body_content_type))
 
         url = self._base_url.format('/messages/{0}').format(message_id)
 
@@ -138,17 +135,12 @@ class Resource(object):
         if not folder_id:
             raise NoFolderId()
 
-        headers = {}
+        headers = defaultdict(list)
         if not skip_token:
-            headers = {
-                'Prefer': 'odata.track-changes',
-            }
+            headers['Prefer'].append('odata.track-changes')
 
         if max_page_size:
-            additional_headers = {
-                'Prefer': 'odata.maxpagesize={0}'.format(max_page_size),
-            }
-            headers = additional_headers
+            headers['Prefer'].append('odata.maxpagesize={0}'.format(max_page_size))
 
         if delta_token and delta_token not in query_parameters:
             query_parameters.update({'deltatoken': delta_token})
@@ -496,11 +488,9 @@ class Resource(object):
         if option:
             url = self._base_url.format('/MailboxSettings/{0}').format(option)
 
-        headers = {}
+        headers = defaultdict(list)
         if outlook_time_zone:
-            headers = {
-                'Prefer': 'outlook.timezone',
-            }
+            headers['Prefer'].append('outlook.timezone')
 
         headers.update(self._authorization_headers)
 
@@ -706,7 +696,7 @@ class Resource(object):
         :return: HttpRequest object.
         """
         url = self._base_url.format('/MailFolders')
-        if not folder_id:
+        if folder_id:
             url = self._base_url.format('/MailFolders/{0}/childfolders').format(folder_id)
 
         return HttpRequest(uri=url, method='GET', headers=self._authorization_headers, parameters=query_parameters)
@@ -737,12 +727,10 @@ class Resource(object):
         :param query_parameters:
         :return: HttpRequest object.
         """
-        headers = {}
+        headers = defaultdict(list)
         if delta_token:
             # Incremental synchronization.
-            headers = {
-                'Prefer': 'odata.track-changes',
-            }
+            headers['Prefer'].append('odata.track-changes')
 
         if delta_token and delta_token not in query_parameters:
             query_parameters.update({'deltatoken': delta_token})
@@ -854,3 +842,11 @@ class Resource(object):
         url = self._base_url.format('/MailFolders/{0}/copy').format(folder_id)
 
         return HttpRequest(uri=url, method='POST', headers=self._authorization_headers, payload=payload)
+
+    def new_batch(self):
+        """
+        Initialize an empty batch request.
+        :return: BatchHttpRequest object.
+
+        """
+        return BatchHttpRequest(self._batch_url, self._authorization_batch_headers)

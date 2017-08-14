@@ -5,6 +5,7 @@ request.
 """
 
 import json
+import pprint
 import uuid
 
 import requests
@@ -24,14 +25,14 @@ class HttpRequest(object):
         :param uri: uri to send the request to.
         :param method: http method.
         :param payload: body of the http request.
-        :param headers: headers or the http request
+        :param headers: headers of the http request. defaultdict(list).
         :param parameters: url paramters.
         :param request_id: unique identifier of the request.
         """
         self.uri = uri
         self.method = method
         self.payload = payload
-        self.headers = headers
+        self.headers = headers or {}  # TODO: change headers=None to headers
         self.parameters = parameters
         self.request_id = request_id or str(uuid.uuid4())
 
@@ -42,6 +43,11 @@ class HttpRequest(object):
             'return-client-request-id': 'true',
         })
 
+        if self.method.upper() in ['PATCH', 'POST']:
+            self.headers.update({
+                'Content-Type': 'application/json'
+            })
+
     def execute(self):
         """
         Execute the request, send to server.
@@ -50,54 +56,68 @@ class HttpRequest(object):
         """
         response = None
 
+        # Request expects a dict, so convert the defaultdict to a dict.
+        headers = self._ddict2dict(self.headers)
+
+        pprint.pprint(json.dumps(self.uri), width=1)
+        pprint.pprint(json.dumps(self.method), width=1)
+        if self.payload:
+            pprint.pprint(self.payload, width=1)
+        pprint.pprint(headers, width=1)
+        if self.parameters:
+            pprint.pprint(self.parameters, width=1)
+
         if self.method.upper() == 'GET':
-            response = requests.get(self.uri, headers=self.headers, params=self.parameters)
+            response = requests.get(self.uri, headers=headers, params=self.parameters)
         elif self.method.upper() == 'DELETE':
-            response = requests.delete(self.uri, headers=self.headers, params=self.parameters)
+            response = requests.delete(self.uri, headers=headers, params=self.parameters)
         elif self.method.upper() == 'PATCH':
-            self.headers.update({
-                'Content-Type': 'application/json'
-            })
-            response = requests.patch(self.uri, headers=self.headers, data=json.dumps(self.payload),
-                                      params=self.parameters)
+            response = requests.patch(self.uri, headers=headers, data=json.dumps(self.payload), params=self.parameters)
         elif self.method.upper() == 'POST':
-            self.headers.update({
-                'Content-Type': 'application/json'
-            })
-            response = requests.post(self.uri, headers=self.headers, data=json.dumps(self.payload),
-                                     params=self.parameters)
+            response = requests.post(self.uri, headers=headers, data=json.dumps(self.payload), params=self.parameters)
 
         return response
+
+    def _ddict2dict(self, dd):
+        """
+        Convert a defaultdict to a dict. List values are joined together by a comma.
+
+        :param dd: defaultdict.
+        :return: dict values.
+        """
+        headers = {}
+        for k, v in dd.items():
+            if isinstance(v, list):
+                headers[k] = ",".join(v)
+            else:
+                headers[k] = v
+        return headers
 
 
 class BatchHttpRequest(object):
     """Batches multiple HttpRequest objects into a single HTTP request."""
 
-    def __init__(self, batch_uri, credentials):
+    def __init__(self, batch_uri, headers):
         """
         Constructor for a BatchHttpRequest.
 
         :param batch_uri: uri to send the requests to.
-        :param credentials:
+        :param headers:
         """
 
         self.uri = batch_uri
         self.batch_id = str(uuid.uuid4())
 
-        self._credentials = credentials
         # TOOD: use case global callback?
         # self._callback = callback  # Global callback to be called for each individual response in the batch.
         self._requests = {}  # A map from id to request.
         self._callbacks = {}  # A map from id to callback.
         # self._responses = {}  # A map from request id to (httplib2.Response, content) response pairs.
 
-        # TODO: pass as headers paramater like HttpRequest?
-        # Setup global batch request headers.
-        self.headers = {
-            'Authorization': 'Bearer {0}'.format(self._credentials.access_token),
+        self.headers = headers or {}
+        self.headers.update({
             'Content-Type': 'multipart/mixed; boundary=batch_'.format(self.batch_id),
-            'Host': 'outlook.office.com',
-        }
+        })
 
     def add(self, request, callback):
         """
@@ -161,6 +181,10 @@ class BatchHttpRequest(object):
 
         # Execute batch request.
         batch_response = requests.post(self.uri, data=body, headers=self.headers)
+
+        # TODO?: from google batch http:
+        # Loop over all the requests and check for 401s. For each 401 request the credentials should be refreshed and
+        # then sent again in a separate batch.
 
         # if response.status >= 300:
         # if batch_response.status_code != requests.codes.ok:
@@ -274,6 +298,7 @@ class BatchHttpRequest(object):
         if headers:
             response.headers = headers
         if body:
+            # TODO: proper way of encoding?
             # response._content = bytes(body)
             # response._content = bytes(body, 'unicode')
             response._content = body.encode('unicode')  # Response object expects unicode bytes.

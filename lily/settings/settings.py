@@ -180,7 +180,6 @@ EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO = ('messaging/email/templates/attachments'
                                        '/%(tenant_id)d/%(template_id)d/%(filename)s')
 
 
-STATICI18N_ROOT = local_path('static/')
 STATICFILES_DIRS = (
     local_path('static/'),
 )
@@ -274,7 +273,6 @@ TEMPLATES = [{
         'context_processors': [
             'django.contrib.auth.context_processors.auth',
             'django.template.context_processors.debug',
-            'django.template.context_processors.i18n',
             # 'django.template.context_processors.media',
             # 'django.template.context_processors.static',
             'django.template.context_processors.request',
@@ -332,7 +330,6 @@ INSTALLED_APPS = (
     'storages',
     'taskmonitor',
     'elasticutils',
-    'statici18n',
     'timezone_field',
     'django_nose',
     'django_password_strength',

@@ -17,7 +17,9 @@ class Microsoft(object):
         scope=[
             'openid',
             'offline_access',
-            'https://outlook.office.com/mail.read'
+            'https://outlook.office.com/mail.read',
+            'https://outlook.office.com/mail.send',
+            'https://outlook.office.com/mail.readwrite'
         ],
         prompt='consent',
         access_type='offline',

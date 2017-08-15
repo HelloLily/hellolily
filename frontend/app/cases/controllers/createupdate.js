@@ -224,19 +224,13 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
                     }
                 }
             }
-
-            if (Settings.email.sidebar.form) {
-                vm.startsAt = 1;
-            } else {
-                vm.startsAt = 0;
-            }
         }
 
         vm.case.expires = moment(vm.case.expires).toDate();
     }
 
     $scope.$watch('vm.case.priority', function(newValue, oldValue) {
-        if (newValue !== oldValue) {
+        if (oldValue && newValue !== oldValue) {
             if (!vm.case.expires) {
                 vm.case.expires = moment();
             }

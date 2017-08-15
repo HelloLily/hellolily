@@ -103,8 +103,13 @@ function QuoteCreateController($http, $timeout, Settings, currentDeal, dealConta
                 recipients[1].email = vm.deal.contact.email_addresses[0].email_address;
             }
 
-            if (vm.deal.contact.accounts.length) {
+            if (vm.deal.account) {
+                account = vm.deal.account;
+            } else if (vm.deal.contact.accounts.length) {
                 account = vm.deal.contact.accounts[0];
+            }
+
+            if (account) {
                 tokens['Client.Company'] = account.name;
 
                 if (account.addresses.length) {
@@ -128,6 +133,7 @@ function QuoteCreateController($http, $timeout, Settings, currentDeal, dealConta
                 recipients: recipients,
                 metadata: {
                     'deal': vm.deal.id,
+                    'account': account.id || null,
                 },
             },
             events: {

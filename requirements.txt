@@ -46,7 +46,7 @@ jinja2==2.8
 ### Views & Forms                                   ###
 #######################################################
 
-django-bootstrap3==6.1.0
+django-bootstrap3==9.0.0
 django-braces==1.8.1
 django-password-strength==1.2.1
 django-timezone-field==2.0

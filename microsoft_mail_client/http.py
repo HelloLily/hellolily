@@ -5,8 +5,8 @@ request.
 """
 
 import json
-import pprint
 import uuid
+from collections import defaultdict
 
 import requests
 from requests import Response
@@ -14,6 +14,23 @@ from requests import Response
 from microsoft_mail_client import __version__
 from microsoft_mail_client.constants import MAX_BATCH_SIZE
 from microsoft_mail_client.errors import BatchIdError, BatchMaxSizeError, CallbackError
+
+
+def ddict2dict(dd):
+    """
+    Convert a defaultdict to a dict. Multiple entries with the same key are merged to one with each value joined
+    together by a comma.
+
+    :param dd: defaultdict.
+    :return: dict values.
+    """
+    d = dict()
+    for k, v in dd.items():
+        if isinstance(v, list):
+            d[k] = ",".join(v)
+        else:
+            d[k] = v
+    return d
 
 
 class HttpRequest(object):
@@ -32,7 +49,7 @@ class HttpRequest(object):
         self.uri = uri
         self.method = method
         self.payload = payload
-        self.headers = headers or {}  # TODO: change headers=None to headers
+        self.headers = headers or defaultdict(list)  # TODO: change parameter headers=None to headers
         self.parameters = parameters
         self.request_id = request_id or str(uuid.uuid4())
 
@@ -48,61 +65,53 @@ class HttpRequest(object):
                 'Content-Type': 'application/json'
             })
 
+        # Request expects a dict, so convert the defaultdict to a dict.
+        self.headers = ddict2dict(self.headers)
+
     def execute(self):
         """
         Execute the request, send to server.
 
         :return: response object.
         """
-        response = None
-
-        # Request expects a dict, so convert the defaultdict to a dict.
-        headers = self._ddict2dict(self.headers)
-
-        pprint.pprint(json.dumps(self.uri), width=1)
-        pprint.pprint(json.dumps(self.method), width=1)
-        if self.payload:
-            pprint.pprint(self.payload, width=1)
-        pprint.pprint(headers, width=1)
-        if self.parameters:
-            pprint.pprint(self.parameters, width=1)
+        r = None
 
         if self.method.upper() == 'GET':
-            response = requests.get(self.uri, headers=headers, params=self.parameters)
+            r = requests.get(self.uri, headers=self.headers, params=self.parameters)
         elif self.method.upper() == 'DELETE':
-            response = requests.delete(self.uri, headers=headers, params=self.parameters)
+            r = requests.delete(self.uri, headers=self.headers, params=self.parameters)
         elif self.method.upper() == 'PATCH':
-            response = requests.patch(self.uri, headers=headers, data=json.dumps(self.payload), params=self.parameters)
+            r = requests.patch(self.uri, headers=self.headers, data=json.dumps(self.payload), params=self.parameters)
         elif self.method.upper() == 'POST':
-            response = requests.post(self.uri, headers=headers, data=json.dumps(self.payload), params=self.parameters)
+            r = requests.post(self.uri, headers=self.headers, data=json.dumps(self.payload), params=self.parameters)
 
-        return response
+        return r
 
-    def _ddict2dict(self, dd):
-        """
-        Convert a defaultdict to a dict. List values are joined together by a comma.
-
-        :param dd: defaultdict.
-        :return: dict values.
-        """
-        headers = {}
-        for k, v in dd.items():
-            if isinstance(v, list):
-                headers[k] = ",".join(v)
-            else:
-                headers[k] = v
-        return headers
+    def __repr__(self):
+        r = 'Request id:\t{0}\n'.format(self.request_id)
+        r += 'Method:\t\t{0}\n'.format(self.method)
+        r += 'Url:\t\t{0}\n'.format(self.uri)
+        if self.parameters:
+            r += 'Parameters:\n{0}\n'.format(self.parameters)
+        r += 'Headers:\n'
+        h = self.headers
+        for k, v in h.items():
+            r += '{0}:{1}\n'.format(k, v)
+        if self.payload:
+            r += 'Payload:\n{0}\n'.format(json.dumps(self.payload))
+        return r
 
 
 class BatchHttpRequest(object):
     """Batches multiple HttpRequest objects into a single HTTP request."""
 
-    def __init__(self, batch_uri, headers):
+    def __init__(self, batch_uri, headers=None, continue_on_error=False):
         """
         Constructor for a BatchHttpRequest.
 
         :param batch_uri: uri to send the requests to.
-        :param headers:
+        :param headers: defaultdict
+        :param continue_on_error: should an error on an individual request halt the complete batch.
         """
 
         self.uri = batch_uri
@@ -110,14 +119,21 @@ class BatchHttpRequest(object):
 
         # TOOD: use case global callback?
         # self._callback = callback  # Global callback to be called for each individual response in the batch.
-        self._requests = {}  # A map from id to request.
-        self._callbacks = {}  # A map from id to callback.
-        # self._responses = {}  # A map from request id to (httplib2.Response, content) response pairs.
+        self._requests = []  # List of requests, in the order in which they were added.
+        self._callbacks = []  # List of callbacks, in the order in which they were added.
+        self._request_ids = []  # List of request ids, in the order in which they were added.
+        self._responses = []  # A map from request id to (httplib2.Response, content) response pairs.
 
-        self.headers = headers or {}
+        self.headers = headers or defaultdict(list)
         self.headers.update({
-            'Content-Type': 'multipart/mixed; boundary=batch_'.format(self.batch_id),
+            'Content-Type': 'multipart/mixed; boundary=batch_{0}'.format(self.batch_id),
         })
+
+        if continue_on_error:
+            self.headers['Prefer'].append('odata.continue-on-error')
+
+        # Request expects a dict, so convert the defaultdict to a dict.
+        self.headers = ddict2dict(self.headers)
 
     def add(self, request, callback):
         """
@@ -137,14 +153,14 @@ class BatchHttpRequest(object):
             raise BatchIdError('Request without an id added.')
 
         request_id = request.request_id
-
-        if request_id in self._requests:
+        if request_id in self._request_ids:
             raise BatchIdError('Request already added: {0}.'.format(request_id))
 
-        self._requests[request_id] = request
-        self._callbacks[request_id] = callback
+        self._requests.append(request)
+        self._callbacks.append(callback)
+        self._request_ids.append(request_id)
 
-    def execute(self, continue_on_error=False):
+    def execute(self):
         """
         Execute all the requests as a single batched HTTP request.
 
@@ -152,32 +168,15 @@ class BatchHttpRequest(object):
         to individual responses and call related callback methods.
 
         The server may perform operations within a batch in any order.
-        :param continue_on_error: should an error on an individual request halt the complete batch.
         :return:
         """
         # TODO: \n or \r\n\r\n ?
 
-        if len(self._requests) == 0:
+        if len(self._request_ids) == 0:
             # No requests to execute.
             return None
 
-        if continue_on_error:
-            self.headers.update({
-                'Prefer': 'odata.continue-on-error'
-            })
-
-        body = ''
-
-        # Serialize requests.
-        serialized_requests = [self._serialize_request(r) for r in self._requests.values()]
-        body += '\n'.join(serialized_requests)
-        body += '\n'
-        body += '--batch_{0}--\n'.format(self.batch_id)
-
-        if self._requests.values()[-1].method == 'POST':
-            # if you have a POST request at the end of a batch, make sure there is a new line after the very last batch
-            # delimiter.
-            body += '\n'
+        body = self._serialize_requests()
 
         # Execute batch request.
         batch_response = requests.post(self.uri, data=body, headers=self.headers)
@@ -186,32 +185,47 @@ class BatchHttpRequest(object):
         # Loop over all the requests and check for 401s. For each 401 request the credentials should be refreshed and
         # then sent again in a separate batch.
 
-        # if response.status >= 300:
+        # TODO: best way to check status_code?
+        # if response.status_code >= 300:
         # if batch_response.status_code != requests.codes.ok:
         if not batch_response:
             # raise HttpError()
             batch_response.raise_for_status()
 
+        # A well-formed batch request with correct headers returns HTTP 200 OK. This however doesn't mean all the
+        # requests in the batch were successful.
+
         # Split the batch response body into individual Response objects.
         # Process batch response body by splinting it up and removing none response chunks.
+        _, batch_boundary = batch_response.headers['Content-Type'].split('=', 1)
         batch_responses = batch_response.text.strip()  # Remove leading and trailing newlines / white spaces.
-        delimiter = '--batchresponse_{0}'.format(self.batch_id)
-        response_chunks = batch_responses.split(delimiter)
+        response_chunks = batch_responses.split(batch_boundary)
         # Removes empty chunks and the trailing batch delimiter.
         response_chunks = [chunk for chunk in response_chunks if chunk.strip() and chunk != '--']
         # Each response chunk contains headers, protocol, status, reason & body of individual requests.
         # Process each chunk into a proper Response object
-        responses = [self._deserialize_response(chunk) for chunk in response_chunks]
+        self._responses = [self._deserialize_response(chunk) for chunk in response_chunks]
 
-        # Process each response by calling the related callback method,
-        for response in responses:
-            # Extract client-request-id from the response headers.
-            # TODO: client-request-id not available possibillity?
-            request_id = response.headers['client-request-id']
-            # Retrieve the specific callback for this request,
-            callback = self._callbacks[request_id]
-            # and process the response.
-            callback(response)
+        # Process each response by calling the related callback method.
+        # Assuming that responses are returned in order the requests were added in the batch.
+        # Zip() halts on the shortest list, therefore handling a halting error on a batch component when the
+        # odata.continue-on-error header was not provided on the batch request.
+        for response, callback, request_id in zip(self._responses, self._callbacks, self._request_ids):
+            callback(response, request_id)
+
+    def _serialize_requests(self):
+        """
+        Convert all the HttpRequest objects in the batch into a single string.
+
+        :return: serialized requests.
+        """
+        serialized_requests = [self._serialize_request(r) for r in self._requests]
+        body = ''
+        body += '\n'.join(serialized_requests)
+        body += '\n--batch_{0}--\n'.format(self.batch_id)
+        body += '\n'
+
+        return body
 
     def _serialize_request(self, request):
         """
@@ -223,11 +237,11 @@ class BatchHttpRequest(object):
 
         # TODO: \n or \r\n\r\n ?
 
-        body = '\n\n'  # Make sure you have an additional new line before a batch boundary delimiter.
+        body = '\n'  # Make sure you have an additional new line before a batch boundary delimiter.
         body += '--batch_{0}\n'.format(self.batch_id)
 
         # Override / add headers.
-        headers = request.headers.copy()
+        headers = {}  # request.headers.copy()
         headers.update({
             'Content-Type': 'application/http',
             'Content-Transfer-Encoding': 'binary',
@@ -247,13 +261,13 @@ class BatchHttpRequest(object):
             uri = uri[:-1]  # Remove trailing &-character.
 
         body += '{0} {1} {2}\n'.format(request.method, uri, 'HTTP/1.1')
-        body += '\n'
 
         # Serialize payload.
         if request.payload:
             if request.method == 'PATCH' or request.method == 'POST':
                 body += '{0}:{1}\n'.format('Content-Type', 'application/json')
 
+            body += '\n'
             body += json.dumps(request.payload)
             body += '\n'
 
@@ -268,29 +282,35 @@ class BatchHttpRequest(object):
         :return: Response object.
         """
         headers = {}
+        body = ''
 
-        lines = chunk.splitlines(keepends=False)
+        lines = chunk.splitlines()
+        lines = [line for line in lines if line.strip() and line != '--']
+
         # One line can be a header, or list the protocol, status & reason or be part of the body.
         # Indentify a header by :-character or
         # it starts with the protocol (HTTP) or
         # otherwise, it is part of the response body.
         while lines:
-            if lines[0].startswith('HTTP'):
-                line = lines.pop(0)
-                protocol, status, reason = line.split(' ', 2)
-            elif ';' in lines[0]:
-                line = lines.pop(0)
+            line = lines.pop(0)
+            if line.startswith('{'):
+                # Start of the (json) body.
+                # TODO: return remainig lines, now it assumes remaining is also the last line.
+                # lines = lines.insert(0, line)
+                body = line
+                break
+            elif ':' in line:
                 key, value = [x.strip() for x in line.split(':', 1)]
                 headers.update({
                     key: value,
                 })
-            elif lines[0].startswith('{'):
-                # Start of the (json) body.
-                break
-
-        if lines:
-            # The remainder of lines contains the body of the response.
-            body = '\n'.join(lines)
+            elif line.startswith('HTTP'):
+                protocol, status, reason = line.split(' ', 2)
+        #
+        # if lines:
+        #     # The remainder of lines contains the body of the response.
+        #     body = '\n'.join(lines)
+        #
 
         response = Response()
         response.status_code = status
@@ -299,8 +319,19 @@ class BatchHttpRequest(object):
             response.headers = headers
         if body:
             # TODO: proper way of encoding?
-            # response._content = bytes(body)
+            response._content = bytes(body)
             # response._content = bytes(body, 'unicode')
-            response._content = body.encode('unicode')  # Response object expects unicode bytes.
+            # response._content = body.encode('unicode')  # Response object expects unicode bytes. <- fails
 
         return response
+
+    def __repr__(self):
+        r = 'Batch id:\t{0}\n'.format(self.batch_id)
+        r += 'Url:\t\t{0}\n'.format(self.uri)
+        r += 'Headers:\n'
+        h = self.headers
+        for k, v in h.items():
+            r += '{0}:{1}\n'.format(k, v)
+        if self._request_ids:
+            r += 'Payload:\n{0}\n'.format(self._serialize_requests())
+        return r

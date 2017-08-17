@@ -37,23 +37,24 @@ class Resource(object):
         self.user_email = user_email
         self.credentials = credentials
 
-        # TODO: use uritemplate.expand() like google api does.
         self._base_url = 'https://outlook.office.com/api/{0}/users/{1}'.format(version, user_email)
         # self._base_url = "https://outlook.office.com/api/{0}/users/'{1}'".format(version, user_email)
         # self._base_url = 'https://outlook.office365.com/api/{0}'.format(version)  # Larger attachment size limit.
         self._base_url += '{0}'
 
-        self._batch_url = "https://outlook.office.com/api/{0}/users('{0}')/$batch".format(version, user_email)
+        self._batch_url = "https://outlook.office.com/api/{0}/users/{1}/$batch".format(version, user_email)
 
-        self._authorization_headers = {
+        self._authorization_headers = defaultdict(list)
+        self._authorization_headers.update({
             'Authorization': 'Bearer {0}'.format(self.credentials.access_token),
             'X-AnchorMailbox': self.user_email,
-        }
+        })
 
-        self._authorization_batch_headers = {
+        self._authorization_batch_headers = defaultdict(list)
+        self._authorization_batch_headers.update({
             'Authorization': 'Bearer {0}'.format(self.credentials.access_token),
             'Host': 'outlook.office.com',
-        }
+        })
 
     def get_messages(self, folder_id=None, allow_unsafe=False, body_content_type=None, query_parameters=None):
         """
@@ -67,6 +68,8 @@ class Resource(object):
         :return: HttpRequest object.
         """
         headers = defaultdict(list)
+        headers.update(self._authorization_headers)
+
         if allow_unsafe:
             headers['Prefer'].append('outlook.allow-unsafe-html')
 
@@ -77,8 +80,6 @@ class Resource(object):
         url = self._base_url.format('/messages')
         if folder_id:
             url = self._base_url.format('/MailFolders/{0}/messages').format(folder_id)
-
-        headers.update(self._authorization_headers)
 
         return HttpRequest(uri=url, method='GET', headers=headers, parameters=query_parameters)
 
@@ -96,6 +97,8 @@ class Resource(object):
             raise NoMessageId()
 
         headers = defaultdict(list)
+        headers.update(self._authorization_headers)
+
         if allow_unsafe:
             headers['Prefer'].append('outlook.allow-unsafe-html')
 
@@ -104,8 +107,6 @@ class Resource(object):
                 headers['Prefer'].append('outlook.body-content-type="{0}'.format(body_content_type))
 
         url = self._base_url.format('/messages/{0}').format(message_id)
-
-        headers.update(self._authorization_headers)
 
         return HttpRequest(uri=url, method='GET', headers=headers, parameters=query_parameters)
 
@@ -132,36 +133,31 @@ class Resource(object):
                 until the last sync response returns a deltaLink and deltaToken, this round of sync is complete.
             Save the deltaToken for the next round of sync.
         """
+        # TODO: how to differentiate between first and last page in the sync response if the first page holds all
+        # available mail and is therefor also the last page?
+
         if not folder_id:
             raise NoFolderId()
 
         headers = defaultdict(list)
+        headers.update(self._authorization_headers)
+
         if not skip_token:
             headers['Prefer'].append('odata.track-changes')
 
         if max_page_size:
             headers['Prefer'].append('odata.maxpagesize={0}'.format(max_page_size))
 
-        if delta_token and delta_token not in query_parameters:
-            query_parameters.update({'deltatoken': delta_token})
+        # TODO: verify are parameters case sensitive?
+        if delta_token:
+            query_parameters.update({'$deltatoken': delta_token})  # Accordingly to example, lowercase parameter.
 
-        if skip_token and skip_token not in query_parameters:
-            query_parameters.update({'skiptoken': skip_token})
+        if skip_token:
+            query_parameters.update({'$skipToken': skip_token})  # Accordingly to example, camelcase parameter.
 
         url = self._base_url.format('/MailFolders/{0}/messages').format(folder_id)
 
-        headers.update(self._authorization_headers)
-
         return HttpRequest(uri=url, method='GET', headers=headers, parameters=query_parameters)
-
-        # TODO: Move to parse_history.
-        # TODO: extract tokens from response, add the to the return.
-        # next_skip_token = None
-        # extract skip_token from result
-        # next_delta_token = None
-        # extract delta_token from result
-        # TODO: also extract if 'Preference-Applied: odata.track-changes' is present, and return true/false.
-        # return skip_token, delta_token, response
 
     def send_message(self, message, save_to_sent_items=True):
         """
@@ -174,13 +170,16 @@ class Resource(object):
         if not message:
             raise NoMessage()
 
+        headers = defaultdict(list)
+        headers.update(self._authorization_headers)
+
         if not save_to_sent_items:
             # Only add this field to the message if user don't want to save it to the sent items folder.
             message['SaveToSentItems'] = save_to_sent_items
 
         url = self._base_url.format('/sendmail')
 
-        return HttpRequest(uri=url, method='POST', payload=message, headers=self._authorization_headers)
+        return HttpRequest(uri=url, method='POST', payload=message, headers=headers)
 
     def draft_message(self, message, folder_id):
         """
@@ -190,14 +189,14 @@ class Resource(object):
         :param folder_id: save draft in this folder, Optinal, Default to Drafts.
         :return: HttpRequest object.
         """
-        if not message and 'Comment' not in message:
-            raise NoComment()
+        if not message:
+            raise NoMessage()
 
         url = self._base_url.format('/messages')
         if folder_id:
             url = self._base_url.format('/MailFolders/{0}/messages').format(folder_id)
 
-        return HttpRequest(uri=url, method='POST', headers=self._authorization_headers, payload=message)
+        return HttpRequest(uri=url, method='POST', payload=message, headers=self._authorization_headers,)
 
     def sent_draft_message(self, message_id):
         """
@@ -209,9 +208,12 @@ class Resource(object):
         if not message_id:
             raise NoMessageId()
 
+        headers = defaultdict(list)
+        headers.update(self._authorization_headers)
+
         url = self._base_url.format('/messages/{0}/send').format(message_id)
 
-        return HttpRequest(uri=url, method='POST', headers=self._authorization_headers)
+        return HttpRequest(uri=url, method='POST', headers=headers)
 
     def sent_reply_message(self, message_id, message, reply_all=False):
         """
@@ -230,11 +232,14 @@ class Resource(object):
         if not message and 'Comment' not in message:
             raise NoComment()
 
+        headers = defaultdict(list)
+        headers.update(self._authorization_headers)
+
         url = self._base_url.format('/messages/{0}/reply').format(message_id)
         if reply_all:
             url = self._base_url.format('/messages/{0}/replyall').format(message_id)
 
-        return HttpRequest(uri=url, method='POST', headers=self._authorization_headers, payload=message)
+        return HttpRequest(uri=url, method='POST', headers=headers, payload=message)
 
     def sent_reply_all_message(self, message_id, message):
         """
@@ -266,11 +271,14 @@ class Resource(object):
             # No message provided, just draft an empty message.
             message = {'Comment': ''}
 
+        headers = defaultdict(list)
+        headers.update(self._authorization_headers)
+
         url = self._base_url.format('/messages/{0}/createreply').format(message_id)
         if reply_all:
             url = self._base_url.format('/messages/{0}/createreplyall').format(message_id)
 
-        return HttpRequest(uri=url, method='POST', headers=self._authorization_headers, payload=message)
+        return HttpRequest(uri=url, method='POST', headers=headers, payload=message)
 
     def draft_reply_all_message(self, message_id, message):
         """
@@ -305,6 +313,9 @@ class Resource(object):
             # No message provided, just forward an empty message.
             message = {'Comment': ''}
 
+        headers = defaultdict(list)
+        headers.update(self._authorization_headers)
+
         url = self._base_url.format('/messages/{0}/forward').format(message_id)
 
         payload = {
@@ -312,7 +323,7 @@ class Resource(object):
             'ToRecipients': recipients['ToRecipients'],
         }
 
-        return HttpRequest(uri=url, method='POST', headers=self._authorization_headers, payload=payload)
+        return HttpRequest(uri=url, method='POST', headers=headers, payload=payload)
 
     def draft_forward_message(self, message_id, message, recipients):
         """
@@ -332,6 +343,9 @@ class Resource(object):
             # No message provided, just forward an empty message.
             message = {'Comment': ''}
 
+        headers = defaultdict(list)
+        headers.update(self._authorization_headers)
+
         url = self._base_url.format('/messages/{0}/createforward').format(message_id)
 
         payload = {
@@ -339,7 +353,7 @@ class Resource(object):
             'ToRecipients': recipients['ToRecipients'],
         }
 
-        return HttpRequest(uri=url, method='POST', headers=self._authorization_headers, payload=payload)
+        return HttpRequest(uri=url, method='POST', headers=headers, payload=payload)
 
     def update_message(self, message_id, properties):
         """
@@ -356,9 +370,12 @@ class Resource(object):
         if len(res) != 0:
             raise InvalidWritableMessageProperty('Invalid properties: {0}'.format(', '.join(res)))
 
+        headers = defaultdict(list)
+        headers.update(self._authorization_headers)
+
         url = self._base_url.format('/messages')
 
-        return HttpRequest(uri=url, method='PATCH', headers=self._authorization_headers, payload=properties)
+        return HttpRequest(uri=url, method='PATCH', headers=headers, payload=properties)
 
     def delete_message(self, message_id):
         """
@@ -370,9 +387,12 @@ class Resource(object):
         if not message_id:
             raise NoMessageId()
 
+        headers = defaultdict(list)
+        headers.update(self._authorization_headers)
+
         url = self._base_url.format('/messages/{0}').format(message_id)
 
-        return HttpRequest(uri=url, method='DELETE', headers=self._authorization_headers)
+        return HttpRequest(uri=url, method='DELETE', headers=headers)
 
     def move_message(self, message_id, destination_folder_id):
         """
@@ -388,13 +408,16 @@ class Resource(object):
         if not destination_folder_id:
             raise NoFolderId()
 
+        headers = defaultdict(list)
+        headers.update(self._authorization_headers)
+
         url = self._base_url.format('/messages/{0}/move').format(message_id)
 
         payload = {
             'DestinationId': destination_folder_id
         }
 
-        return HttpRequest(uri=url, method='POST', headers=self._authorization_headers, payload=payload)
+        return HttpRequest(uri=url, method='POST', headers=headers, payload=payload)
 
     def copy_message(self, message_id, destination_folder_id):
         """
@@ -410,13 +433,16 @@ class Resource(object):
         if not destination_folder_id:
             raise NoFolderId()
 
+        headers = defaultdict(list)
+        headers.update(self._authorization_headers)
+
         url = self._base_url.format('/messages/{0}/copy').format(message_id)
 
         payload = {
             'DestinationId': destination_folder_id
         }
 
-        return HttpRequest(uri=url, method='POST', headers=self._authorization_headers, payload=payload)
+        return HttpRequest(uri=url, method='POST', headers=headers, payload=payload)
 
     def update_message_classification(self, message_id, classification, user_id=None):
         """
@@ -434,6 +460,9 @@ class Resource(object):
         if classification not in INFERENCE_CLASSIFICATION_OPTIONS:
             raise InvalidClassification()
 
+        headers = defaultdict(list)
+        headers.update(self._authorization_headers)
+
         url = self._base_url.format('/messages/{0}').format(message_id)
 
         if user_id:
@@ -443,7 +472,7 @@ class Resource(object):
             'InferenceClassification': classification
         }
 
-        return HttpRequest(uri=url, method='PATCH', headers=self._authorization_headers, payload=payload)
+        return HttpRequest(uri=url, method='PATCH', headers=headers, payload=payload)
 
     def override(self):
         """
@@ -484,15 +513,15 @@ class Resource(object):
         if option and option not in SETTING_OPTIONS:
             raise InvalidSettingsOption()
 
+        headers = defaultdict(list)
+        headers.update(self._authorization_headers)
+
         url = self._base_url.format('/MailboxSettings')
         if option:
             url = self._base_url.format('/MailboxSettings/{0}').format(option)
 
-        headers = defaultdict(list)
         if outlook_time_zone:
             headers['Prefer'].append('outlook.timezone')
-
-        headers.update(self._authorization_headers)
 
         return HttpRequest(uri=url, method='GET', headers=headers)
 
@@ -524,11 +553,14 @@ class Resource(object):
         if not message_id:
             raise NoMessageId()
 
+        headers = defaultdict(list)
+        headers.update(self._authorization_headers)
+
         url = self._base_url.format('/messages/{0}/attachments').format(message_id)
         if attachment_id:
             url = self._base_url.format('/messages/{0}/attachments/{1}').format(message_id, attachment_id)
 
-        return HttpRequest(uri=url, method='GET', headers=self._authorization_headers, parameters=query_parameters)
+        return HttpRequest(uri=url, method='GET', headers=headers, parameters=query_parameters)
 
     def get_attachemnt(self, message_id, query_parameters=None):
         """
@@ -563,23 +595,21 @@ class Resource(object):
         if len(res) != 0:
             raise InvalidWritableFileProperty('Invalid properties: {0}'.format(', '.join(res)))
 
+        headers = defaultdict(list)
+        headers.update(self._authorization_headers)
+
         payload = {
             '@odata.type': '#Microsoft.OutlookServices.FileAttachment',
             'ContentBytes': attachment,
+            'Name': name,
         }
-
-        if name not in properties:
-            additional_payload = {
-                'Name': name,
-            }
-            payload.update(additional_payload)
 
         if properties:
             payload.update(properties)
 
         url = self._base_url.format('/messages/{0}/attachments').format(message_id)
 
-        return HttpRequest(uri=url, method='POST', headers=self._authorization_headers, payload=payload)
+        return HttpRequest(uri=url, method='POST', headers=headers, payload=payload)
 
     def create_item_attachment(self, message_id, item, name, properties=None):
         """
@@ -606,23 +636,21 @@ class Resource(object):
         if len(res) != 0:
             raise InvalidWritableItemProperty('Invalid properties: {0}'.format(', '.join(res)))
 
+        headers = defaultdict(list)
+        headers.update(self._authorization_headers)
+
         payload = {
             '@odata.type': '#Microsoft.OutlookServices.ItemAttachment',
             'Item': item,
+            'Name': name,
         }
-
-        if name not in properties:
-            additional_payload = {
-                'Name': name,
-            }
-            payload.update(additional_payload)
 
         if properties:
             payload.update(properties)
 
         url = self._base_url.format('/messages/{0}/attachments').format(message_id)
 
-        return HttpRequest(uri=url, method='POST', headers=self._authorization_headers, payload=payload)
+        return HttpRequest(uri=url, method='POST', headers=headers, payload=payload)
 
     def create_reference_attachment(self, message_id, url, name, properties=None):
         """
@@ -651,23 +679,21 @@ class Resource(object):
         if len(res) != 0:
             raise InvalidWritableReferenceProperty('Invalid properties: {0}'.format(', '.join(res)))
 
+        headers = defaultdict(list)
+        headers.update(self._authorization_headers)
+
         payload = {
             '@odata.type': '#Microsoft.OutlookServices.ReferenceAttachment',
             'SourceUrl': url,
+            'Name': name,
         }
-
-        if name not in properties:
-            additional_payload = {
-                'Name': name,
-            }
-            payload.update(additional_payload)
 
         if properties:
             payload.update(properties)
 
         url = self._base_url.format('/messages/{0}/attachments').format(message_id)
 
-        return HttpRequest(uri=url, method='POST', headers=self._authorization_headers, payload=payload)
+        return HttpRequest(uri=url, method='POST', headers=headers, payload=payload)
 
     def delete_attachment(self, message_id, attachment_id):
         """
@@ -683,9 +709,12 @@ class Resource(object):
         if not attachment_id:
             raise NoAttachmentId()
 
+        headers = defaultdict(list)
+        headers.update(self._authorization_headers)
+
         url = self._base_url.format('/messages/{0}/attachments/{1}').format(message_id, attachment_id)
 
-        return HttpRequest(uri=url, method='DELETE', headers=self._authorization_headers)
+        return HttpRequest(uri=url, method='DELETE', headers=headers)
 
     def get_folders(self, folder_id=None, query_parameters=None):
         """
@@ -695,11 +724,14 @@ class Resource(object):
         :param query_parameters: use OData query parameters to control the results.
         :return: HttpRequest object.
         """
+        headers = defaultdict(list)
+        headers.update(self._authorization_headers)
+
         url = self._base_url.format('/MailFolders')
         if folder_id:
             url = self._base_url.format('/MailFolders/{0}/childfolders').format(folder_id)
 
-        return HttpRequest(uri=url, method='GET', headers=self._authorization_headers, parameters=query_parameters)
+        return HttpRequest(uri=url, method='GET', headers=headers, parameters=query_parameters)
 
     def get_folder(self, folder_id, query_parameters=None):
         """
@@ -712,9 +744,12 @@ class Resource(object):
         if not folder_id:
             raise NoFolderId
 
+        headers = defaultdict(list)
+        headers.update(self._authorization_headers)
+
         url = self._base_url.format('/MailFolders/{0}').format(folder_id)
 
-        return HttpRequest(uri=url, method='GET', headers=self._authorization_headers, parameters=query_parameters)
+        return HttpRequest(uri=url, method='GET', headers=headers, parameters=query_parameters)
 
     def synchronize_folders(self, delta_token=None, query_parameters=None):
         # TOOD: unclear documenation: how to pass requested category?
@@ -728,16 +763,16 @@ class Resource(object):
         :return: HttpRequest object.
         """
         headers = defaultdict(list)
+        headers.update(self._authorization_headers)
+
         if delta_token:
             # Incremental synchronization.
             headers['Prefer'].append('odata.track-changes')
 
-        if delta_token and delta_token not in query_parameters:
-            query_parameters.update({'deltatoken': delta_token})
+        if delta_token:
+            query_parameters.update({'$deltatoken': delta_token})
 
         url = self._base_url.format('/MailFolders')
-
-        headers.update(self._authorization_headers)
 
         return HttpRequest(uri=url, method='GET', headers=headers, parameters=query_parameters)
 
@@ -777,13 +812,16 @@ class Resource(object):
         if not name:
             raise NoName()
 
+        headers = defaultdict(list)
+        headers.update(self._authorization_headers)
+
         payload = {
             'DisplayName': name,
         }
 
         url = self._base_url.format('/MailFolders/{0}').format(folder_id)
 
-        return HttpRequest(uri=url, method='PATCH', headers=self._authorization_headers, payload=payload)
+        return HttpRequest(uri=url, method='PATCH', headers=headers, payload=payload)
 
     def delete_folder(self, folder_id):
         """
@@ -795,9 +833,12 @@ class Resource(object):
         if not folder_id:
             raise NoFolderId()
 
+        headers = defaultdict(list)
+        headers.update(self._authorization_headers)
+
         url = self._base_url.format('/MailFolders/{0}').format(folder_id)
 
-        return HttpRequest(uri=url, method='DELETE', headers=self._authorization_headers)
+        return HttpRequest(uri=url, method='DELETE', headers=headers)
 
     def move_folder(self, folder_id, destination_folder_id):
         """
@@ -813,13 +854,16 @@ class Resource(object):
         if not destination_folder_id:
             raise NoDestinationFolderId()
 
+        headers = defaultdict(list)
+        headers.update(self._authorization_headers)
+
         payload = {
             'DestinationId': destination_folder_id,
         }
 
         url = self._base_url.format('/MailFolders/{0}/move').format(folder_id)
 
-        return HttpRequest(uri=url, method='POST', headers=self._authorization_headers, payload=payload)
+        return HttpRequest(uri=url, method='POST', headers=headers, payload=payload)
 
     def copy_folder(self, folder_id, destination_folder_id):
         """
@@ -835,18 +879,23 @@ class Resource(object):
         if not destination_folder_id:
             raise NoDestinationFolderId()
 
+        headers = defaultdict(list)
+        headers.update(self._authorization_headers)
+
         payload = {
             'DestinationId': destination_folder_id,
         }
 
         url = self._base_url.format('/MailFolders/{0}/copy').format(folder_id)
 
-        return HttpRequest(uri=url, method='POST', headers=self._authorization_headers, payload=payload)
+        return HttpRequest(uri=url, method='POST', headers=headers, payload=payload)
 
-    def new_batch(self):
+    def new_batch(self, continue_on_error=True):
         """
         Initialize an empty batch request.
         :return: BatchHttpRequest object.
 
         """
-        return BatchHttpRequest(self._batch_url, self._authorization_batch_headers)
+        headers = defaultdict(list)
+        headers.update(self._authorization_batch_headers)
+        return BatchHttpRequest(self._batch_url, headers=headers, continue_on_error=continue_on_error)

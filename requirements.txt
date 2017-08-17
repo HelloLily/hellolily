@@ -55,11 +55,11 @@ django-timezone-field==2.0
 ### Asset management                                ###
 #######################################################
 
-boto==2.39.0
-collectfast==0.2.3
-django-pipeline==1.5.2
-futures==3.0.5
-django-storages==1.4
+boto==2.48.0
+collectfast==0.5.2
+django-pipeline==1.6.13
+futures==3.1.1
+django-storages==1.6.5
 Pillow==3.3.2
 
 #######################################################

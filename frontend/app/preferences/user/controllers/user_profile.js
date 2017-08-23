@@ -32,6 +32,7 @@ function PreferencesUserProfileController($state, $window, HLForms, HLUtils, Upl
 
     vm.saveUser = saveUser;
     vm.cancelProfileEditing = cancelProfileEditing;
+    vm.notificationsDenied = 'Notification' in window && Notification.permission === 'denied';
 
     activate();
 
@@ -66,6 +67,30 @@ function PreferencesUserProfileController($state, $window, HLForms, HLUtils, Upl
             data.picture = vm.user.picture;
         }
 
+        if ('Notification' in window &&
+            Notification.permission !== 'granted' &&
+            Notification.permission !== 'denied') {
+            Notification.requestPermission((permission) => {
+                swal.clickConfirm();
+            });
+            swal({
+                title: messages.alerts.notificationPermission.title,
+                text: messages.alerts.notificationPermission.text,
+                showConfirmButton: false,
+                showCloseButton: false,
+                showCancelButton: false,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                padding: 30,
+            }).then(() => {
+                saveUserForm(form, formName, data);
+            }).done();
+        } else {
+            saveUserForm(form, formName, data);
+        }
+    }
+
+    function saveUserForm(form, formName, data) {
         HLUtils.blockUI(formName, true);
         HLForms.clearErrors(form);
 

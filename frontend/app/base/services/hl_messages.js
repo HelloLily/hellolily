@@ -60,6 +60,10 @@ function HLMessages() {
                 overwriteTemplateConfirm: 'Selecting a different template will reload the template. This will put your typed text at the bottom of the email. Do you want to load the template anyway?',
                 reloadTemplateConfirm: 'Do you want to reload the template? This will load the template variables, but will put your text at the bottom of the email.',
             },
+            notificationPermission: {
+                title: 'Heads up!',
+                text: 'For our call integration, we need your browsers permission to send you notifications. Please allow these notifications to make complete use of our call integration.',
+            },
             preferences: {
                 userAssignTitle: 'Assign %(user)s to teams',
                 shareAccountTitle: 'Share your email',

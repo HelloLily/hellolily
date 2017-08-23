@@ -85,6 +85,10 @@
                                    type="text"
                                    ng-model="vm.user.internal_number">
                         </form-group>
+                        <div class="widget-suggestion" ng-if="vm.notificationsDenied">
+                            <div class="widget-suggestion-title">Browser notifications have been blocked</div>
+                            <div>You will not receive call notifications, but your calls will still be visible in activity streams.</div>
+                        </div>
 
                         <!--<form-group label-title="Twitter" label-id="twitter" field="userForm.twitter">-->
                             <!--<div class="input-group">-->
@@ -131,10 +135,10 @@
                         <div class="row">
                             <div class="col-xs-12 col-sm-3 col-md-2 col-lg-2"></div>
                             <div class="col-xs-12 col-sm-9 col-md-8 col-md-7 col-lg-4">
-                                <button type="button" class="btn blue" ng-click="vm.saveUser(userForm)">
+                                <button type="button" class="hl-primary-btn-blue" ng-click="vm.saveUser(userForm)">
                                     <i class="fa fa-check"></i> Save
                                 </button>
-                                <button type="button" class="btn default" ng-click="vm.cancelProfileEditing()">
+                                <button type="button" class="hl-primary-btn" ng-click="vm.cancelProfileEditing()">
                                     Cancel
                                 </button>
                             </div>

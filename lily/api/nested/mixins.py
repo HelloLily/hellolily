@@ -28,6 +28,7 @@ class RelatedSerializerMixin(ValidateEverythingSimultaneouslyMixin):
     extra_field_attrs = ['create_only', 'assign_only']
 
     def __init__(self, create_only=False, assign_only=False, instance=None, data=empty, **kwargs):
+        super(RelatedSerializerMixin, self).__init__(instance=instance, data=data, **kwargs)
         allow_null = kwargs.get('allow_null', False)
         read_only = kwargs.get('read_only', False)
         many = kwargs.get('many', False)
@@ -48,8 +49,6 @@ class RelatedSerializerMixin(ValidateEverythingSimultaneouslyMixin):
 
         id_field = getattr(self.Meta, 'id_field', RelatedPrimaryKeyField())
         self.fields['id'] = id_field
-
-        super(RelatedSerializerMixin, self).__init__(instance=instance, data=data, **kwargs)
 
     @classmethod
     def many_init(cls, *args, **kwargs):

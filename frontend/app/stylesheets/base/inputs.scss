@@ -350,6 +350,25 @@ $inline-editable-field-height: 30px;
     }
 }
 
+.large-header {
+    .editable-text {
+        width: initial;
+    }
+
+    .editable-input:last-of-type {
+        border-radius: 0;
+        border-right: 0;
+    }
+
+    .editable-buttons {
+        font-size: 1rem;
+
+        button {
+            margin: 0 -2px;
+        }
+    }
+}
+
 .select2-container-multi .select2-choices .select2-search-choice-focus {
     background: $lily-blue;
     color: #fff;

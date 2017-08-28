@@ -19,7 +19,8 @@ class Microsoft(object):
             'offline_access',
             'https://outlook.office.com/mail.read',
             'https://outlook.office.com/mail.send',
-            'https://outlook.office.com/mail.readwrite'
+            'https://outlook.office.com/mail.readwrite',
+            'https://outlook.office.com/mailboxsettings.read',
         ],
         prompt='consent',
         access_type='offline',

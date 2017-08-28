@@ -133,7 +133,7 @@ class Resource(object):
                 until the last sync response returns a deltaLink and deltaToken, this round of sync is complete.
             Save the deltaToken for the next round of sync.
         """
-        # TODO: how to differentiate between first and last page in the sync response if the first page holds all
+        # TODO: how to differentiate between first and last page in the sync response if the first page holds all.
         # available mail and is therefor also the last page?
 
         if not folder_id:
@@ -181,22 +181,25 @@ class Resource(object):
 
         return HttpRequest(uri=url, method='POST', payload=message, headers=headers)
 
-    def draft_message(self, message, folder_id):
+    def draft_message(self, message=None, folder_id=None):
         """
         Create a draft of a new message.
 
-        :param message: dict.
-        :param folder_id: save draft in this folder, Optinal, Default to Drafts.
+        :param message: dict. Optional.
+        :param folder_id: save draft in this folder. Optional. Default to Drafts.
         :return: HttpRequest object.
         """
         if not message:
-            raise NoMessage()
+            message = {}
+
+        headers = defaultdict(list)
+        headers.update(self._authorization_headers)
 
         url = self._base_url.format('/messages')
         if folder_id:
             url = self._base_url.format('/MailFolders/{0}/messages').format(folder_id)
 
-        return HttpRequest(uri=url, method='POST', payload=message, headers=self._authorization_headers,)
+        return HttpRequest(uri=url, method='POST', payload=message, headers=headers)
 
     def sent_draft_message(self, message_id):
         """
@@ -212,8 +215,8 @@ class Resource(object):
         headers.update(self._authorization_headers)
 
         url = self._base_url.format('/messages/{0}/send').format(message_id)
-
-        return HttpRequest(uri=url, method='POST', headers=headers)
+        payload = {}  # POST expects a json payload. TODO why? because Postman is ok without. TODO: move to http.py.
+        return HttpRequest(uri=url, method='POST', headers=headers, payload=payload)
 
     def sent_reply_message(self, message_id, message, reply_all=False):
         """
@@ -253,23 +256,25 @@ class Resource(object):
         """
         return self.sent_reply_message(message_id, message, True)
 
-    def draft_reply_message(self, message_id, message, reply_all=False):
+    def draft_reply_message(self, message_id, message=None, reply_all=False):
         """
         Create a draft of a reply message.
 
         :param message_id: replying to this message.
-        :param message: dict with key 'Comment' with the actual comment as a value. Falls back to empty comment.
-               So excluding the body of original message.
+        :param message: dict. Optional.
+               Excluding the body of original message.
                https://stackoverflow.com/questions/41937948/how-to-properly-respond-to-an-email-using-the-outlook-rest-api
         :param reply_all: reply to all recipients or just to the sender. Optional.
         :return: HttpRequest object.
         """
+        # FYI: Documentation is for BETA api.
+        # https://stackoverflow.com/questions/41762565/outlook-rest-api-create-reply-draft-error
+
         if not message_id:
             raise NoMessageId()
 
-        if not message and 'Comment' not in message:
-            # No message provided, just draft an empty message.
-            message = {'Comment': ''}
+        if not message:
+            message = {}
 
         headers = defaultdict(list)
         headers.update(self._authorization_headers)
@@ -280,37 +285,37 @@ class Resource(object):
 
         return HttpRequest(uri=url, method='POST', headers=headers, payload=message)
 
-    def draft_reply_all_message(self, message_id, message):
+    def draft_reply_all_message(self, message_id, message=None):
         """
         Create a draft of a reply-all message.
 
         :param message_id: replying to this message.
-        :param message: dict with key 'Comment' with the actual comment as a value. Falls back to empty comment.
-               So excluding the body of original message.
+        :param message: dict. Optional.
+               Excluding the body of original message.
                stackoverflow.com/questions/41937948/how-to-properly-respond-to-an-email-using-the-outlook-rest-api
         :return: HttpRequest object.
         """
         return self.draft_reply_message(message_id, message, True)
 
-    def sent_forward_message(self, message_id, message, recipients):
+    def sent_forward_message(self, message_id, recipients, message=None):
         """
         Forward a message. The message is saved in the Sent Items folder.
 
         :param message_id: message for forward.
+        :param recipients: list with recipients.
         :param message: dict with key 'Comment' with the actual comment as a value. Falls back to empty comment.
-               So excluding the body of original message.
+               Excluding the body of original message.
                stackoverflow.com/questions/41937948/how-to-properly-respond-to-an-email-using-the-outlook-rest-api
-        :param recipients: dict with key 'ToRecipients'.
         :return: HttpRequest object.
         """
         if not message_id:
             raise NoMessageId()
 
-        if not recipients and 'ToRecipients' not in recipients:
+        if not recipients:
             raise NoRecipients()
 
-        if not message and 'Comment' not in message:
-            # No message provided, just forward an empty message.
+        if not message or 'Comment' not in message:
+            # No comment provided, just forward an empty message.
             message = {'Comment': ''}
 
         headers = defaultdict(list)
@@ -320,47 +325,41 @@ class Resource(object):
 
         payload = {
             'Comment': message['Comment'],
-            'ToRecipients': recipients['ToRecipients'],
+            'ToRecipients': recipients,
         }
 
         return HttpRequest(uri=url, method='POST', headers=headers, payload=payload)
 
-    def draft_forward_message(self, message_id, message, recipients):
+    def draft_forward_message(self, message_id, message=None):
         """
         Create a draft of a forward message.
 
         :param message_id: message for forward.
-        :param message: dict with key 'Comment' with the actual comment as a value. Falls back to empty comment.
-               So excluding the body of original message.
+        :param message: dict. Optional.
+               Excluding the body of original message.
                https://stackoverflow.com/questions/41937948/how-to-properly-respond-to-an-email-using-the-outlook-rest-api
-        :param recipients: dict with key 'ToRecipients'. Optional.
         :return: HttpRequest object.
         """
+        # FYI: Documentation is for BETA api.
         if not message_id:
             raise NoMessageId()
 
-        if not message and 'Comment' not in message:
-            # No message provided, just forward an empty message.
-            message = {'Comment': ''}
+        if not message:
+            message = {}
 
         headers = defaultdict(list)
         headers.update(self._authorization_headers)
 
         url = self._base_url.format('/messages/{0}/createforward').format(message_id)
 
-        payload = {
-            'Comment': message['Comment'],
-            'ToRecipients': recipients['ToRecipients'],
-        }
-
-        return HttpRequest(uri=url, method='POST', headers=headers, payload=payload)
+        return HttpRequest(uri=url, method='POST', headers=headers, payload=message)
 
     def update_message(self, message_id, properties):
         """
         Change writable properties on a draft or existing message. Only the properties that you specify are changed.
 
         :param message_id: message to change.
-        :param properties: dict with writable properties.
+        :param properties: dict with writable properties and their values.
         :return: HttpRequest object.
         """
         if not message_id:
@@ -373,7 +372,7 @@ class Resource(object):
         headers = defaultdict(list)
         headers.update(self._authorization_headers)
 
-        url = self._base_url.format('/messages')
+        url = self._base_url.format('/messages/{0}').format(message_id)
 
         return HttpRequest(uri=url, method='PATCH', headers=headers, payload=properties)
 
@@ -396,7 +395,8 @@ class Resource(object):
 
     def move_message(self, message_id, destination_folder_id):
         """
-        Move a message to a folder. This creates a new copy of the message in the destination folder.
+        Move a message to a folder. This creates a new copy of the message in the destination folder. So message_id
+        changes.
 
         :param message_id: message to move.
         :param destination_folder_id: destination folder.
@@ -457,7 +457,7 @@ class Resource(object):
         if not message_id:
             raise NoMessageId()
 
-        if classification not in INFERENCE_CLASSIFICATION_OPTIONS:
+        if classification.lower() not in INFERENCE_CLASSIFICATION_OPTIONS:
             raise InvalidClassification()
 
         headers = defaultdict(list)
@@ -469,7 +469,7 @@ class Resource(object):
             url = self._base_url.format('/Users/{0}/messages/{1}').format(user_id, message_id)
 
         payload = {
-            'InferenceClassification': classification
+            'InferenceClassification': classification.lower()
         }
 
         return HttpRequest(uri=url, method='PATCH', headers=headers, payload=payload)

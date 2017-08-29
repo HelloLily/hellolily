@@ -146,7 +146,10 @@ class AccountViewSet(ModelChangesMixin, ModelViewSet):
                     if add_call:
                         call['contact'] = contact.full_name
 
-                        user = LilyUser.objects.filter(internal_number=call.get('internal_number'), tenant=tenant).first()
+                        user = LilyUser.objects.filter(
+                            internal_number=call.get('internal_number'),
+                            tenant=tenant,
+                        ).first()
 
                         if user:
                             call['user'] = user.full_name

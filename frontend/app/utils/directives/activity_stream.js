@@ -417,6 +417,22 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
 
                     callPromise.then(results => {
                         results.objects.map(call => {
+                            NoteDetail.query({filterquery: 'content_type:call AND object_id:' + call.id, size: 15})
+                                .$promise.then(notes => {
+                                    angular.forEach(notes, note => {
+                                        // Get user for notes to show profile picture correctly.
+                                        User.get({id: note.author.id, is_active: 'All'}, author => {
+                                            note.author = author;
+                                        });
+                                    });
+
+                                    call.notes = notes;
+
+                                    if (notes.length) {
+                                        call.showNotes = true;
+                                    }
+                                });
+
                             activity.push(call);
                         });
                     });

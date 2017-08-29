@@ -1,0 +1,131 @@
+<div class="portlet light">
+    <div class="portlet-title">
+        <h2>Webhooks</h2>
+        <p>Set up webhooks to update deals based on received events.</p>
+
+        <div>
+            <strong>Enter the following url in PandaDoc to start receiving document updates.</strong>
+        </div>
+        <div class="margin-top-10">
+            <code>https://app.hellolily.com/api/integrations/documents/events/catch/</code>
+        </div>
+
+        <form novalidate name="sharedKeyForm">
+            <div class="hl-form-section">
+                <div class="row">
+                    <div class="col-xs-12 col-md-2">
+                        <div class="hl-form-section-heading">
+                            Shared key
+                        </div>
+                    </div>
+                    <div class="col-sm-8 col-md-3">
+                        <form-group label-title="Shared key" label-id="shared_key" field="sharedKeyForm.client_secret">
+                            <input class="form-control"
+                                name="shared_key"
+                                maxlength="255"
+                                placeholder="Shared key"
+                                type="text"
+                                ng-model="vm.sharedKey" />
+                        </form-group>
+
+                        <button type="button" class="hl-primary-btn-blue" ng-click="vm.saveSharedKey(sharedKeyForm)">
+                            <i class="fa fa-check"></i> Save
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <form novalidate name="eventForm" class="pandadoc-event-form">
+            <div class="hl-form-section">
+                <div class="row">
+                    <div class="col-xs-12 col-md-2">
+                        <div class="hl-form-section-heading">
+                            Events
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-9">
+                        <div ng-repeat="event in vm.events">
+                            <span class="pandadoc-event-row" ng-class="{'disabled': event.is_deleted}">
+                                <div class="display-inline-block">
+                                    <form-group label-title="Document event" field="eventForm.status">
+                                        <a class="pull-right link-no-decoration" href="https://developers.pandadoc.com/v1/reference#section-webhook-events" target="_blank"><i class="fa fa-info-circle"></i></a>
+                                        <select name="event" ng-model="event.event_type"
+                                                ng-options="event as vm.getName(event) for event in vm.eventChoices" class="form-control">
+                                            <option value="" hidden>Select an event</option>
+                                        </select>
+                                    </form-group>
+                                </div>
+
+                                <div class="display-inline-block">
+                                    <form-group label-title="Document status" field="eventForm.document_status">
+                                        <a class="pull-right link-no-decoration" href="https://developers.pandadoc.com/v1/reference#section-available-document-statuses" target="_blank"><i class="fa fa-info-circle"></i></a>
+                                        <select name="document_status" ng-model="event.document_status"
+                                                ng-options="status as vm.getName(status) for status in vm.documentStatusChoices" class="form-control">
+                                            <option value="">Select a status</option>
+                                        </select>
+                                    </form-group>
+                                </div>
+
+                                <form-group label-title="Deal status" field="eventForm.status">
+                                    <select name="status" ng-model="event.status"
+                                            ng-options="status.id as status.name for status in vm.statusChoices" class="form-control">
+                                        <option value="">Select a status</option>
+                                    </select>
+                                </form-group>
+
+                                <div class="width-20 display-inline-block">
+                                    <form-group label-title="Deal next step" field="eventForm.next_step">
+                                        <ui-select ng-model="event.next_step" theme="select2" class="form-control" name="next_step" append-to-body="true" search-enabled="false">
+                                            <ui-select-match placeholder="Select what's next"><span class="step-type position-{{ $select.selected.position }}"></span> {{ $select.selected.name }}</ui-select-match>
+                                            <ui-select-choices repeat="next_step.id as next_step in vm.nextSteps">
+                                                <span class="step-type position-{{ next_step.position }}"></span>
+                                                <span ng-bind-html="next_step.name | highlight: $select.search"></span>
+                                            </ui-select-choices>
+                                        </ui-select>
+                                    </form-group>
+                                </div>
+
+                                <div class="width-8 display-inline-block">
+                                    <form-group label-title="Extra days" field="eventForm.extra_days">
+                                        <input class="form-control"
+                                            name="extra_days"
+                                            maxlength="255"
+                                            placeholder="Days"
+                                            type="number"
+                                            min="0"
+                                            ng-model="event.extra_days" />
+                                    </form-group>
+                                </div>
+
+                                <form-radio-buttons options="['No', 'Yes']" label-title="Add note" input-name="add_note_{{ $index }}" field="event.add_note"></form-radio-buttons>
+                            </span>
+
+                            <span class="pandadoc-event-form-actions">
+                                <button class="hl-primary-btn" ng-click="event.is_deleted = !event.is_deleted">
+                                    <i class="lilicon hl-trashcan-icon" ng-if="!event.is_deleted"></i>
+                                    <i class="fa fa-undo" ng-if="event.is_deleted"></i>
+                                </button>
+                                <button class="hl-primary-btn" ng-click="vm.addRow()" ng-if="$last"><i class="fa fa-plus"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hl-form-footer">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-2 col-lg-2"></div>
+                    <div class="col-xs-12 col-sm-9 col-md-8 col-md-7 col-lg-4">
+                        <button type="button" class="hl-primary-btn-blue" ng-click="vm.saveForm(eventForm)">
+                            <i class="fa fa-check"></i> Save
+                        </button>
+                        <button type="button" class="hl-primary-btn" ng-click="vm.cancel()">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

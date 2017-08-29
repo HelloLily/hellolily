@@ -1,6 +1,13 @@
+import hashlib
+import hmac
+
+from django.utils.translation import ugettext_lazy as _
 from rest_framework.authentication import BaseAuthentication, SessionAuthentication, TokenAuthentication
 from rest_framework.exceptions import PermissionDenied
 
+from lily.deals.models import Deal
+from lily.integrations.credentials import get_credentials
+from lily.users.models import LilyUser
 from lily.tenant.middleware import set_current_user
 from lily.utils.functions import has_required_tier
 
@@ -28,15 +35,13 @@ class LilyApiAuthentication(BaseAuthentication):
             if auth_tuple:
                 if isinstance(authenticator, TokenAuthentication) or isinstance(authenticator, TokenGETAuthentication):
                     if not has_required_tier(2, tenant=auth_tuple[0].tenant):
+                        # Tenant is on free plan, so no external API access.
                         raise PermissionDenied({
                             'detail': (
                                 'API access has been disabled because you are on the free plan.'
                                 'Please upgrade to continue using the API'
                             )
                         })
-                        # Tenant is on free plan, so no external API access.
-                        return None
-
                 break
         else:
             # All authentication failed.
@@ -46,3 +51,40 @@ class LilyApiAuthentication(BaseAuthentication):
         set_current_user(auth_tuple[0])
 
         return auth_tuple
+
+
+class PandaDocSignatureAuthentication(BaseAuthentication):
+    def authenticate(self, request):
+        data = request.data[0].get('data')
+
+        # Get the shared key which has been provided by PandaDoc.
+        credentials = get_credentials('pandadoc')
+
+        shared_key = credentials.integration_context.get('shared_key')
+
+        if not shared_key:
+            # No shared key set by the user so we have no way to verify the request.
+            raise PermissionDenied({
+                'detail': _('No shared key found. Please go to your PandaDoc webhook settings and provide the key.')
+            })
+
+        # A shared key has been stored. So create HMAC based on given values and check if it's valid.
+        signature = hmac.new(str(shared_key), str(request.body), digestmod=hashlib.sha256).hexdigest()
+
+        if signature != request.GET.get('signature'):
+            raise PermissionDenied({
+                'detail': _('Invalid request. Either the provided shared key or signature is incorrect')
+            })
+
+        metadata = data.get('metadata')
+        user = metadata.get('user')
+
+        if user:
+            user = LilyUser.objects.get(pk=user)
+        else:
+            deal = Deal.objects.get(pk=metadata.get('deal'))
+            user = deal.assigned_to
+
+        set_current_user(user)
+
+        return (user, None)

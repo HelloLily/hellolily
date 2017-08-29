@@ -6,7 +6,7 @@ function credentialsConfig($stateProvider) {
         url: '/pandadoc',
         views: {
             '@base.preferences': {
-                templateUrl: 'preferences/admin/integrations/pandadoc.html',
+                templateUrl: 'preferences/admin/integrations/pandadoc_base.html',
             },
         },
         params: {

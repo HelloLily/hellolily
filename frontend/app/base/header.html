@@ -194,17 +194,18 @@
                                     <span class="editable-icon"><i class="lilicon hl-edit-icon"></i></span>
                                 </span>
                             </span>
-                            <span ng-if="headerForm.$visible" ng-repeat="field in toolbar.fields">
-                                <span e-name="{{ field }}" e-size="{{ $data.length }}" editable-text="toolbar.object[field]" input-auto-size></span>
-                            </span>
-                            <span ng-if="headerForm.$visible">
-                                <button type="submit" class="btn" ng-disabled="headerForm.$waiting">
-                                    <i class="fa fa-check"></i>
-                                </button>
-                                <button class="btn" ng-click="headerForm.$cancel()" ng-disabled="headerForm.$waiting">
-                                    <i class="fa fa-close"></i>
-                                </button>
-                            </span>
+                            <div ng-if="headerForm.$visible">
+                                <div ng-repeat="field in toolbar.fields" e-name="{{ field }}" e-size="{{ $data.length }}" editable-text="toolbar.object[field]" input-auto-size></div>
+
+                                <div class="editable-buttons">
+                                    <button type="submit" class="hl-primary-btn" ng-disabled="headerForm.$waiting">
+                                        <i class="fa fa-check"></i>
+                                    </button>
+                                    <button class="hl-primary-btn" ng-click="headerForm.$cancel()" ng-disabled="headerForm.$waiting">
+                                        <i class="fa fa-close"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </form>
                     </span>
                     <span ng-if="!toolbar.updateCallback" class="large-header">

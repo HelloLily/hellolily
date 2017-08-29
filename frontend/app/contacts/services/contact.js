@@ -14,15 +14,7 @@ function Contact($filter, $resource, HLResource, Settings) {
 
                     jsonData.primary_email_address = $filter('primaryEmail')(jsonData.email_addresses);
 
-                    jsonData.active_at_account = [];
-                    angular.forEach(jsonData.functions, function(func) {
-                        var accountId = func.account;
-                        angular.forEach(jsonData.accounts, function(account) {
-                            if (accountId === account.id) {
-                                jsonData.active_at_account[accountId] = func.is_active;
-                            }
-                        });
-                    });
+                    jsonData.active_at_account = checkActiveAt(jsonData);
 
                     return jsonData;
                 },
@@ -109,6 +101,7 @@ function Contact($filter, $resource, HLResource, Settings) {
     _contact.updateModel = updateModel;
     _contact.getSalutationOptions = getSalutationOptions;
     _contact.getGenderOptions = getGenderOptions;
+    _contact.checkActiveAt = checkActiveAt;
 
     //////
 
@@ -154,7 +147,7 @@ function Contact($filter, $resource, HLResource, Settings) {
 
         patchPromise = HLResource.patch('Contact', args).$promise;
 
-        patchPromise.then(function(response) {
+        patchPromise.then(response => {
             if (field instanceof Array) {
                 // We're updating the name here, which is an Array when inline editing.
                 Settings.page.setAllTitles('detail', response.full_name);
@@ -168,9 +161,29 @@ function Contact($filter, $resource, HLResource, Settings) {
                 contact.twitter = response.twitter;
                 contact.linkedin = response.linkedin;
             }
+
+            if (args.hasOwnProperty('accounts')) {
+                contact.active_at_account = checkActiveAt(response);
+            }
         });
 
         return patchPromise;
+    }
+
+    function checkActiveAt(data) {
+        let activeAtAccount = [];
+
+        data.functions.forEach(func => {
+            let accountId = func.account;
+
+            data.accounts.forEach(account => {
+                if (accountId === account.id) {
+                    activeAtAccount[accountId] = func.is_active;
+                }
+            });
+        });
+
+        return activeAtAccount;
     }
 
     function getSalutationOptions() {

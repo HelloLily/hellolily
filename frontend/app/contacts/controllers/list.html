@@ -102,7 +102,7 @@
                                 </a>
                             </div>
 
-                            <div ng-if="!contact.phone_numbers && account.phone_numbers.length">
+                            <div ng-if="!contact.phone_numbers && account.phone_numbers.length && account.is_active">
                                 <i class="lilicon hl-company-icon margin-right-5" uib-tooltip="{{ $root.messages.contact.accountListInfoTooltip }}"></i>
                                 <a href="tel:{{ account.phone_numbers[0].number }}">
                                     {{ account.phone_numbers[0].number }}
@@ -112,7 +112,7 @@
                         <div ng-repeat="phone in contact.phone_numbers track by $index" ng-if="phone.type == 'mobile' || phone.type == 'work'">
                             <a href="tel:{{ phone.number }}">
                                 <i ng-class="{work: 'lilicon hl-phone-filled-icon', mobile: 'fa fa-mobile-phone'}[phone.type]"></i>
-                                {{ phone.number }} <span ng-if="!account.is_active">(inactive)</span>
+                                {{ phone.number }}
                             </a>
                         </div>
                     </td>

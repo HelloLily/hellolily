@@ -54,15 +54,10 @@ class TeamViewSet(viewsets.ReadOnlyModelViewSet):
         queryset = self.model.objects.filter(tenant_id=self.request.user.tenant_id)
         return queryset
 
-    def get(self, request, format=None):
-        filtered_queryset = self.filter_class(request.GET, queryset=self.get_queryset())
-        serializer = self.serializer_class(filtered_queryset, context={'request': request}, many=True)
-        return Response(serializer.data)
-
     @list_route(methods=['GET'])
     def mine(self, request, *args, **kwargs):
         queryset = self.get_queryset().filter(user=self.request.user)
-        filtered_queryset = self.filter_class(request.GET, queryset=queryset)
+        filtered_queryset = self.filter_class(request.GET, queryset=queryset).qs
         serializer = self.serializer_class(filtered_queryset, context={'request': request}, many=True)
         return Response(serializer.data)
 

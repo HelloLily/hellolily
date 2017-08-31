@@ -110,14 +110,6 @@ class TeamsCaseList(APIView):
         queryset = queryset_filter(self.request, queryset)
         return queryset
 
-    def get(self, request, pk=None, format=None):
-        if pk is None:
-            pk = self.request.user.teams.all()
-        queryset = self.get_queryset().filter(assigned_to_teams=pk)
-        filtered_queryset = self.filter_class(request.GET, queryset=queryset)
-        serializer = self.serializer_class(filtered_queryset, context={'request': request}, many=True)
-        return Response(serializer.data)
-
 
 class CaseStatusViewSet(viewsets.ModelViewSet):
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.

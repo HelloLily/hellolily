@@ -11,8 +11,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from lily.accounts.models import Account
-from lily.messaging.email.utils import get_email_parameter_api_dict, reindex_email_message, get_shared_email_accounts
-from lily.search.lily_search import LilySearch
+from lily.messaging.email.utils import get_email_parameter_api_dict, get_shared_email_accounts
 from lily.users.models import UserInfo
 from lily.users.api.serializers import LilyUserSerializer
 from lily.utils.functions import format_phone_number
@@ -222,7 +221,6 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
             remove_labels.append(settings.GMAIL_LABEL_INBOX)
 
         email._is_archived = True
-        reindex_email_message(email)
         serializer = self.get_serializer(email, partial=True)
         add_and_remove_labels_for_message.delay(email.id, remove_labels=remove_labels)
         return Response(serializer.data)
@@ -237,7 +235,6 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         if email.is_trashed:
             email._is_deleted = True
         email._is_trashed = True
-        reindex_email_message(email)
         serializer = self.get_serializer(email, partial=True)
         trash_email_message.apply_async(args=(email.id,))
         return Response(serializer.data)
@@ -265,7 +262,6 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         """
         email = self.get_object()
         email._is_starred = request.data['starred']
-        reindex_email_message(email)
         serializer = self.get_serializer(email, partial=True)
         toggle_star_email_message.delay(email.id, star=request.data['starred'])
         return Response(serializer.data)
@@ -278,7 +274,6 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         """
         email = self.get_object()
         email._is_spam = request.data['markAsSpam']
-        reindex_email_message(email)
         serializer = self.get_serializer(email, partial=True)
         toggle_spam_email_message.delay(email.id, spam=request.data['markAsSpam'])
         return Response(serializer.data)
@@ -288,68 +283,8 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         """
         Returns what happened to an email; did the user reply or forwarded the email message.
         """
-        email = self.get_object()
-
-        account_email = email.account.email_address
-        sent_from_account = (account_email == email.sender.email_address)
-
-        # Get the messages in the thread for the current email message.
-        search = LilySearch(
-            request.user.tenant_id,
-            model_type='email_emailmessage',
-            sort='sent_date',
-            size=100  # Paged results, when a thread is containing more that 100 results StopIteration could be thrown.
-        )
-        search.filter_query('thread_id:%s' % email.thread_id)
-        thread, facets, total, took = search.do_search([
-            'message_id',
-            'received_by_email',
-            'received_by_cc_email',
-            'sender_email',
-            'sender_name',
-            'sent_date',
-        ])
-
-        try:
-            # Get the index of the current email message in the thread.
-            index = (key for key, item in enumerate(thread) if item['message_id'] == email.message_id).next()
-        except StopIteration:
-            logger.exception('Number of messages larger that search page size for message %s.' % email.id)
-            results = {}
-            return Response(results)
-
-        # Only look at the messages in the thread after the current email message.
-        messages_after = thread[index + 1:]
-
-        results = {}
-
-        if not messages_after or sent_from_account:
-            # Current email message is the last in the thread or is send by the user and therefor not a possible reply
-            # or forwarded email message.
-            return Response(results)
-
-        # The current email message isn't the last in the thread. So look the follow up messages in the thread to
-        # determine what actions occured on the current email message. Current email message is not send from the
-        # account of the user, so it is a received email message. So determine is we replied or forwarded it.
-
-        # Get all the outgoing follow up messages in the thread.
-        next_messages = [item for item in messages_after if item['sender_email'] == account_email]
-        if len(next_messages):
-            # We only need to look at the first follow up message in the thread.
-            # TODO LILY-2244: improve search filter above so it leads to the only / first follow up message.
-            next_message = next_messages[0]
-
-            # Get all the mail addresses where the follow up message was sent to.
-            email_addresses = next_message.get('received_by_email', []) + next_message.get('received_by_cc_email', [])
-
-            if email_addresses.count(email.sender.email_address):
-                # The sender of the current, received email message is one of the reciepents of the follow up message,
-                # so it is a reply message.
-                results['replied_with'] = next_message
-            else:
-                results['forwarded_with'] = next_message
-
-        return Response(results)
+        # FIXME: complete remove email search pending email refactor.
+        return Response({})
 
     @detail_route(methods=['post'])
     def extract(self, request, pk=None):

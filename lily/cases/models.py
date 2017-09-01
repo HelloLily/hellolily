@@ -6,6 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
 from lily.parcels.models import Parcel
+from lily.search.models import ElasticTenantManager
 from lily.tags.models import TaggedObjectMixin
 from lily.tenant.models import TenantMixin
 from lily.users.models import Team, LilyUser
@@ -66,6 +67,7 @@ class Case(TenantMixin, TaggedObjectMixin, DeletedMixin, ArchivedMixin):
     parcel = models.ForeignKey(Parcel, null=True, blank=True, on_delete=models.SET_NULL)
     billing_checked = models.BooleanField(default=False)
     newly_assigned = models.BooleanField(default=False)
+    elastic_objects = ElasticTenantManager()
 
     @property
     def content_type(self):

@@ -1,12 +1,11 @@
 from lily.tenant.factories import TenantFactory
-from lily.tests.utils import GenericAPITestCase
-
+from lily.tests.utils import ElasticSearchFilterAPITest, GenericAPITestCase
+from .serializers import AccountSerializer
 from ..factories import AccountFactory, AccountStatusFactory, WebsiteFactory
 from ..models import Account
-from .serializers import AccountSerializer
 
 
-class AccountTests(GenericAPITestCase):
+class AccountTests(ElasticSearchFilterAPITest, GenericAPITestCase):
     """
     Class containing tests for the accounts API.
 
@@ -17,6 +16,7 @@ class AccountTests(GenericAPITestCase):
     factory_cls = AccountFactory
     model_cls = Account
     serializer_cls = AccountSerializer
+    search_attribute = 'name'
 
     def _create_object(self, with_relations=False, size=1, **kwargs):
         data = super(AccountTests, self)._create_object(with_relations, size, **kwargs)

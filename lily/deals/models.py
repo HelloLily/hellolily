@@ -5,6 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
+from lily.search.models import ElasticTenantManager
 from lily.tags.models import TaggedObjectMixin
 from lily.users.models import LilyUser, Team
 from lily.tenant.models import TenantMixin
@@ -130,6 +131,7 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     why_lost = models.ForeignKey(DealWhyLost, related_name='deals', null=True, blank=True,
                                  on_delete=models.SET_NULL)
     newly_assigned = models.BooleanField(default=False)
+    elastic_objects = ElasticTenantManager()
 
     @property
     def content_type(self):

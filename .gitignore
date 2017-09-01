@@ -18,27 +18,23 @@
 dist-packages/
 /styleguide/styleguide.html
 .tld_set
-yarn.lock
 .ipython/
-tags
+/tags/
 .history/
 .vscode/
 
 celerybeat-schedule.*
 celeryev.pid
-celerybeat-schedule.dir
-celerybeat-schedule.pag
 docker-compose.local.yml
 docker-compose.override.yml
 
 coverage.xml
-lily/files/
 lily/static/
 .npm/
 node_modules/
 Procfile.local
 TESTS-*.xml
-tags
+/cover/
 
 # /docs/sphinx/
 docs/sphinx/build/

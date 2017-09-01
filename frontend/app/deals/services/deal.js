@@ -22,19 +22,16 @@ function Deal($resource, CacheFactory, HLCache, HLForms, HLResource, HLUtils) {
                 },
             },
             search: {
-                url: '/search/search/',
+                url: '/api/deals/',
                 method: 'GET',
-                params: {
-                    type: 'deals_deal',
-                },
                 transformResponse: function(data) {
                     let jsonData = angular.fromJson(data);
                     let objects = [];
                     let total = 0;
 
                     if (jsonData) {
-                        if (jsonData.hits && jsonData.hits.length > 0) {
-                            jsonData.hits.forEach(function(obj) {
+                        if (jsonData.results && jsonData.results.length > 0) {
+                            jsonData.results.forEach(function(obj) {
                                 var deal = $.extend(obj, {
                                     activityType: 'deal',
                                     color: 'blue',
@@ -46,7 +43,7 @@ function Deal($resource, CacheFactory, HLCache, HLForms, HLResource, HLUtils) {
                             });
                         }
 
-                        total = jsonData.total;
+                        total = jsonData.pagination.total;
                     }
 
                     return {
@@ -168,10 +165,10 @@ function Deal($resource, CacheFactory, HLCache, HLForms, HLResource, HLUtils) {
         var sort = HLUtils.getSorting(orderColumn, orderedDesc);
 
         return _deal.search({
-            q: searchQuery,
-            page: page - 1,
-            size: pageSize,
-            sort: sort,
+            search: searchQuery,
+            page: page,
+            page_size: pageSize,
+            ordering: sort,
             filterquery: filterQuery,
         }, function(data) {
             return data;

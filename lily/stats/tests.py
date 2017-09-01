@@ -1,11 +1,16 @@
 from django.urls import reverse
 from django.test import TestCase
 
+from lily.tenant.middleware import set_current_user
 from lily.users.factories import TeamFactory, LilyUserFactory
 from .urls import case_patterns, deal_patterns
 
 
 class StatsTests(TestCase):
+    def tearDown(self):
+        # TODO: This test should probably use UserBasedTest instead.
+        set_current_user(None)
+
     def test_no_errors(self):
         """
         Test that the stats pages give no errors.

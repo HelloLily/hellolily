@@ -39,7 +39,7 @@ function User($resource, CacheFactory) {
                 isArray: false,
             },
             search: {
-                url: '/search/search/?type=users_lilyuser&filterquery=:filterquery',
+                url: '/api/users/',
                 method: 'GET',
                 transformResponse: function(data) {
                     let jsonData = angular.fromJson(data);
@@ -47,13 +47,13 @@ function User($resource, CacheFactory) {
                     let total = 0;
 
                     if (jsonData) {
-                        if (jsonData.hits && jsonData.hits.length > 0) {
-                            jsonData.hits.forEach(function(obj) {
+                        if (jsonData.results && jsonData.results.length > 0) {
+                            jsonData.results.forEach(function(obj) {
                                 objects.push(obj);
                             });
                         }
 
-                        total = jsonData.total;
+                        total = jsonData.pagination.total;
                     }
 
                     return {

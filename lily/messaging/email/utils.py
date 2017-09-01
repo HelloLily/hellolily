@@ -11,7 +11,6 @@ from urllib import unquote
 
 from django.apps import apps
 from django.db.models.query_utils import Q
-from django.conf import settings
 from django.core.files.storage import default_storage
 from django.urls import reverse
 from django.template import Context
@@ -24,10 +23,8 @@ from jinja2 import TemplateSyntaxError
 
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
-from lily.search.scan_search import ModelMappings
-from lily.search.indexing import update_in_index
 
-from .models.models import EmailAttachment, EmailMessage, EmailAccount, SharedEmailConfig
+from .models.models import EmailAttachment, EmailAccount, SharedEmailConfig
 from .sanitize import sanitize_html_email
 
 _EMAIL_PARAMETER_DICT = {}
@@ -522,22 +519,6 @@ def create_recipients(receivers, filter_emails=[]):
         email_addresses.append(receiver.email_address)
 
     return recipients
-
-
-def reindex_email_message(instance):
-    """
-    Re-index the given email message instance, so there is no need to misuse the save method for triggering a re-index.
-
-    No need to check related models compared to the more generic post_save signal. Email messages have no related model
-    mapping.
-    """
-    if settings.ES_DISABLED:
-        return
-    if not isinstance(instance, EmailMessage):
-        return
-    mapping = ModelMappings.model_to_mappings.get(type(instance))
-    if mapping:
-        update_in_index(instance, mapping)
 
 
 def fullpath(filename):

@@ -7,6 +7,7 @@ django-appconf==1.0.2
 django-extensions==1.8.1
 django-filter==1.0.4
 djangorestframework==3.6.4
+djangorestframework-filters==0.10.1
 eventlet==0.19.0
 greenlet==0.4.10
 python-dateutil==2.6.0
@@ -84,9 +85,8 @@ uritemplate==3.0.0
 ### Search                                          ###
 #######################################################
 
-certifi==2017.7.27.1
-elasticsearch==1.6.0
-elasticutils==0.10.3
+elasticsearch-dsl==5.3.0
+django-elasticsearch-dsl==0.4.0
 
 #######################################################
 ### Testing                                         ###
@@ -132,6 +132,7 @@ newrelic==2.92.0.78
 pycrypto==2.6.1  # Old version is: 2.6
 requests==2.18.4
 requests-futures==0.9.7
+certifi==2017.7.27.1
 unicodecsv==0.13.0
 urllib3==1.22
 freemail==1.2.17

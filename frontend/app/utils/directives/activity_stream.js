@@ -138,7 +138,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
 
                 filterquery = `(${filterquery})`;
 
-                const notePromise = Note.search({filterquery, size: requestLength}).$promise;
+                const notePromise = Note.search({filterquery, page_size: requestLength}).$promise;
 
                 // Add promise to list of all promises for later handling.
                 promises.push(notePromise);
@@ -355,7 +355,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                             caseItem.activityType = 'case';
 
                             activity.push(caseItem);
-                            Note.search({filterquery: 'gfk_content_type:case AND gfk_object_id:' + caseItem.id, size: 15})
+                            Note.search({content_type: 'case', object_id: caseItem.id, page_size: 15})
                                 .$promise.then(notes => {
                                     notes.map(note => {
                                         // Get user for notes to show profile picture correctly.
@@ -394,8 +394,9 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                             }
 
                             Note.search({
-                                filterquery: 'gfk_content_type:deal AND gfk_object_id:' + deal.id,
-                                size: 15,
+                                content_type: 'deal',
+                                object_id: deal.id,
+                                page_size: 15,
                             }).$promise.then(notes => {
                                 notes.map(note => {
                                     // Get user for notes to show profile picture correctly.
@@ -424,7 +425,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
 
                     callPromise.then(data => {
                         data.results.map(call => {
-                            Note.search({filterquery: 'gfk_content_type:callrecord AND gfk_object_id:' + call.id, size: 15})
+                            Note.search({content_type: 'callrecord', object_id: call.id, page_size: 15})
                                 .$promise.then(notes => {
                                     angular.forEach(notes, note => {
                                         // Get user for notes to show profile picture correctly.

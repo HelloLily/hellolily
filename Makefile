@@ -36,9 +36,9 @@ migrate:
 	@echo ""
 
 index:
-	@echo "Make: docker-compose run --rm web bash -c 'Dockers/wait-for db:5432 && Dockers/wait-for es:9200 && python manage.py index -f'"
+	@echo "Make: docker-compose run --rm web bash -c 'Dockers/wait-for db:5432 && Dockers/wait-for es:9200 && python manage.py search_index --rebuild -f'"
 	@echo ""
-	@docker-compose run --rm web bash -c 'Dockers/wait-for db:5432 && Dockers/wait-for es:9200 && python manage.py index -f'
+	@docker-compose run --rm web bash -c 'Dockers/wait-for db:5432 && Dockers/wait-for es:9200 && python manage.py search_index --rebuild -f'
 	@echo ""
 
 test:

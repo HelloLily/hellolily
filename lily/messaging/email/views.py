@@ -47,7 +47,7 @@ from .services import GmailService
 from .tasks import (send_message, create_draft_email_message, update_draft_email_message,
                     add_and_remove_labels_for_message, trash_email_message)
 from .utils import (get_attachment_filename_from_url, get_email_parameter_choices, create_recipients,
-                    render_email_body, replace_cid_in_html, create_reply_body_header, reindex_email_message,
+                    render_email_body, replace_cid_in_html, create_reply_body_header,
                     extract_script_tags, get_filtered_message)
 
 
@@ -462,7 +462,6 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
         try:
             email = EmailMessage.objects.get(pk=self.object.id)
             email._is_trashed = True  # Make sure the draft isn't shown immediately anymore.
-            reindex_email_message(email)
         except EmailMessage.DoesNotExist:
             pass
 
@@ -532,7 +531,6 @@ class EmailMessageDraftView(EmailMessageComposeView):
             try:
                 email = EmailMessage.objects.get(pk=current_draft_pk)
                 email._is_trashed = True  # Make sure the old draft isn't shown immediately anymore.
-                reindex_email_message(email)
             except EmailMessage.DoesNotExist:
                 pass
 
@@ -634,7 +632,6 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
             labels_to_remove = EmailLabel.objects.filter(label_id__in=remove_labels,
                                                          account=self.object.account)
             email_message.labels.remove(*labels_to_remove)
-            reindex_email_message(email_message)
             add_and_remove_labels_for_message.delay(self.object.id, remove_labels=remove_labels)
 
         if is_ajax(self.request):

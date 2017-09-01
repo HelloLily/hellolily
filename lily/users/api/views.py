@@ -8,6 +8,7 @@ from django.core.validators import validate_email
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django_filters import rest_framework as filters
+from django_filters.rest_framework import BooleanFilter, DjangoFilterBackend
 from django_otp import devices_for_user
 from django_otp.plugins.otp_static.models import StaticToken
 from rest_framework import mixins, viewsets, status
@@ -24,11 +25,10 @@ from two_factor.utils import default_device, backup_phones
 from user_sessions.models import Session
 from templated_email import send_templated_mail
 
+from lily.api.filters import ElasticSearchFilter
 from lily.users.api.filters import TeamFilter, LilyUserFilter
 from lily.utils.api.permissions import IsAccountAdmin
-from lily.utils.functions import post_intercom_event
-
-from lily.utils.functions import has_required_tier
+from lily.utils.functions import has_required_tier, post_intercom_event
 
 from .utils import get_info_text_for_device
 from .serializers import (
@@ -173,6 +173,8 @@ class UserInviteViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_200_OK)
 
 
+    is_active = BooleanFilter()
+
 class LilyUserViewSet(viewsets.ModelViewSet):
     """
     Returns a list of all users in the system, filtered by default on active status.
@@ -196,21 +198,21 @@ class LilyUserViewSet(viewsets.ModelViewSet):
     * List of cases with related fields
     """
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
-    queryset = LilyUser.objects
+    queryset = LilyUser.elastic_objects
     # Set the parsers for this viewset.
-    parser_classes = (JSONParser, MultiPartParser, )
+    parser_classes = (JSONParser, MultiPartParser,)
     # Set the serializer class for this viewset.
     serializer_class = LilyUserSerializer
     # Set all filter backends that this viewset uses.
-    filter_backends = (OrderingFilter, filters.DjangoFilterBackend)
+    filter_backends = (ElasticSearchFilter, OrderingFilter, DjangoFilterBackend)
     swagger_schema = None
 
     # OrderingFilter: set all possible fields to order by.
-    ordering_fields = (
-        'id', 'first_name', 'last_name', 'email', 'phone_number', 'is_active',
-    )
+    ordering_fields = ('first_name', 'last_name', 'email', 'phone_number', 'is_active')
     # OrderingFilter: set the default ordering fields.
-    ordering = ('first_name', 'last_name', )
+    ordering = ('first_name', 'last_name',)
+    # SearchFilter: set the fields that can be searched on.
+    search_fields = ('full_name', 'email', 'phone_number', 'position', 'internal_number')
     # DjangoFilter: set the filter class.
     filter_class = LilyUserFilter
 
@@ -227,15 +229,20 @@ class LilyUserViewSet(viewsets.ModelViewSet):
         )
 
         # By default we filter out non-active users.
-        is_active = self.request.query_params.get('is_active', 'True')
+        is_active_param = self.request.query_params.get('is_active', 'True')
 
-        # Value must be one of these, or it is ignored and we filter out non-active users.
-        if is_active not in ['All', 'True', 'False']:
-            is_active = 'True'
+        if is_active_param in (True, 'True', 'true', '1'):
+            is_active = True
+        elif is_active_param in (False, 'False', 'false', '0'):
+            is_active = False
+        elif is_active_param in ('All', 'all'):
+            is_active = None
+        else:
+            is_active = True
 
         # If the value is `All`, do not filter, otherwise filter the queryset on is_active status.
-        if is_active in ['True', 'False']:
-            queryset = queryset.filter(is_active=(is_active == 'True'))
+        if is_active is not None:
+            queryset = queryset.filter(is_active=is_active)
 
         return queryset
 

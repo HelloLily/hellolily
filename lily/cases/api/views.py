@@ -1,8 +1,11 @@
 from django_filters import CharFilter
+from django_filters.rest_framework import DjangoFilterBackend
 from django_filters import rest_framework as filters
+from django_filters.rest_framework import BooleanFilter, DateFilter, DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.filters import OrderingFilter
 from rest_framework.views import APIView
+from rest_framework_filters import FilterSet
 
 from lily.api.filters import ElasticSearchFilter
 from lily.api.mixins import ModelChangesMixin, TimeLogMixin, DataExistsMixin
@@ -38,10 +41,21 @@ class CaseFilter(filters.FilterSet):
     status = CharFilter(name='status__status')
     not_type = CharFilter(name='type__type', exclude=True)
     not_status = CharFilter(name='status__status', exclude=True)
+    is_archived = BooleanFilter()
+    is_assigned = BooleanFilter()
+    expires = DateFilter()
 
     class Meta:
         model = Case
-        fields = ['type', 'status', 'not_type', 'not_status', ]
+        fields = {
+            'type': ['exact'],
+            'status': ['exact'],
+            'not_type': ['exact'],
+            'not_status': ['exact'],
+            'is_archived': ['exact'],
+            'expires': ['exact', 'gte', 'lte', 'lt', 'gt'],
+            'account__id': ['exact'],
+        }
 
 
 class CaseViewSet(ModelChangesMixin, TimeLogMixin, DataExistsMixin, viewsets.ModelViewSet):
@@ -79,18 +93,17 @@ class CaseViewSet(ModelChangesMixin, TimeLogMixin, DataExistsMixin, viewsets.Mod
     Returns all timelogs for the given case.
     """
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
-    queryset = Case.objects
+    queryset = Case.elastic_objects
     # Set the serializer class for this viewset.
     serializer_class = CaseSerializer
     # Set all filter backends that this viewset uses.
     filter_backends = (ElasticSearchFilter, OrderingFilter, filters.DjangoFilterBackend,)
 
-    # ElasticSearchFilter: set the model type.
-    model_type = 'cases_case'
     # OrderingFilter: set all possible fields to order by.
-    ordering_fields = ('id', 'created', 'modified', 'priority', 'subject',)
-    # OrderingFilter: set the default ordering fields.
-    ordering = ('id',)
+    ordering_fields = ('created', 'modified', 'type', 'status', 'assigned_to', 'priority', 'subject', 'expires',
+                       'created_by__first_name', )
+    # SearchFilter: set the fields that can be searched on.
+    search_fields = ('account', 'contact', 'assigned_to', 'created_by', 'status', 'subject', 'tags', 'type', )
     # DjangoFilter: set the filter class.
     filter_class = CaseFilter
 

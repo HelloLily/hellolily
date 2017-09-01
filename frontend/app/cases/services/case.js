@@ -7,24 +7,21 @@ function Case($resource, CacheFactory, HLCache, HLResource, HLUtils) {
         {},
         {
             search: {
-                url: '/search/search/',
+                url: '/api/cases/',
                 method: 'GET',
-                params: {
-                    type: 'cases_case',
-                },
                 transformResponse: data => {
                     const jsonData = angular.fromJson(data);
                     const objects = [];
                     let total = 0;
 
                     if (jsonData) {
-                        if (jsonData.hits && jsonData.hits.length > 0) {
-                            jsonData.hits.forEach(obj => {
+                        if (jsonData.results && jsonData.results.length > 0) {
+                            jsonData.results.forEach(obj => {
                                 objects.push(obj);
                             });
                         }
 
-                        total = jsonData.total;
+                        total = jsonData.pagination.total;
                     }
 
                     return {
@@ -142,11 +139,10 @@ function Case($resource, CacheFactory, HLCache, HLResource, HLUtils) {
      */
     function getCases(orderColumn, orderedAsc, filterQuery, searchQuery = '', page = 1, pageSize = 500) {
         return _case.search({
-            q: searchQuery,
-            page: page - 1,
-            size: pageSize,
-            sort: HLUtils.getSorting(orderColumn, orderedAsc),
-            filterquery: filterQuery,
+            search: searchQuery,
+            page: page,
+            page_size: pageSize,
+            ordering: HLUtils.getSorting(orderColumn, orderedAsc),
         }, data => {
             return data;
         }).$promise;

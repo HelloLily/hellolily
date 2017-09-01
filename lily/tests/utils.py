@@ -3,6 +3,7 @@ from urllib import urlencode
 from datetime import datetime, timedelta, date
 import json
 
+from django_elasticsearch_dsl.registries import registry
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client.client import OAuth2Credentials
 
@@ -87,8 +88,8 @@ class UserBasedTest(object):
 
     @classmethod
     def tearDownClass(cls):
-        super(UserBasedTest, cls).tearDownClass()
         set_current_user(None)
+        super(UserBasedTest, cls).tearDownClass()
 
     def _create_object(self, with_relations=False, size=1, **kwargs):
         """
@@ -463,6 +464,31 @@ class GenericAPITestCase(CompareObjectsMixin, UserBasedTest, APITestCase):
         request = self.other_tenant_user.delete(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}))
         self.assertStatus(request, status.HTTP_404_NOT_FOUND)
         self.assertEqual(request.data, {u'detail': u'Not found.'})
+
+
+def get_url_with_query(name, params={}, *args, **kwargs):
+    return '%s?%s' % (reverse(name, *args, **kwargs), urlencode(params))
+
+
+class ElasticSearchFilterAPITest(object):
+    search_attribute = None
+    filter_field = None
+
+    def test_list_search_with_elasticsearch(self):
+        """
+        Test list can be searched (with Elasticsearch).
+        """
+        set_current_user(self.user_obj)
+        obj_list = self._create_object(size=3)
+
+        for idx in registry.get_indices([self.model_cls]):
+            idx.refresh()
+
+        request = self.user.get(get_url_with_query(self.list_url), {
+            'search': getattr(obj_list[0], self.search_attribute),
+        })
+        self.assertStatus(request, status.HTTP_200_OK)
+        self._compare_objects(obj_list[0], request.data.get('results')[0])
 
 
 def get_dummy_credentials():

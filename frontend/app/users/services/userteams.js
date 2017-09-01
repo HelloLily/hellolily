@@ -11,7 +11,7 @@ function UserTeams($resource, CacheFactory) {
                 cache: CacheFactory.get('volatileCache'),
             },
             search: {
-                url: '/search/search/?type=users_team&filterquery=:filterquery',
+                url: '/api/users/team/',
                 method: 'GET',
                 transformResponse: data => {
                     const jsonData = angular.fromJson(data);
@@ -19,8 +19,8 @@ function UserTeams($resource, CacheFactory) {
                     let total = 0;
 
                     if (jsonData) {
-                        total = jsonData.total;
-                        objects = jsonData.hits;
+                        total = jsonData.pagination.total;
+                        objects = jsonData.results;
                     }
 
                     return {

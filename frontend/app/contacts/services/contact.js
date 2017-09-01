@@ -43,7 +43,7 @@ function Contact($filter, $resource, HLResource, Settings, CacheFactory) {
                 method: 'OPTIONS',
             },
             search: {
-                url: '/search/search/?type=contacts_contact&filterquery=:filterquery',
+                url: '/api/contacts/',
                 method: 'GET',
                 transformResponse: data => {
                     const jsonData = angular.fromJson(data);
@@ -51,15 +51,15 @@ function Contact($filter, $resource, HLResource, Settings, CacheFactory) {
                     let total = 0;
 
                     if (jsonData) {
-                        if (jsonData.hits && jsonData.hits.length > 0) {
-                            jsonData.hits.forEach(obj => {
+                        if (jsonData.results && jsonData.results.length > 0) {
+                            jsonData.results.forEach(obj => {
                                 obj.primary_email_address = $filter('primaryEmail')(obj.email_addresses);
 
                                 objects.push(obj);
                             });
                         }
 
-                        total = jsonData.total;
+                        total = jsonData.pagination.total;
                     }
 
                     return {

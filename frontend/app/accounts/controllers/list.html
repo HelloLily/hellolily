@@ -54,7 +54,7 @@
                     <th class="hl-table-column" ng-show="vm.table.visibility.contactInformation">
                         <span class="text-nowrap">Contact information</span>
                     </th>
-                    <th class="hl-table-column" ng-show="vm.table.visibility.assignedTo" sort-column="assigned_to" table="vm.table">
+                    <th class="hl-table-column" ng-show="vm.table.visibility.assignedTo" sort-column="assigned_to__first_name" table="vm.table">
                         <span class="text-nowrap">Assigned to</span>
                     </th>
                     <th class="hl-table-column" ng-show="vm.table.visibility.created" sort-column="created" table="vm.table">
@@ -101,7 +101,7 @@
                         </div>
                     </td>
                     <td class="hl-table-column" ng-show="vm.table.visibility.assignedTo">
-                        {{ ::account.assigned_to }}
+                        {{ ::account.assigned_to.full_name }}
                     </td>
                     <td class="hl-table-column" ng-show="vm.table.visibility.created"><date date="account.created"></date></td>
                     <td class="hl-table-column" ng-show="vm.table.visibility.modified"><date date="account.modified"></date></td>

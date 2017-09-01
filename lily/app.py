@@ -6,7 +6,6 @@ from django.apps import AppConfig
 from django.conf import settings
 from django.forms.forms import BaseForm
 
-from lily.search.scan_search import ModelMappings
 from lily.utils.functions import autostrip
 
 
@@ -25,7 +24,6 @@ class LilyConfig(AppConfig):
         local_apps = [app for app in settings.INSTALLED_APPS if app.startswith('lily')]
 
         self.patch_forms(local_apps)
-        self.scan_indexes(local_apps)
         self.import_signals(local_apps)
 
         # Setup Segment.
@@ -63,11 +61,6 @@ class LilyConfig(AppConfig):
                         form_class = autostrip(form)
                         setattr(forms_module, form_name, form_class)
 
-    def scan_indexes(self, local_apps):
-        """
-        Scan the installed apps for indexes.
-        """
-        ModelMappings.scan(local_apps)
 
     def import_signals(self, local_apps):
         """

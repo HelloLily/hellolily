@@ -68,18 +68,17 @@ class AccountViewSet(ModelChangesMixin, DataExistsMixin, ModelViewSet):
     Returns all the changes performed on the given account.
     """
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
-    queryset = Account.objects
+    queryset = Account.elastic_objects
     # Set the serializer class for this viewset.
     serializer_class = AccountSerializer
     # Set all filter backends that this viewset uses.
     filter_backends = (ElasticSearchFilter, OrderingFilter, filters.DjangoFilterBackend, )
 
-    # ElasticSearchFilter: set the model type.
-    model_type = 'accounts_account'
     # OrderingFilter: set all possible fields to order by.
-    ordering_fields = ('id', )
-    # OrderingFilter: set the default ordering fields.
-    ordering = ('id', )
+    ordering_fields = ('name', 'assigned_to', 'status', 'created', 'modified', 'assigned_to__first_name')
+    # SearchFilter: set the fields that can be searched on.
+    search_fields = ('assigned_to', 'description', 'email_addresses', 'name', 'phone_numbers', 'status', 'tags',
+                     'websites')
     # DjangoFilter: set the filter class.
     filter_class = AccountFilter
 

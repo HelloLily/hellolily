@@ -467,7 +467,6 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
         try:
             email = EmailMessage.objects.get(pk=self.object.id)
             email._is_trashed = True  # Make sure the draft isn't shown immediately anymore.
-            reindex_email_message(email)
         except EmailMessage.DoesNotExist:
             pass
 
@@ -537,7 +536,6 @@ class EmailMessageDraftView(EmailMessageComposeView):
             try:
                 email = EmailMessage.objects.get(pk=current_draft_pk)
                 email._is_trashed = True  # Make sure the old draft isn't shown immediately anymore.
-                reindex_email_message(email)
             except EmailMessage.DoesNotExist:
                 pass
 
@@ -631,7 +629,6 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
             labels_to_remove = EmailLabel.objects.filter(label_id__in=remove_labels,
                                                          account=self.object.account)
             email_message.labels.remove(*labels_to_remove)
-            reindex_email_message(email_message)
             add_and_remove_labels_for_message.delay(self.object.id, remove_labels=remove_labels)
 
         if is_ajax(self.request):

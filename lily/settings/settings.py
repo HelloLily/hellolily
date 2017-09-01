@@ -344,7 +344,6 @@ INSTALLED_APPS = (
     'collectfast',
     'templated_email',
     'storages',
-    'elasticutils',
     'timezone_field',
     'django_nose',
     'django_password_strength',
@@ -572,8 +571,6 @@ FREE_PLAN_EMAIL_ACCOUNT_LIMIT = os.environ.get('FREE_PLAN_EMAIL_ACCOUNT_LIMIT', 
 #######################################################################################################################
 # ELASTICSEARCH                                                                                                       #
 #######################################################################################################################
-# Set this property to true to run without a local Elasticsearch.
-ES_DISABLED = boolean(os.environ.get('ES_DISABLED', 0))
 
 # The location of the Elasticsearch cluster. The following really sucks:
 # ES supports two ways of configuring urls; by string and by dict, however:
@@ -582,29 +579,35 @@ ES_DISABLED = boolean(os.environ.get('ES_DISABLED', 0))
 # (ElasticUtils expects it to be be hashable, which does not work with dict so we use a tuple).
 
 
-def es_url_to_dict(url):
+def es_url_to_connection(url):
     parse = urlparse(url)
     port = parse.port if parse.port else (80 if parse.scheme == 'http' else 443)
     use_ssl = port is 443
-    host = {'host': parse.hostname,
-            'port': port,
-            'use_ssl': use_ssl,
-            'http_auth': '%s:%s' % (parse.username, parse.password)}
-    return tuple(sorted(host.items()))
+
+    host = {
+        'hosts': '%s:%s' % (parse.hostname, port),
+        'use_ssl': use_ssl,
+    }
+
+    if parse.username and parse.password:
+        host['http_auth'] = (parse.username, parse.password)
+
+    return host
 
 
 ES_PROVIDER_ENV = os.environ.get('ES_PROVIDER_ENV', 'ES_DEV_URL')
-ES_URLS = [es_url_to_dict(os.environ.get(ES_PROVIDER_ENV, 'http://es:9200'))]
 
-# The index Elasticsearch uses (as a prefix).
-ES_INDEXES = {'default': 'main_index'}
+ELASTICSEARCH_DSL = {
+    'default': es_url_to_connection(os.environ.get(ES_PROVIDER_ENV, 'http://es:9200')),
+}
 
-# Default timeout of elasticsearch is to short for bulk updating, so we extend te timeout
-ES_TIMEOUT = os.environ.get('ES_TIMEOUT', 20)  # Default is 5
+# Set this parameter to false to prevent model changes from being synced to
+# Elasticsearch automatically.
+ELASTICSEARCH_DSL_AUTOSYNC = os.environ.get('ELASTICSEARCH_DSL_AUTOSYNC', True)
 
-ES_MAXSIZE = os.environ.get('ES_MAXSIZE', 2)  # Default is 10
-
-ES_BLOCK = os.environ.get('ES_BLOCK', True)  # Default is False
+# Set this parameter to true to refresh the Elasticsearch index after every
+# index or update.
+ELASTICSEARCH_DSL_AUTO_REFRESH = os.environ.get('ELASTICSEARCH_DSL_AUTO_REFRESH', False)
 
 #######################################################################################################################
 # Gmail settings                                                                                                  #

@@ -6,6 +6,7 @@ from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
+from lily.search.models import ElasticTenantManager
 from lily.tags.models import TaggedObjectMixin
 from lily.tenant.models import TenantMixin
 from lily.users.models import LilyUser
@@ -70,6 +71,7 @@ class Account(Common, TaggedObjectMixin):
     assigned_to = models.ForeignKey(LilyUser, null=True, blank=True, on_delete=models.SET_NULL)
 
     import_id = models.CharField(max_length=100, default='', blank=True, db_index=True)
+    elastic_objects = ElasticTenantManager()
 
     @property
     def content_type(self):

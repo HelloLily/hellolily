@@ -139,7 +139,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
 
                 filterquery = `(${filterquery})`;
 
-                const notePromise = Note.search({filterquery, size: requestLength}).$promise;
+                const notePromise = Note.search({filterquery, page_size: requestLength}).$promise;
 
                 // Add promise to list of all promises for later handling.
                 promises.push(notePromise);
@@ -353,6 +353,8 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                             caseItem.notes = [];
 
                             activity.push(caseItem);
+                            Note.search({filterquery: 'gfk_content_type:case AND gfk_object_id:' + caseItem.id, size: 15})
+                            Note.search({content_type: 'case', object_id: caseItem.id, page_size: 15})
                             caseIds.push(caseItem.id);
                         });
 
@@ -402,6 +404,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
 
                             activity.push(deal);
                             dealIds.push(deal.id);
+                                page_size: 15,
                         });
 
                         if (dealIds.length > 0) {
@@ -437,6 +440,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                     callPromise.then(calls => {
                         const callIds = [];
                         calls.results.map(call => {
+                            Note.search({filterquery: 'gfk_content_type:callrecord AND gfk_object_id:' + call.id, size: 15})
                             activity.push(call);
                             callIds.push(call.id);
                         });

@@ -7,14 +7,14 @@ from django.forms.models import model_to_dict
 
 from lily.billing.models import Billing
 from lily.tenant.middleware import set_current_user
-from lily.tests.utils import GenericAPITestCase
+from lily.tests.utils import GenericAPITestCase, ElasticSearchFilterAPITest
 from lily.users.api.serializers import LilyUserSerializer
 from lily.users.factories import LilyUserFactory
 from lily.users.models import LilyUser
 from lily.utils.models.factories import WebhookFactory
 
 
-class LilyUserTests(GenericAPITestCase):
+class LilyUserTests(ElasticSearchFilterAPITest, GenericAPITestCase):
     """
     Class containing tests for the case API.
 
@@ -26,6 +26,7 @@ class LilyUserTests(GenericAPITestCase):
     factory_cls = LilyUserFactory
     model_cls = LilyUser
     serializer_cls = LilyUserSerializer
+    search_attribute = 'full_name'
 
     def _create_object(self, with_relations=False, size=1, **kwargs):
         return super(LilyUserTests, self)._create_object(

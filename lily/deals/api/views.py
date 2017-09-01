@@ -111,6 +111,7 @@ class DealFilter(filters.FilterSet):
             'created': ['exact', 'lt', 'lte', 'gt', 'gte', ],
             'currency': ['exact', ],
             'found_through': ['exact', ],
+            'is_archived': ['exact', ],
             'is_checked': ['exact', ],
             'modified': ['exact', 'lt', 'lte', 'gt', 'gte', ],
             'name': ['exact', ],
@@ -156,21 +157,19 @@ class DealViewSet(ModelChangesMixin, TimeLogMixin, DataExistsMixin, NoteMixin, M
     Returns all timelogs for the given deal.
     """
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
-    queryset = Deal.objects
+    queryset = Deal.elastic_objects
     # Set the serializer class for this viewset.
     serializer_class = DealSerializer
     # Set all filter backends that this viewset uses.
     filter_backends = (ElasticSearchFilter, OrderingFilter, filters.DjangoFilterBackend, )
 
-    # ElasticSearchFilter: set the model type.
-    model_type = 'deals_deal'
     # OrderingFilter: set all possible fields to order by.
-    ordering_fields = (
-        'id', 'subject', 'status.id', 'why_lost.id', 'next_step.id', 'next_step_date', 'assigned_to.id',
-        'amount_once', 'amount_recurring', 'new_business', 'created', 'created_by.id', 'closed_date',
-    )
-    # OrderingFilter: set the default ordering fields.
-    ordering = ('id', )
+    ordering_fields = ('status', 'why_lost', 'next_step__name', 'next_step_date', 'assigned_to__first_name',
+                       'amount_once', 'amount_recurring', 'new_business', 'created', 'closed_date',
+                       'created_by__first_name', )
+    # SearchFilter: set the fields that can be searched on.
+    search_fields = ('account', 'assigned_to', 'created_by', 'contact', 'contacted_by', 'description', 'name',
+                     'status', 'tags', )
     # DjangoFilter: set the filter class.
     filter_class = DealFilter
 

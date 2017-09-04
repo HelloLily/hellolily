@@ -341,12 +341,6 @@
     &.small-note-field {
         .form-control {
             min-height: 30px;
-            transition: 0.5s;
-
-            &:focus {
-                transition: min-height 0.5s;
-                min-height: 100px;
-            }
         }
     }
 }
@@ -448,8 +442,9 @@
 
 .stream-note-toggle {
     margin-left: 10px;
-    color: $lily-grey;
+    color: #b5b5b5;
     cursor: pointer;
+    float: right;
 
     &:hover {
         color: $app-color-yellow;

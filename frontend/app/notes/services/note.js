@@ -21,6 +21,9 @@ function Note($resource, HLResource) {
                     id: '@id',
                 },
             },
+            delete: {
+                method: 'DELETE',
+            },
         }
     );
 

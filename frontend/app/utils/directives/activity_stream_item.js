@@ -41,11 +41,12 @@ function ActivityStreamItemDirective($compile, $http, $templateCache) {
     };
 }
 
-ActivityStreamItemController.$inject = ['$state'];
-function ActivityStreamItemController($state) {
+ActivityStreamItemController.$inject = ['$scope', '$state'];
+function ActivityStreamItemController($scope, $state) {
     var vm = this;
 
     vm.replyOnEmail = replyOnEmail;
+    vm.removeFromList = removeFromList;
 
     /////
 
@@ -75,5 +76,11 @@ function ActivityStreamItemController($state) {
         }
 
         $state.go('base.email.reply', {id: vm.item.id});
+    }
+
+    function removeFromList(deletedNote) {
+        vm.item.notes = vm.item.notes.filter(note => note.id !== deletedNote.id);
+
+        $scope.$apply();
     }
 }

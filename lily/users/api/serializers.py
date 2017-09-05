@@ -4,6 +4,7 @@ from django.contrib.auth.hashers import make_password
 from django.utils.timesince import timesince, timeuntil
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
+from rest_framework.exceptions import PermissionDenied
 from user_sessions.models import Session
 from user_sessions.templatetags.user_sessions import device
 
@@ -11,6 +12,7 @@ from lily.api.fields import CustomTimeZoneField
 from lily.api.nested.mixins import RelatedSerializerMixin
 from lily.api.nested.serializers import WritableNestedSerializer
 from lily.utils.api.serializers import RelatedWebhookSerializer
+from lily.utils.functions import has_required_tier
 
 from ..models import Team, LilyUser, UserInfo
 from lily.messaging.email.api.serializers import EmailAccountSerializer
@@ -88,10 +90,17 @@ class LilyUserSerializer(WritableNestedSerializer):
 
         return value
 
+    def create(self, validated_data):
+        return super(LilyUserSerializer, self).create(validated_data)
+
     def validate(self, attrs):
         password = attrs.get('password')
         password_confirmation = attrs.get('password_confirmation')
         email = attrs.get('email')
+        webhooks = attrs.get('webhooks')
+
+        if webhooks and not has_required_tier(2):
+            raise PermissionDenied
 
         if self.instance:  # If there's an instance, it means we're updating.
             if password and not password_confirmation:
@@ -113,6 +122,17 @@ class LilyUserSerializer(WritableNestedSerializer):
     def update(self, instance, validated_data):
         if instance.picture is validated_data.get('picture'):
             validated_data['picture'] = None
+
+        if 'is_active' in validated_data:
+            if self.context.get('request').user.is_admin:
+                is_active = validated_data.get('is_active')
+
+                # Only continue if we're actually activating a user.
+                if is_active != instance.is_active and is_active:
+                    # Increment the plan's quantity.
+                    instance.tenant.billing.update_subscription(1)
+            else:
+                raise PermissionDenied
 
         validated_team_list = None
 

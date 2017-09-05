@@ -6,6 +6,9 @@ function Tenant($filter, $interpolate, $resource, CacheFactory, HLCache) {
         '/api/tenants/:id/',
         {},
         {
+            getAccountAdmin: {
+                url: '/api/tenants/admin/',
+            },
             query: {
                 isArray: false,
                 cache: CacheFactory.get('dataCache'),

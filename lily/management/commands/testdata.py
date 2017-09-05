@@ -1,7 +1,11 @@
+import chargebee
+from django.conf import settings
+from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand, CommandError
 from factory import iterator, Iterator
 
 from lily.accounts.factories import AccountFactory
+from lily.billing.models import Plan, Billing
 from lily.calls.factories import CallFactory
 from lily.cases.factories import CaseFactory, CaseTypeFactory, CaseStatusFactory
 from lily.contacts.factories import ContactFactory, FunctionFactory
@@ -108,6 +112,30 @@ or use an existent tenant if passed as an argument."""
             author=Iterator(authors),
             subject=subjects
         )
+
+        account_admin_group = Group.objects.get_or_create(name='account_admin')[0]
+        # Set the first super user as account admin.
+        admin_user = self.tenant.lilyuser_set.filter(is_superuser=True).first()
+        admin_user.groups.add(account_admin_group)
+
+        result = chargebee.Subscription.create({
+            'plan_id': settings.CHARGEBEE_FREE_PLAN_NAME,
+            'plan_quantity': self.tenant.lilyuser_set.count(),
+            'customer': {
+                'first_name': admin_user.first_name,
+                'last_name': admin_user.last_name,
+                'email': admin_user.email,
+                'company': self.tenant.name,
+            },
+        })
+
+        self.tenant.billing = Billing.objects.create(
+            customer_id=result.customer.id,
+            subscription_id=result.subscription.id,
+            plan=Plan.objects.get(name=settings.CHARGEBEE_FREE_PLAN_NAME)
+        )
+
+        self.tenant.save()
 
         # Email templates
         # Email template variables

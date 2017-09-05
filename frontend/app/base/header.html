@@ -52,6 +52,26 @@
                             Security
                         </a>
                     </li>
+                    <li class="drop-down-sub-menu-item">
+                        <feature-unavailable tier="1" label-icon="drop-down-sub-menu-icon fa fa-key" label-text="My API key">
+                            <a ui-sref="base.preferences.user.token" ui-sref-opts="{reload:true}">
+                                <span class="drop-down-sub-menu-icon">
+                                    <i class="fa fa-key"></i>
+                                </span>
+                                My API token
+                            </a>
+                        </feature-unavailable>
+                    </li>
+                    <li class="drop-down-sub-menu-item">
+                        <feature-unavailable tier="1" label-icon="drop-down-sub-menu-icon fa fa-rocket" label-text="My webhook">
+                            <a ui-sref="base.preferences.user.webhook" ui-sref-opts="{reload:true}">
+                                <span class="drop-down-sub-menu-icon">
+                                    <i class="fa fa-rocket"></i>
+                                </span>
+                                My webhook
+                            </a>
+                        </feature-unavailable>
+                    </li>
                     <li class="divider"></li>
                     <li class="drop-down-sub-menu-item">
                         <a ui-sref="base.preferences.company.users" ui-sref-opts="{reload:true}">
@@ -62,13 +82,23 @@
                         </a>
                     </li>
                     <li class="drop-down-sub-menu-item" ng-if="currentUser.isAdmin">
-                        <a ui-sref="base.preferences.admin.integrations" ui-sref-opts="{reload:true}">
-                            <span class="drop-down-sub-menu-icon">
-                                <i class="fa fa-plug"></i>
-                            </span>
-                            Integrations
-                        </a>
+                        <feature-unavailable tier="1" label-icon="drop-down-sub-menu-icon fa fa-plug" label-text="Integrations">
+                            <a ui-sref="base.preferences.admin.integrations" ui-sref-opts="{reload:true}">
+                                <span class="drop-down-sub-menu-icon">
+                                    <i class="fa fa-plug"></i>
+                                </span>
+                                Integrations
+                            </a>
+                        </feature-unavailable>
                     </li>
+                <li class="drop-down-sub-menu-item" ng-if="currentUser.isAdmin">
+                    <a ui-sref="base.preferences.admin.billing" ui-sref-opts="{reload:true}">
+                        <span class="drop-down-sub-menu-icon">
+                            <i class="fa fa-credit-card"></i>
+                        </span>
+                        Billing
+                    </a>
+                </li>
                     <li class="divider"></li>
                     <li class="drop-down-sub-menu-item">
                         <a ui-sref="base.preferences.emailaccounts" ui-sref-opts="{reload:true}">
@@ -231,8 +261,8 @@
                 <!-- BEGIN LARGE ACTIONS -->
                 <div class="hidden-sm hidden-xs">
                     <caller-info ng-if="currentUser.internalNumber"></caller-info>
-                    <a class="hl-primary-btn" ui-sref="base.accounts.create" role="button" onclick="ga('send', 'event', 'Account', 'Open', 'Topnav');"><i class="fa fa-plus"></i> Account</a>
-                    <a class="hl-primary-btn" ui-sref="base.contacts.create" role="button" onclick="ga('send', 'event', 'Contact', 'Open', 'Topnav');"><i class="fa fa-plus"></i> Contact</a>
+                    <a class="hl-primary-btn" ui-sref="base.accounts.create" role="button" onclick="ga('send', 'event', 'Account', 'Open', 'Topnav');" object-limit="accounts"><i class="fa fa-plus"></i> Account</a>
+                    <a class="hl-primary-btn" ui-sref="base.contacts.create" role="button" onclick="ga('send', 'event', 'Contact', 'Open', 'Topnav');" object-limit="contacts"><i class="fa fa-plus"></i> Contact {{ currentUser.objectCounts.contacts }}</a>
                     <a class="hl-primary-btn" ui-sref="base.deals.create" role="button" onclick="ga('send', 'event', 'Deal', 'Open', 'Topnav');"><i class="fa fa-plus"></i> Deal</a>
                     <a class="hl-primary-btn" ui-sref="base.cases.create" role="button" onclick="ga('send', 'event', 'Case', 'Open', 'Topnav');"><i class="fa fa-plus"></i> Case</a>
                 </div>
@@ -249,10 +279,10 @@
 
                             <ul class="hl-dropdown aligned-to-right">
                                 <li class="hl-dropdown-item">
-                                    <a class="hl-dropdown-item-link" ui-sref="base.accounts.create" onclick="ga('send', 'event', 'Account', 'Open', 'Topnav mobile');"><i class="fa fa-plus"></i> Account</a>
+                                    <a class="hl-dropdown-item-link" ui-sref="base.accounts.create" onclick="ga('send', 'event', 'Account', 'Open', 'Topnav mobile');" object-limit="accounts"><i class="fa fa-plus"></i> Account</a>
                                 </li>
                                 <li class="hl-dropdown-item">
-                                    <a class="hl-dropdown-item-link" ui-sref="base.contacts.create" onclick="ga('send', 'event', 'Contact', 'Open', 'Topnav mobile');"><i class="fa fa-plus"></i> Contact</a>
+                                    <a class="hl-dropdown-item-link" ui-sref="base.contacts.create" onclick="ga('send', 'event', 'Contact', 'Open', 'Topnav mobile');" object-limit="contacts"><i class="fa fa-plus"></i> Contact</a>
                                 </li>
                                 <li class="hl-dropdown-item">
                                     <a class="hl-dropdown-item-link" ui-sref="base.deals.create" onclick="ga('send', 'event', 'Deal', 'Open', 'Topnav mobile');"><i class="fa fa-plus"></i> Deal</a>

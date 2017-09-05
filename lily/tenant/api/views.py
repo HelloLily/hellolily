@@ -1,8 +1,12 @@
 from rest_framework import mixins
+from rest_framework.decorators import list_route
+from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from lily.tenant.api.serializers import TenantSerializer
 from lily.tenant.models import Tenant
+from lily.users.api.serializers import LilyUserSerializer
+from lily.users.models import LilyUser
 
 
 class TenantViewSet(mixins.UpdateModelMixin, mixins.ListModelMixin, GenericViewSet):
@@ -49,3 +53,11 @@ class TenantViewSet(mixins.UpdateModelMixin, mixins.ListModelMixin, GenericViewS
         Set the queryset here so it filters on tenant.
         """
         return super(TenantViewSet, self).get_queryset().filter(pk=self.request.user.tenant_id)
+
+    @list_route(methods=['GET'])
+    def admin(self, request):
+        account_admin = LilyUser.objects.filter(groups__name='account_admin').first()
+
+        serializer = LilyUserSerializer(account_admin)
+
+        return Response({'admin': serializer.data})

@@ -70,9 +70,10 @@
                             <td>
                                 <span ng-if="account.privacy === vm.publicPrivacy" uib-tooltip="{{ vm.publicAccountTooltip }}">All</span>
                                 <span ng-if="account.privacy !== vm.publicPrivacy">
-                                    <button class="hl-primary-btn" ng-click="vm.openShareAccountModal(account)">
+                                    <button class="hl-primary-btn" ng-click="vm.openShareAccountModal(account)" ng-if="!currentUser.tenant.isFreePlan">
                                         {{ account.shared_email_configs.length }} <i class="lilicon hl-entity-icon margin-left-5"></i>
                                     </button>
+                                    <span ng-if="currentUser.tenant.isFreePlan">-</span>
                                 </span>
                             </td>
                             <td>
@@ -158,6 +159,6 @@
             </widget-body>
         </simple-widget>
 
-        <a href="/messaging/email/setup" class="hl-primary-btn-green pull-right no-margin-right"><i class="fa fa-plus"></i> Add email account</a>
+        <a href="/messaging/email/setup" class="hl-primary-btn-green pull-right no-margin-right" object-limit="email_accounts"><i class="fa fa-plus"></i> Add email account</a>
     </div>
 </div>

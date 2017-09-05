@@ -280,6 +280,7 @@ class EmailAccountManagementTests(UserBasedTest, APITestCase):
         label = "ABC"
         only_new = False
         privacy = EmailAccount.PRIVATE
+
         # Share one of my email accounts with another user.
         shared_email_configs = [{"user": self.superuser_obj.pk, "privacy": EmailAccount.PUBLIC,
                                  "email_account": self.email_accounts[0].pk}]

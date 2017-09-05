@@ -26,6 +26,8 @@ from templated_email import send_templated_mail
 
 from lily.utils.functions import post_intercom_event
 
+from lily.utils.functions import has_required_tier
+
 from .utils import get_info_text_for_device
 from .serializers import TeamSerializer, LilyUserSerializer, LilyUserTokenSerializer, SessionSerializer
 from ..models import Team, LilyUser, UserInfo
@@ -159,6 +161,9 @@ class LilyUserViewSet(viewsets.ModelViewSet):
         POST generates a new token
         DELETE removes the current token
         """
+        if not has_required_tier(2):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
         if request.method in ('DELETE', 'POST'):
             Token.objects.filter(user=request.user).delete()
             if request.method == 'DELETE':
@@ -276,15 +281,26 @@ class LilyUserViewSet(viewsets.ModelViewSet):
         """
         user_to_delete = self.get_object()
 
-        # Prevent the user from deactivating him/herself.
-        if request.user == user_to_delete:
-            raise PermissionDenied
+        if request.user.tenant.id != user_to_delete.tenant.id:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
-        request.user.session_set.all().delete()
+        if request.user.is_admin:
+            tenant = user_to_delete.tenant
 
-        # Don't call super, since that only fires another query using self.get_object().
-        self.perform_destroy(user_to_delete)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+            # Prevent the user from deactivating him/herself.
+            if request.user == user_to_delete:
+                raise PermissionDenied
+
+            user_to_delete.session_set.all().delete()
+
+            # Don't call super, since that only fires another query using self.get_object().
+            self.perform_destroy(user_to_delete)
+
+            tenant.billing.update_subscription(-1)
+
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
 
 class TwoFactorDevicesViewSet(viewsets.ViewSet):

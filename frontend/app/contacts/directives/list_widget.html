@@ -15,7 +15,7 @@
 
     <widget-filters>
         <div class="hl-button-group-container" ng-if="!vm.settings.email.sidebar.contact">
-            <a class="hl-primary-btn" ui-sref="{{ vm.addLink || 'base.contacts.create' }}" ng-click="vm.googleAnalyticsEvent()">
+            <a class="hl-primary-btn" ui-sref="{{ vm.addLink || 'base.contacts.create' }}" ng-click="vm.googleAnalyticsEvent()" object-limit="contacts">
                 <i class="fa fa-plus"></i>
                 <span class="external-link-name">Contact</span>
             </a>

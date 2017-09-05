@@ -67,6 +67,14 @@ function HLMessages() {
             preferences: {
                 userAssignTitle: 'Assign %(user)s to teams',
                 shareAccountTitle: 'Share your email',
+                subscription: {
+                    cancelTitle: 'Are you sure?',
+                    cancelText: 'You are about to cancel your subscription. This will revert your account back to the free plan after the next billing date. Are you sure you want to continue?',
+                    trialStartTitle: 'Start trial?',
+                    trialStartText: 'Are you sure you want to start your 30 day trial of the professional plan?',
+                    trialConfirm: 'Start trial',
+                },
+                confirmButtonText: 'Yes, cancel!',
                 twoFactorAuth: {
                     disable: {
                         confirmText: 'You are about to disable two-factor authentication. This compromises your account security, are you sure?',
@@ -100,6 +108,10 @@ function HLMessages() {
                     successText: 'Two factor auth was successfully disabled.',
                 },
             },
+            general: {
+                errorTitle: 'Error',
+                errorText: 'There was an error processing your request.<br />Please try again.',
+            },
         },
         activityStream: {
             emailMetadataMessage: 'The content of this email is not visible to you because the owner has chosen not to share the full message',
@@ -112,6 +124,7 @@ function HLMessages() {
             newlyAssignedDeal: 'Add it to \'My deals\'',
             emailAccountConnectionWarning: 'To solve email issues, please click to add this email account again',
             emailAccountPublicTooltip: 'All colleagues in %(company)s',
+            featureUnavailable: 'This feature is unavailable for your current plan. Click here to go to the billing page.',
         },
     };
 }

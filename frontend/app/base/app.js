@@ -2,6 +2,7 @@
 var Raven = require('raven-js');
 
 window.sprintf = require('sprintf-js').sprintf;
+window.moment = require('moment');
 
 require('angular-xeditable');
 require('angular-ui-bootstrap');
@@ -135,7 +136,7 @@ function runApp($rootScope, $state, editableOptions, HLMessages, HLSockets, HLNo
         email: currentUser.email,
         company: {
             name: currentUser.company,
-            id: currentUser.tenant,
+            id: currentUser.tenant.id,
         },
         widget: {
             activator: '#IntercomDefaultWidget',

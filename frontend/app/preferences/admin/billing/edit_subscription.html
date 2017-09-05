@@ -1,0 +1,46 @@
+<div class="row">
+    <div class="col-md-12">
+        <form novalidate class="hl-form-body" name="subscriptionForm">
+            <form-portlet portlet-title="Current plan" ng-if="vm.currentPlan">
+                <div class="margin-top-10">
+                    Name: {{ vm.currentPlan.name }}
+                </div>
+                <div>
+                    Price: <span ng-bind-html="vm.currentPlan.price | currencySymbol:vm.currentPlan.currency_code:true"></span>
+                </div>
+                <div>
+                    Users: {{ vm.subscription.plan_quantity }}
+                </div>
+            </form-portlet>
+
+            <form-portlet portlet-title="Change your plan">
+                <form-group label-title="" label-id="new_plan" field="subscriptionForm.new_plan">
+                    <div ng-repeat="plan in vm.plans">
+                        <label class="radio-button" for="{{ plan.plan.id }}">
+                            <input type="radio" name="{{ plan.plan.id }}" ng-model="vm.selectedPlan" ng-value="plan.plan.id" id="{{ plan.plan.id }}" class="radio-button-input" />
+                            <span class="radio-button-label">{{ plan.plan.name }}</span>
+                        </label>
+                        <span class="pull-right" ng-bind-html="plan.plan.price | currencySymbol:plan.plan.currency_code:true"></span>
+                        <div class="text-muted">{{ plan.plan.description }}</div>
+                    </div>
+                </form-group>
+
+                <a href="https://hellolily.com/pricing" target="_blank">More info about plans and pricing</a>
+            </form-portlet>
+
+            <div class="hl-form-footer">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-2 col-lg-2"></div>
+                    <div class="col-xs-12 col-sm-9 col-md-8 col-md-7 col-lg-4">
+                        <button type="button" class="hl-primary-btn-blue" ng-click="vm.saveSubsciption(subscriptionForm)">
+                            <i class="fa fa-check"></i> Save
+                        </button>
+                        <button type="button" class="hl-primary-btn" ng-click="vm.cancelEditSubscription()">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

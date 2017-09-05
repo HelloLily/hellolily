@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
@@ -11,7 +12,7 @@ from lily.integrations.credentials import get_credentials
 from lily.socialmedia.api.serializers import RelatedSocialMediaSerializer
 from lily.utils.api.serializers import (RelatedPhoneNumberSerializer, RelatedAddressSerializer,
                                         RelatedEmailAddressSerializer, RelatedTagSerializer)
-from lily.utils.functions import send_get_request, send_post_request
+from lily.utils.functions import send_get_request, send_post_request, has_required_tier
 
 from ..models import Contact, Function
 
@@ -113,11 +114,19 @@ class ContactSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
         return super(ContactSerializer, self).validate(data)
 
     def create(self, validated_data):
+        tenant = self.context.get('request').user.tenant
+        contact_count = Contact.objects.filter(is_deleted=False).count()
+
+        if tenant.billing.is_free_plan and contact_count >= settings.FREE_PLAN_ACCOUNT_CONTACT_LIMIT:
+            raise serializers.ValidationError({
+                'limit_reached': _('You\'ve reached the limit of contacts for the free plan.'),
+            })
+
         instance = super(ContactSerializer, self).create(validated_data)
 
         credentials = get_credentials('moneybird')
 
-        if credentials and credentials.integration_context.get('auto_sync'):
+        if has_required_tier(1) and credentials and credentials.integration_context.get('auto_sync'):
             self.send_moneybird_contact(validated_data, instance, credentials)
 
         return instance
@@ -139,7 +148,7 @@ class ContactSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
 
         credentials = get_credentials('moneybird')
 
-        if credentials and credentials.integration_context.get('auto_sync'):
+        if has_required_tier(1) and credentials and credentials.integration_context.get('auto_sync'):
             self.send_moneybird_contact(validated_data, instance, credentials, original_data)
 
         return instance

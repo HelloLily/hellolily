@@ -197,16 +197,15 @@ function PreferencesCompanyUserList($compile, $scope, $templateCache, HLForms, L
 
             $scope.$apply();  // Because this is a callback, explicitly call apply on the scope.
         } else {
-            user.is_active = !user.is_active;
-
             User.patch({
                 id: user.id,
                 is_active: 'All',
             }, {
                 'is_active': 'true',  // Make the user active.
-            }, function() {
+            }, () => {
+                user.is_active = !user.is_active;
                 toastr.success('I\'ve activated the user for you!', 'Done');
-            }, function() {
+            }, () => {
                 toastr.error('Uh oh, there seems to be a problem', 'Oops!');
             });
 

@@ -44,16 +44,20 @@
                     </a>
                 </li>
                 <li ui-sref-active="active">
-                    <a ui-sref="base.preferences.user.token" ui-sref-opts="{reload:true}">
-                        <i class="fa fa-key"></i>
-                        My API token
-                    </a>
+                    <feature-unavailable tier="2" label-icon="fa fa-key" label-text="My API token">
+                        <a ui-sref="base.preferences.user.token" ui-sref-opts="{reload:true}">
+                            <i class="fa fa-key"></i>
+                            My API token
+                        </a>
+                    </feature-unavailable>
                 </li>
                 <li ui-sref-active="active">
-                    <a ui-sref="base.preferences.user.webhook" ui-sref-opts="{reload:true}">
-                        <i class="fa fa-rocket"></i>
-                        My webhook
-                    </a>
+                    <feature-unavailable tier="2" label-icon="fa fa-rocket" label-text="My webhook">
+                        <a ui-sref="base.preferences.user.webhook" ui-sref-opts="{reload:true}">
+                            <i class="fa fa-rocket"></i>
+                            My webhook
+                        </a>
+                    </feature-unavailable>
                 </li>
             </ul>
         </div>
@@ -96,9 +100,17 @@
                     </a>
                 </li>
                 <li ng-if="currentUser.isAdmin" ui-sref-active="active">
-                    <a ui-sref="base.preferences.admin.integrations" ui-sref-opts="{reload:true}">
-                        <i class="fa fa-plug"></i>
-                        Integrations
+                    <feature-unavailable tier="1" label-icon="fa fa-plug" label-text="Integrations">
+                        <a ui-sref="base.preferences.admin.integrations" ui-sref-opts="{reload:true}" check-feature-unavailable tier="1">
+                            <i class="fa fa-plug"></i>
+                            Integrations
+                        </a>
+                    </feature-unavailable>
+                </li>
+                <li ng-if="currentUser.isAdmin" ui-sref-active="active">
+                    <a ui-sref="base.preferences.admin.billing" ui-sref-opts="{reload:true}">
+                        <i class="fa fa-credit-card"></i>
+                        Billing
                     </a>
                 </li>
             </ul>

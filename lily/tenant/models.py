@@ -1,5 +1,7 @@
 from django.conf import settings
 from django.db import models
+
+from lily.billing.models import Billing
 from lily.utils.countries import COUNTRIES
 from lily.utils.currencies import CURRENCIES
 
@@ -25,6 +27,7 @@ class Tenant(models.Model):
     name = models.CharField(max_length=255, blank=True)
     country = models.CharField(blank=True, max_length=2, verbose_name='country', choices=COUNTRIES)
     currency = models.CharField(blank=True, max_length=3, verbose_name='currency', choices=CURRENCIES)
+    billing = models.ForeignKey(Billing)
 
     def __unicode__(self):
         if self.name:

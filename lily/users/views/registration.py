@@ -1,6 +1,7 @@
 from datetime import date, timedelta
 from hashlib import sha256
 
+import chargebee
 from django.conf import settings
 from django.contrib import messages, auth
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
@@ -15,6 +16,7 @@ from django.utils.http import base36_to_int, int_to_base36
 from django.utils.translation import ugettext_lazy as _
 from templated_email import send_templated_mail
 
+from lily.billing.models import Plan, Billing
 from lily.tenant.models import Tenant
 
 from lily.users.forms.registration import AcceptInvitationForm, ResendActivationMailForm, TenantRegistrationForm
@@ -58,6 +60,9 @@ class RegistrationView(FormView):
     form_class = TenantRegistrationForm
 
     def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated():
+            return redirect(reverse_lazy('base_view'))
+
         # Show a different template when registration is closed.
         if settings.REGISTRATION_POSSIBLE:
             return super(RegistrationView, self).get(request, args, kwargs)
@@ -77,9 +82,12 @@ class RegistrationView(FormView):
         tenant_name = form.cleaned_data['tenant_name']
         tenant_country = form.cleaned_data['country']
 
+        plan = Plan.objects.get(name=settings.CHARGEBEE_FREE_PLAN_NAME)
+
         tenant = Tenant.objects.create(
             name=tenant_name,
             country=tenant_country,
+            billing=Billing.objects.create(plan=plan),
         )
 
         # Create and save user
@@ -100,7 +108,7 @@ class RegistrationView(FormView):
 
         send_activation_mail(self.request, user)
 
-        # Show registration message.
+        # Show registration message
         messages.success(
             self.request,
             _('Registration completed. I\'ve sent you an email, please check it to activate your account.')
@@ -175,6 +183,22 @@ class ActivationView(TemplateView):
         # Set is_active to True and save the user.
         user.is_active = True
         user.save()
+
+        tenant = user.tenant
+
+        result = chargebee.Subscription.create({
+            'plan_id': tenant.billing.plan.name,
+            'customer': {
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'email': user.email,
+                'company': tenant.name,
+            },
+        })
+
+        tenant.billing.customer_id = result.customer.id
+        tenant.billing.subscription_id = result.subscription.id
+        tenant.billing.save()
 
         # Programmatically login the user.
         user.backend = settings.AUTHENTICATION_BACKENDS[0]
@@ -336,6 +360,9 @@ class AcceptInvitationView(FormView):
             last_name=form.cleaned_data['last_name'],
             tenant_id=tenant.id,
         )
+
+        # Update the current subscription.
+        user.tenant.billing.update_subscription(1)
 
         if tenant.lilyuser_set.count() == 1:
             # Add to admin group.

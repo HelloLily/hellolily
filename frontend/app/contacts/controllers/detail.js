@@ -24,7 +24,7 @@ function contactsConfig($stateProvider) {
                 return Case.search({filterquery: 'contact.id:' + $stateParams.id, sort: 'expires', size: 100}).$promise;
             }],
             dealList: ['Deal', '$stateParams', function(Deal, $stateParams) {
-                return Deal.search({filterquery: 'contact.id:' + $stateParams.id, sort: '-next_step_date'}).$promise;
+                return Deal.search({filterquery: 'contact.id:' + $stateParams.id, sort: '-next_step_date', size: 100}).$promise;
             }],
         },
     });

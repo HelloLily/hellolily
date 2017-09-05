@@ -26,10 +26,10 @@ function accountConfig($stateProvider) {
                 return Case.search({filterquery: 'account.id:' + $stateParams.id, sort: 'expires', size: 100}).$promise;
             }],
             contactList: ['Contact', '$stateParams', function(Contact, $stateParams) {
-                return Contact.search({filterquery: 'accounts.id:' + $stateParams.id}).$promise;
+                return Contact.search({filterquery: 'accounts.id:' + $stateParams.id, size: 50}).$promise;
             }],
             dealList: ['Deal', '$stateParams', function(Deal, $stateParams) {
-                return Deal.search({filterquery: 'account.id:' + $stateParams.id, sort: '-next_step_date'}).$promise;
+                return Deal.search({filterquery: 'account.id:' + $stateParams.id, sort: '-next_step_date', size: 100}).$promise;
             }],
         },
     });

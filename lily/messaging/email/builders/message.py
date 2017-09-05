@@ -345,7 +345,7 @@ class MessageBuilder(object):
 
         # BS4 decoding second
         if not decoded_body:
-            soup = BeautifulSoup(body, 'lxml', from_encoding='utf-8')
+            soup = BeautifulSoup(body, 'lxml')
             if soup.original_encoding:
                 encoding = soup.original_encoding
                 try:

@@ -252,7 +252,7 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
         """
         email_draft = form.cleaned_data
         email_account = email_draft['send_from']
-        soup = BeautifulSoup(email_draft['body_html'], 'lxml', from_encoding='utf-8')
+        soup = BeautifulSoup(email_draft['body_html'], 'lxml')
         mapped_attachments = soup.findAll('img', {'cid': lambda cid: cid})
 
         if 'tasks' not in self.request.session:

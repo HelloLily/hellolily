@@ -5,7 +5,6 @@ import chargebee
 from django.conf import settings
 from django.db import migrations, models
 
-# Mock commit to trigger migrations again since the previous migration failed.
 
 def create_billing_objects(apps, schema_editor):
     Billing = apps.get_model('billing', 'Billing')

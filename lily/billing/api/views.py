@@ -187,10 +187,12 @@ class BillingViewSet(ViewSet):
 
         plan_id = settings.CHARGEBEE_PRO_TRIAL_PLAN_NAME
         trial_end = datetime.now() + timedelta(days=30)
+        # Chargebee wants the time in seconds.
+        trial_end = calendar.timegm(trial_end.timetuple())
 
         result = chargebee.Subscription.update(subscription.id, {
             'plan_id': plan_id,
-            'trial_end': calendar.timegm(trial_end.timetuple()),
+            'trial_end': trial_end,
         })
 
         if result.subscription.status == 'in_trial':

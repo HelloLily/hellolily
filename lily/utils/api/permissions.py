@@ -20,4 +20,4 @@ class IsFeatureAvailable(BasePermission):
         required_tier = getattr(view, 'required_tier', 1)
 
         # API access isn't available for the free and cheapest paid plan.
-        return not has_required_tier(required_tier)
+        return has_required_tier(required_tier)

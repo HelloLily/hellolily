@@ -284,23 +284,20 @@ class LilyUserViewSet(viewsets.ModelViewSet):
         if request.user.tenant.id != user_to_delete.tenant.id:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        if request.user.is_admin:
-            tenant = user_to_delete.tenant
+        tenant = user_to_delete.tenant
 
-            # Prevent the user from deactivating him/herself.
-            if request.user == user_to_delete:
-                raise PermissionDenied
+        # Prevent the user from deactivating him/herself.
+        if request.user == user_to_delete:
+            raise PermissionDenied
 
-            user_to_delete.session_set.all().delete()
+        user_to_delete.session_set.all().delete()
 
-            # Don't call super, since that only fires another query using self.get_object().
-            self.perform_destroy(user_to_delete)
+        # Don't call super, since that only fires another query using self.get_object().
+        self.perform_destroy(user_to_delete)
 
-            tenant.billing.update_subscription(-1)
+        tenant.billing.update_subscription(-1)
 
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
-            return Response(status=status.HTTP_403_FORBIDDEN)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class TwoFactorDevicesViewSet(viewsets.ViewSet):

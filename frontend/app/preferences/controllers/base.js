@@ -20,7 +20,9 @@ function preferencesConfig($stateProvider) {
 
 angular.module('app.preferences').controller('PreferencesBase', PreferencesBase);
 
-PreferencesBase.$inject = ['Settings'];
-function PreferencesBase(Settings) {
+PreferencesBase.$inject = ['$scope', 'Settings'];
+function PreferencesBase($scope, Settings) {
+    $scope.billingEnabled = window.billingEnabled;
+
     Settings.page.setAllTitles('custom', 'Preferences');
 }

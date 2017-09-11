@@ -91,14 +91,14 @@
                             </a>
                         </feature-unavailable>
                     </li>
-                <li class="drop-down-sub-menu-item" ng-if="currentUser.isAdmin">
-                    <a ui-sref="base.preferences.admin.billing" ui-sref-opts="{reload:true}">
-                        <span class="drop-down-sub-menu-icon">
-                            <i class="fa fa-credit-card"></i>
-                        </span>
-                        Billing
-                    </a>
-                </li>
+                    <li class="drop-down-sub-menu-item" ng-if="vm.billingEnabled && currentUser.isAdmin">
+                        <a ui-sref="base.preferences.admin.billing" ui-sref-opts="{reload:true}">
+                            <span class="drop-down-sub-menu-icon">
+                                <i class="fa fa-credit-card"></i>
+                            </span>
+                            Billing
+                        </a>
+                    </li>
                     <li class="divider"></li>
                     <li class="drop-down-sub-menu-item">
                         <a ui-sref="base.preferences.emailaccounts" ui-sref-opts="{reload:true}">

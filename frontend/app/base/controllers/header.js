@@ -16,6 +16,8 @@ PageHeaderController.$inject = ['$scope'];
 function PageHeaderController($scope) {
     var vm = this;
 
+    vm.billingEnabled = window.billingEnabled;
+
     vm.openForm = openForm;
 
     $scope.$on('$includeContentLoaded', function() {

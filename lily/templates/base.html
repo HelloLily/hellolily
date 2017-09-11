@@ -121,6 +121,9 @@
             <script src="https://s3.amazonaws.com/pd-js-sdk/0.2.12/pandadoc-js-sdk.min.js"></script>
             <script type="text/javascript" src="https://js.chargebee.com/v1/chargebee.js"></script>
             <script>
+                // If billing is disabled we just set the tier to some high number so all features are available.
+                const PLAN_HIGHEST_TIER = 99;
+
                 var currentUser = {
                     id: parseInt('{{ user.id }}'),
                     firstName: '{{ user.first_name }}',
@@ -135,7 +138,7 @@
                     company: '{{ user.tenant.name }}',
                     tenant: {
                         id: '{{ user.tenant.id }}',
-                        planTier: '{{ user.tenant.billing.plan.tier }}',
+                        planTier: '{{ user.tenant.billing.plan.tier }}' || PLAN_HIGHEST_TIER,
                         isFreePlan: '{{ user.tenant.billing.is_free_plan }}' == 'True',
                         trialStarted: '{{ user.tenant.billing.trial_started }}' == 'True',
                     },
@@ -148,6 +151,7 @@
                     } || null,
                 };
 
+                window.billingEnabled = '{{ BILLING_ENABLED }}' == 'True';
                 window.intercomAppId = '{{ INTERCOM_APP_ID }}';
                 window.sentryPublicDsn = '{{ SENTRY_FRONTEND_PUBLIC_DSN }}';
                 window.debug = '{{ DEBUG }}' == 'True';

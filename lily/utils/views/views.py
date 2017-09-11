@@ -239,6 +239,7 @@ class BaseView(LoginRequiredMixin, TemplateView):
         kwargs.update({
             'INTERCOM_APP_ID': settings.INTERCOM_APP_ID,
             'SENTRY_FRONTEND_PUBLIC_DSN': settings.SENTRY_FRONTEND_PUBLIC_DSN,
+            'BILLING_ENABLED': settings.BILLING_ENABLED,
             'DEBUG': settings.DEBUG,
         })
 

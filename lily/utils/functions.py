@@ -320,6 +320,10 @@ def has_required_tier(required_tier, tenant=None):
         user = get_current_user()
         tenant = user.tenant
 
-    current_tier = tenant.billing.plan.tier
+    if settings.BILLING_ENABLED:
+        current_tier = tenant.billing.plan.tier
 
-    return current_tier >= required_tier
+        return current_tier >= required_tier
+    else:
+        # Billing isn't enable so always return true.
+        return True

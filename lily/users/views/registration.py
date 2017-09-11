@@ -81,13 +81,16 @@ class RegistrationView(FormView):
 
         tenant_name = form.cleaned_data['tenant_name']
         tenant_country = form.cleaned_data['country']
+        billing = None
 
-        plan = Plan.objects.get(name=settings.CHARGEBEE_FREE_PLAN_NAME)
+        if settings.BILLING_ENABLED:
+            plan = Plan.objects.get(name=settings.CHARGEBEE_FREE_PLAN_NAME)
+            billing = Billing.objects.create(plan=plan)
 
         tenant = Tenant.objects.create(
             name=tenant_name,
             country=tenant_country,
-            billing=Billing.objects.create(plan=plan),
+            billing=billing,
         )
 
         # Create and save user
@@ -184,21 +187,22 @@ class ActivationView(TemplateView):
         user.is_active = True
         user.save()
 
-        tenant = user.tenant
+        if settings.BILLING_ENABLED:
+            tenant = user.tenant
 
-        result = chargebee.Subscription.create({
-            'plan_id': tenant.billing.plan.name,
-            'customer': {
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-                'email': user.email,
-                'company': tenant.name,
-            },
-        })
+            result = chargebee.Subscription.create({
+                'plan_id': tenant.billing.plan.name,
+                'customer': {
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'email': user.email,
+                    'company': tenant.name,
+                },
+            })
 
-        tenant.billing.customer_id = result.customer.id
-        tenant.billing.subscription_id = result.subscription.id
-        tenant.billing.save()
+            tenant.billing.customer_id = result.customer.id
+            tenant.billing.subscription_id = result.subscription.id
+            tenant.billing.save()
 
         # Programmatically login the user.
         user.backend = settings.AUTHENTICATION_BACKENDS[0]

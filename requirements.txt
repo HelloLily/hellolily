@@ -47,7 +47,7 @@ jinja2==2.9.6
 #######################################################
 
 django-bootstrap3==9.0.0
-django-braces==1.8.1
+django-braces==1.10.0
 django-password-strength==1.2.1
 django-timezone-field==2.0
 
@@ -135,7 +135,6 @@ requests==2.18.4
 grequests==0.3.0
 unicodecsv==0.13.0
 urllib3==1.22
-six==1.10.0
 freemail==1.2.17
 tldextract==1.7.5
 idna==2.6

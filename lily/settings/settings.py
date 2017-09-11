@@ -676,6 +676,8 @@ MESSAGE_STORAGE = 'django.contrib.messages.storage.fallback.FallbackStorage'
 # Tenant support
 MULTI_TENANT = boolean(os.environ.get('MULTI_TENANT', 0))
 
+BILLING_ENABLED = boolean(os.environ.get('BILLING_ENABLED', 0))
+
 # Django Bootstrap
 # TODO: These settings can be removed once all forms are converted to Angular
 BOOTSTRAP3 = {

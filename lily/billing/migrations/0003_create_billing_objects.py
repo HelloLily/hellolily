@@ -24,13 +24,13 @@ def create_billing_objects(apps, schema_editor):
         # Get the tenant admin (or first one in case of multiple).
         admin_user = tenant_users.filter(groups__name='account_admin').first()
 
-        if not admin_user:
+        if not admin_user and tenant_users.count():
             admin_user = tenant_users.first()
             account_admin_group = Group.objects.get_or_create(name='account_admin')[0]
             admin_user.groups.add(account_admin_group)
             admin_user.save()
 
-        if admin_user:
+        if admin_user and settings.BILLING_ENABLED:
             result = chargebee.Subscription.create({
                 'plan_id': plan_id,
                 'plan_quantity': tenant_users.count(),

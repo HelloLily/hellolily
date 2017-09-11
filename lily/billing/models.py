@@ -1,4 +1,5 @@
 import chargebee
+from django.conf import settings
 from django.db import models
 
 
@@ -10,13 +11,17 @@ class Plan(models.Model):
 class Billing(models.Model):
     subscription_id = models.CharField(max_length=255, blank=True)
     customer_id = models.CharField(max_length=255, blank=True)
-    plan = models.ForeignKey(Plan)
+    plan = models.ForeignKey(Plan, blank=True, null=True)
     cancels_on = models.DateTimeField(blank=True, null=True)
     trial_started = models.BooleanField(default=False)
 
     @property
     def is_free_plan(self):
-        return self.plan.tier == 0
+        if settings.BILLING_ENABLED:
+            return self.plan.tier == 0
+        else:
+            # Billing isn't enabled so just return true.
+            return False
 
     def get_customer(self):
         customer = None

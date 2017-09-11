@@ -328,7 +328,7 @@ class InternalNumberSearchView(LoginRequiredMixin, View):
 
         response_format = request.GET.get('format')
 
-        if response_format and response_format.lower() == 'ack':
+        if response_format and response_format.lower() == 'grid':
             name = ''
             internal_number = results.get('internal_number', '')
 

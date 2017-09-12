@@ -10,6 +10,9 @@ function activityAddNoteDirective() {
         controller: ActivityAddNoteController,
         controllerAs: 'vm',
         bindToController: true,
+        link: (scope, element, attrs) => {
+            element[0].focus();
+        },
     };
 }
 

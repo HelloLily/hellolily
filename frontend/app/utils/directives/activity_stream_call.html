@@ -18,7 +18,7 @@
         </div>
 
         <div class="stream-item-content">
-            <div class="stream-item-description" ng-show="vm.item.showNotes">
+            <div class="stream-item-description">
                 <div class="stream-subitem">
                     <div class="stream-subitem-timeline"></div>
 
@@ -28,15 +28,23 @@
                         </div>
 
                         <div class="stream-subitem-main">
-                            <div class="stream-subitem-date">{{ ::note.date | date:'dd MMM yyyy - HH:mm' }}</div>
-                            <div class="stream-subitem-title"> {{ ::note.author.full_name }} created a <i class="lilicon hl-note-icon margin-left-5 yellow font-size-16"></i> note</div>
+                            <div class="stream-subitem-date">
+                                {{ ::note.date | date:'dd MMM yyyy - HH:mm' }}
+
+                                <delete-confirmation model="Note" object="note" callback="vm.removeFromList(note)" button-class="btn-link no-background no-padding pull-right">
+                                    Delete
+                                </delete-confirmation>
+                            </div>
+                            <div class="stream-subitem-title">
+                                {{ ::note.author.full_name }} created a <i class="lilicon hl-note-icon margin-left-5 yellow font-size-16"></i> note
+                            </div>
                             <div class="stream-subitem-content">
                                 <editable-textarea view-model="vm" field="content" object="note"></editable-textarea>
                             </div>
                         </div>
                     </div>
 
-                    <div class="stream-subitem-object">
+                    <div class="stream-subitem-object" ng-if="vm.item.showNotes">
                         <div class="stream-subitem-image">
                             <div class="stream-subitem-avatar is-note"><i class="lilicon hl-note-icon"></i></div>
                         </div>

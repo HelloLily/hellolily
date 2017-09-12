@@ -427,10 +427,6 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                                     });
 
                                     call.notes = notes;
-
-                                    if (notes.length) {
-                                        call.showNotes = true;
-                                    }
                                 });
 
                             activity.push(call);

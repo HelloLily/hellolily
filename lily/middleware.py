@@ -1,3 +1,6 @@
+from django.contrib.auth.models import AnonymousUser
+from django.utils.functional import SimpleLazyObject
+from rest_framework.authtoken.models import Token
 
 
 class SetRemoteAddrFromForwardedFor(object):
@@ -11,3 +14,25 @@ class SetRemoteAddrFromForwardedFor(object):
             # On Heroku the last in the list is guaranteed to be the real one.
             real_ip = real_ip.split(",")[-1].strip()
             request.META['REMOTE_ADDR'] = real_ip
+
+
+def get_user(token):
+    model = Token
+
+    try:
+        token = model.objects.select_related('user').get(key=token)
+        user = token.user
+
+        if not user.is_active:
+            user = AnonymousUser()
+    except model.DoesNotExist:
+        user = AnonymousUser()
+
+    return user
+
+
+class TokenAuthenticationMiddleware(object):
+    def process_request(self, request):
+        token = request.GET.get('key', None)
+        if token and isinstance(request.user, AnonymousUser):
+            request.user = SimpleLazyObject(lambda: get_user(token))

@@ -139,7 +139,7 @@ six==1.10.0
 freemail==1.2.17
 tldextract==1.7.5
 idna==2.6
-raven==5.21.0
+raven==6.1.0
 contextlib2==0.5.4
 phonenumberslite==8.4.2
 slacker==0.9.42

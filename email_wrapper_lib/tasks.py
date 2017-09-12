@@ -1,40 +1,50 @@
 from celery import shared_task
 
 from email_wrapper_lib.manager import EmailAccountManager
-from .models import EmailAccount
+from email_wrapper_lib.models.models import EmailAccount
 
 
 @shared_task
 def sync_scheduler():
-    for account in EmailAccount.objects.filter(is_active=True, is_syncing=False):
-        sync.delay(account.pk)
+    for account in EmailAccount.objects.all():
+        sync_account.delay(account.pk)
 
 
 @shared_task
-def sync(account_id):
+def sync_account(account_id):
     account = EmailAccount.objects.get(pk=account_id)
-    if account.is_syncing:
+
+    if account.status in [EmailAccount.SYNCING, EmailAccount.ERROR]:
         return
 
     manager = EmailAccountManager(account)
-    # TODO: sync labels, then sync messages.
-    manager.sync_history()
+    manager.sync_folders()
 
-    if account.page_token:
-        # Indicated by the page_token, syncing is not done yet. Fire up new task to continue syncing.
-        sync.delay(account_id)
+    sync_messages.delay(account_id)
 
 
 @shared_task
-def first_sync(account_id):
+def sync_messages(account_id):
     account = EmailAccount.objects.get(pk=account_id)
-    if account.is_syncing:
-        return
 
     manager = EmailAccountManager(account)
-    # TODO: sync labels, then sync messages.
-    manager.sync_list()
+    manager.sync_messages()
 
     if account.page_token:
         # Indicated by the page_token, syncing is not done yet. Fire up new task to continue syncing.
-        sync.delay(account_id)
+        sync_messages.delay(account_id)
+
+
+# @shared_task
+# def first_sync(account_id):
+#     account = EmailAccount.objects.get(pk=account_id)
+#     if account.is_syncing:
+#         return
+#
+#     manager = EmailAccountManager(account)
+#     manager.sync_labels()
+#     manager.sync_list()
+#
+#     if account.page_token:
+#         # Indicated by the page_token, syncing is not done yet. Fire up new task to continue syncing.
+#         first_sync.delay(account_id)

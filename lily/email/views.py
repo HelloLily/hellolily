@@ -3,12 +3,13 @@ from django.core.urlresolvers import reverse
 from django.views.generic import RedirectView
 from oauth2client.client import FlowExchangeError
 
-from email_wrapper_lib.models import EmailAccount
 from email_wrapper_lib.providers import registry
-from email_wrapper_lib.tasks import first_sync
+from email_wrapper_lib.tasks import sync_account
+from email_wrapper_lib.utils import create_account_from_code
+from lily.utils.views import LoginRequiredMixin
 
 
-class AddAccountView(RedirectView):
+class AddAccountView(LoginRequiredMixin, RedirectView):
     permanent = False
 
     def get_redirect_url(self, *args, **kwargs):
@@ -24,7 +25,7 @@ class AddAccountView(RedirectView):
         return url
 
 
-class AddAccountCallbackView(RedirectView):
+class AddAccountCallbackView(LoginRequiredMixin, RedirectView):
     permanent = False
 
     def get_redirect_url(self, *args, **kwargs):
@@ -36,8 +37,8 @@ class AddAccountCallbackView(RedirectView):
             provider = registry[provider_name]
 
             try:
-                account = EmailAccount.create_account_from_code(provider=provider, code=code)
-                first_sync.delay(account.pk)
+                account = create_account_from_code(provider=provider, code=code)
+                sync_account.delay(account.pk)
                 messages.add_message(self.request, messages.SUCCESS, '{0} was created.'.format(account.username))
             except FlowExchangeError:
                 messages.add_message(self.request, messages.ERROR, 'Could not get credentials for your account.')

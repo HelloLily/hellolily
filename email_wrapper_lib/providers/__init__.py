@@ -17,7 +17,7 @@ class ProviderRegistry(tuple):
         if isinstance(y, str) or isinstance(y, unicode):
             return y in self._providers_by_name.keys()
 
-        raise ValueError('Unsupported type for registry lookup `%s`' % type(y))
+        raise ValueError('Unsupported type for registry lookup `{0}`'.format(type(y)))
 
     def __getitem__(self, y):
         if isinstance(y, int):
@@ -26,7 +26,7 @@ class ProviderRegistry(tuple):
         if isinstance(y, str) or isinstance(y, unicode):
             return self._providers_by_name.get(y)
 
-        raise ValueError('Unsupported type for registry lookup `%s`' % type(y))
+        raise ValueError('Unsupported type for registry lookup `{0}`'.format(type(y)))
 
 
 registry = ProviderRegistry([Google, Microsoft])

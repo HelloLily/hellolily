@@ -10,6 +10,8 @@ from lily.deals.api.views import (DealViewSet, DealStatusViewSet, DealNextStepLi
                                   DealWhyCustomerViewSet, DealContactedByViewSet, DealWhyLostViewSet,
                                   DealFoundThroughViewSet)
 from lily.email.api.views import EmailAccountViewSet as EmailV3AccountViewSet
+from lily.email.api.views import EmailMessageViewSet as EmailV3MessageViewSet
+from lily.email.api.views import EmailDraftViewSet as EmailV3DraftViewSet
 from lily.integrations.api.views import (DocumentDetails, EstimatesList, IntegrationAuth, MoneybirdContactImport,
                                          PandaDocList, DocumentEventList, DocumentEventCatch, PandaDocSharedKey,
                                          SlackEventCatch, IntegrationDetailsView)
@@ -75,6 +77,8 @@ router.register(r'utils/countries', CountryViewSet)
 router.register(r'voipgrid/call-notifications', CallNotificationViewSet, base_name='callnotification')
 router.register(r'voys/call-notifications', CallNotificationViewSet, base_name='callnotification')
 router.register(r'email/accounts', EmailV3AccountViewSet)
+router.register(r'email/messages', EmailV3MessageViewSet)
+router.register(r'email/drafts', EmailV3DraftViewSet)
 
 urlpatterns = [
     url(r'^deals/nextsteps/$', DealNextStepList.as_view()),

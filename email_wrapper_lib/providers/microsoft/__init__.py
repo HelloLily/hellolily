@@ -1,5 +1,6 @@
-from django.conf import settings
 from oauth2client.client import OAuth2WebServerFlow
+
+from email_wrapper_lib.conf import settings
 
 from .connector import MicrosoftConnector
 

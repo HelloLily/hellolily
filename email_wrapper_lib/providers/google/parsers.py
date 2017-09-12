@@ -18,6 +18,16 @@ def parse_response(callback_func, *args, **kwargs):
     return transform
 
 
+def parse_profile(data, profile):
+    profile.update({
+        'user_id': data['emailAddress'],
+        'username': data['emailAddress'],
+        'history_token': data['historyId'],
+    })
+
+    return profile
+
+
 def parse_history(data, history, message_resource):
     history_list = data.get('history', [])
     messages = {'messages': []}  # Conform the output of google's list, to be parsed by parse_message_list.
@@ -45,9 +55,9 @@ def parse_history(data, history, message_resource):
 
         for change in history_item.get('labelsAdded', []):
             remote_id = change.get('message').get('id')
-            label_ids = change.get('labelIds')
+            folder_ids = change.get('labelIds')
 
-            for label in label_ids:
+            for label in folder_ids:
                 try:
                     history['deleted_labels'][remote_id].remove(label)
                 except ValueError:
@@ -55,9 +65,9 @@ def parse_history(data, history, message_resource):
 
         for change in history_item.get('labelsRemoved', []):
             remote_id = change.get('message').get('id')
-            label_ids = change.get('labelIds')
+            folder_ids = change.get('labelIds')
 
-            for label in label_ids:
+            for label in folder_ids:
                 try:
                     history['added_labels'][remote_id].remove(label)
                 except ValueError:
@@ -75,11 +85,11 @@ def parse_history(data, history, message_resource):
 
 def parse_message_list(data, messages, message_resource):
     message_list = [message.get('id') for message in data.get('messages', [])]
-    messages['messages'] = []
+    messages['messages'] = {}
 
     # Because google only gives message ids, we need to do a second batch for the bodies.
     for remote_id in message_list:
-        messages['messages'].append(message_resource.get(remote_id))
+        messages['messages'][remote_id].append(message_resource.get(remote_id))
 
     message_resource.batch.execute()
 
@@ -91,27 +101,52 @@ def parse_message_list(data, messages, message_resource):
 
 def parse_message(data, message):
     payload = data.get('payload', {})
-    label_ids = data.get('labelIds')
-    headers = parse_headers(payload.get('headers', []))
+    folder_ids = data.get('labelIds')
 
     message.update({
         'remote_id': data['id'],
         'thread_id': data['threadId'],
         'history_token': data['historyId'],
-        'labels_ids': label_ids,
+        'folder_ids': folder_ids,
         'snippet': data['snippet'],
-        'headers': headers,
-        'is_read': 'READ' in label_ids,
-        'is_starred': 'STARRED' in label_ids,
-        'is_draft': 'DRAFT' in label_ids,
-        'is_important': 'IMPORTANT' in label_ids,
-        'is_archived': 'ARCHIVED' in label_ids,
-        'is_trashed': 'TRASH' in label_ids,
-        'is_spam': 'SPAM' in label_ids,
-        'is_chat': 'CHAT' in label_ids,
+        'is_read': 'UNREAD' not in folder_ids,
+        'is_starred': 'STARRED' in folder_ids,
+        'is_draft': 'DRAFT' in folder_ids,
+        'is_important': 'IMPORTANT' in folder_ids,
+        'is_archived': 'ARCHIVED' in folder_ids,
+        'is_trashed': 'TRASH' in folder_ids,
+        'is_spam': 'SPAM' in folder_ids,
+        'is_chat': 'CHAT' in folder_ids,
     })
 
-    header_shortcuts = [
+    message.update(parse_headers(payload.get('headers', [])))
+    message.update(parse_parts(payload))
+
+    return message
+
+
+def parse_date_string(data):
+    # TODO: try to use the tuple in an easier way using time.mktime
+
+    # Try it the most simple way.
+    datetime_tuple = parsedate_tz(data)
+    if datetime_tuple:
+        return datetime.fromtimestamp(mktime_tz(datetime_tuple), pytz.UTC)
+    else:
+        return parse(data)
+
+
+def parse_recipient_string(data):
+    return [{
+        'name': recipient[0],
+        'email_address': recipient[1],
+        'raw_value': '{} <{}>'.format(recipient[0], recipient[1])
+    } for recipient in getaddresses([data])]
+
+
+def parse_headers(data):
+    header_dict = {}
+    wanted_headers = [
         'subject',
         'date',
         'from',
@@ -123,57 +158,30 @@ def parse_message(data, message):
         'message_id',
     ]
 
-    for shortcut in header_shortcuts:
-        message[shortcut] = headers.get(shortcut)
-
-    message.update(parse_parts(payload))
-
-    return message
-
-
-def parse_date_string(value):
-    # TODO: try to use the tuple in an easier way using time.mktime
-
-    # Try it the most simple way.
-    datetime_tuple = parsedate_tz(value)
-    if datetime_tuple:
-        return datetime.fromtimestamp(mktime_tz(datetime_tuple), pytz.UTC)
-    else:
-        return parse(value)
-
-
-def parse_recipient_string(value):
-    return [{
-        'name': recipient[0],
-        'email_address': recipient[1]
-    } for recipient in getaddresses([value])]
-
-
-def parse_headers(header_json):
-    header_dict = {}
-
-    for header in header_json:
+    for header in data:
         name = header.get('name').lower().replace('-', '_')
-        value = header.get('value')
 
-        if name == 'date':
-            value = parse_date_string(value)
-        elif name == 'message_id':
-            value = value.decode("unicode-escape")
-        elif name in ['from', 'sender', 'reply_to', ]:
-            recipient_list = parse_recipient_string(value)
-            value = recipient_list[0] if recipient_list else {}
-        elif name in ['to', 'cc', 'bcc']:
-            value = parse_recipient_string(value)
+        if name in wanted_headers:
+            value = header.get('value')
 
-        header_dict.update({
-            name: value
-        })
+            if name == 'date':
+                value = parse_date_string(value)
+            elif name == 'message_id':
+                value = value.decode("unicode-escape")
+            elif name in ['from', 'sender', 'reply_to', ]:
+                recipient_list = parse_recipient_string(value)
+                value = recipient_list[0] if recipient_list else {}
+            elif name in ['to', 'cc', 'bcc', ]:
+                value = parse_recipient_string(value)
+
+            header_dict.update({
+                name: value
+            })
 
     return header_dict
 
 
-def parse_parts(part_json):
+def parse_parts(data):
     parts_dict = {
         'body_text': '',
         'body_html': '',
@@ -181,38 +189,63 @@ def parse_parts(part_json):
         'attachments': [],
     }
 
-    if 'parts' in part_json:
+    if 'parts' in data:
         # This message is multipart.
-        for sub_part in part_json.get('parts'):
+        for sub_part in data.get('parts'):
             parts_dict.update(parse_parts(sub_part))
     else:
-        mimetype = part_json.get('mimeType')
+        mimetype = data.get('mimeType')
+        body_data = data.get('body', {}).get('data', '').encode()
 
-        if part_json.get('mimeType') == 'text/plain':
-            data = part_json.get('body', {}).get('data', '').encode()
-            parts_dict['body_text'] = base64.urlsafe_b64decode(data)
-        elif part_json.get('mimeType') == 'text/html':
-            data = part_json.get('body', {}).get('data', '').encode()
-            parts_dict['body_html'] = base64.urlsafe_b64decode(data)
-        elif part_json.get('filename') or mimetype == 'text/css':
+        if mimetype == 'text/plain':
+            parts_dict['body_text'] = base64.urlsafe_b64decode(body_data)
+        elif mimetype == 'text/html':
+            parts_dict['body_html'] = base64.urlsafe_b64decode(body_data)
+        elif 'filename' in data or mimetype == 'text/css':
             parts_dict['has_attachments'] = True
-            parts_dict['attachments'].append(parse_attachment(part_json))
+            parts_dict['attachments'].append(parse_attachment(data))
 
     return parts_dict
 
 
-def parse_attachment(attachment_json):
+def parse_attachment(data):
     attachment_dict = {
-        'id': attachment_json.get('body', {}).get('attachmentId', ''),
-        'mimetype': attachment_json.get('mimeType', ''),
-        'filename': attachment_json.get('filename', ''),
+        'id': data.get('body', {}).get('attachmentId', ''),
+        'mimetype': data.get('mimeType', ''),
+        'filename': data.get('filename', ''),
         'inline': False,
     }
 
     # Attachments have their own headers.
-    headers = parse_headers(attachment_json.get('headers', {}))
+    headers = parse_headers(data.get('headers', {}))
 
     if headers.get('content_id', False):
         attachment_dict['inline'] = True
 
     return attachment_dict
+
+
+def parse_label_list(data, labels, label_resource):
+    # Because google only gives partial labels, we need to do a second batch for more info.
+    for label in data.get('labels', []):
+        labels[label['id']] = label_resource.get(label['id'])
+
+    label_resource.batch.execute()
+
+    return labels
+
+
+def parse_label(data, label):
+    label.update({
+        'id': data['id'],
+        'name': data['name'].split('/')[-1:],
+        'remote_value': data['name'],
+        'message_count': data['messagesTotal'],
+        'unread_count': data['messagesUnread'],
+        'folder_type': data['type'],
+        'parent_id': None,
+    })
+
+    # TODO: how do we find the parent id here?
+
+    return label

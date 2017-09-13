@@ -1,4 +1,3 @@
-from django.db.models import Q
 from rest_framework import mixins
 from rest_framework.filters import OrderingFilter, DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
@@ -6,7 +5,7 @@ from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from email_wrapper_lib.models.models import EmailAccount, EmailMessage, EmailDraft
 from lily.email.api.filters import EmailAccountFilter, EmailMessageFilter, EmailDraftFilter
 from lily.email.api.serializers import EmailAccountSerializer, EmailMessageSerializer, EmailDraftSerializer
-from lily.email.models import EmailAccountConfig
+from lily.email.utils import get_email_accounts
 
 
 class EmailAccountViewSet(ModelViewSet):
@@ -70,5 +69,5 @@ class EmailDraftViewSet(ModelViewSet):
 
     def get_queryset(self):
         return self.queryset.filter(
-            account__in=EmailAccountConfig.get_email_accounts(self.request.user)
+            account__in=get_email_accounts(self.request.user)
         )

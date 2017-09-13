@@ -1,5 +1,4 @@
 from django.db import models
-from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 from email_wrapper_lib.models.models import EmailAccount
 
@@ -15,7 +14,7 @@ class EmailAccountConfig(TenantMixin, models.Model):
         (PRIVATE, _('Not at all')),
     )
 
-    email_account = models.OneToOneField(
+    email_account = models.ForeignKey(
         to=EmailAccount,
         on_delete=models.CASCADE,
         verbose_name=_('Email account'),

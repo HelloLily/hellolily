@@ -27,7 +27,7 @@ class LilyApiAuthentication(BaseAuthentication):
             auth_tuple = authenticator.authenticate(request)
             if auth_tuple:
                 if isinstance(authenticator, TokenAuthentication) or isinstance(authenticator, TokenGETAuthentication):
-                    if not has_required_tier(1, tenant=auth_tuple[0].tenant):
+                    if not has_required_tier(2, tenant=auth_tuple[0].tenant):
                         raise PermissionDenied({
                             'detail': (
                                 'API access has been disabled because you are on the free plan.'

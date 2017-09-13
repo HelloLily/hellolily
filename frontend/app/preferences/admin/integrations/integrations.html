@@ -1,4 +1,4 @@
-<feature-unavailable tier="1">
+<feature-unavailable tier="2">
     <div class="widget-heading">
         <div class="widget-title">
             <div class="widget-name">Integrations</div>
@@ -7,12 +7,10 @@
     </div>
     <div class="widget-body">
         <div class="widget-content">
-            <div ng-if="!currentUser.tenant.isFreePlan">
-                <p>This page contains other applications which can be integrated into Lily.</p>
-                <div>
-                    <a class="integrations-item" ui-sref="base.preferences.admin.integrations.pandadoc"><img src="./app/images/vendor/pd.svg">PandaDoc</a>
-                    <a class="integrations-item" ui-sref="base.preferences.admin.integrations.moneybird"><img src="./app/images/vendor/moneybird.svg">Moneybird</a>
-                </div>
+            <p>This page contains other applications which can be integrated into Lily.</p>
+            <div>
+                <a class="integrations-item" ui-sref="base.preferences.admin.integrations.pandadoc"><img src="./app/images/vendor/pd.svg">PandaDoc</a>
+                <a class="integrations-item" ui-sref="base.preferences.admin.integrations.moneybird"><img src="./app/images/vendor/moneybird.svg">Moneybird</a>
             </div>
         </div>
     </div>

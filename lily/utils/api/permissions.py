@@ -16,8 +16,8 @@ class IsAccountAdmin(BasePermission):
 
 class IsFeatureAvailable(BasePermission):
     def has_permission(self, request, view):
-        # We'll just put the default tier at one since that's the most common requirement.
-        required_tier = getattr(view, 'required_tier', 1)
+        # We'll just put the default tier at two since that's the most common requirement.
+        required_tier = getattr(view, 'required_tier', 2)
 
         # API access isn't available for the free and cheapest paid plan.
         return has_required_tier(required_tier)

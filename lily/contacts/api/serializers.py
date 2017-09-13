@@ -126,7 +126,7 @@ class ContactSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
 
         credentials = get_credentials('moneybird')
 
-        if has_required_tier(1) and credentials and credentials.integration_context.get('auto_sync'):
+        if has_required_tier(2) and credentials and credentials.integration_context.get('auto_sync'):
             self.send_moneybird_contact(validated_data, instance, credentials)
 
         return instance
@@ -148,7 +148,7 @@ class ContactSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
 
         credentials = get_credentials('moneybird')
 
-        if has_required_tier(1) and credentials and credentials.integration_context.get('auto_sync'):
+        if has_required_tier(2) and credentials and credentials.integration_context.get('auto_sync'):
             self.send_moneybird_contact(validated_data, instance, credentials, original_data)
 
         return instance

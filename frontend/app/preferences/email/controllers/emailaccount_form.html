@@ -1,203 +1,185 @@
 <div class="widget-container">
-    <div class="widget-heading">
-        <div class="widget-title"><span class="widget-name">{{ vm.emailAccount.email_address }}</span></div>
-        <div class="clearfix"></div>
-    </div>
-    <div class="widget-body">
-        <div class="widget-content">
-            <form novalidate name="emailAccountForm">
-                <form-portlet portlet-title="">
-                    <form-group label-title="From name" label-id="from_name" field="emailAccountForm.from_name" required="true">
-                        <input class="form-control" id="from_name" name="from_name" maxlength="255" placeholder="From name" type="text" ng-model="vm.emailAccount.from_name" />
-                    </form-group>
+        <div class="widget-heading">
+            <div class="widget-title"><span class="widget-name">{{ vm.emailAccount.email_address }}</span></div>
+            <div class="clearfix"></div>
+        </div>
+        <div class="widget-body">
+            <div class="widget-content">
+                <form novalidate name="emailAccountForm">
+                    <form-portlet portlet-title="">
+                        <form-group label-title="From name" label-id="from_name" field="emailAccountForm.from_name" required="true">
+                            <input class="form-control" id="from_name" name="from_name" maxlength="255" placeholder="From name" type="text" ng-model="vm.emailAccount.from_name" />
+                        </form-group>
 
-                    <form-group label-title="Mailbox name" label-id="label" field="emailAccountForm.label" required="true">
-                        <input class="form-control" id="label" name="label" maxlength="255" placeholder="Label" type="text" ng-model="vm.emailAccount.label" />
-                    </form-group>
+                        <form-group label-title="Mailbox name" label-id="label" field="emailAccountForm.label" required="true">
+                            <input class="form-control" id="label" name="label" maxlength="255" placeholder="Label" type="text" ng-model="vm.emailAccount.label" />
+                        </form-group>
 
-                    <div class="margin-top-30 margin-bottom-30" ng-if="vm.emailAccount.only_new === null" ng-class="{'has-error': emailAccountForm.only_new.$invalid}">
-                        <label class="display-block margin-bottom-5">Load all email into Lily?</label>
-                        <div class="radio-button-group radio-button-list">
-                            <label class="radio-button" for="all">
-                                <input type="radio" name="only_new" ng-model="vm.onlyNew" ng-value="0" id="all" class="radio-button-input" />
-                                <span class="radio-button-label">Yes, load all email into Lily</span>
-                            </label>
-                            <label class="radio-button" for="only_new">
-                                <input type="radio" name="only_new" ng-model="vm.onlyNew" ng-value="1" id="only_new" class="radio-button-input" />
-                                <span class="radio-button-label">No, only load email received from now on</span>
-                            </label>
+                        <div class="margin-top-30 margin-bottom-30" ng-if="vm.emailAccount.only_new === null" ng-class="{'has-error': emailAccountForm.only_new.$invalid}">
+                            <label class="display-block margin-bottom-5">Load all email into Lily?</label>
+                            <div class="radio-button-group radio-button-list">
+                                <label class="radio-button" for="all">
+                                    <input type="radio" name="only_new" ng-model="vm.onlyNew" ng-value="0" id="all" class="radio-button-input" />
+                                    <span class="radio-button-label">Yes, load all email into Lily</span>
+                                </label>
+                                <label class="radio-button" for="only_new">
+                                    <input type="radio" name="only_new" ng-model="vm.onlyNew" ng-value="1" id="only_new" class="radio-button-input" />
+                                    <span class="radio-button-label">No, only load email received from now on</span>
+                                </label>
+                            </div>
+                            <span class="help-block" ng-show="emailAccountForm.only_new.$error.message">{{ emailAccountForm.only_new.$error.message }}</span>
                         </div>
-                        <span class="help-block" ng-show="emailAccountForm.only_new.$error.message">{{ emailAccountForm.only_new.$error.message }}</span>
-                    </div>
 
-                    <div ng-class="{'overlay': currentUser.tenant.isFreePlan}">
-                        <div ng-if="currentUser.tenant.isFreePlan" class="empty-state-description">
-                            <p>This feature isn't available for your current plan. Please <a ui-sref="base.preferences.admin.billing">upgrade</a> to use this feature.</p>
-                        </div>
-                        <div class="widget-name">
-                            Share your email
-                        </div>
-                        <uib-tabset active="active" class="lily-tabs">
-                            <uib-tab index="0" heading="Basic">
-                                <p>This inbox is a:</p>
-                                <div class="privacy-radios">
-                                    <div ng-repeat="option in vm.privacyOptions" class="privacy-option-container">
-                                        <input type="radio" name="privacy" ng-model="vm.emailAccount.privacy" ng-value="{{ option.id }}" id="privacy_{{ option.id }}" />
+                        <div ng-class="{'overlay': currentUser.tenant.isFreePlan}">
+                            <div ng-if="currentUser.tenant.isFreePlan" class="empty-state-description">
+                                <p>This feature isn't available for your current plan. Please <a ui-sref="base.preferences.admin.billing">upgrade</a> to use this feature.</p>
+                            </div>
 
-                                        <label for="privacy_{{ option.id }}" class="privacy-option display-inline-block">
-                                            <div>
-                                                {{ option.name }}
-                                                <small class="muted">{{ option.text }}</small>
-                                            </div>
-                                        </label>
-                                    </div>
-                                </div>
+                            <div class="widget-name">
+                                Share your email
+                            </div>
+                            <uib-tabset active="active" class="lily-tabs">
+                                <uib-tab index="0" heading="Basic">
+                                    <p>This inbox is a:</p>
+                                    <div class="privacy-radios">
+                                        <div ng-repeat="option in vm.privacyOptions" class="privacy-option-container">
+                                            <input type="radio" name="privacy" ng-model="vm.emailAccount.privacy" ng-value="{{ option.id }}" id="privacy_{{ option.id }}" />
 
-                                <h3 ng-if="!vm.emailAccount.privacy == 0" class="privacy-example-title">Example of timeline</h3>
-
-                                <div ng-if="vm.emailAccount.privacy == 0" class="privacy-info">
-                                    <i class="lilicon hl-info-icon blue"></i> Used by multiple people in the company, ergo info@ or support@
-                                </div>
-
-                                <div class="privacy-examples" ng-if="!vm.emailAccount.privacy == 0">
-                                    <div ng-if="vm.emailAccount.privacy == 1" class="privacy-example">
-                                        <div class="vertical-line"></div>
-                                        <div class="activity-item">
-                                            <div class="timeline-item-container">
-                                                <div class="timeline-avatar is-type">
-                                                    <i class="lilicon hl-entity-icon"></i>
+                                            <label for="privacy_{{ option.id }}" class="privacy-option display-inline-block">
+                                                <div>
+                                                    {{ option.name }}
+                                                    <small class="muted">{{ option.text }}</small>
                                                 </div>
-                                                <div class="timeline-content-container has-email">
-                                                    <div class="timeline-content-header">
-                                                        <div class="timeline-type">
-                                                            <span class="timeline-mail-type-incoming">
-                                                                <i class="lilicon hl-incomming-icon"></i>
-                                                            </span>
-                                                            <i class="lilicon hl-mail-icon"></i>
-                                                        </div>
-                                                        <div class="timeline-content">
-                                                            <span class="timeline-content-title">
-                                                                <a href="#">Example for your convenience</a>
-                                                            </span>
-                                                            <ul class="timeline-content-details">
-                                                                <li>From: <a>Lily</a></li>
-                                                                <li>To: <a>{{ vm.emailAccount.email_address }}</a></li>
-                                                                </li>
-                                                            </ul>
-                                                            <div class="timeline-date">23 Mar 2017 - 13:37</div>
-                                                        </div>
-                                                        <a class="timeline-toggle-details" ng-click="vm.item.shown = !vm.item.shown"><i class="lilicon hl-toggle-left-icon" ng-class="!vm.item.shown ? 'hl-toggle-down-icon' : 'hl-toggle-left-icon'"></i></a>
-                                                    </div>
+                                            </label>
+                                        </div>
+                                    </div>
 
-                                                    <div class="content-details activity-item-body" ng-hide="vm.item.shown">
-                                                        <p class="detail-plain-text">Hi! I just wanted to show an example of what your colleagues can read.
-                                                    </div>
+                                    <h3 ng-if="!vm.emailAccount.privacy == 0" class="privacy-example-title">Example of timeline</h3>
 
-                                                            </br></br>Love lily!
-                                                        </p>
-                                                        <ul class="content-details-actions">
-                                                            <li><a><i class="fa fa-eye"></i> View</a></li>
-                                                            <li><a><i class="fa fa-mail-reply"></i> Reply</a></li>
-                                                            <li><a><i class="fa fa-mail-forward"></i> Forward</a></li>
-                                                        </ul>
-                                                                <div class="stream-item-meta-title">To:</div>
-                                                                <a href="#">{{ vm.emailAccount.email_address }}</a>
+                                    <div ng-if="vm.emailAccount.privacy == 0" class="privacy-info">
+                                        <i class="lilicon hl-info-icon blue"></i> Used by multiple people in the company, ergo info@ or support@
+                                    </div>
+
+                                    <div class="privacy-examples" ng-if="!vm.emailAccount.privacy == 0">
+                                        <div ng-if="vm.emailAccount.privacy == 1" class="privacy-example">
+                                            <div class="activity-stream">
+                                                <div class="activity-stream-content">
+                                                    <div class="timeline-item-container">
+                                                        <div class="activity-stream-image"><i class="lilicon hl-entity-icon"></i></div>
+
+                                                        <div class="activity-stream-item has-email">
+                                                            <div class="stream-item-head">
+                                                                <div class="stream-item-date">
+                                                                    23 Mar 2017 - 13:37
+                                                                </div>
+                                                                <div class="stream-item-actions">
+                                                                    <ul class="stream-item-actions-list">
+                                                                        <li class="stream-item-actions-list-item">
+                                                                            <a href="#"><i class="fa fa-mail-reply"></i> Reply</a>
+                                                                        </li>
+                                                                        <li class="stream-item-actions-list-item">
+                                                                            <a href="#"><i class="fa fa-mail-forward"></i> Forward</a>
+                                                                        </li>
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="stream-item-activity">
+                                                                <a class="stream-item-activity-link" href="#">Example for your convenience</a>
+                                                            </div>
+
+                                                            <div class="stream-item-content is-email">
+                                                                <div class="stream-item-meta">
+                                                                    <div class="stream-item-meta-object">
+                                                                        <div class="stream-item-meta-title">From:</div>
+                                                                        <a href="#">Lily</a>
+                                                                    </div>
+                                                                    <div class="stream-item-meta-object">
+                                                                        <div class="stream-item-meta-title">To:</div>
+                                                                        <a href="#">{{ vm.emailAccount.email_address }}</a>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="stream-item-description">
+                                                                    Hi! I just wanted to show an example of what your colleagues can read.</br></br>
+                                                                    Love Lily!
+                                                                </div>
                                                             </div>
                                                         </div>
-
-                                                        <div class="stream-item-description">
-                                                            Hi! I just wanted to show an example of what your colleagues can read.</br></br>
-                                                            Love Lily!
-                                                        </div>
-                                                    </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <div ng-if="vm.emailAccount.privacy == 2" class="privacy-example">
-                                        <div class="vertical-line"></div>
-                                        <div class="activity-item">
-                                            <div class="timeline-item-container">
-                                                <div class="timeline-avatar is-type">
-                                                    <i class="lilicon hl-entity-icon"></i>
-                                                <div class="activity-stream-item has-email">
-                                                    <div class="stream-item-head">
-                                                        <div class="stream-item-date">
-                                                            23 Mar 2017 - 13:37
-                                                </div>
-                                                <div class="timeline-content-container has-email">
-                                                    <div class="timeline-content-header">
-                                                        <div class="timeline-type">
-                                                            <span class="timeline-mail-type-incoming">
-                                                                <i class="lilicon hl-incomming-icon"></i>
-                                                            </span>
-                                                            <i class="lilicon hl-mail-icon"></i>
-                                                        </div>
-                                                        <div class="timeline-content">
-                                                            <span class="timeline-content-title">
+                                        <div ng-if="vm.emailAccount.privacy == 2" class="privacy-example">
+                                            <div class="activity-stream">
+                                                <div class="activity-stream-content">
+                                                    <div class="timeline-item-container">
+                                                        <div class="activity-stream-image"><i class="lilicon hl-entity-icon"></i></div>
+
+                                                        <div class="activity-stream-item has-email">
+                                                            <div class="stream-item-head">
+                                                                <div class="stream-item-date">
+                                                                    23 Mar 2017 - 13:37
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="stream-item-activity">
                                                                 <i class="fa fa-lock"></i> [Subject hidden]
-                                                            </span>
-                                                            <ul class="timeline-content-details">
-                                                                <li>From: <a>Lily</a></li>
-                                                                <li>To: <a>{{ vm.emailAccount.email_address }}</a></li>
-                                                            </ul>
-                                                            <div class="timeline-date">23 Mar 2017 - 13:37</div>
-                                                        </div>
-                                                        <a class="timeline-toggle-details" ng-click="vm.item.shown = !vm.item.shown"><i class="lilicon hl-toggle-left-icon" ng-class="!vm.item.shown ? 'hl-toggle-down-icon' : 'hl-toggle-left-icon'"></i></a>
-                                                    <div class="stream-item-content is-email">
-                                                        <div class="stream-item-meta">
-                                                            <div class="stream-item-meta-object">
-                                                                <div class="stream-item-meta-title">From:</div>
-                                                                <a href="#">Lily</a>
                                                             </div>
-                                                            <div class="stream-item-meta-object">
-                                                                <div class="stream-item-meta-title">To:</div>
-                                                                <a href="#">{{ vm.emailAccount.email_address }}</a>
-                                                            </div>
-                                                    </div>
 
-                                                    <div class="content-details activity-item-body hidden-content" ng-hide="vm.item.shown">
-                                                        {{ $root.messages.activityStream.emailMetadataMessage }}
+                                                            <div class="stream-item-content is-email">
+                                                                <div class="stream-item-meta">
+                                                                    <div class="stream-item-meta-object">
+                                                                        <div class="stream-item-meta-title">From:</div>
+                                                                        <a href="#">Lily</a>
+                                                                    </div>
+                                                                    <div class="stream-item-meta-object">
+                                                                        <div class="stream-item-meta-title">To:</div>
+                                                                        <a href="#">{{ vm.emailAccount.email_address }}</a>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="stream-item-description hidden-content">
+                                                                    {{ $root.messages.activityStream.emailMetadataMessage }}
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                    </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
+
+                                        <div ng-if="vm.emailAccount.privacy == 3" class="privacy-example">
+                                            <div class="privacy-example-title align-center no-space">No known history</div>
+                                        </div>
                                     </div>
 
-                                    <div ng-if="vm.emailAccount.privacy == 3" class="privacy-example">
-                                        <div class="privacy-example-title align-center no-space">No known history</div>
-                                    </div>
-                                </div>
+                                </uib-tab>
+                                <uib-tab index="1" heading="Advanced">
+                                    <p>Give specific colleagues additional permissions to your email</p>
 
-                            </uib-tab>
-                            <uib-tab index="1" heading="Advanced">
-                                <p>Give specific colleagues additional permissions to your email</p>
+                                    <user-share></user-share>
+                                </uib-tab>
 
-                                <user-share></user-share>
-                            </uib-tab>
+                                <a href="https://intercom.help/lily/your-first-steps-with-lily/email-how-to-share" target="_blank" class="pull-right more-info">More info</a>
+                            </uib-tabset>
+                        </div>
+                    </form-portlet>
 
-                        <a href="https://intercom.help/lily/your-first-steps-with-lily/email-how-to-share" target="_blank" class="pull-right more-info">More info</a>
-                        </uib-tabset>
-                    </div>
-                </form-portlet>
-
-                <div class="hl-form-footer">
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-9 col-md-8 col-md-7 col-lg-4">
-                            <button type="button" class="hl-primary-btn-green" ng-click="vm.saveEmailAccount(emailAccountForm)">
-                                <i class="fa fa-check"></i> Save email account
-                            </button>
-                            <button type="button" class="hl-primary-btn" ng-click="vm.cancelEditing()">
-                                Cancel
-                            </button>
+                    <div class="hl-form-footer">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-9 col-md-8 col-md-7 col-lg-4">
+                                <button type="button" class="hl-primary-btn-green" ng-click="vm.saveEmailAccount(emailAccountForm)">
+                                    <i class="fa fa-check"></i> Save email account
+                                </button>
+                                <button type="button" class="hl-primary-btn" ng-click="vm.cancelEditing()">
+                                    Cancel
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
-</div>

@@ -61,7 +61,7 @@ Docker environment
 
     docker-compose run --service-ports web
 
-Open http://localhost:8003 in your browser to see |project|. You can login using user
+Open http://localhost:8080 in your browser to see |project|. You can login using user
 **superuser1@lily.com** and **admin** as password. Congratulations, you just completed
 the basic |project| installation!
 
@@ -87,7 +87,7 @@ an OAuth 2.0 client ID for a web application. This sounds harder than it is; jus
    * What data will you be accessing? *User data*
  * Click on the *What credentials do i need?* button
  * Give the credentials a name, e.g. *Lily*
- * In *Authorized redirect URIs* fill in your development url, e.g. http://localhost:8003/messaging/email/callback/
+ * In *Authorized redirect URIs* fill in your development url, e.g. http://localhost:8080/messaging/email/callback/
  * The restriction options can be kept empty. Just click on the *Create client ID* button
  * You can skip step 3. Just click on the *Done* button at the bottom of the form
  * The current screen should be the Credentials overview; click on *Lily*
@@ -105,10 +105,10 @@ Add the following settings and fill *Client ID* and *Client secret* as GA_CLIENT
 
     GA_CLIENT_ID=your_client_id
     GA_CLIENT_SECRET=your_client_secret
-    GMAIL_CALLBACK_URL=http://localhost:8003/messaging/email/callback/
+    GMAIL_CALLBACK_URL=http://localhost:8080/messaging/email/callback/
 
 That's it! Lily is now able to manage Gmail accounts. To test if Gmail integration works, go back
-to your running Lily instance and visit http://localhost:8003/#/preferences/emailaccounts
+to your running Lily instance and visit http://localhost:8080/#/preferences/emailaccounts
 
  * Select *add an email account*
 

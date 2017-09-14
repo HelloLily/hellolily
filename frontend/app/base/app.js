@@ -93,13 +93,12 @@ function appConfig($breadcrumbProvider, $controllerProvider, $httpProvider, $res
 }
 
 // Global exception handler.
-angular.module('app').factory('$exceptionHandler', ['$log', function($log) {
-    return function(exception) {
-        if (window.debug) {
-            // Log to console when developing.
-            $log.error(exception);
-        } else {
-            // Otherwise send to Sentry.
+angular.module('app').factory('$exceptionHandler', ['$log', $log => {
+    return exception => {
+        $log.error(exception);
+
+        if (!window.debug) {
+            // Also send to Sentry if debug is off.
             Raven.captureException(exception);
         }
     };

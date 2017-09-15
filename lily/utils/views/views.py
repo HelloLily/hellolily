@@ -4,9 +4,10 @@ import logging
 from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ImproperlyConfigured
 from django.core.files.storage import default_storage
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
@@ -21,7 +22,6 @@ from lily.utils.models.models import PhoneNumber
 from lily.utils.functions import has_required_tier
 from ..forms import SugarCsvImportForm
 from ..tasks import import_sugar_csv
-from .mixins import LoginRequiredMixin
 
 
 logger = logging.getLogger(__name__)

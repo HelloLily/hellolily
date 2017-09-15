@@ -1,6 +1,6 @@
 import re
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.template import Library, Node, NodeList
 from django.utils.encoding import force_unicode
 from django.utils.http import int_to_base36, urlquote_plus
@@ -35,6 +35,7 @@ class IsAjaxBase(Node):
         # Gracefully fail if request is not in the context
         if not request:
             import warnings
+            # TODO: django.core.context_processors.request and TEMPLATE_CONTEXT_PROCESSORS are removed in django 1.10
             warnings.warn(
                 "The ifisajax templatetag require that a "
                 "'request' variable is available in the template's "

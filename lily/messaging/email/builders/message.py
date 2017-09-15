@@ -466,12 +466,12 @@ class MessageBuilder(object):
             # Save headers.
             if len(self.headers):
                 self.message.headers.all().delete()
-                self.message.headers.add(*self.headers)
+                self.message.headers.add(bulk=False, *self.headers)
 
             # Save attachments.
             if len(self.attachments):
                 self.message.attachments.all().delete()
-                self.message.attachments.add(*self.attachments)
+                self.message.attachments.add(bulk=False, *self.attachments)
 
             self.message.skip_signal = False  # Re-enable indexing of the email on the last save.
             self.message.save()

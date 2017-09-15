@@ -32,7 +32,8 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
 
         self.build_service_mock_patcher = patch.object(GmailService, 'build_service')
         build_service_mock = self.build_service_mock_patcher.start()
-        build_service_mock.return_value = build('gmail', 'v1', credentials=credentials)
+        http = HttpMock('lily/messaging/email/tests/data/gmail_discovery.json', {'status': '200'})
+        build_service_mock.return_value = build('gmail', 'v1', http=http)
 
     @classmethod
     def setUpTestData(cls):

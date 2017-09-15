@@ -1,8 +1,9 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import View
 
 from lily.search.lily_search import LilySearch
-from lily.utils.views.mixins import LoginRequiredMixin, ExportListViewMixin
+from lily.utils.views.mixins import ExportListViewMixin
 
 
 class ExportContactView(LoginRequiredMixin, ExportListViewMixin, View):

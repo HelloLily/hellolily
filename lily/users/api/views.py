@@ -3,7 +3,7 @@ from hashlib import sha256
 
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.core.validators import validate_email
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _

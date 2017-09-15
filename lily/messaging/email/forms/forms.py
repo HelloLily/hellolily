@@ -4,7 +4,7 @@ import re
 
 from django import forms
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.core.validators import validate_email
 from django.db.models.fields.files import FieldFile
 from django.db.models import Q

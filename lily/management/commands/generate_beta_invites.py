@@ -8,7 +8,7 @@ from django.conf import settings
 from django.core.files.storage import default_storage
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 
 from lily.tenant.models import Tenant
 

@@ -1,7 +1,7 @@
 import json
 from base64 import b64encode
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import RequestFactory
 from googleapiclient.discovery import build
 from googleapiclient.http import HttpMock

@@ -2,11 +2,11 @@ import json
 import re
 
 from celery.result import AsyncResult, TimeoutError
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 from django.views.generic.base import View
 
 from .models import TaskStatus
-from lily.utils.views.mixins import LoginRequiredMixin
 
 
 class TaskStatusView(LoginRequiredMixin, View):

@@ -9,6 +9,7 @@ import phonenumbers
 import requests
 from django import forms
 from django.conf import settings
+from requests_futures.sessions import FuturesSession
 
 from lily.tenant.middleware import get_current_user
 
@@ -202,7 +203,7 @@ def post_intercom_event(event_name, user_id):
     Returns:
         response (Response): Object containing the response information.
     """
-    if not settings.DEBUG:
+    if not any([settings.DEBUG, settings.TESTING]):
         payload = {
             'event_name': event_name,
             'user_id': user_id,
@@ -250,26 +251,20 @@ def send_post_request(url, credentials, params, patch=False, async_request=False
         params (dict): The data to be sent.
 
     Returns:
-        response (Response): Object containing the response information.
+        response (Response): Object containing the response information. If the async_request
+          option is used then returns an Future object instead. In this case the Response object
+          can be got by calling response.result() for the returned value.
     """
     headers = {
         'Authorization': 'Bearer %s' % credentials.access_token
     }
 
     if async_request:
-        # For some reason Celery/Flower stops working when placing this with the other imports.
-        # Importing it here seems to work fine.
-        import grequests
-
+        session = FuturesSession()
         if patch:
-            calls = (grequests.patch(url, headers=headers, json=params) for url in [url])
+            response = session.patch(url, headers=headers, json=params)
         else:
-            calls = (grequests.post(url, headers=headers, json=params) for url in [url])
-
-        try:
-            response = grequests.map(calls)[0]
-        except:
-            pass
+            response = session.post(url, headers=headers, json=params)
     else:
         if patch:
             response = requests.patch(url, headers=headers, json=params)

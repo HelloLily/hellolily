@@ -1,5 +1,4 @@
 import json
-import grequests
 
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
@@ -9,6 +8,7 @@ from django.utils import six
 from rest_framework import serializers
 from rest_framework.fields import empty
 from rest_framework.serializers import SerializerMetaclass
+from requests_futures.sessions import FuturesSession
 
 from lily.api.mixins import ValidateEverythingSimultaneouslyMixin
 
@@ -398,13 +398,8 @@ class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializer
                 'Content-Type': 'application/json',
             }
 
-            webhook_calls = (grequests.post(wh.url, data=data, headers=headers) for wh in [webhook])
-
-            try:
-                # User has a webhook set, so post the data to the given URL.
-                grequests.map(webhook_calls)
-            except:
-                pass
+            session = FuturesSession()
+            session.post(webhook.url, data=data, headers=headers)
 
 
 class WritableNestedListSerializer(serializers.ListSerializer):

@@ -11,7 +11,7 @@ class LilyConsumer(WebsocketConsumer):
     http_user = True
 
     def connect(self, message, **kwargs):
-        if message.user.is_anonymous():
+        if message.user.is_anonymous:
             message.reply_channel.send({
                 "text": json.dumps({
                     'error': 'unauthenticated',
@@ -29,7 +29,7 @@ class LilyConsumer(WebsocketConsumer):
                 Group("team-%s" % team.id).add(message.reply_channel)
 
     def disconnect(self, message, **kwargs):
-        if not message.user.is_anonymous():
+        if not message.user.is_anonymous:
             # Remove user from all groups it was added to
             Group("user-%s" % message.user.id).discard(message.reply_channel)
             Group("tenant-%s" % message.user.tenant_id).discard(message.reply_channel)

@@ -16,7 +16,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import InMemoryUploadedFile, TemporaryUploadedFile
 from django.core.files.storage import default_storage
 from django.core.mail import SafeMIMEText, SafeMIMEMultipart
-from django.core.urlresolvers import reverse
+from django.urls import reverse
+from django.core.validators import validate_comma_separated_integer_list
 from django.db import models
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
@@ -494,10 +495,18 @@ class EmailOutboxMessage(TenantMixin, models.Model):
     cc = models.TextField(null=True, blank=True, verbose_name=_('cc'))
     headers = models.TextField(null=True, blank=True, verbose_name=_('email headers'))
     mapped_attachments = models.IntegerField(verbose_name=_('number of mapped attachments'))
-    original_attachment_ids = models.CommaSeparatedIntegerField(max_length=255, default='')
+    original_attachment_ids = models.CharField(
+        max_length=255,
+        default='',
+        validators=[validate_comma_separated_integer_list]
+    )
     subject = models.CharField(null=True, blank=True, max_length=255, verbose_name=_('subject'))
     send_from = models.ForeignKey(EmailAccount, verbose_name=_('from'), related_name='outbox_messages')
-    template_attachment_ids = models.CommaSeparatedIntegerField(max_length=255, default='')
+    template_attachment_ids = models.CharField(
+        max_length=255,
+        default='',
+        validators=[validate_comma_separated_integer_list]
+    )
     to = models.TextField(verbose_name=_('to'))
     original_message_id = models.CharField(null=True, blank=True, max_length=50, db_index=True)
 

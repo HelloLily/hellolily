@@ -1,23 +1,27 @@
 import anyjson
 import urllib
+from datetime import datetime, timedelta
 
 from django.contrib import messages
+from django.db import transaction, IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.utils.translation import ugettext_lazy as _
 from oauth2client.contrib.django_orm import Storage
-from rest_framework.parsers import FormParser
-from rest_framework.parsers import JSONParser
+from rest_framework import status
+from rest_framework.parsers import FormParser, JSONParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from lily.api.drf_extensions.authentication import PandaDocSignatureAuthentication
 from lily.contacts.models import Contact
-from lily.deals.models import Deal
+from lily.deals.models import Deal, DealStatus, DealNextStep
+from lily.notes.models import Note
 from lily.utils.functions import send_get_request
 from lily.utils.api.permissions import IsAccountAdmin, IsFeatureAvailable
 
-from .serializers import DocumentSerializer
+from .serializers import DocumentSerializer, DocumentEventSerializer
 from ..credentials import get_access_token, get_credentials, put_credentials, LilyOAuthCredentials
-from ..models import Document, IntegrationCredentials, IntegrationDetails, IntegrationType
+from ..models import Document, IntegrationCredentials, IntegrationDetails, IntegrationType, DocumentEvent
 from ..tasks import import_moneybird_contacts
 
 
@@ -55,7 +59,6 @@ class DocumentDetails(APIView):
 
 class PandaDocList(APIView):
     permission_classes = (IsFeatureAvailable, )
-
     serializer = DocumentSerializer
     parser_classes = (JSONParser, FormParser)
 
@@ -93,6 +96,150 @@ class PandaDocList(APIView):
         document = DocumentSerializer(document).data
 
         return Response({'document': document})
+
+
+class DocumentEventList(APIView):
+    permission_classes = (IsFeatureAvailable, )
+    model = DocumentEvent
+    serializer_class = DocumentEventSerializer
+
+    def get(self, request, format=None):
+        events = DocumentEvent.objects.all().order_by('id')
+        events = DocumentEventSerializer(events, many=True).data
+
+        return Response({'results': events})
+
+    def post(self, request):
+        event_data = request.data
+
+        duplicate_error = {
+            'duplicate_event': 'Only one event per type allowed'
+        }
+
+        events = []
+
+        for event in event_data:
+            event_id = event.get('id')
+
+            if not event.get('is_deleted'):
+                event_type = event.get('event_type')
+                document_status = event.get('document_status')
+
+                if not event_id:
+                    # New object so check if event with given parameters already exists.
+                    try:
+                        DocumentEvent.objects.exists(event_type=event_type, document_status=document_status)
+                    except:
+                        pass
+                    else:
+                        return HttpResponseBadRequest(anyjson.serialize(duplicate_error))
+
+                data = {
+                    'event_type': event_type,
+                    'document_status': document_status,
+                    'add_note': event.get('add_note', False),
+                    'extra_days': event.get('extra_days', 0),
+                }
+
+                event_id = event.get('id')
+
+                deal_status = event.get('status')
+
+                if deal_status:
+                    deal_status = DealStatus.objects.get(pk=deal_status)
+
+                data.update({'status': deal_status})
+
+                next_step = event.get('next_step')
+
+                if next_step:
+                    next_step = DealNextStep.objects.get(pk=next_step)
+
+                data.update({'next_step': next_step})
+
+                events.append({'id': event_id, 'data': data})
+            else:
+                events.append({'id': event_id, 'is_deleted': True})
+
+        try:
+            with transaction.atomic():
+                for event in events:
+                    if not event.get('is_deleted'):
+                        DocumentEvent.objects.update_or_create(id=event.get('id'), defaults=event.get('data'))
+                    else:
+                        DocumentEvent.objects.get(pk=event.get('id')).delete()
+        except IntegrityError:
+            return HttpResponseBadRequest(anyjson.serialize(duplicate_error))
+
+        return Response(status=status.HTTP_201_CREATED)
+
+
+class DocumentEventCatch(APIView):
+    authentication_classes = (PandaDocSignatureAuthentication, )
+
+    def post(self, request):
+        data = request.data[0].get('data')
+        event = request.data[0].get('event')
+        document_status = data.get('status')
+
+        try:
+            event = DocumentEvent.objects.get(event_type=event, document_status=document_status)
+        except DocumentEvent.DoesNotExist:
+            # No event set with given event type, so just return 404.
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        deal = Deal.objects.get(pk=data.get('metadata').get('deal'))
+
+        # Set deal values if the webhook has specified them.
+        if event.status:
+            deal.status = event.status
+
+        if event.next_step:
+            deal.next_step = event.next_step
+
+        if event.extra_days:
+            deal.next_step_date = deal.next_step_date + timedelta(days=event.extra_days)
+
+        if event.add_note:
+            document_name = data.get('name')
+            status_name = document_status.replace('document.', '')
+            date = datetime.now().strftime('%d/%m/%y %H:%M')
+
+            # Create a note based on the document status.
+            content = _('%s was %s on %s') % (document_name, status_name, date)
+
+            note = Note.objects.create(
+                content=content,
+                content_type=deal.content_type,
+                object_id=deal.id,
+                author=request.user,
+            )
+
+            deal.notes.add(note)
+
+        deal.save()
+
+        return Response(status=status.HTTP_200_OK)
+
+
+class PandaDocSharedKey(APIView):
+    permission_classes = (IsAccountAdmin, IsFeatureAvailable)
+
+    def post(self, request):
+        """
+        Get the authentication URL for the given integration type.
+        """
+        shared_key = request.data.get('shared_key')
+
+        credentials = get_credentials('pandadoc')
+
+        credentials.integration_context.update({
+            'shared_key': shared_key,
+        })
+
+        put_credentials('pandadoc', credentials)
+
+        return Response(status=status.HTTP_200_OK)
 
 
 class MoneybirdContactImport(APIView):

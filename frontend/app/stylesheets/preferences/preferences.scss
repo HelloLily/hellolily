@@ -111,3 +111,23 @@
         }
     }
 }
+
+.pandadoc-event-form {
+    .hl-form-field {
+        display: inline-block;
+        margin: 10px 5px;
+    }
+
+    .pandadoc-event-row {
+        &.disabled {
+            pointer-events: none;
+            opacity: 0.50;
+        }
+    }
+
+    .pandadoc-event-form-actions {
+        .hl-primary-btn {
+            width: 31px;
+        }
+    }
+}

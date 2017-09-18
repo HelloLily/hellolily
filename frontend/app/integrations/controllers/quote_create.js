@@ -134,6 +134,7 @@ function QuoteCreateController($http, $timeout, Settings, currentDeal, dealConta
                 metadata: {
                     'deal': vm.deal.id,
                     'account': account.id || null,
+                    'user': vm.currentUser.id,
                 },
             },
             events: {

@@ -3,13 +3,11 @@ from django.utils import timezone
 from oauth2client.contrib.django_orm import CredentialsField
 
 from lily.contacts.models import Contact
-from lily.deals.models import Deal
+from lily.deals.models import Deal, DealStatus, DealNextStep
 from lily.tenant.models import TenantMixin
 
 
 class IntegrationType(models.Model):
-    PANDADOC, MONEYBIRD, SLACK = range(1, 4)
-
     name = models.CharField(max_length=255)
     auth_url = models.CharField(max_length=255)
     token_url = models.CharField(max_length=255)
@@ -41,3 +39,15 @@ class Document(TenantMixin):
     document_id = models.CharField(max_length=255)
 
     EMAIL_TEMPLATE_PARAMETERS = ['sign_url']
+
+
+class DocumentEvent(TenantMixin):
+    event_type = models.CharField(max_length=255)
+    document_status = models.CharField(max_length=255, blank=True, null=True)
+    status = models.ForeignKey(DealStatus, blank=True, null=True, on_delete=models.SET_NULL)
+    next_step = models.ForeignKey(DealNextStep, blank=True, null=True, on_delete=models.SET_NULL)
+    extra_days = models.PositiveIntegerField(blank=True, null=True)
+    add_note = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('tenant', 'event_type', 'document_status')

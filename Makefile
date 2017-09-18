@@ -4,9 +4,9 @@
 default: run
 
 build:
-	@echo "Make: docker-compose -f docker-compose.yml -f docker-compose.new-build.yml build"
+	@echo "Make: DOCKER_USER_ID=1000 docker-compose -f docker-compose.yml -f docker-compose.new-build.yml build"
 	@echo ""
-	@docker-compose -f docker-compose.yml -f docker-compose.new-build.yml build
+	@DOCKER_USER_ID=1000 docker-compose -f docker-compose.yml -f docker-compose.new-build.yml build
 	@echo ""
 	@echo "Make: gulp clean"
 	@echo ""

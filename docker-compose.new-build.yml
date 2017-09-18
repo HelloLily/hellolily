@@ -5,4 +5,7 @@ services:
     build: Dockers/db
 
   app:
-    build: .
+    build:
+      context: .
+      args:
+        - DOCKER_USER_ID

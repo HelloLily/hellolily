@@ -167,7 +167,8 @@ class DocumentEventList(APIView):
                     if not event.get('is_deleted'):
                         DocumentEvent.objects.update_or_create(id=event.get('id'), defaults=event.get('data'))
                     else:
-                        DocumentEvent.objects.get(pk=event.get('id')).delete()
+                        if event.get('id'):
+                            DocumentEvent.objects.get(pk=event.get('id')).delete()
         except IntegrityError:
             return HttpResponseBadRequest(anyjson.serialize(duplicate_error))
 

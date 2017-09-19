@@ -278,7 +278,7 @@ function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLa
         var i;
         var data;
 
-        if ((vm.label) && (vm.label.label_id)) {
+        if (vm.label && vm.label.label_id) {
             labelToRemove = vm.label.label_id;
         }
 
@@ -323,7 +323,7 @@ function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLa
         var i;
         var data;
 
-        if ((vm.label) && (vm.label.label_id)) {
+        if (vm.label && vm.label.label_id) {
             removedLabels = [vm.label.label_id];
         }
 
@@ -372,8 +372,14 @@ function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLa
     }
 
     function showMoveToButton() {
-        let filtered = vm.account.labels.filter((label) => {
-            return label.label_type !== 0 && label.label_id !== vm.label.label_id;
+        let currentInbox;
+
+        if (vm.label) {
+            currentInbox = vm.label.label_id;
+        }
+
+        let filtered = vm.account.labels.filter(label => {
+            return label.label_type !== 0 && label.label_id !== currentInbox;
         });
 
         return filtered.length ? true : false;

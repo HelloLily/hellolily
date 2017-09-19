@@ -68,7 +68,7 @@ function BaseController($scope, $state, $http, AppHash, Settings, HLShortcuts, U
         $scope.previousState = $state.href(fromState, fromParams);
         Settings.page.previousState = {state: fromState, params: fromParams};
 
-        if (fromState.name === 'base.email.list' || fromState.name === 'base.email.accountList') {
+        if (['base.email.list', 'base.email.accountList', 'base.email.accountAllList'].includes(fromState.name)) {
             previousInbox = {
                 state: fromState.name,
                 params: fromParams,

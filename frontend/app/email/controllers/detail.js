@@ -379,7 +379,7 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
         let filtered = [];
 
         if (vm.emailAccount.labels && vm.emailAccount.labels.length) {
-            filtered = vm.emailAccount.labels.filter((label) => {
+            filtered = vm.emailAccount.labels.filter(label => {
                 return label.label_type !== 0 && label.label_id !== vm.currentInbox;
             });
         }

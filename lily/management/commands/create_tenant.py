@@ -168,11 +168,18 @@ class Command(BaseCommand):
 
             # Add Team Lily default contacts
             print 'Adding default contacts to Team Lily.'
-            lily_contacts = [{
-                'first_name': 'Sjoerd',
-                'last_name': 'Romkes',
-                'email_address': 'sjoerd@hellolily.com',
-            }]
+            lily_contacts = [
+                {
+                    'first_name': 'Sjoerd',
+                    'last_name': 'Romkes',
+                    'email_address': 'sjoerd@hellolily.com',
+                },
+                {
+                    'first_name': 'Support',
+                    'last_name': 'Lily',
+                    'email_address': 'lily@hellolily.com',
+                }
+            ]
 
             for contact in lily_contacts:
                 contact_instance = Contact.objects.create(

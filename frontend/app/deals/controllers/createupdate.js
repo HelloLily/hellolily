@@ -246,7 +246,9 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
             }
 
             if (Settings.email.data) {
-                vm.deal.description = $state.href('base.email.detail', {id: Settings.email.data.id}, {absolute: true});
+                if (Settings.email.data.id) {
+                    vm.deal.description = $state.href('base.email.detail', {id: Settings.email.data.id}, {absolute: true});
+                }
 
                 if ((Settings.email.data.account ||
                     (Settings.email.data.contact && Settings.email.data.contact.accounts))) {

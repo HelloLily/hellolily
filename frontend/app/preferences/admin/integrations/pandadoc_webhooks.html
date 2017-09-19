@@ -49,7 +49,6 @@
                             <span class="pandadoc-event-row" ng-class="{'disabled': event.is_deleted}">
                                 <div class="display-inline-block">
                                     <form-group label-title="Document event" field="eventForm.status">
-                                        <a class="pull-right link-no-decoration" href="https://developers.pandadoc.com/v1/reference#section-webhook-events" target="_blank"><i class="fa fa-info-circle"></i></a>
                                         <select name="event" ng-model="event.event_type"
                                                 ng-options="event as vm.getName(event) for event in vm.eventChoices" class="form-control">
                                             <option value="" hidden>Select an event</option>
@@ -59,7 +58,6 @@
 
                                 <div class="display-inline-block">
                                     <form-group label-title="Document status" field="eventForm.document_status">
-                                        <a class="pull-right link-no-decoration" href="https://developers.pandadoc.com/v1/reference#section-available-document-statuses" target="_blank"><i class="fa fa-info-circle"></i></a>
                                         <select name="document_status" ng-model="event.document_status"
                                                 ng-options="status as vm.getName(status) for status in vm.documentStatusChoices" class="form-control">
                                             <option value="">Select a status</option>
@@ -108,6 +106,24 @@
                                 </button>
                                 <button class="hl-primary-btn" ng-click="vm.addRow()" ng-if="$last"><i class="fa fa-plus"></i></button>
                             </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hl-form-section">
+                <div class="row">
+                    <div class="col-xs-12 col-md-2"></div>
+
+                    <div class="col-xs-12 col-md-4">
+                        <button class="btn btn-link" ng-click="vm.showInfo = !vm.showInfo">Toggle field info</button>
+                        <div ng-if="vm.showInfo" class="widget-suggestion">
+                            <strong>Document event</strong>: <a href="https://developers.pandadoc.com/v1/reference#section-webhook-events" target="_blank">View info</a><br />
+                            <strong>Document status</strong>: <a href="https://developers.pandadoc.com/v1/reference#section-available-document-statuses" target="_blank">View info</a><br />
+                            <strong>Deal status</strong>: What status should the deal be set to<br />
+                            <strong>Deal next step</strong>: What step should the deal be set to<br />
+                            <strong>Extra days</strong>: Amount of days to add to the next step date<br />
+                            <strong>Add note</strong>: Should a note be added when this event occurs<br />
                         </div>
                     </div>
                 </div>

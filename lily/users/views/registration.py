@@ -81,11 +81,12 @@ class RegistrationView(FormView):
 
         tenant_name = form.cleaned_data['tenant_name']
         tenant_country = form.cleaned_data['country']
-        billing = None
 
         if settings.BILLING_ENABLED:
             plan = Plan.objects.get(name=settings.CHARGEBEE_FREE_PLAN_NAME)
             billing = Billing.objects.create(plan=plan)
+        else:
+            billing = Billing.objects.create()
 
         tenant = Tenant.objects.create(
             name=tenant_name,

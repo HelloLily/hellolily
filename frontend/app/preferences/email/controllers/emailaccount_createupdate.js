@@ -112,7 +112,7 @@ function EmailAccountUpdateController($scope, $state, $stateParams, $timeout, HL
     function activate() {
         var i;
 
-        $timeout(function() {
+        $timeout(() => {
             // Focus the first input on page load.
             angular.element('input')[0].focus();
             $scope.$apply();
@@ -126,7 +126,7 @@ function EmailAccountUpdateController($scope, $state, $stateParams, $timeout, HL
     }
 
     function cancelEditing() {
-        EmailAccount.cancel({id: vm.emailAccount.id}).$promise.then(function(response) {
+        EmailAccount.cancel({id: vm.emailAccount.id}).$promise.then(response => {
             currentUser.displayEmailWarning = false;
 
             if (response.hasOwnProperty('info')) {
@@ -171,21 +171,23 @@ function EmailAccountUpdateController($scope, $state, $stateParams, $timeout, HL
 
         if (cleanedAccount.id) {
             // If there's an ID set it means we're dealing with an existing account, so update it.
-            EmailAccount.patch(args).$promise.then(function() {
-                User.me().$promise.then(function(user) {
+            EmailAccount.patch(args).$promise.then(() => {
+                User.me().$promise.then(user => {
+                    const currentEmailAccountStatus = currentUser.emailAccountStatus;
+
                     toastr.success('I\'ve updated the email account for you!', 'Done');
 
                     // Update global user variable.
                     currentUser.displayEmailWarning = false;
                     currentUser.emailAccountStatus = user.info.email_account_status;
 
-                    if (user.info.email_account_status) {
+                    if (currentEmailAccountStatus) {
                         $state.go('base.preferences.emailaccounts', {}, {reload: true});
                     } else {
                         $state.go('base.dashboard', {}, {reload: true});
                     }
                 });
-            }, function(response) {
+            }, response => {
                 _handleBadResponse(response, form);
             });
         }
@@ -235,7 +237,7 @@ function EmailAccountUpdateController($scope, $state, $stateParams, $timeout, HL
             usersPromise = HLSearch.refreshList(query, 'User', 'is_active:true' + extraQuery, 'full_name', 'full_name');
 
             if (usersPromise) {
-                usersPromise.$promise.then(function(data) {
+                usersPromise.$promise.then(data => {
                     vm.users = data.objects;
                 });
             }

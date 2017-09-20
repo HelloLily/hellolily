@@ -10,6 +10,7 @@ from lily.accounts.models import Account, Website
 from lily.cases.models import Case
 from lily.deals.models import Deal
 from lily.messaging.email.models.models import EmailAccount
+from lily.users.models import LilyUser
 from lily.utils.functions import parse_phone_number
 from lily.utils.views.mixins import LoginRequiredMixin
 from lily.search.functions import search_number
@@ -359,6 +360,57 @@ class InternalNumberSearchView(LoginRequiredMixin, View):
 
         return HttpResponse(anyjson.dumps(results), content_type='application/json; charset=utf-8')
 
+    def _get_last_contacted(self, number):
+        """
+        Look for an account with the given number.
+        If it exists look for a case of deal with a contact and return
+        the contact and assignee of the case or deal.
+
+        Args:
+            number (str): Contains the number we want to look for.
+        Returns:
+            contact (obj): Contact belonging to the case/deal.
+            assignee (obj): Assignee of the case/deal.
+        """
+        tenant_id = self.request.user.tenant_id
+
+        search = LilySearch(tenant_id=tenant_id, model_type='accounts_account', sort='-modified')
+        search.filter_query('phone_numbers.number:"%s"' % number)
+        hits, facets, total, took = search.do_search()
+        contact = None
+        assignee = None
+
+        if hits:
+            contact = None
+            # Look for cases/deal which have a contact.
+            filter_query = 'account.id:%s AND NOT(_missing_:contact)' % hits[0].get('id')
+
+            search = LilySearch(tenant_id=tenant_id, model_type='cases_case', sort='-modified')
+            search.filter_query(filter_query)
+            cases, facets, total, took = search.do_search()
+
+            if cases:
+                contact = cases[0].get('contact')
+                assignee = cases[0].get('assigned_to')
+            else:
+                search = LilySearch(tenant_id=tenant_id, model_type='deals_deal', sort='-modified')
+                search.filter_query(filter_query)
+                deals, facets, total, took = search.do_search()
+
+                if deals:
+                    contact = deals[0].get('contact')
+                    assignee = deals[0].get('assigned_to')
+
+            if contact:
+                # Fetch the contact so the data in _search_number is consistent.
+                search = LilySearch(tenant_id=tenant_id, model_type='contacts_contact')
+                search.filter_query('id:%s' % contact.get('id'))
+                hits, facets, total, took = search.do_search()
+
+                contact = hits[0]
+
+        return contact, assignee
+
     def _search_number(self, number):
         """
         Looks for a contact based on the given number and returns the internal number of the user assigned to a deal,
@@ -375,7 +427,7 @@ class InternalNumberSearchView(LoginRequiredMixin, View):
         search = LilySearch(
             tenant_id=self.request.user.tenant_id,
             model_type='contacts_contact',
-            size=1,
+            sort='-modified'
         )
         search.filter_query('phone_numbers.number:"%s"' % number)
 
@@ -387,6 +439,8 @@ class InternalNumberSearchView(LoginRequiredMixin, View):
 
         if hits:
             contact = hits[0]
+        else:
+            contact, assignee = self._get_last_contacted(number)
 
         week_ago = date.today() - timedelta(days=7)
 
@@ -463,6 +517,9 @@ class InternalNumberSearchView(LoginRequiredMixin, View):
                 # None of the above applies, so use an account if possible.
                 account = Account.objects.get(pk=hits[0].get('id'))
                 user = account.assigned_to
+
+        if not user and assignee:
+            user = LilyUser.objects.get(pk=assignee.get('id'))
 
         if user:
             return {

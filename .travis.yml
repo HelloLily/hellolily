@@ -43,6 +43,7 @@ env:
     - INDEXING_NEEDED="$(ci/indexing_needed.sh)"
     - NEXT_ACTION="$(ci/next_action.sh)"
     - DEPLOY_COMMAND="$(ci/deploy_command.sh)"
+    - DOCKER_USER_ID=2000
 
 language: python
 

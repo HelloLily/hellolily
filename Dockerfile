@@ -17,8 +17,8 @@ COPY requirements.txt requirements.txt
 COPY requirements-dev.txt requirements-dev.txt
 RUN pip install -r requirements-dev.txt
 RUN rm requirements.txt requirements-dev.txt
-
-RUN addgroup docker && adduser -s /bin/bash -u 2000 -D -G docker docker
+ARG DOCKER_USER_ID
+RUN addgroup docker && adduser -s /bin/bash -u ${DOCKER_USER_ID} -D -G docker docker
 ENV HOME /home/docker
 RUN chown -R docker:docker $HOME/
 USER docker

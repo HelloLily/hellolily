@@ -43,7 +43,7 @@ class TeamFilter(FilterSet):
         fields = ['name', ]
 
 
-class TeamViewSet(viewsets.ReadOnlyModelViewSet):
+class TeamViewSet(viewsets.ModelViewSet):
     """
     List all teams assigned to the current user.
     """

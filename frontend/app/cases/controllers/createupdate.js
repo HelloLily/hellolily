@@ -124,20 +124,20 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     function activate() {
         _getTeams();
 
-        User.me().$promise.then(function(user) {
+        User.me().$promise.then(user => {
             vm.currentUser = user;
 
-            Case.getCaseTypes(function(data) {
-                vm.caseTypes = data;
+            Case.getCaseTypes(response => {
+                vm.caseTypes = response.results;
 
-                angular.forEach(data, function(caseType) {
+                response.results.forEach(caseType => {
                     if (caseType.name.indexOf('Config') > -1) {
                         vm.configCaseType = caseType.id;
                     }
                 });
             });
 
-            Case.getStatuses(function(response) {
+            Case.getStatuses(response => {
                 vm.statusChoices = response.results;
 
                 vm.case.status = vm.statusChoices[0];

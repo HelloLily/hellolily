@@ -185,11 +185,11 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
      * @returns filterSpecialList (object): object containing the filter list.
      */
     function _getFilterSpecialList() {
-        Case.getCaseTypes(function(caseTypes) {
-            var filterList = [];
+        Case.getCaseTypes(response => {
+            let filterList = [];
 
             // Get a list with all case types and add each one as a filter.
-            angular.forEach(caseTypes, function(caseType) {
+            response.results.forEach(caseType => {
                 filterList.push({
                     name: caseType.name,
                     value: 'type.id:' + caseType.id,

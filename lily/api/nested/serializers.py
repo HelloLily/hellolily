@@ -411,7 +411,6 @@ class WritableNestedListSerializer(serializers.ListSerializer):
     """
     List serializer that can be used to enable nested updates
     """
-
     def save(self, instance, validated_data):
         saved_instances = []
 

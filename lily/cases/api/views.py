@@ -2,7 +2,6 @@ from django_filters import FilterSet, CharFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.filters import OrderingFilter
-from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from lily.api.filters import ElasticSearchFilter
@@ -124,11 +123,12 @@ class CaseStatusViewSet(viewsets.ModelViewSet):
         return super(CaseStatusViewSet, self).get_queryset().all()
 
 
-class CaseTypeList(APIView):
-    model = CaseType
+class CaseTypeViewSet(viewsets.ModelViewSet):
+    queryset = CaseType.objects
     serializer_class = CaseTypeSerializer
 
-    def get(self, request, format=None):
-        queryset = self.model.objects.filter(tenant_id=self.request.user.tenant_id)
-        serializer = CaseTypeSerializer(queryset, many=True)
-        return Response(serializer.data)
+    def get_queryset(self):
+        """
+        Set the queryset here so it filters on tenant and works with pagination.
+        """
+        return super(CaseTypeViewSet, self).get_queryset().all()

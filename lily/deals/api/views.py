@@ -18,16 +18,6 @@ class DealContactedByList(APIView):
         return Response(Deal.CONTACTED_BY_CHOICES)
 
 
-class DealNextStepList(APIView):
-    model = DealNextStep
-    serializer_class = DealNextStepSerializer
-
-    def get(self, request, format=None):
-        queryset = self.model.objects.filter(tenant_id=self.request.user.tenant_id)
-        serializer = DealNextStepSerializer(queryset, many=True)
-        return Response(serializer.data)
-
-
 class DealWhyCustomerViewSet(ModelViewSet):
     # Set the queryset, this takes care of setting the `base_name`.
     queryset = DealWhyCustomer.objects

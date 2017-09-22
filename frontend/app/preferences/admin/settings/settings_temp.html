@@ -1,0 +1,64 @@
+<div class="portlet light">
+    <div class="portlet-title">
+        <h2>Settings</h2>
+        <p>Settings for your company</p>
+
+        <form novalidate name="tenantForm">
+            <form-portlet portlet-title="Time registration">
+                <form-radio-buttons options="['No', 'Yes']" label-title="Enabled"
+                                    input-name="timelogging_enabled" field="vm.tenant.timelogging_enabled">
+                </form-radio-buttons>
+
+                <form-radio-buttons ng-if="vm.tenant.timelogging_enabled" options="['No', 'Yes']" label-title="Billable default value"
+                                    input-name="billing_default" field="vm.tenant.billing_default">
+                </form-radio-buttons>
+            </form-portlet>
+
+            <form-portlet ng-repeat="setting in vm.settings" portlet-title="{{ setting.model }}">
+                <form-group ng-repeat="(key, items) in setting.fields" label-title="{{ key }}" label-id="{{ key }}" field="accountForm.primaryWebsite">
+                    <div ng-repeat="item in items | orderBy:item.position">
+                        <div class="row hl-row-xs margin-bottom-10">
+                            <div class="col-md-7">
+                                <div class="form-inline-input">
+                                    <input class="form-control"
+                                            name="name"
+                                            maxlength="255"
+                                            placeholder="Name"
+                                            type="text"
+                                            ng-model="item.name" />
+                                </div>
+                            </div>
+                            <div class="col-md-5" ng-if="item.hasOwnProperty('position')">
+                                <span ng-if="!$first && !$last">
+                                    <button class="hl-primary-btn" ng-click="vm.moveUp($index, items)"><i class="lilicon hl-arrow-up-icon"></i></button>
+                                    <button class="hl-primary-btn" ng-click="vm.moveDown($index, items)"><i class="lilicon hl-arrow-down-icon"></i></button>
+                                </span>
+                                <div style="width: 77px; display:inline-block;" ng-if="$first || $last"></div>
+
+                                <button class="hl-primary-btn" ng-click="item.is_deleted = !item.is_deleted">
+                                    <i class="lilicon hl-trashcan-icon" ng-if="!item.is_deleted"></i>
+                                    <i class="fa fa-undo" ng-if="item.is_deleted"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="hl-primary-btn-blue" ng-click="vm.saveField(setting.model, key)">
+                        <i class="fa fa-check"></i> Save
+                    </button>
+                </form-group>
+            </form-portlet>
+
+            <div class="hl-form-footer">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-3 col-md-2 col-lg-2"></div>
+                    <div class="col-xs-12 col-sm-9 col-md-8 col-md-7 col-lg-4">
+                        <button type="button" class="hl-primary-btn-blue" ng-click="vm.saveSettings(tenantForm)">
+                            <i class="fa fa-check"></i> Save
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

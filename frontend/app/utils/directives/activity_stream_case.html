@@ -34,6 +34,15 @@
                 <div class="stream-subitem">
                     <div class="stream-subitem-timeline"></div>
 
+                    <div class="stream-subitem-object margin-bottom-20" ng-if="vm.item.showNotes">
+                        <div class="stream-subitem-image">
+                            <div class="stream-subitem-avatar is-note"><i class="lilicon hl-note-icon"></i></div>
+                        </div>
+                        <div class="stream-subitem-main small-note-field no-padding">
+                            <activity-add-note item="vm.item"></activity-add-note>
+                        </div>
+                    </div>
+
                     <div class="stream-subitem-object" ng-repeat="note in vm.item.notes">
                         <div class="stream-subitem-image">
                             <div class="stream-subitem-avatar" ng-style="{'background-image': 'url(' + note.author.profile_picture + ')'}"></div>
@@ -67,15 +76,6 @@
                             <div  class="stream-subitem-title">
                                 {{ ::vm.item.created_by.full_name || 'An unknown entity' }} created the <i class="lilicon hl-case-icon purple margin-left-5 font-size-16"></i> case <a ui-sref="base.cases.detail({ id: vm.item.id })">{{ ::vm.item.name }}</a>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="stream-subitem-object" ng-if="vm.item.showNotes">
-                        <div class="stream-subitem-image">
-                            <div class="stream-subitem-avatar is-note"><i class="lilicon hl-note-icon"></i></div>
-                        </div>
-                        <div class="stream-subitem-main small-note-field no-padding">
-                            <activity-add-note item="vm.item"></activity-add-note>
                         </div>
                     </div>
                 </div>

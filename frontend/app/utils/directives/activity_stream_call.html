@@ -22,6 +22,15 @@
                 <div class="stream-subitem">
                     <div class="stream-subitem-timeline"></div>
 
+                    <div class="stream-subitem-object margin-bottom-20" ng-if="vm.item.showNotes">
+                        <div class="stream-subitem-image">
+                            <div class="stream-subitem-avatar is-note"><i class="lilicon hl-note-icon"></i></div>
+                        </div>
+                        <div class="stream-subitem-main small-note-field no-padding">
+                            <activity-add-note item="vm.item"></activity-add-note>
+                        </div>
+                    </div>
+
                     <div class="stream-subitem-object" ng-repeat="note in vm.item.notes">
                         <div class="stream-subitem-image">
                             <div class="stream-subitem-avatar" ng-style="{'background-image': 'url(' + note.author.profile_picture + ')'}"></div>
@@ -41,15 +50,6 @@
                             <div class="stream-subitem-content">
                                 <editable-textarea view-model="vm" field="content" object="note"></editable-textarea>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="stream-subitem-object" ng-if="vm.item.showNotes">
-                        <div class="stream-subitem-image">
-                            <div class="stream-subitem-avatar is-note"><i class="lilicon hl-note-icon"></i></div>
-                        </div>
-                        <div class="stream-subitem-main small-note-field no-padding">
-                            <activity-add-note item="vm.item"></activity-add-note>
                         </div>
                     </div>
                 </div>

@@ -66,11 +66,16 @@
                 </form-group>
 
                 <form-group label-title="Works at" label-id="id_account" field="contactForm.accounts">
-                    <ui-select multiple ng-model="vm.contact.accounts" theme="select2" class="form-control" name="accounts">
+                    <ui-select multiple ng-model="vm.contact.accounts" theme="bootstrap" class="form-control" name="accounts">
                         <ui-select-match placeholder="Select one or more account(s)">{{ $item.name }}</ui-select-match>
                         <ui-select-choices repeat="account in vm.accounts | filterItems:vm.contact.accounts" refresh="vm.refreshAccounts($select.search)" refresh-delay="300">
                             <div ng-bind-html="account.name | highlight: $select.search"></div>
                         </ui-select-choices>
+                        <ui-select-no-choice>
+                            <div class="contact-add-account" ng-click="vm.addAccount($select)">
+                                <i class="fa fa-plus"></i>Add <strong>{{ $select.search }}</strong> as a new account
+                            </div>
+                        </ui-select-no-choice>
                     </ui-select>
                 </form-group>
 

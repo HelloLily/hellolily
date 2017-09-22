@@ -21,7 +21,7 @@ function contactConfig($stateProvider) {
             label: 'Create',
         },
         resolve: {
-            currentContact: function() {
+            currentContact: () => {
                 return null;
             },
         },
@@ -44,8 +44,8 @@ function contactConfig($stateProvider) {
             label: 'Edit',
         },
         resolve: {
-            currentContact: ['Contact', '$stateParams', function(Contact, $stateParams) {
-                var contactId = $stateParams.id;
+            currentContact: ['Contact', '$stateParams', (Contact, $stateParams) => {
+                const contactId = $stateParams.id;
                 return Contact.get({id: contactId}).$promise;
             }],
         },
@@ -64,7 +64,7 @@ function contactConfig($stateProvider) {
             skip: true,
         },
         resolve: {
-            currentContact: function() {
+            currentContact: () => {
                 return null;
             },
         },
@@ -80,7 +80,7 @@ ContactCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', '$t
     'Contact', 'HLFields', 'HLForms', 'HLResource', 'HLSearch', 'HLUtils', 'Settings', 'currentContact'];
 function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, Account, Contact,
     HLFields, HLForms, HLResource, HLSearch, HLUtils, Settings, currentContact) {
-    var vm = this;
+    let vm = this;
 
     vm.contact = currentContact || {};
     vm.errors = {
@@ -96,12 +96,13 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
     vm.contactForm = $stateParams.contactForm;
     vm.accountForm = $stateParams.accountForm;
     vm.mergeContactData = mergeContactData;
+    vm.addAccount = addAccount;
 
     activate();
 
-    $scope.$watch('settings.email.sidebar.contactId', function(newValue, oldValue) {
+    $scope.$watch('settings.email.sidebar.contactId', (newValue, oldValue) => {
         if (newValue) {
-            Contact.get({id: newValue}).$promise.then(function(result) {
+            Contact.get({id: newValue}).$promise.then(result => {
                 vm.contact = _mergeData(result, Settings.email.sidebar.contactForm);
                 activate();
             });
@@ -113,7 +114,7 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
     function activate() {
         vm.contactSuggestions = [];
         _getContact();
-        $timeout(function() {
+        $timeout(() => {
             // Focus the first input on page load.
             angular.element('.form-control')[0].focus();
             $scope.$apply();
@@ -132,7 +133,7 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
             }
 
             if (vm.contact.hasOwnProperty('social_media') && vm.contact.social_media.length) {
-                angular.forEach(vm.contact.social_media, function(profile) {
+                angular.forEach(vm.contact.social_media, profile => {
                     vm.contact[profile.name] = profile.username;
                 });
             }
@@ -141,7 +142,7 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
             vm.contact = Contact.create();
 
             if ($stateParams.accountId) {
-                Account.get({id: $stateParams.accountId}, function(account) {
+                Account.get({id: $stateParams.accountId}, account => {
                     vm.contact.accounts.push(account);
                     vm.account = account;
                 });
@@ -226,7 +227,7 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
 
     function _concatUnique(primary, secondary, unique) {
         // Remove items already present in primary from secondary.
-        let result = secondary.filter(function(secondaryItem) {
+        let result = secondary.filter(secondaryItem => {
             // Check if all unique keys are the same, remove item from array if they are.
             let count = 0;
 
@@ -265,11 +266,6 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
     }
 
     function saveContact(form) {
-        var accounts = [];
-        var copiedContact;
-        var twitterId;
-        var linkedinId;
-
         // Check if a contact is being added via the + contact page or via
         // a supercard.
         if (Settings.email.sidebar.isVisible) {
@@ -285,16 +281,22 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
         HLForms.blockUI();
         HLForms.clearErrors(form);
 
-        // Store the ids of the current social media objects.
-        angular.forEach(vm.contact.social_media, function(value) {
-            if (value.name === 'twitter') {
-                twitterId = value.id;
-            } else if (value.name === 'linkedin') {
-                linkedinId = value.id;
-            }
-        });
+        let twitterId;
+        let linkedinId;
+
+        if (vm.contact.hasOwnProperty('social_media')) {
+            // Store the ids of the current social media objects.
+            vm.contact.social_media.forEach(value => {
+                if (value.name === 'twitter') {
+                    twitterId = value.id;
+                } else if (value.name === 'linkedin') {
+                    linkedinId = value.id;
+                }
+            });
+        }
 
         vm.contact.social_media = [];
+
         if (vm.contact.twitter) {
             vm.contact.social_media.push({
                 name: 'twitter',
@@ -319,10 +321,11 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
 
         vm.contact = HLFields.cleanRelatedFields(vm.contact);
 
-        copiedContact = angular.copy(vm.contact);
+        let copiedContact = angular.copy(vm.contact);
+        let accounts = [];
 
         if (copiedContact.accounts && copiedContact.accounts.length) {
-            angular.forEach(copiedContact.accounts, function(account) {
+            copiedContact.accounts.forEach(account => {
                 if (account) {
                     accounts.push({id: account.id});
                 }
@@ -333,7 +336,7 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
 
         if (copiedContact.id) {
             // If there's an ID set it means we're dealing with an existing contact, so update it
-            copiedContact.$update(function() {
+            copiedContact.$update(() => {
                 toastr.success('I\'ve updated the contact for you!', 'Done');
                 if (Settings.email.sidebar.form === 'contact') {
                     Settings.email.sidebar.form = null;
@@ -342,41 +345,49 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
                 } else {
                     $state.go('base.contacts.detail', {id: copiedContact.id}, {reload: true});
                 }
-            }, function(response) {
+            }, response => {
                 _handleBadResponse(response, form);
             });
         } else {
-            copiedContact.$save(function() {
+            copiedContact.$save(() => {
                 toastr.success('I\'ve saved the contact for you!', 'Yay');
 
                 _postSave(copiedContact);
-            }, function(response) {
+            }, response => {
                 _handleBadResponse(response, form);
             });
         }
     }
 
     function refreshAccounts(query) {
-        var accountsPromise;
-
         if (!vm.accounts || query.length) {
-            accountsPromise = HLSearch.refreshList(query, 'Account');
+            let accountsPromise = HLSearch.refreshList(query, 'Account');
 
             if (accountsPromise) {
-                accountsPromise.$promise.then(function(data) {
+                accountsPromise.$promise.then(data => {
                     vm.accounts = data.objects;
                 });
             }
         }
     }
 
+    function addAccount($select) {
+        let account = Account.create();
+        account.name = $select.search;
+        account.status = Account.defaultNewStatus.id;
+        account.assigned_to = currentUser.id;
+
+        account.$save(response => {
+            vm.contact.accounts.push(account);
+            $select.close();
+        });
+    }
+
     function checkExistingContact() {
-        var fullName;
-
         if (!vm.contact.id && vm.contact.first_name && vm.contact.last_name) {
-            fullName = vm.contact.first_name + ' ' + vm.contact.last_name;
+            let fullName = vm.contact.first_name + ' ' + vm.contact.last_name;
 
-            Contact.search({filterquery: 'full_name:"' + fullName + '"'}).$promise.then(function(results) {
+            Contact.search({filterquery: 'full_name:"' + fullName + '"'}).$promise.then(results => {
                 vm.contactSuggestions = results.objects;
             });
         }
@@ -404,10 +415,10 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
         }
     }
 
-    $scope.$watch('vm.contact.accounts', function() {
+    $scope.$watch('vm.contact.accounts', () => {
         if (vm.contact.accounts) {
             if (vm.contact.accounts.length === 1) {
-                Account.get({id: vm.contact.accounts[0].id}, function(account) {
+                Account.get({id: vm.contact.accounts[0].id}, account => {
                     if (!vm.account || vm.account.id !== account.id) {
                         vm.account = account;
                     }
@@ -429,7 +440,7 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
         toastr.error('Uh oh, there seems to be a problem', 'Oops!');
     }
 
-    $scope.$on('saveContact', function() {
+    $scope.$on('saveContact', () => {
         saveContact($scope.contactForm);
     });
 }

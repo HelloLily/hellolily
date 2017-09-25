@@ -1,7 +1,7 @@
 <ul class="hl-button-group" ng-if="!vm.currentUser.tenant.isFreePlan">
     <li class="hl-button-group-btn">
         <a class="hl-button-group-btn-link" href="javascript:;" data-toggle="dropdown">
-            <i class="lilicon hl-entity-icon"></i>
+            <i class="lilicon" ng-class="{'hl-entity-icon': vm.nameDisplay.length === 1, 'hl-entities-icon': vm.nameDisplay.length > 1}"></i>
 
             <span class="hidden-480">
                 <span ng-show="vm.nameDisplay.length >= 3">
@@ -26,7 +26,7 @@
             <div ng-repeat="team in vm.teams">
                 <li class="hl-dropdown-item">
                     <span class="clickable" ng-click="vm.toggleUser(team)">
-                        <div class="hl-checkbox" ng-class="{'checked': team.selected, 'indeterminate': (!team.selected && (team.users | where: {selected: true}).length )}"></div>
+                        <div class="hl-checkbox" ng-class="{'checked': team.selected, 'indeterminate': vm.hasSelection(team)}"></div>
                         {{ team.name }}
                     </span>
 
@@ -37,6 +37,12 @@
 
                 <li ng-if="!team.collapsed" class="hl-dropdown-sub-items">
                     <ul class="hl-dropdown-sub-menu">
+                        <li class="hl-dropdown-sub-menu-item">
+                            <span class="clickable" ng-click="vm.toggleUser(team, null, false)">
+                                <div class="hl-checkbox" ng-class="{'checked': team.filterOnTeam}"></div>
+                                {{ team.name }} team
+                            </span>
+                        </li>
                         <li class="hl-dropdown-sub-menu-item" ng-repeat="user in team.users">
                             <span class="clickable" ng-click="vm.toggleUser(team, user)">
                                 <div class="hl-checkbox" ng-class="{'checked': user.selected}"></div>

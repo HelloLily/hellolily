@@ -16,8 +16,8 @@ function usersFilter() {
 
 UsersFilterController.$inject = ['$filter', '$timeout', 'LocalStorage', 'User', 'UserTeams'];
 function UsersFilterController($filter, $timeout, LocalStorage, User, UserTeams) {
-    var vm = this;
-    var storage = new LocalStorage(vm.storageName);
+    let vm = this;
+    const storage = new LocalStorage(vm.storageName);
 
     vm.storedNameDisplay = storage.get('nameDisplay', []);
     vm.storedTeamsSelection = storage.get('teamsSelection', []);
@@ -28,13 +28,14 @@ function UsersFilterController($filter, $timeout, LocalStorage, User, UserTeams)
     vm.toggleUser = toggleUser;
     vm.loadTeams = loadTeams;
     vm.toggleCollapsed = toggleCollapsed;
+    vm.hasSelection = hasSelection;
 
     activate();
 
     //////
 
     function activate() {
-        $timeout(function() {
+        $timeout(() => {
             loadTeams();
 
             vm.currentUser.selected = vm.storedCurrentUserSelected;
@@ -43,33 +44,28 @@ function UsersFilterController($filter, $timeout, LocalStorage, User, UserTeams)
     }
 
     function loadTeams() {
-        UserTeams.query().$promise.then(function(response) {
-            User.query({teams__isnull: 'True'}).$promise.then(function(userResponse) {
-                var teamObj;
-                var userObj;
-                var users;
-                var ownTeam;
-                var unassignedUser;
-                var teams = [];
-                var unassignedTeam = {
+        UserTeams.query().$promise.then(response => {
+            User.query({teams__isnull: 'True'}).$promise.then(userResponse => {
+                let teams = [];
+                const unassignedTeam = {
                     users: [],
                     name: 'Not in team',
                     selected: false,
                     collapsed: true,
                 };
 
-                for (unassignedUser of userResponse.results) {
+                for (let unassignedUser of userResponse.results) {
                     unassignedTeam.users.push(unassignedUser);
                 }
 
-                angular.forEach(response.results, function(team) {
+                response.results.forEach(team => {
                     if (team && team.users.length) {
-                        users = [];
-                        ownTeam = false;
+                        let users = [];
+                        let ownTeam = false;
 
-                        angular.forEach(team.users, function(user) {
+                        team.users.forEach(user => {
                             // Create a user object.
-                            userObj = {
+                            let userObj = {
                                 id: user.id,
                                 full_name: user.full_name,
                                 selected: false,
@@ -84,7 +80,7 @@ function UsersFilterController($filter, $timeout, LocalStorage, User, UserTeams)
                         });
 
                         // Create a team object.
-                        teamObj = {
+                        let teamObj = {
                             id: team.id,
                             name: team.name,
                             users: users,
@@ -107,16 +103,16 @@ function UsersFilterController($filter, $timeout, LocalStorage, User, UserTeams)
                 }
 
                 // Loop through stored teams and set current teams to the state of the stored teams.
-                vm.storedTeamsSelection.map((storedTeam) => {
-                    teams = teams.map((team) => {
+                vm.storedTeamsSelection.map(storedTeam => {
+                    teams = teams.map(team => {
                         if (storedTeam.id === team.id) {
                             team.selected = storedTeam.selected;
                             team.collapsed = storedTeam.collapsed;
                         }
 
                         // Loop through stored users and set current users to the state of the stored users.
-                        storedTeam.users.map((storedUser) => {
-                            team.users = team.users.map((user) => {
+                        storedTeam.users.map(storedUser => {
+                            team.users = team.users.map(user => {
                                 if (storedUser.id === user.id) {
                                     user.selected = storedUser.selected;
                                 }
@@ -134,11 +130,7 @@ function UsersFilterController($filter, $timeout, LocalStorage, User, UserTeams)
         });
     }
 
-    function toggleUser(selectedTeam, selectedUser) {
-        var selectedFilter = [];
-        var names = [];
-        var filter;
-
+    function toggleUser(selectedTeam, selectedUser, toggleUsers = true) {
         if (selectedUser) {
             selectedUser.selected = !selectedUser.selected;
 
@@ -146,30 +138,42 @@ function UsersFilterController($filter, $timeout, LocalStorage, User, UserTeams)
                 selectedTeam.selected = false;
             }
         } else {
-            selectedTeam.selected = !selectedTeam.selected;
+            if (toggleUsers) {
+                selectedTeam.selected = !selectedTeam.selected;
+                selectedTeam.filterOnTeam = selectedTeam.selected;
 
-            selectedTeam.users.map((teamUser) => {
-                teamUser.selected = selectedTeam.selected;
+                selectedTeam.users.map(teamUser => {
+                    teamUser.selected = selectedTeam.selected;
 
-                vm.teams.map((team) => {
-                    if (team.id !== selectedTeam.id) {
-                        team.users.map((user) => {
-                            if (user.id === teamUser.id) {
-                                user.selected = teamUser.selected;
-                            }
-                        });
-                    }
+                    vm.teams.map(team => {
+                        if (team.id !== selectedTeam.id) {
+                            team.users.map(user => {
+                                if (user.id === teamUser.id) {
+                                    user.selected = teamUser.selected;
+                                }
+                            });
+                        }
+                    });
                 });
-            });
+            } else {
+                selectedTeam.filterOnTeam = !selectedTeam.filterOnTeam;
+
+                if (!selectedTeam.filterOnTeam && selectedTeam.selected) {
+                    selectedTeam.selected = false;
+                }
+            }
         }
 
-        vm.teams.map((team) => {
+        let selectedFilter = [];
+        let names = [];
+
+        vm.teams.map(team => {
             // 'Not in team' isn't an actual team, so check for 'id' property.
-            if (team.hasOwnProperty('id') && team.selected) {
-                selectedFilter.push('assigned_to_teams.id:' + team.id);
+            if (team.hasOwnProperty('id') && team.selected || team.filterOnTeam) {
+                selectedFilter.push('assigned_to_teams:' + team.id);
             }
 
-            team.users.map((user) => {
+            team.users.map(user => {
                 if (selectedUser && selectedUser.id === user.id) {
                     user.selected = selectedUser.selected;
                 }
@@ -187,7 +191,8 @@ function UsersFilterController($filter, $timeout, LocalStorage, User, UserTeams)
         }
 
         selectedFilter = $filter('unique')(selectedFilter);
-        filter = selectedFilter.join(' OR ');
+
+        const filter = selectedFilter.join(' OR ');
 
         vm.nameDisplay = $filter('unique')(names);
 
@@ -196,6 +201,21 @@ function UsersFilterController($filter, $timeout, LocalStorage, User, UserTeams)
         storage.put('currentUserSelected', vm.currentUser.selected);
 
         vm.usersStore = filter;
+    }
+
+    function hasSelection(team) {
+        // (!team.selected && (team.users | where: {selected: true}).length )
+        if (!team.selected) {
+            let selectedUserCount = team.users.reduce((count, user) => {
+                return user.selected ? count + 1 : count;
+            }, 0);
+
+            if (selectedUserCount || team.filterOnTeam) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     function toggleCollapsed(team) {

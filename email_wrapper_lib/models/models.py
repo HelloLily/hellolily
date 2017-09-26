@@ -190,6 +190,7 @@ class EmailMessage(models.Model):
         elif hasattr(self, '_prefetched_objects_cache') and 'recipients' in self._prefetched_objects_cache:
             return [rec for rec in self.recipients.all() if rec.recipient_type == recipient_type]
         else:
+            # TODO: Change query so results are cached.
             return list(self.recipients.filter(recipient_type=recipient_type))
 
     class Meta:
@@ -296,9 +297,9 @@ class EmailDraftToEmailRecipient(models.Model):
 
 def attachment_upload_path(instance, filename):
     return settings.ATTACHMENT_UPLOAD_PATH.format(
-            draft_id=instance.draft_id,
-            filename=filename
-        )
+        draft_id=instance.draft_id,
+        filename=filename
+    )
 
 
 class EmailDraftAttachment(models.Model):
@@ -311,6 +312,7 @@ class EmailDraftAttachment(models.Model):
         max_length=255,
         verbose_name=_('File')
     )
+    # TODO: Add in email api.
     # size = models.PositiveIntegerField(
     #     default=0,
     #     verbose_name=_('Size')

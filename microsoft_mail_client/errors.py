@@ -126,3 +126,25 @@ class BatchMaxSizeError(Error):
 class CallbackError(Error):
     """No callback provided."""
     pass
+
+
+class NoMailboxSettings(Error):
+    """No mailbox settings provided."""
+    pass
+
+
+class NoProperties(Error):
+    """No properties provided."""
+    pass
+
+
+class HttpError(Error):
+    """Wrapper for erroneous responses in a batch."""
+
+    def __init__(self, reason):
+        self.reason = reason
+
+    def __repr__(self):
+        return self.reason
+
+    __str__ = __repr__

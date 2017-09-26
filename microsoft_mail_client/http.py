@@ -13,7 +13,7 @@ from requests import Response
 
 from microsoft_mail_client import __version__
 from microsoft_mail_client.constants import MAX_BATCH_SIZE
-from microsoft_mail_client.errors import BatchIdError, BatchMaxSizeError, CallbackError
+from microsoft_mail_client.errors import BatchIdError, BatchMaxSizeError, CallbackError, HttpError
 
 
 def ddict2dict(dd):
@@ -211,7 +211,14 @@ class BatchHttpRequest(object):
         # Zip() halts on the shortest list, therefore handling a halting error on a batch component when the
         # odata.continue-on-error header was not provided on the batch request.
         for response, callback, request_id in zip(self._responses, self._callbacks, self._request_ids):
-            callback(response, request_id)
+            exception = None
+            try:
+                if response.status_code >= 300:
+                    raise HttpError(response.reason)
+            except HttpError as e:
+                exception = e
+
+            callback(request_id, response, exception)
 
     def _serialize_requests(self):
         """
@@ -313,7 +320,7 @@ class BatchHttpRequest(object):
         #
 
         response = Response()
-        response.status_code = status
+        response.status_code = int(status)
         response.reason = reason
         if headers:
             response.headers = headers

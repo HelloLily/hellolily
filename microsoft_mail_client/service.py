@@ -9,52 +9,80 @@ from microsoft_mail_client.errors import (
     UnknownApiVersion, NoFolderId, NoMessageId, NoComment, NoRecipients, NoMessage, InvalidClassification,
     InvalidSettingsOption, NoFileName, NoFile, InvalidWritableFileProperty, InvalidWritableItemProperty, NoItem,
     InvalidWritableMessageProperty, NoUrl, InvalidWritableReferenceProperty, NoItemName, NoReferenceName,
-    NoAttachmentId, NoName, NoDestinationFolderId
-)
+    NoAttachmentId, NoName, NoDestinationFolderId,
+    NoMailboxSettings, NoProperties)
 
 # TODO: On email threading / conversation:
 # stackoverflow.com/questions/41161515/best-way-to-achieve-conversation-view-for-mail-folder-using-outlook-rest-api
 # TODO: On push notifications: https://docs.microsoft.com/en-us/outlook/rest/webhooks
 # TODO: On archiving mail: https://stackoverflow.com/questions/41065083/outlook-rest-api-and-mail-archive-action
+# TODO: :param refere to type Microsoft.OutlookServices.xyz
+# TODO: provide example paramaters (like update_auto_reply)
+# TODO: verify that json returned by batch structered the same as none batch response.
 
 
-def build(version, user_email, credentials=None):
-    # Returns a Resource object with methods for interacting with the Microsoft 365 email API.
+def build(version, user_id, credentials=None):
+    """
+    Returns a Resource object with methods for interacting with the Microsoft 365 email API.
+
+    :param version: api version.
+    :param user_id: 'me' or an email address.
+    :param credentials: oauth credentials.
+    :return: api service object.
+    """
     if version not in SUPPORTED_API_VERSIONS:
         raise UnknownApiVersion("Version: {0}".format(version))
 
-    return Resource(version, user_email, credentials)
+    return Resource(version, user_id, credentials.access_token)
 
 
 class Resource(object):
     """
-    A class for interacting with the resource.
+    A class for interacting with the Resource.
     """
 
-    def __init__(self, version, user_email, credentials):
-        # TODO: Handle credentials=None or don't allow.
-        self.version = version
-        self.user_email = user_email
-        self.credentials = credentials
+    def __init__(self, version, user_id, access_token):
+        """
+        Creates a Resource object with methods for interacting with the Microsoft 365 email API.
 
-        self._base_url = 'https://outlook.office.com/api/{0}/users/{1}'.format(version, user_email)
+        :param version: api version.
+        :param user_id: 'me' or an email address.
+        :param access_token: oauth access token.
+        """
+        # TODO: Handle credentials=None or don't allow.
+
+        self._base_url = 'https://outlook.office.com/api/{0}/users/{1}'.format(version, user_id)
         # self._base_url = "https://outlook.office.com/api/{0}/users/'{1}'".format(version, user_email)
         # self._base_url = 'https://outlook.office365.com/api/{0}'.format(version)  # Larger attachment size limit.
         self._base_url += '{0}'
 
-        self._batch_url = "https://outlook.office.com/api/{0}/users/{1}/$batch".format(version, user_email)
+        self._batch_url = "https://outlook.office.com/api/{0}/users/{1}/$batch".format(version, user_id)
 
         self._authorization_headers = defaultdict(list)
         self._authorization_headers.update({
-            'Authorization': 'Bearer {0}'.format(self.credentials.access_token),
-            'X-AnchorMailbox': self.user_email,
+            'Authorization': 'Bearer {0}'.format(access_token),
+            'X-AnchorMailbox': user_id,  # TODO: verify that call succeeds when user_id=='me'
         })
 
         self._authorization_batch_headers = defaultdict(list)
         self._authorization_batch_headers.update({
-            'Authorization': 'Bearer {0}'.format(self.credentials.access_token),
+            'Authorization': 'Bearer {0}'.format(access_token),
             'Host': 'outlook.office.com',
         })
+
+    def get_me(self, query_parameters=None):
+        """
+        Get profile of current user.
+
+        :param query_parameters: use OData query parameters to control the results.
+        :return: HttpRequest object.
+        """
+        headers = defaultdict(list)
+        headers.update(self._authorization_headers)
+
+        url = self._base_url.format('')  # Provide empty string, so placeholder isn't part of the url anymore.
+
+        return HttpRequest(uri=url, method='GET', headers=headers, parameters=query_parameters)
 
     def get_messages(self, folder_id=None, allow_unsafe=False, body_content_type=None, query_parameters=None):
         """
@@ -147,6 +175,9 @@ class Resource(object):
 
         if max_page_size:
             headers['Prefer'].append('odata.maxpagesize={0}'.format(max_page_size))
+
+        if not query_parameters and (delta_token or skip_token):
+            query_parameters = dict()
 
         # TODO: verify are parameters case sensitive?
         if delta_token:
@@ -365,6 +396,9 @@ class Resource(object):
         if not message_id:
             raise NoMessageId()
 
+        if not properties:
+            raise NoProperties()
+
         res = set(properties.keys()) - set(WRITABLE_MESSAGE_PROPERTIES)
         if len(res) != 0:
             raise InvalidWritableMessageProperty('Invalid properties: {0}'.format(', '.join(res)))
@@ -534,12 +568,25 @@ class Resource(object):
         """
         return self.get_settings(SETTING_AUTOMATIC_REPLIES, outlook_time_zone)
 
-    def update_auto_reply(self):
+    def update_auto_reply(self, settings):
         """
-        Enable, configure, or disable automatic replies.
+        Enable, configure, or disable automatic replies. You cannot create or delete any mailbox settings.
+
+        :param settings: dict of type Microsoft.OutlookServices.MailboxSettings.
+        :return: HttpRequest object.
+
+        Example:
+            settings = {"AutomaticRepliesSetting": {"Status": "Disabled"}}
         """
-        # TODO: implement.
-        raise NotImplementedError()
+        if not settings:
+            raise NoMailboxSettings()
+
+        headers = defaultdict(list)
+        headers.update(self._authorization_headers)
+
+        url = self._base_url.format('/MailboxSettings')
+
+        return HttpRequest(uri=url, method='PATCH', headers=headers, payload=settings)
 
     def get_attachments(self, message_id, attachment_id=None, query_parameters=None):
         """
@@ -562,15 +609,15 @@ class Resource(object):
 
         return HttpRequest(uri=url, method='GET', headers=headers, parameters=query_parameters)
 
-    def get_attachemnt(self, message_id, query_parameters=None):
+    def get_attachment(self, message_id, query_parameters=None):
         """
         Get an attachment from a particular message.
 
         :param message_id: attachment for message.
-        :param query_parameters: use OData query parameters to control the results
+        :param query_parameters: use OData query parameters to control the results.
         :return: HttpRequest object.
         """
-        self.get_attachments(message_id, query_parameters=query_parameters)
+        return self.get_attachments(message_id, query_parameters=query_parameters)
 
     def create_file_attachment(self, message_id, attachment, name, properties=None):
         """
@@ -591,9 +638,10 @@ class Resource(object):
         if not file:
             raise NoFile()
 
-        res = set(properties.keys()) - set(WRITABLE_FILE_PROPERTIES)
-        if len(res) != 0:
-            raise InvalidWritableFileProperty('Invalid properties: {0}'.format(', '.join(res)))
+        if properties:
+            res = set(properties.keys()) - set(WRITABLE_FILE_PROPERTIES)
+            if len(res) != 0:
+                raise InvalidWritableFileProperty('Invalid properties: {0}'.format(', '.join(res)))
 
         headers = defaultdict(list)
         headers.update(self._authorization_headers)
@@ -632,9 +680,10 @@ class Resource(object):
         if not item:
             raise NoItem()
 
-        res = set(properties.keys()) - set(WRITABLE_ITEM_PROPERTIES)
-        if len(res) != 0:
-            raise InvalidWritableItemProperty('Invalid properties: {0}'.format(', '.join(res)))
+        if properties:
+            res = set(properties.keys()) - set(WRITABLE_ITEM_PROPERTIES)
+            if len(res) != 0:
+                raise InvalidWritableItemProperty('Invalid properties: {0}'.format(', '.join(res)))
 
         headers = defaultdict(list)
         headers.update(self._authorization_headers)
@@ -675,9 +724,10 @@ class Resource(object):
         if not url:
             raise NoUrl()
 
-        res = set(properties.keys()) - set(WRITABLE_REFERENCE_PROPERTIES)
-        if len(res) != 0:
-            raise InvalidWritableReferenceProperty('Invalid properties: {0}'.format(', '.join(res)))
+        if properties:
+            res = set(properties.keys()) - set(WRITABLE_REFERENCE_PROPERTIES)
+            if len(res) != 0:
+                raise InvalidWritableReferenceProperty('Invalid properties: {0}'.format(', '.join(res)))
 
         headers = defaultdict(list)
         headers.update(self._authorization_headers)
@@ -751,30 +801,13 @@ class Resource(object):
 
         return HttpRequest(uri=url, method='GET', headers=headers, parameters=query_parameters)
 
-    def synchronize_folders(self, delta_token=None, query_parameters=None):
+    def synchronize_folders(self):
         # TOOD: unclear documenation: how to pass requested category?
         # TODO: unclear documentation: deltatoken or odata.deltaLink,
         # TODO: unclear documentation: deltaX as query_parameters or in the payload?
-        # TODO: unclear documentation: implementation like synchronize_message()?
-        """
+        # TODO: use with paramas like: ?$top=50&$expand=childFolders($levels=5) ?
 
-        :param delta_token:
-        :param query_parameters:
-        :return: HttpRequest object.
-        """
-        headers = defaultdict(list)
-        headers.update(self._authorization_headers)
-
-        if delta_token:
-            # Incremental synchronization.
-            headers['Prefer'].append('odata.track-changes')
-
-        if delta_token:
-            query_parameters.update({'$deltatoken': delta_token})
-
-        url = self._base_url.format('/MailFolders')
-
-        return HttpRequest(uri=url, method='GET', headers=headers, parameters=query_parameters)
+        raise NotImplementedError()
 
     def create_folder(self, folder_id, name):
         """
@@ -890,7 +923,7 @@ class Resource(object):
 
         return HttpRequest(uri=url, method='POST', headers=headers, payload=payload)
 
-    def new_batch(self, continue_on_error=True):
+    def new_batch_http_request(self, continue_on_error=True):
         """
         Initialize an empty batch request.
         :return: BatchHttpRequest object.

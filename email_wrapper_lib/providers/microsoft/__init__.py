@@ -22,6 +22,7 @@ class Microsoft(object):
             'https://outlook.office.com/mail.send',
             'https://outlook.office.com/mail.readwrite',
             'https://outlook.office.com/mailboxsettings.read',
+            'https://outlook.office.com/mailboxsettings.readwrite',
         ],
         prompt='consent',
         access_type='offline',

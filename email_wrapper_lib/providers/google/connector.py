@@ -26,7 +26,7 @@ class BatchStore(object):
         if cls.__instance is None:
             cls.__instance = object.__new__(cls)
 
-            cls.service = build_service()
+            cls.service = build_service()  # TODO: missing user_id & credentials, should be provided?
             cls.__instance.batch = cls.service.new_batch_http_request()
 
         return cls.__instance
@@ -38,8 +38,8 @@ class BatchStore(object):
 
 
 class GoogleConnector(object):
-    def __init__(self, credentials, user_id):
-        self.service = build_service(credentials)
+    def __init__(self, user_id, credentials):
+        self.service = build_service(user_id, credentials)
         self.user_id = user_id
         self.batch = BatchStore().batch
 

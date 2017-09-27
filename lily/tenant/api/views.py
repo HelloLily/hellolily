@@ -56,7 +56,7 @@ class TenantViewSet(mixins.UpdateModelMixin, mixins.ListModelMixin, GenericViewS
 
     @list_route(methods=['GET'])
     def admin(self, request):
-        account_admin = LilyUser.objects.filter(groups__name='account_admin').first()
+        account_admin = LilyUser.objects.filter(groups__name='account_admin', tenant=request.user.tenant).first()
 
         serializer = LilyUserSerializer(account_admin)
 

@@ -127,6 +127,9 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
 
     _account.prototype.getDataproviderInfo = getDataproviderInfo;
 
+    // Make sure account statuses are available without an extra call to statuses.
+    _account.getStatuses();
+
     //////
 
     /**

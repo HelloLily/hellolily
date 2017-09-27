@@ -287,3 +287,13 @@
 .field-actions {
     width: 90px;
 }
+
+.contact-add-account {
+    cursor: pointer;
+    width: 100%;
+    padding: 5px;
+
+    &:hover {
+        background: $lily-grey;
+    }
+}

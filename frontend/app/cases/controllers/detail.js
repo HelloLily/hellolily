@@ -70,7 +70,6 @@ function CaseDetailController($scope, Case, HLResource, HLUtils, LocalStorage, S
     vm.case.contact = caseContact;
     vm.mergeStreams = storage.get('mergeStreams', false);
 
-    vm.getPriorityDisplay = getPriorityDisplay;
     vm.changeCaseStatus = changeCaseStatus;
     vm.assignCase = assignCase;
     vm.updateModel = updateModel;
@@ -102,38 +101,6 @@ function CaseDetailController($scope, Case, HLResource, HLUtils, LocalStorage, S
 
             vm.closedStatus = Case.closedStatus;
         });
-    }
-
-    /**
-     *
-     * @returns {string}: A string which states what label should be displayed
-     */
-    function getPriorityDisplay() {
-        var label = '';
-
-        if (vm.case.is_archived) {
-            label = 'label-default';
-        } else {
-            switch (vm.case.priority) {
-                case 0:
-                    label = 'label-success';
-                    break;
-                case 1:
-                    label = 'label-info';
-                    break;
-                case 2:
-                    label = 'label-warning';
-                    break;
-                case 3:
-                    label = 'label-danger';
-                    break;
-                default :
-                    label = 'label-info';
-                    break;
-            }
-        }
-
-        return label;
     }
 
     function updateModel(data, field) {

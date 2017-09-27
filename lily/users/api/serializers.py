@@ -14,7 +14,7 @@ from lily.api.nested.serializers import WritableNestedSerializer
 from lily.utils.api.serializers import RelatedWebhookSerializer
 from lily.utils.functions import has_required_tier
 
-from ..models import Team, LilyUser, UserInfo
+from ..models import Team, LilyUser, UserInfo, UserInvite
 from lily.messaging.email.api.serializers import EmailAccountSerializer
 
 
@@ -24,6 +24,16 @@ class UserInfoSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'email_account_status',
+        )
+
+
+class UserInviteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserInvite
+        fields = (
+            'id',
+            'first_name',
+            'email',
         )
 
 

@@ -90,6 +90,12 @@ def get_lilyuser_picture_upload_path(instance, filename):
     }
 
 
+class UserInvite(TenantMixin):
+    first_name = models.CharField(_('first name'), max_length=255)
+    email = models.EmailField(_('email address'), max_length=255, unique=True)
+    date = models.DateTimeField(auto_now_add=True, blank=True)
+
+
 class UserInfo(models.Model):
     INCOMPLETE, COMPLETE, SKIPPED = range(3)
     STATUS_CHOICES = (

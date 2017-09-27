@@ -17,7 +17,8 @@ from lily.messaging.email.api.views import (EmailLabelViewSet, EmailAccountViewS
 from lily.notes.api.views import NoteViewSet
 from lily.provide.api.views import DataproviderView
 from lily.tenant.api.views import TenantViewSet
-from lily.users.api.views import LilyUserViewSet, TeamViewSet, TwoFactorDevicesViewSet, SessionViewSet
+from lily.users.api.views import (LilyUserViewSet, TeamViewSet, TwoFactorDevicesViewSet, SessionViewSet,
+                                  UserInviteViewSet)
 from lily.utils.api.views import AppHash, CallerName, CountryViewSet, Notifications
 
 # Define routes, using the default router so the API is browsable.
@@ -52,6 +53,7 @@ router.register(r'messaging/email/shared-email-configurations', SharedEmailConfi
 router.register(r'notes', NoteViewSet)
 
 router.register(r'users/team', TeamViewSet)
+router.register(r'users/invites', UserInviteViewSet)
 router.register(r'users/two-factor', TwoFactorDevicesViewSet, base_name='Two factor devices')
 router.register(r'users/sessions', SessionViewSet)
 router.register(r'users', LilyUserViewSet)

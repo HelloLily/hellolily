@@ -20,7 +20,7 @@ from lily.billing.models import Plan, Billing
 from lily.tenant.models import Tenant
 
 from lily.users.forms.registration import AcceptInvitationForm, ResendActivationMailForm, TenantRegistrationForm
-from lily.users.models import LilyUser
+from lily.users.models import LilyUser, UserInvite
 
 
 def send_activation_mail(request, user):
@@ -323,8 +323,15 @@ class AcceptInvitationView(FormView):
         if LilyUser.objects.filter(email__iexact=self.email, is_active=True).exists():
             return self.valid_link
 
-        if not self.hash == sha256('%s-%s-%s-%s' % (
+        # Check if an actual invite has been sent.
+        invite = UserInvite.objects.filter(email__iexact=self.email, first_name=self.first_name).first()
+
+        if not invite:
+            return self.valid_link
+
+        if not self.hash == sha256('%s-%s-%s-%s-%s' % (
                 self.tenant_id,
+                invite.id,
                 self.email,
                 self.datestring,
                 settings.SECRET_KEY
@@ -356,15 +363,20 @@ class AcceptInvitationView(FormView):
         Create LilyUser.
         """
         tenant = Tenant.objects.get(pk=self.tenant_id)
+        first_name = form.cleaned_data['first_name']
 
         # Create and save user.
         user = LilyUser.objects.create_user(
             email=self.email,
             password=form.cleaned_data['password'],
-            first_name=form.cleaned_data['first_name'],
+            first_name=first_name,
             last_name=form.cleaned_data['last_name'],
             tenant_id=tenant.id,
         )
+
+        invite = UserInvite.objects.get(first_name=first_name, email=self.email)
+        invite.accepted = True
+        invite.save()
 
         # Update the current subscription.
         user.tenant.billing.update_subscription(1)

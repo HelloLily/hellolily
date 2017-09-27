@@ -51,6 +51,10 @@
     @include hl-label($app-color-red);
 }
 
+.label-info {
+    @include hl-label($lily-blue);
+}
+
 .label-low-prio {
     @include hl-label($low-prio-color);
 }

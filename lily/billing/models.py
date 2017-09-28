@@ -57,6 +57,8 @@ class Billing(models.Model):
                 # Update the amount of users for the subscription.
                 chargebee.Subscription.update(subscription.id, {
                     'plan_quantity': amount,
+                    'invoice_immediately': False,
+                    'prorate': True,
                 })
 
             return True

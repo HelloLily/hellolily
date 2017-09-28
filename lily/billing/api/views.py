@@ -20,7 +20,8 @@ class BillingViewSet(ViewSet):
 
     @list_route(methods=['GET', 'PATCH'])
     def subscription(self, request):
-        billing = self.request.user.tenant.billing
+        tenant = self.request.user.tenant
+        billing = tenant.billing
         customer = billing.get_customer()
         subscription = billing.get_subscription()
 
@@ -88,11 +89,13 @@ class BillingViewSet(ViewSet):
 
                     return Response({'success': success}, content_type='application/json')
                 else:
+                    user_count = tenant.lilyuser_set.filter(is_active=True).count()
+
                     parameters.update({
                         'subscription': {
                             'id': subscription.id,
                             'plan_id': plan_id,
-                            'plan_quantity': subscription.plan_quantity,
+                            'plan_quantity': user_count,
                         },
                     })
 

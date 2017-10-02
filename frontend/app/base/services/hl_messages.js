@@ -41,6 +41,15 @@ function HLMessages() {
                 successTitle: 'Deactivated!',
                 successText: '<strong>%(name)s</strong> has been deactivated.',
             },
+            resendUserInvite: {
+                title: 'Resend invite',
+                confirmText: 'Are you sure you want to resend the invite to <strong>%(email)s</strong>',
+                success: 'The invitation was resent successfully',
+                confirmButtonText: 'Yes, resend invite',
+            },
+            removeUserInvite: {
+                confirmText: 'Are you sure you want to delete the invite for <strong>%(name)s</strong>',
+            },
             postpone: {
                 dealTitle: 'Change next step date',
                 caseTitle: 'Change expiry date',

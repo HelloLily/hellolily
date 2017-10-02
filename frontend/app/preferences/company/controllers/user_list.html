@@ -52,6 +52,9 @@
                     <label class="filter-group-option" ng-model="vm.table.statusFilter" uib-btn-radio="0">
                         Inactive
                     </label>
+                    <label class="filter-group-option" ng-model="vm.table.statusFilter" uib-btn-radio="2">
+                        Invited
+                    </label>
                 </div>
             </li>
         </ul>
@@ -85,6 +88,25 @@
         </thead>
 
         <tbody>
+            <tr ng-repeat="invite in vm.invites" ng-if="vm.table.statusFilter === 2 || vm.table.statusFilter === undefined">
+                <td class="hl-table-column" ng-show="vm.table.visibility.full_name">
+                    <span>{{ invite.first_name }}</span>
+                </td>
+                <td class="hl-table-column" ng-show="vm.table.visibility.email">
+                    {{ invite.email }}
+                </td>
+                <td class="hl-table-column" colspan="2"></td>
+                <td class="hl-table-column">
+                    <span class="label label-sm label-info">Invited</span>
+                </td>
+                <td class="hl-table-column">
+                    <button class="hl-primary-btn-smll" ng-click="vm.resendInvite(invite)" title="Resend invite">
+                        <i class="fa fa-undo"></i>
+                    </button>
+
+                    <delete-confirmation model="UserInvite" object="invite" button-class="hl-primary-btn-smll" callback="vm.removeInvite()" help-text="Delete invite" message-object="vm.removeInviteMessages" display-field="email"></delete-confirmation>
+                </td>
+            </tr>
             <tr ng-repeat="user in vm.table.items">
                 <td class="hl-table-column" ng-show="vm.table.visibility.full_name">
                     <span ng-if="user.id != currentUser.id">{{ user.full_name }}</span>

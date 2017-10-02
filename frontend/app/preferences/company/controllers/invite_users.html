@@ -32,11 +32,11 @@
                                 <div class="col-md-6 hl-flex-container">
                                     <input class="form-control hl-form-input margin-right-10"
                                         maxlength="255"
-                                        name="invites-email_address-{{ $index }}"
+                                        name="invites-email-{{ $index }}"
                                         placeholder="Email address"
                                         ng-class="{'hl-form-input-deleted': invite.is_deleted}"
                                         type="text"
-                                        ng-model="invite.email_address"
+                                        ng-model="invite.email"
                                         ng-readonly="invite.is_deleted">
 
                                     <div class="field-actions">

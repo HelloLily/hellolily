@@ -11,9 +11,6 @@ function preferencesInviteConfig($stateProvider) {
                 controllerAs: 'vm',
             },
         },
-        ncyBreadcrumb: {
-            label: 'Invites',
-        },
         resolve: {
             accountAdmin: ['Tenant', Tenant => {
                 return Tenant.getAccountAdmin().$promise;
@@ -24,8 +21,8 @@ function preferencesInviteConfig($stateProvider) {
 
 angular.module('app.preferences').controller('InviteUsersController', InviteUsersController);
 
-InviteUsersController.$inject = ['$state', 'HLForms', 'Settings', 'User', 'accountAdmin'];
-function InviteUsersController($state, HLForms, Settings, User, accountAdmin) {
+InviteUsersController.$inject = ['$state', 'HLForms', 'Settings', 'UserInvite', 'accountAdmin'];
+function InviteUsersController($state, HLForms, Settings, UserInvite, accountAdmin) {
     let vm = this;
 
     vm.invites = [{
@@ -37,8 +34,6 @@ function InviteUsersController($state, HLForms, Settings, User, accountAdmin) {
     vm.sendInvites = sendInvites;
     vm.addInvite = addInvite;
 
-    Settings.page.setAllTitles('custom', 'Users');
-
     function sendInvites(form) {
         HLForms.blockUI();
 
@@ -48,9 +43,9 @@ function InviteUsersController($state, HLForms, Settings, User, accountAdmin) {
             return !invite.is_deleted;
         });
 
-        User.invite({invites}).$promise.then(() => {
+        UserInvite.post({invites}).$promise.then(() => {
             toastr.success('The invitations were sent successfully', 'Done');
-            $state.go('base.preferences.company.users');
+            $state.go('base.preferences.company.users', {}, {reload: true});
         }, response => {
             _handleBadResponse(response, form);
         });

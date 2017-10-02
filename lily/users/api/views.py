@@ -29,8 +29,9 @@ from lily.utils.functions import post_intercom_event
 from lily.utils.functions import has_required_tier
 
 from .utils import get_info_text_for_device
-from .serializers import TeamSerializer, LilyUserSerializer, LilyUserTokenSerializer, SessionSerializer
-from ..models import Team, LilyUser, UserInfo
+from .serializers import (TeamSerializer, LilyUserSerializer, LilyUserTokenSerializer, SessionSerializer,
+                          UserInviteSerializer)
+from ..models import Team, LilyUser, UserInfo, UserInvite
 
 
 class TeamFilter(FilterSet):
@@ -62,6 +63,101 @@ class TeamViewSet(viewsets.ReadOnlyModelViewSet):
         filtered_queryset = self.filter_class(request.GET, queryset=queryset).qs
         serializer = self.serializer_class(filtered_queryset, context={'request': request}, many=True)
         return Response(serializer.data)
+
+
+class UserInviteViewSet(viewsets.ModelViewSet):
+    model = UserInvite
+    serializer_class = UserInviteSerializer
+    queryset = UserInvite.objects
+
+    def get_queryset(self):
+        queryset = self.model.objects.filter(tenant_id=self.request.user.tenant_id)
+        return queryset
+
+    def create(self, request):
+        protocol = self.request.is_secure() and 'https' or 'http'
+        date_string = date.today().strftime('%d%m%Y')
+        tenant_id = self.request.user.tenant_id
+
+        # Get the current site or empty string.
+        try:
+            current_site = Site.objects.get_current()
+        except Site.DoesNotExist:
+            current_site = ''
+
+        invites = request.data.get('invites')
+        errors = []
+
+        for invite in invites:
+            first_name = invite.get('first_name')
+            email = invite.get('email')
+            valid_email = True
+
+            try:
+                validate_email(email)
+            except:
+                valid_email = False
+
+            if not first_name or not email or not valid_email:
+                errors.append({
+                    'name': [_('Please enter a first name and valid email address')],
+                })
+
+        if errors:
+            return Response({'invites': errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        for invite in invites:
+            first_name = invite.get('first_name')
+            email = invite.get('email')
+
+            params = {
+                'first_name': first_name,
+                'email': email,
+            }
+
+            invite = UserInvite.objects.filter(**params).first()
+            # An invite was already sent, so delete the old one.
+            if invite:
+                invite.delete()
+
+            # We always want to create a new invite.
+            invite = UserInvite.objects.create(**params)
+
+            hash = sha256('%s-%s-%s-%s-%s' % (
+                tenant_id,
+                invite.id,
+                email,
+                date_string,
+                settings.SECRET_KEY
+            )).hexdigest()
+            invite_link = '%s://%s%s' % (protocol, current_site, reverse_lazy('invitation_accept', kwargs={
+                'tenant_id': tenant_id,
+                'first_name': first_name,
+                'email': email,
+                'date': date_string,
+                'hash': hash,
+            }))
+
+            # Email to the user.
+            send_templated_mail(
+                template_name='invitation',
+                recipient_list=[email],
+                context={
+                    'current_site': current_site,
+                    'inviter_full_name': self.request.user.full_name,
+                    'inviter_first_name': self.request.user.first_name,
+                    'recipient_first_name': first_name,
+                    'invite_link': invite_link,
+                },
+                from_email=settings.EMAIL_PERSONAL_HOST_USER,
+                auth_user=settings.EMAIL_PERSONAL_HOST_USER,
+                auth_password=settings.EMAIL_PERSONAL_HOST_PASSWORD
+            )
+
+        if len(invites):
+            post_intercom_event(event_name='invite-sent', user_id=self.request.user.id)
+
+            return Response(status=status.HTTP_200_OK)
 
 
 class LilyUserFilter(FilterSet):
@@ -186,78 +282,6 @@ class LilyUserViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(user, partial=True)
         return Response(serializer.data)
-
-    @list_route(methods=['POST'])
-    def invite(self, request, *args, **kwargs):
-        protocol = self.request.is_secure() and 'https' or 'http'
-        date_string = date.today().strftime('%d%m%Y')
-        tenant_id = self.request.user.tenant_id
-
-        # Get the current site or empty string.
-        try:
-            current_site = Site.objects.get_current()
-        except Site.DoesNotExist:
-            current_site = ''
-
-        invites = request.data.get('invites')
-        errors = []
-
-        for invite in invites:
-            first_name = invite.get('first_name')
-            email = invite.get('email_address')
-            valid_email = True
-
-            try:
-                validate_email(email)
-            except:
-                valid_email = False
-
-            if not first_name or not email or not valid_email:
-                errors.append({
-                    'name': [_('Please enter a first name and valid email address')],
-                })
-
-        if errors:
-            return Response({'invites': errors}, status=status.HTTP_400_BAD_REQUEST)
-
-        for invite in invites:
-            first_name = invite.get('first_name')
-            email = invite.get('email_address')
-
-            hash = sha256('%s-%s-%s-%s' % (
-                tenant_id,
-                email,
-                date_string,
-                settings.SECRET_KEY
-            )).hexdigest()
-            invite_link = '%s://%s%s' % (protocol, current_site, reverse_lazy('invitation_accept', kwargs={
-                'tenant_id': tenant_id,
-                'first_name': first_name,
-                'email': email,
-                'date': date_string,
-                'hash': hash,
-            }))
-
-            # Email to the user.
-            send_templated_mail(
-                template_name='invitation',
-                recipient_list=[email],
-                context={
-                    'current_site': current_site,
-                    'inviter_full_name': self.request.user.full_name,
-                    'inviter_first_name': self.request.user.first_name,
-                    'recipient_first_name': first_name,
-                    'invite_link': invite_link,
-                },
-                from_email=settings.EMAIL_PERSONAL_HOST_USER,
-                auth_user=settings.EMAIL_PERSONAL_HOST_USER,
-                auth_password=settings.EMAIL_PERSONAL_HOST_PASSWORD
-            )
-
-        if len(invites):
-            post_intercom_event(event_name='invite-sent', user_id=self.request.user.id)
-
-        return Response(status=status.HTTP_200_OK)
 
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()

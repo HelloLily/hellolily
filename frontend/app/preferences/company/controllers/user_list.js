@@ -11,21 +11,22 @@ function preferencesConfig($stateProvider) {
                 controllerAs: 'vm',
             },
         },
-        ncyBreadcrumb: {
-            label: 'Users',
+        resolve: {
+            invites: ['UserInvite', UserInvite => {
+                return UserInvite.query({}).$promise;
+            }],
         },
     });
 }
 
 angular.module('app.preferences').controller('PreferencesCompanyUserList', PreferencesCompanyUserList);
 
-PreferencesCompanyUserList.$inject = ['$compile', '$scope', '$templateCache', 'HLForms', 'LocalStorage', 'Settings',
-    'User', 'UserTeams'];
-function PreferencesCompanyUserList($compile, $scope, $templateCache, HLForms, LocalStorage, Settings, User, UserTeams) {
-    var vm = this;
-    var storage = new LocalStorage('userList');
-
-    Settings.page.setAllTitles('list', 'users');
+PreferencesCompanyUserList.$inject = ['$compile', '$scope', '$state', '$templateCache', 'HLForms', 'LocalStorage',
+    'Settings', 'User', 'UserInvite', 'UserTeams', 'invites'];
+function PreferencesCompanyUserList($compile, $scope, $state, $templateCache, HLForms, LocalStorage, Settings,
+    User, UserInvite, UserTeams, invites) {
+    let vm = this;
+    const storage = new LocalStorage('userList');
 
     vm.table = {
         page: 1,  // current page of pagination: 1-index
@@ -47,9 +48,13 @@ function PreferencesCompanyUserList($compile, $scope, $templateCache, HLForms, L
         searchQuery: storage.get('searchQuery', ''),
     };
     vm.alertMessages = messages.alerts.deactivateUser;
+    vm.removeInviteMessages = messages.alerts.removeUserInvite;
+    vm.invites = invites.results;
 
     vm.openTeamModal = openTeamModal;
     vm.toggleStatus = toggleStatus;
+    vm.resendInvite = resendInvite;
+    vm.removeInvite = removeInvite;
     vm.setSearchQuery = setSearchQuery;
 
     activate();
@@ -65,7 +70,7 @@ function PreferencesCompanyUserList($compile, $scope, $templateCache, HLForms, L
          * Watches the model info from the status filter that, when changed,
          * needs to store the info to the cache
          */
-        $scope.$watch('vm.table.statusFilter', function() {
+        $scope.$watch('vm.table.statusFilter', () => {
             _updateStatusFilter();
         });
 
@@ -78,7 +83,7 @@ function PreferencesCompanyUserList($compile, $scope, $templateCache, HLForms, L
             'vm.table.order.column',
             'vm.table.order.descending',
             'vm.table.searchQuery',
-        ], function() {
+        ], () => {
             _updateTableSettings();
             _updateUsers();
         });
@@ -87,7 +92,7 @@ function PreferencesCompanyUserList($compile, $scope, $templateCache, HLForms, L
          * Watches the model info from the table that, when changed,
          * needs to store the info to the cache
          */
-        $scope.$watchCollection('vm.table.visibility', function() {
+        $scope.$watchCollection('vm.table.visibility', () => {
             _updateTableSettings();
         });
     }
@@ -108,41 +113,45 @@ function PreferencesCompanyUserList($compile, $scope, $templateCache, HLForms, L
     }
 
     function _updateUsers() {
-        var ordering;
-        var filterQuery = '';
+        if (vm.table.statusFilter !== 2) {
+            const ordering = vm.table.order.descending ? '-' + vm.table.order.column : vm.table.order.column;
+            const filterQuery = vm.table.statusFilter !== undefined ? `is_active:${vm.table.statusFilter}` : '';
 
-        ordering = vm.table.order.descending ? '-' + vm.table.order.column : vm.table.order.column;
+            User.search({
+                'filterquery': filterQuery,
+                'page': vm.table.page - 1,
+                'size': vm.table.pageSize,
+                'sort': ordering,
+                'q': vm.table.searchQuery,
+            }, response => {
+                vm.table.items = response.objects;
+                vm.table.totalItems = response.total;
 
-        if (vm.table.statusFilter) {
-            filterQuery = 'is_active:' + vm.table.statusFilter;
-        }
+                if (filterQuery === '') {
+                    // 'All' filter selected, so count invites as well.
+                    vm.table.totalItems += vm.invites.length;
+                }
+            }, () => {
+                vm.table.items = [];
+                vm.table.totalItems = 0;
 
-        User.search({
-            'filterquery': filterQuery,
-            'page': vm.table.page - 1,
-            'size': vm.table.pageSize,
-            'sort': ordering,
-            'q': vm.table.searchQuery,
-        }, function(response) {
-            vm.table.items = response.objects;
-            vm.table.totalItems = response.total;
-        }, function() {
+                toastr.error('Could not load the user list, please try again later.', 'Error');
+            });
+        } else {
             vm.table.items = [];
-            vm.table.totalItems = 0;
-
-            toastr.error('Could not load the user list, please try again later.', 'Error');
-        });
+            vm.table.totalItems = vm.invites.length;
+        }
     }
 
     function openTeamModal(user) {
-        UserTeams.query().$promise.then(function(teamResponse) {
+        UserTeams.query().$promise.then(teamResponse => {
             vm.teamList = teamResponse.results;
             vm.user = user;
 
             // Loop through the list of teams to check if a user is in a team
             // and set the team to selected.
-            vm.teamList.forEach(function(team) {
-                team.users.forEach(function(teamUser) {
+            vm.teamList.forEach(team => {
+                team.users.forEach(teamUser => {
                     if (teamUser.id === vm.user.id) {
                         team.selected = true;
                     }
@@ -154,16 +163,17 @@ function PreferencesCompanyUserList($compile, $scope, $templateCache, HLForms, L
                 html: $compile($templateCache.get('preferences/company/controllers/user_teams_modal.html'))($scope),
                 showCancelButton: true,
                 showCloseButton: true,
-            }).then(function(isConfirm) {
-                var selectedTeams = [];
-                var args = {
+            }).then(isConfirm => {
+                const form = '[name="userTeamForm"]';
+
+                let selectedTeams = [];
+                let args = {
                     id: user.id,
                 };
-                var form = '[name="userTeamForm"]';
 
                 if (isConfirm) {
                     // Loop over teamList to extract the selected accounts.
-                    vm.teamList.forEach(function(team) {
+                    vm.teamList.forEach(team => {
                         if (team.selected) {
                             selectedTeams.push(team.id);
                         }
@@ -171,9 +181,9 @@ function PreferencesCompanyUserList($compile, $scope, $templateCache, HLForms, L
 
                     args.teams = selectedTeams;
 
-                    User.patch(args).$promise.then(function() {
+                    User.patch(args).$promise.then(() => {
                         toastr.success('I\'ve updated the users\' teams for you!', 'Done');
-                    }, function(response) {
+                    }, response => {
                         HLForms.setErrors(form, response.data);
                         toastr.error('Uh oh, there seems to be a problem', 'Oops!');
                     });
@@ -183,7 +193,7 @@ function PreferencesCompanyUserList($compile, $scope, $templateCache, HLForms, L
     }
 
     function toggleStatus(user) {
-        var index;
+        let index;
 
         if (user.is_active) {
             user.is_active = !user.is_active;
@@ -215,6 +225,27 @@ function PreferencesCompanyUserList($compile, $scope, $templateCache, HLForms, L
                 vm.table.items.splice(index, 1);
             }
         }
+    }
+
+    function resendInvite(invite) {
+        swal({
+            title: messages.alerts.resendUserInvite.title,
+            html: sprintf(messages.alerts.resendUserInvite.confirmText, {email: invite.email}),
+            confirmButtonText: messages.alerts.resendUserInvite.confirmButtonText,
+            showCancelButton: true,
+            showCloseButton: true,
+        }).then(isConfirm => {
+            if (isConfirm) {
+                UserInvite.post({invites: [invite]}).$promise.then(() => {
+                    toastr.success(messages.alerts.resendUserInvite.success, 'Done');
+                    $state.reload();
+                });
+            }
+        }).done();
+    }
+
+    function removeInvite() {
+        $state.reload();
     }
 
     function setSearchQuery(queryString) {

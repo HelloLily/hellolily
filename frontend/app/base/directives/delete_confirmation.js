@@ -25,7 +25,7 @@ function deleteConfirmation() {
 
 DeleteConfirmationController.$inject = ['$state', 'HLResource', 'Settings'];
 function DeleteConfirmationController($state, HLResource, Settings) {
-    var vm = this;
+    let vm = this;
 
     vm.openConfirmationModal = openConfirmationModal;
 
@@ -48,13 +48,13 @@ function DeleteConfirmationController($state, HLResource, Settings) {
 
         if (vm.messageObject) {
             vm.messages = {
-                'confirmTitle': vm.messageObject.confirmTitle || messages.alerts.delete.confirmTitle,
-                'confirmText': vm.messageObject.confirmText || messages.alerts.delete.confirmText,
-                'confirmButtonText': vm.messageObject.confirmButtonText || messages.alerts.delete.confirmButtonText,
-                'errorTitle': vm.messageObject.errorTitle || messages.alerts.general.errorTitle,
-                'errorText': vm.messageObject.errorText || messages.alerts.general.errorText,
-                'successTitle': vm.messageObject.successTitle || messages.alerts.delete.successTitle,
-                'successText': vm.messageObject.successText || messages.alerts.delete.successText,
+                confirmTitle: vm.messageObject.confirmTitle || messages.alerts.delete.confirmTitle,
+                confirmText: vm.messageObject.confirmText || messages.alerts.delete.confirmText,
+                confirmButtonText: vm.messageObject.confirmButtonText || messages.alerts.delete.confirmButtonText,
+                errorTitle: vm.messageObject.errorTitle || messages.alerts.general.errorTitle,
+                errorText: vm.messageObject.errorText || messages.alerts.general.errorText,
+                successTitle: vm.messageObject.successTitle || messages.alerts.delete.successTitle,
+                successText: vm.messageObject.successText || messages.alerts.delete.successText,
             };
         } else {
             vm.messages = messages.alerts.delete;
@@ -62,7 +62,7 @@ function DeleteConfirmationController($state, HLResource, Settings) {
     }
 
     function openConfirmationModal() {
-        var name = '';
+        let name = '';
 
         if (vm.displayField) {
             name = vm.object[vm.displayField];
@@ -79,13 +79,13 @@ function DeleteConfirmationController($state, HLResource, Settings) {
             showCancelButton: true,
             confirmButtonColor: '#f3565d',
             confirmButtonText: vm.messages.confirmButtonText,
-            preConfirm: function() {
+            preConfirm: () => {
                 swal.enableLoading();
-                return new Promise(function(resolve) {
-                    HLResource.delete(vm.model, vm.object).then(function() {
+                return new Promise(resolve => {
+                    HLResource.delete(vm.model, vm.object).then(() => {
                         // Delete was successful, so continue.
                         resolve();
-                    }, function(error) {
+                    }, error => {
                         // Otherwise show error alert.
                         swal({
                             title: vm.messages.errorTitle,
@@ -95,7 +95,7 @@ function DeleteConfirmationController($state, HLResource, Settings) {
                     });
                 });
             },
-        }).then(function(isConfirm) {
+        }).then(isConfirm => {
             if (isConfirm) {
                 // In certain cases we want to call a function of another controller.
                 if (vm.callback) {

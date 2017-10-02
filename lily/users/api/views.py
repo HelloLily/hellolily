@@ -319,7 +319,8 @@ class LilyUserViewSet(viewsets.ModelViewSet):
         # Don't call super, since that only fires another query using self.get_object().
         self.perform_destroy(user_to_delete)
 
-        tenant.billing.update_subscription(-1)
+        if settings.BILLING_ENABLED:
+            tenant.billing.update_subscription(-1)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 

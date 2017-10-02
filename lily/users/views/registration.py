@@ -378,8 +378,9 @@ class AcceptInvitationView(FormView):
         invite.accepted = True
         invite.save()
 
-        # Update the current subscription.
-        user.tenant.billing.update_subscription(1)
+        if settings.BILLING_ENABLED:
+            # Update the current subscription.
+            user.tenant.billing.update_subscription(1)
 
         if tenant.lilyuser_set.count() == 1:
             # Add to admin group.

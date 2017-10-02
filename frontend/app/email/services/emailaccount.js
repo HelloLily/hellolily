@@ -7,8 +7,8 @@ function EmailAccount($resource) {
         null,
         {
             get: {
-                transformResponse: function(data) {
-                    var account = angular.fromJson(data);
+                transformResponse: data => {
+                    let account = angular.fromJson(data);
 
                     account.shared_email_configs = _emailAccount.filterEmailConfigs(account);
 
@@ -17,11 +17,11 @@ function EmailAccount($resource) {
             },
             query: {
                 isArray: false,
-                transformResponse: function(data) {
-                    var accounts = angular.fromJson(data);
+                transformResponse: data => {
+                    let accounts = angular.fromJson(data);
 
                     if (accounts.results && accounts.results.length) {
-                        accounts.results.map((account) => {
+                        accounts.results.map(account => {
                             account.is_public = (account.privacy === _emailAccount.PUBLIC);
                             account.shared_email_configs = _emailAccount.filterEmailConfigs(account);
                         });
@@ -77,12 +77,14 @@ function EmailAccount($resource) {
     function filterEmailConfigs(account) {
         var configs = [];
 
-        // Filter out the email configuration for the user's own account.
-        account.shared_email_configs.map((config) => {
-            if (account.owner.id !== config.user) {
-                configs.push(config);
-            }
-        });
+        if (account.shared_email_configs) {
+            // Filter out the email configuration for the user's own account.
+            account.shared_email_configs.map(config => {
+                if (account.owner.id !== config.user) {
+                    configs.push(config);
+                }
+            });
+        }
 
         return configs;
     }

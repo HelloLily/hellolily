@@ -19,6 +19,7 @@ from microsoft_mail_client.errors import (
 # TODO: :param refere to type Microsoft.OutlookServices.xyz
 # TODO: provide example paramaters (like update_auto_reply)
 # TODO: verify that json returned by batch structered the same as none batch response.
+# TODO: verify python 2/3 compatibility
 
 
 def build(version, user_id, credentials=None):
@@ -27,7 +28,7 @@ def build(version, user_id, credentials=None):
 
     :param version: api version.
     :param user_id: 'me' or an email address.
-    :param credentials: oauth credentials.
+    :param credentials: OAuth2Credentials.
     :return: api service object.
     """
     if version not in SUPPORTED_API_VERSIONS:
@@ -47,7 +48,7 @@ class Resource(object):
 
         :param version: api version.
         :param user_id: 'me' or an email address.
-        :param access_token: oauth access token.
+        :param access_token: oauth access_token.
         """
         # TODO: Handle credentials=None or don't allow.
 

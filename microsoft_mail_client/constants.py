@@ -1,13 +1,34 @@
 API_VERSION_V2 = 'v2.0'
 SUPPORTED_API_VERSIONS = [API_VERSION_V2]
 
-# Default / Sytstem folders.
-FOLDER_INBOX = 'Inbox'
-FOLDER_DRAFTS = 'Drafts'
-FOLDER_SENT_ITEMS = 'SentItems'
-FOLDER_DELETED_ITEMS = 'DeletedItems'
-FOLDER_ALL_ITEMS = 'AllItems'
-SYSTEM_FOLDERS = [FOLDER_INBOX, FOLDER_DRAFTS, FOLDER_SENT_ITEMS, FOLDER_DELETED_ITEMS, FOLDER_ALL_ITEMS]
+# Well-known folders indentified by id.
+FOLDER_INBOX_ID = 'Inbox'
+FOLDER_DRAFTS_ID = 'Drafts'
+FOLDER_SENT_ITEMS_ID = 'SentItems'
+FOLDER_DELETED_ITEMS_ID = 'DeletedItems'
+WELL_KNOWN_FOLDER_IDS = [FOLDER_INBOX_ID, FOLDER_DRAFTS_ID, FOLDER_SENT_ITEMS_ID, FOLDER_DELETED_ITEMS_ID]
+
+# Well-known folders indentified by display name.
+FOLDER_INBOX_NAME = 'Inbox'
+FOLDER_DRAFTS_NAME = 'Drafts'
+FOLDER_SENT_ITEMS_NAME = 'Sent Items'
+FOLDER_DELETED_ITEMS_NAME = 'Deleted Items'
+WELL_KNOWN_FOLDER_NAMES = [FOLDER_INBOX_NAME, FOLDER_DRAFTS_NAME, FOLDER_SENT_ITEMS_NAME, FOLDER_DELETED_ITEMS_NAME]
+
+# Other system folders indentified by id.
+FOLDER_ARCHIVE_ID = 'Archive'  # Not found in the documentation, accepted by API.
+FOLDER_JUNK_ID = 'JunkEmail'  # Not found in the documentation, accepted by API.
+FOLDER_OUTBOX_ID = 'Outbox'  # Not found in the documentation.
+FOLDER_ALL_ITEMS_ID = 'AllItems'  # Not found in the documentation.
+SYSTEM_FOLDERS_IDS = WELL_KNOWN_FOLDER_IDS + [FOLDER_ALL_ITEMS_ID, FOLDER_ARCHIVE_ID, FOLDER_JUNK_ID, FOLDER_OUTBOX_ID]
+
+# Other system folders indentified by display name.
+FOLDER_ARCHIVE_NAME = 'Archive'
+FOLDER_JUNK_NAME = 'Junk Email'
+FOLDER_OUTBOX_NAME = 'Outbox'
+FOLDER_ALL_ITEMS_NAME = 'All Items'
+SYSTEM_FOLDERS_NAMES = WELL_KNOWN_FOLDER_NAMES + [FOLDER_ARCHIVE_NAME, FOLDER_JUNK_NAME, FOLDER_OUTBOX_NAME,
+                                                  FOLDER_ALL_ITEMS_NAME]
 
 # Writeble properties.
 WP_ATTACHMENT = 'Attachments'

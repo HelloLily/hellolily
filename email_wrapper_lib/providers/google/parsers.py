@@ -87,7 +87,7 @@ def parse_message_list(data, messages, message_resource):
     message_list = [message.get('id') for message in data.get('messages', [])]
     messages['messages'] = {}
 
-    # Because google only gives message ids, we need to do a second batch for the bodies.
+    # Because Google only gives message ids, we need to do a second batch for the bodies.
     for remote_id in message_list:
         messages['messages'][remote_id].append(message_resource.get(remote_id))
 
@@ -107,7 +107,7 @@ def parse_message(data, message):
         'remote_id': data['id'],
         'thread_id': data['threadId'],
         'history_token': data['historyId'],
-        'folder_ids': folder_ids,
+        'folder_ids': folder_ids,  # TODO: Should the key not be called label_ids?
         'snippet': data['snippet'],
         'is_read': 'UNREAD' not in folder_ids,
         'is_starred': 'STARRED' in folder_ids,

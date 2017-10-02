@@ -47,7 +47,7 @@ class EmailAccountManager(object):
         self.account = account
 
         self.provider = registry[account.provider_id]
-        self.connector = self.provider.connector(account.credentials, account.user_id)
+        self.connector = self.provider.connector(account.user_id, account.credentials)
 
     def start(self):
         self._old_status = self.account.status
@@ -283,7 +283,7 @@ class EmailAccountManager(object):
             recipients = self.save_recipients(recipients)
 
             bulk = []
-            # Loop over the recipients dict, first get the remote id and the message info (dict with to, from, cc, ...).
+            # Loop over the recipients dict, first get the remote id and the message info (dict with to, from, cc, ..).
             for remote_id, recipient_dict in recipients.items():
                 # Get the actual id of the db message object out of the messages list.
                 message_id = messages[remote_id].pk
@@ -327,10 +327,6 @@ class EmailAccountManager(object):
             account=self.account,
             remote_id__in=remote_ids
         ).delete()
-
-
-
-
 
     # def add_labels_to_message(self, remote_id, data):
     #     pass

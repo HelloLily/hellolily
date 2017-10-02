@@ -19,8 +19,9 @@ class GoogleLabelsResource(GoogleResource):
     def list(self):
         labels = {}
 
-        # Because google only gives message ids, we need to do a second batch for the bodies.
+        # Because Google only gives message ids, we need to do a second batch for the bodies.
         second_batch = self.service.new_batch_http_request()
+        # TODO: labels_resource because it is also GoogleLabelsResource ? (Nitpicking I know)
         label_resource = GoogleLabelsResource(self.service, self.user_id, second_batch)
 
         self.batch.add(

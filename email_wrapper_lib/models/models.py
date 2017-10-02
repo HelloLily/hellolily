@@ -166,6 +166,7 @@ class EmailMessage(models.Model):
         verbose_name=_('Subject'),
         max_length=255
     )
+    # TODO: what the meaning of this date field? creation date of the message in our db, or remote "ReceivedDateTime"?
     date = models.DateTimeField(
         verbose_name=_('Date')
     )

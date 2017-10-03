@@ -20,9 +20,9 @@ function preferencesConfig($stateProvider) {
 
 angular.module('app.preferences').controller('PreferencesEmailTemplatesList', PreferencesEmailTemplatesList);
 
-PreferencesEmailTemplatesList.$inject = ['$compile', '$scope', '$state', '$timeout', '$templateCache', 'EmailAccount',
+PreferencesEmailTemplatesList.$inject = ['$compile', '$scope', '$state', '$templateCache', 'EmailAccount',
     'EmailTemplate', 'EmailTemplateFolder'];
-function PreferencesEmailTemplatesList($compile, $scope, $state, $timeout, $templateCache, EmailAccount,
+function PreferencesEmailTemplatesList($compile, $scope, $state, $templateCache, EmailAccount,
     EmailTemplate, EmailTemplateFolder) {
     let vm = this;
 

@@ -6,20 +6,8 @@
         </a>
 
         <div class="due-date-filter-container">
-            <label class="filter-group-option" ng-model="vm.dueDateFilter" uib-btn-radio="4">
-                Expired
-            </label>
-            <label class="filter-group-option" ng-model="vm.dueDateFilter" uib-btn-radio="1">
-                Today
-            </label>
-            <label class="filter-group-option" ng-model="vm.dueDateFilter" uib-btn-radio="2">
-                Tomorrow
-            </label>
-            <label class="filter-group-option" ng-model="vm.dueDateFilter" uib-btn-radio="3">
-                Next 6 days
-            </label>
-            <label class="filter-group-option" ng-model="vm.dueDateFilter" uib-btn-radio="0">
-                All
+            <label class="filter-group-option margin-left-5" ng-repeat="filter in vm.filterList" ng-model="filter.selected" uib-btn-checkbox>
+                {{ filter.name }}
             </label>
         </div>
     </li>

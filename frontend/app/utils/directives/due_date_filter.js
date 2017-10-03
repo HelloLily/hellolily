@@ -5,7 +5,7 @@ function dueDateFilter() {
         restrict: 'E',
         scope: {
             filterStore: '=',
-            filterField: '=',
+            filterField: '@',
             type: '=',
         },
         templateUrl: 'utils/directives/due_date_filter.html',
@@ -15,21 +15,64 @@ function dueDateFilter() {
     };
 }
 
-DueDateFilterWidgetController.$inject = ['LocalStorage', '$scope'];
-function DueDateFilterWidgetController(LocalStorage, $scope) {
-    var vm = this;
-    var storage = new LocalStorage(vm.type);
+DueDateFilterWidgetController.$inject = ['$scope', '$timeout', 'HLFilters', 'LocalStorage'];
+function DueDateFilterWidgetController($scope, $timeout, HLFilters, LocalStorage) {
+    let vm = this;
+    const storage = new LocalStorage(vm.type);
 
     // Get the stored value or set to 'All' if it doesn't exist
-    vm.dueDateFilter = storage.get('dueDateFilter', 0);
+    vm.storedFilterList = storage.get('filterListSelected', null);
     vm.openDueDateFilter = openDueDateFilter;
+    vm.filterList = [];
 
-    activate();
+    $timeout(() => {
+        activate();
+    }, 100);
 
     ////////////
 
     function activate() {
-        _watchDueDateFilter();
+        const filterField = vm.filterField ? vm.filterField : 'expires';
+
+        // Use the value from storage first.
+        // (Because it is faster; loading the list uses AJAX requests).
+        if (vm.storedFilterList) {
+            vm.filterList = vm.storedFilterList;
+        }
+
+        // But we still update the list afterwards (in case a filter was changed)
+        const filterList = [
+            {
+                name: 'Expired',
+                value: `${filterField}: [* TO ${moment().subtract(1, 'd').format('YYYY-MM-DD')}]`,
+                selected: false,
+            },
+            {
+                name: 'Today',
+                value: `${filterField}: ${moment().format('YYYY-MM-DD')}`,
+                selected: false,
+            },
+            {
+                name: 'Tomorrow',
+                value: `${filterField}: ${moment().add(1, 'd').format('YYYY-MM-DD')}`,
+                selected: false,
+            },
+            {
+                name: 'Next 7 days',
+                value: `${filterField}: [${moment().format('YYYY-MM-DD')} TO ${moment().add(7, 'd').format('YYYY-MM-DD')}]`,
+                selected: false,
+            },
+            {
+                name: 'Later',
+                value: `${filterField}: [${moment().add(7, 'd').format('YYYY-MM-DD')} TO *]`,
+                selected: false,
+            },
+        ];
+
+        // Merge previous stored selection with new filters.
+        HLFilters.getStoredSelections(filterList, vm.storedFilterList);
+
+        vm.filterList = filterList;
     }
 
     // Open Due Date Filter for right element. This function gets used
@@ -38,44 +81,20 @@ function DueDateFilterWidgetController(LocalStorage, $scope) {
         angular.element($event.srcElement).next().toggleClass('is-open');
     }
 
-    function _watchDueDateFilter() {
-        $scope.$watch('vm.dueDateFilter', function() {
-            var today;
-            var tomorrow;
-            var week;
+    $scope.$watch('vm.filterList', () => {
+        // Find element with .is-open class to close when clicking a filter.
+        angular.element('.due-date-filter-container.is-open').removeClass('is-open');
 
-            var filter = '';
-            var filterField = vm.filterField ? vm.filterField : 'expires';
-            filterField += ': ';
+        let filterList = [];
 
-            // Find element with .is-open class to close when clicking a filter.
-            angular.element('.due-date-filter-container.is-open').removeClass('is-open');
-
-            switch (vm.dueDateFilter) {
-                default:
-                case 0:
-                    filter = '';
-                    break;
-                case 1:
-                    today = moment().format('YYYY-MM-DD');
-                    filter = filterField + today;
-                    break;
-                case 2:
-                    tomorrow = moment().add(1, 'd').format('YYYY-MM-DD');
-                    filter = filterField + tomorrow;
-                    break;
-                case 3:
-                    today = moment().format('YYYY-MM-DD');
-                    week = moment().add(6, 'd').format('YYYY-MM-DD');
-                    filter = filterField + '[' + today + ' TO ' + week + ']';
-                    break;
-                case 4:
-                    filter = filterField + '[* TO ' + moment().subtract(1, 'd').format('YYYY-MM-DD') + ']';
-                    break;
+        vm.filterList.forEach(filter => {
+            if (filter.selected) {
+                filterList.push(filter.value);
             }
-
-            storage.put('dueDateFilter', vm.dueDateFilter);
-            vm.filterStore = filter;
         });
-    }
+
+        vm.filterStore = filterList.length ? `(${filterList.join(' OR ')})` : '';
+
+        storage.put('filterListSelected', vm.filterList);
+    }, true);
 }

@@ -20,7 +20,7 @@ angular.module('app.contacts').controller('ContactListController', ContactListCo
 
 ContactListController.$inject = ['$scope', '$window', 'Settings', 'Account', 'Contact', 'HLUtils', 'LocalStorage'];
 function ContactListController($scope, $window, Settings, Account, Contact, HLUtils, LocalStorage) {
-    var storage = new LocalStorage('contactList');
+    const storage = new LocalStorage('contactList');
 
     Settings.page.setAllTitles('list', 'contacts');
 
@@ -54,8 +54,8 @@ function ContactListController($scope, $window, Settings, Account, Contact, HLUt
         showEmptyState();
     }
 
-    $scope.removeFromList = function(contact) {
-        var index = $scope.table.items.indexOf(contact);
+    $scope.removeFromList = contact => {
+        const index = $scope.table.items.indexOf(contact);
         $scope.table.items.splice(index, 1);
         $scope.$apply();
     };
@@ -75,10 +75,11 @@ function ContactListController($scope, $window, Settings, Account, Contact, HLUt
      * Updates table.items and table.totalItems
      */
     function updateContacts() {
-        let blockTarget = '#tableBlockTarget';
+        const blockTarget = '#tableBlockTarget';
         HLUtils.blockUI(blockTarget, true);
 
         let sort = $scope.table.order.column;
+
         if ($scope.table.order.descending) {
             sort = '-'.concat(sort);
         }
@@ -88,13 +89,13 @@ function ContactListController($scope, $window, Settings, Account, Contact, HLUt
             page: $scope.table.page - 1,
             size: $scope.table.pageSize,
             sort: sort,
-        }, function(data) {
+        }, data => {
             $scope.table.items = data.objects;
 
-            $scope.table.items.forEach(function(contact) {
-                if (contact.accounts) {
-                    contact.accounts.forEach(function(account) {
-                        Account.get({id: account.id}, {cache: true}).$promise.then(function(accountData) {
+            $scope.table.items.forEach(contact => {
+                if (contact.active_at && contact.accounts) {
+                    contact.accounts.forEach(account => {
+                        Account.get({id: account.id}, {cache: true}).$promise.then(accountData => {
                             account.primary_email_address = accountData.primary_email_address;
                             account.phone_numbers = accountData.phone_numbers;
                             account.is_active = (contact.active_at.indexOf(account.id) !== -1);
@@ -118,7 +119,7 @@ function ContactListController($scope, $window, Settings, Account, Contact, HLUt
         'table.order.column',
         'table.order.descending',
         'table.filter',
-    ], function() {
+    ], () => {
         updateTableSettings();
         updateContacts();
     });
@@ -127,7 +128,7 @@ function ContactListController($scope, $window, Settings, Account, Contact, HLUt
      * Watches the model info from the table that, when changed,
      * needs to store the info to the cache
      */
-    $scope.$watchCollection('table.visibility', function() {
+    $scope.$watchCollection('table.visibility', () => {
         updateTableSettings();
     });
 
@@ -136,7 +137,7 @@ function ContactListController($scope, $window, Settings, Account, Contact, HLUt
      *
      * @param queryString string: string that will be set as the new filter on the table
      */
-    $scope.setFilter = function(queryString) {
+    $scope.setFilter = queryString => {
         $scope.table.filter = queryString;
     };
 
@@ -144,7 +145,7 @@ function ContactListController($scope, $window, Settings, Account, Contact, HLUt
      * Count the total amount of contacts used to see whether or not the empty state should be shown.
      */
     function showEmptyState() {
-        Contact.query({}, function(data) {
+        Contact.query({}, data => {
             if (data.pagination.total === 1) {
                 $scope.showEmptyState = true;
             }
@@ -154,11 +155,10 @@ function ContactListController($scope, $window, Settings, Account, Contact, HLUt
     /**
      * exportToCsv() creates an export link and opens it
      */
-    $scope.exportToCsv = function() {
-        var getParams = '';
-
+    $scope.exportToCsv = () => {
         // Setup url.
-        var url = '/contacts/export/';
+        let url = '/contacts/export/';
+        let getParams = '';
 
         // If there is a filter, add it.
         if ($scope.table.filter) {
@@ -166,7 +166,7 @@ function ContactListController($scope, $window, Settings, Account, Contact, HLUt
         }
 
         // Add all visible columns.
-        angular.forEach($scope.table.visibility, function(value, key) {
+        angular.forEach($scope.table.visibility, (value, key) => {
             if (value) {
                 getParams += '&export_columns=' + key;
             }

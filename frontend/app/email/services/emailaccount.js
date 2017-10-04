@@ -77,7 +77,7 @@ function EmailAccount($resource) {
     function filterEmailConfigs(account) {
         var configs = [];
 
-        if (account.shared_email_configs) {
+        if (account.shared_email_configs && account.shared_email_configs.length) {
             // Filter out the email configuration for the user's own account.
             account.shared_email_configs.map(config => {
                 if (account.owner.id !== config.user) {

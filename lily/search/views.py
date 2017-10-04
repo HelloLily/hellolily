@@ -435,6 +435,7 @@ class InternalNumberSearchView(LoginRequiredMixin, View):
 
         user = {}
         contact = None
+        assignee = None
         accounts = []
 
         if hits:

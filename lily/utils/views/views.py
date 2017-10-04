@@ -240,6 +240,7 @@ class BaseView(LoginRequiredMixin, TemplateView):
             'INTERCOM_APP_ID': settings.INTERCOM_APP_ID,
             'SENTRY_FRONTEND_PUBLIC_DSN': settings.SENTRY_FRONTEND_PUBLIC_DSN,
             'BILLING_ENABLED': settings.BILLING_ENABLED,
+            'SLACK_LILY_CLIENT_ID': settings.SLACK_LILY_CLIENT_ID,
             'DEBUG': settings.DEBUG,
         })
 

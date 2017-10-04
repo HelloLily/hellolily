@@ -1,11 +1,18 @@
 import anyjson
+import re
+import requests
+import time
 import urllib
 from datetime import datetime, timedelta
+from hashlib import sha256
 
+from django.conf import settings
 from django.contrib import messages
+from django.contrib.contenttypes.models import ContentType
 from django.db import transaction, IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.utils.translation import ugettext_lazy as _
+from django.utils.text import Truncator
 from oauth2client.contrib.django_orm import Storage
 from rest_framework import status
 from rest_framework.parsers import FormParser, JSONParser
@@ -17,11 +24,12 @@ from lily.contacts.models import Contact
 from lily.deals.models import Deal, DealStatus, DealNextStep
 from lily.notes.models import Note
 from lily.utils.functions import send_get_request
+from lily.utils.models.models import EmailAddress
 from lily.utils.api.permissions import IsAccountAdmin, IsFeatureAvailable
 
 from .serializers import DocumentSerializer, DocumentEventSerializer
 from ..credentials import get_access_token, get_credentials, put_credentials, LilyOAuthCredentials
-from ..models import Document, IntegrationCredentials, IntegrationDetails, IntegrationType, DocumentEvent
+from ..models import Document, IntegrationCredentials, IntegrationDetails, SlackDetails, IntegrationType, DocumentEvent
 from ..tasks import import_moneybird_contacts
 
 
@@ -290,8 +298,15 @@ class IntegrationAuth(APIView):
         """
         Get the authentication URL for the given integration type.
         """
-        client_id = request.POST.get('client_id')
-        client_secret = request.POST.get('client_secret')
+        is_slack = integration_type == 'slack'
+
+        if is_slack:
+            client_id = settings.SLACK_LILY_CLIENT_ID
+            client_secret = settings.SLACK_LILY_CLIENT_SECRET
+        else:
+            client_id = request.POST.get('client_id')
+            client_secret = request.POST.get('client_secret')
+
         integration_context = request.POST.get('integration_context')
 
         if integration_context:
@@ -323,7 +338,18 @@ class IntegrationAuth(APIView):
             'response_type': 'code',
         }
 
-        details, created = IntegrationDetails.objects.get_or_create(type=integration_type)
+        if is_slack:
+            # Save a unique identifier so we can verify the follow up request from Slack is legit.
+            state = sha256('%s-%s' % (
+                self.request.user.id,
+                settings.SECRET_KEY
+            )).hexdigest()
+
+            params.update({'state': state})
+
+            details, created = SlackDetails.objects.get_or_create(type=integration_type)
+        else:
+            details, created = IntegrationDetails.objects.get_or_create(type=integration_type)
 
         storage = Storage(IntegrationCredentials, 'details', details, 'credentials')
 
@@ -348,6 +374,7 @@ class IntegrationAuth(APIView):
         """
         code = str(request.GET.get('code'))
         error = request.GET.get('error')
+        is_slack = integration_type == 'slack'
 
         if error:
             messages.error(
@@ -357,6 +384,17 @@ class IntegrationAuth(APIView):
 
             return HttpResponseRedirect('/#/preferences/admin/integrations/%s' % integration_type)
 
+        if is_slack:
+            state = request.GET.get('state')
+
+            generated_state = sha256('%s-%s' % (
+                self.request.user.id,
+                settings.SECRET_KEY
+            )).hexdigest()
+
+            if state != generated_state:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+
         credentials = get_credentials(integration_type)
 
         if not credentials:
@@ -365,9 +403,257 @@ class IntegrationAuth(APIView):
 
         get_access_token(credentials, integration_type, code)
 
+        if is_slack:
+            message = _('Lily Slack app has been installed successfully.')
+        else:
+            message = _('Your credentials have been saved.')
+
         messages.success(
             self.request._request,  # add_message needs an HttpRequest object
-            _('Your credentials have been saved.')
+            message,
         )
 
         return HttpResponseRedirect('/#/preferences/admin/integrations')
+
+
+class SlackEventCatch(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def convert_to_string(self, data):
+        """
+        Slack doesn't like unicode. So we want to loop through all the data
+        and convert to string if needed.
+        """
+        for key in data:
+            value = data[key]
+
+            if isinstance(value, list):
+                for item in value:
+                    item = self.convert_to_string(item)
+
+                data[key] = value
+            elif isinstance(value, dict):
+                data[key] = self.convert_to_string(value)
+            else:
+                try:
+                    data[key] = str(value)
+                except UnicodeEncodeError:
+                    data[key] = str(value.encode('ascii', 'ignore').decode('ascii'))
+
+        return data
+
+    def format_slack_date(self, date):
+        """
+        Convert the given date object to a string which Slack accepts.
+        """
+        date_format = '%b. %d %Y'
+        timestamp = int(time.mktime(date.timetuple()))
+        fallback = date.strftime(date_format)
+
+        date = '<!date^%s^{date_short}|%s>' % (timestamp, fallback)
+
+        return date
+
+    def get_author_name(self, obj):
+        author_name = ''
+
+        if obj.contact:
+            author_name += obj.contact.full_name
+
+        if obj.contact and obj.account:
+            author_name += ' at '
+
+        if obj.account:
+            author_name += obj.account.name
+
+        return author_name
+
+    def get_data(self, url, details):
+        data = {}
+        extra_data = {}
+        # Check if unfurling is supported for the given URL.
+        matches = re.search('((case|deal|account|contact)(?:s))\/(\d+)', url)
+
+        if matches:
+            app_label = matches.group(1)
+            model = matches.group(2)
+            obj_id = matches.group(3)
+
+            content_type = ContentType.objects.get(app_label=app_label, model=model)
+
+            try:
+                obj = content_type.get_object_for_this_type(pk=obj_id, tenant=details.tenant)
+            except:
+                return None
+
+            fields = []
+
+            if model == 'case' or model == 'deal':
+                extra_data = {
+                    'author_name': self.get_author_name(obj),
+                    'text': Truncator(obj.description).chars(250),
+                    'ts': int(time.mktime(obj.created.timetuple()))
+                }
+            if model == 'account' or model == 'contact':
+                email_addresses = obj.email_addresses.exclude(status=EmailAddress.INACTIVE_STATUS)
+                email_string = '\n'.join([email.email_address for email in email_addresses])
+
+                phone_numbers = obj.phone_numbers.all()
+                phone_string = '\n'.join([phone.number for phone in phone_numbers])
+
+                fields = [
+                    {
+                        'title': _('Email addresses'),
+                        'value': email_string or 'None',
+                        'short': True
+                    },
+                    {
+                        'title': _('Phone numbers'),
+                        'value': phone_string or 'None',
+                        'short': True
+                    },
+                ]
+
+            if model == 'case':
+                title = obj.subject
+
+                fields = [
+                    {
+                        'title': _('Priority & type'),
+                        'value': '%s, %s' % (obj.get_priority_display(), obj.type.name),
+                        'short': True
+                    },
+                    {
+                        'title': _('Status'),
+                        'value': obj.status.name,
+                        'short': True
+                    },
+                    {
+                        'title': _('Expiry date'),
+                        'value': self.format_slack_date(obj.expires),
+                        'short': True
+                    }
+                ]
+
+                COLORS = ['#a0e0d4', '#97d5fc', '#ffd191', '#ff7097']
+
+                extra_data.update({'color': COLORS[obj.priority]})
+            elif model == 'deal':
+                title = obj.name
+
+                fields = [
+                    {
+                        'title': _('Status'),
+                        'value': obj.status.name,
+                        'short': True
+                    },
+                    {
+                        'title': _('Next step'),
+                        'value': obj.next_step.name,
+                        'short': True
+                    },
+                    {
+                        'title': _('Next step date'),
+                        'value': self.format_slack_date(obj.next_step_date),
+                        'short': True
+                    },
+                    {
+                        'title': _('One-time costs'),
+                        'value': obj.amount_once,
+                        'short': True
+                    },
+                    {
+                        'title': _('Recurring costs'),
+                        'value': obj.amount_recurring,
+                        'short': True
+                    },
+                ]
+            elif model == 'account':
+                title = obj.name
+            elif model == 'contact':
+                title = obj.full_name
+
+                account_string = ''
+
+                for function in obj.functions.all():
+                    account_string += function.account.name
+
+                    if not function.is_active:
+                        account_string += ' (inactive)'
+
+                    account_string += '\n'
+
+                fields.append({
+                    'title': _('Works at'),
+                    'value': account_string,
+                    'short': True
+                })
+
+            if model != 'contact':
+                fields.append({
+                    'title': _('Assigned to'),
+                    'value': obj.assigned_to.full_name if obj.assigned_to else 'Nobody',
+                    'short': True,
+                })
+
+        data = {
+            'fallback': 'Lily - %s details' % model.title(),
+            'title': title,
+            'title_link': url,
+            'color': '#9f5edc',
+            'fields': fields,
+            'footer': 'Lily',
+            'footer_icon': 'https://app.hellolily.com/favicon.ico',
+        }
+
+        data.update(extra_data)
+
+        data = self.convert_to_string(data)
+
+        return data
+
+    def post(self, request):
+        data = request.data
+        event_type = data.get('type')
+        team_id = data.get('team_id')
+
+        if not team_id or data.get('token') != settings.SLACK_LILY_TOKEN:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        try:
+            details = SlackDetails.objects.get(team_id=team_id)
+        except SlackDetails.DoesNotExist:
+            details = None
+
+        if details:
+            if event_type == 'url_verification':
+                return Response({'challenge': data.get('challenge')}, status=status.HTTP_200_OK)
+            elif event_type == 'event_callback':
+                event = data.get('event')
+                unfurls = {}
+
+                for link in event.get('links'):
+                    # Convert to string so we can use it later.
+                    url = str(link.get('url'))
+
+                    data = self.get_data(url, details)
+
+                    if data:
+                        unfurls.update({url: data})
+
+                if unfurls:
+                    credentials = get_credentials('slack', details.tenant)
+
+                    data = {
+                        'token': credentials.access_token,
+                        'channel': event.get('channel'),
+                        'ts': event.get('message_ts'),
+                        'unfurls': unfurls,
+                    }
+
+                    request = requests.post('https://slack.com/api/chat.unfurl?' + urllib.urlencode(data))
+
+                    return Response(status=status.HTTP_200_OK)
+
+        return Response(status=status.HTTP_404_NOT_FOUND)

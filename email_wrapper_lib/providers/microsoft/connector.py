@@ -1,3 +1,4 @@
+from microsoft_mail_client.errors import HttpError
 from microsoft_mail_client.service import build
 from .resources import (
     MicrosoftProfileResource, MicrosoftMessagesResource, MicrosoftLabelsResource, MicrosoftHistoryResource
@@ -49,8 +50,9 @@ class MicrosoftConnector(object):
     #     # self.service = build('microsoft', 'v1', http=self.http)
 
     def __init__(self, user_id, credentials):
-        self.service = build_service(user_id, credentials)
         self.user_id = user_id
+        self.credentials = credentials
+        self.service = build_service(user_id, credentials)
         self.batch = BatchStore(user_id, credentials).batch
 
     @property
@@ -70,13 +72,16 @@ class MicrosoftConnector(object):
         return MicrosoftHistoryResource(self.service, self.user_id, self.batch)
 
     def execute(self):
-        # try:
-        self.batch.execute()
+        try:
+            print "Execute batch"
+            print self.batch
+            self.batch.execute()
         # except BatchRequestException:
         #     pass
         # except HttpAccessTokenRefreshError:
         #     pass
-        # except HttpError:
-        #     pass
-        # finally:
-        #     self.batch = BatchStore().reset()
+        except HttpError as e:  # TODO: Right error?
+            print e
+        finally:
+            print "Reset"
+            self.batch = BatchStore(self.user_id, self.credentials).reset()

@@ -15,10 +15,11 @@ class MicrosoftLabelsResource(MicrosoftResource):
 
         return label
 
-    def list(self, label_id=None, top=50, skip=0):
+    def list(self, label_id=None, top=50, skip=0):  # TODO: differs from google impl.
         """
         Get a list of labels under the root or the specified label.
-        Paging parameters default to first page with 50 results.
+
+        Paging parameters default to first page.
         """
         labels = {}
         query_parameters = {

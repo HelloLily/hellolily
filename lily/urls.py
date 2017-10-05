@@ -10,9 +10,7 @@ admin.autodiscover()
 
 urlpatterns = [
     url(r'^accounts/', include('lily.accounts.urls')),
-    url(r'^cases/', include('lily.cases.urls')),
     url(r'^contacts/', include('lily.contacts.urls')),
-    url(r'^deals/', include('lily.deals.urls')),
     url(r'^messaging/email/', include('lily.messaging.email.urls')),
     url(r'^stats/', include('lily.stats.urls')),
     url(r'^taskmonitor/', include('taskmonitor.urls')),

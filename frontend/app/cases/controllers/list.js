@@ -22,7 +22,7 @@ angular.module('app.cases').controller('CaseListController', CaseListController)
 CaseListController.$inject = ['$filter', '$scope', '$timeout', 'Case', 'HLFilters', 'HLUtils', 'LocalStorage',
     'Settings', 'UserTeams'];
 function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils, LocalStorage, Settings, UserTeams) {
-    var vm = this;
+    let vm = this;
 
     vm.storage = new LocalStorage('cases');
     vm.storedFilterSpecialList = vm.storage.get('filterSpecialListSelected', null);
@@ -76,7 +76,7 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
 
     function activate() {
         // This timeout is needed because by loading from LocalStorage isn't fast enough.
-        $timeout(function() {
+        $timeout(() => {
             _getFilterOnList();
             _getFilterSpecialList();
             _setupWatchers();
@@ -111,7 +111,7 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
      *
      */
     function showEmptyState() {
-        Case.query({}, function(data) {
+        Case.query({}, data => {
             if (data.pagination.total === 1) {
                 vm.showEmptyState = true;
             }
@@ -124,8 +124,6 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
      * @returns filterList (object): object containing the filter list.
      */
     function _getFilterOnList() {
-        var filterList;
-
         // Use the value from storage first.
         // (Because it is faster; loading the list uses AJAX requests).
         if (vm.storedFilterList) {
@@ -133,7 +131,7 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
         }
 
         // But we still update the list afterwards (in case a filter was changed).
-        filterList = [
+        const filterList = [
             {
                 name: 'Assigned to me',
                 value: 'assigned_to.id:' + $scope.currentUser.id,
@@ -152,12 +150,12 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
             },
         ];
 
-        UserTeams.mine(function(teams) {
-            var myTeamIds = [];
+        UserTeams.mine(teams => {
+            let myTeamIds = [];
 
             if (teams.length) {
                 // Get a list with id's of all my teams.
-                teams.forEach(function(team) {
+                teams.forEach(team => {
                     myTeamIds.push(team.id);
                 });
 
@@ -185,11 +183,11 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
      * @returns filterSpecialList (object): object containing the filter list.
      */
     function _getFilterSpecialList() {
-        Case.getCaseTypes(function(caseTypes) {
-            var filterList = [];
+        Case.getCaseTypes(caseTypes => {
+            let filterList = [];
 
             // Get a list with all case types and add each one as a filter.
-            angular.forEach(caseTypes, function(caseType) {
+            caseTypes.forEach(caseType => {
                 filterList.push({
                     name: caseType.name,
                     value: 'type.id:' + caseType.id,
@@ -226,7 +224,7 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
      * Updates table.items and table.totalItems.
      */
     function _updateCases() {
-        let blockTarget = '#tableBlockTarget';
+        const blockTarget = '#tableBlockTarget';
         HLUtils.blockUI(blockTarget, true);
 
         Case.getCases(
@@ -236,7 +234,7 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
             vm.table.searchQuery,
             vm.table.page,
             vm.table.pageSize
-        ).then(function(data) {
+        ).then(data => {
             vm.table.items = data.objects;
             vm.table.totalItems = data.total;
 
@@ -256,7 +254,7 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
             'vm.table.searchQuery',
             'vm.table.archived',
             'vm.table.filterQuery',
-        ], function() {
+        ], () => {
             _updateTableSettings();
             _updateCases();
         });
@@ -265,7 +263,7 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
          * Watches the model info from the table that, when changed,
          * needs to store the info to the cache.
          */
-        $scope.$watchCollection('vm.table.visibility', function() {
+        $scope.$watchCollection('vm.table.visibility', () => {
             _updateTableSettings();
         });
 
@@ -273,17 +271,17 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
          * Watches the filters so when the stored values are loaded,
          * the filterQuery changes and a new set of cases is fetched.
          */
-        $scope.$watch('vm.filterList', function() {
+        $scope.$watch('vm.filterList', () => {
             updateFilterQuery();
 
             vm.selectedFilters = $filter('filter')(vm.filterList, {selected: true});
         }, true);
 
-        $scope.$watchCollection('vm.filterSpecialList', function() {
+        $scope.$watchCollection('vm.filterSpecialList', () => {
             updateFilterQuery();
         });
 
-        $scope.$watchGroup(['vm.table.dueDateFilter', 'vm.table.usersFilter'], function() {
+        $scope.$watchGroup(['vm.table.dueDateFilter', 'vm.table.usersFilter'], () => {
             updateFilterQuery();
             vm.storage.put('dueDateFilter', vm.table.dueDateFilter);
             vm.storage.put('usersFilter', vm.table.usersFilter);

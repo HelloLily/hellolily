@@ -46,7 +46,6 @@ function Case($resource, CacheFactory, HLCache, HLResource, HLUtils) {
                 },
             },
             getCaseTypes: {
-                isArray: true,
                 cache: CacheFactory.get('dataCache'),
                 url: '/api/cases/types/',
             },

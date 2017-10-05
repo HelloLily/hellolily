@@ -124,20 +124,20 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     function activate() {
         _getTeams();
 
-        User.me().$promise.then(function(user) {
+        User.me().$promise.then(user => {
             vm.currentUser = user;
 
-            Case.getCaseTypes(function(data) {
-                vm.caseTypes = data;
+            Case.getCaseTypes(response => {
+                vm.caseTypes = response.results;
 
-                angular.forEach(data, function(caseType) {
+                response.results.forEach(caseType => {
                     if (caseType.name.indexOf('Config') > -1) {
                         vm.configCaseType = caseType.id;
                     }
                 });
             });
 
-            Case.getStatuses(function(response) {
+            Case.getStatuses(response => {
                 vm.statusChoices = response.results;
 
                 vm.case.status = vm.statusChoices[0];
@@ -155,9 +155,6 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     }
 
     function _getCase() {
-        var filterquery = '';
-        var i;
-
         // Fetch the case or create an empty one.
         if (currentCase) {
             if (currentCase.account && currentCase.account.is_deleted) {
@@ -178,13 +175,13 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             vm.case.assigned_to_teams = vm.ownTeams;
 
             if ($stateParams.accountId) {
-                Account.get({id: $stateParams.accountId}).$promise.then(function(account) {
+                Account.get({id: $stateParams.accountId}).$promise.then(account => {
                     vm.case.account = account;
                 });
             }
 
             if ($stateParams.contactId) {
-                Contact.get({id: $stateParams.contactId}).$promise.then(function(contact) {
+                Contact.get({id: $stateParams.contactId}).$promise.then(contact => {
                     vm.case.contact = contact;
 
                     if (vm.case.contact.accounts && vm.case.contact.accounts.length === 1) {
@@ -205,10 +202,10 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
                     if (Settings.email.data.contact && Settings.email.data.contact.id) {
                         if (Settings.email.data && Settings.email.data.account) {
                             // Check if the contact actually works at the account.
-                            filterquery = 'accounts.id:' + Settings.email.data.account.id;
+                            const filterquery = 'accounts.id:' + Settings.email.data.account.id;
 
-                            Contact.search({filterquery: filterquery}).$promise.then(function(colleagues) {
-                                for (i = 0; i < colleagues.objects.length; i++) {
+                            Contact.search({filterquery}).$promise.then(colleagues => {
+                                for (let i = 0; i < colleagues.objects.length; i++) {
                                     if (colleagues.objects[i].id === Settings.email.data.contact.id) {
                                         vm.case.contact = Settings.email.data.contact.id;
                                     }

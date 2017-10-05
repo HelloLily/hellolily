@@ -144,14 +144,14 @@ class EmailAccountManager(object):
         if self._old_status in [EmailAccount.NEW, EmailAccount.RESYNC]:
             # This is a new account or one that needs to resync.
             profile = self.connector.profile.get()
-            data = self.connector.messages.list(self.account.page_token)
+            data = self.connector.messages.list(self.account.page_token)  # TODO: Why provided page_token? You want everything from the start
             self.connector.execute()
 
             self.save_list(data['messages'])
 
             if not self.account.history_token:
                 # Only save the history token on first iteration.
-                self.account.history_token = profile.get('history_token')
+                self.account.history_token = profile.get('history_token')  # TODO: Not available for MS in profile.
 
         else:
             # This is an existing account that can sync using the history id.
@@ -168,7 +168,7 @@ class EmailAccountManager(object):
 
         self.stop()
 
-    def save_list(self, api_messages):
+    def save_list(self, api_messages):  # TODO: rename to save_messages / save_message_list
         # Create sets of the remote and database labels.
         api_message_set = set([message.get('remote_id') for message in api_messages])
         db_messages = EmailMessage.objects.filter(account_id=self.account.pk, remote_id__in=api_message_set)

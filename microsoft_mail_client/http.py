@@ -135,6 +135,10 @@ class BatchHttpRequest(object):
         # Request expects a dict, so convert the defaultdict to a dict.
         self.headers = ddict2dict(self.headers)
 
+    @property
+    def empty(self):
+        return not len(self._requests)
+
     def add(self, request, callback):
         """
         Add request to the batch queue and adminster the callback to process the response later.
@@ -144,6 +148,7 @@ class BatchHttpRequest(object):
         :return:
         """
         if len(self._requests) == MAX_BATCH_SIZE:
+            # TODO: Don't raise this error, just split a too large batch into smaller ones.
             raise BatchMaxSizeError()
 
         if not callback:
@@ -334,6 +339,7 @@ class BatchHttpRequest(object):
 
     def __repr__(self):
         r = 'Batch id:\t{0}\n'.format(self.batch_id)
+        r += 'Method:\t\t{0}\n'.format("POST")
         r += 'Url:\t\t{0}\n'.format(self.uri)
         r += 'Headers:\n'
         h = self.headers

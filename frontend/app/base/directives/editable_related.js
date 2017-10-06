@@ -8,31 +8,37 @@ function editableRelated() {
             type: '@',
             field: '@',
         },
-        templateUrl: function(elem, attrs) {
-            return 'base/directives/editable_' + attrs.field + '.html';
+        templateUrl: (elem, attrs) => {
+            return `base/directives/editable_${attrs.field}.html`;
         },
         controller: EditableRelatedController,
         controllerAs: 'er',
         transclude: true,
         bindToController: true,
-        link: function(scope, element, attr) {
+        link: (scope, element, attr) => {
             // Bind click event to the current directive.
-            element.on('click', '.js-edit', function() {
+            element.on('click', '.js-edit', () => {
                 scope.er.showForm();
-                scope.$apply();
             });
 
-            element.on('click', '.js-add', function() {
+            element.on('click', '.js-add', () => {
                 scope.er.showForm(true);
-                scope.$apply();
+            });
+
+            element.on('click', '.editable', () => {
+                const selection = window.getSelection().toString();
+
+                if (!selection) {
+                    scope.er.showForm();
+                }
             });
         },
     };
 }
 
-EditableRelatedController.$inject = ['HLFields', 'HLResource', 'HLUtils'];
-function EditableRelatedController(HLFields, HLResource, HLUtils) {
-    var er = this;
+EditableRelatedController.$inject = ['$scope', 'HLFields', 'HLResource', 'HLUtils'];
+function EditableRelatedController($scope, HLFields, HLResource, HLUtils) {
+    let er = this;
     er.formVisible = false;
 
     er.addRelatedField = addRelatedField;
@@ -75,8 +81,8 @@ function EditableRelatedController(HLFields, HLResource, HLUtils) {
 
     function addRelatedField() {
         // Default status is 'Other'.
-        var status = 1;
-        var isPrimary = false;
+        let status = 1;
+        let isPrimary = false;
 
         switch (er.field) {
             case 'email_addresses':
@@ -107,9 +113,9 @@ function EditableRelatedController(HLFields, HLResource, HLUtils) {
     }
 
     function submit() {
-        var element = '[name="' + er.formName + '"]';
+        const element = `[name="${er.formName}"]`;
 
-        var args = {
+        let args = {
             id: er.model.id,
         };
 
@@ -117,12 +123,12 @@ function EditableRelatedController(HLFields, HLResource, HLUtils) {
 
         HLUtils.blockUI(element, true);
 
-        return HLResource.patch(er.type, args).$promise.then(function(response) {
+        return HLResource.patch(er.type, args).$promise.then(response => {
             er.formVisible = false;
             er.items = response[er.field];
 
             HLUtils.unblockUI(element);
-        }).catch(function() {
+        }).catch(() => {
             HLUtils.unblockUI(element);
         });
     }
@@ -133,11 +139,13 @@ function EditableRelatedController(HLFields, HLResource, HLUtils) {
         if (!er.items.length || add) {
             er.addRelatedField();
         }
+
+        $scope.$apply();
     }
 
     function closeForm() {
         // Cancel the editing and restore the original values.
-        angular.copy(er.originalItems, er.items);
         er.formVisible = false;
+        angular.copy(er.originalItems, er.items);
     }
 }

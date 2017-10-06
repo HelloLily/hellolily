@@ -1,5 +1,5 @@
 <i class="lilicon hl-entity-icon margin-right-10" ng-if="er.type === 'Contact' && !er.items.length" uib-tooltip="{{ $root.messages.contact.contactInfoTooltip }}"></i>
-<span ng-show="!er.formVisible" class="editable editable-click addable-click" ng-dblclick="er.showForm()" ng-class="{'editable-empty': !er.items.length}">
+<span ng-show="!er.formVisible" class="editable editable-click addable-click" ng-class="{'editable-empty': !er.items.length}">
     <div ng-repeat="phone in er.items">
         <a href="tel:{{ phone.number }}">
             {{ phone.number }}

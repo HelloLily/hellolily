@@ -1,12 +1,12 @@
 angular.module('app.services').service('HLFilters', HLFilters);
 
 function HLFilters() {
-    this.updateFilterQuery = function(viewModel, hasClearButtons) {
+    this.updateFilterQuery = (viewModel, hasClearButtons) => {
         // Update the filter based on the separate filters.
-        var filterStrings = [];
-        var specialFilterStrings = [];
-        var separateFilterStrings = [];
-        var filterList = viewModel.filterList;
+        let filterStrings = [];
+        let specialFilterStrings = [];
+        let separateFilterStrings = [];
+        let filterList = viewModel.filterList;
 
         viewModel.table.filterQuery = '';
 
@@ -18,7 +18,7 @@ function HLFilters() {
             filterList = filterList.concat(viewModel.filterSpecialList);
         }
 
-        filterList.forEach(function(filter) {
+        filterList.forEach(filter => {
             if (filter.id && filter.id === 'is_archived') {
                 if (!filter.selected) {
                     filterStrings.push('is_archived:false');
@@ -43,11 +43,11 @@ function HLFilters() {
         }
 
         // If we have a special filter, we join them OR-wise.
-        if (specialFilterStrings.length > 0) {
+        if (specialFilterStrings.length) {
             filterStrings.push('(' + specialFilterStrings.join(' OR ') + ')');
         }
 
-        if (separateFilterStrings.length > 0) {
+        if (separateFilterStrings.length) {
             filterStrings.push('(' + separateFilterStrings.join(' OR ') + ')');
         }
 
@@ -59,18 +59,18 @@ function HLFilters() {
         viewModel.table.filterQuery = filterStrings.join(' AND ');
     };
 
-    this._displayClearButtons = function(viewModel) {
+    this._displayClearButtons = viewModel => {
         viewModel.displayFilterClear = false;
         viewModel.displaySpecialFilterClear = false;
 
-        viewModel.filterList.forEach(function(filter) {
+        viewModel.filterList.forEach(filter => {
             if (filter.selected) {
                 viewModel.displayFilterClear = true;
             }
         });
 
         if (viewModel.filterSpecialList) {
-            viewModel.filterSpecialList.forEach(function(filter) {
+            viewModel.filterSpecialList.forEach(filter => {
                 if (filter.selected) {
                     viewModel.displaySpecialFilterClear = true;
                 }
@@ -78,13 +78,13 @@ function HLFilters() {
         }
     };
 
-    this.clearFilters = function(viewModel, clearSpecial) {
+    this.clearFilters = (viewModel, clearSpecial) => {
         if (clearSpecial) {
-            viewModel.filterSpecialList.forEach(function(filter) {
+            viewModel.filterSpecialList.forEach(filter => {
                 filter.selected = false;
             });
         } else {
-            viewModel.filterList.forEach(function(filter) {
+            viewModel.filterList.forEach(filter => {
                 filter.selected = false;
             });
         }
@@ -92,11 +92,11 @@ function HLFilters() {
         viewModel.updateFilterQuery();
     };
 
-    this.getStoredSelections = function(filterList, storedFilterList) {
+    this.getStoredSelections = (filterList, storedFilterList) => {
         if (storedFilterList) {
             // Stored filter list exists, merge the selections from with the stored values.
-            angular.forEach(storedFilterList, function(storedFilter) {
-                angular.forEach(filterList, function(filter) {
+            storedFilterList.forEach(storedFilter => {
+                filterList.forEach(filter => {
                     if (storedFilter.name === filter.name) {
                         filter.selected = storedFilter.selected;
                     }

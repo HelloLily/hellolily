@@ -1,5 +1,5 @@
 <div ng-hide="vm.widgetInfo.status === 0">
-    <div class="{{ vm.widgetClass }}">
+    <div class="{{ vm.widgetInfo.widgetClass }}">
         <div class="widget-container">
             <div ng-if="vm.showFade" class="is-scrollable-fadeout clickable" ng-click="vm.heightToggle()">
                 <i class="lilicon hl-toggle-down-icon" ng-if="!vm.widgetInfo.expandHeight"></i>

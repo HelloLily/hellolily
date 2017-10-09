@@ -1,6 +1,6 @@
-angular.module('app.dashboard.directives').directive('widget', simpleWidget);
+angular.module('app.dashboard.directives').directive('widget', widget);
 
-function simpleWidget() {
+function widget() {
     return {
         restrict: 'E',
         scope: {
@@ -12,7 +12,7 @@ function simpleWidget() {
             widgetExpandable: '<',
         },
         templateUrl: 'base/directives/widget.html',
-        controller: SimpleWidget,
+        controller: Widget,
         controllerAs: 'vm',
         bindToController: true,
         transclude: {
@@ -23,11 +23,11 @@ function simpleWidget() {
     };
 }
 
-SimpleWidget.$inject = ['$scope', '$state', 'LocalStorage'];
-function SimpleWidget($scope, $state, LocalStorage) {
-    var vm = this;
-    var storage = new LocalStorage($state.current.name + 'widgetInfo');
-    var widgetStatus = {
+Widget.$inject = ['$scope', '$state', '$timeout', 'LocalStorage'];
+function Widget($scope, $state, $timeout, LocalStorage) {
+    const vm = this;
+    const storage = new LocalStorage($state.current.name + 'widgetInfo');
+    const widgetStatus = {
         hidden: 0,
         visible: 1,
         collapsed: 2,
@@ -46,18 +46,24 @@ function SimpleWidget($scope, $state, LocalStorage) {
 
     function activate() {
         // Get visibility status of the widget.
-        var widgetInfo = storage.getObjectValue(vm.storageName, {});
+        const widgetInfo = storage.getObjectValue(vm.storageName, {});
 
-        if (typeof widgetInfo === 'object' && !Object.keys(widgetInfo).length) {
-            // No locally stored value, so set status to visible.
-            widgetInfo.status = widgetStatus.visible;
-            widgetInfo.name = vm.widgetName;
-        }
+        $timeout(() => {
+            if (typeof widgetInfo === 'object' && !Object.keys(widgetInfo).length) {
+                // No locally stored value, so set status to visible.
+                widgetInfo.status = widgetStatus.visible;
+                widgetInfo.name = vm.widgetName;
+            }
 
-        vm.widgetInfo = widgetInfo;
+            if (!widgetInfo.widgetClass) {
+                widgetInfo.widgetClass = vm.widgetClass;
+            }
 
-        _updateWidgetStorage();
-        _watchWidgetVisibility();
+            vm.widgetInfo = widgetInfo;
+
+            _updateWidgetStorage();
+            _watchWidgetVisibility();
+        }, 100);
     }
 
     function _getWidgetStorageName() {
@@ -85,8 +91,8 @@ function SimpleWidget($scope, $state, LocalStorage) {
     }
 
     function toggleCollapse() {
-        let halfWidth = 'col-md-6';
-        let fullWidth = 'col-md-12';
+        const halfWidth = 'col-md-6';
+        const fullWidth = 'col-md-12';
 
         if (vm.widgetInfo.status === widgetStatus.visible) {
             // Check if the fade is initially set to prevent it from showing up
@@ -98,7 +104,7 @@ function SimpleWidget($scope, $state, LocalStorage) {
             vm.widgetInfo.status = widgetStatus.collapsed;
 
             if (vm.widgetExpandable) {
-                vm.widgetClass = halfWidth;
+                vm.widgetInfo.widgetClass = halfWidth;
             }
         } else if (vm.widgetInfo.status === widgetStatus.expanded) {
             // Check if the fade is initially set to prevent it from showing up
@@ -110,12 +116,12 @@ function SimpleWidget($scope, $state, LocalStorage) {
             vm.widgetInfo.status = widgetStatus.visible;
 
             if (vm.widgetExpandable) {
-                vm.widgetClass = halfWidth;
+                vm.widgetInfo.widgetClass = halfWidth;
             }
         } else {
             if (vm.widgetExpandable) {
                 vm.widgetInfo.status = widgetStatus.expanded;
-                vm.widgetClass = fullWidth;
+                vm.widgetInfo.widgetClass = fullWidth;
             } else {
                 vm.widgetInfo.status = widgetStatus.visible;
             }

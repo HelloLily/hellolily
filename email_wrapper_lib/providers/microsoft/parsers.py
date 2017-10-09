@@ -35,10 +35,19 @@ def parse_profile(data, profile):
     return profile
 
 
-def parse_history(data, history, message_resource):
+def parse_history(data, history, message_resource):  # TODO: rename data to response?
+    # Initial GET  operation,
+    if not ('Preference-Applied' in data.headers and data.headers['Preference-Applied'] == 'odata.track-changes'):
+        # Don't proceed with synchronization.
+        pass  # TODO: return
+
     data = data.json()
     return history
 
+
+def parse_history_followup(data, history, message_resource):
+    data = data.json()
+    return history
 
 def parse_message_list(data, messages):
     data = data.json()
@@ -83,7 +92,7 @@ def parse_message_list(data, messages):
 
 def parse_message(data, message):
     """
-    A message that changes from folder, gets a new ID, but InternetMessageId stays with every mutation the same.
+    A message that changes from folder, gets a new ID, but InternetMessageId is immutable.
     ParentFolderId can tell if it is archived, trashed, or spam.
     """
     data = data.json()

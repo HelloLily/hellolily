@@ -144,10 +144,10 @@ class EmailAccountManager(object):
         if self._old_status in [EmailAccount.NEW, EmailAccount.RESYNC]:
             # This is a new account or one that needs to resync.
             profile = self.connector.profile.get()
-            data = self.connector.messages.list(self.account.page_token)  # TODO: Why provided page_token? You want everything from the start
+            data = self.connector.messages.list(self.account.page_token)  # TODO: Why provided page_token? You want everything from the start.
             self.connector.execute()
 
-            self.save_list(data['messages'])
+            self.save_message_list(data['messages'])
 
             if not self.account.history_token:
                 # Only save the history token on first iteration.
@@ -158,7 +158,7 @@ class EmailAccountManager(object):
             data = self.connector.history.list(self.account.history_token, self.account.page_token)
             self.connector.execute()
 
-            self.save_history(data)
+            self.save_messages_history(data)
 
             if not self.account.page_token:
                 # Only override the history id after all pages are done.
@@ -168,7 +168,7 @@ class EmailAccountManager(object):
 
         self.stop()
 
-    def save_list(self, api_messages):  # TODO: rename to save_messages / save_message_list
+    def save_message_list(self, api_messages):
         # Create sets of the remote and database labels.
         api_message_set = set([message.get('remote_id') for message in api_messages])
         db_messages = EmailMessage.objects.filter(account_id=self.account.pk, remote_id__in=api_message_set)
@@ -194,7 +194,7 @@ class EmailAccountManager(object):
 
         return created_messages + updated_messages
 
-    def save_history(self, history):
+    def save_messages_history(self, history):
         # save messages to db according to history id.
         pass
 

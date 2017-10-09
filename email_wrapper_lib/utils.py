@@ -17,7 +17,7 @@ def create_account_from_code(provider, code):
     )
 
     # Set the store so the credentials will auto refresh.
-    credentials.set_store(Storage(EmailAccount, 'id', account.pk, 'credentials'))
+    # credentials.set_store(Storage(EmailAccount, 'id', account.pk, 'credentials'))
 
     account.credentials = credentials
 

@@ -28,13 +28,15 @@
                     </ui-select>
                 </form-group>
 
-                <form-group ng-if="vm.openCases.length">
+                <form-group ng-if="vm.openCases.length && vm.showSuggestions">
                     <div class="widget-suggestion">
                         <span class="widget-suggestion-title">
                             <i class="lilicon hl-entity-icon"></i>
                             <span ng-if="vm.openCases.length === 1">There's another open case</span>
                             <span ng-if="vm.openCases.length > 1">There are other open cases</span>
                         </span>
+                        <span class="small pull-right clickable text-muted" ng-click="vm.showSuggestions = false"><i class="lilicon hl-close-icon"></i></span>
+
                         <div ng-repeat="case in vm.openCases" class="widget-suggestion-items">
                             <div class="widget-suggestion-item">
                                 Check it out: <a ui-sref="base.cases.detail({ id: case.id })">{{ case.subject }}</a>

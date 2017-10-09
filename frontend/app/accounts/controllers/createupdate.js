@@ -16,7 +16,7 @@ function accountConfig($stateProvider) {
             label: 'Create',
         },
         resolve: {
-            currentAccount: function() {
+            currentAccount: () => {
                 return null;
             },
         },
@@ -38,7 +38,7 @@ function accountConfig($stateProvider) {
             label: 'Edit',
         },
         resolve: {
-            currentAccount: ['Account', '$stateParams', function(Account, $stateParams) {
+            currentAccount: ['Account', '$stateParams', (Account, $stateParams) => {
                 return Account.get({id: $stateParams.id}).$promise;
             }],
         },
@@ -54,7 +54,7 @@ AccountCreateController.$inject = ['$scope', '$state', '$stateParams', '$timeout
     'HLSearch', 'HLUtils', 'Settings', 'User', 'currentAccount'];
 function AccountCreateController($scope, $state, $stateParams, $timeout, Account, HLFields, HLForms,
     HLSearch, HLUtils, Settings, User, currentAccount) {
-    var vm = this;
+    const vm = this;
 
     vm.account = currentAccount || {};
     vm.accountSuggestions = [];
@@ -63,6 +63,7 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
         name: [],
     };
     vm.useDuplicateWebsite = false;
+    vm.showSuggestions = true;
 
     vm.loadDataproviderData = loadDataproviderData;
     vm.saveAccount = saveAccount;
@@ -79,9 +80,9 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
 
     activate();
 
-    $scope.$watch('settings.email.sidebar.accountId', function(newValue, oldValue) {
+    $scope.$watch('settings.email.sidebar.accountId', (newValue, oldValue) => {
         if (newValue) {
-            Account.get({id: newValue}).$promise.then(function(result) {
+            Account.get({id: newValue}).$promise.then(result => {
                 vm.account = _mergeData(result, Settings.email.sidebar.accountForm);
                 activate();
             });
@@ -92,10 +93,11 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
 
     function activate() {
         vm.accountSuggestions = [];
-        User.me().$promise.then(function(user) {
+
+        User.me().$promise.then(user => {
             vm.currentUser = user;
 
-            Account.getStatuses(function(response) {
+            Account.getStatuses(response => {
                 vm.statusChoices = response.results;
                 vm.defaultNewStatus = Account.defaultNewStatus;
                 vm.relationStatus = Account.relationStatus;
@@ -107,7 +109,7 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
             });
         });
 
-        $timeout(function() {
+        $timeout(() => {
             // Focus the first input on page load.
             angular.element('input')[0].focus();
             $scope.$apply();
@@ -115,8 +117,6 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
     }
 
     function _getAccount() {
-        var company;
-
         // Fetch the account or create empty account
         if (vm.account.hasOwnProperty('id')) {
             Settings.page.setAllTitles('edit', vm.account.name);
@@ -126,7 +126,7 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
                 vm.account = _mergeData(vm.account, vm.accountForm);
             }
 
-            angular.forEach(vm.account.websites, function(website) {
+            vm.account.websites.forEach(website => {
                 if (website.is_primary) {
                     vm.account.primaryWebsite = website.website;
                 }
@@ -136,7 +136,7 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
             }
 
             if (vm.account.hasOwnProperty('social_media') && vm.account.social_media.length) {
-                angular.forEach(vm.account.social_media, function(profile) {
+                vm.account.social_media.forEach(profile => {
                     vm.account[profile.name] = profile.username;
                 });
             }
@@ -158,9 +158,9 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
             if (Settings.email.data && Settings.email.data.website) {
                 vm.account.primaryWebsite = Settings.email.data.website;
 
-                vm.account.getDataproviderInfo(Settings.email.data.website).then(function() {
+                vm.account.getDataproviderInfo(Settings.email.data.website).then(() => {
                     if (!vm.account.name) {
-                        company = Settings.email.data.website.split('.').slice(0, -1).join(' ');
+                        const company = Settings.email.data.website.split('.').slice(0, -1).join(' ');
                         vm.account.name = company.charAt(0).toUpperCase() + company.slice(1);
                     }
                 });
@@ -186,7 +186,7 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
 
     function _concatUnique(primary, secondary, unique) {
         // Remove items already present in primary from secondary.
-        let result = secondary.filter(function(secondaryItem) {
+        const result = secondary.filter(secondaryItem => {
             // Check if all unique keys are the same, remove item from array if they are.
             let count = 0;
 
@@ -203,11 +203,12 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
     }
 
     function checkExistingAccount() {
-        var filterQuery;
         if (!vm.account.id) {
-            filterQuery = 'domain:"' + vm.account.primaryWebsite + '"' + ' OR name:"' + vm.account.name + '"';
-            Account.search({filterquery: filterQuery}).$promise.then(function(results) {
+            const filterquery = `domain:"${vm.account.primaryWebsite}" OR name:"${vm.account.name}"`;
+
+            Account.search({filterquery}).$promise.then(results => {
                 vm.accountSuggestions = results.objects;
+                vm.showSuggestions = true;
             });
         }
     }
@@ -217,9 +218,9 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
         vm.accountSuggestions = [];
 
         toastr.info('Running around the world to fetch info', 'Here we go');
-        vm.account.getDataproviderInfo(vm.account.primaryWebsite).then(function() {
+        vm.account.getDataproviderInfo(vm.account.primaryWebsite).then(() => {
             toastr.success('Got it!', 'Whoohoo');
-        }, function() {
+        }, () => {
             toastr.error('I couldn\'t find any data', 'Sorry');
         });
 
@@ -256,10 +257,6 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
     }
 
     function saveAccount(form) {
-        var primaryWebsite = vm.account.primaryWebsite;
-        var exists;
-        var twitterId;
-
         // Check if an account is being added via the + account page or via a supercard.
         if (Settings.email.sidebar.isVisible) {
             ga('send', 'event', 'Account', 'Save', 'Email Sidebar');
@@ -269,11 +266,13 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
 
         HLForms.blockUI();
 
+        const primaryWebsite = vm.account.primaryWebsite;
+
         // Make sure it's not an empty website being added.
         if (primaryWebsite && primaryWebsite !== 'http://' && primaryWebsite !== 'https://') {
-            exists = false;
+            let exists = false;
 
-            angular.forEach(vm.account.websites, function(website) {
+            angular.forEach(vm.account.websites, website => {
                 if (website.is_primary) {
                     website.website = primaryWebsite;
                     exists = true;
@@ -298,10 +297,13 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
 
         HLForms.clearErrors(form);
 
+        let twitterId;
+
         // Store the id of the current twitter object.
         if (vm.account.social_media && vm.account.social_media.length > 0) {
             twitterId = vm.account.social_media[0].id;
         }
+
         if (vm.account.twitter) {
             vm.account.social_media = [{
                 name: 'twitter',
@@ -317,7 +319,7 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
 
         if (vm.account.id) {
             // If there's an ID set it means we're dealing with an existing account, so update it.
-            vm.account.$update(function() {
+            vm.account.$update(() => {
                 toastr.success('I\'ve updated the account for you!', 'Done');
                 if (Settings.email.sidebar.form === 'account') {
                     if (!Settings.email.data.contact.id) {
@@ -332,11 +334,11 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
                 } else {
                     $state.go('base.accounts.detail', {id: vm.account.id}, {reload: true});
                 }
-            }, function(response) {
+            }, response => {
                 _handleBadResponse(response, form);
             });
         } else {
-            vm.account.$save(function() {
+            vm.account.$save(() => {
                 new Intercom('trackEvent', 'account-created');
 
                 toastr.success('I\'ve saved the account for you!', 'Yay');
@@ -354,7 +356,7 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
                 } else {
                     $state.go('base.accounts.detail', {id: vm.account.id});
                 }
-            }, function(response) {
+            }, response => {
                 _handleBadResponse(response, form);
             });
         }
@@ -365,13 +367,11 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
     }
 
     function refreshUsers(query) {
-        var usersPromise;
-
         if (!vm.assigned_to || query.length) {
-            usersPromise = HLSearch.refreshList(query, 'User', 'is_active:true', 'full_name', 'full_name');
+            const usersPromise = HLSearch.refreshList(query, 'User', 'is_active:true', 'full_name', 'full_name');
 
             if (usersPromise) {
-                usersPromise.$promise.then(function(data) {
+                usersPromise.$promise.then(data => {
                     vm.users = data.objects;
                 });
             }
@@ -403,7 +403,7 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
         }
     }
 
-    $scope.$on('saveAccount', function() {
+    $scope.$on('saveAccount', () => {
         saveAccount($scope.accountForm);
     });
 }

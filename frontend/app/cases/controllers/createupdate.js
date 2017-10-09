@@ -108,6 +108,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         startingDay: 1,
     };
     vm.configCaseType = 0;
+    vm.showSuggestions = true;
 
     vm.assignToMe = assignToMe;
     vm.assignToMyTeams = assignToMyTeams;
@@ -356,7 +357,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         toastr.error('Uh oh, there seems to be a problem', 'Oops!');
     }
 
-    $scope.$watch('vm.case.account', function(newValue, oldValue) {
+    $scope.$watch('vm.case.account', (newValue, oldValue) => {
         // Get contacts that work for the selected account.
         refreshContacts('');
 
@@ -365,7 +366,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         }
     });
 
-    $scope.$watch('vm.case.contact', function(newValue, oldValue) {
+    $scope.$watch('vm.case.contact', (newValue, oldValue) => {
         if (vm.case.contact && vm.case.contact.accounts && vm.case.contact.accounts.length) {
             // Get accounts that the select contact works for.
             vm.accounts = vm.case.contact.accounts;
@@ -380,12 +381,11 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         }
     });
 
-    $scope.$watch('vm.case.assigned_to', function(newValue, oldValue) {
-        var team;
-        var assignToTeams = [];
-
+    $scope.$watch('vm.case.assigned_to', (newValue, oldValue) => {
         if (vm.case.assigned_to && oldValue && newValue !== oldValue) {
-            for (team of vm.teams) {
+            let assignToTeams = [];
+
+            for (let team of vm.teams) {
                 if (vm.case.assigned_to.teams && vm.case.assigned_to.teams.indexOf(team.id) > -1) {
                     assignToTeams.push(team);
                 }
@@ -396,15 +396,13 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     });
 
     function refreshAccounts(query) {
-        var accountsPromise;
-
         // Don't load if we selected a contact.
         // Because we want to display all accounts the contact works for.
         if (!vm.case.contact || query.length) {
-            accountsPromise = HLSearch.refreshList(query, 'Account');
+            const accountsPromise = HLSearch.refreshList(query, 'Account');
 
             if (accountsPromise) {
-                accountsPromise.$promise.then(function(data) {
+                accountsPromise.$promise.then(data => {
                     vm.accounts = data.objects;
                 });
             }
@@ -412,13 +410,12 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     }
 
     function _getOpenCases() {
-        var filterQuery;
-
         if (vm.case.account || vm.case.contact) {
-            filterQuery = 'NOT status.id:' + Case.closedStatus.id + ' AND is_archived: false';
+            const filterQuery = `NOT status.id: ${Case.closedStatus.id} AND is_archived: false`;
 
-            HLSearch.getOpenCasesDeals(filterQuery, vm.case, 'Case').then(function(response) {
+            HLSearch.getOpenCasesDeals(filterQuery, vm.case, 'Case').then(response => {
                 vm.openCases = response.objects;
+                vm.showSuggestions = true;
             });
         } else {
             vm.openCases = [];
@@ -426,8 +423,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     }
 
     function refreshContacts(query) {
-        var accountQuery = '';
-        var contactsPromise;
+        let accountQuery = '';
 
         if (vm.case.account) {
             if (query.length >= 2) {
@@ -438,10 +434,10 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             accountQuery += 'active_at:' + vm.case.account.id;
         }
 
-        contactsPromise = HLSearch.refreshList(query, 'Contact', accountQuery, '', 'full_name');
+        const contactsPromise = HLSearch.refreshList(query, 'Contact', accountQuery, '', 'full_name');
 
         if (contactsPromise) {
-            contactsPromise.$promise.then(function(data) {
+            contactsPromise.$promise.then(data => {
                 vm.contacts = data.objects;
                 if (vm.contacts.length === 1) {
                     vm.case.contact = vm.contacts[0];
@@ -457,7 +453,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             usersPromise = HLSearch.refreshList(query, 'User', 'is_active:true', 'full_name', 'full_name');
 
             if (usersPromise) {
-                usersPromise.$promise.then(function(data) {
+                usersPromise.$promise.then(data => {
                     vm.users = data.objects;
                 });
             }

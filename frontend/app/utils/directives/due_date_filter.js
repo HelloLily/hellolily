@@ -23,7 +23,6 @@ function DueDateFilterWidgetController($scope, $timeout, HLFilters, LocalStorage
     // Get the stored value or set to 'All' if it doesn't exist
     vm.storedFilterList = storage.get('filterListSelected', null);
     vm.openDueDateFilter = openDueDateFilter;
-    vm.filterList = [];
 
     $timeout(() => {
         activate();
@@ -82,19 +81,21 @@ function DueDateFilterWidgetController($scope, $timeout, HLFilters, LocalStorage
     }
 
     $scope.$watch('vm.filterList', () => {
-        // Find element with .is-open class to close when clicking a filter.
-        angular.element('.due-date-filter-container.is-open').removeClass('is-open');
+        if (vm.filterList) {
+            // Find element with .is-open class to close when clicking a filter.
+            angular.element('.due-date-filter-container.is-open').removeClass('is-open');
 
-        let filterList = [];
+            let filterList = [];
 
-        vm.filterList.forEach(filter => {
-            if (filter.selected) {
-                filterList.push(filter.value);
-            }
-        });
+            vm.filterList.forEach(filter => {
+                if (filter.selected) {
+                    filterList.push(filter.value);
+                }
+            });
 
-        vm.filterStore = filterList.length ? `(${filterList.join(' OR ')})` : '';
+            vm.filterStore = filterList.length ? `(${filterList.join(' OR ')})` : '';
 
-        storage.put('filterListSelected', vm.filterList);
+            storage.put('filterListSelected', vm.filterList);
+        }
     }, true);
 }

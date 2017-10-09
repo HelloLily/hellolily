@@ -11,8 +11,8 @@ function myCasesDirective() {
 
 MyCasesController.$inject = ['$filter', '$scope', 'Case', 'HLUtils', 'HLResource', 'HLSockets', 'LocalStorage'];
 function MyCasesController($filter, $scope, Case, HLUtils, HLResource, HLSockets, LocalStorage) {
-    var storage = new LocalStorage('myCasesWidget');
-    var vm = this;
+    const vm = this;
+    const storage = new LocalStorage('myCasesWidget');
 
     vm.highPrioCases = 0;
     vm.table = {
@@ -45,10 +45,9 @@ function MyCasesController($filter, $scope, Case, HLUtils, HLResource, HLSockets
     }
 
     function getMyCases(blockUI = false) {
-        var field = 'expires';
-        var descending = false;
-
-        var filterQuery = 'is_archived:false';
+        let field = 'expires';
+        let descending = false;
+        let filterQuery = 'is_archived:false';
 
         if (vm.table.dueDateFilter) {
             filterQuery += ' AND ' + vm.table.dueDateFilter;
@@ -65,9 +64,8 @@ function MyCasesController($filter, $scope, Case, HLUtils, HLResource, HLSockets
             descending = vm.table.order.descending;
         }
 
-        Case.getCases(field, descending, filterQuery).then(function(data) {
-            var i;
-            var objects = data.objects;
+        Case.getCases(field, descending, filterQuery).then(data => {
+            let objects = data.objects;
             // Make sure the data is sorted by priority as well.
             objects = $filter('orderBy')(objects, '-priority');
 
@@ -82,7 +80,7 @@ function MyCasesController($filter, $scope, Case, HLUtils, HLResource, HLSockets
 
             vm.highPrioCases = 0;
 
-            for (i in objects) {
+            for (let i in objects) {
                 if (objects[i].priority === 3) {
                     vm.highPrioCases++;
                 }
@@ -95,13 +93,13 @@ function MyCasesController($filter, $scope, Case, HLUtils, HLResource, HLSockets
     }
 
     function updateModel(data, field) {
-        return Case.updateModel(data, field).then(function() {
+        return Case.updateModel(data, field).then(() => {
             getMyCases(true);
         });
     }
 
     function acceptCase(myCase) {
-        var args = {
+        const args = {
             id: myCase.id,
             newly_assigned: false,
         };
@@ -110,10 +108,13 @@ function MyCasesController($filter, $scope, Case, HLUtils, HLResource, HLSockets
     }
 
     function _watchTable() {
-        $scope.$watchGroup(['vm.table.dueDateFilter', 'vm.table.usersFilter'], function() {
-            getMyCases();
-            storage.put('order', vm.table.order);
+        $scope.$watch('vm.table.dueDateFilter', (newValue, oldValue) => {
+            getMyCases(true);
             storage.put('dueDateFilter', vm.table.dueDateFilter);
+        });
+
+        $scope.$watch('vm.table.usersFilter', (newValue, oldValue) => {
+            getMyCases(true);
             storage.put('usersFilter', vm.table.usersFilter);
         });
     }

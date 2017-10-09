@@ -9,11 +9,11 @@ function myDealsDirective() {
     };
 }
 
-MyDealsController.$inject = ['$filter', '$scope', 'Case', 'Deal', 'HLUtils', 'HLResource', 'HLSockets', 'LocalStorage', 'Tenant'];
-function MyDealsController($filter, $scope, Case, Deal, HLUtils, HLResource, HLSockets, LocalStorage, Tenant) {
-    var storage = new LocalStorage('deals');
+MyDealsController.$inject = ['$filter', '$scope', '$timeout', 'Case', 'Deal', 'HLUtils', 'HLResource', 'HLSockets', 'LocalStorage', 'Tenant'];
+function MyDealsController($filter, $scope, $timeout, Case, Deal, HLUtils, HLResource, HLSockets, LocalStorage, Tenant) {
+    const vm = this;
+    const storage = new LocalStorage('deals');
 
-    var vm = this;
     vm.highPrioDeals = 0;
     vm.table = {
         order: storage.get('order', {
@@ -59,7 +59,7 @@ function MyDealsController($filter, $scope, Case, Deal, HLUtils, HLResource, HLS
             filterQuery += ' AND (' + vm.table.usersFilter + ')';
         }
 
-        Deal.getDeals(field, descending, filterQuery).then(function(data) {
+        Deal.getDeals(field, descending, filterQuery).then(data => {
             if (vm.table.dueDateFilter !== '') {
                 // Add empty key to prevent showing a header and to not crash the for loop.
                 vm.table.items = {
@@ -68,8 +68,8 @@ function MyDealsController($filter, $scope, Case, Deal, HLUtils, HLResource, HLS
             } else {
                 vm.table.items = HLUtils.timeCategorizeObjects(data.objects, 'next_step_date');
 
-                angular.forEach(data.objects, function(deal) {
-                    Case.search({filterquery: 'account.id:' + deal.account.id + ' AND is_archived:false'}).$promise.then(function(caseList) {
+                angular.forEach(data.objects, deal => {
+                    Case.search({filterquery: 'account.id:' + deal.account.id + ' AND is_archived:false'}).$promise.then(caseList => {
                         if (caseList.objects.length > 0) {
                             deal.hasUnarchivedCases = true;
                         }
@@ -82,22 +82,22 @@ function MyDealsController($filter, $scope, Case, Deal, HLUtils, HLResource, HLS
             vm.numOfDeals = data.objects.length;
         });
 
-        Tenant.query({}, function(tenant) {
+        Tenant.query({}, tenant => {
             vm.tenant = tenant;
         });
     }
 
     function updateModel(data, field) {
-        var deal = $filter('where')(vm.table.items, {id: data.id});
+        const deal = $filter('where')(vm.table.items, {id: data.id});
 
-        return Deal.updateModel(data, field, deal).then(function(response) {
+        return Deal.updateModel(data, field, deal).then(response => {
             getMyDeals();
         });
     }
 
-    function acceptDeal(myDeal) {
-        var args = {
-            id: myDeal.id,
+    function acceptDeal({id}) {
+        const args = {
+            id,
             newly_assigned: false,
         };
 
@@ -105,10 +105,13 @@ function MyDealsController($filter, $scope, Case, Deal, HLUtils, HLResource, HLS
     }
 
     function _watchTable() {
-        $scope.$watchGroup(['vm.table.dueDateFilter', 'vm.table.usersFilter'], function() {
+        $scope.$watch('vm.table.dueDateFilter', (newValue, oldValue) => {
             getMyDeals(true);
-            storage.put('order', vm.table.order);
             storage.put('dueDateFilter', vm.table.dueDateFilter);
+        });
+
+        $scope.$watch('vm.table.usersFilter', (newValue, oldValue) => {
+            getMyDeals(true);
             storage.put('usersFilter', vm.table.usersFilter);
         });
     }

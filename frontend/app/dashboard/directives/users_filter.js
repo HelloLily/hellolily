@@ -16,7 +16,7 @@ function usersFilter() {
 
 UsersFilterController.$inject = ['$filter', '$timeout', 'LocalStorage', 'User', 'UserTeams'];
 function UsersFilterController($filter, $timeout, LocalStorage, User, UserTeams) {
-    let vm = this;
+    const vm = this;
     const storage = new LocalStorage(vm.storageName);
 
     vm.storedNameDisplay = storage.get('nameDisplay', []);
@@ -65,7 +65,7 @@ function UsersFilterController($filter, $timeout, LocalStorage, User, UserTeams)
 
                         team.users.forEach(user => {
                             // Create a user object.
-                            let userObj = {
+                            const userObj = {
                                 id: user.id,
                                 full_name: user.full_name,
                                 selected: false,
@@ -80,7 +80,7 @@ function UsersFilterController($filter, $timeout, LocalStorage, User, UserTeams)
                         });
 
                         // Create a team object.
-                        let teamObj = {
+                        const teamObj = {
                             id: team.id,
                             name: team.name,
                             users: users,

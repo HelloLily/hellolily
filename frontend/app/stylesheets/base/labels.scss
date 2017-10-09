@@ -7,6 +7,7 @@
     </thead>
     <tbody>
         <tr><td><span class="label-default">.label-default</span></td></tr>
+        <tr><td><span class="label-inversed">.label-inversed</span></td></tr>
         <tr><td><span class="label-success">.label-success</span></td></tr>
         <tr><td><span class="label-warning">.label-warning</span></td></tr>
         <tr><td><span class="label-danger">.label-danger</span></td></tr>
@@ -37,6 +38,13 @@
 
 .label-default {
     @include hl-label($app-color-grey);
+}
+
+.label-inversed {
+    @include hl-label(transparent);
+    border: 1px $app-color-grey solid;
+    box-sizing: border-box;
+    color: $app-color-grey;
 }
 
 .label-success {

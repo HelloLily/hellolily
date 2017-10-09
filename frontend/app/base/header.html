@@ -99,6 +99,14 @@
                             Billing
                         </a>
                     </li>
+                    <li class="drop-down-sub-menu-item" ng-if="currentUser.isAdmin">
+                        <a ui-sref="base.preferences.admin.import" ui-sref-opts="{reload:true}">
+                            <span class="drop-down-sub-menu-icon">
+                                <i class="lilicon hl-cog-icon"></i>
+                            </span>
+                            Import
+                        </a>
+                    </li>
                     <li class="divider"></li>
                     <li class="drop-down-sub-menu-item">
                         <a ui-sref="base.preferences.emailaccounts" ui-sref-opts="{reload:true}">

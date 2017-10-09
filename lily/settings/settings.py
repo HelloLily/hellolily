@@ -624,6 +624,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.MultiPartParser',
     ),
     'DEFAULT_METADATA_CLASS': 'lily.api.drf_extensions.metadata.CustomMetaData',
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',  # Use application/json instead of multipart/form-data requests in tests.

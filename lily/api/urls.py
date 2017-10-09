@@ -1,7 +1,7 @@
 from django.conf.urls import url, include
 from rest_framework.routers import DefaultRouter
 
-from lily.accounts.api.views import AccountViewSet, AccountStatusViewSet
+from lily.accounts.api.views import AccountViewSet, AccountStatusViewSet, AccountImport
 from lily.billing.api.views import BillingViewSet
 from lily.calls.api.views import CallViewSet
 from lily.cases.api.views import CaseViewSet, CaseStatusViewSet, CaseTypeList
@@ -67,6 +67,8 @@ urlpatterns = [
     url(r'^cases/types/$', CaseTypeList.as_view()),
 
     url(r'^deals/nextsteps/$', DealNextStepList.as_view()),
+
+    url(r'^accounts/import/$', AccountImport.as_view()),
 
     url(r'integrations/auth/(?P<integration_type>[a-z]+)$', IntegrationAuth.as_view()),
     url(r'integrations/documents/events/catch/$', DocumentEventCatch.as_view()),

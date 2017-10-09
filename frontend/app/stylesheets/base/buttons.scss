@@ -211,7 +211,11 @@ $large-button: 30px;
     -webkit-font-smoothing: antialiased;
     background: #fff;
     white-space: nowrap;
-    margin: 0 3px;
+    margin-right: 6px;
+
+    &:last-child {
+        margin-right: 0;
+    }
 
     &:hover {
         color: $app-color-aqua;

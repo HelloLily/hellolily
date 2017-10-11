@@ -25,7 +25,7 @@ class MicrosoftMessagesResource(MicrosoftResource):
             '$skip': page_token,
         }  # Paging.
         # TODO: Only request usefull data?
-        # query_parameters.update({'$select': 'x,y,z'})
+        # query_parameters.update({'$select': 'Id,InternetMessageId,ConversationId,BodyPreview,IsRead,IsDraft,ParentFolderId,Importance,From,ToRecipients,CcRecipients,BccRecipients,ReplyTo,Sender'})
 
         self.batch.add(
             self.service.get_messages(

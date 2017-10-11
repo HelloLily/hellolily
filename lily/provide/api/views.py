@@ -156,15 +156,16 @@ class DataproviderView(APIView):
         # Group profiles by platform.
         # Disregards the other platforms provided by Dataprovider: Facebook, Google Plus and Pinterest.
         social_media = {}
-        for profile in social_profiles:
-            if profile.startswith('twitter.com/'):
-                if 'twitter' not in social_media:
-                    social_media['twitter'] = []
-                social_media['twitter'].append(profile)
-            elif profile.startswith('www.linkedin.com/in/'):
-                if 'linkedin' not in social_media:
-                    social_media['linkedin'] = []
-                social_media['linkedin'].append(profile)
+        if social_profiles:
+            for profile in social_profiles:
+                if profile.startswith('twitter.com/'):
+                    if 'twitter' not in social_media:
+                        social_media['twitter'] = []
+                    social_media['twitter'].append(profile)
+                elif profile.startswith('www.linkedin.com/in/'):
+                    if 'linkedin' not in social_media:
+                        social_media['linkedin'] = []
+                    social_media['linkedin'].append(profile)
 
         primary_twitter = ''
         if 'twitter' in social_media:

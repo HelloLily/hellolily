@@ -91,10 +91,10 @@ class HttpRequest(object):
     def __repr__(self):
         r = 'Request id:\t{0}\n'.format(self.request_id)
         r += 'Method:\t\t{0}\n'.format(self.method)
-        r += 'End point:\t\t{0}\n'.format(self.uri)
+        r += 'End point:\t{0}\n'.format(self.uri)
         if self.parameters:
             r += 'Parameters:\n{0}\n'.format(self.parameters)
-            r += 'Url:\t\t{0}?{1}'.format(self.uri, urlencode(self.parameters))
+            r += 'Url:\t\t{0}?{1}\n'.format(self.uri, urlencode(self.parameters))
         r += 'Headers:\n'
         h = self.headers
         for k, v in h.items():

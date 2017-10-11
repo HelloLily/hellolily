@@ -155,16 +155,13 @@ class Resource(object):
         :return: HttpRequest object.
 
         Usage:
-            The initial response returns x messages, a deltaLink and deltaToken.
+            The initial response returns x messages, a deltaLink with a deltaToken.
             The second request uses that deltaToken.
-            The second response returns x messages, a nextLink and skipToken.
+            The second response returns x messages, a nextLink with a skipToken.
             To complete the sync, the follow up requests use the skipToken returned from the previous sync request,
-                until the last sync response returns a deltaLink and deltaToken, this round of sync is complete.
+                until the last sync response returns a deltaLink with a deltaToken, this round of sync is complete.
             Save the deltaToken for the next round of sync.
         """
-        # TODO: how to differentiate between first and last page in the sync response if the first page holds all.
-        # available mail and is therefor also the last page?
-
         if not folder_id:
             raise NoFolderId()
 

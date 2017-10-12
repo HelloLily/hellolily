@@ -15,12 +15,8 @@ function dealConfig($stateProvider) {
             label: 'Create',
         },
         resolve: {
-            currentDeal: function() {
-                return null;
-            },
-            teams: ['UserTeams', function(UserTeams) {
-                return UserTeams.query().$promise;
-            }],
+            currentDeal: () => null,
+            teams: ['UserTeams', UserTeams => UserTeams.query().$promise],
         },
     });
 
@@ -37,12 +33,8 @@ function dealConfig($stateProvider) {
             skip: true,
         },
         resolve: {
-            currentDeal: function() {
-                return null;
-            },
-            teams: ['UserTeams', function(UserTeams) {
-                return UserTeams.query().$promise;
-            }],
+            currentDeal: () => null,
+            teams: ['UserTeams', UserTeams => UserTeams.query().$promise],
         },
     });
 
@@ -59,12 +51,8 @@ function dealConfig($stateProvider) {
             skip: true,
         },
         resolve: {
-            currentDeal: function() {
-                return null;
-            },
-            teams: ['UserTeams', function(UserTeams) {
-                return UserTeams.query().$promise;
-            }],
+            currentDeal: () => null,
+            teams: ['UserTeams', UserTeams => UserTeams.query().$promise],
         },
     });
 
@@ -81,13 +69,8 @@ function dealConfig($stateProvider) {
             label: 'Edit',
         },
         resolve: {
-            currentDeal: ['Deal', '$stateParams', function(Deal, $stateParams) {
-                var id = $stateParams.id;
-                return Deal.get({id: id}).$promise;
-            }],
-            teams: ['UserTeams', function(UserTeams) {
-                return UserTeams.query().$promise;
-            }],
+            currentDeal: ['Deal', '$stateParams', (Deal, $stateParams) => Deal.get({id: $stateParams.id}).$promise],
+            teams: ['UserTeams', UserTeams => UserTeams.query().$promise],
         },
     });
 }
@@ -106,6 +89,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
     };
     vm.configDealType = 0;
     vm.teams = teams.results;
+    vm.showSuggestions = true;
 
     vm.assignToMe = assignToMe;
     vm.assignToMyTeams = assignToMyTeams;
@@ -120,60 +104,55 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
     ////
 
     function activate() {
-        var i;
-        var j;
-        var splitName = '';
-        var choiceVarName = '';
-        var choiceFields = ['currency'];
-
         _getTeams();
 
-        User.me().$promise.then(function(user) {
+        User.me().$promise.then(user => {
             vm.currentUser = user;
 
-            Deal.getNextSteps(function(response) {
+            Deal.getNextSteps(response => {
                 vm.nextSteps = response.results;
 
-                angular.forEach(response.results, function(nextStep) {
+                response.results.forEach(nextStep => {
                     if (nextStep.name === 'None') {
                         vm.noneStep = nextStep;
                     }
                 });
             });
 
-            Deal.getWhyCustomer(function(response) {
+            Deal.getWhyCustomer(response => {
                 vm.whyCustomer = response.results;
             });
 
-            Deal.getWhyLost(function(response) {
+            Deal.getWhyLost(response => {
                 vm.whyLost = response.results;
             });
 
-            Deal.getFoundThrough(function(response) {
+            Deal.getFoundThrough(response => {
                 vm.foundThroughChoices = response.results;
             });
 
-            Deal.getContactedBy(function(response) {
+            Deal.getContactedBy(response => {
                 vm.contactedByChoices = response.results;
             });
 
-            Deal.getStatuses(function(response) {
+            Deal.getStatuses(response => {
                 vm.statusChoices = response.results;
 
                 vm.lostStatus = Deal.lostStatus;
                 vm.wonStatus = Deal.wonStatus;
             });
 
-            Deal.getFormOptions(function(data) {
-                var choiceData = data.actions.POST;
+            Deal.getFormOptions(data => {
+                const choiceFields = ['currency'];
+                const choiceData = data.actions.POST;
 
-                for (i = 0; i < choiceFields.length; i++) {
-                    splitName = choiceFields[i].split('_');
-                    choiceVarName = splitName[0];
+                for (let i = 0; i < choiceFields.length; i++) {
+                    const splitName = choiceFields[i].split('_');
+                    let choiceVarName = splitName[0];
 
                     // Convert to camelCase.
                     if (splitName.length > 1) {
-                        for (j = 1; j < splitName.length; j++) {
+                        for (let j = 1; j < splitName.length; j++) {
                             choiceVarName += splitName[j].charAt(0).toUpperCase() + splitName[j].slice(1);
                         }
                     }
@@ -188,7 +167,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
             // Regex to determine if the given amount is valid.
             vm.currencyRegex = /^[0-9]{1,3}(?:[0-9]*(?:[.,][0-9]{2})?|(?:,[0-9]{3})*(?:\.[0-9]{1,2})?|(?:\.[0-9]{3})*(?:,[0-9]{1,2})?)$/;
 
-            Tenant.query({}, function(tenant) {
+            Tenant.query({}, tenant => {
                 vm.tenant = tenant;
 
                 if (tenant.currency) {
@@ -201,9 +180,6 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
     }
 
     function _getDeal() {
-        var filterquery = '';
-        var i;
-
         // Fetch the contact or create empty contact.
         if (currentDeal) {
             if (currentDeal.account && currentDeal.account.is_deleted) {
@@ -229,13 +205,13 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
             vm.deal.new_business = true;
 
             if ($stateParams.accountId) {
-                Account.get({id: $stateParams.accountId}).$promise.then(function(account) {
+                Account.get({id: $stateParams.accountId}).$promise.then(account => {
                     vm.deal.account = account;
                 });
             }
 
             if ($stateParams.contactId) {
-                Contact.get({id: $stateParams.contactId}).$promise.then(function(contact) {
+                Contact.get({id: $stateParams.contactId}).$promise.then(contact => {
                     vm.deal.contact = contact;
 
                     if (vm.deal.contact.accounts && vm.deal.contact.accounts.length === 1) {
@@ -255,10 +231,10 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
                     // Auto fill data if it's available.
                     if (Settings.email.data.contact && Settings.email.data.contact.id) {
                         if (Settings.email.data && Settings.email.data.account) {
-                            filterquery = 'accounts.id:' + Settings.email.data.account.id;
+                            const filterquery = 'accounts.id:' + Settings.email.data.account.id;
 
-                            Contact.search({filterquery: filterquery}).$promise.then(function(colleagues) {
-                                for (i = 0; i < colleagues.objects.length; i++) {
+                            Contact.search({filterquery}).$promise.then(colleagues => {
+                                for (let i = 0; i < colleagues.objects.length; i++) {
                                     if (colleagues.objects[i].id === Settings.email.data.contact.id) {
                                         vm.deal.contact = Settings.email.data.contact.id;
                                     }
@@ -281,7 +257,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
         }
     }
 
-    $scope.$watchCollection('vm.deal.next_step', function(newValue, oldValue) {
+    $scope.$watchCollection('vm.deal.next_step', (newValue, oldValue) => {
         // Only change the next step date when the next step actually gets changed.
         // So don't change if we're just loading the deal (init when editing).
         if ((vm.deal && vm.deal.id && oldValue && newValue !== oldValue) || (!vm.deal.id && newValue !== oldValue)) {
@@ -294,7 +270,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
         }
     });
 
-    $scope.$watch('vm.deal.status', function() {
+    $scope.$watch('vm.deal.status', () => {
         if (vm.deal && vm.lostStatus && vm.deal.id && vm.deal.status === vm.lostStatus.id) {
             if (vm.noneStep) {
                 // If the status is 'Lost', set the next step to 'None'.
@@ -327,8 +303,6 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
     }
 
     function saveDeal(form, archive) {
-        var cleanedDeal;
-
         // Check if a deal is being saved (and archived) via the + deal page
         // or via a supercard.
         if (Settings.email.sidebar.isVisible && archive) {
@@ -379,7 +353,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
         }
 
         // Clean modifies the object, so preserve the state by copying the object (in case of errors).
-        cleanedDeal = HLForms.clean(angular.copy(vm.deal));
+        const cleanedDeal = HLForms.clean(angular.copy(vm.deal));
 
         if (cleanedDeal.next_step_date) {
             cleanedDeal.next_step_date = moment(cleanedDeal.next_step_date).format('YYYY-MM-DD');
@@ -391,14 +365,14 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
 
         if (cleanedDeal.id) {
             // If there's an ID set it means we're dealing with an existing deal, so update it.
-            cleanedDeal.$update(function() {
+            cleanedDeal.$update(() => {
                 toastr.success('I\'ve updated the deal for you!', 'Done');
                 $state.go('base.deals.detail', {id: cleanedDeal.id}, {reload: true});
-            }, function(response) {
+            }, response => {
                 _handleBadResponse(response, form);
             });
         } else {
-            cleanedDeal.$save(function() {
+            cleanedDeal.$save(() => {
                 new Intercom('trackEvent', 'deal-created');
 
                 toastr.success('I\'ve saved the deal for you!', 'Yay');
@@ -410,7 +384,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
                 } else {
                     $state.go('base.deals.detail', {id: cleanedDeal.id});
                 }
-            }, function(response) {
+            }, response => {
                 _handleBadResponse(response, form);
             });
         }
@@ -422,15 +396,16 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
         toastr.error('Uh oh, there seems to be a problem', 'Oops!');
     }
 
-    $scope.$watch('vm.deal.account', function(newValue, oldValue) {
+    $scope.$watch('vm.deal.account', (newValue, oldValue) => {
         // Get contacts who work for the selected account.
         refreshContacts('');
 
         // Only set business to 'existing' when adding a new deal or
         // changing to an account that has deals.
-        if ((vm.deal.account && vm.deal.id && oldValue && newValue !== oldValue) || (!vm.deal.id && newValue !== oldValue)) {
+        if (vm.deal.account && ((vm.deal.id && oldValue && newValue !== oldValue) || (!vm.deal.id && newValue !== oldValue))) {
             // Mark as new business if the given account doesn't have any deals yet.
-            Deal.search({filterquery: 'account.id:' + vm.deal.account.id}).$promise.then(function(response) {
+            const filterquery = `account.id:${vm.deal.account.id}`;
+            Deal.search({filterquery}).$promise.then(response => {
                 vm.deal.new_business = !response.objects.length;
             });
         }
@@ -440,7 +415,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
         }
     });
 
-    $scope.$watch('vm.deal.contact', function(newValue, oldValue) {
+    $scope.$watch('vm.deal.contact', (newValue, oldValue) => {
         if (vm.deal.contact && vm.deal.contact.accounts && vm.deal.contact.accounts.length) {
             // Get accounts that the select contact works for.
             vm.accounts = vm.deal.contact.accounts;
@@ -456,25 +431,23 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
     });
 
     function _getOpenDeals() {
-        var filterQuery;
-
         if (vm.deal.account || vm.deal.contact) {
-            filterQuery = 'NOT status.id:' + Deal.lostStatus.id + ' AND NOT status.id:' + Deal.wonStatus.id + ' AND is_archived: false';
+            const filterQuery = 'NOT status.id:' + Deal.lostStatus.id + ' AND NOT status.id:' + Deal.wonStatus.id + ' AND is_archived: false';
 
-            HLSearch.getOpenCasesDeals(filterQuery, vm.deal, 'Deal').then(function(response) {
+            HLSearch.getOpenCasesDeals(filterQuery, vm.deal, 'Deal').then(response => {
                 vm.openDeals = response.objects;
+                vm.showSuggestions = true;
             });
         } else {
             vm.openDeals = [];
         }
     }
 
-    $scope.$watch('vm.deal.assigned_to', function(newValue, oldValue) {
-        var team;
-        var assignToTeams = [];
+    $scope.$watch('vm.deal.assigned_to', (newValue, oldValue) => {
+        let assignToTeams = [];
 
         if (vm.deal.assigned_to && oldValue && newValue !== oldValue) {
-            for (team of vm.teams) {
+            for (let team of vm.teams) {
                 if (vm.deal.assigned_to.teams && vm.deal.assigned_to.teams.indexOf(team.id) > -1) {
                     assignToTeams.push(team);
                 }
@@ -485,15 +458,13 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
     });
 
     function refreshAccounts(query) {
-        var accountsPromise;
-
         // Don't load if we selected a contact.
         // Because we want to display all accounts the contact works for.
         if (!vm.deal.contact || query.length) {
-            accountsPromise = HLSearch.refreshList(query, 'Account');
+            const accountsPromise = HLSearch.refreshList(query, 'Account');
 
             if (accountsPromise) {
-                accountsPromise.$promise.then(function(data) {
+                accountsPromise.$promise.then(data => {
                     vm.accounts = data.objects;
                 });
             }
@@ -501,8 +472,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
     }
 
     function refreshContacts(query) {
-        var accountQuery = '';
-        var contactsPromise;
+        let accountQuery = '';
 
         if (vm.deal.account) {
             if (query.length >= 2) {
@@ -513,10 +483,10 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
             accountQuery += 'active_at:' + vm.deal.account.id;
         }
 
-        contactsPromise = HLSearch.refreshList(query, 'Contact', accountQuery, '', 'full_name');
+        const contactsPromise = HLSearch.refreshList(query, 'Contact', accountQuery, '', 'full_name');
 
         if (contactsPromise) {
-            contactsPromise.$promise.then(function(data) {
+            contactsPromise.$promise.then(data => {
                 vm.contacts = data.objects;
                 if (vm.contacts.length === 1) {
                     vm.deal.contact = vm.contacts[0];
@@ -526,13 +496,11 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
     }
 
     function refreshUsers(query) {
-        var usersPromise;
-
         if (!vm.assigned_to || query.length) {
-            usersPromise = HLSearch.refreshList(query, 'User', 'is_active:true', 'full_name', 'full_name');
+            const usersPromise = HLSearch.refreshList(query, 'User', 'is_active:true', 'full_name', 'full_name');
 
             if (usersPromise) {
-                usersPromise.$promise.then(function(data) {
+                usersPromise.$promise.then(data => {
                     vm.users = data.objects;
                 });
             }
@@ -556,12 +524,12 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
     }
 
     function _getTeams() {
-        UserTeams.mine(function(response) {
+        UserTeams.mine(response => {
             vm.ownTeams = response;
         });
     }
 
-    $scope.$on('saveDeal', function() {
+    $scope.$on('saveDeal', () => {
         saveDeal($scope.dealForm);
     });
 }

@@ -86,6 +86,7 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
     vm.errors = {
         name: [],
     };
+    vm.showSuggestions = true;
 
     vm.saveContact = saveContact;
     vm.cancelContactCreation = cancelContactCreation;
@@ -385,10 +386,11 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
 
     function checkExistingContact() {
         if (!vm.contact.id && vm.contact.first_name && vm.contact.last_name) {
-            let fullName = vm.contact.first_name + ' ' + vm.contact.last_name;
+            const filterquery = `full_name:"${vm.contact.first_name} ${vm.contact.last_name}"`;
 
-            Contact.search({filterquery: 'full_name:"' + fullName + '"'}).$promise.then(results => {
+            Contact.search({filterquery}).$promise.then(results => {
                 vm.contactSuggestions = results.objects;
+                vm.showSuggestions = true;
             });
         }
     }
@@ -401,6 +403,7 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
 
     function _postSave(contact) {
         new Intercom('trackEvent', 'contact-created');
+
         if (Settings.email.sidebar.form === 'contact') {
             Settings.email.sidebar.form = null;
             Settings.email.sidebar.contact = true;

@@ -47,9 +47,11 @@
                     </form-group>
                 </div>
 
-                <form-group ng-if="vm.contactSuggestions.length">
+                <form-group ng-if="vm.contactSuggestions.length && vm.showSuggestions">
                     <div class="widget-suggestion">
                         <span class="widget-suggestion-title"><i class="lilicon hl-entity-icon"></i> It looks like this contact already exists</span>
+                        <span class="small pull-right clickable text-muted" ng-click="vm.showSuggestions = false"><i class="lilicon hl-close-icon"></i></span>
+
                         <div ng-repeat="contact in vm.contactSuggestions" class="widget-suggestion-items">
                             <div class="widget-suggestion-item">
                                 Is this

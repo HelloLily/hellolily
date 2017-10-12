@@ -52,9 +52,11 @@
                            ng-model="vm.account.name">
                 </form-group>
 
-                <form-group ng-if="vm.accountSuggestions.length">
+                <form-group ng-if="vm.accountSuggestions.length && vm.showSuggestions">
                     <div class="widget-suggestion">
                         <span class="widget-suggestion-title"><i class="fa fa-building-o"></i> It looks like this account already exists</span>
+                        <span class="small pull-right clickable text-muted" ng-click="vm.showSuggestions = false"><i class="lilicon hl-close-icon"></i></span>
+
                         <div ng-repeat="account in vm.accountSuggestions" class="widget-suggestion-items">
                             <div class="widget-suggestion-item">
                                 Is this

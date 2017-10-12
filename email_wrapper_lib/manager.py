@@ -61,6 +61,8 @@ class EmailAccountManager(object):
         elif self.account.status != EmailAccount.ERROR:
             # If the status is not error we put it to idle.
             self.account.status = EmailAccount.IDLE
+        else:
+            pass  # TODO: Possibe? How to handle?
 
         self.account.save(updated_fields=updated_fields)
 
@@ -143,15 +145,16 @@ class EmailAccountManager(object):
 
         if self._old_status in [EmailAccount.NEW, EmailAccount.RESYNC]:
             # This is a new account or one that needs to resync.
+            # An account is still new when it hasn't reached the last page of all the messages yet.
             profile = self.connector.profile.get()
-            data = self.connector.messages.list(self.account.page_token)  # TODO: Why provided page_token? You want everything from the start.
+            data = self.connector.messages.list(self.account.page_token)
             self.connector.execute()
 
             self.save_message_list(data['messages'])
 
             if not self.account.history_token:
                 # Only save the history token on first iteration.
-                self.account.history_token = profile.get('history_token')  # TODO: Not available for MS in profile.
+                self.account.history_token = profile.get('history_token')  # TODO: Not available for MS in profile. For Google, why retrieve the profile when the history_token is in data?
 
         else:
             # This is an existing account that can sync using the history id.

@@ -22,10 +22,16 @@ class MicrosoftMessagesResource(MicrosoftResource):
         messages = {}
         query_parameters = {
             '$top': 50,  # TODO: Determine maximum. for $search it is 250, maybe here also?
-            '$skip': page_token,
+            '$skip': page_token
         }  # Paging.
+
         # TODO: Only request usefull data?
-        # query_parameters.update({'$select': 'Id,InternetMessageId,ConversationId,BodyPreview,IsRead,IsDraft,ParentFolderId,Importance,From,ToRecipients,CcRecipients,BccRecipients,ReplyTo,Sender'})
+        # query_parameters = {
+        #     '$top': 50,  # TODO: Determine maximum. for $search it is 250, maybe here also?
+        #     '$skip': page_token,
+        #     '$select': 'Id, InternetMessageId, ConversationId, BodyPreview, IsRead, IsDraft, ParentFolderId,'
+        #                'Importance, From, ToRecipients, CcRecipients, BccRecipients, ReplyTo, Sender',
+        # }
 
         self.batch.add(
             self.service.get_messages(

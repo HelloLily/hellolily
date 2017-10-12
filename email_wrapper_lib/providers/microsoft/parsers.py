@@ -4,8 +4,9 @@ import re
 from collections import defaultdict
 
 from email_wrapper_lib.providers.exceptions import BatchRequestException
-from microsoft_mail_client.constants import SYSTEM_FOLDERS_NAMES, FOLDER_ARCHIVE_NAME, FOLDER_DELETED_ITEMS_NAME, \
-    FOLDER_JUNK_NAME, IMPORTANCE_HIGH
+from microsoft_mail_client.constants import (
+    SYSTEM_FOLDERS_NAMES, FOLDER_ARCHIVE_NAME, FOLDER_DELETED_ITEMS_NAME, FOLDER_JUNK_NAME, IMPORTANCE_HIGH
+)
 
 
 def parse_response(callback_func, *args, **kwargs):
@@ -36,7 +37,7 @@ def parse_profile(data, profile):
     return profile
 
 
-def parse_history(data, history, message_resource):  # TODO: rename data to response?
+def parse_history(data, history):  # TODO: rename data to response?
     history.update({
         'history_token': None,
         'page_token': None,
@@ -70,9 +71,11 @@ def parse_history(data, history, message_resource):  # TODO: rename data to resp
             # The message identifier is formated as follows: "id": "Messages('AQMkADAwATM0MDAAMS0')"
             regex = re.search(r'Messages\(\'(.*?)\'\)', message.get('id'))
             if regex:
-                message_id = regex.group(1)
-                history['deleted_messages'].append(message_id)
+                remote_id = regex.group(1)
+                history['deleted_messages'].append(remote_id)
         else:
+            # TODO: Where are the attachments?
+
             # New messages have all the properties. Mutated message can have all properties (pin/unpin) or just the
             # mutated one (read/unread). When all properties are available, there is no indication is the message is
             # new or not.
@@ -82,12 +85,15 @@ def parse_history(data, history, message_resource):  # TODO: rename data to resp
             # TODO: implement mapping ParentFolderId: DisplayName label
             folders = {'xyz': 'Junk Email', 'uvw': 'Archive', 'abc': 'Deleted Items'}
 
-            # Build a message with the available properties from the API.
+            # Build a message dict with the available properties retrieved from the API.
+            # The following properties are always availble.
             msg = {
                 'remote_id': data['Id'],  # Id is mutable, but needed for doing API calls and used in history sync.
                 'history_token': '',  # TODO: Needed?
                 'is_starred': False,  # TODO: maybe 'pinned' messages? But not available via API.
             }
+
+            # The following properties can be present.
             fields_mapping = {  # A mapping from the MS fields to our internal naming.
                 'InternetMessageId': 'message_id',
                 'ConversationId': 'thread_id',
@@ -97,8 +103,29 @@ def parse_history(data, history, message_resource):  # TODO: rename data to resp
             }
             for k, v in fields_mapping.items():
                 if k in message:
-                    msg[v] = message[k],
+                    msg[v] = message[k]
 
+            # The following properties can be present. Extract the single email address from the data.
+            fields_mapping = {  # A mapping from the MS fields to our internal naming.
+                'From': 'from',
+                'Sender': 'sender',
+            }
+            for k, v in fields_mapping.items():
+                if k in message:
+                    msg[v] = _extract_email_address(message[k])
+
+            # The following properties can be present. Extract a list of email addresses from the data.
+            fields_mapping = {  # A mapping from the MS fields to our internal naming.
+                'ReplyTo': 'reply_to',
+                'ToRecipients': 'to',
+                'CcRecipients': 'cc',
+                'BccRecipients': 'bcc',
+            }
+            for k, v in fields_mapping.items():
+                if k in message:
+                    msg[v] = [_extract_email_address(email_address) for email_address in message[k]]
+
+            # The following folder properties can be present.
             if 'ParentFolderId' in message:
                 msg['folder_ids'] = [message['ParentFolderId']]
             if 'Importance' in message:
@@ -107,8 +134,6 @@ def parse_history(data, history, message_resource):  # TODO: rename data to resp
                 msg['is_archived'] = message['ParentFolderId'] in folders and folders[message['ParentFolderId']] is FOLDER_ARCHIVE_NAME,
                 msg['is_trashed'] = message['ParentFolderId'] in folders and folders[message['ParentFolderId']] is FOLDER_DELETED_ITEMS_NAME,
                 msg['is_spam'] = message['ParentFolderId'] in folders and folders[message['ParentFolderId']] is FOLDER_JUNK_NAME,
-
-            # TODO: 'From', 'Sender', 'ReplyTo', 'ToRecipients', 'CcRecipients', 'BccRecipients'.
 
             history['added_updated_messages'].append(msg)
 
@@ -143,12 +168,9 @@ def _extract_token(url, token_to_extract):
     return token
 
 
-def parse_history_followup(data, history, message_resource):
-    data = data.json()
-    return history
-
-
 def parse_message_list(data, messages):
+    # TODO: Where are the attachments?
+
     data = data.json()
     messages['messages'] = {}
 
@@ -173,9 +195,13 @@ def parse_message_list(data, messages):
             'is_trashed': message['ParentFolderId'] in folders and folders[message['ParentFolderId']] is FOLDER_DELETED_ITEMS_NAME,
             'is_spam': message['ParentFolderId'] in folders and folders[message['ParentFolderId']] is FOLDER_JUNK_NAME,
             'is_chat': False,
+            'from': _extract_email_address(message['From']),
+            'sender': _extract_email_address(message['Sender']),
+            'reply_to': [_extract_email_address(email_address) for email_address in message['ReplyTo']],
+            'to': [_extract_email_address(email_address) for email_address in message['ToRecipients']],
+            'cc': [_extract_email_address(email_address) for email_address in message['CcRecipients']],
+            'bcc': [_extract_email_address(email_address) for email_address in message['BccRecipients']],
         }
-
-        # TODO: 'from', 'sender', 'reply_to', 'to', 'cc', 'bcc'.
 
     messages['page_token'] = None
     # Or are there more pages with messages?
@@ -195,13 +221,15 @@ def parse_message(data, message):
     A message that changes from folder, gets a new ID, but InternetMessageId is immutable.
     ParentFolderId can tell if it is archived, trashed, or spam.
     """
+    # TODO: Where are the attachments?
+
     data = data.json()
     # Retrieve dict with 3 (key, value) pairs to map folders from remote_id to Archive, Trash and Junk.
     # result = EmailFolder.objects.filter()  # TODO: implement right query.
     # TODO: implement mapping ParentFolderId: DisplayName label
     folders = {'xyz': 'Junk Email', 'uvw': 'Archive', 'abc': 'Deleted Items'}
 
-    message.update({
+    msg = {
         'remote_id': data['Id'],  # Id is mutable, but needed for doing api calls and used in history sync.
         'message_id': data['InternetMessageId'],  # InternetMessageId is immutable, but not garanteed unique.
         'thread_id': data['ConversationId'],
@@ -216,11 +244,50 @@ def parse_message(data, message):
         'is_trashed': data['ParentFolderId'] in folders and folders[data['ParentFolderId']] is FOLDER_DELETED_ITEMS_NAME,
         'is_spam': data['ParentFolderId'] in folders and folders[data['ParentFolderId']] is FOLDER_JUNK_NAME,
         'is_chat': False,
-    })
+        'from': _extract_email_address(data['From']),
+        'sender': _extract_email_address(data['Sender']),
+        'reply_to': [_extract_email_address(email_address) for email_address in data['ReplyTo']],
+        'to': [_extract_email_address(email_address) for email_address in data['ToRecipients']],
+        'cc': [_extract_email_address(email_address) for email_address in data['CcRecipients']],
+        'bcc': [_extract_email_address(email_address) for email_address in data['BccRecipients']],
+    }
 
-    # TODO: 'from', 'sender', 'reply_to', 'to', 'cc', 'bcc'.
+    message.update(msg)
 
     return message
+
+
+def _extract_email_address(data):
+    """
+    Extract an email address from the data.
+
+    :param data: dictionary containing a name and email address. ie.:
+        {
+            "EmailAddress": {
+                "Name": "Firstname Lastname",
+                "Address": "foo@bar.com"
+            }
+        }
+    In case of a service announcement email from Microsoft Outlook itself, the email_address field is empty.
+        {
+            "EmailAddress": {
+                "Name": "Microsoft Outlook Calendar"
+            }
+        }
+    :return: return a dictionary with the available data mapped to our internal field naming.
+    """
+    email_address_dict = {
+        'name': '',
+        'email_address': '',
+    }
+
+    if data['EmailAddress']['Name']:
+        email_address_dict['name'] = data['EmailAddress']['Name']
+
+    if data['EmailAddress']['Address']:
+        email_address_dict['email_address'] = data['EmailAddress']['Address']
+
+    return email_address_dict
 
 
 def parse_label_list(data, labels, label_resource):

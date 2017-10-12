@@ -68,10 +68,10 @@ function UnassignedCasesController($http, $scope, $state, $timeout, Case, HLFilt
 
             vm.filterSpecialList = filterSpecialList;
 
-            Case.getCaseTypes((caseTypes) =>  {
+            Case.getCaseTypes(response =>  {
                 let filterList = [];
 
-                angular.forEach(caseTypes, (caseType) => {
+                response.results.forEach(caseType => {
                     filterList.push({
                         name: caseType.name,
                         value: 'type.id:' + caseType.id,

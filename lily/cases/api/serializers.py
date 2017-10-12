@@ -41,6 +41,7 @@ class CaseTypeSerializer(serializers.ModelSerializer):
         model = CaseType
         fields = (
             'id',
+            'is_archived',
             'name',
             'use_as_filter',
         )

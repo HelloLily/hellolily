@@ -75,8 +75,13 @@ class EmailRecipient(models.Model):
         verbose_name=_('Raw value'),
         max_length=255,
         unique=True,
-        db_index=True
+        db_index=True,
+        editable=False
     )
+
+    def save(self, *args, **kwargs):
+        self.raw_value = '{} <{}>'.format(self.name, self.email_address)
+        super(EmailRecipient, self).save(*args, **kwargs)
 
     class Meta:
         app_label = 'email_wrapper_lib'

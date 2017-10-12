@@ -140,12 +140,11 @@ def parse_recipient_string(data):
     return [{
         'name': recipient[0],
         'email_address': recipient[1],
-        'raw_value': '{} <{}>'.format(recipient[0], recipient[1])
     } for recipient in getaddresses([data])]
 
 
 def parse_headers(data):
-    header_dict = {}
+    header_dict = {}  # TODO: rename, it gets the data from the headers, but is afterwards it aren't headers anymore.
     wanted_headers = [
         'subject',
         'date',

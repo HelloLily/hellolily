@@ -3,8 +3,8 @@ from rest_framework.routers import DefaultRouter
 
 from lily.accounts.api.views import AccountViewSet, AccountStatusViewSet, AccountImport
 from lily.billing.api.views import BillingViewSet
-from lily.calls.api.views import CallViewSet
 from lily.cases.api.views import CaseViewSet, CaseStatusViewSet, CaseTypeViewSet
+from lily.calls.api.views import CallViewSet, CallRecordViewSet
 from lily.contacts.api.views import ContactViewSet
 from lily.deals.api.views import (DealViewSet, DealStatusViewSet, DealNextStepList, DealNextStepViewSet,
                                   DealWhyCustomerViewSet, DealContactedByViewSet, DealWhyLostViewSet,
@@ -21,14 +21,17 @@ from lily.tenant.api.views import TenantViewSet
 from lily.users.api.views import (LilyUserViewSet, TeamViewSet, TwoFactorDevicesViewSet, SessionViewSet,
                                   UserInviteViewSet)
 from lily.utils.api.views import AppHash, CallerName, CountryViewSet, Notifications
+from lily.voipgrid.api.views import CallNotificationViewSet
 
 # Define routes, using the default router so the API is browsable.
+
 router = DefaultRouter()
 
 router.register(r'accounts/statuses', AccountStatusViewSet)
 router.register(r'accounts', AccountViewSet)
 
 router.register(r'calls', CallViewSet)
+router.register(r'call-records', CallRecordViewSet)
 
 router.register(r'cases/statuses', CaseStatusViewSet)
 router.register(r'cases/types', CaseTypeViewSet)
@@ -64,6 +67,9 @@ router.register(r'tenants', TenantViewSet)
 router.register(r'billing', BillingViewSet, base_name='billing')
 
 router.register(r'utils/countries', CountryViewSet)
+
+router.register(r'voipgrid/call-notifications', CallNotificationViewSet, base_name='callnotification')
+router.register(r'voys/call-notifications', CallNotificationViewSet, base_name='callnotification')
 
 urlpatterns = [
     url(r'^deals/nextsteps/$', DealNextStepList.as_view()),

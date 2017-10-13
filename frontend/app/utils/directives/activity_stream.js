@@ -415,8 +415,8 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                     // Add promise to list of all promises for later handling.
                     promises.push(callPromise);
 
-                    callPromise.then(results => {
-                        results.objects.map(call => {
+                    callPromise.then(data => {
+                        data.results.map(call => {
                             NoteDetail.query({filterquery: 'content_type:call AND object_id:' + call.id, size: 15})
                                 .$promise.then(notes => {
                                     angular.forEach(notes, note => {

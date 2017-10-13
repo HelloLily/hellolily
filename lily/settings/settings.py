@@ -52,6 +52,7 @@ if not CURRENT_COMMIT_SHA:
 #######################################################################################################################
 # Try to read as much configuration from ENV
 DEBUG = boolean(os.environ.get('DEBUG', 0))
+TESTING = False
 
 ADMINS = eval(os.environ.get('ADMINS', '()'))
 MANAGERS = ADMINS
@@ -670,7 +671,7 @@ SLACK_LILY_TOKEN = os.environ.get('SLACK_LILY_TOKEN', '')
 # TESTING                                                                                                             #
 #######################################################################################################################
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-NOSE_ARGS = ['--nocapture', '--nologcapture']
+NOSE_ARGS = ['--nocapture', '--nologcapture', '--verbosity=3']
 
 #######################################################################################################################
 # MISCELLANEOUS SETTINGS                                                                                              #
@@ -693,5 +694,24 @@ BOOTSTRAP3 = {
     'horizontal_field_class': 'col-md-4',
     'set_required': False,
 }
+
+VOIPGRID_IPS = os.environ.get('VOIPGRID_IPS', '127.0.0.2')
+
+SHELL_PLUS_POST_IMPORTS = (
+    ('django.db', 'connection'),
+    ('django.db', 'reset_queries'),
+    ('pprint', 'pprint'),
+    ('django.utils.translation', 'activate'),
+    ('django.utils.translation', 'get_language'),
+    ('lily.accounts.factories', '*'),
+    ('lily.calls.factories', '*'),
+    ('lily.cases.factories', '*'),
+    ('lily.contacts.factories', '*'),
+    ('lily.deals.factories', '*'),
+    ('lily.notes.factories', '*'),
+    ('lily.tags.factories', '*'),
+    ('lily.tenant.factories', '*'),
+    ('lily.users.factories', '*'),
+)
 
 from .celeryconfig import *  # noqa

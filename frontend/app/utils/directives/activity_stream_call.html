@@ -10,19 +10,87 @@
         </div>
 
         <div class="stream-item-activity">
-            <span ng-if="!vm.item.contact && vm.item.account">Somebody from {{ ::vm.item.account }}</span>
-            <span ng-if="vm.item.contact">{{ ::vm.item.contact }}</span>
-            called with {{ ::vm.item.user || 'unknown' }}
+            <div class="clickable" ng-click="vm.item.showDetails = !vm.item.showDetails">
+                <span>{{ vm.item.caller.name || vm.item.caller.number }}</span>
+                <span ng-if="vm.item.status == 0">
+                    is calling
+                </span>
 
-            <span class="stream-note-toggle" ng-click="vm.item.showNotes = !vm.item.showNotes"><i class="lilicon hl-note-icon"></i></span>
+                <span ng-if="vm.item.status != 0">
+                    <span ng-if="!vm.item.destination">
+                        <span>called but nobody picked up.</span>
+                    </span>
+                    <span ng-if="vm.item.destination">
+                        <span ng-if="vm.item.status == 1">
+                            is calling with
+                        </span>
+                        <span ng-if="vm.item.status == 2">
+                            called with
+                        </span>
+                        <span ng-if="vm.item.status != 0">
+                            {{ ::vm.item.destination.name || vm.item.destination.number }}
+                            <span ng-if="vm.item.transfers.length">
+                                and
+                                <span ng-if="vm.item.transfers.length > 1">
+                                    {{ vm.item.transfers.length }} others
+                                </span>
+
+                                <span ng-if="vm.item.transfers.length == 1">
+                                    {{ vm.item.transfers[0].destination.name || vm.item.transfers[0].destination.number }}
+                                </span>
+                            </span>
+                        </span>
+                    </span>
+                </span>
+                <span class="pull-right">
+                    <i class="change-log-toggle lilicon" ng-class="{'hl-toggle-down-icon': !vm.item.showDetails, 'hl-toggle-up-icon': vm.item.showDetails}"></i>
+                </span>
+            </div>
         </div>
 
-        <div class="stream-item-content">
+        <div class="stream-item-content" ng-show="vm.item.showDetails">
+            <div class="stream-item-meta">
+                <div class="stream-item-meta-object">
+                    <div class="stream-item-meta-title">Status:</div>
+                    <span>{{ vm.item.status_display }}</span>
+                </div>
+                <div class="stream-item-meta-object">
+                    <div class="stream-item-meta-title">Duration:</div>
+                    <span>{{ vm.item.duration || 'Unknown' }}</span>
+                </div>
+            </div>
+
             <div class="stream-item-description">
+                <div ng-if="vm.item.status != 0 && vm.item.destination">
+                    <span class="item-time pull-right">
+                        {{ vm.item.start|date:'dd-mm-yyyy HH:mm:ss' }}
+                    </span>
+                    {{ ::vm.item.destination.name || vm.item.destination.number }}
+                    picked up the phone
+                </div>
+                <div ng-if="vm.item.transfers.length">
+                    <div ng-repeat="transfer in vm.item.transfers">
+                        <span class="item-time pull-right">{{ transfer.timestamp|date:'dd-mm-yyyy HH:mm:ss' }}</span>
+                        The call was transfered to
+                        {{ transfer.destination.name || transfer.destination.number }}
+                    </div>
+                </div>
+                <div ng-if="vm.item.status == 0">
+                    Nobody picked up yet.
+                </div>
+                <div ng-if="vm.item.status == 1">
+                    Conversation ongoing.
+                </div>
+                <div ng-if="vm.item.status == 2">
+                    <span class="item-time pull-right">{{ vm.item.end|date:'dd-mm-yyyy HH:mm:ss' }}</span>
+                    Conversation has ended.
+                </div>
+
+
                 <div class="stream-subitem">
                     <div class="stream-subitem-timeline"></div>
 
-                    <div class="stream-subitem-object margin-bottom-20" ng-if="vm.item.showNotes">
+                    <div class="stream-subitem-object margin-bottom-20">
                         <div class="stream-subitem-image">
                             <div class="stream-subitem-avatar is-note"><i class="lilicon hl-note-icon"></i></div>
                         </div>

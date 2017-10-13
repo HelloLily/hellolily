@@ -25,7 +25,7 @@ function CallerInfoController($state, Account, Call) {
 
             if (call) {
                 // There was a call for the current user, so try to find an account with the given number.
-                Account.searchByPhoneNumber({number: call.caller_number}).$promise.then(function(response) {
+                Account.searchByPhoneNumber({number: call.caller.number}).$promise.then(function(response) {
                     if (response.data.accounts.length) {
                         // Account found so redirect to the account.
                         $state.go('base.accounts.detail', {id: response.data.accounts[0]}, {reload: true});

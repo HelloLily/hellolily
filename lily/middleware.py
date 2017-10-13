@@ -34,5 +34,7 @@ def get_user(token):
 class TokenAuthenticationMiddleware(object):
     def process_request(self, request):
         token = request.GET.get('key', None)
-        if token and isinstance(request.user, AnonymousUser):
+
+        # Exclude api, because for some reason you actually can't use the token there if we already set the user here.
+        if token and isinstance(request.user, AnonymousUser) and not request.path.startswith('/api/'):
             request.user = SimpleLazyObject(lambda: get_user(token))

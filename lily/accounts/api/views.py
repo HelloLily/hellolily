@@ -1,7 +1,7 @@
 from django.db import transaction
+from django.db.models import Q
 from django.utils.datastructures import MultiValueDictKeyError
 from django_filters import FilterSet
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import detail_route
 from rest_framework import status
 from rest_framework.response import Response
@@ -13,9 +13,9 @@ from tablib import Dataset, UnsupportedFormat
 
 from lily.api.filters import ElasticSearchFilter
 from lily.api.mixins import ModelChangesMixin
-from lily.calls.api.serializers import CallSerializer
-from lily.calls.models import Call
-from lily.users.models import LilyUser
+from lily.calls.api.serializers import CallRecordSerializer
+from lily.calls.models import CallRecord
+from lily.utils.functions import uniquify
 
 from lily.socialmedia.models import SocialMedia
 from lily.utils.models.models import EmailAddress, PhoneNumber, Address
@@ -69,7 +69,7 @@ class AccountViewSet(ModelChangesMixin, ModelViewSet):
     # Set the serializer class for this viewset.
     serializer_class = AccountSerializer
     # Set all filter backends that this viewset uses.
-    filter_backends = (ElasticSearchFilter, OrderingFilter, DjangoFilterBackend, )
+    filter_backends = (ElasticSearchFilter, OrderingFilter, )
 
     # ElasticSearchFilter: set the model type.
     model_type = 'accounts_account'
@@ -90,81 +90,28 @@ class AccountViewSet(ModelChangesMixin, ModelViewSet):
 
         return super(AccountViewSet, self).get_queryset().filter(is_deleted=False)
 
-    @detail_route(methods=['GET'])
+    @detail_route(methods=['GET', ])
     def calls(self, request, pk=None):
-        """
-        Gets the calls for the given contact.
-        """
-        account_phone_numbers = []
-        calls = []
         account = self.get_object()
-        contacts = account.get_contacts()
-        tenant = self.request.user.tenant
 
-        # Get calls made from a phone number which belongs to the account.
-        for number in account.phone_numbers.all():
-            account_phone_numbers.append(number.number)
+        phone_numbers = account.phone_numbers.all().values_list('number', flat=True)
 
-        call_objects = Call.objects.filter(
-            status=Call.ANSWERED,
-            type=Call.INBOUND,
-            caller_number__in=account_phone_numbers,
-            created__isnull=False,
+        contact_list = account.get_contacts()
+
+        for contact in contact_list:
+            phone_numbers += contact.phone_numbers.all().values_list('number', flat=True)
+
+        phone_numbers = uniquify(phone_numbers)  # Filter out double numbers.
+
+        calls = CallRecord.objects.filter(
+            Q(caller__number__in=phone_numbers) | Q(destination__number__in=phone_numbers)
         )
 
-        if call_objects:
-            calls = CallSerializer(call_objects, many=True).data
+        page = self.paginate_queryset(calls)
 
-            for call in calls:
-                call['account'] = account.name
-
-                if len(contacts) == 1:
-                    call['contact'] = contacts[0].full_name
-
-                user = LilyUser.objects.filter(internal_number=call.get('internal_number'), tenant=tenant).first()
-
-                if user:
-                    call['user'] = user.full_name
-
-        # Get calls for every phone number of every contact in an account.
-        for contact in contacts:
-            contact_phone_numbers = []
-
-            for number in contact.phone_numbers.all():
-                contact_phone_numbers.append(number.number)
-
-            call_objects = Call.objects.filter(
-                status=Call.ANSWERED,
-                type=Call.INBOUND,
-                caller_number__in=contact_phone_numbers,
-                created__isnull=False,
-            )
-
-            if call_objects:
-                contact_calls = CallSerializer(call_objects, many=True).data
-
-                for call in contact_calls:
-                    add_call = True
-
-                    for account_call in calls:
-                        if call.get('id') == account_call.get('id'):
-                            add_call = False
-                            account_call['contact'] = contact.full_name
-
-                    if add_call:
-                        call['contact'] = contact.full_name
-
-                        user = LilyUser.objects.filter(
-                            internal_number=call.get('internal_number'),
-                            tenant=tenant,
-                        ).first()
-
-                        if user:
-                            call['user'] = user.full_name
-
-                        calls.append(call)
-
-        return Response({'objects': calls})
+        return self.get_paginated_response(
+            CallRecordSerializer(page, many=True, context={'request': request}).data
+        )
 
 
 class AccountStatusViewSet(ModelViewSet):

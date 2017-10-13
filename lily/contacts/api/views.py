@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import viewsets, status
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.filters import OrderingFilter
@@ -6,11 +7,11 @@ from rest_framework.response import Response
 from lily.api.filters import ElasticSearchFilter
 from lily.api.mixins import ModelChangesMixin
 
-from lily.calls.api.serializers import CallSerializer
-from lily.calls.models import Call
+from lily.calls.api.serializers import CallRecordSerializer
+from lily.calls.models import CallRecord
 from lily.contacts.api.serializers import ContactSerializer
 from lily.contacts.models import Contact, Function
-from lily.users.models import LilyUser
+from lily.utils.functions import uniquify
 
 
 class ContactViewSet(ModelChangesMixin, viewsets.ModelViewSet):
@@ -80,36 +81,19 @@ class ContactViewSet(ModelChangesMixin, viewsets.ModelViewSet):
 
             return Response(status=status.HTTP_200_OK)
 
-    @detail_route(methods=['GET'])
+    @detail_route(methods=['GET', ])
     def calls(self, request, pk=None):
-        """
-        Gets the calls for the given contact.
-        """
-        phone_numbers = []
         contact = self.get_object()
-        tenant = self.request.user.tenant
 
-        for number in contact.phone_numbers.all():
-            phone_numbers.append(number.number)
+        phone_numbers = contact.phone_numbers.all().values_list('number', flat=True)
+        phone_numbers = uniquify(phone_numbers)  # Filter out double numbers.
 
-        calls = []
-
-        call_objects = Call.objects.filter(
-            status=Call.ANSWERED,
-            type=Call.INBOUND,
-            caller_number__in=phone_numbers,
-            created__isnull=False,
+        calls = CallRecord.objects.filter(
+            Q(caller__number__in=phone_numbers) | Q(destination__number__in=phone_numbers)
         )
 
-        if call_objects:
-            calls = CallSerializer(call_objects, many=True).data
+        page = self.paginate_queryset(calls)
 
-            for call in calls:
-                call['contact'] = contact.full_name
-
-                user = LilyUser.objects.filter(internal_number=call.get('internal_number'), tenant=tenant).first()
-
-                if user:
-                    call['user'] = user.full_name
-
-        return Response({'objects': calls})
+        return self.get_paginated_response(
+            CallRecordSerializer(page, many=True, context={'request': request}).data
+        )

@@ -44,3 +44,118 @@ class Call(TenantMixin):
 
     def __unicode__(self):
         return '%s: Call from %s to %s' % (self.unique_id, self.caller_number, self.called_number)
+
+
+class CallRecord(TenantMixin):
+    RINGING, IN_PROGRESS, ENDED = range(3)
+    CALL_STATUS_CHOICES = (
+        (RINGING, _('Ringing')),
+        (IN_PROGRESS, _('In progress')),
+        (ENDED, _('Ended'))
+    )
+
+    INBOUND, OUTBOUND = range(2)
+    CALL_DIRECTION_CHOICES = (
+        (INBOUND, _('Inbound')),
+        (OUTBOUND, _('Outbound')),
+    )
+
+    # Unique id of a call as received from the telephony platform.
+    call_id = models.CharField(
+        max_length=255,
+        unique=True,
+        verbose_name=_('Unique call id')
+    )
+    # The start and end time of the conversation, can be used to calculate the duration.
+    start = models.DateTimeField(
+        verbose_name=_('Start')
+    )
+    end = models.DateTimeField(
+        null=True,
+        verbose_name=_('End')
+    )
+    status = models.PositiveSmallIntegerField(
+        choices=CALL_STATUS_CHOICES,
+        verbose_name=_('Status'),
+    )
+    direction = models.PositiveSmallIntegerField(
+        choices=CALL_DIRECTION_CHOICES,
+        verbose_name=_('Type'),
+    )
+    caller = models.ForeignKey(
+        to='CallParticipant',
+        on_delete=models.CASCADE,
+        verbose_name=_('From'),
+        related_name='calls_made'
+    )
+    destination = models.ForeignKey(
+        to='CallParticipant',
+        on_delete=models.CASCADE,
+        verbose_name=_('To'),
+        related_name='calls_received',
+        null=True  # Can be null because on ringing event you don't know who picked up the phone yet.
+    )
+    notes = GenericRelation(
+        to='notes.Note',
+        content_type_field='content_type',
+        object_id_field='object_id'
+    )
+
+    @property
+    def content_type(self):
+        """
+        Return the content type (Django model) for this model.
+        """
+        return ContentType.objects.get(
+            app_label='calls',
+            model='callrecord'
+        )
+
+    def __unicode__(self):
+        return '%s: Call from %s' % (
+            self.call_id,
+            self.caller
+        )
+
+
+class CallTransfer(TenantMixin):
+    timestamp = models.DateTimeField(
+        verbose_name=_('Timestamp')
+    )
+    call = models.ForeignKey(
+        to='CallRecord',
+        on_delete=models.CASCADE,
+        verbose_name=_('Call'),
+        related_name='transfers'
+    )
+    destination = models.ForeignKey(
+        to='CallParticipant',
+        on_delete=models.CASCADE,
+        verbose_name=_('To'),
+        related_name='transfers_received'
+    )
+
+    def __unicode__(self):
+        return 'Transfer to %s' % (
+            self.destination
+        )
+
+
+class CallParticipant(TenantMixin):
+    name = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name=_('Name')
+    )
+    number = models.CharField(
+        max_length=40,
+        verbose_name=_('Number')
+    )
+    internal_number = models.CharField(
+        max_length=5,
+        null=True,
+        verbose_name=_('Interal number')
+    )
+
+    def __unicode__(self):
+        return self.name or self.number

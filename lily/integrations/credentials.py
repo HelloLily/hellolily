@@ -5,7 +5,7 @@ from django.utils import timezone
 from oauth2client.client import Credentials
 from oauth2client.contrib.django_orm import Storage
 
-from .models import IntegrationCredentials, IntegrationDetails, IntegrationType
+from .models import IntegrationCredentials, IntegrationDetails, SlackDetails, IntegrationType
 
 
 def get_credentials(integration_type, tenant=None):
@@ -100,6 +100,7 @@ def get_access_token(credentials, integration_type, code=None):
     )
 
     if response.status_code == 200:
+        is_slack = integration_type.name.lower() == 'slack'
         data = response.json()
 
         expires = data.get('expires_in')
@@ -110,9 +111,15 @@ def get_access_token(credentials, integration_type, code=None):
         if expires:
             credentials.expires = timezone.now() + timedelta(seconds=expires)
 
-        details = IntegrationDetails.objects.get(type=integration_type.id)
-        storage = Storage(IntegrationCredentials, 'details', details, 'credentials')
+        if is_slack:
+            # Store the team ID so we can use it later for authorization.
+            details = SlackDetails.objects.get(type=integration_type.id)
+            details.team_id = data.get('team_id')
+            details.save()
+        else:
+            details = IntegrationDetails.objects.get(type=integration_type.id)
 
+        storage = Storage(IntegrationCredentials, 'details', details, 'credentials')
         storage.put(credentials)
 
         return credentials

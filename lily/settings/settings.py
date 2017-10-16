@@ -660,6 +660,12 @@ CHARGEBEE_PRO_TRIAL_PLAN_NAME = os.environ.get('CHARGEBEE_PRO_TRIAL_PLAN_NAME', 
 
 chargebee.configure(CHARGEBEE_API_KEY, CHARGEBEE_SITE)
 
+# Client ID and secret for the Lily Slack app.
+SLACK_LILY_CLIENT_ID = os.environ.get('SLACK_LILY_CLIENT_ID', '')
+SLACK_LILY_CLIENT_SECRET = os.environ.get('SLACK_LILY_CLIENT_SECRET', '')
+# Token used to verify requests are actually coming from Slack.
+SLACK_LILY_TOKEN = os.environ.get('SLACK_LILY_TOKEN', '')
+
 #######################################################################################################################
 # TESTING                                                                                                             #
 #######################################################################################################################

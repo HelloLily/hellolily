@@ -28,6 +28,10 @@ class IntegrationDetails(TenantMixin):
         unique_together = ('tenant', 'type')
 
 
+class SlackDetails(IntegrationDetails):
+    team_id = models.CharField(max_length=255)
+
+
 class IntegrationCredentials(models.Model):
     details = models.OneToOneField(IntegrationDetails, primary_key=True)
     credentials = CredentialsField()

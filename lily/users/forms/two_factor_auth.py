@@ -32,5 +32,6 @@ class TwoFactorPhoneNumberForm(PhoneNumberForm):
             if not phonenumbers.number_type(data) == PhoneNumberType.MOBILE:
                 raise forms.ValidationError('Please enter a valid mobile phone number.')
 
+            return '+{}{}'.format(data.country_code, data.national_number)
         except NumberParseException:
             raise forms.ValidationError(validate_international_phonenumber.message)

@@ -50,7 +50,7 @@ class Billing(models.Model):
     def update_subscription(self, increment):
         subscription = self.get_subscription()
 
-        if subscription:
+        if subscription and not self.is_free_plan:
             amount = subscription.plan_quantity + increment
 
             if amount >= 1:

@@ -374,9 +374,7 @@ class AcceptInvitationView(FormView):
             tenant_id=tenant.id,
         )
 
-        invite = UserInvite.objects.get(first_name=first_name, email=self.email)
-        invite.accepted = True
-        invite.save()
+        UserInvite.objects.filter(email=self.email).delete()
 
         if settings.BILLING_ENABLED:
             # Update the current subscription.

@@ -18,7 +18,7 @@ class Billing(models.Model):
 
     @property
     def is_free_plan(self):
-        if settings.BILLING_ENABLED or not self.free_forever:
+        if settings.BILLING_ENABLED and not self.free_forever:
             return self.plan.tier == 0
         else:
             # Billing isn't enabled so just return true.
@@ -51,7 +51,7 @@ class Billing(models.Model):
     def update_subscription(self, increment):
         subscription = self.get_subscription()
 
-        if subscription and not self.is_free_plan:
+        if subscription and not self.is_free_forever:
             amount = subscription.plan_quantity + increment
 
             if amount >= 1:

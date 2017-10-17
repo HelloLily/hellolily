@@ -237,7 +237,7 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
             },
             "destination": {
                 "account_number": 235,
-                "number": "+315080090000",
+                "number": "235",
                 "user_numbers": ["679"],
                 "name": "Sjoerd"
             }
@@ -260,7 +260,7 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
             },
             "destination": {
                 "account_number": 235,
-                "number": "+315080090000",
+                "number": "235",
                 "user_numbers": ["679"],
                 "name": "Sjoerd"
             }
@@ -315,7 +315,7 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
             },
             "destination": {
                 "account_number": 235,
-                "number": "+315080090000",
+                "number": "235",
                 "user_numbers": ["679"],
                 "name": "Sjoerd"
             }
@@ -415,7 +415,7 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
             },
             "destination": {
                 "account_number": 235,
-                "number": "+315080090000",
+                "number": "235",
                 "user_numbers": ["679"],
                 "name": "Sjoerd"
             }
@@ -467,7 +467,7 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
             },
             "destination": {
                 "account_number": 235,
-                "number": "+315080090000",
+                "number": "235",
                 "user_numbers": ["679"],
                 "name": "Sjoerd"
             }

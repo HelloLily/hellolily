@@ -13,9 +13,6 @@ class VoipgridIpAddress(permissions.BasePermission):
     def has_permission(self, request, view):
         ip_addr = request.META['REMOTE_ADDR']
 
-        print ip_addr
-        print settings.VOIPGRID_IPS
-
         return IPAddress(ip_addr) in IPNetwork(settings.VOIPGRID_IPS) or any([settings.DEBUG, settings.TESTING, ])
 
 

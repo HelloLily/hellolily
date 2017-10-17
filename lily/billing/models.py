@@ -14,10 +14,11 @@ class Billing(models.Model):
     plan = models.ForeignKey(Plan, blank=True, null=True)
     cancels_on = models.DateTimeField(blank=True, null=True)
     trial_started = models.BooleanField(default=False)
+    free_forever = models.BooleanField(default=False)
 
     @property
     def is_free_plan(self):
-        if settings.BILLING_ENABLED:
+        if settings.BILLING_ENABLED or not self.free_forever:
             return self.plan.tier == 0
         else:
             # Billing isn't enabled so just return true.

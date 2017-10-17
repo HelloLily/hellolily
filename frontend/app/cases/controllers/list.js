@@ -187,7 +187,7 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
             let filterList = [];
 
             // Get a list with all case types and add each one as a filter.
-            caseTypes.forEach(caseType => {
+            caseTypes.results.forEach(caseType => {
                 filterList.push({
                     name: caseType.name,
                     value: 'type.id:' + caseType.id,

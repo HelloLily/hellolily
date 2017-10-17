@@ -695,7 +695,7 @@ BOOTSTRAP3 = {
     'set_required': False,
 }
 
-VOIPGRID_IPS = os.environ.get('VOIPGRID_IPS', '127.0.0.2')
+VOIPGRID_IPS = os.environ.get('VOIPGRID_IPS', '127.0.0.1')
 
 SHELL_PLUS_POST_IMPORTS = (
     ('django.db', 'connection'),

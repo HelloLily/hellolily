@@ -96,10 +96,10 @@ class CallRecordSerializer(serializers.ModelSerializer):
 
     def get_duration(self, obj):
         if obj.status == CallRecord.IN_PROGRESS:
-            return str(now() - obj.start)
+            return str(now() - obj.start).split(".")[0]
 
         if obj.end:
-            return str(obj.end - obj.start)
+            return str(obj.end - obj.start).split(".")[0]
 
         return ''
 

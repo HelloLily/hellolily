@@ -7,7 +7,7 @@ from googleapiclient.errors import HttpError
 from lily.celery import app
 from .builders.label import LabelBuilder
 from .builders.message import MessageBuilder
-from .connector import GmailConnector, NotFoundError, LabelNotFoundError
+from .connector import GmailConnector, NotFoundError, LabelNotFoundError, MailNotEnabledError
 from .credentials import InvalidCredentialsError
 from .models.models import EmailLabel, EmailMessage, NoEmailMessageId
 
@@ -120,6 +120,12 @@ class GmailManager(object):
 
         try:
             history = self.connector.get_history()
+        except MailNotEnabledError:
+            self.email_account.is_authorized = False
+            self.email_account.is_syncing = False
+            self.email_account.save()
+            logger.error('Mail not enabled for this account. Mail sync stopped for account %s' % self.email_account)
+            return
         except NotFoundError:
             # A NotFoundError (http error code 404) is given when the suplied historyId is invalid.
             # Synchronization of email can be restored by initiating a full sync on the account. This is covered

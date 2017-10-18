@@ -24,6 +24,7 @@ from django.views.generic import UpdateView, DeleteView, CreateView, FormView
 from django.views.generic.base import View
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
+from googleapiclient.errors import HttpError
 from oauth2client.client import OAuth2WebServerFlow
 from oauth2client.contrib.django_orm import Storage
 
@@ -32,6 +33,7 @@ from lily.contacts.models import Contact
 from lily.google.token_generator import generate_token, validate_token
 from lily.integrations.credentials import get_credentials
 from lily.tenant.middleware import get_current_user
+from lily.users.models import UserInfo
 from lily.utils.functions import is_ajax, post_intercom_event, send_get_request, send_post_request
 from lily.utils.views.mixins import LoginRequiredMixin, FormActionMixin
 
@@ -95,7 +97,23 @@ class OAuth2Callback(LoginRequiredMixin, View):
 
         # Setup service to retrieve email address from Google.
         gmail_service = GmailService(credentials)
-        profile = gmail_service.execute_service(gmail_service.service.users().getProfile(userId='me'))
+        try:
+            profile = gmail_service.execute_service(gmail_service.service.users().getProfile(userId='me'))
+        except HttpError as error:
+            error = anyjson.loads(error.content)
+            error = error.get('error', error)
+            if error.get('code') == 400 and error.get('message') == 'Mail service not enabled':
+                messages.error(self.request, _('Mail is not enabled for this email account.'))
+            else:
+                messages.error(self.request, error.get('message'))
+
+            # Adding email account failed, administer it as skipping the email setup or otherwise the user will be
+            # stuck in redirect loop.
+            user = self.request.user
+            user.info.email_account_status = UserInfo.SKIPPED
+            user.info.save()
+
+            return HttpResponseRedirect('/#/preferences/emailaccounts')
 
         # Create account based on email address.
         try:

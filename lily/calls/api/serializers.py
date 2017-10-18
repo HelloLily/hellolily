@@ -21,13 +21,13 @@ class CallSerializer(serializers.ModelSerializer):
         caller = call_notification_serializer.save_participant(data={
             'name': validated_data.get('caller_name'),
             'number': validated_data.get('caller_number'),
-            'user_numbers': []
+            'account_number': None
         })
 
         destination = call_notification_serializer.save_participant(data={
             'name': '',
             'number': validated_data.get('called_number'),
-            'user_numbers': [validated_data.get('internal_number', None), ]
+            'account_number': validated_data.get('internal_number', None)
         })
 
         CallRecord.objects.create(

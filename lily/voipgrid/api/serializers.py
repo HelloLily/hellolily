@@ -125,7 +125,7 @@ class CallNotificationSerializer(serializers.Serializer):
         })
         cr = CallRecord.objects.get_or_create(**data)[0]
 
-        user_list = LilyUser.objects.filter(internal_number__in=destination['user_numbers'])
+        user_list = LilyUser.objects.filter(internal_number=destination['account_number'])
         for user in user_list:
             # Sends the data as a notification event to the users.
             Group('user-%s' % user.id).send({

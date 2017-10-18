@@ -1,7 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import random
+import string
+
+import logging
 from django.db import migrations, models
+
+
+logger = logging.getLogger(__name__)
 
 
 ENDED = 2
@@ -46,16 +53,24 @@ def migrate_calls(apps, schema_editor):
             internal_number=call.internal_number
         )[0]
 
-        CallRecord.objects.create(
-            tenant=call.tenant,
-            call_id=call.unique_id,
-            start=call.created,
-            end=None,
-            status=ENDED,
-            direction=INBOUND,
-            caller=caller,
-            destination=destination
-        )
+        unique_id = call.unique_id
+        if unique_id == '90000':
+            unique_id = ''.join(random.choice(string.lowercase) for x in range(100))
+
+        if call.created:
+            try:
+                CallRecord.objects.create(
+                    tenant=call.tenant,
+                    call_id=unique_id,
+                    start=call.created,
+                    end=None,
+                    status=ENDED,
+                    direction=INBOUND,
+                    caller=caller,
+                    destination=destination
+                )
+            except:
+                logger.exception('Migration failed for call %s' % call.id)
 
 
 def do_nothing(apps, schema_editor):

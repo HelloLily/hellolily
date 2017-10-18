@@ -23,8 +23,8 @@ def migrate_calls(apps, schema_editor):
     Note = apps.get_model('notes', 'Note')
     ContentType = apps.get_model('contenttypes', 'ContentType')
 
-    call_ctype = ContentType.objects.get(app_label='calls', model='call')
-    cr_ctype = ContentType.objects.get(app_label='calls', model='callrecord')
+    call_ctype = ContentType.objects.get_for_model(Call)
+    cr_ctype = ContentType.objects.get_for_model(CallRecord)
 
     calls = Call.objects.filter(created__isnull=False)
 

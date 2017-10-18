@@ -94,12 +94,12 @@ class AccountViewSet(ModelChangesMixin, ModelViewSet):
     def calls(self, request, pk=None):
         account = self.get_object()
 
-        phone_numbers = account.phone_numbers.all().values_list('number', flat=True)
+        phone_numbers = list(account.phone_numbers.all().values_list('number', flat=True))
 
         contact_list = account.get_contacts()
 
         for contact in contact_list:
-            phone_numbers += contact.phone_numbers.all().values_list('number', flat=True)
+            phone_numbers += list(contact.phone_numbers.all().values_list('number', flat=True))
 
         phone_numbers = uniquify(phone_numbers)  # Filter out double numbers.
 

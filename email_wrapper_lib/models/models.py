@@ -124,6 +124,16 @@ class EmailFolder(models.Model):
     unread_count = models.PositiveIntegerField(
         verbose_name=_('Unread count')
     )
+    history_token = models.CharField(
+        verbose_name=_('History token'),
+        null=True,
+        max_length=255
+    )
+    page_token = models.CharField(
+        verbose_name=_('Page token'),
+        null=True,
+        max_length=255
+    )
 
     class Meta:
         unique_together = ('account', 'remote_id', 'remote_value')

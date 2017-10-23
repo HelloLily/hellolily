@@ -1,3 +1,4 @@
+import logging
 from collections import defaultdict
 
 from django.db import transaction
@@ -5,8 +6,9 @@ from django.db import transaction
 from email_wrapper_lib.models.models import (
     EmailMessage, EmailFolder, EmailAccount, EmailMessageToEmailRecipient, EmailRecipient
 )
-from email_wrapper_lib.providers import registry
+from email_wrapper_lib.providers import registry, Microsoft, Google
 
+logger = logging.getLogger(__name__)
 
 # manager = Manager(account=some_account)
 # manager.sync()
@@ -43,8 +45,9 @@ class EmailMessageManager(object):
 class EmailAccountManager(object):
     _old_status = None
 
-    def __init__(self, account):
+    def __init__(self, account, folder=None):
         self.account = account
+        self.folder = folder
 
         self.provider = registry[account.provider_id]
         self.connector = self.provider.connector(account.user_id, account.credentials)
@@ -52,19 +55,32 @@ class EmailAccountManager(object):
     def start(self):
         self._old_status = self.account.status
         self.account.status = EmailAccount.SYNCING
-        self.account.save()
+        self.account.save(updated_fields='status')
 
-    def stop(self, updated_fields=('status', 'page_token', 'history_token')):
-        if self.account.page_token:
-            # If there is a page token, we continue with the sync so we put the old status back while idle.
-            self.account.status = self._old_status
-        elif self.account.status != EmailAccount.ERROR:
-            # If the status is not error we put it to idle.
-            self.account.status = EmailAccount.IDLE
+    def stop(self):
+        if self.folder:
+            if self.folder.page_token:
+                # If there is a page token, we continue with the sync so we put the old status back while idle.
+                self.account.status = self._old_status
+            elif self.account.status != EmailAccount.ERROR:
+                # If the status is not error we put it to idle.
+                self.account.status = EmailAccount.IDLE
+            else:
+                pass  # TODO: Possibe? How to handle?
+
+            self.account.save(updated_fields='status')
+            self.folder.save(updated_fields=('page_token', 'history_token'))
         else:
-            pass  # TODO: Possibe? How to handle?
+            if self.account.page_token:
+                # If there is a page token, we continue with the sync so we put the old status back while idle.
+                self.account.status = self._old_status
+            elif self.account.status != EmailAccount.ERROR:
+                # If the status is not error we put it to idle.
+                self.account.status = EmailAccount.IDLE
+            else:
+                pass  # TODO: Possibe? How to handle?
 
-        self.account.save(updated_fields=updated_fields)
+            self.account.save(updated_fields=('status', 'page_token', 'history_token'))
 
     def sync_folders(self):
         self.start()
@@ -144,6 +160,10 @@ class EmailAccountManager(object):
         self.start()
 
         if self._old_status in [EmailAccount.NEW, EmailAccount.RESYNC]:
+            # TODO: in case of RESYNC: Should all mail be removed first for MS? remote_id is mutable, changes on mail
+            # during the resync result in the same message (still in de db) with another id. So I could imagine the
+            # same message with different id's could end up in two folders. No way to determine they are duplicates.
+
             # This is a new account or one that needs to resync.
             # An account is still new when it hasn't reached the last page of all the messages yet.
             profile = self.connector.profile.get()
@@ -157,6 +177,10 @@ class EmailAccountManager(object):
                 self.account.history_token = profile.get('history_token')  # TODO: Not available for MS in profile. For Google, why retrieve the profile when the history_token is in data?
 
         else:
+            if self.account.provider_id == Microsoft.id:
+                # TODO: Remove debug code.
+                logger.error('A MS email account {0} should not come here...'.format(self.account))
+
             # This is an existing account that can sync using the history id.
             data = self.connector.history.list(self.account.history_token, self.account.page_token)
             self.connector.execute()
@@ -168,6 +192,26 @@ class EmailAccountManager(object):
                 self.account.history_token = data.get('history_token')
 
         self.account.page_token = data.get('page_token')
+
+        self.stop()
+
+    def sync_messages_by_folder(self):
+        if self.account.provider_id == Google.id:
+            # TODO: Remove debug code.
+            logger.error('A Google email account {0} should not come here...'.format(self.account))
+
+        self.start()
+
+        data = self.connector.history.list(self.folder.history_token, self.folder.page_token, self.folder.remote_id)
+        self.connector.execute()
+
+        self.save_messages_history(data)
+
+        if not self.folder.page_token:
+            # Only override the history id after all pages are done.
+            self.folder.history_token = data.get('history_token')
+
+        self.folder.page_token = data.get('page_token')
 
         self.stop()
 

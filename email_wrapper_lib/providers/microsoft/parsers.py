@@ -1,12 +1,15 @@
+import logging
 import urlparse
-
 import re
+
 from collections import defaultdict
 
 from email_wrapper_lib.providers.exceptions import BatchRequestException
 from microsoft_mail_client.constants import (
     SYSTEM_FOLDERS_NAMES, FOLDER_ARCHIVE_NAME, FOLDER_DELETED_ITEMS_NAME, FOLDER_JUNK_NAME, IMPORTANCE_HIGH
 )
+
+logger = logging.getLogger(__name__)
 
 
 def parse_response(callback_func, *args, **kwargs):
@@ -51,18 +54,18 @@ def parse_history(data, history):  # TODO: rename data to response?
     # Initial GET operation,
     if not ('Preference-Applied' in data.headers and data.headers['Preference-Applied'] == 'odata.track-changes'):
         # Don't proceed with synchronization.
-        return history  # TODO: not sure is there is a delta_token in this case.
+        return history  # TODO: not sure is there is a delta_token in this case. Throw exception then?
 
     data = data.json()
 
     if '@odata.deltaLink' in data:
         # On the first request on the inital synchronization and on the last request there is deltaLink present.
-        # Extract delta_token from the deltaLink. $deltatoken Is the equivalent of Google's history_token.
+        # Extract delta_token from the deltaLink. $deltatoken It's the equivalent of Google's history_token.
         history['history_token'] = _extract_token(data['@odata.deltaLink'], '$deltatoken')
 
     if '@odata.nextLink' in data:
         # On all but the first and last requests there is nextLink present.
-        # Extract skip_token from the nextLink. $skipToken Is the equivalent of Google's page_token.
+        # Extract skip_token from the nextLink. $skipToken It's the equivalent of Google's page_token.
         history['page_token'] = _extract_token(data['@odata.nextLink'], '$skipToken')
 
     for message in data['value']:
@@ -138,7 +141,8 @@ def parse_history(data, history):  # TODO: rename data to response?
             history['added_updated_messages'].append(msg)
 
         if 'reason' in message and message['reason'] != 'deleted':
-            print "Message {0} has reason: {1}".format(message['Id'], message['reason'])  # TODO: debug, remove.
+            # TODO: debug, remove.
+            logger.error("Message {0} has reason: {1}".format(message['Id'], message['reason']))
 
     return history
 
@@ -195,21 +199,20 @@ def parse_message_list(data, messages):
             'is_trashed': message['ParentFolderId'] in folders and folders[message['ParentFolderId']] is FOLDER_DELETED_ITEMS_NAME,
             'is_spam': message['ParentFolderId'] in folders and folders[message['ParentFolderId']] is FOLDER_JUNK_NAME,
             'is_chat': False,
-            'from': _extract_email_address(message['From']),
-            'sender': _extract_email_address(message['Sender']),
-            'reply_to': [_extract_email_address(email_address) for email_address in message['ReplyTo']],
-            'to': [_extract_email_address(email_address) for email_address in message['ToRecipients']],
-            'cc': [_extract_email_address(email_address) for email_address in message['CcRecipients']],
-            'bcc': [_extract_email_address(email_address) for email_address in message['BccRecipients']],
+            'from': _extract_email_address(message['From']) if 'From' in message else '',
+            'sender': _extract_email_address(message['Sender']) if 'Sender' in message else '',
+            'reply_to': [_extract_email_address(email_address) for email_address in message['ReplyTo']] if 'ReplyTo' in message else [],
+            'to': [_extract_email_address(email_address) for email_address in message['ToRecipients']] if 'ToRecipients' in message else [],
+            'cc': [_extract_email_address(email_address) for email_address in message['CcRecipients']] if 'CcRecipients' in message else [],
+            'bcc': [_extract_email_address(email_address) for email_address in message['BccRecipients']] if 'BccRecipients' in message else [],
         }
 
     messages['page_token'] = None
     # Or are there more pages with messages?
     if '@odata.nextLink' in data:
-        odata_next_link = data.get('@odata.nextLink')
-
         # Extract paging parameter from the odata next link.
-        skip = urlparse.parse_qs(urlparse.urlparse(odata_next_link).query).get('$skip')[0]
+        odata_next_link = data.get('@odata.nextLink')
+        skip = _extract_token(odata_next_link, '$skip')
 
         messages['page_token'] = skip
 
@@ -244,12 +247,12 @@ def parse_message(data, message):
         'is_trashed': data['ParentFolderId'] in folders and folders[data['ParentFolderId']] is FOLDER_DELETED_ITEMS_NAME,
         'is_spam': data['ParentFolderId'] in folders and folders[data['ParentFolderId']] is FOLDER_JUNK_NAME,
         'is_chat': False,
-        'from': _extract_email_address(data['From']),
-        'sender': _extract_email_address(data['Sender']),
-        'reply_to': [_extract_email_address(email_address) for email_address in data['ReplyTo']],
-        'to': [_extract_email_address(email_address) for email_address in data['ToRecipients']],
-        'cc': [_extract_email_address(email_address) for email_address in data['CcRecipients']],
-        'bcc': [_extract_email_address(email_address) for email_address in data['BccRecipients']],
+        'from': _extract_email_address(data['From']) if 'From' in data else '',
+        'sender': _extract_email_address(data['Sender']) if 'Sender' in data else '',
+        'reply_to': [_extract_email_address(email_address) for email_address in data['ReplyTo']] if 'ReplyTo' in data else [],
+        'to': [_extract_email_address(email_address) for email_address in data['ToRecipients']] if 'ToRecipients' in data else [],
+        'cc': [_extract_email_address(email_address) for email_address in data['CcRecipients']] if 'CcRecipients' in data else [],
+        'bcc': [_extract_email_address(email_address) for email_address in data['BccRecipients']] if 'BccRecipients' in data else [],
     }
 
     message.update(msg)
@@ -281,10 +284,10 @@ def _extract_email_address(data):
         'email_address': '',
     }
 
-    if data['EmailAddress']['Name']:
+    if 'EmailAddress' in data and 'Name' in data['EmailAddress']:
         email_address_dict['name'] = data['EmailAddress']['Name']
 
-    if data['EmailAddress']['Address']:
+    if 'EmailAddress' in data and 'Address' in data['EmailAddress']:
         email_address_dict['email_address'] = data['EmailAddress']['Address']
 
     return email_address_dict

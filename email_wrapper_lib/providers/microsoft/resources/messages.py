@@ -19,6 +19,9 @@ class MicrosoftMessagesResource(MicrosoftResource):
         """
         Get one page of messages for the entire mailbox.
         """
+        if not page_token:
+            page_token = 0
+
         messages = {}
         query_parameters = {
             '$top': 50,  # TODO: Determine maximum. for $search it is 250, maybe here also?

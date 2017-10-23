@@ -618,11 +618,15 @@ class SlackEventCatch(APIView):
         event_type = data.get('type')
         team_id = data.get('team_id')
 
-        if not team_id or data.get('token') != settings.SLACK_LILY_TOKEN:
+        if data.get('token') != settings.SLACK_LILY_TOKEN:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         if event_type == 'url_verification':
             return Response({'challenge': data.get('challenge')}, status=status.HTTP_200_OK)
+
+        if not team_id:
+            # Not url verification, so we require the team ID.
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
         try:
             details = SlackDetails.objects.get(team_id=team_id)

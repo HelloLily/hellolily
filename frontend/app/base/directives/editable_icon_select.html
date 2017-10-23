@@ -1,4 +1,4 @@
-<form data-editable-form name="es.{{ es.formName }}" blur="cancel" data-onshow="es.getChoices()" class="display-inline margin-right-10" ng-dblclick="es[es.formName].$show()">
+<form data-editable-form name="es.{{ es.formName }}" blur="cancel" data-onshow="es.getChoices()" class="display-inline margin-right-10">
     <div editable-ui-select="es.selectModel" name="{{ es.field }}" data-e-name="{{ es.field }}" data-e-on-select="es.updateViewModel($data)"
             data-e-form="{{ es.formName }}" data-e-theme="select2" data-e-class="form-control editable-select2" data-e-search-enabled="false"
             data-e-ng-model="es.selectModel" class="editable editable-click" editable-handler data-e-append-to-body="true">

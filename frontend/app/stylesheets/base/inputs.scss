@@ -54,6 +54,7 @@ $inline-editable-field-height: 30px;
         visibility: hidden;
         width: 0;
         right: 0;
+        cursor: pointer;
 
         &:hover {
             color: $lily-blue;
@@ -63,7 +64,7 @@ $inline-editable-field-height: 30px;
     &:hover {
         color: $lily-blue;
         border: 1px $base-border-color solid;
-        cursor: pointer;
+        cursor: text;
 
         &:after {
             transition: all ease-in-out 0.3s;
@@ -112,12 +113,13 @@ $inline-editable-field-height: 30px;
         &:hover {
             color: $lily-blue;
             border: 1px $base-border-color solid;
-            cursor: pointer;
+            cursor: text;
 
             .editable-icons {
                 transition: right ease-in-out 0.3s;
                 visibility: visible;
                 right: -61px;
+                cursor: pointer;
 
                 &.no-edit {
                     right: -31px;

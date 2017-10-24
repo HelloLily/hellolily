@@ -25,15 +25,12 @@ def sync_account(account_id):
     # Google history.list end point synchronizes over 'all' mail where MS has a history for each folder. Google and MS
     # message.list end point retrieves the messages for all folders. So in that case of a history sync, differentiate
     # between Google and MS.
-    if account.provider_id == Google.id:
+    if account.provider_id == Google.id or account.status in [EmailAccount.NEW, EmailAccount.RESYNC]:
         sync_messages.delay(account_id)
     elif account.provider_id == Microsoft.id:
-        if account.status in [EmailAccount.NEW, EmailAccount.RESYNC]:
-            sync_messages.delay(account_id)
-        else:
-            folder_ids = EmailFolder.objects.filter(account=account).values_list('id', flat=True)
-            for folder_id in folder_ids:
-                sync_messages_by_folder.delay(account_id, folder_id)
+        folder_ids = EmailFolder.objects.filter(account=account).values_list('id', flat=True)
+        for folder_id in folder_ids:
+            sync_messages_by_folder.delay(account_id, folder_id)
 
 
 @shared_task

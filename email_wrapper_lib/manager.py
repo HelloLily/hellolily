@@ -58,6 +58,7 @@ class EmailAccountManager(object):
         self.account.save(updated_fields='status')
 
     def stop(self):
+        # Synchronisation per folder (MS).
         if self.folder:
             if self.folder.page_token:
                 # If there is a page token, we continue with the sync so we put the old status back while idle.
@@ -70,7 +71,8 @@ class EmailAccountManager(object):
 
             self.account.save(updated_fields='status')
             self.folder.save(updated_fields=('page_token', 'history_token'))
-        else:
+
+        else:  # Or synchronisation for the 'all' mail folder, aka account synchronisation (Google).
             if self.account.page_token:
                 # If there is a page token, we continue with the sync so we put the old status back while idle.
                 self.account.status = self._old_status

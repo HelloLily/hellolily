@@ -77,8 +77,6 @@ def parse_history(data, history):  # TODO: rename data to response?
                 remote_id = regex.group(1)
                 history['deleted_messages'].append(remote_id)
         else:
-            # TODO: Where are the attachments?
-
             # New messages have all the properties. Mutated message can have all properties (pin/unpin) or just the
             # mutated one (read/unread). When all properties are available, there is no indication is the message is
             # new or not.
@@ -94,6 +92,7 @@ def parse_history(data, history):  # TODO: rename data to response?
                 'remote_id': data['Id'],  # Id is mutable, but needed for doing API calls and used in history sync.
                 'history_token': '',  # TODO: Needed?
                 'is_starred': False,  # TODO: maybe 'pinned' messages? But not available via API.
+                'attachments': [],
             }
 
             # The following properties can be present.
@@ -103,6 +102,7 @@ def parse_history(data, history):  # TODO: rename data to response?
                 'BodyPreview': 'snippet',
                 'IsRead': 'is_read',
                 'IsDraft': 'is_draft',
+                'HasAttachments': 'has_attachments',
             }
             for k, v in fields_mapping.items():
                 if k in message:
@@ -137,6 +137,10 @@ def parse_history(data, history):  # TODO: rename data to response?
                 msg['is_archived'] = message['ParentFolderId'] in folders and folders[message['ParentFolderId']] is FOLDER_ARCHIVE_NAME,
                 msg['is_trashed'] = message['ParentFolderId'] in folders and folders[message['ParentFolderId']] is FOLDER_DELETED_ITEMS_NAME,
                 msg['is_spam'] = message['ParentFolderId'] in folders and folders[message['ParentFolderId']] is FOLDER_JUNK_NAME,
+
+            if message.get('HasAttachments'):  # TODO: Or remove because HasAttachments is just enough?
+                for attachment in message.get('Attachments'):
+                    message['attachments'].append(_parse_attachment(attachment))
 
             history['added_updated_messages'].append(msg)
 
@@ -173,8 +177,6 @@ def _extract_token(url, token_to_extract):
 
 
 def parse_message_list(data, messages):
-    # TODO: Where are the attachments?
-
     data = data.json()
     messages['messages'] = {}
 
@@ -205,7 +207,12 @@ def parse_message_list(data, messages):
             'to': [_extract_email_address(email_address) for email_address in message['ToRecipients']] if 'ToRecipients' in message else [],
             'cc': [_extract_email_address(email_address) for email_address in message['CcRecipients']] if 'CcRecipients' in message else [],
             'bcc': [_extract_email_address(email_address) for email_address in message['BccRecipients']] if 'BccRecipients' in message else [],
+            'has_attachments': message.get('HasAttachments'),
+            'attachments': [],
         }
+        if message.get('HasAttachments'):  # TODO: Or remove because HasAttachments is just enough?
+            for attachment in message.get('Attachments'):
+                message['attachments'].append(_parse_attachment(attachment))
 
     messages['page_token'] = None
     # Or are there more pages with messages?
@@ -224,8 +231,6 @@ def parse_message(data, message):
     A message that changes from folder, gets a new ID, but InternetMessageId is immutable.
     ParentFolderId can tell if it is archived, trashed, or spam.
     """
-    # TODO: Where are the attachments?
-
     data = data.json()
     # Retrieve dict with 3 (key, value) pairs to map folders from remote_id to Archive, Trash and Junk.
     # result = EmailFolder.objects.filter()  # TODO: implement right query.
@@ -253,7 +258,13 @@ def parse_message(data, message):
         'to': [_extract_email_address(email_address) for email_address in data['ToRecipients']] if 'ToRecipients' in data else [],
         'cc': [_extract_email_address(email_address) for email_address in data['CcRecipients']] if 'CcRecipients' in data else [],
         'bcc': [_extract_email_address(email_address) for email_address in data['BccRecipients']] if 'BccRecipients' in data else [],
+        'has_attachments': data.get('HasAttachments'),
+        'attachments': [],
     }
+
+    if data.get('HasAttachments'):
+        for attachment in data.get('Attachments'):
+            msg['attachments'].append(_parse_attachment(attachment))  # TODO: warning?
 
     message.update(msg)
 
@@ -291,6 +302,19 @@ def _extract_email_address(data):
         email_address_dict['email_address'] = data['EmailAddress']['Address']
 
     return email_address_dict
+
+
+def _parse_attachment(data):
+    attachment = {
+        'remote_id': data.get('Id'),
+        'mimetype': data.get('ContentType'),
+        'filename': data.get('Name'),
+        'inline': data.get('IsInline'),
+        'size': data.get('Size'),
+        'data': data.get('ContentBytes'),  # Base64-encoded contents of the file.
+    }
+
+    return attachment
 
 
 def parse_label_list(data, labels, label_resource):

@@ -209,7 +209,7 @@ def parse_parts(data):
 
 def parse_attachment(data):
     attachment_dict = {
-        'id': data.get('body', {}).get('attachmentId', ''),
+        'remote_id': data.get('body', {}).get('attachmentId', ''),
         'mimetype': data.get('mimeType', ''),
         'filename': data.get('filename', ''),
         'inline': False,

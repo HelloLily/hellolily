@@ -6,9 +6,16 @@ class MicrosoftMessagesResource(MicrosoftResource):
     def get(self, remote_id):
         message = {}
 
+        query_parameters = {
+            # '$select': 'Id, InternetMessageId, ConversationId, BodyPreview, IsRead, IsDraft, ParentFolderId,'
+            #            'Importance, From, ToRecipients, CcRecipients, BccRecipients, ReplyTo, Sender, HasAttachments',
+            '$expand': 'Attachments',
+        }
+
         self.batch.add(
             self.service.get_message(
-                message_id=remote_id
+                message_id=remote_id,
+                query_parameters=query_parameters
             ),
             callback=parse_response(parse_message, message)
         )
@@ -25,7 +32,8 @@ class MicrosoftMessagesResource(MicrosoftResource):
         messages = {}
         query_parameters = {
             '$top': 50,  # TODO: Determine maximum. for $search it is 250, maybe here also?
-            '$skip': page_token
+            '$skip': page_token,
+            '$expand': 'Attachments',  # TODO: Or remove because HasAttachments is just enough?
         }  # Paging.
 
         # TODO: Only request usefull data?
@@ -33,7 +41,8 @@ class MicrosoftMessagesResource(MicrosoftResource):
         #     '$top': 50,  # TODO: Determine maximum. for $search it is 250, maybe here also?
         #     '$skip': page_token,
         #     '$select': 'Id, InternetMessageId, ConversationId, BodyPreview, IsRead, IsDraft, ParentFolderId,'
-        #                'Importance, From, ToRecipients, CcRecipients, BccRecipients, ReplyTo, Sender',
+        #                'Importance, From, ToRecipients, CcRecipients, BccRecipients, ReplyTo, Sender, HasAttachments',
+        #     '$expand': 'Attachments',
         # }
 
         self.batch.add(

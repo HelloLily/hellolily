@@ -22,6 +22,9 @@ def sync_account(account_id):
     manager = EmailAccountManager(account)
     manager.sync_folders()
 
+    # Google history.list end point synchronizes over 'all' mail where MS has a history for each folder. Google and MS
+    # message.list end point retrieves the messages for all folders. So in that case of a history sync, differentiate
+    # between Google and MS.
     if account.provider_id == Google.id:
         sync_messages.delay(account_id)
     elif account.provider_id == Microsoft.id:

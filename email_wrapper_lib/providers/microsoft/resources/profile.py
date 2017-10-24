@@ -6,7 +6,7 @@ class MicrosoftProfileResource(MicrosoftResource):
     def get(self):
         profile = {}
         # TODO: Only request usefull data?
-        # query_parameters = {'$select': 'DisplayName,EmailAddress'}
+        # query_parameters = {'$select': 'DisplayName, EmailAddress'}
 
         self.batch.add(
             self.service.get_me(),

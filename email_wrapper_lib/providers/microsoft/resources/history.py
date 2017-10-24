@@ -5,6 +5,12 @@ class MicrosoftHistoryResource(object):
     def list(self, history_token, page_token, folder_id):
         history = {}
 
+        query_parameters = {
+        #     '$select': 'Id, InternetMessageId, ConversationId, BodyPreview, IsRead, IsDraft, ParentFolderId,'
+        #                'Importance, From, ToRecipients, CcRecipients, BccRecipients, ReplyTo, Sender, HasAttachments',
+            '$expand': 'Attachments',  # TODO: Or remove because HasAttachments is just enough?
+        }
+
         self.batch.add(
             self.service.synchronize_messages(
                 folder_id=folder_id,

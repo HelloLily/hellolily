@@ -10,6 +10,7 @@ import html2text
 from urllib import unquote
 
 from django.apps import apps
+from django.db.models.query_utils import Q
 from django.conf import settings
 from django.core.files.storage import default_storage
 from django.core.urlresolvers import reverse
@@ -24,7 +25,7 @@ from lily.search.scan_search import ModelMappings
 from lily.search.indexing import update_in_index
 
 from .decorators import get_safe_template
-from .models.models import EmailAttachment, EmailMessage, EmailAccount
+from .models.models import EmailAttachment, EmailMessage, EmailAccount, SharedEmailConfig
 from .sanitize import sanitize_html_email
 
 _EMAIL_PARAMETER_DICT = {}
@@ -612,3 +613,68 @@ def get_extensions_for_type(general_type):
 
     # return at least an extension for unknown mimetypes
     yield '.bak'
+
+
+def get_shared_email_accounts(user):
+    if user.tenant.billing.is_free_plan:
+        # Team plan allows sharing of email account.
+        # Get a list of email accounts which are publicly shared or shared specifically with the user.
+        shared_email_account_list = EmailAccount.objects.filter(
+            Q(owner=user) |
+            Q(privacy=EmailAccount.PUBLIC) |
+            (Q(sharedemailconfig__user__id=user.pk) & Q(sharedemailconfig__privacy=EmailAccount.PUBLIC))
+        )
+    else:
+        # Free plan, so only allow own email accounts.
+        shared_email_account_list = EmailAccount.objects.filter(
+            Q(owner=user),
+        )
+
+    shared_email_account_list = shared_email_account_list.filter(
+        tenant=user.tenant,
+        is_deleted=False,
+    ).distinct('id')
+
+    # Get a list of email accounts the user doesn't want to follow.
+    email_account_exclude_list = SharedEmailConfig.objects.filter(
+        user=user,
+        is_hidden=True
+    ).values_list('email_account_id', flat=True)
+
+    # Exclude those email accounts from the accounts that are shared with the user.
+    # So it's a list of email accounts the user wants to follow or is allowed to view.
+    email_account_list = shared_email_account_list.exclude(
+        id__in=email_account_exclude_list
+    )
+
+    return email_account_list
+
+
+def limit_email_accounts(tenant):
+    # Free plan has a limit of two email accounts.
+    email_accounts = EmailAccount.objects.filter(tenant=tenant, is_deleted=False).order_by('created')
+
+    # Sharing isn't part of the free plan, so set first two email accounts to private.
+    for email_account in email_accounts[:2]:
+        email_account.previous_privacy = email_account.privacy
+        email_account.privacy = EmailAccount.PRIVATE
+        email_account.save()
+
+    # Free plan has a limit of two email accounts.
+    # So disable all other email accounts.
+    for email_account in email_accounts[2:]:
+        email_account.is_active = False
+        email_account.save()
+
+
+def restore_email_account_settings(tenant):
+    email_accounts = EmailAccount.objects.filter(tenant=tenant, is_deleted=False)
+
+    # Set back the email accounts to their previous settings.
+    for email_account in email_accounts:
+        if email_account.previous_privacy is not None:
+            email_account.privacy = email_account.previous_privacy
+            email_account.previous_privacy = None
+
+        email_account.is_active = True
+        email_account.save()

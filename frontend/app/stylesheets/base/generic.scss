@@ -715,11 +715,10 @@ address {
 
 .is-disabled {
     pointer-events: none;
-    opacity: 0.50;
+    opacity: 0.35;
 
     :first-child {
         pointer-events: none;
-        opacity: 0.50;
     }
 }
 

@@ -128,6 +128,21 @@ the option to make the rows stripped by using `<table class="hl-table striped">`
         border-bottom: 1px $app-border-color solid;
         vertical-align: middle;
     }
+
+
+    .is-disabled {
+        .hl-table-column {
+            pointer-events: all;
+            opacity: initial;
+
+            &:last-of-type {
+                delete-confirmation {
+                    pointer-events: all;
+                    opacity: initial;
+                }
+            }
+        }
+    }
 }
 
 // OLD
@@ -264,14 +279,6 @@ the option to make the rows stripped by using `<table class="hl-table striped">`
         padding: 12px 15px;
         line-height: 28px;
         vertical-align: middle;
-    }
-
-    tr:nth-of-type(even) {
-        background: $lily-white-tone;
-
-        &:hover {
-            background: $lily-white-tone-hover;
-        }
     }
 
     tr {

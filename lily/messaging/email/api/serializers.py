@@ -150,12 +150,11 @@ class EmailAccountSerializer(WritableNestedSerializer):
 
         if 'privacy' in validated_data:
             privacy = validated_data.get('privacy')
-            default_privacy = self.model_fields.get('privacy').default
 
-            if user.tenant.billing.is_free_plan and privacy != default_privacy:
+            if user.tenant.billing.is_free_plan and privacy != EmailAccount.PRIVATE:
                 # If the tenant is on the free plan they aren't allowed to change the privacy settings.
                 # So if the privacy is in the request we want to check
-                # if it's something other than the fields' default value.
+                # if it's something other than the 'private' setting.
                 raise PermissionDenied
 
         if 'sharedemailconfig_set' in validated_data:
@@ -163,6 +162,7 @@ class EmailAccountSerializer(WritableNestedSerializer):
 
             if shared_email_configs:
                 if user.tenant.billing.is_free_plan:
+                    # Sharing accounts isn't allowed for the free plan.
                     raise PermissionDenied
 
             initial_configs = self.initial_data.get('shared_email_configs')
@@ -268,6 +268,7 @@ class EmailAccountSerializer(WritableNestedSerializer):
             'is_syncing',
             'label',
             'labels',
+            'is_active',
             'is_authorized',
             'is_public',
             'only_new',

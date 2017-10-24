@@ -10,6 +10,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
+from lily.messaging.email.utils import limit_email_accounts, restore_email_account_settings
 from lily.utils.api.permissions import IsAccountAdmin
 
 from ..models import Plan
@@ -32,6 +33,9 @@ class BillingViewSet(ViewSet):
             if subscription:
                 plan = chargebee.Plan.retrieve(subscription.plan_id)
                 plan = plan.plan.values
+
+            if subscription.plan_id != settings.CHARGEBEE_FREE_PLAN_NAME and billing.plan != subscription.plan_id:
+                restore_email_account_settings(tenant)
 
             # Update the plan whenever we fetch the subscription from Chargebee.
             billing.plan = Plan.objects.get(name=subscription.plan_id)
@@ -86,6 +90,8 @@ class BillingViewSet(ViewSet):
                     if success:
                         billing.plan = Plan.objects.get(name=plan_id)
                         billing.save()
+
+                        limit_email_accounts(tenant)
 
                     return Response({'success': success}, content_type='application/json')
                 else:

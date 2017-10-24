@@ -8,39 +8,39 @@
             </widget-header>
 
             <widget-body>
-                <table class="table table-bordered">
-                    <thead class="flip-content">
+                <table class="hl-table">
+                    <thead>
                         <tr>
-                            <th>
+                            <th class="hl-table-column">
                                 <span class="text-nowrap">Primary</span>
                             </th>
-                            <th>
+                            <th class="hl-table-column">
                                 <span class="text-nowrap">Email address</span>
                             </th>
-                            <th>
+                            <th class="hl-table-column">
                                 <span class="text-nowrap">Label</span>
                             </th>
-                            <th>
+                            <th class="hl-table-column">
                                 <span class="text-nowrap">Privacy setting</span>
                             </th>
-                            <th>
+                            <th class="hl-table-column">
                                 <span class="text-nowrap">Default email template</span>
                             </th>
-                            <th>
+                            <th class="hl-table-column">
                                 <span class="text-nowrap">Subscribed</span>
                             </th>
-                            <th>
+                            <th class="hl-table-column">
                                 <span class="text-nowrap">Shared with</span>
                             </th>
-                            <th>
+                            <th class="hl-table-column">
                                 <span class="text-nowrap">Options</span>
                             </th>
                         </tr>
                     </thead>
 
                     <tbody>
-                        <tr ng-repeat="account in vm.ownedAccounts">
-                            <td class="width-6">
+                        <tr ng-repeat="account in vm.ownedAccounts" ng-class="{'is-disabled': !account.is_active}">
+                            <td class="hl-table-column width-6">
                                 <span ng-show="account.is_authorized" ng-click="vm.setPrimaryEmailAccount(account)">
                                     <input type="radio" name="primary" ng-model="vm.primaryAccount" ng-value="account.id" class="radio-button-input">
                                     <span class="radio-button-label"></span>
@@ -49,25 +49,25 @@
                                     <i class="fa fa-exclamation-triangle"></i>
                                 </a>
                             </td>
-                            <td>
+                            <td class="hl-table-column">
                                 {{ account.email_address }}
                             </td>
-                            <td>
+                            <td class="hl-table-column">
                                 {{ account.label }}
                             </td>
-                            <td>
+                            <td class="hl-table-column">
                                 {{ account.privacy_display }}
                             </td>
-                            <td>
+                            <td class="hl-table-column">
                                 {{ account.default_template.name || '-' }}
                             </td>
-                            <td>
+                            <td class="hl-table-column">
                                 <label class="switch">
                                     <input type="checkbox" ng-model="account.is_hidden" ng-change="vm.toggleHidden(account)" ng-true-value="false" ng-false-value="true">
                                     <div class="slider round"></div>
                                 </label>
                             </td>
-                            <td>
+                            <td class="hl-table-column">
                                 <span ng-if="account.privacy === vm.publicPrivacy" uib-tooltip="{{ vm.publicAccountTooltip }}">All</span>
                                 <span ng-if="account.privacy !== vm.publicPrivacy">
                                     <button class="hl-primary-btn" ng-click="vm.openShareAccountModal(account)" ng-if="!currentUser.tenant.isFreePlan">
@@ -76,15 +76,20 @@
                                     <span ng-if="currentUser.tenant.isFreePlan">-</span>
                                 </span>
                             </td>
-                            <td>
+                            <td class="hl-table-column">
                                 <a ui-sref="base.preferences.emailaccounts.edit({ id: account.id })" class="hl-primary-btn" title="Edit">
                                     <i class="lilicon hl-edit-icon"></i>
                                 </a>
                                 <delete-confirmation model="EmailAccount" object="account" callback="vm.removeFromList(account)" button-class="hl-primary-btn" display-field="label"></delete-confirmation>
                             </td>
                         </tr>
+                        <tr ng-if="currentUser.tenant.isFreePlan && (vm.ownedAccounts.length + vm.sharedAccounts.length) > 2">
+                            <td colspan="8" class="hl-table-column">
+                                You've reached the email account limit of your Personal plan. Please <a ui-sref="base.preferences.admin.billing">upgrade</a> it to enable more email accounts.
+                            </td>
+                        </tr>
                         <tr ng-if="!vm.ownedAccounts.length">
-                            <td colspan="8">No email accounts setup yet</td>
+                            <td colspan="8" class="hl-table-column">No email accounts setup yet</td>
                         </tr>
                     </tbody>
                 </table>
@@ -99,60 +104,65 @@
             </widget-header>
 
             <widget-body>
-                <table class="table table-bordered flip-content">
-                    <thead class="flip-content">
+                <table class="hl-table">
+                    <thead>
                         <tr>
-                            <th>
+                            <th class="hl-table-column">
                                 <span class="text-nowrap">Primary</span>
                             </th>
-                            <th>
+                            <th class="hl-table-column">
                                 <span class="text-nowrap">Email address</span>
                             </th>
-                            <th>
+                            <th class="hl-table-column">
                                 <span class="text-nowrap">Owned by</span>
                             </th>
-                            <th>
+                            <th class="hl-table-column">
                                 <span class="text-nowrap">Default email template</span>
                             </th>
-                            <th>
+                            <th class="hl-table-column">
                                 <span class="text-nowrap">Subscribed</span>
                             </th>
-                            <th>
+                            <th class="hl-table-column">
                                 <span class="text-nowrap">Shared with</span>
                             </th>
                         </tr>
                     </thead>
 
                     <tbody>
-                        <tr ng-repeat="account in vm.sharedAccounts">
-                            <td class="width-6">
+                        <tr ng-repeat="account in vm.sharedAccounts" ng-class="{'is-disabled': currentUser.tenant.isFreePlan}">
+                            <td class="hl-table-column width-6">
                                 <span ng-if="vm.hasFullAccess(account)" ng-click="vm.setPrimaryEmailAccount(account)">
                                     <input type="radio" name="primary" ng-model="vm.primaryAccount" ng-value="account.id" class="radio-button-input">
                                     <span class="radio-button-label"></span>
                                 </span>
                             </td>
-                            <td>
+                            <td class="hl-table-column">
                                 {{ account.email_address }}
                             </td>
-                            <td>
+                            <td class="hl-table-column">
                                 {{ account.owner.full_name }}
                             </td>
-                            <td>
+                            <td class="hl-table-column">
                                 {{ account.default_template.name || '-' }}
                             </td>
-                            <td>
+                            <td class="hl-table-column">
                                 <label ng-if="vm.hasFullAccess(account)" class="switch">
                                     <input type="checkbox" ng-model="account.is_hidden" ng-change="vm.toggleHidden(account)" ng-true-value="false" ng-false-value="true">
                                     <div class="slider round"></div>
                                 </label>
                             </td>
-                            <td>
+                            <td class="hl-table-column">
                                 <span ng-if="account.privacy === vm.publicPrivacy" uib-tooltip="{{ vm.publicAccountTooltip }}">All</span>
                                 <span ng-if="account.privacy !== vm.publicPrivacy">{{ account.shared_email_configs.length || '-' }}</span>
                             </td>
                         </tr>
+                        <tr ng-if="currentUser.tenant.isFreePlan && vm.sharedAccounts.length">
+                            <td colspan="6" class="hl-table-column">
+                                Email accounts can't be shared while on the Personal plan. Please <a ui-sref="base.preferences.admin.billing">upgrade</a> it to enable inbox sharing.
+                            </td>
+                        </tr>
                         <tr ng-if="!vm.sharedAccounts.length">
-                            <td colspan="6">No email accounts shared with you</td>
+                            <td colspan="6" class="hl-table-column">No email accounts shared with you</td>
                         </tr>
                     </tbody>
                 </table>

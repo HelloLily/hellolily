@@ -32,7 +32,10 @@
 
                         <div ng-class="{'overlay': currentUser.tenant.isFreePlan}">
                             <div ng-if="currentUser.tenant.isFreePlan" class="empty-state-description">
-                                <p>This feature isn't available for your current plan. Please <a ui-sref="base.preferences.admin.billing">upgrade</a> to use this feature.</p>
+                                <p>
+                                    This feature isn't available for your current plan. <br />
+                                    Please <a ui-sref="base.preferences.admin.billing">upgrade</a> to use this feature.
+                                </p>
                             </div>
 
                             <div class="widget-name">

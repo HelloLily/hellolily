@@ -19,9 +19,9 @@ from lily.utils.forms.mixins import FormSetFormMixin
 from lily.utils.forms.widgets import Wysihtml5Input, AjaxSelect2Widget, BootstrapRadioFieldRenderer
 
 from ..models.models import (EmailAccount, EmailTemplateFolder, EmailTemplate, EmailOutboxAttachment,
-                             EmailTemplateAttachment, TemplateVariable, EmailAttachment, SharedEmailConfig)
+                             EmailTemplateAttachment, TemplateVariable, EmailAttachment)
 from .widgets import EmailAttachmentWidget
-from ..utils import get_email_parameter_choices, TemplateParser
+from ..utils import get_email_parameter_choices, TemplateParser, get_shared_email_accounts
 
 
 logger = logging.getLogger(__name__)
@@ -136,26 +136,9 @@ class ComposeEmailForm(FormSetFormMixin, forms.Form):
 
         user = get_current_user()
 
-        # Get a list of email accounts which are publicly shared or shared specifically with me.
-        shared_email_account_list = EmailAccount.objects.filter(
-            Q(owner=user) |
-            Q(privacy=EmailAccount.PUBLIC) |
-            (Q(sharedemailconfig__user__id=user.pk) & Q(sharedemailconfig__privacy=EmailAccount.PUBLIC))
-        ).filter(tenant=user.tenant, is_deleted=False).distinct('id')
+        email_account_list = get_shared_email_accounts(user)
 
-        # Get a list of email accounts we don't want to follow.
-        email_account_exclude_list = SharedEmailConfig.objects.filter(
-            user=user,
-            is_hidden=True
-        ).values_list('email_account_id', flat=True)
-
-        # Exclude those email accounts from the accounts that are shared with me.
-        # So it's a list of email accounts I want to follow.
-        follow_email_account_list = shared_email_account_list.exclude(
-            id__in=email_account_exclude_list
-        )
-
-        self.email_accounts = follow_email_account_list
+        self.email_accounts = email_account_list
 
         # Only provide choices you have access to
         self.fields['send_from'].choices = [(email_account.id, email_account) for email_account in self.email_accounts]

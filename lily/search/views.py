@@ -106,8 +106,17 @@ class SearchView(LoginRequiredMixin, View):
         hits, facets, total, took = search.do_search(return_fields)
 
         if model_type == 'email_emailmessage':
-            content_type = ContentType.objects.get(app_label="email", model="emailmessage")
-            email_accounts = EmailAccount.objects.filter(tenant=user.tenant, is_deleted=False).distinct('id')
+            content_type = ContentType.objects.get(app_label='email', model='emailmessage')
+            email_accounts = EmailAccount.objects.filter(
+                tenant=user.tenant,
+                is_deleted=False,
+                is_active=True,
+            ).distinct('id')
+
+            if user.tenant.billing.is_free_plan:
+                email_accounts = email_accounts.filter(
+                    owner=user,
+                )
 
             filtered_hits = []
 

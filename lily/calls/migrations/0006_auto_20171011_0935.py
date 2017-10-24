@@ -28,12 +28,7 @@ def migrate_calls(apps, schema_editor):
 
     calls = Call.objects.filter(created__isnull=False)
 
-    print 'number of calls to migrate: %s' % len(calls)
-
     for index, call in enumerate(calls):
-        if index % 100 == 0:
-            print 'Another 100 done! We\'re at %s' % index
-
         caller = CallParticipant.objects.get_or_create(
             tenant=call.tenant,
             name=call.caller_name,

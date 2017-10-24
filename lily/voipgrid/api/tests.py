@@ -1,16 +1,49 @@
 from unittest import SkipTest
 
+from django.contrib.auth.models import Group
 from rest_framework import status
 from rest_framework.reverse import reverse
-from rest_framework.test import APITestCase
+from rest_framework.test import APISimpleTestCase, APIClient
 
-from lily.calls.models import CallRecord, CallTransfer
-from lily.tests.utils import UserBasedTest
+from lily.calls.models import CallRecord, CallTransfer, CallParticipant
+from lily.tenant.factories import TenantFactory
+from lily.tenant.middleware import set_current_user
+from lily.users.models import LilyUser
 
 
-class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
+class CallNotificationsAPITestCase(APISimpleTestCase):
     list_url = 'callnotification-list'
     detail_url = 'callnotification-detail'
+
+    @classmethod
+    def setUpClass(cls):
+        """
+        Creates a user and logs it in before running the actual tests.
+        """
+        password = 'password'
+        tenant_1 = TenantFactory.create()
+
+        # Set the authenticated user on the class.
+        cls.user_obj = LilyUser.objects.create_user(
+            email='user1@lily.com',
+            password=password,
+            tenant_id=tenant_1.id
+        )
+        account_admin = Group.objects.get_or_create(name='account_admin')[0]
+        cls.user_obj.groups.add(account_admin)
+
+        cls.user = APIClient()
+        cls.user.login(email=cls.user_obj.email, password=password)
+
+    @classmethod
+    def tearDownClass(cls):
+        super(CallNotificationsAPITestCase, cls).tearDownClass()
+        set_current_user(None)
+
+    def cleanup(self):
+        CallRecord.objects.all().delete()
+        CallTransfer.objects.all().delete()
+        CallParticipant.objects.all().delete()
 
     def test_simple_call(self):
         """
@@ -85,6 +118,7 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
 
         # There should only be one call record.
         self.assertEqual(len(CallRecord.objects.all()), 1)
+        self.cleanup()
 
     def test_no_pickup(self):
         """
@@ -137,6 +171,7 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
 
         # There should only be one call record.
         self.assertEqual(len(CallRecord.objects.all()), 1)
+        self.cleanup()
 
         # TODO: also test reason:no-answer, because the reason is phone dependent.
 
@@ -169,6 +204,7 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
 
         # There should only be one call record.
         self.assertEqual(len(CallRecord.objects.all()), 1)
+        self.cleanup()
 
     def test_attended_transfer(self):
         """
@@ -348,6 +384,7 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         # There should only be one call record and one transfer record.
         self.assertEqual(len(CallRecord.objects.all()), 1)
         self.assertEqual(len(CallTransfer.objects.all()), 1)
+        self.cleanup()
 
     def test_blind_transfer(self):
         """
@@ -522,6 +559,7 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         # There should only be one call record and one transfer record.
         self.assertEqual(len(CallRecord.objects.all()), 1)
         self.assertEqual(len(CallTransfer.objects.all()), 1)
+        self.cleanup()
 
     def test_semi_attended_transfer(self):
         """
@@ -626,6 +664,7 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         # There should only be one call record and one transfer record.
         self.assertEqual(len(CallRecord.objects.all()), 1)
         self.assertEqual(len(CallTransfer.objects.all()), 1)
+        self.cleanup()
 
     def test_callgroup(self):
         """
@@ -745,3 +784,4 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
 
         # There should only be one call record.
         self.assertEqual(len(CallRecord.objects.all()), 1)
+        self.cleanup()

@@ -26,6 +26,7 @@ class CallParticipantFactory(DjangoModelFactory):
     tenant = SubFactory(TenantFactory)
     number = LazyAttribute(lambda o: faker.phone_number())
     name = LazyAttribute(lambda o: faker.name())
+    internal_number = FuzzyInteger(200, 999)
 
     class Meta:
         model = CallParticipant

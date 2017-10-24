@@ -153,9 +153,12 @@ class CallParticipant(TenantMixin):
     )
     internal_number = models.CharField(
         max_length=5,
-        null=True,
+        blank=True,
         verbose_name=_('Interal number')
     )
 
     def __unicode__(self):
         return self.name or self.number
+
+    class Meta:
+        unique_together = ('tenant', 'name', 'number', 'internal_number', )

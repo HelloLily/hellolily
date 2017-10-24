@@ -64,7 +64,7 @@ class CallNotificationSerializer(serializers.Serializer):
     def save_participant(self, data, metadata=False):
         name = data.get('name', '') or ''
         number = data.get('number', '') or ''
-        internal_number = data.get('account_number', None)
+        internal_number = data.get('account_number', '') or ''
 
         # First try to autocomplete the name using a user.
         if internal_number and not name:

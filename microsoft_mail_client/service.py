@@ -244,8 +244,8 @@ class Resource(object):
         headers.update(self._authorization_headers)
 
         url = self._base_url.format('/messages/{0}/send').format(message_id)
-        payload = {}  # POST expects a json payload. TODO why? because Postman is ok without. TODO: move to http.py.
-        return HttpRequest(uri=url, method='POST', headers=headers, payload=payload)
+
+        return HttpRequest(uri=url, method='POST', headers=headers)
 
     def sent_reply_message(self, message_id, message, reply_all=False):
         """

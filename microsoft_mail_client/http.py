@@ -77,6 +77,9 @@ class HttpRequest(object):
         """
         r = None
 
+        if not self.payload and self.method.upper() in ['PATCH', 'POST']:
+            self.payload = {}
+
         if self.method.upper() == 'GET':
             r = requests.get(self.uri, headers=self.headers, params=self.parameters)
         elif self.method.upper() == 'DELETE':

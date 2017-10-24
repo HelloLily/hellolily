@@ -4,6 +4,7 @@ import re
 
 from collections import defaultdict
 
+from email_wrapper_lib.models.models import EmailFolder
 from email_wrapper_lib.providers.exceptions import BatchRequestException
 from microsoft_mail_client.constants import (
     SYSTEM_FOLDERS_NAMES, FOLDER_ARCHIVE_NAME, FOLDER_DELETED_ITEMS_NAME, FOLDER_JUNK_NAME, IMPORTANCE_HIGH
@@ -58,6 +59,9 @@ def parse_history(data, history):  # TODO: rename data to response?
 
     data = data.json()
 
+    # Retrieve dict with 3 (key, value) pairs to map folders from remote_id to Archive, Trash and Junk.
+    folders = _get_well_known_folders([FOLDER_ARCHIVE_NAME, FOLDER_DELETED_ITEMS_NAME, FOLDER_JUNK_NAME])
+
     if '@odata.deltaLink' in data:
         # On the first request on the inital synchronization and on the last request there is deltaLink present.
         # Extract delta_token from the deltaLink. $deltatoken It's the equivalent of Google's history_token.
@@ -80,11 +84,6 @@ def parse_history(data, history):  # TODO: rename data to response?
             # New messages have all the properties. Mutated message can have all properties (pin/unpin) or just the
             # mutated one (read/unread). When all properties are available, there is no indication is the message is
             # new or not.
-
-            # Retrieve dict with 3 (key, value) pairs to map folders from remote_id to Archive, Trash and Junk.
-            # result = EmailFolder.objects.filter()  # TODO: implement right query.
-            # TODO: implement mapping ParentFolderId: DisplayName label
-            folders = {'xyz': 'Junk Email', 'uvw': 'Archive', 'abc': 'Deleted Items'}
 
             # Build a message dict with the available properties retrieved from the API.
             # The following properties are always availble.
@@ -151,6 +150,18 @@ def parse_history(data, history):  # TODO: rename data to response?
     return history
 
 
+def _get_well_known_folders(names=[]):
+    """
+    Return a dict with a mapping from the remote folder ids to the requested folder names.
+
+    :param names: list of folder names, eg. ['Junk Email', 'Archive', ]
+    :return: dictionary with the remote id's mapped to the requested folder names,
+        eg. {'remote_id_1': 'Junk Email', 'remote_id_2': 'Archive', 'remote_id_3': 'Deleted Items'}
+    """
+    folders = EmailFolder.objects.filter(name__in=names).values('remote_id', 'name')
+    return {f[0]: f[1] for f in folders}
+
+
 def _extract_token(url, token_to_extract):
     """
     Return the requested token from the url.
@@ -181,9 +192,7 @@ def parse_message_list(data, messages):
     messages['messages'] = {}
 
     # Retrieve dict with 3 (key, value) pairs to map folders from remote_id to Archive, Trash and Junk.
-    # result = EmailFolder.objects.filter()  # TODO: implement right query.
-    # TODO: implement mapping ParentFolderId: DisplayName label
-    folders = {'xyz': 'Junk Email', 'uvw': 'Archive', 'abc': 'Deleted Items'}
+    folders = _get_well_known_folders([FOLDER_ARCHIVE_NAME, FOLDER_DELETED_ITEMS_NAME, FOLDER_JUNK_NAME])
 
     for message in data.get('value', []):
         messages['messages'][message['Id']] = {
@@ -232,10 +241,9 @@ def parse_message(data, message):
     ParentFolderId can tell if it is archived, trashed, or spam.
     """
     data = data.json()
+
     # Retrieve dict with 3 (key, value) pairs to map folders from remote_id to Archive, Trash and Junk.
-    # result = EmailFolder.objects.filter()  # TODO: implement right query.
-    # TODO: implement mapping ParentFolderId: DisplayName label
-    folders = {'xyz': 'Junk Email', 'uvw': 'Archive', 'abc': 'Deleted Items'}
+    folders = _get_well_known_folders([FOLDER_ARCHIVE_NAME, FOLDER_DELETED_ITEMS_NAME, FOLDER_JUNK_NAME])
 
     msg = {
         'remote_id': data['Id'],  # Id is mutable, but needed for doing api calls and used in history sync.
@@ -339,7 +347,7 @@ def parse_label_list(data, labels, label_resource):
             'remote_value': label['DisplayName'],
             'message_count': label['TotalItemCount'],
             'unread_count': label['UnreadItemCount'],
-            'folder_type': 'SYSTEM' if label['DisplayName'] in SYSTEM_FOLDERS_NAMES else 'USER',  # TODO: Correct values?
+            'folder_type': EmailFolder.SYSTEM if label['DisplayName'] in SYSTEM_FOLDERS_NAMES else EmailFolder.USER,
             'parent_id': label['ParentFolderId'],  # TODO: remote_id or our db id?
             'children': [],
         }
@@ -393,7 +401,7 @@ def parse_label(data, label):
         'remote_value': data['DisplayName'],
         'message_count': data['TotalItemCount'],
         'unread_count': data['UnreadItemCount'],
-        'folder_type': 'SYSTEM' if data['DisplayName'] in SYSTEM_FOLDERS_NAMES else 'USER',  # TODO: Correct values?
+        'folder_type': EmailFolder.SYSTEM if data['DisplayName'] in SYSTEM_FOLDERS_NAMES else EmailFolder.USER,
         'parent_id': data['ParentFolderId'],  # TODO: remote_id or our db id?
     })
 

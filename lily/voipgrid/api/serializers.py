@@ -4,6 +4,7 @@ from copy import copy
 
 from channels import Group
 from django.contrib.staticfiles.templatetags.staticfiles import static
+from django.db import IntegrityError
 from rest_framework import serializers
 
 from lily.accounts.models import Account
@@ -13,6 +14,17 @@ from lily.users.models import LilyUser
 
 
 logger = logging.getLogger(__name__)
+
+
+def create_or_get(model_cls, lookup, data):
+    """
+    This function assumes that you have a unique field in the model class.
+    The unique field will raise an IntegrityError if there is an existing record already.
+    """
+    try:
+        return model_cls.objects.create(**data)
+    except IntegrityError:
+        return model_cls.objects.get(**lookup)
 
 
 class CallNotificationSerializer(serializers.Serializer):
@@ -123,7 +135,7 @@ class CallNotificationSerializer(serializers.Serializer):
             'status': CallRecord.RINGING,
             'direction': CallRecord.INBOUND if data['direction'] == 'inbound' else CallRecord.OUTBOUND,
         })
-        cr = CallRecord.objects.get_or_create(**data)[0]
+        cr = create_or_get(CallRecord, lookup={'call_id': data['call_id']}, data=data)
 
         user_list = LilyUser.objects.filter(internal_number=destination['account_number'])
         for user in user_list:

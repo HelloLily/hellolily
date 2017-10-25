@@ -55,6 +55,7 @@ function HLMessages() {
                 caseTitle: 'Change expiry date',
                 deal: 'Wrong day to solve it?<br />Set to today or postpone it.',
                 case: 'Not the right day to act upon it?<br />Set to today or postpone it.',
+                subText: '<strong>Note: </strong> Weekends are automatically skipped',
                 datepicker: 'Or manually select a date:',
             },
             dashboard: {

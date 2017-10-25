@@ -2,6 +2,7 @@
     <div class="row">
         <div class="col-md-12">
             <p ng-bind-html="$root.messages.alerts.postpone[vm.type.toLowerCase()]"></p>
+            <p ng-bind-html="$root.messages.alerts.postpone.subText"></p>
             <div>
                 <a ng-click="vm.postponeWithDays()" class="btn btn-default margin-top-10">Set to today ({{ vm.getFutureDate() | date }})</a>
             </div>
@@ -11,7 +12,7 @@
                 </a>
             </div>
             <div>
-                <a ng-click="vm.postponeWithDays(7)" class="btn btn-default margin-top-10">Add 7 days ({{ vm.getFutureDate(7) | date }})</a>
+                <a ng-click="vm.postponeWithDays(7)" class="btn btn-default margin-top-10">Add 7 days ({{ vm.getFutureDate(5) | date }})</a>
             </div>
         </div>
     </div>

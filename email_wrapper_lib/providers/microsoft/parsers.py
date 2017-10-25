@@ -4,7 +4,6 @@ import re
 
 from collections import defaultdict
 
-from email_wrapper_lib.models.models import EmailFolder
 from email_wrapper_lib.providers.exceptions import BatchRequestException
 from microsoft_mail_client.constants import (
     SYSTEM_FOLDERS_NAMES, FOLDER_ARCHIVE_NAME, FOLDER_DELETED_ITEMS_NAME, FOLDER_JUNK_NAME, IMPORTANCE_HIGH
@@ -158,6 +157,7 @@ def _get_well_known_folders(names=[]):
     :return: dictionary with the remote id's mapped to the requested folder names,
         eg. {'remote_id_1': 'Junk Email', 'remote_id_2': 'Archive', 'remote_id_3': 'Deleted Items'}
     """
+    from email_wrapper_lib.models.models import EmailFolder
     folders = EmailFolder.objects.filter(name__in=names).values('remote_id', 'name')
     return {f[0]: f[1] for f in folders}
 
@@ -347,7 +347,7 @@ def parse_label_list(data, labels, label_resource):
             'remote_value': label['DisplayName'],
             'message_count': label['TotalItemCount'],
             'unread_count': label['UnreadItemCount'],
-            'folder_type': EmailFolder.SYSTEM if label['DisplayName'] in SYSTEM_FOLDERS_NAMES else EmailFolder.USER,
+            # 'folder_type': EmailFolder.SYSTEM if label['DisplayName'] in SYSTEM_FOLDERS_NAMES else EmailFolder.USER,  # TODO: fix import
             'parent_id': label['ParentFolderId'],  # TODO: remote_id or our db id?
             'children': [],
         }
@@ -401,7 +401,7 @@ def parse_label(data, label):
         'remote_value': data['DisplayName'],
         'message_count': data['TotalItemCount'],
         'unread_count': data['UnreadItemCount'],
-        'folder_type': EmailFolder.SYSTEM if data['DisplayName'] in SYSTEM_FOLDERS_NAMES else EmailFolder.USER,
+        # 'folder_type': EmailFolder.SYSTEM if data['DisplayName'] in SYSTEM_FOLDERS_NAMES else EmailFolder.USER,  # TODO: fix import
         'parent_id': data['ParentFolderId'],  # TODO: remote_id or our db id?
     })
 

@@ -137,12 +137,12 @@ class AccountImport(APIView):
             csv_file = request.data['csv']
             imported_data = Dataset().load(csv_file.read())
         except MultiValueDictKeyError:
-            return Response({'file': {'No CSV file choosen'}}, status=status.HTTP_409_CONFLICT)
+            return Response({'file_accounts': {'No CSV file choosen'}}, status=status.HTTP_409_CONFLICT)
         except UnsupportedFormat:
-            return Response({'file': {'CSV file not properly formated'}}, status=status.HTTP_409_CONFLICT)
+            return Response({'file_accounts': {'CSV file not properly formated'}}, status=status.HTTP_409_CONFLICT)
 
         # The following set of fields should be present as headers in the uploaded file.
-        required_fields = {u'name'}
+        required_fields = {u'company name'}
         # The following set of fields are optional.
         optional_fields = {u'website', u'email address', u'phone number', u'twitter', u'address', u'postal code',
                            u'city'}
@@ -155,21 +155,18 @@ class AccountImport(APIView):
         optional_in_upload = optional_fields & available_in_upload
         extra_in_upload = available_in_upload - (required_fields | optional_fields)
 
+        print 'extra_in_upload', extra_in_upload
+
         if bool(missing_in_upload):
-            return Response({'file': {'The follwing columns are missing: {0}'.format(', '.join(missing_in_upload))}},
-                            status=status.HTTP_409_CONFLICT)
+            return Response(
+                {'file_accounts': {'The follwing columns are missing: {0}'.format(', '.join(missing_in_upload))}},
+                status=status.HTTP_409_CONFLICT)
 
         tenant = self.request.user.tenant
-        duplicate = []
         error = []
-        created = []
+        created_updated = []
         for row in imported_data.dict:
-            name = row.get(u'name')
-
-            # Check if the account already exists, possibly when the user re-uploads the same file.
-            if Account.objects.filter(name=name, tenant=tenant, is_deleted=False).exists():
-                duplicate.append(name)
-                continue
+            company_name = row.get(u'company name')
 
             website = None
             email_address = None
@@ -180,18 +177,26 @@ class AccountImport(APIView):
                 # Use atomic to rollback all intermediate database actions if an error occurs in just one of them.
                 with transaction.atomic():
                     description = ''
-                    # All the extra fields that are present in the upload are used in the description field.
+                    # All the extra fields that are present in the upload are placed in the description field.
                     for field in extra_in_upload:
                         description += '{0}: {1}\n'.format(field, row.get(field))
 
-                    account_status = AccountStatus.objects.get(name='Relation', tenant=tenant)
-                    account = Account(name=name,
-                                      tenant=tenant,
-                                      status=account_status,
-                                      description=description)
-                    # Skip the signal at this moment, so on a rollback the instance isn't still in the search index.
-                    account.skip_signal = True
-                    account.save()
+                    # Not using get_or_create() to make use of the skip_signal construction.
+                    try:
+                        account = Account.objects.get(name=company_name, tenant=tenant)
+                        if description:
+                            new_description = '{0}\n{1}'.format(account.description.strip(), description)
+                            account.description = new_description
+                            account.skip_signal = True
+                            account.save()
+                    except Account.DoesNotExist:
+                        account_status = AccountStatus.objects.get(name='Relation', tenant=tenant)
+                        account = Account(name=company_name,
+                                          tenant=tenant,
+                                          status=account_status,
+                                          description=description)
+                        account.skip_signal = True
+                        account.save()
 
                     if u'website' in optional_in_upload and row.get(u'website'):
                         website = Website(website=row.get(u'website'),
@@ -252,7 +257,7 @@ class AccountImport(APIView):
             except Exception:
                 # On an exception all databaase actions are rolled back. Because of the skip_signal=True no data is
                 # added to the search index.
-                error.append(name)
+                error.append(company_name)
             else:
                 if website:
                     website.skip_signal = False
@@ -278,7 +283,6 @@ class AccountImport(APIView):
                 account.skip_signal = False
                 account.save()
 
-                created.append(name)
+                created_updated.append(company_name)
 
-        return Response({'created': created, 'duplicate': duplicate, 'error': error},
-                        status=status.HTTP_201_CREATED)
+        return Response({'created_updated': created_updated, 'error': error}, status=status.HTTP_201_CREATED)

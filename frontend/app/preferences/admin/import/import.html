@@ -1,6 +1,6 @@
 <div class="widget-heading">
     <div class="widget-title">
-        <div class="widget-name">Import</div>
+        <div class="widget-name">Import accounts & contacts</div>
     </div>
     <div class="clearfix"></div>
 </div>
@@ -9,34 +9,34 @@
     <div class="widget-content">
         <div class="row">
             <div class="col-md-12">
-                <form novalidate name="importForm">
+                <form novalidate name="importAccountsForm">
                     <form-portlet portlet-title="Import accounts">
                         <p>List accounts all at once by importing a .csv file containing account information.</p>
                         <ul class="hl-instruction-list">
                             <li class="hl-instruction-list-item">Only .CSV files are eligable</li>
-                            <li class="hl-instruction-list-item">The file should at least contain a column with the header: <strong>name</strong></li>
+                            <li class="hl-instruction-list-item">The file should at least contain a column with the header: <strong>company name</strong></li>
                             <li class="hl-instruction-list-item">Optional headers are:
                                 <strong>website</strong>,
                                 <strong>email address</strong>,
                                 <strong>phone number</strong>,
-                                <strong>twitter</strong>,
                                 <strong>address</strong>,
                                 <strong>postal code</strong>,
-                                <strong>city</strong>
+                                <strong>city</strong>,
+                                <strong>twitter</strong>.
                             </li>
                             <li class="hl-instruction-list-item">Information in any additional columns will be added to the description of an account</li>
                             <li class="hl-instruction-list-item">Please note that headers are case sensitve</li>
                         </ul>
 
-                        <form-group field="importForm.file">
+                        <form-group field="importAccountsForm.file_accounts">
                             <div>
                                 <div class="hl-select-file">
-                                    <input class="hl-select-file-input" size="10" id="file" type="file" ngf-select ng-model="vm.csv" name="file" accept="text/csv" ngf-max-size="2MB" required>
+                                    <input class="hl-select-file-input" size="10" id="file_accounts" type="file" ngf-select ng-model="vm.csv" name="file_accounts" accept="text/csv" ngf-max-size="2MB" required>
                                 </div>
                                 <div class="clearfix"></div>
                                 <div class="spacer-20"></div>
 
-                                <button type="button" class="hl-primary-btn-blue" ng-click="vm.importAccounts(importForm)">
+                                <button type="button" class="hl-primary-btn-blue" ng-click="vm.importAccounts(importAccountsForm)">
                                     <i class="fa fa-upload"></i> Import
                                 </button>
                             </div>
@@ -48,31 +48,99 @@
         <div class="row">
             <div class="col-md-12">
                 <form>
-                    <form-portlet portlet-title="Error" ng-if="vm.import_result_error.length">
+                    <form-portlet portlet-title="Error" ng-if="vm.import_accounts_result_error.length">
                         <div class="row">
                             <div>
-                                <li ng-repeat="name in vm.import_result_error track by $index">
-                                  {{ name }}
+                                <li ng-repeat="company_name in vm.import_accounts_result_error track by $index">
+                                  {{ company_name }}
                                 </li>
                             </div>
                         </div>
                     </form-portlet>
 
-                    <form-portlet portlet-title="Duplicates" ng-if="vm.import_result_duplicate.length">
+                    <form-portlet portlet-title="Created or updated" ng-if="vm.import_accounts_result_created_updated.length">
                         <div class="row">
                             <div>
-                                <li ng-repeat="name in vm.import_result_duplicate track by $index">
-                                  {{ name }}
+                                <li ng-repeat="company_name in vm.import_accounts_result_created_updated track by $index">
+                                  {{ company_name }}
+                                </li>
+                            </div>
+                        </div>
+                    </form-portlet>
+                </form>
+            </div>
+        </div>
+
+       <div class="row">
+            <div class="col-md-12">
+                <form novalidate name="importContactsForm">
+                    <form-portlet portlet-title="Import contacts">
+                        <p>List contacts all at once by importing a .csv file containing contact information.</p>
+                        <ul class="hl-instruction-list">
+                            <li class="hl-instruction-list-item">Only .CSV files are eligable</li>
+                            <li class="hl-instruction-list-item">The file should at least contain a column with the header:
+                                <strong>first name</strong>,
+                                <strong>last name</strong>
+                            </li>
+                            <li class="hl-instruction-list-item">Optional headers are:
+                                <strong>email address</strong>,
+                                <strong>phone number</strong>,
+                                <strong>address</strong>,
+                                <strong>postal code</strong>,
+                                <strong>city</strong>,
+                                <strong>twitter</strong>,
+                                <strong>linkedin</strong>,
+                                <strong>company name</strong>.
+                            </li>
+                            <li class="hl-instruction-list-item">Information in any additional columns will be added to the description of a contact</li>
+                            <li class="hl-instruction-list-item">Please note that headers are case sensitve</li>
+                        </ul>
+
+                        <form-group field="importContactsForm.file_contacts">
+                            <div>
+                                <div class="hl-select-file">
+                                    <input class="hl-select-file-input" size="10" id="file_contacts" type="file" ngf-select ng-model="vm.csv" name="file_contacts" accept="text/csv" ngf-max-size="2MB" required>
+                                </div>
+                                <div class="clearfix"></div>
+                                <div class="spacer-20"></div>
+
+                                <button type="button" class="hl-primary-btn-blue" ng-click="vm.importContacts(importContactsForm)">
+                                    <i class="fa fa-upload"></i> Import
+                                </button>
+                            </div>
+                        </form-group>
+                    </form-portlet>
+                </form>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <form>
+                    <form-portlet portlet-title="Error" ng-if="vm.import_contacts_result_error.length">
+                        <div class="row">
+                            <div>
+                                <li ng-repeat="full_name in vm.import_contacts_result_error track by $index">
+                                  {{ full_name }}
                                 </li>
                             </div>
                         </div>
                     </form-portlet>
 
-                    <form-portlet portlet-title="Created" ng-if="vm.import_result_created.length">
+                    <form-portlet portlet-title="Duplicates" ng-if="vm.import_contacts_result_duplicate.length">
                         <div class="row">
                             <div>
-                                <li ng-repeat="name in vm.import_result_created track by $index">
-                                  {{ name }}
+                                <li ng-repeat="full_name in vm.import_contacts_result_duplicate track by $index">
+                                  {{ full_name }}
+                                </li>
+                            </div>
+                        </div>
+                    </form-portlet>
+
+                    <form-portlet portlet-title="Created" ng-if="vm.import_contacts_result_created.length">
+                        <div class="row">
+                            <div>
+                                <li ng-repeat="full_name in vm.import_contacts_result_created track by $index">
+                                  {{ full_name }}
                                 </li>
                             </div>
                         </div>

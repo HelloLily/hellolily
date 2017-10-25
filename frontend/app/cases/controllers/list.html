@@ -19,6 +19,7 @@
                         <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.created">Created</checkbox></li>
                         <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.expires">Expires</checkbox></li>
                         <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.assignedTo">Assigned to</checkbox></li>
+                        <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.assignedTeams">Assigned team(s)</checkbox></li>
                         <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.createdBy">Created by</checkbox></li>
                         <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.tags">Tags</checkbox></li>
                     </ul>
@@ -53,7 +54,6 @@
                 </li>
             </ul>
 
-
             <list-filter filter-label="'Case types'" view-model="vm"></list-filter>
         </div>
 
@@ -83,6 +83,7 @@
                 <th class="hl-table-column" ng-show="vm.table.visibility.created" sort-column="created" table="vm.table">Created</th>
                 <th class="hl-table-column" ng-show="vm.table.visibility.expires" sort-column="expires" table="vm.table">Expires</th>
                 <th class="hl-table-column" ng-show="vm.table.visibility.assignedTo" sort-column="assigned_to.full_name" table="vm.table">Assigned to</th>
+                <th class="hl-table-column" ng-show="vm.table.visibility.assignedTeams">Assigned team(s)</th>
                 <th class="hl-table-column" ng-show="vm.table.visibility.createdBy" sort-column="created_by.full_name" table="vm.table">Created by</th>
                 <th class="hl-table-column" ng-show="vm.table.visibility.tags">Tags</th>
                 <th class="hl-table-column" style="width: 60px;">Actions</th>
@@ -128,7 +129,16 @@
                         <postpone type="'Case'" object="case" date-field="'expires'"></postpone>
                     </td>
                     <td class="hl-table-column" ng-show="vm.table.visibility.assignedTo">
-                        <assign-to type="Case" object="case"></assign-to>
+                        <editable-select field="assigned_to" view-model="vm" type="Case" search="true" object="case"
+                                         select-options="{type: 'User', display: 'full_name', placeholder: 'Assign to...', allowClear: true, sortColumn: 'full_name', nameColumn: 'full_name'}">
+                            {{ case.assigned_to.full_name || 'Nobody'}}
+                        </editable-select>
+                    </td>
+                    <td class="hl-table-column" ng-show="vm.table.visibility.assignedTeams">
+                        <div ng-repeat="team in case.assigned_to_teams">{{ team.name }}</div>
+                        <div ng-if="!case.assigned_to_teams">
+                            <a ng-click="vm.assignToMyTeams(case)">Assign to my team(s)</a>
+                        </div>
                     </td>
                     <td class="hl-table-column" ng-show="vm.table.visibility.createdBy">
                         {{ ::case.created_by.full_name }}

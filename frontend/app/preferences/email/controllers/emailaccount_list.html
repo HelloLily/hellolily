@@ -45,7 +45,7 @@
                                     <input type="radio" name="primary" ng-model="vm.primaryAccount" ng-value="account.id" class="radio-button-input">
                                     <span class="radio-button-label"></span>
                                 </span>
-                                <a ng-show="!account.is_authorized" href="/messaging/email/setup/" class="email-connection-warning link-no-decoration margin-left-10" uib-tooltip="{{ $root.messages.tooltips.emailAccountConnectionWarning }}" tooltip-placement="right">
+                                <a ng-show="!account.is_authorized" href="/messaging/email/setup/" class="email-connection-warning link-no-decoration m-l-10" uib-tooltip="{{ $root.messages.tooltips.emailAccountConnectionWarning }}" tooltip-placement="right">
                                     <i class="fa fa-exclamation-triangle"></i>
                                 </a>
                             </td>
@@ -71,7 +71,7 @@
                                 <span ng-if="account.privacy === vm.publicPrivacy" uib-tooltip="{{ vm.publicAccountTooltip }}">All</span>
                                 <span ng-if="account.privacy !== vm.publicPrivacy">
                                     <button class="hl-primary-btn" ng-click="vm.openShareAccountModal(account)" ng-if="!currentUser.tenant.isFreePlan">
-                                        {{ account.shared_email_configs.length }} <i class="lilicon hl-entity-icon margin-left-5"></i>
+                                        {{ account.shared_email_configs.length }} <i class="lilicon hl-entity-icon m-l-5"></i>
                                     </button>
                                     <span ng-if="currentUser.tenant.isFreePlan">-</span>
                                 </span>
@@ -159,6 +159,10 @@
             </widget-body>
         </simple-widget>
 
-        <a href="/messaging/email/setup" class="hl-primary-btn-green pull-right no-margin-right" object-limit="email_accounts"><i class="fa fa-plus"></i> Add email account</a>
+        <div class="align-right">
+            <object-limit model="emailAccounts">
+                <a href="/messaging/email/setup" class="hl-primary-btn-green no-margin-right"><i class="fa fa-plus"></i> Email account</a>
+            </object-limit>
+        </div>
     </div>
 </div>

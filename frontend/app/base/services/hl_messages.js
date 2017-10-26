@@ -2,7 +2,8 @@ angular.module('app.services').factory('HLMessages', HLMessages);
 
 HLMessages.$inject = [];
 function HLMessages() {
-    var mod = 'CTRL';
+    let mod = 'CTRL';
+
     if (navigator.userAgent.indexOf('Mac OS X') !== -1) {
         mod = '⌘';
     }
@@ -135,6 +136,7 @@ function HLMessages() {
             emailAccountConnectionWarning: 'To solve email issues, please click to add this email account again',
             emailAccountPublicTooltip: 'All colleagues in %(company)s',
             featureUnavailable: 'This feature is unavailable for your current plan. Click here to go to the billing page.',
+            limitReached: 'You\'ve reached the limit of your Personal plan. Please upgrade it to add more %(model)s.',
         },
     };
 }

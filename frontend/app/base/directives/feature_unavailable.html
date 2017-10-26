@@ -14,7 +14,7 @@
             </div>
         </div>
         <div ng-if="labelText" class="unavailable-feature">
-            <span><i class="{{ labelIcon }}"></i> {{ labelText }}</span> <span class="unavailable-marker clickable" uib-tooltip="{{ $root.messages.tooltips.featureUnavailable }}" ui-sref="base.preferences.admin.billing">Unavailable</span>
+            <span><i class="{{ labelIcon }}"></i> {{ labelText }}</span> <span class="unavailable-marker clickable" uib-tooltip="{{ $root.messages.tooltips.featureUnavailable }}" tooltip-append-to-body="true" ui-sref="base.preferences.admin.billing">Unavailable</span>
         </div>
     </div>
 </div>

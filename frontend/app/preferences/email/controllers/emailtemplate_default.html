@@ -1,7 +1,7 @@
 <strong>Set {{ emailTemplate.name }} as default for</strong>
 <form name="defaultForForm">
     <div>
-        <ul class="list-unstyled align-left margin-top-20">
+        <ul class="list-unstyled align-left m-t-20">
             <li ng-repeat="emailAccount in vm.emailAccounts">
                 <checkbox model="emailAccount.selected">{{ emailAccount.email_address }}</checkbox>
             </li>

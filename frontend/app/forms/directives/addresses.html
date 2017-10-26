@@ -1,5 +1,5 @@
 <div class="hl-related-form-field" ng-repeat="address in vm.addresses" ng-class="{'has-error': form['addresses-address-' + $index].$invalid }">
-    <div class="row hl-row-sm margin-bottom-10">
+    <div class="row hl-row-sm m-b-10">
         <div class="col-md-7 create-sidebar-input-col-8 hl-flex-container">
             <i class="hl-form-icon" ng-transclude uib-tooltip="{{ $root.messages.contact.contactInfoTooltip }}"></i>
             <input class="form-control hl-form-input hl-flex-1"
@@ -29,7 +29,7 @@
     </div>
 
     <div class="row hl-row-sm">
-        <div class="col-md-4 create-sidebar-input-col-6 create-sidebar-margin-bottom-10px">
+        <div class="col-md-4 create-sidebar-input-col-6 create-sidebar-m-b-10px">
             <label class="hidden control-label" for="id_addresses-city-{{ $index }}">City</label>
             <input class="form-control hl-form-input"
                    id="id_addresses-city-{{ $index }}"
@@ -63,7 +63,7 @@
                 <i class="lilicon hl-trashcan-icon"></i>
             </a>
             <a ng-click="vm.addRelatedField({field: 'address'})"
-               class="margin-left-5 hl-primary-btn hl-form-input-btn" title="Add new address" ng-if="$index === (vm.addresses.length - 1)">
+               class="m-l-5 hl-primary-btn hl-form-input-btn" title="Add new address" ng-if="$index === (vm.addresses.length - 1)">
                <i class="fa fa-plus"></i>
             </a>
             <div class="form-add-spacer" ng-if="$index !== (vm.addresses.length - 1)"></div>

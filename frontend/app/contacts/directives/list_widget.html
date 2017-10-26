@@ -15,10 +15,12 @@
 
     <widget-filters>
         <div class="hl-button-group-container" ng-if="!vm.settings.email.sidebar.contact">
-            <a class="hl-primary-btn" ui-sref="{{ vm.addLink || 'base.contacts.create' }}" ng-click="vm.googleAnalyticsEvent()" object-limit="contacts">
-                <i class="fa fa-plus"></i>
-                <span class="external-link-name">Contact</span>
-            </a>
+            <object-limit model="contacts">
+                <a class="hl-primary-btn" ui-sref="{{ vm.addLink || 'base.contacts.create' }}" ng-click="vm.googleAnalyticsEvent()" object-limit="contacts">
+                    <i class="fa fa-plus"></i>
+                    <span class="external-link-name">Contact</span>
+                </a>
+            </object-limit>
         </div>
     </widget-filters>
 
@@ -36,7 +38,7 @@
                     <td><a ui-sref="base.contacts.detail({id: contact.id})">{{ contact.full_name }}</a></td>
                     <td>
                         <div ng-if="!contact.primary_email_address && vm.object.primary_email_address">
-                            <i class="lilicon hl-company-icon margin-right-5" uib-tooltip="{{ $root.messages.contact.accountListInfoTooltip }}"></i>
+                            <i class="lilicon hl-company-icon m-r-5" uib-tooltip="{{ $root.messages.contact.accountListInfoTooltip }}"></i>
                             <a ui-sref="base.email.composeEmail({email: vm.object.primary_email_address})">
                                 {{ vm.object.primary_email_address }}
                             </a>
@@ -49,7 +51,7 @@
                         </div>
 
                         <div ng-if="!contact.phone_numbers && account.phone_numbers.length">
-                            <i class="lilicon hl-company-icon margin-right-5" uib-tooltip="{{ $root.messages.contact.accountListInfoTooltip }}"></i>
+                            <i class="lilicon hl-company-icon m-r-5" uib-tooltip="{{ $root.messages.contact.accountListInfoTooltip }}"></i>
                             <a href="tel:{{ vm.object.phone_numbers[0].number }}">{{ vm.object.phone_numbers[0].number }}</a>
                         </div>
 

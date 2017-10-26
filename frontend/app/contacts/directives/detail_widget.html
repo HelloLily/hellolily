@@ -13,7 +13,7 @@
             <tr>
                 <td><i class="fa fa-comment-o"></i> <strong>Salutation</strong></td>
                 <td>
-                    <editable-select field="salutation" view-model="vm" type="Contact" choice-field="true" select-options="{field: 'salutationOptions'}">{{ vm.contact.salutation_display || vm.contact.salutation }}</editable-select><span class="margin-left-5 margin-right-5">/</span>
+                    <editable-select field="salutation" view-model="vm" type="Contact" choice-field="true" select-options="{field: 'salutationOptions'}">{{ vm.contact.salutation_display || vm.contact.salutation }}</editable-select><span class="m-l-5 m-r-5">/</span>
                     <editable-select field="gender" view-model="vm" type="Contact" choice-field="true" select-options="{field: 'genderOptions'}">{{ vm.contact.gender_display || vm.contact.gender }}</editable-select>
                 </td>
             </tr>
@@ -104,7 +104,7 @@
 
             <tr>
                 <td colspan="2">
-                    <strong class="margin-bottom-5">Description</strong>
+                    <strong class="m-b-5">Description</strong>
                     <div>
                         <editable-textarea view-model="vm" field="description" object="vm.contact"></editable-textarea>
                     </div>

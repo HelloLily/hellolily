@@ -314,6 +314,18 @@ $large-button: 30px;
     }
 }
 
+.hl-primary-btn-link {
+    color: $app-link-color;
+    background: none;
+    outline: none;
+    border: 0;
+    padding: 0;
+
+    &:hover {
+        color: $app-color-darkblue;
+    }
+}
+
 /* SG
 # Buttons/Inline form buttons #
 

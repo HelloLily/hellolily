@@ -3,7 +3,7 @@
         <div ng-repeat="config in vm.emailAccount.shared_email_configs" ng-if="!config.is_deleted" class="user-row">
             <div class="user-info">
                 <div class="user-avatar display-inline-block" ng-style="{'background-image': 'url(' + config.user.profile_picture + ')'}"></div>
-                <span class="margin-left-15">{{ config.user.full_name }}</span>
+                <span class="m-l-15">{{ config.user.full_name }}</span>
             </div>
 
             <div class="sharing-actions">
@@ -14,7 +14,7 @@
                     </ui-select-choices>
                 </ui-select>
 
-                <div class="clickable margin-left-10" ng-click="config.is_deleted = true"><i class="lilicon hl-close-icon"></i></div>
+                <div class="clickable m-l-10" ng-click="config.is_deleted = true"><i class="lilicon hl-close-icon"></i></div>
             </div>
         </div>
     </div>

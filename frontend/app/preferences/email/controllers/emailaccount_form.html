@@ -15,8 +15,8 @@
                             <input class="form-control" id="label" name="label" maxlength="255" placeholder="Label" type="text" ng-model="vm.emailAccount.label" />
                         </form-group>
 
-                        <div class="margin-top-30 margin-bottom-30" ng-if="vm.emailAccount.only_new === null" ng-class="{'has-error': emailAccountForm.only_new.$invalid}">
-                            <label class="display-block margin-bottom-5">Load all email into Lily?</label>
+                        <div class="m-t-30 m-b-30" ng-if="vm.emailAccount.only_new === null" ng-class="{'has-error': emailAccountForm.only_new.$invalid}">
+                            <label class="display-block m-b-5">Load all email into Lily?</label>
                             <div class="radio-button-group radio-button-list">
                                 <label class="radio-button" for="all">
                                     <input type="radio" name="only_new" ng-model="vm.onlyNew" ng-value="0" id="all" class="radio-button-input" />

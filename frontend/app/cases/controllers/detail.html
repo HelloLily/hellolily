@@ -16,7 +16,7 @@
                             <tr><td colspan="2">Contact info</td></tr>
                             <tr ng-if="vm.case.account.customer_id && vm.tenant.primary_external_app_link">
                                 <td>External link</td>
-                                <td><a ng-href="{{ vm.tenant.primary_external_app_link.getUrl(vm.case.account.customer_id) }}" target="_blank"><span class="external-link-name">{{ vm.tenant.primary_external_app_link.name }} <i class="fa fa-external-link margin-left-5"></i></span></a></td>
+                                <td><a ng-href="{{ vm.tenant.primary_external_app_link.getUrl(vm.case.account.customer_id) }}" target="_blank"><span class="external-link-name">{{ vm.tenant.primary_external_app_link.name }} <i class="fa fa-external-link m-l-5"></i></span></a></td>
                             </tr>
                             <tr>
                                 <td>Email</td>
@@ -91,8 +91,8 @@
                             <tr>
                                 <td>Created by: </td>
                                 <td>
-                                    <span ng-show="vm.case.created_by" class="margin-right-5">{{ vm.case.created_by.full_name }} on</span>
-                                    <span ng-show="!vm.case.created_by" class="margin-right-5">An unknown entity on</span>
+                                    <span ng-show="vm.case.created_by" class="m-r-5">{{ vm.case.created_by.full_name }} on</span>
+                                    <span ng-show="!vm.case.created_by" class="m-r-5">An unknown entity on</span>
                                     <date date="vm.case.created"></date>
                                 </td>
                             </tr>
@@ -104,12 +104,9 @@
                                                      select-options="{type: 'User', display: 'full_name', placeholder: 'Assign to...', allowClear: true, sortColumn: 'full_name', nameColumn: 'full_name'}">
                                         {{ vm.case.assigned_to.full_name || 'Nobody'}}
                                     </editable-select>
-                                    <a ng-if="vm.case.assigned_to.id != currentUser.id" ng-click="vm.assignCase()" uib-tooltip="Assign to me">
-                                        <i class="fa fa-anchor margin-left-5 margin-right-5"></i>
-                                    </a>
 
-                                    <span ng-if="vm.case.assigned_to_teams.length" class="margin-left-5 margin-right-5">
-                                        <strong>from</strong>
+                                    <span ng-if="vm.case.assigned_to_teams.length" class="m-l-5 m-r-5">
+                                        <strong>and</strong>
                                     </span>
 
                                     <editable-select field="assigned_to_teams" view-model="vm" type="Case" search="true" multiple="true"
@@ -119,6 +116,10 @@
                                         </span>
                                         <span ng-if="!vm.case.assigned_to_teams.length"><i class="lilicon hl-entities-icon"></i></span>
                                     </editable-select>
+
+                                    <div ng-if="vm.case.assigned_to.id != currentUser.id">
+                                        <button class="hl-primary-btn-link" ng-click="vm.assignCase()">Assign to me</button>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>

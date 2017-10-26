@@ -8,7 +8,7 @@
             <form novalidate name="inviteForm">
                 <div class="row">
                     <div class="col-md-6 col-md-offset-2">
-                        <div class="widget-suggestion margin-bottom-20" ng-if="!currentUser.tenant.isFreePlan">
+                        <div class="widget-suggestion m-b-20" ng-if="!currentUser.tenant.isFreePlan">
                             <div class="widget-suggestion-items">
                                 <div class="widget-suggestion-item">
                                     Adding users adds extra costs to your team's subscription. Ask <strong>{{ vm.accountAdmin.full_name }}</strong> if you’re not sure about this.
@@ -45,7 +45,7 @@
                                             <i ng-class="{'fa fa-undo': invite.is_deleted, 'lilicon hl-trashcan-icon': !invite.is_deleted}"></i>
                                         </a>
                                         <a ng-click="vm.addInvite()" ng-if="$last"
-                                            class="margin-left-5 hl-primary-btn hl-form-input-btn" title="Add new invite">
+                                            class="m-l-5 hl-primary-btn hl-form-input-btn" title="Add new invite">
                                             <i class="fa fa-plus"></i>
                                         </a>
                                     </div>

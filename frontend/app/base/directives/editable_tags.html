@@ -5,7 +5,7 @@
                  data-e-form="tagForm" data-e-theme="select2" data-e-class="editable-select2"
                  data-e-ng-model="vm.object.tags" class="editable editable-click" data-e-tagging="vm.addTagChoice" editable-handler>
 
-                <a class="btn btn-xs btn-default margin-right-5" ng-repeat="tag in vm.object.tags">
+                <a class="btn btn-xs btn-default m-r-5" ng-repeat="tag in vm.object.tags">
                     {{ tag.name }}
                 </a>
                 <span ng-if="!vm.object.tags.length">No tags</span>

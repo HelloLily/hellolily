@@ -6,7 +6,7 @@
                     <a class="hl-button-group-btn-link" href="javascript:;" data-toggle="dropdown">
                         <i class="fa fa-columns"></i>
                         Columns
-                        <i class="margin-left-5 small-icon lilicon hl-toggle-down-icon"></i>
+                        <i class="m-l-5 small-icon lilicon hl-toggle-down-icon"></i>
                     </a>
 
                     <ul class="hl-dropdown js-hold-on-click">
@@ -96,14 +96,14 @@
                         </div>
                         <div ng-if="contact.accounts" ng-repeat="account in contact.accounts">
                             <div ng-if="!contact.primary_email_address && account.primary_email_address">
-                                <i class="lilicon hl-company-icon margin-right-5" uib-tooltip="{{ $root.messages.contact.accountListInfoTooltip }}"></i>
+                                <i class="lilicon hl-company-icon m-r-5" uib-tooltip="{{ $root.messages.contact.accountListInfoTooltip }}"></i>
                                 <a ui-sref="base.email.composeEmail({ email: account.primary_email_address })">
                                     {{ account.primary_email_address }}
                                 </a>
                             </div>
 
                             <div ng-if="!contact.phone_numbers && account.phone_numbers.length && account.is_active">
-                                <i class="lilicon hl-company-icon margin-right-5" uib-tooltip="{{ $root.messages.contact.accountListInfoTooltip }}"></i>
+                                <i class="lilicon hl-company-icon m-r-5" uib-tooltip="{{ $root.messages.contact.accountListInfoTooltip }}"></i>
                                 <a href="tel:{{ account.phone_numbers[0].number }}">
                                     {{ account.phone_numbers[0].number }}
                                 </a>

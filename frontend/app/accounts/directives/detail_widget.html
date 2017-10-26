@@ -53,9 +53,9 @@
                             {{ vm.account.assigned_to.full_name || 'Nobody' }}
                         </editable-select>
 
-                        <a ng-if="vm.account.assigned_to.id != vm.currentUser.id" ng-click="vm.assignAccount()" uib-tooltip="Assign to me">
-                            <i class="fa fa-anchor margin-left-5 margin-right-5"></i>
-                        </a>
+                        <div ng-if="vm.account.assigned_to.id != vm.currentUser.id">
+                            <button class="hl-primary-btn-link" ng-click="vm.assignAccount()">Assign to me</button>
+                        </div>
                     </td>
                 </tr>
 
@@ -92,7 +92,7 @@
 
                 <tr>
                     <td colspan="2">
-                        <strong class="margin-bottom-5">Description</strong>
+                        <strong class="m-b-5">Description</strong>
                         <div>
                             <editable-textarea view-model="vm" field="description" object="vm.account"></editable-textarea>
                         </div>

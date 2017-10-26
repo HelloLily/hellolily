@@ -44,7 +44,7 @@
                         </deleted-indicator>
                     </td>
                     <td>
-                        <span ng-if="deal.amount_recurring"><span ng-bind-html="deal.amount_recurring | currencySymbol:deal.currency"></span> /month<span class="margin-left-5 margin-right-5">|</span></span>
+                        <span ng-if="deal.amount_recurring"><span ng-bind-html="deal.amount_recurring | currencySymbol:deal.currency"></span> /month<span class="m-l-5 m-r-5">|</span></span>
                         <span ng-if="deal.amount_once"><span ng-bind-html="deal.amount_once | currencySymbol:deal.currency"></span> /once</span>
                     </td>
                     <td>
@@ -61,7 +61,7 @@
                         </editable-select>
                     </td>
                     <td><date date="deal.next_step_date" show-time="true"></date></td>
-                    <td><a ng-click="vm.assignToMe(deal)"><i class="fa fa-anchor"></i> Assign to me</a></td>
+                    <td><a ng-click="vm.assignToMe(deal)">Assign to me</a></td>
                 </tr>
             </tbody>
         </table>

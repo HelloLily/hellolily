@@ -160,7 +160,7 @@
                                     <a href="https://app.pandadoc.com/a/#/documents/{{ document.id }}" class="link-no-decoration" target="_blank"><i class="lilicon hl-edit-icon"></i></a>
                                     <a ng-if="vm.deal.contact.email_addresses.length && document.status !== 'completed'"
                                        ui-sref="base.email.composeEmailDocument({email: vm.deal.contact.email_addresses[0].email_address, documentId: document.id})"
-                                       class="link-no-decoration margin-left-10">
+                                       class="link-no-decoration m-l-10">
                                        <i class="fa fa-envelope"></i>
                                     </a>
                                 </td>
@@ -192,9 +192,9 @@
                                         {{ vm.deal.assigned_to.full_name || 'Nobody' }}
                                     </editable-select>
 
-                                    <a ng-if="vm.deal.assigned_to.id != currentUser.id" ng-click="vm.assignDeal()">
-                                        <i class="fa fa-anchor margin-left-5"></i> Assign to me
-                                    </a>
+                                    <div ng-if="vm.deal.assigned_to.id != currentUser.id">
+                                        <button class="hl-primary-btn-link" ng-click="vm.assignDeal()">Assign to me</button>
+                                    </div>
                                 </div>
                             </li>
                             <li>
@@ -212,8 +212,8 @@
                             <li>
                                 <strong>Created by: </strong>
                                 <div>
-                                    <span ng-show="vm.deal.created_by" class="margin-right-5">{{ vm.deal.created_by.full_name }} on</span>
-                                    <span ng-show="!vm.deal.created_by" class="margin-right-5">An unknown entity on</span>
+                                    <span ng-show="vm.deal.created_by" class="m-r-5">{{ vm.deal.created_by.full_name }} on</span>
+                                    <span ng-show="!vm.deal.created_by" class="m-r-5">An unknown entity on</span>
                                     <date date="vm.deal.created"></date>
                                 </div>
                             </li>

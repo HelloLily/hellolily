@@ -1,0 +1,6 @@
+<span ng-if="$ctrl.isDisabled" uib-tooltip="{{ $ctrl.tooltip }}">
+    <ng-transclude class="is-disabled"></ng-transclude>
+</span>
+<span ng-if="!$ctrl.isDisabled">
+    <ng-transclude></ng-transclude>
+</span>

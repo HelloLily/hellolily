@@ -1,13 +1,19 @@
-angular.module('app.directives').directive('objectLimit', objectLimit);
+function ObjectLimitController() {
+    const ctrl = this;
 
-function objectLimit() {
-    return {
-        restrict: 'A',
-        scope: true,
-        link: (scope, element, attrs) => {
-            if (currentUser.limitReached[attrs.objectLimit]) {
-                element.addClass('disabled');
-            }
-        },
+    ctrl.$onInit = () => {
+        const model = ctrl.model.replace( /([A-Z])/g, ' $1').toLowerCase();
+
+        ctrl.tooltip = sprintf(messages.tooltips.limitReached, {model});
+        ctrl.isDisabled = currentUser.limitReached[ctrl.model];
     };
 }
+
+angular.module('app.directives').component('objectLimit', {
+    templateUrl: 'base/directives/object_limit.html',
+    controller: ObjectLimitController,
+    transclude: true,
+    bindings: {
+        model: '@',
+    },
+});

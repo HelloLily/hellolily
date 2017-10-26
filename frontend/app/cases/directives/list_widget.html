@@ -49,11 +49,11 @@
                 </tr>
                 <tr ng-show="!case.collapsed" class="collapse-content" class="collapsable-cell">
                     <td colspan="5">
-                        <div class="margin-bottom-5" ng-if="case.type.name"><strong>Type:</strong> {{ case.type.name }}</div>
-                        <div class="margin-bottom-5"><strong>Assigned to:</strong> {{ case.assigned_to.full_name || "Nobody" }}</div>
-                        <div class="margin-bottom-5"><strong>Created by:</strong> <span class="margin-right-5">{{ case.created_by.full_name || "Nobody" }} on</span><date date="case.created"></date></div>
-                        <div class="margin-top-20" ng-if="case.description.length">
-                            <strong class="margin-bottom-5">Description:</strong>
+                        <div class="m-b-5" ng-if="case.type.name"><strong>Type:</strong> {{ case.type.name }}</div>
+                        <div class="m-b-5"><strong>Assigned to:</strong> {{ case.assigned_to.full_name || "Nobody" }}</div>
+                        <div class="m-b-5"><strong>Created by:</strong> <span class="m-r-5">{{ case.created_by.full_name || "Nobody" }} on</span><date date="case.created"></date></div>
+                        <div class="m-t-20" ng-if="case.description.length">
+                            <strong class="m-b-5">Description:</strong>
                             <div class="break-words">{{ case.description }}</div>
                         </div>
                     </td>

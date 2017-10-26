@@ -267,12 +267,16 @@
 
             <div class="pull-right">
                 <!-- BEGIN LARGE ACTIONS -->
-                <div class="hidden-sm hidden-xs">
+                <div class="add-buttons hidden-sm hidden-xs">
                     <caller-info ng-if="currentUser.internalNumber"></caller-info>
-                    <a class="hl-primary-btn" ui-sref="base.accounts.create" role="button" onclick="ga('send', 'event', 'Account', 'Open', 'Topnav');" object-limit="accounts"><i class="fa fa-plus"></i> Account</a>
-                    <a class="hl-primary-btn" ui-sref="base.contacts.create" role="button" onclick="ga('send', 'event', 'Contact', 'Open', 'Topnav');" object-limit="contacts"><i class="fa fa-plus"></i> Contact {{ currentUser.objectCounts.contacts }}</a>
+                    <object-limit model="accounts">
+                        <a class="hl-primary-btn" ui-sref="base.accounts.create" role="button" onclick="ga('send', 'event', 'Account', 'Open', 'Topnav');"><i class="fa fa-plus"></i> Account</a>
+                    </object-limit>
+                    <object-limit model="contacts">
+                        <a class="hl-primary-btn" ui-sref="base.contacts.create" role="button" onclick="ga('send', 'event', 'Contact', 'Open', 'Topnav');"><i class="fa fa-plus"></i> Contact</a>
+                    </object-limit>
                     <a class="hl-primary-btn" ui-sref="base.deals.create" role="button" onclick="ga('send', 'event', 'Deal', 'Open', 'Topnav');"><i class="fa fa-plus"></i> Deal</a>
-                    <a class="hl-primary-btn" ui-sref="base.cases.create" role="button" onclick="ga('send', 'event', 'Case', 'Open', 'Topnav');"><i class="fa fa-plus"></i> Case</a>
+                    <a class="hl-primary-btn no-margin" ui-sref="base.cases.create" role="button" onclick="ga('send', 'event', 'Case', 'Open', 'Topnav');"><i class="fa fa-plus"></i> Case</a>
                 </div>
                 <!-- END LARGE ACTIONS -->
 
@@ -287,10 +291,14 @@
 
                             <ul class="hl-dropdown aligned-to-right">
                                 <li class="hl-dropdown-item">
-                                    <a class="hl-dropdown-item-link" ui-sref="base.accounts.create" onclick="ga('send', 'event', 'Account', 'Open', 'Topnav mobile');" object-limit="accounts"><i class="fa fa-plus"></i> Account</a>
+                                    <object-limit model="accounts">
+                                        <a class="hl-dropdown-item-link" ui-sref="base.accounts.create" onclick="ga('send', 'event', 'Account', 'Open', 'Topnav mobile');"><i class="fa fa-plus"></i> Account</a>
+                                    </object-limit>
                                 </li>
                                 <li class="hl-dropdown-item">
-                                    <a class="hl-dropdown-item-link" ui-sref="base.contacts.create" onclick="ga('send', 'event', 'Contact', 'Open', 'Topnav mobile');" object-limit="contacts"><i class="fa fa-plus"></i> Contact</a>
+                                    <object-limit model="contacts">
+                                        <a class="hl-dropdown-item-link" ui-sref="base.contacts.create" onclick="ga('send', 'event', 'Contact', 'Open', 'Topnav mobile');"><i class="fa fa-plus"></i> Contact</a>
+                                    </object-limit>
                                 </li>
                                 <li class="hl-dropdown-item">
                                     <a class="hl-dropdown-item-link" ui-sref="base.deals.create" onclick="ga('send', 'event', 'Deal', 'Open', 'Topnav mobile');"><i class="fa fa-plus"></i> Deal</a>

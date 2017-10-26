@@ -11,11 +11,11 @@
 <div class="hl-tag-options">
     <div>
         Most used:
-        <button ng-repeat="tag in vm.mostUsed | xor:vm.object.tags:'name' | limitTo:5" class="btn btn-xs btn-default margin-right-5" ng-click="vm.addTag(tag)">{{ tag.name }}</button>
+        <button ng-repeat="tag in vm.mostUsed | xor:vm.object.tags:'name' | limitTo:5" class="btn btn-xs btn-default m-r-5" ng-click="vm.addTag(tag)">{{ tag.name }}</button>
     </div>
 
     <div>
         Last used:
-        <button ng-repeat="tag in vm.lastUsed | xor:vm.object.tags:'name' | limitTo:5" class="btn btn-xs btn-default margin-right-5" ng-click="vm.addTag(tag)">{{ tag.name }}</button>
+        <button ng-repeat="tag in vm.lastUsed | xor:vm.object.tags:'name' | limitTo:5" class="btn btn-xs btn-default m-r-5" ng-click="vm.addTag(tag)">{{ tag.name }}</button>
     </div>
 </div>

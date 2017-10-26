@@ -28,12 +28,12 @@
                             <span ng-if="value.changeType === 'edit'">
                                 Changed <strong>{{ value.displayName }}</strong> from
 
-                                <i ng-if="key === 'priority'"class="margin-left-5 lilicon hl-prio-icon-{{ value.old | lowercase }}"></i>
+                                <i ng-if="key === 'priority'"class="m-l-5 lilicon hl-prio-icon-{{ value.old | lowercase }}"></i>
                                 <span ng-if="key === 'next_step'" class="step-type position-{{ value.position }}"></span>
                                 <strong>{{ value.old | hlTruncate }}</strong>
                                 to
 
-                                <i ng-if="key === 'priority'" class="margin-left-5 lilicon hl-prio-icon-{{ value.new | lowercase }}"></i>
+                                <i ng-if="key === 'priority'" class="m-l-5 lilicon hl-prio-icon-{{ value.new | lowercase }}"></i>
                                 <span ng-if="key === 'next_step'" class="step-type position-{{ value.position }}"></span>
                                 <strong>{{ value.new | hlTruncate }}</strong>
                             </span>

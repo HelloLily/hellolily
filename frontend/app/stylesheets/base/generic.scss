@@ -195,7 +195,7 @@ label {
 }
 
 .no-margin {
-    margin: 0;
+    margin: 0 !important;
 }
 
 .break {
@@ -444,62 +444,6 @@ table {
     margin: 0;
 }
 
-.margin-left-5 {
-    margin-left: 5px;
-}
-
-.margin-left-10 {
-    margin-left: 10px;
-}
-
-.margin-left-15 {
-    margin-left: 15px;
-}
-
-.padding-left-30 {
-    padding-left: 30px;
-}
-
-.margin-right-5 {
-    margin-right: 5px;
-}
-
-.margin-right-30 {
-    margin-right: 30px;
-}
-
-.margin-top-40 {
-    margin-top: 40px;
-}
-
-.margin-top-30 {
-    margin-top: 30px;
-}
-
-.margin-top-20 {
-    margin-top: 20px;
-}
-
-.margin-bottom-10 {
-    margin-bottom: 10px;
-}
-
-.margin-bottom-20 {
-    margin-bottom: 20px;
-}
-
-.margin-bottom-30 {
-    margin-bottom: 30px;
-}
-
-.margin-bottom-40 {
-    margin-bottom: 40px;
-}
-
-.margin-bottom-5 {
-    margin-bottom: 5px;
-}
-
 .checkbox-list {
     line-height: 20px;
 
@@ -728,4 +672,32 @@ address {
 
 .default-line-height {
     line-height: inherit !important;
+}
+
+.is-disabled {
+    pointer-events: none;
+    opacity: 0.50;
+
+    :first-child {
+        pointer-events: none;
+        opacity: 0.50;
+    }
+}
+
+// Generates margins and padding for each side (top, bottom, left, right) with the given amount of pixels.
+// Example: m-t-5 -> margin-top: 5px;
+// Credits to https://gist.github.com/jacurtis/30da4bf9a6c9b9b5cc0aebac512ca7c9.
+$spaceamounts: (5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 75, 100);
+$sides: (top, bottom, left, right);
+
+@each $space in $spaceamounts {
+    @each $side in $sides {
+        .m-#{str-slice($side, 0, 1)}-#{$space} {
+            margin-#{$side}: #{$space}px;
+        }
+
+        .p-#{str-slice($side, 0, 1)}-#{$space} {
+            padding-#{$side}: #{$space}px;
+        }
+    }
 }

@@ -20,7 +20,7 @@ def check_subscriptions():
             subscription = tenant.billing.get_subscription()
             billing = tenant.billing
 
-            if not billing.free_forever:
+            if not billing.free_forever and subscription:
                 convert_to_free = False
 
                 if subscription.plan_id == settings.CHARGEBEE_PRO_TRIAL_PLAN_NAME:

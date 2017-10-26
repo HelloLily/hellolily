@@ -15,9 +15,7 @@ function dealsConfig($stateProvider) {
             label: 'Deals',
         },
         resolve: {
-            teams: ['UserTeams', function(UserTeams) {
-                return UserTeams.mine().$promise;
-            }],
+            teams: ['UserTeams', UserTeams => UserTeams.mine().$promise],
         },
     });
 }
@@ -26,7 +24,7 @@ angular.module('app.deals').controller('DealListController', DealListController)
 
 DealListController.$inject = ['$filter', '$scope', '$state', '$timeout', 'Deal', 'HLFilters', 'HLUtils', 'LocalStorage', 'Settings', 'Tenant', 'teams'];
 function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, HLUtils, LocalStorage, Settings, Tenant, teams) {
-    var vm = this;
+    const vm = this;
 
     vm.storage = new LocalStorage('deals');
     vm.storedFilterSpecialList = vm.storage.get('filterSpecialListSelected', null);
@@ -78,6 +76,7 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
     vm.setSearchQuery = setSearchQuery;
     vm.clearFilters = clearFilters;
     vm.updateModel = updateModel;
+    vm.assignToMyTeams = assignToMyTeams;
 
     activate();
 
@@ -85,20 +84,22 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
 
     function activate() {
         // This timeout is needed because by loading from LocalStorage isn't fast enough
-        $timeout(function() {
+        $timeout(() => {
             _setupWatchers();
             _getFilterOnList();
             _getFilterSpecialList();
             showEmptyState();
         }, 50);
 
-        Tenant.query({}, function(tenant) {
+        Tenant.query({}, tenant => {
             vm.tenant = tenant;
         });
+
+        vm.myTeams = teams;
     }
 
     function updateModel(data, field) {
-        var deal = $filter('where')(vm.table.items, {id: data.id});
+        const deal = $filter('where')(vm.table.items, {id: data.id});
 
         return Deal.updateModel(data, field, deal).then(() => {
             _updateDeals();
@@ -111,17 +112,23 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
      *
      */
     function showEmptyState() {
-        Deal.query({}, function(data) {
+        Deal.query({}, data => {
             if (data.pagination.total === 0) {
                 vm.showEmptyState = true;
             }
         });
     }
 
-    function _getFilterOnList() {
-        var filterList;
-        var myTeamIds = [];
+    function assignToMyTeams({id}) {
+        const data = {
+            id,
+            assigned_to_teams: vm.myTeams.map(team => ({id: team.id})),
+        };
 
+        updateModel(data, 'assigned_to_teams');
+    }
+
+    function _getFilterOnList() {
         // Use the value from storage first.
         // (Because it is faster; loading the list uses AJAX requests).
         if (vm.storedFilterList) {
@@ -129,7 +136,7 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
         }
 
         // But we still update the list afterwards (in case a filter was changed)
-        filterList = [
+        const filterList = [
             {
                 name: 'Assigned to me',
                 value: 'assigned_to.id:' + currentUser.id,
@@ -163,9 +170,11 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
             },
         ];
 
+        const myTeamIds = [];
+
         if (teams.length) {
             // Get a list with id's of all my teams.
-            teams.forEach(function(team) {
+            teams.forEach(team => {
                 myTeamIds.push(team.id);
             });
 
@@ -177,8 +186,8 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
             });
         }
 
-        Deal.getStatuses(function(response) {
-            angular.forEach(response.results, function(status) {
+        Deal.getStatuses(response => {
+            angular.forEach(response.results, status => {
                 filterList.push({
                     name: status.name,
                     value: 'status.id:' + status.id,
@@ -202,10 +211,10 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
      * @returns filterSpecialList (object): object containing the filter list.
      */
     function _getFilterSpecialList() {
-        Deal.getNextSteps(function(response) {
-            var filterList = [];
+        Deal.getNextSteps(response => {
+            const filterList = [];
 
-            angular.forEach(response.results, function(nextStep) {
+            angular.forEach(response.results, nextStep => {
                 filterList.push({
                     name: nextStep.name,
                     value: 'next_step.id:' + nextStep.id,
@@ -243,7 +252,7 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
      * Updates table.items and table.totalItems
      */
     function _updateDeals() {
-        let blockTarget = '#tableBlockTarget';
+        const blockTarget = '#tableBlockTarget';
         HLUtils.blockUI(blockTarget, true);
 
         Deal.getDeals(
@@ -253,7 +262,7 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
             vm.table.searchQuery,
             vm.table.page,
             vm.table.pageSize
-        ).then(function(data) {
+        ).then(data => {
             vm.table.items = data.objects;
             vm.table.totalItems = data.total;
 
@@ -273,7 +282,7 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
             'vm.table.searchQuery',
             'vm.table.archived',
             'vm.table.filterQuery',
-        ], function() {
+        ], () => {
             _updateTableSettings();
             _updateDeals();
         });
@@ -282,7 +291,7 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
          * Watches the model info from the table that, when changed,
          * needs to store the info to the cache
          */
-        $scope.$watchCollection('vm.table.visibility', function() {
+        $scope.$watchCollection('vm.table.visibility', () => {
             _updateTableSettings();
         });
 
@@ -290,17 +299,17 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
          * Watches the filters so when the values are retrieved from local storage,
          * the filterQuery changes and a new set of deals is fetched
          */
-        $scope.$watch('vm.filterList', function() {
+        $scope.$watch('vm.filterList', () => {
             updateFilterQuery();
 
             vm.selectedFilters = $filter('filter')(vm.filterList, {selected: true});
         }, true);
 
-        $scope.$watchCollection('vm.filterSpecialList', function() {
+        $scope.$watchCollection('vm.filterSpecialList', () => {
             updateFilterQuery();
         });
 
-        $scope.$watchGroup(['vm.table.dueDateFilter', 'vm.table.usersFilter'], function() {
+        $scope.$watchGroup(['vm.table.dueDateFilter', 'vm.table.usersFilter'], () => {
             updateFilterQuery();
             vm.storage.put('dueDateFilter', vm.table.dueDateFilter);
             vm.storage.put('usersFilter', vm.table.usersFilter);

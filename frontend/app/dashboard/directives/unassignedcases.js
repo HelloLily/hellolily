@@ -14,7 +14,7 @@ function unassignedCasesDirective() {
 
 UnassignedCasesController.$inject = ['$http', '$scope', '$state', '$timeout', 'Case', 'HLFilters', 'HLUtils', 'HLSockets', 'LocalStorage'];
 function UnassignedCasesController($http, $scope, $state, $timeout, Case, HLFilters, HLUtils, HLSockets, LocalStorage) {
-    var vm = this;
+    const vm = this;
 
     vm.storageName = 'unassignedCasesForTeamWidget';
     vm.storage = new LocalStorage(vm.storageName);
@@ -46,7 +46,7 @@ function UnassignedCasesController($http, $scope, $state, $timeout, Case, HLFilt
 
     function activate() {
         $timeout(() => {
-            let filterSpecialList = [{
+            const filterSpecialList = [{
                 name: 'Unassigned',
                 value: '_missing_:assigned_to_teams',
                 selected: false,
@@ -54,10 +54,10 @@ function UnassignedCasesController($http, $scope, $state, $timeout, Case, HLFilt
                 separate: true,
             }];
 
-            vm.teams.map((team) => {
+            vm.teams.map(team => {
                 filterSpecialList.unshift({
                     name: team.name,
-                    value: 'assigned_to_teams:' + team.id,
+                    value: `assigned_to_teams:${team.id}`,
                     selected: team.selected,
                     isSpecialFilter: true,
                     separate: true,
@@ -69,12 +69,12 @@ function UnassignedCasesController($http, $scope, $state, $timeout, Case, HLFilt
             vm.filterSpecialList = filterSpecialList;
 
             Case.getCaseTypes(response =>  {
-                let filterList = [];
+                const filterList = [];
 
                 response.results.forEach(caseType => {
                     filterList.push({
                         name: caseType.name,
-                        value: 'type.id:' + caseType.id,
+                        value: `type.id:${caseType.id}`,
                         selected: false,
                         isSpecialFilter: true,
                     });
@@ -90,20 +90,19 @@ function UnassignedCasesController($http, $scope, $state, $timeout, Case, HLFilt
     }
 
     function updateTable(blockUI = false) {
-        var i;
-        var filterQuery = 'is_archived:false AND _missing_:assigned_to.id';
-
         if (blockUI) HLUtils.blockUI('#unassignedCasesBlockTarget', true);
+
+        let filterQuery = 'is_archived:false AND _missing_:assigned_to.id';
 
         if (vm.table.filterQuery) {
             filterQuery += ' AND ' + vm.table.filterQuery;
         }
 
-        Case.getCases(vm.table.order.column, vm.table.order.descending, filterQuery).then(function(data) {
+        Case.getCases(vm.table.order.column, vm.table.order.descending, filterQuery).then(data => {
             vm.table.items = data.objects;
             vm.highPrioCases = 0;
 
-            for (i in data.objects) {
+            for (let i in data.objects) {
                 if (data.objects[i].priority === 3) {
                     vm.highPrioCases++;
                 }
@@ -118,10 +117,10 @@ function UnassignedCasesController($http, $scope, $state, $timeout, Case, HLFilt
             text: sprintf(messages.alerts.assignTo.questionText, {type: 'case'}),
             type: 'question',
             showCancelButton: true,
-        }).then(function(isConfirm) {
+        }).then(isConfirm => {
             if (isConfirm) {
-                Case.patch({id: caseObj.id, assigned_to: currentUser.id}).$promise.then(function() {
-                    var index = vm.table.items.indexOf(caseObj);
+                Case.patch({id: caseObj.id, assigned_to: currentUser.id}).$promise.then(() => {
+                    const index = vm.table.items.indexOf(caseObj);
                     vm.table.items.splice(index, 1);
 
                     $state.reload();
@@ -131,7 +130,7 @@ function UnassignedCasesController($http, $scope, $state, $timeout, Case, HLFilt
     }
 
     function _watchTable() {
-        $scope.$watchGroup(['vm.table.order.descending', 'vm.table.order.column'], function() {
+        $scope.$watchGroup(['vm.table.order.descending', 'vm.table.order.column'], () => {
             updateTable(true);
             vm.storage.put('order', vm.table.order);
             updateTable();

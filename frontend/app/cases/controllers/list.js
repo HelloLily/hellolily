@@ -22,7 +22,7 @@ angular.module('app.cases').controller('CaseListController', CaseListController)
 CaseListController.$inject = ['$filter', '$scope', '$timeout', 'Case', 'HLFilters', 'HLUtils', 'LocalStorage',
     'Settings', 'UserTeams'];
 function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils, LocalStorage, Settings, UserTeams) {
-    let vm = this;
+    const vm = this;
 
     vm.storage = new LocalStorage('cases');
     vm.storedFilterSpecialList = vm.storage.get('filterSpecialListSelected', null);
@@ -69,6 +69,7 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
     vm.setSearchQuery = setSearchQuery;
     vm.clearFilters = clearFilters;
     vm.updateModel = updateModel;
+    vm.assignToMyTeams = assignToMyTeams;
 
     activate();
 
@@ -118,6 +119,15 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
         });
     }
 
+    function assignToMyTeams({id}) {
+        const data = {
+            id,
+            assigned_to_teams: vm.myTeams.map(team => ({id: team.id})),
+        };
+
+        updateModel(data, 'assigned_to_teams');
+    }
+
     /**
      * Gets the filter list. Merges selections with locally stored values.
      *
@@ -151,9 +161,11 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
         ];
 
         UserTeams.mine(teams => {
-            let myTeamIds = [];
+            const myTeamIds = [];
 
             if (teams.length) {
+                vm.myTeams = teams;
+
                 // Get a list with id's of all my teams.
                 teams.forEach(team => {
                     myTeamIds.push(team.id);
@@ -184,7 +196,7 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
      */
     function _getFilterSpecialList() {
         Case.getCaseTypes(caseTypes => {
-            let filterList = [];
+            const filterList = [];
 
             // Get a list with all case types and add each one as a filter.
             caseTypes.results.forEach(caseType => {

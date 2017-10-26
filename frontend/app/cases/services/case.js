@@ -12,14 +12,14 @@ function Case($resource, CacheFactory, HLCache, HLResource, HLUtils) {
                 params: {
                     type: 'cases_case',
                 },
-                transformResponse: function(data) {
-                    let jsonData = angular.fromJson(data);
-                    let objects = [];
+                transformResponse: data => {
+                    const jsonData = angular.fromJson(data);
+                    const objects = [];
                     let total = 0;
 
                     if (jsonData) {
                         if (jsonData.hits && jsonData.hits.length > 0) {
-                            jsonData.hits.forEach(function(obj) {
+                            jsonData.hits.forEach(obj => {
                                 objects.push(obj);
                             });
                         }
@@ -52,10 +52,10 @@ function Case($resource, CacheFactory, HLCache, HLResource, HLUtils) {
             getStatuses: {
                 cache: CacheFactory.get('dataCache'),
                 url: '/api/cases/statuses/',
-                transformResponse: function(data) {
-                    var statusData = angular.fromJson(data);
+                transformResponse: data => {
+                    const statusData = angular.fromJson(data);
 
-                    angular.forEach(statusData.results, function(status) {
+                    angular.forEach(statusData.results, status => {
                         if (status.name === 'Closed') {
                             _case.closedStatus = status;
                         }
@@ -80,19 +80,18 @@ function Case($resource, CacheFactory, HLCache, HLResource, HLUtils) {
     /////////
 
     function create() {
-        var expires = moment().add(1, 'week');  // default expiry date is a week from now
+        const expires = moment().add(1, 'week');  // default expiry date is a week from now
 
         return new _case({
+            expires,
             billing_checked: false,
             priority: 0,
-            expires: expires,
             tags: [],
         });
     }
 
     function updateModel(data, field, caseObject) {
-        var patchPromise;
-        var args = HLResource.createArgs(data, field, caseObject);
+        const args = HLResource.createArgs(data, field, caseObject);
 
         if (field === 'name') {
             Settings.page.setAllTitles('detail', data);
@@ -100,13 +99,13 @@ function Case($resource, CacheFactory, HLCache, HLResource, HLUtils) {
 
         if (args.hasOwnProperty('priority')) {
             // Automatically increment expiry date based on the priority.
-            let casePriorities = _case.getCasePriorities();
+            const casePriorities = _case.getCasePriorities();
             let expireDate = HLUtils.addBusinessDays(casePriorities[args.priority].date_increment);
             expireDate = moment(expireDate).format('YYYY-MM-DD');
             args.expires = expireDate;
         }
 
-        patchPromise = HLResource.patch('Case', args).$promise;
+        const patchPromise = HLResource.patch('Case', args).$promise;
 
         if (caseObject) {
             patchPromise.then((response) => {
@@ -140,7 +139,7 @@ function Case($resource, CacheFactory, HLCache, HLResource, HLUtils) {
             size: pageSize,
             sort: HLUtils.getSorting(orderColumn, orderedAsc),
             filterquery: filterQuery,
-        }, function(data) {
+        }, data => {
             return data;
         }).$promise;
     }

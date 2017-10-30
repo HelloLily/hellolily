@@ -170,7 +170,7 @@ function UsersFilterController($filter, $timeout, LocalStorage, User, UserTeams)
         vm.teams.map(team => {
             // 'Not in team' isn't an actual team, so check for 'id' property.
             if (team.hasOwnProperty('id') && team.selected || team.filterOnTeam) {
-                selectedFilter.push('assigned_to_teams:' + team.id);
+                selectedFilter.push('assigned_to_teams.id:' + team.id);
             }
 
             team.users.map(user => {

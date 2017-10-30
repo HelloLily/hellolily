@@ -181,7 +181,7 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
             // Create a filter for cases assigned to one of my teams.
             filterList.push({
                 name: 'My teams\' deals',
-                value: 'assigned_to_teams:(' + myTeamIds.join(' OR ') + ')',
+                value: 'assigned_to_teams.id:(' + myTeamIds.join(' OR ') + ')',
                 selected: false,
             });
         }

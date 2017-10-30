@@ -57,7 +57,7 @@ function UnassignedCasesController($http, $scope, $state, $timeout, Case, HLFilt
             vm.teams.map(team => {
                 filterSpecialList.unshift({
                     name: team.name,
-                    value: `assigned_to_teams:${team.id}`,
+                    value: `assigned_to_teams.id:${team.id}`,
                     selected: team.selected,
                     isSpecialFilter: true,
                     separate: true,

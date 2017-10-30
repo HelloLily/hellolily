@@ -174,7 +174,7 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
                 // Create a filter for cases assigned to one of my teams.
                 filterList.push({
                     name: 'My teams\' cases',
-                    value: 'assigned_to_teams:(' + myTeamIds.join(' OR ') + ')',
+                    value: 'assigned_to_teams.id:(' + myTeamIds.join(' OR ') + ')',
                     selected: false,
                 });
             }

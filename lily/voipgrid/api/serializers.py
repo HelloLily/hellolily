@@ -24,6 +24,7 @@ def create_or_get(model_cls, lookup, data):
     try:
         return model_cls.objects.create(**data)
     except IntegrityError:
+        logger.exception('create_or_get IntegrityError')
         return model_cls.objects.get(**lookup)
 
 

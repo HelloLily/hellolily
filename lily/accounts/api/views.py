@@ -2,6 +2,7 @@ from django.db import transaction
 from django.db.models import Q
 from django.utils.datastructures import MultiValueDictKeyError
 from django_filters import FilterSet
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import detail_route
 from rest_framework import status
 from rest_framework.response import Response
@@ -69,7 +70,7 @@ class AccountViewSet(ModelChangesMixin, ModelViewSet):
     # Set the serializer class for this viewset.
     serializer_class = AccountSerializer
     # Set all filter backends that this viewset uses.
-    filter_backends = (ElasticSearchFilter, OrderingFilter, )
+    filter_backends = (ElasticSearchFilter, OrderingFilter, DjangoFilterBackend, )
 
     # ElasticSearchFilter: set the model type.
     model_type = 'accounts_account'

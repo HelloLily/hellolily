@@ -346,6 +346,7 @@ INSTALLED_APPS = (
     'two_factor',
     'otp_yubikey',
     'user_sessions',  # Sessions used for http requests
+    'django_filters',
 
     # Django
     'django.contrib.admin',

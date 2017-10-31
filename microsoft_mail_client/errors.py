@@ -118,11 +118,6 @@ class BatchIdError(Error):
     pass
 
 
-class BatchMaxSizeError(Error):
-    """Maximum capacity batch size exceeded."""
-    pass
-
-
 class CallbackError(Error):
     """No callback provided."""
     pass
@@ -146,5 +141,3 @@ class HttpError(Error):
 
     def __repr__(self):
         return self.reason
-
-    __str__ = __repr__

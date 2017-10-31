@@ -14,7 +14,7 @@ from requests import Response
 
 from microsoft_mail_client import __version__
 from microsoft_mail_client.constants import MAX_BATCH_SIZE
-from microsoft_mail_client.errors import BatchIdError, BatchMaxSizeError, CallbackError, HttpError
+from microsoft_mail_client.errors import BatchIdError, CallbackError, HttpError
 
 
 def ddict2dict(dd):
@@ -66,7 +66,7 @@ class HttpRequest(object):
                 'Content-Type': 'application/json'
             })
 
-        # Request expects a dict, so convert the defaultdict to a dict.
+        # Requests expects a dict, so convert the defaultdict to a dict.
         self.headers = ddict2dict(self.headers)
 
     def execute(self):
@@ -137,7 +137,7 @@ class BatchHttpRequest(object):
         if continue_on_error:
             self.headers['Prefer'].append('odata.continue-on-error')
 
-        # Request expects a dict, so convert the defaultdict to a dict.
+        # Requests expects a dict, so convert the defaultdict to a dict.
         self.headers = ddict2dict(self.headers)
 
     @property
@@ -152,10 +152,6 @@ class BatchHttpRequest(object):
         :param callback: callback to process response of added request.
         :return:
         """
-        if len(self._requests) == MAX_BATCH_SIZE:
-            # TODO: Don't raise this error, just split a too large batch into smaller ones.
-            raise BatchMaxSizeError()
-
         if not callback:
             raise CallbackError()
 
@@ -172,7 +168,8 @@ class BatchHttpRequest(object):
 
     def execute(self):
         """
-        Execute all the requests as a single batched HTTP request.
+        Execute all the requests as a single batched HTTP request or when the number of requests exceeds the
+        MAX_BATCH_SIZE split them in smaller batches.
 
         First serialize all queued requests to a single request and send it to the server. Finally process the response
         to individual responses and call related callback methods.
@@ -186,35 +183,44 @@ class BatchHttpRequest(object):
             # No requests to execute.
             return None
 
-        body = self._serialize_requests()
+        # Process the requests with regard to the MAX_BATCH_SIZE by splitting them into smaller batches.
+        requests_remaining = self._requests
+        requests_to_process = requests_remaining[:MAX_BATCH_SIZE]
+        while requests_to_process:
 
-        # Execute batch request.
-        batch_response = requests.post(self.uri, data=body, headers=self.headers)
+            body = self._serialize_requests(requests_to_process)
 
-        # TODO?: from google batch http:
-        # Loop over all the requests and check for 401s. For each 401 request the credentials should be refreshed and
-        # then sent again in a separate batch.
+            # Execute batch request.
+            batch_response = requests.post(self.uri, data=body, headers=self.headers)
 
-        # TODO: best way to check status_code?
-        # if response.status_code >= 300:
-        # if batch_response.status_code != requests.codes.ok:
-        if not batch_response:
-            # raise HttpError()
-            batch_response.raise_for_status()
+            # TODO?: from google batch http:
+            # Loop over all the requests and check for 401s. For each 401 request the credentials should be refreshed
+            # and then sent again in a separate batch.
 
-        # A well-formed batch request with correct headers returns HTTP 200 OK. This however doesn't mean all the
-        # requests in the batch were successful.
+            # TODO: best way to check status_code?
+            # if response.status_code >= 300:
+            # if batch_response.status_code != requests.codes.ok:
+            if not batch_response:
+                # raise HttpError()
+                batch_response.raise_for_status()
 
-        # Split the batch response body into individual Response objects.
-        # Process batch response body by splinting it up and removing none response chunks.
-        _, batch_boundary = batch_response.headers['Content-Type'].split('=', 1)
-        batch_responses = batch_response.text.strip()  # Remove leading and trailing newlines / white spaces.
-        response_chunks = batch_responses.split(batch_boundary)
-        # Removes empty chunks and the trailing batch delimiter.
-        response_chunks = [chunk for chunk in response_chunks if chunk.strip() and chunk != '--']
-        # Each response chunk contains headers, protocol, status, reason & body of individual requests.
-        # Process each chunk into a proper Response object
-        self._responses = [self._deserialize_response(chunk) for chunk in response_chunks]
+            # A well-formed batch request with correct headers returns HTTP 200 OK. This however doesn't mean all the
+            # requests in the batch were successful.
+
+            # Split the batch response body into individual Response objects.
+            # Process batch response body by splinting it up and removing none response chunks.
+            _, batch_boundary = batch_response.headers['Content-Type'].split('=', 1)
+            batch_responses = batch_response.text.strip()  # Remove leading and trailing newlines / white spaces.
+            response_chunks = batch_responses.split(batch_boundary)
+            # Removes empty chunks and the trailing batch delimiter.
+            response_chunks = [chunk for chunk in response_chunks if chunk.strip() and chunk != '--']
+            # Each response chunk contains headers, protocol, status, reason & body of individual requests.
+            # Process each chunk into a proper Response object and add them to the list of responses.
+            self._responses.extend([self._deserialize_response(chunk) for chunk in response_chunks])
+
+            # Setup the next number of requests and the remaining ones for the next iteration.
+            requests_remaining = requests_remaining[MAX_BATCH_SIZE:]
+            requests_to_process = requests_remaining[:MAX_BATCH_SIZE]
 
         # Process each response by calling the related callback method.
         # Assuming that responses are returned in order the requests were added in the batch.
@@ -230,13 +236,14 @@ class BatchHttpRequest(object):
 
             callback(request_id, response, exception)
 
-    def _serialize_requests(self):
+    def _serialize_requests(self, http_requests):
         """
-        Convert all the HttpRequest objects in the batch into a single string.
+        Convert all the HttpRequest objects in requests into a single string.
 
+        :param http_requests: HttpRequests to serialize.
         :return: serialized requests.
         """
-        serialized_requests = [self._serialize_request(r) for r in self._requests]
+        serialized_requests = [self._serialize_request(r) for r in http_requests]
         body = ''
         body += '\n'.join(serialized_requests)
         body += '\n--batch_{0}--\n'.format(self.batch_id)
@@ -312,7 +319,7 @@ class BatchHttpRequest(object):
             line = lines.pop(0)
             if line.startswith('{'):
                 # Start of the (json) body.
-                # TODO: return remainig lines, now it assumes remaining is also the last line.
+                # TODO: return remaining lines, now it assumes remaining is also the last line.
                 # lines = lines.insert(0, line)
                 body = line
                 break
@@ -351,5 +358,5 @@ class BatchHttpRequest(object):
         for k, v in h.items():
             r += '{0}:{1}\n'.format(k, v)
         if self._request_ids:
-            r += 'Payload:\n{0}\n'.format(self._serialize_requests())
+            r += 'Payload:\n{0}\n'.format(self._serialize_requests(self._requests))
         return r

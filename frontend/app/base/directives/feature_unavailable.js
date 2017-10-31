@@ -7,6 +7,7 @@ function featureUnavailable() {
             tier: '@',
             labelIcon: '@?',
             labelText: '@?',
+            inline: '@?',
         },
         templateUrl: 'base/directives/feature_unavailable.html',
         replace: true,

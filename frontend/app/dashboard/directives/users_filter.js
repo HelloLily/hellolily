@@ -14,8 +14,8 @@ function usersFilter() {
     };
 }
 
-UsersFilterController.$inject = ['$filter', '$timeout', 'LocalStorage', 'User', 'UserTeams'];
-function UsersFilterController($filter, $timeout, LocalStorage, User, UserTeams) {
+UsersFilterController.$inject = ['$filter', '$state', '$timeout', 'LocalStorage', 'User', 'UserTeams'];
+function UsersFilterController($filter, $state, $timeout, LocalStorage, User, UserTeams) {
     const vm = this;
     const storage = new LocalStorage(vm.storageName);
 
@@ -38,7 +38,22 @@ function UsersFilterController($filter, $timeout, LocalStorage, User, UserTeams)
         $timeout(() => {
             loadTeams();
 
-            vm.currentUser.selected = vm.storedCurrentUserSelected;
+            // When on free plan and on the dashboard we want to set the current user as selected.
+            if (vm.currentUser.tenant.isFreePlan) {
+                if ($state.current.name === 'base.dashboard') {
+                    // toggleUser toggle the selected state of the given user.
+                    // This leads to every even widget not actually being filtered
+                    // So set the selected state to false before toggling.
+                    if (vm.currentUser.selected) {
+                        vm.currentUser.selected = false;
+                    }
+
+                    vm.toggleUser(null, vm.currentUser);
+                }
+            } else {
+                vm.currentUser.selected = vm.storedCurrentUserSelected;
+            }
+
             vm.nameDisplay = vm.storedNameDisplay;
         }, 50);
     }
@@ -79,11 +94,13 @@ function UsersFilterController($filter, $timeout, LocalStorage, User, UserTeams)
                             }
                         });
 
+                        const {id, name} = team;
+
                         // Create a team object.
                         const teamObj = {
-                            id: team.id,
-                            name: team.name,
-                            users: users,
+                            id,
+                            name,
+                            users,
                             collapsed: !ownTeam,
                             selected: false,
                         };
@@ -209,7 +226,6 @@ function UsersFilterController($filter, $timeout, LocalStorage, User, UserTeams)
     }
 
     function hasSelection(team) {
-        // (!team.selected && (team.users | where: {selected: true}).length )
         if (!team.selected) {
             let selectedUserCount = team.users.reduce((count, user) => {
                 return user.selected ? count + 1 : count;

@@ -701,3 +701,15 @@ $sides: (top, bottom, left, right);
         }
     }
 }
+
+.user-filter-unavailable {
+    width: 300px;
+
+    p {
+        position: absolute;
+        top: 60px;
+        padding: 10px;
+        text-align: center;
+        z-index: 3;
+    }
+}

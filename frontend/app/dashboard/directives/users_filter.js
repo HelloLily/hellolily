@@ -131,6 +131,8 @@ function UsersFilterController($filter, $timeout, LocalStorage, User, UserTeams)
     }
 
     function toggleUser(selectedTeam, selectedUser, toggleUsers = true) {
+        const names = [];
+
         if (selectedUser) {
             selectedUser.selected = !selectedUser.selected;
 
@@ -165,7 +167,6 @@ function UsersFilterController($filter, $timeout, LocalStorage, User, UserTeams)
         }
 
         let selectedFilter = [];
-        let names = [];
 
         vm.teams.map(team => {
             // 'Not in team' isn't an actual team, so check for 'id' property.
@@ -183,6 +184,10 @@ function UsersFilterController($filter, $timeout, LocalStorage, User, UserTeams)
                     names.push(user.full_name);
                 }
             });
+
+            if (team.filterOnTeam) {
+                names.push(team.name);
+            }
         });
 
         if (vm.currentUser.selected) {

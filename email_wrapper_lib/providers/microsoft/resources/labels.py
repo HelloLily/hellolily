@@ -1,4 +1,4 @@
-from email_wrapper_lib.providers.microsoft.parsers import parse_response, parse_label, parse_label_list
+from email_wrapper_lib.providers.microsoft.parsers import parse_response, parse_label, parse_label_list, parse_deletion
 from email_wrapper_lib.providers.microsoft.resources.base import MicrosoftResource
 
 
@@ -14,6 +14,44 @@ class MicrosoftLabelsResource(MicrosoftResource):
         )
 
         return label
+
+    def create(self, remote_id_parent, name):
+        label = {}
+
+        self.batch.add(
+            self.service.create_folder(
+                folder_id=remote_id_parent,
+                name=name
+            ),
+            callback=parse_response(parse_label, label)
+        )
+
+        return label
+
+    def update(self, remote_id, name):
+        label = {}
+
+        self.batch.add(
+            self.service.update_folder(
+                folder_id=remote_id,
+                name=name
+            ),
+            callback=parse_response(parse_label, label)
+        )
+
+        return label
+
+    def delete(self, remote_id):
+        status_code = None
+
+        self.batch.add(
+            self.service.delete_folder(
+                folder_id=remote_id
+            ),
+            callback=parse_response(parse_deletion, status_code)
+        )
+
+        return status_code
 
     def list(self, label_id=None, top=50, skip=0):  # TODO: differs from google impl.
         """
@@ -42,5 +80,5 @@ class MicrosoftLabelsResource(MicrosoftResource):
 
         return labels
 
-    def save_create_update(self):
-        pass
+    # def save_create_update(self):
+    #     pass

@@ -248,3 +248,9 @@ def parse_label(data, label):
     # TODO: how do we find the parent id here?
 
     return label
+
+
+def parse_deletion(data, status_code):  # TODO: status_code marked as unused, not passed by reference?
+    # TODO: does this work for Google?
+    status_code = data.status_code  # TODO: What happens to the status codes on the other parse methods? Lost?
+    return status_code

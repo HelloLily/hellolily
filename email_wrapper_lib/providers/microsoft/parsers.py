@@ -6,7 +6,7 @@ from collections import defaultdict
 
 from email_wrapper_lib.providers.exceptions import BatchRequestException
 from microsoft_mail_client.constants import (
-    SYSTEM_FOLDERS_NAMES, FOLDER_ARCHIVE_NAME, FOLDER_DELETED_ITEMS_NAME, FOLDER_JUNK_NAME, IMPORTANCE_HIGH
+    FOLDER_ARCHIVE_NAME, FOLDER_DELETED_ITEMS_NAME, FOLDER_JUNK_NAME, IMPORTANCE_HIGH
 )
 
 logger = logging.getLogger(__name__)
@@ -406,3 +406,8 @@ def parse_label(data, label):
     })
 
     return label
+
+
+def parse_deletion(data, status_code):  # TODO: status_code marked as unused, not passed by reference? & another reason to rename data to response.
+    status_code = data.status_code  # TODO: What happens to the status codes on the other parse methods? Lost?
+    return status_code

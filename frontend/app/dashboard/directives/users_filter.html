@@ -1,57 +1,66 @@
-<ul class="hl-button-group" ng-if="!vm.currentUser.tenant.isFreePlan">
-    <li class="hl-button-group-btn">
-        <a class="hl-button-group-btn-link" href="javascript:;" data-toggle="dropdown">
-            <i class="lilicon" ng-class="{'hl-entity-icon': vm.nameDisplay.length === 1, 'hl-entities-icon': vm.nameDisplay.length > 1}"></i>
+<feature-unavailable tier="1" inline="true">
+    <ul class="hl-button-group">
+        <li class="hl-button-group-btn">
+            <a class="hl-button-group-btn-link" href="javascript:;" data-toggle="dropdown">
+                <i class="lilicon" ng-class="{'hl-entity-icon': vm.nameDisplay.length < 2, 'hl-entities-icon': vm.nameDisplay.length > 1}"></i>
 
-            <span class="hidden-480">
-                <span ng-show="vm.nameDisplay.length >= 3">
-                    {{ vm.nameDisplay.length }} selected
-                </span>
-                <span ng-show="vm.nameDisplay.length < 3" ng-repeat="name in vm.nameDisplay">
-                    {{ name }}{{ $last ? '' : ', '}}
-                </span>
-            </span>
-
-            <i class="m-l-5 small-icon lilicon hl-toggle-down-icon"></i>
-        </a>
-
-        <ul class="hl-dropdown js-hold-on-click">
-            <li class="hl-dropdown-item no-border">
-                <span class="clickable" ng-click="vm.toggleUser('', vm.currentUser)">
-                    <div class="hl-checkbox" ng-class="{'checked': vm.currentUser.selected}"></div>
-                    {{ vm.currentUser.fullName }}
-                </span>
-            </li>
-
-            <div ng-repeat="team in vm.teams">
-                <li class="hl-dropdown-item">
-                    <span class="clickable" ng-click="vm.toggleUser(team)">
-                        <div class="hl-checkbox" ng-class="{'checked': team.selected, 'indeterminate': vm.hasSelection(team)}"></div>
-                        {{ team.name }}
+                <span class="hidden-480">
+                    <span ng-show="vm.nameDisplay.length >= 3">
+                        {{ vm.nameDisplay.length }} selected
                     </span>
+                    <span ng-show="vm.nameDisplay.length < 3" ng-repeat="name in vm.nameDisplay">
+                        {{ name }}{{ $last ? '' : ', '}}
+                    </span>
+                    <span ng-if="!vm.nameDisplay.length">Users</span>
+                </span>
 
-                    <span class="pull-right" ng-click="vm.toggleCollapsed(team)">
-                        <i class="fa rotate" ng-class="{'fa-angle-down': !team.collapsed, 'fa-angle-left': team.collapsed}"></i>
+                <i class="m-l-5 small-icon lilicon hl-toggle-down-icon"></i>
+            </a>
+
+            <ul class="hl-dropdown js-hold-on-click">
+                <li class="hl-dropdown-item no-border">
+                    <span class="clickable" ng-click="vm.toggleUser('', vm.currentUser)">
+                        <div class="hl-checkbox" ng-class="{'checked': vm.currentUser.selected}"></div>
+                        {{ vm.currentUser.fullName }}
                     </span>
                 </li>
 
-                <li ng-if="!team.collapsed" class="hl-dropdown-sub-items">
-                    <ul class="hl-dropdown-sub-menu">
-                        <li class="hl-dropdown-sub-menu-item">
-                            <span class="clickable" ng-click="vm.toggleUser(team, null, false)">
-                                <div class="hl-checkbox" ng-class="{'checked': team.filterOnTeam}"></div>
-                                {{ team.name }} team
+                <div ng-class="{'user-filter-unavailable': vm.currentUser.tenant.isFreePlan}">
+                    <p ng-if="vm.currentUser.tenant.isFreePlan">
+                        This feature isn't available for your current plan. <br />
+                        Please <a ui-sref="base.preferences.admin.billing">upgrade</a> to use this feature.
+                    </p>
+                    <div ng-repeat="team in vm.teams" ng-class="{'is-disabled': vm.currentUser.tenant.isFreePlan}">
+                        <li class="hl-dropdown-item">
+                            <span class="clickable" ng-click="vm.toggleUser(team)">
+                                <div class="hl-checkbox" ng-class="{'checked': team.selected, 'indeterminate': vm.hasSelection(team)}"></div>
+                                {{ team.name }}
+                            </span>
+
+                            <span class="pull-right" ng-click="vm.toggleCollapsed(team)">
+                                <i class="fa rotate" ng-class="{'fa-angle-down': !team.collapsed, 'fa-angle-left': team.collapsed}"></i>
                             </span>
                         </li>
-                        <li class="hl-dropdown-sub-menu-item" ng-repeat="user in team.users">
-                            <span class="clickable" ng-click="vm.toggleUser(team, user)">
-                                <div class="hl-checkbox" ng-class="{'checked': user.selected}"></div>
-                                {{ user.full_name }}
-                            </span>
+
+                        <li ng-if="!team.collapsed" class="hl-dropdown-sub-items">
+                            <ul class="hl-dropdown-sub-menu">
+                                <li class="hl-dropdown-sub-menu-item" ng-if="team.id">
+                                    <span class="clickable" ng-click="vm.toggleUser(team, null, false)">
+                                        <div class="hl-checkbox" ng-class="{'checked': team.filterOnTeam}"></div>
+                                        {{ team.name }} team
+                                    </span>
+                                </li>
+                                <li class="hl-dropdown-sub-menu-item" ng-repeat="user in team.users">
+                                    <span class="clickable" ng-click="vm.toggleUser(team, user)">
+                                        <div class="hl-checkbox" ng-class="{'checked': user.selected}"></div>
+                                        {{ user.full_name }}
+                                    </span>
+                                </li>
+                            </ul>
                         </li>
-                    </ul>
-                </li>
-            </div>
-        </ul>
-    </li>
-</ul>
+                    </div>
+                </div>
+            </ul>
+        </li>
+    </ul>
+</feature-unavailable>

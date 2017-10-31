@@ -23,8 +23,8 @@ def create_or_get(model_cls, lookup, data):
     """
     try:
         return model_cls.objects.create(**data)
-    except IntegrityError:
-        logger.exception('create_or_get IntegrityError')
+    except IntegrityError as e:
+        logger.warning('create_or_get IntegrityError: {}'.format(''.join(e.message.splitlines())))
         return model_cls.objects.get(**lookup)
 
 

@@ -130,10 +130,11 @@ function UnassignedCasesController($http, $scope, $state, $timeout, Case, HLFilt
     }
 
     function _watchTable() {
-        $scope.$watchGroup(['vm.table.order.descending', 'vm.table.order.column'], () => {
-            updateTable(true);
-            vm.storage.put('order', vm.table.order);
-            updateTable();
+        $scope.$watchGroup(['vm.table.order.descending', 'vm.table.order.column'], (newValue, oldValue) => {
+            if (newValue !== oldValue) {
+                updateTable(true);
+                vm.storage.put('order', vm.table.order);
+            }
         });
     }
 }

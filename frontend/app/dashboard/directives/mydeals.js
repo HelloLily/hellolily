@@ -66,15 +66,33 @@ function MyDealsController($filter, $scope, $timeout, Case, Deal, HLUtils, HLRes
                     '': data.objects,
                 };
             } else {
-                vm.table.items = HLUtils.timeCategorizeObjects(data.objects, 'next_step_date');
+                const accounts = [];
 
-                angular.forEach(data.objects, deal => {
-                    Case.search({filterquery: 'account.id:' + deal.account.id + ' AND is_archived:false'}).$promise.then(caseList => {
-                        if (caseList.objects.length > 0) {
-                            deal.hasUnarchivedCases = true;
-                        }
-                    });
+                data.objects.forEach(deal => {
+                    const accountQuery = `account.id:${deal.account.id}`;
+
+                    if (!accounts.includes(accountQuery)) {
+                        accounts.push(accountQuery);
+                    }
                 });
+
+                if (accounts.length) {
+                    const filterquery = `(${accounts.join(' OR ')}) AND is_archived:false`;
+
+                    Case.search({filterquery}).$promise.then(caseList => {
+                        caseList.objects.forEach(accountCase => {
+                            data.objects.forEach(deal => {
+                                if (accountCase.account.id === deal.account.id) {
+                                    deal.hasUnarchivedCases = true;
+                                }
+                            });
+                        });
+
+                        vm.table.items = HLUtils.timeCategorizeObjects(data.objects, 'next_step_date');
+                    });
+                } else {
+                    vm.table.items = HLUtils.timeCategorizeObjects(data.objects, 'next_step_date');
+                }
             }
 
             if (blockUI) HLUtils.unblockUI('#myDealsBlockTarget');
@@ -106,13 +124,17 @@ function MyDealsController($filter, $scope, $timeout, Case, Deal, HLUtils, HLRes
 
     function _watchTable() {
         $scope.$watch('vm.table.dueDateFilter', (newValue, oldValue) => {
-            getMyDeals(true);
-            storage.put('dueDateFilter', vm.table.dueDateFilter);
+            if (newValue || oldValue) {
+                getMyDeals(true);
+                storage.put('dueDateFilter', vm.table.dueDateFilter);
+            }
         });
 
         $scope.$watch('vm.table.usersFilter', (newValue, oldValue) => {
-            getMyDeals(true);
-            storage.put('usersFilter', vm.table.usersFilter);
+            if (newValue || oldValue) {
+                getMyDeals(true);
+                storage.put('usersFilter', vm.table.usersFilter);
+            }
         });
     }
 }

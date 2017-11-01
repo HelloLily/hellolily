@@ -109,13 +109,17 @@ function MyCasesController($filter, $scope, Case, HLUtils, HLResource, HLSockets
 
     function _watchTable() {
         $scope.$watch('vm.table.dueDateFilter', (newValue, oldValue) => {
-            getMyCases(true);
-            storage.put('dueDateFilter', vm.table.dueDateFilter);
+            if (newValue || oldValue) {
+                getMyCases(true);
+                storage.put('dueDateFilter', vm.table.dueDateFilter);
+            }
         });
 
         $scope.$watch('vm.table.usersFilter', (newValue, oldValue) => {
-            getMyCases(true);
-            storage.put('usersFilter', vm.table.usersFilter);
+            if (newValue || oldValue) {
+                getMyCases(true);
+                storage.put('usersFilter', vm.table.usersFilter);
+            }
         });
     }
 }

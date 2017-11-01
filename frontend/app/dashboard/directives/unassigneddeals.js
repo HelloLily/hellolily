@@ -14,7 +14,7 @@ function unassignedDealsDirective() {
 
 UnassignedDealsController.$inject = ['$http', '$scope', '$state', '$timeout', 'Deal', 'HLFilters', 'HLUtils', 'HLSockets', 'LocalStorage'];
 function UnassignedDealsController($http, $scope, $state, $timeout, Deal, HLFilters, HLUtils, HLSockets, LocalStorage) {
-    var vm = this;
+    const vm = this;
 
     vm.storageName = 'unassignedDealsWidget';
     vm.storage = new LocalStorage(vm.storageName);
@@ -91,8 +91,8 @@ function UnassignedDealsController($http, $scope, $state, $timeout, Deal, HLFilt
     }
 
     function updateTable(blockUI = false) {
-        var filterQuery = 'is_archived:false AND _missing_:assigned_to.id';
-        var blockTarget = '#unassignedDealsBlockTarget';
+        const blockTarget = '#unassignedDealsBlockTarget';
+        let filterQuery = 'is_archived:false AND _missing_:assigned_to.id';
 
         if (blockUI) HLUtils.blockUI(blockTarget, true);
 
@@ -100,7 +100,7 @@ function UnassignedDealsController($http, $scope, $state, $timeout, Deal, HLFilt
             filterQuery += ' AND ' + vm.table.filterQuery;
         }
 
-        Deal.getDeals(vm.table.order.column, vm.table.order.descending, filterQuery).then(function(data) {
+        Deal.getDeals(vm.table.order.column, vm.table.order.descending, filterQuery).then(data => {
             vm.table.items = data.objects;
 
             if (blockUI) HLUtils.unblockUI(blockTarget);
@@ -112,10 +112,10 @@ function UnassignedDealsController($http, $scope, $state, $timeout, Deal, HLFilt
             text: sprintf(messages.alerts.assignTo.questionText, {type: 'deal'}),
             type: 'question',
             showCancelButton: true,
-        }).then(function(isConfirm) {
+        }).then(isConfirm => {
             if (isConfirm) {
-                Deal.patch({id: dealObj.id, assigned_to: currentUser.id}).$promise.then(function() {
-                    var index = vm.table.items.indexOf(dealObj);
+                Deal.patch({id: dealObj.id, assigned_to: currentUser.id}).$promise.then(() => {
+                    const index = vm.table.items.indexOf(dealObj);
                     vm.table.items.splice(index, 1);
 
                     $state.reload();
@@ -125,9 +125,11 @@ function UnassignedDealsController($http, $scope, $state, $timeout, Deal, HLFilt
     }
 
     function _watchTable() {
-        $scope.$watchGroup(['vm.table.order.descending', 'vm.table.order.column'], function() {
-            updateTable(true);
-            vm.storage.put('order', vm.table.order);
+        $scope.$watchGroup(['vm.table.order.descending', 'vm.table.order.column'], (newValue, oldValue) => {
+            if (newValue !== oldValue) {
+                updateTable(true);
+                vm.storage.put('order', vm.table.order);
+            }
         });
     }
 }

@@ -7,7 +7,6 @@ function Case($resource, CacheFactory, HLCache, HLResource, HLUtils) {
         {},
         {
             search: {
-                cache: CacheFactory.get('dataCache'),
                 url: '/search/search/',
                 method: 'GET',
                 params: {

@@ -40,6 +40,10 @@ class IllegalLabelError(ConnectorError):
     pass
 
 
+class MailNotEnabledError(ConnectorError):
+    pass
+
+
 class GmailConnector(object):
     gmail_service = None
 
@@ -95,6 +99,8 @@ class GmailConnector(object):
                         raise LabelNotFoundError
                     elif error.get('code') == 400 and error.get('message') == 'Invalid label: SENT':
                         raise IllegalLabelError('Not allowed to set label SENT.')
+                    elif error.get('code') == 400 and error.get('message') == 'Mail service not enabled':
+                        raise MailNotEnabledError
                     elif error.get('code') == 404:
                         raise NotFoundError
                     else:

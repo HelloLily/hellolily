@@ -116,9 +116,9 @@ class ContactImport(APIView):
             csv_file = request.data['csv']
             imported_data = Dataset().load(csv_file.read())
         except MultiValueDictKeyError:
-            return Response({'file_contacts': {'No CSV file choosen'}}, status=status.HTTP_409_CONFLICT)
+            return Response({'file_contacts': {'Please choose a CSV file to import'}}, status=status.HTTP_409_CONFLICT)
         except UnsupportedFormat:
-            return Response({'file_contacts': {'CSV file not properly formated'}}, status=status.HTTP_409_CONFLICT)
+            return Response({'file_contacts': {'CSV file not properly formatted'}}, status=status.HTTP_409_CONFLICT)
 
         # The following set of fields should be present as headers in the uploaded file.
         required_fields = {u'first name', u'last name'}

@@ -389,16 +389,16 @@ def create_a_beautiful_soup_object(html):
     if not html:
         return None
 
-    soup = BeautifulSoup(html, 'lxml')
+    soup = BeautifulSoup(html, 'lxml', from_encoding='utf-8')
 
     if soup.get_text() == '':
-        soup = BeautifulSoup(html, 'html.parser')
+        soup = BeautifulSoup(html, 'html.parser', from_encoding='utf-8')
 
         if soup.get_text() == '':
             soup = BeautifulSoup(html, 'html5lib')
 
             if soup.get_text() == '':
-                soup = BeautifulSoup(html, 'xml')
+                soup = BeautifulSoup(html, 'xml', from_encoding='utf-8')
 
                 if soup.get_text == '':
                     soup = None

@@ -25,10 +25,13 @@ function editableRelated() {
                 scope.er.showForm(true);
             });
 
-            element.on('click', '.editable', () => {
+            element.on('click', '.editable', event => {
                 const selection = window.getSelection().toString();
 
-                if (!selection) {
+                const elementName = event.originalEvent.target.localName;
+
+                // Don't open the edit form if we're clicking a link.
+                if (!selection && elementName !== 'a') {
                     scope.er.showForm();
                 }
             });

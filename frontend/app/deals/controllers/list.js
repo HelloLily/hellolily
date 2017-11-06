@@ -72,6 +72,7 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
     vm.filterSpecialList = [];
     vm.showEmptyState = false;
 
+    vm.updateDeals = updateDeals;
     vm.updateFilterQuery = updateFilterQuery;
     vm.setSearchQuery = setSearchQuery;
     vm.clearFilters = clearFilters;
@@ -102,7 +103,7 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
         const deal = $filter('where')(vm.table.items, {id: data.id});
 
         return Deal.updateModel(data, field, deal).then(() => {
-            _updateDeals();
+            updateDeals();
         });
     }
 
@@ -246,12 +247,7 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
         vm.storage.put('filterSpecialSelected', vm.filterSpecialList);
     }
 
-    /**
-     * _updateDeals() reloads the deals through a service
-     *
-     * Updates table.items and table.totalItems
-     */
-    function _updateDeals() {
+    function updateDeals() {
         const blockTarget = '#tableBlockTarget';
         HLUtils.blockUI(blockTarget, true);
 
@@ -284,7 +280,7 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
             'vm.table.filterQuery',
         ], () => {
             _updateTableSettings();
-            _updateDeals();
+            updateDeals();
         });
 
         /**

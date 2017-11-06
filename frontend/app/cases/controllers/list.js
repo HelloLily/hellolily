@@ -65,6 +65,7 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
     vm.users = [];
     vm.showEmptyState = false;
 
+    vm.updateCases = updateCases;
     vm.updateFilterQuery = updateFilterQuery;
     vm.setSearchQuery = setSearchQuery;
     vm.clearFilters = clearFilters;
@@ -93,7 +94,7 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
         }
 
         return Case.updateModel(data, field, filtered).then(() => {
-            _updateCases();
+            updateCases();
         });
     }
 
@@ -230,12 +231,7 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
         vm.storage.put('filterSpecialSelected', vm.filterSpecialList);
     }
 
-    /**
-     * _updateCases() reloads the cases through a service.
-     *
-     * Updates table.items and table.totalItems.
-     */
-    function _updateCases() {
+    function updateCases() {
         const blockTarget = '#tableBlockTarget';
         HLUtils.blockUI(blockTarget, true);
 
@@ -268,7 +264,7 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
             'vm.table.filterQuery',
         ], () => {
             _updateTableSettings();
-            _updateCases();
+            updateCases();
         });
 
         /**

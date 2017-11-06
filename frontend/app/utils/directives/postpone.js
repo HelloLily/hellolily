@@ -20,7 +20,7 @@ function postponeDirective() {
 
 PostponeController.$inject = ['$compile', '$injector', '$scope', '$state', '$templateCache', '$timeout', 'HLResource', 'HLUtils'];
 function PostponeController($compile, $injector, $scope, $state, $templateCache, $timeout, HLResource, HLUtils) {
-    var vm = this;
+    const vm = this;
 
     vm.datepickerOptions = {
         startingDay: 1, // day 1 is Monday
@@ -57,7 +57,7 @@ function PostponeController($compile, $injector, $scope, $state, $templateCache,
      * @private
      */
     function _watchCloseDatePicker() {
-        $scope.$watch('vm.pickerIsOpen', function(newValue, oldValue) {
+        $scope.$watch('vm.pickerIsOpen', (newValue, oldValue) => {
             // Don't close the whole modal if we didn't change anything.
             if (!moment(vm.date).isSame(moment(vm.object[vm.dateField]))) {
                 if (!newValue && oldValue) {
@@ -68,14 +68,11 @@ function PostponeController($compile, $injector, $scope, $state, $templateCache,
     }
 
     function _updateDayAndCloseModal() {
-        var newDate;
-        var args;
-
         if (!moment(vm.date).isSame(moment(vm.object[vm.dateField]))) {
             // Update the due date for this case.
-            newDate = moment(vm.date).format('YYYY-MM-DD');
+            const newDate = moment(vm.date).format('YYYY-MM-DD');
 
-            args = {
+            const args = {
                 id: vm.object.id,
             };
 
@@ -84,7 +81,7 @@ function PostponeController($compile, $injector, $scope, $state, $templateCache,
             vm.object[vm.dateField] = newDate;
 
             // Dynamically get the model that should be updated.
-            HLResource.patch(vm.type, args).$promise.then(function() {
+            HLResource.patch(vm.type, args).$promise.then(() => {
                 swal.close();
                 _processClose();
             });
@@ -103,7 +100,7 @@ function PostponeController($compile, $injector, $scope, $state, $templateCache,
     }
 
     function disabledDates(currentDate, mode) {
-        var date = moment.isMoment(currentDate) ? currentDate : moment(currentDate);
+        const date = moment.isMoment(currentDate) ? currentDate : moment(currentDate);
 
         // Disable Saturday and Sunday.
         return ( mode === 'day' && ( date.day() === 6 || date.day() === 0 ) );
@@ -115,15 +112,15 @@ function PostponeController($compile, $injector, $scope, $state, $templateCache,
 
         // Set timeout to wait for next digest cycle before being able to set
         // the date correctly.
-        $timeout(function() {
+        $timeout(() => {
             _updateDayAndCloseModal();
         });
     }
 
     function getFutureDate(days) {
-        var daysToAdd;
+        let daysToAdd;
 
-        var futureDate = moment();
+        let futureDate = moment();
 
         if (days) {
             daysToAdd = days;
@@ -178,7 +175,7 @@ function PostponeController($compile, $injector, $scope, $state, $templateCache,
             title: messages.alerts.postpone[vm.type.toLowerCase() + 'Title'],
             html: $compile($templateCache.get('utils/controllers/postpone.html'))($scope),
             showCloseButton: true,
-        }).then(function(isConfirm) {
+        }).then(isConfirm => {
             if (isConfirm) {
                 _updateDayAndCloseModal();
             }

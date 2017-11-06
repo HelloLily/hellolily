@@ -126,7 +126,7 @@
                         <date date="case.created"></date>
                     </td>
                     <td class="hl-table-column" ng-show="vm.table.visibility.expires" title="{{ case.expires | date:'dd MMMM y HH:mm' }}">
-                        <postpone type="'Case'" object="case" date-field="'expires'"></postpone>
+                        <postpone type="'Case'" object="case" date-field="'expires'" callback="vm.updateCases()"></postpone>
                     </td>
                     <td class="hl-table-column" ng-show="vm.table.visibility.assignedTo">
                         <editable-select field="assigned_to" view-model="vm" type="Case" search="true" object="case"

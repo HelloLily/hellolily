@@ -1,0 +1,47 @@
+<div class="timeline-item-container">
+    <div class="activity-stream-image has-date" ng-style="{'background-image': 'url(' + vm.item.user.profile_picture + ')'}"></div>
+    <div class="activity-stream-item">
+        <div class="stream-item-head" title="Created on {{ ::vm.item.date | date:'dd MMM yyyy - HH:mm' }}">
+            <div class="stream-item-date">
+                {{ ::vm.item.date | date:'dd MMM yyyy - HH:mm' }}
+            </div>
+            <div class="stream-item-actions">
+                <ul class="stream-item-actions-list">
+                    <li class="stream-item-actions-list-item">
+                        <time-logger time-log="vm.item" small="true"></time-logger>
+                        <delete-confirmation model="TimeLog" object="vm.item" callback="vm.activity.removeFromList(vm.item)" button-class="btn-link no-background no-padding">
+                            Delete
+                        </delete-confirmation>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="stream-item-activity">
+            {{ ::vm.item.user.full_name }} logged time
+        </div>
+
+        <div ng-class="{'pinned': vm.item.is_pinned}" class="stream-item-content is-timelog">
+            <div class="stream-item-meta">
+                <div class="stream-item-meta-object">
+                    <div class="stream-item-meta-title">Logged time:</div>
+                    &nbsp;
+                    <time-log-display time-logs="vm.item"></time-log-display>
+                </div>
+
+                <div class="stream-item-meta-object">
+                    <div class="stream-item-meta-title">Billable:</div>
+                    &nbsp;
+                    <span>
+                        <span ng-if="vm.item.billable"><i class="fa fa-check text-success"></i> Yes</span>
+                        <span ng-if="!vm.item.billable"><i class="fa fa-times text-danger"></i> No</span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="stream-item-description">
+                <editable-textarea extra-class="detail-plain-text" view-model="vm" field="content" object="vm.item" model-name="TimeLog"></editable-textarea>
+            </div>
+        </div>
+    </div>
+</div>

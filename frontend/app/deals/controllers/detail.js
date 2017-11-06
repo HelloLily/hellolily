@@ -16,12 +16,9 @@ function dealsConfig($stateProvider) {
             label: '{{ deal.name }}',
         },
         resolve: {
-            currentDeal: ['Deal', '$stateParams', function(Deal, $stateParams) {
-                var id = $stateParams.id;
-                return Deal.get({id: id}).$promise;
-            }],
-            dealAccount: ['Account', 'currentDeal', function(Account, currentDeal) {
-                var account;
+            currentDeal: ['Deal', '$stateParams', (Deal, $stateParams) => Deal.get({id: $stateParams.id}).$promise],
+            dealAccount: ['Account', 'currentDeal', (Account, currentDeal) => {
+                let account;
 
                 if (currentDeal.account) {
                     account = Account.get({id: currentDeal.account.id, filter_deleted: 'False'}).$promise;
@@ -29,8 +26,8 @@ function dealsConfig($stateProvider) {
 
                 return account;
             }],
-            dealContact: ['Contact', 'currentDeal', function(Contact, currentDeal) {
-                var contact;
+            dealContact: ['Contact', 'currentDeal', (Contact, currentDeal) => {
+                let contact;
 
                 if (currentDeal.contact) {
                     contact = Contact.get({id: currentDeal.contact.id, filter_deleted: 'False'}).$promise;
@@ -38,11 +35,10 @@ function dealsConfig($stateProvider) {
 
                 return contact;
             }],
-            user: ['User', function(User) {
-                return User.me().$promise;
-            }],
-            tenant: ['Tenant', function(Tenant) {
-                return Tenant.query({});
+            user: ['User', User => User.me().$promise],
+            tenant: ['Tenant', Tenant => Tenant.query({})],
+            timeLogs: ['TimeLog', 'currentDeal', (TimeLog, currentDeal) => {
+                return TimeLog.getForObject({id: currentDeal.id, model: 'deals'}).$promise;
             }],
         },
     });
@@ -52,17 +48,19 @@ angular.module('app.deals').controller('DealDetailController', DealDetailControl
 
 DealDetailController.$inject = ['$compile', '$scope', '$state', '$templateCache', 'Account', 'Contact', 'Deal',
     'HLResource', 'HLUtils', 'LocalStorage', 'Settings', 'Tenant', 'currentDeal', 'dealAccount', 'dealContact',
-    'user', 'tenant'];
+    'user', 'tenant', 'timeLogs'];
 function DealDetailController($compile, $scope, $state, $templateCache, Account, Contact, Deal,
     HLResource, HLUtils, LocalStorage, Settings, Tenant, currentDeal, dealAccount, dealContact,
-    user, tenant) {
-    var vm = this;
-    var storage = new LocalStorage('dealDetail');
+    user, tenant, timeLogs) {
+    const vm = this;
+    const storage = new LocalStorage('dealDetail');
 
-    var activeAt = true;
+    let activeAt = true;
+
     if (dealContact) {
         activeAt = dealContact.active_at_account[currentDeal.account.id];
     }
+
     Settings.page.setAllTitles('detail', currentDeal.name, currentDeal.contact, currentDeal.account, null, activeAt);
     Settings.page.toolbar.data = {
         model: 'Deal',
@@ -75,6 +73,7 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
     vm.deal = currentDeal;
     vm.deal.account = dealAccount;
     vm.deal.contact = dealContact;
+    vm.deal.timeLogs = timeLogs.objects;
     vm.currentUser = user;
     vm.tenant = tenant;
     vm.mergeStreams = storage.get('mergeStreams', false);
@@ -88,21 +87,19 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
     //////
 
     function activate() {
-        var dealEnd;
-
-        Deal.getNextSteps(function(response) {
-            angular.forEach(response.results, function(nextStep) {
+        Deal.getNextSteps(response => {
+            response.results.forEach(nextStep => {
                 if (nextStep.name === 'None') {
                     vm.noneStep = nextStep;
                 }
             });
         });
 
-        Deal.getWhyLost(function(response) {
+        Deal.getWhyLost(response => {
             vm.whyLostChoices = response.results;
         });
 
-        Deal.getStatuses(function(response) {
+        Deal.getStatuses(response => {
             vm.statusChoices = response.results;
 
             vm.lostStatus = Deal.lostStatus;
@@ -110,10 +107,10 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
         });
 
         if (vm.tenant.hasPandaDoc && vm.deal.contact) {
-            Deal.getDocuments({contact: vm.deal.contact.id}, function(response) {
-                var documents = response.documents;
+            Deal.getDocuments({contact: vm.deal.contact.id}, response => {
+                const documents = response.documents;
 
-                documents.forEach(function(document) {
+                documents.forEach(document => {
                     document.status = document.status.replace('document.', '');
                 });
 
@@ -122,6 +119,8 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
         }
 
         vm.dealStart = moment(vm.deal.created).subtract(2, 'days').format('YYYY-MM-DD');
+
+        let dealEnd;
 
         if (vm.deal.status.id === vm.lostStatus || vm.deal.status.id === vm.wonStatus) {
             dealEnd = moment(vm.deal.modified);
@@ -133,8 +132,7 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
     }
 
     function updateModel(data, field) {
-        var args = HLResource.createArgs(data, field, vm.deal);
-        var patchPromise;
+        const args = HLResource.createArgs(data, field, vm.deal);
 
         if (args.hasOwnProperty('status')) {
             args.status = args.status.id;
@@ -167,7 +165,7 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
             // Updating an object through another object (e.g. account through deal) is ugly.
             // So just do a separate Account.patch. Not using the HLResource.patch because we want to display
             // a custom message.
-            return Account.patch(args, function() {
+            return Account.patch(args, () => {
                 toastr.success('I\'ve updated the customer ID for you!', 'Done');
             });
         }
@@ -176,9 +174,9 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
             Settings.page.setAllTitles('detail', data, vm.deal.contact, vm.deal.account);
         }
 
-        patchPromise = HLResource.patch('Deal', args).$promise;
+        const patchPromise = HLResource.patch('Deal', args).$promise;
 
-        patchPromise.then(function(response) {
+        patchPromise.then(response => {
             if (response.hasOwnProperty('next_step')) {
                 vm.deal.next_step_date = response.next_step_date;
             }
@@ -195,8 +193,6 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
      * Change the state of a deal.
      */
     function changeState(status) {
-        var args;
-
         // For now we'll use a separate function to update the status,
         // since the buttons and the value in the list need to be equal.
         vm.deal.status = status;
@@ -208,7 +204,7 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
             vm.deal.closed_date = null;
         }
 
-        args = {
+        const args = {
             id: vm.deal.id,
             status: vm.deal.status,
             closed_date: vm.deal.closed_date,
@@ -222,7 +218,7 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
         }
     }
 
-    $scope.$watch('vm.deal.is_archived', function(newValue, oldValue) {
+    $scope.$watch('vm.deal.is_archived', (newValue, oldValue) => {
         if (newValue !== oldValue) {
             updateModel(vm.deal.is_archived, 'is_archived');
         }
@@ -234,7 +230,7 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
             html: $compile($templateCache.get('deals/controllers/whylost.html'))($scope),
             showCancelButton: true,
             showCloseButton: true,
-        }).then(function(isConfirm) {
+        }).then(isConfirm => {
             if (isConfirm) {
                 vm.deal.why_lost = vm.whyLost;
                 args.why_lost = vm.whyLost.id;
@@ -255,7 +251,7 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
         return updateModel(currentUser.id, 'assigned_to');
     }
 
-    $scope.$watch('vm.mergeStreams', function() {
+    $scope.$watch('vm.mergeStreams', () => {
         storage.put('mergeStreams', vm.mergeStreams);
     });
 }

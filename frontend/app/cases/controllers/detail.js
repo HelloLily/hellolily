@@ -16,12 +16,9 @@ function caseConfig($stateProvider) {
             label: '{{ case.subject }}',
         },
         resolve: {
-            currentCase: ['Case', '$stateParams', function(Case, $stateParams) {
-                var id = $stateParams.id;
-                return Case.get({id: id}).$promise;
-            }],
-            caseAccount: ['Account', 'currentCase', function(Account, currentCase) {
-                var account;
+            currentCase: ['Case', '$stateParams', (Case, $stateParams) => Case.get({id: $stateParams.id}).$promise],
+            caseAccount: ['Account', 'currentCase', (Account, currentCase) => {
+                let account;
 
                 if (currentCase.account) {
                     account = Account.get({id: currentCase.account.id, filter_deleted: 'False'}).$promise;
@@ -29,14 +26,17 @@ function caseConfig($stateProvider) {
 
                 return account;
             }],
-            caseContact: ['Contact', 'currentCase', function(Contact, currentCase) {
-                var contact;
+            caseContact: ['Contact', 'currentCase', (Contact, currentCase) => {
+                let contact;
 
                 if (currentCase.contact) {
                     contact = Contact.get({id: currentCase.contact.id, filter_deleted: 'False'}).$promise;
                 }
 
                 return contact;
+            }],
+            timeLogs: ['TimeLog', 'currentCase', (TimeLog, currentCase) => {
+                return TimeLog.getForObject({id: currentCase.id, model: 'cases'}).$promise;
             }],
         },
     });
@@ -45,16 +45,17 @@ function caseConfig($stateProvider) {
 angular.module('app.cases').controller('CaseDetailController', CaseDetailController);
 
 CaseDetailController.$inject = ['$scope', 'Case', 'HLResource', 'HLUtils', 'LocalStorage', 'Settings', 'Tenant',
-    'currentCase', 'caseAccount', 'caseContact', 'Case'];
+    'currentCase', 'caseAccount', 'caseContact', 'timeLogs'];
 function CaseDetailController($scope, Case, HLResource, HLUtils, LocalStorage, Settings, Tenant, currentCase,
-    caseAccount, caseContact) {
-    var vm = this;
-    var storage = new LocalStorage('caseDetail');
+    caseAccount, caseContact, timeLogs) {
+    const vm = this;
+    const storage = new LocalStorage('caseDetail');
 
-    var activeAt = true;
+    let activeAt = true;
     if (caseContact && currentCase.account) {
         activeAt = caseContact.active_at_account[currentCase.account.id];
     }
+
     Settings.page.setAllTitles('detail', currentCase.subject, currentCase.contact, currentCase.account, currentCase.id,
         activeAt);
     Settings.page.toolbar.data = {
@@ -68,6 +69,7 @@ function CaseDetailController($scope, Case, HLResource, HLUtils, LocalStorage, S
     vm.case = currentCase;
     vm.case.account = caseAccount;
     vm.case.contact = caseContact;
+    vm.case.timeLogs = timeLogs.objects;
     vm.mergeStreams = storage.get('mergeStreams', false);
 
     vm.changeCaseStatus = changeCaseStatus;
@@ -80,13 +82,13 @@ function CaseDetailController($scope, Case, HLResource, HLUtils, LocalStorage, S
     //////
 
     function activate() {
-        var caseEnd;
-
-        Tenant.query({}, function(tenant) {
+        Tenant.query({}, tenant => {
             vm.tenant = tenant;
         });
 
         vm.caseStart = moment(vm.case.created).subtract(2, 'days').format('YYYY-MM-DD');
+
+        let caseEnd;
 
         if (vm.case.status.name === 'Closed') {
             caseEnd = moment(vm.case.modified);
@@ -96,7 +98,7 @@ function CaseDetailController($scope, Case, HLResource, HLUtils, LocalStorage, S
 
         vm.caseEnd = caseEnd.add(2, 'days').format('YYYY-MM-DD');
 
-        Case.getStatuses(function(response) {
+        Case.getStatuses(response => {
             vm.statusChoices = response.results;
 
             vm.closedStatus = Case.closedStatus;
@@ -104,9 +106,8 @@ function CaseDetailController($scope, Case, HLResource, HLUtils, LocalStorage, S
     }
 
     function updateModel(data, field) {
-        var args = HLResource.createArgs(data, field, vm.case);
-        var casePriorities = Case.getCasePriorities();
-        var expireDate;
+        const args = HLResource.createArgs(data, field, vm.case);
+        const casePriorities = Case.getCasePriorities();
 
         if (field === 'subject') {
             Settings.page.setAllTitles('detail', data, vm.case.contact, vm.case.account, vm.case.id);
@@ -121,7 +122,7 @@ function CaseDetailController($scope, Case, HLResource, HLUtils, LocalStorage, S
         }
 
         if (args.hasOwnProperty('priority')) {
-            expireDate = HLUtils.addBusinessDays(casePriorities[vm.case.priority].date_increment);
+            let expireDate = HLUtils.addBusinessDays(casePriorities[vm.case.priority].date_increment);
             expireDate = moment(expireDate).format('YYYY-MM-DD');
 
             vm.case.expires = expireDate;
@@ -134,7 +135,7 @@ function CaseDetailController($scope, Case, HLResource, HLUtils, LocalStorage, S
     function changeCaseStatus(status) {
         vm.case.status = status;
 
-        return updateModel(status.id, 'status').then(function() {
+        return updateModel(status.id, 'status').then(() => {
             if (status.id === vm.closedStatus.id) {
                 // A 'Closed' case is automatically set to archived in the API.
                 // So update in the front end as well.
@@ -160,7 +161,7 @@ function CaseDetailController($scope, Case, HLResource, HLUtils, LocalStorage, S
         updateModel(vm.case.is_archived, 'is_archived');
     }
 
-    $scope.$watch('vm.mergeStreams', function() {
+    $scope.$watch('vm.mergeStreams', () => {
         storage.put('mergeStreams', vm.mergeStreams);
     });
 }

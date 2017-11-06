@@ -26,10 +26,17 @@ class Note(TenantMixin, DeletedMixin):
     author = models.ForeignKey(LilyUser)
 
     type = models.PositiveSmallIntegerField(choices=NOTE_TYPE_CHOICES, default=TYPE_NOTE)
-    content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
-    subject = GenericForeignKey('content_type', 'object_id')
+    gfk_content_type = models.ForeignKey(ContentType)
+    gfk_object_id = models.PositiveIntegerField()
+    subject = GenericForeignKey('gfk_content_type', 'gfk_object_id')
     is_pinned = models.BooleanField(default=False)
+
+    @property
+    def content_type(self):
+        """
+        Return the content type (Django model) for this model
+        """
+        return ContentType.objects.get(app_label='notes', model='note')
 
     def __unicode__(self):
         return self.content

@@ -27,7 +27,9 @@ class Tenant(models.Model):
     name = models.CharField(max_length=255, blank=True)
     country = models.CharField(blank=True, max_length=2, verbose_name='country', choices=COUNTRIES)
     currency = models.CharField(blank=True, max_length=3, verbose_name='currency', choices=CURRENCIES)
+    timelogging_enabled = models.BooleanField(default=False)
     billing = models.ForeignKey(Billing, null=True, blank=True)
+    billing_default = models.BooleanField(default=False)
 
     def __unicode__(self):
         if self.name:

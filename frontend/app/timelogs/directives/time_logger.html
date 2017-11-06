@@ -1,0 +1,42 @@
+<span ng-if="vm.currentUser.timeLogging.enabled">
+    <simple-widget ng-if="!vm.small">
+        <widget-header>
+            <div class="widget-label"></div>
+            <div class="widget-name display-inline-block">Time logging</div>
+            <button class="hl-primary-btn pull-right" ng-click="vm.openTimeLogModal()">
+                <i class="fa fa-plus"></i> Log time
+            </button>
+        </widget-header>
+
+        <widget-body>
+            <div class="widget-content">
+                <div>
+                    <strong>Total time spent</strong>
+                </div>
+                <div ng-if="!vm.object.timeLogs.length">
+                    No time has been logged yet
+                </div>
+                <time-log-display ng-if="vm.object.timeLogs.length" time-logs="vm.object.timeLogs"></time-log-display>
+            </div>
+
+            <div class="widget-content timelog-collaborators">
+                <strong>Collaborators</strong>
+                <div ng-if="vm.hasCollaborators">
+                    <span ng-repeat="user in vm.users" class="activity-stream-image position-relative display-inline-block" ng-style="{'background-image': 'url(' + user.profile_picture + ')'}"></span>
+
+                    <div ng-repeat="user in vm.users" class="m-t-20">
+                        <span>{{ user.full_name }}</span> <span class="pull-right"><time-log-display ng-if="vm.object.timeLogs.length" time-logs="user.timeLogs"></time-log-display></span>
+                    </div>
+                </div>
+                <div ng-if="!vm.hasCollaborators">
+                    No collaborators
+                </div>
+            </div>
+        </widget-body>
+    </simple-widget>
+    <span ng-if="vm.small" class="m-l-10">
+        <button class="btn btn-link" ng-click="vm.openTimeLogModal()">
+            <i class="lilicon hl-edit-icon"></i> Edit
+        </button>
+    </span>
+</span>

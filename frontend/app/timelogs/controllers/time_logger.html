@@ -1,0 +1,52 @@
+<div class="time-logger">
+    <div class="row">
+        <div class="form-horizontal m-t-10">
+            <div class="form-group">
+                <label class="col-md-2 control-label">Worked</label>
+                <div class="col-md-5 no-padding" ng-class="{'has-error': vm.error}">
+                    <input class="form-control"
+                        maxlength="255"
+                        name="name"
+                        placeholder="e.g. 1h 30m"
+                        type="text"
+                        ng-blur="vm.formatTime()"
+                        ng-model="vm.timeLog.time" />
+
+                        <span class="help-block" ng-if="vm.error">{{ $root.messages.alerts.timeLog.invalidTime }}</span>
+                </div>
+
+                <div class="col-md-5">
+                    <label class="col-md-5 control-label">Billable</label>
+
+                    <label class="switch m-t-10">
+                        <input type="checkbox" ng-model="vm.timeLog.billable">
+                        <div class="slider round"></div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-md-2 control-label">Date</label>
+                <div class="col-md-5 input-group">
+                    <input type="text"
+                        class="form-control"
+                        ng-model="vm.timeLog.date"
+                        uib-datepicker-popup="dd MMMM yyyy"
+                        datepicker-options="vm.datepickerOptions"
+                        datepicker-append-to-body="true"
+                        is-open="vm.pickerOpen" />
+
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-default" ng-click="vm.pickerOpen = !vm.pickerOpen"><i class="lilicon hl-calendar-icon"></i></button>
+                    </span>
+                </div>
+            </div>
+
+            <textarea class="form-control no-resize"
+                msd-elastic
+                ng-model="vm.timeLog.content"
+                placeholder="Write your description here">
+            </textarea>
+        </div>
+    </div>
+</div>

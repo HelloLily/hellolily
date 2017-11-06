@@ -2,12 +2,26 @@ angular.module('app.notes').factory('Note', Note);
 
 Note.$inject = ['$resource', 'HLResource'];
 function Note($resource, HLResource) {
-    var _note = $resource(
+    const _note = $resource(
         '/api/notes/:id/',
         null,
         {
-            query: {
-                isArray: false,
+            search: {
+                url: '/search/search/?type=notes_note&size=:size&sort=-date&filterquery=:filterquery',
+                isArray: true,
+                transformResponse: data => {
+                    const jsonData = angular.fromJson(data);
+                    const objects = [];
+
+                    if (jsonData && jsonData.hits && jsonData.hits.length > 0) {
+                        jsonData.hits.forEach(obj => {
+                            const noteObject = $.extend(obj, {activityType: 'note', color: 'yellow'});
+                            objects.push(noteObject);
+                        });
+                    }
+
+                    return objects;
+                },
             },
             update: {
                 method: 'PATCH',
@@ -32,14 +46,13 @@ function Note($resource, HLResource) {
     /////////
 
     function updateModel(data, field, noteObject) {
-        var patchPromise;
-        var args = HLResource.createArgs(data, field, noteObject);
+        const args = HLResource.createArgs(data, field, noteObject);
 
         if (field === 'name') {
             Settings.page.setAllTitles('detail', data);
         }
 
-        patchPromise = HLResource.patch('Note', args).$promise;
+        const patchPromise = HLResource.patch('Note', args).$promise;
 
         return patchPromise;
     }

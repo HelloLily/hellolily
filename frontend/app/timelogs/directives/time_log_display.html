@@ -1,0 +1,10 @@
+<span>
+    <span ng-if="$ctrl.hoursLogged.hours > 0">
+        {{ $ctrl.hoursLogged.hours }}
+        <ng-pluralize count="$ctrl.hoursLogged.hours" when="{1: ' hour', 'other': ' hours'}"></ng-pluralize>
+    </span>
+    <span ng-if="$ctrl.hoursLogged.minutes > 0">
+        {{ $ctrl.hoursLogged.minutes }}
+        <ng-pluralize count="$ctrl.hoursLogged.minutes" when="{1: ' minute', 'other': ' minutes'}"></ng-pluralize>
+    </span>
+</div>

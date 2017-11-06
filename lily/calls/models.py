@@ -33,7 +33,7 @@ class Call(TenantMixin):
     status = models.PositiveSmallIntegerField(choices=CALL_STATUS_CHOICES)
     type = models.PositiveSmallIntegerField(choices=CALL_TYPE_CHOICES, default=INBOUND)
     created = models.DateTimeField(auto_now_add=True, null=True)
-    notes = GenericRelation('notes.Note', content_type_field='content_type', object_id_field='object_id')
+    notes = GenericRelation('notes.Note', content_type_field='gfk_content_type', object_id_field='gfk_object_id')
 
     @property
     def content_type(self):
@@ -97,8 +97,8 @@ class CallRecord(TenantMixin):
     )
     notes = GenericRelation(
         to='notes.Note',
-        content_type_field='content_type',
-        object_id_field='object_id'
+        content_type_field='gfk_content_type',
+        object_id_field='gfk_object_id'
     )
 
     @property

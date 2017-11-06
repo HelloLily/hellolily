@@ -4,20 +4,20 @@
             <p ng-bind-html="$root.messages.alerts.postpone[vm.type.toLowerCase()]"></p>
             <p ng-bind-html="$root.messages.alerts.postpone.subText"></p>
             <div>
-                <a ng-click="vm.postponeWithDays()" class="btn btn-default margin-top-10">Set to today ({{ vm.getFutureDate() | date }})</a>
+                <a ng-click="vm.postponeWithDays()" class="btn btn-default m-t-10">Set to today ({{ vm.getFutureDate() | date }})</a>
             </div>
             <div ng-repeat="amount in [1, 2]">
-                <a ng-click="vm.postponeWithDays(amount)" class="btn btn-default margin-top-10">
+                <a ng-click="vm.postponeWithDays(amount)" class="btn btn-default m-t-10">
                     Add {{ amount }} <ng-pluralize count="amount" when="{1: ' day', 'other': ' days'}"></ng-pluralize> ({{ vm.getFutureDate(amount) | date }})
                 </a>
             </div>
             <div>
-                <a ng-click="vm.postponeWithDays(7)" class="btn btn-default margin-top-10">Add 7 days ({{ vm.getFutureDate(5) | date }})</a>
+                <a ng-click="vm.postponeWithDays(7)" class="btn btn-default m-t-10">Add 7 days ({{ vm.getFutureDate(5) | date }})</a>
             </div>
         </div>
     </div>
     <div class="row">
-        <div class="col-md-12 margin-top-10">
+        <div class="col-md-12 m-t-10">
             <p ng-bind-html="$root.messages.alerts.postpone.datepicker"></p>
             <div class="input-group form-datepicker">
                 <input type="text"

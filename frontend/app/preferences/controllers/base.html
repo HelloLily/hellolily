@@ -1,28 +1,14 @@
-<!-- BEGIN PROFILE SIDEBAR -->
 <div class="profile-sidebar hidden-sm hidden-xs hidden-md">
-    <!-- PORTLET MAIN -->
     <div class="portlet light profile-sidebar-portlet">
-        <!-- SIDEBAR USERPIC -->
         <div class="profile-userpic">
             <div class="profile-avatar" style="background-image: url({{ currentUser.picture }});"></div>
-        </div>
-        <!-- END SIDEBAR USERPIC -->
-        <!-- SIDEBAR USER TITLE -->
-        <div class="profile-usertitle">
-            <div class="profile-usertitle-name">
-                {{ currentUser.fullName }}
+
+            <div class="profile-usertitle">
+                <div class="profile-usertitle-name">
+                    {{ currentUser.fullName }}
+                </div>
             </div>
         </div>
-        <!-- END SIDEBAR USER TITLE -->
-        <!-- SIDEBAR BUTTONS -->
-        <!-- These buttons can be added later for more functionality
-        <div class="profile-userbuttons">
-            <button type="button" class="btn btn-circle green-haze btn-sm">Follow</button>
-            <button type="button" class="btn btn-circle btn-danger btn-sm">Message</button>
-        </div>
-        -->
-        <!-- END SIDEBAR BUTTONS -->
-        <!-- SIDEBAR MENU -->
         <div class="profile-usermenu" style="padding-bottom: 0 !important;">
             <ul class="nav">
                 <li ui-sref-active="active">
@@ -61,37 +47,35 @@
                 </li>
             </ul>
         </div>
-        <!-- END MENU -->
     </div>
-    <!-- END PORTLET MAIN -->
 
-    <!-- PORTLET MAIN -->
-    <!--<div class="portlet light profile-sidebar-portlet" style="padding: 0 0 0 0 !important;">-->
-        <!--&lt;!&ndash; SIDEBAR MENU &ndash;&gt;-->
-        <!--<div class="profile-usermenu" style="margin: 0 0 0 0 !important; padding: 0 0 0 0 !important;">-->
-            <!--<ul class="nav">-->
-                <!--<li ui-sref-active="active">-->
-                    <!--<a ui-sref="base.preferences.company.account">-->
-                        <!--<i class="icon-briefcase"></i>-->
-                        <!--Company-->
-                    <!--</a>-->
-                <!--</li>-->
-                <!--<li ui-sref-active="active">-->
-                    <!--<a ui-sref="base.preferences.company.workflow">-->
-                        <!--<i class="icon-rocket"></i>-->
-                        <!--Workflow-->
-                    <!--</a>-->
-                <!--</li>-->
-            <!--</ul>-->
-        <!--</div>-->
-        <!--&lt;!&ndash; END MENU &ndash;&gt;-->
-    <!--</div>-->
-    <!-- END PORTLET MAIN -->
+    <div class="portlet light profile-sidebar-portlet">
+        <div class="profile-usermenu">
+            <ul class="nav">
+                <li ui-sref-active="active">
+                    <a ui-sref="base.preferences.emailaccounts" ui-sref-opts="{reload:true}">
+                        <i class="lilicon hl-mail-icon"></i>
+                        Email accounts
+                    </a>
+                </li>
+                <li ui-sref-active="active">
+                    <a ui-sref="base.preferences.emailtemplates" ui-sref-opts="{reload:true}">
+                        <i class="icon-envelope-letter"></i>
+                        Email templates
+                    </a>
+                </li>
+                <li ui-sref-active="active">
+                    <a ui-sref="base.preferences.templatevariables" ui-sref-opts="{reload:true}">
+                        <i class="fa fa-code"></i>
+                        Template variables
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
 
-    <!-- PORTLET MAIN -->
-    <div class="portlet light profile-sidebar-portlet" style="padding: 0 0 0 0 !important;">
-        <!-- SIDEBAR MENU -->
-        <div class="profile-usermenu" style="margin: 0 0 0 0 !important; padding: 0 0 0 0 !important;">
+    <div class="portlet light profile-sidebar-portlet">
+        <div class="profile-usermenu">
             <ul class="nav">
                 <li ui-sref-active="active">
                     <a ui-sref="base.preferences.company.users" ui-sref-opts="{reload:true}">
@@ -119,44 +103,17 @@
                         Import
                     </a>
                 </li>
-            </ul>
-        </div>
-        <!-- END MENU -->
-    </div>
-    <!-- END PORTLET MAIN -->
-
-    <!-- PORTLET MAIN -->
-    <div class="portlet light profile-sidebar-portlet" style="padding: 0 0 0 0 !important;">
-        <!-- SIDEBAR MENU -->
-        <div class="profile-usermenu" style="margin: 0 0 0 0 !important; padding: 0 0 0 0 !important;">
-            <ul class="nav">
-                <li ui-sref-active="active">
-                    <a ui-sref="base.preferences.emailaccounts" ui-sref-opts="{reload:true}">
-                        <i class="lilicon hl-mail-icon"></i>
-                        Email accounts
-                    </a>
-                </li>
-                <li ui-sref-active="active">
-                    <a ui-sref="base.preferences.emailtemplates" ui-sref-opts="{reload:true}">
-                        <i class="icon-envelope-letter"></i>
-                        Email templates
-                    </a>
-                </li>
-                <li ui-sref-active="active">
-                    <a ui-sref="base.preferences.templatevariables" ui-sref-opts="{reload:true}">
-                        <i class="fa fa-code"></i>
-                        Template variables
+                <li ng-if="currentUser.isAdmin" ui-sref-active="active">
+                    <a ui-sref="base.preferences.admin.settings" ui-sref-opts="{reload:true}">
+                        <i class="lilicon hl-cog-icon"></i>
+                        Settings
                     </a>
                 </li>
             </ul>
         </div>
-        <!-- END MENU -->
     </div>
-    <!-- END PORTLET MAIN -->
 </div>
-<!-- END BEGIN PROFILE SIDEBAR -->
 
-<!-- BEGIN PROFILE CONTENT -->
 <div class="profile-content">
     <div>
         <div ui-view>
@@ -164,4 +121,3 @@
         </div>
     </div>
 </div>
-<!-- END PROFILE CONTENT -->

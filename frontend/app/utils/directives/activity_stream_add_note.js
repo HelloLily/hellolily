@@ -19,13 +19,14 @@ function activityAddNoteDirective() {
 ActivityAddNoteController.$inject = ['$http', '$state', 'Note', 'User'];
 function ActivityAddNoteController($http, $state, Note, User) {
     let vm = this;
+
     let contentType = vm.item.content_type;
 
     if (typeof vm.item.content_type === 'object') {
         contentType = vm.item.content_type.id;
     }
 
-    vm.note = new Note({content_type: contentType, object_id: vm.item.id, type: 0});
+    vm.note = new Note({gfk_content_type: contentType, gfk_object_id: vm.item.id, type: 0});
 
     vm.addNote = addNote;
 
@@ -41,7 +42,7 @@ function ActivityAddNoteController($http, $state, Note, User) {
                 vm.item.notes.unshift(response);
                 // 'Empty' the note object to be able to continue posting another
                 // note without having to refresh the page.
-                vm.note = new Note({content_type: contentType, object_id: vm.item.id, type: 0});
+                vm.note = new Note({gfk_content_type: vm.item.content_type, gfk_object_id: vm.item.id, type: 0});
             });
         } else {
             toastr.error('You can\'t create an empty note!', 'Oops!');

@@ -1,7 +1,7 @@
 <div class="hl-related-form-field" ng-repeat="website in vm.websites | filter: {is_primary:false}" ng-class="{'has-error': form['websites-website-' + $index].$invalid }">
     <div class="row hl-row-sm">
         <div class="col-md-12 hl-flex-container">
-            <input class="form-control hl-form-input margin-right-10 hl-flex-1"
+            <input class="form-control hl-form-input m-r-10 hl-flex-1"
                    id="id_website-{{ $index }}"
                    maxlength="255"
                    name="websites-website-{{ $index }}"

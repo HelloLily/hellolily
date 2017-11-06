@@ -43,6 +43,7 @@ angular.module('app', [
     'app.templates',
     'app.utils',
     'app.tenants',
+    'app.timelogs',
 
     // Directives
     'app.directives',
@@ -50,6 +51,7 @@ angular.module('app', [
     'app.cases.directives',
     'app.contacts.directives',
     'app.deals.directives',
+    'app.timelogs.directives',
     'app.utils.directives',
     'app.preferences.email.directives',
 

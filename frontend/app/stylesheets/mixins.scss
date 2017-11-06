@@ -58,6 +58,12 @@ Yourself) and maintainable.
         }
     }
 
+    &.is-timelog {
+        &:before {
+            background: $app-color-grey;
+        }
+    }
+
     &.is-note,
     &.is-call {
         &.pinned {

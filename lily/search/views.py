@@ -1,5 +1,6 @@
 from datetime import date, timedelta
 
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.http.response import HttpResponse
 from django.views.generic.base import View
@@ -105,11 +106,16 @@ class SearchView(LoginRequiredMixin, View):
         hits, facets, total, took = search.do_search(return_fields)
 
         if model_type == 'email_emailmessage':
+            content_type = ContentType.objects.get(app_label="email", model="emailmessage")
             email_accounts = EmailAccount.objects.filter(tenant=user.tenant, is_deleted=False).distinct('id')
 
             filtered_hits = []
 
             for hit in hits:
+                hit.update({
+                    'content_type': content_type.id,
+                })
+
                 try:
                     email_account = email_accounts.get(pk=hit.get('account').get('id'))
                 except EmailAccount.DoesNotExist:

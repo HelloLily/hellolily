@@ -153,8 +153,7 @@ gulp.src = function() {
             gutil.log(gutil.colors.red('Error (' + error.plugin + '): ' + error.message));
             // Emit the end event, to properly end the task.
             this.emit('end');
-        })
-    );
+        }));
 };
 
 /**
@@ -171,22 +170,22 @@ gulp.task('app-js', [], function(cb) {
         .pipe(tap(function(file) {
             // Replace file contents with browserify's bundle stream.
             file.contents = browserify(file.path, {debug: true}).bundle()
-            .on('error', function(err) {
-                gutil.log(gutil.colors.red('Browserify error') + err);
-                gutil.beep();
-                cb();
-            });
+                .on('error', function(err) {
+                    gutil.log(gutil.colors.red('Browserify error') + err);
+                    gutil.beep();
+                    cb();
+                });
         }))
         // Transform streaming contents into buffer contents
         // (because gulp-sourcemaps does not support streaming contents).
         .pipe(buffer())
         .pipe(sourcemaps.init())
-            .pipe(cached('app-js'))
-            .pipe(babel({presets: ['es2015'], compact: false}))
-            .pipe(wrap('(function(angular){\'use strict\';<%= contents %>})(angular);'))
-            .pipe(ifElse(isProduction, uglify))
-            .pipe(remember('app-js'))
-            .pipe(concat(config.app.js.fileName))
+        .pipe(cached('app-js'))
+        .pipe(babel({presets: ['env'], compact: false}))
+        .pipe(wrap('(function(angular){\'use strict\';<%= contents %>})(angular);'))
+        .pipe(ifElse(isProduction, uglify))
+        .pipe(remember('app-js'))
+        .pipe(concat(config.app.js.fileName))
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest(config.app.buildDir))
         .pipe(ifElse(isWatcher, size))
@@ -196,14 +195,14 @@ gulp.task('app-js', [], function(cb) {
 gulp.task('app-css', [], function() {
     return gulp.src(config.app.sass.base)
         .pipe(sourcemaps.init())
-            .pipe(sass({includePaths: ['./node_modules/']}))
-            .pipe(rebaseUrls({root: config.cdn.root}))
-            .pipe(cdnizer({
-                defaultCDNBase: config.cdn.defaultBase,
-                files: config.cdn.src,
-            }))
-            .pipe(ifElse(isProduction, uglifyCss))
-            .pipe(rename(config.app.sass.fileName))
+        .pipe(sass({includePaths: ['./node_modules/']}))
+        .pipe(rebaseUrls({root: config.cdn.root}))
+        .pipe(cdnizer({
+            defaultCDNBase: config.cdn.defaultBase,
+            files: config.cdn.src,
+        }))
+        .pipe(ifElse(isProduction, uglifyCss))
+        .pipe(rename(config.app.sass.fileName))
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest(config.app.buildDir))
         .pipe(ifElse(isWatcher, size))
@@ -216,14 +215,14 @@ gulp.task('app-css', [], function() {
 gulp.task('login-css', [], function() {
     return gulp.src(config.app.sass.login.src)
         .pipe(sourcemaps.init())
-            .pipe(sass({includePaths: ['./node_modules/']}))
-            .pipe(rebaseUrls({root: config.cdn.root}))
-            .pipe(cdnizer({
-                defaultCDNBase: config.cdn.defaultBase,
-                files: config.cdn.src,
-            }))
-            .pipe(ifElse(isProduction, uglifyCss))
-            .pipe(rename(config.app.sass.login.fileName))
+        .pipe(sass({includePaths: ['./node_modules/']}))
+        .pipe(rebaseUrls({root: config.cdn.root}))
+        .pipe(cdnizer({
+            defaultCDNBase: config.cdn.defaultBase,
+            files: config.cdn.src,
+        }))
+        .pipe(ifElse(isProduction, uglifyCss))
+        .pipe(rename(config.app.sass.login.fileName))
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest(config.app.buildDir))
         .pipe(ifElse(isWatcher, size))
@@ -265,10 +264,10 @@ gulp.task('app-assets', [], function() {
 gulp.task('vendor-js', [], function() {
     return gulp.src(config.vendor.js.src)
         .pipe(sourcemaps.init())
-            .pipe(cached('vendor-js'))
-            .pipe(ifElse(isProduction, uglify))
-            .pipe(remember('vendor-js'))
-            .pipe(concat(config.vendor.js.fileName))
+        .pipe(cached('vendor-js'))
+        .pipe(ifElse(isProduction, uglify))
+        .pipe(remember('vendor-js'))
+        .pipe(concat(config.vendor.js.fileName))
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest(config.vendor.buildDir))
         .pipe(ifElse(isWatcher, size))
@@ -278,11 +277,11 @@ gulp.task('vendor-js', [], function() {
 gulp.task('anonymous-vendor-js', [], function() {
     return gulp.src(config.anonymousVendor.js.src)
         .pipe(sourcemaps.init())
-            .pipe(cached('anonymous-vendor-js'))
-            .pipe(ifElse(isProduction, uglify))
-            .pipe(remember('anonymous-vendor-js'))
+        .pipe(cached('anonymous-vendor-js'))
+        .pipe(ifElse(isProduction, uglify))
+        .pipe(remember('anonymous-vendor-js'))
 
-            .pipe(concat(config.anonymousVendor.js.fileName))
+        .pipe(concat(config.anonymousVendor.js.fileName))
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest(config.anonymousVendor.buildDir))
         .pipe(ifElse(isWatcher, size))
@@ -292,16 +291,16 @@ gulp.task('anonymous-vendor-js', [], function() {
 gulp.task('vendor-css', [], function() {
     return gulp.src(config.vendor.css.src)
         .pipe(sourcemaps.init())
-            .pipe(cached('vendor-css'))
-            .pipe(rebaseUrls({root: config.cdn.root}))
-            .pipe(cdnizer({
-                defaultCDNBase: config.cdn.defaultBase,
-                files: config.cdn.src,
-            }))
-            .pipe(ifElse(isProduction, uglifyCss))
-            .pipe(remember('vendor-css'))
+        .pipe(cached('vendor-css'))
+        .pipe(rebaseUrls({root: config.cdn.root}))
+        .pipe(cdnizer({
+            defaultCDNBase: config.cdn.defaultBase,
+            files: config.cdn.src,
+        }))
+        .pipe(ifElse(isProduction, uglifyCss))
+        .pipe(remember('vendor-css'))
 
-            .pipe(concat(config.vendor.css.fileName))
+        .pipe(concat(config.vendor.css.fileName))
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest(config.vendor.buildDir))
         .pipe(ifElse(isWatcher, size))

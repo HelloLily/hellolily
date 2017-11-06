@@ -100,7 +100,7 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     amount_once = models.DecimalField(default=0, max_digits=19, decimal_places=2)
     amount_recurring = models.DecimalField(default=0, max_digits=19, decimal_places=2)
     closed_date = models.DateTimeField(blank=True, null=True)
-    notes = GenericRelation('notes.Note', content_type_field='content_type', object_id_field='object_id')
+    notes = GenericRelation('notes.Note', content_type_field='gfk_content_type', object_id_field='gfk_object_id')
     quote_id = models.CharField(max_length=255, blank=True)
     next_step_date = models.DateField(null=True, blank=True)
     import_id = models.CharField(max_length=100, default='', blank=True, db_index=True)

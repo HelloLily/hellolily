@@ -168,10 +168,16 @@ class RelatedSerializerMixin(ValidateEverythingSimultaneouslyMixin):
         generic_related_fields = [field.name for field in model_cls._meta.virtual_fields]
 
         if self.parent.field_name in generic_related_fields:
-            data['content_type'] = content_type.pk
+            if model_cls in ['TimeLog', 'Note']:
+                data['gfk_content_type'] = content_type.pk
+            else:
+                data['content_type'] = content_type.pk
 
             if instance:
-                data['object_id'] = instance.pk
+                if model_cls in ['TimeLog', 'Note']:
+                    data['gfk_object_id'] = instance.pk
+                else:
+                    data['object_id'] = instance.pk
             else:
                 # Remove unique together validator because we are creating so it's always unique.
                 self.validators = [

@@ -59,6 +59,11 @@ function HLMessages() {
                 subText: '<strong>Note: </strong> Weekends are automatically skipped',
                 datepicker: 'Or manually select a date:',
             },
+            timeLog: {
+                modalTitle: 'Time logging',
+                confirmButtonText: 'Log time',
+                invalidTime: 'Invalid value provided',
+            },
             dashboard: {
                 title: 'Widget settings',
             },

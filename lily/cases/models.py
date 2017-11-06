@@ -59,7 +59,7 @@ class Case(TenantMixin, TaggedObjectMixin, DeletedMixin, ArchivedMixin):
     account = models.ForeignKey(Account, null=True, blank=True, on_delete=models.SET_NULL)
     contact = models.ForeignKey(Contact, null=True, blank=True, on_delete=models.SET_NULL)
 
-    notes = GenericRelation('notes.Note', content_type_field='content_type', object_id_field='object_id')
+    notes = GenericRelation('notes.Note', content_type_field='gfk_content_type', object_id_field='gfk_object_id')
 
     expires = models.DateField(default=week_from_now)
 

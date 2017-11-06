@@ -123,7 +123,7 @@ function UnassignedCasesController($http, $scope, $state, $timeout, Case, HLFilt
                     const index = vm.table.items.indexOf(caseObj);
                     vm.table.items.splice(index, 1);
 
-                    $state.reload();
+                    updateTable(true);
                 });
             }
         }).done();

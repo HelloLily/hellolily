@@ -2,7 +2,7 @@ angular.module('app.email').controller('LabelListController', LabelListControlle
 
 LabelListController.$inject = ['$filter', '$interval', '$scope', '$state', 'EmailAccount', 'primaryEmailAccountId'];
 function LabelListController($filter, $interval, $scope, $state, EmailAccount, primaryEmailAccountId) {
-    var vm = this;
+    const vm = this;
     vm.accountList = [];
     vm.primaryEmailAccountId = primaryEmailAccountId;
     vm.labelCount = 0;
@@ -29,13 +29,11 @@ function LabelListController($filter, $interval, $scope, $state, EmailAccount, p
     }
 
     function _startIntervalAccountInfo() {
-        var stopGetAccountInfo;
-
         _getAccountInfo();
-        stopGetAccountInfo = $interval(_getAccountInfo, 60000);
+        let stopGetAccountInfo = $interval(_getAccountInfo, 60000);
 
         // Stop fetching when out of scope.
-        $scope.$on('$destroy', function() {
+        $scope.$on('$destroy', () => {
             // Make sure that the interval is destroyed too.
             if (stopGetAccountInfo) {
                 $interval.cancel(stopGetAccountInfo);
@@ -46,29 +44,29 @@ function LabelListController($filter, $interval, $scope, $state, EmailAccount, p
 
     // Fetch the EmailAccounts & associated labels.
     function _getAccountInfo() {
-        EmailAccount.mine(function(results) {
-            var i;
-            var j;
-            var label;
-            var labelCount = {};
-            // Sort accounts on id.
-            var orderedResults = $filter('orderBy')(results, 'id');
-            var progress = false;
+        EmailAccount.mine(results => {
+            const labelCount = {};
+            // Sort accounts on ID.
+            const orderedResults = $filter('orderBy')(results, 'id');
+            const accountList = [];
 
-            vm.accountList = [];
             // Make sure primary account is set first.
-            angular.forEach(orderedResults, function(account) {
-                if (account.id !== vm.primaryEmailAccountId) {
-                    this.push(account);
-                } else {
-                    this.unshift(account);
+            orderedResults.forEach(account => {
+                if (account.is_active) {
+                    if (account.id !== vm.primaryEmailAccountId) {
+                        accountList.push(account);
+                    } else {
+                        accountList.unshift(account);
+                    }
                 }
-            }, vm.accountList);
+            });
+
+            vm.accountList = accountList;
 
             // Check for unread email count.
-            for (i in vm.accountList) {
-                for (j in vm.accountList[i].labels) {
-                    label = vm.accountList[i].labels[j];
+            for (let i in vm.accountList) {
+                for (let j in vm.accountList[i].labels) {
+                    const label = vm.accountList[i].labels[j];
 
                     if (label.label_type === 0) {
                         if (labelCount.hasOwnProperty(label.label_id)) {
@@ -79,10 +77,13 @@ function LabelListController($filter, $interval, $scope, $state, EmailAccount, p
                     }
                 }
             }
+
             vm.labelCount = labelCount;
 
+            let progress = false;
+
             // Check if there is still one account doing a full sync to set the global sync status.
-            for (i in vm.accountList) {
+            for (let i in vm.accountList) {
                 if (vm.accountList[i].is_syncing) {
                     progress = true;
                     break;
@@ -93,8 +94,9 @@ function LabelListController($filter, $interval, $scope, $state, EmailAccount, p
     }
 
     function unreadCountForLabel(account, labelId) {
-        var count = 0;
-        angular.forEach(account.labels, function(label) {
+        let count = 0;
+
+        angular.forEach(account.labels, label => {
             if (label.label_id === labelId) {
                 count = label.unread;
                 return;

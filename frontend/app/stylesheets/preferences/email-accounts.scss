@@ -45,7 +45,7 @@ $base-color: #27224e;
 
         &[type="radio"]:checked ~ label {
             border: 2px solid $base-color;
-            padding-top: -1px;
+            padding: 4px;
         }
     }
 }

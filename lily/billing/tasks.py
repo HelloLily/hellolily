@@ -6,6 +6,7 @@ from celery.task import task
 from django.conf import settings
 
 from lily.billing.models import Plan
+from lily.messaging.email.utils import limit_email_accounts
 from lily.tenant.models import Tenant
 
 logger = logging.getLogger(__name__)
@@ -41,6 +42,8 @@ def check_subscriptions():
 
                     billing.plan = Plan.objects.get(name=settings.CHARGEBEE_FREE_PLAN_NAME)
                     billing.save()
+
+                    limit_email_accounts(tenant)
 
                     logger.info('Set subscription for %s to free plan' % tenant.name)
                 elif subscription.plan_id != billing.plan.name:

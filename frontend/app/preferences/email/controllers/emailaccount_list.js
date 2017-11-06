@@ -15,16 +15,14 @@ function emailPreferencesStates($stateProvider) {
             label: 'Email account',
         },
         resolve: {
-            user: ['User', function(User) {
-                return User.me().$promise;
-            }],
-            ownedAccounts: ['EmailAccount', 'user', function(EmailAccount, user) {
+            user: ['User', User => User.me().$promise],
+            ownedAccounts: ['EmailAccount', 'user', (EmailAccount, user) => {
                 return EmailAccount.query({owner: user.id}).$promise;
             }],
-            sharedWithAccounts: ['EmailAccount', 'user', function(EmailAccount, user) {
+            sharedWithAccounts: ['EmailAccount', 'user', (EmailAccount, user) => {
                 return EmailAccount.query({sharedemailconfig__user__id: user.id}).$promise;
             }],
-            publicAccounts: ['EmailAccount', function(EmailAccount) {
+            publicAccounts: ['EmailAccount', (EmailAccount) => {
                 return EmailAccount.query({privacy: EmailAccount.PUBLIC}).$promise;
             }],
         },
@@ -37,7 +35,7 @@ PreferencesEmailAccountList.$inject = ['$compile', '$filter', '$http', '$scope',
     'HLResource', 'HLSearch', 'SharedEmailConfig', 'User', 'user', 'ownedAccounts', 'sharedWithAccounts', 'publicAccounts'];
 function PreferencesEmailAccountList($compile, $filter, $http, $scope, $templateCache, EmailAccount,
     HLResource, HLSearch, SharedEmailConfig, User, user, ownedAccounts, sharedWithAccounts, publicAccounts) {
-    var vm = this;
+    const vm = this;
 
     vm.ownedAccounts = [];
     vm.sharedAccounts = [];
@@ -75,9 +73,8 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
     }
 
     function loadAccounts() {
-        var publicAccount;
-        var sharedAccounts = [];
-        var filteredPublicAccounts = [];
+        let sharedAccounts = [];
+        let filteredPublicAccounts = [];
 
         ownedAccounts.results.map((account) => {
             _checkHiddenState(account);
@@ -85,7 +82,7 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
 
         vm.ownedAccounts = ownedAccounts.results;
 
-        for (publicAccount of publicAccounts.results) {
+        for (let publicAccount of publicAccounts.results) {
             if (publicAccount.owner.id !== vm.currentUser.id) {
                 filteredPublicAccounts.push(publicAccount);
             }
@@ -112,8 +109,8 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
     }
 
     function _checkHiddenState(account) {
-        SharedEmailConfig.get({id: account.id}).$promise.then(function(response) {
-            var isHidden = false;
+        SharedEmailConfig.get({id: account.id}).$promise.then(response => {
+            let isHidden = false;
 
             if (response.results.length && response.results[0].is_hidden) {
                 isHidden = true;
@@ -124,7 +121,7 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
     }
 
     function _updateSharedEmailSetting(accountId, isHidden) {
-        var args = {
+        const args = {
             email_account: accountId,
             user: vm.currentUser.id,
             is_hidden: isHidden || false,
@@ -138,10 +135,8 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
     }
 
     function openShareAccountModal(account) {
-        var i;
-        var j;
-        var configs = account.shared_email_configs;
-        var filterObject = {
+        const configs = account.shared_email_configs;
+        const filterObject = {
             filterquery: '',
             size: 50,
         };
@@ -149,7 +144,7 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
         vm.emailAccount = account;
 
         if (configs.length) {
-            for (i = 0; i < configs.length; i++) {
+            for (let i = 0; i < configs.length; i++) {
                 if (i > 0) {
                     filterObject.filterquery += ' OR ';
                 }
@@ -158,11 +153,11 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
             }
         }
 
-        User.search(filterObject).$promise.then(function(data) {
+        User.search(filterObject).$promise.then(data => {
             if (filterObject.filterquery) {
                 if (data.objects) {
-                    for (i = 0; i < data.objects.length; i++) {
-                        for (j = 0; j < vm.emailAccount.shared_email_configs.length; j++) {
+                    for (let i = 0; i < data.objects.length; i++) {
+                        for (let j = 0; j < vm.emailAccount.shared_email_configs.length; j++) {
                             if (vm.emailAccount.shared_email_configs[j].user === data.objects[i].id) {
                                 vm.emailAccount.shared_email_configs[j].user = data.objects[i];
                             }
@@ -175,9 +170,8 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
                 html: $compile($templateCache.get('preferences/email/controllers/emailaccount_share.html'))($scope),
                 showCancelButton: true,
                 showCloseButton: true,
-            }).then(function(isConfirm) {
-                var config;
-                var args = {
+            }).then(isConfirm => {
+                const args = {
                     id: vm.emailAccount.id,
                     shared_email_configs: vm.emailAccount.shared_email_configs,
                 };
@@ -188,12 +182,12 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
 
                 if (isConfirm) {
                     // Loop through users and add them to the shared email config.
-                    for (config of args.shared_email_configs) {
+                    for (let config of args.shared_email_configs) {
                         config.user = config.user.id;
                     }
 
-                    HLResource.patch('EmailAccount', args).$promise.then(function(response) {
-                        var emailConfigs = [];
+                    HLResource.patch('EmailAccount', args).$promise.then(response => {
+                        const emailConfigs = [];
 
                         response.shared_email_configs.map((newConfig) => {
                             if (vm.emailAccount.owner.id !== newConfig.user) {
@@ -210,9 +204,7 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
     }
 
     function addSharedUsers() {
-        var sharedUser;
-
-        for (sharedUser of vm.shareAdditions) {
+        for (let sharedUser of vm.shareAdditions) {
             vm.emailAccount.shared_email_configs.push({
                 user: sharedUser,
                 privacy: vm.privacyOverride,
@@ -224,10 +216,9 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
     }
 
     function getConfigUsers() {
-        var users = [];
-        var config;
+        const users = [];
 
-        for (config of vm.emailAccount.shared_email_configs) {
+        for (let config of vm.emailAccount.shared_email_configs) {
             users.push(config.user);
         }
 
@@ -235,8 +226,7 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
     }
 
     function refreshUsers(query) {
-        var usersPromise;
-        var extraQuery = ' AND NOT id:' + currentUser.id;
+        const extraQuery = ` AND NOT id:${currentUser.id}`;
 
         if (vm.users && vm.users.length && !query.length) {
             // Clear the previous list so we can retreive the whole list again.
@@ -244,10 +234,10 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
         }
 
         if (!vm.users || query.length) {
-            usersPromise = HLSearch.refreshList(query, 'User', 'is_active:true' + extraQuery, 'full_name', 'full_name');
+            const usersPromise = HLSearch.refreshList(query, 'User', 'is_active:true' + extraQuery, 'full_name', 'full_name');
 
             if (usersPromise) {
-                usersPromise.$promise.then(function(data) {
+                usersPromise.$promise.then(data => {
                     vm.users = data.objects;
                 });
             }
@@ -255,16 +245,14 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
     }
 
     function removeFromList(account) {
-        var index = vm.ownedAccounts.indexOf(account);
+        const index = vm.ownedAccounts.indexOf(account);
         vm.ownedAccounts.splice(index, 1);
         $scope.$apply();
     }
 
     function setPrimaryEmailAccount(account) {
-        var args;
-
         if (vm.primaryAccount !== account.id) {
-            args = {
+            const args = {
                 id: 'me',
                 primary_email_account: {
                     id: account.id,
@@ -283,7 +271,7 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
         if (account.privacy === EmailAccount.PUBLIC) {
             fullAccess = true;
         } else if (account.shared_email_configs.length) {
-            account.shared_email_configs.map((config) => {
+            account.shared_email_configs.map(config => {
                 if (config.user === user.id && config.privacy === EmailAccount.PUBLIC) {
                     fullAccess = true;
                 }

@@ -136,6 +136,9 @@ class OAuth2Callback(LoginRequiredMixin, View):
 
         account.is_deleted = False
 
+        if request.user.tenant.billing.is_free_plan:
+            account.privacy = EmailAccount.PRIVATE
+
         if created:
             account.only_new = None
 

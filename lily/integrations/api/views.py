@@ -1,4 +1,5 @@
 import anyjson
+import logging
 import re
 import requests
 import time
@@ -31,6 +32,9 @@ from .serializers import DocumentSerializer, DocumentEventSerializer
 from ..credentials import get_access_token, get_credentials, put_credentials, LilyOAuthCredentials
 from ..models import Document, IntegrationCredentials, IntegrationDetails, SlackDetails, IntegrationType, DocumentEvent
 from ..tasks import import_moneybird_contacts
+
+
+logger = logging.getLogger(__name__)
 
 
 class DocumentDetails(APIView):
@@ -624,41 +628,44 @@ class SlackEventCatch(APIView):
         if event_type == 'url_verification':
             return Response({'challenge': data.get('challenge')}, status=status.HTTP_200_OK)
 
-        if not team_id:
-            # Not url verification, so we require the team ID.
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
         try:
-            details = SlackDetails.objects.get(team_id=team_id)
-        except SlackDetails.DoesNotExist:
-            details = None
+            if not team_id:
+                # Not url verification, so we require the team ID.
+                return Response(status=status.HTTP_403_FORBIDDEN)
 
-        if details:
-            if event_type == 'event_callback':
-                event = data.get('event')
-                unfurls = {}
+            try:
+                details = SlackDetails.objects.get(team_id=team_id)
+            except SlackDetails.DoesNotExist:
+                details = None
 
-                for link in event.get('links'):
-                    # Convert to string so we can use it later.
-                    url = str(link.get('url'))
+            if details:
+                if event_type == 'event_callback':
+                    event = data.get('event')
+                    unfurls = {}
 
-                    data = self.get_data(url, details)
+                    for link in event.get('links'):
+                        # Convert to string so we can use it later.
+                        url = str(link.get('url'))
 
-                    if data:
-                        unfurls.update({url: data})
+                        data = self.get_data(url, details)
 
-                if unfurls:
-                    credentials = get_credentials('slack', details.tenant)
+                        if data:
+                            unfurls.update({url: data})
 
-                    data = {
-                        'token': credentials.access_token,
-                        'channel': event.get('channel'),
-                        'ts': event.get('message_ts'),
-                        'unfurls': unfurls,
-                    }
+                    if unfurls:
+                        credentials = get_credentials('slack', details.tenant)
 
-                    request = requests.post('https://slack.com/api/chat.unfurl?' + urllib.urlencode(data))
+                        data = {
+                            'token': credentials.access_token,
+                            'channel': event.get('channel'),
+                            'ts': event.get('message_ts'),
+                            'unfurls': unfurls,
+                        }
 
-                    return Response(status=status.HTTP_200_OK)
+                        request = requests.post('https://slack.com/api/chat.unfurl?' + urllib.urlencode(data))
+
+                        return Response(status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(e)
 
         return Response(status=status.HTTP_404_NOT_FOUND)

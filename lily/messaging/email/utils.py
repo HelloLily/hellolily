@@ -616,7 +616,7 @@ def get_extensions_for_type(general_type):
 
 
 def get_shared_email_accounts(user):
-    if user.tenant.billing.is_free_plan:
+    if not user.tenant.billing.is_free_plan:
         # Team plan allows sharing of email account.
         # Get a list of email accounts which are publicly shared or shared specifically with the user.
         shared_email_account_list = EmailAccount.objects.filter(

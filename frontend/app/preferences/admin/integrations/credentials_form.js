@@ -33,13 +33,13 @@ function IntegrationCredentialsController($http, $state, $stateParams, $window, 
         // Try to store the credentials so we can reuse them later.
         $http({
             method: 'POST',
-            url: '/api/integrations/auth/' + vm.type.toLowerCase(),
+            url: `/api/integrations/auth/${vm.type.toLowerCase()}/`,
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             data: 'client_id=' + vm.client_id + '&client_secret=' + vm.client_secret + '&integration_context=' + JSON.stringify(vm.integrationContext),
-        }).success(function(response) {
+        }).success(response => {
             // Everything was ok, so go to the authentication page.
             $window.location.href = decodeURIComponent(response.url);
-        }).error(function(response) {
+        }).error(response => {
             HLForms.setErrors(form, response);
         });
     }

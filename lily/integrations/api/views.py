@@ -420,6 +420,34 @@ class IntegrationAuth(APIView):
         return HttpResponseRedirect('/#/preferences/admin/integrations')
 
 
+class IntegrationDetailsView(APIView):
+    def get(self, request, integration_type, format=None):
+        credentials = get_credentials(integration_type)
+
+        # If no credentials exist then the given integration isn't installed.
+        has_integration = credentials is not None
+
+        response = anyjson.serialize({'has_integration': has_integration})
+
+        return HttpResponse(response, content_type='application/json')
+
+    def delete(self, request, integration_type):
+        credentials = get_credentials(integration_type)
+
+        if credentials:
+            try:
+                integration_type = IntegrationType.objects.get(name__iexact=integration_type)
+            except IntegrationType.DoesNotExist:
+                pass
+            else:
+                details = IntegrationDetails.objects.get(type=integration_type)
+                details.delete()
+
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
 class SlackEventCatch(APIView):
     authentication_classes = []
     permission_classes = []
@@ -433,16 +461,20 @@ class SlackEventCatch(APIView):
             value = data[key]
 
             if isinstance(value, list):
+                # Value is a list, so check all its items and recursivly convert to string.
                 for item in value:
                     item = self.convert_to_string(item)
 
                 data[key] = value
             elif isinstance(value, dict):
+                # Value is a dict, so we want to convert all its values to string.
                 data[key] = self.convert_to_string(value)
             else:
                 try:
                     data[key] = str(value)
                 except UnicodeEncodeError:
+                    # Converting to a readable character seems to very hard,
+                    # so just ignore special characters.
                     data[key] = str(value.encode('ascii', 'ignore').decode('ascii'))
 
         return data
@@ -619,53 +651,57 @@ class SlackEventCatch(APIView):
 
     def post(self, request):
         data = request.data
-        event_type = data.get('type')
         team_id = data.get('team_id')
+        event = data.get('event')
 
         if data.get('token') != settings.SLACK_LILY_TOKEN:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        if event_type == 'url_verification':
+        # The type of the verification event isn't in the event object.
+        if data.get('type') == 'url_verification':
             return Response({'challenge': data.get('challenge')}, status=status.HTTP_200_OK)
 
-        try:
-            if not team_id:
-                # Not url verification, so we require the team ID.
-                return Response(status=status.HTTP_403_FORBIDDEN)
+        if not team_id:
+            # Not url verification, so we require the team ID.
+            return Response(status=status.HTTP_403_FORBIDDEN)
 
-            try:
-                details = SlackDetails.objects.get(team_id=team_id)
-            except SlackDetails.DoesNotExist:
-                details = None
+        # If we were to use the type given in the data we'd have an event_callback
+        # for the following events.
+        # So retrieve the actual type from the 'event' object.
+        event_type = event.get('type')
 
-            if details:
-                if event_type == 'event_callback':
-                    event = data.get('event')
-                    unfurls = {}
+        details = SlackDetails.objects.filter(team_id=team_id).first()
 
-                    for link in event.get('links'):
-                        # Convert to string so we can use it later.
-                        url = str(link.get('url'))
+        # Slack sends the app_uninstalled event twice.
+        if event_type == 'app_uninstalled' and details:
+            details.delete()
+            details = None
 
-                        data = self.get_data(url, details)
+        if details:
+            if event_type == 'link_shared':
+                unfurls = {}
 
-                        if data:
-                            unfurls.update({url: data})
+                for link in event.get('links'):
+                    # Convert to string so we can use it later.
+                    url = str(link.get('url'))
 
-                    if unfurls:
-                        credentials = get_credentials('slack', details.tenant)
+                    data = self.get_data(url, details)
 
-                        data = {
-                            'token': credentials.access_token,
-                            'channel': event.get('channel'),
-                            'ts': event.get('message_ts'),
-                            'unfurls': unfurls,
-                        }
+                    if data:
+                        unfurls.update({url: data})
 
-                        request = requests.post('https://slack.com/api/chat.unfurl?' + urllib.urlencode(data))
+                if unfurls:
+                    credentials = get_credentials('slack', details.tenant)
 
-                        return Response(status=status.HTTP_200_OK)
-        except Exception as e:
-            logger.error(e)
+                    data = {
+                        'token': credentials.access_token,
+                        'channel': event.get('channel'),
+                        'ts': event.get('message_ts'),
+                        'unfurls': unfurls,
+                    }
+
+                    request = requests.post('https://slack.com/api/chat.unfurl?' + urllib.urlencode(data))
+
+                    return Response(status=status.HTTP_200_OK)
 
         return Response(status=status.HTTP_404_NOT_FOUND)

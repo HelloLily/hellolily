@@ -12,6 +12,7 @@ from lily.users.models import LilyUser
 
 
 class CallNotificationsAPITestCase(APISimpleTestCase):
+    allow_database_queries = True
     list_url = 'callnotification-list'
     detail_url = 'callnotification-detail'
 
@@ -34,6 +35,7 @@ class CallNotificationsAPITestCase(APISimpleTestCase):
 
         cls.user = APIClient()
         cls.user.login(email=cls.user_obj.email, password=password)
+        super(CallNotificationsAPITestCase, cls).setUpClass()
 
     @classmethod
     def tearDownClass(cls):

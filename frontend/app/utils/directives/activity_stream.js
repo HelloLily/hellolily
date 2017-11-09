@@ -416,7 +416,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
 
                     callPromise.then(data => {
                         data.results.map(call => {
-                            Note.search({filterquery: 'content_type:call AND object_id:' + call.id, size: 15})
+                            Note.search({filterquery: 'gfk_content_type:call AND gfk_object_id:' + call.id, size: 15})
                                 .$promise.then(notes => {
                                     angular.forEach(notes, note => {
                                         // Get user for notes to show profile picture correctly.

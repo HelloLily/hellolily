@@ -96,7 +96,7 @@ script:
   - docker-compose run --rm web python manage.py migrate
 
   # Run indexing to catch any indexing errors
-  - docker-compose run --rm web python manage.py search_index --rebuild -f
+  - docker-compose run --rm web python manage.py search_index rebuild -f
 
 after_success:
   # Only push if the tests and merge succeeded.

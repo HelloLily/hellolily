@@ -17,7 +17,7 @@ class ContactDoc(DocType):
         'phone_numbers': PhoneNumberField(related_model=PhoneNumber),
     }, related_model=Account)
     description = CharField()
-    email_address = EmailAddressField(related_model=EmailAddress)
+    email_addresses = EmailAddressField(related_model=EmailAddress)
     full_name = CharField()
     phone_numbers = PhoneNumberField(related_model=PhoneNumber)
     tags = CharField(related_model=Tag)
@@ -40,7 +40,7 @@ class ContactDoc(DocType):
             'phone_numbers': [phone_number.number for phone_number in func.account.phone_numbers.all()],
         }
 
-    def prepare_email_address(self, obj):
+    def prepare_email_addresses(self, obj):
         return [email.email_address for email in obj.email_addresses.all()]
 
     def prepare_phone_numbers(self, obj):

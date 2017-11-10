@@ -36,15 +36,15 @@ migrate:
 	@echo ""
 
 index:
-	@echo "Make: docker-compose run --rm web bash -c 'Dockers/wait-for db:5432 && Dockers/wait-for es:9200 && python manage.py search_index --rebuild -f'"
+	@echo "Make: docker-compose run --rm web bash -c 'Dockers/wait-for db:5432 && Dockers/wait-for es:9200 && python manage.py search_index rebuild -f'"
 	@echo ""
-	@docker-compose run --rm web bash -c 'Dockers/wait-for db:5432 && Dockers/wait-for es:9200 && python manage.py search_index --rebuild -f'
+	@docker-compose run --rm web bash -c 'Dockers/wait-for db:5432 && Dockers/wait-for es:9200 && python manage.py search_index rebuild -f'
 	@echo ""
 
 test:
-	@echo "Make: docker-compose run --rm -e ES_DISABLED=1 web bash -c 'Dockers/wait-for db:5432 && python manage.py test'"
+	@echo "Make: docker-compose run --rm web bash -c 'Dockers/wait-for db:5432 && python manage.py test'"
 	@echo ""
-	@docker-compose run --rm -e ES_DISABLED=1 web bash -c 'Dockers/wait-for db:5432 && python manage.py test'
+	@docker-compose run --rm web bash -c 'Dockers/wait-for db:5432 && python manage.py test'
 	@echo ""
 
 testdata:

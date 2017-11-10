@@ -9,7 +9,7 @@ if [ "${NEXT_ACTION}" == "deploy" ]; then
     fi
 
     if [ "${INDEXING_NEEDED}" == "true" ] ; then
-        deploy_command="${deploy_command} && TRAVIS_BUILD_ID=${TRAVIS_BUILD_ID} python manage.py index -f"
+        deploy_command+=" && TRAVIS_BUILD_ID=${TRAVIS_BUILD_ID} python manage.py search_index rebuild -f"
 
         # Put every mention of an index file change into an array.
         changed_files=()
@@ -21,13 +21,9 @@ if [ "${NEXT_ACTION}" == "deploy" ]; then
         changed_files_uniq=($(printf "%s\n" "${changed_files[@]}" | sort | uniq -c | awk '{ print $2 }'))
 
         # Create the actual targets string.
-        targets=""
         for filename in ${changed_files_uniq[@]}; do
-            targets="${targets},$(dirname "${filename}" | tr / .)"
+            deploy_command+=" --models $(basename $(dirname "${filename}"))"
         done
-
-        # Append the targets to the index command, strip the first comma.
-        deploy_command="${deploy_command} -t ${targets:1}"
     fi
 
     if [ "${MIGRATION_NEEDED}" == "true" ] || [ "${INDEXING_NEEDED}" == "true" ] ; then

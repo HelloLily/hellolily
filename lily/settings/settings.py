@@ -142,7 +142,6 @@ ALLOWED_HOSTS = [
     'hellolily-staging.herokuapp.com',
     'app.hellolily.com',
     'localhost',
-    '0b4a8ada.ngrok.io',
 ]
 
 #######################################################################################################################

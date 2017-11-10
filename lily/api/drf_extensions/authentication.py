@@ -56,9 +56,20 @@ class LilyApiAuthentication(BaseAuthentication):
 class PandaDocSignatureAuthentication(BaseAuthentication):
     def authenticate(self, request):
         data = request.data[0].get('data')
+        metadata = data.get('metadata')
+        deal = metadata.get('deal')
+
+        if not deal:
+            # No shared key set by the user so we have no way to verify the request.
+            raise PermissionDenied({
+                'detail': _('No deal found.')
+            })
+
+        # Use the deal to retrieve the tenant.
+        deal = Deal.objects.get(pk=metadata.get('deal'))
 
         # Get the shared key which has been provided by PandaDoc.
-        credentials = get_credentials('pandadoc')
+        credentials = get_credentials('pandadoc', deal.tenant)
 
         shared_key = credentials.integration_context.get('shared_key')
 
@@ -76,13 +87,11 @@ class PandaDocSignatureAuthentication(BaseAuthentication):
                 'detail': _('Invalid request. Either the provided shared key or signature is incorrect')
             })
 
-        metadata = data.get('metadata')
         user = metadata.get('user')
 
         if user:
             user = LilyUser.objects.get(pk=user)
         else:
-            deal = Deal.objects.get(pk=metadata.get('deal'))
             user = deal.assigned_to
 
         set_current_user(user)

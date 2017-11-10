@@ -223,8 +223,8 @@ class DocumentEventCatch(APIView):
 
             note = Note.objects.create(
                 content=content,
-                content_type=deal.content_type,
-                object_id=deal.id,
+                gfk_content_type=deal.content_type,
+                gfk_object_id=deal.id,
                 author=request.user,
             )
 

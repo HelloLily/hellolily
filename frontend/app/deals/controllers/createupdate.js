@@ -474,7 +474,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
     function refreshContacts(query) {
         let accountQuery = '';
 
-        if (vm.deal.account) {
+        if (vm.deal.account && vm.deal.account.id) {
             if (query.length >= 2) {
                 accountQuery += ' AND ';
             }

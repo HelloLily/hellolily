@@ -7,12 +7,12 @@ function HLSearch($injector, Tag) {
     HLSearch.getOpenCasesDeals = getOpenCasesDeals;
 
     function refreshList(query, modelName, extraFilterQuery, sortColumn = '-modified', nameColumn = 'name') {
-        var items;
-
         // Dynamically get the model.
-        var model = $injector.get(modelName);
+        const model = $injector.get(modelName);
 
-        var extraQuery = extraFilterQuery ? extraFilterQuery : '';
+        const extraQuery = extraFilterQuery ? extraFilterQuery : '';
+
+        let items;
 
         if (query.length) {
             // At least 2 characters need to be entered.
@@ -33,22 +33,19 @@ function HLSearch($injector, Tag) {
     }
 
     function refreshTags(searchQuery, object, type) {
-        var tagsPromise;
-        var i;
-
-        var tags = object.tags;
-        var contentTypeQuery = 'content_type.name:' + type;
-        var query = searchQuery + ',' + contentTypeQuery;
-        var filterquery = contentTypeQuery;
+        const tags = object.tags;
+        const contentTypeQuery = 'content_type.name:' + type;
+        const query = searchQuery + ',' + contentTypeQuery;
+        let filterquery = contentTypeQuery;
 
         if (tags) {
             // Exclude tags already selected.
-            for (i = 0; i < tags.length; i++) {
+            for (let i = 0; i < tags.length; i++) {
                 filterquery += ' AND NOT name_flat:' + tags[i].name;
             }
         }
 
-        tagsPromise = Tag.search({query: query, filterquery: filterquery});
+        const tagsPromise = Tag.search({query, filterquery});
 
         return tagsPromise;
     }
@@ -61,27 +58,27 @@ function HLSearch($injector, Tag) {
      * @param modelName {String}: Specifies if it's a case or deal.
      */
     function getOpenCasesDeals(closedStatusQuery, object, modelName) {
-        var filterQuery = closedStatusQuery;
+        let filterquery = closedStatusQuery;
 
         if (object.id) {
             // Filter out the current case.
-            filterQuery += ' AND NOT id: ' + object.id;
+            filterquery += ` AND NOT id: ${object.id}`;
         }
 
-        if (object.account && object.contact) {
-            filterQuery += ' AND (account.id:' + object.account.id + ' OR (account.id:' + object.account.id + ' AND contact.id:' + object.contact.id + '))';
+        if (object.account && object.contact && object.account.id && object.contact.id) {
+            filterquery += ` AND (account.id:${object.account.id} OR (account.id:' + ${object.account.id} AND contact.id:${object.contact.id}))`;
         } else {
-            if (object.account) {
-                filterQuery += ' AND account.id:' + object.account.id;
+            if (object.account && object.account.id) {
+                filterquery += ` AND account.id:${object.account.id}`;
             }
 
-            if (object.contact) {
-                filterQuery += ' AND contact.id:' + object.contact.id;
+            if (object.contact && object.contact.id) {
+                filterquery += ` AND contact.id: ${object.contact.id}`;
             }
         }
 
         // Inject the model's service and execute the search query.
-        return $injector.get(modelName).search({filterquery: filterQuery}).$promise;
+        return $injector.get(modelName).search({filterquery}).$promise;
     }
 
     return HLSearch;

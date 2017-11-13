@@ -425,7 +425,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     function refreshContacts(query) {
         let accountQuery = '';
 
-        if (vm.case.account) {
+        if (vm.case.account && vm.case.account.id) {
             if (query.length >= 2) {
                 accountQuery += ' AND ';
             }

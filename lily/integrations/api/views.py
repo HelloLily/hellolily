@@ -311,10 +311,12 @@ class IntegrationAuth(APIView):
             client_id = request.POST.get('client_id')
             client_secret = request.POST.get('client_secret')
 
-        integration_context = request.POST.get('integration_context')
+        integration_context = request.POST.get('integration_context', {})
 
         if integration_context:
             integration_context = anyjson.loads(integration_context)
+
+        print integration_context
 
         errors = {}
 

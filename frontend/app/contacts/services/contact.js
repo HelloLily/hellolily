@@ -2,13 +2,13 @@ angular.module('app.contacts.services').factory('Contact', Contact);
 
 Contact.$inject = ['$filter', '$resource', 'HLResource', 'Settings'];
 function Contact($filter, $resource, HLResource, Settings) {
-    var _contact = $resource(
+    const _contact = $resource(
         '/api/contacts/:id/',
         null,
         {
             get: {
-                transformResponse: function(data) {
-                    var jsonData = angular.fromJson(data);
+                transformResponse: data => {
+                    const jsonData = angular.fromJson(data);
 
                     HLResource.setSocialMediaFields(jsonData);
 
@@ -44,14 +44,14 @@ function Contact($filter, $resource, HLResource, Settings) {
             search: {
                 url: '/search/search/?type=contacts_contact&filterquery=:filterquery',
                 method: 'GET',
-                transformResponse: function(data) {
-                    let jsonData = angular.fromJson(data);
-                    let objects = [];
+                transformResponse: data => {
+                    const jsonData = angular.fromJson(data);
+                    const objects = [];
                     let total = 0;
 
                     if (jsonData) {
                         if (jsonData.hits && jsonData.hits.length > 0) {
-                            jsonData.hits.forEach(function(obj) {
+                            jsonData.hits.forEach(obj => {
                                 obj.primary_email_address = $filter('primaryEmail')(obj.email_addresses);
 
                                 objects.push(obj);
@@ -62,8 +62,8 @@ function Contact($filter, $resource, HLResource, Settings) {
                     }
 
                     return {
-                        objects: objects,
-                        total: total,
+                        objects,
+                        total,
                     };
                 },
             },
@@ -74,7 +74,7 @@ function Contact($filter, $resource, HLResource, Settings) {
             getCalls: {
                 url: '/api/contacts/:id/calls',
                 transformResponse: data => {
-                    let jsonData = angular.fromJson(data);
+                    const jsonData = angular.fromJson(data);
 
                     if (jsonData) {
                         if (jsonData.results && jsonData.results.length > 0) {
@@ -115,8 +115,7 @@ function Contact($filter, $resource, HLResource, Settings) {
     }
 
     function updateModel(data, field, contact) {
-        var args;
-        var patchPromise;
+        let args;
 
         if (field instanceof Array) {
             args = data;
@@ -140,7 +139,7 @@ function Contact($filter, $resource, HLResource, Settings) {
             args.accounts = args.accounts.map(team => ({'id': team.id})).concat(removedAccounts);
         }
 
-        patchPromise = HLResource.patch('Contact', args).$promise;
+        const patchPromise = HLResource.patch('Contact', args).$promise;
 
         patchPromise.then(response => {
             if (field instanceof Array) {

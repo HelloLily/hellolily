@@ -35,7 +35,7 @@
 
             <tbody>
                 <tr ng-repeat="contact in vm.list">
-                    <td><a ui-sref="base.contacts.detail({id: contact.id})">{{ contact.full_name }}</a></td>
+                    <td><a ui-sref="base.contacts.detail({id: contact.id})">{{ contact.full_name }}</a> <span ng-if="!contact.active_at.includes(vm.object.id)">(inactive)</span></td>
                     <td>
                         <div ng-if="!contact.primary_email_address && vm.object.primary_email_address">
                             <i class="lilicon hl-company-icon m-r-5" uib-tooltip="{{ $root.messages.contact.accountListInfoTooltip }}"></i>

@@ -19,16 +19,16 @@ function accountConfig($stateProvider) {
             label: '{{ account.name }}',
         },
         resolve: {
-            currentAccount: ['Account', '$stateParams', function(Account, $stateParams) {
+            currentAccount: ['Account', '$stateParams', (Account, $stateParams) => {
                 return Account.get({id: $stateParams.id}).$promise;
             }],
-            caseList: ['Case', '$stateParams', function(Case, $stateParams) {
+            caseList: ['Case', '$stateParams', (Case, $stateParams) => {
                 return Case.search({filterquery: 'account.id:' + $stateParams.id, sort: 'expires', size: 100}).$promise;
             }],
-            contactList: ['Contact', '$stateParams', function(Contact, $stateParams) {
+            contactList: ['Contact', '$stateParams', (Contact, $stateParams) => {
                 return Contact.search({filterquery: 'accounts.id:' + $stateParams.id, size: 50}).$promise;
             }],
-            dealList: ['Deal', '$stateParams', function(Deal, $stateParams) {
+            dealList: ['Deal', '$stateParams', (Deal, $stateParams) => {
                 return Deal.search({filterquery: 'account.id:' + $stateParams.id, sort: '-next_step_date', size: 100}).$promise;
             }],
         },
@@ -39,7 +39,7 @@ angular.module('app.accounts').controller('AccountDetailController', AccountDeta
 
 AccountDetailController.$inject = ['Account', 'Settings', 'currentAccount', 'caseList', 'contactList', 'dealList'];
 function AccountDetailController(Account, Settings, currentAccount, caseList, contactList, dealList) {
-    var vm = this;
+    const vm = this;
 
     Settings.page.setAllTitles('detail', currentAccount.name);
     Settings.page.toolbar.data = {

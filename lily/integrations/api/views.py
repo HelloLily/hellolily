@@ -316,8 +316,6 @@ class IntegrationAuth(APIView):
         if integration_context:
             integration_context = anyjson.loads(integration_context)
 
-        print integration_context
-
         errors = {}
 
         if not client_id:

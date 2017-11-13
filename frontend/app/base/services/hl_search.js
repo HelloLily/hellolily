@@ -66,7 +66,7 @@ function HLSearch($injector, Tag) {
         }
 
         if (object.account && object.contact && object.account.id && object.contact.id) {
-            filterquery += ` AND (account.id:${object.account.id} OR (account.id:' + ${object.account.id} AND contact.id:${object.contact.id}))`;
+            filterquery += ` AND (account.id:${object.account.id} OR (account.id:${object.account.id} AND contact.id:${object.contact.id}))`;
         } else {
             if (object.account && object.account.id) {
                 filterquery += ` AND account.id:${object.account.id}`;

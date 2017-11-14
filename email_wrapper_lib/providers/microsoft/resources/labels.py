@@ -79,6 +79,3 @@ class MicrosoftLabelsResource(MicrosoftResource):
         )
 
         return labels
-
-    # def save_create_update(self):
-    #     pass

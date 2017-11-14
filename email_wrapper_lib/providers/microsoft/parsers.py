@@ -205,7 +205,7 @@ def parse_message_list(data, messages):
             'is_read': message['IsRead'],
             'is_starred': False,  # TODO: maybe 'pinned' messages? But not available via API.
             'is_draft': message['IsDraft'],
-            'is_important': message['Importance'] is IMPORTANCE_HIGH,
+            'is_important': message['Importance'] is IMPORTANCE_HIGH,  # TODO: Acceptable that we convert [low, normal, high] to [True,False]?
             'is_archived': message['ParentFolderId'] in folders and folders[message['ParentFolderId']] is FOLDER_ARCHIVE_NAME,
             'is_trashed': message['ParentFolderId'] in folders and folders[message['ParentFolderId']] is FOLDER_DELETED_ITEMS_NAME,
             'is_spam': message['ParentFolderId'] in folders and folders[message['ParentFolderId']] is FOLDER_JUNK_NAME,
@@ -255,7 +255,7 @@ def parse_message(data, message):
         'is_read': data['IsRead'],
         'is_starred': False,  # TODO: maybe 'pinned' messages? But available via API?
         'is_draft': data['IsDraft'],
-        'is_important': data['Importance'] is IMPORTANCE_HIGH,
+        'is_important': data['Importance'] is IMPORTANCE_HIGH,  # TODO: Acceptable that we convert [low, normal, high] to [True,False]?
         'is_archived': data['ParentFolderId'] in folders and folders[data['ParentFolderId']] is FOLDER_ARCHIVE_NAME,
         'is_trashed': data['ParentFolderId'] in folders and folders[data['ParentFolderId']] is FOLDER_DELETED_ITEMS_NAME,
         'is_spam': data['ParentFolderId'] in folders and folders[data['ParentFolderId']] is FOLDER_JUNK_NAME,
@@ -409,5 +409,10 @@ def parse_label(data, label):
 
 
 def parse_deletion(data, status_code):  # TODO: status_code marked as unused, not passed by reference? & another reason to rename data to response.
+    status_code = data.status_code  # TODO: What happens to the status codes on the other parse methods? Lost?
+    return status_code
+
+
+def parse_message_send(data, status_code):  # TODO: status_code marked as unused, not passed by reference? & another reason to rename data to response.
     status_code = data.status_code  # TODO: What happens to the status codes on the other parse methods? Lost?
     return status_code

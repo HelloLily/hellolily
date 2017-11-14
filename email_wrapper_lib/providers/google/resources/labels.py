@@ -81,6 +81,3 @@ class GoogleLabelsResource(GoogleResource):
         )
 
         return labels
-
-    # def save_create_update(self):
-    #     pass

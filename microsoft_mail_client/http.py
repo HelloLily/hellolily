@@ -238,7 +238,7 @@ class BatchHttpRequest(object):
 
     def _serialize_requests(self, http_requests):
         """
-        Convert all the HttpRequest objects in requests into a single string.
+        Convert all the HttpRequest objects in http_requests into a single string.
 
         :param http_requests: HttpRequests to serialize.
         :return: serialized requests.

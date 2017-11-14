@@ -1,5 +1,3 @@
-from oauth2client.contrib.django_orm import Storage
-
 from email_wrapper_lib.models.models import EmailAccount
 
 

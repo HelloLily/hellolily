@@ -80,7 +80,7 @@ class EmailRecipient(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        self.raw_value = '{} <{}>'.format(self.name, self.email_address)
+        self.raw_value = '{0} <{1}>'.format(self.name, self.email_address)
         super(EmailRecipient, self).save(*args, **kwargs)
 
     class Meta:
@@ -181,7 +181,7 @@ class EmailMessage(models.Model):
         verbose_name=_('Subject'),
         max_length=255
     )
-    # TODO: what the meaning of this date field? creation date of the message in our db, or remote "ReceivedDateTime"?
+    # TODO: what's the meaning of this date field? creation date of the message in our db, or remote "ReceivedDateTime"?
     date = models.DateTimeField(
         verbose_name=_('Date')
     )
@@ -244,18 +244,25 @@ class EmailMessageToEmailRecipient(models.Model):
 
 
 class EmailDraft(models.Model):
+    NEW, REPLY, REPLY_ALL, FORWARD = range(4)  # TODO: Possible up for removal.
+    EMAIL_TYPES = (
+        (NEW, _('New')),
+        (REPLY, _('Reply')),
+        (REPLY_ALL, _('Reply all')),
+        (FORWARD, _('Forward')),
+    )
     subject = models.CharField(
         max_length=255,
         verbose_name=_('Subject'),
         blank=True,
         default=''
     )
-    body_text = models.TextField(
+    body_text = models.TextField(  # TODO: With or without the whole thread?
         verbose_name=_('Body text'),
         blank=True,
         default=''
     )
-    body_html = models.TextField(
+    body_html = models.TextField(  # TODO: With or without the whole thread?
         verbose_name=_('Body html'),
         blank=True,
         default=''
@@ -272,13 +279,27 @@ class EmailDraft(models.Model):
         verbose_name=_('Account'),
         related_name='drafts',
     )
-    in_reply_to = models.ForeignKey(
+    in_reply_to = models.ForeignKey(  # TODO: Naming in case of forward isn't right.
         to='EmailMessage',
         on_delete=models.SET_NULL,
         verbose_name=_('In reply to'),
         related_name='draft_replies',
         null=True
     )
+    message_type = models.PositiveSmallIntegerField(
+        verbose_name=_('Message type'),
+        choices=EMAIL_TYPES
+    )
+
+    # @property
+    # def is_reply(self):
+    #     # TODO: doesn't tell if it is a reply or reply all.
+    #     return self.in_reply_to_id is not None
+    #
+    # @@property
+    # def is_new(self):
+    #     # TODO: doesn't tell if it is a new or forward message.
+    #     return self.in_reply_to_id is None
 
     class Meta:
         app_label = 'email_wrapper_lib'
@@ -323,7 +344,7 @@ class EmailDraftAttachment(models.Model):
         default=False,
         verbose_name=_('Inline')
     )
-    file = models.FileField(
+    file = models.FileField(  # TODO: Does this hold also the attachments of the replied / forwarded messages?
         upload_to=attachment_upload_path,
         max_length=255,
         verbose_name=_('File')
@@ -341,6 +362,15 @@ class EmailDraftAttachment(models.Model):
         to='EmailDraft',
         related_name='attachments'
     )
+    # TODO: Or not needed since we can define it ourself upon sending?
+    cid = models.TextField(  # http://www.ietf.org/rfc/rfc2392.txt
+        default='',
+        editable=False
+    )
+
+    def save(self, *args, **kwargs):
+        self.cid = '<{0}>'.format(self.file.name)
+        super(EmailDraftAttachment, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return self.file.name

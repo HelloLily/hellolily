@@ -84,7 +84,7 @@
                                     </form-group>
                                 </div>
 
-                                <div class="width-8 display-inline-block">
+                                <div class="width-8 display-inline-block" ng-if="!event.set_to_today">
                                     <form-group label-title="Extra days" field="eventForm.extra_days">
                                         <input class="form-control"
                                             name="extra_days"
@@ -93,6 +93,14 @@
                                             type="number"
                                             min="0"
                                             ng-model="event.extra_days" />
+                                    </form-group>
+                                </div>
+
+                                <div class="width-10 display-inline-block" ng-if="!event.extra_days">
+                                    <form-group label-title="Set to today" field="eventForm.set_to_today">
+                                        <span class="clickable" ng-click="event.set_to_today = !event.set_to_today">
+                                            <div class="hl-checkbox inline-checkbox" ng-class="{'checked': event.set_to_today}"></div>
+                                        </span>
                                     </form-group>
                                 </div>
 
@@ -123,6 +131,7 @@
                             <strong>Deal status</strong>: What status should the deal be set to<br />
                             <strong>Deal next step</strong>: What step should the deal be set to<br />
                             <strong>Extra days</strong>: Amount of days to add to the next step date<br />
+                            <strong>Set to today</strong>: Sets the date to the date the event was triggered (can't be used together with 'Extra days')<br />
                             <strong>Add note</strong>: Should a note be added when this event occurs<br />
                         </div>
                     </div>

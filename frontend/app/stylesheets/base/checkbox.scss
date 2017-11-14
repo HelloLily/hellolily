@@ -30,6 +30,14 @@ $checkbox-size: 14px;
         }
     }
 
+    &.inline-checkbox {
+        float: none;
+
+        &:before {
+            top: unset;
+        }
+    }
+
     &.indeterminate {
         &:before {
             font-size: 12px;

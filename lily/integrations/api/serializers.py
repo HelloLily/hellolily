@@ -42,5 +42,6 @@ class DocumentEventSerializer(serializers.ModelSerializer):
             'status',
             'next_step',
             'extra_days',
+            'set_to_today',
             'add_note',
         )

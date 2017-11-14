@@ -134,7 +134,7 @@ class CaseTypeViewSet(viewsets.ModelViewSet):
         """
         queryset = super(CaseTypeViewSet, self).get_queryset().filter(tenant_id=self.request.user.tenant_id)
 
-        # By default we filter out non-active users.
+        # By default we filter out non-active case types.
         is_archived = self.request.query_params.get('is_archived', 'False')
 
         # Value must be one of these, or it is ignored and we filter out non-active users.

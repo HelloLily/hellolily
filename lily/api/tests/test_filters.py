@@ -35,7 +35,10 @@ class ElasticSearchFilterTest(TestCase):
         expected_query = {
             'multi_match': {
                 'operator': 'and',
-                'fields': ['name', 'description', 'tag.name'],
+                'fields': [
+                    'name', 'description', 'tag.name',
+                    'name.ngram', 'description.ngram', 'tag.name.ngram'
+                ],
                 'type': 'most_fields',
                 'fuzziness': 'AUTO',
                 'query': search_term,

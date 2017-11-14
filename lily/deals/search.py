@@ -1,5 +1,6 @@
-from django_elasticsearch_dsl import DocType, Index, IntegerField, TextField
+from django_elasticsearch_dsl import DocType, Index, IntegerField
 
+from lily.search.fields import CharField
 from .models import Deal
 
 index = Index('deal')
@@ -7,14 +8,20 @@ index = Index('deal')
 
 @index.doc_type
 class DealDoc(DocType):
-    account = TextField()
-    assigned_to = TextField()
-    created_by = TextField()
-    contact = TextField()
-    contacted_by = TextField()
-    status = TextField()
-    tags = TextField()
+    account = CharField()
+    assigned_to = CharField()
+    created_by = CharField()
+    contact = CharField()
+    contacted_by = CharField()
+    name = CharField()
+    status = CharField()
+    tags = CharField()
     tenant_id = IntegerField()
+
+    def get_queryset(self):
+        return Deal.objects.select_related(
+            'account', 'assigned_to', 'created_by', 'contact', 'contacted_by', 'status',
+        ).prefetch_related('tags')
 
     def prepare_account(self, obj):
         return obj.account.name if obj.account else None

@@ -2,7 +2,6 @@ from django.conf.urls import url
 
 from .views import InternalNumberSearchView, PhoneNumberSearchView
 
-
 urlpatterns = [
     url(r'^number/(?P<number>(\+)?([\d\-]+))$',
         PhoneNumberSearchView.as_view(),

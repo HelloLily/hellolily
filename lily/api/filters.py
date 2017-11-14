@@ -14,10 +14,11 @@ class ElasticSearchFilter(SearchFilter):
             return queryset
 
         fields = [field.replace('__', '.') for field in search_fields]
+        ngram_fields = ['{}.{}'.format(field, 'ngram') for field in fields]
 
         return queryset.elasticsearch_query(MultiMatch(
             query=search_term,
-            fields=fields,
+            fields=fields + ngram_fields,
             type='most_fields',
             operator='and',
             fuzziness='AUTO'

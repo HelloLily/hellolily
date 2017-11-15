@@ -12,12 +12,8 @@ function billingOverviewConfig($stateProvider) {
             },
         },
         resolve: {
-            billingInfo: ['Billing', Billing => {
-                return Billing.getBillingInfo().$promise;
-            }],
-            countries: ['Country', Country => {
-                return Country.getList();
-            }],
+            billingInfo: ['Billing', Billing => Billing.getBillingInfo().$promise],
+            countries: ['Country', Country => Country.getList()],
         },
     });
 }
@@ -27,7 +23,7 @@ angular.module('app.base').controller('BillingOverviewController', BillingOvervi
 
 BillingOverviewController.$inject = ['$filter', '$scope', '$state', '$window', 'Billing', 'billingInfo', 'countries'];
 function BillingOverviewController($filter, $scope, $state, $window, Billing, billingInfo, countries) {
-    var vm = this;
+    const vm = this;
 
     vm.card = billingInfo.card;
     vm.customer = billingInfo.customer;
@@ -97,15 +93,13 @@ function BillingOverviewController($filter, $scope, $state, $window, Billing, bi
     }
 
     function getTrialRemaining(trialEndDate) {
-        let trialEnd = moment.unix(trialEndDate);
+        const trialEnd = moment.unix(trialEndDate);
 
         return trialEnd.fromNow(true);
     }
 
     function _getCountryName(countryCode) {
-        let filtered = countries.filter(country => {
-            return country.value === countryCode;
-        });
+        const filtered = countries.filter(country => country.value === countryCode);
 
         return filtered.length ? filtered[0].display_name : '';
     }

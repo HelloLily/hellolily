@@ -141,6 +141,7 @@
                         planTier: '{{ user.tenant.billing.plan.tier }}' || PLAN_HIGHEST_TIER,
                         isFreePlan: '{{ user.tenant.billing.is_free_plan }}' == 'True',
                         trialStarted: '{{ user.tenant.billing.trial_started }}' == 'True',
+                        accountAdmin: '{{ account_admin }}',
                     },
                     timeLogging: {
                         enabled: '{{ user.tenant.timelogging_enabled }}' == 'True',

@@ -110,6 +110,7 @@ class LilyUserSerializer(WritableNestedSerializer):
             'timezone',
             'teams',
             'webhooks',
+            'is_admin',
         )
 
     def validate_picture(self, value):

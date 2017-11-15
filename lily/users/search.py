@@ -72,6 +72,7 @@ class LilyUserMapping(BaseMapping):
             'profile_picture': obj.profile_picture,
             'email': obj.email,
             'is_active': obj.is_active,
+            'is_admin': obj.is_admin,
             'phone_number': obj.phone_number,
             'internal_number': obj.internal_number,
             'teams': [{

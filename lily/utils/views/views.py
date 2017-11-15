@@ -235,6 +235,8 @@ class BaseView(LoginRequiredMixin, TemplateView):
     template_name = 'base.html'
 
     def get_context_data(self, **kwargs):
+        account_admin = self.request.user.tenant.admin.full_name
+
         kwargs = super(BaseView, self).get_context_data(**kwargs)
         kwargs.update({
             'INTERCOM_APP_ID': settings.INTERCOM_APP_ID,
@@ -242,6 +244,7 @@ class BaseView(LoginRequiredMixin, TemplateView):
             'BILLING_ENABLED': settings.BILLING_ENABLED,
             'SLACK_LILY_CLIENT_ID': settings.SLACK_LILY_CLIENT_ID,
             'DEBUG': settings.DEBUG,
+            'account_admin': account_admin,
         })
 
         if not has_required_tier(1):

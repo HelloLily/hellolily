@@ -19,28 +19,28 @@
             Importing your email
         </li>
         <collapsable-content>
-            <li ui-sref-active="active">
-                <a class="email-nav-item" ui-sref="base.email.list({labelId:'INBOX'})" ui-sref-opts="{reload:true}">
+            <li ui-sref-active="active" class="email-nav-item">
+                <a ui-sref="base.email.list({labelId:'INBOX'})" ui-sref-opts="{reload:true}">
                     Inbox
                 </a>
             </li>
-            <li ui-sref-active="active">
-                <a class="email-nav-item" ui-sref="base.email.list({labelId:'SENT'})" ui-sref-opts="{reload:true}">
+            <li ui-sref-active="active" class="email-nav-item">
+                <a ui-sref="base.email.list({labelId:'SENT'})" ui-sref-opts="{reload:true}">
                     Sent
                 </a>
             </li>
-            <li ui-sref-active="active">
-                <a class="email-nav-item" ui-sref="base.email.list({labelId:'DRAFT'})" ui-sref-opts="{reload:true}">
+            <li ui-sref-active="active" class="email-nav-item">
+                <a ui-sref="base.email.list({labelId:'DRAFT'})" ui-sref-opts="{reload:true}">
                     Draft
                 </a>
             </li>
-            <li ui-sref-active="active">
-                <a class="email-nav-item" ui-sref="base.email.list({labelId:'TRASH'})" ui-sref-opts="{reload:true}">
+            <li ui-sref-active="active" class="email-nav-item">
+                <a ui-sref="base.email.list({labelId:'TRASH'})" ui-sref-opts="{reload:true}">
                     Trash
                 </a>
             </li>
-            <li ui-sref-active="active">
-                <a class="email-nav-item" ui-sref="base.email.list({labelId:''})" ui-sref-opts="{reload:true}">All mail</a>
+            <li ui-sref-active="active" class="email-nav-item">
+                <a ui-sref="base.email.list({labelId:''})" ui-sref-opts="{reload:true}">All mail</a>
             </li>
         </collapsable-content>
     </collapsable>
@@ -91,8 +91,8 @@
                 </a>
             </li>
             <li ng-repeat="label in account.labels" ng-if="label.label_type != 0 && !label.parent" ui-sref-active="active" ng-include="'tree_item_renderer.html'"></li>
-            <li ui-sref-active="active">
-                <a class="email-nav-item" ui-sref="base.email.accountAllList({accountId: account.id})">All mail</a>
+            <li ui-sref-active="active" class="email-nav-item">
+                <a ui-sref="base.email.accountAllList({accountId: account.id})">All mail</a>
             </li>
         <collapsable-content>
     </ul>

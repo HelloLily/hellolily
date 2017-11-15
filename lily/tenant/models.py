@@ -32,6 +32,16 @@ class Tenant(models.Model):
     billing = models.ForeignKey(Billing, null=True, blank=True)
     billing_default = models.BooleanField(default=False)
 
+    @property
+    def admin(self):
+        admins = self.lilyuser_set.filter(groups__name='account_admin', tenant=self.pk)
+
+        # Prevent the app from breaking if the only account admin is a superuser.
+        if admins.filter(is_superuser=False).exists():
+            admins = admins.filter(is_superuser=False)
+
+        return admins.first()
+
     def __unicode__(self):
         if self.name:
             return self.name

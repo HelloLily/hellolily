@@ -1,10 +1,10 @@
 import anyjson
+import datetime
 import logging
 import re
 import requests
 import time
 import urllib
-from datetime import datetime, timedelta
 from hashlib import sha256
 
 from django.conf import settings
@@ -153,6 +153,11 @@ class DocumentEventList(APIView):
                     'extra_days': event.get('extra_days', 0),
                 }
 
+                if not data.get('extra_days'):
+                    data.update({
+                        'set_to_today': event.get('set_to_today', False)
+                    })
+
                 event_id = event.get('id')
 
                 deal_status = event.get('status')
@@ -211,12 +216,14 @@ class DocumentEventCatch(APIView):
             deal.next_step = event.next_step
 
         if event.extra_days:
-            deal.next_step_date = deal.next_step_date + timedelta(days=event.extra_days)
+            deal.next_step_date = deal.next_step_date + datetime.timedelta(days=event.extra_days)
+        elif event.set_to_today:
+            deal.next_step_date = datetime.date.today()
 
         if event.add_note:
             document_name = data.get('name')
             status_name = document_status.replace('document.', '')
-            date = datetime.now().strftime('%d/%m/%y %H:%M')
+            date = datetime.datetime.now().strftime('%d/%m/%y %H:%M')
 
             # Create a note based on the document status.
             content = _('%s was %s on %s') % (document_name, status_name, date)

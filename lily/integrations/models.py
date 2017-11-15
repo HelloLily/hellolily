@@ -51,6 +51,7 @@ class DocumentEvent(TenantMixin):
     status = models.ForeignKey(DealStatus, blank=True, null=True, on_delete=models.SET_NULL)
     next_step = models.ForeignKey(DealNextStep, blank=True, null=True, on_delete=models.SET_NULL)
     extra_days = models.PositiveIntegerField(blank=True, null=True)
+    set_to_today = models.BooleanField(default=False)
     add_note = models.BooleanField(default=False)
 
     class Meta:

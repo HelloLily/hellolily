@@ -143,5 +143,7 @@ class CaseTypeViewSet(viewsets.ModelViewSet):
 
         if is_archived in ['True', 'False']:
             queryset = queryset.filter(is_archived=(is_archived == 'True'))
+        else:
+            queryset = queryset.order_by('is_archived')
 
         return queryset

@@ -68,7 +68,7 @@ function UnassignedCasesController($http, $scope, $state, $timeout, Case, HLFilt
 
             vm.filterSpecialList = filterSpecialList;
 
-            Case.getCaseTypes(response =>  {
+            Case.getCaseTypes({is_archived: 'All'}).$promise.then(response =>  {
                 const filterList = [];
 
                 response.results.forEach(caseType => {
@@ -77,6 +77,7 @@ function UnassignedCasesController($http, $scope, $state, $timeout, Case, HLFilt
                         value: `type.id:${caseType.id}`,
                         selected: false,
                         isSpecialFilter: true,
+                        isArchived: caseType.is_archived,
                     });
                 });
 

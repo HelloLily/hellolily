@@ -19,12 +19,12 @@
 
             <li class="hl-dropdown-item" ng-if="vm.viewModel.filterList.length && filter.isSpecialFilter" ng-repeat="filter in vm.viewModel.filterList" ng-click="vm.toggleFilter(filter)">
                 <div class="hl-checkbox" ng-class="{'checked': filter.selected}"></div>
-                {{ filter.name }}
+                {{ filter.name }} <archived-indicator filter="filter"></archived-indicator>
             </li>
 
             <li class="hl-dropdown-item" ng-if="vm.viewModel.filterSpecialList && !vm.hideSpecial" ng-repeat="filter in vm.viewModel.filterSpecialList" ng-click="vm.toggleFilter(filter)">
                 <div class="hl-checkbox" ng-class="{'checked': filter.selected}"></div>
-                {{ filter.name }}
+                {{ filter.name }} <archived-indicator filter="filter"></archived-indicator>
             </li>
         </ul>
     </li>
@@ -51,7 +51,7 @@
 
             <li class="hl-dropdown-item" ng-repeat="filter in vm.viewModel.filterSpecialList" ng-click="vm.toggleFilter(filter)">
                 <div class="hl-checkbox" ng-class="{'checked': filter.selected}"></div>
-                {{ filter.name }}
+                {{ filter.name }} <archived-indicator filter="filter"></archived-indicator>
             </li>
         </ul>
     </li>

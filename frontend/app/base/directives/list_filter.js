@@ -20,7 +20,7 @@ function listFilter() {
 
 ListFilterController.$inject = ['$filter', '$timeout', 'HLFilters'];
 function ListFilterController($filter, $timeout, HLFilters) {
-    var vm = this;
+    const vm = this;
 
     vm.toggleFilter = toggleFilter;
     vm.setAll = setAll;
@@ -35,7 +35,7 @@ function ListFilterController($filter, $timeout, HLFilters) {
     /////
 
     function activate() {
-        var update = false;
+        let update = false;
 
         if (vm.viewModel.storedFilterList) {
             vm.viewModel.filterList = vm.viewModel.storedFilterList;
@@ -61,13 +61,13 @@ function ListFilterController($filter, $timeout, HLFilters) {
     }
 
     function setAll(value) {
-        var newValue;
-
-        var filterList = vm.viewModel.filterList;
+        let filterList = vm.viewModel.filterList;
 
         if (vm.viewModel.filterSpecialList && !vm.hideSpecial) {
             filterList = vm.viewModel.filterSpecialList;
         }
+
+        let newValue;
 
         if (typeof value !== 'undefined') {
             // Set all items to the given value.
@@ -78,7 +78,7 @@ function ListFilterController($filter, $timeout, HLFilters) {
             newValue = vm.allSelected;
         }
 
-        angular.forEach(filterList, function(item) {
+        angular.forEach(filterList, item => {
             item.selected = newValue;
         });
 
@@ -105,7 +105,7 @@ function ListFilterController($filter, $timeout, HLFilters) {
 
         vm.allSelected = true;
 
-        angular.forEach(filterList, function(item) {
+        angular.forEach(filterList, item => {
             if (!item.selected) {
                 vm.allSelected = false;
             }
@@ -136,9 +136,7 @@ function ListFilterController($filter, $timeout, HLFilters) {
 
         if (selectedItems && selectedItems.length) {
             if (selectedItems.length < 3) {
-                label = selectedItems.map((item) => {
-                    return item.name;
-                }).join(' + ');
+                label = selectedItems.map(item => item.name).join(' + ');
             } else {
                 label = selectedItems.length + ' ' + vm.filterLabel + ' selected';
             }

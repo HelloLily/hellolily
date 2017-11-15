@@ -196,7 +196,7 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
      * @returns filterSpecialList (object): object containing the filter list.
      */
     function _getFilterSpecialList() {
-        Case.getCaseTypes(caseTypes => {
+        Case.getCaseTypes({is_archived: 'All'}).$promise.then(caseTypes => {
             const filterList = [];
 
             // Get a list with all case types and add each one as a filter.
@@ -206,6 +206,7 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
                     value: 'type.id:' + caseType.id,
                     selected: false,
                     isSpecialFilter: true,
+                    isArchived: caseType.is_archived,
                 });
             });
 

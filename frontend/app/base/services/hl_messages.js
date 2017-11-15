@@ -142,6 +142,7 @@ function HLMessages() {
             emailAccountPublicTooltip: 'All colleagues in %(company)s',
             featureUnavailable: 'This feature is unavailable for your current plan. Click here to go to the billing page.',
             limitReached: 'You\'ve reached the limit of your Personal plan. Please upgrade it to add more %(model)s.',
+            filterArchived: 'This item has been archived, but can still be filtered on',
         },
     };
 }

@@ -6,7 +6,6 @@ request.
 
 import json
 import uuid
-from collections import defaultdict
 from urllib import urlencode
 
 import requests
@@ -37,7 +36,7 @@ def ddict2dict(dd):
 class HttpRequest(object):
     """Encapsulates a single HTTP request."""
 
-    def __init__(self, uri, method='GET', payload=None, headers=None, parameters=None, request_id=None):
+    def __init__(self, uri, headers, method='GET', payload=None, parameters=None, request_id=None):
         """
         Constructor for a HttpRequest.
         :param uri: uri to send the request to.
@@ -50,7 +49,7 @@ class HttpRequest(object):
         self.uri = uri
         self.method = method
         self.payload = payload
-        self.headers = headers or defaultdict(list)  # TODO: change parameter headers=None to headers
+        self.headers = headers
         self.parameters = parameters
         self.request_id = request_id or str(uuid.uuid4())
 
@@ -110,7 +109,7 @@ class HttpRequest(object):
 class BatchHttpRequest(object):
     """Batches multiple HttpRequest objects into a single HTTP request."""
 
-    def __init__(self, batch_uri, headers=None, continue_on_error=False):
+    def __init__(self, batch_uri, headers, continue_on_error=False):
         """
         Constructor for a BatchHttpRequest.
 
@@ -129,7 +128,7 @@ class BatchHttpRequest(object):
         self._request_ids = []  # List of request ids, in the order in which they were added.
         self._responses = []  # A map from request id to (httplib2.Response, content) response pairs.
 
-        self.headers = headers or defaultdict(list)
+        self.headers = headers
         self.headers.update({
             'Content-Type': 'multipart/mixed; boundary=batch_{0}'.format(self.batch_id),
         })

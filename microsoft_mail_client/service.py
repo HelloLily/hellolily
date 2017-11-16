@@ -15,7 +15,6 @@ from microsoft_mail_client.errors import (
 # TODO: On email threading / conversation:
 # stackoverflow.com/questions/41161515/best-way-to-achieve-conversation-view-for-mail-folder-using-outlook-rest-api
 # TODO: On push notifications: https://docs.microsoft.com/en-us/outlook/rest/webhooks
-# TODO: On archiving mail: https://stackoverflow.com/questions/41065083/outlook-rest-api-and-mail-archive-action
 # TODO: :param refere to type Microsoft.OutlookServices.xyz
 # TODO: provide example paramaters (like update_auto_reply)
 # TODO: verify that json returned by batch structered the same as none batch response.
@@ -84,7 +83,7 @@ class Resource(object):
 
         url = self._base_url.format('')  # Provide empty string, so placeholder isn't part of the url anymore.
 
-        return HttpRequest(uri=url, method='GET', headers=headers, parameters=query_parameters)
+        return HttpRequest(uri=url, headers=headers, method='GET', parameters=query_parameters)
 
     def get_messages(self, folder_id=None, allow_unsafe=False, body_content_type=None, query_parameters=None):
         """
@@ -111,7 +110,7 @@ class Resource(object):
         if folder_id:
             url = self._base_url.format('/MailFolders/{0}/messages').format(folder_id)
 
-        return HttpRequest(uri=url, method='GET', headers=headers, parameters=query_parameters)
+        return HttpRequest(uri=url, headers=headers, method='GET', parameters=query_parameters)
 
     def get_message(self, message_id, allow_unsafe=False, body_content_type=None, query_parameters=None):
         """
@@ -138,7 +137,7 @@ class Resource(object):
 
         url = self._base_url.format('/messages/{0}').format(message_id)
 
-        return HttpRequest(uri=url, method='GET', headers=headers, parameters=query_parameters)
+        return HttpRequest(uri=url, headers=headers, method='GET', parameters=query_parameters)
 
     def synchronize_messages(self, folder_id, delta_token=None, skip_token=None, max_page_size=None,
                              query_parameters=None):
@@ -187,11 +186,11 @@ class Resource(object):
 
         url = self._base_url.format('/MailFolders/{0}/messages').format(folder_id)
 
-        return HttpRequest(uri=url, method='GET', headers=headers, parameters=query_parameters)
+        return HttpRequest(uri=url, headers=headers, method='GET', parameters=query_parameters)
 
     def send_message(self, message, save_to_sent_items=True):
         """
-        Send an email message.
+        Send a message.
 
         :param message: dict.
         :param save_to_sent_items: Indicates whether to save the message in Sent Items.
@@ -204,12 +203,12 @@ class Resource(object):
         headers.update(self._authorization_headers)
 
         if not save_to_sent_items:
-            # Only add this field to the message if user don't want to save it to the sent items folder.
+            # Only add this field to the message if user doesn't want to save it to the sent items folder.
             message['SaveToSentItems'] = save_to_sent_items
 
         url = self._base_url.format('/sendmail')
 
-        return HttpRequest(uri=url, method='POST', payload=message, headers=headers)
+        return HttpRequest(uri=url, headers=headers, method='POST', payload=message)
 
     def draft_message(self, message=None, folder_id=None):
         """
@@ -229,11 +228,13 @@ class Resource(object):
         if folder_id:
             url = self._base_url.format('/MailFolders/{0}/messages').format(folder_id)
 
-        return HttpRequest(uri=url, method='POST', payload=message, headers=headers)
+        return HttpRequest(uri=url, headers=headers, method='POST', payload=message)
 
     def sent_draft_message(self, message_id):
         """
-        Send a new message draft. The message is then saved in the Sent Items folder.
+        Send a message draft. The message is then saved in the Sent Items folder.
+
+        SaveToSentItems header is accepted but not honored.
 
         :param message_id:
         :return: HttpRequest object.
@@ -246,7 +247,7 @@ class Resource(object):
 
         url = self._base_url.format('/messages/{0}/send').format(message_id)
 
-        return HttpRequest(uri=url, method='POST', headers=headers)
+        return HttpRequest(uri=url, headers=headers, method='POST')
 
     def sent_reply_message(self, message_id, message, reply_all=False):
         """
@@ -272,7 +273,7 @@ class Resource(object):
         if reply_all:
             url = self._base_url.format('/messages/{0}/replyall').format(message_id)
 
-        return HttpRequest(uri=url, method='POST', headers=headers, payload=message)
+        return HttpRequest(uri=url, headers=headers, method='POST', payload=message)
 
     def sent_reply_all_message(self, message_id, message):
         """
@@ -313,7 +314,7 @@ class Resource(object):
         if reply_all:
             url = self._base_url.format('/messages/{0}/createreplyall').format(message_id)
 
-        return HttpRequest(uri=url, method='POST', headers=headers, payload=message)
+        return HttpRequest(uri=url, headers=headers, method='POST', payload=message)
 
     def draft_reply_all_message(self, message_id, message=None):
         """
@@ -358,7 +359,7 @@ class Resource(object):
             'ToRecipients': recipients,
         }
 
-        return HttpRequest(uri=url, method='POST', headers=headers, payload=payload)
+        return HttpRequest(uri=url, headers=headers, method='POST', payload=payload)
 
     def draft_forward_message(self, message_id, message=None):
         """
@@ -382,7 +383,7 @@ class Resource(object):
 
         url = self._base_url.format('/messages/{0}/createforward').format(message_id)
 
-        return HttpRequest(uri=url, method='POST', headers=headers, payload=message)
+        return HttpRequest(uri=url, headers=headers, method='POST', payload=message)
 
     def update_message(self, message_id, properties):
         """
@@ -407,7 +408,7 @@ class Resource(object):
 
         url = self._base_url.format('/messages/{0}').format(message_id)
 
-        return HttpRequest(uri=url, method='PATCH', headers=headers, payload=properties)
+        return HttpRequest(uri=url, headers=headers, method='PATCH', payload=properties)
 
     def delete_message(self, message_id):
         """
@@ -424,7 +425,7 @@ class Resource(object):
 
         url = self._base_url.format('/messages/{0}').format(message_id)
 
-        return HttpRequest(uri=url, method='DELETE', headers=headers)
+        return HttpRequest(uri=url, headers=headers, method='DELETE')
 
     def move_message(self, message_id, destination_folder_id):
         """
@@ -450,7 +451,7 @@ class Resource(object):
             'DestinationId': destination_folder_id
         }
 
-        return HttpRequest(uri=url, method='POST', headers=headers, payload=payload)
+        return HttpRequest(uri=url, headers=headers, method='POST', payload=payload)
 
     def copy_message(self, message_id, destination_folder_id):
         """
@@ -475,7 +476,7 @@ class Resource(object):
             'DestinationId': destination_folder_id
         }
 
-        return HttpRequest(uri=url, method='POST', headers=headers, payload=payload)
+        return HttpRequest(uri=url, headers=headers, method='POST', payload=payload)
 
     def update_message_classification(self, message_id, classification, user_id=None):
         """
@@ -505,7 +506,7 @@ class Resource(object):
             'InferenceClassification': classification.lower()
         }
 
-        return HttpRequest(uri=url, method='PATCH', headers=headers, payload=payload)
+        return HttpRequest(uri=url, headers=headers, method='PATCH', payload=payload)
 
     def override(self):
         """
@@ -556,7 +557,7 @@ class Resource(object):
         if outlook_time_zone:
             headers['Prefer'].append('outlook.timezone')
 
-        return HttpRequest(uri=url, method='GET', headers=headers)
+        return HttpRequest(uri=url, headers=headers, method='GET')
 
     def get_auto_reply(self, outlook_time_zone=False):
         """
@@ -585,7 +586,7 @@ class Resource(object):
 
         url = self._base_url.format('/MailboxSettings')
 
-        return HttpRequest(uri=url, method='PATCH', headers=headers, payload=settings)
+        return HttpRequest(uri=url, headers=headers, method='PATCH', payload=settings)
 
     def get_attachments(self, message_id, attachment_id=None, query_parameters=None):
         """
@@ -606,7 +607,7 @@ class Resource(object):
         if attachment_id:
             url = self._base_url.format('/messages/{0}/attachments/{1}').format(message_id, attachment_id)
 
-        return HttpRequest(uri=url, method='GET', headers=headers, parameters=query_parameters)
+        return HttpRequest(uri=url, headers=headers, method='GET', parameters=query_parameters)
 
     def get_attachment(self, message_id, query_parameters=None):
         """
@@ -656,7 +657,7 @@ class Resource(object):
 
         url = self._base_url.format('/messages/{0}/attachments').format(message_id)
 
-        return HttpRequest(uri=url, method='POST', headers=headers, payload=payload)
+        return HttpRequest(uri=url, headers=headers, method='POST', payload=payload)
 
     def create_item_attachment(self, message_id, item, name, properties=None):
         """
@@ -698,7 +699,7 @@ class Resource(object):
 
         url = self._base_url.format('/messages/{0}/attachments').format(message_id)
 
-        return HttpRequest(uri=url, method='POST', headers=headers, payload=payload)
+        return HttpRequest(uri=url, headers=headers, method='POST', payload=payload)
 
     def create_reference_attachment(self, message_id, url, name, properties=None):
         """
@@ -742,7 +743,7 @@ class Resource(object):
 
         url = self._base_url.format('/messages/{0}/attachments').format(message_id)
 
-        return HttpRequest(uri=url, method='POST', headers=headers, payload=payload)
+        return HttpRequest(uri=url, headers=headers, method='POST', payload=payload)
 
     def delete_attachment(self, message_id, attachment_id):
         """
@@ -763,7 +764,7 @@ class Resource(object):
 
         url = self._base_url.format('/messages/{0}/attachments/{1}').format(message_id, attachment_id)
 
-        return HttpRequest(uri=url, method='DELETE', headers=headers)
+        return HttpRequest(uri=url, headers=headers, method='DELETE')
 
     def get_folders(self, folder_id=None, query_parameters=None):
         """
@@ -780,7 +781,7 @@ class Resource(object):
         if folder_id:
             url = self._base_url.format('/MailFolders/{0}/childfolders').format(folder_id)
 
-        return HttpRequest(uri=url, method='GET', headers=headers, parameters=query_parameters)
+        return HttpRequest(uri=url, headers=headers, method='GET', parameters=query_parameters)
 
     def get_folder(self, folder_id, query_parameters=None):
         """
@@ -798,7 +799,7 @@ class Resource(object):
 
         url = self._base_url.format('/MailFolders/{0}').format(folder_id)
 
-        return HttpRequest(uri=url, method='GET', headers=headers, parameters=query_parameters)
+        return HttpRequest(uri=url, headers=headers, method='GET', parameters=query_parameters)
 
     def synchronize_folders(self):
         # TOOD: unclear documenation: how to pass requested category?
@@ -828,7 +829,7 @@ class Resource(object):
 
         url = self._base_url.format('/MailFolders/{0}/childfolders').format(folder_id)
 
-        return HttpRequest(uri=url, method='POST', headers=self._authorization_headers, payload=payload)
+        return HttpRequest(uri=url, headers=self._authorization_headers, method='POST', payload=payload)
 
     def update_folder(self, folder_id, name):
         """
@@ -853,7 +854,7 @@ class Resource(object):
 
         url = self._base_url.format('/MailFolders/{0}').format(folder_id)
 
-        return HttpRequest(uri=url, method='PATCH', headers=headers, payload=payload)
+        return HttpRequest(uri=url, headers=headers, method='PATCH', payload=payload)
 
     def delete_folder(self, folder_id):
         """
@@ -870,7 +871,7 @@ class Resource(object):
 
         url = self._base_url.format('/MailFolders/{0}').format(folder_id)
 
-        return HttpRequest(uri=url, method='DELETE', headers=headers)
+        return HttpRequest(uri=url, headers=headers, method='DELETE')
 
     def move_folder(self, folder_id, destination_folder_id):
         """
@@ -895,7 +896,7 @@ class Resource(object):
 
         url = self._base_url.format('/MailFolders/{0}/move').format(folder_id)
 
-        return HttpRequest(uri=url, method='POST', headers=headers, payload=payload)
+        return HttpRequest(uri=url, headers=headers, method='POST', payload=payload)
 
     def copy_folder(self, folder_id, destination_folder_id):
         """
@@ -920,7 +921,7 @@ class Resource(object):
 
         url = self._base_url.format('/MailFolders/{0}/copy').format(folder_id)
 
-        return HttpRequest(uri=url, method='POST', headers=headers, payload=payload)
+        return HttpRequest(uri=url, headers=headers, method='POST', payload=payload)
 
     def new_batch_http_request(self, continue_on_error=True):
         """

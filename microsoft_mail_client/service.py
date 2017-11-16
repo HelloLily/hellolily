@@ -10,7 +10,7 @@ from microsoft_mail_client.errors import (
     InvalidSettingsOption, NoFileName, NoFile, InvalidWritableFileProperty, InvalidWritableItemProperty, NoItem,
     InvalidWritableMessageProperty, NoUrl, InvalidWritableReferenceProperty, NoItemName, NoReferenceName,
     NoAttachmentId, NoName, NoDestinationFolderId,
-    NoMailboxSettings, NoProperties)
+    NoMailboxSettings, NoProperties, NoValidCredentials)
 
 # TODO: On email threading / conversation:
 # stackoverflow.com/questions/41161515/best-way-to-achieve-conversation-view-for-mail-folder-using-outlook-rest-api
@@ -22,7 +22,7 @@ from microsoft_mail_client.errors import (
 # TODO: verify python 2/3 compatibility
 
 
-def build(version, user_id, credentials=None):
+def build(version, user_id, credentials):
     """
     Returns a Resource object with methods for interacting with the Microsoft 365 email API.
 
@@ -33,6 +33,9 @@ def build(version, user_id, credentials=None):
     """
     if version not in SUPPORTED_API_VERSIONS:
         raise UnknownApiVersion("Version: {0}".format(version))
+
+    if not credentials:
+        raise NoValidCredentials()
 
     return Resource(version, user_id, credentials.access_token)
 
@@ -50,8 +53,6 @@ class Resource(object):
         :param user_id: 'me' or an email address.
         :param access_token: oauth access_token.
         """
-        # TODO: Handle credentials=None or don't allow.
-
         self._base_url = 'https://outlook.office.com/api/{0}/users/{1}'.format(version, user_id)
         # self._base_url = "https://outlook.office.com/api/{0}/users/'{1}'".format(version, user_email)
         # self._base_url = 'https://outlook.office365.com/api/{0}'.format(version)  # Larger attachment size limit.
@@ -62,7 +63,7 @@ class Resource(object):
         self._authorization_headers = defaultdict(list)
         self._authorization_headers.update({
             'Authorization': 'Bearer {0}'.format(access_token),
-            'X-AnchorMailbox': user_id,  # TODO: verify that call succeeds when user_id=='me'
+            'X-AnchorMailbox': user_id,
         })
 
         self._authorization_batch_headers = defaultdict(list)

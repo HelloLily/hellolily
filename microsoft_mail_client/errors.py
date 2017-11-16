@@ -141,3 +141,8 @@ class HttpError(Error):
 
     def __repr__(self):
         return self.reason
+
+
+class NoValidCredentials(Error):
+    """No valid credentials provided."""
+    pass

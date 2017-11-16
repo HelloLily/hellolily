@@ -18,7 +18,6 @@ from email_wrapper_lib.providers.exceptions import IllegalLabelException
 from email_wrapper_lib.providers.google.parsers import (
     parse_response, parse_message_list, parse_message, parse_deletion
 )
-from email_wrapper_lib.models.models import EmailDraftToEmailRecipient, EmailDraftAttachment
 from lily.settings import settings
 
 from .base import GoogleResource
@@ -359,6 +358,7 @@ class GoogleMessagesResource(GoogleResource):
         :type  draft: EmailDraft
         :param draft:
         """
+        from email_wrapper_lib.models.models import EmailDraftToEmailRecipient, EmailDraftAttachment  # TODO: fix import.
         #TODO: Email template attachments?
 
         email_message = SafeMIMEMultipart('related')

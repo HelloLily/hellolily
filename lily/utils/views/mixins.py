@@ -2,8 +2,7 @@ import operator
 from collections import OrderedDict
 
 import anyjson
-from django.core.urlresolvers import reverse
-from django.contrib.auth.decorators import login_required
+from django.urls import reverse
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import Q, FieldDoesNotExist
@@ -16,18 +15,6 @@ import unicodecsv
 from lily.tags.models import Tag
 
 from ..functions import is_ajax
-
-
-class LoginRequiredMixin(object):
-    """
-    Use this mixin if you want that the view is only accessed when a user is logged in.
-
-    This should be the first mixin as a superclass.
-    """
-
-    @classmethod
-    def as_view(cls, *args, **kwargs):
-        return login_required(super(LoginRequiredMixin, cls).as_view(*args, **kwargs))
 
 
 class FilterQuerysetMixin(object):

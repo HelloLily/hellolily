@@ -4,8 +4,7 @@ from datetime import timedelta
 from celery.schedules import crontab
 from kombu import Queue
 
-from .settings import DEBUG, TIME_ZONE, REDIS_URL
-
+from .settings import DEBUG, TIME_ZONE, REDIS_URL, TESTING
 
 # The broker env var name to use for fetching the broker url.
 BROKER_ENV = os.environ.get('BROKER_ENV', 'DEV_BROKER')
@@ -27,7 +26,7 @@ CELERY_ANNOTATIONS = {
 CELERY_DEFAULT_QUEUE = 'email_async_tasks'
 CELERY_ENABLE_UTC = True
 CELERY_RESULT_SERIALIZER = 'json'
-CELERY_SEND_TASK_ERROR_EMAILS = not DEBUG
+CELERY_SEND_TASK_ERROR_EMAILS = not any([DEBUG, TESTING])
 # CELERY_SEND_TASK_SENT_EVENT = True
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_BACKEND = REDIS_URL

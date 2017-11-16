@@ -13,18 +13,20 @@ from django.apps import apps
 from django.db.models.query_utils import Q
 from django.conf import settings
 from django.core.files.storage import default_storage
-from django.core.urlresolvers import reverse
-from django.template import engines, Context, TemplateSyntaxError
+from django.urls import reverse
+from django.template import Context
 from django.template.base import VARIABLE_TAG_START, VARIABLE_TAG_END
 from django.template.loader_tags import BlockNode, ExtendsNode
 from django.utils.translation import ugettext_lazy as _
+
+from jinja2.sandbox import SandboxedEnvironment
+from jinja2 import TemplateSyntaxError
 
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
 from lily.search.scan_search import ModelMappings
 from lily.search.indexing import update_in_index
 
-from .decorators import get_safe_template
 from .models.models import EmailAttachment, EmailMessage, EmailAccount, SharedEmailConfig
 from .sanitize import sanitize_html_email
 
@@ -134,13 +136,10 @@ class TemplateParser(object):
         self.valid_blocks = []
 
         text = self._escape_text(text.encode('utf-8')).strip()
-        tags_whitelist = [
-            'block', 'now', 'templatetag'
-        ]
-        safe_get_template_from_string = get_safe_template(tags=tags_whitelist)(engines['django'].from_string)
+        template_environment = SandboxedEnvironment()
 
         try:
-            self.template = safe_get_template_from_string(text)
+            self.template = template_environment.from_string(text)
             self.error = None
         except TemplateSyntaxError as e:
             self.template = None

@@ -165,7 +165,7 @@ class RelatedSerializerMixin(ValidateEverythingSimultaneouslyMixin):
         instance = root.instance
         content_type = ContentType.objects.get_for_model(model_cls)
 
-        generic_related_fields = [field.name for field in model_cls._meta.virtual_fields]
+        generic_related_fields = [field.name for field in model_cls._meta.private_fields]
 
         if self.parent.field_name in generic_related_fields:
             if model_cls in ['TimeLog', 'Note']:

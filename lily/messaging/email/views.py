@@ -6,16 +6,16 @@ import mimetypes
 import re
 import urllib
 
-from braces.views import StaticContextMixin
 from bs4 import BeautifulSoup
 from base64 import b64encode, b64decode
 from celery.states import FAILURE
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.files.storage import default_storage
-from django.core.servers.basehttp import FileWrapper
-from django.core.urlresolvers import reverse
+from wsgiref.util import FileWrapper
+from django.urls import reverse
 from django.http import HttpResponseRedirect, HttpResponseBadRequest, Http404, HttpResponse
 from django.template import Context, Template
 from django.utils.safestring import mark_safe
@@ -35,7 +35,7 @@ from lily.integrations.credentials import get_credentials
 from lily.tenant.middleware import get_current_user
 from lily.users.models import UserInfo
 from lily.utils.functions import is_ajax, post_intercom_event, send_get_request, send_post_request
-from lily.utils.views.mixins import LoginRequiredMixin, FormActionMixin
+from lily.utils.views.mixins import FormActionMixin
 
 from .forms import (ComposeEmailForm, CreateUpdateEmailTemplateForm, CreateUpdateTemplateVariableForm,
                     EmailAccountCreateUpdateForm, EmailTemplateFileForm)
@@ -153,12 +153,11 @@ class OAuth2Callback(LoginRequiredMixin, View):
             return HttpResponseRedirect('/#/preferences/emailaccounts/edit/%s' % account.pk)
 
 
-class EmailAccountUpdateView(LoginRequiredMixin, SuccessMessageMixin, FormActionMixin, StaticContextMixin, UpdateView):
+class EmailAccountUpdateView(LoginRequiredMixin, SuccessMessageMixin, FormActionMixin, UpdateView):
     template_name = 'email/emailaccount_form.html'
     model = EmailAccount
     form_class = EmailAccountCreateUpdateForm
     success_message = _('%(label)s has been updated.')
-    static_context = {'form_prevent_autofill': True}
 
     def get_context_data(self, **kwargs):
         """
@@ -167,6 +166,7 @@ class EmailAccountUpdateView(LoginRequiredMixin, SuccessMessageMixin, FormAction
         kwargs = super(EmailAccountUpdateView, self).get_context_data(**kwargs)
         kwargs.update({
             'back_url': self.get_success_url(),
+            'form_prevent_autofill': True,
         })
 
         return kwargs
@@ -901,10 +901,9 @@ class UpdateEmailTemplateView(CreateUpdateEmailTemplateMixin, UpdateView):
         return response
 
 
-class EmailTemplateDeleteView(LoginRequiredMixin, FormActionMixin, StaticContextMixin, DeleteView):
+class EmailTemplateDeleteView(LoginRequiredMixin, FormActionMixin, DeleteView):
     template_name = 'confirm_delete.html'
     model = EmailTemplate
-    static_context = {'form_object_name': _('email template')}
 
     def delete(self, request, *args, **kwargs):
         response = super(EmailTemplateDeleteView, self).delete(request, *args, **kwargs)

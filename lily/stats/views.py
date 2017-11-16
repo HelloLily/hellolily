@@ -1,10 +1,10 @@
 import anyjson
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import connection
 from django.http import HttpResponse
 from django.views.generic import View
 
 from lily.deals.models import DealStatus
-from lily.utils.views import LoginRequiredMixin
 
 
 def dictfetchall(cursor):

@@ -101,7 +101,7 @@ function User($resource, CacheFactory) {
             },
             skipEmailAccountSetup: {
                 method: 'PATCH',
-                url: '/api/users/skip',
+                url: '/api/users/skip/',
             },
         }
     );

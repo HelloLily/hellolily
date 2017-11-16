@@ -4,7 +4,8 @@ import urllib
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.models import UserManager, AbstractBaseUser, PermissionsMixin, Group
+from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.models import UserManager, PermissionsMixin, Group
 from django.contrib.auth.signals import user_logged_out
 from django.core.mail import send_mail
 from django.db import models
@@ -274,6 +275,5 @@ def logged_out_callback(sender, **kwargs):
     """
     Set a confirmation message in the request that the user is logged out successfully.
     """
-    if not settings.DEBUG:
-        request = kwargs['request']
-        messages.info(request, _('You are now logged out.'))
+    request = kwargs['request']
+    messages.info(request, _('You are now logged out.'))

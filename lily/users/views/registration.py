@@ -8,7 +8,7 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.auth.models import Group
 from django.contrib.sites.models import Site
 from django.core.management import call_command
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.views.generic import TemplateView, FormView
@@ -60,7 +60,7 @@ class RegistrationView(FormView):
     form_class = TenantRegistrationForm
 
     def get(self, request, *args, **kwargs):
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             return redirect(reverse_lazy('base_view'))
 
         # Show a different template when registration is closed.

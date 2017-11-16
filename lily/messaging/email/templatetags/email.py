@@ -8,7 +8,7 @@ from dateutil.tz import gettz, tzutc
 from dateutil.parser import parse
 from django import template
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from lily.messaging.email.utils import INBOX, SENT, DRAFTS, TRASH, SPAM
 

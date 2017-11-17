@@ -423,6 +423,12 @@ LOGGING = {
             'level': 'WARNING',
             'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
         },
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': True,
+        },
         'null': {
             'class': 'logging.NullHandler',
         },
@@ -458,7 +464,7 @@ else:
         'loggers': {
             '': {  # Everything not specified below.
                 'level': 'ERROR',
-                'handlers': ['sentry', ],
+                'handlers': ['sentry', 'mail_admins', ],
             },
             'django.security': {  # More logging specifically for security related stuff.
                 'level': 'INFO',

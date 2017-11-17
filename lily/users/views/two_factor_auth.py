@@ -46,7 +46,7 @@ class TwoFactorLoginView(LoginView):
         if request.method == 'GET':
             if request.user.is_authenticated and request.path == settings.LOGIN_URL:
                 # Ensure the user-originating redirection url is safe.
-                if not is_safe_url(url=redirect_to, host=request.get_host()):
+                if not is_safe_url(url=redirect_to, allowed_hosts={request.get_host()}):
                     redirect_to = reverse('base_view')
 
                 return HttpResponseRedirect(redirect_to)

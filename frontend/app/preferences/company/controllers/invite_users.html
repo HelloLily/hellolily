@@ -63,9 +63,9 @@
                             <button type="button" class="hl-primary-btn-blue no-margin" ng-click="vm.sendInvites(inviteForm)" uib-tooltip="{{ messages.tooltips.modEnter.title }}">
                                 <i class="fa fa-check"></i> Send invite(s)
                             </button>
-                            <button type="button" class="hl-primary-btn" ng-click="vm.cancelSendInvites()">
+                            <a ui-sref="base.preferences.company.users" class="hl-primary-btn" ng-click="vm.cancel()">
                                 Cancel
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>

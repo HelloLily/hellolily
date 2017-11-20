@@ -1,12 +1,12 @@
 <div class="widget-heading">
     <div class="widget-title">
-        <ul class="hl-button-group">
-            <li class="hl-button-group-btn">
-                <a class="hl-button-group-btn-link" ui-sref="base.preferences.company.users.inviteUser">
-                    <i class="fa fa-plus"></i> User
-                </a>
-            </li>
-        </ul>
+        <a class="hl-primary-btn" ui-sref="base.preferences.company.users.inviteUser">
+            <i class="fa fa-plus"></i> User
+        </a>
+
+        <button class="hl-primary-btn" ng-click="newTeamForm.$show()" ng-if="currentUser.isAdmin">
+            <i class="fa fa-plus"></i> Team
+        </button>
 
         <ul class="hl-button-group">
             <li class="hl-button-group-btn">
@@ -18,6 +18,7 @@
 
                 <ul class="hl-dropdown js-hold-on-click">
                     <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.full_name">Name</checkbox></li>
+                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.teams">Team(s)</checkbox></li>
                     <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.email">Email</checkbox></li>
                     <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.phone_number">Phone number</checkbox></li>
                     <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.internal_number">Internal number</checkbox></li>
@@ -63,11 +64,14 @@
 </div>
 
 <div class="widget-body">
-    <table class="hl-table">
+    <table class="hl-table user-list">
         <thead class="flip-content">
             <tr>
                 <th class="hl-table-column" ng-show="vm.table.visibility.full_name" sort-column="full_name" table="vm.table">
                     <span class="text-nowrap">Name</span>
+                </th>
+                <th class="hl-table-column" ng-show="vm.table.visibility.teams" sort-column="teams.name" table="vm.table">
+                    <span class="text-nowrap">Team(s)</span>
                 </th>
                 <th class="hl-table-column" ng-show="vm.table.visibility.email" sort-column="email" table="vm.table">
                     <span class="text-nowrap">Email</span>
@@ -87,6 +91,11 @@
             </tr>
         </thead>
 
+        <tr ng-show="newTeamForm.$visible">
+            <td colspan="7" class="list-inline-new-item">
+                <span editable-text="vm.newTeam.name" e-form="newTeamForm" onbeforesave="vm.addTeam()" blur="ignore"></span>
+            </td>
+        </tr>
         <tbody>
             <tr ng-repeat="invite in vm.invites" ng-if="vm.table.statusFilter === 2 || vm.table.statusFilter === undefined">
                 <td class="hl-table-column" ng-show="vm.table.visibility.full_name">
@@ -111,6 +120,9 @@
                 <td class="hl-table-column" ng-show="vm.table.visibility.full_name">
                     <span ng-if="user.id != currentUser.id">{{ user.full_name }}</span>
                     <span ng-if="user.id == currentUser.id">{{ user.full_name }} (you)</span>
+                </td>
+                <td class="hl-table-column" ng-show="vm.table.visibility.teams">
+                    <div ng-repeat="team in user.teams">{{ team.name }}</div>
                 </td>
                 <td class="hl-table-column" ng-show="vm.table.visibility.email">
                     {{ user.email }}

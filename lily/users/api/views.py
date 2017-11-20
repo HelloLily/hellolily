@@ -24,6 +24,7 @@ from two_factor.utils import default_device, backup_phones
 from user_sessions.models import Session
 from templated_email import send_templated_mail
 
+from lily.utils.api.permissions import IsAccountAdmin
 from lily.utils.functions import post_intercom_event
 
 from lily.utils.functions import has_required_tier
@@ -44,7 +45,7 @@ class TeamFilter(FilterSet):
         fields = ['name', ]
 
 
-class TeamViewSet(viewsets.ReadOnlyModelViewSet):
+class TeamViewSet(viewsets.ModelViewSet):
     """
     List all teams assigned to the current user.
     """
@@ -52,6 +53,8 @@ class TeamViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = TeamSerializer
     filter_class = TeamFilter
     queryset = Team.objects
+    permission_classes = (IsAccountAdmin,)
+    unrestricted_methods = ['GET']
 
     def get_queryset(self):
         queryset = self.model.objects.filter(tenant_id=self.request.user.tenant_id)

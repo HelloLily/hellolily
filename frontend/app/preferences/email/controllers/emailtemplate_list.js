@@ -120,7 +120,7 @@ function PreferencesEmailTemplatesList($compile, $scope, $state, $templateCache,
 
     function addFolder() {
         vm.newFolder.$save(response => {
-            toastr.success('Folder has been saved', 'Yay');
+            toastr.success('Folder has been saved', 'Done');
 
             vm.templateFolders.unshift(response);
             vm.newFolder = EmailTemplateFolder.create();

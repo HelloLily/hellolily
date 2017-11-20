@@ -244,6 +244,10 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
         vm.deal.assigned_to = currentUser;
         vm.deal.assigned_to.full_name = currentUser.fullName;
 
+        if (currentUser.teams.length) {
+            vm.deal.assigned_to_teams = currentUser.teams;
+        }
+
         // Broadcast function to update model correctly after dynamically
         // changing the assignee by using the 'assign to me' link.
         $scope.$broadcast('activateEditableSelect', currentUser.id);

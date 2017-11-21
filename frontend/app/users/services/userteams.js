@@ -2,7 +2,7 @@ angular.module('app.users.services').factory('UserTeams', UserTeams);
 
 UserTeams.$inject = ['$resource'];
 function UserTeams($resource) {
-    var _userTeam = $resource(
+    const _userTeam = $resource(
         '/api/users/team/:id/',
         null,
         {
@@ -12,24 +12,19 @@ function UserTeams($resource) {
             search: {
                 url: '/search/search/?type=users_team&filterquery=:filterquery',
                 method: 'GET',
-                transformResponse: function(data) {
-                    let jsonData = angular.fromJson(data);
+                transformResponse: data => {
+                    const jsonData = angular.fromJson(data);
                     let objects = [];
                     let total = 0;
 
                     if (jsonData) {
-                        if (jsonData.hits && jsonData.hits.length > 0) {
-                            jsonData.hits.forEach(function(obj) {
-                                objects.push(obj);
-                            });
-                        }
-
                         total = jsonData.total;
+                        objects = jsonData.hits;
                     }
 
                     return {
-                        objects: objects,
-                        total: total,
+                        objects,
+                        total,
                     };
                 },
             },
@@ -40,6 +35,22 @@ function UserTeams($resource) {
             },
         }
     );
+
+    _userTeam.create = create;
+    _userTeam.updateModel = updateModel;
+
+    function create() {
+        return new _userTeam({
+            name: '',
+        });
+    }
+
+    function updateModel(data, field, team) {
+        const args = HLResource.createArgs(data, field, team);
+        const patchPromise = HLResource.patch('UserTeams', args).$promise;
+
+        return patchPromise;
+    }
 
     return _userTeam;
 }

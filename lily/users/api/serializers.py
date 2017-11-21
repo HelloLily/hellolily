@@ -37,6 +37,41 @@ class UserInviteSerializer(serializers.ModelSerializer):
         )
 
 
+class TeamSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the Team model.
+    """
+    users = serializers.SerializerMethodField()
+
+    def get_users(self, obj):
+        users = []
+
+        for user in obj.active_users():
+            users.append({
+                'id': user.id,
+                'full_name': user.full_name,
+            })
+
+        return users
+
+    class Meta:
+        model = Team
+        fields = (
+            'id',
+            'name',
+            'users',
+        )
+
+
+class RelatedTeamSerializer(RelatedSerializerMixin, TeamSerializer):
+    class Meta:
+        model = Team
+        fields = (
+            'id',
+            'name',
+        )
+
+
 class LilyUserSerializer(WritableNestedSerializer):
     """
     Serializer for the LilyUser model.
@@ -50,6 +85,7 @@ class LilyUserSerializer(WritableNestedSerializer):
     primary_email_account = EmailAccountSerializer(allow_null=True, required=False)
     timezone = CustomTimeZoneField(required=False)
     info = UserInfoSerializer(read_only=True)
+    teams = RelatedTeamSerializer(many=True, required=False, assign_only=True)
 
     class Meta:
         model = LilyUser
@@ -144,22 +180,7 @@ class LilyUserSerializer(WritableNestedSerializer):
             else:
                 raise PermissionDenied
 
-        validated_team_list = None
-
-        if 'teams' in validated_data:
-            validated_team_list = validated_data.pop('teams')
-
-        user = super(LilyUserSerializer, self).update(instance, validated_data)
-
-        if validated_team_list is not None:
-            # Remove all teams from a user instance to add them after the serializer.
-            self.instance.teams.clear()
-
-            # Add teams to user.
-            for validated_team in validated_team_list:
-                user.teams.add(validated_team)
-
-        return user
+        return super(LilyUserSerializer, self).update(instance, validated_data)
 
     def save(self, **kwargs):
         if self.instance:
@@ -200,30 +221,6 @@ class RelatedLilyUserSerializer(RelatedSerializerMixin, LilyUserSerializer):
             'last_name',
             'full_name',
             'profile_picture',
-        )
-
-
-class TeamSerializer(serializers.ModelSerializer):
-    """
-    Serializer for the Team model.
-    """
-    users = RelatedLilyUserSerializer(many=True, source='active_users')
-
-    class Meta:
-        model = Team
-        fields = (
-            'id',
-            'name',
-            'users',
-        )
-
-
-class RelatedTeamSerializer(RelatedSerializerMixin, TeamSerializer):
-    class Meta:
-        model = Team
-        fields = (
-            'id',
-            'name',
         )
 
 

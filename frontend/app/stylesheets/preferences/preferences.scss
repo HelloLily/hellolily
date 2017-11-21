@@ -73,8 +73,10 @@
     padding: 0;
 }
 
-.email-templates-list {
-    .email-template-folder-header {
+.email-templates-list,
+.user-list {
+    .email-template-folder-header,
+    .list-inline-new-item {
         padding: 7px 14px;
         border-top: 1px $app-border-color solid;
         border-bottom: 2px $app-border-color solid;

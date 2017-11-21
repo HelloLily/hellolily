@@ -47,7 +47,14 @@ class LilyUserMapping(BaseMapping):
                 'index_analyzer': 'simple',
             },
             'teams': {
-                'type': 'integer',
+                'type': 'object',
+                'properties': {
+                    'id': {'type': 'integer'},
+                    'name': {
+                        'type': 'string',
+                        'analyzer': 'normal_edge_analyzer',
+                    },
+                },
             },
         })
         return mapping
@@ -67,7 +74,10 @@ class LilyUserMapping(BaseMapping):
             'is_active': obj.is_active,
             'phone_number': obj.phone_number,
             'internal_number': obj.internal_number,
-            'teams': [team.id for team in obj.teams.all()],
+            'teams': [{
+                'id': team.id,
+                'name': team.name,
+            } for team in obj.teams.all()],
         }
 
 

@@ -12,9 +12,7 @@ function preferencesInviteConfig($stateProvider) {
             },
         },
         resolve: {
-            accountAdmin: ['Tenant', Tenant => {
-                return Tenant.getAccountAdmin().$promise;
-            }],
+            accountAdmin: ['Tenant', Tenant => Tenant.getAccountAdmin().$promise],
         },
     });
 }
@@ -23,7 +21,7 @@ angular.module('app.preferences').controller('InviteUsersController', InviteUser
 
 InviteUsersController.$inject = ['$state', 'HLForms', 'Settings', 'UserInvite', 'accountAdmin'];
 function InviteUsersController($state, HLForms, Settings, UserInvite, accountAdmin) {
-    let vm = this;
+    const vm = this;
 
     vm.invites = [{
         first_name: '',
@@ -39,9 +37,7 @@ function InviteUsersController($state, HLForms, Settings, UserInvite, accountAdm
 
         HLForms.clearErrors(form);
 
-        let invites = vm.invites.filter(invite => {
-            return !invite.is_deleted;
-        });
+        const invites = vm.invites.filter(invite => !invite.is_deleted);
 
         UserInvite.post({invites}).$promise.then(() => {
             toastr.success('The invitations were sent successfully', 'Done');

@@ -12,9 +12,7 @@ function preferencesConfig($stateProvider) {
             },
         },
         resolve: {
-            invites: ['UserInvite', UserInvite => {
-                return UserInvite.query({}).$promise;
-            }],
+            invites: ['UserInvite', UserInvite => UserInvite.query({}).$promise],
         },
     });
 }
@@ -25,7 +23,7 @@ PreferencesCompanyUserList.$inject = ['$compile', '$scope', '$state', '$template
     'Settings', 'User', 'UserInvite', 'UserTeams', 'invites'];
 function PreferencesCompanyUserList($compile, $scope, $state, $templateCache, HLForms, LocalStorage, Settings,
     User, UserInvite, UserTeams, invites) {
-    let vm = this;
+    const vm = this;
     const storage = new LocalStorage('userList');
 
     vm.table = {
@@ -40,6 +38,7 @@ function PreferencesCompanyUserList($compile, $scope, $state, $templateCache, HL
         statusFilterOpen: false,
         visibility: storage.get('visibility', {
             full_name: true,
+            teams: true,
             email: true,
             phone_number: true,
             internal_number: true,
@@ -50,12 +49,15 @@ function PreferencesCompanyUserList($compile, $scope, $state, $templateCache, HL
     vm.alertMessages = messages.alerts.deactivateUser;
     vm.removeInviteMessages = messages.alerts.removeUserInvite;
     vm.invites = invites.results;
+    vm.newTeam = UserTeams.create();
 
     vm.openTeamModal = openTeamModal;
     vm.toggleStatus = toggleStatus;
     vm.resendInvite = resendInvite;
     vm.removeInvite = removeInvite;
     vm.setSearchQuery = setSearchQuery;
+    vm.addTeam = addTeam;
+    vm.updateTeam = updateTeam;
 
     activate();
 
@@ -165,27 +167,25 @@ function PreferencesCompanyUserList($compile, $scope, $state, $templateCache, HL
                 showCloseButton: true,
             }).then(isConfirm => {
                 const form = '[name="userTeamForm"]';
-
-                let selectedTeams = [];
-                let args = {
+                const selectedTeams = [];
+                const args = {
                     id: user.id,
                 };
 
                 if (isConfirm) {
                     // Loop over teamList to extract the selected accounts.
                     vm.teamList.forEach(team => {
-                        if (team.selected) {
-                            selectedTeams.push(team.id);
-                        }
+                        selectedTeams.push({id: team.id, is_deleted: !team.selected});
                     });
 
                     args.teams = selectedTeams;
 
                     User.patch(args).$promise.then(() => {
                         toastr.success('I\'ve updated the users\' teams for you!', 'Done');
+                        _updateUsers();
                     }, response => {
                         HLForms.setErrors(form, response.data);
-                        toastr.error('Uh oh, there seems to be a problem', 'Oops!');
+                        toastr.error('Uh oh, there seems to be a problem', 'Oops');
                     });
                 }
             }).done();
@@ -242,6 +242,22 @@ function PreferencesCompanyUserList($compile, $scope, $state, $templateCache, HL
                 });
             }
         }).done();
+    }
+
+    function addTeam() {
+        vm.newTeam.$save(response => {
+            toastr.success('Team has been saved', 'Done');
+
+            vm.newTeam = UserTeams.create();
+        }, error => {
+            toastr.error('A team with that name already exists', 'Oops');
+        });
+    }
+
+    function updateTeam(data, team) {
+        const field = 'name';
+
+        return UserTeams.updateModel(data, field, team);
     }
 
     function removeInvite() {

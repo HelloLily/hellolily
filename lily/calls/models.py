@@ -132,7 +132,8 @@ class CallTransfer(TenantMixin):
         to='CallParticipant',
         on_delete=models.CASCADE,
         verbose_name=_('To'),
-        related_name='transfers_received'
+        related_name='transfers_received',
+        null=True
     )
 
     def __unicode__(self):

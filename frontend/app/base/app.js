@@ -1,5 +1,5 @@
 // Include libraries.
-var Raven = require('raven-js');
+const Raven = require('raven-js');
 
 window.sprintf = require('sprintf-js').sprintf;
 window.moment = require('moment');
@@ -117,12 +117,14 @@ function runApp($rootScope, $state, editableOptions, HLMessages, HLSockets, HLNo
     window.messages = HLMessages;
 
     // Get tenant name to set custom dimension for GA.
-    Tenant.query({}, function(tenant) {
+    Tenant.query({}, tenant => {
         ga('set', 'dimension1', tenant.name);
     });
 
     // Get team name to set custom dimension for GA.
-    UserTeams.mine(function(teams) {
+    UserTeams.mine(teams => {
+        currentUser.teams = teams;
+
         if (teams[0]) {
             ga('set', 'dimension2', teams[0].name);
         }

@@ -62,7 +62,7 @@ services:
 
   web:
     extends: app
-    command: bash -c "Dockers/wait-for-it.sh -b db:5432 && python manage.py runserver 0:8000"
+    command: bash -c "Dockers/wait-for db:5432 && python manage.py runserver 0:8000"
     networks:
       - internal
     depends_on:
@@ -76,7 +76,7 @@ services:
 
   flower:
     extends: app
-    command: bash -c "Dockers/wait-for-it.sh -b rabbit:5672 && flower --app=lily.celery"
+    command: bash -c "Dockers/wait-for rabbit:5672 && flower --app=lily.celery"
     depends_on:
       - db
       - rabbit
@@ -85,7 +85,7 @@ services:
 
   beat:
     extends: app
-    command: bash -c "Dockers/wait-for-it.sh -b rabbit:5672 && celery worker -B --app=lily.celery --loglevel=info -Q celery -n beat.%h -c 1"
+    command: bash -c "Dockers/wait-for rabbit:5672 && celery worker -B --app=lily.celery --loglevel=info -Q celery -n beat.%h -c 1"
     depends_on:
       - rabbit
       - redis
@@ -94,7 +94,7 @@ services:
 
   worker1:
     extends: app
-    command: bash -c "Dockers/wait-for-it.sh -b rabbit:5672 && celery worker --loglevel=info --app=lily.celery -Q email_async_tasks -n worker1.%h -c 12 -P eventlet"
+    command: bash -c "Dockers/wait-for rabbit:5672 && celery worker --loglevel=info --app=lily.celery -Q email_async_tasks -n worker1.%h -c 12 -P eventlet"
     depends_on:
       - rabbit
       - redis
@@ -103,7 +103,7 @@ services:
 
   worker2:
     extends: app
-    command: bash -c "Dockers/wait-for-it.sh -b rabbit:5672 && celery worker --loglevel=info --app=lily.celery -Q email_scheduled_tasks,email_first_sync,other_tasks -n worker2.%h -c 12 -P eventlet"
+    command: bash -c "Dockers/wait-for rabbit:5672 && celery worker --loglevel=info --app=lily.celery -Q email_scheduled_tasks,email_first_sync,other_tasks -n worker2.%h -c 12 -P eventlet"
     depends_on:
       - rabbit
       - redis

@@ -30,27 +30,27 @@ makemigrations:
 	@echo ""
 
 migrate:
-	@echo "Make: docker-compose run --rm web python manage.py migrate"
+	@echo "Make: docker-compose run --rm web bash -c 'Dockers/wait-for db:5432 && python manage.py migrate'"
 	@echo ""
-	@docker-compose run --rm web python manage.py migrate
+	@docker-compose run --rm web bash -c 'Dockers/wait-for db:5432 && python manage.py migrate'
 	@echo ""
 
 index:
-	@echo "Make: docker-compose run --rm web python manage.py index -f"
+	@echo "Make: docker-compose run --rm web bash -c 'Dockers/wait-for db:5432 && Dockers/wait-for es:9200 && python manage.py index -f'"
 	@echo ""
-	@docker-compose run --rm web python manage.py index -f
+	@docker-compose run --rm web bash -c 'Dockers/wait-for db:5432 && Dockers/wait-for es:9200 && python manage.py index -f'
 	@echo ""
 
 test:
-	@echo "Make: docker-compose run --rm -e ES_DISABLED=1 --service-ports web python manage.py test"
+	@echo "Make: docker-compose run --rm -e ES_DISABLED=1 --service-ports web bash -c 'Dockers/wait-for db:5432 && python manage.py test'"
 	@echo ""
-	@docker-compose run --rm --service-ports -e ES_DISABLED=1 web python manage.py test
+	@docker-compose run --rm --service-ports -e ES_DISABLED=1 web bash -c 'Dockers/wait-for db:5432 && python manage.py test'
 	@echo ""
 
 testdata:
-	@echo "Make: docker-compose run --rm web python manage.py testdata"
+	@echo "Make: docker-compose run --rm web bash -c 'Dockers/wait-for db:5432 && python manage.py testdata'"
 	@echo ""
-	@docker-compose run --rm web python manage.py testdata
+	@docker-compose run --rm web bash -c 'Dockers/wait-for db:5432 && python manage.py testdata'
 	@echo ""
 
 run:

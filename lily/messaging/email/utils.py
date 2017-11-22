@@ -136,6 +136,7 @@ class TemplateParser(object):
         self.valid_blocks = []
 
         text = self._escape_text(text.encode('utf-8')).strip()
+        text = text.decode('utf-8')
         template_environment = SandboxedEnvironment()
 
         try:

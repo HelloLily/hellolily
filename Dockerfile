@@ -4,7 +4,7 @@ MAINTAINER HelloLily
 RUN echo 'http://dl-cdn.alpinelinux.org/alpine/v3.4/main' >> /etc/apk/repositories
 RUN apk add --no-cache \
     linux-headers \
-    postgresql-dev=9.6.5-r0 \
+    postgresql-dev=9.6.6-r0 \
     libxml2-dev \
     libxslt-dev \
     ncurses5-libs \

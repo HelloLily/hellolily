@@ -200,7 +200,7 @@ class LilyUserSerializer(WritableNestedSerializer):
                     else:
                         if current_user.id != instance.id:
                             raise PermissionDenied
-                        else:
+                        elif internal_number != instance.internal_number:
                             raise serializers.ValidationError({
                                 'internal_number': [_('Another user is already using this internal number.')]
                             })

@@ -26,7 +26,7 @@ $base-color: #27224e;
 
         small {
             display: block;
-            color: #b5b5b5;
+            color: $text-muted;
         }
 
         small:before {

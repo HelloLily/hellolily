@@ -2,7 +2,7 @@ angular.module('app.email').config(emailConfig);
 
 emailConfig.$inject = ['$stateProvider'];
 function emailConfig($stateProvider) {
-    var emailComposeView = {
+    const emailComposeView = {
         '@base.email': {
             templateUrl: '/messaging/email/compose/',
             controller: EmailComposeController,
@@ -33,9 +33,7 @@ function emailConfig($stateProvider) {
         },
         views: {
             '@base.email': {
-                templateUrl: function(elem, attr) {
-                    return '/messaging/email/draft/' + elem.id + '/';
-                },
+                templateUrl: (elem, attr) => '/messaging/email/draft/' + elem.id + '/',
                 controller: EmailComposeController,
                 controllerAs: 'vm',
             },
@@ -48,9 +46,7 @@ function emailConfig($stateProvider) {
         },
         views: {
             '@base.email': {
-                templateUrl: function(elem, attr) {
-                    return '/messaging/email/reply/' + elem.id + '/';
-                },
+                templateUrl: (elem, attr) => '/messaging/email/reply/' + elem.id + '/',
                 controller: EmailComposeController,
                 controllerAs: 'vm',
             },
@@ -63,9 +59,7 @@ function emailConfig($stateProvider) {
         },
         views: {
             '@base.email': {
-                templateUrl: function(elem, attr) {
-                    return '/messaging/email/reply/' + elem.id + '/';
-                },
+                templateUrl: (elem, attr) => '/messaging/email/reply/' + elem.id + '/',
                 controller: EmailComposeController,
                 controllerAs: 'vm',
             },
@@ -80,9 +74,7 @@ function emailConfig($stateProvider) {
         },
         views: {
             '@base.email': {
-                templateUrl: function(elem, attr) {
-                    return '/messaging/email/replyall/' + elem.id + '/';
-                },
+                templateUrl: (elem, attr) => '/messaging/email/replyall/' + elem.id + '/',
                 controller: EmailComposeController,
                 controllerAs: 'vm',
             },
@@ -95,9 +87,7 @@ function emailConfig($stateProvider) {
         },
         views: {
             '@base.email': {
-                templateUrl: function(elem, attr) {
-                    return '/messaging/email/forward/' + elem.id + '/';
-                },
+                templateUrl: (elem, attr) => '/messaging/email/forward/' + elem.id + '/',
                 controller: EmailComposeController,
                 controllerAs: 'vm',
             },
@@ -111,7 +101,7 @@ EmailComposeController.$inject = ['$scope', '$state', '$stateParams', '$template
     'EmailMessage', 'EmailTemplate', 'SelectedEmailAccount'];
 function EmailComposeController($scope, $state, $stateParams, $templateCache, $q, Settings, Contact, EmailMessage,
     EmailTemplate, SelectedEmailAccount) {
-    var vm = this;
+    const vm = this;
 
     Settings.page.setAllTitles('custom', 'Compose email');
 
@@ -127,7 +117,7 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
 
         if ($stateParams.messageType === 'reply') {
             // If it's a reply, load the email message first.
-            EmailMessage.get({id: $stateParams.id}).$promise.then(function(emailMessage) {
+            EmailMessage.get({id: $stateParams.id}).$promise.then(emailMessage => {
                 _initEmailCompose(emailMessage);
             });
         } else {
@@ -137,15 +127,12 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
     }
 
     function _initEmailCompose(emailMessage) {
-        var email = $stateParams.email;
-        var emailTemplatePromise;
-        var promises = [];
-        var recipient = null;
-        var contactPromise;
-        var template;
-        var loadDefaultTemplate;
-        var messageType;
-        var filterquery;
+        const promises = [];
+
+        let email = $stateParams.email;
+        let recipient = null;
+        let contactPromise;
+        let filterquery;
 
         if (emailMessage) {
             // It's a reply, so try to load a contact with the given email address.
@@ -156,24 +143,27 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
         }
 
         if (filterquery) {
-            contactPromise = Contact.search({filterquery: filterquery}).$promise;
+            filterquery += ' AND ';
+        }
+
+        filterquery += 'email_addresses.is_active:true';
+
+        if (filterquery) {
+            contactPromise = Contact.search({filterquery}).$promise;
             promises.push(contactPromise);
         }
 
-        emailTemplatePromise = EmailTemplate.query().$promise;
+        const emailTemplatePromise = EmailTemplate.query().$promise;
         promises.push(emailTemplatePromise);
 
         // TODO: LILY-XXX: Check if this can be cleaned up
         // Continue once all promises are done.
-        $q.all(promises).then(function(results) {
-            var templates;
-            var contact;
-            var usedText;
-            var displayedText;
+        $q.all(promises).then(results => {
+            let templates;
 
             // This part should only be executed if we've loaded a contact.
             if (contactPromise) {
-                contact = results[0].objects[0];
+                const contact = results[0].objects[0];
                 templates = results[1].results;
 
                 if (emailMessage && !email) {
@@ -186,16 +176,16 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
 
                 if (contact) {
                     // The text which is actually used in the application/select2.
-                    usedText = '"' + contact.full_name + '" <' + email + '>';
+                    const usedText = '"' + contact.full_name + '" <' + email + '>';
                     // The text shown in the recipient input.
-                    displayedText = contact.full_name + ' <' + email + '>';
+                    const displayedText = contact.full_name + ' <' + email + '>';
 
                     recipient = {
                         id: usedText,
                         text: displayedText,
                         object_id: contact.id,
                     };
-                } else {
+                } else if (email) {
                     recipient = {
                         id: email,
                         text: email,
@@ -206,12 +196,12 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
                 templates = results[0];
             }
 
-            template = $stateParams.template;
+            const template = $stateParams.template;
             // Determine whether the default template should be loaded or not.
-            loadDefaultTemplate = template === undefined;
+            const loadDefaultTemplate = template === undefined;
 
             // Set message type to given message type if available, otherwise set to message type 'new'.
-            messageType = $stateParams.messageType ? $stateParams.messageType : 'new';
+            const messageType = $stateParams.messageType ? $stateParams.messageType : 'new';
 
             HLInbox.init();
 
@@ -220,15 +210,15 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
             }
 
             HLInbox.initEmailCompose({
+                messageType,
+                loadDefaultTemplate,
+                recipient,
+                template,
                 templateList: templates,
+                recipientEmail: $stateParams.email,
+                documentId: $stateParams.documentId,
                 defaultEmailTemplateUrl: '/messaging/email/templates/get-default/',
                 getTemplateUrl: '/messaging/email/templates/detail/',
-                messageType: messageType,
-                loadDefaultTemplate: loadDefaultTemplate,
-                recipient: recipient,
-                recipientEmail: $stateParams.email,
-                template: template,
-                documentId: $stateParams.documentId,
             });
 
             HLInbox.setSuccesURL($scope.previousState);
@@ -238,7 +228,7 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
 
     function discard() {
         if ($stateParams.messageType === 'draft') {
-            EmailMessage.trash({id: $stateParams.id}).$promise.then(function() {
+            EmailMessage.trash({id: $stateParams.id}).$promise.then(() => {
                 if (Settings.email.previousInbox) {
                     $state.transitionTo(Settings.email.previousInbox.state, Settings.email.previousInbox.params, false);
                 } else {
@@ -255,7 +245,7 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
     }
 
     // Listen to Angular broadcast function on scope destroy.
-    $scope.$on('$destroy', function() {
+    $scope.$on('$destroy', () => {
         // Properly destroy the rich text editor to prevent memory leaks.
         HLInbox.destroyEditor();
     });

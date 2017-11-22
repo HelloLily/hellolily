@@ -652,7 +652,7 @@ option {
 }
 
 .deleted-indicator {
-    color: #b5b5b5;
+    color: $text-muted;
 }
 
 .details-main {
@@ -759,4 +759,8 @@ $sides: (top, bottom, left, right);
 
 .cursor-default {
     cursor: default;
+}
+
+.text-muted {
+    color: $text-muted;
 }

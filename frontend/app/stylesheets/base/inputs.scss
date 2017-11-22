@@ -302,10 +302,10 @@ $inline-editable-field-height: 30px;
 }
 
 .editable-empty {
-    color: #b5b5b5;
+    color: $text-muted;
 
     &:hover {
-        color: #b5b5b5;
+        color: $text-muted;
     }
 }
 

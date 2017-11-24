@@ -257,6 +257,13 @@ class CallNotificationV2Serializer(serializers.Serializer):
         # Get the correct save function for the status type, e.g. status: in-progress will become save_in_progress.
         save_func = getattr(self, 'save_{}'.format(validated_data['status'].replace('-', '_')))
 
+        logger.info(
+            'Now saving call_id: "{}" using function {}.'.format(
+                validated_data['call_id'],
+                save_func.__name__
+            )
+        )
+
         return save_func(validated_data)
 
     def send_notification(self, internal_numbers, participant, source):

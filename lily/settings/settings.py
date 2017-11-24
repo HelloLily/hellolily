@@ -456,6 +456,11 @@ if DEBUG:
                 'level': 'DEBUG',
                 'handlers': ['console', ],
                 'propagate': False,
+            },
+            'lily': {
+                'level': 'DEBUG',
+                'handlers': ['console', ],
+                'propagate': False,
             }
         },
     })
@@ -486,6 +491,11 @@ else:
                 'handlers': ['null', ],
                 'propagate': False,
             },
+            'lily': {
+                'level': 'DEBUG',
+                'handlers': ['console', ],
+                'propagate': False,
+            }
         },
     })
 

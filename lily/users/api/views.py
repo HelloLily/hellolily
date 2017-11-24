@@ -18,6 +18,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser, MultiPartParser
+from rest_framework.permissions import IsAuthenticated
 from two_factor.models import PhoneDevice
 from two_factor.templatetags.two_factor import mask_phone_number, format_phone_number
 from two_factor.utils import default_device, backup_phones
@@ -53,7 +54,7 @@ class TeamViewSet(viewsets.ModelViewSet):
     serializer_class = TeamSerializer
     filter_class = TeamFilter
     queryset = Team.objects
-    permission_classes = (IsAccountAdmin,)
+    permission_classes = (IsAuthenticated, IsAccountAdmin,)
     unrestricted_methods = ['GET']
 
     def get_queryset(self):

@@ -9,6 +9,7 @@ from rest_framework.decorators import list_route
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
+from rest_framework.permissions import IsAuthenticated
 
 from lily.messaging.email.utils import limit_email_accounts, restore_email_account_settings
 from lily.utils.api.permissions import IsAccountAdmin
@@ -17,7 +18,7 @@ from ..models import Plan
 
 
 class BillingViewSet(ViewSet):
-    permission_classes = (IsAccountAdmin, )
+    permission_classes = (IsAuthenticated, IsAccountAdmin, )
 
     @list_route(methods=['GET', 'PATCH'])
     def subscription(self, request):

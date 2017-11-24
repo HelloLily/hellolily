@@ -19,6 +19,7 @@ from rest_framework import status
 from rest_framework.parsers import FormParser, JSONParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 
 from lily.api.drf_extensions.authentication import PandaDocSignatureAuthentication
 from lily.contacts.models import Contact
@@ -70,7 +71,7 @@ class DocumentDetails(APIView):
 
 
 class PandaDocList(APIView):
-    permission_classes = (IsFeatureAvailable, )
+    permission_classes = (IsAuthenticated, IsFeatureAvailable, )
     serializer = DocumentSerializer
     parser_classes = (JSONParser, FormParser)
 
@@ -111,7 +112,7 @@ class PandaDocList(APIView):
 
 
 class DocumentEventList(APIView):
-    permission_classes = (IsFeatureAvailable, )
+    permission_classes = (IsAuthenticated, IsFeatureAvailable, )
     model = DocumentEvent
     serializer_class = DocumentEventSerializer
 
@@ -243,7 +244,7 @@ class DocumentEventCatch(APIView):
 
 
 class PandaDocSharedKey(APIView):
-    permission_classes = (IsAccountAdmin, IsFeatureAvailable)
+    permission_classes = (IsAuthenticated, IsAccountAdmin, IsFeatureAvailable)
 
     def post(self, request):
         """
@@ -263,7 +264,7 @@ class PandaDocSharedKey(APIView):
 
 
 class MoneybirdContactImport(APIView):
-    permission_classes = (IsAccountAdmin, IsFeatureAvailable)
+    permission_classes = (IsAuthenticated, IsAccountAdmin, IsFeatureAvailable)
 
     def post(self, request):
         credentials = get_credentials('moneybird')
@@ -303,7 +304,7 @@ class EstimatesList(APIView):
 
 class IntegrationAuth(APIView):
     parser_classes = (JSONParser, FormParser)
-    permission_classes = (IsAccountAdmin, IsFeatureAvailable)
+    permission_classes = (IsAuthenticated, IsAccountAdmin, IsFeatureAvailable)
 
     def post(self, request, integration_type):
         """

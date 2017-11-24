@@ -24,12 +24,12 @@ function BaseController($scope, $state, $http, AppHash, Settings, HLShortcuts, U
     //////////
 
     function activate() {
-        User.me().$promise.then(function(response) {
+        User.me().$promise.then(response => {
             $scope.settings.currentUser = response;
         });
 
-        $scope.$on('$stateChangeStart', function() {
-            AppHash.get().$promise.then(function(response) {
+        $scope.$on('$stateChangeStart', () => {
+            AppHash.get().$promise.then(response => {
                 // App hash is set, so compare with the response.
                 if (window.appHash && window.appHash !== response.app_hash) {
                     // Reload the page so we get new static files.
@@ -49,27 +49,25 @@ function BaseController($scope, $state, $http, AppHash, Settings, HLShortcuts, U
     }
 
     function loadNotifications() {
-        $http.get('/api/utils/notifications/').then(function(notifications) {  // On success
-            angular.forEach(notifications.data, function(message) {
+        $http.get('/api/utils/notifications/').then(notifications => {
+            angular.forEach(notifications.data, message => {
                 toastr[message.level](message.message);
             });
-        }, function(error) {  // On error
+        }, error => {
             if (error.status === 403) {
-                toastr.error(error, 'You\'ve been logged out, please reload the page.');
+                toastr.error(error, messages.notifications.loggedOut);
             } else {
-                toastr.error(error, 'Couldn\'t load notifications');
+                toastr.error(error, messages.notifications.failedLoad);
             }
         });
     }
 
     function _setPreviousState(event, toState, toParams, fromState, fromParams) {
-        var previousInbox;
-
         $scope.previousState = $state.href(fromState, fromParams);
         Settings.page.previousState = {state: fromState, params: fromParams};
 
         if (['base.email.list', 'base.email.accountList', 'base.email.accountAllList'].includes(fromState.name)) {
-            previousInbox = {
+            const previousInbox = {
                 state: fromState.name,
                 params: fromParams,
             };

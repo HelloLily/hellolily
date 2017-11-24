@@ -74,7 +74,7 @@
                         <div class="stream-subitem-main">
                             <div class="stream-subitem-date">{{ ::vm.item.created | date:'dd MMM yyyy - HH:mm' }}</div>
                             <div  class="stream-subitem-title">
-                                {{ ::vm.item.created_by.full_name || 'An unknown entity' }} created the <i class="lilicon hl-case-icon purple m-l-5 font-size-16"></i> case <a ui-sref="base.cases.detail({ id: vm.item.id })">{{ ::vm.item.name }}</a>
+                                {{ ::vm.item.created_by.full_name || $root.messages.pages.generic.unknownUser }} created the <i class="lilicon hl-case-icon purple m-l-5 font-size-16"></i> case <a ui-sref="base.cases.detail({ id: vm.item.id })">{{ ::vm.item.name }}</a>
                             </div>
                         </div>
                     </div>

@@ -16,14 +16,14 @@ function contactsConfig($stateProvider) {
             label: '{{ contact.full_name }}',
         },
         resolve: {
-            currentContact: ['Contact', '$stateParams', function(Contact, $stateParams) {
-                var contactId = $stateParams.id;
-                return Contact.get({id: contactId}).$promise;
+            currentContact: ['Contact', '$stateParams', (Contact, $stateParams) => {
+                const id = $stateParams.id;
+                return Contact.get({id}).$promise;
             }],
-            caseList: ['Case', '$stateParams', function(Case, $stateParams) {
+            caseList: ['Case', '$stateParams', (Case, $stateParams) => {
                 return Case.search({filterquery: 'contact.id:' + $stateParams.id, sort: 'expires', size: 100}).$promise;
             }],
-            dealList: ['Deal', '$stateParams', function(Deal, $stateParams) {
+            dealList: ['Deal', '$stateParams', (Deal, $stateParams) => {
                 return Deal.search({filterquery: 'contact.id:' + $stateParams.id, sort: '-next_step_date', size: 100}).$promise;
             }],
         },
@@ -34,7 +34,7 @@ angular.module('app.contacts').controller('ContactDetailController', ContactDeta
 
 ContactDetailController.$inject = ['$filter', '$scope', 'Contact', 'Settings', 'currentContact', 'caseList', 'dealList'];
 function ContactDetailController($filter, $scope, Contact, Settings, currentContact, caseList, dealList) {
-    var vm = this;
+    const vm = this;
 
     vm.contact = currentContact;
     vm.height = 200;
@@ -58,14 +58,12 @@ function ContactDetailController($filter, $scope, Contact, Settings, currentCont
         vm.dealList = dealList.objects;
     }
 
-    $scope.$watchCollection('vm.contact.accounts', function() {
-        vm.contact.accounts.forEach(function(account) {
-            var colleagueList;
-
+    $scope.$watchCollection('vm.contact.accounts', () => {
+        vm.contact.accounts.forEach(account => {
             account.primary_email_address = $filter('primaryEmail')(account.email_addresses);
 
-            colleagueList = Contact.search({filterquery: 'NOT(id:' + vm.contact.id + ') AND accounts.id:' + account.id, size: 50});
-            colleagueList.$promise.then(function(response) {
+            const colleagueList = Contact.search({filterquery: 'NOT(id:' + vm.contact.id + ') AND accounts.id:' + account.id, size: 50});
+            colleagueList.$promise.then(response => {
                 account.colleagueList = response.objects;
             });
         });

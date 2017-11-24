@@ -18,7 +18,7 @@ function accountDetailWidget() {
 
 AccountDetailWidgetController.$inject = ['$scope', 'Account', 'Settings', 'Tenant'];
 function AccountDetailWidgetController($scope, Account, Settings, Tenant) {
-    var vm = this;
+    const vm = this;
 
     vm.settings = Settings;
     vm.assignAccount = assignAccount;
@@ -36,7 +36,7 @@ function AccountDetailWidgetController($scope, Account, Settings, Tenant) {
 
     vm.updateModel = updateModel;
 
-    Tenant.query({}, function(tenant) {
+    Tenant.query({}, tenant => {
         vm.tenant = tenant;
     });
 

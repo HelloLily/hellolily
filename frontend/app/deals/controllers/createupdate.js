@@ -366,7 +366,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
         if (cleanedDeal.id) {
             // If there's an ID set it means we're dealing with an existing deal, so update it.
             cleanedDeal.$update(() => {
-                toastr.success('I\'ve updated the deal for you!', 'Done');
+                toastr.success(sprintf(messages.notifications.modelUpdated, {model: 'deal'}), messages.notifications.successTitle);
                 $state.go('base.deals.detail', {id: cleanedDeal.id}, {reload: true});
             }, response => {
                 _handleBadResponse(response, form);
@@ -375,7 +375,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
             cleanedDeal.$save(() => {
                 new Intercom('trackEvent', 'deal-created');
 
-                toastr.success('I\'ve saved the deal for you!', 'Yay');
+                toastr.success(sprintf(messages.notifications.modelSaved, {model: 'deal'}), messages.notifications.successTitle);
 
                 if (Settings.email.sidebar.form === 'deals') {
                     Settings.email.sidebar.form = null;
@@ -393,7 +393,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
     function _handleBadResponse(response, form) {
         HLForms.setErrors(form, response.data);
 
-        toastr.error('Uh oh, there seems to be a problem', 'Oops!');
+        toastr.error(messages.notifications.error, messages.notifications.errorTitle);
     }
 
     $scope.$watch('vm.deal.account', (newValue, oldValue) => {
@@ -510,11 +510,10 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
     function _dealFormIsValid() {
         if (!vm.deal.account && !vm.deal.contact) {
             swal({
-                title: 'No account or contact',
-                text: 'Please select an account or contact the deal belongs to',
+                title: messages.alerts.deals.noSelectionTitle,
+                text: messages.alerts.deals.noSelectionText,
                 type: 'warning',
-                confirmButtonText: 'Let me fix that for you',
-                confirmButtonClass: 'btn btn-success',
+                confirmButtonText: messages.alerts.deals.confirmButtonText,
             }).done();
 
             return false;

@@ -1,4 +1,4 @@
-var md = require('markdown-it')();
+const md = require('markdown-it')();
 
 md.renderer.rules.blockquote_open = (tokens, index) => {
     return '<blockquote class="blockquote">';
@@ -30,7 +30,7 @@ function editableTextarea() {
 
 EditableTextAreaController.$inject = ['$injector', '$timeout', 'HLUtils'];
 function EditableTextAreaController($injector, $timeout, HLUtils) {
-    var vm = this;
+    const vm = this;
 
     vm.updateViewModel = updateViewModel;
     vm.convertToHTML = convertToHTML;

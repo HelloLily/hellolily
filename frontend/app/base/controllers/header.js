@@ -14,13 +14,13 @@ function pageHeader() {
 
 PageHeaderController.$inject = ['$scope'];
 function PageHeaderController($scope) {
-    var vm = this;
+    const vm = this;
 
     vm.billingEnabled = window.billingEnabled;
 
     vm.openForm = openForm;
 
-    $scope.$on('$includeContentLoaded', function() {
+    $scope.$on('$includeContentLoaded', () => {
         Layout.initHeader(); // init header
     });
 

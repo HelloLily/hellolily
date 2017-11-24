@@ -95,7 +95,7 @@ function EditableRelatedController($scope, HLFields, HLResource, HLUtils) {
                     isPrimary = true;
                 }
 
-                er.items.push({is_primary: isPrimary, status: status});
+                er.items.push({is_primary: isPrimary, status});
                 break;
             case 'phone_numbers':
                 er.items.push({type: 'work'});

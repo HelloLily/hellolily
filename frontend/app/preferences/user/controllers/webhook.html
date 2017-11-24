@@ -12,7 +12,7 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="portlet">
-                        <p>You can enter a URL here to call whenever a create (POST) or update (PUT/PATCH) event is executed (e.g. an account being created or updated).</p>
+                        <p>{{ $root.messages.pages.preferences.webhookIntro }}</p>
                         <form novalidate name="webhookForm">
                             <form-portlet portlet-title="Webhook info">
                                 <div ng-repeat="webhook in vm.user.webhooks">

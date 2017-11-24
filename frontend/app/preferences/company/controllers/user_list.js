@@ -137,7 +137,7 @@ function PreferencesCompanyUserList($compile, $scope, $state, $templateCache, HL
                 vm.table.items = [];
                 vm.table.totalItems = 0;
 
-                toastr.error('Could not load the user list, please try again later.', 'Error');
+                toastr.error(messages.notifications.userListLoadError, messages.notifications.errorTitle);
             });
         } else {
             vm.table.items = [];
@@ -181,11 +181,11 @@ function PreferencesCompanyUserList($compile, $scope, $state, $templateCache, HL
                     args.teams = selectedTeams;
 
                     User.patch(args).$promise.then(() => {
-                        toastr.success('I\'ve updated the users\' teams for you!', 'Done');
+                        toastr.success(sprintf(messages.notifications.modelUpdated, {model: 'users\' team'}), messages.notifications.successTitle);
                         _updateUsers();
                     }, response => {
                         HLForms.setErrors(form, response.data);
-                        toastr.error('Uh oh, there seems to be a problem', 'Oops');
+                        toastr.error(messages.notifications.error, messages.notifications.errorTitle);
                     });
                 }
             }).done();
@@ -214,9 +214,9 @@ function PreferencesCompanyUserList($compile, $scope, $state, $templateCache, HL
                 'is_active': 'true',  // Make the user active.
             }, () => {
                 user.is_active = !user.is_active;
-                toastr.success('I\'ve activated the user for you!', 'Done');
+                toastr.success('I\'ve activated the user for you!', messages.notifications.successTitle);
             }, () => {
-                toastr.error('Uh oh, there seems to be a problem', 'Oops!');
+                toastr.error(messages.notifications.error, messages.notifications.errorTitle);
             });
 
             if (vm.table.statusFilter === 'False') {
@@ -237,7 +237,7 @@ function PreferencesCompanyUserList($compile, $scope, $state, $templateCache, HL
         }).then(isConfirm => {
             if (isConfirm) {
                 UserInvite.post({invites: [invite]}).$promise.then(() => {
-                    toastr.success(messages.alerts.resendUserInvite.success, 'Done');
+                    toastr.success(messages.alerts.resendUserInvite.success, messages.notifications.successTitle);
                     $state.reload();
                 });
             }
@@ -246,7 +246,7 @@ function PreferencesCompanyUserList($compile, $scope, $state, $templateCache, HL
 
     function addTeam() {
         vm.newTeam.$save(response => {
-            toastr.success('Team has been saved', 'Done');
+            toastr.success('Team has been saved', messages.notifications.successTitle);
 
             vm.newTeam = UserTeams.create();
         }, error => {

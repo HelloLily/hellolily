@@ -14,7 +14,7 @@ function editableSelect() {
             object: '=?',
             selectOptions: '=?', // contains any custom settings for the select
         },
-        templateUrl: function(elem, attrs) {
+        templateUrl: (elem, attrs) => {
             if (attrs.selectType) {
                 return 'base/directives/editable_' + attrs.selectType + '.html';
             }
@@ -40,7 +40,7 @@ function editableSelect() {
 
 EditableSelectController.$inject = ['$injector', '$scope', 'HLResource', 'HLSearch', 'HLUtils'];
 function EditableSelectController($injector, $scope, HLResource, HLSearch, HLUtils) {
-    var es = this;
+    const es = this;
     es.showDateIncrement = false;
 
     es.getChoices = getChoices;
@@ -52,7 +52,7 @@ function EditableSelectController($injector, $scope, HLResource, HLSearch, HLUti
     // Broadcast function that executes the activate() function when somebody
     // dynamically changes the inline select edit by using the 'assign to me'
     // link, instead of selecting a person with the selectbox.
-    $scope.$on('activateEditableSelect', function() {
+    $scope.$on('activateEditableSelect', () => {
         activate();
     });
 
@@ -100,10 +100,7 @@ function EditableSelectController($injector, $scope, HLResource, HLSearch, HLUti
     }
 
     function getChoices() {
-        var type;
-        var field;
-        var resourceCall;
-        var returnValue;
+        let type;
 
         if (es.selectOptions.hasOwnProperty('type')) {
             type = es.selectOptions.type;
@@ -111,21 +108,24 @@ function EditableSelectController($injector, $scope, HLResource, HLSearch, HLUti
             type = es.type;
         }
 
+        let field;
+
         if (es.selectOptions.hasOwnProperty('field')) {
             field = es.selectOptions.field;
         } else {
             field = es.field;
         }
 
-        resourceCall = HLResource.getChoicesForField(type, field);
+        const resourceCall = HLResource.getChoicesForField(type, field);
+
+        let returnValue = false;
 
         if (!resourceCall.hasOwnProperty('$promise')) {
             es.choices = resourceCall;
-            returnValue = false;
         } else {
             // Add a return here so the select gets disabled while
             // loading the options.
-            returnValue = resourceCall.$promise.then(function(data) {
+            returnValue = resourceCall.$promise.then(data => {
                 if (data.hasOwnProperty('results')) {
                     es.choices = data.results;
                 } else {
@@ -138,11 +138,10 @@ function EditableSelectController($injector, $scope, HLResource, HLSearch, HLUti
     }
 
     function refreshChoices(query) {
-        var type;
-        var searchPromise;
-        var sortColumn;
-        var nameColumn;
-        var extraFilterQuery;
+        let sortColumn;
+        let nameColumn;
+
+        let type;
 
         if (es.selectOptions.hasOwnProperty('type')) {
             type = es.selectOptions.type;
@@ -158,31 +157,29 @@ function EditableSelectController($injector, $scope, HLResource, HLSearch, HLUti
             nameColumn = es.selectOptions.nameColumn;
         }
 
-        extraFilterQuery = (type === 'User') ? 'is_active:true' : '';
+        const extraFilterQuery = (type === 'User') ? 'is_active:true' : '';
 
-        searchPromise = HLSearch.refreshList(query, type, extraFilterQuery, sortColumn, nameColumn);
+        const searchPromise = HLSearch.refreshList(query, type, extraFilterQuery, sortColumn, nameColumn);
 
         if (searchPromise) {
-            searchPromise.$promise.then(function(data) {
+            searchPromise.$promise.then(data => {
                 es.choices = data.objects;
             });
         }
     }
 
     function updateViewModel($data) {
-        var selected;
-        var i;
-        var updatePromise;
+        let selected;
 
-        var args = {
+        const args = {
             id: es.object.id,
         };
 
-        var form = '[name="es.' + es.formName + '"]';
+        const form = `[name="es.${es.formName}"]`;
 
         if (!es.multiple) {
             // $data only contains the ID, so get the name from the choices in the scope.
-            for (i = 0; i < es.choices.length; i++) {
+            for (let i = 0; i < es.choices.length; i++) {
                 if (es.choices[i].id === $data) {
                     selected = es.choices[i];
                 }
@@ -209,6 +206,8 @@ function EditableSelectController($injector, $scope, HLResource, HLSearch, HLUti
             args[es.field] = $data;
         }
 
+        let updatePromise;
+
         if (es.viewModel.hasOwnProperty('updateModel')) {
             updatePromise = es.viewModel.updateModel(args);
         } else {
@@ -216,7 +215,7 @@ function EditableSelectController($injector, $scope, HLResource, HLSearch, HLUti
             updatePromise = $injector.get(es.type).updateModel(args, es.field, es.object);
         }
 
-        return updatePromise.then(function() {
+        return updatePromise.then(() => {
             HLUtils.unblockUI(form);
 
             if (es.hasOwnProperty(es.formName)) {
@@ -232,7 +231,7 @@ function EditableSelectController($injector, $scope, HLResource, HLSearch, HLUti
                 // es.selectModel, so update it manually.
                 es.selectModel = es.object[es.field];
             }
-        }).catch(function() {
+        }).catch(() => {
             HLUtils.unblockUI(form);
         });
     }

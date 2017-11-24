@@ -15,9 +15,9 @@ function HLResource($injector) {
                 modelText = model.split(/(?=[A-Z])/).join(' ').toLowerCase();
             }
 
-            toastr.success(`The ${modelText} has been updated!`, 'Done');
+            toastr.success(sprintf(messages.notifications.modelUpdated, {model: modelText}), messages.notifications.successTitle);
         }, () => {
-            toastr.error('Something went wrong while saving the field, please try again.', 'Oops!');
+            toastr.error(messages.notifications.errorInline, messages.notifications.errorTitle);
             // For now return an empty string, we'll implement proper errors later.
             return '';
         });
@@ -25,10 +25,10 @@ function HLResource($injector) {
 
     this.delete = (model, object) => {
         const regex = /(?=[A-Z])/g;
-        const modelName = model.split(regex).join(' ').toLowerCase();
+        const modelText = model.split(regex).join(' ').toLowerCase();
 
         return $injector.get(model).delete({id: object.id}).$promise.then(() => {
-            toastr.success(`The ${modelName} has been deleted!`, 'Done');
+            toastr.success(sprintf(messages.notifications.modelUpdated, {model: modelText}), messages.notifications.successTitle);
         });
     };
 

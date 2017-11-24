@@ -72,11 +72,11 @@
                     <div ng-repeat="transfer in vm.item.transfers">
                         <span class="item-time pull-right">{{ transfer.timestamp|date:'dd-mm-yyyy HH:mm:ss' }}</span>
                         <span ng-if="transfer.destination">
-                            The call was transfered to
+                            The call was transferred to
                             {{ transfer.destination.name || transfer.destination.number }}
                         </span>
                         <span ng-if="!transfer.destination">
-                            The call is being transfered, but nobody picked up yet.
+                            The call is being transferred, but nobody picked up yet.
                         </span>
                     </div>
                 </div>

@@ -166,7 +166,7 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
             // So just do a separate Account.patch. Not using the HLResource.patch because we want to display
             // a custom message.
             return Account.patch(args, () => {
-                toastr.success('I\'ve updated the customer ID for you!', 'Done');
+                toastr.success(sprintf(messages.notifications.modelUpdated, {model: 'customer ID'}), messages.notifications.successTitle);
             });
         }
 

@@ -97,7 +97,7 @@ function ListFilterController($filter, $timeout, HLFilters) {
 
     function updateAllSelected() {
         // Keep the 'Select all' checkbox in sync whether or not all items are selected.
-        var filterList = vm.viewModel.filterList;
+        let filterList = vm.viewModel.filterList;
 
         if (vm.viewModel.filterSpecialList && !vm.hideSpecial) {
             filterList = vm.viewModel.filterSpecialList;

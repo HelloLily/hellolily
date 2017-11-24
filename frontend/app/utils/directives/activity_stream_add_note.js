@@ -45,7 +45,7 @@ function ActivityAddNoteController($http, $state, Note, User) {
                 vm.note = new Note({gfk_content_type: vm.item.content_type, gfk_object_id: vm.item.id, type: 0});
             });
         } else {
-            toastr.error('You can\'t create an empty note!', 'Oops!');
+            toastr.error(messages.notifications.emptyNoteError, messages.notifications.errorTitle);
         }
     }
 }

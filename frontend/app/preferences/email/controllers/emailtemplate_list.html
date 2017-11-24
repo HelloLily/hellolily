@@ -81,12 +81,12 @@
         </tbody>
         <tr ng-if="!vm.templateFolders.length">
             <td class="hl-table-column" colspan="2">
-                No folders yet. You should create one!
+                {{ $root.messages.pages.email.noFolders }}
             </td>
         </tr>
         <tr ng-if="!vm.templateCount">
             <td class="hl-table-column" colspan="2">
-                No templates yet. You should create one!
+                {{ $root.messages.pages.email.noTemplates }}
             </td>
         </tr>
     </table>

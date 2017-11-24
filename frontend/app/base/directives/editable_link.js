@@ -20,7 +20,7 @@ function editableLink() {
 
 EditableLinkController.$inject = [];
 function EditableLinkController() {
-    var el = this;
+    const el = this;
 
     el.updateViewModel = updateViewModel;
 
@@ -37,17 +37,15 @@ function EditableLinkController() {
     }
 
     function updateViewModel($data) {
-        var patchPromise;
-
-        var args = {};
+        const args = {
+            [el.field]: $data,
+        };
 
         if (el.object) {
-            args = {
-                id: el.object.id,
-            };
+            args.id = el.object.id;
         }
 
-        args[el.field] = $data;
+        let patchPromise;
 
         if (el.socialMediaName) {
             if ($data) {

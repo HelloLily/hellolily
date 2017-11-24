@@ -11,7 +11,7 @@
 
         <div class="alert alert-warning" ng-if="vm.callerNumber !== undefined">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <strong class="m-r-10">Add as a contact to an existing account instead?</strong>
+            <strong class="m-r-10">{{ $root.messages.pages.accounts.addContactToExisting }}</strong>
             <a class="hl-primary-btn" ui-sref="base.contacts.create({accountForm: vm.account})" role="button"><i class="fa fa-plus"></i> Contact</a>
         </div>
 
@@ -54,7 +54,7 @@
 
                 <form-group ng-if="vm.accountSuggestions.length && vm.showSuggestions">
                     <div class="widget-suggestion">
-                        <span class="widget-suggestion-title"><i class="fa fa-building-o"></i> It looks like this account already exists</span>
+                        <span class="widget-suggestion-title"><i class="fa fa-building-o"></i> {{ $root.messages.pages.accounts.addContactToExisting }}</span>
                         <span class="small pull-right clickable text-muted" ng-click="vm.showSuggestions = false"><i class="lilicon hl-close-icon"></i></span>
 
                         <div ng-repeat="account in vm.accountSuggestions" class="widget-suggestion-items">

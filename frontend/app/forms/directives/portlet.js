@@ -9,17 +9,7 @@ function formPortlet() {
             position: '=',
         },
         transclude: true,
-        templateUrl: function(elem, attrs) {
-            var templateUrl = '';
-
-            if (attrs.collapsable) {
-                templateUrl = 'forms/directives/collapsable_portlet.html';
-            } else {
-                templateUrl = 'forms/directives/portlet.html';
-            }
-
-            return templateUrl;
-        },
+        templateUrl: 'forms/directives/portlet.html',
         controller: FormPortletController,
         controllerAs: 'vm',
         bindToController: true,
@@ -28,7 +18,7 @@ function formPortlet() {
 
 FormPortletController.$inject = ['$rootScope', '$scope'];
 function FormPortletController($rootScope, $scope) {
-    var vm = this;
+    const vm = this;
 
     vm.sidebar = $rootScope.$$childHead.settings.email.sidebar.form;
 }

@@ -101,10 +101,10 @@ function PreferencesEmailTemplatesList($compile, $scope, $state, $templateCache,
 
                     EmailTemplate.update(args).$promise.then(() => {
                         swal.close();
-                        toastr.success('I\'ve updated the email template for you!', 'Done');
+                        toastr.success(sprintf(messages.notifications.modelUpdated, {model: 'email template'}), messages.notifications.successTitle);
                     }, response => {
                         HLForms.setErrors(form, response.data);
-                        toastr.error('Uh oh, there seems to be a problem', 'Oops!');
+                        toastr.error(messages.notifications.error, messages.notifications.errorTitle);
                     });
                 }
             }).done();
@@ -120,7 +120,7 @@ function PreferencesEmailTemplatesList($compile, $scope, $state, $templateCache,
 
     function addFolder() {
         vm.newFolder.$save(response => {
-            toastr.success('Folder has been saved', 'Done');
+            toastr.success('Folder has been saved', messages.notifications.successTitle);
 
             vm.templateFolders.unshift(response);
             vm.newFolder = EmailTemplateFolder.create();
@@ -138,7 +138,7 @@ function PreferencesEmailTemplatesList($compile, $scope, $state, $templateCache,
 
         if (vm.templateIds.length) {
             EmailTemplate.move({templates: vm.templateIds, folder: moveTo}).$promise.then(() => {
-                toastr.success('Email templates have been moved', 'Done');
+                toastr.success('Email templates have been moved', messages.notifications.successTitle);
 
                 getTemplates();
             });

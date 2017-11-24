@@ -15,12 +15,8 @@ function caseConfig($stateProvider) {
             label: 'Create',
         },
         resolve: {
-            currentCase: function() {
-                return null;
-            },
-            teams: ['UserTeams', function(UserTeams) {
-                return UserTeams.query().$promise;
-            }],
+            currentCase: () => null,
+            teams: ['UserTeams', UserTeams => UserTeams.query().$promise],
         },
     });
 
@@ -37,12 +33,8 @@ function caseConfig($stateProvider) {
             skip: true,
         },
         resolve: {
-            currentCase: function() {
-                return null;
-            },
-            teams: ['UserTeams', function(UserTeams) {
-                return UserTeams.query().$promise;
-            }],
+            currentCase: () => null,
+            teams: ['UserTeams', UserTeams => UserTeams.query().$promise],
         },
     });
 
@@ -59,12 +51,8 @@ function caseConfig($stateProvider) {
             skip: true,
         },
         resolve: {
-            currentCase: function() {
-                return null;
-            },
-            teams: ['UserTeams', function(UserTeams) {
-                return UserTeams.query().$promise;
-            }],
+            currentCase: () => null,
+            teams: ['UserTeams', UserTeams => UserTeams.query().$promise],
         },
     });
 
@@ -81,13 +69,11 @@ function caseConfig($stateProvider) {
             label: 'Edit',
         },
         resolve: {
-            currentCase: ['Case', '$stateParams', function(Case, $stateParams) {
-                var id = $stateParams.id;
-                return Case.get({id: id}).$promise;
+            currentCase: ['Case', '$stateParams', (Case, $stateParams) => {
+                const id = $stateParams.id;
+                return Case.get({id}).$promise;
             }],
-            teams: ['UserTeams', function(UserTeams) {
-                return UserTeams.query().$promise;
-            }],
+            teams: ['UserTeams', UserTeams => UserTeams.query().$promise],
         },
     });
 }
@@ -98,7 +84,7 @@ CaseCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', 'Accou
     'HLSearch', 'HLUtils', 'Settings', 'UserTeams', 'User', 'currentCase', 'teams'];
 function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case, Contact, HLForms,
     HLSearch, HLUtils, Settings, UserTeams, User, currentCase, teams) {
-    var vm = this;
+    const vm = this;
 
     vm.case = {};
     vm.teams = teams.results;
@@ -238,7 +224,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     });
 
     function _getTeams() {
-        UserTeams.mine(function(myTeams) {
+        UserTeams.mine(myTeams => {
             vm.ownTeams = myTeams;
         });
     }
@@ -266,8 +252,6 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     }
 
     function saveCase(form, archive) {
-        var cleanedCase;
-
         // Check if a case is being saved (and archived) via the + case page
         // or via a supercard.
         if (Settings.email.sidebar.isVisible && archive) {
@@ -321,22 +305,22 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         }
 
         // Clean modifies the object, so preserve the state by copying the object (in case of errors).
-        cleanedCase = HLForms.clean(angular.copy(vm.case));
+        const cleanedCase = HLForms.clean(angular.copy(vm.case));
         cleanedCase.expires = moment(cleanedCase.expires).format('YYYY-MM-DD');
 
         if (cleanedCase.id) {
             // If there's an ID set it means we're dealing with an existing contact, so update it.
-            cleanedCase.$update(function() {
-                toastr.success('I\'ve updated the case for you!', 'Done');
+            cleanedCase.$update(() => {
+                toastr.success(sprintf(messages.notifications.modelUpdated, {model: 'case'}), messages.notifications.successTitle);
                 $state.go('base.cases.detail', {id: cleanedCase.id}, {reload: true});
             }, function(response) {
                 _handleBadResponse(response, form);
             });
         } else {
-            cleanedCase.$save(function() {
+            cleanedCase.$save(() => {
                 new Intercom('trackEvent', 'case-created');
 
-                toastr.success('I\'ve saved the case for you!', 'Yay');
+                toastr.success(sprintf(messages.notifications.modelSaved, {model: 'case'}), messages.notifications.successTitle);
 
                 if (Settings.email.sidebar.form === 'cases') {
                     Settings.email.sidebar.form = null;
@@ -345,7 +329,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
                 } else {
                     $state.go('base.cases.detail', {id: cleanedCase.id});
                 }
-            }, function(response) {
+            }, response => {
                 _handleBadResponse(response, form);
             });
         }
@@ -354,7 +338,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     function _handleBadResponse(response, form) {
         HLForms.setErrors(form, response.data);
 
-        toastr.error('Uh oh, there seems to be a problem', 'Oops!');
+        toastr.error(messages.notifications.error, messages.notifications.errorTitle);
     }
 
     $scope.$watch('vm.case.account', (newValue, oldValue) => {
@@ -463,21 +447,19 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     function _caseFormIsValid() {
         if (!vm.case.account && !vm.case.contact) {
             swal({
-                title: 'No account or contact',
-                text: 'Please select an account or contact the case belongs to',
+                title: messages.alerts.cases.noSelectionTitle,
+                text: messages.alerts.cases.noSelectionText,
                 type: 'warning',
-                confirmButtonText: 'Let me fix that for you',
-                confirmButtonClass: 'btn btn-success',
+                confirmButtonText: messages.alerts.cases.confirmButtonText,
             }).done();
 
             return false;
         } else if ((vm.case.assigned_to_teams && !vm.case.assigned_to_teams.length) && !vm.case.assigned_to) {
             swal({
-                title: 'No assignee set',
-                text: 'Please select a colleague or team to assign the case to',
+                title: messages.alerts.cases.noAssigneeTitle,
+                text: messages.alerts.cases.noAssigneeText,
                 type: 'warning',
-                confirmButtonText: 'Let me fix that for you',
-                confirmButtonClass: 'btn btn-success',
+                confirmButtonText: messages.alerts.cases.confirmButtonText,
             }).done();
 
             return false;
@@ -486,7 +468,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         return true;
     }
 
-    $scope.$on('saveCase', function() {
+    $scope.$on('saveCase', () => {
         saveCase($scope.caseForm);
     });
 }

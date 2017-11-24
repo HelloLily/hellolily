@@ -536,12 +536,12 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                     Note.save(note, () => {
                         // Success.
                         scope.note.content = '';
-                        toastr.success('I\'ve created the note for you!', 'Done');
+                        toastr.success(messages.notifications.noteCreated, messages.notifications.successTitle);
                         reloadActivity();
                     }, response => {
                         // Error.
                         HLForms.setErrors(form, response.data);
-                        toastr.error('Uh oh, there seems to be a problem', 'Oops!');
+                        toastr.error(messages.notifications.error, messages.notifications.errorTitle);
                     });
                 }
             }

@@ -37,9 +37,9 @@ function TenantSettingsController($state, $window, HLForms, Tenant, tenant) {
         };
 
         Tenant.patch(args).$promise.then(() => {
-            toastr.success('You settings have been saved', 'Done');
+            toastr.success(sprintf(messages.notifications.modelSaved, {model: 'settings'}), messages.notifications.successTitle);
         }, error => {
-            toastr.error('Uh oh, there seems to be a problem', 'Oops!');
+            toastr.error(messages.notifications.error, messages.notifications.errorTitle);
         });
 
         HLForms.unblockUI();

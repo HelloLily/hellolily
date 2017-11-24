@@ -108,13 +108,13 @@ function TimeLoggerController($compile, $scope, $state, $templateCache, TimeLog)
             }
 
             promise.then(response => {
-                toastr.success('Your hours have been logged', 'Done!');
+                toastr.success(messages.notifications.hoursLogged, messages.notifications.successTitle);
                 $state.reload();
             }, response => {
-                toastr.error('Uh oh, there seems to be a problem', 'Oops!');
+                toastr.error(messages.notifications.error, messages.notifications.errorTitle);
             });
         } else {
-            toastr.error('Uh oh, there seems to be a problem', 'Oops!');
+            toastr.error(messages.notifications.error, messages.notifications.errorTitle);
             vm.error = true;
         }
     }

@@ -165,13 +165,11 @@
 
         <div ng-if="vm.showEmptyState">
             <div class="empty-state-description no-top">
-                <h3>Progressional overview of what’s going on</h3>
+                <h3>{{ $root.messages.pages.cases.emptyStateTitle }}</h3>
 
-                <p>Here you’ll find what needs to be done. Keep track of your tasks.</p>
-
-                <p>Start right now and add a <a class="hl-primary-btn" ui-sref="base.cases.create" role="button" onclick="ga('send', 'event', 'Case', 'Open', 'Case list empty state');"><i class="fa fa-plus"></i> Case</a></p>
+                <p>{{ $root.messages.pages.cases.emptyStateOne }}</p>
+                <p>{{ $root.messages.pages.cases.emptyStateTwo }}<a class="hl-primary-btn" ui-sref="base.cases.create" role="button" onclick="ga('send', 'event', 'Case', 'Open', 'Case list empty state');"><i class="fa fa-plus"></i> Case</a></p>
             </div>
         </div>
-
     </div>
 </div>

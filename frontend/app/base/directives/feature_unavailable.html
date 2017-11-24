@@ -14,8 +14,7 @@
                 <div class="widget-body">
                     <div class="widget-content">
                         <p>
-                            {{ $root.messages.tooltips.featureUnavailablePage }}
-                            <span ng-if="$root.currentUser.isAdmin">Please <a ui-sref="base.preferences.admin.billing">upgrade</a> to use this feature.</span>
+                            <span ng-bind-html="$root.messages.general.featureUnavailableInline || $root.messages.general.featureUnavailable"></span>
                         </p>
                     </div>
                 </div>

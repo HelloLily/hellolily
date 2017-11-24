@@ -5,7 +5,6 @@ angular.module('app.preferences').config(importConfig);
 importConfig.$inject = ['$stateProvider'];
 function importConfig($stateProvider) {
     $stateProvider.state('base.preferences.admin.import', {
-        // parent: 'base.preferences.user',
         url: '/import',
         views: {
             '@base.preferences': {
@@ -22,12 +21,11 @@ angular.module('app.preferences').controller('PreferencesImportController', Pref
 
 PreferencesImportController.$inject = ['HLForms', 'HLUtils', 'Upload'];
 function PreferencesImportController(HLForms, HLUtils, Upload) {
-    var vm = this;
-    vm.csv = null;
+    const vm = this;
 
+    vm.csv = null;
     vm.import_accounts_result_error = null;
     vm.import_accounts_result_created_updated = null;
-
     vm.import_contacts_result_error = null;
     vm.import_contacts_result_duplicate = null;
     vm.import_contacts_result_created = null;
@@ -38,9 +36,9 @@ function PreferencesImportController(HLForms, HLUtils, Upload) {
     //////
 
     function importAccounts(form) {
-        var formName = '[name="importAccountsForm"]';
+        const formName = '[name="importAccountsForm"]';
 
-        var data = {};
+        const data = {};
 
         if (vm.csv instanceof File) {
             data.csv = vm.csv;
@@ -57,9 +55,9 @@ function PreferencesImportController(HLForms, HLUtils, Upload) {
             url: 'api/accounts/import/',
             method: 'POST',
             data: data,
-        }).then(function(response) {
+        }).then(response => {
             HLUtils.unblockUI(formName);
-            toastr.success('I\'ve imported your accounts!', 'Done');
+            toastr.success(messages.notifications.importSuccess, messages.notifications.successTitle);
 
             if (response.data.error) {
                 vm.import_accounts_result_error = response.data.error;
@@ -67,20 +65,21 @@ function PreferencesImportController(HLForms, HLUtils, Upload) {
             if (response.data.created_updated) {
                 vm.import_accounts_result_created_updated = response.data.created_updated;
             }
-        }, function(response) {
+        }, response => {
             HLUtils.unblockUI(formName);
+
             if (response) {
                 HLForms.setErrors(form, response.data);
             }
 
-            toastr.error('Uh oh, there seems to be a problem', 'Oops!');
+            toastr.error(messages.notifications.error, messages.notifications.errorTitle);
         });
     }
 
     function importContacts(form) {
-        var formName = '[name="importContactsForm"]';
+        const formName = '[name="importContactsForm"]';
 
-        var data = {};
+        const data = {};
 
         if (vm.csv instanceof File) {
             data.csv = vm.csv;
@@ -95,12 +94,12 @@ function PreferencesImportController(HLForms, HLUtils, Upload) {
         vm.import_contacts_result_created = null;
 
         Upload.upload({
+            data,
             url: 'api/contacts/import/',
             method: 'POST',
-            data: data,
-        }).then(function(response) {
+        }).then(response => {
             HLUtils.unblockUI(formName);
-            toastr.success('I\'ve imported your contacts!', 'Done');
+            toastr.success(messages.notifications.contactImportSuccess, messages.notifications.successTitle);
 
             if (response.data.error) {
                 vm.import_contacts_result_error = response.data.error;
@@ -111,13 +110,13 @@ function PreferencesImportController(HLForms, HLUtils, Upload) {
             if (response.data.created) {
                 vm.import_contacts_result_created = response.data.created;
             }
-        }, function(response) {
+        }, response => {
             HLUtils.unblockUI(formName);
             if (response) {
                 HLForms.setErrors(form, response.data);
             }
 
-            toastr.error('Uh oh, there seems to be a problem', 'Oops!');
+            toastr.error(messages.notifications.error, messages.notifications.errorTitle);
         });
     }
 }

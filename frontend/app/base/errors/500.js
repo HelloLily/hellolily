@@ -24,5 +24,5 @@ angular.module('app.base').controller('ErrorController', ErrorController);
 
 ErrorController.$inject = ['Settings'];
 function ErrorController(Settings) {
-    Settings.page.setAllTitles('custom', 'Error');
+    Settings.page.setAllTitles('custom', messages.pages.serverErrorTitle);
 }

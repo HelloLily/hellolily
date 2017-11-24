@@ -16,15 +16,15 @@
                         </form-group>
 
                         <div class="m-t-30 m-b-30" ng-if="vm.emailAccount.only_new === null" ng-class="{'has-error': emailAccountForm.only_new.$invalid}">
-                            <label class="display-block m-b-5">Load all email into Lily?</label>
+                            <label class="display-block m-b-5">{{ $root.messages.pages.email.accountForm.loadAllMail }}</label>
                             <div class="radio-button-group radio-button-list">
                                 <label class="radio-button" for="all">
                                     <input type="radio" name="only_new" ng-model="vm.onlyNew" ng-value="0" id="all" class="radio-button-input" />
-                                    <span class="radio-button-label">Yes, load all email into Lily</span>
+                                    <span class="radio-button-label">{{ $root.messages.pages.email.accountForm.loadAllMailYes }}</span>
                                 </label>
                                 <label class="radio-button" for="only_new">
                                     <input type="radio" name="only_new" ng-model="vm.onlyNew" ng-value="1" id="only_new" class="radio-button-input" />
-                                    <span class="radio-button-label">No, only load email received from now on</span>
+                                    <span class="radio-button-label">{{ $root.messages.pages.email.accountForm.loadAllMailNo }}</span>
                                 </label>
                             </div>
                             <span class="help-block" ng-show="emailAccountForm.only_new.$error.message">{{ emailAccountForm.only_new.$error.message }}</span>
@@ -33,8 +33,7 @@
                         <div ng-class="{'overlay': currentUser.tenant.isFreePlan}">
                             <div ng-if="currentUser.tenant.isFreePlan" class="empty-state-description">
                                 <p>
-                                    This feature isn't available for your current plan. <br />
-                                    Please <a ui-sref="base.preferences.admin.billing">upgrade</a> to use this feature.
+                                    <span ng-bind-html="$root.messages.general.featureUnavailableInline || $root.messages.general.featureUnavailable"></span>
                                 </p>
                             </div>
 
@@ -43,7 +42,7 @@
                             </div>
                             <uib-tabset active="active" class="lily-tabs">
                                 <uib-tab index="0" heading="Basic">
-                                    <p>This inbox is a:</p>
+                                    <p>{{ $root.messages.pages.email.accountForm.inboxTitle }}:</p>
                                     <div class="privacy-radios">
                                         <div ng-repeat="option in vm.privacyOptions" class="privacy-option-container">
                                             <input type="radio" name="privacy" ng-model="vm.emailAccount.privacy" ng-value="{{ option.id }}" id="privacy_{{ option.id }}" />
@@ -60,7 +59,7 @@
                                     <h3 ng-if="!vm.emailAccount.privacy == 0" class="privacy-example-title">Example of timeline</h3>
 
                                     <div ng-if="vm.emailAccount.privacy == 0" class="privacy-info">
-                                        <i class="lilicon hl-info-icon blue"></i> Used by multiple people in the company, ergo info@ or support@
+                                        <i class="lilicon hl-info-icon blue"></i> {{ $root.messages.pages.email.accountForm.privateInboxInfo }}
                                     </div>
 
                                     <div class="privacy-examples" ng-if="!vm.emailAccount.privacy == 0">
@@ -88,7 +87,7 @@
                                                             </div>
 
                                                             <div class="stream-item-activity">
-                                                                <a class="stream-item-activity-link" href="#">Example for your convenience</a>
+                                                                <a class="stream-item-activity-link" href="#">{{ $root.messages.pages.email.accountForm.privateInboxExampleText }}</a>
                                                             </div>
 
                                                             <div class="stream-item-content is-email">
@@ -104,8 +103,9 @@
                                                                 </div>
 
                                                                 <div class="stream-item-description">
-                                                                    Hi! I just wanted to show an example of what your colleagues can read.</br></br>
-                                                                    Love Lily!
+                                                                    {{ $root.messages.pages.email.accountForm.readOnlyInboxInfo }}
+                                                                    <br /><br />
+                                                                    {{ $root.messages.pages.email.accountForm.readOnlyInboxInfoSignature }}
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -160,7 +160,7 @@
 
                                 </uib-tab>
                                 <uib-tab index="1" heading="Advanced">
-                                    <p>Give specific colleagues additional permissions to your email</p>
+                                    <p>{{ $root.messages.pages.email.accountForm.advancedInfo }}</p>
 
                                     <user-share></user-share>
                                 </uib-tab>

@@ -49,7 +49,7 @@
 
                 <form-group ng-if="vm.contactSuggestions.length && vm.showSuggestions">
                     <div class="widget-suggestion">
-                        <span class="widget-suggestion-title"><i class="lilicon hl-entity-icon"></i> It looks like this contact already exists</span>
+                        <span class="widget-suggestion-title"><i class="lilicon hl-entity-icon"></i> {{ $root.messages.pages.contacts.contactExists }}</span>
                         <span class="small pull-right clickable text-muted" ng-click="vm.showSuggestions = false"><i class="lilicon hl-close-icon"></i></span>
 
                         <div ng-repeat="contact in vm.contactSuggestions" class="widget-suggestion-items">
@@ -92,7 +92,7 @@
                             <tbody>
                                 <tr ng-repeat="emailAddress in vm.account.email_addresses">
                                     <td class="hl-form-table-column entity-icon-container">
-                                        <i class="lilicon hl-company-icon" ng-if="$first" uib-tooltip="{{ $root.messages.contact.accountInfoTooltip }}"></i>
+                                        <i class="lilicon hl-company-icon" ng-if="$first" uib-tooltip="{{ $root.messages.pages.contacts.accountInfoTooltip }}"></i>
                                     </td>
                                     <td class="hl-form-table-column">
                                         <span>{{ emailAddress.email_address }}</span>
@@ -115,7 +115,7 @@
                             <tbody>
                                 <tr ng-repeat="phoneNumber in vm.account.phone_numbers">
                                     <td class="hl-form-table-column entity-icon-container">
-                                        <i class="lilicon hl-company-icon" ng-if="$first" uib-tooltip="{{ $root.messages.contact.accountInfoTooltip }}"></i>
+                                        <i class="lilicon hl-company-icon" ng-if="$first" uib-tooltip="{{ $root.messages.pages.contacts.accountInfoTooltip }}"></i>
                                     </td>
                                     <td class="hl-form-table-column">
                                         <span>{{ phoneNumber.number }}</span>
@@ -139,7 +139,7 @@
                             <tbody ng-repeat="address in vm.account.addresses">
                                 <tr>
                                     <td class="hl-form-table-column entity-icon-container" rowspan="3">
-                                        <i class="lilicon hl-company-icon" ng-if="$first" uib-tooltip="{{ $root.messages.contact.accountInfoTooltip }}"></i>
+                                        <i class="lilicon hl-company-icon" ng-if="$first" uib-tooltip="{{ $root.messages.pages.contacts.accountInfoTooltip }}"></i>
                                     </td>
                                     <td class="hl-form-table-column">
                                         {{ address.address }}

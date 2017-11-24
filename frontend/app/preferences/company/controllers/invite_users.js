@@ -40,7 +40,7 @@ function InviteUsersController($state, HLForms, Settings, UserInvite, accountAdm
         const invites = vm.invites.filter(invite => !invite.is_deleted);
 
         UserInvite.post({invites}).$promise.then(() => {
-            toastr.success('The invitations were sent successfully', 'Done');
+            toastr.success(messages.notifications.invitationSent, messages.notifications.successTitle);
             $state.go('base.preferences.company.users', {}, {reload: true});
         }, response => {
             _handleBadResponse(response, form);
@@ -57,6 +57,6 @@ function InviteUsersController($state, HLForms, Settings, UserInvite, accountAdm
     function _handleBadResponse(response, form) {
         HLForms.setErrors(form, response.data);
 
-        toastr.error('Uh oh, there seems to be a problem', 'Oops!');
+        toastr.error(messages.notifications.error, messages.notifications.errorTitle);
     }
 }

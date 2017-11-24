@@ -24,7 +24,7 @@ angular.module('app.base').controller('EditSubscriptionController', EditSubscrip
 
 EditSubscriptionController.$inject = ['$scope', '$state', '$window', 'Billing', 'HLForms', 'plans'];
 function EditSubscriptionController($scope, $state, $window, Billing, HLForms, plans) {
-    var vm = this;
+    const vm = this;
 
     vm.subscription = plans.subscription;
     vm.currentPlan = plans.current_plan;
@@ -43,19 +43,19 @@ function EditSubscriptionController($scope, $state, $window, Billing, HLForms, p
     function saveSubsciption(form) {
         HLForms.blockUI();
 
-        Billing.patch({'plan_id': vm.selectedPlan}).$promise.then((response) => {
+        Billing.patch({'plan_id': vm.selectedPlan}).$promise.then(response => {
             if (response.url) {
                 $window.location.href = response.url;
             } else {
                 if (response.success) {
                     // Free plan so just redirect back to overview page.
-                    toastr.success('Your subscription has been changed', 'Success!');
+                    toastr.success(messages.notifications.subscriptionUpdated, messages.notifications.successTitle);
                     $state.go('base.preferences.admin.billing');
                 } else {
-                    toastr.error('Your subscription couldn\'t be changed. Please try again', 'Error');
+                    toastr.error(messages.notifications.subscriptionError, messages.notifications.errorTitle);
                 }
             }
-        }, (error) => {
+        }, error => {
             Metronic.unblockUI();
         });
     }

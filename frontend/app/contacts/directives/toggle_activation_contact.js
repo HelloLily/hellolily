@@ -1,6 +1,3 @@
-/**
- *
- */
 angular.module('app.directives').directive('toggleActivationContact', toggleActivationContact);
 function toggleActivationContact() {
     return {
@@ -25,7 +22,7 @@ function toggleActivationContact() {
 
 ToggleActivationContactController.$inject = ['$compile', '$scope', '$state', '$templateCache', 'HLResource', 'Contact'];
 function ToggleActivationContactController($compile, $scope, $state, $templateCache, HLResource, Contact) {
-    var vm = this;
+    const vm = this;
 
     vm.openToggleActivationModal = openToggleActivationModal;
     vm.toggleActivationForContact = toggleActivationForContact;
@@ -42,16 +39,16 @@ function ToggleActivationContactController($compile, $scope, $state, $templateCa
     }
 
     function toggleActivationForContact(account) {
-        var args = {
+        const args = {
             contact: vm.object.id,
             account: account.id,
             is_active: vm.object.active_at_account[account.id],
         };
 
-        Contact.toggleActiveAtAccount(args).$promise.then(function() {
-            toastr.success('I\'ve updated your contact!', 'Done');
-        }, function(response) {
-            toastr.error('Uh oh, there seems to be a problem', 'Oops!');
+        Contact.toggleActiveAtAccount(args).$promise.then(() => {
+            toastr.success(sprintf(messages.notifications.modelUpdated, {model: 'contact'}), messages.notifications.successTitle);
+        }, response => {
+            toastr.error(messages.notifications.error, messages.notifications.errorTitle);
         });
     }
 }

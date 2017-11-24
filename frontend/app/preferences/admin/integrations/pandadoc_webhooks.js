@@ -12,18 +12,10 @@ function pandaDocWebhooks($stateProvider) {
             },
         },
         resolve: {
-            tenant: ['Tenant', Tenant => {
-                return Tenant.query({});
-            }],
-            nextSteps: ['Deal', Deal => {
-                return Deal.getNextSteps().$promise;
-            }],
-            statuses: ['Deal', Deal => {
-                return Deal.getStatuses().$promise;
-            }],
-            events: ['PandaDoc', PandaDoc => {
-                return PandaDoc.getEvents().$promise;
-            }],
+            tenant: ['Tenant', Tenant => Tenant.query({})],
+            nextSteps: ['Deal', Deal => Deal.getNextSteps().$promise],
+            statuses: ['Deal', Deal => Deal.getStatuses().$promise],
+            events: ['PandaDoc', PandaDoc => PandaDoc.getEvents().$promise],
         },
     });
 }
@@ -32,7 +24,7 @@ angular.module('app.preferences').controller('PandaDocWebhooksController', Panda
 
 PandaDocWebhooksController.$inject = ['$state', 'HLForms', 'PandaDoc', 'nextSteps', 'statuses', 'tenant', 'events'];
 function PandaDocWebhooksController($state, HLForms, PandaDoc, nextSteps, statuses, tenant, events) {
-    let vm = this;
+    const vm = this;
 
     vm.nextSteps = nextSteps.results;
     vm.statusChoices = statuses.results;
@@ -51,7 +43,7 @@ function PandaDocWebhooksController($state, HLForms, PandaDoc, nextSteps, status
         HLForms.blockUI();
 
         PandaDoc.saveEvents(vm.events).$promise.then(response => {
-            toastr.success('The PandaDoc events have been saved', 'Done');
+            toastr.success(sprintf(messages.notifications.modelSaved, {model: 'PandaDoc events'}), messages.notifications.successTitle);
             $state.reload();
         }, error => {
             toastr.error(error.data.duplicate_event, 'Oops');
@@ -63,10 +55,10 @@ function PandaDocWebhooksController($state, HLForms, PandaDoc, nextSteps, status
         HLForms.blockUI();
 
         PandaDoc.saveSharedKey({shared_key: vm.sharedKey}).$promise.then(response => {
-            toastr.success('Your PandaDoc shared key has been saved', 'Done');
+            toastr.success(sprintf(messages.notifications.modelSaved, {model: 'PandaDoc shared key'}), messages.notifications.successTitle);
             $state.reload();
         }, error => {
-            toastr.error('Something went wrong', 'Oops');
+            toastr.error(messages.notifications.error, messages.notifications.errorTitle);
             Metronic.unblockUI();
         });
     }
@@ -79,7 +71,7 @@ function PandaDocWebhooksController($state, HLForms, PandaDoc, nextSteps, status
         // Clean up the name so it's human readable.
         // This means we remove the document_ and document. from the name.
         // Also replace any remaining underscores with spaces.
-        let newName = name.replace(/document_|document\./g, '').replace('_', ' ');
+        const newName = name.replace(/document_|document\./g, '').replace('_', ' ');
         return newName.charAt(0).toUpperCase() + newName.slice(1);
     }
 

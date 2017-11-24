@@ -15,9 +15,7 @@ function preferencesConfig($stateProvider) {
             },
         },
         resolve: {
-            user: ['User', function(User) {
-                return User.me().$promise;
-            }],
+            user: ['User', (User) => User.me().$promise],
         },
     });
 }
@@ -26,7 +24,7 @@ angular.module('app.preferences').controller('PreferencesUserProfileController',
 
 PreferencesUserProfileController.$inject = ['$state', '$window', 'HLForms', 'HLUtils', 'Upload', 'user'];
 function PreferencesUserProfileController($state, $window, HLForms, HLUtils, Upload, user) {
-    var vm = this;
+    const vm = this;
 
     vm.user = user;
 
@@ -44,18 +42,18 @@ function PreferencesUserProfileController($state, $window, HLForms, HLUtils, Upl
         }
 
         if (vm.user.hasOwnProperty('social_media') && vm.user.social_media.length) {
-            angular.forEach(vm.user.social_media, function(profile) {
+            angular.forEach(vm.user.social_media, profile => {
                 vm.user[profile.name] = profile.username;
             });
         }
     }
 
     function saveUser(form) {
-        var formName = '[name="userForm"]';
+        const formName = '[name="userForm"]';
 
         // Manually set the fields because Upload.upload doesn't
         // seem to handle Angular resources very well.
-        var data = {
+        const data = {
             'first_name': vm.user.first_name,
             'last_name': vm.user.last_name,
             'position': vm.user.position,
@@ -98,16 +96,16 @@ function PreferencesUserProfileController($state, $window, HLForms, HLUtils, Upl
             url: 'api/users/me/',
             method: 'PATCH',
             data: data,
-        }).then(function() {
-            toastr.success('I\'ve updated your profile!', 'Done');
+        }).then(() => {
+            toastr.success(messages.notifications.profileUpdated, messages.notifications.successTitle);
             // Regular state reload isn't enough here, because the picture isn't reloaded.
             // So do a full refresh to show the updated picture.
             $window.location.reload();
-        }, function(response) {
+        }, response => {
             HLUtils.unblockUI(formName);
             HLForms.setErrors(form, response.data);
 
-            toastr.error('Uh oh, there seems to be a problem', 'Oops!');
+            toastr.error(messages.notifications.error, messages.notifications.errorTitle);
         });
     }
 

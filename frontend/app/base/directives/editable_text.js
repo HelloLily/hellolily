@@ -18,7 +18,7 @@ function editableText() {
 
 EditableTextController.$inject = ['HLUtils'];
 function EditableTextController(HLUtils) {
-    var vm = this;
+    const vm = this;
 
     vm.updateViewModel = updateViewModel;
 

@@ -38,7 +38,7 @@
                     <td><a ui-sref="base.contacts.detail({id: contact.id})">{{ contact.full_name }}</a> <span ng-if="!contact.active_at.includes(vm.object.id)">(inactive)</span></td>
                     <td>
                         <div ng-if="!contact.primary_email_address && vm.object.primary_email_address">
-                            <i class="lilicon hl-company-icon m-r-5" uib-tooltip="{{ $root.messages.contact.accountListInfoTooltip }}"></i>
+                            <i class="lilicon hl-company-icon m-r-5" uib-tooltip="{{ $root.messages.pages.contacts.accountListInfoTooltip }}"></i>
                             <a ui-sref="base.email.composeEmail({email: vm.object.primary_email_address})">
                                 {{ vm.object.primary_email_address }}
                             </a>
@@ -51,7 +51,7 @@
                         </div>
 
                         <div ng-if="!contact.phone_numbers && account.phone_numbers.length">
-                            <i class="lilicon hl-company-icon m-r-5" uib-tooltip="{{ $root.messages.contact.accountListInfoTooltip }}"></i>
+                            <i class="lilicon hl-company-icon m-r-5" uib-tooltip="{{ $root.messages.pages.contacts.accountListInfoTooltip }}"></i>
                             <a href="tel:{{ vm.object.phone_numbers[0].number }}">{{ vm.object.phone_numbers[0].number }}</a>
                         </div>
 

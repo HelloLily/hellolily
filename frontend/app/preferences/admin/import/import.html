@@ -11,11 +11,11 @@
             <div class="col-md-12">
                 <form novalidate name="importAccountsForm">
                     <form-portlet portlet-title="Import accounts">
-                        <p>List accounts all at once by importing a .csv file containing account information.</p>
+                        <p>{{ $root.messages.pages.import.intro }}</p>
                         <ul class="hl-instruction-list">
-                            <li class="hl-instruction-list-item">Only .CSV files are eligible</li>
-                            <li class="hl-instruction-list-item">The file should at least contain a column with the header: <strong>company name</strong></li>
-                            <li class="hl-instruction-list-item">Optional headers are:
+                            <li class="hl-instruction-list-item">{{ $root.messages.pages.import.instructionsOne }}</li>
+                            <li class="hl-instruction-list-item">{{ $root.messages.pages.import.instructionsTwo }}: <strong>company name</strong></li>
+                            <li class="hl-instruction-list-item">{{ $root.messages.pages.import.instructionsThree }}:
                                 <strong>website</strong>,
                                 <strong>email address</strong>,
                                 <strong>phone number</strong>,
@@ -24,8 +24,8 @@
                                 <strong>city</strong>,
                                 <strong>twitter</strong>.
                             </li>
-                            <li class="hl-instruction-list-item">Information in any additional columns will be added to the description of an account</li>
-                            <li class="hl-instruction-list-item">Please note that headers are case sensitive</li>
+                            <li class="hl-instruction-list-item">{{ $root.messages.pages.import.instructionsFourAccount }}</li>
+                            <li class="hl-instruction-list-item">{{ $root.messages.pages.import.instructionsFive }}</li>
                         </ul>
 
                         <form-group field="importAccountsForm.file_accounts">
@@ -75,14 +75,14 @@
             <div class="col-md-12">
                 <form novalidate name="importContactsForm">
                     <form-portlet portlet-title="Import contacts">
-                        <p>List contacts all at once by importing a .csv file containing contact information.</p>
+                        <p>{{ $root.messages.pages.import.contactIntro }}</p>
                         <ul class="hl-instruction-list">
-                            <li class="hl-instruction-list-item">Only .CSV files are eligible</li>
-                            <li class="hl-instruction-list-item">The file should at least contain a column with the header:
+                            <li class="hl-instruction-list-item">{{ $root.messages.pages.import.instructionsOne }}</li>
+                            <li class="hl-instruction-list-item">{{ $root.messages.pages.import.instructionsTwo }}:
                                 <strong>first name</strong>,
                                 <strong>last name</strong>
                             </li>
-                            <li class="hl-instruction-list-item">Optional headers are:
+                            <li class="hl-instruction-list-item">{{ $root.messages.pages.import.instructionsThree }}:
                                 <strong>email address</strong>,
                                 <strong>phone number</strong>,
                                 <strong>address</strong>,
@@ -92,8 +92,8 @@
                                 <strong>linkedin</strong>,
                                 <strong>company name</strong>.
                             </li>
-                            <li class="hl-instruction-list-item">Information in any additional columns will be added to the description of a contact</li>
-                            <li class="hl-instruction-list-item">Please note that headers are case sensitve</li>
+                            <li class="hl-instruction-list-item">{{ $root.messages.pages.import.instructionsFourContact }}</li>
+                            <li class="hl-instruction-list-item">{{ $root.messages.pages.import.instructionsFive }}</li>
                         </ul>
 
                         <form-group field="importContactsForm.file_contacts">

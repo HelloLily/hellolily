@@ -1,7 +1,7 @@
 <div class="hl-related-form-field" ng-repeat="address in vm.addresses" ng-class="{'has-error': form['addresses-address-' + $index].$invalid }">
     <div class="row hl-row-sm m-b-10">
         <div class="col-md-7 create-sidebar-input-col-8 hl-flex-container">
-            <i class="hl-form-icon" ng-transclude uib-tooltip="{{ $root.messages.contact.contactInfoTooltip }}"></i>
+            <i class="hl-form-icon" ng-transclude uib-tooltip="{{ $root.messages.pages.contacts.contactInfoTooltip }}"></i>
             <input class="form-control hl-form-input hl-flex-1"
                    id="id_addresses-address-{{ $index }}"
                    maxlength="255"

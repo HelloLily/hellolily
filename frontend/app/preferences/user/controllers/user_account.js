@@ -15,9 +15,7 @@ function preferencesConfig($stateProvider) {
             label: 'account',
         },
         resolve: {
-            user: ['User', function(User) {
-                return User.me().$promise;
-            }],
+            user: ['User', User => User.me().$promise],
         },
     });
 }
@@ -26,7 +24,7 @@ angular.module('app.preferences').controller('PreferencesUserAccountController',
 
 PreferencesUserAccountController.$inject = ['$state', 'HLForms', 'HLUtils', 'User', 'user'];
 function PreferencesUserAccountController($state, HLForms, HLUtils, User, user) {
-    var vm = this;
+    const vm = this;
 
     vm.user = user;
 
@@ -41,9 +39,9 @@ function PreferencesUserAccountController($state, HLForms, HLUtils, User, user) 
     }
 
     function saveUser(form) {
-        var formName = '[name="userForm"]';
+        const formName = '[name="userForm"]';
 
-        var args = {
+        const args = {
             id: 'me',
             email: vm.user.email,
             password_confirmation: vm.user.password_confirmation,
@@ -55,19 +53,19 @@ function PreferencesUserAccountController($state, HLForms, HLUtils, User, user) 
         }
 
         if (vm.user.password !== vm.user.password_check) {
-            toastr.error('Your passwords don\'t match. Please fix and try again.', 'Attention!');
+            toastr.error(messages.notifications.passwordMismatch, messages.notifications.passwordMismatchTitle);
         } else {
             HLUtils.blockUI(formName, true);
             HLForms.clearErrors(form);
 
-            User.patch(args).$promise.then(function() {
-                toastr.success('I\'ve updated your account!', 'Done');
+            User.patch(args).$promise.then(() => {
+                toastr.success(messages.notifications.userAccountUpdated, messages.notifications.successTitle);
                 $state.reload();
-            }, function(response) {
+            }, response => {
                 HLUtils.unblockUI(formName);
                 HLForms.setErrors(form, response.data);
 
-                toastr.error('Uh oh, there seems to be a problem', 'Oops!');
+                toastr.error(messages.notifications.error, messages.notifications.errorTitle);
             });
         }
     }

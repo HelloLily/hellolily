@@ -34,14 +34,13 @@
                         <div class="widget-suggestion">
                             <span class="widget-suggestion-title">
                                 <i class="lilicon hl-entity-icon"></i>
-                                <span ng-if="vm.openDeals.length === 1">There's another open deal</span>
-                                <span ng-if="vm.openDeals.length > 1">There are other open deals</span>
+                                <ng-pluralize count="vm.openDeals.length" when="{1: '{{ $root.messages.pages.deals.openDeal }}', 'other': ' {{ $root.messages.pages.deals.openDeals }}'}"></ng-pluralize>
                             </span>
                             <span class="small pull-right clickable text-muted" ng-click="vm.showSuggestions = false"><i class="lilicon hl-close-icon"></i></span>
 
                             <div ng-repeat="deal in vm.openDeals" class="widget-suggestion-items">
                                 <div class="widget-suggestion-item">
-                                    Check it out: <a ui-sref="base.deals.detail({ id: deal.id })">{{ deal.name }}</a>
+                                    {{ $root.messages.pages.generic.widgetItemSuggest }}: <a ui-sref="base.deals.detail({ id: deal.id })">{{ deal.name }}</a>
                                 </div>
                                 <div class="widget-suggestion-item-action">
                                     <a ng-if="!settings.email.sidebar.form" class="hl-primary-btn" ui-sref="base.deals.detail.edit({ id: deal.id })">Edit this deal</a>

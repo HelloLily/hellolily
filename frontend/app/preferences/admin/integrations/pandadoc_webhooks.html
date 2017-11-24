@@ -1,10 +1,10 @@
 <div class="portlet light">
     <div class="portlet-title">
         <h2>Webhooks</h2>
-        <p>Set up webhooks to update deals based on received events.</p>
+        <p>{{ $root.messages.pages.integrations.pandaDocWebooksIntro }}</p>
 
         <div>
-            <strong>Enter the following url in PandaDoc to start receiving document updates.</strong>
+            <strong>{{ $root.messages.pages.integrations.pandaDocWebooksIntroSub }}</strong>
         </div>
         <div class="m-t-10">
             <code>https://app.hellolily.com/api/integrations/documents/events/catch/</code>
@@ -128,11 +128,11 @@
                         <div ng-if="vm.showInfo" class="widget-suggestion">
                             <strong>Document event</strong>: <a href="https://developers.pandadoc.com/v1/reference#section-webhook-events" target="_blank">View info</a><br />
                             <strong>Document status</strong>: <a href="https://developers.pandadoc.com/v1/reference#section-available-document-statuses" target="_blank">View info</a><br />
-                            <strong>Deal status</strong>: What status should the deal be set to<br />
-                            <strong>Deal next step</strong>: What step should the deal be set to<br />
-                            <strong>Extra days</strong>: Amount of days to add to the next step date<br />
-                            <strong>Set to today</strong>: Sets the date to the date the event was triggered (can't be used together with 'Extra days')<br />
-                            <strong>Add note</strong>: Should a note be added when this event occurs<br />
+                            <strong>Deal status</strong>: {{ $root.messages.pages.integrations.pandaDocWebooksInstructionsOne }}<br />
+                            <strong>Deal next step</strong>: {{ $root.messages.pages.integrations.pandaDocWebooksInstructionsTwo }}<br />
+                            <strong>Extra days</strong>: {{ $root.messages.pages.integrations.pandaDocWebooksInstructionsThree }}<br />
+                            <strong>Set to today</strong>: {{ $root.messages.pages.integrations.pandaDocWebooksInstructionsFour }}<br />
+                            <strong>Add note</strong>: {{ $root.messages.pages.integrations.pandaDocWebooksInstructionsFive }}<br />
                         </div>
                     </div>
                 </div>

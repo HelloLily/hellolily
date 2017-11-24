@@ -15,12 +15,8 @@ function preferencesConfig($stateProvider) {
             label: 'security',
         },
         resolve: {
-            twoFactor: ['TwoFactor', function(TwoFactor) {
-                return TwoFactor.query().$promise;
-            }],
-            userSession: ['UserSession', function(UserSession) {
-                return UserSession.query().$promise;
-            }],
+            twoFactor: ['TwoFactor', TwoFactor => TwoFactor.query().$promise],
+            userSession: ['UserSession', UserSession => UserSession.query().$promise],
         },
     });
 }
@@ -29,7 +25,7 @@ angular.module('app.preferences').controller('PreferencesUserSecurityController'
 
 PreferencesUserSecurityController.$inject = ['$compile', '$scope', '$state', '$templateCache', 'TwoFactor', 'UserSession', 'twoFactor', 'userSession'];
 function PreferencesUserSecurityController($compile, $scope, $state, $templateCache, TwoFactor, UserSession, twoFactor, userSession) {
-    var vm = this;
+    const vm = this;
 
     vm.twoFactor = twoFactor;
     vm.userSessions = userSession.results;
@@ -53,7 +49,7 @@ function PreferencesUserSecurityController($compile, $scope, $state, $templateCa
             html: $compile($templateCache.get('preferences/user/controllers/security_backup_phone_numbers.html'))($scope),
             showCloseButton: true,
             confirmButtonText: 'Add another',
-        }).then(function() {
+        }).then(() => {
             window.location.href = '/two-factor/backup/phone/register/';
         });
     }
@@ -66,27 +62,26 @@ function PreferencesUserSecurityController($compile, $scope, $state, $templateCa
             showCancelButton: true,
             confirmButtonColor: '#f3565d',
             confirmButtonText: vm.messages.removeBackupPhoneNumber.confirmButtonText,
-            preConfirm: function() {
+            preConfirm: () => {
                 swal.enableLoading();
 
-                return new Promise(function(resolve) {
-                    TwoFactor.remove_phone({id: phoneNumber.id},
-                        function() {
-                            // Delete was successful, so continue.
-                            resolve();
-                        }, function(error) {
-                            // Otherwise show error alert.
-                            swal({
-                                title: vm.messages.removeBackupPhoneNumber.error.title,
-                                html: vm.messages.removeBackupPhoneNumber.error.html,
-                                type: 'error',
-                            });
+                return new Promise(resolve => {
+                    TwoFactor.remove_phone({id: phoneNumber.id}, () => {
+                        // Delete was successful, so continue.
+                        resolve();
+                    }, error => {
+                        // Otherwise show error alert.
+                        swal({
+                            title: vm.messages.removeBackupPhoneNumber.error.title,
+                            html: vm.messages.removeBackupPhoneNumber.error.html,
+                            type: 'error',
                         });
+                    });
                 });
             },
-        }).then(function(isConfirm) {
+        }).then(isConfirm => {
             if (isConfirm) {
-                toastr.success('The phone number was successfully removed', 'Done');
+                toastr.success(messages.notifications.twoFactorPhoneRemoved, messages.notifications.successTitle);
                 $state.reload();
             }
         }).done();
@@ -97,12 +92,12 @@ function PreferencesUserSecurityController($compile, $scope, $state, $templateCa
             title: '',
             html: $compile($templateCache.get('preferences/user/controllers/security_backup_tokens.html'))($scope),
             showCloseButton: true,
-            confirmButtonText: 'Regenerate',
-        }).then(function(isConfirm) {
+            confirmButtonText: messages.alerts.twoFactorAuth.backup.confirmButtonText,
+        }).then(isConfirm => {
             if (isConfirm) {
-                TwoFactor.regenerate_tokens(function(response) {
+                TwoFactor.regenerate_tokens(response => {
                     vm.twoFactor.backup_tokens = response;
-                    toastr.success('You now have a new set of backup tokens!', 'Done');
+                    toastr.success(messages.notifications.twoFactorNewTokens, messages.notifications.successTitle);
                 });
             }
         });
@@ -120,27 +115,26 @@ function PreferencesUserSecurityController($compile, $scope, $state, $templateCa
             showCancelButton: true,
             confirmButtonColor: '#f3565d',
             confirmButtonText: vm.messages.endSession.confirmButtonText,
-            preConfirm: function() {
+            preConfirm: () => {
                 swal.enableLoading();
 
-                return new Promise(function(resolve) {
-                    UserSession.delete({session_key: session.session_key},
-                        function() {
-                            // Delete was successful, so continue.
-                            resolve();
-                        }, function(error) {
-                            // Otherwise show error alert.
-                            swal({
-                                title: vm.messages.endSession.error.title,
-                                html: vm.messages.endSession.error.html,
-                                type: 'error',
-                            });
+                return new Promise(resolve => {
+                    UserSession.delete({session_key: session.session_key}, () => {
+                        // Delete was successful, so continue.
+                        resolve();
+                    }, error => {
+                        // Otherwise show error alert.
+                        swal({
+                            title: vm.messages.endSession.error.title,
+                            html: vm.messages.endSession.error.html,
+                            type: 'error',
                         });
+                    });
                 });
             },
-        }).then(function(isConfirm) {
+        }).then(isConfirm => {
             if (isConfirm) {
-                toastr.success('The session was successfully ended', 'Session ended!');
+                toastr.success(messages.notifications.sessionEnded, messages.notifications.sessionEndedTitle);
                 $state.reload();
             }
         }).done();

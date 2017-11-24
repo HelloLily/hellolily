@@ -4,15 +4,15 @@ Account.$inject = ['$filter', '$http', '$q', '$resource', 'HLResource', 'HLUtils
     'CacheFactory', 'Settings'];
 function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
     CacheFactory, Settings) {
-    var _account = $resource(
+    const _account = $resource(
         '/api/accounts/:id/',
         null,
         {
             get: {
                 // TODO: LILY-1659: Apply caching on User Account.
                 //cache: CacheFactory.get('dataCache'),
-                transformResponse: function(data) {
-                    var jsonData = angular.fromJson(data);
+                transformResponse: data => {
+                    const jsonData = angular.fromJson(data);
 
                     HLResource.setSocialMediaFields(jsonData);
 
@@ -29,14 +29,14 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
             search: {
                 url: '/search/search/?type=accounts_account&filterquery=:filterquery',
                 cache: true,
-                transformResponse: function(data) {
-                    let jsonData = angular.fromJson(data);
-                    let objects = [];
+                transformResponse: data => {
+                    const jsonData = angular.fromJson(data);
+                    const objects = [];
                     let total = 0;
 
                     if (jsonData) {
                         if (jsonData.hits && jsonData.hits.length > 0) {
-                            jsonData.hits.forEach(function(obj) {
+                            jsonData.hits.forEach(obj => {
                                 objects.push(obj);
                             });
                         }
@@ -45,8 +45,8 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
                     }
 
                     return {
-                        objects: objects,
-                        total: total,
+                        objects,
+                        total,
                     };
                 },
             },
@@ -75,10 +75,10 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
             },
             getStatuses: {
                 url: '/api/accounts/statuses/',
-                transformResponse: function(data) {
-                    var statusData = angular.fromJson(data);
+                transformResponse: data => {
+                    const statusData = angular.fromJson(data);
 
-                    angular.forEach(statusData.results, function(status) {
+                    angular.forEach(statusData.results, status => {
                         if (status.name === 'Relation') {
                             _account.relationStatus = status;
                             _account.defaultNewStatus = _account.relationStatus;
@@ -99,11 +99,11 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
             getCalls: {
                 url: '/api/accounts/:id/calls',
                 transformResponse: data => {
-                    let jsonData = angular.fromJson(data);
+                    const jsonData = angular.fromJson(data);
 
                     if (jsonData) {
                         if (jsonData.results && jsonData.results.length > 0) {
-                            jsonData.results.map(call => {
+                            jsonData.results.forEach(call => {
                                 call.activityType = 'call';
                                 call.color = 'yellow';
                                 call.date = call.start;
@@ -144,7 +144,7 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
      *      }
      */
     function getAccounts(queryString, page, pageSize, orderColumn, orderedAsc, filterQuery) {
-        var sort = '';
+        let sort = '';
         if (orderedAsc) sort += '-';
         sort += orderColumn;
 
@@ -159,7 +159,7 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
                 sort: sort,
                 filterquery: filterQuery,
             },
-        }).then(function(response) {
+        }).then(response => {
             return {
                 accounts: response.data.hits,
                 total: response.data.total,
@@ -168,8 +168,7 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
     }
 
     function updateModel(data, field, account) {
-        var patchPromise;
-        var args = HLResource.createArgs(data, field, account);
+        let args = HLResource.createArgs(data, field, account);
 
         if (field === 'twitter') {
             args = {
@@ -182,9 +181,9 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
             Settings.page.setAllTitles('detail', data);
         }
 
-        patchPromise = HLResource.patch('Account', args).$promise;
+        const patchPromise = HLResource.patch('Account', args).$promise;
 
-        patchPromise.then(function(response) {
+        patchPromise.then(response => {
             if (field === 'twitter') {
                 // Update the Twitter link.
                 HLResource.setSocialMediaFields(response);
@@ -194,11 +193,12 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
 
             if (field === 'customer_id') {
                 // Change status to Active if customer_id is succesfully updated.
-                _account.getStatuses(function(statusResponse) {
+                _account.getStatuses(statusResponse => {
                     args = {
                         id: account.id,
                         status: _account.relationStatus.id,
                     };
+
                     if (account.status.id === _account.relationStatus.id) {
                         HLResource.patch('Account', args).$promise;
                         account.status = _account.activeStatus;
@@ -223,33 +223,35 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
     }
 
     function _sanitizeDomain(url) {
-        var domain = $.trim(url.replace('http://', ''));
+        let domain = $.trim(url.replace('http://', ''));
         domain = $.trim(domain.replace('https://', ''));
+
         // Always add last '/'
         if (domain.slice(-1) !== '/') {
             domain += '/';
         }
+
         return domain;
     }
 
     function getDataproviderInfo(url) {
-        var account = this;
-        var deferred = $q.defer();
-        var sanitizedUrl = _sanitizeDomain(url);
+        const account = this;
+        const deferred = $q.defer();
+        const sanitizedUrl = _sanitizeDomain(url);
 
         if (sanitizedUrl.length > 1) {
             $http({
                 url: '/api/provide/dataprovider/',
                 method: 'POST',
                 data: {url: sanitizedUrl},
-            }).success(function(response) {
+            }).success(response => {
                 if (response.error) {
                     deferred.reject('Failed to load data');
                 } else {
                     account._storeDataproviderInfo(response);
                     deferred.resolve();
                 }
-            }).error(function(error) {
+            }).error(error => {
                 deferred.reject(error);
             });
         }
@@ -258,9 +260,9 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
     }
 
     _account.prototype._storeDataproviderInfo = function(data) {
-        var account = this;
+        const account = this;
 
-        angular.forEach(data, function(value, key) {
+        angular.forEach(data, (value, key) => {
             // Only if value is defined & is not an array (than it is an related field)
             if (value && !(value instanceof Array)) {
                 account[key] = value;
@@ -274,12 +276,12 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
     };
 
     _account.prototype._addEmailAddresses = function(data) {
-        var account = this;
+        const account = this;
 
-        angular.forEach(data.email_addresses, function(emailAddress) {
-            var add = true;
+        angular.forEach(data.email_addresses, emailAddress => {
+            let add = true;
 
-            angular.forEach(account.email_addresses, function(accountEmailAddress) {
+            angular.forEach(account.email_addresses, (accountEmailAddress) => {
                 // Check if email address already exists
                 if (emailAddress === accountEmailAddress.email_address) {
                     add = false;
@@ -297,15 +299,15 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
     };
 
     _account.prototype._addAddresses = function(data) {
-        var account = this;
-        var add = true;
+        const account = this;
+        let add = true;
 
-        angular.forEach(data.addresses, function(address) {
+        angular.forEach(data.addresses, address => {
             if (!address.type) {
                 address.type = 'visiting';
             }
 
-            angular.forEach(account.addresses, function(accountAddress) {
+            angular.forEach(account.addresses, accountAddress => {
                 // Check if address already exists
                 if (angular.equals(address, accountAddress)) {
                     add = false;
@@ -319,14 +321,12 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
     };
 
     _account.prototype._addPhoneNumbers = function(data) {
-        var account = this;
-        var formattedPhoneNumber;
-        var address;
+        const account = this;
 
-        angular.forEach(data.phone_numbers, function(phoneNumber) {
-            var add = true;
+        angular.forEach(data.phone_numbers, phoneNumber => {
+            let add = true;
 
-            angular.forEach(account.phone_numbers, function(accountPhoneNumber) {
+            angular.forEach(account.phone_numbers, accountPhoneNumber => {
                 // Check if phone number already exists
                 if (phoneNumber === accountPhoneNumber.number) {
                     add = false;
@@ -334,11 +334,13 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
             });
 
             if (add) {
+                let address;
+
                 if (account.addresses.length) {
                     address = account.addresses[0];
                 }
 
-                formattedPhoneNumber = HLUtils.formatPhoneNumber({number: phoneNumber, type: 'work'}, address);
+                const formattedPhoneNumber = HLUtils.formatPhoneNumber({number: phoneNumber, type: 'work'}, address);
 
                 account.phone_numbers.push(formattedPhoneNumber);
             }

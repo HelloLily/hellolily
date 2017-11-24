@@ -31,7 +31,8 @@ angular.module('app.accounts').controller('AccountList', AccountList);
 
 AccountList.$inject = ['$filter', '$scope', '$window', 'Settings', 'Account', 'LocalStorage', 'HLFilters', 'HLUtils'];
 function AccountList($filter, $scope, $window, Settings, Account, LocalStorage, HLFilters, HLUtils) {
-    var vm = this;
+    const vm = this;
+
     vm.storage = new LocalStorage('accountList');
     vm.storedFilterList = vm.storage.get('filterListSelected', null);
     /**
@@ -77,7 +78,7 @@ function AccountList($filter, $scope, $window, Settings, Account, LocalStorage, 
     Settings.page.setAllTitles('list', 'accounts');
 
     function removeFromList(account) {
-        var index = vm.table.items.indexOf(account);
+        const index = vm.table.items.indexOf(account);
         vm.table.items.splice(index, 1);
         $scope.$apply();
     }
@@ -93,7 +94,7 @@ function AccountList($filter, $scope, $window, Settings, Account, LocalStorage, 
     }
 
     function _getFilterOnList() {
-        var filterList = [];
+        let filterList = [];
 
         // Use the value from storage first.
         // (Because it is faster; loading the list uses AJAX requests).
@@ -101,8 +102,8 @@ function AccountList($filter, $scope, $window, Settings, Account, LocalStorage, 
             vm.filterList = vm.storedFilterList;
         }
 
-        Account.getStatuses(function(response) {
-            angular.forEach(response.results, function(status) {
+        Account.getStatuses(response =>{
+            angular.forEach(response.results, status => {
                 filterList.push({
                     name: status.name,
                     value: 'status.id:' + status.id,
@@ -127,7 +128,7 @@ function AccountList($filter, $scope, $window, Settings, Account, LocalStorage, 
      * Updates table.items and table.totalItems
      */
     function _updateAccounts() {
-        let blockTarget = '#tableBlockTarget';
+        const blockTarget = '#tableBlockTarget';
         HLUtils.blockUI(blockTarget, true);
 
         Account.getAccounts(
@@ -137,7 +138,7 @@ function AccountList($filter, $scope, $window, Settings, Account, LocalStorage, 
             vm.table.order.column,
             vm.table.order.descending,
             vm.table.filterQuery
-        ).then(function(data) {
+        ).then(data => {
             vm.table.items = data.accounts;
             vm.table.totalItems = data.total;
 
@@ -156,7 +157,7 @@ function AccountList($filter, $scope, $window, Settings, Account, LocalStorage, 
             'vm.table.order.descending',
             'vm.table.filter',
             'vm.table.filterQuery',
-        ], function() {
+        ], () => {
             _updateTableSettings();
             _updateAccounts();
         });
@@ -165,7 +166,7 @@ function AccountList($filter, $scope, $window, Settings, Account, LocalStorage, 
          * Watches the model info from the table that, when changed,
          * needs to store the info to the cache
          */
-        $scope.$watchCollection('vm.table.visibility', function() {
+        $scope.$watchCollection('vm.table.visibility', () => {
             _updateTableSettings();
         });
 
@@ -173,7 +174,7 @@ function AccountList($filter, $scope, $window, Settings, Account, LocalStorage, 
          * Watches the filters so when the values are retrieved from local storage,
          * the filterQuery changes and a new set of deals is fetched
          */
-        $scope.$watch('vm.filterList', function() {
+        $scope.$watch('vm.filterList', () => {
             updateFilterQuery();
 
             vm.selectedFilters = $filter('filter')(vm.filterList, {selected: true});
@@ -204,7 +205,7 @@ function AccountList($filter, $scope, $window, Settings, Account, LocalStorage, 
      * Count the total amount of accounts used to see whether or not the empty state should be shown.
      */
     function showEmptyState() {
-        Account.query({}, function(data) {
+        Account.query({}, data => {
             if (data.pagination.total === 1) {
                 vm.showEmptyState = true;
             }
@@ -215,8 +216,8 @@ function AccountList($filter, $scope, $window, Settings, Account, LocalStorage, 
      * exportToCsv() creates an export link and opens it
      */
     function exportToCsv() {
-        var getParams = '';
-        var url = '/accounts/export/';
+        let getParams = '';
+        let url = '/accounts/export/';
 
         // If there is a filter, add it
         if (vm.table.filter) {
@@ -224,7 +225,7 @@ function AccountList($filter, $scope, $window, Settings, Account, LocalStorage, 
         }
 
         // Add all visible columns
-        angular.forEach(vm.table.visibility, function(value, key) {
+        angular.forEach(vm.table.visibility, (value, key) => {
             if (value) {
                 getParams += '&export_columns=' + key;
             }

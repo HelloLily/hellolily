@@ -21,9 +21,7 @@ function contactConfig($stateProvider) {
             label: 'Create',
         },
         resolve: {
-            currentContact: () => {
-                return null;
-            },
+            currentContact: () => null,
         },
     });
 
@@ -64,9 +62,7 @@ function contactConfig($stateProvider) {
             skip: true,
         },
         resolve: {
-            currentContact: () => {
-                return null;
-            },
+            currentContact: () => null,
         },
     });
 }
@@ -80,7 +76,7 @@ ContactCreateUpdateController.$inject = ['$scope', '$state', '$stateParams', '$t
     'Contact', 'HLFields', 'HLForms', 'HLResource', 'HLSearch', 'HLUtils', 'Settings', 'currentContact'];
 function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, Account, Contact,
     HLFields, HLForms, HLResource, HLSearch, HLUtils, Settings, currentContact) {
-    let vm = this;
+    const vm = this;
 
     vm.contact = currentContact || {};
     vm.errors = {
@@ -322,8 +318,8 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
 
         vm.contact = HLFields.cleanRelatedFields(vm.contact);
 
-        let copiedContact = angular.copy(vm.contact);
-        let accounts = [];
+        const copiedContact = angular.copy(vm.contact);
+        const accounts = [];
 
         if (copiedContact.accounts && copiedContact.accounts.length) {
             copiedContact.accounts.forEach(account => {
@@ -338,7 +334,7 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
         if (copiedContact.id) {
             // If there's an ID set it means we're dealing with an existing contact, so update it
             copiedContact.$update(() => {
-                toastr.success('I\'ve updated the contact for you!', 'Done');
+                toastr.success(sprintf(messages.notifications.modelUpdated, {model: 'contact'}), messages.notifications.successTitle);
                 if (Settings.email.sidebar.form === 'contact') {
                     Settings.email.sidebar.form = null;
                     Settings.email.sidebar.contact = true;
@@ -351,7 +347,7 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
             });
         } else {
             copiedContact.$save(() => {
-                toastr.success('I\'ve saved the contact for you!', 'Yay');
+                toastr.success(sprintf(messages.notifications.modelSaved, {model: 'contact'}), 'Yay');
 
                 _postSave(copiedContact);
             }, response => {
@@ -373,7 +369,7 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
     }
 
     function addAccount($select) {
-        let account = Account.create();
+        const account = Account.create();
         account.name = $select.search;
         account.status = Account.defaultNewStatus.id;
         account.assigned_to = currentUser.id;
@@ -440,7 +436,7 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
         if (!vm.contact.phone_numbers.length) vm.addRelatedField('phoneNumber');
         if (!vm.contact.addresses.length) vm.addRelatedField('address');
 
-        toastr.error('Uh oh, there seems to be a problem', 'Oops!');
+        toastr.error(messages.notifications.error, messages.notifications.errorTitle);
     }
 
     $scope.$on('saveContact', () => {

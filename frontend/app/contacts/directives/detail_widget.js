@@ -18,7 +18,7 @@ function contactDetailWidget() {
 
 ContactDetailWidgetController.$inject = ['Contact', 'Settings'];
 function ContactDetailWidgetController(Contact, Settings) {
-    var vm = this;
+    const vm = this;
 
     vm.settings = Settings;
 

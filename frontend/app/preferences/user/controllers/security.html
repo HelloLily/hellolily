@@ -17,7 +17,7 @@
         <tbody>
             <tr ng-if="!vm.twoFactor.default">
                 <td class="hl-table-column">
-                    <b class="text-red">Disabled:</b> you have not enabled two factor authentication yet.
+                    <b class="text-red">Disabled:</b> {{ $root.messages.pages.security.noTwoFactorEnabled }}
                 </td>
                 <td class="hl-table-column" style="width: 100px;"></td>
             </tr>
@@ -30,16 +30,16 @@
                 <td class="hl-table-column" style="width: 100px;"></td>
             </tr>
             <tr ng-if="vm.twoFactor.backup_phone_numbers.length">
-                <td class="hl-table-column">If your primary method is not available, we are able to send backup tokens to {{ vm.twoFactor.backup_phone_numbers.length }} phone numbers.</td>
-                <td class="hl-table-column"><a ng-click="vm.showBackupPhoneNumbers()" uib-tooltip="Let me see my phone numbers!">Show</a></td>
+                <td class="hl-table-column">{{ $root.messages.pages.security.backupPhonesInfo }}</td>
+                <td class="hl-table-column"><a ng-click="vm.showBackupPhoneNumbers()" uib-tooltip="{{ $root.messages.pages.security.backupPhonesInfoTooltip }}">Show</a></td>
             </tr>
             <tr ng-if="!vm.twoFactor.backup_phone_numbers.length">
-                <td class="hl-table-column">You currently have no backup phone number(s) available. It is highly recommended that you add one!</td>
-                <td class="hl-table-column"><a href="/two-factor/backup/phone/register/" uib-tooltip="Add a new backup phone number">Add</a></td>
+                <td class="hl-table-column">{{ $root.messages.pages.security.noBackupPhones }}</td>
+                <td class="hl-table-column"><a href="/two-factor/backup/phone/register/" uib-tooltip="{{ $root.messages.pages.security.noBackupPhonesTooltip }}">Add</a></td>
             </tr>
             <tr>
-                <td class="hl-table-column">If you don't have any device with you, you can access your account using backup tokens.</td>
-                <td class="hl-table-column"><a ng-click="vm.showBackupTokens()" uib-tooltip="Let me see my tokens!">Show</a></td>
+                <td class="hl-table-column">{{ $root.messages.pages.security.backupTokenInfo }}</td>
+                <td class="hl-table-column"><a ng-click="vm.showBackupTokens()" uib-tooltip="{{ $root.messages.pages.security.backupTokenInfoTooltip }}">Show</a></td>
             </tr>
         </tbody>
     </table>

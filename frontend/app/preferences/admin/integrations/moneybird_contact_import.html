@@ -3,27 +3,27 @@
         <div class="portlet-title">
             <h2>Import contacts</h2>
             <p>
-                This page allows you to import your Moneybird contacts into Lily.<br />
+                {{ $root.messages.pages.integrations.moneybirdContactImportIntro }}
+                <br />
             </p>
 
             <div ng-if="vm.tenant.hasMoneybird">
                 <p>
-                    Checking this box means changes to your Lily contacts will be submitted to Moneybird too.
-                    This also means contacts created and updated in Lily will be synced with Moneybird.
+                    {{ $root.messages.pages.integrations.moneybirdContactImportCheckbox }}
                 </p>
-                <checkbox model="vm.autoSync">Sync Lily contacts with Moneybird</checkbox>
+                <checkbox model="vm.autoSync"></checkbox>
 
                 <p>
-                    <strong>Note:</strong> Automatic sync from Moneybird to Lily isn't supported (yet).<br />
-                    However, you can press this button whenever you need to synchronize your Moneybird contacts again.
+                    <strong>Note:</strong> {{ $root.messages.pages.integrations.moneybirdContactImportNote }}
                 </p>
 
                 <a class="hl-primary-btn" ng-click="vm.setupSync()">Import Moneybird contacts</a>
             </div>
             <div ng-if="!vm.tenant.hasMoneybird">
                 <p>
-                    It seems like you haven't set your <a ui-sref="base.preferences.admin.integrations.moneybird.auth">Moneybird credentials</a> yet. <br />
-                    Please setup the Moneybird integration before continuing.
+                    {{ $root.messages.pages.integrations.moneybirdContactImportNoCredentials }}
+                    <br />
+                    {{ $root.messages.pages.integrations.moneybirdContactImportNoCredentialsSub }}
                 </p>
             </div>
         </div>

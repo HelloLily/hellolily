@@ -15,12 +15,8 @@ function accountConfig($stateProvider) {
             label: 'Create',
         },
         resolve: {
-            emailAccount: function() {
-                return {};
-            },
-            sharedWithUsers: function() {
-                return [];
-            },
+            emailAccount: () => {},
+            sharedWithUsers: () => [],
         },
     });
 
@@ -37,12 +33,10 @@ function accountConfig($stateProvider) {
             label: 'Setup',
         },
         resolve: {
-            emailAccount: ['EmailAccount', '$stateParams', function(EmailAccount, $stateParams) {
+            emailAccount: ['EmailAccount', '$stateParams', (EmailAccount, $stateParams) => {
                 return EmailAccount.get({id: $stateParams.id}).$promise;
             }],
-            sharedWithUsers: function() {
-                return [];
-            },
+            sharedWithUsers: () => [],
         },
     });
 
@@ -59,16 +53,16 @@ function accountConfig($stateProvider) {
             label: 'Edit',
         },
         resolve: {
-            emailAccount: ['EmailAccount', '$stateParams', function(EmailAccount, $stateParams) {
+            emailAccount: ['EmailAccount', '$stateParams', (EmailAccount, $stateParams) => {
                 return EmailAccount.get({id: $stateParams.id}).$promise;
             }],
-            sharedWithUsers: ['User', 'emailAccount', function(User, emailAccount) {
-                var i;
-                var filterquery = '';
-                var configs = emailAccount.shared_email_configs;
+            sharedWithUsers: ['User', 'emailAccount', (User, emailAccount) => {
+                const configs = emailAccount.shared_email_configs;
 
                 if (configs.length) {
-                    for (i = 0; i < configs.length; i++) {
+                    let filterquery = '';
+
+                    for (let i = 0; i < configs.length; i++) {
                         if (i > 0) {
                             filterquery += ' OR ';
                         }
@@ -76,7 +70,7 @@ function accountConfig($stateProvider) {
                         filterquery += 'id: ' + configs[i].user;
                     }
 
-                    return User.search({filterquery: filterquery, size: 100}).$promise;
+                    return User.search({filterquery, size: 100}).$promise;
                 }
 
                 return [];
@@ -91,7 +85,7 @@ EmailAccountUpdateController.$inject = ['$scope', '$state', '$stateParams', '$ti
     'EmailAccount', 'emailAccount', 'User', 'sharedWithUsers'];
 function EmailAccountUpdateController($scope, $state, $stateParams, $timeout, HLForms, HLSearch,
     EmailAccount, emailAccount, User, sharedWithUsers) {
-    var vm = this;
+    const vm = this;
 
     vm.emailAccount = emailAccount;
     vm.onlyNew = null;
@@ -110,8 +104,6 @@ function EmailAccountUpdateController($scope, $state, $stateParams, $timeout, HL
     ////
 
     function activate() {
-        var i;
-
         $timeout(() => {
             // Focus the first input on page load.
             angular.element('input')[0].focus();
@@ -119,7 +111,7 @@ function EmailAccountUpdateController($scope, $state, $stateParams, $timeout, HL
         });
 
         if (sharedWithUsers.objects) {
-            for (i = 0; i < sharedWithUsers.objects.length; i++) {
+            for (let i = 0; i < sharedWithUsers.objects.length; i++) {
                 vm.emailAccount.shared_email_configs[i].user = sharedWithUsers.objects[i];
             }
         }
@@ -139,22 +131,18 @@ function EmailAccountUpdateController($scope, $state, $stateParams, $timeout, HL
     }
 
     function saveEmailAccount(form) {
-        var config;
-        var args;
-        var cleanedAccount;
-
         if (vm.shareAdditions.length) {
             addSharedUsers();
         }
 
-        cleanedAccount = angular.copy(vm.emailAccount);
+        const cleanedAccount = angular.copy(vm.emailAccount);
 
         // Loop through users and add them to the shared email config.
-        for (config of cleanedAccount.shared_email_configs) {
+        for (let config of cleanedAccount.shared_email_configs) {
             config.user = config.user.id;
         }
 
-        args = {
+        const args = {
             id: cleanedAccount.id,
             from_name: cleanedAccount.from_name,
             label: cleanedAccount.label,
@@ -175,7 +163,7 @@ function EmailAccountUpdateController($scope, $state, $stateParams, $timeout, HL
                 User.me().$promise.then(user => {
                     const currentEmailAccountStatus = currentUser.emailAccountStatus;
 
-                    toastr.success('I\'ve updated the email account for you!', 'Done');
+                    toastr.success(sprintf(messages.notifications.modelUpdated, {model: 'email account'}), messages.notifications.successTitle);
 
                     // Update global user variable.
                     currentUser.displayEmailWarning = false;
@@ -196,13 +184,11 @@ function EmailAccountUpdateController($scope, $state, $stateParams, $timeout, HL
     function _handleBadResponse(response, form) {
         HLForms.setErrors(form, response.data);
 
-        toastr.error('Uh oh, there seems to be a problem', 'Oops!');
+        toastr.error(messages.notifications.error, messages.notifications.errorTitle);
     }
 
     function addSharedUsers() {
-        var user;
-
-        for (user of vm.shareAdditions) {
+        for (let user of vm.shareAdditions) {
             vm.emailAccount.shared_email_configs.push({
                 user: user,
                 privacy: vm.privacyOverride,
@@ -214,10 +200,9 @@ function EmailAccountUpdateController($scope, $state, $stateParams, $timeout, HL
     }
 
     function getConfigUsers() {
-        var users = [];
-        var config;
+        const users = [];
 
-        for (config of vm.emailAccount.shared_email_configs) {
+        for (let config of vm.emailAccount.shared_email_configs) {
             users.push(config.user);
         }
 
@@ -225,16 +210,15 @@ function EmailAccountUpdateController($scope, $state, $stateParams, $timeout, HL
     }
 
     function refreshUsers(query) {
-        var usersPromise;
-        var extraQuery = ' AND NOT id:' + currentUser.id;
-
         if (vm.users && vm.users.length && !query.length) {
             // Clear the previous list so we can retreive the whole list again.
             vm.users = null;
         }
 
+        const extraQuery = ' AND NOT id:' + currentUser.id;
+
         if (!vm.users || query.length) {
-            usersPromise = HLSearch.refreshList(query, 'User', 'is_active:true' + extraQuery, 'full_name', 'full_name');
+            const usersPromise = HLSearch.refreshList(query, 'User', 'is_active:true' + extraQuery, 'full_name', 'full_name');
 
             if (usersPromise) {
                 usersPromise.$promise.then(data => {

@@ -217,14 +217,14 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
         // Clear accountSuggestions because the assumption is that the user has tried with a new account.
         vm.accountSuggestions = [];
 
-        toastr.info('Running around the world to fetch info', 'Here we go');
+        toastr.info(messages.notifications.dataProvider.info, messages.notifications.dataProvider.infoTitle);
         vm.account.getDataproviderInfo(vm.account.primaryWebsite).then(() => {
-            toastr.success('Got it!', 'Whoohoo');
+            toastr.success(messages.notifications.dataProvider.success, messages.notifications.successTitle);
         }, () => {
-            toastr.error('I couldn\'t find any data', 'Sorry');
+            toastr.error(messages.notifications.dataProvider.error, messages.notifications.dataProvider.errorTitle);
         });
 
-        // Rerun checkExistingAccount to notify the user that he is still using an existing domain.
+        // Rerun checkExistingAccount to notify the user that they are still using an existing domain.
         vm.checkExistingAccount();
     }
 
@@ -320,7 +320,7 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
         if (vm.account.id) {
             // If there's an ID set it means we're dealing with an existing account, so update it.
             vm.account.$update(() => {
-                toastr.success('I\'ve updated the account for you!', 'Done');
+                toastr.success(sprintf(messages.notifications.modelUpdated, {model: 'account'}), messages.notifications.successTitle);
                 if (Settings.email.sidebar.form === 'account') {
                     if (!Settings.email.data.contact.id) {
                         Settings.email.sidebar.form = 'contact';
@@ -341,7 +341,7 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
             vm.account.$save(() => {
                 new Intercom('trackEvent', 'account-created');
 
-                toastr.success('I\'ve saved the account for you!', 'Yay');
+                toastr.success(sprintf(messages.notifications.modelSaved, {model: 'account'}), messages.notifications.successTitle);
 
                 if (Settings.email.sidebar.form === 'account') {
                     if (!Settings.email.data.contact.id) {
@@ -394,7 +394,7 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
             vm.addRelatedField('website');
         }
 
-        toastr.error('Uh oh, there seems to be a problem', 'Oops!');
+        toastr.error(messages.notifications.error, messages.notifications.errorTitle);
     }
 
     function setStatusForCustomerId() {

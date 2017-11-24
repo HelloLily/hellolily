@@ -45,7 +45,7 @@ function PreferencesSlackController($http, $state, $window, Integration, integra
             if (response.status_code === 204) {
                 $state.reload();
             } else {
-                toastr.error('Something went wrong', 'Oops');
+                toastr.error(messages.notifications.error, messages.notifications.errorTitle);
             }
         });
     }

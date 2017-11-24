@@ -3,8 +3,7 @@
         <div class="portlet-title">
             <h2>Slack</h2>
             <p>
-                Use the button below to install the Lily Slack app. <br />
-                This app will read links related to Lily (e.g. when you link a case) and provide you with a preview in Slack.
+                {{ $root.messages.pages.integrations.slackOverview }}
             </p>
 
             <a ng-click="vm.authorize()" href="javascript:void(0)">

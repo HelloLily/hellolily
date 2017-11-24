@@ -85,7 +85,7 @@
                         </tr>
                         <tr ng-if="currentUser.tenant.isFreePlan && (vm.ownedAccounts.length + vm.sharedAccounts.length) > 2">
                             <td colspan="8" class="hl-table-column">
-                                You've reached the email account limit of your Personal plan. Please <a ui-sref="base.preferences.admin.billing">upgrade</a> it to enable more email accounts.
+                                <span ng-bind-html="$root.messages."></span>
                             </td>
                         </tr>
                         <tr ng-if="!vm.ownedAccounts.length">
@@ -158,7 +158,7 @@
                         </tr>
                         <tr ng-if="currentUser.tenant.isFreePlan && vm.sharedAccounts.length">
                             <td colspan="6" class="hl-table-column">
-                                Email accounts can't be shared while on the Personal plan. Please <a ui-sref="base.preferences.admin.billing">upgrade</a> it to enable inbox sharing.
+
                             </td>
                         </tr>
                         <tr ng-if="!vm.sharedAccounts.length">

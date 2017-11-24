@@ -3,7 +3,7 @@
         <simple-widget>
             <widget-header>
                 <div class="widget-name">
-                    Additional features
+                    {{ $root.messages.pages.settings.header }}
                 </div>
             </widget-header>
 
@@ -29,7 +29,7 @@
                                 Time logging 
                             </td>
                             <td>
-                                Enable this feature so users can log hours on cases and deals.
+                                {{ $root.messages.pages.settings.timeLogging }}
                             </td>
                             <td>
                                 <label class="switch">
@@ -44,7 +44,7 @@
                                 Billable default value
                             </td>
                             <td>
-                                Sets the default for the 'Billable' value for logged hours.
+                                {{ $root.messages.pages.settings.billingDefault }}
                             </td>
                             <td>
                                 <label class="switch">

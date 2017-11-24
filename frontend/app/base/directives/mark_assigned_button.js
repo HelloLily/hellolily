@@ -6,10 +6,10 @@ function markAssignedButton() {
         scope: {
             callback: '&',
         },
-        link: function(scope, element, attrs) {
+        link: (scope, element, attrs) => {
             element.on('click', function() {
                 // Get the closest table row.
-                element.closest('.newly-assigned').fadeOut(500, function() {
+                element.closest('.newly-assigned').fadeOut(500, () => {
                     // Mark the item as assigned.
                     scope.callback();
                 });

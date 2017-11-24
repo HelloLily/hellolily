@@ -3,7 +3,6 @@
 
     window.HLInbox = {
         config: {
-            accountDeactivatedMessage: 'Your account doesn\'t seem to be active. Please activate your account to view your email.',
             inboxCcInput: '.inbox-compose .mail-to .inbox-cc',
             inboxBccInput: '.inbox-compose .mail-to .inbox-bcc',
             singleMessageSelector: '.inbox-content .view-message',
@@ -321,7 +320,7 @@
                         self.loadDefaultEmailTemplate();
                     }
                 } else {
-                    toastr.error('I couldn\'t load the template because your email account doesn\'t seem to be set. Please check your email account and try again');
+                    toastr.error(messages.notifications.emailTemplateLoadError);
                 }
             }
         },
@@ -424,7 +423,7 @@
                     }
                 });
             } else {
-                toastr.error('Sorry, I couldn\'t load your default email template. You could try reloading the page');
+                toastr.error(messages.notifications.defaultTemplateLoadError);
             }
         },
 

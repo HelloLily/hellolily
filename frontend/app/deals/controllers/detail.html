@@ -212,8 +212,8 @@
                             <li>
                                 <strong>Created by: </strong>
                                 <div>
-                                    <span ng-show="vm.deal.created_by" class="m-r-5">{{ vm.deal.created_by.full_name }} on</span>
-                                    <span ng-show="!vm.deal.created_by" class="m-r-5">An unknown entity on</span>
+                                    <span ng-show="vm.deal.created_by" class="m-r-5">{{ vm.deal.created_by.full_name }}</span>
+                                    <span ng-show="!vm.deal.created_by" class="m-r-5">{{ $root.messages.pages.generic.unknownUsers }}</span>
                                     <date date="vm.deal.created"></date>
                                 </div>
                             </li>

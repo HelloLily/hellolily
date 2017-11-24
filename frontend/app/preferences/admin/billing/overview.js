@@ -67,10 +67,10 @@ function BillingOverviewController($filter, $scope, $state, $window, Billing, bi
                     if (response.success) {
                         $state.reload();
                     } else {
-                        toastr.error('Uh oh, there seems to be a problem', 'Oops!');
+                        toastr.error(messages.notifications.error, messages.notifications.errorTitle);
                     }
                 }, error => {
-                    toastr.error('Uh oh, there seems to be a problem', 'Oops!');
+                    toastr.error(messages.notifications.error, messages.notifications.errorTitle);
                 });
             }
         }).done();

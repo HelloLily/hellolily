@@ -96,14 +96,14 @@
                         </div>
                         <div ng-if="contact.accounts" ng-repeat="account in contact.accounts">
                             <div ng-if="!contact.primary_email_address && account.primary_email_address">
-                                <i class="lilicon hl-company-icon m-r-5" uib-tooltip="{{ $root.messages.contact.accountListInfoTooltip }}"></i>
+                                <i class="lilicon hl-company-icon m-r-5" uib-tooltip="{{ $root.messages.pages.contacts.accountListInfoTooltip }}"></i>
                                 <a ui-sref="base.email.composeEmail({ email: account.primary_email_address })">
                                     {{ account.primary_email_address }}
                                 </a>
                             </div>
 
                             <div ng-if="!contact.phone_numbers && account.phone_numbers.length && account.is_active">
-                                <i class="lilicon hl-company-icon m-r-5" uib-tooltip="{{ $root.messages.contact.accountListInfoTooltip }}"></i>
+                                <i class="lilicon hl-company-icon m-r-5" uib-tooltip="{{ $root.messages.pages.contacts.accountListInfoTooltip }}"></i>
                                 <a href="tel:{{ account.phone_numbers[0].number }}">
                                     {{ account.phone_numbers[0].number }}
                                 </a>
@@ -154,11 +154,11 @@
 
         <div ng-if="showEmptyState">
             <div class="empty-state-description no-top">
-                <h3>Everyone that matters to you</h3>
+                <h3>{{ $root.messages.pages.contacts.emptyStateTitle }}</h3>
 
-                <p>Contacts are the lifeline for your communication history.</p>
-                <p>All emails, logged phone calls and notes added by you or your colleagues will be linked to them.</p>
-                <p>Never lose track of anyone or anything, and add them as a <a class="hl-primary-btn" ui-sref="base.contacts.create" role="button" onclick="ga('send', 'event', 'Contact', 'Open', 'Contact list empty state');"><i class="fa fa-plus"></i> Contact</a></p>
+                <p>{{ $root.messages.pages.contacts.emptyStateOne }}</p>
+                <p>{{ $root.messages.pages.contacts.emptyStateTwo }}</p>
+                <p>{{ $root.messages.pages.contacts.emptyStateThree }} <a class="hl-primary-btn" ui-sref="base.contacts.create" role="button" onclick="ga('send', 'event', 'Contact', 'Open', 'Contact list empty state');"><i class="fa fa-plus"></i> Contact</a></p>
             </div>
         </div>
     </div>

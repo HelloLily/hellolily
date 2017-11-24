@@ -24,7 +24,7 @@ angular.module('app.preferences').controller('UserTokenController', UserTokenCon
 
 UserTokenController.$inject = ['User'];
 function UserTokenController(User) {
-    var vm = this;
+    const vm = this;
     vm.token = '';
 
     vm.deleteToken = deleteToken;
@@ -36,7 +36,7 @@ function UserTokenController(User) {
 
     function activate() {
         // Get the token of the current user
-        User.token(function(data) {
+        User.token(data => {
             if (data.auth_token) {
                 vm.token = data.auth_token;
             } else {
@@ -47,17 +47,17 @@ function UserTokenController(User) {
 
     function deleteToken() {
         // Get the token of the current user
-        User.deleteToken(function() {
+        User.deleteToken(() => {
             vm.token = '';
-            toastr.success('And it\'s gone!', 'Token deleted');
+            toastr.success(messages.notifications.apiTokenCreated, messages.notifications.apiTokenCreated);
         });
     }
 
     function generateToken() {
         // Get the token of the current user
-        User.generateToken({}, function(data) {
+        User.generateToken({}, data => {
             vm.token = data.auth_token;
-            toastr.success('I\'ve created a new one', 'Token generated');
+            toastr.success(messages.notifications.apiTokenDeleted, messages.notifications.apiTokenDeleted);
         });
     }
 }

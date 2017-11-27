@@ -420,7 +420,7 @@ LOGGING = {
             'formatter': 'verbose',
         },
         'sentry': {
-            'level': 'WARNING',
+            'level': 'ERROR',
             'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
         },
         'mail_admins': {
@@ -494,7 +494,7 @@ else:
             'lily': {
                 'level': 'DEBUG',
                 'handlers': ['console', ],
-                'propagate': False,
+                'propagate': True,
             }
         },
     })

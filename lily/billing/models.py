@@ -51,7 +51,7 @@ class Billing(models.Model):
     def update_subscription(self, increment):
         subscription = self.get_subscription()
 
-        if subscription and not self.free_forever:
+        if subscription and subscription.plan_id != settings.CHARGEBEE_FREE_PLAN_NAME and not self.free_forever:
             amount = subscription.plan_quantity + increment
 
             if amount >= 1:

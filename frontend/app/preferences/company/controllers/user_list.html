@@ -120,6 +120,7 @@
                 <td class="hl-table-column" ng-show="vm.table.visibility.full_name">
                     <span ng-if="user.id != currentUser.id">{{ user.full_name }}</span>
                     <span ng-if="user.id == currentUser.id">{{ user.full_name }} (you)</span>
+                    <span ng-if="user.is_admin">(admin)</span>
                 </td>
                 <td class="hl-table-column" ng-show="vm.table.visibility.teams">
                     <div ng-repeat="team in user.teams">{{ team.name }}</div>

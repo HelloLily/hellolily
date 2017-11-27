@@ -1,16 +1,23 @@
-angular.module('app.directives').directive('featureUnavailable', featureUnavailable);
+function FeatureUnavailableController() {
+    const ctrl = this;
 
-function featureUnavailable() {
-    return {
-        restrict: 'E',
-        scope: {
-            tier: '@',
-            labelIcon: '@?',
-            labelText: '@?',
-            inline: '@?',
-        },
-        templateUrl: 'base/directives/feature_unavailable.html',
-        replace: true,
-        transclude: true,
+    ctrl.$onInit = () => {
+        if (!currentUser.isAdmin) {
+            ctrl.message = sprintf(messages.tooltips.featureUnavailable, {name: currentUser.tenant.accountAdmin});
+        } else {
+            ctrl.message = messages.tooltips.featureUnavailableAdminText;
+        }
     };
 }
+
+angular.module('app.directives').component('featureUnavailable', {
+    templateUrl: 'base/directives/feature_unavailable.html',
+    controller: FeatureUnavailableController,
+    bindings: {
+        tier: '@',
+        labelIcon: '@?',
+        labelText: '@?',
+        inline: '@?',
+    },
+    transclude: true,
+});

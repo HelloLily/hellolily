@@ -264,7 +264,16 @@ class CallNotificationV2Serializer(serializers.Serializer):
             )
         )
 
-        return save_func(validated_data)
+        result = save_func(validated_data)
+
+        logger.info(
+            'Done saving call_id: "{}" using function {}.'.format(
+                validated_data['call_id'],
+                save_func.__name__
+            )
+        )
+
+        return result
 
     def send_notification(self, internal_numbers, participant, source):
         data = {

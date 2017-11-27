@@ -110,51 +110,67 @@
     background: #fff;
     border: 1px solid $lily-border-dark;
 
-    li {
+    .email-nav-item {
+        color: $lily-dark-blue;
+        padding: 0 15px;
+        line-height: 40px;
+        position: relative;
+        border-top: 1px solid transparent;
+        border-bottom: 1px solid transparent;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        &:hover {
+            background-color: $lily-white-tone-hover;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+    }
+
+    &.active {
         .email-nav-item {
             color: $lily-dark-blue;
-            padding: 0 15px;
-            line-height: 40px;
-            position: relative;
-            border-top: 1px solid transparent;
-            border-bottom: 1px solid transparent;
-            overflow: hidden;
-            text-overflow: ellipsis;
-
-            &:hover {
-                background-color: $lily-white-tone-hover;
-            }
+            border-bottom: 1px solid $lily-border-light;
+            border-top: 1px solid $lily-border-light;
+            background: $lily-white-tone-hover;
         }
+    }
 
+    &:first-child {
         &.active {
             .email-nav-item {
-                color: $lily-dark-blue;
-                border-bottom: 1px solid $lily-border-light;
-                border-top: 1px solid $lily-border-light;
-                background: $lily-white-tone-hover;
+                border-top: 1px solid transparent;
             }
         }
+    }
 
-        &:first-child {
-            &.active {
-                .email-nav-item {
-                    border-top: 1px solid transparent;
-                }
+    &:last-child {
+        &.active {
+            .email-nav-item {
+                border-bottom: 1px solid transparent;
             }
         }
+    }
 
-        &:last-child {
-            &.active {
-                .email-nav-item {
-                    border-bottom: 1px solid transparent;
-                }
-            }
-        }
+    .notification-inline {
+        border-radius: 0;
+        margin-top: 0;
+    }
 
-        .notification-inline {
-            border-radius: 0;
-            margin-top: 0;
-        }
+    .list-unstyled {
+        margin-left: 0 !important;
+    }
+}
+
+.email-nav-item {
+    font-size: 14px;
+
+    &:hover,
+    &:focus {
+        text-decoration: none;
     }
 }
 
@@ -272,16 +288,6 @@
         .table > thead > tr > th {
             padding: 10px;
         }
-    }
-}
-
-.email-nav-item {
-    font-size: 14px;
-    display: block;
-
-    &:hover,
-    &:focus {
-        text-decoration: none;
     }
 }
 

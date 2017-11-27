@@ -65,38 +65,51 @@
             </a>
         </li>
         <collapsable-content>
-            <li ui-sref-active="active">
-                <a class="email-nav-item" ui-sref="base.email.accountList({labelId:'INBOX', accountId: account.id})" ui-sref-opts="{reload:true}">
+            <li ui-sref-active="active" class="email-nav-item">
+                <a ui-sref="base.email.accountList({labelId:'INBOX', accountId: account.id})" ui-sref-opts="{reload:true}">
                     Inbox <span class="unread-count" ng-if="vm.hasUnreadLabel(account, 'INBOX')">{{ vm.unreadCountForLabel(account, 'INBOX') }}</span>
                 </a>
             </li>
-            <li ui-sref-active="active">
-                <a class="email-nav-item" ui-sref="base.email.accountList({labelId:'SENT', accountId: account.id})" ui-sref-opts="{reload:true}">
+            <li ui-sref-active="active" class="email-nav-item">
+                <a ui-sref="base.email.accountList({labelId:'SENT', accountId: account.id})" ui-sref-opts="{reload:true}">
                     Sent <span class="unread-count" ng-if="vm.hasUnreadLabel(account, 'SENT')">{{ vm.unreadCountForLabel(account, 'SENT') }}</span>
                 </a>
             </li>
-            <li ui-sref-active="active">
-                <a class="email-nav-item" ui-sref="base.email.accountList({labelId:'DRAFT', accountId: account.id})" ui-sref-opts="{reload:true}">
+            <li ui-sref-active="active" class="email-nav-item">
+                <a ui-sref="base.email.accountList({labelId:'DRAFT', accountId: account.id})" ui-sref-opts="{reload:true}">
                     Draft <span class="unread-count" ng-if="vm.hasUnreadLabel(account, 'DRAFT')">{{ vm.unreadCountForLabel(account, 'DRAFT') }}</span>
                 </a>
             </li>
-            <li ui-sref-active="active">
-                <a class="email-nav-item" ui-sref="base.email.accountList({labelId:'TRASH', accountId: account.id})" ui-sref-opts="{reload:true}">
+            <li ui-sref-active="active" class="email-nav-item">
+                <a ui-sref="base.email.accountList({labelId:'TRASH', accountId: account.id})" ui-sref-opts="{reload:true}">
                     Trash <span class="unread-count" ng-if="vm.hasUnreadLabel(account, 'TRASH')">{{ vm.unreadCountForLabel(account, 'TRASH') }}</span>
                 </a>
             </li>
-            <li ui-sref-active="active">
-                <a class="email-nav-item" ui-sref="base.email.accountList({labelId:'SPAM', accountId: account.id})" ui-sref-opts="{reload:true}">
+            <li ui-sref-active="active" class="email-nav-item">
+                <a ui-sref="base.email.accountList({labelId:'SPAM', accountId: account.id})" ui-sref-opts="{reload:true}">
                     Spam <span class="unread-count" ng-if="vm.hasUnreadLabel(account, 'SPAM')">{{ vm.unreadCountForLabel(account, 'SPAM') }}</span>
                 </a>
             </li>
-            <li ng-repeat="label in account.labels | orderBy:'name'" ng-if="label.label_type != 0" ui-sref-active="active">
-                <a class="email-nav-item" ui-sref="base.email.accountList({labelId: label.label_id, accountId: account.id})" ui-sref-opts="{reload:true}">
-                    {{ label.name }}</a>
-            </li>
+            <li ng-repeat="label in account.labels" ng-if="label.label_type != 0 && !label.parent" ui-sref-active="active" ng-include="'tree_item_renderer.html'"></li>
             <li ui-sref-active="active">
                 <a class="email-nav-item" ui-sref="base.email.accountAllList({accountId: account.id})">All mail</a>
             </li>
         <collapsable-content>
     </ul>
 </collapsable>
+
+<script type="text/ng-template" id="tree_item_renderer.html">
+    <div class="email-nav-item p-l-{{ 15 + label.level * 20 }}">
+        <a ui-sref="base.email.accountList({labelId: label.label_id, accountId: account.id})" ui-sref-opts="{reload:true}">
+            {{ label.name }}
+        </a>
+
+        <span ng-if="label.children.length" ng-click="vm.toggleLabel(label)" class="clickable pull-right">
+            <i class="lilicon hl-toggle-up-icon" ng-class="{'hl-toggle-up-icon': !label.collapsed, 'hl-toggle-down-icon': label.collapsed}"></i>
+        </span>
+    </div>
+
+    <ul ng-if="label.children.length && !label.collapsed" class="list-unstyled">
+        <li ng-repeat="label in label.children" ng-include="'tree_item_renderer.html'"></li>
+    </ul>
+</script>

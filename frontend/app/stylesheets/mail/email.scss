@@ -119,6 +119,7 @@
         border-bottom: 1px solid transparent;
         overflow: hidden;
         text-overflow: ellipsis;
+        display: flex;
 
         &:hover {
             background-color: $lily-white-tone-hover;
@@ -127,6 +128,7 @@
         a {
             text-decoration: none;
             color: inherit;
+            flex-grow: 100;
         }
     }
 

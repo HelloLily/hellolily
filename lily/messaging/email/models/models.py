@@ -99,6 +99,8 @@ class EmailAccount(TenantMixin, DeletedMixin):
     previous_privacy = models.IntegerField(choices=PRIVACY_CHOICES, null=True)
     is_active = models.BooleanField(default=True)
 
+    color = models.CharField(max_length=7, blank=True)
+
     def __unicode__(self):
         return u'%s (%s)' % (self.label, self.email_address)
 

@@ -51,7 +51,7 @@
     <table class="table table-hover">
         <thead>
             <tr>
-                <th colspan="8">
+                <th colspan="9">
                     <div class="pull-left m-r-10 lineheight-30">
                         <checkbox model="vm.opts.checkboxesAll" ng-click="vm.toggleCheckboxes()"></checkbox>
                     </div>
@@ -160,6 +160,11 @@
                 <td class="inbox-small-cells">
                     <i ng-class="{'fa fa-star': message.is_starred, 'fa fa-star-o': !message.is_starred}" ng-click="vm.toggleStarred(message)"></i>
                 </td>
+                <td ng-if="!vm.account">
+                    <div class="account-label" uib-tooltip="{{ message.account.email }}" ng-style="{'border-left-color': vm.colorCodes[message.account.id]}">
+                        {{ message.account.name || message.account.email }}
+                    </div>
+                </td>
                 <td contact-icon message="message"></td>
                 <td class="view-message hidden-xs" ng-show="vm.label.name != 'Sent' && vm.label.name != 'Draft'" ui-sref="base.email.detail({id: message.id})">
                     <span ng-show="message.sender_name" title="{{ message.sender_email }}">{{ message.sender_name }}</span>
@@ -192,7 +197,7 @@
 
         <tfoot>
             <tr>
-                <td colspan="8">
+                <td colspan="9">
                     <div class="pull-right">
                         <ul class="email-pagination">
                             <li class="email-pagination-page-info">

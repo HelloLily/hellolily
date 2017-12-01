@@ -162,4 +162,23 @@ function HLUtils() {
 
         return template;
     };
+
+    /**
+     * Generates a hex color code based on the given value.
+     */
+    this.getColorCode = value => {
+        let hash = 0;
+        let color = '#';
+
+        for (let i = 0; i < value.length; i++) {
+            hash = value.charCodeAt(i) + ((hash << 5) - hash);
+        }
+
+        for (let i = 0; i < 3; i++) {
+            const hashValue = (hash >> (i * 8)) & 0xFF;
+            color += ('00' + hashValue.toString(16)).substr(-2);
+        }
+
+        return color;
+    };
 }

@@ -88,9 +88,9 @@ function accountConfig($stateProvider) {
 angular.module('app.preferences').controller('EmailAccountCreateController', EmailAccountUpdateController);
 
 EmailAccountUpdateController.$inject = ['$scope', '$state', '$stateParams', '$timeout', 'HLForms', 'HLSearch',
-    'EmailAccount', 'emailAccount', 'User', 'sharedWithUsers'];
+    'HLUtils', 'EmailAccount', 'emailAccount', 'User', 'sharedWithUsers'];
 function EmailAccountUpdateController($scope, $state, $stateParams, $timeout, HLForms, HLSearch,
-    EmailAccount, emailAccount, User, sharedWithUsers) {
+    HLUtils, EmailAccount, emailAccount, User, sharedWithUsers) {
     var vm = this;
 
     vm.emailAccount = emailAccount;
@@ -110,8 +110,6 @@ function EmailAccountUpdateController($scope, $state, $stateParams, $timeout, HL
     ////
 
     function activate() {
-        var i;
-
         $timeout(() => {
             // Focus the first input on page load.
             angular.element('input')[0].focus();
@@ -119,9 +117,13 @@ function EmailAccountUpdateController($scope, $state, $stateParams, $timeout, HL
         });
 
         if (sharedWithUsers.objects) {
-            for (i = 0; i < sharedWithUsers.objects.length; i++) {
+            for (let i = 0; i < sharedWithUsers.objects.length; i++) {
                 vm.emailAccount.shared_email_configs[i].user = sharedWithUsers.objects[i];
             }
+        }
+
+        if (!vm.emailAccount.color) {
+            vm.emailAccount.color = HLUtils.getColorCode(vm.emailAccount.email_address);
         }
     }
 
@@ -160,6 +162,7 @@ function EmailAccountUpdateController($scope, $state, $stateParams, $timeout, HL
             label: cleanedAccount.label,
             privacy: cleanedAccount.privacy,
             shared_email_configs: cleanedAccount.shared_email_configs,
+            color: cleanedAccount.color,
         };
 
         if (vm.emailAccount.only_new === null && vm.onlyNew !== null) {

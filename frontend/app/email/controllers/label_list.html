@@ -9,7 +9,7 @@
 <ul class="email-nav">
     <collapsable name="all-accounts">
         <li class="email-nav-header">
-            <div class="email-nav-header-title" ng-click="vm.clickAccountHeader()">
+            <div class="email-nav-header-title no-border" ng-click="vm.clickAccountHeader()" ng-class="{'active-account': !$state.params.accountId}">
                 All mailboxes
             </div>
             <collapsable-button></collapsable-button>
@@ -48,7 +48,7 @@
 <collapsable name="account-{{ account.id }}" ng-repeat="account in vm.accountList">
     <ul class="email-nav">
         <li class="email-nav-header">
-            <div class="email-nav-header-title" ng-click="vm.clickAccountHeader(account)" ng-class="{'active-account': account.id == $state.params.accountId}">
+            <div class="email-nav-header-title" ng-click="vm.clickAccountHeader(account)" ng-class="{'active-account': account.id == $state.params.accountId}" ng-style="{'border-left-color': account.color}">
                 <i class="fa fa-star" ng-show="account.id == vm.primaryEmailAccountId" uib-tooltip="Primary account"></i>
                 {{ account.label }}
             </div>

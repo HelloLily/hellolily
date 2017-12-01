@@ -1,7 +1,9 @@
 import logging
+import re
 
 from django.conf import settings
 from django.contrib.sites.models import Site
+from django.core.validators import RegexValidator
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
@@ -20,6 +22,12 @@ from ..services import GmailService
 
 
 logger = logging.getLogger(__name__)
+
+
+class HexcodeValidator(RegexValidator):
+    regex = re.compile(r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$')
+
+    message = _('Please enter a valid hex code.')
 
 
 class SharedEmailConfigSerializer(serializers.ModelSerializer):
@@ -118,6 +126,7 @@ class EmailAccountSerializer(WritableNestedSerializer):
     owner = serializers.SerializerMethodField()
     default_template = serializers.SerializerMethodField()
     shared_email_configs = RelatedSharedEmailConfigSerializer(many=True, source='sharedemailconfig_set')
+    color = serializers.CharField(validators=[HexcodeValidator])
 
     gmail_service = None
 
@@ -268,6 +277,7 @@ class EmailAccountSerializer(WritableNestedSerializer):
         model = EmailAccount
         fields = (
             'id',
+            'color',
             'email_address',
             'from_name',
             'is_syncing',

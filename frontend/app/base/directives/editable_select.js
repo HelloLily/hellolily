@@ -26,16 +26,6 @@ function editableSelect() {
         controllerAs: 'es',
         transclude: true,
         bindToController: true,
-        link: (scope, element, attr) => {
-            // Bind click event to the current directive.
-            element.on('click', '.editable-click', () => {
-                if (scope.es.search) {
-                    scope.es[scope.es.formName].$show();
-
-                    scope.$apply();
-                }
-            });
-        },
     };
 }
 

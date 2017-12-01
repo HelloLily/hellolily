@@ -12,6 +12,7 @@ function editableSelect() {
             multiple: '@?',
             selectType: '@?',
             object: '=?',
+            extraClass: '@?',
             selectOptions: '=?', // contains any custom settings for the select
         },
         templateUrl: function(elem, attrs) {

@@ -253,6 +253,11 @@ $inline-editable-field-height: 30px;
 
     &.editable-select2 {
         line-height: initial;
+        width: 225px;
+
+        &.smaller-select {
+            width: 160px;
+        }
     }
 }
 

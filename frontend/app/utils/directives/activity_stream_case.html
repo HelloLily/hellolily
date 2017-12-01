@@ -8,7 +8,7 @@
         </div>
 
         <div class="stream-item-activity">
-            <editable-select field="priority" view-model="vm.item" type="Case" object="vm.item" choice-field="true" select-type="icon_select"
+            <editable-select field="priority" view-model="vm.item" type="Case" object="vm.item" choice-field="true" select-type="icon_select" extra-class="smaller-select"
                             select-options="{field: 'casePriorities', 'classPrefix': 'lilicon hl-prio-icon-', 'classValue': 'name'}">
                 <i class="lilicon hl-prio-icon-{{ vm.item.priority_display | lowercase }}" tooltip-placement="left" uib-tooltip="{{ vm.item.priority_display }}"></i>
             </editable-select>

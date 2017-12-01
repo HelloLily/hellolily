@@ -72,7 +72,7 @@
                             <tr>
                                 <td>Priority & type</td>
                                 <td>
-                                    <editable-select field="priority" view-model="vm" type="Case" choice-field="true" select-type="icon_select"
+                                    <editable-select field="priority" view-model="vm" type="Case" choice-field="true" select-type="icon_select" extra-class="smaller-select"
                                                     select-options="{field: 'casePriorities', 'classPrefix': 'lilicon hl-prio-icon-', 'classValue': 'name'}">
                                         <i class="lilicon hl-prio-icon-{{ vm.case.priority_display | lowercase }}" tooltip-placement="left" uib-tooltip="{{ vm.case.priority_display }}"></i>
                                     </editable-select>

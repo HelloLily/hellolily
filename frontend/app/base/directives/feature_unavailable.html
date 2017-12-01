@@ -2,11 +2,16 @@
     <div ng-if="$root.currentUser.tenant.planTier >= $ctrl.tier">
         <ng-transclude></ng-transclude>
     </div>
-    <div ng-if="!$ctrl.tier || $root.currentUser.tenant.planTier < $ctrl.tier">
-        <div ng-if="$ctrl.inline">
+    <div ng-if="!$ctrl.tier || $root.currentUser.tenant.planTier < $ctrl.tier" ng-class="{'inline-overlay': ($ctrl.inline && $ctrl.overlay)}">
+        <p ng-if="$ctrl.overlay" class="feature-unavailable-overlay">
+            This feature isn't available for your current plan. <br />
+            Please <a ui-sref="base.preferences.admin.billing">upgrade</a> to use this feature.
+        </p>
+
+        <div ng-if="$ctrl.inline || $ctrl.overlay" ng-class="{'is-disabled': ($ctrl.inline && $ctrl.overlay)}">
             <ng-transclude></ng-transclude>
         </div>
-        <div ng-if="!$ctrl.inline">
+        <div ng-if="!$ctrl.inline && !$ctrl.overlay">
             <div ng-if="!$ctrl.labelText">
                 <div class="widget-heading">
                     <div class="widget-name">Feature unavailable</div>
@@ -21,10 +26,10 @@
                 </div>
             </div>
             <div ng-if="$ctrl.labelText" class="unavailable-feature">
-                <span>
-                    <i class="{{ $ctrl.labelIcon }}"></i> {{ $ctrl.labelText }}</span>
-                    <span ng-if="!$root.currentUser.isAdmin" class="unavailable-marker cursor-default" uib-tooltip="{{ $ctrl.message }}" tooltip-append-to-body="true">Unavailable</span>
-                    <span ng-if="$root.currentUser.isAdmin" class="unavailable-marker clickable" uib-tooltip="{{ $ctrl.message }}" tooltip-append-to-body="true" ui-sref="base.preferences.admin.billing">Unavailable</span>
+                <span><i class="{{ $ctrl.labelIcon }}"></i> {{ $ctrl.labelText }}</span>
+
+                <span ng-if="!$root.currentUser.isAdmin" class="unavailable-marker cursor-default" uib-tooltip="{{ $ctrl.message }}" tooltip-append-to-body="true">Unavailable</span>
+                <span ng-if="$root.currentUser.isAdmin" class="unavailable-marker clickable" uib-tooltip="{{ $ctrl.message }}" tooltip-append-to-body="true" ui-sref="base.preferences.admin.billing">Unavailable</span>
             </div>
         </div>
     </div>

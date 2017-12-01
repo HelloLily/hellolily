@@ -63,62 +63,66 @@
                         </form-group>
                     </form-portlet>
 
-                    <form-portlet portlet-title="Contact information">
-                        <form-group label-title="Phone number" label-id="phone_number" field="userForm.phone_number">
-                            <input class="form-control"
-                                   id="phone_number"
-                                   maxlength="255"
-                                   name="phone_number"
-                                   placeholder="Phone number"
-                                   type="text"
-                                   ng-model="vm.user.phone_number">
+                    <div>
+                        <form-portlet portlet-title="Contact information">
+                            <feature-unavailable tier="2" overlay="true" inline="true">
+                                <form-group label-title="Phone number" label-id="phone_number" field="userForm.phone_number">
+                                    <input class="form-control"
+                                        id="phone_number"
+                                        maxlength="255"
+                                        name="phone_number"
+                                        placeholder="Phone number"
+                                        type="text"
+                                        ng-model="vm.user.phone_number">
 
-                            <field-error form="userForm" field="phone_number"></field-error>
-                        </form-group>
+                                    <field-error form="userForm" field="phone_number"></field-error>
+                                </form-group>
 
-                        <form-group label-title="Internal number" label-id="internal_number" field="userForm.internal_number">
-                            <input class="form-control"
-                                   id="internal_number"
-                                   maxlength="255"
-                                   name="internal_number"
-                                   placeholder="Internal number"
-                                   type="text"
-                                   ng-model="vm.user.internal_number">
-                        </form-group>
-                        <div class="widget-suggestion" ng-if="vm.notificationsDenied">
-                            <div class="widget-suggestion-title">Browser notifications have been blocked</div>
-                            <div>You will not receive call notifications, but your calls will still be visible in activity streams.</div>
+                                <form-group label-title="Internal number" label-id="internal_number" field="userForm.internal_number">
+                                    <input class="form-control"
+                                        id="internal_number"
+                                        maxlength="255"
+                                        name="internal_number"
+                                        placeholder="Internal number"
+                                        type="text"
+                                        ng-model="vm.user.internal_number">
+                                </form-group>
+                                <div class="widget-suggestion" ng-if="vm.notificationsDenied">
+                                    <div class="widget-suggestion-title">Browser notifications have been blocked</div>
+                                    <div>You will not receive call notifications, but your calls will still be visible in activity streams.</div>
+                                </div>
+
+                                <!--<form-group label-title="Twitter" label-id="twitter" field="userForm.twitter">-->
+                                    <!--<div class="input-group">-->
+                                        <!--<span class="input-group-addon">-->
+                                            <!--<i class="fa fa-twitter"></i>-->
+                                        <!--</span>-->
+                                        <!--<input class="form-control"-->
+                                                <!--id="twitter"-->
+                                                <!--name="twitter"-->
+                                                <!--maxlength="255"-->
+                                                <!--placeholder="Twitter"-->
+                                                <!--type="text"-->
+                                                <!--ng-model="vm.user.twitter">-->
+                                    <!--</div>-->
+                                <!--</form-group>-->
+                                <!--<form-group label-title="LinkedIn" label-id="linkedin" field="userForm.linkedin">-->
+                                    <!--<div class="input-group">-->
+                                        <!--<span class="input-group-addon">-->
+                                            <!--<i class="fa fa-linkedin"></i>-->
+                                        <!--</span>-->
+                                        <!--<input class="form-control"-->
+                                                <!--id="linkedin"-->
+                                                <!--name="linkedin"-->
+                                                <!--maxlength="255"-->
+                                                <!--placeholder="LinkedIn"-->
+                                                <!--type="text"-->
+                                                <!--ng-model="vm.user.linkedin">-->
+                                    <!--</div>-->
+                                <!--</form-group>-->
+                            </feature-unavailable>
+                            </form-portlet>
                         </div>
-
-                        <!--<form-group label-title="Twitter" label-id="twitter" field="userForm.twitter">-->
-                            <!--<div class="input-group">-->
-                                <!--<span class="input-group-addon">-->
-                                    <!--<i class="fa fa-twitter"></i>-->
-                                <!--</span>-->
-                                <!--<input class="form-control"-->
-                                        <!--id="twitter"-->
-                                        <!--name="twitter"-->
-                                        <!--maxlength="255"-->
-                                        <!--placeholder="Twitter"-->
-                                        <!--type="text"-->
-                                        <!--ng-model="vm.user.twitter">-->
-                            <!--</div>-->
-                        <!--</form-group>-->
-                        <!--<form-group label-title="LinkedIn" label-id="linkedin" field="userForm.linkedin">-->
-                            <!--<div class="input-group">-->
-                                <!--<span class="input-group-addon">-->
-                                    <!--<i class="fa fa-linkedin"></i>-->
-                                <!--</span>-->
-                                <!--<input class="form-control"-->
-                                        <!--id="linkedin"-->
-                                        <!--name="linkedin"-->
-                                        <!--maxlength="255"-->
-                                        <!--placeholder="LinkedIn"-->
-                                        <!--type="text"-->
-                                        <!--ng-model="vm.user.linkedin">-->
-                            <!--</div>-->
-                        <!--</form-group>-->
-                    </form-portlet>
 
                     <!--<form-portlet portlet-title="Time zone">
                         <form-group label-title="Time zone" label-id="timezone" field="userForm.timezone" required="true">

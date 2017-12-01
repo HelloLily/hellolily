@@ -740,16 +740,21 @@ $sides: (top, bottom, left, right);
     }
 }
 
+.feature-unavailable-overlay {
+    position: absolute;
+    top: 60px;
+    padding: 10px;
+    text-align: center;
+    z-index: 3;
+    width: 100%;
+}
+
+.inline-overlay {
+    position: relative;
+}
+
 .user-filter-unavailable {
     width: 300px;
-
-    p {
-        position: absolute;
-        top: 60px;
-        padding: 10px;
-        text-align: center;
-        z-index: 3;
-    }
 }
 
 .cursor-default {

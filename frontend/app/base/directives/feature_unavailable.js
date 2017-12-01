@@ -18,6 +18,7 @@ angular.module('app.directives').component('featureUnavailable', {
         labelIcon: '@?',
         labelText: '@?',
         inline: '@?',
+        overlay: '@?',
     },
     transclude: true,
 });

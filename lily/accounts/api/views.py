@@ -10,6 +10,7 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.parsers import FileUploadParser
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.permissions import IsAuthenticated
 from tablib import Dataset, UnsupportedFormat
 
 from lily.api.filters import ElasticSearchFilter
@@ -17,6 +18,7 @@ from lily.api.mixins import ModelChangesMixin
 from lily.calls.api.serializers import CallRecordSerializer
 from lily.calls.models import CallRecord
 from lily.utils.functions import uniquify
+from lily.utils.api.permissions import IsAccountAdmin
 
 from lily.socialmedia.models import SocialMedia
 from lily.utils.models.models import EmailAddress, PhoneNumber, Address
@@ -129,7 +131,7 @@ class AccountStatusViewSet(ModelViewSet):
 
 
 class AccountImport(APIView):
-
+    permission_classes = (IsAuthenticated, IsAccountAdmin, )
     classes = (FileUploadParser, )
 
     def post(self, request):

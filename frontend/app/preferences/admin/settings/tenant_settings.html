@@ -23,37 +23,39 @@
                         </tr>
                     </thead>
 
-                    <tbody>
-                        <tr>
-                            <td>
-                                Time logging 
-                            </td>
-                            <td>
-                                Enable this feature so users can log hours on cases and deals.
-                            </td>
-                            <td>
-                                <label class="switch">
-                                    <input type="checkbox" ng-model="vm.tenant.timelogging_enabled" ng-change="vm.saveSettings()">
-                                    <div class="slider round"></div>
-                                </label>
-                            </td>
-                        </tr>
+                    <feature-unavailable tier="1" overlay="true">
+                        <tbody ng-class="{'is-disabled': currentUser.tenant.isFreePlan}">
+                            <tr>
+                                <td>
+                                    Time logging
+                                </td>
+                                <td>
+                                    Enable this feature so users can log hours on cases and deals.
+                                </td>
+                                <td>
+                                    <label class="switch">
+                                        <input type="checkbox" ng-model="vm.tenant.timelogging_enabled" ng-change="vm.saveSettings()" ng-disabled="currentUser.tenant.isFreePlan">
+                                        <div class="slider round"></div>
+                                    </label>
+                                </td>
+                            </tr>
 
-                        <tr ng-if="vm.tenant.timelogging_enabled">
-                            <td>
-                                Billable default value
-                            </td>
-                            <td>
-                                Sets the default for the 'Billable' value for logged hours.
-                            </td>
-                            <td>
-                                <label class="switch">
-                                    <input type="checkbox" ng-model="vm.tenant.billing_default" ng-change="vm.saveSettings()">
-                                    <div class="slider round"></div>
-                                </label>
-                            </td>
-                        </tr>
-                    </tbody>
+                            <tr ng-if="vm.tenant.timelogging_enabled">
+                                <td>
+                                    Billable default value
+                                </td>
+                                <td>
+                                    Sets the default for the 'Billable' value for logged hours.
+                                </td>
+                                <td>
+                                    <label class="switch">
+                                        <input type="checkbox" ng-model="vm.tenant.billing_default" ng-change="vm.saveSettings()" ng-disabled="currentUser.tenant.isFreePlan">
+                                        <div class="slider round"></div>
+                                    </label>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </feature-unavailable>
                 </table>
             </widget-body>
         </simple-widget>

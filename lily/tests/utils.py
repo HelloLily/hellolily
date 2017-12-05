@@ -1,15 +1,14 @@
+from datetime import date, datetime, timedelta
+from decimal import Decimal
+import json
 from urllib import urlencode
 
-from datetime import datetime, timedelta, date
-import json
-
+from django.contrib.auth.models import AnonymousUser, Group
+from django.db.models import Manager, Model
+from django_elasticsearch_dsl import Index
 from django_elasticsearch_dsl.registries import registry
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client.client import OAuth2Credentials
-
-from decimal import Decimal
-from django.contrib.auth.models import AnonymousUser, Group
-from django.db.models import Manager, Model
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APIClient, APITestCase
@@ -128,6 +127,7 @@ class CompareObjectsMixin(object):
     """
     Baseclass that provides functionality for tests that compare objects.
     """
+
     def assertStatus(self, request, desired_code, original_data=None):
         """
         Helper function to assert that the response of the API is what is expected.
@@ -201,7 +201,26 @@ class GenericAPITestCase(CompareObjectsMixin, UserBasedTest, APITestCase):
     factory_cls = None
     model_cls = None
     serializer_cls = None
-    ordering = ('-id', )  # Default ordering field
+    ordering = ('-id',)  # Default ordering field
+    es_doc_type = None
+
+    @classmethod
+    def setUpTestData(cls):
+        super(GenericAPITestCase, cls).setUpTestData()
+
+        # Check if this model has Elasticsearch mappings and take one of them
+        # to test with (unless a custom es_doc_type has been defined).
+        if not cls.es_doc_type:
+            doc_types = registry.get_documents(cls.model_cls)
+            if doc_types:
+                cls.es_doc_type = next(iter(doc_types))
+
+    @classmethod
+    def tearDownClass(cls):
+        # Reset the es_doc_type class field for other tests.
+        cls.es_doc_type = None
+
+        super(GenericAPITestCase, cls).tearDownClass()
 
     def __call__(self, result=None):
         """
@@ -350,6 +369,10 @@ class GenericAPITestCase(CompareObjectsMixin, UserBasedTest, APITestCase):
         db_obj = self.model_cls.objects.get(pk=created_id)
         self._compare_objects(db_obj, json.loads(request.content))
 
+        if self.es_doc_type:
+            Index(self.es_doc_type._doc_type.index).refresh()
+            self.assertIsNotNone(self.es_doc_type.get(id=db_obj.pk))
+
     def test_create_object_tenant_filter(self):
         """
         Test that the tenant is set correctly on the new object.
@@ -383,6 +406,10 @@ class GenericAPITestCase(CompareObjectsMixin, UserBasedTest, APITestCase):
         db_obj = self._create_object()
         stub_dict = self._create_object_stub()
 
+        if self.es_doc_type:
+            Index(self.es_doc_type._doc_type.index).refresh()
+            old_es_doc = self.es_doc_type.get(id=db_obj.pk)
+
         request = self.user.put(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}), data=stub_dict)
         self.assertStatus(request, status.HTTP_200_OK, stub_dict)
 
@@ -391,6 +418,12 @@ class GenericAPITestCase(CompareObjectsMixin, UserBasedTest, APITestCase):
 
         db_obj = self.model_cls.objects.get(pk=created_id)
         self._compare_objects(db_obj, request.data)
+
+        if self.es_doc_type:
+            Index(self.es_doc_type._doc_type.index).refresh()
+            updated_es_doc = self.es_doc_type.get(id=created_id)
+
+            self.assertNotEqual(old_es_doc.to_dict(), updated_es_doc.to_dict())
 
     def test_update_object_deleted_filter(self):
         """
@@ -414,9 +447,19 @@ class GenericAPITestCase(CompareObjectsMixin, UserBasedTest, APITestCase):
         db_obj = self._create_object()
         stub_dict = self._create_object_stub()
 
+        if self.es_doc_type:
+            Index(self.es_doc_type._doc_type.index).refresh()
+            old_es_doc = self.es_doc_type.get(id=db_obj.pk)
+
         request = self.other_tenant_user.put(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}), stub_dict)
         self.assertStatus(request, status.HTTP_404_NOT_FOUND, stub_dict)
         self.assertEqual(request.data, {u'detail': u'Not found.'})
+
+        if self.es_doc_type:
+            Index(self.es_doc_type._doc_type.index).refresh()
+            updated_es_doc = self.es_doc_type.get(id=db_obj.pk)
+
+            self.assertEqual(old_es_doc.to_dict(), updated_es_doc.to_dict())
 
     def test_delete_object_unauthenticated(self):
         """
@@ -441,9 +484,17 @@ class GenericAPITestCase(CompareObjectsMixin, UserBasedTest, APITestCase):
 
         if 'is_deleted' in [f.name for f in self.model_cls._meta.get_fields()]:
             self.assertTrue(self.model_cls.objects.get(pk=db_obj.pk).is_deleted)
+
+            if self.es_doc_type:
+                Index(self.es_doc_type._doc_type.index).refresh()
+                self.assertIsNotNone(self.es_doc_type.get(id=db_obj.pk))
         else:
             with self.assertRaises(self.model_cls.DoesNotExist):
                 self.model_cls.objects.get(pk=db_obj.pk)
+
+            if self.es_doc_type:
+                Index(self.es_doc_type._doc_type.index).refresh()
+                self.assertIsNotNone(self.es_doc_type.get(id=db_obj.pk))
 
     def test_delete_object_deleted_filter(self):
         set_current_user(self.user_obj)

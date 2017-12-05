@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from lily.api.filters import ElasticSearchFilter
-from lily.api.mixins import ModelChangesMixin, TimeLogMixin, DataExistsMixin
+from lily.api.mixins import ModelChangesMixin, TimeLogMixin, DataExistsMixin, ElasticModelMixin
 
 from .serializers import (DealSerializer, DealNextStepSerializer, DealWhyCustomerSerializer, DealWhyLostSerializer,
                           DealFoundThroughSerializer, DealContactedBySerializer, DealStatusSerializer)
@@ -30,7 +30,7 @@ class DealNextStepList(APIView):
         return Response(serializer.data)
 
 
-class DealWhyCustomerViewSet(ModelViewSet):
+class DealWhyCustomerViewSet(ElasticModelMixin, ModelViewSet):
     # Set the queryset, this takes care of setting the `base_name`.
     queryset = DealWhyCustomer.objects
     # Set the serializer class for this viewset.
@@ -44,7 +44,7 @@ class DealWhyCustomerViewSet(ModelViewSet):
         return super(DealWhyCustomerViewSet, self).get_queryset().all()
 
 
-class DealWhyLostViewSet(ModelViewSet):
+class DealWhyLostViewSet(ElasticModelMixin, ModelViewSet):
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
     queryset = DealWhyLost.objects
     serializer_class = DealWhyLostSerializer
@@ -57,7 +57,7 @@ class DealWhyLostViewSet(ModelViewSet):
         return super(DealWhyLostViewSet, self).get_queryset().all()
 
 
-class DealNextStepViewSet(ModelViewSet):
+class DealNextStepViewSet(ElasticModelMixin, ModelViewSet):
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
     queryset = DealNextStep.objects
     # Set the serializer class for this viewset.
@@ -71,7 +71,7 @@ class DealNextStepViewSet(ModelViewSet):
         return super(DealNextStepViewSet, self).get_queryset().all()
 
 
-class DealFoundThroughViewSet(ModelViewSet):
+class DealFoundThroughViewSet(ElasticModelMixin, ModelViewSet):
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
     queryset = DealFoundThrough.objects
     # Set the serializer class for this viewset.
@@ -85,7 +85,7 @@ class DealFoundThroughViewSet(ModelViewSet):
         return super(DealFoundThroughViewSet, self).get_queryset().all()
 
 
-class DealContactedByViewSet(ModelViewSet):
+class DealContactedByViewSet(ElasticModelMixin, ModelViewSet):
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
     queryset = DealContactedBy.objects
     # Set the serializer class for this viewset.
@@ -99,7 +99,7 @@ class DealContactedByViewSet(ModelViewSet):
         return super(DealContactedByViewSet, self).get_queryset().all()
 
 
-class DealStatusViewSet(ModelViewSet):
+class DealStatusViewSet(ElasticModelMixin, ModelViewSet):
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
     queryset = DealStatus.objects
     # Set the serializer class for this viewset.
@@ -142,7 +142,7 @@ class DealFilter(filters.FilterSet):
         }
 
 
-class DealViewSet(ModelChangesMixin, TimeLogMixin, DataExistsMixin, ModelViewSet):
+class DealViewSet(ElasticModelMixin, ModelChangesMixin, TimeLogMixin, DataExistsMixin, ModelViewSet):
     """
     retrieve:
     Returns the given deal.

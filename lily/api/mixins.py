@@ -2,6 +2,7 @@ import json
 
 from django.contrib.contenttypes.models import ContentType
 from rest_framework.decorators import detail_route, list_route
+from django_elasticsearch_dsl.actions import ActionBuffer
 from rest_framework.response import Response
 
 from lily.api.serializers import ContentTypeSerializer
@@ -244,9 +245,44 @@ class NoteMixin(object):
     @detail_route(methods=['GET'])
     def notes(self, request, pk=None):
         obj = self.get_object()
-
+        
+    
         notes = Note.objects.filter(gfk_object_id=obj.id, gfk_content_type=obj.content_type, is_deleted=False)
 
         serializer = NoteSerializer(notes, many=True)
 
         return Response({'results': serializer.data})
+        
+        
+class ElasticModelMixin(object):
+    """
+    Destroy a model instance and remove it from Elasticsearch.
+    """
+
+    def _get_elasticsearch_serializer(self):
+        # Import locally to get around a circular dependency issue.
+        from lily.api.nested.serializers import WritableNestedSerializer
+        return WritableNestedSerializer
+
+    def perform_destroy(self, instance):
+        action_buffer = ActionBuffer()
+        action_buffer.add_model_actions(instance, 'delete')
+        action_buffer.execute()
+
+        super(ElasticModelMixin, self).perform_destroy(instance)
+
+    def perform_create(self, serializer):
+        super(ElasticModelMixin, self).perform_create(serializer)
+
+        if not isinstance(serializer, self._get_elasticsearch_serializer()):
+            action_buffer = ActionBuffer()
+            action_buffer.add_model_actions(serializer.instance)
+            action_buffer.execute()
+
+    def perform_update(self, serializer):
+        super(ElasticModelMixin, self).perform_update(serializer)
+
+        if not isinstance(serializer, self._get_elasticsearch_serializer()):
+            action_buffer = ActionBuffer()
+            action_buffer.add_model_actions(serializer.instance)
+            action_buffer.execute()

@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from lily.api.filters import ElasticSearchFilter
-from lily.api.mixins import ModelChangesMixin, DataExistsMixin, NoteMixin
+from lily.api.mixins import ModelChangesMixin, DataExistsMixin, ElasticModelMixin, NoteMixin
 from lily.calls.api.serializers import CallRecordSerializer
 from lily.calls.models import CallRecord
 from lily.utils.functions import uniquify
@@ -42,7 +42,7 @@ class AccountFilter(filters.FilterSet):
         }
 
 
-class AccountViewSet(ModelChangesMixin, DataExistsMixin, NoteMixin, ModelViewSet):
+class AccountViewSet(ElasticModelMixin, ModelChangesMixin, DataExistsMixin, NoteMixin, ModelViewSet):
     """
     Accounts are companies you've had contact with and for which you wish to store information.
 

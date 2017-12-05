@@ -601,9 +601,9 @@ ELASTICSEARCH_DSL = {
     'default': es_url_to_connection(os.environ.get(ES_PROVIDER_ENV, 'http://es:9200')),
 }
 
-# Set this parameter to false to prevent model changes from being synced to
-# Elasticsearch automatically.
-ELASTICSEARCH_DSL_AUTOSYNC = os.environ.get('ELASTICSEARCH_DSL_AUTOSYNC', True)
+# We use our own Elasticsearch synchronization, so we don't want to use the
+# builtin auto sync functionality.
+ELASTICSEARCH_DSL_AUTOSYNC = os.environ.get('ELASTICSEARCH_DSL_AUTOSYNC', False)
 
 # Set this parameter to true to refresh the Elasticsearch index after every
 # index or update.

@@ -26,6 +26,7 @@ from user_sessions.models import Session
 from templated_email import send_templated_mail
 
 from lily.api.filters import ElasticSearchFilter
+from lily.api.mixins import ElasticModelMixin
 from lily.users.api.filters import TeamFilter, LilyUserFilter
 from lily.utils.api.permissions import IsAccountAdmin
 from lily.utils.functions import has_required_tier, post_intercom_event
@@ -175,7 +176,7 @@ class UserInviteViewSet(viewsets.ModelViewSet):
 
     is_active = BooleanFilter()
 
-class LilyUserViewSet(viewsets.ModelViewSet):
+class LilyUserViewSet(ElasticModelMixin, viewsets.ModelViewSet):
     """
     Returns a list of all users in the system, filtered by default on active status.
 

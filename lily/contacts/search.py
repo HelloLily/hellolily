@@ -1,6 +1,9 @@
 from django_elasticsearch_dsl import DocType, Index, IntegerField, ObjectField
 
 from lily.search.fields import CharField, EmailAddressField, PhoneNumberField
+from lily.accounts.models import Account
+from lily.tags.models import Tag
+from lily.utils.models.models import PhoneNumber, EmailAddress
 from .models import Contact
 
 index = Index('contact')
@@ -11,13 +14,13 @@ class ContactDoc(DocType):
     accounts = ObjectField(properties={
         'id': IntegerField(),
         'name': CharField(),
-        'phone_numbers': PhoneNumberField(),
-    })
+        'phone_numbers': PhoneNumberField(related_model=PhoneNumber),
+    }, related_model=Account)
     description = CharField()
-    email_address = EmailAddressField()
+    email_address = EmailAddressField(related_model=EmailAddress)
     full_name = CharField()
-    phone_numbers = PhoneNumberField()
-    tags = CharField()
+    phone_numbers = PhoneNumberField(related_model=PhoneNumber)
+    tags = CharField(related_model=Tag)
     tenant_id = IntegerField()
 
     def get_queryset(self):
@@ -45,6 +48,22 @@ class ContactDoc(DocType):
 
     def prepare_tags(self, obj):
         return [tag.name for tag in obj.tags.all()]
+
+    def get_instances_from_accounts(self, account):
+        return account.contacts.all()
+
+    def get_instances_from_accounts_phone_numbers(self, phone_number):
+        return Contact.objects.filter(accounts__phone_numbers=phone_number)
+
+    def get_instances_from_email_addresses(self, email_address):
+        return email_address.contact_set.all()
+
+    def get_instances_from_phone_numbers(self, phone_number):
+        return phone_number.contact_set.all()
+
+    def get_instances_from_tags(self, tag):
+        if tag.content_type.model == 'contact':
+            return Contact.objects.get(pk=tag.object_id)
 
     class Meta:
         model = Contact

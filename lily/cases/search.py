@@ -1,22 +1,26 @@
 from django_elasticsearch_dsl import DocType, Index, IntegerField
 
+from lily.accounts.models import Account
+from lily.contacts.models import Contact
+from lily.tags.models import Tag
+from lily.users.models import LilyUser
 from lily.search.fields import CharField
-from .models import Case
+from .models import Case, CaseStatus, CaseType
 
 index = Index('case')
 
 
 @index.doc_type
 class CaseDoc(DocType):
-    account = CharField()
-    assigned_to = CharField()
-    contact = CharField()
-    created_by = CharField()
-    status = CharField()
+    account = CharField(related_model=Account)
+    assigned_to = CharField(related_model=LilyUser)
+    contact = CharField(related_model=Contact)
+    created_by = CharField(related_model=LilyUser)
+    status = CharField(related_model=CaseStatus)
     subject = CharField()
-    tags = CharField()
+    tags = CharField(related_model=Tag)
     tenant_id = IntegerField()
-    type = CharField()
+    type = CharField(related_model=CaseType)
 
     def get_queryset(self):
         return Case.objects.select_related(
@@ -43,6 +47,28 @@ class CaseDoc(DocType):
 
     def prepare_type(self, obj):
         return obj.type.name if obj.type else None
+
+    def get_instances_from_account(self, account):
+        return account.case_set.all()
+
+    def get_instances_from_assigned_to(self, lily_user):
+        return lily_user.assigned_cases.all()
+
+    def get_instances_from_contact(self, contact):
+        return contact.case_set.all()
+
+    def get_instances_from_created_by(self, lily_user):
+        return lily_user.created_cases.all()
+
+    def get_instances_from_status(self, status):
+        return status.cases.all()
+
+    def get_instances_from_tags(self, tag):
+        if tag.content_type.model == 'case':
+            return Contact.objects.get(pk=tag.object_id)
+
+    def get_instances_from_type(self, type):
+        return type.cases.all()
 
     class Meta:
         model = Case

@@ -5,6 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from django.db.models import ForeignKey, ManyToManyField, ManyToOneRel, ManyToManyRel
 from django.utils import six
+from django_elasticsearch_dsl.actions import ActionBuffer
 from rest_framework import serializers
 from rest_framework.fields import empty
 from rest_framework.serializers import SerializerMetaclass
@@ -121,6 +122,7 @@ class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializer
         self.m2m_reverse_data = {}
         self.m2m_through_data = {}
         self.m2m_through_reverse_data = {}
+        self.elasticsearch_actions = ActionBuffer()
 
     def split_data(self, data):
         for field_name, field_data in data.items():
@@ -172,6 +174,7 @@ class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializer
 
             # Save the instance using simple field data.
             self.instance = super(WritableNestedSerializer, self).create(self.simple_data)
+            self.elasticsearch_actions.add_model_actions(self.instance)
 
             # Save the reverse foreign keys.
             self.save_foreign_key_reverse_fields()
@@ -194,6 +197,8 @@ class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializer
             # Save the reverse many to manys with a through model.
             self.save_many_to_many_through_reverse_fields()
 
+        self.elasticsearch_actions.execute()
+
         self.call_webhook(validated_data, self.instance)
 
         return self.instance
@@ -207,6 +212,7 @@ class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializer
 
             # Save the instance.
             self.instance = super(WritableNestedSerializer, self).update(instance, self.simple_data)
+            self.elasticsearch_actions.add_model_actions(self.instance)
 
             # Save the reverse foreign keys and do a cleanup of unreferenced objects if necessary.
             self.save_foreign_key_reverse_fields(cleanup=True)
@@ -228,6 +234,8 @@ class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializer
 
             # Save the reverse many to manys with a through model.
             self.save_many_to_many_through_reverse_fields(cleanup=True)
+
+        self.elasticsearch_actions.execute()
 
         self.call_webhook(validated_data, self.instance)
 
@@ -261,6 +269,8 @@ class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializer
 
                 # Add the id's so null constraints don't break.
                 self.simple_data['%s_id' % field_name] = related_instance.pk
+
+                self.elasticsearch_actions.add_model_actions(related_instance)
             elif field_data:
                 self.simple_data['%s_id' % field_name] = field_data['id']
             else:
@@ -278,6 +288,12 @@ class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializer
 
             # Call the save on the listserializer.
             instance_list, unmentioned_instances = self.fields[field_name].save(self.instance, field_data)
+
+            for instance in instance_list:
+                self.elasticsearch_actions.add_model_actions(instance)
+
+            for unmentioned_instance in unmentioned_instances.values():
+                self.elasticsearch_actions.add_model_actions(unmentioned_instance, 'delete')
 
             if cleanup:
                 self.remove(unmentioned_instances, field_name, manager, False)
@@ -297,6 +313,12 @@ class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializer
 
             instance_list, unmentioned_instances = self.fields[field_name].save(self.instance, field_data)
 
+            for instance in instance_list:
+                self.elasticsearch_actions.add_model_actions(instance)
+
+            for unmentioned_instance in unmentioned_instances.values():
+                self.elasticsearch_actions.add_model_actions(unmentioned_instance, 'delete')
+
             if cleanup:
                 self.remove(unmentioned_instances, field_name, manager, False)
 
@@ -309,6 +331,12 @@ class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializer
             # Add the many to many relation.
             manager.add(*instance_list)
 
+            for instance in instance_list:
+                self.elasticsearch_actions.add_model_actions(instance)
+
+            for unmentioned_instance in unmentioned_instances.values():
+                self.elasticsearch_actions.add_model_actions(unmentioned_instance, 'delete')
+
             if cleanup:
                 self.remove(unmentioned_instances, field_name, manager, True)
 
@@ -320,6 +348,12 @@ class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializer
             instance_list, unmentioned_instances = self.fields[field_name].save(self.instance, field_data)
             # Add the many to many relation.
             manager.add(*instance_list)
+
+            for instance in instance_list:
+                self.elasticsearch_actions.add_model_actions(instance)
+
+            for unmentioned_instance in unmentioned_instances.values():
+                self.elasticsearch_actions.add_model_actions(unmentioned_instance, 'delete')
 
             if cleanup:
                 self.remove(unmentioned_instances, field_name, manager, True)
@@ -357,6 +391,12 @@ class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializer
                 }
 
                 model_cls.objects.filter(**filter_kwargs).delete()
+
+            for instance in instance_list:
+                self.elasticsearch_actions.add_model_actions(instance)
+
+            for unmentioned_instance in unmentioned_instances.values():
+                self.elasticsearch_actions.add_model_actions(unmentioned_instance, 'delete')
 
     def save_many_to_many_through_reverse_fields(self, cleanup=False):
         if self.m2m_through_reverse_data:

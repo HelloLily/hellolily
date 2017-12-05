@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from rest_framework_filters import FilterSet
 
 from lily.api.filters import ElasticSearchFilter
-from lily.api.mixins import ModelChangesMixin, TimeLogMixin
+from lily.api.mixins import ModelChangesMixin, TimeLogMixin, ElasticModelMixin
 
 from .serializers import CaseSerializer, CaseStatusSerializer, CaseTypeSerializer
 from ..models import Case, CaseStatus, CaseType
@@ -56,7 +56,7 @@ class CaseFilter(FilterSet):
         }
 
 
-class CaseViewSet(ModelChangesMixin, TimeLogMixin, viewsets.ModelViewSet):
+class CaseViewSet(ElasticModelMixin, ModelChangesMixin, TimeLogMixin, viewsets.ModelViewSet):
     """
     Returns a list of all **active** cases in the system.
 

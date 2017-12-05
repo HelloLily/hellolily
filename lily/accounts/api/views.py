@@ -14,7 +14,7 @@ from rest_framework.permissions import IsAuthenticated
 from tablib import Dataset, UnsupportedFormat
 
 from lily.api.filters import ElasticSearchFilter
-from lily.api.mixins import ModelChangesMixin
+from lily.api.mixins import ModelChangesMixin, ElasticModelMixin
 from lily.calls.api.serializers import CallRecordSerializer
 from lily.calls.models import CallRecord
 from lily.utils.functions import uniquify
@@ -54,7 +54,7 @@ class AccountFilter(FilterSet):
         }
 
 
-class AccountViewSet(ModelChangesMixin, ModelViewSet):
+class AccountViewSet(ElasticModelMixin, ModelChangesMixin, ModelViewSet):
     """
     Returns a list of all **active** accounts in the system.
 

@@ -1,5 +1,8 @@
 from django_elasticsearch_dsl import DocType, Index, IntegerField, ObjectField, TextField
 
+from lily.accounts.models import Account
+from lily.tags.models import Tag
+from lily.utils.models.models import PhoneNumber, EmailAddress
 from .models import Contact
 
 index = Index('contact')
@@ -10,13 +13,13 @@ class ContactDoc(DocType):
     accounts = ObjectField(properties={
         'id': IntegerField(),
         'name': TextField(),
-        'phone_numbers': TextField(),
-    })
+        'phone_numbers': TextField(related_model=PhoneNumber),
+    }, related_model=Account)
     description = TextField()
-    email_address = TextField()
+    email_addresses = TextField(related_model=EmailAddress)
     full_name = TextField()
-    phone_numbers = TextField()
-    tags = TextField()
+    phone_numbers = TextField(related_model=PhoneNumber)
+    tags = TextField(related_model=Tag)
     tenant_id = IntegerField()
 
     def _convert_function_to_account(self, func):
@@ -31,7 +34,7 @@ class ContactDoc(DocType):
 
         return [self._convert_function_to_account(func) for func in functions]
 
-    def prepare_email_address(self, obj):
+    def prepare_email_addresses(self, obj):
         return [email.email_address for email in obj.email_addresses.all()]
 
     def prepare_phone_numbers(self, obj):
@@ -39,6 +42,22 @@ class ContactDoc(DocType):
 
     def prepare_tags(self, obj):
         return [tag.name for tag in obj.tags.all()]
+
+    def get_instances_from_accounts(self, account):
+        return account.contacts.all()
+
+    def get_instances_from_accounts_phone_numbers(self, phone_number):
+        return Contact.objects.filter(accounts__phone_numbers=phone_number)
+
+    def get_instances_from_email_addresses(self, email_address):
+        return email_address.contact_set.all()
+
+    def get_instances_from_phone_numbers(self, phone_number):
+        return phone_number.contact_set.all()
+
+    def get_instances_from_tags(self, tag):
+        if tag.content_type.model == 'contact':
+            return Contact.objects.get(pk=tag.object_id)
 
     class Meta:
         model = Contact

@@ -389,6 +389,9 @@ class CallNotificationV2Serializer(serializers.Serializer):
         cr = CallRecord.objects.get(call_id=data['call_id'])
         last_transfer = cr.transfers.order_by('timestamp').last()
 
+        # Switch the number since target numbers can be dial templates or callgroup ids and stuff.
+        data['destination']['target']['number'] = data['destination']['number']
+
         if last_transfer and not last_transfer.destination:
             last_transfer.destination = self.save_participant(data['destination']['target'])[0]
             last_transfer.save()
@@ -412,6 +415,9 @@ class CallNotificationV2Serializer(serializers.Serializer):
             cr = CallRecord.objects.get(call_id=data['merged_id'])
             cr.call_id = data['call_id']
             cr.save()
+
+        # Switch the number since target numbers can be dial templates or callgroup ids and stuff.
+        data['destination']['target']['number'] = data['destination']['number']
 
         CallTransfer.objects.create(
             timestamp=data['timestamp'],

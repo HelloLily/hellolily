@@ -12,7 +12,7 @@ from tablib import UnsupportedFormat, Dataset
 
 from lily.accounts.models import Account, AccountStatus
 from lily.api.filters import ElasticSearchFilter
-from lily.api.mixins import ModelChangesMixin
+from lily.api.mixins import ModelChangesMixin, ElasticModelMixin
 
 from lily.calls.api.serializers import CallRecordSerializer
 from lily.calls.models import CallRecord
@@ -24,7 +24,7 @@ from lily.utils.functions import uniquify
 from lily.utils.models.models import EmailAddress, PhoneNumber, Address
 
 
-class ContactViewSet(ModelChangesMixin, viewsets.ModelViewSet):
+class ContactViewSet(ElasticModelMixin, ModelChangesMixin, viewsets.ModelViewSet):
     """
     Returns a list of all **active** contacts in the system.
 

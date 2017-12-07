@@ -1,10 +1,8 @@
 import json
 import logging
-from copy import copy
 
 from channels import Group
 from django.contrib.staticfiles.templatetags.staticfiles import static
-from django.db import IntegrityError
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
@@ -13,200 +11,11 @@ from lily.calls.models import CallRecord, CallParticipant, CallTransfer
 from lily.contacts.models import Contact
 from lily.users.models import LilyUser
 
+
 logger = logging.getLogger(__name__)
 
 
-def create_or_get(model_cls, lookup, data):
-    """
-    This function assumes that you have a unique field in the model class.
-    The unique field will raise an IntegrityError if there is an existing record already.
-    """
-    try:
-        return model_cls.objects.create(**data)
-    except IntegrityError as e:
-        logger.warning('create_or_get IntegrityError: {}'.format(''.join(e.message.splitlines())))
-        return model_cls.objects.get(**lookup)
-
-
 class CallNotificationSerializer(serializers.Serializer):
-    call_id = serializers.CharField()
-    timestamp = serializers.DateTimeField()
-    status = serializers.ChoiceField(choices=('ringing', 'in-progress', 'ended', 'transfer', ))
-    direction = serializers.ChoiceField(choices=('inbound', 'outbound', ))
-
-    # For ringing, in-progress and ended events.
-    caller = serializers.DictField(required=False)
-    destination = serializers.DictField(required=False)
-
-    # For transfer events.
-    party1 = serializers.DictField(required=False)
-    party2 = serializers.DictField(required=False)
-    redirector = serializers.DictField(required=False)
-    merged_id = serializers.CharField(required=False)
-
-    def to_representation(self, instance):
-        # Because the CallRecord model doesn't have the same fields DRF will complain when returning the object.
-        # We don't need to return an object after creation because VG doesn't care.
-        return {}
-
-    def create(self, validated_data):
-        destination = validated_data.get('destination', {})
-
-        if destination and not destination.get('number', '').startswith('+'):
-            # We don't save phone calls to internal numbers because:
-            # - They aren't visible anywhere.
-            # - They are temporary phonecalls when a user transfers the call.
-            return CallRecord()
-
-        save_func = getattr(self, 'save_{}'.format(validated_data['status'].replace('-', '_')))
-
-        return save_func(validated_data)
-
-    def save_participant(self, data, metadata=False):
-        name = data.get('name', '') or ''
-        number = data.get('number', '') or ''
-        internal_number = data.get('account_number', '') or ''
-
-        # First try to autocomplete the name using a user.
-        if internal_number and not name:
-            user = LilyUser.objects.filter(internal_number=internal_number).first()
-            if user:
-                name = user.full_name
-
-        meta = {
-            'destination': 'create',
-            'icon': static('app/images/notification_icons/add-account.png'),
-            'params': {
-                'name': name,
-                'number': number,
-            },
-        }
-
-        # Second try to autocomplete the name using a contact.
-        if number and not name:
-            contact = Contact.objects.filter(phone_numbers__number=number).first()
-
-            if contact:
-                name = contact.full_name
-                meta = {
-                    'destination': 'contact',
-                    'icon': static('app/images/notification_icons/contact.png'),
-                    'params': {
-                        'name': name,
-                        'number': number,
-                        'id': contact.id,
-                    },
-                }
-
-        # Third try to autocomplete the name using an account.
-        if number and not name:
-            account = Account.objects.filter(phone_numbers__number=number).first()
-
-            if account:
-                name = account.name
-                meta = {
-                    'destination': 'account',
-                    'icon': static('app/images/notification_icons/account.png'),
-                    'params': {
-                        'name': name,
-                        'number': number,
-                        'id': account.id,
-                    },
-                }
-
-        participant = CallParticipant.objects.get_or_create(
-            name=name,
-            number=number,
-            internal_number=internal_number
-        )[0]
-
-        if metadata:
-            return participant, meta
-
-        return participant
-
-    def save_ringing(self, data):
-        caller, caller_meta = self.save_participant(data['caller'], metadata=True)
-        destination = data['destination']
-
-        data.update({
-            'start': data.pop('timestamp'),
-            'caller': caller,
-            'destination': None,  # During ringing we don't want to store destination yet, only when it's picked up.
-            'status': CallRecord.RINGING,
-            'direction': CallRecord.INBOUND if data['direction'] == 'inbound' else CallRecord.OUTBOUND,
-        })
-        cr = create_or_get(CallRecord, lookup={'call_id': data['call_id']}, data=data)
-
-        user_list = LilyUser.objects.filter(internal_number=destination['account_number'])
-        for user in user_list:
-            # Sends the data as a notification event to the users.
-            Group('user-%s' % user.id).send({
-                'text': json.dumps({
-                    'event': 'notification',
-                    'data': caller_meta
-                }),
-            })
-
-        return cr
-
-    def save_in_progress(self, data):
-        try:
-            cr = CallRecord.objects.get(call_id=data['call_id'])
-        except CallRecord.DoesNotExist:
-            logger.exception('Unexpected in-progress notification for call {}'.format(data['call_id']))
-            return CallRecord()
-
-        updated_data = {
-            'destination': self.save_participant(data['destination']),
-            'status': CallRecord.IN_PROGRESS,
-        }
-
-        for attr, value in updated_data.items():
-            setattr(cr, attr, value)
-        cr.save()
-
-        return cr
-
-    def save_transfer(self, data):
-        crs = CallRecord.objects.filter(
-            call_id=data['call_id']
-        ) or CallRecord.objects.filter(
-            call_id=data['merged_id']
-        )
-
-        if not crs:
-            return CallRecord()
-
-        CallTransfer.objects.create(**{
-            'timestamp': data['timestamp'],
-            'call': crs[0],
-            'destination': self.save_participant(data['party2']),
-        })
-
-        return crs[0]
-
-    def save_ended(self, data):
-        try:
-            cr = CallRecord.objects.get(call_id=data['call_id'])
-        except CallRecord.DoesNotExist:
-            # This can happen if the destination is unavailable. Then you get the ended notification right away.
-            # Use the save ringing to create the cr and immediately overwrite the data afterwards.
-            cr = self.save_ringing(copy(data))
-
-        updated_data = {
-            'end': data.pop('timestamp'),
-            'status': CallRecord.ENDED,
-        }
-
-        for attr, value in updated_data.items():
-            setattr(cr, attr, value)
-        cr.save()
-
-        return cr
-
-
-class CallNotificationV2Serializer(serializers.Serializer):
     call_id = serializers.CharField()
     timestamp = serializers.DateTimeField()
     status = serializers.ChoiceField(choices=('ringing', 'in-progress', 'ended', 'warm-transfer', 'cold-transfer', ))
@@ -247,7 +56,8 @@ class CallNotificationV2Serializer(serializers.Serializer):
     def create(self, validated_data):
         caller = validated_data['caller']
 
-        if caller and not caller.get('number', '').startswith('+'):
+        if validated_data['direction'] == 'outbound' or not caller.get('number', '').startswith('+'):
+            # We don't save outbound phonecalls, because they make everything much more complicated.
             # We don't save phone calls from internal numbers because:
             # - They aren't visible anywhere.
             # - They are temporary phone calls when a user transfers the call.
@@ -316,61 +126,128 @@ class CallNotificationV2Serializer(serializers.Serializer):
                 }),
             })
 
-    def save_participant(self, data):
+    def get_target_internal_numbers(self, target):
+        internal_numbers = set()
+
+        internal_numbers.update(target['user_numbers'])
+        if target['account_number']:
+            internal_numbers.add(str(target['account_number']))
+
+        return list(internal_numbers)
+
+    def match_internal_participant(self, data):
+        name = data['name'] or ''
         number = data['number'] or ''
-        name = ''
         source = None
 
-        # Order of saving internal number for participant:
-        # 1 - user_numbers, if multiple use the first one.
-        # 2 - account_number.
-        # 3 - empty string.
-        if data['user_numbers']:
-            internal_number = data['user_numbers'][0]
-        elif data['account_number']:
-            internal_number = data['account_number']
+        internal_number_list = self.get_target_internal_numbers(data)
+
+        if internal_number_list:
+            user = LilyUser.objects.filter(
+                internal_number__in=internal_number_list,
+                is_active=True
+            ).order_by('-last_login').first()
+
+            if user:
+                name = user.full_name
+                internal_number = user.internal_number
+                source = user
+            else:
+                # If there was no user found with one of the internal numbers, just use first from the list.
+                internal_number = internal_number_list[0]
         else:
             internal_number = ''
 
-        # Order of saving the name for participant:
-        # 1 - based on a user, if multiple the one that last logged in.
-        # 2 - based on a contact, if multiple the one that was last modified.
-        # 3 - based on an account, if multiple the one that was last modified.
-        # 4 - use the vg provided one as a backup.
-        if internal_number:
-            user = LilyUser.objects.filter(internal_number=internal_number).order_by('-last_login').first()
-            if user:
-                name = user.full_name
-                source = user
+        return {
+            'name': name,
+            'number': number,
+            'internal_number': internal_number,
+            'source': source,
+        }
 
-        if number and not name:
-            contact = Contact.objects.filter(phone_numbers__number=number).order_by('-modified').first()
+    def match_external_participant(self, data):
+        name = data['name'] or ''
+        number = data['number'] or ''
+        source = None
 
-            if contact:
-                name = contact.full_name
-                source = contact
-            else:
-                account = Account.objects.filter(phone_numbers__number=number).order_by('-modified').first()
+        contact = Contact.objects.filter(
+            phone_numbers__number=number,
+            is_deleted=False
+        ).order_by('-modified').first()
 
-                if account:
-                    name = account.name
-                    source = account
+        if contact:
+            name = contact.full_name
+            source = contact
+        else:
+            account = Account.objects.filter(
+                phone_numbers__number=number,
+                is_deleted=False
+            ).order_by('-modified').first()
+
+            if account:
+                name = account.name
+                source = account
+
+        return {
+            'name': name,
+            'number': number,
+            'internal_number': '',
+            'source': source,
+        }
+
+    def save_caller(self, direction, caller):
+        """
+        Save the caller of a conversation.
+        It depends on the direction of the call if the caller is the internal or external party.
+
+        Inbound: caller is the external party -> match to contacts/accounts, fallback to the voipgrid name.
+        Outbound: caller is the internal party -> match to users, fallback to the tenant name.
+        """
+        if direction == 'inbound':
+            data = self.match_external_participant(caller)
+        else:  # direction == outbound
+            data = self.match_internal_participant(caller)
 
         participant = CallParticipant.objects.get_or_create(
-            name=name or data['name'] or '',
-            number=number,
-            internal_number=internal_number
+            name=data['name'],
+            number=data['number'],
+            internal_number=data['internal_number']
         )[0]
 
-        return participant, source
+        return participant, data['source']
+
+    def save_destination(self, direction, destination):
+        """
+        Save the destination of a conversation.
+        It depends on the direction of the call if the destination is the internal or external party.
+
+        Inbound: destination is the internal party -> match to users, fallback to the tenant name.
+        Outbound: destination is the external party -> match to contacts/accounts, fallback to the voipgrid name.
+        """
+        # Get the target out of the destination, but use the main destination number.
+        # We use the main number because target numbers can be dial templates or callgroup ids and stuff.
+        target = destination['target']
+
+        if not target['number'].startswith('+'):
+            # The target number may be internal due to call forwarding.
+            # If so, the destination number is probably the number that was called.
+            target['number'] = destination['number']
+
+        if direction == 'inbound':
+            data = self.match_internal_participant(target)
+        else:  # direction == outbound
+            data = self.match_external_participant(target)
+
+        participant = CallParticipant.objects.get_or_create(
+            name=data['name'],
+            number=data['number'],
+            internal_number=data['internal_number']
+        )[0]
+
+        return participant
 
     def save_ringing(self, data):
-        caller, source = self.save_participant(data['caller'])
-        internal_numbers = set()
-        for target in data['destination']['targets']:
-            internal_numbers.update(target['user_numbers'])
-            if target['account_number']:
-                internal_numbers.add(str(target['account_number']))
+        caller, source = self.save_caller(direction=data['direction'], caller=data['caller'])
 
         data.update({
             'start': data.pop('timestamp'),
@@ -381,7 +258,13 @@ class CallNotificationV2Serializer(serializers.Serializer):
         })
         cr = CallRecord.objects.get_or_create(call_id=data['call_id'], defaults=data)[0]
 
-        self.send_notification(internal_numbers, caller, source)
+        if data['direction'] == 'inbound':
+            # Only send notifications for incoming calls.
+            internal_numbers = list()
+            for target in data['destination']['targets']:
+                internal_numbers += self.get_target_internal_numbers(target)
+
+            self.send_notification(internal_numbers, caller, source)
 
         return cr
 
@@ -389,15 +272,16 @@ class CallNotificationV2Serializer(serializers.Serializer):
         cr = CallRecord.objects.get(call_id=data['call_id'])
         last_transfer = cr.transfers.order_by('timestamp').last()
 
-        # Switch the number since target numbers can be dial templates or callgroup ids and stuff.
-        data['destination']['target']['number'] = data['destination']['number']
-
         if last_transfer and not last_transfer.destination:
-            last_transfer.destination = self.save_participant(data['destination']['target'])[0]
+            last_transfer.destination = self.save_destination(
+                direction=data['direction'],
+                destination=data['destination']
+            )
+
             last_transfer.save()
         else:
             updated_data = {
-                'destination': self.save_participant(data['destination']['target'])[0],
+                'destination': self.save_destination(direction=data['direction'], destination=data['destination']),
                 'status': CallRecord.IN_PROGRESS,
             }
 
@@ -416,13 +300,10 @@ class CallNotificationV2Serializer(serializers.Serializer):
             cr.call_id = data['call_id']
             cr.save()
 
-        # Switch the number since target numbers can be dial templates or callgroup ids and stuff.
-        data['destination']['target']['number'] = data['destination']['number']
-
         CallTransfer.objects.create(
             timestamp=data['timestamp'],
             call=cr,
-            destination=self.save_participant(data['destination']['target'])[0]
+            destination=self.save_destination(direction=data['direction'], destination=data['destination'])
         )
 
         return cr
@@ -462,12 +343,13 @@ class CallNotificationV2Serializer(serializers.Serializer):
             cr.save()
         except CallRecord.DoesNotExist:
             # This can happen if the destination is unavailable. Then you get the ended notification right away.
-            caller, source = self.save_participant(data['caller'])
+            caller, source = self.save_caller(direction=data['direction'], caller=data['caller'])
+
             data.update({
                 'start': data['timestamp'],
                 'end': data.pop('timestamp'),  # Pop it to prevent error of unknown field on model during save.
                 'caller': caller,
-                'destination': None,  # During ringing we don't want to store destination, only when it's picked up.
+                'destination': None,
                 'status': CallRecord.ENDED,
                 'direction': CallRecord.INBOUND if data['direction'] == 'inbound' else CallRecord.OUTBOUND,
             })

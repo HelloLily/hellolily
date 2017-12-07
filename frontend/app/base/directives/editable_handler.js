@@ -14,9 +14,11 @@ function editableHandler() {
 
             element.on('click', event => {
                 const selection = window.getSelection().toString();
+                const elementName = event.originalEvent.target.localName;
 
                 // Allow users to select the field without opening the edit form.
-                if (!selection) {
+                // Don't open the edit form if we're clicking a link.
+                if (!selection && elementName !== 'a') {
                     form.$show();
                     scope.$apply();
                 }

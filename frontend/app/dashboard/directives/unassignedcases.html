@@ -35,7 +35,7 @@
                     <td><a ui-sref="base.cases.detail({ id: case.id })" title="{{ ::case.subject }}">{{ ::case.subject }}</a></td>
                     <td><a ui-sref="base.accounts.detail({ id: case.account.id })" ng-if="::case.account">{{ ::case.account.name }}</a></td>
                     <td>
-                        <editable-select field="priority" view-model="vm" type="Case" object="case" choice-field="true" select-type="icon_select"
+                        <editable-select field="priority" view-model="vm" type="Case" object="case" choice-field="true" select-type="icon_select" extra-class="smaller-select"
                                          select-options="{field: 'casePriorities', 'classPrefix': 'lilicon hl-prio-icon-', 'classValue': 'name'}">
                             <i class="lilicon hl-prio-icon-{{ case.priority_display | lowercase }}" tooltip-placement="left" uib-tooltip="{{ case.priority_display }}"></i>
                         </editable-select>

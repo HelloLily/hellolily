@@ -136,7 +136,12 @@ class ConfirmationView(TemplateView):
     template_name = 'users/confirmation.html'
 
     def get(self, request, *args, **kwargs):
-        user = LilyUser.objects.get(pk=request.session['user'])
+        user = request.session.get('user')
+
+        if user:
+            user = LilyUser.objects.get(pk=user)
+        else:
+            return redirect(reverse_lazy('base_view'))
 
         return render(request, self.template_name, {'user': user})
 

@@ -689,7 +689,7 @@ SLACK_LILY_TOKEN = os.environ.get('SLACK_LILY_TOKEN', '')
 TEST_RUNNER = 'lily.tests.runner.LilyNoseTestSuiteRunner'
 NOSE_ARGS = ['--nocapture', '--nologcapture', '--verbosity=3']
 TESTING = False  # Is set to True in the testrunner.
-TEST_SUPPRESS_LOG = False
+TEST_SUPPRESS_LOG = True
 
 #######################################################################################################################
 # MISCELLANEOUS SETTINGS                                                                                              #

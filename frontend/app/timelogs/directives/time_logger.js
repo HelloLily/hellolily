@@ -75,12 +75,14 @@ function TimeLoggerController($compile, $scope, $state, $templateCache, TimeLog)
 
             // Add the user to the list if it isn't already in there.
             if (!vm.users.hasOwnProperty(user.id)) {
-                const {id, full_name, profile_picture} = user;
+                const {id} = user;
+                const fullName = user.full_name;
+                const profilePicture = user.profile_picture;
 
                 vm.users[user.id] = {
                     id,
-                    full_name,
-                    profile_picture,
+                    full_name: fullName,
+                    profile_picture: profilePicture,
                     timeLogs: [],
                 };
             }

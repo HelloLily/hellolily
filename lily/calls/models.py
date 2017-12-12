@@ -60,11 +60,10 @@ class CallRecord(TenantMixin):
         (OUTBOUND, _('Outbound')),
     )
 
-    # Unique id of a call as received from the telephony platform.
+    # Per tenant unique id of a call as received from the telephony platform.
     call_id = models.CharField(
         max_length=255,
-        unique=True,
-        verbose_name=_('Unique call id')
+        verbose_name=_('Call id')
     )
     # The start and end time of the conversation, can be used to calculate the duration.
     start = models.DateTimeField(
@@ -116,6 +115,9 @@ class CallRecord(TenantMixin):
             self.call_id,
             self.caller
         )
+
+    class Meta:
+        unique_together = ('tenant', 'call_id', )
 
 
 class CallTransfer(TenantMixin):

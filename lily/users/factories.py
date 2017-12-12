@@ -8,6 +8,7 @@ from factory.django import DjangoModelFactory
 from factory.fuzzy import FuzzyChoice
 from factory.helpers import post_generation
 from faker.factory import Factory
+from rest_framework.authtoken.models import Token
 from timezone_field import TimeZoneField
 
 from lily.settings.settings import LANGUAGES
@@ -55,6 +56,14 @@ class LilyUserFactory(DjangoModelFactory):
                 # A list of teams were passed in, use them.
                 for team in extracted:
                     self.teams.add(team)
+
+    @post_generation
+    def auth_token(self, create, extracted, **kwargs):
+        if create:
+            Token.objects.create(
+                key=self.email.split('@')[0],
+                user=self
+            )
 
     @post_generation
     def info(self, create, extracted, **kwargs):

@@ -136,8 +136,9 @@ class CallNotificationSerializer(serializers.Serializer):
         return list(internal_numbers)
 
     def match_internal_participant(self, data):
-        name = data['name'] or ''
+        name = ''
         number = data['number'] or ''
+        internal_number = ''
         source = None
 
         internal_number_list = self.get_target_internal_numbers(data)
@@ -155,8 +156,9 @@ class CallNotificationSerializer(serializers.Serializer):
             else:
                 # If there was no user found with one of the internal numbers, just use first from the list.
                 internal_number = internal_number_list[0]
-        else:
-            internal_number = ''
+
+        if not name:
+            name = self.context['request'].user.tenant.name
 
         return {
             'name': name,
@@ -166,7 +168,7 @@ class CallNotificationSerializer(serializers.Serializer):
         }
 
     def match_external_participant(self, data):
-        name = data['name'] or ''
+        name = ''
         number = data['number'] or ''
         source = None
 

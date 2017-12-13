@@ -44,15 +44,26 @@ env:
     - NEXT_ACTION="$(ci/next_action.sh)"
     - DEPLOY_COMMAND="$(ci/deploy_command.sh)"
     - DOCKER_USER_ID=2000
+    - CACHE_DIR=$HOME/.cache/docker
+    - CACHE_FILE_HELLOLILY=$CACHE_DIR/hellolily.tar.gz
 
 language: python
 
+cache:
+  directories:
+  - $CACHE_DIR
+
+before_install:
+  - if [ -f ${CACHE_FILE_HELLOLILY} ]; then gunzip -c ${CACHE_FILE_HELLOLILY} | docker load; fi
+
 install:
+  - docker-compose -f docker-compose.yml -f docker-compose.new-build.yml build
   - pip install -r requirements.travis.txt
   - gem install overcommit
   - travis_retry npm install -g eslint
   - gem install scss_lint
   - gem install travis --no-rdoc --no-ri
+  - if [ ! -f ${CACHE_FILE_HELLOLILY} ]; then docker save hellolily/hellolily-app | gzip > ${CACHE_FILE_HELLOLILY}; fi
 
 # The steps are run in the following order:
   # Install apt addons
@@ -73,9 +84,6 @@ before_script:
   - echo "Indexing is needed; ${INDEXING_NEEDED}"
   - echo "Next action is; ${NEXT_ACTION}"
   - echo "Current datetime is; $(date +'%Y%m%d%H%M')"
-
-  # Always build new images for docker.
-  - docker-compose -f docker-compose.yml -f docker-compose.new-build.yml build
 
 script:
   # Run git hooks with overcommit.

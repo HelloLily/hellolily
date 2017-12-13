@@ -94,13 +94,14 @@ jobs:
       - docker-compose -f docker-compose.yml -f docker-compose.new-build.yml build
       - if [ ! -f ${CACHE_FILE_HELLOLILY} ]; then docker save hellolily/hellolily-app | gzip > ${CACHE_FILE_HELLOLILY}; fi
     - stage: test
-      script: # Run git hooks with overcommit.
+      script: ./ci/run_tests.sh
+    - script:
+      # Run git hooks with overcommit.
       - overcommit --sign
       - overcommit --run
-    - script: ./ci/run_tests.sh
-    - script: # Try a merge to see if there are merge conflicts but do not push yet.
+      # Try a merge to see if there are merge conflicts but do not push yet.
       - ./ci/git_merge.sh
-    - script: # Migration and indexing testing
+      # Migration and indexing testing
       - docker-compose run --rm web python manage.py migrate
       - docker-compose run --rm web python manage.py index
       - ./checks/git/migrations.sh

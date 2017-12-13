@@ -102,9 +102,9 @@ jobs:
     - script: # Try a merge to see if there are merge conflicts but do not push yet.
       - ./ci/git_merge.sh
     - script: # Migration and indexing testing
-      - ./checks/git/migrations.sh
       - docker-compose run --rm web python manage.py migrate
       - docker-compose run --rm web python manage.py index
+      - ./checks/git/migrations.sh
 
 after_success:
   # Only push if the tests and merge succeeded.

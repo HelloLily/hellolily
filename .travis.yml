@@ -45,7 +45,7 @@ env:
     - DEPLOY_COMMAND="$(ci/deploy_command.sh)"
     - DOCKER_USER_ID=2000
     - CACHE_DIR=$HOME/.cache/docker
-    - CACHE_FILE_HELLOLILY=$CACHE_DIR/hellolily.tar.gz
+    - CACHE_FILE_BASEIMAGE=$CACHE_DIR/baseimage.tar.gz
 
 language: python
 
@@ -79,9 +79,9 @@ before_script:
   - echo "Indexing is needed; ${INDEXING_NEEDED}"
   - echo "Next action is; ${NEXT_ACTION}"
   - echo "Current datetime is; $(date +'%Y%m%d%H%M')"
-  - if [ -f ${CACHE_FILE_HELLOLILY} ]; then gunzip -c ${CACHE_FILE_HELLOLILY} | docker load; fi
+  - if [ -f ${CACHE_FILE_BASEIMAGE} ]; then gunzip -c ${CACHE_FILE_BASEIMAGE} | docker load; fi
   - docker-compose -f docker-compose.yml -f docker-compose.new-build.yml build
-  - if [ ! -f ${CACHE_FILE_HELLOLILY} ]; then docker save hellolily/hellolily-app | gzip > ${CACHE_FILE_HELLOLILY}; fi
+  - if [ ! -f ${CACHE_FILE_BASEIMAGE} ]; then docker save hellolily/baseimage | gzip > ${CACHE_FILE_BASEIMAGE}; fi
 
 jobs:
   include:

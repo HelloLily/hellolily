@@ -79,9 +79,6 @@ before_script:
   - echo "Indexing is needed; ${INDEXING_NEEDED}"
   - echo "Next action is; ${NEXT_ACTION}"
   - echo "Current datetime is; $(date +'%Y%m%d%H%M')"
-  - if [ -f ${CACHE_FILE_HELLOLILY} ]; then gunzip -c ${CACHE_FILE_HELLOLILY} | docker load; fi
-  - docker-compose -f docker-compose.yml -f docker-compose.new-build.yml build
-  - if [ ! -f ${CACHE_FILE_HELLOLILY} ]; then docker save hellolily/hellolily-app | gzip > ${CACHE_FILE_HELLOLILY}; fi
 
 jobs:
   include:
@@ -93,7 +90,9 @@ jobs:
       - echo "Indexing is needed; ${INDEXING_NEEDED}"
       - echo "Next action is; ${NEXT_ACTION}"
       - echo "Current datetime is; $(date +'%Y%m%d%H%M')"
+      - if [ -f ${CACHE_FILE_HELLOLILY} ]; then gunzip -c ${CACHE_FILE_HELLOLILY} | docker load; fi
       - docker-compose -f docker-compose.yml -f docker-compose.new-build.yml build
+      - if [ ! -f ${CACHE_FILE_HELLOLILY} ]; then docker save hellolily/hellolily-app | gzip > ${CACHE_FILE_HELLOLILY}; fi
     - stage: test
       script: # Run git hooks with overcommit.
       - overcommit --sign

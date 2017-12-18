@@ -26,7 +26,7 @@
                 </li>
 
                 <div ng-class="{'user-filter-unavailable': vm.currentUser.tenant.isFreePlan}">
-                    <p ng-if="vm.currentUser.tenant.isFreePlan">
+                    <p ng-if="vm.currentUser.tenant.isFreePlan" class="feature-unavailable-overlay">
                         This feature isn't available for your current plan. <br />
                         Please <a ui-sref="base.preferences.admin.billing">upgrade</a> to use this feature.
                     </p>

@@ -5,6 +5,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.filters import OrderingFilter
 from rest_framework.parsers import FileUploadParser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from tablib import UnsupportedFormat, Dataset
@@ -18,6 +19,7 @@ from lily.calls.models import CallRecord
 from lily.contacts.api.serializers import ContactSerializer
 from lily.contacts.models import Contact, Function
 from lily.socialmedia.models import SocialMedia
+from lily.utils.api.permissions import IsAccountAdmin
 from lily.utils.functions import uniquify
 from lily.utils.models.models import EmailAddress, PhoneNumber, Address
 
@@ -108,7 +110,7 @@ class ContactViewSet(ModelChangesMixin, viewsets.ModelViewSet):
 
 
 class ContactImport(APIView):
-
+    permission_classes = (IsAuthenticated, IsAccountAdmin, )
     classes = (FileUploadParser, )
 
     def post(self, request):

@@ -4,6 +4,8 @@
     </div>
     <div class="activity-stream-item">
         <div class="stream-item-head" title="Created on {{ ::vm.item.date | date:'dd MMM yyyy - HH:mm' }}">
+            <span class="hidden">call_id: {{ ::vm.item.call_id }}</span>
+
             <div class="stream-item-date">
                 {{ ::vm.item.date | date:'dd MMM yyyy - HH:mm' }}
             </div>

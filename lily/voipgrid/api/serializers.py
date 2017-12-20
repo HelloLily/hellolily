@@ -251,14 +251,15 @@ class CallNotificationSerializer(serializers.Serializer):
     def save_ringing(self, data):
         caller, source = self.save_caller(direction=data['direction'], caller=data['caller'])
 
-        data.update({
-            'start': data.pop('timestamp'),
-            'caller': caller,
-            'destination': None,  # During ringing we don't want to store destination yet, only when it's picked up.
+        cr = CallRecord.objects.get_or_create(call_id=data['call_id'], defaults={
+            'call_id': data['call_id'],
+            'start': data['timestamp'],
+            'end': None,
             'status': CallRecord.RINGING,
             'direction': CallRecord.INBOUND if data['direction'] == 'inbound' else CallRecord.OUTBOUND,
-        })
-        cr = CallRecord.objects.get_or_create(call_id=data['call_id'], defaults=data)[0]
+            'caller': caller,
+            'destination': None,  # During ringing we don't want to store destination yet, only when it's picked up.
+        })[0]
 
         if data['direction'] == 'inbound':
             # Only send notifications for incoming calls.

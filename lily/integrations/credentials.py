@@ -92,7 +92,9 @@ def get_access_token(credentials, integration_type, code=None):
             'refresh_token': credentials.refresh_token
         })
 
-    integration_type = IntegrationType.objects.get(name__iexact=integration_type)
+    if isinstance(integration_type, basestring):
+        # Sometimes we pass just a string, so fetch the actual integration type.
+        integration_type = IntegrationType.objects.get(name__iexact=integration_type)
 
     response = requests.post(
         url=integration_type.token_url,

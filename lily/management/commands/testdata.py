@@ -119,9 +119,10 @@ or use an existent tenant if passed as an argument."""
         admin_user.groups.add(account_admin_group)
 
         if settings.BILLING_ENABLED:
+            plan, created = Plan.objects.get_or_create(name=settings.CHARGEBEE_FREE_PLAN_NAME, tier=0)
+
             result = chargebee.Subscription.create({
                 'plan_id': settings.CHARGEBEE_FREE_PLAN_NAME,
-                'plan_quantity': self.tenant.lilyuser_set.count(),
                 'customer': {
                     'first_name': admin_user.first_name,
                     'last_name': admin_user.last_name,
@@ -133,7 +134,7 @@ or use an existent tenant if passed as an argument."""
             self.tenant.billing = Billing.objects.create(
                 customer_id=result.customer.id,
                 subscription_id=result.subscription.id,
-                plan=Plan.objects.get(name=settings.CHARGEBEE_FREE_PLAN_NAME)
+                plan=plan
             )
 
         self.tenant.save()

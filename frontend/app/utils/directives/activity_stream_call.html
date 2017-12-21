@@ -65,14 +65,14 @@
             <div class="stream-item-description">
                 <div ng-if="vm.item.status != 0 && vm.item.destination">
                     <span class="item-time pull-right">
-                        {{ vm.item.start|date:'dd-mm-yyyy HH:mm:ss' }}
+                        {{ vm.item.start|date:'dd-MM-yyyy HH:mm:ss' }}
                     </span>
                     {{ ::vm.item.destination.name || vm.item.destination.number }}
                     picked up the phone
                 </div>
                 <div ng-if="vm.item.transfers.length">
                     <div ng-repeat="transfer in vm.item.transfers">
-                        <span class="item-time pull-right">{{ transfer.timestamp|date:'dd-mm-yyyy HH:mm:ss' }}</span>
+                        <span class="item-time pull-right">{{ transfer.timestamp|date:'dd-MM-yyyy HH:mm:ss' }}</span>
                         <span ng-if="transfer.destination">
                             The call was transfered to
                             {{ transfer.destination.name || transfer.destination.number }}
@@ -89,7 +89,7 @@
                     Conversation ongoing.
                 </div>
                 <div ng-if="vm.item.status == 2">
-                    <span class="item-time pull-right">{{ vm.item.end|date:'dd-mm-yyyy HH:mm:ss' }}</span>
+                    <span class="item-time pull-right">{{ vm.item.end|date:'dd-MM-yyyy HH:mm:ss' }}</span>
                     Conversation has ended.
                 </div>
 

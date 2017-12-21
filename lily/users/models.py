@@ -15,11 +15,11 @@ from django.utils.translation import ugettext_lazy as _
 from timezone_field import TimeZoneField
 
 from lily.socialmedia.models import SocialMedia
-from lily.tenant.models import TenantMixin, Tenant
+from lily.tenant.models import TenantMixin, Tenant, TenantManager
 from lily.utils.models.models import Webhook
 
 
-class LilyUserManager(UserManager):
+class LilyUserManager(TenantManager, UserManager):
 
     def _create_user(self, email, password, is_staff, is_superuser, tenant_id=None, **extra_fields):
         """
@@ -58,13 +58,6 @@ class LilyUserManager(UserManager):
         user.groups.add(account_admin)
 
         return user
-
-    def get_by_natural_key(self, email):
-        """"
-        Define how the user should be retrieved.
-        Default is to do a case sensitive match.
-        """
-        return self.get(email__iexact=email)
 
 
 class Team(TenantMixin):
@@ -153,6 +146,7 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
     info = models.ForeignKey(UserInfo, blank=True, null=True, on_delete=models.SET_NULL)
 
     objects = LilyUserManager()
+    all_objects = UserManager()
 
     EMAIL_TEMPLATE_PARAMETERS = ['first_name', 'last_name', 'full_name', 'position', 'twitter',
                                  'linkedin', 'phone_number', 'current_email_address', 'user_team', 'profile_picture']

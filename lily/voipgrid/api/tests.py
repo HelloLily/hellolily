@@ -223,6 +223,36 @@ class CallNotificationsAPITestCase(APITestCase):
         self.assertEqual(crs[0].status, CallRecord.ENDED)  # The status should be ended.
         self.assertEqual(crs[0].destination, None)  # There still shouldn't be a destination.
 
+    def test_automatic_pickup(self):
+        """
+        Test a call where the phone doesn't ring, because it's automatically answered.
+
+        Notifications:
+            in_progress - A calls B, B automatically picks up
+            ended - A and B hang up (reason: busy or no-answer, differs per device)
+        """
+        call_id = '100'
+        participant_a = self.generate_participant()
+        participant_b = self.generate_participant(internal=True)
+
+        in_progress = self.generate_in_progress_json(call_id, caller=participant_a, target=participant_b)
+        request = self.user.post(reverse(self.list_url), in_progress)
+        self.assertEqual(request.status_code, status.HTTP_201_CREATED)
+
+        crs = CallRecord.objects.all()
+        self.assertEqual(len(crs), 1)  # There should only be one call record.
+        self.assertEqual(crs[0].status, CallRecord.IN_PROGRESS)  # The status should be in progress.
+        self.assertEqual(crs[0].caller.number, participant_a['number'])  # Caller should be filled.
+        self.assertEqual(crs[0].destination.number, participant_b['number'])  # Destination should be filled.
+
+        ended = self.generate_ended_json(call_id, reason='busy', caller=participant_a, number=participant_b['number'])
+        request = self.user.post(reverse(self.list_url), ended)
+        self.assertEqual(request.status_code, status.HTTP_201_CREATED)
+
+        crs = CallRecord.objects.all()
+        self.assertEqual(len(crs), 1)  # There should only be one call record.
+        self.assertEqual(crs[0].status, CallRecord.ENDED)  # The status should be ended.
+
     def test_unavailable(self):
         """
         Test a call where the called person is unavailable (phone off or do not disturb), phone doesn't ring.

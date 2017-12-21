@@ -272,25 +272,39 @@ class CallNotificationSerializer(serializers.Serializer):
         return cr
 
     def save_in_progress(self, data):
-        cr = CallRecord.objects.get(call_id=data['call_id'])
-        last_transfer = cr.transfers.order_by('timestamp').last()
+        try:
+            cr = CallRecord.objects.get(call_id=data['call_id'])
+            last_transfer = cr.transfers.order_by('timestamp').last()
 
-        if last_transfer and not last_transfer.destination:
-            last_transfer.destination = self.save_destination(
-                direction=data['direction'],
-                destination=data['destination']
+            if last_transfer and not last_transfer.destination:
+                last_transfer.destination = self.save_destination(
+                    direction=data['direction'],
+                    destination=data['destination']
+                )
+
+                last_transfer.save()
+            else:
+                updated_data = {
+                    'destination': self.save_destination(direction=data['direction'], destination=data['destination']),
+                    'status': CallRecord.IN_PROGRESS,
+                }
+
+                for attr, value in updated_data.items():
+                    setattr(cr, attr, value)
+                cr.save()
+        except CallRecord.DoesNotExist:
+            caller, source = self.save_caller(direction=data['direction'], caller=data['caller'])
+            destination = self.save_destination(direction=data['direction'], destination=data['destination'])
+
+            cr = CallRecord.objects.create(
+                call_id=data['call_id'],
+                start=data['timestamp'],
+                end=None,
+                status=CallRecord.IN_PROGRESS,
+                direction=CallRecord.INBOUND if data['direction'] == 'inbound' else CallRecord.OUTBOUND,
+                caller=caller,
+                destination=destination
             )
-
-            last_transfer.save()
-        else:
-            updated_data = {
-                'destination': self.save_destination(direction=data['direction'], destination=data['destination']),
-                'status': CallRecord.IN_PROGRESS,
-            }
-
-            for attr, value in updated_data.items():
-                setattr(cr, attr, value)
-            cr.save()
 
         return cr
 

@@ -248,16 +248,18 @@ class EmailAccountSerializer(WritableNestedSerializer):
         Using the LilyUserSerializer gives a circular import and thus an error.
         So implement a custom function for the owner of an email account.
         """
-        logger.info('object tenant: {}, thread_locals tenant: {}, object owner_id: {}'.format(
-            obj.tenant_id,
-            get_current_user().tenant_id,
-            obj.owner_id
-        ))
-
-        return {
-            'id': obj.owner.id,
-            'full_name': obj.owner.full_name,
-        }
+        try:
+            return {
+                'id': obj.owner.id,
+                'full_name': obj.owner.full_name,
+            }
+        except:
+            logger.info('ERROR object tenant: {}, thread_locals tenant: {}, object owner_id: {}'.format(
+                obj.tenant_id,
+                get_current_user().tenant_id,
+                obj.owner_id
+            ))
+            raise
 
     def get_default_template(self, obj):
         default_template = None

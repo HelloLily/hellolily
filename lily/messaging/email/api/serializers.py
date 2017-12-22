@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.db.models import Q
@@ -10,11 +12,15 @@ from lily.api.fields import DynamicQuerySetPrimaryKeyRelatedField
 from lily.api.nested.mixins import RelatedSerializerMixin
 from lily.api.nested.serializers import WritableNestedSerializer
 from lily.messaging.email.credentials import get_credentials
+from lily.tenant.middleware import get_current_user
 from lily.users.models import UserInfo
 
 from ..models.models import (EmailLabel, EmailAccount, EmailMessage, Recipient, EmailAttachment, EmailTemplateFolder,
                              EmailTemplate, SharedEmailConfig, TemplateVariable, DefaultEmailTemplate)
 from ..services import GmailService
+
+
+logger = logging.getLogger(__name__)
 
 
 class SharedEmailConfigSerializer(serializers.ModelSerializer):
@@ -242,6 +248,12 @@ class EmailAccountSerializer(WritableNestedSerializer):
         Using the LilyUserSerializer gives a circular import and thus an error.
         So implement a custom function for the owner of an email account.
         """
+        logger.info('object tenant: {}, thread_locals tenant: {}, object owner_id: {}'.format(
+            obj.tenant_id,
+            get_current_user().tenant_id,
+            obj.owner_id
+        ))
+
         return {
             'id': obj.owner.id,
             'full_name': obj.owner.full_name,

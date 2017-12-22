@@ -764,3 +764,14 @@ $sides: (top, bottom, left, right);
 .text-muted {
     color: $text-muted;
 }
+
+.trial-remaining-marker {
+    font-size: 0.8em;
+    padding: 2px;
+    border: 2px solid $app-border-color !important;
+    border-radius: $base-border-radius;
+    margin-top: -2px;
+    color: initial;
+    font-weight: 500;
+    background: #fff;
+}

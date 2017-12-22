@@ -34,8 +34,6 @@ function BillingOverviewController($filter, $scope, $state, $window, Billing, bi
 
     vm.downloadInvoice = downloadInvoice;
     vm.cancelSubscription = cancelSubscription;
-    vm.getTrialRemaining = getTrialRemaining;
-    vm.startTrial = startTrial;
 
     activate();
 
@@ -74,28 +72,6 @@ function BillingOverviewController($filter, $scope, $state, $window, Billing, bi
                 });
             }
         }).done();
-    }
-
-    function startTrial() {
-        swal({
-            title: messages.alerts.preferences.subscription.trialStartTitle,
-            html: messages.alerts.preferences.subscription.trialStartText,
-            type: 'warning',
-            showCancelButton: true,
-            confirmButtonText: messages.alerts.preferences.subscription.trialConfirm,
-        }).then(isConfirm => {
-            if (isConfirm) {
-                Billing.startTrial().$promise.then(response => {
-                    $window.location.reload();
-                });
-            }
-        }).done();
-    }
-
-    function getTrialRemaining(trialEndDate) {
-        const trialEnd = moment.unix(trialEndDate);
-
-        return trialEnd.fromNow(true);
     }
 
     function _getCountryName(countryCode) {

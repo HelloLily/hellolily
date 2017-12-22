@@ -1,6 +1,9 @@
+from datetime import datetime
+
 import chargebee
 from django.conf import settings
 from django.db import models
+from django.utils.timezone import utc
 
 
 class BillingInvoice(models.Model):
@@ -17,8 +20,8 @@ class Billing(models.Model):
     customer_id = models.CharField(max_length=255, blank=True)
     plan = models.ForeignKey(Plan, blank=True, null=True)
     cancels_on = models.DateTimeField(blank=True, null=True)
-    trial_started = models.BooleanField(default=False)
     free_forever = models.BooleanField(default=False)
+    trial_end = models.DateTimeField(blank=True, null=True)
 
     @property
     def is_free_plan(self):
@@ -27,6 +30,17 @@ class Billing(models.Model):
         else:
             # Billing isn't enabled so just return true.
             return False
+
+    @property
+    def trial_remaining(self):
+        days = 0
+
+        if self.trial_end:
+            time_diff = self.trial_end - datetime.now().replace(tzinfo=utc)
+
+            days = time_diff.days
+
+        return days
 
     def get_customer(self):
         customer = None

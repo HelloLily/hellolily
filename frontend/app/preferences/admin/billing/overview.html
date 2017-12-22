@@ -1,4 +1,24 @@
 <div class="portlet-body flip-scroll">
+    <widget widget-name="'Trial'" widget-class="'col-md-12'">
+        <widget-header>
+            <div class="widget-name">
+                Trial
+            </div>
+        </widget-header>
+
+        <widget-body>
+            <div class="widget-content">
+                {{ $root.messages.pages.billing.trialInfo }}
+                <strong>{{ currentUser.tenant.trialRemaining }}</strong>
+                <ng-pluralize count="currentUser.tenant.trialRemaining" when="{1: ' day', 'other': ' days'}"></ng-pluralize>.
+                {{ $root.messages.pages.billing.trialInfoSub }}
+                <br />
+                <span ng-bind-html="$root.messages.pages.billing.trialMoreInfo"></span>
+
+            </div>
+        </widget-body>
+    </widget>
+
     <widget widget-name="'Subscription'" widget-class="'col-md-12'" widget-dynamic-height="true">
         <widget-header>
             <div class="widget-name">
@@ -15,7 +35,6 @@
                             <td>
                                 <span ng-if="!currentUser.tenant.isFreePlan">
                                     <span class="subscription-status {{ vm.subscription.status.replace('_', '-') }}">{{ vm.subscription.status.replace('_', ' ') | ucfirst }}</span>
-                                    <span ng-if="vm.subscription.status === 'in_trial'">({{ vm.getTrialRemaining(vm.subscription.trial_end) }} remaining)</span>
                                 </span>
                                 <span ng-if="currentUser.tenant.isFreePlan">
                                     <span class="subscription-status active">Active</span>
@@ -43,10 +62,6 @@
 
                 <div ng-if="vm.subscription.status !== 'cancelled' && !currentUser.tenant.isFreePlan" class="cancel-subscription">
                     <a ng-click="vm.cancelSubscription()">Cancel subscription</a>
-                </div>
-
-                <div ng-if="!currentUser.tenant.trialStarted">
-                    <a ng-click="vm.startTrial()">Start trial</a>
                 </div>
             </div>
             <div class="widget-content" ng-if="!vm.subscription">

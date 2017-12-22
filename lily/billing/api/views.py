@@ -1,5 +1,4 @@
-import calendar
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import chargebee
 from django.conf import settings
@@ -75,12 +74,11 @@ class BillingViewSet(ViewSet):
                         'plan_id': plan_id,
                     }
 
-                    if billing.trial_started:
-                        # Trial has already been started once.
-                        # We don't want to set the user back to free plan with trial.
-                        free_plan_parameters.update({
-                            'trial_end': 0,
-                        })
+                    # Trial has already been started once.
+                    # We don't want to set the user back to free plan with trial.
+                    free_plan_parameters.update({
+                        'trial_end': 0,
+                    })
 
                     # No need to go through the hosted page when changing to free plan.
                     result = chargebee.Subscription.update(subscription.id, free_plan_parameters)
@@ -181,35 +179,6 @@ class BillingViewSet(ViewSet):
 
         if success:
             billing.cancels_on = datetime.fromtimestamp(result.subscription.current_term_end)
-            billing.save()
-
-        return Response({'success': success}, content_type='application/json')
-
-    @list_route(methods=['GET'])
-    def start_trial(self, request):
-        success = False
-        billing = self.request.user.tenant.billing
-        subscription = billing.get_subscription()
-
-        if not subscription or billing.trial_started:
-            # No subscription setup yet, so just return a 400.
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        plan_id = settings.CHARGEBEE_PRO_TRIAL_PLAN_NAME
-        trial_end = datetime.now() + timedelta(days=30)
-        # Chargebee wants the time in seconds.
-        trial_end = calendar.timegm(trial_end.timetuple())
-
-        result = chargebee.Subscription.update(subscription.id, {
-            'plan_id': plan_id,
-            'trial_end': trial_end,
-        })
-
-        if result.subscription.status == 'in_trial':
-            success = True
-
-            billing.trial_started = True
-            billing.plan = Plan.objects.get(name=plan_id)
             billing.save()
 
         return Response({'success': success}, content_type='application/json')

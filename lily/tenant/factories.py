@@ -24,7 +24,6 @@ class BillingFactory(DjangoModelFactory):
     subscription_id = LazyAttribute(lambda o: faker.pystr())
     customer_id = LazyAttribute(lambda o: faker.pystr())
     plan = SubFactory(PlanFactory)
-    trial_started = FuzzyChoice([True, False])
 
     class Meta:
         model = Billing

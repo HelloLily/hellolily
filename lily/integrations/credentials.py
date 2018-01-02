@@ -36,8 +36,9 @@ def get_credentials(integration_type, tenant=None):
     if details:
         storage = Storage(IntegrationCredentials, 'details', details, 'credentials')
         credentials = storage.get()
+        expiry_date = timezone.now() + timedelta(days=7)
 
-        if credentials.expires and timezone.now() > credentials.expires:
+        if credentials.expires and expiry_date > credentials.expires:
             # Credentials have expired, so refresh the token.
             credentials = get_access_token(credentials, integration_type)
     else:

@@ -176,12 +176,18 @@ class LilyUserSerializer(WritableNestedSerializer):
 
                 # Only continue if we're actually activating a user.
                 if is_active != instance.is_active and is_active:
-                    # Increment the plan's quantity.
-                    instance.tenant.billing.update_subscription(1)
+                    increment_users = True
             else:
                 raise PermissionDenied
 
-        return super(LilyUserSerializer, self).update(instance, validated_data)
+        instance = super(LilyUserSerializer, self).update(instance, validated_data)
+
+        # Increment after saving the user in case of errors.
+        if increment_users:
+            # Increment the plan's quantity.
+            instance.tenant.billing.update_subscription(1)
+
+        return instance
 
     def save(self, **kwargs):
         if self.instance:

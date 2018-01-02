@@ -170,6 +170,8 @@ class LilyUserSerializer(WritableNestedSerializer):
         if instance.picture is validated_data.get('picture'):
             validated_data['picture'] = None
 
+        increment_users = False
+
         if 'is_active' in validated_data:
             if self.context.get('request').user.is_admin:
                 is_active = validated_data.get('is_active')

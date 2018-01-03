@@ -1,4 +1,4 @@
-from datetime import datetime
+from django.utils import timezone
 from rest_framework.test import APITestCase
 
 from lily.messaging.email.factories import EmailAccountFactory, EmailMessageFactory
@@ -32,7 +32,7 @@ class EmailMessageTests(UserBasedTest, APITestCase):
         # Create a default email message, initially without any labels.
         cls.email_message = EmailMessage.objects.create(
             account=cls.email_account,
-            sent_date=datetime.now(),
+            sent_date=timezone.now(),
             sender=recipient
         )
 

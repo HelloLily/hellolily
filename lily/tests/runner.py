@@ -1,11 +1,11 @@
 import logging
 
-from django_nose import NoseTestSuiteRunner
+from django.test.runner import DiscoverRunner
 
 from django.conf import settings
 
 
-class LilyNoseTestSuiteRunner(NoseTestSuiteRunner):
+class LilyNoseTestSuiteRunner(DiscoverRunner):
     """
     Bootstrap into the testsuite running process.
 

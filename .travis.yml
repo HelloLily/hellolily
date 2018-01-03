@@ -84,6 +84,7 @@ script:
 
   # Once the db has started, run the tests and output coverage and results.
   - ./ci/run_tests.sh
+  - docker-compose run --rm web coverage combine
 
   # Try a merge to see if there are merge conflicts but do not push yet.
   - ./ci/git_merge.sh

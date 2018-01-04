@@ -12,7 +12,6 @@ from lily.api.fields import DynamicQuerySetPrimaryKeyRelatedField
 from lily.api.nested.mixins import RelatedSerializerMixin
 from lily.api.nested.serializers import WritableNestedSerializer
 from lily.messaging.email.credentials import get_credentials
-from lily.tenant.middleware import get_current_user
 from lily.users.models import UserInfo
 
 from ..models.models import (EmailLabel, EmailAccount, EmailMessage, Recipient, EmailAttachment, EmailTemplateFolder,
@@ -248,18 +247,10 @@ class EmailAccountSerializer(WritableNestedSerializer):
         Using the LilyUserSerializer gives a circular import and thus an error.
         So implement a custom function for the owner of an email account.
         """
-        try:
-            return {
-                'id': obj.owner.id,
-                'full_name': obj.owner.full_name,
-            }
-        except:
-            logger.info('ERROR object tenant: {}, thread_locals tenant: {}, object owner_id: {}'.format(
-                obj.tenant_id,
-                get_current_user().tenant_id,
-                obj.owner_id
-            ))
-            raise
+        return {
+            'id': obj.owner.id,
+            'full_name': obj.owner.full_name,
+        }
 
     def get_default_template(self, obj):
         default_template = None

@@ -3,6 +3,10 @@ from django.conf import settings
 from django.db import models
 
 
+class BillingInvoice(models.Model):
+    invoice_id = models.PositiveIntegerField()
+
+
 class Plan(models.Model):
     name = models.CharField(max_length=255, unique=True)
     tier = models.PositiveSmallIntegerField(default=0)
@@ -58,7 +62,6 @@ class Billing(models.Model):
                 # Update the amount of users for the subscription.
                 chargebee.Subscription.update(subscription.id, {
                     'plan_quantity': amount,
-                    'invoice_immediately': False,
                     'prorate': True,
                 })
 

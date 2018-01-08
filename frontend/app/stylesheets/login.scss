@@ -10,6 +10,8 @@ $app-color-aqua: #2ab8e0;
     background-size: cover;
     background-color: #27244c;
     background-position: center;
+    font-family: 'Roboto', sans-serif !important;
+    font-size: 13px;
 }
 
 .login-wrapper {
@@ -235,10 +237,6 @@ $app-color-aqua: #2ab8e0;
 .spacer-20 {
     height: 20px;
     display: block;
-}
-
-.register-text {
-    font-size: 0.9em;
 }
 
 .help {

@@ -114,8 +114,15 @@ var config = {
             src: [
                 'frontend/vendor/**/*jquery.min.js',
                 'frontend/vendor/**/hideShowPassword.min.js',
+                'frontend/vendor/metronic/assets/global/plugins/bootstrap-toastr/toastr.js',
             ],
             fileName: 'anonymous_vendor.js',
+        },
+        css: {
+            src: [
+                'frontend/vendor/metronic/assets/global/plugins/bootstrap-toastr/toastr.css',
+            ],
+            fileName: 'anonymous_vendor.css',
         },
     },
     cdn: {
@@ -288,6 +295,25 @@ gulp.task('anonymous-vendor-js', [], function() {
         .pipe(ifElse(isWatcher, livereload));
 });
 
+gulp.task('anonymous-vendor-css', [], function() {
+    return gulp.src(config.anonymousVendor.css.src)
+        .pipe(sourcemaps.init())
+        .pipe(cached('anonymous-vendor-css'))
+        .pipe(rebaseUrls({root: config.cdn.root}))
+        .pipe(cdnizer({
+            defaultCDNBase: config.cdn.defaultBase,
+            files: config.cdn.src,
+        }))
+        .pipe(ifElse(isProduction, uglifyCss))
+        .pipe(remember('anonymous-vendor-css'))
+
+        .pipe(concat(config.anonymousVendor.css.fileName))
+        .pipe(sourcemaps.write('./'))
+        .pipe(gulp.dest(config.anonymousVendor.buildDir))
+        .pipe(ifElse(isWatcher, size))
+        .pipe(ifElse(isWatcher, livereload));
+});
+
 gulp.task('vendor-css', [], function() {
     return gulp.src(config.vendor.css.src)
         .pipe(sourcemaps.init())
@@ -333,8 +359,8 @@ gulp.task('heroku-assets', [], function() {
 /**
  * Concatenate, minify and make source maps of all js and css.
  */
-gulp.task('build', ['app-js', 'app-css', 'app-templates', 'app-assets', 'vendor-js', 'anonymous-vendor-js', 'vendor-css', 'vendor-assets',
-    'analytics', 'heroku-assets', 'login-css'], function() {});
+gulp.task('build', ['app-js', 'app-css', 'app-templates', 'app-assets', 'vendor-js', 'anonymous-vendor-js',
+    'anonymous-vendor-css', 'vendor-css', 'vendor-assets', 'analytics', 'heroku-assets', 'login-css'], function() {});
 
 /**
  * Watch for changes

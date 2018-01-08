@@ -30,6 +30,7 @@
         <meta name="msapplication-config" content="{% static 'app/images/favicons/browserconfig.xml' %}">
         <meta name="theme-color" content="#fff">
         <link href="{% static 'app/login.css' %}" rel="stylesheet" type="text/css">
+        <link href="{% static 'vendor/anonymous_vendor.css' %}" rel="stylesheet" type="text/css">
         <title>Lily | Login</title>
     </head>
     <body class="login-bg" style="background-image: url('{% static 'app/images/login-bg.jpg' %}')">
@@ -115,13 +116,22 @@
                 </div>
             </div>
         </div>
+        <script type="text/javascript" src="{% static 'vendor/anonymous_vendor.js' %}" charset="utf-8"></script>
         <script>
-            document.getElementById('reset_password').addEventListener('click', function(event){
+            document.getElementById('reset_password').addEventListener('click', (event) => {
                 email = document.getElementById('id_auth-username').value;
+
                 if(email.length) {
                     event.preventDefault();
                     window.location = "{% url 'password_reset' %}?email=" + encodeURIComponent(email);
                 }
+            });
+
+            $(document).ready(function() {
+                {% for message in messages %}
+                    console.log('{{ message.level_tag }}');
+                    toastr['{{ message.level_tag }}']('{{ message.message }}');
+                {% endfor %}
             });
         </script>
     </body>

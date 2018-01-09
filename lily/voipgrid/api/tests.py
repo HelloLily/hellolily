@@ -1,52 +1,22 @@
 from random import randrange
 
 from copy import deepcopy
-from django.contrib.auth.models import Group
 from django.utils import timezone
 from faker.factory import Factory
 from rest_framework import status
 from rest_framework.reverse import reverse
-from rest_framework.test import APIClient, APITestCase
+from rest_framework.test import APITestCase
 
 from lily.calls.models import CallRecord
-from lily.tenant.factories import TenantFactory
-from lily.tenant.middleware import set_current_user
-from lily.users.models import LilyUser
+from lily.tests.utils import UserBasedTest
 
 
 faker = Factory.create('nl_NL')
 
 
-class CallNotificationsAPITestCase(APITestCase):
+class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
     list_url = 'callnotification-list'
     detail_url = 'callnotification-detail'
-
-    @classmethod
-    def setUpTestData(cls):
-        """
-        Creates a user and logs it in before running the actual tests.
-        """
-        super(CallNotificationsAPITestCase, cls).setUpTestData()
-
-        password = 'password'
-        tenant = TenantFactory.create()
-
-        # Set the authenticated user on the class.
-        cls.user_obj = LilyUser.objects.create_user(
-            email='user1@lily.com',
-            password=password,
-            tenant_id=tenant.id
-        )
-        account_admin = Group.objects.get_or_create(name='account_admin')[0]
-        cls.user_obj.groups.add(account_admin)
-
-        cls.user = APIClient()
-        cls.user.login(email=cls.user_obj.email, password=password)
-
-    @classmethod
-    def tearDownClass(cls):
-        super(CallNotificationsAPITestCase, cls).tearDownClass()
-        set_current_user(None)
 
     def generate_number(self, internal=False):
         if internal:

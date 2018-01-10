@@ -4,7 +4,7 @@ import json
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.query import QuerySet
 from django.forms.formsets import BaseFormSet
-from django.forms.widgets import TextInput, Widget, RadioSelect, Textarea
+from django.forms.widgets import TextInput, Widget, RadioFieldRenderer, Textarea
 from django.forms.utils import flatatt
 from django.utils.encoding import force_text
 from django.utils.html import conditional_escape
@@ -22,15 +22,11 @@ class TagInput(TextInput):
         self.choices = list(choices)
 
     def render(self, name, value, attrs=None):
-        attrs = dict(attrs)
-        attrs.update(name=name)
-        attrs.update(value=value)
-        final_attrs = self.build_attrs(self.attrs, attrs)
+        final_attrs = self.build_attrs(attrs)
 
         return super(TagInput, self).render(name, value, final_attrs)
 
-    def build_attrs(self, attrs=None, extra_attrs=None, **kwargs):
-        attrs = dict(attrs, **kwargs)
+    def build_attrs(self, extra_attrs=None, **kwargs):
         extra_attrs = extra_attrs or {}
         extra_attrs.update({
             'data-choices': ','.join(self.choices),
@@ -40,9 +36,8 @@ class TagInput(TextInput):
             extra_attrs.update({
                 'class': 'tags'
             })
-        attrs.update(extra_attrs)
 
-        return super(TagInput, self).build_attrs(self.attrs, attrs=attrs)
+        return super(TagInput, self).build_attrs(extra_attrs=extra_attrs, **kwargs)
 
 
 class AddonTextInput(TextInput):
@@ -100,12 +95,8 @@ class AddonTextInput(TextInput):
     def render(self, name, value, attrs=None):
         if value is None:
             value = ''
-        attrs = dict(attrs)
-        attrs.update(name=name)
-        attrs.update(value=value)
-        attrs.update(type=self.input_type)
 
-        input_attrs = self.build_attrs(self.attrs, attrs)
+        input_attrs = self.build_attrs(attrs, type=self.input_type, name=name)
 
         if value != '':
             # Only add the 'value' attribute if a value is non-empty.
@@ -124,8 +115,25 @@ class AddonTextInput(TextInput):
         return mark_safe(force_text(html))
 
 
-class HorizontalRadioSelect(RadioSelect):
-    template_name = 'email/horizontal_select.html'
+class BootstrapRadioFieldRenderer(RadioFieldRenderer):
+    """
+    An object used by RadioSelect to enable customization of radio widgets.
+    """
+    def render(self):
+        """
+        Outputs a bootstrap button group for this set of radio fields.
+        """
+        buttons_html = mark_safe('')
+
+        # Render each radioinput bootstrap-like.
+        for choice in self:
+            buttons_html += u'''<label class="btn btn-primary %(is_active)s">%(tag)s %(label)s</label>''' % {
+                'is_active': ('active' if choice.is_checked() else ''),
+                'tag': choice.tag(),
+                'label': choice.choice_label,
+            }
+
+        return mark_safe(u'''<div class="btn-group radio-btns" data-toggle="buttons">%s</div>''' % buttons_html)
 
 
 class FormSetWidget(Widget):
@@ -138,10 +146,7 @@ class FormSetWidget(Widget):
         self.form_attrs = form_attrs
 
     def render(self, name, value, attrs=None):
-        attrs = dict(attrs)
-        attrs.update(name=name)
-        attrs.update(value=value)
-        final_attrs = self.build_attrs(self.attrs, attrs)
+        final_attrs = self.build_attrs(attrs)
 
         if self.form_attrs:
             for form_attr, form_value in self.form_attrs.items():
@@ -180,10 +185,7 @@ class AjaxSelect2Widget(Widget):
         self.filter_on = kwargs.get('filter_on', None)
 
     def render(self, name, value, attrs=None, *args):
-        attrs = dict(attrs, *args)
-        attrs.update(name=name)
-        attrs.update(value=value)
-        final_attrs = self.build_attrs(self.attrs, attrs)
+        final_attrs = self.build_attrs(attrs, name=name)
 
         if self.tags:
             final_attrs['data-tags'] = True
@@ -252,10 +254,7 @@ class Wysihtml5Input(Textarea):
         super(Wysihtml5Input, self).__init__(default_attrs)
 
     def render(self, name, value, attrs=None):
-        attrs = dict(attrs)
-        attrs.update(name=name)
-        attrs.update(value=value)
-        final_attrs = self.build_attrs(self.attrs, attrs)
+        final_attrs = self.build_attrs(attrs, name=name)
         return render_to_string('utils/wysihtml5.html', {
             'name': name,
             'value': value,

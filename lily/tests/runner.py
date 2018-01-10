@@ -1,7 +1,5 @@
 import logging
 
-from django.test.runner import DiscoverRunner
-
 from django.conf import settings
 
 

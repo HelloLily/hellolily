@@ -132,7 +132,7 @@ function Case($resource, CacheFactory, HLCache, HLResource, HLUtils) {
      *          total {number}: Total number of case objects.
      *      }
      */
-    function getCases(orderColumn, orderedAsc, filterQuery, searchQuery = '', page = 1, pageSize = 100) {
+    function getCases(orderColumn, orderedAsc, filterQuery, searchQuery = '', page = 1, pageSize = 500) {
         return _case.search({
             q: searchQuery,
             page: page - 1,

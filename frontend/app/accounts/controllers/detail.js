@@ -23,13 +23,13 @@ function accountConfig($stateProvider) {
                 return Account.get({id: $stateParams.id}).$promise;
             }],
             caseList: ['Case', '$stateParams', (Case, $stateParams) => {
-                return Case.search({filterquery: 'account.id:' + $stateParams.id, sort: 'expires', size: 100}).$promise;
+                return Case.search({filterquery: 'account.id:' + $stateParams.id, sort: 'expires', size: 250}).$promise;
             }],
             contactList: ['Contact', '$stateParams', (Contact, $stateParams) => {
                 return Contact.search({filterquery: 'accounts.id:' + $stateParams.id, size: 50}).$promise;
             }],
             dealList: ['Deal', '$stateParams', (Deal, $stateParams) => {
-                return Deal.search({filterquery: 'account.id:' + $stateParams.id, sort: '-next_step_date', size: 100}).$promise;
+                return Deal.search({filterquery: 'account.id:' + $stateParams.id, sort: '-next_step_date', size: 250}).$promise;
             }],
         },
     });

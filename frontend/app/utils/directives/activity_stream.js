@@ -327,7 +327,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                 if (contentType !== 'case' && contentType !== 'deal') {
                     filterquery = contentType + '.id:' + currentObject.id;
 
-                    const casePromise = Case.search({filterquery: filterquery + dateQuery, size: 100}).$promise;
+                    const casePromise = Case.search({filterquery: filterquery + dateQuery, size: 250}).$promise;
 
                     // Add promise to list of all promises for later handling.
                     promises.push(casePromise);
@@ -365,7 +365,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                         });
                     });
 
-                    const dealPromise = Deal.search({filterquery: filterquery + dateQuery, size: requestLength}).$promise;
+                    const dealPromise = Deal.search({filterquery: filterquery + dateQuery, size: 250}).$promise;
                     // Add promise to list of all promises for later handling.
                     promises.push(dealPromise);
 
@@ -387,7 +387,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
 
                             Note.search({
                                 filterquery: 'gfk_content_type:deal AND gfk_object_id:' + deal.id,
-                                size: 5,
+                                size: 15,
                             }).$promise.then(notes => {
                                 notes.map(note => {
                                     // Get user for notes to show profile picture correctly.

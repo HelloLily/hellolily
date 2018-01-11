@@ -167,20 +167,35 @@ class LilyUserSerializer(WritableNestedSerializer):
         return super(LilyUserSerializer, self).validate(attrs)
 
     def update(self, instance, validated_data):
+        current_user = self.context.get('request').user
+
         if instance.picture is validated_data.get('picture'):
             validated_data['picture'] = None
 
         increment_users = False
 
-        if 'is_active' in validated_data:
-            if self.context.get('request').user.is_admin:
+        if current_user.is_admin:
+            if 'is_active' in validated_data:
                 is_active = validated_data.get('is_active')
 
                 # Only continue if we're actually activating a user.
                 if is_active != instance.is_active and is_active:
                     increment_users = True
-            else:
-                raise PermissionDenied
+            if 'internal_number' in validated_data:
+                internal_number = validated_data.get('internal_number')
+
+                # If an internal number is passed we want to clear it if
+                # there's already a user with that internal number.
+                if internal_number:
+                    try:
+                        user = LilyUser.objects.get(internal_number=internal_number, tenant=current_user.tenant)
+                    except LilyUser.DoesNotExist:
+                        pass
+                    else:
+                        user.internal_number = None
+                        user.save()
+        else:
+            raise PermissionDenied
 
         instance = super(LilyUserSerializer, self).update(instance, validated_data)
 

@@ -65,7 +65,6 @@ class BillingViewSet(ViewSet):
                     'plan_id': plan_id,
                 },
                 'embed': False,
-                'force_term_reset': True,
             }
 
             if subscription:

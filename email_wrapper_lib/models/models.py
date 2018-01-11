@@ -18,9 +18,9 @@ class EmailAccount(SoftDeleteMixin, TimeStampMixin, models.Model):
         (RESYNC, _('resync')),
     )
 
-    # id = models.BigAutoField(
-    #     primary_key=True
-    # )
+    id = models.BigAutoField(
+        primary_key=True
+    )
     username = models.CharField(
         verbose_name=_('Username'),
         unique=True,
@@ -141,9 +141,9 @@ class EmailFolder(models.Model):
 
 
 class EmailMessage(models.Model):
-    # id = models.BigAutoField(
-    #     primary_key=True
-    # )
+    id = models.BigAutoField(
+        primary_key=True
+    )
     remote_id = models.CharField(
         verbose_name=_('Remote id'),
         max_length=255
@@ -181,7 +181,7 @@ class EmailMessage(models.Model):
         verbose_name=_('Subject'),
         max_length=255
     )
-    # TODO: what's the meaning of this date field? creation date of the message in our db, or remote "ReceivedDateTime"?
+    # TODO: what's the meaning of this date field? creation date in our db, or remote "ReceivedDateTime"?
     date = models.DateTimeField(
         verbose_name=_('Date')
     )

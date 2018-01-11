@@ -5,7 +5,8 @@ from oauth2client.client import FlowExchangeError
 
 from email_wrapper_lib.providers import registry
 from email_wrapper_lib.tasks import sync_account
-from email_wrapper_lib.utils import create_account_from_code
+from email_wrapper_lib.models.models import EmailAccount
+from email_wrapper_lib.storage import Storage
 from lily.utils.views import LoginRequiredMixin
 
 
@@ -37,11 +38,36 @@ class AddAccountCallbackView(LoginRequiredMixin, RedirectView):
             provider = registry[provider_name]
 
             try:
-                account = create_account_from_code(provider=provider, code=code)
-                sync_account.delay(account.pk)
-                messages.add_message(self.request, messages.SUCCESS, '{0} was created.'.format(account.username))
+                credentials = provider.flow.step2_exchange(code=code)
             except FlowExchangeError:
                 messages.add_message(self.request, messages.ERROR, 'Could not get credentials for your account.')
+                return url
+
+            connector = provider.connector('me', credentials)
+            profile = connector.profile.get()
+            connector.execute()
+
+            account, created = EmailAccount.objects.get_or_create(
+                user_id=profile['user_id'],
+                provider_id=provider.id,
+                defaults={
+                    # Username can be changed in MS, so we only use it for account creation.
+                    'username': profile['username'],
+                }
+            )
+
+            # Set the store so the credentials will auto refresh.
+            credentials.set_store(Storage(EmailAccount, 'id', account.pk, 'credentials'))
+            account.credentials = credentials
+
+            if not created:
+                account.status = EmailAccount.RESYNC
+
+            account.save(update_fields=['credentials', 'status', ])
+
+            sync_account.delay(account.pk)
+            messages.add_message(self.request, messages.SUCCESS, '{0} was created.'.format(account.username))
+
         else:
             messages.add_message(self.request, messages.ERROR, 'Invalid callback, could not process your account.')
 

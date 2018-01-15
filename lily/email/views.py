@@ -4,7 +4,7 @@ from django.views.generic import RedirectView
 from oauth2client.client import FlowExchangeError
 
 from email_wrapper_lib.providers import registry
-from email_wrapper_lib.tasks import sync_account
+# from email_wrapper_lib.tasks import sync_account
 from email_wrapper_lib.models.models import EmailAccount
 from email_wrapper_lib.storage import Storage
 from lily.utils.views import LoginRequiredMixin
@@ -47,6 +47,7 @@ class AddAccountCallbackView(LoginRequiredMixin, RedirectView):
             profile = connector.profile.get()
             connector.execute()
 
+            # TODO: username is not updated if changed in ms, we need to do so.
             account, created = EmailAccount.objects.get_or_create(
                 user_id=profile['user_id'],
                 provider_id=provider.id,
@@ -65,7 +66,7 @@ class AddAccountCallbackView(LoginRequiredMixin, RedirectView):
 
             account.save(update_fields=['credentials', 'status', ])
 
-            sync_account.delay(account.pk)
+            # sync_account.delay(account.pk)
             messages.add_message(self.request, messages.SUCCESS, '{0} was created.'.format(account.username))
 
         else:

@@ -48,16 +48,21 @@ class EmailAccount(SoftDeleteMixin, TimeStampMixin, models.Model):
         null=True,
         max_length=255
     )
-    history_token = models.CharField(
-        verbose_name=_('History token'),
-        null=True,
-        max_length=255
-    )
-    page_token = models.CharField(
-        verbose_name=_('Page token'),
-        null=True,
-        max_length=255
-    )
+    # TODO: create models in google/microsoft providers for this info.
+    # history_token = models.CharField(
+    #     verbose_name=_('History token'),
+    #     null=True,
+    #     max_length=255
+    # )
+    # page_token = models.CharField(
+    #     verbose_name=_('Page token'),
+    #     null=True,
+    #     max_length=255
+    # )
+
+    @property
+    def manager(self):
+        return registry[self.provider_id].manager_class(self)
 
     class Meta:
         app_label = 'email_wrapper_lib'

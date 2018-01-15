@@ -42,6 +42,7 @@ class BatchStore(object):
 
 class MicrosoftConnector(object):
 
+    # TODO: This will probably be moved into the manager class.
     # TODO: create a decorator to enforce valid credentials for the profile, messages, labels, history and search.
 
     # def __init__(self, credentials, user_id):

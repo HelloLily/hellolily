@@ -325,9 +325,13 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                 // activity list. So continue if we have an extra object or if
                 // we're dealing with something else than a case or deal.
                 if (contentType !== 'case' && contentType !== 'deal') {
-                    filterquery = contentType + '.id:' + currentObject.id;
+                    filterquery = `${contentType}.id: ${currentObject.id}`;
 
-                    const casePromise = Case.search({filterquery: filterquery + dateQuery, size: 250}).$promise;
+                    const casePromise = Case.search({
+                        filterquery: filterquery + dateQuery,
+                        size: 100,
+                        sort: '-created',
+                    }).$promise;
 
                     // Add promise to list of all promises for later handling.
                     promises.push(casePromise);
@@ -365,7 +369,11 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                         });
                     });
 
-                    const dealPromise = Deal.search({filterquery: filterquery + dateQuery, size: 250}).$promise;
+                    const dealPromise = Deal.search({
+                        filterquery: filterquery + dateQuery,
+                        size: 150,
+                        sort: '-created',
+                    }).$promise;
                     // Add promise to list of all promises for later handling.
                     promises.push(dealPromise);
 

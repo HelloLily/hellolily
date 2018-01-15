@@ -1,6 +1,6 @@
 from django_filters.rest_framework import FilterSet
 
-from email_wrapper_lib.models.models import EmailAccount, EmailMessage, EmailDraft
+from email_wrapper_lib.models import EmailAccount, EmailMessage, EmailDraft
 
 
 class EmailAccountFilter(FilterSet):

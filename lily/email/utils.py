@@ -1,6 +1,6 @@
 from django.db.models import Q
 
-from email_wrapper_lib.models.models import EmailAccount
+from email_wrapper_lib.models import EmailAccount
 
 
 def get_email_accounts(user):

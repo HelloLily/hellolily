@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from email_wrapper_lib.models.models import EmailAccount
+from email_wrapper_lib.models import EmailAccount
 
 from lily.tenant.models import TenantMixin
 from lily.users.models import LilyUser, Team

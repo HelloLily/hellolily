@@ -4,7 +4,7 @@ from factory.django import DjangoModelFactory
 from faker.factory import Factory
 from oauth2client.client import OAuth2Credentials
 
-from email_wrapper_lib.models.models import EmailAccount
+from .models import EmailAccount
 
 faker = Factory.create('nl_NL')
 

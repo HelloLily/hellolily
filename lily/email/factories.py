@@ -4,7 +4,7 @@ from factory.django import DjangoModelFactory
 from factory.fuzzy import FuzzyChoice
 from faker.factory import Factory
 
-from email_wrapper_lib.models.models import EmailAccount
+from email_wrapper_lib.models import EmailAccount
 from lily.email.models import EmailAccountConfig
 from lily.tenant.factories import TenantFactory
 from lily.users.models import Team, LilyUser

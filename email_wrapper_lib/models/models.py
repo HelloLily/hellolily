@@ -100,7 +100,7 @@ class EmailFolder(models.Model):
     )
 
     account = models.ForeignKey(
-        to='EmailAccount',
+        to='email_wrapper_lib.EmailAccount',
         on_delete=models.CASCADE,
         verbose_name=_('Account'),
         related_name='folders'
@@ -162,19 +162,19 @@ class EmailMessage(models.Model):
         max_length=255
     )
     account = models.ForeignKey(
-        to='EmailAccount',
+        to='email_wrapper_lib.EmailAccount',
         on_delete=models.CASCADE,
         verbose_name=_('Account'),
         related_name='messages'
     )
     folder = models.ManyToManyField(
-        to='EmailFolder',
+        to='email_wrapper_lib.EmailFolder',
         verbose_name=_('Folder'),
         related_name='messages'
     )
     recipients = models.ManyToManyField(
-        to='EmailRecipient',
-        through='EmailMessageToEmailRecipient',
+        to='email_wrapper_lib.EmailRecipient',
+        through='email_wrapper_lib.EmailMessageToEmailRecipient',
         verbose_name=_('Recipients'),
         related_name='messages'
     )
@@ -230,12 +230,12 @@ class EmailMessageToEmailRecipient(models.Model):
     )
 
     message = models.ForeignKey(
-        to='EmailMessage',
+        to='email_wrapper_lib.EmailMessage',
         on_delete=models.CASCADE,
         verbose_name=_('Message')
     )
     recipient = models.ForeignKey(
-        to='EmailRecipient',
+        to='email_wrapper_lib.EmailRecipient',
         on_delete=models.CASCADE,
         verbose_name=_('Recipient')
     )
@@ -273,19 +273,19 @@ class EmailDraft(models.Model):
         default=''
     )
     recipients = models.ManyToManyField(
-        to='EmailRecipient',
+        to='email_wrapper_lib.EmailRecipient',
         through='EmailDraftToEmailRecipient',
         verbose_name=_('Recipients'),
         related_name='drafts'
     )
     account = models.ForeignKey(
-        to='EmailAccount',
+        to='email_wrapper_lib.EmailAccount',
         on_delete=models.CASCADE,
         verbose_name=_('Account'),
         related_name='drafts',
     )
     in_reply_to = models.ForeignKey(  # TODO: Naming in case of forward isn't right.
-        to='EmailMessage',
+        to='email_wrapper_lib.EmailMessage',
         on_delete=models.SET_NULL,
         verbose_name=_('In reply to'),
         related_name='draft_replies',
@@ -319,12 +319,12 @@ class EmailDraftToEmailRecipient(models.Model):
     )
 
     draft = models.ForeignKey(
-        to='EmailDraft',
+        to='email_wrapper_lib.EmailDraft',
         on_delete=models.CASCADE,
         verbose_name=_('Draft')
     )
     recipient = models.ForeignKey(
-        to='EmailRecipient',
+        to='email_wrapper_lib.EmailRecipient',
         on_delete=models.CASCADE,
         verbose_name=_('Recipient')
     )
@@ -364,7 +364,7 @@ class EmailDraftAttachment(models.Model):
     #     verbose_name=_('Content type')
     # )
     draft = models.ForeignKey(
-        to='EmailDraft',
+        to='email_wrapper_lib.EmailDraft',
         related_name='attachments'
     )
     # TODO: Or not needed since we can define it ourself upon sending?

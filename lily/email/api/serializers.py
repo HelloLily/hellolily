@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from email_wrapper_lib.models.models import EmailAccount, EmailMessage, EmailDraft, EmailRecipient, EmailDraftAttachment
+from email_wrapper_lib.models import EmailAccount, EmailMessage, EmailDraft, EmailRecipient, EmailDraftAttachment
 
 
 class EmailRecipientSerializer(serializers.ModelSerializer):

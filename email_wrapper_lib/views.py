@@ -4,8 +4,7 @@ from django.views.generic import RedirectView
 from oauth2client.client import FlowExchangeError
 
 from email_wrapper_lib.providers import registry
-# from email_wrapper_lib.tasks import sync_account
-from email_wrapper_lib.models.models import EmailAccount
+from .models import EmailAccount
 from email_wrapper_lib.storage import Storage
 from lily.utils.views import LoginRequiredMixin
 
@@ -31,7 +30,7 @@ class AddAccountCallbackView(LoginRequiredMixin, RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
         provider_name = kwargs.get('provider_name')
-        url = reverse('base_view')
+        url = reverse('base_view')  # TODO: use settings.ADD_ACCOUNT_SUCCESS_URL or something.
 
         if provider_name in registry:
             code = self.request.GET.get('code')
@@ -66,6 +65,7 @@ class AddAccountCallbackView(LoginRequiredMixin, RedirectView):
 
             account.save(update_fields=['credentials', 'status', ])
 
+            # TODO: call manager.sync() or something.
             # sync_account.delay(account.pk)
             messages.add_message(self.request, messages.SUCCESS, '{0} was created.'.format(account.username))
 

@@ -3,6 +3,7 @@ from oauth2client.client import OAuth2WebServerFlow
 
 from email_wrapper_lib.providers.google.manager import GoogleManager
 from .connector import GoogleConnector
+from .models import GoogleSyncInfo
 
 
 class Google(object):

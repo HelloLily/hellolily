@@ -243,10 +243,11 @@ class LilyUserSerializer(WritableNestedSerializer):
         return internal_value
 
 
-class RelatedLilyUserSerializer(RelatedSerializerMixin, LilyUserSerializer):
+class RelatedLilyUserSerializer(RelatedSerializerMixin, serializers.ModelSerializer):
+    profile_picture = serializers.CharField(read_only=True)
+
     class Meta:
         model = LilyUser
-
         fields = (
             'id',
             'first_name',

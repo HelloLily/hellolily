@@ -174,28 +174,36 @@ class LilyUserSerializer(WritableNestedSerializer):
 
         increment_users = False
 
-        if current_user.is_admin:
-            if 'is_active' in validated_data:
+        if 'is_active' in validated_data:
+            if current_user.is_admin:
                 is_active = validated_data.get('is_active')
 
                 # Only continue if we're actually activating a user.
                 if is_active != instance.is_active and is_active:
                     increment_users = True
-            if 'internal_number' in validated_data:
-                internal_number = validated_data.get('internal_number')
+            else:
+                raise PermissionDenied
+        if 'internal_number' in validated_data:
+            internal_number = validated_data.get('internal_number')
 
-                # If an internal number is passed we want to clear it if
-                # there's already a user with that internal number.
-                if internal_number:
-                    try:
-                        user = LilyUser.objects.get(internal_number=internal_number, tenant=current_user.tenant)
-                    except LilyUser.DoesNotExist:
-                        pass
-                    else:
+            if internal_number:
+                try:
+                    user = LilyUser.objects.get(internal_number=internal_number, tenant=current_user.tenant)
+                except (LilyUser.DoesNotExist, PermissionDenied):
+                    pass
+                else:
+                    if current_user.is_admin:
+                        # If an internal number is passed we want to clear it if
+                        # there's already a user with that internal number.
                         user.internal_number = None
                         user.save()
-        else:
-            raise PermissionDenied
+                    else:
+                        if current_user.id != instance.id:
+                            raise PermissionDenied
+                        else:
+                            raise serializers.ValidationError({
+                                'internal_number': [_('Another user is already using this internal number.')]
+                            })
 
         instance = super(LilyUserSerializer, self).update(instance, validated_data)
 

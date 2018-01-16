@@ -19,10 +19,10 @@ function preferencesConfig($stateProvider) {
 
 angular.module('app.preferences').controller('PreferencesCompanyUserList', PreferencesCompanyUserList);
 
-PreferencesCompanyUserList.$inject = ['$compile', '$scope', '$state', '$templateCache', 'HLForms', 'LocalStorage',
-    'Settings', 'User', 'UserInvite', 'UserTeams', 'invites'];
-function PreferencesCompanyUserList($compile, $scope, $state, $templateCache, HLForms, LocalStorage, Settings,
-    User, UserInvite, UserTeams, invites) {
+PreferencesCompanyUserList.$inject = ['$compile', '$scope', '$state', '$templateCache', 'HLForms', 'HLResource',
+    'LocalStorage', 'Settings', 'User', 'UserInvite', 'UserTeams', 'invites'];
+function PreferencesCompanyUserList($compile, $scope, $state, $templateCache, HLForms, HLResource,
+    LocalStorage, Settings, User, UserInvite, UserTeams, invites) {
     const vm = this;
     const storage = new LocalStorage('userList');
 
@@ -58,6 +58,7 @@ function PreferencesCompanyUserList($compile, $scope, $state, $templateCache, HL
     vm.setSearchQuery = setSearchQuery;
     vm.addTeam = addTeam;
     vm.updateTeam = updateTeam;
+    vm.updateModel = updateModel;
 
     activate();
 
@@ -112,6 +113,26 @@ function PreferencesCompanyUserList($compile, $scope, $state, $templateCache, HL
         storage.put('order', vm.table.order);
         storage.put('visibility', vm.table.visibility);
         storage.put('searchQuery', vm.table.searchQuery);
+    }
+
+    function updateModel(data, field, userObject) {
+        const internalNumber = parseInt(data);
+        const foundUsers = vm.table.items.filter(user => user.internal_number === internalNumber);
+
+        User.patch({
+            id: userObject.id,
+            is_active: 'All',
+        }, {
+            internal_number: internalNumber || null,
+        }).$promise.then(() => {
+            if (foundUsers.length > 0) {
+                toastr.success(`The internal number for ${foundUsers[0].full_name} has been cleared`);
+            }
+
+            toastr.success(`The internal number for ${userObject.full_name} has been updated`, 'Done');
+
+            _updateUsers();
+        });
     }
 
     function _updateUsers() {

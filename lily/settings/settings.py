@@ -9,6 +9,7 @@ import chargebee
 import dj_database_url
 import raven
 from django.conf import global_settings
+from raven.exceptions import InvalidGitRepository
 
 
 #######################################################################################################################
@@ -17,7 +18,6 @@ from django.conf import global_settings
 # Provide a dummy translation function without importing it from
 # django.utils.translation, because that module is depending on
 # settings itself possibly resulting in a circular import
-from raven.exceptions import InvalidGitRepository
 
 
 def gettext_noop(s):
@@ -51,7 +51,6 @@ if not CURRENT_COMMIT_SHA:
 #######################################################################################################################
 # Try to read as much configuration from ENV
 DEBUG = boolean(os.environ.get('DEBUG', 0))
-TESTING = False
 
 ADMINS = eval(os.environ.get('ADMINS', '()'))
 MANAGERS = ADMINS
@@ -694,6 +693,20 @@ TEST_RUNNER = 'lily.tests.runner.LilyNoseTestSuiteRunner'
 NOSE_ARGS = ['--nocapture', '--nologcapture', '--verbosity=3']
 TESTING = False  # Is set to True in the testrunner.
 TEST_SUPPRESS_LOG = True
+
+#######################################################################################################################
+# EMAIL WRAPPER LIB                                                                                                   #
+#######################################################################################################################
+OAUTH2_REDIRECT_URI = os.environ.get('OAUTH2_REDIRECT_URI', '')
+GOOGLE_OAUTH2_CLIENT_ID = os.environ.get('GOOGLE_OAUTH2_CLIENT_ID', '')
+GOOGLE_OAUTH2_CLIENT_SECRET = os.environ.get('GOOGLE_OAUTH2_CLIENT_SECRET', '')
+MICROSOFT_OAUTH2_CLIENT_ID = os.environ.get('MICROSOFT_OAUTH2_CLIENT_ID', '')
+MICROSOFT_OAUTH2_CLIENT_SECRET = os.environ.get('MICROSOFT_OAUTH2_CLIENT_SECRET', '')
+
+ADD_ACCOUNT_SUCCESS_URL = os.environ.get('ADD_ACCOUNT_SUCCESS_URL', 'test')
+
+BATCH_SIZE = os.environ.get('BATCH_SIZE', 100)
+ATTACHMENT_UPLOAD_PATH = os.environ.get('ATTACHMENT_UPLOAD_PATH', 'email/attachments/{draft_id}/{filename}')
 
 #######################################################################################################################
 # MISCELLANEOUS SETTINGS                                                                                              #

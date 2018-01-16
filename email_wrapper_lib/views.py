@@ -3,6 +3,7 @@ from django.core.urlresolvers import reverse
 from django.views.generic import RedirectView
 from oauth2client.client import FlowExchangeError
 
+from email_wrapper_lib.conf import settings
 from email_wrapper_lib.providers import registry
 from .models import EmailAccount
 from email_wrapper_lib.storage import Storage
@@ -14,6 +15,11 @@ class AddAccountView(LoginRequiredMixin, RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
         provider_name = kwargs.get('provider_name')
+
+        # TODO: maybe we do need to use requests-oauthlib for obtaining credentials, it felt more secure.
+        # we could pour the raw token into oauth2client.OAuth2Credentials, which is wat is returned by step 2 below.
+
+        # TODO: add a state in the request to prevent csrf.
 
         if provider_name in registry:
             provider = registry[provider_name]
@@ -30,7 +36,9 @@ class AddAccountCallbackView(LoginRequiredMixin, RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
         provider_name = kwargs.get('provider_name')
-        url = reverse('base_view')  # TODO: use settings.ADD_ACCOUNT_SUCCESS_URL or something.
+        url = settings.ADD_ACCOUNT_SUCCESS_URL
+
+        # TODO: check the state in the request to prevent csrf.
 
         if provider_name in registry:
             code = self.request.GET.get('code')
@@ -46,24 +54,25 @@ class AddAccountCallbackView(LoginRequiredMixin, RedirectView):
             profile = connector.profile.get()
             connector.execute()
 
-            # TODO: username is not updated if changed in ms, we need to do so.
-            account, created = EmailAccount.objects.get_or_create(
-                user_id=profile['user_id'],
-                provider_id=provider.id,
-                defaults={
-                    # Username can be changed in MS, so we only use it for account creation.
-                    'username': profile['username'],
-                }
-            )
+            try:
+                account = EmailAccount.objects.get(
+                    user_id=profile['user_id'],
+                    provider_id=provider.id
+                )
+                account.status = EmailAccount.RESYNC  # Account already existed, so resync.
+                account.username = profile['username']  # Update the username in case it changed.
+            except EmailAccount.DoesNotExist:
+                account = EmailAccount.objects.create(
+                    user_id=profile['user_id'],
+                    provider_id=provider.id,
+                    username=profile['username']
+                )
 
             # Set the store so the credentials will auto refresh.
             credentials.set_store(Storage(EmailAccount, 'id', account.pk, 'credentials'))
             account.credentials = credentials
 
-            if not created:
-                account.status = EmailAccount.RESYNC
-
-            account.save(update_fields=['credentials', 'status', ])
+            account.save(update_fields=['username', 'credentials', 'status', ])
 
             # TODO: call manager.sync() or something.
             # sync_account.delay(account.pk)

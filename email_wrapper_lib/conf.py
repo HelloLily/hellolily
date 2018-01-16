@@ -13,11 +13,15 @@ def get_setting(key, default=None):
 
 class Settings(object):
     # Mandatory settings.
+    # TODO: use the url of the package urls.py
     OAUTH2_REDIRECT_URI = get_setting('OAUTH2_REDIRECT_URI').rstrip('/')
     GOOGLE_OAUTH2_CLIENT_ID = get_setting('GOOGLE_OAUTH2_CLIENT_ID')
     GOOGLE_OAUTH2_CLIENT_SECRET = get_setting('GOOGLE_OAUTH2_CLIENT_SECRET')
     MICROSOFT_OAUTH2_CLIENT_ID = get_setting('MICROSOFT_OAUTH2_CLIENT_ID')
     MICROSOFT_OAUTH2_CLIENT_SECRET = get_setting('MICROSOFT_OAUTH2_CLIENT_SECRET')
+
+    # Find out what to do with this.
+    ADD_ACCOUNT_SUCCESS_URL = get_setting('ADD_ACCOUNT_SUCCESS_URL')
 
     # Optional settings.
     BATCH_SIZE = get_setting('BATCH_SIZE', 100)

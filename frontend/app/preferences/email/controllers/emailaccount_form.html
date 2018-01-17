@@ -15,6 +15,16 @@
                             <input class="form-control" id="label" name="label" maxlength="255" placeholder="Label" type="text" ng-model="vm.emailAccount.label" />
                         </form-group>
 
+                        <form-group label-title="Label color" label-id="color" field="emailAccountForm.color">
+                            <div class="email-account-label-preview">
+                                <input type="color" ng-model="vm.emailAccount.color" />
+
+                                <div class="account-label" ng-style="{'border-left-color': vm.emailAccount.color}">
+                                    {{ vm.emailAccount.label || vm.emailAccount.email_address }}
+                                </div>
+                            </div>
+                        </form-group>
+
                         <div class="m-t-30 m-b-30" ng-if="vm.emailAccount.only_new === null" ng-class="{'has-error': emailAccountForm.only_new.$invalid}">
                             <label class="display-block m-b-5">Load all email into Lily?</label>
                             <div class="radio-button-group radio-button-list">

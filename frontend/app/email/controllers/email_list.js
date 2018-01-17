@@ -53,6 +53,7 @@ function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLa
     vm.opts = {
         checkboxesAll: false,
     };
+    vm.colorCodes = {};
 
     vm.showEmptyState = false;
     vm.syncInProgress = false;
@@ -124,7 +125,23 @@ function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLa
     }
 
     function getNumberOfEmailAccounts() {
-        EmailAccount.query({}, function(data) {
+        EmailAccount.query({}, data => {
+            const colorCodes = {};
+
+            data.results.forEach(account => {
+                let color;
+
+                if (account.color) {
+                    color = account.color;
+                } else {
+                    color = HLUtils.getColorCode(account.email_address);
+                }
+
+                colorCodes[account.id] = color;
+            });
+
+            vm.colorCodes = colorCodes;
+
             if (data.pagination.total === 0) {
                 vm.showEmptyState = true;
             } else {

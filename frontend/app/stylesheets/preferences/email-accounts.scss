@@ -175,3 +175,16 @@ $base-color: #27224e;
     right: 0;
     background: rgba(255, 255, 255, 0.8);
 }
+
+.email-account-label-preview {
+    input {
+        vertical-align: middle;
+        height: 22px;
+    }
+
+    .account-label {
+        display: inline-block;
+        margin-left: 10px;
+        vertical-align: middle;
+    }
+}

@@ -1,7 +1,9 @@
 angular.module('app.email').controller('LabelListController', LabelListController);
 
-LabelListController.$inject = ['$filter', '$interval', '$scope', '$state', '$timeout', 'EmailAccount', 'LocalStorage', 'primaryEmailAccountId'];
-function LabelListController($filter, $interval, $scope, $state, $timeout, EmailAccount, LocalStorage, primaryEmailAccountId) {
+LabelListController.$inject = ['$filter', '$interval', '$scope', '$state', '$timeout', 'EmailAccount', 'HLUtils',
+    'LocalStorage', 'primaryEmailAccountId'];
+function LabelListController($filter, $interval, $scope, $state, $timeout, EmailAccount, HLUtils,
+    LocalStorage, primaryEmailAccountId) {
     const vm = this;
     const storage = new LocalStorage('labelList');
 
@@ -111,6 +113,10 @@ function LabelListController($filter, $interval, $scope, $state, $timeout, Email
 
                 const labelList = [];
                 let previousLabel = null;
+
+                if (!account.color) {
+                    account.color = HLUtils.getColorCode(account.email_address);
+                }
 
                 account.labels.forEach((label, index) => {
                     label.children = [];

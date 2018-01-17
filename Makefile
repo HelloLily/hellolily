@@ -42,9 +42,9 @@ index:
 	@echo ""
 
 test:
-	@echo "Make: docker-compose run --rm -e ES_DISABLED=1 --service-ports web bash -c 'Dockers/wait-for db:5432 && python manage.py test'"
+	@echo "Make: docker-compose run --rm -e ES_DISABLED=1 web bash -c 'Dockers/wait-for db:5432 && python manage.py test'"
 	@echo ""
-	@docker-compose run --rm --service-ports -e ES_DISABLED=1 web bash -c 'Dockers/wait-for db:5432 && python manage.py test'
+	@docker-compose run --rm -e ES_DISABLED=1 web bash -c 'Dockers/wait-for db:5432 && python manage.py test'
 	@echo ""
 
 testdata:

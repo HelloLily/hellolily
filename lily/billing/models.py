@@ -63,6 +63,7 @@ class Billing(models.Model):
                 chargebee.Subscription.update(subscription.id, {
                     'plan_quantity': amount,
                     'prorate': True,
+                    'invoice_immediately': False,
                 })
 
             return True

@@ -77,7 +77,6 @@ function LabelListController($filter, $interval, $scope, $state, $timeout, Email
             parent = _getParent(parentLabel.parent, label);
         }
 
-
         if (parent) {
             label.parent = parent;
         }

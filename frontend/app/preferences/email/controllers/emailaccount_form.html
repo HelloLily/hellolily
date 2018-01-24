@@ -67,14 +67,10 @@
                                         </div>
                                     </div>
 
-                                    <h3 ng-if="!vm.emailAccount.privacy == 0" class="privacy-example-title">Example of timeline</h3>
+                                    <h3 class="privacy-example-title">Example of timeline</h3>
 
-                                    <div ng-if="vm.emailAccount.privacy == 0" class="privacy-info">
-                                        <i class="lilicon hl-info-icon blue"></i> Used by multiple people in the company, ergo info@ or support@
-                                    </div>
-
-                                    <div class="privacy-examples" ng-if="!vm.emailAccount.privacy == 0">
-                                        <div ng-if="vm.emailAccount.privacy == 1" class="privacy-example">
+                                    <div class="privacy-examples">
+                                        <div ng-if="vm.emailAccount.privacy === 0 || vm.emailAccount.privacy == 1" class="privacy-example">
                                             <div class="activity-stream">
                                                 <div class="activity-stream-content">
                                                     <div class="timeline-item-container">
@@ -166,6 +162,10 @@
                                         <div ng-if="vm.emailAccount.privacy == 3" class="privacy-example">
                                             <div class="privacy-example-title align-center no-space">No known history</div>
                                         </div>
+                                    </div>
+
+                                    <div ng-if="vm.emailAccount.privacy == 0" class="privacy-info">
+                                        <i class="lilicon hl-info-icon blue"></i> Gives the whole team the ability to read emails and reply. Best used with info@, support@, or similar addresses.
                                     </div>
 
                                 </uib-tab>

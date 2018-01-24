@@ -6,7 +6,7 @@
             <div class="stream-item-date" title="Sent on {{ ::vm.item.sent_date | date:'dd MMM yyyy - HH:mm' }}">
                 {{ ::vm.item.sent_date | date:'dd MMM yyyy - HH:mm' }}
             </div>
-            <div class="stream-item-actions">
+            <div class="stream-item-actions" ng-if="vm.item.privacy != 2">
                 <ul class="stream-item-actions-list">
                     <li class="stream-item-actions-list-item">
                         <a ng-click="vm.replyOnEmail()">

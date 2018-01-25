@@ -86,7 +86,7 @@ class NoteMapping(BaseMapping):
             'content': obj.content,
             'content_type': obj.content_type.id,
             'date': obj.created,
-            'gfk_content_type': obj.gfk_content_type.name,
+            'gfk_content_type': obj.gfk_content_type.model,
             'gfk_object_id': obj.gfk_object_id,
             'is_pinned': obj.is_pinned,
             'modified': obj.modified,

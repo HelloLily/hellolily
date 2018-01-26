@@ -56,25 +56,60 @@ class CaseSerializer(WritableNestedSerializer):
     Serializer for the case model.
     """
     # Set non mutable fields.
-    created = serializers.DateTimeField(read_only=True)
     created_by = RelatedLilyUserSerializer(read_only=True)
-    modified = serializers.DateTimeField(read_only=True)
-    content_type = ContentTypeSerializer(read_only=True)
-
-    # Custom fields.
-    description = SanitizedHtmlCharField()
+    content_type = ContentTypeSerializer(
+        read_only=True,
+        help_text='This is what the object is identified as in the back-end.',
+    )
 
     # Related fields.
-    account = RelatedAccountSerializer(required=False, allow_null=True)
-    contact = RelatedContactSerializer(required=False, allow_null=True)
-    assigned_to = RelatedLilyUserSerializer(required=False, allow_null=True, assign_only=True)
-    assigned_to_teams = RelatedTeamSerializer(many=True, required=False, assign_only=True)
-    type = RelatedCaseTypeSerializer(assign_only=True)
-    status = RelatedCaseStatusSerializer(assign_only=True)
-    tags = RelatedTagSerializer(many=True, required=False, create_only=True)
+    account = RelatedAccountSerializer(
+        required=False,
+        allow_null=True,
+        help_text='Account for which the case is being created.',
+    )
+    contact = RelatedContactSerializer(
+        required=False,
+        allow_null=True,
+        help_text='Contact for which the case is being created.',
+    )
+    assigned_to = RelatedLilyUserSerializer(
+        required=False,
+        allow_null=True,
+        assign_only=True,
+        help_text='Person which the case is assigned to.',
+    )
+    assigned_to_teams = RelatedTeamSerializer(
+        many=True,
+        required=False,
+        assign_only=True,
+        help_text='List of teams the case is assigned to.',
+    )
+    type = RelatedCaseTypeSerializer(
+        assign_only=True,
+        help_text='The type of case.',
+    )
+    status = RelatedCaseStatusSerializer(
+        assign_only=True,
+        help_text='Status of the case.',
+    )
+    tags = RelatedTagSerializer(
+        many=True,
+        required=False,
+        create_only=True,
+        help_text='Any tags used to further categorize the case.',
+    )
+
+    description = SanitizedHtmlCharField(
+        help_text='Any extra text to describe the case (supports Markdown).',
+    )
 
     # Show string versions of fields.
-    priority_display = serializers.CharField(source='get_priority_display', read_only=True)
+    priority_display = serializers.CharField(
+        source='get_priority_display',
+        read_only=True,
+        help_text='Human readable value of the case\'s priority.',
+    )
 
     def validate(self, data):
         contact_id = data.get('contact', {})
@@ -214,6 +249,23 @@ class CaseSerializer(WritableNestedSerializer):
             'subject',
             'type',
         )
+        extra_kwargs = {
+            'created': {
+                'help_text': 'Shows the date and time when the deal was created.',
+            },
+            'expires': {
+                'help_text': 'Shows the date and time for when the case should be completed.',
+            },
+            'modified': {
+                'help_text': 'Shows the date and time when the case was last modified.',
+            },
+            'newly_assigned': {
+                'help_text': 'True if the assignee was changed and that person hasn\'t accepted yet.',
+            },
+            'subject': {
+                'help_text': 'A short description of the case.',
+            },
+        }
 
 
 class RelatedCaseSerializer(RelatedSerializerMixin, CaseSerializer):

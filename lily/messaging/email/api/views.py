@@ -2,9 +2,10 @@ import logging
 
 from django.conf import settings
 from django.db.models import Q
-from django_filters.rest_framework import DjangoFilterBackend, FilterSet
+from django_filters import rest_framework as filters
 import phonenumbers
-from rest_framework import viewsets, mixins, status, filters
+from rest_framework import viewsets, mixins, status
+from rest_framework.filters import OrderingFilter
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
@@ -36,8 +37,9 @@ class EmailLabelViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = EmailLabelSerializer
 
     # Set all filter backends that this viewset uses.
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (filters.DjangoFilterBackend,)
     filter_fields = ('account__id', 'label_id')
+    swagger_schema = None
 
     def get_queryset(self):
         return EmailLabel.objects.filter(account__tenant_id=self.request.user.tenant_id)
@@ -46,9 +48,10 @@ class EmailLabelViewSet(viewsets.ReadOnlyModelViewSet):
 class SharedEmailConfigViewSet(viewsets.ModelViewSet):
     queryset = SharedEmailConfig.objects.all()
     serializer_class = SharedEmailConfigSerializer
+    swagger_schema = None
 
     # Set all filter backends that this viewset uses.
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (filters.DjangoFilterBackend,)
     filter_fields = {
         'email_account',
         'is_hidden',
@@ -79,12 +82,12 @@ class SharedEmailConfigViewSet(viewsets.ModelViewSet):
 class EmailAccountViewSet(mixins.DestroyModelMixin,
                           mixins.UpdateModelMixin,
                           viewsets.ReadOnlyModelViewSet):
-
     queryset = EmailAccount.objects.all()
     serializer_class = EmailAccountSerializer
+    swagger_schema = None
 
     # Set all filter backends that this viewset uses.
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (filters.DjangoFilterBackend,)
     filter_fields = (
         'owner',
         'sharedemailconfig__user__id',
@@ -141,9 +144,9 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
                           mixins.UpdateModelMixin,
                           mixins.DestroyModelMixin,
                           GenericViewSet):
-
     queryset = EmailMessage.objects.all()
     serializer_class = EmailMessageSerializer
+    swagger_schema = None
 
     def get_object(self):
         pk = int(self.kwargs['pk'])
@@ -416,6 +419,7 @@ class EmailTemplateFolderViewSet(viewsets.ModelViewSet):
     serializer_class = EmailTemplateFolderSerializer
     # Set all filter backends that this viewset uses.
     filter_backends = (filters.OrderingFilter, )
+    swagger_schema = None
 
     # OrderingFilter: set the default ordering fields.
     ordering = ('name', )
@@ -448,7 +452,7 @@ class EmailTemplateFolderViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class EmailTemplateFilter(FilterSet):
+class EmailTemplateFilter(filters.FilterSet):
     class Meta:
         model = EmailTemplate
         fields = {
@@ -466,8 +470,8 @@ class EmailTemplateViewSet(viewsets.ModelViewSet):
     serializer_class = EmailTemplateSerializer
     # Set all filter backends that this viewset uses.
     filter_backends = (filters.OrderingFilter, filters.DjangoFilterBackend)
-
     filter_class = EmailTemplateFilter
+    swagger_schema = None
 
     # OrderingFilter: set the default ordering fields.
     ordering = ('name', )
@@ -503,8 +507,9 @@ class TemplateVariableViewSet(mixins.DestroyModelMixin,
     """
     queryset = TemplateVariable.objects
     serializer_class = TemplateVariableSerializer
-    filter_backends = (filters.OrderingFilter,)
+    filter_backends = (OrderingFilter,)
     ordering = ('name', )
+    swagger_schema = None
 
     def list(self, request):
         queryset = TemplateVariable.objects.all().filter(Q(is_public=True) | Q(owner=request.user))

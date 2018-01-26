@@ -77,23 +77,71 @@ class AccountSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
     Serializer for the account model.
     """
     # Read only fields.
-    content_type = ContentTypeSerializer(read_only=True)
-    flatname = serializers.CharField(read_only=True)
-    contacts = ContactForAccountSerializer(many=True, read_only=True)
+    content_type = ContentTypeSerializer(
+        read_only=True,
+        help_text='This is what the object is identified as in the back-end.'
+    )
+    contacts = ContactForAccountSerializer(
+        many=True,
+        read_only=True,
+        help_text='Contains all contacts which work for this account.',
+    )
 
     # Related fields
-    addresses = RelatedAddressSerializer(many=True, required=False, create_only=True)
-    assigned_to = RelatedLilyUserSerializer(required=False, assign_only=True)
-    email_addresses = RelatedEmailAddressSerializer(many=True, required=False, create_only=True)
-    phone_numbers = RelatedPhoneNumberSerializer(many=True, required=False, create_only=True)
-    social_media = RelatedSocialMediaSerializer(many=True, required=False, create_only=True)
-    websites = RelatedWebsiteSerializer(many=True, required=False, create_only=True)
-    status = RelatedAccountStatusSerializer(assign_only=True)
-    tags = RelatedTagSerializer(many=True, required=False, create_only=True)
+    addresses = RelatedAddressSerializer(
+        many=True,
+        required=False,
+        create_only=True,
+        help_text='Addresses belonging to the account.',
+    )
+    assigned_to = RelatedLilyUserSerializer(
+        required=False,
+        assign_only=True,
+        help_text='Person which the account is assigned to.',
+    )
+    email_addresses = RelatedEmailAddressSerializer(
+        many=True,
+        required=False,
+        create_only=True,
+        help_text='Email addresses belonging to the account.',
+    )
+    phone_numbers = RelatedPhoneNumberSerializer(
+        many=True,
+        required=False,
+        create_only=True,
+        help_text='Phone numbers belonging to the account.',
+    )
+    social_media = RelatedSocialMediaSerializer(
+        many=True,
+        required=False,
+        create_only=True,
+        help_text='Social media accounts belonging to the account.',
+    )
+    websites = RelatedWebsiteSerializer(
+        many=True,
+        required=False,
+        create_only=True,
+        help_text='Any websites that belong to the account.',
+    )
+    status = RelatedAccountStatusSerializer(
+        assign_only=True,
+        help_text='ID of an AccountStatus instance.',
+    )
+    tags = RelatedTagSerializer(
+        many=True,
+        required=False,
+        create_only=True,
+        help_text='Any tags used to further categorize the account.',
+    )
 
     # Custom fields.
-    name = serializers.CharField(validators=[DuplicateAccountName()])
-    description = SanitizedHtmlCharField()
+    name = serializers.CharField(
+        validators=[DuplicateAccountName()],
+        help_text='The name of the account.',
+    )
+    description = SanitizedHtmlCharField(
+        help_text='Any extra text to describe the account (supports Markdown).',
+    )
 
     def create(self, validated_data):
         tenant = self.context.get('request').user.tenant
@@ -114,30 +162,33 @@ class AccountSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
             'id',
             'addresses',
             'assigned_to',
-            'bankaccountnumber',
-            'bic',
-            'cocnumber',
             'contacts',
             'content_type',
             'created',
             'customer_id',
             'description',
             'email_addresses',
-            'flatname',
-            'iban',
             'is_deleted',
-            'legalentity',
-            # 'logo',
             'modified',
             'name',
             'phone_numbers',
             'social_media',
             'status',
             'tags',
-            'taxnumber',
             'websites',
         )
         read_only_fields = ('is_deleted', )
+        extra_kwargs = {
+            'created': {
+                'help_text': 'Shows the date and time when the account was created.',
+            },
+            'modified': {
+                'help_text': 'Shows the date and time when the account was last modified.',
+            },
+            'customer_id': {
+                'help_text': 'An extra identifier for the account which can be used to link to an external source.',
+            },
+        }
 
 
 class RelatedAccountSerializer(RelatedSerializerMixin, AccountSerializer):
@@ -148,23 +199,22 @@ class RelatedAccountSerializer(RelatedSerializerMixin, AccountSerializer):
         model = Account
         fields = (  # No related fields in this serializer.
             'id',
-            'bankaccountnumber',
-            'bic',
-            'cocnumber',
-            'company_size',
+            'addresses',
             'created',
             'customer_id',
             'description',
-            'flatname',
-            'iban',
-            'legalentity',
             'modified',
             'name',
             'status',
             'taxnumber',
             'email_addresses',
             'phone_numbers',
-            'addresses',
             'is_deleted',
+            # 'bankaccountnumber',
+            # 'company_size',
+            # 'bic',
+            # 'cocnumber',
+            # 'iban',
+            # 'legalentity',
         )
         read_only_fields = ('is_deleted', )

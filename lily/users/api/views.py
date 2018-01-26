@@ -7,8 +7,7 @@ from django.urls import reverse_lazy
 from django.core.validators import validate_email
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from django_filters import FilterSet
-from django_filters.rest_framework import DjangoFilterBackend
+from django_filters import rest_framework as filters
 from django_otp import devices_for_user
 from django_otp.plugins.otp_static.models import StaticToken
 from rest_framework import mixins, viewsets, status
@@ -36,7 +35,7 @@ from .serializers import (TeamSerializer, LilyUserSerializer, LilyUserTokenSeria
 from ..models import Team, LilyUser, UserInfo, UserInvite
 
 
-class TeamFilter(FilterSet):
+class TeamFilter(filters.FilterSet):
     """
     Class to filter case queryset.
     """
@@ -56,6 +55,7 @@ class TeamViewSet(viewsets.ModelViewSet):
     queryset = Team.objects
     permission_classes = (IsAuthenticated, IsAccountAdmin,)
     unrestricted_methods = ['GET']
+    swagger_schema = None
 
     def get_queryset(self):
         queryset = self.model.objects.filter(tenant_id=self.request.user.tenant_id)
@@ -73,6 +73,7 @@ class UserInviteViewSet(viewsets.ModelViewSet):
     model = UserInvite
     serializer_class = UserInviteSerializer
     queryset = UserInvite.objects
+    swagger_schema = None
 
     def get_queryset(self):
         queryset = self.model.objects.filter(tenant_id=self.request.user.tenant_id)
@@ -179,7 +180,7 @@ class UserInviteViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_200_OK)
 
 
-class LilyUserFilter(FilterSet):
+class LilyUserFilter(filters.FilterSet):
     class Meta:
         model = LilyUser
         fields = {
@@ -217,7 +218,8 @@ class LilyUserViewSet(viewsets.ModelViewSet):
     # Set the serializer class for this viewset.
     serializer_class = LilyUserSerializer
     # Set all filter backends that this viewset uses.
-    filter_backends = (OrderingFilter, DjangoFilterBackend)
+    filter_backends = (OrderingFilter, filters.DjangoFilterBackend)
+    swagger_schema = None
 
     # OrderingFilter: set all possible fields to order by.
     ordering_fields = (
@@ -345,6 +347,8 @@ class LilyUserViewSet(viewsets.ModelViewSet):
 
 
 class TwoFactorDevicesViewSet(viewsets.ViewSet):
+    swagger_schema = None
+
     """
     A simple ViewSet for listing or disabling two factor devices.
     """
@@ -400,6 +404,8 @@ class SessionViewSet(mixins.RetrieveModelMixin,
                      mixins.ListModelMixin,
                      mixins.DestroyModelMixin,
                      viewsets.GenericViewSet):
+    swagger_schema = None
+
     """
     A simple ViewSet for listing or deleting sessions.
     """
@@ -407,6 +413,7 @@ class SessionViewSet(mixins.RetrieveModelMixin,
     queryset = Session.objects
     # Set the serializer class for this viewset.
     serializer_class = SessionSerializer
+    swagger_schema = None
 
     def get_queryset(self):
         """

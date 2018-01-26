@@ -9,7 +9,6 @@ from rest_framework.exceptions import PermissionDenied
 from user_sessions.models import Session
 from user_sessions.templatetags.user_sessions import device
 
-from lily.api.fields import CustomTimeZoneField
 from lily.api.nested.mixins import RelatedSerializerMixin
 from lily.api.nested.serializers import WritableNestedSerializer
 from lily.utils.api.serializers import RelatedWebhookSerializer
@@ -84,7 +83,6 @@ class LilyUserSerializer(WritableNestedSerializer):
     picture = serializers.ImageField(write_only=True, required=False)
     webhooks = RelatedWebhookSerializer(many=True, required=False, create_only=True)
     primary_email_account = EmailAccountSerializer(allow_null=True, required=False)
-    timezone = CustomTimeZoneField(required=False)
     info = UserInfoSerializer(read_only=True)
     teams = RelatedTeamSerializer(many=True, required=False, assign_only=True)
     has_two_factor = serializers.SerializerMethodField()
@@ -109,7 +107,6 @@ class LilyUserSerializer(WritableNestedSerializer):
             'primary_email_account',
             'profile_picture',
             'social_media',
-            'timezone',
             'teams',
             'webhooks',
             'is_admin',

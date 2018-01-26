@@ -17,6 +17,7 @@ class TenantViewSet(mixins.UpdateModelMixin, mixins.ListModelMixin, GenericViewS
     filter_backends = ()
     # Disable pagination for this api.
     pagination_class = None
+    swagger_schema = None
 
     def get_queryset(self):
         """

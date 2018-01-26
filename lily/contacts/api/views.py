@@ -1,6 +1,7 @@
 from django.db import transaction
 from django.db.models import Q
 from django.utils.datastructures import MultiValueDictKeyError
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets, status
 from rest_framework.decorators import detail_route
 from rest_framework.filters import OrderingFilter
@@ -26,25 +27,32 @@ from lily.utils.models.models import EmailAddress, PhoneNumber, Address
 
 class ContactViewSet(ModelChangesMixin, viewsets.ModelViewSet):
     """
-    Returns a list of all **active** contacts in the system.
+    Contacts are people you want to store the information of.
 
-    #Search#
-    Searching is enabled on this API.
+    retrieve:
+    Returns the given contact.
 
-    To search, provide a field name to search on followed by the value you want to search for to the search parameter.
+    list:
+    Returns a list of all the existing active contacts.
 
-    #Ordering#
-    Ordering is enabled on this API.
+    create:
+    Creates a new contact.
 
-    To order, provide a comma seperated list to the ordering argument. Use `-` minus to inverse the ordering.
+    update:
+    Overwrites the whole contact with the given data.
 
-    #Examples#
-    - plain: `/api/contacts/`
-    - search: `/api/contacts/?search=subject:Doremi`
-    - order: `/api/contacts/?ordering=subject,-id`
+    > Note: If Moneybird integration is setup each update will also send the contact's data to Moneybird.
 
-    #Returns#
-    * List of cases with related fields
+    partial_update:
+    Updates just the fields in the request data of the given contact.
+
+    > Note: If Moneybird integration is setup each update will also send the contact's data to Moneybird.
+
+    delete:
+    Deletes the given contact.
+
+    changes:
+    Returns all the changes performed on the given contact.
     """
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
     queryset = Contact.objects
@@ -72,6 +80,7 @@ class ContactViewSet(ModelChangesMixin, viewsets.ModelViewSet):
 
         return super(ContactViewSet, self).get_queryset().filter(is_deleted=False)
 
+    @swagger_auto_schema(auto_schema=None)
     @detail_route(methods=['GET', ])
     def calls(self, request, pk=None):
         contact = self.get_object()
@@ -93,6 +102,7 @@ class ContactViewSet(ModelChangesMixin, viewsets.ModelViewSet):
 class ContactImport(APIView):
     permission_classes = (IsAuthenticated, IsAccountAdmin, )
     classes = (FileUploadParser, )
+    swagger_schema = None
 
     def post(self, request):
         try:

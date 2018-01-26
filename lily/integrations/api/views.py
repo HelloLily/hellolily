@@ -41,6 +41,7 @@ logger = logging.getLogger(__name__)
 class DocumentDetails(APIView):
     serializer = DocumentSerializer
     parser_classes = (JSONParser, FormParser)
+    swagger_schema = None
 
     def get(self, request, document_id, format=None):
         """
@@ -74,6 +75,7 @@ class PandaDocList(APIView):
     permission_classes = (IsAuthenticated, IsFeatureAvailable, )
     serializer = DocumentSerializer
     parser_classes = (JSONParser, FormParser)
+    swagger_schema = None
 
     def get(self, request, contact_id, format=None):
         """
@@ -115,6 +117,7 @@ class DocumentEventList(APIView):
     permission_classes = (IsAuthenticated, IsFeatureAvailable, )
     model = DocumentEvent
     serializer_class = DocumentEventSerializer
+    swagger_schema = None
 
     def get(self, request, format=None):
         events = DocumentEvent.objects.all().order_by('id')
@@ -195,6 +198,7 @@ class DocumentEventList(APIView):
 
 class DocumentEventCatch(APIView):
     authentication_classes = (PandaDocSignatureAuthentication, )
+    swagger_schema = None
 
     def post(self, request):
         data = request.data[0].get('data')
@@ -245,6 +249,7 @@ class DocumentEventCatch(APIView):
 
 class PandaDocSharedKey(APIView):
     permission_classes = (IsAuthenticated, IsAccountAdmin, IsFeatureAvailable)
+    swagger_schema = None
 
     def get(self, request):
         """
@@ -275,6 +280,7 @@ class PandaDocSharedKey(APIView):
 
 class MoneybirdContactImport(APIView):
     permission_classes = (IsAuthenticated, IsAccountAdmin, IsFeatureAvailable)
+    swagger_schema = None
 
     def post(self, request):
         credentials = get_credentials('moneybird')
@@ -297,6 +303,8 @@ class MoneybirdContactImport(APIView):
 
 
 class EstimatesList(APIView):
+    swagger_schema = None
+
     def get(self, request, contact_id, format=None):
         """
         List all Moneybird estimates.
@@ -315,6 +323,7 @@ class EstimatesList(APIView):
 class IntegrationAuth(APIView):
     parser_classes = (JSONParser, FormParser)
     permission_classes = (IsAuthenticated, IsAccountAdmin, IsFeatureAvailable)
+    swagger_schema = None
 
     def post(self, request, integration_type):
         """
@@ -439,6 +448,8 @@ class IntegrationAuth(APIView):
 
 
 class IntegrationDetailsView(APIView):
+    swagger_schema = None
+
     def get(self, request, integration_type, format=None):
         credentials = get_credentials(integration_type)
 
@@ -480,6 +491,7 @@ class IntegrationDetailsView(APIView):
 class SlackEventCatch(APIView):
     authentication_classes = []
     permission_classes = []
+    swagger_schema = None
 
     def convert_to_string(self, data):
         """

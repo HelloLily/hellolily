@@ -8,6 +8,25 @@ from ..models import TimeLog
 
 
 class TimeLogViewSet(ModelViewSet):
+    """
+    retrieve:
+    Returns the given time log.
+
+    list:
+    Returns a list of all the time logs.
+
+    create:
+    Creates a new time log.
+
+    update:
+    Overwrites the whole time log with the given data.
+
+    partial_update:
+    Updates just the fields in the request data of the given time log.
+
+    delete:
+    Deletes the given time log.
+    """
     permission_classes = (IsAuthenticated, IsFeatureAvailable, )
     queryset = TimeLog.objects
     # Set the serializer class for this viewset.

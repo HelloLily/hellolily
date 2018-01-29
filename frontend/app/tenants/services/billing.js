@@ -29,9 +29,6 @@ function Billing($resource) {
             cancel: {
                 url: '/api/billing/cancel/',
             },
-            startTrial: {
-                url: '/api/billing/start_trial/',
-            },
         }
     );
 

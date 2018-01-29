@@ -94,7 +94,7 @@
                 <li ng-if="billingEnabled && currentUser.isAdmin" ui-sref-active="active">
                     <a ui-sref="base.preferences.admin.billing" ui-sref-opts="{reload:true}">
                         <i class="fa fa-credit-card"></i>
-                        Billing
+                        Billing <trial-remaining></trial-remaining>
                     </a>
                 </li>
                 <li ng-if="currentUser.isAdmin" ui-sref-active="active">

@@ -9,6 +9,13 @@ function HLMessages() {
     }
 
     return {
+        pages: {
+            billing: {
+                trialInfo: 'Your free trial period will end in ',
+                trialInfoSub: 'Upgrade to the Team or Professional plans to continue using all of the Lily features.',
+                trialMoreInfo: 'Once your trial is over, you\'ll be set to the free Personal plan if you haven\'t upgraded. Read more about all <a href="https://hellolily.com/features">Features</a> and <a href="https://hellolily.com/pricing">Pricing</a> and send us a message if you have any questions.',
+            },
+        },
         contact: {
             accountInfoTooltip: 'I\'ve loaded the selected account\'s data for you. Now you don\'t have to enter duplicate data!',
             accountListInfoTooltip: 'This is the data of the account(s) the contact works for',
@@ -86,9 +93,6 @@ function HLMessages() {
                 subscription: {
                     cancelTitle: 'Are you sure?',
                     cancelText: 'You are about to cancel your subscription. This will revert your account back to the free plan after the next billing date. Are you sure you want to continue?',
-                    trialStartTitle: 'Start trial?',
-                    trialStartText: 'Are you sure you want to start your 30 day trial of the professional plan?',
-                    trialConfirm: 'Start trial',
                 },
                 confirmButtonText: 'Yes, cancel!',
                 twoFactorAuth: {

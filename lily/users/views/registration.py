@@ -1,4 +1,5 @@
-from datetime import date, timedelta
+import calendar
+from datetime import datetime, date, timedelta
 from hashlib import sha256
 
 import chargebee
@@ -83,7 +84,7 @@ class RegistrationView(FormView):
         tenant_country = form.cleaned_data['country']
 
         if settings.BILLING_ENABLED:
-            plan = Plan.objects.get(name=settings.CHARGEBEE_FREE_PLAN_NAME)
+            plan = Plan.objects.get(name=settings.CHARGEBEE_PRO_TRIAL_PLAN_NAME)
             billing = Billing.objects.create(plan=plan)
         else:
             billing = Billing.objects.create()
@@ -115,7 +116,7 @@ class RegistrationView(FormView):
         # Show registration message
         messages.success(
             self.request,
-            _('Registration completed. I\'ve sent you an email, please check it to activate your account.')
+            _('Registration completed')
         )
 
         self.request.session['user'] = user.id
@@ -196,8 +197,13 @@ class ActivationView(TemplateView):
         if settings.BILLING_ENABLED:
             tenant = user.tenant
 
+            trial_end = datetime.now() + timedelta(days=30)
+            # Chargebee wants the time in seconds.
+            trial_end_seconds = calendar.timegm(trial_end.timetuple())
+
             result = chargebee.Subscription.create({
                 'plan_id': tenant.billing.plan.name,
+                'trial_end': trial_end_seconds,
                 'customer': {
                     'first_name': user.first_name,
                     'last_name': user.last_name,
@@ -208,6 +214,7 @@ class ActivationView(TemplateView):
 
             tenant.billing.customer_id = result.customer.id
             tenant.billing.subscription_id = result.subscription.id
+            tenant.billing.trial_end = trial_end
             tenant.billing.save()
 
         # Programmatically login the user.

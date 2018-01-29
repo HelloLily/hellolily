@@ -1,0 +1,3 @@
+<span ng-if="$root.currentUser.tenant.trialRemaining" class="trial-remaining-marker">
+    {{ $root.currentUser.tenant.trialRemaining }} trial <ng-pluralize count="$root.currentUser.tenant.trialRemaining" when="{1: ' day', 'other': ' days'}"></ng-pluralize> left
+</span>

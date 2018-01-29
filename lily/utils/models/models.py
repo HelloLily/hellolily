@@ -111,6 +111,10 @@ class EmailAddress(TenantMixin):
         verbose_name=_('status')
     )
 
+    @property
+    def is_active(self):
+        return self.status != self.INACTIVE_STATUS
+
     def __unicode__(self):
         return self.email_address
 

@@ -190,6 +190,7 @@ class ContactMapping(BaseMapping):
                 'id': email.id,
                 'email_address': email.email_address,
                 'status': email.status,
+                'is_active': email.is_active,
             } for email in obj.email_addresses.all()],
             'first_name': obj.first_name,
             'full_name': obj.full_name,
@@ -231,6 +232,7 @@ class ContactMapping(BaseMapping):
                     'number': phone_number.number,
                     'formatted_number': format_phone_number(phone_number.number),
                 } for phone_number in function.account.phone_numbers.all()],
+                'domains': [website.full_domain for website in function.account.websites.all()],
             }
 
             doc.setdefault('accounts', []).append(account)

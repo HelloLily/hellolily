@@ -196,6 +196,7 @@ class AccountMapping(BaseMapping):
                 'id': email.id,
                 'email_address': email.email_address,
                 'status': email.status,
+                'is_active': email.is_active,
             } for email in obj.email_addresses.all()],
             'modified': obj.modified,
             'name': obj.name,

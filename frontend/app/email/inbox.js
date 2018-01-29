@@ -72,9 +72,9 @@
 
                     self.config.previousSendToNormalLength = inputLength;
 
-                    // Don't do anything if it's just an extra recipient being added/removed
-                    // or the last recipient is removed.
-                    if (inputLength > 1 || inputLength < previousSendToNormalLength) {
+                    // Don't do anything if we have more than two recipients
+                    // or if we're just removing recipients.
+                    if (!(inputLength === 1 && !previousSendToNormalLength)) {
                         return;
                     }
 
@@ -305,6 +305,10 @@
                         url = self.config.getTemplateUrl + selectedTemplate + '/';
 
                         url += '?emailaccount_id=' + emailAccountId;
+
+                        if (recipient.account) {
+                            url += `&account_id=${recipient.account.id}`;
+                        }
 
                         if (recipientId) {
                             url += '&contact_id=' + recipientId;

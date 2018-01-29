@@ -653,7 +653,7 @@ REST_FRAMEWORK = {
 # External app settings                                                                                               #
 #######################################################################################################################
 DATAPROVIDER_API_KEY = os.environ.get('DATAPROVIDER_API_KEY')
-DATAPROVIDER_API_URL = 'https://www.dataprovider.com/api/0.1/lookup/hostname.json'
+DATAPROVIDER_API_URL = 'https://www.dataprovider.com/api/3.0/lookup/hostname.json'
 
 INTERCOM_APP_ID = os.environ.get('INTERCOM_APP_ID', '')
 INTERCOM_KEY = os.environ.get('INTERCOM_KEY', '')

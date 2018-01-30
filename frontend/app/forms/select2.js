@@ -231,21 +231,25 @@
                                             // The displayed text.
                                             const displayedText = `${displayedName} <${email.email_address}>`;
 
-                                            let accounts = hit.accounts.filter(account => {
-                                                // Check if any of the domains contain the email's domain.
-                                                return account.domains.some(domain => domain.includes(emailDomain));
-                                            });
+                                            let accounts = [];
 
-                                            if (!accounts.length) {
-                                                accounts = hit.accounts;
-                                            }
+                                            if (hit.accounts) {
+                                                accounts = hit.accounts.filter(account => {
+                                                    // Check if any of the domains contain the email's domain.
+                                                    return account.domains.some(domain => domain.includes(emailDomain));
+                                                });
 
-                                            accounts = accounts.filter(account => account.is_active);
+                                                if (!accounts.length) {
+                                                    accounts = hit.accounts;
+                                                }
 
-                                            if (accounts.length === 0) {
-                                                // If isn't active at the filtered account(s),
-                                                // don't show the email address at all.
-                                                return;
+                                                accounts = accounts.filter(account => account.is_active);
+
+                                                if (accounts.length === 0) {
+                                                    // If isn't active at the filtered account(s),
+                                                    // don't show the email address at all.
+                                                    return;
+                                                }
                                             }
 
                                             // Select2 sends 'id' as the value, but we want to use the email.

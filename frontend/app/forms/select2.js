@@ -227,9 +227,9 @@
                                             }
 
                                             // The text which is actually used in the application.
-                                            const usedText = `"${displayedName}" <${email}>`;
+                                            const usedText = `"${displayedName}" <${email.email_address}>`;
                                             // The displayed text.
-                                            const displayedText = `${displayedName} <${email}>`;
+                                            const displayedText = `${displayedName} <${email.email_address}>`;
 
                                             let accounts = hit.accounts.filter(account => {
                                                 // Check if any of the domains contain the email's domain.

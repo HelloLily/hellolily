@@ -1,58 +1,20 @@
 import logging
-# from collections import defaultdict
-#
-# from django.db import transaction
-#
-# from email_wrapper_lib.models.models import (
-#     EmailMessage, EmailFolder, EmailAccount, EmailMessageToEmailRecipient, EmailRecipient
-# )
-# from email_wrapper_lib.providers import registry, Microsoft, Google
+
 
 logger = logging.getLogger(__name__)
 
-# manager = Manager(account=some_account)
-# manager.sync()
-
 
 class Manager(object):
-    def __init__(self, account):
+    def __init__(self, account, blocking=False):
         self.account = account
+
+        # Synchronous may be handy for management commands and stuff.
+        self.blocking = blocking
 
     def sync(self, *args, **kargs):
         raise NotImplementedError()
 
-    def get_labels(self, *args, **kwargs):
-        raise NotImplementedError()
 
-
-# class EmailFolderManager(object):
-#     def __init__(self):
-#         super(EmailFolderManager, self).__init__()
-#
-#     def save(self):
-#         pass
-#
-#     def create(self):
-#         pass
-#
-#     def update(self):
-#         pass
-#
-#
-# class EmailMessageManager(object):
-#     def __init__(self):
-#         super(EmailMessageManager, self).__init__()
-#
-#     def save(self):
-#         pass
-#
-#     def create(self):
-#         pass
-#
-#     def update(self):
-#         pass
-#
-#
 # class EmailAccountManager(object):
 #     _old_status = None
 #

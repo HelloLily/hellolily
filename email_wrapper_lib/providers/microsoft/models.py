@@ -3,7 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class MicrosoftSyncInfo(models.Model):
-    folder = models.ForeignKey(
+    folder = models.OneToOneField(
         to='email_wrapper_lib.EmailFolder',
         on_delete=models.CASCADE,
         verbose_name=_('Folder'),

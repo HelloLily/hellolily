@@ -2,7 +2,6 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from oauth2client.contrib.django_orm import CredentialsField
 
-from email_wrapper_lib.conf import settings
 from email_wrapper_lib.providers import registry
 
 from .mixins import TimeStampMixin, SoftDeleteMixin
@@ -48,16 +47,12 @@ class EmailAccount(SoftDeleteMixin, TimeStampMixin, models.Model):
         null=True,
         max_length=255
     )
-    # TODO: create models in google/microsoft providers for this info.
-    # history_token = models.CharField(
-    #     verbose_name=_('History token'),
-    #     null=True,
-    #     max_length=255
+
+    # messages_total = models.BigIntegerField(
+    #     verbose_name=_('Total number of messages')
     # )
-    # page_token = models.CharField(
-    #     verbose_name=_('Page token'),
-    #     null=True,
-    #     max_length=255
+    # threads_total = models.BigIntegerField(
+    #     verbose_name=_('Total number of threads')
     # )
 
     @property
@@ -129,16 +124,6 @@ class EmailFolder(models.Model):
     unread_count = models.PositiveIntegerField(
         verbose_name=_('Unread count')
     )
-    history_token = models.CharField(
-        verbose_name=_('History token'),
-        null=True,
-        max_length=255
-    )
-    page_token = models.CharField(
-        verbose_name=_('Page token'),
-        null=True,
-        max_length=255
-    )
 
     class Meta:
         unique_together = ('account', 'remote_id', 'remote_value')
@@ -186,8 +171,7 @@ class EmailMessage(models.Model):
         verbose_name=_('Subject'),
         max_length=255
     )
-    # TODO: what's the meaning of this date field? creation date in our db, or remote "ReceivedDateTime"?
-    date = models.DateTimeField(
+    received_date_time = models.DateTimeField(
         verbose_name=_('Date')
     )
     is_read = models.BooleanField(
@@ -206,13 +190,16 @@ class EmailMessage(models.Model):
     # is_sent = models.BooleanField(_('Is sent'))
 
     def get_recipients_by_type(self, recipient_type):
+        # TODO: check if this caching works as intended.
+
         if hasattr(self, '_recipient_type_{}'.format(recipient_type)):
             return getattr(self, '_recipient_type_{}'.format(recipient_type))
         elif hasattr(self, '_prefetched_objects_cache') and 'recipients' in self._prefetched_objects_cache:
             return [rec for rec in self.recipients.all() if rec.recipient_type == recipient_type]
         else:
-            # TODO: Change query so results are cached.
-            return list(self.recipients.filter(recipient_type=recipient_type))
+            recipients = self.recipients.filter(recipient_type=recipient_type)
+            setattr(self, '_recipient_type_{}'.format(recipient_type), recipients)
+            return recipients
 
     class Meta:
         app_label = 'email_wrapper_lib'
@@ -246,141 +233,3 @@ class EmailMessageToEmailRecipient(models.Model):
 
     class Meta:
         app_label = 'email_wrapper_lib'
-
-
-class EmailDraft(models.Model):
-    NEW, REPLY, REPLY_ALL, FORWARD = range(4)  # TODO: Possible up for removal.
-    EMAIL_TYPES = (
-        (NEW, _('New')),
-        (REPLY, _('Reply')),
-        (REPLY_ALL, _('Reply all')),
-        (FORWARD, _('Forward')),
-    )
-    subject = models.CharField(
-        max_length=255,
-        verbose_name=_('Subject'),
-        blank=True,
-        default=''
-    )
-    body_text = models.TextField(  # TODO: With or without the whole thread?
-        verbose_name=_('Body text'),
-        blank=True,
-        default=''
-    )
-    body_html = models.TextField(  # TODO: With or without the whole thread?
-        verbose_name=_('Body html'),
-        blank=True,
-        default=''
-    )
-    recipients = models.ManyToManyField(
-        to='email_wrapper_lib.EmailRecipient',
-        through='EmailDraftToEmailRecipient',
-        verbose_name=_('Recipients'),
-        related_name='drafts'
-    )
-    account = models.ForeignKey(
-        to='email_wrapper_lib.EmailAccount',
-        on_delete=models.CASCADE,
-        verbose_name=_('Account'),
-        related_name='drafts',
-    )
-    in_reply_to = models.ForeignKey(  # TODO: Naming in case of forward isn't right.
-        to='email_wrapper_lib.EmailMessage',
-        on_delete=models.SET_NULL,
-        verbose_name=_('In reply to'),
-        related_name='draft_replies',
-        null=True
-    )
-    message_type = models.PositiveSmallIntegerField(
-        verbose_name=_('Message type'),
-        choices=EMAIL_TYPES
-    )
-
-    # @property
-    # def is_reply(self):
-    #     # TODO: doesn't tell if it is a reply or reply all.
-    #     return self.in_reply_to_id is not None
-    #
-    # @@property
-    # def is_new(self):
-    #     # TODO: doesn't tell if it is a new or forward message.
-    #     return self.in_reply_to_id is None
-
-    class Meta:
-        app_label = 'email_wrapper_lib'
-
-
-class EmailDraftToEmailRecipient(models.Model):
-    TO, CC, BCC = range(3)
-    RECIPIENT_TYPES = (
-        (TO, _('To')),
-        (CC, _('CC')),
-        (BCC, _('BCC')),
-    )
-
-    draft = models.ForeignKey(
-        to='email_wrapper_lib.EmailDraft',
-        on_delete=models.CASCADE,
-        verbose_name=_('Draft')
-    )
-    recipient = models.ForeignKey(
-        to='email_wrapper_lib.EmailRecipient',
-        on_delete=models.CASCADE,
-        verbose_name=_('Recipient')
-    )
-    recipient_type = models.PositiveSmallIntegerField(
-        verbose_name=_('Recipient type'),
-        choices=RECIPIENT_TYPES
-    )
-
-    class Meta:
-        app_label = 'email_wrapper_lib'
-
-
-def attachment_upload_path(instance, filename):
-    return settings.ATTACHMENT_UPLOAD_PATH.format(
-        draft_id=instance.draft_id,
-        filename=filename
-    )
-
-
-class EmailDraftAttachment(models.Model):
-    inline = models.BooleanField(
-        default=False,
-        verbose_name=_('Inline')
-    )
-    file = models.FileField(  # TODO: Does this hold also the attachments of the replied / forwarded messages?
-        upload_to=attachment_upload_path,
-        max_length=255,
-        verbose_name=_('File')
-    )
-    # TODO: Add in email api.
-    # size = models.PositiveIntegerField(
-    #     default=0,
-    #     verbose_name=_('Size')
-    # )
-    # content_type = models.CharField(
-    #     max_length=255,
-    #     verbose_name=_('Content type')
-    # )
-    draft = models.ForeignKey(
-        to='email_wrapper_lib.EmailDraft',
-        related_name='attachments'
-    )
-    # TODO: Or not needed since we can define it ourself upon sending?
-    cid = models.TextField(  # http://www.ietf.org/rfc/rfc2392.txt
-        default='',
-        editable=False
-    )
-
-    def save(self, *args, **kwargs):
-        self.cid = '<{0}>'.format(self.file.name)
-        super(EmailDraftAttachment, self).save(*args, **kwargs)
-
-    def __unicode__(self):
-        return self.file.name
-
-    class Meta:
-        app_label = 'email_wrapper_lib'
-        verbose_name = _('email outbox attachment')
-        verbose_name_plural = _('email outbox attachments')

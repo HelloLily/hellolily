@@ -1,6 +1,6 @@
 from django_filters.rest_framework import FilterSet
 
-from email_wrapper_lib.models import EmailAccount, EmailMessage, EmailDraft
+from email_wrapper_lib.models import EmailAccount, EmailMessage
 
 
 class EmailAccountFilter(FilterSet):
@@ -16,12 +16,4 @@ class EmailMessageFilter(FilterSet):
         model = EmailMessage
         fields = {
             'remote_id': ['exact', ],
-        }
-
-
-class EmailDraftFilter(FilterSet):
-    class Meta:
-        model = EmailDraft
-        fields = {
-            'subject': ['exact', ],
         }

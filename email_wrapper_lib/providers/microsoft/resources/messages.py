@@ -7,7 +7,7 @@ from microsoft_mail_client.constants import (
     FOLDER_ARCHIVE_ID, IMPORTANCE_HIGH, IMPORTANCE_NORMAL)
 
 
-class MicrosoftMessagesResource(MicrosoftResource):
+class MicrosoftMessageResource(MicrosoftResource):
     def get(self, remote_id):
         message = {}
 
@@ -60,46 +60,46 @@ class MicrosoftMessagesResource(MicrosoftResource):
         return messages
 
     def send(self, draft):
-        from email_wrapper_lib.models.models import EmailDraftToEmailRecipient  # TODO: fix import.
-
-        # TODO: can we disregard the /forward end-point by just using /sendmail?
-        # TODO: can we disregard the /replyall end-point by just using /reply?
-        # In other words, by using sent_reply_message, sent_reply_all_message & sent_forward_message instead of
-        # send_message we miss the possiblity to update other writable properties of a message, eg. CC, BCC,
-        # attachments.
-
-        # Draft message can be a new, a reply / reply all or a forward / forward all - message.
-        status_code = None
-        outgoing_message = {
-            'Message': {
-                'Subject': self._get_subject(draft),
-                'Body': self._get_body(draft),
-                'ToRecipients': self._get_recipients(EmailDraftToEmailRecipient.TO, draft.id),
-                # 'CcRecipients': self._get_recipients(EmailDraftToEmailRecipient.CC, draft.id),  # TODO: Empty list allowed?
-                # 'BccRecipients': self._get_recipients(EmailDraftToEmailRecipient.BCC, draft.id)  # TODO: Empty list allowed?
-            }
-        }
-
-        recipient_list = self._get_recipients(EmailDraftToEmailRecipient.CC, draft.id)
-        if recipient_list:
-            outgoing_message['Message']['CcRecipients'] = recipient_list
-        recipient_list = self._get_recipients(EmailDraftToEmailRecipient.BCC, draft.id)
-        if recipient_list:
-            outgoing_message['Message']['BccRecipients'] = recipient_list
-        attachment_list = self._get_attachments(draft.id)
-        if attachment_list:
-            outgoing_message['Message']['Attachments'] = attachment_list
-        # TODO: Add template attachments.
-        # TODO: Add attachment from original message (if mail is being forwarded). Or are they present in EmailDraftAttachment already?
-        if draft.in_reply_to:
-            # Non-writable property according to the API documents. Accepted by API. But not seeing any difference
-            # in Outlook webapp, Gmail & source view.
-            outgoing_message['Message']['ConversationId'] = draft.in_reply_to.thread_id
-
-        # TODO: Impossible to set Message-ID, References & In-Reply-To headers on a reply / forward. Only possible
-        # by draft_reply_message / draft_forward_message.
-
-        service_call = self.service.send_message(message=outgoing_message)
+        # from email_wrapper_lib.models.models import EmailDraftToEmailRecipient  # TODO: fix import.
+        #
+        # # TODO: can we disregard the /forward end-point by just using /sendmail?
+        # # TODO: can we disregard the /replyall end-point by just using /reply?
+        # # In other words, by using sent_reply_message, sent_reply_all_message & sent_forward_message instead of
+        # # send_message we miss the possiblity to update other writable properties of a message, eg. CC, BCC,
+        # # attachments.
+        #
+        # # Draft message can be a new, a reply / reply all or a forward / forward all - message.
+        # status_code = None
+        # outgoing_message = {
+        #     'Message': {
+        #         'Subject': self._get_subject(draft),
+        #         'Body': self._get_body(draft),
+        #         'ToRecipients': self._get_recipients(EmailDraftToEmailRecipient.TO, draft.id),
+        #         # 'CcRecipients': self._get_recipients(EmailDraftToEmailRecipient.CC, draft.id),  # TODO: Empty list allowed?
+        #         # 'BccRecipients': self._get_recipients(EmailDraftToEmailRecipient.BCC, draft.id)  # TODO: Empty list allowed?
+        #     }
+        # }
+        #
+        # recipient_list = self._get_recipients(EmailDraftToEmailRecipient.CC, draft.id)
+        # if recipient_list:
+        #     outgoing_message['Message']['CcRecipients'] = recipient_list
+        # recipient_list = self._get_recipients(EmailDraftToEmailRecipient.BCC, draft.id)
+        # if recipient_list:
+        #     outgoing_message['Message']['BccRecipients'] = recipient_list
+        # attachment_list = self._get_attachments(draft.id)
+        # if attachment_list:
+        #     outgoing_message['Message']['Attachments'] = attachment_list
+        # # TODO: Add template attachments.
+        # # TODO: Add attachment from original message (if mail is being forwarded). Or are they present in EmailDraftAttachment already?
+        # if draft.in_reply_to:
+        #     # Non-writable property according to the API documents. Accepted by API. But not seeing any difference
+        #     # in Outlook webapp, Gmail & source view.
+        #     outgoing_message['Message']['ConversationId'] = draft.in_reply_to.thread_id
+        #
+        # # TODO: Impossible to set Message-ID, References & In-Reply-To headers on a reply / forward. Only possible
+        # # by draft_reply_message / draft_forward_message.
+        #
+        # service_call = self.service.send_message(message=outgoing_message)
 
         # else:
         #     # TODO: by using sent_reply_message, sent_reply_all_message & sent_forward_message instead of send_message
@@ -133,13 +133,13 @@ class MicrosoftMessagesResource(MicrosoftResource):
     def search(self):
         pass
 
-    def move(self, remote_id, remote_label_id):
+    def move(self, remote_id, remote_folder_id):
         message = {}
 
         self.batch.add(
             self.service.move_message(
                 message_id=remote_id,
-                destination_folder_id=remote_label_id
+                destination_folder_id=remote_folder_id
             ),
             callback=parse_response(parse_message, message)
         )
@@ -201,32 +201,34 @@ class MicrosoftMessagesResource(MicrosoftResource):
             }
 
     def _get_subject(self, draft):
-        from email_wrapper_lib.models.models import EmailDraft  # TODO: fix import.
-
-        subject = draft.subject  # TODO: Or does the draft.subject already holds the 'Re: ' & 'Fwd: ' parts?
-        if draft.message_type == EmailDraft.REPLY or draft.message_type == EmailDraft.REPLY_ALL:
-            subject = "Re: {0}".format(subject)
-        elif draft.message_type == EmailDraft.FORWARD or draft.message_type == EmailDraft.FORWARD_ALL:
-            subject = "Fwd: {0}".format(subject)
-
-        return subject
+        # from email_wrapper_lib.models.models import EmailDraft  # TODO: fix import.
+        #
+        # subject = draft.subject  # TODO: Or does the draft.subject already holds the 'Re: ' & 'Fwd: ' parts?
+        # if draft.message_type == EmailDraft.REPLY or draft.message_type == EmailDraft.REPLY_ALL:
+        #     subject = "Re: {0}".format(subject)
+        # elif draft.message_type == EmailDraft.FORWARD or draft.message_type == EmailDraft.FORWARD_ALL:
+        #     subject = "Fwd: {0}".format(subject)
+        #
+        # return subject
+        return None
 
     def _get_recipients(self, recipient_type, draft_id):
-        from email_wrapper_lib.models.models import EmailDraftToEmailRecipient  # TODO: fix import.
-        recipients_list = []
-        recipients = EmailDraftToEmailRecipient.objects.filter(
-            draft=draft_id,
-            recipient_type=recipient_type
-        ).values_list('name', 'email_address')
-        for recipient in recipients:
-            recipients_list.append({
-                'EmailAddress': {
-                    'Address': recipient.email_address,
-                    'Name': recipient.name
-                }
-            })
-
-        return recipients_list
+        # from email_wrapper_lib.models.models import EmailDraftToEmailRecipient  # TODO: fix import.
+        # recipients_list = []
+        # recipients = EmailDraftToEmailRecipient.objects.filter(
+        #     draft=draft_id,
+        #     recipient_type=recipient_type
+        # ).values_list('name', 'email_address')
+        # for recipient in recipients:
+        #     recipients_list.append({
+        #         'EmailAddress': {
+        #             'Address': recipient.email_address,
+        #             'Name': recipient.name
+        #         }
+        #     })
+        #
+        # return recipients_list
+        return None
 
     def _get_attachments(self, draft_id):
         # attachment_file = 'SUQsbmFtZSxlbWFpbCBhZGRyZXNzLHBob25lIG51bWJlcix3ZWJzaXRlLHR3aXR0ZXIsYWRkcmVzcyxwb3N0Y' \
@@ -241,18 +243,19 @@ class MicrosoftMessagesResource(MicrosoftResource):
         #     'Name': 'upload.csv',
         #     'ContentBytes': attachment_file
         # }]
-        from email_wrapper_lib.models.models import EmailDraftAttachment  # TODO: fix import.
-        # TODO: How to handle inline attachments?
-        attachment_list = []
-        attachments = EmailDraftAttachment.objects.filter(draft=draft_id)
-        for attachment in attachments:
-            attachment_list.append({
-                '@odata.type': '#Microsoft.OutlookServices.FileAttachment',
-                'Name': attachment.file.name,
-                'ContentBytes': attachment.file  # TODO Probably still needs to be converted to base64.
-            })
-
-        return attachment_list
+        # from email_wrapper_lib.models.models import EmailDraftAttachment  # TODO: fix import.
+        # # TODO: How to handle inline attachments?
+        # attachment_list = []
+        # attachments = EmailDraftAttachment.objects.filter(draft=draft_id)
+        # for attachment in attachments:
+        #     attachment_list.append({
+        #         '@odata.type': '#Microsoft.OutlookServices.FileAttachment',
+        #         'Name': attachment.file.name,
+        #         'ContentBytes': attachment.file  # TODO Probably still needs to be converted to base64.
+        #     })
+        #
+        # return attachment_list
+        return None
 
     def _set_message_property(self, remote_id, properties):
         message = {}

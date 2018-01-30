@@ -1,4 +1,4 @@
 from .history import GoogleHistoryResource
-from .labels import GoogleLabelsResource
-from .messages import GoogleMessagesResource
+from .folders import GoogleFolderResource
+from .messages import GoogleMessageResource
 from .profile import GoogleProfileResource

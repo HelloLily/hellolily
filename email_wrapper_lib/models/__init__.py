@@ -1,4 +1,3 @@
 from .models import (
-    EmailAccount, EmailDraft, EmailDraftAttachment, EmailDraftToEmailRecipient, EmailFolder, EmailMessage,
-    EmailMessageToEmailRecipient, EmailRecipient
+    EmailAccount, EmailFolder, EmailMessage, EmailMessageToEmailRecipient, EmailRecipient
 )

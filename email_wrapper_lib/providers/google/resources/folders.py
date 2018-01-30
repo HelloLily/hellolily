@@ -1,25 +1,25 @@
-from email_wrapper_lib.providers.google.parsers import parse_response, parse_label_list, parse_label, parse_deletion
+from email_wrapper_lib.providers.google.parsers import parse_batch_response, parse_folder_list, parse_folder, parse_deletion
 from email_wrapper_lib.providers.google.resources.base import GoogleResource
 
 
-class GoogleLabelsResource(GoogleResource):
+class GoogleFolderResource(GoogleResource):
     def get(self, remote_id):
-        label = {}
+        folder = {}
 
         self.batch.add(
             self.service.users().labels().get(
                 userId=self.user_id,
                 id=remote_id
             ),
-            callback=parse_response(parse_label, label)
+            callback=parse_batch_response(parse_folder, folder)
         )
 
-        return label
+        return folder
 
     def create(self, name):  # TODO: difference in params with MS.
-        label = {}
+        folder = {}
 
-        new_label = {
+        new_folder = {
             'name': name,
             'messageListVisibility': 'show',  # TODO: Default, so remove?
             'labelListVisibility': 'labelShow'  # TODO: Default, so remove?
@@ -28,17 +28,17 @@ class GoogleLabelsResource(GoogleResource):
         self.batch.add(
             self.service.users().labels().create(
                 userId=self.user_id,
-                body=new_label
+                body=new_folder
             ),
-            callback=parse_response(parse_label, label)
+            callback=parse_batch_response(parse_folder, folder)
         )
 
-        return label
+        return folder
 
     def update(self, remote_id, name):
-        label = {}
+        folder = {}
 
-        update_label = {
+        update_folder = {
             'id': remote_id,
             'name': name,
         }
@@ -46,12 +46,12 @@ class GoogleLabelsResource(GoogleResource):
         self.batch.add(
             self.service.users().labels().update(
                 userId=self.user_id,
-                body=update_label
+                body=update_folder
             ),
-            callback=parse_response(parse_label, label)
+            callback=parse_batch_response(parse_folder, folder)
         )
 
-        return label
+        return folder
 
     def delete(self, remote_id):
         status_code = None
@@ -60,24 +60,23 @@ class GoogleLabelsResource(GoogleResource):
             self.service.users().labels().delete(
                 userId=self.user_id,
                 id=remote_id),
-            callback=parse_response(parse_deletion, status_code)
+            callback=parse_batch_response(parse_deletion, status_code)
         )
 
         return status_code
 
     def list(self):
-        labels = {}
+        folders = {}
 
         # Because Google only gives message ids, we need to do a second batch for the bodies.
         second_batch = self.service.new_batch_http_request()
-        # TODO: labels_resource because it is also GoogleLabelsResource ? (Nitpicking I know)
-        label_resource = GoogleLabelsResource(self.service, self.user_id, second_batch)
+        folder_resource = GoogleFolderResource(self.service, self.user_id, second_batch)
 
         self.batch.add(
             self.service.users().labels().list(
                 userId=self.user_id,
             ),
-            callback=parse_response(parse_label_list, labels, label_resource)
+            callback=parse_batch_response(parse_folder_list, folders, folder_resource)
         )
 
-        return labels
+        return folders

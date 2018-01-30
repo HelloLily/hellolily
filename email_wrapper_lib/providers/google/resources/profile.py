@@ -1,4 +1,4 @@
-from email_wrapper_lib.providers.google.parsers import parse_response, parse_profile
+from email_wrapper_lib.providers.google.parsers import parse_batch_response, parse_profile
 from email_wrapper_lib.providers.google.resources.base import GoogleResource
 
 
@@ -10,7 +10,7 @@ class GoogleProfileResource(GoogleResource):
             self.service.users().getProfile(
                 userId=self.user_id
             ),
-            callback=parse_response(parse_profile, profile)
+            callback=parse_batch_response(parse_profile, profile)
         )
 
         return profile

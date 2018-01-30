@@ -35,6 +35,7 @@ class AddAccountCallbackView(LoginRequiredMixin, RedirectView):
     permanent = False
 
     def get_redirect_url(self, *args, **kwargs):
+        # TODO: split this up in different functions, for easy overriding.
         provider_name = kwargs.get('provider_name')
         url = settings.ADD_ACCOUNT_SUCCESS_URL
 
@@ -73,6 +74,9 @@ class AddAccountCallbackView(LoginRequiredMixin, RedirectView):
             account.credentials = credentials
 
             account.save(update_fields=['username', 'credentials', 'status', ])
+
+            manager = provider.manager_class(account)
+            manager.sync()
 
             # TODO: call manager.sync() or something.
             # sync_account.delay(account.pk)

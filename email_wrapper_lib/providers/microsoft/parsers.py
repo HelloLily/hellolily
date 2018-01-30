@@ -44,8 +44,8 @@ def parse_history(data, history):  # TODO: rename data to response?
     history.update({
         'history_token': None,
         'page_token': None,
-        'added_labels': defaultdict(list),
-        'deleted_labels': defaultdict(list),
+        'added_folders': defaultdict(list),
+        'deleted_folders': defaultdict(list),
         'added_messages': [],
         'deleted_messages': [],
         'added_updated_messages': [],  # TODO: discuss.
@@ -325,7 +325,7 @@ def _parse_attachment(data):
     return attachment
 
 
-def parse_label_list(data, labels, label_resource):
+def parse_folder_list(data, folders, folder_resource):
     """
     {u'@odata.context': u"https://outlook.office.com/api/v2.0/$metadata#Users('a%40outlook.com')/MailFolders",
     u'value': [{
@@ -340,49 +340,49 @@ def parse_label_list(data, labels, label_resource):
     data = data.json()
     intermediate_list = []  # Necessary container to store the results of the delayed api execution.
 
-    for label in data.get('value', []):
-        labels[label['Id']] = {
-            'id': label['Id'],
-            'name': label['DisplayName'],
-            'remote_value': label['DisplayName'],
-            'message_count': label['TotalItemCount'],
-            'unread_count': label['UnreadItemCount'],
-            # 'folder_type': EmailFolder.SYSTEM if label['DisplayName'] in SYSTEM_FOLDERS_NAMES else EmailFolder.USER,  # TODO: fix import
-            'parent_id': label['ParentFolderId'],  # TODO: remote_id or our db id?
+    for folder in data.get('value', []):
+        folders[folder['Id']] = {
+            'id': folder['Id'],
+            'name': folder['DisplayName'],
+            'remote_value': folder['DisplayName'],
+            'message_count': folder['TotalItemCount'],
+            'unread_count': folder['UnreadItemCount'],
+            # 'folder_type': EmailFolder.SYSTEM if folder['DisplayName'] in SYSTEM_FOLDERS_NAMES else EmailFolder.USER,  # TODO: fix import
+            'parent_id': folder['ParentFolderId'],  # TODO: remote_id or our db id?
             'children': [],
         }
 
-        if label['ChildFolderCount'] > 0:
-            labels[label['Id']]['children'].append(label_resource.list(label_id=label['Id']))
+        if folder['ChildFolderCount'] > 0:
+            folders[folder['Id']]['children'].append(folder_resource.list(folder_id=folder['Id']))
 
-    # Are there more pages with labels on the current level?
+    # Are there more pages with folders on the current level?
     if '@odata.nextLink' in data:
         odata_context = data.get('@odata.context')
         odata_next_link = data.get('@odata.nextLink')
 
-        # Extract current label from the odata context.
-        current_label_id = None
+        # Extract current folder from the odata context.
+        current_folder_id = None
         regex = re.search(r'MailFolders\((.*?)\)', odata_context)  # TODO: verify that the id isn't surrounded by ''.
         if regex:
-            current_label_id = regex.group(1)
+            current_folder_id = regex.group(1)
 
         # Extract paging parameter from the odata next link.
         skip = urlparse.parse_qs(urlparse.urlparse(odata_next_link).query).get('$skip')[0]
 
-        # Call and add next page with labels.
-        intermediate_list.append(label_resource.list(label_id=current_label_id, skip=skip))
+        # Call and add next page with folders.
+        intermediate_list.append(folder_resource.list(folder_id=current_folder_id, skip=skip))
 
-    if not label_resource.batch.empty:
-        # Retrieve child labels / the next page with labels.
-        label_resource.batch.execute()
-        # Add them to the current labels.
-        for intermediate_labels in intermediate_list:
-            labels.update(intermediate_labels)
+    if not folder_resource.batch.empty:
+        # Retrieve child folders / the next page with folders.
+        folder_resource.batch.execute()
+        # Add them to the current folders.
+        for intermediate_folders in intermediate_list:
+            folders.update(intermediate_folders)
 
-    return labels
+    return folders
 
 
-def parse_label(data, label):
+def parse_folder(data, folder):
     """
     {u'@odata.context': u"https://outlook.office.com/api/v2.0/$metadata#Users('a%40outlook.com')/MailFolders/$entity",
      u'@odata.id': u"https://outlook.office.com/api/v2.0/Users('00034001')/MailFolders('AQMkADAwATM0MDAAMS0wM2Y5')",
@@ -395,7 +395,7 @@ def parse_label(data, label):
      """
     data = data.json()
 
-    label.update({
+    folder.update({
         'id': data['Id'],
         'name': data['DisplayName'],
         'remote_value': data['DisplayName'],
@@ -405,7 +405,7 @@ def parse_label(data, label):
         'parent_id': data['ParentFolderId'],  # TODO: remote_id or our db id?
     })
 
-    return label
+    return folder
 
 
 def parse_deletion(data, status_code):  # TODO: status_code marked as unused, not passed by reference? & another reason to rename data to response.

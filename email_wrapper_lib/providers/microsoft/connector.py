@@ -1,7 +1,7 @@
 from microsoft_mail_client.errors import HttpError
 from microsoft_mail_client.service import build
 from .resources import (
-    MicrosoftProfileResource, MicrosoftMessagesResource, MicrosoftLabelsResource, MicrosoftHistoryResource
+    MicrosoftProfileResource, MicrosoftMessageResource, MicrosoftFolderResource, MicrosoftHistoryResource
 )
 
 
@@ -43,7 +43,7 @@ class BatchStore(object):
 class MicrosoftConnector(object):
 
     # TODO: This will probably be moved into the manager class.
-    # TODO: create a decorator to enforce valid credentials for the profile, messages, labels, history and search.
+    # TODO: create a decorator to enforce valid credentials for the profile, messages, folders, history and search.
 
     # def __init__(self, credentials, user_id):
     #     # Build a gmail service using an authorized http instance.
@@ -62,11 +62,11 @@ class MicrosoftConnector(object):
 
     @property
     def messages(self):
-        return MicrosoftMessagesResource(self.service, self.user_id, self.batch)
+        return MicrosoftMessageResource(self.service, self.user_id, self.batch)
 
     @property
-    def labels(self):
-        return MicrosoftLabelsResource(self.service, self.user_id, self.batch)
+    def folders(self):
+        return MicrosoftFolderResource(self.service, self.user_id, self.batch)
 
     @property
     def history(self):

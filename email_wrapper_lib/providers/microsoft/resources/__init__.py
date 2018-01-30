@@ -1,4 +1,4 @@
 from .history import MicrosoftHistoryResource
-from .labels import MicrosoftLabelsResource
-from .messages import MicrosoftMessagesResource
+from .folders import MicrosoftFolderResource
+from .messages import MicrosoftMessageResource
 from .profile import MicrosoftProfileResource

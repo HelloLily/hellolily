@@ -1,1 +1,1 @@
-default_app_config = 'lily.email.apps.EmailConfig'
+default_app_config = 'lily.email.app.EmailConfig'

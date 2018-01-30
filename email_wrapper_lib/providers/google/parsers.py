@@ -8,7 +8,7 @@ from dateutil.parser import parse
 from email_wrapper_lib.providers.exceptions import BatchRequestException
 
 
-def parse_response(callback_func, *args, **kwargs):
+def parse_batch_response(callback_func, *args, **kwargs):
     def transform(request_id, response, exception):
         if exception:
             raise BatchRequestException(exception)
@@ -34,8 +34,8 @@ def parse_history(data, history, message_resource):
     history.update({
         'history_token': None,
         'page_token': None,
-        'added_labels': defaultdict(list),
-        'deleted_labels': defaultdict(list),
+        'added_folders': defaultdict(list),
+        'deleted_folders': defaultdict(list),
         'added_messages': [],
         'deleted_messages': [],
     })
@@ -50,28 +50,28 @@ def parse_history(data, history, message_resource):
         for message in history_item.get('messagesDeleted', []):
             history['deleted_messages'].append(message.get('message').get('id'))
 
-        # When users add and remove labels, it will show up as seperate items in the history.
+        # When users add and remove folders, it will show up as seperate items in the history.
         # That's why we first check if the user has done the opposite action, because it would cancel out.
 
         for change in history_item.get('labelsAdded', []):
             remote_id = change.get('message').get('id')
             folder_ids = change.get('labelIds')
 
-            for label in folder_ids:
+            for folder in folder_ids:
                 try:
-                    history['deleted_labels'][remote_id].remove(label)
+                    history['deleted_folders'][remote_id].remove(folder)
                 except ValueError:
-                    history['added_labels'][remote_id].append(label)
+                    history['added_folders'][remote_id].append(folder)
 
         for change in history_item.get('labelsRemoved', []):
             remote_id = change.get('message').get('id')
             folder_ids = change.get('labelIds')
 
-            for label in folder_ids:
+            for folder in folder_ids:
                 try:
-                    history['added_labels'][remote_id].remove(label)
+                    history['added_folders'][remote_id].remove(folder)
                 except ValueError:
-                    history['deleted_labels'][remote_id].append(label)
+                    history['deleted_folders'][remote_id].append(folder)
 
     parsed_messages = {}
     parse_message_list(messages, parsed_messages, message_resource)
@@ -107,7 +107,7 @@ def parse_message(data, message):
         'remote_id': data['id'],
         'thread_id': data['threadId'],
         'history_token': data['historyId'],
-        'folder_ids': folder_ids,  # TODO: Should the key not be called label_ids?
+        'folder_ids': folder_ids,
         'snippet': data['snippet'],
         'is_read': 'UNREAD' not in folder_ids,
         'is_starred': 'STARRED' in folder_ids,
@@ -224,18 +224,18 @@ def parse_attachment(data):
     return attachment_dict
 
 
-def parse_label_list(data, labels, label_resource):
-    # Because google only gives partial labels, we need to do a second batch for more info.
-    for label in data.get('labels', []):
-        labels[label['id']] = label_resource.get(label['id'])
+def parse_folder_list(data, folders, folder_resource):
+    # Because google only gives partial folders, we need to do a second batch for more info.
+    for folder in data.get('labels', []):
+        folders[folder['id']] = folder_resource.get(folder['id'])
 
-    label_resource.batch.execute()
+    folder_resource.batch.execute()
 
-    return labels
+    return folders
 
 
-def parse_label(data, label):
-    label.update({
+def parse_folder(data, folder):
+    folder.update({
         'id': data['id'],
         'name': data['name'].split('/')[-1:],
         'remote_value': data['name'],
@@ -247,7 +247,7 @@ def parse_label(data, label):
 
     # TODO: how do we find the parent id here?
 
-    return label
+    return folder
 
 
 def parse_deletion(data, status_code):  # TODO: status_code marked as unused, not passed by reference?

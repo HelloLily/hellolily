@@ -3,7 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class GoogleSyncInfo(models.Model):
-    account = models.ForeignKey(
+    account = models.OneToOneField(
         to='email_wrapper_lib.EmailAccount',
         on_delete=models.CASCADE,
         verbose_name=_('Account'),

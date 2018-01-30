@@ -1,7 +1,7 @@
-from email_wrapper_lib.providers.google.parsers import parse_response, parse_history
+from email_wrapper_lib.providers.google.parsers import parse_batch_response, parse_history
 
 from .base import GoogleResource
-from .messages import GoogleMessagesResource
+from .messages import GoogleMessageResource
 
 
 class GoogleHistoryResource(GoogleResource):
@@ -10,7 +10,7 @@ class GoogleHistoryResource(GoogleResource):
 
         # Because google only gives message ids, we need to do a second batch for the bodies.
         second_batch = self.service.new_batch_http_request()
-        message_resource = GoogleMessagesResource(self.service, self.user_id, second_batch)
+        message_resource = GoogleMessageResource(self.service, self.user_id, second_batch)
 
         self.batch.add(
             self.service.users().history().list(
@@ -18,7 +18,7 @@ class GoogleHistoryResource(GoogleResource):
                 startHistoryId=history_token,
                 pageToken=page_token
             ),
-            callback=parse_response(parse_history, history, message_resource)
+            callback=parse_batch_response(parse_history, history, message_resource)
         )
 
         return history

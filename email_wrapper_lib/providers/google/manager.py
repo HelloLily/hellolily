@@ -1,11 +1,7 @@
 from celery import chain, chord
-from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
-from oauth2client.client import HttpAccessTokenRefreshError
 
 from email_wrapper_lib.manager import Manager
 from email_wrapper_lib.models import EmailAccount
-from email_wrapper_lib.providers.exceptions import BatchRequestException
 from email_wrapper_lib.providers.google.connector import GoogleConnector
 from email_wrapper_lib.providers.google.tasks import stop_syncing, save_folders, save_page
 
@@ -15,7 +11,7 @@ class GoogleManager(Manager):
         super(GoogleManager, self).__init__(*args, **kwargs)
 
         self.sync_info = self.account.google_sync_info
-        self.connector = GoogleConnector(self.account.user_id, self.account.credentials)
+        self.connector = GoogleConnector(self.account.credentials, self.account.user_id)
 
     def sync(self, *args, **kargs):
         # TODO: check if it's a first sync or a partial sync and act accordingly.
@@ -53,17 +49,3 @@ class GoogleManager(Manager):
 
     def sync_folders(self, *args, **kwargs):
         pass
-
-    def new_batch(self):
-        service = build('gmail', 'v1')
-        return service.new_batch_http_request()
-
-    def execute_batch(self, batch):
-        try:
-            batch.execute()
-        except BatchRequestException:
-            pass
-        except HttpAccessTokenRefreshError:
-            pass
-        except HttpError:
-            pass

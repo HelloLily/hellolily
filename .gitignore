@@ -23,8 +23,7 @@ yarn.lock
 tags
 .history/
 .vscode/
-.floo
-.flooignore
+.floo*
 
 celerybeat-schedule.*
 celeryev.pid

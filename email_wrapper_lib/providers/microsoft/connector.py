@@ -50,7 +50,8 @@ class MicrosoftConnector(object):
     #     self.http = credentials.authorize(httplib2.Http())
     #     # self.service = build('microsoft', 'v1', http=self.http)
 
-    def __init__(self, user_id, credentials):
+    def __init__(self, credentials, user_id='me'):
+        # TODO: define microsoft appropriate default for user_id
         self.user_id = user_id
         self.credentials = credentials
         self.service = build_service(user_id, credentials)

@@ -2,8 +2,6 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from oauth2client.contrib.django_orm import CredentialsField
 
-from email_wrapper_lib.providers import registry
-
 from .mixins import TimeStampMixin, SoftDeleteMixin
 
 
@@ -15,6 +13,12 @@ class EmailAccount(SoftDeleteMixin, TimeStampMixin, models.Model):
         (SYNCING, _('syncing')),
         (ERROR, _('error')),
         (RESYNC, _('resync')),
+    )
+
+    GOOGLE, MICROSOFT = range(2)
+    PROVIDERS = (
+        (GOOGLE, 'Google'),
+        (MICROSOFT, 'Microsoft'),
     )
 
     id = models.BigAutoField(
@@ -39,7 +43,7 @@ class EmailAccount(SoftDeleteMixin, TimeStampMixin, models.Model):
     )
     provider_id = models.PositiveSmallIntegerField(
         verbose_name=_('Provider id'),
-        choices=registry.choices,
+        choices=PROVIDERS,
         db_index=True
     )
     subscription_id = models.CharField(
@@ -57,6 +61,7 @@ class EmailAccount(SoftDeleteMixin, TimeStampMixin, models.Model):
 
     @property
     def manager(self):
+        from email_wrapper_lib.providers import registry
         return registry[self.provider_id].manager_class(self)
 
     class Meta:

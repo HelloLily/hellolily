@@ -1,17 +1,18 @@
 from googleapiclient.discovery import build
-from .resources import (
-    GoogleHistoryResource, GoogleFolderResource, GoogleMessageResource, GoogleProfileResource
-)
+
+from .resources.folders import FoldersResource
+from .resources.history import HistoryResource
+from .resources.messages import MessagesResource
+from .resources.profile import ProfileResource
 
 
 class GoogleConnector(object):
-    def __init__(self, user_id, credentials):
-        self.service = build('gmail', 'v1', credentials=credentials)
-        self.user_id = user_id
+    def __init__(self, credentials, user_id='me'):
+        service = build('gmail', 'v1', credentials=credentials)
 
-        self.profile = GoogleProfileResource(self.service, self.user_id)
-        self.messages = GoogleMessageResource(self.service, self.user_id)
-        self.folders = GoogleFolderResource(self.service, self.user_id)
-        self.history = GoogleHistoryResource(self.service, self.user_id)
+        self.profile = ProfileResource(service, user_id)
+        self.messages = MessagesResource(service, user_id)
+        self.folders = FoldersResource(service, user_id)
+        self.history = HistoryResource(service, user_id)
 
 

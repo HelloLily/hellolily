@@ -1,21 +1,22 @@
 from email_wrapper_lib.conf import settings
 from oauth2client.client import OAuth2WebServerFlow
 
-from email_wrapper_lib.providers.google.manager import GoogleManager
+from email_wrapper_lib.models import EmailAccount
 
-# Register models for django.
+# Register all the stuff google provider uses.
+from .connector import GoogleConnector
+from .manager import GoogleManager
 from .models import GoogleSyncInfo
-
-# Register tasks for celery.
-from .tasks import do_something
+from .tasks import stop_syncing, save_folders, save_page
 
 
 class Google(object):
-    id = 1
+    id = EmailAccount.GOOGLE
     name = 'google'
     logo = 'path/to/logo'
 
-    manager_class = GoogleManager
+    manager = GoogleManager
+    connector = GoogleConnector
 
     flow = OAuth2WebServerFlow(
         client_id=settings.GOOGLE_OAUTH2_CLIENT_ID,

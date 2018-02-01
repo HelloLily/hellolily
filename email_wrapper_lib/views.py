@@ -51,9 +51,8 @@ class AddAccountCallbackView(LoginRequiredMixin, RedirectView):
                 messages.add_message(self.request, messages.ERROR, 'Could not get credentials for your account.')
                 return url
 
-            connector = provider.connector('me', credentials)
+            connector = provider.connector(credentials)
             profile = connector.profile.get()
-            connector.execute()
 
             try:
                 account = EmailAccount.objects.get(
@@ -74,14 +73,10 @@ class AddAccountCallbackView(LoginRequiredMixin, RedirectView):
             account.credentials = credentials
 
             account.save(update_fields=['username', 'credentials', 'status', ])
+            # Start syncing the account in the background.
+            account.manager.sync()
 
-            manager = provider.manager_class(account)
-            manager.sync()
-
-            # TODO: call manager.sync() or something.
-            # sync_account.delay(account.pk)
             messages.add_message(self.request, messages.SUCCESS, '{0} was created.'.format(account.username))
-
         else:
             messages.add_message(self.request, messages.ERROR, 'Invalid callback, could not process your account.')
 

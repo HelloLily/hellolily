@@ -15,7 +15,7 @@ def stop_syncing(account_id):
 @shared_task
 def save_folders(account_id):
     account = EmailAccount.objects.get(pk=account_id).select_related('folders')
-    connector = GoogleConnector(account.user_id, account.credentials)
+    connector = GoogleConnector(account.credentials, account.user_id)
 
     folders = connector.folders.list()
 
@@ -68,7 +68,7 @@ def save_folders(account_id):
 @shared_task
 def save_page(account_id, page_id, history_id=None):
     account = EmailAccount.objects.get(pk=account_id)
-    connector = GoogleConnector(account.user_id, account.credentials)
+    connector = GoogleConnector(account.credentials, account.user_id)
 
     messages = connector.messages.list(page_id, history_id)
 

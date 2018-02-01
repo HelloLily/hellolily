@@ -2,19 +2,22 @@ from oauth2client.client import OAuth2WebServerFlow
 
 from email_wrapper_lib.conf import settings
 
-# Register models for django.
-from .models import MicrosoftSyncInfo
+from email_wrapper_lib.models import EmailAccount
 
-# Register tasks for celery.
+# Register all the stuff google provider uses.
+from .connector import MicrosoftConnector
+from .manager import MicrosoftManager
+from .models import MicrosoftSyncInfo
 from .tasks import do_something
 
 
 class Microsoft(object):
-    id = 2
+    id = EmailAccount.MICROSOFT
     name = 'microsoft'
     logo = 'path/to/logo'
 
-    manager_class = MicrosoftSyncInfo
+    manager = MicrosoftManager
+    connector = MicrosoftConnector
 
     flow = OAuth2WebServerFlow(
         client_id=settings.MICROSOFT_OAUTH2_CLIENT_ID,

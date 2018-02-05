@@ -271,6 +271,23 @@ class MessageBuilder(object):
         if headers and headers.get('content-id', False):
             inline = True
 
+        if headers and 'content-disposition' in headers:
+            # If 'content-disposition' is present it supersedes inline determination by just the 'content-id'.
+            cd = headers['content-disposition'].split(';')[0].lower()
+            inline = cd == 'inline'
+            if inline and 'content-id' in headers:
+                # However there is still a chance that the content is incorrectly marked as inline. Look if there is a
+                # reference to the cid in the body.
+                body = self.message.body_html
+                cid = headers.get('content-id')
+                match = re.match(r"<(.*)>", cid)
+                if match:
+                    # Removes surrounding <> from cid.
+                    cid = match.group(1)
+
+                # Look if the cid is in the body html.
+                inline = re.search("cid:{0}".format(cid), body) is True
+
         # Get file data from part or from remote.
         if 'data' in part['body']:
             file_data = part['body']['data']

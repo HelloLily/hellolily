@@ -306,7 +306,7 @@
 
                         url += '?emailaccount_id=' + emailAccountId;
 
-                        if (recipient.account) {
+                        if (recipient && recipient.account) {
                             url += `&account_id=${recipient.account.id}`;
                         }
 

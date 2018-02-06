@@ -16,7 +16,7 @@ from lily.contacts.models import Contact
 from lily.tenant.middleware import get_current_user
 from lily.utils.forms.fields import TagsField, FormSetField
 from lily.utils.forms.mixins import FormSetFormMixin
-from lily.utils.forms.widgets import Wysihtml5Input, AjaxSelect2Widget, BootstrapRadioFieldRenderer
+from lily.utils.forms.widgets import Wysihtml5Input, AjaxSelect2Widget, HorizontalRadioSelect
 
 from ..models.models import (EmailAccount, EmailTemplateFolder, EmailTemplate, EmailOutboxAttachment,
                              EmailTemplateAttachment, TemplateVariable, EmailAttachment)
@@ -495,8 +495,5 @@ class CreateUpdateTemplateVariableForm(ModelForm):
             'text': Wysihtml5Input(attrs={
                 'container_class': 'email-template-body'
             }),
-            'is_public': forms.widgets.RadioSelect(renderer=BootstrapRadioFieldRenderer, attrs={
-                'data-skip-uniform': 'true',
-                'data-uniformed': 'true',
-            }),
+            'is_public': HorizontalRadioSelect(),
         }

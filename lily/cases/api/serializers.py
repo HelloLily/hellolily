@@ -76,12 +76,12 @@ class CaseSerializer(WritableNestedSerializer):
     # Show string versions of fields.
     priority_display = serializers.CharField(source='get_priority_display', read_only=True)
 
-    def validate(self, attrs):
-        contact_id = attrs.get('contact', {})
+    def validate(self, data):
+        contact_id = data.get('contact', {})
         if isinstance(contact_id, dict):
             contact_id = contact_id.get('id')
 
-        account_id = attrs.get('account', {})
+        account_id = data.get('account', {})
         if isinstance(account_id, dict):
             account_id = account_id.get('id')
 
@@ -89,7 +89,22 @@ class CaseSerializer(WritableNestedSerializer):
             if not Function.objects.filter(contact_id=contact_id, account_id=account_id).exists():
                 raise serializers.ValidationError({'contact': _('Given contact must work at the account.')})
 
-        return super(CaseSerializer, self).validate(attrs)
+        # Check if we are related and if we only passed in the id, which means user just wants new reference.
+        errors = {
+            'account': _('Please enter an account and/or contact.'),
+            'contact': _('Please enter an account and/or contact.'),
+        }
+
+        if not self.partial:
+            # For POST or PUT we always want to check if either is set.
+            if not (account_id or contact_id):
+                raise serializers.ValidationError(errors)
+        else:
+            # For PATCH only check the data if both account and contact are passed.
+            if ('account' in data and 'contact' in data) and not (account_id or contact_id):
+                raise serializers.ValidationError(errors)
+
+        return super(CaseSerializer, self).validate(data)
 
     def create(self, validated_data):
         user = self.context.get('request').user

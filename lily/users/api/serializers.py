@@ -140,11 +140,11 @@ class LilyUserSerializer(WritableNestedSerializer):
     def create(self, validated_data):
         return super(LilyUserSerializer, self).create(validated_data)
 
-    def validate(self, attrs):
-        password = attrs.get('password')
-        password_confirmation = attrs.get('password_confirmation')
-        email = attrs.get('email')
-        webhooks = attrs.get('webhooks')
+    def validate(self, data):
+        password = data.get('password')
+        password_confirmation = data.get('password_confirmation')
+        email = data.get('email')
+        webhooks = data.get('webhooks')
 
         if webhooks and not has_required_tier(2):
             raise PermissionDenied
@@ -164,7 +164,7 @@ class LilyUserSerializer(WritableNestedSerializer):
                     ),
                 })
 
-        return super(LilyUserSerializer, self).validate(attrs)
+        return super(LilyUserSerializer, self).validate(data)
 
     def update(self, instance, validated_data):
         current_user = self.context.get('request').user

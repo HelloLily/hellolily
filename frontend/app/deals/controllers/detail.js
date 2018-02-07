@@ -57,7 +57,7 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
 
     let activeAt = true;
 
-    if (dealContact) {
+    if (dealContact && currentDeal.account) {
         activeAt = dealContact.active_at_account[currentDeal.account.id];
     }
 

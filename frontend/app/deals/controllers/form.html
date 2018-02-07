@@ -12,7 +12,7 @@
         <form novalidate class="hl-form-body" name="dealForm">
             <form-portlet portlet-title="Who is it?">
                 <div ng-if="!settings.email.sidebar.form">
-                    <form-group label-title="Account" label-id="id_account" field="dealForm.account" required="true">
+                    <form-group label-title="Account" label-id="id_account" field="dealForm.account">
                         <ui-select ng-model="vm.deal.account" theme="select2" class="form-control" name="account" append-to-body="true" autofocus="true">
                             <ui-select-match placeholder="Select an account" allow-clear="true">{{ $select.selected.name }}</ui-select-match>
                             <ui-select-choices repeat="account in vm.accounts" refresh="vm.refreshAccounts($select.search)" refresh-delay="300">

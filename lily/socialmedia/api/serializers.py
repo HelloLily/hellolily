@@ -26,13 +26,13 @@ class SocialMediaSerializer(serializers.ModelSerializer):
 
         return profile.username, profile.profile_url
 
-    def validate(self, attrs):
-        attrs = super(SocialMediaSerializer, self).validate(attrs)
+    def validate(self, data):
+        data = super(SocialMediaSerializer, self).validate(data)
 
         try:
-            attrs['username'], attrs['profile_url'] = getattr(self, 'validate_%s' % attrs.get('name'))(
-                username=attrs.get('username'),
-                profile_url=attrs.get('profile_url')
+            data['username'], data['profile_url'] = getattr(self, 'validate_%s' % data.get('name'))(
+                username=data.get('username'),
+                profile_url=data.get('profile_url')
             )
         except TypeError:
             error_msg = _('Please fill in username or profile url.')
@@ -43,11 +43,11 @@ class SocialMediaSerializer(serializers.ModelSerializer):
         except AttributeError:
             pass  # We have no custom validation function for this type of social media
 
-        if not attrs.get('name') is 'other' and 'other_name' in attrs:
+        if not data.get('name') is 'other' and 'other_name' in data:
             # Other name is always empty if name is not 'other'
-            del attrs['other_name']
+            del data['other_name']
 
-        return attrs
+        return data
 
     class Meta:
         model = SocialMedia

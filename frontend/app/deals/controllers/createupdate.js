@@ -514,7 +514,6 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
                 text: 'Please select an account or contact the deal belongs to',
                 type: 'warning',
                 confirmButtonText: 'Let me fix that for you',
-                confirmButtonClass: 'btn btn-success',
             }).done();
 
             return false;

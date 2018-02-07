@@ -138,7 +138,7 @@ class DealSerializer(WritableNestedSerializer):
     description = SanitizedHtmlCharField()
 
     # Related fields.
-    account = RelatedAccountSerializer()
+    account = RelatedAccountSerializer(required=False, allow_null=True)
     contact = RelatedContactSerializer(required=False, allow_null=True)
     assigned_to = RelatedLilyUserSerializer(required=False, allow_null=True, assign_only=True)
     assigned_to_teams = RelatedTeamSerializer(many=True, required=False, assign_only=True)
@@ -156,11 +156,11 @@ class DealSerializer(WritableNestedSerializer):
     amount_once = RegexDecimalField(max_digits=19, decimal_places=2, required=True)
     amount_recurring = RegexDecimalField(max_digits=19, decimal_places=2, required=True)
 
-    def validate(self, attrs):
-        new_business = attrs.get('new_business')
-        why_customer = attrs.get('why_customer')
-        found_through = attrs.get('found_through')
-        contacted_by = attrs.get('contacted_by')
+    def validate(self, data):
+        new_business = data.get('new_business')
+        why_customer = data.get('why_customer')
+        found_through = data.get('found_through')
+        contacted_by = data.get('contacted_by')
 
         if new_business:
             errors = {}
@@ -177,11 +177,11 @@ class DealSerializer(WritableNestedSerializer):
             if errors:
                 raise serializers.ValidationError(errors)
 
-        contact_id = attrs.get('contact', {})
+        contact_id = data.get('contact', {})
         if isinstance(contact_id, dict):
             contact_id = contact_id.get('id')
 
-        account_id = attrs.get('account', {})
+        account_id = data.get('account', {})
         if isinstance(account_id, dict):
             account_id = account_id.get('id')
 
@@ -189,11 +189,26 @@ class DealSerializer(WritableNestedSerializer):
             if not Function.objects.filter(contact_id=contact_id, account_id=account_id).exists():
                 raise serializers.ValidationError({'contact': _('Given contact must work at the account.')})
 
-        status_id = attrs.get('status', {})
+        # Check if we are related and if we only passed in the id, which means user just wants new reference.
+        errors = {
+            'account': _('Please enter an account and/or contact.'),
+            'contact': _('Please enter an account and/or contact.'),
+        }
+
+        if not self.partial:
+            # For POST or PUT we always want to check if either is set.
+            if not (account_id or contact_id):
+                raise serializers.ValidationError(errors)
+        else:
+            # For PATCH only check the data if both account and contact are passed.
+            if ('account' in data and 'contact' in data) and not (account_id or contact_id):
+                raise serializers.ValidationError(errors)
+
+        status_id = data.get('status', {})
         if isinstance(status_id, dict):
             status_id = status_id.get('id')
 
-        why_lost_id = attrs.get('why_lost', {})
+        why_lost_id = data.get('why_lost', {})
         if isinstance(why_lost_id, dict):
             why_lost_id = why_lost_id.get('id')
 
@@ -203,7 +218,7 @@ class DealSerializer(WritableNestedSerializer):
             if status.is_lost and why_lost_id is None and DealWhyLost.objects.exists():
                 raise serializers.ValidationError({'why_lost': _('This field may not be empty.')})
 
-        return super(DealSerializer, self).validate(attrs)
+        return super(DealSerializer, self).validate(data)
 
     def create(self, validated_data):
         user = self.context.get('request').user

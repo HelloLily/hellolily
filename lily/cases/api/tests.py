@@ -2,7 +2,6 @@ from lily.accounts.factories import AccountFactory
 from lily.cases.api.serializers import CaseSerializer
 from lily.cases.factories import CaseFactory, CaseStatusFactory, CaseTypeFactory
 from lily.cases.models import Case
-from lily.contacts.factories import ContactFactory
 from lily.tests.utils import GenericAPITestCase
 from lily.users.factories import LilyUserFactory
 
@@ -28,6 +27,7 @@ class CaseTests(GenericAPITestCase):
         kwargs['tenant'] = self.user_obj.tenant if not kwargs.get('tenant') else kwargs['tenant']
 
         object_list = []
+        account = AccountFactory(**kwargs)
         casetype = CaseTypeFactory(**kwargs)
         casestatus = CaseStatusFactory(**kwargs)
 
@@ -36,6 +36,9 @@ class CaseTests(GenericAPITestCase):
             del obj['tenant']
 
             # The minimum viable case instance needs these relations, so always make them.
+            obj['account'] = {
+                'id': account.pk,
+            }
             obj['type'] = {
                 'id': casetype.pk
             }
@@ -45,17 +48,12 @@ class CaseTests(GenericAPITestCase):
 
             if with_relations:
                 # If relations are needed, override them, because a dict is needed instead of an instance.
-                obj['account'] = AccountFactory.stub().__dict__
-                obj['contact'] = ContactFactory.stub().__dict__
                 obj['assigned_to'] = LilyUserFactory.stub().__dict__
 
-                del obj['account']['tenant']
-                del obj['contact']['tenant']
                 del obj['assigned_to']['tenant']
                 del obj['created_by']
             else:
                 # Delete the related objects, since they can't be serialized.
-                del obj['account']
                 del obj['assigned_to']
                 del obj['created_by']
 

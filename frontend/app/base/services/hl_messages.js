@@ -15,6 +15,10 @@ function HLMessages() {
                 trialInfoSub: 'Upgrade to the Team or Professional plans to continue using all of the Lily features.',
                 trialMoreInfo: 'Once your trial is over, you\'ll be set to the free Personal plan if you haven\'t upgraded. Read more about all <a href="https://hellolily.com/features">Features</a> and <a href="https://hellolily.com/pricing">Pricing</a> and send us a message if you have any questions.',
             },
+            contacts: {
+                contactActiveAtIntro: 'For each account you can toggle if <strong>%(name)s</strong> is still active there.',
+                contactActiveAtText: 'This won\'t affect the visibility of past communication.',
+            },
         },
         contact: {
             accountInfoTooltip: 'I\'ve loaded the selected account\'s data for you. Now you don\'t have to enter duplicate data!',

@@ -67,10 +67,6 @@ function Contact($filter, $resource, HLResource, Settings) {
                     };
                 },
             },
-            toggleActiveAtAccount: {
-                method: 'PATCH',
-                url: '/api/contacts/toggle_activation/',
-            },
             getCalls: {
                 url: '/api/contacts/:id/calls',
                 transformResponse: data => {

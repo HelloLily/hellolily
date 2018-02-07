@@ -18,12 +18,17 @@ from ..models import Contact, Function
 
 
 class FunctionSerializer(serializers.ModelSerializer):
+    account_name = serializers.SerializerMethodField()
+
+    def get_account_name(self, obj):
+        return obj.account.name
 
     class Meta:
         model = Function
         fields = (
             'id',
             'account',
+            'account_name',
             'is_active',
         )
 

@@ -2,7 +2,7 @@ from django.db import transaction
 from django.db.models import Q
 from django.utils.datastructures import MultiValueDictKeyError
 from rest_framework import viewsets, status
-from rest_framework.decorators import detail_route, list_route
+from rest_framework.decorators import detail_route
 from rest_framework.filters import OrderingFilter
 from rest_framework.parsers import FileUploadParser
 from rest_framework.permissions import IsAuthenticated
@@ -71,25 +71,6 @@ class ContactViewSet(ModelChangesMixin, viewsets.ModelViewSet):
                 return super(ContactViewSet, self).get_queryset()
 
         return super(ContactViewSet, self).get_queryset().filter(is_deleted=False)
-
-    @list_route(methods=['patch', ])
-    def toggle_activation(self, request):
-        """
-        Toggle if the contact is active at account.
-        """
-        contact_id = request.data.get('contact')
-        account_id = request.data.get('account')
-        is_active = request.data.get('is_active')
-
-        try:
-            func = Function.objects.get(contact=contact_id, account=account_id)
-        except Function.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        else:
-            func.is_active = is_active
-            func.save()
-
-            return Response(status=status.HTTP_200_OK)
 
     @detail_route(methods=['GET', ])
     def calls(self, request, pk=None):

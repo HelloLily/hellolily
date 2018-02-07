@@ -1,6 +1,9 @@
 <h3>Toggle activation</h3>
 
-<p>For each account you can toggle if <strong>{{ vm.object.full_name }}</strong> is still active there. This won't affect the visablilty of past communication.</p>
+<p>
+    <span ng-bind-html="$parent.$root.messages.pages.contacts.contactActiveAtIntro|sprintf:{name: vm.object.full_name}"></span>
+    {{ $parent.$root.messages.pages.contacts.contactActiveAtText }}
+</p>
 
 <table class="hl-table">
     <thead>
@@ -10,9 +13,9 @@
         </tr>
     </thead>
     <tbody>
-        <tr ng-repeat="account in vm.object.accounts">
-            <td class="hl-table-column align-left">{{ account.name }}</td>
-            <td class="hl-table-column align-left"><checkbox model="vm.object.active_at_account[account.id]" ng-click="vm.toggleActivationForContact(account)"></checkbox></td>
+        <tr ng-repeat="function in vm.object.functions">
+            <td class="hl-table-column align-left">{{ function.account_name }}</td>
+            <td class="hl-table-column align-left"><checkbox model="function.is_active"></checkbox></td>
         </tr>
     </tbody>
 </table>

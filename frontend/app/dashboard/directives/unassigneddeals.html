@@ -50,7 +50,7 @@
                     </td>
                     <td>
                         <div ng-repeat="team in deal.assigned_to_teams">
-                            {{ (vm.teams | where:{id: team})[0].name }}
+                            {{ team.name }}
                         </div>
                     </td>
                     <td>

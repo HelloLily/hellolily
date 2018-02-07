@@ -42,7 +42,7 @@
                     </td>
                     <td>
                         <div ng-repeat="team in case.assigned_to_teams">
-                            {{ (vm.teams | where:{id: team})[0].name }}
+                            {{ team.name }}
                         </div>
                     </td>
                     <td><date date="case.created" show-time="true"></date></td>

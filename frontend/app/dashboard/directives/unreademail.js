@@ -47,9 +47,8 @@ function UnreadEmailController($scope, $interval, EmailAccount, EmailMessage, HL
 
             angular.forEach(emailAccounts, function(account) {
                 filterList.push({
-                    id: 'account',
                     name: account.label,
-                    value: account.id,
+                    value: 'account.id:' +  account.id,
                     selected: false,
                     isSpecialFilter: true,
                 });
@@ -63,19 +62,18 @@ function UnreadEmailController($scope, $interval, EmailAccount, EmailMessage, HL
 
     function updateTable(blockUI = false) {
         var sort = HLUtils.getSorting(vm.table.order.column, vm.table.order.descending);
+        var filterQuery = 'read:false AND label_id:INBOX';
 
         if (blockUI) HLUtils.blockUI('#unreadEmailBlockTarget', true);
 
-        const searchParams = {
-            label: 'INBOX',
-            sort: sort,
-            read: 0,
-        };
-        if (vm.table.accountFilter) {
-            searchParams.account = vm.table.accountFilter;
+        if (vm.table.filterQuery) {
+            filterQuery += ' AND ' + vm.table.filterQuery;
         }
 
-        EmailMessage.search(searchParams, data => {
+        EmailMessage.search({
+            filterquery: filterQuery,
+            sort: sort,
+        }, function(data) {
             vm.table.items = data.hits;
 
             if (blockUI) HLUtils.unblockUI('#unreadEmailBlockTarget');

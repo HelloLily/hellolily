@@ -1,23 +1,18 @@
 import logging
 
 from django.conf import settings
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet
 import phonenumbers
-from oauth2client.client import HttpAccessTokenRefreshError
 from rest_framework import viewsets, mixins, status, filters
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
 from lily.accounts.models import Account
-from lily.contacts.models import Contact
-from lily.messaging.email.connector import GmailConnector, NotFoundError, FailedServiceCallException
-from lily.messaging.email.credentials import InvalidCredentialsError
 from lily.messaging.email.utils import get_email_parameter_api_dict, reindex_email_message, get_shared_email_accounts
+from lily.search.lily_search import LilySearch
 from lily.users.models import UserInfo
 from lily.users.api.serializers import LilyUserSerializer
 from lily.utils.functions import format_phone_number
@@ -288,6 +283,74 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         toggle_spam_email_message.delay(email.id, spam=request.data['markAsSpam'])
         return Response(serializer.data)
 
+    @detail_route(methods=['get'])
+    def history(self, request, pk):
+        """
+        Returns what happened to an email; did the user reply or forwarded the email message.
+        """
+        email = self.get_object()
+
+        account_email = email.account.email_address
+        sent_from_account = (account_email == email.sender.email_address)
+
+        # Get the messages in the thread for the current email message.
+        search = LilySearch(
+            request.user.tenant_id,
+            model_type='email_emailmessage',
+            sort='sent_date',
+            size=100  # Paged results, when a thread is containing more that 100 results StopIteration could be thrown.
+        )
+        search.filter_query('thread_id:%s' % email.thread_id)
+        thread, facets, total, took = search.do_search([
+            'message_id',
+            'received_by_email',
+            'received_by_cc_email',
+            'sender_email',
+            'sender_name',
+            'sent_date',
+        ])
+
+        try:
+            # Get the index of the current email message in the thread.
+            index = (key for key, item in enumerate(thread) if item['message_id'] == email.message_id).next()
+        except StopIteration:
+            logger.exception('Number of messages larger that search page size for message %s.' % email.id)
+            results = {}
+            return Response(results)
+
+        # Only look at the messages in the thread after the current email message.
+        messages_after = thread[index + 1:]
+
+        results = {}
+
+        if not messages_after or sent_from_account:
+            # Current email message is the last in the thread or is send by the user and therefor not a possible reply
+            # or forwarded email message.
+            return Response(results)
+
+        # The current email message isn't the last in the thread. So look the follow up messages in the thread to
+        # determine what actions occured on the current email message. Current email message is not send from the
+        # account of the user, so it is a received email message. So determine is we replied or forwarded it.
+
+        # Get all the outgoing follow up messages in the thread.
+        next_messages = [item for item in messages_after if item['sender_email'] == account_email]
+        if len(next_messages):
+            # We only need to look at the first follow up message in the thread.
+            # TODO LILY-2244: improve search filter above so it leads to the only / first follow up message.
+            next_message = next_messages[0]
+
+            # Get all the mail addresses where the follow up message was sent to.
+            email_addresses = next_message.get('received_by_email', []) + next_message.get('received_by_cc_email', [])
+
+            if email_addresses.count(email.sender.email_address):
+                # The sender of the current, received email message is one of the reciepents of the follow up message,
+                # so it is a reply message.
+                results['replied_with'] = next_message
+            else:
+                results['forwarded_with'] = next_message
+
+        return Response(results)
+
     @detail_route(methods=['post'])
     def extract(self, request, pk=None):
         """
@@ -442,277 +505,3 @@ class TemplateVariableViewSet(mixins.DestroyModelMixin,
         }
 
         return Response(template_variables)
-
-
-class SearchView(APIView):
-
-    def get(self, request, format=None):
-        user = request.user
-
-        # Search query.
-        q = request.query_params.get('q', '').strip()
-
-        # Paging parameters.
-        page = request.query_params.get('page', '0')
-        page = int(page) + 1
-        size = int(request.query_params.get('size', '20'))
-        sort = request.query_params.get('sort', '-sent_date')
-
-        # Mail labeling parameters.
-        label_id = request.query_params.get('label', None)
-        read = request.query_params.get('read', None)
-
-        # Search email for own accounts or related account/contact.
-        account_ids = request.query_params.get('account', None)  # None means search in all owned email accounts.
-        related_account_id = request.query_params.get('account_related', None)
-        related_contact_id = request.query_params.get('contact_related', None)
-
-        # Additional filtering.
-        date_start = request.query_params.get('date_start', None)
-        date_end = request.query_params.get('date_end', None)
-        thread_id = request.query_params.get('thread', None)
-
-        if related_account_id and related_contact_id:
-            # Raise error because related_x fields are mutually exclusive.
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        if not account_ids:
-            # Get a list of all email accounts added by the user or shared with the user.
-            email_accounts = get_shared_email_accounts(user, not (related_account_id or related_contact_id))
-        else:
-            # Only search within the email accounts indicated by the account_ids parameter.
-            account_ids = account_ids.split(',')
-            email_accounts = EmailAccount.objects.filter(pk__in=account_ids)
-
-        email_accounts = email_accounts.exclude(is_active=False, is_deleted=True)
-
-        if q:
-            # Handle the search via Google.
-
-            # Prevent too much calls on the search api.
-            max_results = len(email_accounts) * size * page
-
-            # Only exclude unauthorized accounts when the search is handled by Google.
-            email_accounts = email_accounts.exclude(is_authorized=False)
-
-            messages_ids = []
-            for email_account in email_accounts:
-                if label_id:
-                    label = EmailLabel.objects.get(
-                        label_id=label_id,
-                        account=email_account
-                    )
-                    q = u"{0} {1}:{2}".format(q, 'label', label.name)
-
-                # With label_id missing Gmail defaults to searching through all mail.
-
-                try:
-                    connector = GmailConnector(email_account)
-                    messages = connector.search(query=q, max_results=max_results)
-                    messages_ids.extend([message['id'] for message in messages])
-                except (InvalidCredentialsError, NotFoundError, HttpAccessTokenRefreshError,
-                        FailedServiceCallException) as e:
-                    logger.error(
-                        "Failed to search within account {0} with error: {1}.".format(email_account, e.strerror)
-                    )
-                    # Failing search within one account should not halt the complete search.
-                    continue
-
-            # Retrieve messages from the database.
-            message_list = EmailMessage.objects.filter(
-                message_id__in=messages_ids,
-                account__in=email_accounts
-            )
-
-        else:
-            # User isn't searching by a keyword, just show the email for current box. Where current email box is:
-            # 1. A combination of included and excluded labels.
-            included, excluded = self._determineLabels(label_id, email_accounts)
-            message_list = EmailMessage.objects.filter(
-                account__in=email_accounts,
-            )
-
-            # 2. or a combination of mail sent or received by a related account (used in the activity stream).
-            if related_account_id:
-                related_email_addresses = self._getRelatedAccountEmailAddresses(related_account_id)
-                if related_email_addresses:
-                    message_list = self._getMessageListRelated(email_accounts, related_email_addresses)
-                else:
-                    # When there are no known email addresses for the related account, provided an empty queryset so
-                    # the follow-up filtering and pagination can continue.
-                    message_list = EmailMessage.objects.none()
-
-            # 3. or a combination of mail sent or received by a related contact (used in the activity stream).
-            if related_contact_id:
-                related_email_addresses = self._getRelatedContactEmailAddresses(related_contact_id)
-                if related_email_addresses:
-                    message_list = self._getMessageListRelated(email_accounts, related_email_addresses)
-                else:
-                    # When there are no known email addresses for the related contact, provided an empty queryset so
-                    # the follow-up filtering and pagination can continue.
-                    message_list = EmailMessage.objects.none()
-
-            # Apply label filtering.
-            if included:
-                message_list = message_list.filter(
-                    labels__in=included
-                )
-
-            if excluded:
-                message_list = message_list.exclude(
-                    labels__in=excluded
-                )
-
-        # Apply additional filtering.
-        if read is not None:  # For example used in the dashboard widget.
-            message_list = message_list.filter(
-                read=read
-            )
-
-        if date_start:
-            message_list = message_list.filter(
-                sent_date__gte=date_start
-            )
-
-        if date_end:
-            message_list = message_list.filter(
-                sent_date__lte=date_end
-            )
-
-        if thread_id:
-            # Filtering on thread_id is used for the arrow signs indicating its a reply(-all) or forward message.
-            message_list = message_list.filter(
-                thread_id=thread_id
-            )
-
-        message_list = message_list.order_by(sort)
-
-        message_list = message_list.distinct()
-
-        paginator = Paginator(message_list, size)
-        try:
-            messages = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, return first page.
-            messages = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range, return last page.
-            messages = paginator.page(paginator.num_pages)
-
-        serializer = EmailMessageSerializer(messages, many=True, context={'request': request})
-        result = {
-            'total': paginator.count,
-            'hits': serializer.data,
-        }
-
-        return Response(result)
-
-    def _determineLabels(self, folder_id, email_accounts):
-        """
-        Each folder in the front-end shows email messages which satisfy a combination of labels that are present or
-        absent.
-
-        Determine by the folder_id which labels should be included or excluded.
-        """
-        include_labels = []
-        exclude_labels = []
-        inbox_labels = EmailLabel.objects.filter(
-            label_id=settings.GMAIL_LABEL_INBOX,
-            account__in=email_accounts
-        )
-        trash_labels = EmailLabel.objects.filter(
-            label_id=settings.GMAIL_LABEL_TRASH,
-            account__in=email_accounts
-        )
-        spam_labels = EmailLabel.objects.filter(
-            label_id=settings.GMAIL_LABEL_SPAM,
-            account__in=email_accounts
-        )
-        sent_labels = EmailLabel.objects.filter(
-            label_id=settings.GMAIL_LABEL_SENT,
-            account__in=email_accounts
-        )
-        draft_labels = EmailLabel.objects.filter(
-            label_id=settings.GMAIL_LABEL_DRAFT,
-            account__in=email_accounts
-        )
-        if folder_id:
-            user_labels = EmailLabel.objects.filter(
-                label_id=folder_id,
-                account__in=email_accounts
-            )
-            if folder_id == 'INBOX':
-                include_labels.extend(inbox_labels)
-                exclude_labels.extend(trash_labels)
-                exclude_labels.extend(spam_labels)
-            elif folder_id == 'SENT':
-                include_labels.extend(sent_labels)
-                exclude_labels.extend(trash_labels)
-                exclude_labels.extend(spam_labels)
-            elif folder_id == 'TRASH':
-                include_labels.extend(trash_labels)
-                exclude_labels.extend(spam_labels)
-            elif folder_id == 'SPAM':
-                include_labels.extend(spam_labels)
-                exclude_labels.extend(trash_labels)
-            elif folder_id == 'DRAFT':
-                include_labels.extend(draft_labels)
-                exclude_labels.extend(trash_labels)
-            else:
-                include_labels.extend(user_labels)
-                exclude_labels.extend(trash_labels)
-                exclude_labels.extend(spam_labels)
-        else:
-            # Corresponds with the 'All mail'-label.
-            exclude_labels.extend(trash_labels)
-            exclude_labels.extend(spam_labels)
-            exclude_labels.extend(draft_labels)
-
-        return include_labels, exclude_labels
-
-    def _getRelatedAccountEmailAddresses(self, account_id):
-        """
-        Get a list of email addresses of the account and of the contacts of the account.
-        """
-        account = Account.objects.get(id=account_id)
-        email_addresses = [email.email_address for email in account.email_addresses.all() if email.email_address]
-
-        contacts = account.get_contacts()
-        for contact in contacts:
-            contact_email_addresses = [
-                email.email_address for email in contact.email_addresses.all() if email.email_address
-            ]
-            email_addresses.extend(contact_email_addresses)
-
-        return email_addresses
-
-    def _getRelatedContactEmailAddresses(self, contact_id):
-        """
-        Get a list of email addresses of the contact.
-        """
-        contact = Contact.objects.get(id=contact_id)
-        email_addresses = [email.email_address for email in contact.email_addresses.all() if email.email_address]
-        return email_addresses
-
-    def _getMessageListRelated(self, email_accounts, email_addresses):
-        """
-        Return a queryset for all the email messages sent or received by one of the email addressses which aren't
-        private.
-
-        :param email_accounts:
-        :param email_addresses:  list of email addressses.
-        :return: QuerySet of email messages.
-        """
-        # Get email messages send or received by one of the email addresses.
-        message_list = EmailMessage.objects.filter(
-            Q(sender__email_address__in=email_addresses) |
-            Q(received_by__email_address__in=email_addresses) |
-            Q(received_by_cc__email_address__in=email_addresses)
-        ).distinct()
-
-        # Exclude email messages of accounts which don't share their email.
-        message_list = message_list.filter(
-            account__in=email_accounts
-        )
-
-        return message_list

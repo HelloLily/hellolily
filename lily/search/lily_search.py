@@ -237,6 +237,7 @@ class LilySearch(object):
             }
         })
 
+    # TODO: Remove with ES update.
     def account_related(self, account_id):
         """
         Search email related to an account.
@@ -264,6 +265,7 @@ class LilySearch(object):
         filterquery = 'sender_email:(%s) OR received_by_email:(%s) OR received_by_cc_email:(%s)' % (join, join, join)
         self.filter_query(filterquery)
 
+    # TODO: Remove with ES update.
     def contact_related(self, contact_id):
         """
         Search email related to an contact.
@@ -285,6 +287,7 @@ class LilySearch(object):
         filterquery = 'sender_email:(%s) OR received_by_email:(%s) OR received_by_cc_email:(%s)' % (join, join, join)
         self.filter_query(filterquery)
 
+    # TODO: Remove with ES update.
     def user_email_related(self, user):
         """
         Search emails that the user is allowed to see.

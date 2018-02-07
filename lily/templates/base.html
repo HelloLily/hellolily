@@ -85,7 +85,7 @@
                         <div ng-if="toolbar" class="page-toolbar">
                             <div class="btn-group btn-theme-panel">
                                 <a ng-click="$state.go('.edit')" class="btn" title="Edit"><i class="lilicon hl-edit-icon font-size-18"></i></a>
-                                <toggle-activation-contact ng-if="toolbar.model === 'Contact'" model="{{ toolbar.model }}" object="toolbar.object" display-field="Toggle activation" button-class="no-background" icon-class="lilicon hl-company-icon font-size-18"></toggle-activation-contact>
+                                <toggle-activation-contact title="Toggle activation" ng-if="toolbar.model === 'Contact'" model="{{ toolbar.model }}" object="toolbar.object" display-field="Toggle activation" button-class="no-background" icon-class="lilicon hl-company-icon font-size-18"></toggle-activation-contact>
                                 <delete-confirmation model="{{ toolbar.model }}" object="toolbar.object" display-field="{{ toolbar.field }}" button-class="no-background" icon-class="lilicon hl-trashcan-icon font-size-18"></delete-confirmation>
                             </div>
                         </div>

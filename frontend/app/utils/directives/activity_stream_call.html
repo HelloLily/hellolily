@@ -12,7 +12,7 @@
         </div>
 
         <div class="stream-item-activity">
-            <div class="clickable" ng-click="vm.item.showDetails = !vm.item.showDetails">
+            <div class="clickable display-inline-block" ng-click="vm.item.showDetails = !vm.item.showDetails">
                 <span>{{ vm.item.caller.name || vm.item.caller.number }}</span>
                 <span ng-if="vm.item.status == 0">
                     is calling
@@ -44,10 +44,13 @@
                         </span>
                     </span>
                 </span>
-                <span class="pull-right">
+            </div>
+            <span class="pull-right">
+                <span class="stream-note-toggle m-r-5" ng-click="vm.item.showNotes = !vm.item.showNotes"><i class="lilicon hl-note-icon"></i></span>
+                <span class="change-log-toggle clickable" ng-click="vm.item.showDetails = !vm.item.showDetails">
                     <i class="change-log-toggle lilicon" ng-class="{'hl-toggle-down-icon': !vm.item.showDetails, 'hl-toggle-up-icon': vm.item.showDetails}"></i>
                 </span>
-            </div>
+            </span>
         </div>
 
         <div class="stream-item-content" ng-show="vm.item.showDetails">
@@ -93,11 +96,10 @@
                     Conversation has ended.
                 </div>
 
-
                 <div class="stream-subitem">
                     <div class="stream-subitem-timeline"></div>
 
-                    <div class="stream-subitem-object m-b-20">
+                    <div class="stream-subitem-object m-b-20" ng-if="vm.item.showNotes">
                         <div class="stream-subitem-image">
                             <div class="stream-subitem-avatar is-note"><i class="lilicon hl-note-icon"></i></div>
                         </div>

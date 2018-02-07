@@ -434,6 +434,10 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                                     });
 
                                     call.notes = notes;
+
+                                    if (notes.length > 0) {
+                                        call.showDetails = true;
+                                    }
                                 });
 
                             activity.push(call);

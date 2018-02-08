@@ -1,5 +1,5 @@
 def parse_folder_list(data, promise=None):
-    folder_list = data.get('labels', [])
+    folder_list = [folder['id'] for folder in data.get('labels', [])]
 
     if promise:
         promise.resolve(folder_list)

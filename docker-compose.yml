@@ -76,38 +76,47 @@ services:
       - "8080:8000"
       - "8083:8081"
 
-  flower:
-    extends: app
-    command: bash -c "Dockers/wait-for rabbit:5672 && flower --app=lily.celery"
-    depends_on:
-      - db
-      - rabbit
-    ports:
-      - "5555"
+#  flower:
+#    extends: app
+#    command: bash -c "Dockers/wait-for rabbit:5672 && flower --app=lily.celery"
+#    depends_on:
+#      - db
+#      - rabbit
+#    ports:
+#      - "5555"
 
-  beat:
+#  beat:
+#    extends: app
+#    command: bash -c "Dockers/wait-for rabbit:5672 && celery worker -B --app=lily.celery --loglevel=info -Q celery -n beat.%h -c 1"
+#    depends_on:
+#      - rabbit
+#      - redis
+#      - db
+#      - es
+
+  worker:
     extends: app
-    command: bash -c "Dockers/wait-for rabbit:5672 && celery worker -B --app=lily.celery --loglevel=info -Q celery -n beat.%h -c 1"
+    command: bash -c "Dockers/wait-for rabbit:5672 && celery worker --loglevel=info --app=lily.celery -n worker.%h -c 12 -P eventlet"
     depends_on:
       - rabbit
       - redis
       - db
       - es
 
-  worker1:
-    extends: app
-    command: bash -c "Dockers/wait-for rabbit:5672 && celery worker --loglevel=info --app=lily.celery -Q email_async_tasks -n worker1.%h -c 12 -P eventlet"
-    depends_on:
-      - rabbit
-      - redis
-      - db
-      - es
-
-  worker2:
-    extends: app
-    command: bash -c "Dockers/wait-for rabbit:5672 && celery worker --loglevel=info --app=lily.celery -Q email_scheduled_tasks,email_first_sync,other_tasks -n worker2.%h -c 12 -P eventlet"
-    depends_on:
-      - rabbit
-      - redis
-      - db
-      - es
+#  worker1:
+#    extends: app
+#    command: bash -c "Dockers/wait-for rabbit:5672 && celery worker --loglevel=info --app=lily.celery -Q email_async_tasks -n worker1.%h -c 12 -P eventlet"
+#    depends_on:
+#      - rabbit
+#      - redis
+#      - db
+#      - es
+#
+#  worker2:
+#    extends: app
+#    command: bash -c "Dockers/wait-for rabbit:5672 && celery worker --loglevel=info --app=lily.celery -Q email_scheduled_tasks,email_first_sync,other_tasks -n worker2.%h -c 12 -P eventlet"
+#    depends_on:
+#      - rabbit
+#      - redis
+#      - db
+#      - es

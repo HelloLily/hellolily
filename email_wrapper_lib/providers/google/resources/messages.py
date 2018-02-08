@@ -27,7 +27,7 @@ class MessagesResource(GoogleResource):
             quotaUser=self.user_id,
             maxResults=settings.BATCH_SIZE,
             pageToken=page_token,
-            fields=['messages/id', ],
+            fields='messages/id',
             q=q
         )
 
@@ -47,13 +47,14 @@ class MessagesResource(GoogleResource):
                 quotaUser=self.user_id,
                 maxResults=settings.BATCH_SIZE,
                 pageToken=next_page_token,
-                fields=['nextPageToken', ]
+                fields='nextPageToken'
             )
             next_page_token = self.execute(request, parse_page)
 
             if next_page_token:
                 page_token_list.append(next_page_token)
-            has_next_page = not next_page_token
+            else:
+                has_next_page = False
 
         return page_token_list
 

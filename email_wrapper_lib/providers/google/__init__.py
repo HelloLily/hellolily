@@ -7,7 +7,7 @@ from email_wrapper_lib.models import EmailAccount
 from .connector import GoogleConnector
 from .manager import GoogleManager
 from .models import GoogleSyncInfo
-from .tasks import stop_syncing, save_folders, save_page
+from .tasks import stop_syncing, save_folders, save_page, debug_task, raising_task
 
 
 class Google(object):

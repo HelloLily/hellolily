@@ -31,44 +31,31 @@ class FoldersResource(GoogleResource):
         return self.execute(request, parse_folder, batch)
 
     def update(self, remote_id, name, batch=None):
-        request = self.service.user().labels().update(
+        request = self.service.user().labels().patch(
             userId=self.user_id,
             quotaUser=self.user_id,
             id=remote_id,
             body={
-                'id': remote_id,
                 'name': name,
-                'messageListVisibility': 'show',
-                'labelListVisibility': 'labelShow',
             }
         )
 
         return self.execute(request, parse_folder, batch)
 
-    def delete(self, remote_id):
-        status_code = None
-
-        self.batch.add(
-            self.service.users().labels().delete(
-                userId=self.user_id,
-                id=remote_id),
-            callback=parse_batch_response(parse_deletion, status_code)
+    def delete(self, remote_id, batch=None):
+        request = self.service.users().labels().delete(
+            userId=self.user_id,
+            quotaUser=self.user_id,
+            id=remote_id
         )
 
-        return status_code
+        return self.execute(request, parse_deletion, batch)
 
-    def list(self):
-        folders = {}
-
-        # Because Google only gives message ids, we need to do a second batch for the bodies.
-        second_batch = self.service.new_batch_http_request()
-        folder_resource = GoogleFolderResource(self.service, self.user_id)
-
-        self.batch.add(
-            self.service.users().labels().list(
-                userId=self.user_id,
-            ),
-            callback=parse_batch_response(parse_folder_list, folders)
+    def list(self, batch=None):
+        request = self.service.users().labels().list(
+            userId=self.user_id,
+            quotaUser=self.user_id,
+            fields='labels/id',
         )
 
-        return folders
+        return self.execute(request, parse_folder_list, batch)

@@ -24,7 +24,7 @@ class Settings(object):
     ADD_ACCOUNT_SUCCESS_URL = get_setting('ADD_ACCOUNT_SUCCESS_URL')
 
     # Optional settings.
-    BATCH_SIZE = get_setting('BATCH_SIZE', 100)
+    BATCH_SIZE = get_setting('BATCH_SIZE', 100)  # TODO: check that this isn't higher than 100, because that is max value for google.
     ATTACHMENT_UPLOAD_PATH = get_setting('ATTACHMENT_UPLOAD_PATH', 'email/attachments/{draft_id}/{filename}')
 
     # TODO: figure out way for convenient celery defaults.

@@ -62,31 +62,7 @@ class EmailAccount(SoftDeleteMixin, TimeStampMixin, models.Model):
     @property
     def manager(self):
         from email_wrapper_lib.providers import registry
-        return registry[self.provider_id].manager_class(self)
-
-    class Meta:
-        app_label = 'email_wrapper_lib'
-
-
-class EmailRecipient(models.Model):
-    name = models.CharField(
-        verbose_name=_('Name'),
-        max_length=255
-    )
-    email_address = models.EmailField(
-        verbose_name=_('Email')
-    )
-    raw_value = models.CharField(
-        verbose_name=_('Raw value'),
-        max_length=255,
-        unique=True,
-        db_index=True,
-        editable=False
-    )
-
-    def save(self, *args, **kwargs):
-        self.raw_value = '{0} <{1}>'.format(self.name, self.email_address)
-        super(EmailRecipient, self).save(*args, **kwargs)
+        return registry[self.provider_id].manager(self)
 
     class Meta:
         app_label = 'email_wrapper_lib'
@@ -112,7 +88,8 @@ class EmailFolder(models.Model):
     )
     remote_id = models.CharField(
         verbose_name=_('Remote id'),
-        max_length=255
+        max_length=255,
+        db_index=True
     )
     remote_value = models.CharField(
         verbose_name=_('Remote value'),
@@ -205,6 +182,30 @@ class EmailMessage(models.Model):
             recipients = self.recipients.filter(recipient_type=recipient_type)
             setattr(self, '_recipient_type_{}'.format(recipient_type), recipients)
             return recipients
+
+    class Meta:
+        app_label = 'email_wrapper_lib'
+
+
+class EmailRecipient(models.Model):
+    name = models.CharField(
+        verbose_name=_('Name'),
+        max_length=255
+    )
+    email_address = models.EmailField(
+        verbose_name=_('Email')
+    )
+    raw_value = models.CharField(
+        verbose_name=_('Raw value'),
+        max_length=255,
+        unique=True,
+        db_index=True,
+        editable=False
+    )
+
+    def save(self, *args, **kwargs):
+        self.raw_value = '{0} <{1}>'.format(self.name, self.email_address)
+        super(EmailRecipient, self).save(*args, **kwargs)
 
     class Meta:
         app_label = 'email_wrapper_lib'

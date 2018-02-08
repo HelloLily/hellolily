@@ -28,7 +28,7 @@ class Manager(object):
 #     def start(self):
 #         self._old_status = self.account.status
 #         self.account.status = EmailAccount.SYNCING
-#         self.account.save(updated_fields='status')
+#         self.account.save(update_fields='status')
 #
 #     def stop(self):
 #         # Synchronisation per folder (MS).
@@ -42,8 +42,8 @@ class Manager(object):
 #             else:
 #                 pass  # TODO: Possibe? How to handle?
 #
-#             self.account.save(updated_fields='status')
-#             self.folder.save(updated_fields=('page_token', 'history_token'))
+#             self.account.save(update_fields='status')
+#             self.folder.save(update_fields=('page_token', 'history_token'))
 #
 #         else:  # Or synchronisation for the 'all' mail folder, aka account synchronisation (Google).
 #             if self.account.page_token:
@@ -55,7 +55,7 @@ class Manager(object):
 #             else:
 #                 pass  # TODO: Possibe? How to handle?
 #
-#             self.account.save(updated_fields=('status', 'page_token', 'history_token'))
+#             self.account.save(update_fields=('status', 'page_token', 'history_token'))
 #
 #     def sync_folders(self):
 #         self.start()
@@ -120,7 +120,7 @@ class Manager(object):
 #                 db_folder.unread_count = remote_folder.unread_count
 #                 db_folder.parent_id = remote_folder.parent_id
 #
-#                 db_folder.save(updated_fields=['remote_value', 'name', 'unread_count', 'parent_id'])
+#                 db_folder.save(update_fields=['remote_value', 'name', 'unread_count', 'parent_id'])
 #
 #         # TODO: check if this contains the updated instances.
 #         return db_folders

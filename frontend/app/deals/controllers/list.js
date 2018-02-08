@@ -26,7 +26,7 @@ DealListController.$inject = ['$filter', '$scope', '$state', '$timeout', 'Deal',
 function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, HLUtils, LocalStorage, Settings, Tenant, teams) {
     const vm = this;
 
-    vm.storage = new LocalStorage('deals');
+    vm.storage = new LocalStorage('dealList');
     vm.storedFilterSpecialList = vm.storage.get('filterSpecialListSelected', null);
     vm.storedFilterList = vm.storage.get('filterListSelected', null);
 

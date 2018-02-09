@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import json
 
 import anyjson
@@ -397,6 +398,66 @@ class GmailManagerTests(UserBasedTest, APITestCase):
         # Verify that the email emssage has the correct thread id.
         self.assertEqual(email_message.thread_id, thread_id,
                          "Message {0} should have thread_id {1}.".format(email_message.message_id, thread_id))
+
+    @patch.object(GmailConnector, 'get_label_info')
+    @patch.object(GmailConnector, 'send_email_message')
+    @patch.object(GmailConnector, 'get_message_info')
+    def test_send_email_message_unicode(self, get_message_info_mock, send_email_message_mock, get_label_info_mock):
+        """
+        Test the GmailManager on sending a new email message.
+        """
+
+        message_id = '15b33aad2c5dbe4a'
+
+        # Mock the responses of the API calls.
+        with open('lily/messaging/email/tests/data/send_email_message.json') as infile:
+            json_obj = json.load(infile)
+            send_email_message_mock.return_value = json_obj
+
+        with open('lily/messaging/email/tests/data/get_message_info_{0}.json'.format(message_id)) as infile:
+            json_obj = json.load(infile)
+            get_message_info_mock.return_value = json_obj
+
+        with open('lily/messaging/email/tests/data/get_label_info_SENT.json') as infile:
+            json_obj = json.load(infile)
+            get_label_info_mock.return_value = json_obj
+
+        email_account = EmailAccount.objects.first()
+        manager = GmailManager(email_account)
+
+        # Prepare an email message that will be send out.
+        email_outbox_message = EmailOutboxMessage.objects.create(
+            subject="Mauris ex tortor, hendrerit non sem eu, mollis varius purus.",
+            send_from=email_account,
+            to=anyjson.dumps("user2@example.com"),
+            cc=anyjson.dumps(None),
+            bcc=anyjson.dumps(None),
+            body=u"<html><body>In hac habitasse platea dictumst. Class aptent taciti sociosqu ad litora torquent "
+                 u"per conubia nostra, per inceptos himenaeos. Ut aliquet elit sed augue bibendum malesuada."
+                 u"But here also some weird characters ˚ø∆¨•ª¥¶†§ƒ√ª©∑´®º^˙∆ø˚˙∑•ª©®^º–π∆ªº^˙ª•ª¨©¶ ÖÄÖÄÖÄöäöäöäöä."
+                 u"</body></html>",
+            headers={},
+            mapped_attachments=0,
+            template_attachment_ids='',
+            original_message_id=None,
+            tenant=self.user_obj.tenant
+        )
+
+        # Send the email message.
+        manager.send_email_message(email_outbox_message.message())
+
+        # Verify that is stored in the database as an email message.
+        self.assertTrue(EmailMessage.objects.filter(account=email_account, message_id=message_id).exists(),
+                        "Send message missing from the database.")
+
+        # Verify that the email message has the correct labels.
+        email_message = EmailMessage.objects.get(account=email_account, message_id=message_id)
+        email_message_labels = set(email_message.labels.all().values_list('label_id', flat=True))
+        self.assertEqual(email_message_labels, set([settings.GMAIL_LABEL_SENT]), "Send message mssing the SEND label.")
+
+        # Verify that the email emssage has the correct thread id. Because the email message is not part of a thread,
+        # the thread_id should be the same as the message_id.
+        self.assertEqual(email_message.thread_id, message_id, "Message_id and thread_id should be the same.")
 
     @patch.object(GmailConnector, 'trash_email_message')
     @patch.object(GmailConnector, 'get_message_info')

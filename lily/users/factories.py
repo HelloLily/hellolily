@@ -61,7 +61,7 @@ class LilyUserFactory(DjangoModelFactory):
     def auth_token(self, create, extracted, **kwargs):
         if create:
             Token.objects.create(
-                key=self.email.split('@')[0],
+                key=self.email.split('@')[0][:40],
                 user=self
             )
 

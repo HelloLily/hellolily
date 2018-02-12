@@ -1,11 +1,11 @@
 from lily.tenant.factories import TenantFactory
-from lily.tests.utils import ElasticSearchFilterAPITest, GenericAPITestCase
+from lily.tests.utils import ElasticsearchApiTestCase, GenericAPITestCase
 from .serializers import AccountSerializer
 from ..factories import AccountFactory, AccountStatusFactory, WebsiteFactory
 from ..models import Account
 
 
-class AccountTests(ElasticSearchFilterAPITest, GenericAPITestCase):
+class AccountTests(ElasticsearchApiTestCase, GenericAPITestCase):
     """
     Class containing tests for the accounts API.
 

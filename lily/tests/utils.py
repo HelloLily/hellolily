@@ -7,6 +7,7 @@ from django.contrib.auth.models import AnonymousUser, Group
 from django.db.models import Manager, Model
 from django_elasticsearch_dsl import Index
 from django_elasticsearch_dsl.registries import registry
+from elasticsearch import NotFoundError
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client.client import OAuth2Credentials
 from rest_framework import status
@@ -191,25 +192,6 @@ class GenericAPITestCase(CompareObjectsMixin, UserBasedTest, APITestCase):
     model_cls = None
     serializer_cls = None
     ordering = ('-id',)  # Default ordering field
-    es_doc_type = None
-
-    @classmethod
-    def setUpTestData(cls):
-        super(GenericAPITestCase, cls).setUpTestData()
-
-        # Check if this model has Elasticsearch mappings and take one of them
-        # to test with (unless a custom es_doc_type has been defined).
-        if not cls.es_doc_type:
-            doc_types = registry.get_documents(cls.model_cls)
-            if doc_types:
-                cls.es_doc_type = next(iter(doc_types))
-
-    @classmethod
-    def tearDownClass(cls):
-        # Reset the es_doc_type class field for other tests.
-        cls.es_doc_type = None
-
-        super(GenericAPITestCase, cls).tearDownClass()
 
     def __call__(self, result=None):
         """
@@ -358,10 +340,6 @@ class GenericAPITestCase(CompareObjectsMixin, UserBasedTest, APITestCase):
         db_obj = self.model_cls.objects.get(pk=created_id)
         self._compare_objects(db_obj, json.loads(request.content))
 
-        if self.es_doc_type:
-            Index(self.es_doc_type._doc_type.index).refresh()
-            self.assertIsNotNone(self.es_doc_type.get(id=db_obj.pk))
-
     def test_create_object_tenant_filter(self):
         """
         Test that the tenant is set correctly on the new object.
@@ -395,10 +373,6 @@ class GenericAPITestCase(CompareObjectsMixin, UserBasedTest, APITestCase):
         db_obj = self._create_object()
         stub_dict = self._create_object_stub()
 
-        if self.es_doc_type:
-            Index(self.es_doc_type._doc_type.index).refresh()
-            old_es_doc = self.es_doc_type.get(id=db_obj.pk)
-
         request = self.user.put(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}), data=stub_dict)
         self.assertStatus(request, status.HTTP_200_OK, stub_dict)
 
@@ -407,12 +381,6 @@ class GenericAPITestCase(CompareObjectsMixin, UserBasedTest, APITestCase):
 
         db_obj = self.model_cls.objects.get(pk=created_id)
         self._compare_objects(db_obj, request.data)
-
-        if self.es_doc_type:
-            Index(self.es_doc_type._doc_type.index).refresh()
-            updated_es_doc = self.es_doc_type.get(id=created_id)
-
-            self.assertNotEqual(old_es_doc.to_dict(), updated_es_doc.to_dict())
 
     def test_update_object_deleted_filter(self):
         """
@@ -436,19 +404,9 @@ class GenericAPITestCase(CompareObjectsMixin, UserBasedTest, APITestCase):
         db_obj = self._create_object()
         stub_dict = self._create_object_stub()
 
-        if self.es_doc_type:
-            Index(self.es_doc_type._doc_type.index).refresh()
-            old_es_doc = self.es_doc_type.get(id=db_obj.pk)
-
         request = self.other_tenant_user.put(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}), stub_dict)
         self.assertStatus(request, status.HTTP_404_NOT_FOUND, stub_dict)
         self.assertEqual(request.data, {u'detail': u'Not found.'})
-
-        if self.es_doc_type:
-            Index(self.es_doc_type._doc_type.index).refresh()
-            updated_es_doc = self.es_doc_type.get(id=db_obj.pk)
-
-            self.assertEqual(old_es_doc.to_dict(), updated_es_doc.to_dict())
 
     def test_delete_object_unauthenticated(self):
         """
@@ -471,20 +429,6 @@ class GenericAPITestCase(CompareObjectsMixin, UserBasedTest, APITestCase):
         request = self.user.delete(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}))
         self.assertStatus(request, status.HTTP_204_NO_CONTENT)
 
-        if 'is_deleted' in [f.name for f in self.model_cls._meta.get_fields()]:
-            self.assertTrue(self.model_cls.objects.get(pk=db_obj.pk).is_deleted)
-
-            if self.es_doc_type:
-                Index(self.es_doc_type._doc_type.index).refresh()
-                self.assertIsNotNone(self.es_doc_type.get(id=db_obj.pk))
-        else:
-            with self.assertRaises(self.model_cls.DoesNotExist):
-                self.model_cls.objects.get(pk=db_obj.pk)
-
-            if self.es_doc_type:
-                Index(self.es_doc_type._doc_type.index).refresh()
-                self.assertIsNotNone(self.es_doc_type.get(id=db_obj.pk))
-
     def test_delete_object_deleted_filter(self):
         set_current_user(self.user_obj)
         db_obj = self._create_object()
@@ -506,13 +450,28 @@ class GenericAPITestCase(CompareObjectsMixin, UserBasedTest, APITestCase):
         self.assertEqual(request.data, {u'detail': u'Not found.'})
 
 
-def get_url_with_query(name, params={}, *args, **kwargs):
-    return '%s?%s' % (reverse(name, *args, **kwargs), urlencode(params))
-
-
-class ElasticSearchFilterAPITest(object):
+class ElasticsearchApiTestCase(object):
+    es_doc_type = None
     search_attribute = None
     filter_field = None
+
+    @classmethod
+    def setUpTestData(cls):
+        super(ElasticsearchApiTestCase, cls).setUpTestData()
+
+        # Check if this model has Elasticsearch mappings and take one of them
+        # to test with (unless a custom es_doc_type has been defined).
+        if not cls.es_doc_type:
+            doc_types = registry.get_documents(cls.model_cls)
+            if doc_types:
+                cls.es_doc_type = next(iter(doc_types))
+
+    @classmethod
+    def tearDownClass(cls):
+        # Reset the es_doc_type class field for other tests.
+        cls.es_doc_type = None
+
+        super(ElasticsearchApiTestCase, cls).tearDownClass()
 
     def test_list_search_with_elasticsearch(self):
         """
@@ -520,15 +479,97 @@ class ElasticSearchFilterAPITest(object):
         """
         set_current_user(self.user_obj)
         obj_list = self._create_object(size=3)
+        self.es_doc_type().update(obj_list, refresh=True)
+        desired_result = obj_list[0]
 
-        for idx in registry.get_indices([self.model_cls]):
-            idx.refresh()
-
-        request = self.user.get(get_url_with_query(self.list_url), {
-            'search': getattr(obj_list[0], self.search_attribute),
+        response = self.user.get(get_url_with_query(self.list_url), {
+            'search': getattr(desired_result, self.search_attribute),
         })
-        self.assertStatus(request, status.HTTP_200_OK)
-        self._compare_objects(obj_list[0], request.data.get('results')[0])
+
+        self.assertStatus(response, status.HTTP_200_OK)
+        self.assertEqual(desired_result.id, response.data.get('results')[0]['id'])
+
+    def test_create_object_in_elasticsearch(self):
+        """
+        Test that the object is created normally when the user is properly authenticated.
+        """
+        set_current_user(self.user_obj)
+        stub_dict = self._create_object_stub()
+
+        response = self.user.post(self.get_url(self.list_url), stub_dict)
+        self.assertStatus(response, status.HTTP_201_CREATED, stub_dict)
+
+        created_id = json.loads(response.content).get('id')
+        self.assertIsNotNone(created_id)
+
+        db_obj = self.model_cls.objects.get(pk=created_id)
+
+        Index(self.es_doc_type._doc_type.index).refresh()
+        self.assertIsNotNone(self.es_doc_type.get(id=db_obj.pk))
+
+    def test_update_object_elasticsearch_tenant_filter(self):
+        """
+        Test that users from different tenants can't update each other's data.
+        """
+        set_current_user(self.user_obj)
+        db_obj = self._create_object()
+        stub_dict = self._create_object_stub()
+
+        self.es_doc_type().update(db_obj, refresh=True)
+        old_es_doc = self.es_doc_type.get(id=db_obj.pk)
+
+        response = self.other_tenant_user.put(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}), stub_dict)
+        self.assertStatus(response, status.HTTP_404_NOT_FOUND, stub_dict)
+
+        Index(self.es_doc_type._doc_type.index).refresh()
+        updated_es_doc = self.es_doc_type.get(id=db_obj.pk)
+
+        self.assertEqual(old_es_doc.to_dict(), updated_es_doc.to_dict())
+
+    def test_update_in_elasticsearch(self):
+        """
+        Test that the object is updated normally when the user is properly authenticated.
+        """
+        set_current_user(self.user_obj)
+        db_obj = self._create_object()
+        stub_dict = self._create_object_stub()
+
+        self.es_doc_type().update(db_obj, refresh=True)
+        old_es_doc = self.es_doc_type.get(id=db_obj.pk)
+
+        response = self.user.put(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}), data=stub_dict)
+        self.assertStatus(response, status.HTTP_200_OK, stub_dict)
+
+        created_id = response.data.get('id')
+        self.assertIsNotNone(created_id)
+
+        db_obj = self.model_cls.objects.get(pk=created_id)
+        self._compare_objects(db_obj, response.data)
+
+        Index(self.es_doc_type._doc_type.index).refresh()
+        updated_es_doc = self.es_doc_type.get(id=created_id)
+
+        self.assertNotEqual(old_es_doc.to_dict(), updated_es_doc.to_dict())
+
+    def test_delete_object_in_elasticsearch(self):
+        """
+        Test that the object is deleted normally when the user is properly authenticated.
+        """
+        set_current_user(self.user_obj)
+        db_obj = self._create_object()
+        self.es_doc_type().update(db_obj, refresh=True)
+
+        response = self.user.delete(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}))
+        self.assertStatus(response, status.HTTP_204_NO_CONTENT)
+
+        Index(self.es_doc_type._doc_type.index).refresh()
+
+        with self.assertRaises(NotFoundError):
+            self.assertIsNotNone(self.es_doc_type.get(id=db_obj.pk))
+
+
+def get_url_with_query(name, params={}, *args, **kwargs):
+    return '%s?%s' % (reverse(name, *args, **kwargs), urlencode(params))
 
 
 def get_dummy_credentials():

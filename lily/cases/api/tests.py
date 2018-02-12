@@ -3,11 +3,11 @@ from lily.cases.api.serializers import CaseSerializer
 from lily.cases.factories import CaseFactory, CaseStatusFactory, CaseTypeFactory
 from lily.cases.models import Case
 from lily.contacts.factories import ContactFactory
-from lily.tests.utils import ElasticSearchFilterAPITest, GenericAPITestCase
+from lily.tests.utils import ElasticsearchApiTestCase, GenericAPITestCase
 from lily.users.factories import LilyUserFactory
 
 
-class CaseTests(ElasticSearchFilterAPITest, GenericAPITestCase):
+class CaseTests(ElasticsearchApiTestCase, GenericAPITestCase):
     """
     Class containing tests for the case API.
 

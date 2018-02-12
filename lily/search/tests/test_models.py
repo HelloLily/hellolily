@@ -10,6 +10,7 @@ from mock import MagicMock
 
 from lily.cases.factories import CaseFactory
 from lily.cases.models import Case
+from lily.cases.search import CaseDoc
 from lily.search.models import ElasticQuerySet
 
 logger = logging.getLogger(__name__)
@@ -39,6 +40,7 @@ class ElasticQuerySetTestCase(TestCase):
     def setUpTestData(cls):
         super(ElasticQuerySetTestCase, cls).setUpTestData()
         cls.model_instance = CaseFactory.create()
+        CaseDoc().update(cls.model_instance, refresh=True)
 
     def get_query_set_with_full_text_search(self):
         return ElasticQuerySet(self.model_class).elasticsearch_query(MultiMatch(query='test', fields=['foo', 'bar']))

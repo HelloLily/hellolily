@@ -267,7 +267,7 @@ class ElasticModelMixin(object):
     def perform_destroy(self, instance):
         action_buffer = ActionBuffer()
         action_buffer.add_model_actions(instance, 'delete')
-        action_buffer.execute()
+        action_buffer.execute(raise_on_error=False)
 
         super(ElasticModelMixin, self).perform_destroy(instance)
 
@@ -285,4 +285,4 @@ class ElasticModelMixin(object):
         if not isinstance(serializer, self._get_elasticsearch_serializer()):
             action_buffer = ActionBuffer()
             action_buffer.add_model_actions(serializer.instance)
-            action_buffer.execute()
+            action_buffer.execute(raise_on_error=False)

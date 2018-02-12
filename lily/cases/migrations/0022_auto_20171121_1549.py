@@ -9,12 +9,12 @@ import django.db.models.manager
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0019_auto_20170419_0926'),
+        ('cases', '0021_auto_20180822_1303'),
     ]
 
     operations = [
         migrations.AlterModelManagers(
-            name='account',
+            name='case',
             managers=[
                 ('elastic_objects', django.db.models.manager.Manager()),
                 ('objects', django.db.models.manager.Manager()),

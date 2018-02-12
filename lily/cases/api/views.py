@@ -1,15 +1,13 @@
 from django.db.models import Q
 from django_filters import CharFilter
-from django_filters.rest_framework import DjangoFilterBackend
 from django_filters import rest_framework as filters
-from django_filters.rest_framework import BooleanFilter, DateFilter, DjangoFilterBackend
+from django_filters.rest_framework import BooleanFilter, DateFilter
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets
 from rest_framework.decorators import list_route
 from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_filters import FilterSet
 
 from lily.api.filters import ElasticSearchFilter
 from lily.api.mixins import ModelChangesMixin, TimeLogMixin, DataExistsMixin, ElasticModelMixin, NoteMixin
@@ -62,7 +60,8 @@ class CaseFilter(filters.FilterSet):
         }
 
 
-class CaseViewSet(ElasticModelMixin, ModelChangesMixin, TimeLogMixin, DataExistsMixin, NoteMixin, viewsets.ModelViewSet):
+class CaseViewSet(ElasticModelMixin, ModelChangesMixin, TimeLogMixin, DataExistsMixin,
+                  NoteMixin, viewsets.ModelViewSet):
     """
     retrieve:
     Returns the given case.
@@ -104,8 +103,8 @@ class CaseViewSet(ElasticModelMixin, ModelChangesMixin, TimeLogMixin, DataExists
     filter_backends = (ElasticSearchFilter, OrderingFilter, filters.DjangoFilterBackend,)
 
     # OrderingFilter: set all possible fields to order by.
-    ordering_fields = ('created', 'modified', 'type', 'status', 'assigned_to', 'priority', 'subject', 'expires',
-                       'created_by__first_name', )
+    ordering_fields = ('created', 'modified', 'type__name', 'status__name', 'assigned_to__first_name', 'priority',
+                       'subject', 'expires', 'created_by__first_name', )
     # SearchFilter: set the fields that can be searched on.
     search_fields = ('account', 'contact', 'assigned_to', 'created_by', 'status', 'subject', 'tags', 'type', )
     # DjangoFilter: set the filter class.

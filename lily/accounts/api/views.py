@@ -76,7 +76,7 @@ class AccountViewSet(ElasticModelMixin, ModelChangesMixin, DataExistsMixin, Note
     search_fields = ('name', )
 
     # OrderingFilter: set all possible fields to order by.
-    ordering_fields = ('name', 'assigned_to', 'status', 'created', 'modified', 'assigned_to__first_name')
+    ordering_fields = ('name', 'status__name', 'created', 'modified', 'assigned_to__first_name')
     # SearchFilter: set the fields that can be searched on.
     search_fields = ('assigned_to', 'description', 'email_addresses', 'name', 'phone_numbers', 'status', 'tags',
                      'websites')

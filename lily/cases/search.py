@@ -72,4 +72,3 @@ class CaseDoc(DocType):
 
     class Meta:
         model = Case
-                'profile_picture': obj.created_by.profile_picture,

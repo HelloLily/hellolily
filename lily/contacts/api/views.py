@@ -1,8 +1,9 @@
 from django.db.models import Q
 from drf_yasg.utils import swagger_auto_schema
+from django_filters import rest_framework as filters
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
-from rest_framework.filters import OrderingFilter, DjangoFilterBackend
+from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 
 from lily.api.filters import ElasticSearchFilter
@@ -47,7 +48,7 @@ class ContactViewSet(ElasticModelMixin, ModelChangesMixin, DataExistsMixin, Note
     # Set the serializer class for this viewset.
     serializer_class = ContactSerializer
     # Set all filter backends that this viewset uses.
-    filter_backends = (ElasticSearchFilter, OrderingFilter, DjangoFilterBackend, )
+    filter_backends = (ElasticSearchFilter, OrderingFilter, filters.DjangoFilterBackend, )
 
     # OrderingFilter: set all possible fields to order by.
     ordering_fields = ('first_name', 'last_name', 'created', 'modified', 'accounts__name', 'status', )

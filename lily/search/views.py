@@ -27,10 +27,10 @@ class PhoneNumberSearchView(LoginRequiredMixin, View):
         }
 
         # TODO LILY-2786: Optimize number fetching queries.
-        account, contact = search_number(self.request.user.tenant_id, number)
         # This function gets all accounts and contacts from the db, only
         # returns the first one and then only gets the PK of the object here.
         # These queries can be much faster and more simple.
+        account, contact = search_number(self.request.user.tenant_id, number)
 
         if account:
             response['data']['account'] = {'id': account.id, 'name': account.name}
@@ -44,7 +44,6 @@ class PhoneNumberSearchView(LoginRequiredMixin, View):
 class InternalNumberSearchView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         phone_number = kwargs.get('number', None)
-        # TODO LILY-2785: These queries should be optimized and tested.
 
         if phone_number:
             # For now we'll always convert the phone number to a certain format.
@@ -85,16 +84,13 @@ class InternalNumberSearchView(LoginRequiredMixin, View):
     def _get_contact_assignee_by_account(self, account):
         """
         Return a contact and assignee of a case or deal belonging to the provided account.
-
         Args:
             account (obj): Account to which cases or deals belong to.
-
         Returns:
             contact (obj): Contact belonging to the case or deal.
             assignee (obj): Assignee of the case or deal.
         """
         tenant = self.request.user.tenant
-        account = Account.objects.filter(phone_numbers__number=number).order_by('-modified').first()
 
         contact = None
         assignee = None
@@ -109,13 +105,19 @@ class InternalNumberSearchView(LoginRequiredMixin, View):
             ).order_by(
                 '-modified'
             ).first()
+
+            deal = Deal.objects.filter(
+                tenant=tenant,
+                account=account,
+                contact__isnull=False,
+                is_deleted=False
             ).order_by(
                 '-modified'
             ).first()
 
-                if deal:
-                    contact = deal.contact
-                    assignee = deal.assigned_to
+            if case:
+                contact = case.contact
+                assignee = case.assigned_to
             elif deal:
                 contact = deal.contact
                 assignee = deal.assigned_to
@@ -127,21 +129,20 @@ class InternalNumberSearchView(LoginRequiredMixin, View):
         First look up a contact or account by the provided phone number. Next determine for that contact or account
         the case / deal with the latest interaction. Return that user and its internal number to which that deal or
         case is assigned to.
-
         Args:
             phone_number (str): Formatted phone number.
-
         Returns:
             JSON string containing:
                 internal_number (int): The internal number of the user.
                 user (int): ID of the user the internal number belongs to.
         """
         tenant = self.request.user.tenant
-        contact = Contact.elastic_objects.filter(phone_numbers__number=number).order_by('-modified').first()
-        user = None
 
-        if hits:
-            contact = hits[0]
+        user = None
+        assignee = None
+
+        phone_numbers = PhoneNumber.objects.filter(
+            tenant=tenant,
             number=phone_number
         )
 
@@ -160,6 +161,7 @@ class InternalNumberSearchView(LoginRequiredMixin, View):
         ).order_by(
             '-modified'
         ).first()
+
         if not contact:
             contact, assignee = self._get_contact_assignee_by_account(account)
 
@@ -230,11 +232,15 @@ class InternalNumberSearchView(LoginRequiredMixin, View):
                 else:
                     # None of the above rules applies, so use account if possible.
                     accounts = contact.accounts.all()
+                    if accounts:
                         account = accounts.first()
+                        user = account.assigned_to
         elif account:
             user = account.assigned_to
 
+        if not user and assignee:
             user = assignee
+
         if user:
             return {
                 'internal_number': user.internal_number,

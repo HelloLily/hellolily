@@ -7,8 +7,9 @@ from django.urls import reverse_lazy
 from django.core.validators import validate_email
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+from django_filters import FilterSet
 from django_filters import rest_framework as filters
-from django_filters.rest_framework import BooleanFilter, DjangoFilterBackend
+from django_filters.rest_framework import BooleanFilter
 from django_otp import devices_for_user
 from django_otp.plugins.otp_static.models import StaticToken
 from rest_framework import mixins, viewsets, status
@@ -27,7 +28,6 @@ from templated_email import send_templated_mail
 
 from lily.api.filters import ElasticSearchFilter
 from lily.api.mixins import ElasticModelMixin
-from lily.users.api.filters import TeamFilter, LilyUserFilter
 from lily.utils.api.permissions import IsAccountAdmin
 from lily.utils.functions import has_required_tier, post_intercom_event
 
@@ -37,6 +37,12 @@ from .serializers import (
     BasicLilyUserSerializer
 )
 from ..models import Team, LilyUser, UserInvite, UserSettings
+
+
+class TeamFilter(FilterSet):
+    class Meta:
+        model = Team
+        fields = ['name', ]
 
 
 class TeamViewSet(viewsets.ModelViewSet):
@@ -174,7 +180,16 @@ class UserInviteViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_200_OK)
 
 
+class LilyUserFilter(FilterSet):
     is_active = BooleanFilter()
+
+    class Meta:
+        model = LilyUser
+        fields = {
+            'is_active': ['exact', ],
+            'teams': ['isnull', ],
+        }
+
 
 class LilyUserViewSet(ElasticModelMixin, viewsets.ModelViewSet):
     """
@@ -205,7 +220,7 @@ class LilyUserViewSet(ElasticModelMixin, viewsets.ModelViewSet):
     # Set the serializer class for this viewset.
     serializer_class = LilyUserSerializer
     # Set all filter backends that this viewset uses.
-    filter_backends = (ElasticSearchFilter, OrderingFilter, DjangoFilterBackend)
+    filter_backends = (ElasticSearchFilter, OrderingFilter, filters.DjangoFilterBackend)
     swagger_schema = None
 
     # OrderingFilter: set all possible fields to order by.
@@ -229,7 +244,7 @@ class LilyUserViewSet(ElasticModelMixin, viewsets.ModelViewSet):
             first_name=''
         )
 
-        if 'is_active' in self.request.query_params:
+        # By default we filter out non-active users.
         is_active_param = self.request.query_params.get('is_active', 'True')
 
         if is_active_param in (True, 'True', 'true', '1'):
@@ -241,13 +256,9 @@ class LilyUserViewSet(ElasticModelMixin, viewsets.ModelViewSet):
         else:
             is_active = True
 
-        # # Value must be one of these, or it is ignored and we filter out non-active users.
+        # If the value is `All`, do not filter, otherwise filter the queryset on is_active status.
         if is_active is not None:
             queryset = queryset.filter(is_active=is_active)
-
-        # # If the value is `All`, do not filter, otherwise filter the queryset on is_active status.
-        # if is_active in ['True', 'False']:
-        #     queryset = queryset.filter(is_active=(is_active == 'True'))
 
         return queryset
 

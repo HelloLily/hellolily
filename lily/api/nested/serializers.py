@@ -195,7 +195,7 @@ class WritableNestedSerializer(serializers.ModelSerializer):
             # Save the reverse many to manys with a through model.
             self.save_many_to_many_through_reverse_fields()
 
-        self.elasticsearch_actions.execute()
+        self.elasticsearch_actions.execute(raise_on_error=False)
 
         self.call_webhook(validated_data, self.instance)
 
@@ -233,7 +233,7 @@ class WritableNestedSerializer(serializers.ModelSerializer):
             # Save the reverse many to manys with a through model.
             self.save_many_to_many_through_reverse_fields(cleanup=True)
 
-        self.elasticsearch_actions.execute()
+        self.elasticsearch_actions.execute(raise_on_error=False)
 
         self.call_webhook(validated_data, self.instance)
 

@@ -72,5 +72,3 @@ class DealDoc(DocType):
 
     class Meta:
         model = Deal
-                'profile_picture': obj.assigned_to.profile_picture,
-                'profile_picture': obj.created_by.profile_picture,

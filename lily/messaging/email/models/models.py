@@ -23,6 +23,7 @@ from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from django_extensions.db.models import TimeStampedModel
 from django.utils.translation import ugettext_lazy as _
+from bs4 import UnicodeDammit
 from oauth2client.contrib.django_orm import CredentialsField
 
 from lily.tenant.models import TenantMixin
@@ -530,6 +531,12 @@ class EmailOutboxMessage(TenantMixin, models.Model):
             from_email = self.send_from.email_address
 
         html, text, inline_headers = replace_cid_and_change_headers(self.body, self.original_message_id)
+
+        # After django 1.11 update forcing the html part of the body to be unicode is needed to avoid encoding errors.
+        dammit = UnicodeDammit(html)
+        encoding = dammit.original_encoding
+        if encoding:
+            html = html.decode(encoding)
 
         email_message = SafeMIMEMultipart('related')
         email_message['Subject'] = self.subject

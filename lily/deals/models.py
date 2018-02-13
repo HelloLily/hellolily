@@ -113,7 +113,7 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     card_sent = models.BooleanField(default=False)
 
     # Related Fields.
-    account = models.ForeignKey(Account)
+    account = models.ForeignKey(Account, null=True, blank=True, on_delete=models.SET_NULL)
     contact = models.ForeignKey(Contact, null=True, blank=True, on_delete=models.SET_NULL)
     assigned_to_teams = models.ManyToManyField(Team, blank=True)
     assigned_to = models.ForeignKey(LilyUser, null=True, blank=True, on_delete=models.SET_NULL)

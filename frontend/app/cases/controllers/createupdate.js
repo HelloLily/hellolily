@@ -467,7 +467,6 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
                 text: 'Please select an account or contact the case belongs to',
                 type: 'warning',
                 confirmButtonText: 'Let me fix that for you',
-                confirmButtonClass: 'btn btn-success',
             }).done();
 
             return false;
@@ -477,7 +476,6 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
                 text: 'Please select a colleague or team to assign the case to',
                 type: 'warning',
                 confirmButtonText: 'Let me fix that for you',
-                confirmButtonClass: 'btn btn-success',
             }).done();
 
             return false;

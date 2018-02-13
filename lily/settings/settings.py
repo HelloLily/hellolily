@@ -368,8 +368,8 @@ INSTALLED_APPS = (
 #######################################################################################################################
 # EMAIL SETTINGS                                                                                                      #
 #######################################################################################################################
-if DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# if DEBUG:
+#     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 EMAIL_USE_TLS = boolean(os.environ.get('EMAIL_USE_TLS', 0))
 EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.host.com')

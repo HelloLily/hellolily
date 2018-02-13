@@ -40,6 +40,7 @@ var config = {
                 'frontend/app/**/module.js',
                 'frontend/app/**/*.js',
                 '!frontend/app/base/analytics.js',
+                '!frontend/app/email/directives/constants.js',
             ],
             fileName: 'app.js',
             analytics: {
@@ -48,6 +49,13 @@ var config = {
                 ],
                 fileName: 'analytics.js',
             },
+        },
+        jsx: {
+            src: [
+                'frontend/app/**/*.jsx',
+                'frontend/app/email/directives/constants.js',
+            ],
+            fileName: 'app-react.js',
         },
         sass: {
             src: [
@@ -69,6 +77,7 @@ var config = {
                 '!frontend/app/**/*.css',
                 '!frontend/app/**/*.scss',
                 '!frontend/app/**/*.js',
+                '!frontend/app/**/*.jsx',
                 '!frontend/app/**/*.html',
             ],
         },
@@ -99,6 +108,7 @@ var config = {
                 '!frontend/vendor/**/*.css',
                 '!frontend/vendor/**/*.scss',
                 '!frontend/vendor/**/*.js',
+                '!frontend/vendor/**/*.jsx',
                 '!frontend/vendor/**/*.html',
             ],
         },
@@ -154,7 +164,7 @@ gulp.task('app-js', [], function(cb) {
     return gulp.src(config.app.js.src, {read: false})
         .pipe(tap(function(file) {
             // Replace file contents with browserify's bundle stream.
-            file.contents = browserify(file.path, {debug: true}).bundle()
+            file.contents = browserify(file.path, {debug: true}).transform('babelify', {presets: ['env']}).bundle()
                 .on('error', function(err) {
                     gutil.log(gutil.colors.red('Browserify error') + err);
                     gutil.beep();
@@ -171,6 +181,33 @@ gulp.task('app-js', [], function(cb) {
         .pipe(ifElse(isProduction, uglify))
         .pipe(remember('app-js'))
         .pipe(concat(config.app.js.fileName))
+        .pipe(sourcemaps.write('./'))
+        .pipe(gulp.dest(config.app.buildDir))
+        .pipe(ifElse(isWatcher, size))
+        .pipe(ifElse(isWatcher, livereload));
+});
+
+gulp.task('app-react-js', [], function(cb) {
+    return gulp.src(config.app.jsx.src, {read: false})
+        .pipe(tap(function(file) {
+            // Replace file contents with browserify's bundle stream.
+            file.contents = browserify(file.path, {debug: true}).transform('babelify', {presets: ['env', 'react', 'stage-2']}).bundle()
+                .on('error', function(err) {
+                    gutil.log(gutil.colors.red('Browserify error') + err);
+                    gutil.beep();
+                    cb();
+                });
+        }))
+        // Transform streaming contents into buffer contents
+        // (because gulp-sourcemaps does not support streaming contents).
+        .pipe(buffer())
+        .pipe(sourcemaps.init())
+        .pipe(cached('app-react-js'))
+        .pipe(babel({presets: ['env'], compact: false}))
+        .pipe(wrap('(function(angular){\'use strict\';<%= contents %>})(angular);'))
+        .pipe(ifElse(isProduction, uglify))
+        .pipe(remember('app-react-js'))
+        .pipe(concat(config.app.jsx.fileName))
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest(config.app.buildDir))
         .pipe(ifElse(isWatcher, size))
@@ -287,8 +324,8 @@ gulp.task('heroku-assets', [], function() {
 /**
  * Concatenate, minify and make source maps of all js and css.
  */
-gulp.task('build', ['app-js', 'app-css', 'app-templates', 'app-assets', 'vendor-js', 'vendor-css', 'vendor-assets',
-    'analytics', 'heroku-assets'], function() {});
+gulp.task('build', ['app-js', 'app-react-js', 'app-css', 'app-templates', 'app-assets', 'vendor-js', 'vendor-assets',
+    'vendor-css', 'analytics', 'heroku-assets'], function() {});
 
 /**
  * Watch for changes
@@ -300,6 +337,11 @@ gulp.task('watch', [], function() {
     // Watch for changes in app javascript.
     watch(config.app.js.src, function() {
         gulp.start('app-js');
+    });
+
+    // Watch for changes in app JSX.
+    watch(config.app.jsx.src, function() {
+        gulp.start('app-react-js');
     });
 
     // Watch for changes in sass files.

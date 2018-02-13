@@ -14,40 +14,33 @@
 
                 <div class="activity-stream-comment">
                     <div class="activity-stream-image is-type">
-                        <i class="lilicon hl-note-icon"></i>
+                        <i class="lilicon" ng-class="{'hl-note-icon': activity.addType === 1, 'hl-mail-icon': activity.addType === 2}"></i>
                     </div>
 
                     <div class="activity-stream-item">
-                        <form role="form" name="noteForm" on-mod-enter-key="activity.addNote(note, noteForm)">
-                            <div class="form-body">
-                                <div class="form-group">
-                                    <textarea required class="form-control no-resize" id="id_content" msd-elastic ng-model="note.content" name="content" placeholder="Write your note here"></textarea>
-                                    <field-error form="noteForm" field="content"></field-error>
-                                </div>
-                            </div>
-                            <div>
-                                <ul class="timeline-content-type-buttons">
-                                    <li ng-model="note.type" uib-btn-radio="0">
-                                        <i class="lilicon hl-note-icon"></i>
-                                        Note
-                                    </li>
-                                   <li ng-model="note.type" uib-btn-radio="1">
-                                       <i class="fa fa-phone"></i>
-                                       Call
-                                   </li>
-                                   <li ng-model="note.type" uib-btn-radio="2">
-                                       <i class="lilicon hl-calendar-icon"></i>
-                                       Meetup
-                                   </li>
-                                </ul>
+                        <uib-tabset active="active" class="lily-tabs" ng-class="{'no-padding': activity.addType === 2}">
+                            <uib-tab index="0" heading="Note" ng-click="activity.addType = 1">
+                                <form role="form" name="noteForm" on-mod-enter-key="activity.addNote(note, noteForm)">
+                                    <div class="form-body">
+                                        <div class="form-group">
+                                            <textarea required class="form-control no-resize" id="id_content" msd-elastic ng-model="note.content" name="content" placeholder="Write your note here"></textarea>
+                                            <field-error form="noteForm" field="content"></field-error>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <button type="submit" class="hl-primary-btn-blue pull-right" name="submit-form" ng-click="activity.addNote(note, noteForm)" uib-tooltip="{{ $root.messages.tooltips.modEnter.title }}">
+                                            <i class="fa fa-check"></i>
+                                            Add note
+                                        </button>
+                                        <div class="clearfix"></div>
+                                    </div>
+                                </form>
+                            </uib-tab>
 
-                                <button type="submit" class="hl-primary-btn-blue pull-right" name="submit-form" ng-click="activity.addNote(note, noteForm)" uib-tooltip="{{ $root.messages.tooltips.modEnter.title }}">
-                                    <i class="fa fa-check"></i>
-                                    Add note
-                                </button>
-                                <div class="clearfix"></div>
-                            </div>
-                        </form>
+                            <uib-tab index="1" heading="Email" ng-click="activity.addType = 2">
+                                <email-editor max-height="500" recipients="activity.recipients"></email-editor>
+                            </uib-tab>
+                        </uib-tabset>
                     </div>
                 </div>
             </div>

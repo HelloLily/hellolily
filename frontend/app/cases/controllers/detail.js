@@ -103,6 +103,44 @@ function CaseDetailController($scope, Case, HLResource, HLUtils, LocalStorage, S
 
             vm.closedStatus = Case.closedStatus;
         });
+
+        // TODO: This should be some util functions.
+        vm.recipients = getRecipients();
+    }
+
+    function getRecipients() {
+        const {account, contact} = vm.case;
+
+        let emailAddress = null;
+
+        if (account && contact) {
+            if (contact.email_addresses.length === 0) {
+                // No personal email addresses, but account has email addresses.
+                if (account.email_addresses.length > 1) {
+                    // Get the email address set as primary or otherwise just the first one.
+                    emailAddress = account.email_addresses.find(email => email.is_primary) || account.email_addresses[0];
+                }
+            } else {
+                // Check if any of the contact's email addresses match any of the account's domains.
+                account.websites.forEach(website => {
+                    emailAddress = contact.email_addresses.find(email => email.email_address.includes(website.second_level));
+                });
+            }
+        }
+
+        if (!emailAddress) {
+            if (contact) {
+                emailAddress = contact.email_addresses.find(email => email.is_primary) || contact.email_addresses[0];
+            } else if (account) {
+                emailAddress = account.email_addresses.find(email => email.is_primary) || account.email_addresses[0];
+            }
+        }
+
+        if (emailAddress) {
+            return [{...contact, emailAddress: emailAddress.email_address}];
+        }
+
+        return [];
     }
 
     function updateModel(data, field) {

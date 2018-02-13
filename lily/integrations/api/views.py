@@ -21,11 +21,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
+from lily.accounts.models import Account
+from lily.accounts.api.serializers import AccountSerializer
 from lily.api.drf_extensions.authentication import PandaDocSignatureAuthentication
 from lily.contacts.models import Contact
 from lily.deals.models import Deal, DealStatus, DealNextStep
 from lily.notes.models import Note
-from lily.utils.functions import send_get_request
+from lily.utils.functions import send_get_request, send_post_request
 from lily.utils.models.models import EmailAddress
 from lily.utils.api.permissions import IsAccountAdmin, IsFeatureAvailable
 
@@ -69,6 +71,74 @@ class DocumentDetails(APIView):
             })
 
         return Response({'document': document})
+
+
+class DocumentSend(APIView):
+    serializer = DocumentSerializer
+    parser_classes = (JSONParser, FormParser)
+
+    def get(self, request, document_id, format=None):
+        """
+        Moves the document to the sent status and generates a sign url.
+        """
+        data = {}
+
+        credentials = get_credentials('pandadoc')
+
+        if credentials:
+            error_message = None
+
+            document_id = self.kwargs.get('document_id')
+
+            details_url = 'https://api.pandadoc.com/public/v1/documents/%s/details' % document_id
+
+            response = send_get_request(details_url, credentials)
+
+            recipient = self.request.query_params.get('recipient')
+
+            if recipient and response.status_code == 200:
+                metadata = response.json().get('metadata')
+
+                # Only documents with the 'draft' status can be set to sent.
+                if response.json().get('status') == 'document.draft':
+                    # Set the status of the document to 'sent' so we can create a view session.
+                    send_url = 'https://api.pandadoc.com/public/v1/documents/%s/send' % document_id
+                    send_params = {'silent': True}
+                    response = send_post_request(send_url, credentials, send_params)
+
+                    if response.status_code != 200:
+                        error_message = _('Something went wrong while setting up the PandaDoc sign URL.')
+
+                if metadata and metadata.get('account'):
+                    account_id = metadata.get('account')
+
+                    try:
+                        account = Account.objects.get(pk=account_id)
+                    except Account.DoesNotExist:
+                        pass
+                    else:
+                        account_serializer = AccountSerializer(account)
+                        data.update({'account': account_serializer.data})
+
+                # Document has been 'sent' so create the session.
+                session_url = 'https://api.pandadoc.com/public/v1/documents/%s/session' % document_id
+                year = 60 * 60 * 24 * 365
+                session_params = {'recipient': recipient, 'lifetime': year}
+
+                response = send_post_request(session_url, credentials, session_params)
+
+                if response.status_code == 201:
+                    sign_url = 'https://app.pandadoc.com/s/%s' % response.json().get('id')
+                    data.update({'document': {'sign_url': sign_url}})
+                else:
+                    error_message = _('The PandaDoc sign URL could not be created because the recipient is incorrect')
+            else:
+                error_message = _('The document doesn\'t seem to be valid.')
+
+            if error_message:
+                return Response({'error': error_message}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class PandaDocList(APIView):

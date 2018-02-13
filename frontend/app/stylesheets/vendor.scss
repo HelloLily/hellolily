@@ -1,8 +1,77 @@
 @import "sweetalert2/src/sweetalert2";
 @import "ui-select/dist/select";
 @import "angular-xeditable/dist/css/xeditable";
+// @import "react-select/dist/react-select";
+@import "froala-editor/css/froala_style.min";
+@import "froala-editor/css/froala_editor.pkgd.min";
+@import "uppy/dist/uppy.min";
 
-// SWEET ALERT
+// SweetAlert
 .swal2-content {
     font-family: "Open Sans", sans-serif;
 }
+
+// scss-lint:disable SelectorFormat
+
+// Froala Editor
+
+.editor {
+    .fr-separator {
+        &.fr-vs {
+            width: 2px;
+            margin: 2px 8px;
+            background: #e1e6ef;
+        }
+    }
+
+    .fr-toolbar {
+        &.fr-top {
+            border-top: 0;
+            border-bottom: 1px solid #d1d1d6;
+            box-shadow: none;
+            border-radius: 0;
+            display: flex;
+            align-items: center;
+            padding: 6px 10px;
+        }
+
+        .fr-command {
+            &.fr-btn {
+                background: #f7f8fd;
+                border: 1px #d1d1d6 solid;
+                border-bottom-width: 2px;
+                border-radius: 4px;
+                width: 30px;
+                height: 30px;
+
+                i {
+                    width: 16px;
+                    margin: 6px;
+                }
+            }
+
+            &:last-of-type {
+                margin-left: auto;
+            }
+        }
+    }
+
+    .fr-box {
+        &.fr-basic {
+            &.fr-top {
+                .fr-wrapper {
+                    box-shadow: none;
+                }
+            }
+        }
+    }
+
+}
+
+.uppy-Dashboard--modal {
+    .uppy-Dashboard-overlay {
+        background-color: rgba(39, 36, 76, 0.50);
+    }
+}
+
+// scss-lint:enable SelectorFormat

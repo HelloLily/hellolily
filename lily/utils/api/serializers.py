@@ -76,7 +76,7 @@ class EmailAddressSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = EmailAddress
-        fields = ('id', 'email_address', 'status', 'status_name', )
+        fields = ('id', 'email_address', 'status', 'status_name', 'is_active')
 
 
 class RelatedEmailAddressSerializer(RelatedSerializerMixin, EmailAddressSerializer):

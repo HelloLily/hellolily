@@ -14,6 +14,16 @@ function emailConfig($stateProvider) {
         url: '/compose',
         views: emailComposeView,
     });
+    $stateProvider.state('base.email.newCompose', {
+        url: '/new_compose',
+        views: {
+            '@base.email': {
+                templateUrl: 'email/controllers/compose.html',
+                controller: NewEmailComposeController,
+                controllerAs: 'vm',
+            },
+        },
+    });
     $stateProvider.state('base.email.composeEmail', {
         url: '/compose/{email}',
         views: emailComposeView,
@@ -251,4 +261,16 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
         // Properly destroy the rich text editor to prevent memory leaks.
         HLInbox.destroyEditor();
     });
+}
+
+
+angular.module('app.email').controller('NewEmailComposeController', NewEmailComposeController);
+
+NewEmailComposeController.$inject = ['$scope', '$state', '$stateParams', '$templateCache', '$q', 'Settings', 'Contact',
+    'EmailMessage', 'EmailTemplate', 'SelectedEmailAccount'];
+function NewEmailComposeController($scope, $state, $stateParams, $templateCache, $q, Settings, Contact, EmailMessage,
+    EmailTemplate, SelectedEmailAccount) {
+    // const vm = this;
+
+    Settings.page.setAllTitles('custom', 'Compose email');
 }

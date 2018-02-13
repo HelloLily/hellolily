@@ -283,6 +283,47 @@ class RelatedEmailAccountSerializer(RelatedSerializerMixin, EmailAccountSerializ
 
 
 class EmailTemplateSerializer(serializers.ModelSerializer):
+    custom_variables = serializers.SerializerMethodField()
+
+    def get_custom_variables(self, obj):
+        # Setup regex to find custom variables
+        search_regex = '\[\[ custom\.(.*?) \]\]'
+        # search_regex = '\[\[ ?custom\.[a-z_+]+(\.public)? ?\]\]'
+        # Find all occurrences.
+        search_result = re.findall(search_regex, obj.body_html)
+
+        variables = []
+
+        if search_result:
+            for custom_variable in search_result:
+                public = None
+
+                try:
+                    # Try to split to see if it's a public variable
+                    variable, public = custom_variable.split('.')
+                except ValueError:
+                    # Not a public variable, so .split raises an error
+                    variable = custom_variable
+
+                if public:
+                    template_variable = TemplateVariable.objects.get(
+                        name__iexact=variable,
+                        is_public=True
+                    )
+                else:
+                    template_variable = TemplateVariable.objects.get(
+                        name__iexact=variable,
+                        owner=self.request.user
+                    )
+
+                if template_variable:
+                    variables.append({
+                        'variable': custom_variable,
+                        'text': template_variable.text
+                    })
+
+        return variables
+
     def get_default_for_queryset(self, instance=None):
         """
         Filtered queryset method that is called for:
@@ -375,6 +416,7 @@ class EmailTemplateSerializer(serializers.ModelSerializer):
             'body_html',
             'default_for',
             'folder',
+            'custom_variables',
         )
 
 

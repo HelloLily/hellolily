@@ -9,9 +9,9 @@ from lily.contacts.api.views import ContactViewSet, ContactImport
 from lily.deals.api.views import (DealViewSet, DealStatusViewSet, DealNextStepList, DealNextStepViewSet,
                                   DealWhyCustomerViewSet, DealContactedByViewSet, DealWhyLostViewSet,
                                   DealFoundThroughViewSet)
-from lily.integrations.api.views import (DocumentDetails, EstimatesList, IntegrationAuth, MoneybirdContactImport,
-                                         PandaDocList, DocumentEventList, DocumentEventCatch, PandaDocSharedKey,
-                                         SlackEventCatch, IntegrationDetailsView)
+from lily.integrations.api.views import (DocumentDetails, DocumentSend, EstimatesList, IntegrationAuth,
+                                         MoneybirdContactImport, PandaDocList, DocumentEventList, DocumentEventCatch,
+                                         PandaDocSharedKey, SlackEventCatch, IntegrationDetailsView)
 from lily.messaging.email.api.views import (EmailLabelViewSet, EmailAccountViewSet, EmailMessageViewSet,
                                             EmailTemplateFolderViewSet, EmailTemplateViewSet, SharedEmailConfigViewSet,
                                             TemplateVariableViewSet)
@@ -88,6 +88,7 @@ urlpatterns = [
     url(r'integrations/documents/events/$', DocumentEventList.as_view()),
     url(r'integrations/documents/(?P<contact_id>[0-9]+)/$', PandaDocList.as_view()),
     url(r'integrations/moneybird/import/$', MoneybirdContactImport.as_view()),
+    url(r'integrations/documents/(?P<document_id>.+)/send/$', DocumentSend.as_view()),
     url(r'integrations/documents/(?P<document_id>.+)/$', DocumentDetails.as_view()),
     url(r'integrations/moneybird/estimates/(?P<contact_id>[0-9]+)/$', EstimatesList.as_view()),
     url(r'integrations/slack/events/$', SlackEventCatch.as_view()),

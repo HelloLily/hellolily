@@ -1,0 +1,116 @@
+.editor {
+    background-color: #fff;
+    border: 1px solid $base-border-color;
+    border-top: 0;
+    position: relative;
+    color: $app-color-darkblue;
+
+    &.fixed {
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        width: 35%;
+        height: 75%;
+        z-index: 25;
+    }
+}
+
+.lily-tabs {
+    .editor {
+        border: 0;
+    }
+
+    &.no-padding {
+        .tab-content {
+            padding: 0;
+        }
+    }
+}
+
+.editor-header {
+    padding: 7px 12px;
+    font-size: 1.1em;
+    font-weight: 400;
+}
+
+/* TEMPORARY STYLING. COPY OF .Select-control. */
+.editor-subject {
+    background-color: #fff;
+    border: 0;
+    height: 36px;
+    outline: none;
+    flex-grow: 1;
+    font-size: 1em;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+
+.editor-form-actions {
+    padding: 10px;
+    border-top: 1px solid $base-border-color;
+    background: $lily-white-tone-hover;
+    display: flex;
+
+    .discard-button {
+        margin-left: auto;
+    }
+
+    .separator {
+        height: 34px;
+        width: 2px;
+        background: $app-border-color;
+        margin: 0 16px;
+    }
+}
+
+.editor-attachments {
+    border-top: 1px solid $base-border-color;
+    padding: 5px 10px;
+    list-style-type: none;
+}
+
+.editor-attachment {
+    padding: 10px 5px;
+}
+
+.editor-attachment-name {
+    display: inline-block;
+    max-width: 50%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.editor-attachment-size {
+    color: #aaa;
+    vertical-align: middle;
+}
+
+.editor-select-input {
+    flex-grow: 1;
+}
+
+.editor-input-group {
+    display: flex;
+    border-bottom: 1px solid $base-border-color;
+
+    label {
+        width: 10%;
+        padding: 10px;
+        font-weight: 500;
+        margin-bottom: 0;
+    }
+}
+
+.editor-upload-overlay {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 2.5em 0;
+    background-color: rgba(39, 36, 76, 0.50);
+    text-align: center;
+    color: #fff;
+}

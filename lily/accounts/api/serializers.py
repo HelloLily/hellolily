@@ -30,6 +30,8 @@ class WebsiteSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'is_primary',
+            'full_domain',
+            'second_level',
             'website',
         )
 

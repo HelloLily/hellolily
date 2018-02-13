@@ -15,6 +15,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
             dateEnd: '=?',
             extraObject: '=?',
             parentObject: '=?',
+            recipients: '=?',
         },
         templateUrl: 'utils/directives/activity_stream.html',
         link: (scope, element, attrs) => {
@@ -54,6 +55,10 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
             };
             scope.activity.mergeChanges = true;
             scope.activity.parentObject = scope.parentObject;
+
+            // Default type is note.
+            scope.activity.addType = 1;
+            scope.activity.recipients = scope.recipients || [];
 
             scope.activity.loadMore = loadMore;
             scope.activity.reloadActivity = reloadActivity;

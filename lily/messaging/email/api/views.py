@@ -1,6 +1,7 @@
 import logging
 
 from django.conf import settings
+from django.core.mail import send_mail
 from django.db.models import Q
 from django_filters import rest_framework as filters
 import phonenumbers
@@ -398,6 +399,38 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
 
         return Response({'attachments': serializer.data})
 
+    @list_route(methods=['post'])
+    def send_test(self, request):
+        account = EmailAccount.objects.get(pk=request.data.get('account'))
+
+        recipient_list = []
+
+        for recipient in request.data.get('received_by'):
+            recipient_list.append(recipient.get('name') + ' <' + recipient.get('email_address') + '>')
+
+        message_sent = send_mail(
+            subject=request.data.get('subject'),
+            message=request.data.get('body_html'),
+            html_message=request.data.get('body_html'),
+            from_email=account.from_name + ' <' + account.email_address + '>',
+            recipient_list=recipient_list,
+        )
+
+        status_code = None
+
+        if message_sent:
+            status_code = status.HTTP_201_CREATED
+        else:
+            status_code = status.HTTP_400_BAD_REQUEST
+
+        return Response(status=status_code)
+
+    @list_route(methods=['POST'])
+    def save_draft(self, request):
+        print request.data
+
+        return Response(status=status.HTTP_201_CREATED)
+
 
 class EmailTemplateFolderViewSet(viewsets.ModelViewSet):
     """
@@ -418,12 +451,7 @@ class EmailTemplateFolderViewSet(viewsets.ModelViewSet):
         """
         Set the queryset here so it filters on tenant.
         """
-        folders = super(EmailTemplateFolderViewSet, self).get_queryset().all()
-
-        for folder in folders:
-            folder.email_templates = folder.email_templates.order_by('name')
-
-        return folders
+        return super(EmailTemplateFolderViewSet, self).get_queryset().all()
 
     def destroy(self, request, *args, **kwargs):
         """
@@ -489,17 +517,22 @@ class EmailTemplateViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_200_OK)
 
 
-class TemplateVariableViewSet(mixins.DestroyModelMixin,
-                              mixins.RetrieveModelMixin,
-                              GenericViewSet):
+class TemplateVariableViewSet(viewsets.ModelViewSet):
     """
     TemplateVariable API.
     """
     queryset = TemplateVariable.objects
     serializer_class = TemplateVariableSerializer
-    filter_backends = (OrderingFilter,)
+    filter_backends = (filters.OrderingFilter,)
     ordering = ('name', )
+    filter_fields = ('name', )
     swagger_schema = None
+
+    def get_queryset(self):
+        """
+        Set the queryset here so it filters on tenant.
+        """
+        return super(TemplateVariableViewSet, self).get_queryset().all()
 
     def list(self, request):
         queryset = TemplateVariable.objects.all().filter(Q(is_public=True) | Q(owner=request.user))

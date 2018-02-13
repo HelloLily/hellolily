@@ -444,6 +444,7 @@ class TemplateVariable(TenantMixin):
         app_label = 'email'
         verbose_name = _('email template variable')
         verbose_name_plural = _('email template variables')
+        unique_together = ('tenant', 'name', 'is_public')
 
 
 class DefaultEmailTemplate(models.Model):

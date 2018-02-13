@@ -189,7 +189,7 @@
         </span>
 
         <span ng-if="!vm.mergeStreams">
-            <activity-stream ng-if="vm.case.id" target="'case'" object="vm.case"></activity-stream>
+            <activity-stream ng-if="vm.case.id" target="'case'" object="vm.case" recipients="vm.recipients"></activity-stream>
             <activity-stream ng-if="vm.case.account.id" target="'account'" object="vm.case.account" date-start="vm.caseStart" date-end="vm.caseEnd" parent-object="vm.case"></activity-stream>
         </span>
     </div>

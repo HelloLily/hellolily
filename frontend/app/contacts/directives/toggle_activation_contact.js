@@ -1,6 +1,3 @@
-/**
- *
- */
 angular.module('app.directives').directive('toggleActivationContact', toggleActivationContact);
 function toggleActivationContact() {
     return {
@@ -23,12 +20,11 @@ function toggleActivationContact() {
     };
 }
 
-ToggleActivationContactController.$inject = ['$compile', '$scope', '$state', '$templateCache', 'HLResource', 'Contact'];
-function ToggleActivationContactController($compile, $scope, $state, $templateCache, HLResource, Contact) {
-    var vm = this;
+ToggleActivationContactController.$inject = ['$compile', '$scope', '$state', '$templateCache', 'HLResource'];
+function ToggleActivationContactController($compile, $scope, $state, $templateCache, HLResource) {
+    const vm = this;
 
     vm.openToggleActivationModal = openToggleActivationModal;
-    vm.toggleActivationForContact = toggleActivationForContact;
 
     //////
 
@@ -37,21 +33,19 @@ function ToggleActivationContactController($compile, $scope, $state, $templateCa
             title: '',
             html: $compile($templateCache.get('contacts/directives/contact_working_at_account.html'))($scope),
             showCloseButton: true,
-            confirmButtonText: 'Close',
+            showCancelButton: true,
+            confirmButtonText: 'Save',
+        }).then(isConfirm => {
+            if (isConfirm) {
+                const args = {
+                    id: vm.object.id,
+                    functions: vm.object.functions,
+                };
+
+                HLResource.patch('Contact', args).$promise.then(() => {
+                    $state.reload();
+                });
+            }
         }).done();
-    }
-
-    function toggleActivationForContact(account) {
-        var args = {
-            contact: vm.object.id,
-            account: account.id,
-            is_active: vm.object.active_at_account[account.id],
-        };
-
-        Contact.toggleActiveAtAccount(args).$promise.then(function() {
-            toastr.success('I\'ve updated your contact!', 'Done');
-        }, function(response) {
-            toastr.error('Uh oh, there seems to be a problem', 'Oops!');
-        });
     }
 }

@@ -1,6 +1,7 @@
 // Include libraries.
 const Raven = require('raven-js');
 
+require('sprintf-js/src/angular-sprintf.js');
 window.sprintf = require('sprintf-js').sprintf;
 window.moment = require('moment');
 
@@ -25,6 +26,7 @@ angular.module('app', [
     'angular-cache',
     'ngFileUpload',
     'monospaced.elastic',
+    'sprintf',
 
     // Modules
     'app.accounts',

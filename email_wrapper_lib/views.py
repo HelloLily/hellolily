@@ -96,10 +96,7 @@ class AddAccountCallbackView(LoginRequiredMixin, View):
                 username=profile['username']
             )
 
-        # Set the store so the credentials will auto refresh.
-        credentials.set_store(Storage(EmailAccount, 'id', account.pk, 'credentials'))
-        account.credentials = credentials
-
-        account.save(update_fields=['username', 'credentials', 'status', ])
+        account.raw_credentials = credentials
+        account.save(update_fields=['username', 'raw_credentials', 'status', ])
 
         return account

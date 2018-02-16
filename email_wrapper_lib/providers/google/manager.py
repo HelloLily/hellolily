@@ -38,16 +38,13 @@ class GoogleManager(Manager):
         # Step 1 is a single task that is  executed first.
         step_1 = save_folders.si(self.account.pk)
         # Step 2 is a group of tasks that are executed simultaneously, after step 1 is finished.
-        # step_2 = [save_page.si(self.account.pk, page, current_history_id) for page in pages]
-        step_2 = [debug_task.si('step_2', page_token=page) for page in pages]
-        # step_2.append(raising_task.si('this is an error'))
+        step_2 = [save_page.si(self.account.pk, page) for page in pages]
         # Step 3 is a single task that is called after all the tasks in step 2 are finished.
-        # step_3 = stop_syncing.si(self.account.pk)
-        step_3 = debug_task.si('step_3')
+        step_3 = stop_syncing.si(self.account.pk)
         # Construct the chain and chord, so we can execute the tasks in the right order.
-        steps = chain(step_1, group(step_2), step_3)
+        steps = chain(step_1, chain(step_2), step_3)
         # Start executing the tasks.
-        result = steps()
+        result = steps.delay()
 
         if self.blocking:
             # Wait for the result to be filled.

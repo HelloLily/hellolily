@@ -71,7 +71,6 @@ billiard==3.5.0.3
 celery==4.1.0
 google-api-python-client==1.6.5
 oauth2client==2.2.0
-#-e git+https://github.com/HelloLily/oauth2client.git#egg=oauth2client
 httplib2==0.10.3
 html2text==2018.1.9
 html5lib==0.999999999

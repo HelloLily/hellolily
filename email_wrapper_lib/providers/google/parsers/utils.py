@@ -1,5 +1,7 @@
+from email._parseaddr import AddressList
+
 import pytz
-from email.utils import getaddresses, parsedate_tz, mktime_tz
+from email.utils import parsedate_tz, mktime_tz, formataddr
 
 from datetime import datetime
 from dateutil.parser import parse
@@ -29,10 +31,13 @@ def parse_date_string(data):
 
 
 def parse_recipient_string(data):
+    a = AddressList(data)
+
     return [{
         'name': recipient[0],
         'email_address': recipient[1],
-    } for recipient in getaddresses([data])]
+        'raw_value': formataddr((recipient[0], recipient[1]))
+    } for recipient in a.addresslist]
 
 
 def parse_page(data):

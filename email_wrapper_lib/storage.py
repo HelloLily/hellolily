@@ -4,7 +4,7 @@ from oauth2client.contrib.django_orm import Storage as BaseStorage
 class Storage(BaseStorage):
     def locked_put(self, credentials, overwrite=False):
         """
-        Override the save, so it uses updated_fields.
+        Override the save, so it uses update_fields.
         Otherwise null constraints start complaining.
         """
         args = {self.key_name: self.key_value}
@@ -15,4 +15,4 @@ class Storage(BaseStorage):
             entity = self.model_class(**args)
 
         setattr(entity, self.property_name, credentials)
-        entity.save(updated_fields=[self.property_name, ])
+        entity.save(update_fields=[self.property_name, ])

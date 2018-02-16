@@ -15,26 +15,25 @@ def parse_message_list(data, promise=None):
 def parse_message(data, promise=None):
     message = {}
     payload = data.get('payload', {})
-    folder_ids = data.get('labelIds')
+    folders = data.get('labelIds', [])
 
     message.update({
         'remote_id': data['id'],
         'thread_id': data['threadId'],
-        'history_token': data['historyId'],
-        'folder_ids': folder_ids,
+        'folders': folders,
         'snippet': data['snippet'],
-        'is_read': 'UNREAD' not in folder_ids,
-        'is_starred': 'STARRED' in folder_ids,
-        'is_draft': 'DRAFT' in folder_ids,
-        'is_important': 'IMPORTANT' in folder_ids,
-        'is_archived': 'ARCHIVED' in folder_ids,
-        'is_trashed': 'TRASH' in folder_ids,
-        'is_spam': 'SPAM' in folder_ids,
-        'is_chat': 'CHAT' in folder_ids,
+        'is_read': 'UNREAD' not in folders,
+        'is_starred': 'STARRED' in folders,
+        # 'is_draft': 'DRAFT' in folders,
+        # 'is_important': 'IMPORTANT' in folders,
+        # 'is_archived': 'ARCHIVED' in folders,
+        # 'is_trashed': 'TRASH' in folders,
+        # 'is_spam': 'SPAM' in folders,
+        # 'is_chat': 'CHAT' in folders,
     })
 
     message.update(parse_headers(payload.get('headers', [])))
-    message.update(parse_parts(payload))
+    # message.update(parse_parts(payload))
 
     if promise:
         promise.resolve(message)
@@ -43,7 +42,9 @@ def parse_message(data, promise=None):
 
 
 def parse_headers(data, promise=None):
-    headers = {}
+    headers = {
+        'recipients': {}
+    }
     wanted_headers = [
         'subject',
         'date',
@@ -63,18 +64,13 @@ def parse_headers(data, promise=None):
             value = header.get('value')
 
             if name == 'date':
-                value = parse_date_string(value)
+                headers['received_date_time'] = parse_date_string(value)
             elif name == 'message_id':
-                value = value.decode("unicode-escape")
-            elif name in ['from', 'sender', 'reply_to', ]:
-                recipient_list = parse_recipient_string(value)
-                value = recipient_list[0] if recipient_list else {}
-            elif name in ['to', 'cc', 'bcc', ]:
-                value = parse_recipient_string(value)
-
-            headers.update({
-                name: value
-            })
+                headers['mime_message_id'] = value.decode("unicode-escape")
+            elif name in ['to', 'cc', 'bcc', 'from', 'sender', 'reply_to']:
+                headers['recipients'][name] = parse_recipient_string(value)
+            else:
+                headers[name] = value
 
     if promise:
         promise.resolve(headers)

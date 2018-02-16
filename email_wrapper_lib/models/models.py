@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from oauth2client.contrib.django_orm import CredentialsField
 
+from email_wrapper_lib.storage import Storage
 from .mixins import TimeStampMixin, SoftDeleteMixin
 
 
@@ -34,7 +35,7 @@ class EmailAccount(SoftDeleteMixin, TimeStampMixin, models.Model):
         unique=True,
         max_length=255
     )
-    credentials = CredentialsField()
+    raw_credentials = CredentialsField()
     status = models.PositiveSmallIntegerField(
         verbose_name=_('Status'),
         choices=ACCOUNT_STATUSES,
@@ -58,6 +59,13 @@ class EmailAccount(SoftDeleteMixin, TimeStampMixin, models.Model):
     # threads_total = models.BigIntegerField(
     #     verbose_name=_('Total number of threads')
     # )
+
+    @property
+    def credentials(self):
+        credentials = self.raw_credentials
+        credentials.set_store(Storage(EmailAccount, 'id', self.pk, 'raw_credentials'))
+
+        return credentials
 
     @property
     def manager(self):
@@ -124,8 +132,8 @@ class EmailMessage(models.Model):
         verbose_name=_('Thread id'),
         max_length=255
     )
-    message_id = models.CharField(
-        verbose_name=_('Message id'),
+    mime_message_id = models.CharField(
+        verbose_name=_('MIME message id'),
         max_length=255
     )
     account = models.ForeignKey(
@@ -134,7 +142,7 @@ class EmailMessage(models.Model):
         verbose_name=_('Account'),
         related_name='messages'
     )
-    folder = models.ManyToManyField(
+    folders = models.ManyToManyField(
         to='email_wrapper_lib.EmailFolder',
         verbose_name=_('Folder'),
         related_name='messages'
@@ -187,6 +195,9 @@ class EmailMessage(models.Model):
         app_label = 'email_wrapper_lib'
 
 
+EmailMessageToEmailFolder = EmailMessage.folders.through
+
+
 class EmailRecipient(models.Model):
     name = models.CharField(
         verbose_name=_('Name'),
@@ -197,7 +208,7 @@ class EmailRecipient(models.Model):
     )
     raw_value = models.CharField(
         verbose_name=_('Raw value'),
-        max_length=255,
+        max_length=509,  # 255 (name) + 254 (email_address)
         unique=True,
         db_index=True,
         editable=False

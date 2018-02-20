@@ -153,13 +153,11 @@ class EmailMessage(models.Model):
         verbose_name=_('Recipients'),
         related_name='messages'
     )
-    snippet = models.CharField(
-        verbose_name=_('Snippet'),
-        max_length=255
+    snippet = models.TextField(
+        verbose_name=_('Snippet')
     )
-    subject = models.CharField(
-        verbose_name=_('Subject'),
-        max_length=255
+    subject = models.TextField(
+        verbose_name=_('Subject')
     )
     received_date_time = models.DateTimeField(
         verbose_name=_('Date')

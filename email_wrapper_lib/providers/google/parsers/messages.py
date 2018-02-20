@@ -1,15 +1,26 @@
 import base64
+from datetime import datetime
+from pytz import utc
 
 from email_wrapper_lib.providers.google.parsers.utils import parse_date_string, parse_recipient_string
 
 
 def parse_message_list(data, promise=None):
-    message_list = [message['id'] for message in data['messages']]
+    message_list = [message['id'] for message in data.get('messages', [])]
+    next_page_token = data.get('nextPageToken', None)
+    parsed = {}
+
+    # Google can return an empty page as last page, so check if we got any messages at all.
+    if message_list:
+        parsed = {
+            'messages': message_list,
+            'next_page_token': next_page_token,
+        }
 
     if promise:
-        promise.resolve(message_list)
+        promise.resolve(parsed)
 
-    return message_list
+    return parsed
 
 
 def parse_message(data, promise=None):
@@ -17,9 +28,13 @@ def parse_message(data, promise=None):
     payload = data.get('payload', {})
     folders = data.get('labelIds', [])
 
+    # Google gives us epoch in milliseconds, python needs it in seconds, that's why we divide by 1000.
+    internal_date = int(data['internalDate']) / 1000
+
     message.update({
         'remote_id': data['id'],
         'thread_id': data['threadId'],
+        'received_date_time': datetime.fromtimestamp(internal_date, utc),
         'folders': folders,
         'snippet': data['snippet'],
         'is_read': 'UNREAD' not in folders,
@@ -35,6 +50,15 @@ def parse_message(data, promise=None):
     message.update(parse_headers(payload.get('headers', [])))
     # message.update(parse_parts(payload))
 
+    if len(message.get('snippet', '')) > 255:
+        print 'snippet is too long! message id is: {}'.format(data['id'])
+
+    if len(message.get('mime_message_id', '')) > 255:
+        print 'mime_message_id is too long! message id is: {}'.format(data['id'])
+
+    if len(message.get('subject', '')) > 255:
+        print 'subject is too long! message id is: {}'.format(data['id'])
+
     if promise:
         promise.resolve(message)
 
@@ -47,7 +71,7 @@ def parse_headers(data, promise=None):
     }
     wanted_headers = [
         'subject',
-        'date',
+        # 'date',
         'from',
         'sender',
         'reply_to',
@@ -63,9 +87,10 @@ def parse_headers(data, promise=None):
         if name in wanted_headers:
             value = header.get('value')
 
-            if name == 'date':
-                headers['received_date_time'] = parse_date_string(value)
-            elif name == 'message_id':
+            # if name == 'date':
+            #     headers['received_date_time'] = parse_date_string(value)
+
+            if name == 'message_id':
                 headers['mime_message_id'] = value.decode("unicode-escape")
             elif name in ['to', 'cc', 'bcc', 'from', 'sender', 'reply_to']:
                 headers['recipients'][name] = parse_recipient_string(value)

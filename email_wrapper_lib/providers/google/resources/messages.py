@@ -27,36 +27,11 @@ class MessagesResource(GoogleResource):
             quotaUser=self.user_id,
             maxResults=settings.BATCH_SIZE,
             pageToken=page_token,
-            fields='messages/id',
+            fields='messages/id, nextPageToken',
             q=q
         )
 
         return self.execute(request, parse_message_list, batch)
-
-    def pages(self):
-        """
-        Return a list of all page tokens.
-        """
-        page_token_list = [None, ]  # Add None as first page token, because the first page doesn't have one.
-        has_next_page = True  # Assume we have multiple pages untill proven otherwise.
-        next_page_token = None  # Start off with None as the first page token.
-
-        while has_next_page:
-            request = self.service.users().messages().list(
-                userId=self.user_id,
-                quotaUser=self.user_id,
-                maxResults=settings.BATCH_SIZE,
-                pageToken=next_page_token,
-                fields='nextPageToken'
-            )
-            next_page_token = self.execute(request, parse_page)
-
-            if next_page_token:
-                page_token_list.append(next_page_token)
-            else:
-                has_next_page = False
-
-        return page_token_list
 
     def send(self):
         """

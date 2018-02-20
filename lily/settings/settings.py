@@ -450,6 +450,16 @@ if DEBUG:
                 'handlers': ['console', ],
                 'propagate': False,
             },
+            # 'django.db': {
+            #     'level': 'DEBUG',
+            #     'handlers': ['console', ],
+            #     'propagate': False,
+            # },
+            'googleapiclient': {
+                'level': 'WARNING',
+                'handlers': ['console', ],
+                'propagate': False,
+            },
             'elasticsearch.trace': {
                 'level': 'DEBUG',
                 'handlers': ['null', ],

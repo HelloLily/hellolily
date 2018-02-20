@@ -7,7 +7,6 @@ from oauth2client.client import FlowExchangeError
 from email_wrapper_lib.conf import settings
 from email_wrapper_lib.providers import registry
 from .models import EmailAccount
-from email_wrapper_lib.storage import Storage
 from lily.utils.views import LoginRequiredMixin
 
 

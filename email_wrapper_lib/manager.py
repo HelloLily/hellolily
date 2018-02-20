@@ -5,11 +5,8 @@ logger = logging.getLogger(__name__)
 
 
 class Manager(object):
-    def __init__(self, account, blocking=False):
+    def __init__(self, account):
         self.account = account
-
-        # Synchronous may be handy for management commands and stuff.
-        self.blocking = blocking
 
     def sync(self, *args, **kargs):
         raise NotImplementedError()
@@ -63,11 +60,11 @@ class Manager(object):
 #         folders = self.connector.labels.list()
 #         self.connector.execute()
 #
-#         self.save_folders(folders)
+#         self.folder_sync(folders)
 #
 #         self.stop()
 #
-#     def save_folders(self, folders, db_folders=None):
+#     def folder_sync(self, folders, db_folders=None):
 #         if not db_folders:
 #             db_folders = EmailFolder.objects.filter(account_id=self.account.pk)
 #

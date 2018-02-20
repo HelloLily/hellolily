@@ -1,3 +1,4 @@
+import time
 from celery import shared_task
 
 from email_wrapper_lib.models import EmailAccount, EmailFolder
@@ -6,28 +7,8 @@ from email_wrapper_lib.providers.google.connector import GoogleConnector
 from email_wrapper_lib.providers.google.utils import new_batch
 
 
-@shared_task
-def debug_task(name, *args, **kwargs):
-    print ''
-    print ''
-    print 'DEBUG[{}]: {}'.format(name, args)
-    print 'DEBUG[{}]: {}'.format(name, kwargs)
-    print ''
-    print ''
-
-
-@shared_task
-def raising_task(msg):
-    raise ValueError(msg)
-
-
-@shared_task
-def sync_error(request, exc, traceback):
-    print 'there was a sync error which we can handle.'
-
-
-@shared_task
-def save_folders(account_id):
+@shared_task(trail=False, ignore_result=True)
+def folder_sync(account_id):
     # TODO: catch errors and handle them.
 
     account = EmailAccount.objects.prefetch_related('folders').get(pk=account_id)
@@ -74,26 +55,59 @@ def save_folders(account_id):
         ).delete()
 
 
-@shared_task
-def save_page(account_id, page_token):
-    account = EmailAccount.objects.prefetch_related('messages', 'folders').get(pk=account_id)
+@shared_task(trail=False, ignore_result=True)
+def list_sync(account_id, page_token=None):
+    start_time = time.time()
+    print ''
+    print ''
+
+    setup_start_time = time.time()
+    # TODO: only get values for account?
+    account = EmailAccount.objects.get(pk=account_id)
     connector = GoogleConnector(account.credentials, account.user_id)
 
-    # Create sets of the remote and database labels.
-    api_message_set = set(connector.messages.list(page_token))
-    db_message_set = set(message.remote_id for message in account.messages.all())
+    message_list = connector.messages.list(page_token)
+    print 'Setup time: {}'.format(time.time() - setup_start_time)
 
-    # Determine with set operations which messages to remove and which to create or update.
-    create_message_ids = api_message_set - db_message_set  # Messages that exist on remote but not in our db.
-    update_message_ids = api_message_set & db_message_set  # Messages that exist both on remote and in our db.
-    delete_message_ids = db_message_set - api_message_set  # Messages that exist in our db but not on remote.
+    # Google can return an empty page as last page, so check the results before doing any queries.
+    if message_list:
+        set_operations_start_time = time.time()
+        # Create sets of the remote and database labels.
+        api_message_set = set(message_list['messages'])
+        # TODO: check all the queries that are being used.
+        db_message_set = set(account.messages.all().values_list('remote_id', flat=True))
 
-    batch = new_batch()
-    messages_to_create = [connector.messages.get(msg_id, batch=batch) for msg_id in create_message_ids]
-    messages_to_update = {msg_id: connector.messages.get(msg_id, batch=batch) for msg_id in update_message_ids}
-    batch.execute()
+        # Determine with set operations which messages to remove and which to create or update.
+        create_message_ids = api_message_set - db_message_set  # Messages that exist on remote but not in our db.
+        update_message_ids = api_message_set & db_message_set  # Messages that exist both on remote and in our db.
+        delete_message_ids = db_message_set - api_message_set  # Messages that exist in our db but not on remote.
+        print 'Set operations time: {}'.format(time.time() - set_operations_start_time)
 
-    create_messages(account, messages_to_create)
+        batch_start_time = time.time()
+        batch = new_batch()
+        messages_to_create = [connector.messages.get(msg_id, batch=batch) for msg_id in create_message_ids]
+        messages_to_update = {msg_id: connector.messages.get(msg_id, batch=batch) for msg_id in update_message_ids}
+        batch.execute()
+        print 'Batch time: {}'.format(time.time() - batch_start_time)
+
+        create_messages_start_time = time.time()
+        create_messages(account, messages_to_create)
+        print 'Create messages time: {}'.format(time.time() - create_messages_start_time)
+        # update_messages()
+        # delete_messages()
+
+    # Check if this was the last page, which it is when there is not next_page_token.
+    if message_list.get('next_page_token'):
+        list_sync.delay(
+            account_id=account_id,
+            page_token=message_list['next_page_token']
+        )
+    else:
+        # stop syncing.
+        EmailAccount.objects.filter(pk=account_id).update(status=EmailAccount.IDLE)
+        print 'Done syncing account! {}'.format(account.username)
+
+    print 'Total time in task: {}'.format(time.time() - start_time)
 
 
 
@@ -145,6 +159,6 @@ def save_page(account_id, page_token):
         # DB save error
 
 
-@shared_task
-def stop_syncing(account_id):
-    EmailAccount.objects.filter(pk=account_id).update(status=EmailAccount.IDLE)
+@shared_task(trail=False, ignore_result=True)
+def history_sync(account_id, page_token=None):
+    pass

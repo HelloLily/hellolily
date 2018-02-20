@@ -46,10 +46,7 @@
                 </span>
             </div>
             <span class="pull-right">
-                <span class="stream-note-toggle m-r-5" ng-click="vm.item.showNotes = !vm.item.showNotes"><i class="lilicon hl-note-icon"></i></span>
-                <span class="change-log-toggle clickable" ng-click="vm.item.showDetails = !vm.item.showDetails">
-                    <i class="change-log-toggle lilicon" ng-class="{'hl-toggle-down-icon': !vm.item.showDetails, 'hl-toggle-up-icon': vm.item.showDetails}"></i>
-                </span>
+                <span class="stream-note-toggle m-r-5" ng-click="vm.item.showNotes = !vm.item.showNotes; vm.item.showDetails = vm.item.showNotes"><i class="lilicon hl-note-icon"></i></span>
             </span>
         </div>
 

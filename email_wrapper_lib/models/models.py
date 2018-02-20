@@ -72,6 +72,9 @@ class EmailAccount(SoftDeleteMixin, TimeStampMixin, models.Model):
         from email_wrapper_lib.providers import registry
         return registry[self.provider_id].manager(self)
 
+    def __unicode__(self):
+        return self.username
+
     class Meta:
         app_label = 'email_wrapper_lib'
 
@@ -114,6 +117,9 @@ class EmailFolder(models.Model):
     unread_count = models.PositiveIntegerField(
         verbose_name=_('Unread count')
     )
+
+    def __unicode__(self):
+        return self.name
 
     class Meta:
         unique_together = ('account', 'remote_id', 'remote_value')
@@ -169,6 +175,8 @@ class EmailMessage(models.Model):
         verbose_name=_('Is starred')
     )
 
+    # TODO: set a property on the message to identify whether it's a reply, reply-all, forward, forward-multi or just a normal email.
+
     # Do we need the following? These are just labels and have no effect on how they are showed in the inbox and stuff?
     # is_draft = models.BooleanField(_('Is draft'))
     # is_important = models.BooleanField(_('Is important'))
@@ -178,16 +186,44 @@ class EmailMessage(models.Model):
     # is_sent = models.BooleanField(_('Is sent'))
 
     def get_recipients_by_type(self, recipient_type):
-        # TODO: check if this caching works as intended.
+        if not hasattr(self, '_recipient_list'):
+            # There is no cached version of the recipient list.
+            self._message_to_recipient_list = EmailMessageToEmailRecipient.objects.filter(
+                message_id=self.pk
+            ).select_related('recipient')
 
-        if hasattr(self, '_recipient_type_{}'.format(recipient_type)):
-            return getattr(self, '_recipient_type_{}'.format(recipient_type))
-        elif hasattr(self, '_prefetched_objects_cache') and 'recipients' in self._prefetched_objects_cache:
-            return [rec for rec in self.recipients.all() if rec.recipient_type == recipient_type]
-        else:
-            recipients = self.recipients.filter(recipient_type=recipient_type)
-            setattr(self, '_recipient_type_{}'.format(recipient_type), recipients)
-            return recipients
+        # Loop over Message Recipients and filter by recipient_type, return the recipient object.
+        return [mr.recipient for mr in self._message_to_recipient_list if mr.recipient_type == recipient_type]
+
+    @property
+    def to_recipients(self):
+        return self.get_recipients_by_type(EmailMessageToEmailRecipient.TO)
+
+    @property
+    def cc_recipients(self):
+        return self.get_recipients_by_type(EmailMessageToEmailRecipient.CC)
+
+    @property
+    def bcc_recipients(self):
+        return self.get_recipients_by_type(EmailMessageToEmailRecipient.BCC)
+
+    @property
+    def from_recipient(self):
+        recipient_list = self.get_recipients_by_type(EmailMessageToEmailRecipient.FROM)
+        return recipient_list[0] if recipient_list else None
+
+    @property
+    def sender_recipient(self):
+        recipient_list = self.get_recipients_by_type(EmailMessageToEmailRecipient.SENDER)
+        return recipient_list[0] if recipient_list else None
+
+    @property
+    def reply_to_recipient(self):
+        recipient_list = self.get_recipients_by_type(EmailMessageToEmailRecipient.REPLY_TO)
+        return recipient_list[0] if recipient_list else None
+
+    def __unicode__(self):
+        return u'{} - {} linked to account {}.'.format(self.id, self.remote_id, self.account_id)
 
     class Meta:
         app_label = 'email_wrapper_lib'
@@ -215,6 +251,9 @@ class EmailRecipient(models.Model):
     def save(self, *args, **kwargs):
         self.raw_value = '{0} <{1}>'.format(self.name, self.email_address)
         super(EmailRecipient, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return self.name
 
     class Meta:
         app_label = 'email_wrapper_lib'

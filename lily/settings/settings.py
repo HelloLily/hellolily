@@ -450,11 +450,11 @@ if DEBUG:
                 'handlers': ['console', ],
                 'propagate': False,
             },
-            # 'django.db': {
-            #     'level': 'DEBUG',
-            #     'handlers': ['console', ],
-            #     'propagate': False,
-            # },
+            'django.db': {
+                'level': 'DEBUG',
+                'handlers': ['console', ],
+                'propagate': False,
+            },
             'googleapiclient': {
                 'level': 'WARNING',
                 'handlers': ['console', ],
@@ -713,7 +713,7 @@ GOOGLE_OAUTH2_CLIENT_SECRET = os.environ.get('GOOGLE_OAUTH2_CLIENT_SECRET', '')
 MICROSOFT_OAUTH2_CLIENT_ID = os.environ.get('MICROSOFT_OAUTH2_CLIENT_ID', '')
 MICROSOFT_OAUTH2_CLIENT_SECRET = os.environ.get('MICROSOFT_OAUTH2_CLIENT_SECRET', '')
 
-ADD_ACCOUNT_SUCCESS_URL = os.environ.get('ADD_ACCOUNT_SUCCESS_URL', 'test')
+ADD_ACCOUNT_SUCCESS_URL = os.environ.get('ADD_ACCOUNT_SUCCESS_URL', 'email_v3_homeview')
 
 BATCH_SIZE = os.environ.get('BATCH_SIZE', 100)
 ATTACHMENT_UPLOAD_PATH = os.environ.get('ATTACHMENT_UPLOAD_PATH', 'email/attachments/{draft_id}/{filename}')

@@ -1,23 +1,62 @@
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
-from django.views.generic import View, RedirectView
+from django.views.generic import View, RedirectView, TemplateView
 from oauth2client.client import FlowExchangeError
 
 from email_wrapper_lib.conf import settings
+from email_wrapper_lib.models import EmailMessage
 from email_wrapper_lib.providers import registry
 from .models import EmailAccount
 from lily.utils.views import LoginRequiredMixin
 
 
-class TestView(View):
-    def get(self, request, *args, **kwargs):
-        account_list = EmailAccount.objects.all()
+######################################################################################################################
+# TESTVIEWS ##########################################################################################################
+######################################################################################################################
+
+
+class HomeView(TemplateView):
+    template_name = 'email_wrapper_lib_home.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(HomeView, self).get_context_data(**kwargs)
+        context['account_list'] = EmailAccount.objects.all()
+
+        account_id = kwargs.get('account_id')
+        if account_id:
+            base = EmailMessage.objects.filter(account_id=account_id)
+        else:
+            base = EmailMessage.objects.all()
+
+        context['message_list'] = base.order_by('-received_date_time')[:20]
+
+        return context
+
+
+class SyncView(TemplateView):
+    template_name = 'email_wrapper_lib_home.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SyncView, self).get_context_data(**kwargs)
+        account_id = kwargs.get('account_id')
+
+        if account_id:
+            account_list = [EmailAccount.objects.get(pk=account_id)]
+        else:
+            account_list = EmailAccount.objects.all()
 
         for account in account_list:
             account.manager.sync()
 
-        return HttpResponse('test')
+        context['account_list'] = account_list
+
+        return context
+
+
+######################################################################################################################
+# REGULAR VIEWS ######################################################################################################
+######################################################################################################################
 
 
 class AddAccountView(LoginRequiredMixin, RedirectView):
@@ -66,7 +105,7 @@ class AddAccountCallbackView(LoginRequiredMixin, View):
         return HttpResponseRedirect(url)
 
     def get_redirect_url(self, *args, **kwargs):
-        url = settings.ADD_ACCOUNT_SUCCESS_URL
+        url = reverse(settings.ADD_ACCOUNT_SUCCESS_URL)
 
         return url
 

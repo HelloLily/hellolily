@@ -177,10 +177,10 @@
                     {{ vm.listEmailAddresses(message.received_by) }}
                 </td>
                 <td class="inbox-small-cells">
-                    <thread-info message="message"></thread-info>
+                    <thread-info message-type="message.message_type"></thread-info>
                 </td>
                 <td class="view-message inbox-small-cells" ui-sref="base.email.detail({id: message.id})">
-                    <i class="lilicon hl-paperclip-icon" uib-tooltip="There is a file attached" tooltip-placement="left" ng-if="message.attachments.length"></i>
+                    <i class="lilicon hl-paperclip-icon" uib-tooltip="There is a file attached" tooltip-placement="left" ng-if="message.has_attachment"></i>
                 </td>
                 <td class="view-message" ng-if="vm.label.name == 'Draft'" ui-sref="base.email.draft({id: message.id})">
                     <a class="link-no-decoration">{{ message.subject }}</a>

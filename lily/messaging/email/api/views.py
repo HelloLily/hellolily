@@ -23,9 +23,10 @@ from lily.users.api.serializers import LilyUserSerializer
 from lily.utils.functions import format_phone_number
 from lily.utils.models.models import PhoneNumber
 
-from .serializers import (EmailLabelSerializer, EmailAccountSerializer, EmailMessageSerializer,
+from .serializers import (EmailLabelSerializer, EmailAccountSerializer, EmailMessageListSerializer,
                           EmailTemplateFolderSerializer, EmailTemplateSerializer, SharedEmailConfigSerializer,
-                          TemplateVariableSerializer)
+                          TemplateVariableSerializer, EmailMessageDetailSerializer,
+                          EmailMessageActivityStreamSerializer)
 from ..models.models import (EmailLabel, EmailAccount, EmailMessage, EmailTemplateFolder, EmailTemplate,
                              SharedEmailConfig, TemplateVariable)
 from ..tasks import (trash_email_message, toggle_read_email_message,
@@ -148,11 +149,15 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
                           GenericViewSet):
 
     queryset = EmailMessage.objects.all()
-    serializer_class = EmailMessageSerializer
+    serializer_class = EmailMessageDetailSerializer
 
     def get_object(self):
         pk = int(self.kwargs['pk'])
-        email_message = EmailMessage.objects.get(pk=pk)
+        try:
+            email_message = EmailMessage.objects.get(pk=pk)
+        except EmailMessage.DoesNotExist:
+            raise NotFound()
+
         user = self.request.user
 
         try:
@@ -489,20 +494,35 @@ class SearchView(APIView):
         if q:
             # Handle the search via Google.
 
-            # Prevent too much calls on the search api.
-            max_results = len(email_accounts) * size * page
-
             # Only exclude unauthorized accounts when the search is handled by Google.
             email_accounts = email_accounts.exclude(is_authorized=False)
+
+            if label_id and label_id not in [settings.GMAIL_LABEL_INBOX, settings.GMAIL_LABEL_SPAM,
+                                             settings.GMAIL_LABEL_TRASH, settings.GMAIL_LABEL_SENT,
+                                             settings.GMAIL_LABEL_DRAFT]:
+                # Also retrieve related labels because later the label name will be queried.
+                email_accounts = email_accounts.prefetch_related('labels')
+
+            # Prevent too much calls on the search api, so restrict number of search results per email account.
+            max_results = 3 * size
 
             messages_ids = []
             for email_account in email_accounts:
                 if label_id:
-                    label = EmailLabel.objects.get(
-                        label_id=label_id,
-                        account=email_account
-                    )
-                    q = u"{0} {1}:{2}".format(q, 'label', label.name)
+                    label_name = label_id
+                    if label_id not in [settings.GMAIL_LABEL_INBOX, settings.GMAIL_LABEL_SPAM,
+                                        settings.GMAIL_LABEL_TRASH, settings.GMAIL_LABEL_SENT,
+                                        settings.GMAIL_LABEL_DRAFT]:
+                        # Retrieve the label name if label_id will differ from the user set label name.
+                        try:
+                            label_name = email_account.labels.get(label_id=label_id).name
+                        except EmailLabel.DoesNotExist:
+                            logger.error(
+                                "Incorrect label id {0} with search request for account {1}.".format(label_id,
+                                                                                                     email_account)
+                            )
+
+                    q = u"{0} {1}:{2}".format(q, 'label', label_name)
 
                 # With label_id missing Gmail defaults to searching through all mail.
 
@@ -525,18 +545,21 @@ class SearchView(APIView):
             )
 
         else:
-            # User isn't searching by a keyword, just show the email for current box. Where current email box is:
+            # User isn't searching by a keyword, just show the emails for current box. Where current email box is:
             # 1. A combination of included and excluded labels.
-            included, excluded = self._determineLabels(label_id, email_accounts)
+            email_accounts = list(email_accounts.prefetch_related('labels'))
+            included, excluded = self._determine_labels(label_id, email_accounts)
+            # TODO: Compare email_accounts.prefetch_related('labels') with _determine_labels_alternative without the
+            # prefetch: included, excluded = self._determine_labels_alternative(label_id, email_accounts)
             message_list = EmailMessage.objects.filter(
                 account__in=email_accounts,
             )
 
             # 2. or a combination of mail sent or received by a related account (used in the activity stream).
             if related_account_id:
-                related_email_addresses = self._getRelatedAccountEmailAddresses(related_account_id)
+                related_email_addresses = self._get_related_account_email_addresses(related_account_id)
                 if related_email_addresses:
-                    message_list = self._getMessageListRelated(email_accounts, related_email_addresses)
+                    message_list = self._get_message_list_related(email_accounts, related_email_addresses)
                 else:
                     # When there are no known email addresses for the related account, provided an empty queryset so
                     # the follow-up filtering and pagination can continue.
@@ -544,9 +567,9 @@ class SearchView(APIView):
 
             # 3. or a combination of mail sent or received by a related contact (used in the activity stream).
             if related_contact_id:
-                related_email_addresses = self._getRelatedContactEmailAddresses(related_contact_id)
+                related_email_addresses = self._get_related_contact_email_addresses(related_contact_id)
                 if related_email_addresses:
-                    message_list = self._getMessageListRelated(email_accounts, related_email_addresses)
+                    message_list = self._get_message_list_related(email_accounts, related_email_addresses)
                 else:
                     # When there are no known email addresses for the related contact, provided an empty queryset so
                     # the follow-up filtering and pagination can continue.
@@ -587,27 +610,42 @@ class SearchView(APIView):
 
         message_list = message_list.order_by(sort)
 
+        # The serializer will query for account, sender and star label, so instead of the extra seperate queries,
+        # retrieve them now.
+        message_list = message_list.select_related('account', 'sender')
+        message_list = message_list.prefetch_related('labels')
+
         message_list = message_list.distinct()
 
-        paginator = Paginator(message_list, size)
-        try:
-            messages = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, return first page.
-            messages = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range, return last page.
-            messages = paginator.page(paginator.num_pages)
+        if related_account_id or related_contact_id:
+            # No paginator needed for the activity stream.
+            serializer = EmailMessageActivityStreamSerializer(message_list, many=True, context={'request': request})
 
-        serializer = EmailMessageSerializer(messages, many=True, context={'request': request})
-        result = {
-            'total': paginator.count,
-            'hits': serializer.data,
-        }
+            result = {
+                'total': len(serializer.data),
+                'hits': serializer.data,
+            }
+        else:
+            paginator = Paginator(message_list, size)
+            try:
+                message_list = paginator.page(page)
+            except PageNotAnInteger:
+                # If page is not an integer, return first page.
+                message_list = paginator.page(1)
+            except EmptyPage:
+                # If page is out of range, return last page.
+                message_list = paginator.page(paginator.num_pages)
+
+            serializer = EmailMessageListSerializer(message_list, many=True, context={'request': request})
+
+            result = {
+                'total': paginator.count,
+                'hits': serializer.data,
+            }
 
         return Response(result)
 
-    def _determineLabels(self, folder_id, email_accounts):
+    def _determine_labels(self, folder_id, email_accounts):
         """
         Each folder in the front-end shows email messages which satisfy a combination of labels that are present or
         absent.
@@ -616,65 +654,84 @@ class SearchView(APIView):
         """
         include_labels = []
         exclude_labels = []
-        inbox_labels = EmailLabel.objects.filter(
-            label_id=settings.GMAIL_LABEL_INBOX,
-            account__in=email_accounts
-        )
-        trash_labels = EmailLabel.objects.filter(
-            label_id=settings.GMAIL_LABEL_TRASH,
-            account__in=email_accounts
-        )
-        spam_labels = EmailLabel.objects.filter(
-            label_id=settings.GMAIL_LABEL_SPAM,
-            account__in=email_accounts
-        )
-        sent_labels = EmailLabel.objects.filter(
-            label_id=settings.GMAIL_LABEL_SENT,
-            account__in=email_accounts
-        )
-        draft_labels = EmailLabel.objects.filter(
-            label_id=settings.GMAIL_LABEL_DRAFT,
-            account__in=email_accounts
-        )
+
+        what_to_exclude_for_id = {
+            settings.GMAIL_LABEL_INBOX: [settings.GMAIL_LABEL_TRASH, settings.GMAIL_LABEL_SPAM, ],
+            settings.GMAIL_LABEL_SENT: [settings.GMAIL_LABEL_TRASH, settings.GMAIL_LABEL_SPAM, ],
+            settings.GMAIL_LABEL_TRASH: [settings.GMAIL_LABEL_SPAM, ],
+            settings.GMAIL_LABEL_SPAM: [settings.GMAIL_LABEL_TRASH, ],
+            settings.GMAIL_LABEL_DRAFT: [settings.GMAIL_LABEL_TRASH, ],
+        }
+
         if folder_id:
-            user_labels = EmailLabel.objects.filter(
-                label_id=folder_id,
-                account__in=email_accounts
-            )
-            if folder_id == 'INBOX':
-                include_labels.extend(inbox_labels)
-                exclude_labels.extend(trash_labels)
-                exclude_labels.extend(spam_labels)
-            elif folder_id == 'SENT':
-                include_labels.extend(sent_labels)
-                exclude_labels.extend(trash_labels)
-                exclude_labels.extend(spam_labels)
-            elif folder_id == 'TRASH':
-                include_labels.extend(trash_labels)
-                exclude_labels.extend(spam_labels)
-            elif folder_id == 'SPAM':
-                include_labels.extend(spam_labels)
-                exclude_labels.extend(trash_labels)
-            elif folder_id == 'DRAFT':
-                include_labels.extend(draft_labels)
-                exclude_labels.extend(trash_labels)
-            else:
-                include_labels.extend(user_labels)
-                exclude_labels.extend(trash_labels)
-                exclude_labels.extend(spam_labels)
+            fallback_labels = [
+                settings.GMAIL_LABEL_TRASH,
+                settings.GMAIL_LABEL_SPAM,
+            ]
         else:
-            # Corresponds with the 'All mail'-label.
-            exclude_labels.extend(trash_labels)
-            exclude_labels.extend(spam_labels)
-            exclude_labels.extend(draft_labels)
+            fallback_labels = [
+                settings.GMAIL_LABEL_TRASH,
+                settings.GMAIL_LABEL_SPAM,
+                settings.GMAIL_LABEL_DRAFT,
+            ]
+
+        for email_account in email_accounts:
+            for email_label in email_account.labels.all():
+                if email_label.label_id in what_to_exclude_for_id.get(folder_id, fallback_labels):
+                    exclude_labels.append(email_label)
+                elif folder_id and email_label.label_id == folder_id:
+                    include_labels.append(email_label)
 
         return include_labels, exclude_labels
 
-    def _getRelatedAccountEmailAddresses(self, account_id):
+    def _determine_labels_alternative(self, folder_id, email_accounts):
+        """
+        Each folder in the front-end shows email messages which satisfy a combination of labels that are present or
+        absent.
+
+        Determine by the folder_id which labels should be included or excluded.
+        """
+        include_labels = EmailLabel.objects.none()
+        exclude_labels = EmailLabel.objects.none()
+
+        what_to_exclude_for_id = {
+            settings.GMAIL_LABEL_INBOX: [settings.GMAIL_LABEL_TRASH, settings.GMAIL_LABEL_SPAM, ],
+            settings.GMAIL_LABEL_SENT: [settings.GMAIL_LABEL_TRASH, settings.GMAIL_LABEL_SPAM, ],
+            settings.GMAIL_LABEL_TRASH: [settings.GMAIL_LABEL_SPAM, ],
+            settings.GMAIL_LABEL_SPAM: [settings.GMAIL_LABEL_TRASH, ],
+            settings.GMAIL_LABEL_DRAFT: [settings.GMAIL_LABEL_TRASH, ],
+        }
+
+        if folder_id:
+            # Get the labels to exclude from the predefined list and exclude trash and spam by default.
+            exclude_labels = EmailLabel.objects.filter(
+                label_id__in=what_to_exclude_for_id.get(folder_id,
+                                                        [settings.GMAIL_LABEL_TRASH, settings.GMAIL_LABEL_SPAM, ]),
+                account__in=email_accounts
+            )
+            include_labels = EmailLabel.objects.filter(
+                label_id=folder_id,
+                account__in=email_accounts
+            )
+        else:
+            # Corresponds with the 'All mail'-label.
+            exclude_labels = EmailLabel.objects.filter(
+                label_id__in=[settings.GMAIL_LABEL_TRASH, settings.GMAIL_LABEL_SPAM, settings.GMAIL_LABEL_DRAFT, ],
+                account__in=email_accounts
+            )
+
+        return list(include_labels), list(exclude_labels)
+
+    def _get_related_account_email_addresses(self, account_id):
         """
         Get a list of email addresses of the account and of the contacts of the account.
         """
-        account = Account.objects.get(id=account_id)
+        email_addresses = []
+        try:
+            account = Account.objects.get(id=account_id)
+        except Account.DoesNotExist:
+            return email_addresses
+
         email_addresses = [email.email_address for email in account.email_addresses.all() if email.email_address]
 
         contacts = account.get_contacts()
@@ -686,15 +743,20 @@ class SearchView(APIView):
 
         return email_addresses
 
-    def _getRelatedContactEmailAddresses(self, contact_id):
+    def _get_related_contact_email_addresses(self, contact_id):
         """
         Get a list of email addresses of the contact.
         """
-        contact = Contact.objects.get(id=contact_id)
+        email_addresses = []
+        try:
+            contact = Contact.objects.get(id=contact_id)
+        except Contact.DoesNotExist:
+            return email_addresses
+
         email_addresses = [email.email_address for email in contact.email_addresses.all() if email.email_address]
         return email_addresses
 
-    def _getMessageListRelated(self, email_accounts, email_addresses):
+    def _get_message_list_related(self, email_accounts, email_addresses):
         """
         Return a queryset for all the email messages sent or received by one of the email addressses which aren't
         private.
@@ -708,7 +770,7 @@ class SearchView(APIView):
             Q(sender__email_address__in=email_addresses) |
             Q(received_by__email_address__in=email_addresses) |
             Q(received_by_cc__email_address__in=email_addresses)
-        ).distinct()
+        )
 
         # Exclude email messages of accounts which don't share their email.
         message_list = message_list.filter(

@@ -21,7 +21,7 @@ function emailConfig($stateProvider) {
                 });
             }],
             emailAccount: ['EmailAccount', 'message', (EmailAccount, message) => {
-                return EmailAccount.get({id: message.account.id});
+                return EmailAccount.get({id: message.account});
             }],
         },
     });

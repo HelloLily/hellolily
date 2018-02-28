@@ -2,14 +2,16 @@ angular.module('app.email.services').factory('EmailDetail', EmailDetail);
 
 EmailDetail.$inject = ['$resource'];
 function EmailDetail($resource) {
+    // TODO: Merge with emailmessage.js search.
     var _emailDetail = $resource(
         '',
         {  // Defaults for parameters.
             size: 100,
+            sort: '-sent_date',
         },
         {
             search: {
-                url: '/search/search/?type=email_emailmessage&size=:size&sort=-sent_date&filterquery=:filterquery&account_related=:account_related',
+                url: 'api/messaging/email/search/?size=:size&sort=:sort',
                 isArray: true,
                 transformResponse: function(data) {
                     var jsonData = angular.fromJson(data);

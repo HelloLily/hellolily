@@ -265,7 +265,7 @@ class EmailAccountSerializer(WritableNestedSerializer):
     read_only_fields = ('email_address', 'is_authorized', 'is_syncing', 'is_public',)
 
 
-class EmailAccountSerializerSimple(serializers.ModelSerializer):  # TODO? inheritance possible?
+class EmailAccountSerializerSimple(serializers.ModelSerializer):
     class Meta:
         model = EmailAccount
         fields = (

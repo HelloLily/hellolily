@@ -2,6 +2,7 @@ from random import randint
 
 import unicodedata
 
+from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from factory.declarations import LazyAttribute, SubFactory, Sequence
 from factory.django import DjangoModelFactory
@@ -11,7 +12,6 @@ from faker.factory import Factory
 from rest_framework.authtoken.models import Token
 from timezone_field import TimeZoneField
 
-from lily.settings.settings import LANGUAGES
 from lily.tenant.factories import TenantFactory
 
 from .models import Team, LilyUser, UserInfo
@@ -39,7 +39,7 @@ class LilyUserFactory(DjangoModelFactory):
 
     phone_number = LazyAttribute(lambda o: faker.phone_number())
 
-    language = FuzzyChoice(dict(LANGUAGES).keys())
+    language = FuzzyChoice(dict(settings.LANGUAGES).keys())
     timezone = FuzzyChoice(dict(TimeZoneField.CHOICES).values())
 
     @post_generation

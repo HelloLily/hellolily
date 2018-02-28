@@ -1,7 +1,7 @@
 from channels.routing import route
+from django.conf import settings
 
 from lily.consumers import LilyConsumer, LilyViewConsumer, LilyStaticFilesConsumer
-from lily.settings import settings
 
 channel_routing = [
     LilyConsumer.as_route(),

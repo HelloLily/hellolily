@@ -174,6 +174,9 @@ class EmailMessage(models.Model):
     is_starred = models.BooleanField(
         verbose_name=_('Is starred')
     )
+    has_attachments = models.BooleanField(
+        verbose_name=_('Has attachment')
+    )
 
     # TODO: set a property on the message to identify whether it's a reply, reply-all, forward, forward-multi or just a normal email.
 
@@ -210,16 +213,19 @@ class EmailMessage(models.Model):
     @property
     def from_recipient(self):
         recipient_list = self.get_recipients_by_type(EmailMessageToEmailRecipient.FROM)
+        # TODO: check if this is always one recipient, or if we actually need to return a list.
         return recipient_list[0] if recipient_list else None
 
     @property
     def sender_recipient(self):
         recipient_list = self.get_recipients_by_type(EmailMessageToEmailRecipient.SENDER)
+        # TODO: check if this is always one recipient, or if we actually need to return a list.
         return recipient_list[0] if recipient_list else None
 
     @property
     def reply_to_recipient(self):
         recipient_list = self.get_recipients_by_type(EmailMessageToEmailRecipient.REPLY_TO)
+        # TODO: check if this is always one recipient, or if we actually need to return a list.
         return recipient_list[0] if recipient_list else None
 
     def __unicode__(self):
@@ -247,10 +253,6 @@ class EmailRecipient(models.Model):
         db_index=True,
         editable=False
     )
-
-    def save(self, *args, **kwargs):
-        self.raw_value = '{0} <{1}>'.format(self.name, self.email_address)
-        super(EmailRecipient, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return self.name

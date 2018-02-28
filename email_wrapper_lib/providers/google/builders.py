@@ -1,4 +1,5 @@
-from django.db import transaction
+import time
+from django.db import transaction, IntegrityError
 
 from email_wrapper_lib.models.models import (
     EmailMessage, EmailRecipient, EmailMessageToEmailRecipient, EmailMessageToEmailFolder
@@ -15,21 +16,39 @@ recipient_types_with_id = (
     )
 
 
-def create_messages(account, messages_to_create):
-    unsaved_message_list = []
-
-    db_folders = {folder[0]: folder[1] for folder in account.folders.all().values_list('remote_id', 'id')}
-    unsaved_message_to_folder_list = []
-
+def create_messages(account, message_data):
+    # Recipients are not account specific, so db errors can occur when multiple tasks try to save at the same time.
+    # Build a cache of recipients already in the db.
     db_recipients = {rec[0]: rec[1] for rec in EmailRecipient.objects.all().values_list('raw_value', 'id')}
-    unsaved_recipients_by_raw_value = {}
+
+    for promise in message_data:
+        recipients = promise.data.get('recipients', {})
+
+        for recipient_type, recipient_type_id in recipient_types_with_id:
+            # Loop over every recipient type in the message.
+            for recipient in recipients.get(recipient_type, []):
+                if recipient['raw_value'] not in db_recipients.keys():
+                    # The recipient was not found in the database, so try to create it.
+                    try:
+                        rec = EmailRecipient.objects.create(**recipient)
+                    except IntegrityError:
+                        rec = EmailRecipient.objects.get(raw_value=recipient['raw_value'])
+
+                    # Add the recipient to the list and dict.
+                    db_recipients[recipient['raw_value']] = rec.pk
+
+    # Prepare to bulk create new messages and their folder/recipient relations.
+    db_folders = {folder[0]: folder[1] for folder in account.folders.all().values_list('remote_id', 'id')}
+
+    unsaved_message_list = []
+    unsaved_message_to_folder_list = []
     unsaved_message_to_recipient_list = []
 
-    for message in messages_to_create:
-        folders = message.data.pop('folders', [])
-        recipients = message.data.pop('recipients')
+    for promise in message_data:
+        folders = promise.data.pop('folders', [])
+        recipients = promise.data.pop('recipients', [])
 
-        unsaved_message = EmailMessage(account=account, **message.data)
+        unsaved_message = EmailMessage(account=account, **promise.data)
         unsaved_message_list.append(unsaved_message)
 
         for remote_folder_id in folders:
@@ -40,37 +59,18 @@ def create_messages(account, messages_to_create):
             )
             unsaved_message_to_folder_list.append(unsaved_message_to_folder)
 
+        # Create the relation between message and recipients per recipient_type.
         for recipient_type, recipient_type_id in recipient_types_with_id:
             for recipient in recipients.get(recipient_type, []):
-                # Loop over every recipient type in the message.
-                if recipient['raw_value'] in db_recipients.keys():
-                    # Recipient already exists, use it.
-                    unsaved_message_to_recipient = EmailMessageToEmailRecipient(
-                        message=unsaved_message,
-                        recipient_id=db_recipients[recipient['raw_value']],
-                        recipient_type=recipient_type_id
-                    )
-                    unsaved_message_to_recipient_list.append(unsaved_message_to_recipient)
-                else:
-                    # Recipient is new or already queued for creation.
-                    if recipient['raw_value'] in unsaved_recipients_by_raw_value.keys():
-                        # Recipient is created previously in the batch, link to that one.
-                        unsaved_recipient = unsaved_recipients_by_raw_value[recipient['raw_value']]
-                    else:
-                        # Recipient is new, create it.
-                        unsaved_recipient = EmailRecipient(**recipient)
-                        unsaved_recipients_by_raw_value[recipient['raw_value']] = unsaved_recipient
-
-                    unsaved_message_to_recipient = EmailMessageToEmailRecipient(
-                        message=unsaved_message,
-                        recipient=unsaved_recipient,
-                        recipient_type=recipient_type_id
-                    )
-                    unsaved_message_to_recipient_list.append(unsaved_message_to_recipient)
+                unsaved_message_to_recipient = EmailMessageToEmailRecipient(
+                    message=unsaved_message,
+                    recipient_id=db_recipients[recipient['raw_value']],
+                    recipient_type=recipient_type_id
+                )
+                unsaved_message_to_recipient_list.append(unsaved_message_to_recipient)
 
     with transaction.atomic():
         EmailMessage.objects.bulk_create(unsaved_message_list)
-        EmailRecipient.objects.bulk_create(unsaved_recipients_by_raw_value.values())
 
         for item in unsaved_message_to_folder_list:
             if not item.emailmessage_id:
@@ -82,12 +82,9 @@ def create_messages(account, messages_to_create):
             if not item.message_id:
                 item.message = item.message
 
-            if not item.recipient_id:
-                item.recipient = item.recipient
-
         EmailMessageToEmailFolder.objects.bulk_create(unsaved_message_to_folder_list)
         EmailMessageToEmailRecipient.objects.bulk_create(unsaved_message_to_recipient_list)
 
 
-def update_messages(account, messages_to_update):
+def update_messages(account, message_data):
     pass

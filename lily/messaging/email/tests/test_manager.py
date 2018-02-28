@@ -2,6 +2,7 @@
 import json
 
 import anyjson
+from django.conf import settings
 from googleapiclient.discovery import build
 from rest_framework.test import APITestCase
 
@@ -10,7 +11,6 @@ from lily.messaging.email.factories import EmailAccountFactory, EmailMessageFact
 from lily.messaging.email.manager import GmailManager
 from lily.messaging.email.models.models import EmailAccount, EmailMessage, EmailLabel, EmailOutboxMessage
 from lily.messaging.email.services import GmailService
-from lily.settings import settings
 from lily.tests.utils import UserBasedTest, get_dummy_credentials
 
 from mock import patch

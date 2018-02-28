@@ -1,37 +1,56 @@
+import multiprocessing
 import os
-from datetime import timedelta
 
-from celery.schedules import crontab
-from kombu import Queue
+from django.conf import settings as django_settings
 
-from .settings import DEBUG, TIME_ZONE, REDIS_URL, TESTING
 
 # The broker env var name to use for fetching the broker url.
 BROKER_ENV = os.environ.get('BROKER_ENV', 'DEV_BROKER')
-# The broker url to use, based on the env var name.
-BROKER_URL = os.environ.get(BROKER_ENV, 'amqp://guest@rabbit:5672')
-# The broker connection pool limit (most connections alive simultaneously).
-BROKER_POOL_LIMIT = os.environ.get('BROKER_POOL_LIMIT', 64)
-# The broker connection keepalive heartbeat, by default we're using TCP keep-alive instead.
-BROKER_HEARTBEAT = os.environ.get('BROKER_HEARTBEAT', None)
-# The broker connection timeout, may require a long timeout due to Linux DNS timeouts etc
-BROKER_CONNECTION_TIMEOUT = os.environ.get('BROKER_CONNECTION_TIMEOUT', 30)
 
-CELERY_ACCEPT_CONTENT = ['json']  # ignore other content
-CELERY_ANNOTATIONS = {
-    '*': {
-        'time_limit': 3600.0,
-    },
-}
-# CELERY_DEFAULT_QUEUE = 'email_async_tasks'
-CELERY_ENABLE_UTC = True
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_SEND_TASK_ERROR_EMAILS = not any([DEBUG, TESTING])
-# CELERY_SEND_TASK_SENT_EVENT = True
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_BACKEND = REDIS_URL
-CELERY_TASK_RESULT_EXPIRES = 300
-CELERY_TIMEZONE = TIME_ZONE
+
+class CelerySettings(object):
+    worker_concurrency = multiprocessing.cpu_count() * 2  # Double the amount of cpu cores as number of worker threads.
+    worker_max_tasks_per_child = 10000  # After 10.000 tasks a worker is restarted.
+    worker_prefetch_multiplier = 2  # Prefetch double the amount of tasks for the number of concurrent threads.
+
+    broker_url = os.environ.get(BROKER_ENV, 'amqp://guest@rabbit:5672')  # The broker url, based on the env var name.
+    broker_pool_limit = worker_concurrency * 2  # Max number of connections that can be open in the connection pool.
+    # TODO: verify ssl setting on staging.
+    broker_use_ssl = not django_settings.DEBUG  # Use ssl connection to the broker.
+
+    timezone = django_settings.TIME_ZONE  # Use the django timezone.
+
+    accept_content = ['pickle', ]  # Allow pickled content-types/serializers.
+
+    task_compression = 'gzip'  # Use gzip compression for task messages.
+    task_serializer = 'pickle'  # Use pickle to serialize tasks.
+    task_always_eager = django_settings.TESTING  # If tests are run, execute tasks immediately.
+    task_ignore_result = True  # Don't store results of tasks in the result backend.
+    task_store_errors_even_if_ignored = False  # Also don't store errors in the result backend.
+    task_track_started = False  # Don't track if a task has started already.
+    task_send_sent_event = False  # Don't send an event when a task is sent to the broker.
+
+    task_soft_time_limit = 1 * 60  # 1 minutes max execution time for tasks before soft kill.
+    task_time_limit = task_soft_time_limit + 60  # +1 minutes max execution time for tasks before hard kill.
+
+    task_default_delivery_mode = 'persistent'  # We want messages to persist even after crashes/restarts of the broker.
+
+    # TODO: this setting is removed. Do we need to implement error mails ourselves?
+    CELERY_SEND_TASK_ERROR_EMAILS = not any([django_settings.DEBUG, django_settings.TESTING])
+
+    # TODO: fill up the schedule.
+    beat_schedule = {}
+
+    # TODO: Do we still need this?
+    # task_queues = ()
+    # task_routes = ()
+
+
+settings = CelerySettings()
+
+
+# Old stuff below.
+
 
 # WARNING! When changing routes/queues, make sure you deleted them
 # on the message broker to prevent routing to old queues.

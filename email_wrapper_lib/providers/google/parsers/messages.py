@@ -6,21 +6,43 @@ from email_wrapper_lib.providers.google.parsers.utils import parse_date_string, 
 
 
 def parse_message_list(data, promise=None):
-    message_list = [message['id'] for message in data.get('messages', [])]
-    next_page_token = data.get('nextPageToken', None)
     parsed = {}
 
-    # Google can return an empty page as last page, so check if we got any messages at all.
-    if message_list:
+    # Google can return an empty page as last page, so check if we got any data at all.
+    if data:
         parsed = {
-            'messages': message_list,
-            'next_page_token': next_page_token,
+            'messages': [message['id'] for message in data.get('messages', [])],
+            'next_page_token': data.get('nextPageToken', None),
         }
 
     if promise:
         promise.resolve(parsed)
 
     return parsed
+
+
+def parse_message_full(data, promise=None):
+    payload = data.get('payload', {})
+    message = parse_message(data)
+
+    message.update(parse_parts(payload))
+
+    if promise:
+        promise.resolve(message)
+
+    return message
+
+
+def parse_message_simple(data, promise=None):
+    payload = data.get('payload', {})
+    message = parse_message(data)
+
+    message['has_attachments'] = check_attachments(payload)
+
+    if promise:
+        promise.resolve(message)
+
+    return message
 
 
 def parse_message(data, promise=None):
@@ -48,16 +70,6 @@ def parse_message(data, promise=None):
     })
 
     message.update(parse_headers(payload.get('headers', [])))
-    # message.update(parse_parts(payload))
-
-    if len(message.get('snippet', '')) > 255:
-        print 'snippet is too long! message id is: {}'.format(data['id'])
-
-    if len(message.get('mime_message_id', '')) > 255:
-        print 'mime_message_id is too long! message id is: {}'.format(data['id'])
-
-    if len(message.get('subject', '')) > 255:
-        print 'subject is too long! message id is: {}'.format(data['id'])
 
     if promise:
         promise.resolve(message)
@@ -101,6 +113,23 @@ def parse_headers(data, promise=None):
         promise.resolve(headers)
 
     return headers
+
+
+def check_attachments(data, promise=None):
+    has_attachments = False
+    if 'parts' in data:
+        # This message is multipart.
+        for sub_part in data.get('parts'):
+            has_attachments = check_attachments(sub_part)
+            if has_attachments:
+                break
+    elif 'filename' in data or data.get('mimeType') == 'text/css':
+        has_attachments = True
+
+    if promise:
+        promise.resolve(has_attachments)
+
+    return has_attachments
 
 
 def parse_parts(data, promise=None):

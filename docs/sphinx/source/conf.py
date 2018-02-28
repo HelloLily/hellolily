@@ -9,7 +9,6 @@ import sphinx_rtd_theme
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 # sys.path.insert(0, os.path.abspath('.'))
 sys.path.append(os.path.abspath('../../../'))
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'lily.settings.settings')
 
 # If your documentation needs a minimal Sphinx version, state it here.
 needs_sphinx = '1.3'

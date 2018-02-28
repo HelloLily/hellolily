@@ -6,7 +6,7 @@ networks:
 
 services:
   rabbit:
-    image: rabbitmq:3.6-management  # Use latest version of 3.6 with management plugin enabled.
+    image: rabbitmq:3.7-alpine
     networks:
       internal:
     ports:
@@ -15,7 +15,7 @@ services:
       driver: "none"
 
   redis:
-    image: redis:2.8  # Use latest version of 2.8.
+    image: redis:4.0-alpine
     networks:
       internal:
     ports:
@@ -24,7 +24,7 @@ services:
       driver: "none"
 
   db:
-    image: postgres:9.5
+    image: postgres:9.5-alpine
     networks:
       internal:
     ports:
@@ -51,7 +51,6 @@ services:
       - internal
     environment:
       - PYTHONUNBUFFERED=true
-      - DJANGO_SETTINGS_MODULE=lily.settings.settings
       - DEBUG=1
       - SECRET_KEY=abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmn
       - DATABASE_URL=postgres://hellolily:@db/hellolily
@@ -85,18 +84,18 @@ services:
 #    ports:
 #      - "5555"
 
-#  beat:
-#    extends: app
-#    command: bash -c "Dockers/wait-for rabbit:5672 && celery worker -B --app=lily.celery --loglevel=info -Q celery -n beat.%h -c 1"
-#    depends_on:
-#      - rabbit
-#      - redis
-#      - db
-#      - es
+  beat:
+    extends: app
+    command: bash -c "Dockers/wait-for rabbit:5672 && celery beat --app=lily.celery --loglevel=info"
+    depends_on:
+      - rabbit
+      - redis
+      - db
+      - es
 
   worker:
     extends: app
-    command: bash -c "Dockers/wait-for rabbit:5672 && celery worker --loglevel=info --app=lily.celery -n worker.%h -c 12 -P eventlet"
+    command: bash -c "Dockers/wait-for rabbit:5672 && celery worker --loglevel=info --app=lily.celery -P eventlet"
     depends_on:
       - rabbit
       - redis

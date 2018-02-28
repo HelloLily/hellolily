@@ -1,14 +1,14 @@
-from email_wrapper_lib.providers.google.parsers.messages import parse_message, parse_message_list
+from email_wrapper_lib.providers.google.parsers.messages import parse_message_full, parse_message_simple, parse_message_list
 from email_wrapper_lib.providers.google.parsers.utils import parse_page
-from lily.settings import settings
+from email_wrapper_lib.conf import settings
 
 from .base import GoogleResource
 
 
 class MessagesResource(GoogleResource):
-    def get(self, msg_id, batch=None):
+    def get(self, msg_id, include_body=False, batch=None):
         """
-        Return a single message from the api.
+        Return a single message from the api, with or without body.
         """
         request = self.service.users().messages().get(
             userId=self.user_id,
@@ -16,7 +16,10 @@ class MessagesResource(GoogleResource):
             id=msg_id
         )
 
-        return self.execute(request, parse_message, batch)
+        if include_body:
+            return self.execute(request, parse_message_full, batch)
+        else:
+            return self.execute(request, parse_message_simple, batch)
 
     def list(self, page_token=None, batch=None, q=None):
         """

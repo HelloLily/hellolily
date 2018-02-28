@@ -1,0 +1,101 @@
+<h1>
+    Hello there, this is the email v3 test project.
+</h1>
+
+<h3 style="margin-bottom: 0px;">Authorize new email accounts</h3>
+<ul style="margin-top: 0px;">
+    <li><a href="{% url 'email_v3_account_add' provider_name='google' %}">New Google account</a></li>
+    <li><a href="{% url 'email_v3_account_add' provider_name='microsoft' %}">New Microsoft account</a></li>
+</ul>
+
+<h3 style="margin-bottom: 0px;">All email accounts <a href="{% url 'email_v3_syncview' %}">sync</a></h3>
+<table width="100%" border="1">
+    <tr>
+        <th>Email address</th>
+        <th>User id</th>
+        <th>Provider</th>
+        <th>Status</th>
+        <th>Total messages</th>
+        <th>Unread messages</th>
+        <th>Actions</th>
+    </tr>
+    {% for account in account_list %}
+        <tr>
+            <td>
+                {% if folder_id %}
+                    <a href="{% url 'email_v3_messagesview' account_id=account.pk folder_id=folder_id %}">{{ account.username }}</a>
+                {% else %}
+                    <a href="{% url 'email_v3_messagesview' account_id=account.pk %}">{{ account.username }}</a>
+                {% endif %}
+            </td>
+            <td>{{ account.user_id }}</td>
+            <td>{{ account.provider_id }}</td>
+            <td>{{ account.status }}</td>
+            <td>account.total_messages</td>
+            <td>account.unread_messages</td>
+            <td>
+                <a href="{% url 'email_v3_syncview' account_id=account.pk %}">refresh</a>
+            </td>
+        </tr>
+    {% endfor %}
+</table>
+
+<h3 style="margin-bottom: 0px;">All folders</h3>
+<table width="100%" border="1">
+    <tr>
+        <th>Account id</th>
+        <th>Name</th>
+        <th>Remote id</th>
+        <th>Remote value</th>
+        <th>Folder type</th>
+        <th>Unread count</th>
+        <th>Parent id</th>
+    </tr>
+    {% for folder in folder_list %}
+        <tr>
+            <td>{{ folder.account_id }}</td>
+            <td>
+                {% if account_id %}
+                    <a href="{% url 'email_v3_messagesview' account_id=account_id folder_id=folder.remote_id %}">{{ folder.name }}</a>
+                {% else %}
+                    <a href="{% url 'email_v3_messagesview' folder_id=folder.remote_id %}">{{ folder.name }}</a>
+                {% endif %}
+            </td>
+            <td>{{ folder.remote_id }}</td>
+            <td>{{ folder.remote_value }}</td>
+            <td>{{ folder.get_folder_type_display }}</td>
+            <td>{{ folder.unread_count }}</td>
+            <td>{{ folder.parent_id }}</td>
+        </tr>
+    {% endfor %}
+</table>
+
+<h3 style="margin-bottom: 0px;">Email messages</h3>
+<table width="100%" border="1">
+    <tr>
+        <th>Id</th>
+        <th>Read</th>
+        <th>From</th>
+        <th>To</th>
+        <th>Subject</th>
+        <th>Snippet</th>
+        <th>Received</th>
+        <th>Account</th>
+    </tr>
+    {% for message in message_list %}
+        <tr>
+            <td>{{ message.id }}</td>
+            <td>{{ message.is_read }}</td>
+            <td>{{ message.from_recipient|truncatechars:30 }}</td>
+            <td>
+                {% for recipient in message.to_recipients %}
+                    {{ recipient|truncatechars:30 }}
+                {% endfor %}
+            </td>
+            <td><b>{{ message.subject|truncatechars:40 }}</b></td>
+            <td>{{ message.snippet|truncatechars:100 }}</td>
+            <td>{{ message.received_date_time }}</td>
+            <td>{{ message.account }}</td>
+        </tr>
+    {% endfor %}
+</table>

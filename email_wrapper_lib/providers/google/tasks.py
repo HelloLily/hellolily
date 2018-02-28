@@ -1,13 +1,13 @@
-import time
 from celery import shared_task
 
 from email_wrapper_lib.models import EmailAccount, EmailFolder
 from email_wrapper_lib.providers.google.builders import create_messages
 from email_wrapper_lib.providers.google.connector import GoogleConnector
 from email_wrapper_lib.providers.google.utils import new_batch
+from email_wrapper_lib.tasks import LogErrorsTask
 
 
-@shared_task(trail=False, ignore_result=True)
+@shared_task(base=LogErrorsTask, trail=False, ignore_result=True)
 def folder_sync(account_id):
     # TODO: catch errors and handle them.
 
@@ -55,23 +55,17 @@ def folder_sync(account_id):
         ).delete()
 
 
-@shared_task(trail=False, ignore_result=True)
+@shared_task(base=LogErrorsTask, trail=False, ignore_result=True)
 def list_sync(account_id, page_token=None):
-    start_time = time.time()
-    print ''
-    print ''
-
-    setup_start_time = time.time()
     # TODO: only get values for account?
     account = EmailAccount.objects.get(pk=account_id)
     connector = GoogleConnector(account.credentials, account.user_id)
 
     message_list = connector.messages.list(page_token)
-    print 'Setup time: {}'.format(time.time() - setup_start_time)
+    next_page_token = message_list.get('next_page_token')
 
     # Google can return an empty page as last page, so check the results before doing any queries.
     if message_list:
-        set_operations_start_time = time.time()
         # Create sets of the remote and database labels.
         api_message_set = set(message_list['messages'])
         # TODO: check all the queries that are being used.
@@ -81,36 +75,28 @@ def list_sync(account_id, page_token=None):
         create_message_ids = api_message_set - db_message_set  # Messages that exist on remote but not in our db.
         update_message_ids = api_message_set & db_message_set  # Messages that exist both on remote and in our db.
         delete_message_ids = db_message_set - api_message_set  # Messages that exist in our db but not on remote.
-        print 'Set operations time: {}'.format(time.time() - set_operations_start_time)
 
-        batch_start_time = time.time()
+        # Create a new batch request to get the details of the messages needed.
         batch = new_batch()
         messages_to_create = [connector.messages.get(msg_id, batch=batch) for msg_id in create_message_ids]
         messages_to_update = {msg_id: connector.messages.get(msg_id, batch=batch) for msg_id in update_message_ids}
         batch.execute()
-        print 'Batch time: {}'.format(time.time() - batch_start_time)
 
-        create_messages_start_time = time.time()
         create_messages(account, messages_to_create)
-        print 'Create messages time: {}'.format(time.time() - create_messages_start_time)
+
         # update_messages()
         # delete_messages()
 
-    # Check if this was the last page, which it is when there is not next_page_token.
-    if message_list.get('next_page_token'):
+    # Check if this was the last page.
+    if next_page_token:
+        # Start a new task to sync the next page.
         list_sync.delay(
             account_id=account_id,
-            page_token=message_list['next_page_token']
+            page_token=next_page_token
         )
     else:
-        # stop syncing.
+        # stop syncing; set the status back to idle.
         EmailAccount.objects.filter(pk=account_id).update(status=EmailAccount.IDLE)
-        print 'Done syncing account! {}'.format(account.username)
-
-    print 'Total time in task: {}'.format(time.time() - start_time)
-
-
-
 
     # created_messages = []
     # if create_message_ids:
@@ -127,10 +113,8 @@ def list_sync(account_id, page_token=None):
     #
     # return created_messages + updated_messages
 
-
-
     # Sync strategy:
-
+    # Start at page 1; page_token = None
     # Get a list of all messages on the page.
         # IF fail
             # Fetch individual messages
@@ -146,7 +130,6 @@ def list_sync(account_id, page_token=None):
                         # IF fail
                             # Save an error object to the database to be displayed to the user
 
-
     # Possible errors
     # Account could not be retreived from db
     # Batch
@@ -159,6 +142,6 @@ def list_sync(account_id, page_token=None):
         # DB save error
 
 
-@shared_task(trail=False, ignore_result=True)
-def history_sync(account_id, page_token=None):
+@shared_task(base=LogErrorsTask, trail=False, ignore_result=True)
+def history_sync(account_id, history_token, page_token=None):
     pass

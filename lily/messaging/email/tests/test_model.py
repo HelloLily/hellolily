@@ -1,10 +1,10 @@
+from django.conf import settings
 from django.utils import timezone
 from rest_framework.test import APITestCase
 
 from lily.messaging.email.factories import EmailAccountFactory, EmailMessageFactory
 from lily.messaging.email.models.models import EmailMessage, Recipient, EmailLabel, EmailHeader, EmailAccount
 from lily.messaging.email.utils import get_filtered_message
-from lily.settings import settings
 from lily.tenant.factories import TenantFactory
 from lily.tests.utils import UserBasedTest
 from lily.users.factories import LilyUserFactory

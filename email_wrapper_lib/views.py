@@ -1,11 +1,11 @@
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect
 from django.views.generic import View, RedirectView, TemplateView
 from oauth2client.client import FlowExchangeError
 
 from email_wrapper_lib.conf import settings
-from email_wrapper_lib.models import EmailMessage
+from email_wrapper_lib.models import EmailMessage, EmailFolder
 from email_wrapper_lib.providers import registry
 from .models import EmailAccount
 from lily.utils.views import LoginRequiredMixin
@@ -16,42 +16,47 @@ from lily.utils.views import LoginRequiredMixin
 ######################################################################################################################
 
 
-class HomeView(TemplateView):
-    template_name = 'email_wrapper_lib_home.html'
+class MessagesView(LoginRequiredMixin, TemplateView):
+    template_name = 'email_wrapper_lib_list.html'
 
     def get_context_data(self, **kwargs):
-        context = super(HomeView, self).get_context_data(**kwargs)
-        context['account_list'] = EmailAccount.objects.all()
+        context = super(MessagesView, self).get_context_data(**kwargs)
+        context['account_list'] = EmailAccount.objects.all().order_by('id')
 
         account_id = kwargs.get('account_id')
         if account_id:
+            context['account_id'] = account_id
             base = EmailMessage.objects.filter(account_id=account_id)
+            context['folder_list'] = EmailFolder.objects.filter(account_id=account_id).order_by('account_id')
         else:
             base = EmailMessage.objects.all()
+            context['folder_list'] = EmailFolder.objects.all().order_by('account_id')
 
         context['message_list'] = base.order_by('-received_date_time')[:20]
+
+        folder_id = kwargs.get('folder_id')
+        if folder_id:
+            context['folder_id'] = folder_id
+            base.filter(
+                folders__in=EmailFolder.objects.filter(remote_id=folder_id)
+            )
 
         return context
 
 
-class SyncView(TemplateView):
-    template_name = 'email_wrapper_lib_home.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(SyncView, self).get_context_data(**kwargs)
+class SyncView(LoginRequiredMixin, RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
         account_id = kwargs.get('account_id')
 
         if account_id:
-            account_list = [EmailAccount.objects.get(pk=account_id)]
+            account_list = [EmailAccount.objects.get(pk=account_id), ]
         else:
             account_list = EmailAccount.objects.all()
 
         for account in account_list:
             account.manager.sync()
 
-        context['account_list'] = account_list
-
-        return context
+        return reverse('email_v3_messagesview')
 
 
 ######################################################################################################################

@@ -328,7 +328,7 @@ class MessageBuilder(object):
 
     def _create_body_html(self, body, encoding=None):
         """
-        parse string to a correct coded html body part and add to Message.body_html
+        Parse string to a correct coded html body part and add to Message.body_html.
 
         Args:
             body (string): not encoded string
@@ -336,14 +336,14 @@ class MessageBuilder(object):
         """
         decoded_body = None
 
-        # Use given encoding type
+        # Use given encoding type.
         if encoding:
             try:
                 decoded_body = body.decode(encoding)
             except (LookupError, UnicodeDecodeError):
                 pass
 
-        # BS4 decoding second
+        # BS4 decoding second.
         if not decoded_body:
             soup = BeautifulSoup(body, 'lxml')
             if soup.original_encoding:
@@ -353,19 +353,19 @@ class MessageBuilder(object):
                 except (LookupError, UnicodeDecodeError):
                     pass
 
-        # If decoding fails, just force utf-8
+        # If decoding fails, just force utf-8.
         if not decoded_body and body:
             logger.warning('couldn\'t decode, forced utf-8 > %s' % self.message.message_id)
             encoding = 'utf-8'
             decoded_body = body.decode(encoding, errors='replace')
 
-        # Only add if there is a body
+        # Only add if there is a body.
         if decoded_body:
-            self.message.body_html += decoded_body.encode(encoding).decode('utf-8')
+            self.message.body_html += decoded_body.encode(encoding).decode('utf-8', errors='replace')
 
     def _create_body_text(self, body, encoding=None):
         """
-        parse string to a correct coded text body part and add to Message.body_text
+        Parse string to a correct coded text body part and add to Message.body_text.
 
         Args:
             body (string): not encoded string
@@ -373,14 +373,14 @@ class MessageBuilder(object):
         """
         decoded_body = None
 
-        # Use given encoding type
+        # Use given encoding type.
         if encoding:
             try:
                 decoded_body = body.decode(encoding)
             except (LookupError, UnicodeDecodeError):
                 pass
 
-        # UnicodeDammit decoding second
+        # UnicodeDammit decoding second.
         if not decoded_body:
             dammit = UnicodeDammit(body)
             if dammit.original_encoding:
@@ -390,14 +390,14 @@ class MessageBuilder(object):
                 except (LookupError, UnicodeDecodeError):
                     pass
 
-        # If decoding fails, just force utf-8
+        # If decoding fails, just force utf-8.
         if not decoded_body and body:
             logger.warning('couldn\'t decode, forced utf-8 > %s' % self.message.message_id)
             encoding = 'utf-8'
             decoded_body = body.decode(encoding, errors='replace')
 
         if decoded_body:
-            self.message.body_text += decoded_body.encode(encoding).decode('utf-8')
+            self.message.body_text += decoded_body.encode(encoding).decode('utf-8', errors='replace')
 
     def _create_recipients(self, header_name, header_value):
         """

@@ -1,0 +1,57 @@
+{
+  "internalDate": "1520250986000",
+  "historyId": "1008231",
+  "payload": {
+    "mimeType": "text/plain",
+    "headers": [
+      {
+        "name": "Received",
+        "value": "from 293879599902 named unknown by gmailapi.google.com with HTTPREST; Mon, 3 Apr 2017 04:54:44 -0700"
+      },
+      {
+        "name": "Message-ID",
+        "value": "<5a9d306b.668c500a.c2a7e.d839@mx.google.com>"
+      },
+      {
+        "name": "Date",
+        "value": "Mon, 05 Mar 2018 12:56:26 +0100"
+      },
+      {
+        "name": "Subject",
+        "value": "UTF-16 test mail 1"
+      },
+      {
+        "name": "From",
+        "value": "Firstname Lastname <user1@example.com>"
+      },
+      {
+        "name": "To",
+        "value": "user2@example.com"
+      },
+      {
+        "name": "Content-Type",
+        "value": "text/plain; charset=UTF-16"
+      },
+      {
+        "name": "Content-Transfer-Encoding",
+        "value": "base64"
+      }
+    ],
+    "body": {
+      "data": "SMOhw6HDoQo=",
+      "size": 12
+    },
+    "partId": "",
+    "filename": ""
+  },
+  "snippet": "H\u00e1\u00e1\u00e1",
+  "sizeEstimate": 5124,
+  "threadId": "161f5829f3ce679e",
+  "labelIds": [
+    "UNREAD",
+    "IMPORTANT",
+    "CATEGORY_PERSONAL",
+    "INBOX"
+  ],
+  "id": "161f6052954d7758"
+}

@@ -86,7 +86,7 @@
                 <th class="hl-table-column" ng-show="vm.table.visibility.assignedTeams">Assigned team(s)</th>
                 <th class="hl-table-column" ng-show="vm.table.visibility.createdBy" sort-column="created_by.full_name" table="vm.table">Created by</th>
                 <th class="hl-table-column" ng-show="vm.table.visibility.tags">Tags</th>
-                <th class="hl-table-column" style="width: 60px;">Actions</th>
+                <th class="hl-table-column" width="105px">Actions</th>
             </thead>
             <tbody>
                 <tr ng-repeat="case in vm.table.items">
@@ -153,6 +153,8 @@
                         <a ui-sref="base.cases.detail.edit({ id: case.id })" class="hl-primary-btn-smll" title="Edit">
                             <i class="lilicon hl-edit-icon"></i>
                         </a>
+
+                        <delete-confirmation model="Case" object="case" callback="vm.removeFromList(case)" button-class="hl-primary-btn-smll" display-field="subject"></delete-confirmation>
                     </td>
                 </tr>
             </tbody>

@@ -71,6 +71,7 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
     vm.clearFilters = clearFilters;
     vm.updateModel = updateModel;
     vm.assignToMyTeams = assignToMyTeams;
+    vm.removeFromList = removeFromList;
 
     activate();
 
@@ -249,6 +250,12 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
 
             HLUtils.unblockUI(blockTarget);
         });
+    }
+
+    function removeFromList(caseObj) {
+        const index = vm.table.items.indexOf(caseObj);
+        vm.table.items.splice(index, 1);
+        $scope.$apply();
     }
 
     function _setupWatchers() {

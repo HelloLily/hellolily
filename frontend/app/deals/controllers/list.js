@@ -78,6 +78,7 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
     vm.clearFilters = clearFilters;
     vm.updateModel = updateModel;
     vm.assignToMyTeams = assignToMyTeams;
+    vm.removeFromList = removeFromList;
 
     activate();
 
@@ -264,6 +265,12 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
 
             HLUtils.unblockUI(blockTarget);
         });
+    }
+
+    function removeFromList(deal) {
+        const index = vm.table.items.indexOf(deal);
+        vm.table.items.splice(index, 1);
+        $scope.$apply();
     }
 
     function _setupWatchers() {

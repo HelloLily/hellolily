@@ -492,6 +492,31 @@ class GmailManagerTests(UserBasedTest, APITestCase):
             [settings.GMAIL_LABEL_UNREAD, settings.GMAIL_LABEL_IMPORTANT, settings.GMAIL_LABEL_TRASH,
              settings.GMAIL_LABEL_PERSONAL]))
 
+    @patch.object(GmailConnector, 'get_message_info')
+    def test_download_message_utf16(self, get_message_info_mock):
+        """
+        Test the GmailManager on downloading a utf-16 encoded message.
+        """
+        message_id = '161f6052954d7758'
+
+        with open('lily/messaging/email/tests/data/get_message_info_{0}.json'.format(message_id)) as infile:
+            json_obj = json.load(infile)
+            get_message_info_mock.return_value = json_obj
+
+        email_account = EmailAccount.objects.first()
+
+        labels = [settings.GMAIL_LABEL_UNREAD, settings.GMAIL_LABEL_IMPORTANT, settings.GMAIL_LABEL_PERSONAL,
+                  settings.GMAIL_LABEL_INBOX]
+        for label in labels:
+            EmailLabelFactory.create(account=email_account, label_id=label)
+
+        manager = GmailManager(email_account)
+        # Message isn't present in the db, so it will do a mocked API call.
+        manager.download_message(message_id)
+
+        # Verify that the email message is stored in the db.
+        self.assertTrue(EmailMessage.objects.filter(account=email_account, message_id=message_id).exists())
+
     def test_cleanup(self):
         """
         Test if the GmailManager cleans up the right data.

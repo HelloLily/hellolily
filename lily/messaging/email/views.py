@@ -47,7 +47,7 @@ from .tasks import (send_message, create_draft_email_message, update_draft_email
                     add_and_remove_labels_for_message, trash_email_message)
 from .utils import (get_attachment_filename_from_url, get_email_parameter_choices, create_recipients,
                     render_email_body, replace_cid_in_html, create_reply_body_header, reindex_email_message,
-                    extract_script_tags)
+                    extract_script_tags, get_filtered_message)
 
 
 logger = logging.getLogger(__name__)
@@ -252,6 +252,13 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
                     account__tenant=request.user.tenant,
                     id=kwargs['pk'],
                 )
+
+                filtered_message = get_filtered_message(self.object, self.object.account, request.user)
+
+                if filtered_message != self.object:
+                    # Message isn't the same, which means it's been filtered
+                    # (so either metadata only or no permission at all)
+                    raise Http404()
 
                 attachments = EmailAttachment.objects.filter(message_id=self.object.pk)
 

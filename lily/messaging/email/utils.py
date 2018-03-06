@@ -553,7 +553,7 @@ def write_json_to_disk(path, data):
 def get_filtered_message(email_message, email_account, user):
     shared_config = email_account.sharedemailconfig_set.filter(user=user).first()
 
-    # If the email account or sharing is set to metadata only, just return these fields.
+    # If the email account or sharing is set to 'metadata' only return these fields.
     metadata_only_message = {
         'id': email_message.id,
         'sender': email_message.sender,

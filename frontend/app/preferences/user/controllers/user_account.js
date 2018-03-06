@@ -24,9 +24,11 @@ function preferencesConfig($stateProvider) {
 
 angular.module('app.preferences').controller('PreferencesUserAccountController', PreferencesUserAccountController);
 
-PreferencesUserAccountController.$inject = ['$state', 'HLForms', 'HLUtils', 'User', 'user'];
-function PreferencesUserAccountController($state, HLForms, HLUtils, User, user) {
-    var vm = this;
+PreferencesUserAccountController.$inject = ['$state', 'HLForms', 'HLUtils', 'Settings', 'User', 'user'];
+function PreferencesUserAccountController($state, HLForms, HLUtils, Settings, User, user) {
+    const vm = this;
+
+    Settings.page.setAllTitles('list', 'my account');
 
     vm.user = user;
 

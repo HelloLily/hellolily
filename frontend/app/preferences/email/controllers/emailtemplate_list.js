@@ -21,10 +21,12 @@ function preferencesConfig($stateProvider) {
 angular.module('app.preferences').controller('PreferencesEmailTemplatesList', PreferencesEmailTemplatesList);
 
 PreferencesEmailTemplatesList.$inject = ['$compile', '$scope', '$state', '$templateCache', 'EmailAccount',
-    'EmailTemplate', 'EmailTemplateFolder'];
+    'EmailTemplate', 'EmailTemplateFolder', 'Settings'];
 function PreferencesEmailTemplatesList($compile, $scope, $state, $templateCache, EmailAccount,
-    EmailTemplate, EmailTemplateFolder) {
-    let vm = this;
+    EmailTemplate, EmailTemplateFolder, Settings) {
+    const vm = this;
+
+    Settings.page.setAllTitles('list', 'email templates');
 
     vm.templateFolders = [];
     vm.newFolder = EmailTemplateFolder.create();

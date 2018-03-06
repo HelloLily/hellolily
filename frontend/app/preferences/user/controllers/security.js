@@ -27,9 +27,13 @@ function preferencesConfig($stateProvider) {
 
 angular.module('app.preferences').controller('PreferencesUserSecurityController', PreferencesUserSecurityController);
 
-PreferencesUserSecurityController.$inject = ['$compile', '$scope', '$state', '$templateCache', 'TwoFactor', 'UserSession', 'twoFactor', 'userSession'];
-function PreferencesUserSecurityController($compile, $scope, $state, $templateCache, TwoFactor, UserSession, twoFactor, userSession) {
-    var vm = this;
+PreferencesUserSecurityController.$inject = ['$compile', '$scope', '$state', '$templateCache', 'Settings',
+    'TwoFactor', 'UserSession', 'twoFactor', 'userSession'];
+function PreferencesUserSecurityController($compile, $scope, $state, $templateCache, Settings,
+    TwoFactor, UserSession, twoFactor, userSession) {
+    const vm = this;
+
+    Settings.page.setAllTitles('list', 'security');
 
     vm.twoFactor = twoFactor;
     vm.userSessions = userSession.results;

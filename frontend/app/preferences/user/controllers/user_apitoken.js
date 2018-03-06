@@ -22,9 +22,12 @@ function preferencesConfig($stateProvider) {
  */
 angular.module('app.preferences').controller('UserTokenController', UserTokenController);
 
-UserTokenController.$inject = ['User'];
-function UserTokenController(User) {
-    var vm = this;
+UserTokenController.$inject = ['Settings', 'User'];
+function UserTokenController(Settings, User) {
+    const vm = this;
+
+    Settings.page.setAllTitles('list', 'my API token');
+
     vm.token = '';
 
     vm.deleteToken = deleteToken;

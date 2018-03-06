@@ -21,9 +21,11 @@ function billingOverviewConfig($stateProvider) {
 
 angular.module('app.base').controller('BillingOverviewController', BillingOverviewController);
 
-BillingOverviewController.$inject = ['$filter', '$scope', '$state', '$window', 'Billing', 'billingInfo', 'countries'];
-function BillingOverviewController($filter, $scope, $state, $window, Billing, billingInfo, countries) {
+BillingOverviewController.$inject = ['$filter', '$scope', '$state', '$window', 'Billing', 'Settings', 'billingInfo', 'countries'];
+function BillingOverviewController($filter, $scope, $state, $window, Billing, Settings, billingInfo, countries) {
     const vm = this;
+
+    Settings.page.setAllTitles('list', 'billing');
 
     vm.card = billingInfo.card;
     vm.customer = billingInfo.customer;

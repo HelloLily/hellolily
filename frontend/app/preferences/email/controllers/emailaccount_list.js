@@ -32,10 +32,13 @@ function emailPreferencesStates($stateProvider) {
 angular.module('app.preferences').controller('PreferencesEmailAccountList', PreferencesEmailAccountList);
 
 PreferencesEmailAccountList.$inject = ['$compile', '$filter', '$http', '$scope', '$templateCache', 'EmailAccount',
-    'HLResource', 'HLSearch', 'SharedEmailConfig', 'User', 'user', 'ownedAccounts', 'sharedWithAccounts', 'publicAccounts'];
+    'HLResource', 'HLSearch', 'Settings', 'SharedEmailConfig', 'User', 'user', 'ownedAccounts', 'sharedWithAccounts',
+    'publicAccounts'];
 function PreferencesEmailAccountList($compile, $filter, $http, $scope, $templateCache, EmailAccount,
-    HLResource, HLSearch, SharedEmailConfig, User, user, ownedAccounts, sharedWithAccounts, publicAccounts) {
+    HLResource, HLSearch, Settings, SharedEmailConfig, User, user, ownedAccounts, sharedWithAccounts, publicAccounts) {
     const vm = this;
+
+    Settings.page.setAllTitles('list', 'email accounts');
 
     vm.ownedAccounts = [];
     vm.sharedAccounts = [];

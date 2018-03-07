@@ -164,12 +164,6 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
                 value: 'created:[' + moment().subtract(120, 'd').format('YYYY-MM-DD') + ' TO ' + moment().subtract(30, 'd').format('YYYY-MM-DD') + ']',
                 selected: false,
             },
-            {
-                name: 'Archived',
-                value: '',
-                selected: false,
-                id: 'is_archived',
-            },
         ];
 
         const myTeamIds = [];

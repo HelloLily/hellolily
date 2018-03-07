@@ -189,6 +189,8 @@ function UsersFilterController($filter, $state, $timeout, LocalStorage, User, Us
             // 'Not in team' isn't an actual team, so check for 'id' property.
             if (team.hasOwnProperty('id') && (team.selected || team.filterOnTeam)) {
                 selectedFilter.push('assigned_to_teams.id:' + team.id);
+            } else if (!team.hasOwnProperty('id') && (team.selected || team.filterOnTeam)) {
+                selectedFilter.push('_missing_:assigned_to_teams');
             }
 
             team.users.map(user => {

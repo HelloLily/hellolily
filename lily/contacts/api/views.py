@@ -167,7 +167,7 @@ class ContactImport(APIView):
                         company_name = row.get(u'company name')
                         # Not using get_or_create() to make use of the skip_signal construction.
                         try:
-                            account = Account.objects.get(name=company_name, tenant=tenant)
+                            account = Account.objects.get(name=company_name, tenant=tenant, is_deleted=False)
                         except Account.DoesNotExist:
                             account_status = AccountStatus.objects.get(name='Relation', tenant=tenant)
                             account = Account(name=company_name,

@@ -26,7 +26,7 @@ function TimeLog($resource, HLResource) {
                 },
             },
             getForObject: {
-                url: '/api/:model/:id/timelogs',
+                url: '/api/:model/:id/timelogs/',
                 params: {
                     id: '@id',
                     model: '@model',

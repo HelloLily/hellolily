@@ -14,18 +14,18 @@ function callerInfo() {
 
 CallerInfoController.$inject = ['$state', 'Account', 'Call'];
 function CallerInfoController($state, Account, Call) {
-    var vm = this;
+    const vm = this;
 
     vm.fetchCallerInfo = fetchCallerInfo;
 
     function fetchCallerInfo() {
         // Get the latest call of the current user based on the internal number.
-        Call.getLatestCall().$promise.then(function(callInfo) {
-            var call = callInfo.call;
+        Call.getLatestCall().$promise.then(callInfo => {
+            const call = callInfo.call;
 
             if (call) {
                 // There was a call for the current user, so try to find an account with the given number.
-                Account.searchByPhoneNumber({number: call.caller.number}).$promise.then(function(response) {
+                Account.searchByPhoneNumber({number: call.caller.number}).$promise.then(response => {
                     if (response.data.accounts.length) {
                         // Account found so redirect to the account.
                         $state.go('base.accounts.detail', {id: response.data.accounts[0]}, {reload: true});
@@ -37,8 +37,8 @@ function CallerInfoController($state, Account, Call) {
                         $state.go(
                             'base.accounts.create',
                             {
-                                'name': call.caller_name,
-                                'phone_number': call.caller_number,
+                                'name': call.caller.name,
+                                'phone_number': call.caller.number,
                             },
                             {reload: true}
                         );

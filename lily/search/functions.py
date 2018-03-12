@@ -3,7 +3,7 @@ from lily.contacts.models import Contact
 from lily.utils.functions import parse_phone_number
 
 
-def search_number(tenant_id, number, return_related=True):
+def search_number(tenant_id, number):
     """
     If the phone number belongs to an account, this returns the first account and all its contacts
     Else if the number belongs to a contact, this returns the first contact and all its accounts
@@ -17,14 +17,8 @@ def search_number(tenant_id, number, return_related=True):
 
     if accounts:
         accounts_result = [accounts[0]]
-
-        if return_related:
-            contacts_result = accounts[0].contacts.filter(is_deleted=False)
     elif contacts:
         contacts_result = [contacts[0]]
-
-        if return_related:
-            accounts_result = contacts[0].accounts.filter(is_deleted=False)
 
     return {
         'data': {

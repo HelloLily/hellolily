@@ -348,7 +348,7 @@ class InternalNumberSearchView(LoginRequiredMixin, View):
             name = ''
             internal_number = results.get('internal_number', '')
 
-            result = search_number(request.user.tenant_id, number, False)
+            result = search_number(request.user.tenant_id, number)
             data = result.get('data')
             accounts = data.get('accounts')
             contacts = data.get('contacts')

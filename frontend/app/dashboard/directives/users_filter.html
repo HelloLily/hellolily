@@ -44,10 +44,11 @@
 
                         <li ng-if="!team.collapsed" class="hl-dropdown-sub-items">
                             <ul class="hl-dropdown-sub-menu">
-                                <li class="hl-dropdown-sub-menu-item" ng-if="team.id">
+                                <li class="hl-dropdown-sub-menu-item">
                                     <span class="clickable" ng-click="vm.toggleUser(team, null, false)">
                                         <div class="hl-checkbox" ng-class="{'checked': team.filterOnTeam}"></div>
-                                        {{ team.name }} team
+                                        <span ng-if="team.id">{{ team.name }} team</span>
+                                        <span ng-if="!team.id">Not in team</span>
                                     </span>
                                 </li>
                                 <li class="hl-dropdown-sub-menu-item" ng-repeat="user in team.users">

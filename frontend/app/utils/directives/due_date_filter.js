@@ -15,9 +15,9 @@ function dueDateFilter() {
     };
 }
 
-DueDateFilterWidgetController.$inject = ['$scope', '$timeout', 'HLFilters', 'LocalStorage'];
-function DueDateFilterWidgetController($scope, $timeout, HLFilters, LocalStorage) {
-    let vm = this;
+DueDateFilterWidgetController.$inject = ['$scope', '$state', '$timeout', 'HLFilters', 'LocalStorage'];
+function DueDateFilterWidgetController($scope, $state, $timeout, HLFilters, LocalStorage) {
+    const vm = this;
     const storage = new LocalStorage(vm.type);
 
     // Get the stored value or set to 'All' if it doesn't exist
@@ -67,6 +67,14 @@ function DueDateFilterWidgetController($scope, $timeout, HLFilters, LocalStorage
                 selected: false,
             },
         ];
+
+        if ($state.current.name !== 'base.dashboard') {
+            filterList.unshift({
+                name: 'Archived',
+                value: 'is_archived: true',
+                selected: false,
+            });
+        }
 
         // Merge previous stored selection with new filters.
         HLFilters.getStoredSelections(filterList, vm.storedFilterList);

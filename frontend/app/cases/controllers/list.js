@@ -154,12 +154,6 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
                 value: 'NOT(assigned_to.id:*)',
                 selected: false,
             },
-            {
-                name: 'Archived',
-                value: '',
-                selected: false,
-                id: 'is_archived',
-            },
         ];
 
         UserTeams.mine(teams => {

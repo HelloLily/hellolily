@@ -11,6 +11,9 @@ function preferencesConfig($stateProvider) {
                 controllerAs: 'vm',
             },
         },
+        ncyBreadcrumb: {
+            label: 'Accounts',
+        },
         resolve: {
             invites: ['UserInvite', UserInvite => UserInvite.query({}).$promise],
         },
@@ -25,6 +28,8 @@ function PreferencesCompanyUserList($compile, $scope, $state, $templateCache, HL
     LocalStorage, Settings, User, UserInvite, UserTeams, invites) {
     const vm = this;
     const storage = new LocalStorage('userList');
+
+    Settings.page.setAllTitles('list', 'users');
 
     vm.table = {
         page: 1,  // current page of pagination: 1-index

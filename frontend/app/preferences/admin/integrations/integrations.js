@@ -16,6 +16,7 @@ function integrationsConfig($stateProvider) {
 
 angular.module('app.preferences').controller('PreferencesIntegrationsController', PreferencesIntegrationsController);
 
-PreferencesIntegrationsController.$inject = [];
-function PreferencesIntegrationsController() {
+PreferencesIntegrationsController.$inject = ['Settings'];
+function PreferencesIntegrationsController(Settings) {
+    Settings.page.setAllTitles('list', 'integrations');
 }

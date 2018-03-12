@@ -24,9 +24,11 @@ function preferencesConfig($stateProvider) {
 
 angular.module('app.preferences').controller('PreferencesTemplatesList', PreferencesEmailTemplatesList);
 
-PreferencesEmailTemplatesList.$inject = ['$scope', 'TemplateVariable', 'user'];
-function PreferencesEmailTemplatesList($scope, TemplateVariable, user) {
-    var vm = this;
+PreferencesEmailTemplatesList.$inject = ['$scope', 'Settings', 'TemplateVariable', 'user'];
+function PreferencesEmailTemplatesList($scope, Settings, TemplateVariable, user) {
+    const vm = this;
+
+    Settings.page.setAllTitles('list', 'email template variables');
 
     vm.templateVariables = [];
     vm.publicTemplateVariables = [];

@@ -2,8 +2,14 @@
     <div class="portlet-body flip-scroll">
         <simple-widget>
             <widget-header>
-                <div class="widget-name">
+                <div class="widget-name display-inline-block">
                     Your email accounts
+                </div>
+
+                <div class="pull-right">
+                    <object-limit model="emailAccounts">
+                        <a href="/messaging/email/setup" class="hl-primary-btn no-margin-right"><i class="fa fa-plus"></i> Email account</a>
+                    </object-limit>
                 </div>
             </widget-header>
 
@@ -168,11 +174,5 @@
                 </table>
             </widget-body>
         </simple-widget>
-
-        <div class="align-right">
-            <object-limit model="emailAccounts">
-                <a href="/messaging/email/setup" class="hl-primary-btn-green no-margin-right"><i class="fa fa-plus"></i> Email account</a>
-            </object-limit>
-        </div>
     </div>
 </div>

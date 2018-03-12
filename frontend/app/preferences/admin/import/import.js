@@ -20,9 +20,12 @@ function importConfig($stateProvider) {
 
 angular.module('app.preferences').controller('PreferencesImportController', PreferencesImportController);
 
-PreferencesImportController.$inject = ['HLForms', 'HLUtils', 'Upload'];
-function PreferencesImportController(HLForms, HLUtils, Upload) {
-    var vm = this;
+PreferencesImportController.$inject = ['HLForms', 'HLUtils', 'Settings', 'Upload'];
+function PreferencesImportController(HLForms, HLUtils, Settings, Upload) {
+    const vm = this;
+
+    Settings.page.setAllTitles('list', 'import');
+
     vm.csv = null;
 
     vm.import_accounts_result_error = null;

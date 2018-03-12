@@ -1,5 +1,7 @@
-<div class="widget-heading">
-    <div class="widget-title">
+<div class="widget-heading no-border-bottom">
+    <div class="widget-name display-inline-block">Users</div>
+
+    <div class="pull-right">
         <a class="hl-primary-btn" ui-sref="base.preferences.company.users.inviteUser">
             <i class="fa fa-plus"></i> User
         </a>
@@ -7,7 +9,11 @@
         <button class="hl-primary-btn" ng-click="newTeamForm.$show()" ng-if="currentUser.isAdmin">
             <i class="fa fa-plus"></i> Team
         </button>
+    </div>
+</div>
 
+<div class="widget-heading">
+    <div class="widget-title">
         <ul class="hl-button-group">
             <li class="hl-button-group-btn">
                 <a class="hl-button-group-btn-link" href="javascript:;" data-toggle="dropdown">

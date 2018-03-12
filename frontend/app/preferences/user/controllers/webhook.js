@@ -24,9 +24,11 @@ function webhookConfig($stateProvider) {
 
 angular.module('app.preferences').controller('WebhookController', WebhookController);
 
-WebhookController.$inject = ['HLForms', 'HLResource', 'HLUtils', 'user'];
-function WebhookController(HLForms, HLResource, HLUtils, user) {
-    var vm = this;
+WebhookController.$inject = ['HLForms', 'HLResource', 'HLUtils', 'Settings', 'user'];
+function WebhookController(HLForms, HLResource, HLUtils, Settings, user) {
+    const vm = this;
+
+    Settings.page.setAllTitles('list', 'my webhook');
 
     vm.user = user;
 

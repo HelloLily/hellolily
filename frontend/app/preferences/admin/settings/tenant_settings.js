@@ -19,9 +19,11 @@ function tenantSettings($stateProvider) {
 
 angular.module('app.preferences').controller('TenantSettingsController', TenantSettingsController);
 
-TenantSettingsController.$inject = ['$state', '$window', 'HLForms', 'Tenant', 'tenant'];
-function TenantSettingsController($state, $window, HLForms, Tenant, tenant) {
+TenantSettingsController.$inject = ['$state', '$window', 'HLForms', 'Settings', 'Tenant', 'tenant'];
+function TenantSettingsController($state, $window, HLForms, Settings, Tenant, tenant) {
     const vm = this;
+
+    Settings.page.setAllTitles('list', 'settings');
 
     vm.tenant = tenant;
 

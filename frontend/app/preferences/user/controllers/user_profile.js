@@ -24,9 +24,11 @@ function preferencesConfig($stateProvider) {
 
 angular.module('app.preferences').controller('PreferencesUserProfileController', PreferencesUserProfileController);
 
-PreferencesUserProfileController.$inject = ['$state', '$window', 'HLForms', 'HLUtils', 'Upload', 'user'];
-function PreferencesUserProfileController($state, $window, HLForms, HLUtils, Upload, user) {
-    var vm = this;
+PreferencesUserProfileController.$inject = ['$state', '$window', 'HLForms', 'HLUtils', 'Settings', 'Upload', 'user'];
+function PreferencesUserProfileController($state, $window, HLForms, HLUtils, Settings, Upload, user) {
+    const vm = this;
+
+    Settings.page.setAllTitles('list', 'my profile');
 
     vm.user = user;
 

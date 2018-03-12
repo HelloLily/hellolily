@@ -29,7 +29,7 @@ class EmailAccountSerializer(serializers.ModelSerializer):
             'id',
             'username',
             'user_id',
-            'provider_id',
+            'provider',
             'subscription_id',
             'history_token',
             'page_token',

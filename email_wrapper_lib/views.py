@@ -32,7 +32,7 @@ class MessagesView(LoginRequiredMixin, TemplateView):
             base = EmailMessage.objects.all()
             context['folder_list'] = EmailFolder.objects.all().order_by('account_id')
 
-        context['message_list'] = base.order_by('-received_date_time')[:20]
+        context['message_list'] = base.order_by('-received_date_time')[:200]
 
         folder_id = kwargs.get('folder_id')
         if folder_id:
@@ -128,14 +128,14 @@ class AddAccountCallbackView(LoginRequiredMixin, View):
         try:
             account = EmailAccount.objects.get(
                 user_id=profile['user_id'],
-                provider_id=provider.id
+                provider=provider.id
             )
             account.status = EmailAccount.RESYNC  # Account already existed, so resync.
             account.username = profile['username']  # Update the username in case it changed.
         except EmailAccount.DoesNotExist:
             account = EmailAccount.objects.create(
                 user_id=profile['user_id'],
-                provider_id=provider.id,
+                provider=provider.id,
                 username=profile['username']
             )
 

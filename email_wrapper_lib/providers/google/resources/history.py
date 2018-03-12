@@ -5,16 +5,15 @@ from .base import GoogleResource
 
 
 class HistoryResource(GoogleResource):
-    def list(self, history_token, page_token, batch=None):
+    def list(self, history_id, page_token, batch=None):
         """
         Return the history list from the api.
         """
-
         request = self.service.users().history().list(
             userId=self.user_id,
             quotaUser=self.user_id,
             maxResults=settings.BATCH_SIZE,
-            startHistoryId=history_token,
+            startHistoryId=history_id,
             pageToken=page_token
         )
 

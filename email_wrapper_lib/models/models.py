@@ -42,7 +42,7 @@ class EmailAccount(SoftDeleteMixin, TimeStampMixin, models.Model):
         default=NEW,
         db_index=True
     )
-    provider_id = models.PositiveSmallIntegerField(
+    provider = models.PositiveSmallIntegerField(
         verbose_name=_('Provider id'),
         choices=PROVIDERS,
         db_index=True
@@ -70,7 +70,7 @@ class EmailAccount(SoftDeleteMixin, TimeStampMixin, models.Model):
     @property
     def manager(self):
         from email_wrapper_lib.providers import registry
-        return registry[self.provider_id].manager(self)
+        return registry[self.provider].manager(self)
 
     def __unicode__(self):
         return self.username
@@ -250,8 +250,7 @@ class EmailRecipient(models.Model):
         verbose_name=_('Raw value'),
         max_length=509,  # 255 (name) + 254 (email_address)
         unique=True,
-        db_index=True,
-        editable=False
+        db_index=True
     )
 
     def __unicode__(self):

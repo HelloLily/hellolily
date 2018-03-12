@@ -1,0 +1,30 @@
+# TODO: make these requirements more lenient, because a pip installable package can't only pin to specific versions.
+
+# Oauth2lib and it's sub dependencies.
+oauth2client==2.2.0
+pyasn1==0.4.2
+pyasn1-modules==0.2.1
+six==1.11.0
+
+
+# Google api client and it's sub dependencies.
+google-api-python-client==1.6.5
+httplib2==0.10.3
+rsa==3.4.2
+uritemplate==3.0.0
+
+
+# Celery and it's sub dependencies.
+celery==4.1.0
+billiard==3.5.0.3
+kombu==4.1.0
+amqp==2.2.2
+vine==1.1.4
+
+
+# TODO: check if we still need/want these.
+beautifulsoup4==4.6.0
+bleach==2.1.1
+html2text==2018.1.9
+html5lib==0.999999999
+lxml==3.4.4  # Old version is: 3.2.3

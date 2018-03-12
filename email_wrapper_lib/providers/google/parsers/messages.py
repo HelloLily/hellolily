@@ -2,7 +2,7 @@ import base64
 from datetime import datetime
 from pytz import utc
 
-from email_wrapper_lib.providers.google.parsers.utils import parse_date_string, parse_recipient_string
+from email_wrapper_lib.providers.google.parsers.utils import parse_recipient_string
 
 
 def parse_message_list(data, promise=None):

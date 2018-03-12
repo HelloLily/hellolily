@@ -15,8 +15,6 @@
         <th>User id</th>
         <th>Provider</th>
         <th>Status</th>
-        <th>Total messages</th>
-        <th>Unread messages</th>
         <th>Actions</th>
     </tr>
     {% for account in account_list %}
@@ -29,10 +27,8 @@
                 {% endif %}
             </td>
             <td>{{ account.user_id }}</td>
-            <td>{{ account.provider_id }}</td>
-            <td>{{ account.status }}</td>
-            <td>account.total_messages</td>
-            <td>account.unread_messages</td>
+            <td>{{ account.get_provider_display }}</td>
+            <td>{{ account.get_status_display }}</td>
             <td>
                 <a href="{% url 'email_v3_syncview' account_id=account.pk %}">refresh</a>
             </td>

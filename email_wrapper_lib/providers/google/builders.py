@@ -1,4 +1,3 @@
-import time
 from django.db import transaction, IntegrityError
 
 from email_wrapper_lib.models.models import (
@@ -16,12 +15,18 @@ recipient_types_with_id = (
     )
 
 
-def create_messages(account, message_data):
+def create_messages(account, message_promise_list):
     # Recipients are not account specific, so db errors can occur when multiple tasks try to save at the same time.
     # Build a cache of recipients already in the db.
+    # TODO: make sure that if the recipient table is really big, this is still fast.
     db_recipients = {rec[0]: rec[1] for rec in EmailRecipient.objects.all().values_list('raw_value', 'id')}
 
-    for promise in message_data:
+    # Filter out empty promises.
+    # There is a bug between gmail/apple that creates empty messages.
+    # More info: https://productforums.google.com/forum/#!topic/gmail/WyTczFXSjh0
+    message_promise_list = [msg_promise for msg_promise in message_promise_list if msg_promise.data]
+
+    for promise in message_promise_list:
         recipients = promise.data.get('recipients', {})
 
         for recipient_type, recipient_type_id in recipient_types_with_id:
@@ -44,7 +49,7 @@ def create_messages(account, message_data):
     unsaved_message_to_folder_list = []
     unsaved_message_to_recipient_list = []
 
-    for promise in message_data:
+    for promise in message_promise_list:
         folders = promise.data.pop('folders', [])
         recipients = promise.data.pop('recipients', [])
 
@@ -87,4 +92,8 @@ def create_messages(account, message_data):
 
 
 def update_messages(account, message_data):
+    pass
+
+
+def delete_messages(account, message_ids):
     pass

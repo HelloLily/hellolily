@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
                 ('user_id', models.CharField(max_length=255, unique=True, verbose_name='User id')),
                 ('raw_credentials', oauth2client.contrib.django_orm.CredentialsField(null=True)),
                 ('status', models.PositiveSmallIntegerField(choices=[(0, 'new'), (1, 'idle'), (2, 'syncing'), (3, 'error'), (4, 'resync')], db_index=True, default=0, verbose_name='Status')),
-                ('provider_id', models.PositiveSmallIntegerField(choices=[(0, b'Google'), (1, b'Microsoft')], db_index=True, verbose_name='Provider id')),
+                ('provider', models.PositiveSmallIntegerField(choices=[(0, b'Google'), (1, b'Microsoft')], db_index=True, verbose_name='Provider id')),
                 ('subscription_id', models.CharField(max_length=255, null=True, verbose_name='Subscription id')),
             ],
             bases=(email_wrapper_lib.models.mixins.SoftDeleteMixin, email_wrapper_lib.models.mixins.TimeStampMixin, models.Model),

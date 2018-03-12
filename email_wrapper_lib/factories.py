@@ -31,7 +31,7 @@ class EmailAccountFactory(DjangoModelFactory):
     user_id = SelfAttribute('.username')
     credentials = LazyAttribute(lambda o: generate_credentials())
     status = Iterator(range(5))
-    provider_id = Iterator(range(1, 3))
+    provider = Iterator(range(1, 3))
 
     class Meta:
         model = EmailAccount

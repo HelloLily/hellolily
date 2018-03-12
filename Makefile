@@ -4,7 +4,8 @@
 default: run
 
 setup_env_file:
-	@cp -n lily/settings/.env.template lily/settings/.env
+	@echo "Make: cp -n lily/settings/.env.template lily/settings/.env"
+	@cp -n -v lily/settings/.env.template lily/settings/.env || true
 
 build:
 	@echo "Make: DOCKER_USER_ID=1000 docker-compose -f docker-compose.yml -f docker-compose.new-build.yml build"
@@ -91,4 +92,4 @@ setup: setup_env_file build migrate index testdata run
 help:
 	@$(MAKE) -pRrq -f $(lastword $(MAKEFILE_LIST)) : 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | egrep -v -e '^[^[:alnum:]]' -e '^$@$$' | xargs
 
-.PHONY: default build pull makemigrations migrate index testdata run up down manage cleanfiles setup help
+.PHONY: default build pull makemigrations migrate index testdata run up down manage cleanfiles setup help setup_env_file

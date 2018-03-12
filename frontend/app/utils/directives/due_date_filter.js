@@ -71,7 +71,7 @@ function DueDateFilterWidgetController($scope, $state, $timeout, HLFilters, Loca
         if ($state.current.name !== 'base.dashboard') {
             filterList.unshift({
                 name: 'Archived',
-                value: 'is_archived: true',
+                value: '',
                 selected: false,
             });
         }
@@ -96,8 +96,14 @@ function DueDateFilterWidgetController($scope, $state, $timeout, HLFilters, Loca
             let filterList = [];
 
             vm.filterList.forEach(filter => {
-                if (filter.selected) {
-                    filterList.push(filter.value);
+                if (filter.name === 'Archived') {
+                    if (!filter.selected) {
+                        filterList.push('is_archived:false');
+                    }
+                } else {
+                    if (filter.selected) {
+                        filterList.push(filter.value);
+                    }
                 }
             });
 

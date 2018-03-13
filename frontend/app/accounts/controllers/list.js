@@ -237,4 +237,8 @@ function AccountList($filter, $scope, $window, Settings, Account, LocalStorage, 
 
         $window.open(url);
     }
+
+    $scope.$on('$viewContentLoaded', () => {
+        angular.element('.hl-search-field').focus();
+    });
 }

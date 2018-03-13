@@ -498,4 +498,8 @@ function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLa
         var normalizedLabel = label.toLowerCase();
         return normalizedLabel.charAt(0).toUpperCase() + normalizedLabel.substring(1);
     }
+
+    $scope.$on('$viewContentLoaded', () => {
+        angular.element('.hl-search-field').focus();
+    });
 }

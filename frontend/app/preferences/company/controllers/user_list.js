@@ -293,4 +293,8 @@ function PreferencesCompanyUserList($compile, $scope, $state, $templateCache, HL
     function setSearchQuery(queryString) {
         vm.table.searchQuery = queryString;
     }
+
+    $scope.$on('$viewContentLoaded', () => {
+        angular.element('.hl-search-field').focus();
+    });
 }

@@ -305,4 +305,8 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
     function clearFilters(clearSpecial) {
         HLFilters.clearFilters(vm, clearSpecial);
     }
+
+    $scope.$on('$viewContentLoaded', () => {
+        angular.element('.hl-search-field').focus();
+    });
 }

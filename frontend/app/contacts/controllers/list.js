@@ -179,4 +179,8 @@ function ContactListController($scope, $window, Settings, Account, Contact, HLUt
         // Open url.
         $window.open(url);
     };
+
+    $scope.$on('$viewContentLoaded', () => {
+        angular.element('.hl-search-field').focus();
+    });
 }

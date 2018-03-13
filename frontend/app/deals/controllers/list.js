@@ -329,4 +329,8 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
     function clearFilters(clearSpecial) {
         HLFilters.clearFilters(vm, clearSpecial);
     }
+
+    $scope.$on('$viewContentLoaded', () => {
+        angular.element('.hl-search-field').focus();
+    });
 }

@@ -209,6 +209,9 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
                 angular.element(HLInbox.config.emailAccountInput).select2('val', SelectedEmailAccount.currentAccountId);
             }
 
+            HLInbox.setSuccesURL($scope.previousState);
+            HLInbox.setCurrentInbox(Settings.email.previousInbox.params.labelId);
+
             HLInbox.initEmailCompose({
                 messageType,
                 loadDefaultTemplate,
@@ -220,9 +223,6 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
                 defaultEmailTemplateUrl: '/messaging/email/templates/get-default/',
                 getTemplateUrl: '/messaging/email/templates/detail/',
             });
-
-            HLInbox.setSuccesURL($scope.previousState);
-            HLInbox.setCurrentInbox(Settings.email.previousInbox.params.labelId);
         });
     }
 

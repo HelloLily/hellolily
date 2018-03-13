@@ -148,8 +148,8 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
     objects = LilyUserManager()
     all_objects = UserManager()
 
-    EMAIL_TEMPLATE_PARAMETERS = ['first_name', 'last_name', 'full_name', 'position', 'twitter',
-                                 'linkedin', 'phone_number', 'current_email_address', 'user_team', 'profile_picture']
+    EMAIL_TEMPLATE_PARAMETERS = ['first_name', 'last_name', 'full_name', 'position',
+                                 'phone_number', 'current_email_address', 'user_team', 'profile_picture']
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name', ]

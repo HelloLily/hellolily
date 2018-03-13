@@ -94,11 +94,12 @@ function DueDateFilterWidgetController($scope, $state, $timeout, HLFilters, Loca
             angular.element('.due-date-filter-container.is-open').removeClass('is-open');
 
             let filterList = [];
+            let filterStore = '';
 
             vm.filterList.forEach(filter => {
                 if (filter.name === 'Archived') {
                     if (!filter.selected) {
-                        filterList.push('is_archived:false');
+                        filterStore += 'is_archived:false';
                     }
                 } else {
                     if (filter.selected) {
@@ -107,7 +108,13 @@ function DueDateFilterWidgetController($scope, $state, $timeout, HLFilters, Loca
                 }
             });
 
-            vm.filterStore = filterList.length ? `(${filterList.join(' OR ')})` : '';
+            if (filterStore && filterList.length) {
+                filterStore += ' AND ';
+            }
+
+            filterStore += filterList.length ? `(${filterList.join(' OR ')})` : '';
+
+            vm.filterStore = filterStore;
 
             storage.put('filterListSelected', vm.filterList);
         }

@@ -36,6 +36,7 @@ function BillingOverviewController($filter, $scope, $state, $window, Billing, Se
 
     vm.downloadInvoice = downloadInvoice;
     vm.cancelSubscription = cancelSubscription;
+    vm.updateCard = updateCard;
 
     activate();
 
@@ -80,6 +81,12 @@ function BillingOverviewController($filter, $scope, $state, $window, Billing, Se
         const filtered = countries.filter(country => country.value === countryCode);
 
         return filtered.length ? filtered[0].display_name : '';
+    }
+
+    function updateCard() {
+        Billing.getHostedPage({action: 'update_card'}).$promise.then(response => {
+            $window.location.href = response.url;
+        });
     }
 }
 

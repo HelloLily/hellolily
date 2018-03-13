@@ -274,75 +274,71 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
     };
 
     _account.prototype._addEmailAddresses = function(data) {
-        var account = this;
+        const account = this;
 
-        angular.forEach(data.email_addresses, function(emailAddress) {
-            var add = true;
+        // Filter out empty items (default form values).
+        const emailAddresses = account.email_addresses.filter(emailAddress => emailAddress.email_address);
 
-            angular.forEach(account.email_addresses, function(accountEmailAddress) {
-                // Check if email address already exists
-                if (emailAddress === accountEmailAddress.email_address) {
-                    add = false;
-                }
-            });
+        angular.forEach(data.email_addresses, emailAddress => {
+            const exists = emailAddresses.some(accountEmail => emailAddress === accountEmail.email_address);
 
-            if (add) {
+            if (!exists) {
                 if (data.primary_email && data.primary_email === emailAddress) {
-                    account.email_addresses.unshift({email_address: emailAddress, is_primary: true, status: 2});
+                    emailAddresses.unshift({email_address: emailAddress, is_primary: true, status: 2});
                 } else {
-                    account.email_addresses.push({email_address: emailAddress, is_primary: false, status: 1});
+                    emailAddresses.push({email_address: emailAddress, is_primary: false, status: 1});
                 }
             }
         });
+
+        if (emailAddresses.length) {
+            account.email_addresses = emailAddresses;
+        }
     };
 
     _account.prototype._addAddresses = function(data) {
-        var account = this;
-        var add = true;
+        const account = this;
 
-        angular.forEach(data.addresses, function(address) {
+        // Filter out empty items (default form values).
+        const addresses = account.addresses.filter(address => address.address);
+
+        angular.forEach(data.addresses, address => {
             if (!address.type) {
                 address.type = 'visiting';
             }
 
-            angular.forEach(account.addresses, function(accountAddress) {
-                // Check if address already exists
-                if (angular.equals(address, accountAddress)) {
-                    add = false;
-                }
-            });
+            const exists = addresses.some(accountAddress => angular.equals(address, accountAddress));
 
-            if (add) {
-                account.addresses.push(address);
+            if (!exists) {
+                addresses.push(address);
             }
         });
+
+        if (addresses.length) {
+            account.addresses = addresses;
+        }
     };
 
     _account.prototype._addPhoneNumbers = function(data) {
-        var account = this;
-        var formattedPhoneNumber;
-        var address;
+        const account = this;
 
-        angular.forEach(data.phone_numbers, function(phoneNumber) {
-            var add = true;
+        // Filter out empty items (default form values).
+        const phoneNumbers = account.phone_numbers.filter(phoneNumber => phoneNumber.number);
 
-            angular.forEach(account.phone_numbers, function(accountPhoneNumber) {
-                // Check if phone number already exists
-                if (phoneNumber === accountPhoneNumber.number) {
-                    add = false;
-                }
-            });
+        angular.forEach(data.phone_numbers, phoneNumber => {
+            const exists = phoneNumbers.some(accountNumber => phoneNumber === accountNumber.number);
 
-            if (add) {
-                if (account.addresses.length) {
-                    address = account.addresses[0];
-                }
+            if (!exists) {
+                const address = account.addresses.length ? account.addresses[0] : null;
+                const formattedPhoneNumber = HLUtils.formatPhoneNumber({number: phoneNumber, type: 'work'}, address);
 
-                formattedPhoneNumber = HLUtils.formatPhoneNumber({number: phoneNumber, type: 'work'}, address);
-
-                account.phone_numbers.push(formattedPhoneNumber);
+                phoneNumbers.push(formattedPhoneNumber);
             }
         });
+
+        if (phoneNumbers.length) {
+            account.phone_numbers = phoneNumbers;
+        }
     };
 
     return _account;

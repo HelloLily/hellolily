@@ -1,19 +1,59 @@
-{% load i18n %}
+{% extends 'email/base.html' %}
 
-{% block subject %}{% trans "You've been invited to" %} {{ current_site.name }}{% endblock %}
+{% block subject %}You've been invited to Lily{% endblock %}
 
-{% block plain %} {% blocktrans with current_site.name as site_name and full_name as full_name and invite_link as invite_link %}
+{% block plain %}
 Hi {{ recipient_first_name }},
 
-{{ inviter_full_name }} asked me to invite you. {{ inviter_first_name }} has already started getting more efficient and wants to collaborate with you.
+{{ inviter_full_name }} has invited you to join their team on Lily. {{ inviter_first_name }} has already started using Lily to communicate more efficiently and wants to collaborate with you.
 
+To join, click the following link to create your account or copy/paste the link to the address bar in your browser:
 {{ invite_link }}
 
-The invitation is only valid with this email address and expires within fourteen days.
+This invitation is only valid with this email address and expires in fourteen days.
 
-See you soon!
+If you have any questions, please reply to this email, send us a tweet, or start chatting with us once you’ve logged in.
 
-Greetings,
-Team Lily
-{% endblocktrans %}
+Have fun collaborating!
+{% endblock %}
+
+{% block html_preview %}
+{{ inviter_full_name }} has invited you to join their team on Lily.
+{% endblock %}
+
+{% block html_header_1 %}
+It’s not the same
+{% endblock %}
+
+{% block html_header_2 %}
+without you.
+{% endblock %}
+
+{% block html_content %}
+<b>
+    Hi {{ recipient_first_name }},
+</b>
+<div style="height:20px;"></div>
+<div>
+    {{ inviter_full_name }} has invited you to join their team on Lily. {{ inviter_first_name }} has already started using Lily to communicate more efficiently and wants to collaborate with you.
+</div>
+<div style="height:20px;"></div>
+<div>
+    To join, click the following <a href="{{ invite_link }}">link</a> to create your account.
+</div>
+<div style="height:20px;"></div>
+<div>
+    This invitation is only valid with this email address and expires in fourteen days.
+</div>
+<div style="height:20px;"></div>
+<div>
+    If you have any questions, please reply to this email, send us a <a href=twitter.com/sayhellolily>tweet</a>, or start chatting with us once you’ve logged in.
+</div>
+<div style="height:20px;"></div>
+<div>
+    Have fun collaborating!
+    <br />
+    <b>Team Lily</b>
+</div>
+<div style="height:100px;"></div>
 {% endblock %}

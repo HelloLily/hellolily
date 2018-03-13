@@ -1,15 +1,47 @@
-{% load i18n %}
+{% extends 'email/base.html' %}
 
-{% block subject %}{% trans 'Your first impression of' %} {{ current_site.name }}{% endblock %}
+{% block subject %}Your first impressions of Lily{% endblock %}
 
 {% block plain %}
 Hi {{ first_name }},
 
-We hope you're in for a treat! With {{ current_site.name }} you will finally get the overview of all your clients and better collaboration with colleagues you desire.
+We hope that so far you’ve had a great experience using Lily. By adding your email address, you are one step closer to more efficient customer communication and collaboration with your colleagues.
 
-What are your first thoughts, concerns or questions so far? We would really like to hear your honest opinion!
+What are your first thoughts, concerns or questions so far? We would really appreciate it if you took the time to tell us your honest opinion of your first experiences using our platform. To do so, please reply to this email, send us a tweet, or start chatting with us once you’ve logged in.
 
-Greetings,
+Thanks for your input!
+Team Lily
+{% endblock %}
 
-Team {{ current_site.name }}
+{% block html_preview %}
+What are your first thoughts, concerns or questions so far?
+{% endblock %}
+
+{% block html_header_1 %}
+Improvement starts
+{% endblock %}
+
+{% block html_header_2 %}
+with you.
+{% endblock %}
+
+{% block html_content %}{% url 'activation' uidb36=uidb36 token=token as url %}
+<b>
+    Hi {{ first_name }},
+</b>
+<div style="height:20px;"></div>
+<div>
+    We hope that so far you’ve had a great experience using Lily. By adding your email address, you are one step closer to more efficient customer communication and collaboration with your colleagues.
+</div>
+<div style="height:20px;"></div>
+<div>
+    What are your first thoughts, concerns or questions so far? We would really appreciate it if you took the time to tell us your honest opinion of your first experiences using our platform. To do so, please reply to this email, send us a <a href=twitter.com/sayhellolily>tweet</a>, or start chatting with us once you’ve logged in.
+</div>
+<div style="height:20px;"></div>
+<div>
+    Thanks for your input!
+    <br />
+    <b>Team Lily</b>
+</div>
+<div style="height:100px;"></div>
 {% endblock %}

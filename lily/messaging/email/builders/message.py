@@ -285,7 +285,7 @@ class MessageBuilder(object):
                     cid = match.group(1)
 
                 # Look if the cid is in the body html.
-                inline = re.search("cid:{0}".format(cid), body) is True
+                inline = re.search("cid:{0}".format(cid), body) is not None
 
         # Get file data from part or from remote.
         if 'data' in part['body']:

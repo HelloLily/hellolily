@@ -80,7 +80,6 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
     function activate() {
         // This timeout is needed because by loading from LocalStorage isn't fast enough.
         $timeout(() => {
-            _getFilterOnList();
             _getFilterSpecialList();
             _setupWatchers();
             showEmptyState();
@@ -128,61 +127,6 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
         };
 
         updateModel(data, 'assigned_to_teams');
-    }
-
-    /**
-     * Gets the filter list. Merges selections with locally stored values.
-     *
-     * @returns filterList (object): object containing the filter list.
-     */
-    function _getFilterOnList() {
-        // Use the value from storage first.
-        // (Because it is faster; loading the list uses AJAX requests).
-        if (vm.storedFilterList) {
-            vm.filterList = vm.storedFilterList;
-        }
-
-        // But we still update the list afterwards (in case a filter was changed).
-        const filterList = [
-            {
-                name: 'Assigned to me',
-                value: 'assigned_to.id:' + $scope.currentUser.id,
-                selected: false,
-            },
-            {
-                name: 'Assigned to nobody',
-                value: 'NOT(assigned_to.id:*)',
-                selected: false,
-            },
-        ];
-
-        UserTeams.mine(teams => {
-            const myTeamIds = [];
-
-            if (teams.length) {
-                vm.myTeams = teams;
-
-                // Get a list with id's of all my teams.
-                teams.forEach(team => {
-                    myTeamIds.push(team.id);
-                });
-
-                // Create a filter for cases assigned to one of my teams.
-                filterList.push({
-                    name: 'My teams\' cases',
-                    value: 'assigned_to_teams.id:(' + myTeamIds.join(' OR ') + ')',
-                    selected: false,
-                });
-            }
-
-            // Merge previous stored selection with new filters.
-            HLFilters.getStoredSelections(filterList, vm.storedFilterList);
-
-            vm.filterList = filterList;
-
-            // Watch doesn't get triggered here, so manually call _updateTableSettings.
-            _updateTableSettings();
-        });
     }
 
     /**

@@ -16,14 +16,17 @@ function dealsConfig($stateProvider) {
         },
         resolve: {
             teams: ['UserTeams', UserTeams => UserTeams.mine().$promise],
+            dealStatuses: ['Deal', Deal => Deal.getStatuses().$promise],
         },
     });
 }
 
 angular.module('app.deals').controller('DealListController', DealListController);
 
-DealListController.$inject = ['$filter', '$scope', '$state', '$timeout', 'Deal', 'HLFilters', 'HLUtils', 'LocalStorage', 'Settings', 'Tenant', 'teams'];
-function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, HLUtils, LocalStorage, Settings, Tenant, teams) {
+DealListController.$inject = ['$filter', '$scope', '$state', '$timeout', 'Deal', 'HLFilters', 'HLUtils',
+    'LocalStorage', 'Settings', 'Tenant', 'dealStatuses', 'teams'];
+function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, HLUtils,
+    LocalStorage, Settings, Tenant, dealStatuses, teams) {
     const vm = this;
 
     vm.storage = new LocalStorage('dealList');
@@ -91,7 +94,7 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
             _getFilterOnList();
             _getFilterSpecialList();
             showEmptyState();
-        }, 50);
+        }, 150);
 
         Tenant.query({}, tenant => {
             vm.tenant = tenant;
@@ -131,24 +134,7 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
     }
 
     function _getFilterOnList() {
-        // Use the value from storage first.
-        // (Because it is faster; loading the list uses AJAX requests).
-        if (vm.storedFilterList) {
-            vm.filterList = vm.storedFilterList;
-        }
-
-        // But we still update the list afterwards (in case a filter was changed)
         const filterList = [
-            {
-                name: 'Assigned to me',
-                value: 'assigned_to.id:' + currentUser.id,
-                selected: false,
-            },
-            {
-                name: 'Assigned to nobody',
-                value: 'NOT(assigned_to.id:*)',
-                selected: false,
-            },
             {
                 name: 'New business',
                 value: 'new_business:true',
@@ -166,39 +152,21 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
             },
         ];
 
-        const myTeamIds = [];
-
-        if (teams.length) {
-            // Get a list with id's of all my teams.
-            teams.forEach(team => {
-                myTeamIds.push(team.id);
-            });
-
-            // Create a filter for cases assigned to one of my teams.
+        dealStatuses.results.forEach(status => {
             filterList.push({
-                name: 'My teams\' deals',
-                value: 'assigned_to_teams.id:(' + myTeamIds.join(' OR ') + ')',
+                name: status.name,
+                value: 'status.id:' + status.id,
                 selected: false,
             });
-        }
-
-        Deal.getStatuses(response => {
-            angular.forEach(response.results, status => {
-                filterList.push({
-                    name: status.name,
-                    value: 'status.id:' + status.id,
-                    selected: false,
-                });
-            });
-
-            // Merge previous stored selection with new filters.
-            HLFilters.getStoredSelections(filterList, vm.storedFilterList);
-
-            vm.filterList = filterList;
-
-            // Watch doesn't get triggered here, so manually call _updateTableSettings.
-            _updateTableSettings();
         });
+
+        // Merge previous stored selection with new filters.
+        HLFilters.getStoredSelections(filterList, vm.storedFilterList);
+
+        vm.filterList = filterList;
+
+        // Watch doesn't get triggered here, so manually call _updateTableSettings.
+        _updateTableSettings();
     }
 
     /**

@@ -26,34 +26,6 @@
                 </li>
             </ul>
 
-            <ul class="hl-button-group">
-                <li class="hl-button-group-btn">
-                    <a class="hl-button-group-btn-link" href="javascript:;" data-toggle="dropdown">
-                        <i class="fa fa-filter"></i>
-                        <span class="hide-on-tablet">
-                            <span ng-if="vm.selectedFilters.length >= 2">
-                                {{ vm.selectedFilters.length }} filters active
-                            </span>
-                            <span ng-if="vm.selectedFilters.length < 2" ng-repeat="filter in vm.selectedFilters">
-                                {{ filter.name }}
-                            </span>
-                            <span ng-if="!vm.selectedFilters.length">Filters</span>
-                        </span>
-                        <i class="m-l-5 small-icon lilicon hl-toggle-down-icon"></i>
-                    </a>
-
-                    <span class="hl-button-group-btn-clear" ng-click="vm.clearFilters(false)" ng-show="vm.displayFilterClear">
-                        <i class="fa fa-remove"></i>
-                    </span>
-
-                    <ul class="hl-dropdown js-hold-on-click">
-                        <li class="hl-dropdown-item" ng-repeat="filter in vm.filterList">
-                            <checkbox model="filter.selected">{{ filter.name }}</checkbox>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
-
             <list-filter filter-label="'Case types'" view-model="vm"></list-filter>
         </div>
 

@@ -31,7 +31,7 @@
                         Please <a ui-sref="base.preferences.admin.billing">upgrade</a> to use this feature.
                     </p>
                     <div ng-repeat="team in vm.teams" ng-class="{'is-disabled': vm.currentUser.tenant.isFreePlan}">
-                        <li class="hl-dropdown-item">
+                        <li class="hl-dropdown-item" ng-if="!team.value">
                             <span class="clickable" ng-click="vm.toggleUser(team)">
                                 <div class="hl-checkbox" ng-class="{'checked': team.selected, 'indeterminate': vm.hasSelection(team)}"></div>
                                 {{ team.name }}
@@ -48,7 +48,7 @@
                                     <span class="clickable" ng-click="vm.toggleUser(team, null, false)">
                                         <div class="hl-checkbox" ng-class="{'checked': team.filterOnTeam}"></div>
                                         <span ng-if="team.id">{{ team.name }} team</span>
-                                        <span ng-if="!team.id">Not in team</span>
+                                        <span ng-if="!team.id">Not in a team</span>
                                     </span>
                                 </li>
                                 <li class="hl-dropdown-sub-menu-item" ng-repeat="user in team.users">
@@ -58,6 +58,13 @@
                                     </span>
                                 </li>
                             </ul>
+                        </li>
+
+                        <li class="hl-dropdown-item" ng-if="team.value">
+                            <span class="clickable" ng-click="vm.toggleUser(team)">
+                                <div class="hl-checkbox" ng-class="{'checked': team.selected}"></div>
+                                {{ team.name }}
+                            </span>
                         </li>
                     </div>
                 </div>

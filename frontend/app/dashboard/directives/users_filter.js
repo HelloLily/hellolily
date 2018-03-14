@@ -64,7 +64,7 @@ function UsersFilterController($filter, $state, $timeout, LocalStorage, User, Us
                 let teams = [];
                 const unassignedTeam = {
                     users: [],
-                    name: 'Not in team',
+                    name: 'Not in a team',
                     selected: false,
                     collapsed: true,
                 };
@@ -119,12 +119,26 @@ function UsersFilterController($filter, $state, $timeout, LocalStorage, User, Us
                     teams.push(unassignedTeam);
                 }
 
+                // Add filter for unassigned items.
+                teams.push({
+                    users: [],
+                    name: 'Unassigned',
+                    selected: false,
+                    collapsed: true,
+                    value: '(_missing_:assigned_to.id AND _missing_:assigned_to_teams)',
+                });
+
                 // Loop through stored teams and set current teams to the state of the stored teams.
                 vm.storedTeamsSelection.map(storedTeam => {
                     teams = teams.map(team => {
-                        if (storedTeam.id === team.id) {
+                        if (team.id && storedTeam.id === team.id) {
                             team.selected = storedTeam.selected;
                             team.collapsed = storedTeam.collapsed;
+                        } else if (!team.id) {
+                            if (storedTeam.name === team.name) {
+                                team.selected = storedTeam.selected;
+                                team.collapsed = storedTeam.collapsed;
+                            }
                         }
 
                         // Loop through stored users and set current users to the state of the stored users.
@@ -157,28 +171,32 @@ function UsersFilterController($filter, $state, $timeout, LocalStorage, User, Us
                 selectedTeam.selected = false;
             }
         } else {
-            if (toggleUsers) {
+            if (selectedTeam.value) {
                 selectedTeam.selected = !selectedTeam.selected;
-                selectedTeam.filterOnTeam = selectedTeam.selected;
-
-                selectedTeam.users.map(teamUser => {
-                    teamUser.selected = selectedTeam.selected;
-
-                    vm.teams.map(team => {
-                        if (team.id !== selectedTeam.id) {
-                            team.users.map(user => {
-                                if (user.id === teamUser.id) {
-                                    user.selected = teamUser.selected;
-                                }
-                            });
-                        }
-                    });
-                });
             } else {
-                selectedTeam.filterOnTeam = !selectedTeam.filterOnTeam;
+                if (toggleUsers) {
+                    selectedTeam.selected = !selectedTeam.selected;
+                    selectedTeam.filterOnTeam = selectedTeam.selected;
 
-                if (!selectedTeam.filterOnTeam && selectedTeam.selected) {
-                    selectedTeam.selected = false;
+                    selectedTeam.users.map(teamUser => {
+                        teamUser.selected = selectedTeam.selected;
+
+                        vm.teams.map(team => {
+                            if (team.id !== selectedTeam.id) {
+                                team.users.map(user => {
+                                    if (user.id === teamUser.id) {
+                                        user.selected = teamUser.selected;
+                                    }
+                                });
+                            }
+                        });
+                    });
+                } else {
+                    selectedTeam.filterOnTeam = !selectedTeam.filterOnTeam;
+
+                    if (!selectedTeam.filterOnTeam && selectedTeam.selected) {
+                        selectedTeam.selected = false;
+                    }
                 }
             }
         }
@@ -186,26 +204,33 @@ function UsersFilterController($filter, $state, $timeout, LocalStorage, User, Us
         let selectedFilter = [];
 
         vm.teams.map(team => {
-            // 'Not in team' isn't an actual team, so check for 'id' property.
-            if (team.hasOwnProperty('id') && (team.selected || team.filterOnTeam)) {
-                selectedFilter.push('assigned_to_teams.id:' + team.id);
-            } else if (!team.hasOwnProperty('id') && (team.selected || team.filterOnTeam)) {
-                selectedFilter.push('_missing_:assigned_to_teams');
-            }
-
-            team.users.map(user => {
-                if (selectedUser && selectedUser.id === user.id) {
-                    user.selected = selectedUser.selected;
+            if (team.value) {
+                if (team.selected) {
+                    selectedFilter.push(team.value);
+                    names.push(team.name);
+                }
+            } else {
+                // 'Not in team' isn't an actual team, so check for 'id' property.
+                if (team.hasOwnProperty('id') && (team.selected || team.filterOnTeam)) {
+                    selectedFilter.push('assigned_to_teams.id:' + team.id);
+                } else if (!team.hasOwnProperty('id') && (team.selected || team.filterOnTeam)) {
+                    selectedFilter.push('_missing_:assigned_to_teams');
                 }
 
-                if (user.selected) {
-                    selectedFilter.push('assigned_to.id:' + user.id);
-                    names.push(user.full_name);
-                }
-            });
+                team.users.map(user => {
+                    if (selectedUser && selectedUser.id === user.id) {
+                        user.selected = selectedUser.selected;
+                    }
 
-            if (team.filterOnTeam) {
-                names.push(team.name);
+                    if (user.selected) {
+                        selectedFilter.push('assigned_to.id:' + user.id);
+                        names.push(user.full_name);
+                    }
+                });
+
+                if (team.filterOnTeam) {
+                    names.push(team.name);
+                }
             }
         });
 

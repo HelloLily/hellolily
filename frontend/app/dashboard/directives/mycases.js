@@ -23,6 +23,10 @@ function MyCasesController($filter, $scope, Case, HLUtils, HLResource, HLSockets
         items: [],
         dueDateFilter: storage.get('dueDateFilter', ''),
         usersFilter: storage.get('usersFilter', ''),
+        conditions: {
+            dueDate: false,
+            user: false,
+        },
     };
     vm.numOfCases = 0;
 

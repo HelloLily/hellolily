@@ -23,7 +23,10 @@ function DealsToCheckController($scope, Deal, HLResource, HLUtils, HLSockets, Lo
         }),
         items: [],
         usersFilter: storage.get('usersFilter', ''),
-
+        conditions: {
+            dueDate: false,
+            user: false,
+        },
     };
     vm.markDealAsChecked = markDealAsChecked;
 

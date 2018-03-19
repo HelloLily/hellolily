@@ -8,7 +8,7 @@
     </widget-header>
 
     <widget-filters>
-        <users-filter users-store="vm.table.usersFilter" storage-name="dealsToCheck"></users-filter>
+        <users-filter users-store="vm.table.usersFilter" storage-name="dealsToCheck" conditions="vm.table.conditions"></users-filter>
     </widget-filters>
 
     <widget-body>
@@ -33,7 +33,7 @@
                     <td><checkbox model="deal.is_checked" ng-click="vm.markDealAsChecked(deal)"></checkbox></td>
                 </tr>
                 <tr ng-hide="vm.table.items.length">
-                    <td colspan="5">No deals to check</td>
+                    <td colspan="5">Nice! All open deals have been verified.</td>
                 </tr>
             </tbody>
         </table>

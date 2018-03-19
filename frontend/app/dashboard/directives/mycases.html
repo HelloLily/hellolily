@@ -9,8 +9,8 @@
     </widget-header>
 
     <widget-filters>
-        <due-date-filter filter-store="vm.table.dueDateFilter" type="'case'" class="due-date-filter"></due-date-filter>
-        <users-filter users-store="vm.table.usersFilter" storage-name="caseUsersFilter" class="user-filter"></users-filter>
+        <due-date-filter filter-store="vm.table.dueDateFilter" type="'case'" class="due-date-filter" conditions="vm.table.conditions"></due-date-filter>
+        <users-filter users-store="vm.table.usersFilter" storage-name="caseUsersFilter" class="user-filter" conditions="vm.table.conditions"></users-filter>
     </widget-filters>
 
     <widget-body>
@@ -81,9 +81,18 @@
             </tbody>
             <tbody>
                 <tr ng-show="vm.numOfCases == 0">
-                    <td colspan="8">No cases</td>
+                    <td colspan="8" ng-if="vm.table.conditions.dueDate && vm.table.conditions.user">
+                        Great! All of the selected cases have been completed.
+                    </td>
+                    <td colspan="8" ng-if="!(vm.table.conditions.dueDate && vm.table.conditions.user)">No cases</td>
                 </tr>
             </tbody>
         </table>
+
+        <div ng-if="$root.currentUser.objectCounts.cases === 1">
+            <div class="empty-state-description no-top">
+                <p>Here you’ll find all the unfinished cases.</p>
+            </div>
+        </div>
     </widget-body>
 </widget>

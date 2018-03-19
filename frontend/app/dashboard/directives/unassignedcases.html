@@ -27,8 +27,8 @@
                 </tr>
             </thead>
             <tbody>
-                <tr ng-hide="vm.table.items.length">
-                    <td colspan="7">There are no unassigned cases</td>
+                <tr ng-if="!vm.table.items.length">
+                    <td colspan="7">All cases for the selected types and teams have been assigned.</td>
                 </tr>
                 <tr ng-repeat="case in vm.table.items">
                     <td><a ui-sref="base.cases.detail({ id: case.id })">{{ case.id }}</a></td>

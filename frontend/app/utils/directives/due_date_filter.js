@@ -7,6 +7,7 @@ function dueDateFilter() {
             filterStore: '=',
             filterField: '@',
             type: '=',
+            conditions: '=?',
         },
         templateUrl: 'utils/directives/due_date_filter.html',
         controller: DueDateFilterWidgetController,
@@ -104,6 +105,14 @@ function DueDateFilterWidgetController($scope, $state, $timeout, HLFilters, Loca
                 } else {
                     if (filter.selected) {
                         filterList.push(filter.value);
+
+                        if (vm.conditions) {
+                            if (filter.name === 'Expired' || filter.name === 'Today') {
+                                vm.conditions.dueDate = true;
+                            } else {
+                                vm.conditions.dueDate = false;
+                            }
+                        }
                     }
                 }
             });

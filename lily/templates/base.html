@@ -154,6 +154,10 @@
                         contacts: '{{ limit_reached.contacts }}' == 'True',
                         emailAccounts: '{{ limit_reached.email_accounts }}' == 'True',
                     } || null,
+                    objectCounts: {
+                        cases: parseInt('{{ object_counts.cases }}'),
+                        deals: parseInt('{{ object_counts.deals }}'),
+                    }
                 };
 
                 window.billingEnabled = '{{ BILLING_ENABLED }}' == 'True';

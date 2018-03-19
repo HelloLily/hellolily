@@ -136,7 +136,9 @@ class AddAccountCallbackView(LoginRequiredMixin, View):
             account = EmailAccount.objects.create(
                 user_id=profile['user_id'],
                 provider=provider.id,
-                username=profile['username']
+                username=profile['username'],
+                messages_count=profile['messages_count'],
+                threads_count=profile['threads_count']
             )
 
         account.raw_credentials = credentials

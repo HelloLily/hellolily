@@ -33,11 +33,27 @@ def parse_message_full(data, promise=None):
     return message
 
 
-def parse_message_simple(data, promise=None):
+def parse_message_minimal(data, promise=None):
     payload = data.get('payload', {})
     message = parse_message(data)
 
     message['has_attachments'] = check_attachments(payload)
+
+    if promise:
+        promise.resolve(message)
+
+    return message
+
+
+def parse_message_folders(data, promise=None):
+    folders = data.get('labelIds', [])
+    message = {
+        'remote_id': data['id'],
+        'thread_id': data['threadId'],
+        'folders': folders,
+        'is_read': 'UNREAD' not in folders,
+        'is_starred': 'STARRED' in folders,
+    }
 
     if promise:
         promise.resolve(message)

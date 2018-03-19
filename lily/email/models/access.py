@@ -1,3 +1,4 @@
+from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from email_wrapper_lib.models import EmailAccount
@@ -58,3 +59,32 @@ class EmailAccountConfig(TenantMixin, models.Model):
         default=False,
         verbose_name=_('Shared with everyone')
     )
+
+
+class EmailAccountAccessCache(models.Model):
+    """
+    Model used to cache the access list of email accounts per user, so no expensive query is necessary to determine
+    which accounts can be accessed. For performance this model uses plain stupid lists.
+    """
+    user = models.ForeignKey(
+        to=LilyUser,
+        on_delete=models.CASCADE,
+        verbose_name=_('User'),
+        related_name='email_account_access'
+    )
+
+    owned_accounts = JSONField(
+        verbose_name=_('Accounts owned by user')
+    )
+    shared_accounts = JSONField(
+        verbose_name=_('Accounts shared with user')
+    )
+    public_accounts = JSONField(
+        verbose_name=_('Accounts made public to user')
+    )
+
+    def refresh(self):
+        """
+        Recalculate all the lists for the user and save them.
+        """
+        raise NotImplementedError

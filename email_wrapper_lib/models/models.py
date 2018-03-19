@@ -52,13 +52,12 @@ class EmailAccount(SoftDeleteMixin, TimeStampMixin, models.Model):
         null=True,
         max_length=255
     )
-
-    # messages_total = models.BigIntegerField(
-    #     verbose_name=_('Total number of messages')
-    # )
-    # threads_total = models.BigIntegerField(
-    #     verbose_name=_('Total number of threads')
-    # )
+    messages_count = models.PositiveIntegerField(
+        verbose_name=_('Total number of messages')
+    )
+    threads_count = models.PositiveIntegerField(
+        verbose_name=_('Total number of threads')
+    )
 
     @property
     def credentials(self):
@@ -114,9 +113,19 @@ class EmailFolder(models.Model):
         verbose_name=_('Folder type'),
         choices=FOLDER_TYPES
     )
-    unread_count = models.PositiveIntegerField(
-        verbose_name=_('Unread count')
+    messages_count = models.PositiveIntegerField(
+        verbose_name=_('Total number of messages')
     )
+    messages_unread_count = models.PositiveIntegerField(
+        verbose_name=_('Unread number of messages')
+    )
+    threads_count = models.PositiveIntegerField(
+        verbose_name=_('Total number of threads')
+    )
+    threads_unread_count = models.PositiveIntegerField(
+        verbose_name=_('Unread number of threads')
+    )
+
 
     def __unicode__(self):
         return self.name
@@ -180,7 +189,7 @@ class EmailMessage(models.Model):
 
     # TODO: set a property on the message to identify whether it's a reply, reply-all, forward, forward-multi or just a normal email.
 
-    # Do we need the following? These are just labels and have no effect on how they are showed in the inbox and stuff?
+    # TODO: Do we need the following? These are just labels and have no effect on how they are showed in the inbox and stuff?
     # is_draft = models.BooleanField(_('Is draft'))
     # is_important = models.BooleanField(_('Is important'))
     # is_archived = models.BooleanField(_('Is archived'))
@@ -189,6 +198,13 @@ class EmailMessage(models.Model):
     # is_sent = models.BooleanField(_('Is sent'))
 
     def get_recipients_by_type(self, recipient_type):
+        """
+        Cached retrieval of recipients.
+
+        In order to minimize the number of requests made to the database, all the recipients are fetched.
+        Then the correct recipient_type is filtered from the cached list.
+        """
+
         if not hasattr(self, '_recipient_list'):
             # There is no cached version of the recipient list.
             self._message_to_recipient_list = EmailMessageToEmailRecipient.objects.filter(
@@ -252,6 +268,12 @@ class EmailRecipient(models.Model):
         unique=True,
         db_index=True
     )
+
+    # TODO: the email_address should be unique.
+    # TODO: The name should be smartly autocompleted:
+        # Based on the email address: some.name@domain.com -> Some Name.
+        # Based on other info, like accounts/contacts from Lily, can be filled using registerd callbacks or something.
+    # For each email address the same name is used.
 
     def __unicode__(self):
         return self.name

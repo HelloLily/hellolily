@@ -87,6 +87,12 @@ cleanfiles:
 	@rm -rf lily/files/
 	@echo ""
 
+clearqueues:
+	@echo "Make: docker-compose run --rm web bash -c 'Dockers/wait-for db:5432 && celery purge --app=lily.celery'"
+	@echo ""
+	@docker-compose run --rm web bash -c 'Dockers/wait-for db:5432 && celery purge --app=lily.celery'
+	@echo ""
+
 setup: setup_env_file build migrate index testdata run
 
 help:

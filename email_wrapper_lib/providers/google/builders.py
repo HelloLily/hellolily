@@ -1,99 +1,171 @@
+import logging
+
 from django.db import transaction, IntegrityError
 
 from email_wrapper_lib.models.models import (
-    EmailMessage, EmailRecipient, EmailMessageToEmailRecipient, EmailMessageToEmailFolder
+    EmailMessage, EmailRecipient, EmailMessageToEmailRecipient, EmailMessageToEmailFolder, EmailFolder
 )
 
 
+logger = logging.getLogger(__name__)
+
+
 recipient_types_with_id = (
-        ('to', EmailMessageToEmailRecipient.TO),
-        ('cc', EmailMessageToEmailRecipient.CC),
-        ('bcc', EmailMessageToEmailRecipient.BCC),
-        ('from', EmailMessageToEmailRecipient.FROM),
-        ('sender', EmailMessageToEmailRecipient.SENDER),
-        ('reply_to', EmailMessageToEmailRecipient.REPLY_TO),
+    ('to', EmailMessageToEmailRecipient.TO),
+    ('cc', EmailMessageToEmailRecipient.CC),
+    ('bcc', EmailMessageToEmailRecipient.BCC),
+    ('from', EmailMessageToEmailRecipient.FROM),
+    ('sender', EmailMessageToEmailRecipient.SENDER),
+    ('reply_to', EmailMessageToEmailRecipient.REPLY_TO),
+)
+
+
+def save_new_folders(account_id, folder_list):
+    EmailFolder.objects.bulk_create(
+        [EmailFolder(account_id=account_id, **folder) for folder in folder_list]
     )
 
 
-def create_messages(account, message_promise_list):
-    # Recipients are not account specific, so db errors can occur when multiple tasks try to save at the same time.
-    # Build a cache of recipients already in the db.
-    # TODO: make sure that if the recipient table is really big, this is still fast.
-    db_recipients = {rec[0]: rec[1] for rec in EmailRecipient.objects.all().values_list('raw_value', 'id')}
+def save_updated_folders(account_id, folder_list):
+    folder_dict = {
+        f.remote_id: f for f in EmailFolder.objects.filter(account_id=account_id)
+    }
 
-    # Filter out empty promises.
-    # There is a bug between gmail/apple that creates empty messages.
-    # More info: https://productforums.google.com/forum/#!topic/gmail/WyTczFXSjh0
-    message_promise_list = [msg_promise for msg_promise in message_promise_list if msg_promise.data]
+    for folder in folder_list:
+        db_folder = folder_dict[folder.get('remote_id')]
 
-    for promise in message_promise_list:
-        recipients = promise.data.get('recipients', {})
+        editable_attrs = [
+            'remote_value', 'name', 'messages_count', 'messages_unread_count', 'threads_count',
+            'threads_unread_count', 'parent_id',
+        ]
 
+        if any([getattr(db_folder, attr_name) != folder.get(attr_name) for attr_name in editable_attrs]):
+            # There was an actual change to the folder, so we need to update it.
+            for attr in editable_attrs:
+                setattr(db_folder, attr, folder[attr])
+
+            db_folder.save(update_fields=editable_attrs)
+
+
+def save_deleted_folders(account_id, folder_ids):
+    EmailFolder.objects.filter(
+        account_id=account_id,
+        remote_id__in=folder_ids
+    ).delete()
+
+
+def save_new_messages(account_id, message_list):
+    # Create cache dicts to speed things up.
+    folder_dict = {
+        f[0]: f[1] for f in EmailFolder.objects.filter(account_id=account_id).values_list('remote_id', 'id')
+    }
+
+    for message_data in message_list:
+        recipient_dict = {
+            rec[0]: rec[1] for rec in EmailRecipient.objects.all().values_list('raw_value', 'id')
+        }
+
+        # Pop related data before constructing a message.
+        recipient_data = message_data.pop('recipients', {})
+        folder_list = message_data.pop('folders', [])
+
+        # Construct a message instance, to be saved later.
+        message = EmailMessage(account_id=account_id, **message_data)
+
+        # Save recipients.
+        new_recipients = {}  # remote_id: recipient.
+        message_to_recipient_list = []
         for recipient_type, recipient_type_id in recipient_types_with_id:
-            # Loop over every recipient type in the message.
-            for recipient in recipients.get(recipient_type, []):
-                if recipient['raw_value'] not in db_recipients.keys():
-                    # The recipient was not found in the database, so try to create it.
-                    try:
-                        rec = EmailRecipient.objects.create(**recipient)
-                    except IntegrityError:
-                        rec = EmailRecipient.objects.get(raw_value=recipient['raw_value'])
+            for recipient in recipient_data.get(recipient_type, {}):
+                if recipient['raw_value'] in recipient_dict.keys():
+                    recipient_id = recipient_dict[recipient['raw_value']]
 
-                    # Add the recipient to the list and dict.
-                    db_recipients[recipient['raw_value']] = rec.pk
+                    message_to_recipient_list.append(EmailMessageToEmailRecipient(
+                        message=message,
+                        recipient_id=recipient_id,
+                        recipient_type=recipient_type_id
+                    ))
+                else:
+                    if recipient['raw_value'] in new_recipients.keys():
+                        # The recipient was created previously in the loop.
+                        rec = new_recipients[recipient['raw_value']]
+                    else:
+                        # It's a new recipient, so add it to the new_recipients.
+                        rec = EmailRecipient(**recipient)
+                        new_recipients[rec.raw_value] = rec
 
-    # Prepare to bulk create new messages and their folder/recipient relations.
-    db_folders = {folder[0]: folder[1] for folder in account.folders.all().values_list('remote_id', 'id')}
+                    message_to_recipient_list.append(EmailMessageToEmailRecipient(
+                        message=message,
+                        recipient=rec,
+                        recipient_type=recipient_type_id
+                    ))
 
-    unsaved_message_list = []
-    unsaved_message_to_folder_list = []
-    unsaved_message_to_recipient_list = []
+        # Save all new recipients.
+        EmailRecipient.objects.bulk_create(new_recipients.values())
 
-    for promise in message_promise_list:
-        folders = promise.data.pop('folders', [])
-        recipients = promise.data.pop('recipients', [])
-
-        unsaved_message = EmailMessage(account=account, **promise.data)
-        unsaved_message_list.append(unsaved_message)
-
-        for remote_folder_id in folders:
-            # TODO: maybe add logic to create a Folder if it doesn't exist yet.
+        # Construct message to folder relations.
+        message_to_folder_list = []
+        for folder_id in folder_list:
             unsaved_message_to_folder = EmailMessageToEmailFolder(
-                emailmessage=unsaved_message,
-                emailfolder_id=db_folders[remote_folder_id]
+                emailmessage=message,
+                emailfolder_id=folder_dict[folder_id]
             )
-            unsaved_message_to_folder_list.append(unsaved_message_to_folder)
+            message_to_folder_list.append(unsaved_message_to_folder)
 
-        # Create the relation between message and recipients per recipient_type.
-        for recipient_type, recipient_type_id in recipient_types_with_id:
-            for recipient in recipients.get(recipient_type, []):
-                unsaved_message_to_recipient = EmailMessageToEmailRecipient(
-                    message=unsaved_message,
-                    recipient_id=db_recipients[recipient['raw_value']],
-                    recipient_type=recipient_type_id
+        try:
+            with transaction.atomic():
+                # Save message.
+                message.save()
+                # Hack to set the *_id properties of relations after they've been created.
+                # Without this the *_ids will be empty and an sql error will be thrown, even though the objects exist.
+                for item in message_to_folder_list:
+                    item.emailmessage = item.emailmessage
+
+                for item in message_to_recipient_list:
+                    item.message = item.message
+                    item.recipient = item.recipient
+
+                # Save message to recipient relations.
+                EmailMessageToEmailRecipient.objects.bulk_create(message_to_recipient_list)
+                # Save message to folder relations.
+                EmailMessageToEmailFolder.objects.bulk_create(message_to_folder_list)
+        except Exception:
+            logger.exception('Caught exception while saving the new messages.')
+
+
+def save_updated_messages(account_id, message_list):
+    # Create cache dict to speed things up.
+    message_dict = {
+        # TODO: filter on message_ids?
+        m[0]: m[1] for m in EmailMessage.objects.filter(account_id=account_id).values_list('remote_id', 'id')
+    }
+    folder_dict = {
+        f[0]: f[1] for f in EmailFolder.objects.filter(account_id=account_id).values_list('remote_id', 'id')
+    }
+
+    for message_data in message_list:
+        message_id = message_dict[message_data['remote_id']]
+
+        try:
+            with transaction.atomic():
+                EmailMessage.objects.filter(id=message_id).update(
+                    is_read=message_data['is_read'],
+                    is_starred=message_data['is_starred']
                 )
-                unsaved_message_to_recipient_list.append(unsaved_message_to_recipient)
-
-    with transaction.atomic():
-        EmailMessage.objects.bulk_create(unsaved_message_list)
-
-        for item in unsaved_message_to_folder_list:
-            if not item.emailmessage_id:
-                item.emailmessage = item.emailmessage
-
-        for item in unsaved_message_to_recipient_list:
-            # Hack to set the message_id and recipient_id properties after they've been created.
-            # Without this the _ids will be empty and an sql error will be thrown, even though the objects exist.
-            if not item.message_id:
-                item.message = item.message
-
-        EmailMessageToEmailFolder.objects.bulk_create(unsaved_message_to_folder_list)
-        EmailMessageToEmailRecipient.objects.bulk_create(unsaved_message_to_recipient_list)
+                EmailMessageToEmailFolder.objects.filter(emailmessage_id=message_id).delete()
+                EmailMessageToEmailFolder.objects.bulk_create([EmailMessageToEmailFolder(
+                    emailmessage_id=message_id,
+                    emailfolder_id=folder_dict[folder_id]
+                ) for folder_id in message_data['folders']])
+        except Exception:
+            logger.exception('Caught exception while saving the updated messages.')
 
 
-def update_messages(account, message_data):
-    pass
-
-
-def delete_messages(account, message_ids):
-    pass
+def save_deleted_messages(account_id, message_ids):
+    try:
+        EmailMessage.objects.filter(
+            account_id=account_id,
+            remote_id__in=message_ids
+        ).delete()
+    except Exception:
+        logger.exception('Caught exception while deleting the deleted messages.')

@@ -48,12 +48,15 @@ class GoogleManager(Manager):
                 self.account.user_id,
             ))
 
+        profile = self.connector.profile.get()
+
         # Set the account status to syncing, so we can start running tasks.
         self.account.status = EmailAccount.SYNCING
-        self.account.save(update_fields=['status', ])
+        self.account.messages_count = profile['messages_count']
+        self.account.threads_count = profile['threads_count']
+        self.account.save(update_fields=['status', 'messages_count', 'threads_count', ])
 
         # Update the db to the new history id now, because there could be new messages between now and this sync.
-        profile = self.connector.profile.get()
         self.sync_info.history_id = profile['history_id']
         self.sync_info.save(update_fields=['history_id', ])
 

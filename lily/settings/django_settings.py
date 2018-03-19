@@ -692,7 +692,7 @@ GOOGLE_OAUTH2_CLIENT_SECRET = env.str('GOOGLE_OAUTH2_CLIENT_SECRET', default='')
 MICROSOFT_OAUTH2_CLIENT_ID = env.str('MICROSOFT_OAUTH2_CLIENT_ID', default='')
 MICROSOFT_OAUTH2_CLIENT_SECRET = env.str('MICROSOFT_OAUTH2_CLIENT_SECRET', default='')
 
-ADD_ACCOUNT_SUCCESS_URL = env.str('ADD_ACCOUNT_SUCCESS_URL', default='email_v3_homeview')
+ADD_ACCOUNT_SUCCESS_URL = env.str('ADD_ACCOUNT_SUCCESS_URL', default='email_v3_messagesview')
 
 BATCH_SIZE = env.str('BATCH_SIZE', default=100)
 ATTACHMENT_UPLOAD_PATH = env.str('ATTACHMENT_UPLOAD_PATH', default='email/attachments/{draft_id}/{filename}')

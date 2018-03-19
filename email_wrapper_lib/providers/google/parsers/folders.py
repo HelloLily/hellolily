@@ -16,10 +16,12 @@ def parse_folder(data, promise=None):
         # 'name': data['name'].split('/')[-1:],  # TODO: while we don't have parent_ids, use the name with slashes.
         'name': data['name'],
         'remote_value': data['name'],
-        # 'message_count': data['messagesTotal'],
-        'unread_count': data['messagesUnread'],
         'folder_type': EmailFolder.SYSTEM if data['type'] == 'system' else EmailFolder.USER,
         'parent_id': None,
+        'messages_count': data['messagesTotal'],
+        'messages_unread_count': data['messagesUnread'],
+        'threads_count': data['threadsTotal'],
+        'threads_unread_count': data['threadsUnread'],
     }
 
     if promise:

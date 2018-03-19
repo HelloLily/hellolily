@@ -96,6 +96,7 @@ class UserInviteViewSet(viewsets.ModelViewSet):
             first_name = invite.get('first_name')
             email = invite.get('email')
             valid_email = True
+            error = None
 
             try:
                 validate_email(email)
@@ -103,14 +104,16 @@ class UserInviteViewSet(viewsets.ModelViewSet):
                 valid_email = False
 
             if not first_name or not email or not valid_email:
-                errors.append({
+                error = {
                     'name': [_('Please enter a first name and valid email address')],
-                })
+                }
 
             if LilyUser.objects.filter(email=email, is_active=True).exists():
-                errors.append({
+                error = {
                     'name': [_('A user with this email address already exists')],
-                })
+                }
+
+            errors.append(error)
 
             if UserInvite.objects.filter(email=email).exists():
                 # Send a new invite if one was already sent.

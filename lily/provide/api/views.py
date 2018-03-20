@@ -175,10 +175,19 @@ class DataproviderView(APIView):
         if 'linkedin' in social_media:
             primary_linkedin = self._get_primary_profile(social_media['linkedin'], result.get('company'))
 
+        description = result.get('description')
+
+        try:
+            description.encode('windows-1252').decode('utf-8')
+        except UnicodeEncodeError:
+            pass
+        else:
+            description = description.encode('windows-1252').decode('utf-8')
+
         # Build dict with account information.
         account_information = {
             'name': result.get('company'),
-            'description': result.get('description'),
+            'description': description,
             'tags': tags,
             'email_addresses': emails[:email_limit],
             'primary_email': primary_email,

@@ -187,6 +187,7 @@ class EmailMessage(models.Model):
         verbose_name=_('Has attachment')
     )
 
+    # TODO: set a property on the message to identify wheter to show it when displaying "ALL" mail, which saves a heave folder filter.
     # TODO: set a property on the message to identify whether it's a reply, reply-all, forward, forward-multi or just a normal email.
 
     # TODO: Do we need the following? These are just labels and have no effect on how they are showed in the inbox and stuff?

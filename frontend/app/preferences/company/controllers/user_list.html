@@ -29,6 +29,7 @@
                     <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.phone_number">Phone number</checkbox></li>
                     <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.internal_number">Internal number</checkbox></li>
                     <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.is_active">Status</checkbox></li>
+                    <li class="hl-dropdown-item" ng-if="$root.currentUser.isAdmin"><checkbox model="vm.table.visibility.two_factor">2FA Active</checkbox></li>
                 </ul>
             </li>
         </ul>
@@ -91,6 +92,9 @@
                 <th class="hl-table-column" ng-show="vm.table.visibility.is_active" sort-column="is_active" table="vm.table" width="100px">
                     <span class="text-nowrap">Status</span>
                 </th>
+                <th class="hl-table-column" ng-show="vm.table.visibility.two_factor" table="vm.table" ng-if="$root.currentUser.isAdmin" width="100px">
+                    <span class="text-nowrap">2FA Active</span>
+                </th>
                 <th class="hl-table-column" width="105px">
                     <span class="text-nowrap">Options</span>
                 </th>
@@ -149,6 +153,9 @@
                         Inactive
                     </span>
                 </td>
+                <td class="hl-table-column" ng-show="vm.table.visibility.two_factor" ng-if="$root.currentUser.isAdmin">
+                    <span ng-if="user.has_two_factor" uib-tooltip="Active"><i class="fa fa-lock"></i></span>
+                </td>
                 <td class="hl-table-column">
                     <button class="hl-primary-btn-smll" ng-click="vm.openTeamModal(user)" title="Manage teams">
                         <i class="lilicon hl-entities-icon"></i>
@@ -165,7 +172,7 @@
         </tbody>
         <tfoot>
             <tr>
-                <td class="hl-table-column" colspan="7">
+                <td class="hl-table-column" colspan="8">
                     <hl-pagination values="vm.table"></hl-pagination>
                 </td>
             </tr>

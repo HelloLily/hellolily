@@ -48,6 +48,7 @@ function PreferencesCompanyUserList($compile, $scope, $state, $templateCache, HL
             phone_number: true,
             internal_number: true,
             is_active: true,
+            two_factor: true,
         }),
         searchQuery: storage.get('searchQuery', ''),
     };
@@ -154,6 +155,16 @@ function PreferencesCompanyUserList($compile, $scope, $state, $templateCache, HL
             }, response => {
                 vm.table.items = response.objects;
                 vm.table.totalItems = response.total;
+
+                if (currentUser.isAdmin) {
+                    vm.table.items.forEach(user => {
+                        User.get({id: user.id}).$promise.then(userResponse => {
+                            // We can't filter on admin status in Elasticsearch,
+                            // so a separate request is made to the API.
+                            user.has_two_factor = userResponse.has_two_factor;
+                        });
+                    });
+                }
 
                 if (filterQuery === '') {
                     // 'All' filter selected, so count invites as well.

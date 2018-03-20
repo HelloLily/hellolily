@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.hashers import make_password
+from django_otp import user_has_device
 from django.utils.timesince import timesince, timeuntil
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
@@ -86,6 +87,7 @@ class LilyUserSerializer(WritableNestedSerializer):
     timezone = CustomTimeZoneField(required=False)
     info = UserInfoSerializer(read_only=True)
     teams = RelatedTeamSerializer(many=True, required=False, assign_only=True)
+    has_two_factor = serializers.SerializerMethodField()
 
     class Meta:
         model = LilyUser
@@ -111,6 +113,7 @@ class LilyUserSerializer(WritableNestedSerializer):
             'teams',
             'webhooks',
             'is_admin',
+            'has_two_factor',
         )
 
     def validate_picture(self, value):
@@ -136,6 +139,15 @@ class LilyUserSerializer(WritableNestedSerializer):
             raise serializers.ValidationError(_('Invalid password.'))
 
         return value
+
+    def get_has_two_factor(self, obj):
+        user = self.context.get('request').user
+
+        if user.is_admin:
+            # Only admins are allowed to see the 2FA status.
+            return user_has_device(obj)
+        else:
+            return None
 
     def create(self, validated_data):
         return super(LilyUserSerializer, self).create(validated_data)

@@ -39,11 +39,11 @@
                             </span>
 
                             <span ng-if="value.changeType === 'delete'">
-                                Removed <strong>{{ value.displayName }}</strong>
+                                Removed <span ng-if="value.old"><strong>{{ value.old }}</strong> from </span><strong>{{ value.displayName }}</strong>
                             </span>
 
                             <span ng-if="value.changeType === 'add'">
-                                Added <strong>{{ value.displayName }}</strong>
+                                Added <span ng-if="value.new"><strong>{{ value.new }}</strong> as </span><strong>{{ value.displayName }}</strong>
                             </span>
                         </li>
                     </ul>

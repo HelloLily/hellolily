@@ -29,16 +29,6 @@ function BaseController($scope, $state, $http, AppHash, Settings, HLShortcuts, U
         });
 
         $scope.$on('$stateChangeStart', function() {
-            AppHash.get().$promise.then(function(response) {
-                // App hash is set, so compare with the response.
-                if (window.appHash && window.appHash !== response.app_hash) {
-                    // Reload the page so we get new static files.
-                    window.location.reload(true);
-                } else {
-                    window.appHash = response.app_hash;
-                }
-            });
-
             new window.Intercom('update', {email: currentUser.email});
         });
 
@@ -91,6 +81,16 @@ function BaseController($scope, $state, $http, AppHash, Settings, HLShortcuts, U
     }
 
     function _contentLoadedActions() {
+        AppHash.get().$promise.then(response => {
+            // App hash is set, so compare with the response.
+            if (window.appHash && window.appHash !== response.app_hash) {
+                // Reload the page so we get new static files.
+                window.location.reload(true);
+            } else {
+                window.appHash = response.app_hash;
+            }
+        });
+
         if (!currentUser.emailAccountStatus && $state.current.name.indexOf('base.preferences.emailaccounts.setup') === -1) {
             $state.go('base.preferences.emailaccounts.setup');
         }

@@ -50,7 +50,7 @@ function PreferencesEmailTemplatesList($scope, Settings, TemplateVariable, user)
             // Split custom variables into separate arrays so it's easier to process in the template
 
             angular.forEach(data.custom, function(variable) {
-                if (variable.is_public && variable.owner !== vm.currentUser.id) {
+                if (variable.is_public) {
                     vm.publicTemplateVariables.push(variable);
                 } else {
                     vm.templateVariables.push(variable);

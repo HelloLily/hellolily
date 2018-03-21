@@ -148,3 +148,25 @@
         padding: 0 !important;
     }
 }
+
+.user-avatar {
+    border: 3px $base-border-color solid;
+
+    &.status-active {
+        border-color: $app-color-mint;
+    }
+
+    &.status-busy {
+        border-color: $app-color-aqua;
+    }
+
+    &.status-away {
+        border-color: $app-color-yellow;
+    }
+}
+
+.position-relative {
+    .activity-stream-image {
+        position: relative;
+    }
+}

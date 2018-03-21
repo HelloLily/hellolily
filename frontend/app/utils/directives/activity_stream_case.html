@@ -1,6 +1,8 @@
 <div class="activity-stream-item-container">
-    <div class="activity-stream-image has-case" ng-if="vm.item.assigned_to" ng-style="{'background-image': 'url(' + vm.item.assigned_to.profile_picture + ')'}"></div>
-    <div class="activity-stream-image has-case" ng-if="!vm.item.assigned_to" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png');"></div>
+    <div ng-if="vm.item.assigned_to">
+        <user-avatar user="vm.item.assigned_to"></user-avatar>
+    </div>
+    <div class="activity-stream-image" ng-if="!vm.item.assigned_to" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png');"></div>
 
     <div class="activity-stream-item">
         <div class="stream-item-date" title="Modified on {{ ::vm.item.modified | date:'dd MMM yyyy - HH:mm' }}">

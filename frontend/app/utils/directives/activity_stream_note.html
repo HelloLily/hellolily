@@ -1,5 +1,6 @@
 <div class="timeline-item-container">
-    <div class="activity-stream-image has-date" ng-style="{'background-image': 'url(' + vm.item.author.profile_picture + ')'}"></div>
+    <user-avatar user="vm.item.author"></user-avatar>
+
     <div class="activity-stream-item">
         <div class="stream-item-head" title="Created on {{ ::vm.item.date | date:'dd MMM yyyy - HH:mm' }}">
             <div class="stream-item-date">

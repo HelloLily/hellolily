@@ -23,6 +23,7 @@
                 </a>
 
                 <ul class="hl-dropdown js-hold-on-click">
+                    <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.picture">Picture</checkbox></li>
                     <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.full_name">Name</checkbox></li>
                     <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.teams">Team(s)</checkbox></li>
                     <li class="hl-dropdown-item"><checkbox model="vm.table.visibility.email">Email</checkbox></li>
@@ -74,6 +75,9 @@
     <table class="hl-table user-list">
         <thead class="flip-content">
             <tr>
+                <th class="hl-table-column" ng-show="vm.table.visibility.picture" table="vm.table">
+                    <span class="text-nowrap">Picture</span>
+                </th>
                 <th class="hl-table-column" ng-show="vm.table.visibility.full_name" sort-column="full_name" table="vm.table">
                     <span class="text-nowrap">Name</span>
                 </th>
@@ -127,6 +131,9 @@
                 </td>
             </tr>
             <tr ng-repeat="user in vm.table.items">
+                <td class="hl-table-column" ng-show="vm.table.visibility.picture">
+                    <user-avatar user="user" class="position-relative"></user-avatar>
+                </td>
                 <td class="hl-table-column" ng-show="vm.table.visibility.full_name">
                     <span ng-if="user.id != currentUser.id">{{ user.full_name }}</span>
                     <span ng-if="user.id == currentUser.id">{{ user.full_name }} (you)</span>

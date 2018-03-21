@@ -42,6 +42,7 @@ function PreferencesCompanyUserList($compile, $scope, $state, $templateCache, HL
         statusFilter: storage.get('statusFilter', 1),
         statusFilterOpen: false,
         visibility: storage.get('visibility', {
+            picture: true,
             full_name: true,
             teams: true,
             email: true,
@@ -156,15 +157,17 @@ function PreferencesCompanyUserList($compile, $scope, $state, $templateCache, HL
                 vm.table.items = response.objects;
                 vm.table.totalItems = response.total;
 
-                if (currentUser.isAdmin) {
-                    vm.table.items.forEach(user => {
-                        User.get({id: user.id}).$promise.then(userResponse => {
-                            // We can't filter on admin status in Elasticsearch,
-                            // so a separate request is made to the API.
+                vm.table.items.forEach(user => {
+                    User.get({id: user.id}).$promise.then(userResponse => {
+                        // We can't filter on admin status in Elasticsearch,
+                        // so a separate request is made to the API.
+                        if (currentUser.isAdmin) {
                             user.has_two_factor = userResponse.has_two_factor;
-                        });
+                        }
+
+                        user.last_activity = userResponse.last_activity;
                     });
-                }
+                });
 
                 if (filterQuery === '') {
                     // 'All' filter selected, so count invites as well.

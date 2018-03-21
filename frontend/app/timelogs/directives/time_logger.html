@@ -22,7 +22,7 @@
             <div class="widget-content timelog-collaborators">
                 <strong>Collaborators</strong>
                 <div ng-if="vm.hasCollaborators">
-                    <span ng-repeat="user in vm.users" class="activity-stream-image position-relative display-inline-block" ng-style="{'background-image': 'url(' + user.profile_picture + ')'}"></span>
+                    <user-avatar ng-repeat="user in vm.users" user="user"></user-avatar>
 
                     <div ng-repeat="user in vm.users" class="m-t-20">
                         <span>{{ user.full_name }}</span> <span class="pull-right"><time-log-display ng-if="vm.object.timeLogs.length" time-logs="user.timeLogs"></time-log-display></span>

@@ -1,5 +1,7 @@
 <div class="timeline-item-container">
-    <div class="activity-stream-image is-deal" ng-if="vm.item.assigned_to" ng-style="{'background-image': 'url(' + vm.item.assigned_to.profile_picture + ')'}"></div>
+    <div ng-if="vm.item.assigned_to">
+        <user-avatar user="vm.item.assigned_to"></user-avatar>
+    </div>
     <div class="activity-stream-image is-deal" ng-if="!vm.item.assigned_to" style="background-image: url('vendor/metronic/assets/admin/layout4/img/avatar.png');"></div>
 
     <div class="activity-stream-item">

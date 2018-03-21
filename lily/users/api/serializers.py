@@ -88,33 +88,7 @@ class LilyUserSerializer(WritableNestedSerializer):
     info = UserInfoSerializer(read_only=True)
     teams = RelatedTeamSerializer(many=True, required=False, assign_only=True)
     has_two_factor = serializers.SerializerMethodField()
-
-    class Meta:
-        model = LilyUser
-        fields = (
-            'id',
-            'first_name',
-            'last_name',
-            'full_name',
-            'email',
-            'language',
-            'info',
-            'internal_number',
-            'is_active',
-            'password',
-            'password_confirmation',
-            'phone_number',
-            'picture',
-            'position',
-            'primary_email_account',
-            'profile_picture',
-            'social_media',
-            'timezone',
-            'teams',
-            'webhooks',
-            'is_admin',
-            'has_two_factor',
-        )
+    last_activity = serializers.SerializerMethodField()
 
     def validate_picture(self, value):
         if value and value.size > settings.LILYUSER_PICTURE_MAX_SIZE:
@@ -151,6 +125,11 @@ class LilyUserSerializer(WritableNestedSerializer):
                 return None
         else:
             return None
+
+    def get_last_activity(self, obj):
+        session = Session.objects.filter(user=obj).last()
+
+        return session.last_activity if session else None
 
     def create(self, validated_data):
         return super(LilyUserSerializer, self).create(validated_data)
@@ -256,6 +235,34 @@ class LilyUserSerializer(WritableNestedSerializer):
             })
 
         return internal_value
+
+    class Meta:
+        model = LilyUser
+        fields = (
+            'id',
+            'first_name',
+            'last_name',
+            'full_name',
+            'email',
+            'language',
+            'info',
+            'internal_number',
+            'is_active',
+            'password',
+            'password_confirmation',
+            'phone_number',
+            'picture',
+            'position',
+            'primary_email_account',
+            'profile_picture',
+            'social_media',
+            'timezone',
+            'teams',
+            'webhooks',
+            'is_admin',
+            'has_two_factor',
+            'last_activity',
+        )
 
 
 class RelatedLilyUserSerializer(RelatedSerializerMixin, serializers.ModelSerializer):

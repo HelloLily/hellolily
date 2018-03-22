@@ -1,0 +1,23 @@
+<div class="widget-suggestion m-b-10" ng-if="$ctrl.suggestions.length && $ctrl.display">
+    <div class="widget-suggestion-title">
+        <div>
+            <i class="fa fa-building-o"></i>
+
+            {{ $ctrl.label }} found under existing {{ $ctrl.type }}
+        </div>
+
+        <span class="clickable text-muted" ng-click="$ctrl.display = false"><i class="lilicon hl-close-icon"></i></span>
+    </div>
+
+    <div ng-repeat="suggestion in $ctrl.suggestions" class="widget-suggestion-items">
+        <div class="widget-suggestion-item">
+            {{ suggestion[$ctrl.field] }} is used by
+            <a ui-sref="{{ $ctrl.getDetailSref(suggestion) }}">{{ suggestion[$ctrl.type].name || suggestion[$ctrl.type].full_name }}</a>
+        </div>
+        <div class="widget-suggestion-item-action">
+            <a ng-if="!$ctrl.isSidebar && $ctrl.object" class="hl-primary-btn" ui-sref="{{ $ctrl.getFormSref(suggestion) }}">Merge with {{ $ctrl.type }}</a>
+            <a ng-if="!$ctrl.object || !$ctrl.callback" class="hl-primary-btn" ui-sref="{{ $ctrl.getFormSref(suggestion) }}">Edit {{ $ctrl.type }}</a>
+            <a ng-if="$ctrl.isSidebar && $ctrl.callback" class="hl-primary-btn" ng-click="$ctrl.clickCallback(suggestion)">Merge</a>
+        </div>
+    </div>
+</div>

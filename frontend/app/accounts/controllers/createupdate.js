@@ -57,13 +57,14 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
     const vm = this;
 
     vm.account = currentAccount || {};
-    vm.accountSuggestions = [];
+    vm.accountSuggestions = {name: [], email: [], phone: []};
+    vm.contactSuggestions = {name: [], email: [], phone: []};
+    vm.showSuggestions = {name: true, email: true, phone: true};
     vm.tags = [];
     vm.errors = {
         name: [],
     };
     vm.useDuplicateWebsite = false;
-    vm.showSuggestions = true;
 
     vm.loadDataproviderData = loadDataproviderData;
     vm.saveAccount = saveAccount;
@@ -77,6 +78,8 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
     vm.callerNumber = $stateParams.phone_number;
     vm.accountForm = $stateParams.accountForm;
     vm.mergeAccountData = mergeAccountData;
+    vm.searchEmailAddress = searchEmailAddress;
+    vm.searchPhoneNumber = searchPhoneNumber;
 
     activate();
 
@@ -92,8 +95,6 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
     ////
 
     function activate() {
-        vm.accountSuggestions = [];
-
         User.me().$promise.then(user => {
             vm.currentUser = user;
 
@@ -207,15 +208,61 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
             const filterquery = `domain:"${vm.account.primaryWebsite}" OR name:"${vm.account.name}"`;
 
             Account.search({filterquery}).$promise.then(results => {
-                vm.accountSuggestions = results.objects;
-                vm.showSuggestions = true;
+                vm.accountSuggestions.name = results.objects;
+                vm.showSuggestions.name = true;
+            });
+        }
+    }
+
+    function searchEmailAddress(emailAddress) {
+        if (!vm.account.id && emailAddress) {
+            // There was a call for the current user, so try to find an account with the given email address.
+            Account.searchByEmail({email_address: emailAddress}).$promise.then(response => {
+                const {type} = response;
+
+                if (type === 'account') {
+                    const exists = vm.accountSuggestions.email.some(suggestion => suggestion.account.id === response.data.id);
+                    if (!exists) vm.accountSuggestions.email.push({emailAddress, account: response.data});
+
+                    vm.showSuggestions.email = true;
+                } else if (type === 'contact') {
+                    const exists = vm.contactSuggestions.email.some(suggestion => suggestion.contact.id === response.data.id);
+                    if (!exists) vm.contactSuggestions.email.push({emailAddress, contact: response.data});
+
+                    vm.showSuggestions.email = true;
+                }
+            });
+        }
+    }
+
+    function searchPhoneNumber(phoneNumber) {
+        if (!vm.account.id && phoneNumber) {
+            // There was a call for the current user, so try to find an account with the given number.
+            Account.searchByPhoneNumber({number: phoneNumber}).$promise.then(response => {
+                if (response.data.accounts.length) {
+                    response.data.accounts.forEach(account => {
+                        const exists = vm.accountSuggestions.phone.some(suggestion => suggestion.account.id === account.id);
+
+                        if (!exists) vm.accountSuggestions.phone.push({phoneNumber, account});
+                    });
+
+                    vm.showSuggestions.phone = true;
+                } else if (response.data.contacts.length) {
+                    response.data.contacts.forEach(contact => {
+                        const exists = vm.contactSuggestions.phone.some(suggestion => suggestion.contact.id === contact.id);
+
+                        if (!exists) vm.contactSuggestions.phone.push({phoneNumber, contact});
+                    });
+
+                    vm.showSuggestions.phone = true;
+                }
             });
         }
     }
 
     function loadDataproviderData() {
         // Clear accountSuggestions because the assumption is that the user has tried with a new account.
-        vm.accountSuggestions = [];
+        vm.accountSuggestions.name = [];
 
         toastr.info('Running around the world to fetch info', 'Here we go');
         vm.account.getDataproviderInfo(vm.account.primaryWebsite).then(() => {
@@ -250,9 +297,9 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
         }
     }
 
-    function mergeAccountData(accountId) {
+    function mergeAccountData(account) {
         Settings.email.sidebar.form = 'account';
-        Settings.email.sidebar.accountId = accountId;
+        Settings.email.sidebar.accountId = account.id;
         Settings.email.sidebar.accountForm = vm.account;
     }
 
@@ -309,7 +356,7 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
                 name: 'twitter',
                 username: vm.account.twitter,
             }];
-            // Re-use twitter id in case of an edit.
+            // Re-use Twitter ID in case of an edit.
             if (twitterId) {
                 vm.account.social_media[vm.account.social_media.length - 1].id = twitterId;
             }

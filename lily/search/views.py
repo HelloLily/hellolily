@@ -176,7 +176,6 @@ class SearchView(LoginRequiredMixin, View):
 
 
 class EmailAddressSearchView(LoginRequiredMixin, View):
-
     def get(self, request, *args, **kwargs):
         email_address = kwargs.get('email_address', None)
 
@@ -321,12 +320,11 @@ class PhoneNumberSearchView(LoginRequiredMixin, View):
 
         results = search_number(self.request.user.tenant_id, number)
 
-        # Return only the primary keys of the accounts and contacts
         for account in results['data']['accounts']:
-            response['data']['accounts'].append(account.id)
+            response['data']['accounts'].append({'id': account.id, 'name': account.name})
 
         for contact in results['data']['contacts']:
-            response['data']['contacts'].append(contact.id)
+            response['data']['contacts'].append({'id': contact.id, 'name': contact.full_name})
 
         return HttpResponse(anyjson.dumps(response), content_type='application/json; charset=utf-8')
 

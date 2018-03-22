@@ -70,9 +70,6 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
                 url: '/api/utils/countries/',
                 method: 'OPTIONS',
             },
-            searchByEmail: {
-                url: '/search/emailaddress/:email_address',
-            },
             getStatuses: {
                 url: '/api/accounts/statuses/',
                 transformResponse: function(data) {
@@ -89,6 +86,9 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
 
                     return statusData;
                 },
+            },
+            searchByEmail: {
+                url: '/search/emailaddress/:email_address',
             },
             searchByWebsite: {
                 url: '/search/website/:website',

@@ -86,7 +86,9 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
     vm.errors = {
         name: [],
     };
-    vm.showSuggestions = true;
+    vm.accountSuggestions = {name: [], email: [], phone: []};
+    vm.contactSuggestions = {name: [], email: [], phone: []};
+    vm.showSuggestions = {name: true, email: true, phone: true};
 
     vm.saveContact = saveContact;
     vm.cancelContactCreation = cancelContactCreation;
@@ -98,6 +100,9 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
     vm.accountForm = $stateParams.accountForm;
     vm.mergeContactData = mergeContactData;
     vm.addAccount = addAccount;
+    vm.searchEmailAddress = searchEmailAddress;
+    vm.searchPhoneNumber = searchPhoneNumber;
+    vm.addWorksAt = addWorksAt;
 
     activate();
 
@@ -113,7 +118,6 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
     ////
 
     function activate() {
-        vm.contactSuggestions = [];
         _getContact();
         $timeout(() => {
             // Focus the first input on page load.
@@ -389,16 +393,79 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
             const filterquery = `full_name:"${vm.contact.first_name} ${vm.contact.last_name}"`;
 
             Contact.search({filterquery}).$promise.then(results => {
-                vm.contactSuggestions = results.objects;
-                vm.showSuggestions = true;
+                vm.contactSuggestions.name = results.objects;
+                vm.showSuggestions.name = true;
             });
         }
     }
 
-    function mergeContactData(contactId) {
+    function searchEmailAddress(emailAddress) {
+        if (!vm.contact.id && emailAddress) {
+            // There was a call for the current user, so try to find an account with the given email address.
+            Account.searchByEmail({email_address: emailAddress}).$promise.then(response => {
+                const {type} = response;
+
+                if (type === 'account') {
+                    const exists = vm.accountSuggestions.email.some(suggestion => suggestion.account.id === response.data.id);
+                    const alreadyAdded = vm.contact.accounts.some(contactAccount => contactAccount.id === response.data.id);
+
+                    if (!exists && !alreadyAdded) vm.accountSuggestions.email.push({emailAddress, account: response.data});
+
+                    vm.showSuggestions.email = true;
+                } else if (type === 'contact') {
+                    const exists = vm.contactSuggestions.email.some(suggestion => suggestion.contact.id === response.data.id);
+
+                    if (!exists) vm.contactSuggestions.email.push({emailAddress, contact: response.data});
+
+                    vm.showSuggestions.email = true;
+                }
+            });
+        }
+    }
+
+    function searchPhoneNumber(phoneNumber) {
+        if (!vm.contact.id && phoneNumber) {
+            // There was a call for the current user, so try to find an account with the given number.
+            Account.searchByPhoneNumber({number: phoneNumber}).$promise.then(response => {
+                if (response.data.accounts.length) {
+                    response.data.accounts.forEach(account => {
+                        const exists = vm.accountSuggestions.phone.some(suggestion => suggestion.account.id === account.id);
+                        const alreadyAdded = vm.contact.accounts.some(contactAccount => contactAccount.id === response.data.id);
+
+                        if (!exists && !alreadyAdded) vm.accountSuggestions.phone.push({phoneNumber, account});
+                    });
+
+                    vm.showSuggestions.phone = true;
+                } else if (response.data.contacts.length) {
+                    response.data.contacts.forEach(contact => {
+                        const exists = vm.contactSuggestions.phone.some(suggestion => suggestion.contact.id === contact.id);
+
+                        if (!exists) vm.contactSuggestions.phone.push({phoneNumber, contact});
+                    });
+
+                    vm.showSuggestions.phone = true;
+                }
+            });
+        }
+    }
+
+    function addWorksAt(account, type) {
+        vm.contact.accounts.push(account);
+
+        // Remove the added account from the suggestions.
+        const index = vm.accountSuggestions[type].indexOf(account);
+        vm.accountSuggestions[type].splice(index, 1);
+    }
+
+    function mergeContactData(contact) {
         Settings.email.sidebar.form = 'contact';
-        Settings.email.sidebar.contactId = contactId;
+        Settings.email.sidebar.contactId = contact.id;
         Settings.email.sidebar.contactForm = vm.contact;
+
+        // Clear the suggestions.
+        for (let key in vm.contactSuggestions) {
+            vm.contactSuggestions[key] = {};
+        }
     }
 
     function _postSave(contact) {

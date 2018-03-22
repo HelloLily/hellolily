@@ -91,12 +91,13 @@ class UserInviteViewSet(viewsets.ModelViewSet):
 
         invites = request.data.get('invites')
         errors = []
+        has_errors = False
 
         for invite in invites:
             first_name = invite.get('first_name')
             email = invite.get('email')
             valid_email = True
-            error = None
+            error = {}
 
             try:
                 validate_email(email)
@@ -107,11 +108,13 @@ class UserInviteViewSet(viewsets.ModelViewSet):
                 error = {
                     'name': [_('Please enter a first name and valid email address')],
                 }
+                has_errors = True
 
             if LilyUser.objects.filter(email=email, is_active=True).exists():
                 error = {
                     'name': [_('A user with this email address already exists')],
                 }
+                has_errors = True
 
             errors.append(error)
 
@@ -119,7 +122,7 @@ class UserInviteViewSet(viewsets.ModelViewSet):
                 # Send a new invite if one was already sent.
                 UserInvite.objects.filter(email=email).delete()
 
-        if errors:
+        if has_errors:
             return Response({'invites': errors}, status=status.HTTP_400_BAD_REQUEST)
 
         for invite in invites:

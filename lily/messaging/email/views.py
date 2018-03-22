@@ -1165,11 +1165,13 @@ class UpdateTemplateVariableView(CreateUpdateTemplateVariableMixin, UpdateView):
         return template_variable
 
     def form_valid(self, form):
-        # Saves instance
         response = super(UpdateTemplateVariableView, self).form_valid(form)
 
-        # Show save messages
-        message = _('%s has been updated.') % self.object.name
+        if form.cleaned_data.get('is_public') and not form.initial.get('is_public'):
+            message = _('%s has been updated and moved to public variables.') % self.object.name
+        else:
+            message = _('%s has been updated.') % self.object.name
+
         messages.success(self.request, message)
 
         return response

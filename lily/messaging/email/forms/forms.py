@@ -446,6 +446,9 @@ class CreateUpdateTemplateVariableForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(CreateUpdateTemplateVariableForm, self).__init__(*args, **kwargs)
 
+        if get_current_user() != self.instance.owner:
+            self.fields['is_public'].widget = self.fields['is_public'].hidden_widget()
+
         email_parameter_choices = get_email_parameter_choices()
         self.fields['variables'].choices += [[x, x] for x in email_parameter_choices.keys()]
 

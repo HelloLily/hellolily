@@ -12,7 +12,7 @@ class LilyModelBackend(ModelBackend):
         if username is None:
             username = kwargs.get(UserModel.USERNAME_FIELD)
         try:
-            user = UserModel.all_objects.get_by_natural_key(username)
+            user = UserModel.all_objects.get_by_natural_key(username.lower())
         except UserModel.DoesNotExist:
             # Run the default password hasher once to reduce the timing
             # difference between an existing and a non-existing user (#20760).

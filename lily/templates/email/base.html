@@ -1,0 +1,337 @@
+{% block html %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+    <head>
+        <meta charset="utf-8">
+        <!-- utf-8 works for most cases -->
+        <meta name="viewport" content="width=device-width">
+        <!-- Forcing initial-scale shouldn't be necessary -->
+        <meta http-equiv="x-ua-compatible" content="IE=edge">
+        <!-- Use the latest (edge) version of IE rendering engine -->
+        <meta name="x-apple-disable-message-reformatting">
+        <!-- Disable auto-scale in iOS 10 Mail entirely -->
+        <!-- Web Font / @font-face : BEGIN -->
+        <!-- NOTE: If web fonts are not required, lines 10 - 27 can be safely removed. -->
+        <!-- Desktop Outlook chokes on web font references and defaults to Times New Roman, so we force a safe fallback font. -->
+        <!--[if mso]>
+        <style>
+            * {
+                font-family:sans-serif !important;
+            }
+        </style>
+        <![endif]-->
+        <!-- All other clients get the webfont reference; some will render the font and others will silently fail to the fallbacks. More on that here: http://stylecampaign.com/blog/2015/02/webfont-support-in-email/ -->
+        <!--[if !mso]><!-->
+        <!-- insert web font reference, eg: <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet" type="text/css"> -->
+        <!--<![endif]-->
+        <!-- Web Font / @font-face : END -->
+        <!-- CSS Reset : BEGIN -->
+
+        <style type="text/css">
+            html,body{
+                margin:0 auto !important;
+                padding:0 !important;
+                height:100% !important;
+                width:100% !important;
+            }
+            *{
+                -ms-text-size-adjust:100%;
+                -webkit-text-size-adjust:100%;
+            }
+            div[style*=margin: 16px 0]{
+                margin:0 !important;
+            }
+            table,td{
+                mso-table-lspace:0 !important;
+                mso-table-rspace:0 !important;
+            }
+            table{
+                border-spacing:0 !important;
+                border-collapse:collapse !important;
+                table-layout:fixed !important;
+                margin:0 auto !important;
+            }
+            table table table{
+                table-layout:auto;
+            }
+            img{
+                -ms-interpolation-mode:bicubic;
+            }
+            a{
+                cursor:pointer;
+            }
+            [x-apple-data-detectors],.x-gmail-data-detectors,.x-gmail-data-detectors *,.aBn{
+                border-bottom:0 !important;
+                cursor:default !important;
+                color:inherit !important;
+                text-decoration:none !important;
+                font-size:inherit !important;
+                font-family:'Roboto',sans-serif;
+                font-weight:inherit !important;
+                line-height:inherit !important;
+            }
+            .a6S{
+                display:none !important;
+                opacity:.01 !important;
+            }
+            img.g-img+div{
+                display:none !important;
+            }
+            .btn-link{
+                text-decoration:none !important;
+            }
+            @media only screen and (min-device-width: 375px) and (max-device-width: 413px){
+                .email-container{
+                    min-width:375px !important;
+                }
+            }
+            div>u div .gmail{
+                    min-width:100vw;
+            }
+            html,body{
+                margin:0 auto !important;
+                padding:0 !important;
+                height:100% !important;
+                width:100% !important;
+            }
+            *{
+                -ms-text-size-adjust:100%;
+                -webkit-text-size-adjust:100%;
+            }
+            div[style*=margin: 16px 0]{
+                margin:0 !important;
+            }
+            table,td{
+                mso-table-lspace:0 !important;
+                mso-table-rspace:0 !important;
+            }
+            table{
+                border-spacing:0 !important;
+                border-collapse:collapse !important;
+                table-layout:fixed !important;
+                margin:0 auto !important;
+            }
+            table table table{
+                table-layout:auto;
+            }
+            img{
+                -ms-interpolation-mode:bicubic;
+            }
+            [x-apple-data-detectors],.x-gmail-data-detectors,.x-gmail-data-detectors *,.aBn{
+                border-bottom:0 !important;
+                cursor:default !important;
+                color:inherit !important;
+                text-decoration:none !important;
+                font-size:inherit !important;
+                font-family:'Roboto',sans-serif;
+                font-weight:inherit !important;
+                line-height:inherit !important;
+            }
+            .a6S{
+                display:none !important;
+                opacity:.01 !important;
+            }
+            img.g-img+div{
+                display:none !important;
+            }
+            .btn-link{
+                text-decoration:none !important;
+            }
+            @media only screen and (min-device-width: 375px) and (max-device-width: 413px){
+                .email-container{
+                    min-width:375px !important;
+                }
+            }
+            div>u div .gmail{
+                    min-width:100vw;
+                }
+                .btn-td,.btn-a{
+                    transition:all 100ms ease-in;
+                }
+                .btn-td:hover,.btn-a:hover{
+                    background:#27244C !important;
+                    border-color:#27244C !important;
+                }
+            @media screen and (max-width: 480px){
+                .fluid{
+                    width:100% !important;
+                    max-width:100% !important;
+                    height:auto !important;
+                    margin-left:auto !important;
+                    margin-right:auto !important;
+                }
+            }
+            @media screen and (max-width: 480px){
+                .stack-column,.stack-column-center{
+                    display:block !important;
+                    width:100% !important;
+                    max-width:100% !important;
+                    direction:ltr !important;
+                }
+            }
+            @media screen and (max-width: 480px){
+                .stack-column-center{
+                    text-align:center !important;
+                }
+            }
+            @media screen and (max-width: 480px){
+                .center-on-narrow{
+                    text-align:center !important;
+                    display:block !important;
+                    margin-left:auto !important;
+                    margin-right:auto !important;
+                    float:none !important;
+                }
+            }
+            @media screen and (max-width: 480px){
+                table.center-on-narrow{
+                    display:inline-block !important;
+                }
+            }
+            @media screen and (max-width: 480px){
+                .email-container p{
+                    font-size:17px !important;
+                }
+            }
+        </style>
+    </head>
+    <body width="100%" bgcolor="#ffffff" style="margin: 0; mso-line-height-rule: exactly;">
+    <center style="width:100%;background:#ffffff;text-align:left;">
+      <!-- Visually Hidden Preheader Text : BEGIN -->
+      <div style="display:none;font-size:1px;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;mso-hide:all;font-family:Roboto, sans-serif;">
+        {% block html_preview %}
+            html_preview
+        {% endblock %}
+      </div>
+
+      <!-- Visually Hidden Preheader Text : END -->
+      <!--
+      Set the email width. Defined in two places:
+      1. max-width for all clients except Desktop Windows Outlook, allowing the email to squish on narrow but never go wider than 680px.
+      2. MSO tags for Desktop Windows Outlook enforce a 680px width.
+      Note: The Fluid and Responsive templates have a different width (600px). The hybrid grid is more "fragile", and I've found that 680px is a good width. Change with caution.
+      -->
+      <div style="max-width:680px;margin:auto;" class="email-container">
+        <!--[if mso]>
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="680" align="center">
+          <tr>
+            <td>
+              <![endif]-->
+        <!-- Email Header : BEGIN -->
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" width="100%" style="max-width:680px;">
+          <tr>
+            <td style="padding:20px;text-align:left;" bgcolor="#ffffff">
+              <img src="https://gallery.mailchimp.com/a72a4e5f418a8a7845894362f/images/77c357dd-5761-4a7e-965b-66e4c838dac5.png" width="200" height="50" alt="Lily" border="0" style="height: auto; font-family: 'Roboto', sans-serif; font-size: 15px; line-height: 140%; color: #222222;">
+            </td>
+          </tr>
+        </table>
+        <!-- Email Header : END -->
+        <!-- Email Body : BEGIN -->
+        <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" width="100%" style="max-width:680px;" class="email-container">
+          <!-- Hero Image, Flush : BEGIN -->
+          <tr>
+            <td style="padding:60px 20px;" bgcolor="#ffffff" align="left">
+              <h1 style="margin:0;font-family:Roboto, sans-serif;font-size:36px;line-height:125%;color:#27244C;font-weight:300;">
+                {% block html_header_1 %}
+                  html_header_1
+                {% endblock %}
+              </h1>
+              <h1 style="margin:0;font-family:Roboto, sans-serif;font-size:36px;line-height:125%;color:#27244C;font-weight:700;">
+                {% block html_header_2 %}
+                  html_header_2
+                {% endblock %}
+              </h1>
+            </td>
+          </tr>
+          <!-- Hero Image, Flush : END -->
+          <!-- 1 Column Text + Button : BEGIN -->
+          <tr>
+            <td bgcolor="#ffffff">
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                <tr>
+                  <td style="padding:0 40px 20px 40px;text-align:left;font-family:Roboto, sans-serif;font-size:12px;line-height:140%;">
+                    {% block html_content %}
+                      html_content
+                    {% endblock %}
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- 1 Column Text + Button : END -->
+          <!-- 1 Column Text + Button : BEGIN -->
+          <tr>
+            <td bgcolor="#ffffff" style="padding:20px 0;">
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin:auto;">
+                <tr>
+                  <td>
+                    <a href="https://twitter.com/SayHelloLily"><img src="https://gallery.mailchimp.com/a72a4e5f418a8a7845894362f/images/33c1f226-213e-498f-887d-e44b560beff6.png" width="20" border="0" alt="Twitter" class="center-on-narrow" style="width: 100%; max-width: 20px; height: auto; background: #ffffff; font-family: sans-serif; font-size: 15px; line-height: 140%; color: #555555; padding: 0 10px;"></a>
+                  </td>
+                  <td>
+                    <a href="https://github.com/HelloLily/hellolily"><img src="https://gallery.mailchimp.com/a72a4e5f418a8a7845894362f/images/c53318c1-af8c-44c1-9158-ca77813a530e.png" width="20" border="0" alt="Github" class="center-on-narrow" style="width: 100%; max-width: 20px; height: auto; background: #ffffff; font-family: sans-serif; font-size: 15px; line-height: 140%; color: #555555; padding: 0 10px;"></a>
+                  </td>
+                  <td>
+                    <a href="https://nl.linkedin.com/company/hellolily"><img src="https://gallery.mailchimp.com/a72a4e5f418a8a7845894362f/images/7fae19f1-b526-4861-93de-bba40d9d46e0.png" width="20" border="0" alt="LinkedIn" class="center-on-narrow" style="width: 100%; max-width: 20px; height: auto; background: #ffffff; font-family: sans-serif; font-size: 15px; line-height: 140%; color: #555555; padding: 0 10px;"></a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Email Footer : BEGIN -->
+          <tr>
+            <td>
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" width="100%" style="max-width:680px;font-family:Roboto, sans-serif;color:#888888;font-size:12px;line-height:140%;">
+                <tr>
+                  <td style="padding:0px 10px;width:100%;font-family:Roboto, sans-serif;font-size:12px;line-height:140%;text-align:center;color:#888888;" class="x-gmail-data-detectors">
+                    <a href="https://hellolily.com">https://hellolily.com</a>
+                    <br>Achterweg 1, 9725 BM, Groningen
+                    <br>(31) 050 800 9008
+                    <br>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Email Footer : END -->
+          <!--[if mso]>
+        </td>
+      </tr>
+    </table>
+    <![endif]-->
+          <!-- Full Bleed Background Section : BEGIN -->
+          <tr>
+            <td>
+              <table role="presentation" background="https://gallery.mailchimp.com/a72a4e5f418a8a7845894362f/images/74ec171e-3351-4bb1-8ffe-e4b54fae5a9b.png" width="680" align="center" style="width:100%;max-width:680px;height:auto !important;margin:auto;" class="g-img">
+                <tr>
+                  <td valign="top" align="center">
+                    <div style="max-width:680px;margin:auto;" class="email-container">
+                      <!--[if mso]>
+                      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="680" align="center">
+                        <tr>
+                          <td>
+                            <![endif]-->
+                              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                <tr>
+                                  <td style="padding:80px;text-align:left;font-family:Roboto, sans-serif;font-size:15px;line-height:140%;color:#ffffff;">
+                                    <p style="margin:0;"></p>
+                                  </td>
+                                </tr>
+                              </table>
+                              <!--[if mso]>
+                            </td>
+                          </tr>
+                        </table>
+                        <![endif]-->
+                    </div>
+                  </td>
+                </tr>
+              </table>
+              <!-- Full Bleed Background Section : END -->
+            </td>
+          </tr>
+        </table>
+      </div>
+    </center>
+  </body>
+</html>
+{% endblock %}

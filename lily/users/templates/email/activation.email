@@ -1,20 +1,45 @@
-{% load i18n %}
+{% extends 'email/base.html' %}
 
-{% block subject %}{% trans 'Welcome to' %} {{ current_site.name }}{% endblock %}
+{% block subject %}Welcome to Lily, please activate your account{% endblock %}
 
-{% block plain %}
-{% url 'activation' uidb36=uidb36 token=token as url %}
-{% blocktrans with current_site.name as site_name and user.full_name as full_name and user.email as email and user.date_joined as date_joined and protocol as protocol and current_site.domain as domain and url as url %}
-Hi {{ full_name }},
+{% block plain %}{% url 'activation' uidb36=uidb36 token=token as url %}
+Hi {{ user.first_name }},
 
-You just signed up for {{ site_name }}, using:
+Thanks for signing up for Lily! To complete your registration and begin using Lily, please click the following link to activate your account or copy+paste the link to the address bar in your browser:
+{{ protocol }}://{{ current_site.domain }}{{ url }}
 
-    Email address: {{ email }}
-    Join date: {{ date_joined }}
+If you have any questions, please reply to this email, send us a tweet, or start chatting with us once you’ve logged in.
+{% endblock %}
 
-Please click the following link to activate your account or copy/paste the link to the address bar in your browser:
-{{ protocol }}://{{ domain }}{{ url }}
+{% block html_preview %}
+Thanks for signing up for Lily, please activate your account.
+{% endblock %}
 
-Thanks, you rock!
-{% endblocktrans %}
+{% block html_header_1 %}
+Start of a
+{% endblock %}
+
+{% block html_header_2 %}
+new you.
+{% endblock %}
+
+{% block html_content %}{% url 'activation' uidb36=uidb36 token=token as url %}
+<b>
+    Hi {{ user.first_name }},
+</b>
+<div style="height:20px;"></div>
+<div>
+    Thanks for signing up for Lily! To complete your registration and begin using Lily, please click the following <a href="{{ protocol }}://{{ current_site.domain }}{{ url }}">link</a> to activate your account.
+</div>
+<div style="height:20px;"></div>
+<div>
+    If you have any questions, please reply to this email, send us a <a href=twitter.com/sayhellolily>tweet</a>, or start chatting with us once you’ve logged in.
+</div>
+<div style="height:20px;"></div>
+<div>
+    Enjoy!
+    <br />
+    <b>Team Lily</b>
+</div>
+<div style="height:100px;"></div>
 {% endblock %}

@@ -1,5 +1,6 @@
 import json
 
+import newrelic.agent
 from channels import Group
 from channels.generic.websockets import WebsocketConsumer
 from channels.handler import ViewConsumer
@@ -37,10 +38,12 @@ class LilyConsumer(WebsocketConsumer):
 
 
 class LilyViewConsumer(ViewConsumer):
+    @newrelic.agent.background_task()
     def __call__(self, message):
         return super(LilyViewConsumer, self).__call__(message)
 
 
 class LilyStaticFilesConsumer(StaticFilesConsumer):
+    @newrelic.agent.background_task()
     def __call__(self, message):
         return super(LilyStaticFilesConsumer, self).__call__(message)

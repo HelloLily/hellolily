@@ -246,6 +246,16 @@ class DocumentEventCatch(APIView):
 class PandaDocSharedKey(APIView):
     permission_classes = (IsAuthenticated, IsAccountAdmin, IsFeatureAvailable)
 
+    def get(self, request):
+        """
+        Get the authentication URL for the given integration type.
+        """
+        credentials = get_credentials('pandadoc')
+
+        shared_key = credentials.integration_context.get('shared_key')
+
+        return Response({'shared_key': shared_key}, status=status.HTTP_200_OK)
+
     def post(self, request):
         """
         Get the authentication URL for the given integration type.
@@ -435,7 +445,18 @@ class IntegrationDetailsView(APIView):
         # If no credentials exist then the given integration isn't installed.
         has_integration = credentials is not None
 
-        response = anyjson.serialize({'has_integration': has_integration})
+        details = {
+            'has_integration': has_integration
+        }
+
+        if has_integration:
+            details.update({
+                'client_id': credentials.client_id,
+                'client_secret': credentials.client_secret,
+                'integration_context': credentials.integration_context,
+            })
+
+        response = anyjson.serialize(details)
 
         return HttpResponse(response, content_type='application/json')
 

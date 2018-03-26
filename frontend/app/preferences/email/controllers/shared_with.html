@@ -1,0 +1,16 @@
+<div slimscroll="{height: 350}" class="align-left">
+    <div class="widget-name">{{ messages.alerts.preferences.sharedWithTitle }}</div>
+
+    <p>
+        {{ messages.alerts.preferences.sharedWithText|sprintf:{name: vm.emailAccount.owner.full_name} }}
+    </p>
+
+    <div class="shared-with-users">
+        <div ng-repeat="config in vm.emailAccount.shared_email_configs" class="user-row">
+            <div class="user-info">
+                <div class="user-avatar display-inline-block" ng-style="{'background-image': 'url(' + config.user.profile_picture + ')'}"></div>
+                <span class="m-l-15">{{ config.user.full_name }}</span>
+            </div>
+        </div>
+    </div>
+</div>

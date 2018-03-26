@@ -64,6 +64,7 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
     vm.getConfigUsers = getConfigUsers;
     vm.refreshUsers = refreshUsers;
     vm.hasFullAccess = hasFullAccess;
+    vm.openSharedWithModal = openSharedWithModal;
 
     activate();
 
@@ -202,6 +203,45 @@ function PreferencesEmailAccountList($compile, $filter, $http, $scope, $template
                         swal.close();
                     });
                 }
+            }).done();
+        });
+    }
+
+    function openSharedWithModal(account) {
+        const configs = account.shared_email_configs;
+        const filterObject = {
+            filterquery: '',
+            size: 50,
+        };
+
+        vm.emailAccount = account;
+
+        if (configs.length) {
+            for (let i = 0; i < configs.length; i++) {
+                if (i > 0) {
+                    filterObject.filterquery += ' OR ';
+                }
+
+                filterObject.filterquery += 'id: ' + configs[i].user;
+            }
+        }
+
+        User.search(filterObject).$promise.then(data => {
+            if (filterObject.filterquery) {
+                if (data.objects) {
+                    for (let i = 0; i < data.objects.length; i++) {
+                        for (let j = 0; j < vm.emailAccount.shared_email_configs.length; j++) {
+                            if (vm.emailAccount.shared_email_configs[j].user === data.objects[i].id) {
+                                vm.emailAccount.shared_email_configs[j].user = data.objects[i];
+                            }
+                        }
+                    }
+                }
+            }
+
+            swal({
+                html: $compile($templateCache.get('preferences/email/controllers/shared_with.html'))($scope),
+                showCloseButton: true,
             }).done();
         });
     }

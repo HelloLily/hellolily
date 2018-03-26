@@ -94,6 +94,8 @@ function HLMessages() {
             preferences: {
                 userAssignTitle: 'Assign %(user)s to teams',
                 shareAccountTitle: 'Share your email',
+                sharedWithTitle: 'Account shared with',
+                sharedWithText: '%(name)s has shared this email account with',
                 subscription: {
                     cancelTitle: 'Are you sure?',
                     cancelText: 'You are about to cancel your subscription. This will revert your account back to the free plan after the next billing date. Are you sure you want to continue?',

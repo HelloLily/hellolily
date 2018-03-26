@@ -159,7 +159,11 @@
                             </td>
                             <td class="hl-table-column">
                                 <span ng-if="account.privacy === vm.publicPrivacy" uib-tooltip="{{ vm.publicAccountTooltip }}">All</span>
-                                <span ng-if="account.privacy !== vm.publicPrivacy">{{ account.shared_email_configs.length || '-' }}</span>
+                                <span ng-if="account.privacy !== vm.publicPrivacy">
+                                    <button class="hl-primary-btn" ng-click="vm.openSharedWithModal(account)" ng-if="!currentUser.tenant.isFreePlan">
+                                        {{ account.shared_email_configs.length }} <i class="lilicon hl-entity-icon m-l-5"></i>
+                                    </button>
+                                </span>
                             </td>
                         </tr>
                         <tr ng-if="currentUser.tenant.isFreePlan && vm.sharedAccounts.length">

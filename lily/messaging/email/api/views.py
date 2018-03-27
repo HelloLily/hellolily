@@ -20,7 +20,7 @@ from lily.utils.models.models import PhoneNumber
 
 from .serializers import (EmailLabelSerializer, EmailAccountSerializer, EmailMessageSerializer,
                           EmailTemplateFolderSerializer, EmailTemplateSerializer, SharedEmailConfigSerializer,
-                          TemplateVariableSerializer)
+                          TemplateVariableSerializer, EmailAttachmentSerializer)
 from ..models.models import (EmailLabel, EmailAccount, EmailMessage, EmailTemplateFolder, EmailTemplate,
                              SharedEmailConfig, TemplateVariable)
 from ..tasks import (trash_email_message, toggle_read_email_message,
@@ -391,6 +391,19 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
                     phone_numbers.append(number)
 
         return Response({'phone_numbers': phone_numbers})
+
+    @detail_route(methods=['GET'])
+    def attachments(self, request, pk=None):
+        """
+        Mark / unmark an email message as spam asynchronous through the manager and not directly on the database. Just
+        update the search index by an instance variable so changes are immediately visible.
+        """
+        email = self.get_object()
+
+        attachments = email.attachments.all()
+        serializer = EmailAttachmentSerializer(attachments, many=True)
+
+        return Response({'attachments': serializer.data})
 
 
 class EmailTemplateFolderViewSet(viewsets.ModelViewSet):

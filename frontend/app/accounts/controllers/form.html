@@ -52,12 +52,12 @@
                            ng-model="vm.account.name">
                 </form-group>
 
-                <form-group ng-if="vm.accountSuggestions.length && vm.showSuggestions">
+                <form-group ng-if="vm.accountSuggestions.name.length && vm.showSuggestions.name">
                     <div class="widget-suggestion">
                         <span class="widget-suggestion-title"><i class="fa fa-building-o"></i> It looks like this account already exists</span>
-                        <span class="small pull-right clickable text-muted" ng-click="vm.showSuggestions = false"><i class="lilicon hl-close-icon"></i></span>
+                        <span class="small pull-right clickable text-muted" ng-click="vm.showSuggestions.name = false"><i class="lilicon hl-close-icon"></i></span>
 
-                        <div ng-repeat="account in vm.accountSuggestions" class="widget-suggestion-items">
+                        <div ng-repeat="account in vm.accountSuggestions.name" class="widget-suggestion-items">
                             <div class="widget-suggestion-item">
                                 Is this
                                 <a ui-sref="base.accounts.detail({ id: account.id })">{{ account.name }}</a>
@@ -106,21 +106,30 @@
 
             <form-portlet portlet-title="Contact information">
                 <div ng-class="{'supercard-form': settings.email.sidebar.form}">
-
                     <form-group ng-if="vm.account.email_addresses" label-title="Email">
                         <form-email-addresses email-addresses="vm.account.email_addresses"
                                               add-related-field="vm.addRelatedField(field)"
-                                              remove-related-field="vm.removeRelatedField(field, index, remove)">
+                                              remove-related-field="vm.removeRelatedField(field, index, remove)"
+                                              blur-callback="vm.searchEmailAddress">
                         </form-email-addresses>
                     </form-group>
+
+                    <suggestions suggestions="vm.accountSuggestions.email" display="vm.showSuggestions.email" field="emailAddress" type="account" object="vm.account" callback="vm.mergeAccountData"></suggestions>
+
+                    <suggestions suggestions="vm.contactSuggestions.email" display="vm.showSuggestions.email" field="emailAddress" type="contact"></suggestions>
 
                     <form-group ng-if="vm.account.phone_numbers" label-title="Phone number">
                         <form-phone-numbers phone-numbers="vm.account.phone_numbers"
                                             add-related-field="vm.addRelatedField(field)"
                                             remove-related-field="vm.removeRelatedField(field, index, remove)"
-                                            address="vm.account.addresses[0]">
+                                            address="vm.account.addresses[0]"
+                                            blur-callback="vm.searchPhoneNumber">
                         </form-phone-numbers>
                     </form-group>
+
+                    <suggestions suggestions="vm.accountSuggestions.phone" display="vm.showSuggestions.phone" field="phoneNumber" type="account" object="vm.account" callback="vm.mergeAccountData"></suggestions>
+
+                    <suggestions suggestions="vm.contactSuggestions.phone" display="vm.showSuggestions.phone" field="phoneNumber" type="contact"></suggestions>
 
                     <form-group ng-if="vm.account.addresses" label-title="Address">
                         <form-addresses addresses="vm.account.addresses"
@@ -135,7 +144,6 @@
                                        remove-related-field="vm.removeRelatedField(field, index, remove)">
                         </form-websites>
                     </form-group>
-
                 </div>
             </form-portlet>
 

@@ -10,6 +10,7 @@ function formEmailAddresses() {
             addRelatedField: '&',
             removeRelatedField: '&',
             showIcon: '=',
+            blurCallback: '&?',
         },
         templateUrl: 'forms/directives/email_addresses.html',
         controller: FormEmailAddressesController,
@@ -25,7 +26,9 @@ function formEmailAddresses() {
 
 FormEmailAddressesController.$inject = ['HLUtils'];
 function FormEmailAddressesController(HLUtils) {
-    var vm = this;
+    const vm = this;
+
+    vm.onBlur = onBlur;
 
     if (vm.emailAddresses && !vm.emailAddresses.length) {
         vm.addRelatedField({field: 'emailAddress'});
@@ -35,5 +38,9 @@ function FormEmailAddressesController(HLUtils) {
 
     if (!vm.label) {
         vm.label = 'Company email';
+    }
+
+    function onBlur(emailAddress) {
+        vm.blurCallback()(emailAddress);
     }
 }

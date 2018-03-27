@@ -11,7 +11,7 @@
                    type="text"
                    ng-model="phoneNumber.number"
                    ng-readonly="phoneNumber.is_deleted"
-                   ng-blur="vm.formatPhoneNumber(phoneNumber, vm.address)">
+                   ng-blur="vm.onBlur(phoneNumber)">
         </div>
 
         <div class="col-md-5 create-sidebar-input-col hl-flex-container">

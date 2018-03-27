@@ -328,11 +328,19 @@ class is applied to, so be sure it has a wrapping container.
 .widget-suggestion-title {
     color: #000;
     font-size: 16px;
-    display: inline-block;
+    display: flex;
+    justify-content: space-between;
     margin-bottom: 10px;
 
     i {
-        color: $app-color-darkblue;
+        &.fa-building-o {
+            color: $app-color-darkblue;
+        }
+
+        &.hl-close-icon {
+            font-size: 70%;
+            vertical-align: middle;
+        }
     }
 }
 

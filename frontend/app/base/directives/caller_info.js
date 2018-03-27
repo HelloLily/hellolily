@@ -28,10 +28,10 @@ function CallerInfoController($state, Account, Call) {
                 Account.searchByPhoneNumber({number: call.caller.number}).$promise.then(response => {
                     if (response.data.accounts.length) {
                         // Account found so redirect to the account.
-                        $state.go('base.accounts.detail', {id: response.data.accounts[0]}, {reload: true});
+                        $state.go('base.accounts.detail', {id: response.data.accounts[0].id}, {reload: true});
                     } else if (response.data.contacts.length) {
                         // Contact found so redirect to the contact.
-                        $state.go('base.contacts.detail', {id: response.data.contacts[0]}, {reload: true});
+                        $state.go('base.contacts.detail', {id: response.data.contacts[0].id}, {reload: true});
                     } else {
                         // No account or contact found so redirect to create account form.
                         $state.go(

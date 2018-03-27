@@ -9,7 +9,8 @@
                    placeholder="Email address"
                    ng-class="{'hl-form-input-deleted': emailAddress.is_deleted}"
                    ng-model="emailAddress.email_address"
-                   ng-readonly="emailAddress.is_deleted">
+                   ng-readonly="emailAddress.is_deleted"
+                   ng-blur="vm.onBlur(emailAddress.email_address)">
         </div>
 
         <div class="col-md-5 create-sidebar-input-col hl-flex-container">

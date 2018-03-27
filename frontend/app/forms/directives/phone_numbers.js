@@ -10,6 +10,7 @@ function formPhoneNumbers() {
             removeRelatedField: '&',
             showIcon: '=',
             address: '=',
+            blurCallback: '&?',
         },
         templateUrl: 'forms/directives/phone_numbers.html',
         controller: FormPhoneNumbersController,
@@ -25,7 +26,7 @@ function formPhoneNumbers() {
 
 FormPhoneNumbersController.$inject = ['HLUtils'];
 function FormPhoneNumbersController(HLUtils) {
-    var vm = this;
+    const vm = this;
 
     if (!vm.phoneNumbers.length) {
         vm.addRelatedField({field: 'phoneNumber'});
@@ -39,5 +40,11 @@ function FormPhoneNumbersController(HLUtils) {
         {key: 'other', value: 'Other'},
     ];
 
-    vm.formatPhoneNumber = HLUtils.formatPhoneNumber;
+    vm.onBlur = onBlur;
+
+    function onBlur(phoneNumber) {
+        HLUtils.formatPhoneNumber(phoneNumber, vm.address);
+
+        vm.blurCallback()(phoneNumber.number);
+    }
 }

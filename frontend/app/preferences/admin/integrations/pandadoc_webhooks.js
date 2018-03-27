@@ -12,28 +12,22 @@ function pandaDocWebhooks($stateProvider) {
             },
         },
         resolve: {
-            tenant: ['Tenant', Tenant => {
-                return Tenant.query({});
-            }],
-            nextSteps: ['Deal', Deal => {
-                return Deal.getNextSteps().$promise;
-            }],
-            statuses: ['Deal', Deal => {
-                return Deal.getStatuses().$promise;
-            }],
-            events: ['PandaDoc', PandaDoc => {
-                return PandaDoc.getEvents().$promise;
-            }],
+            tenant: ['Tenant', Tenant => Tenant.query({})],
+            nextSteps: ['Deal', Deal => Deal.getNextSteps().$promise],
+            statuses: ['Deal', Deal => Deal.getStatuses().$promise],
+            events: ['PandaDoc', PandaDoc => PandaDoc.getEvents().$promise],
+            sharedKey: ['PandaDoc', PandaDoc => PandaDoc.getSharedKey().$promise],
         },
     });
 }
 
 angular.module('app.preferences').controller('PandaDocWebhooksController', PandaDocWebhooksController);
 
-PandaDocWebhooksController.$inject = ['$state', 'HLForms', 'PandaDoc', 'nextSteps', 'statuses', 'tenant', 'events'];
-function PandaDocWebhooksController($state, HLForms, PandaDoc, nextSteps, statuses, tenant, events) {
-    let vm = this;
+PandaDocWebhooksController.$inject = ['$state', 'HLForms', 'PandaDoc', 'nextSteps', 'statuses', 'tenant', 'events', 'sharedKey'];
+function PandaDocWebhooksController($state, HLForms, PandaDoc, nextSteps, statuses, tenant, events, sharedKey) {
+    const vm = this;
 
+    vm.sharedKey = sharedKey.shared_key;
     vm.nextSteps = nextSteps.results;
     vm.statusChoices = statuses.results;
     vm.eventChoices = PandaDoc.getDocumentEvents();
@@ -79,7 +73,7 @@ function PandaDocWebhooksController($state, HLForms, PandaDoc, nextSteps, status
         // Clean up the name so it's human readable.
         // This means we remove the document_ and document. from the name.
         // Also replace any remaining underscores with spaces.
-        let newName = name.replace(/document_|document\./g, '').replace('_', ' ');
+        const newName = name.replace(/document_|document\./g, '').replace('_', ' ');
         return newName.charAt(0).toUpperCase() + newName.slice(1);
     }
 

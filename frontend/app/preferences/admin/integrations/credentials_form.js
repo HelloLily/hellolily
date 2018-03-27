@@ -15,17 +15,24 @@ function credentialsForm() {
 
 angular.module('app.preferences').controller('IntegrationCredentialsController', IntegrationCredentialsController);
 
-IntegrationCredentialsController.$inject = ['$http', '$state', '$stateParams', '$window', 'HLForms'];
-function IntegrationCredentialsController($http, $state, $stateParams, $window, HLForms) {
-    var vm = this;
+IntegrationCredentialsController.$inject = ['$http', '$state', '$stateParams', '$window', 'HLForms', 'Integration'];
+function IntegrationCredentialsController($http, $state, $stateParams, $window, HLForms, Integration) {
+    const vm = this;
 
-    vm.client_id = '';
-    vm.client_secret = '';
     vm.integrationContext = {};
     vm.type = $stateParams.type;
 
     vm.getAccessToken = getAccessToken;
     vm.cancelIntegration = cancelIntegration;
+
+    activate();
+
+    function activate() {
+        Integration.get({type: vm.type.toLowerCase()}).$promise.then(integration => {
+            vm.client_id = integration.client_id;
+            vm.client_secret = integration.client_secret;
+        });
+    }
 
     function getAccessToken(form) {
         HLForms.clearErrors(form);

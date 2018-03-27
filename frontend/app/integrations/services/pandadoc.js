@@ -14,6 +14,10 @@ function PandaDoc($resource) {
                 url: '/api/integrations/documents/events/',
                 isArray: true,
             },
+            getSharedKey: {
+                method: 'GET',
+                url: '/api/integrations/documents/events/shared-key/',
+            },
             saveSharedKey: {
                 method: 'POST',
                 url: '/api/integrations/documents/events/shared-key/',

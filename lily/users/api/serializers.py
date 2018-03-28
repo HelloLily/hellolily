@@ -141,11 +141,14 @@ class LilyUserSerializer(WritableNestedSerializer):
         return value
 
     def get_has_two_factor(self, obj):
-        user = self.context.get('request').user
+        if self.context.get('request'):
+            user = self.context.get('request').user
 
-        if user.is_admin:
-            # Only admins are allowed to see the 2FA status.
-            return user_has_device(obj)
+            if user.is_admin:
+                # Only admins are allowed to see the 2FA status.
+                return user_has_device(obj)
+            else:
+                return None
         else:
             return None
 

@@ -109,7 +109,13 @@ function PreferencesUserProfileController($state, $window, HLForms, HLUtils, Set
             HLUtils.unblockUI(formName);
             HLForms.setErrors(form, response.data);
 
-            toastr.error('Uh oh, there seems to be a problem', 'Oops!');
+            if (response.data.internal_number) {
+                const internalNumber = data.internal_number;
+                toastr.error(`The internal number ${internalNumber} is already being used by one of your colleagues. ` +
+                    'Please change yours or ask your colleague to update theirs.', 'Oops!');
+            } else {
+                toastr.error('Uh oh, there seems to be a problem', 'Oops!');
+            }
         });
     }
 

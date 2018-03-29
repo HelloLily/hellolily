@@ -149,7 +149,7 @@
     </div>
 
     <div ng-if="vm.message.id" class="inbox-view clearfix" ng-hide="vm.onlyPlainText" id="ifrm_container">
-        <iframe resize-iframe ng-src="{{ vm.message.bodyHTMLUrl | trustAsResourceUrl }}" class="email-content" frameBorder="0"></iframe>
+        <iframe resize-iframe height="500px" ng-src="{{ vm.message.bodyHTMLUrl | trustAsResourceUrl }}" class="email-content" frameBorder="0"></iframe>
     </div>
 
     <div ng-if="vm.message.id" class="inbox-view detail-plain-text" ng-show="vm.onlyPlainText">

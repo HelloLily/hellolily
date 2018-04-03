@@ -54,8 +54,13 @@
 
                 <form-group ng-if="vm.accountSuggestions.name.length && vm.showSuggestions.name">
                     <div class="widget-suggestion">
-                        <span class="widget-suggestion-title"><i class="fa fa-building-o"></i> It looks like this account already exists</span>
-                        <span class="small pull-right clickable text-muted" ng-click="vm.showSuggestions.name = false"><i class="lilicon hl-close-icon"></i></span>
+                        <span class="widget-suggestion-title">
+                            <div>
+                                <i class="fa fa-building-o"></i> It looks like this account already exists
+                            </div>
+
+                            <span class="clickable text-muted" ng-click="vm.showSuggestions.name = false"><i class="lilicon hl-close-icon"></i></span>
+                        </span>
 
                         <div ng-repeat="account in vm.accountSuggestions.name" class="widget-suggestion-items">
                             <div class="widget-suggestion-item">
@@ -65,7 +70,7 @@
                             </div>
                             <div class="widget-suggestion-item-action">
                                 <a ng-if="!settings.email.sidebar.form" class="hl-primary-btn" ui-sref="base.accounts.detail.edit({ id: account.id, accountForm: vm.account })">Merge with account</a>
-                                <a ng-if="settings.email.sidebar.form" class="hl-primary-btn" ng-mousedown="vm.mergeAccountData(account.id)">Merge</a>
+                                <button ng-if="settings.email.sidebar.form" class="hl-primary-btn" ng-click="vm.mergeAccountData(account)">Merge</button>
                             </div>
                         </div>
                     </div>

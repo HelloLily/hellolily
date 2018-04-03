@@ -301,6 +301,11 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
         Settings.email.sidebar.form = 'account';
         Settings.email.sidebar.accountId = account.id;
         Settings.email.sidebar.accountForm = vm.account;
+
+        // Clear the suggestions.
+        for (let key in vm.accountSuggestions) {
+            vm.accountSuggestions[key] = {};
+        }
     }
 
     function saveAccount(form) {

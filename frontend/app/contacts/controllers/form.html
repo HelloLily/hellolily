@@ -49,19 +49,23 @@
 
                 <form-group ng-if="vm.contactSuggestions.name.length && vm.showSuggestions.name">
                     <div class="widget-suggestion">
-                        <span class="widget-suggestion-title"><i class="lilicon hl-entity-icon"></i> It looks like this contact already exists</span>
-                        <span class="small pull-right clickable text-muted" ng-click="vm.showSuggestions.name = false"><i class="lilicon hl-close-icon"></i></span>
+                        <span class="widget-suggestion-title">
+                            <div>
+                                <i class="lilicon hl-entity-icon"></i> It looks like this contact already exists
+                            </div>
+                            <span class="clickable text-muted" ng-click="vm.showSuggestions.name = false"><i class="lilicon hl-close-icon"></i></span>
+                        </span>
 
-                        <div ng-repeat="suggestion in vm.contactSuggestions.name" class="widget-suggestion-items">
+                        <div ng-repeat="contact in vm.contactSuggestions.name" class="widget-suggestion-items">
                             <div class="widget-suggestion-item">
                                 Is this
-                                <a ui-sref="base.contacts.detail({ id: suggestion.contact.id })">{{ suggestion.contact.full_name }}</a>
-                                <span ng-if="suggestion.contact.accounts"> from <a ng-if="suggestion.contact.accounts" ui-sref="base.accounts.detail({ id: suggestion.contact.accounts[0].id })">{{ suggestion.contact.accounts[0].name }}</a></span>
+                                <a ui-sref="base.contacts.detail({ id: contact.id })">{{ contact.full_name }}</a>
+                                <span ng-if="contact.accounts"> from <a ng-if="contact.accounts" ui-sref="base.accounts.detail({ id: contact.accounts[0].id })">{{ contact.accounts[0].name }}</a></span>
                                 ?
                             </div>
                             <div class="widget-suggestion-item-action">
-                                <a ng-if="!settings.email.sidebar.form" class="hl-primary-btn" ui-sref="base.contacts.detail.edit({ id: suggestion.contact.id, contactForm: vm.contact })">Merge with contact</a>
-                                <a ng-if="settings.email.sidebar.form" class="hl-primary-btn" ng-mousedown="vm.mergeContactData(suggestion.contact.id)">Merge</a>
+                                <a ng-if="!settings.email.sidebar.form" class="hl-primary-btn" ui-sref="base.contacts.detail.edit({ id: contact.id, contactForm: vm.contact })">Merge with contact</a>
+                                <a ng-if="settings.email.sidebar.form" class="hl-primary-btn" ng-mousedown="vm.mergeContactData(contact.id)">Merge</a>
                             </div>
                         </div>
                     </div>

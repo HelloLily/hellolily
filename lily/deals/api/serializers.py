@@ -297,6 +297,13 @@ class DealSerializer(WritableNestedSerializer):
                 'newly_assigned': False,
             })
 
+        if (('status' in validated_data and status.name == 'Open') or
+                ('is_archived' in validated_data and not validated_data.get('is_archived'))):
+            # Deal is reopened or unarchived, so we want to notify the user again.
+            validated_data.update({
+                'newly_assigned': True,
+            })
+
         try:
             none_step = DealNextStep.objects.get(name='None')
         except DealNextStep.DoesNotExist:

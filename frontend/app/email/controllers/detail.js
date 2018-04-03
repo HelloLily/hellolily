@@ -11,11 +11,10 @@ function emailConfig($stateProvider) {
             },
         },
         resolve: {
-            message: ['EmailMessage', '$stateParams', function(EmailMessage, $stateParams) {
-                var id = $stateParams.id;
-                return EmailMessage.get({id: id}).$promise.then(function(message) {
+            message: ['EmailMessage', '$stateParams', (EmailMessage, $stateParams) => {
+                return EmailMessage.get({id: $stateParams.id}).$promise.then(message => {
                     return message;
-                }, function() {
+                }, () => {
                     // In case the email does not exist, return empty message.
                     return {};
                 });
@@ -23,21 +22,26 @@ function emailConfig($stateProvider) {
             emailAccount: ['EmailAccount', 'message', (EmailAccount, message) => {
                 return EmailAccount.get({id: message.account});
             }],
+            thread: ['$stateParams', 'EmailMessage', ($stateParams, EmailMessage) => {
+                return EmailMessage.getThreadMessages({id: $stateParams.id}).$promise;
+            }],
         },
     });
 }
 
 angular.module('app.email').controller('EmailDetail', EmailDetailController);
 EmailDetailController.$inject = ['$http', '$scope', '$state', '$stateParams', '$timeout', '$filter', 'Account',
-    'Case', 'Deal', 'EmailMessage', 'Settings', 'RecipientInformation', 'SelectedEmailAccount', 'message', 'emailAccount'];
+    'Case', 'Deal', 'EmailMessage', 'Settings', 'RecipientInformation', 'SelectedEmailAccount', 'message',
+    'emailAccount', 'thread'];
 function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $filter, Account, Case, Deal,
-    EmailMessage, Settings, RecipientInformation, SelectedEmailAccount, message, emailAccount) {
-    var vm = this;
+    EmailMessage, Settings, RecipientInformation, SelectedEmailAccount, message, emailAccount, thread) {
+    const vm = this;
 
     vm.displayAllRecipients = false;
     vm.message = message;
     vm.onlyPlainText = false;
     vm.emailAccount = emailAccount;
+    vm.thread = thread.messages;
 
     vm.archiveMessage = archiveMessage;
     vm.trashMessage = trashMessage;
@@ -51,6 +55,7 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     vm.toggleStarred = toggleStarred;
     vm.moveMessage = moveMessage;
     vm.showMoveToButton = showMoveToButton;
+    vm.toggleCollapse = toggleCollapse;
 
     Settings.page.setAllTitles('custom', 'Email message');
 
@@ -59,40 +64,36 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     //////
 
     function activate() {
-        var recipients = [];
-        var i;
-
         // Load email body after page resolve has finished,
         // so we can already see email headers before the body is loaded.
-        if (message.id) {
-            message.$promise.then(function(result) {
-                if (result.body_html) {
-                    result.bodyHTMLUrl = '/messaging/email/html/' + result.id + '/';
-                } else {
-                    vm.onlyPlainText = true;
-                }
-                // It's easier to iterate through a single array, so make an array with all recipients.
-                vm.message.all_recipients = result.received_by.concat(result.received_by_cc);
+        vm.thread.forEach((threadMessage, index) => {
+            if (threadMessage.body_html) {
+                threadMessage.bodyHTMLUrl = '/messaging/email/html/' + threadMessage.id + '/';
+            } else {
+                vm.onlyPlainText = true;
+            }
+            // It's easier to iterate through a single array, so make an array with all recipients.
+            threadMessage.all_recipients = threadMessage.received_by.concat(threadMessage.received_by_cc);
 
-                // Get contacts.
-                RecipientInformation.getInformation(vm.message.all_recipients);
+            // Get contacts.
+            RecipientInformation.getInformation(threadMessage.all_recipients);
 
-                if (!result.read) {
-                    EmailMessage.markAsRead($stateParams.id, true);
-                }
+            const recipients = threadMessage.all_recipients.map(recipient => recipient.email_address);
 
-                for (i = 0; i < vm.message.all_recipients.length; i++) {
-                    recipients.push(vm.message.all_recipients[i].email_address);
-                }
+            threadMessage.recipients = recipients.join(',');
 
-                vm.message.recipients = recipients.join(',');
+            // Only leave the most recent message expanded.
+            threadMessage.collapsed = (index < vm.thread.length - 1);
+        });
 
-                // Store current email account.
-                SelectedEmailAccount.setCurrentAccountId(vm.message.account);
-
-                showSidebar();
-            });
+        if (!vm.message.read) {
+            EmailMessage.markAsRead(vm.message.id, true);
         }
+
+        // Store current email account.
+        SelectedEmailAccount.setCurrentAccountId(vm.message.account);
+
+        showSidebar();
 
         if (Settings.email.previousInbox) {
             vm.currentInbox = Settings.email.previousInbox.params.labelId;
@@ -102,18 +103,17 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     }
 
     function archiveMessage() {
-        var labelToRemove = '';
-        var data;
+        let labelToRemove = '';
 
         if (vm.currentInbox) {
             labelToRemove = vm.currentInbox;
         }
 
-        data = {
+        const data = {
             current_inbox: labelToRemove,
         };
 
-        EmailMessage.archive({id: vm.message.id, data: data}).$promise.then(function() {
+        EmailMessage.archive({id: vm.message.id, data}).$promise.then(() => {
             if (Settings.email.previousInbox) {
                 $state.transitionTo(Settings.email.previousInbox.state, Settings.email.previousInbox.params, false);
             } else {
@@ -123,7 +123,7 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     }
 
     function trashMessage() {
-        EmailMessage.trash({id: vm.message.id}).$promise.then(function() {
+        EmailMessage.trash({id: vm.message.id}).$promise.then(() => {
             if (Settings.email.previousInbox) {
                 $state.transitionTo(Settings.email.previousInbox.state, Settings.email.previousInbox.params, false);
             } else {
@@ -133,7 +133,7 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     }
 
     function deleteMessage() {
-        EmailMessage.delete({id: vm.message.id}).$promise.then(function() {
+        EmailMessage.delete({id: vm.message.id}).$promise.then(() => {
             if (Settings.email.previousInbox) {
                 $state.transitionTo(Settings.email.previousInbox.state, Settings.email.previousInbox.params, false);
             } else {
@@ -147,7 +147,7 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     }
 
     function toggleOverlay() {
-        var $emailRecipients = $('.email-recipients');
+        const $emailRecipients = $('.email-recipients');
 
         vm.displayAllRecipients = !vm.displayAllRecipients;
 
@@ -169,21 +169,20 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     }
 
     function moveMessage(labelId) {
-        var addedLabels = [labelId];
-        var removedLabels = [];
-        var data;
+        const addedLabels = [labelId];
+        let removedLabels = [];
 
         if (vm.currentInbox) {
             removedLabels = [vm.currentInbox];
         }
 
         // Gmail API needs to know the mutated labels (so both the added and the removed).
-        data = {
+        const data = {
             remove_labels: removedLabels,
             add_labels: addedLabels,
         };
 
-        EmailMessage.move({id: vm.message.id, data: data}).$promise.then(function() {
+        EmailMessage.move({id: vm.message.id, data}).$promise.then(() => {
             Settings.email.toRemove.push(vm.message);
 
             if (Settings.email.previousInbox) {
@@ -195,16 +194,13 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     }
 
     function showSidebar() {
-        var filterquery = '';
-        var accountQuery = '';
-        var accountIds = [];
-        var contact;
-
         Settings.email.data.id = vm.message.id;
 
         if (vm.message.sender && vm.message.sender.email_address) {
+            let filterquery = '';
+
             $http.get('/search/emailaddress/' + vm.message.sender.email_address)
-                .success(function(data) {
+                .success(data => {
                     Settings.email.sidebar = {
                         account: true,
                         contact: true,
@@ -230,10 +226,11 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
                                 filterquery = 'account.id:' + data.data.id;
                             }
                         } else if (data.type === 'contact') {
-                            contact = data.data;
+                            const contact = data.data;
 
                             if (contact.id) {
                                 Settings.email.data.contact = contact;
+                                const accountIds = [];
 
                                 if (contact.accounts && contact.accounts.length) {
                                     if (contact.accounts.length === 1) {
@@ -245,9 +242,9 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
                                             accountIds.push('id:' + account.id);
                                         });
 
-                                        accountQuery = '(' + accountIds.join(' OR ') + ') AND email_addresses.email_address:' + Settings.email.data.website;
+                                        const accountQuery = '(' + accountIds.join(' OR ') + ') AND email_addresses.email_address:' + Settings.email.data.website;
 
-                                        Account.search({filterquery: accountQuery}).$promise.then(function(accountData) {
+                                        Account.search({filterquery: accountQuery}).$promise.then(accountData => {
                                             if (accountData.objects.length) {
                                                 // If we get multiple accounts, just pick the first one.
                                                 // Additional filter isn't really possible.
@@ -301,7 +298,7 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     }
 
     function _setupContactInfo() {
-        let senderParts = vm.message.sender.name.split(' ');
+        const senderParts = vm.message.sender.name.split(' ');
 
         let account = null;
 
@@ -316,14 +313,13 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
         };
 
         // Set the promise so we can resolve it later.
-        Settings.email.data.contact.phoneNumbers = EmailMessage.extract({id: vm.message.id, account: account});
+        Settings.email.data.contact.phoneNumbers = EmailMessage.extract({id: vm.message.id, account});
     }
 
     function toggleSidebar(modelName, toggleList) {
-        var gaModelName;
-        var form = Settings.email.sidebar.form;
-        var data = Settings.email.data[modelName];
-        var hasData = false;
+        const form = Settings.email.sidebar.form;
+        const data = Settings.email.data[modelName];
+        let hasData = false;
 
         // TODO: This is a temporary workaround until we fix the 'Add' button in the list widget.
         // Also remove the toggleList param once we fix it and refactor this.
@@ -347,7 +343,7 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
             // via email supercards. Use the toggleSidebar function because
             // opening/adding is the same button thus we can differentiate
             // the open and adding actions.
-            gaModelName = $filter('ucfirst')(modelName);
+            const gaModelName = $filter('ucfirst')(modelName);
             ga('send', 'event', gaModelName, 'Open', 'Email Sidebar');
             // No data yet and no form open, so open the form.
             Settings.email.sidebar.form = modelName;
@@ -366,13 +362,20 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     function toggleSpam() {
         vm.message.is_spam = !vm.message.is_spam;
 
-        EmailMessage.spam({id: vm.message.id, markAsSpam: vm.message.is_spam}).$promise.then(function() {
+        EmailMessage.spam({id: vm.message.id, markAsSpam: vm.message.is_spam}).$promise.then(() => {
             if (Settings.email.previousInbox) {
                 $state.transitionTo(Settings.email.previousInbox.state, Settings.email.previousInbox.params, false);
             } else {
                 $state.go('base.email.list', {labelId: 'INBOX'});
             }
         });
+    }
+
+    function toggleCollapse(threadMessage) {
+        // Most recent message can't be collapsed.
+        if (vm.thread.indexOf(threadMessage) !== vm.thread.length - 1) {
+            threadMessage.collapsed = !threadMessage.collapsed;
+        }
     }
 
     function showMoveToButton() {
@@ -388,16 +391,15 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     }
 
     function _toggleListWidget(modelName, toggleList) {
-        var gaModelName;
-        var modelNamePlural = modelName;
-        var slicedModelName = modelName.slice(0, 4);
+        const modelNamePlural = modelName;
+        const slicedModelName = modelName.slice(0, 4);
 
         if (toggleList) {
             Settings.email.sidebar[slicedModelName] = !Settings.email.sidebar[slicedModelName];
         } else {
             if (Settings.email.sidebar.form !== modelNamePlural) {
                 // Send Google Analytics event when adding new case or deal via email Sidebar.
-                gaModelName = $filter('ucfirst')(modelName);
+                let gaModelName = $filter('ucfirst')(modelName);
                 // Strip last letter to make modal event singular for Google Analytics naming consistency.
                 gaModelName = gaModelName.slice(0, -1);
                 ga('send', 'event', gaModelName, 'Open', 'Email Sidebar');
@@ -411,7 +413,7 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     }
 
     function _watchSidebarVisibility() {
-        $scope.$watchCollection('settings.email.sidebar', function() {
+        $scope.$watchCollection('settings.email.sidebar', () => {
             Settings.email.sidebar.isVisible = Settings.email.sidebar.account ||
                 Settings.email.sidebar.contact || Settings.email.sidebar.cases ||
                 Settings.email.sidebar.form;
@@ -419,7 +421,7 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     }
 
     function _getCases(filterquery) {
-        Case.search({filterquery: filterquery, sort: '-created'}, function(data) {
+        Case.search({filterquery, sort: '-created'}, data => {
             if (data.objects.length) {
                 Settings.email.data.cases = data.objects;
             }
@@ -427,7 +429,7 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     }
 
     function _getDeals(filterquery) {
-        Deal.search({filterquery: filterquery, sort: '-created'}, function(data) {
+        Deal.search({filterquery: filterquery, sort: '-created'}, data => {
             if (data.objects.length) {
                 Settings.email.data.deals = data.objects;
             }
@@ -435,12 +437,12 @@ function EmailDetailController($http, $scope, $state, $stateParams, $timeout, $f
     }
 
     // Broadcast function to send email to trash by HLShortcuts service.
-    $scope.$on('deleteMessageByShortCode', function() {
+    $scope.$on('deleteMessageByShortCode', () => {
         trashMessage();
     });
 
     // Broadcast function to archive a specific email by HLShortcuts service.
-    $scope.$on('archiveMessageByShortCode', function() {
+    $scope.$on('archiveMessageByShortCode', () => {
         archiveMessage();
     });
 }

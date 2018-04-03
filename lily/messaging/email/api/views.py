@@ -392,6 +392,14 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
 
         return Response({'phone_numbers': phone_numbers})
 
+    @detail_route(methods=['GET'])
+    def thread(self, request, pk):
+        email = self.get_object()
+        messages = EmailMessage.objects.filter(thread_id=email.thread_id).order_by('sent_date')
+        serializer = EmailMessageSerializer(messages, many=True)
+
+        return Response({'messages': serializer.data})
+
 
 class EmailTemplateFolderViewSet(viewsets.ModelViewSet):
     """

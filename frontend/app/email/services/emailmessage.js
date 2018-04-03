@@ -86,6 +86,12 @@ function EmailMessage($resource, $q) {
                     id: '@id',
                 },
             },
+            getThreadMessages: {
+                url: '/api/messaging/email/email/:id/thread/',
+                params: {
+                    id: '@id',
+                },
+            },
         }
     );
 

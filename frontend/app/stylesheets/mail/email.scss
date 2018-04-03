@@ -552,7 +552,7 @@
 
 .email-content-container {
     background: #fff;
-    padding: 20px;
+    padding: 15px;
     border: 1px solid $lily-border-dark;
     border-top: 0;
     overflow: hidden;
@@ -560,6 +560,16 @@
 
     @media (max-width: $breakpoint-tablet) {
         padding-left: 10px;
+    }
+
+    &.message-collapsed {
+        background-color: $lily-grey;
+        padding: 5px 15px;
+
+        .inbox-view-info {
+            border: 0;
+            margin-bottom: 0;
+        }
     }
 }
 

@@ -107,84 +107,86 @@
     <div class="clearfix"></div>
 </div>
 
-<div class="email-content-container">
+<div class="email-content-container" ng-repeat="message in vm.thread" ng-class="{'message-collapsed': message.collapsed}">
     <div class="inbox-view-info">
-        <div ng-if="!vm.message.id" ng-include="'utils/controllers/does_not_exist.html'" class="row">
-        </div>
+        <div ng-if="!message.id" ng-include="'utils/controllers/does_not_exist.html'" class="row"></div>
 
-        <div ng-if="vm.message.id" class="row">
+        <div ng-if="message.id" class="row">
             <div class="email-info-top">
-                <span class="bold">{{ vm.message.sender.name }}</span>&nbsp;<span>&lt;{{ vm.message.sender.email_address }}&gt;</span>
+                <div class="display-inline-block" ng-click="vm.toggleCollapse(message)" ng-class="{'clickable': !$last}">
+                    <span class="bold">{{ message.sender.name }}</span>&nbsp;<span>&lt;{{ message.sender.email_address }}&gt;</span>
+                </div>
 
                 <div class="pull-right">
-                    <i class="clickable" ng-class="{'fa fa-star': vm.message.is_starred, 'fa fa-star-o': !vm.message.is_starred}" ng-click="vm.toggleStarred()"></i>
-                    <span class="bold"><date date="vm.message.sent_date" add-time="true"></date></span>
+                    <i class="clickable" ng-class="{'fa fa-star': message.is_starred, 'fa fa-star-o': !message.is_starred}" ng-click="vm.toggleStarred()"></i>
+                    <span class="bold"><date date="message.sent_date" add-time="true"></date></span>
                 </div>
             </div>
 
-            <div class="email-recipients-wrapper">
-                <div class="email-recipients"  ng-show="vm.message.received_by.length">
+            <div ng-if="!message.collapsed" class="m-t-5">
+                <div class="email-recipients" ng-show="message.received_by.length">
                     <span>to </span>
-                    <span ng-repeat="receiver in vm.message.all_recipients">
-                        <span ng-if="receiver.name">
-                                <span ng-if="receiver.contact_id"><a ui-sref="base.contacts.detail({ id: receiver.contact_id })">{{ receiver.name }}</a></span>
-                                <span ng-if="!receiver.contact_id">{{ receiver.name }}</span>
-                                <{{ receiver.email_address }}><span ng-if="!$last">, </span>
+                    <span ng-repeat="receiver in message.all_recipients">
+                        <span ng-if="receiver.name" uib-tooltip="{{ receiver.email_address }}">
+                            <span ng-if="receiver.contact_id"><a ui-sref="base.contacts.detail({ id: receiver.contact_id })">{{ receiver.name }}</a></span>
+                            <span ng-if="!receiver.contact_id">{{ receiver.name }}</span><span ng-if="!$last">, </span>
                         </span>
                         <span ng-if="!receiver.name">
                             <span>{{ receiver.email_address }}</span><span ng-if="!$last">, </span>
                         </span>
                     </span>
                 </div>
-                <button class="btn show-more-recipients" ng-show="vm.message.received_by.length > 2" ng-click="vm.toggleOverlay()">
+                <button class="btn show-more-recipients" ng-show="message.received_by.length > 2" ng-click="vm.toggleOverlay()">
                     <i class="fa" ng-class="{true: 'fa-caret-square-o-up', false: 'fa-caret-square-o-down'}[vm.displayAllRecipients]"></i>
                 </button>
-            </div>
 
-            <div class="pull-right">
-                <a class="pull-right" ng-show="!vm.onlyPlainText && vm.message.bodyHTMLUrl && vm.message.body_text" ng-click="vm.toggleEmailVariant()">Give me the plain text version</a>
-                <a class="pull-right" ng-show="vm.onlyPlainText && vm.message.bodyHTMLUrl" ng-click="vm.toggleEmailVariant()">Show me the nicely formatted email</a>
-            </div>
-        </div>
-    </div>
-
-    <div ng-if="vm.message.id" class="inbox-view clearfix" ng-hide="vm.onlyPlainText" id="ifrm_container">
-        <iframe resize-iframe height="500px" ng-src="{{ vm.message.bodyHTMLUrl | trustAsResourceUrl }}" class="email-content" frameBorder="0"></iframe>
-    </div>
-
-    <div ng-if="vm.message.id" class="inbox-view detail-plain-text" ng-show="vm.onlyPlainText">
-        {{ vm.message.body_text }}
-    </div>
-
-    <div ng-if="vm.message.id" class="inbox-attached m-b-25" ng-show="vm.message.attachments.length">
-        <div ng-repeat="attachment in normal_attachments = (vm.message.attachments | filter: {inline: false})">
-            <div>
-                <strong>{{ attachment.name }}</strong>
-                <span>
-                {{ attachment.size / 1024 | number: 0}} KB </span>
-                <a ng-href="{{ attachment.url }}" target="_blank" rel="noopener noreferrer">
-                    Download
-                </a>
+                <div class="pull-right">
+                    <a class="pull-right" ng-show="!vm.onlyPlainText && message.bodyHTMLUrl && message.body_text" ng-click="vm.toggleEmailVariant()">Plain text email</a>
+                    <a class="pull-right" ng-show="vm.onlyPlainText && message.bodyHTMLUrl" ng-click="vm.toggleEmailVariant()">HTML email</a>
+                </div>
             </div>
         </div>
+    </div>
 
-        <div ng-init="inlineAttachmentsVisible = false" ng-show="normal_attachments.length < vm.message.attachments.length">
-            There are {{ vm.message.attachments.length - normal_attachments.length }} inline attachments.
-            <a ng-click="inlineAttachmentsVisible = !inlineAttachmentsVisible" ng-hide="inlineAttachmentsVisible">
-                Show
-            </a>
-            <a ng-click="inlineAttachmentsVisible = !inlineAttachmentsVisible" ng-show="inlineAttachmentsVisible">
-                Hide
-            </a>
-            <div ng-show="inlineAttachmentsVisible">
-                <div ng-repeat="attachment in vm.message.attachments | filter: {inline: true}">
-                    <div>
-                        <strong>{{ attachment.name }}</strong>
+    <div ng-if="!message.collapsed">
+        <div ng-if="message.id" class="inbox-view clearfix" ng-hide="vm.onlyPlainText" id="ifrm_container">
+            <iframe resize-iframe height="500px" ng-src="{{ message.bodyHTMLUrl | trustAsResourceUrl }}" class="email-content" frameBorder="0"></iframe>
+        </div>
+
+        <div ng-if="message.id" class="inbox-view detail-plain-text" ng-show="vm.onlyPlainText">
+            {{ message.body_text }}
+        </div>
+
+        <div ng-if="message.id" class="inbox-attached m-b-25" ng-show="message.attachments.length">
+            <div ng-repeat="attachment in normal_attachments = (message.attachments | filter: {inline: false})">
+                <div>
+                    <strong>{{ attachment.name }}</strong>
                     <span>
                     {{ attachment.size / 1024 | number: 0}} KB </span>
-                        <a ng-href="{{ attachment.url }}" target="_blank" rel="noopener noreferrer">
-                            Download
-                        </a>
+                    <a ng-href="{{ attachment.url }}" target="_blank" rel="noopener noreferrer">
+                        Download
+                    </a>
+                </div>
+            </div>
+
+            <div ng-init="inlineAttachmentsVisible = false" ng-show="normal_attachments.length < message.attachments.length">
+                There are {{ message.attachments.length - normal_attachments.length }} inline attachments.
+                <a ng-click="inlineAttachmentsVisible = !inlineAttachmentsVisible" ng-hide="inlineAttachmentsVisible">
+                    Show
+                </a>
+                <a ng-click="inlineAttachmentsVisible = !inlineAttachmentsVisible" ng-show="inlineAttachmentsVisible">
+                    Hide
+                </a>
+                <div ng-show="inlineAttachmentsVisible">
+                    <div ng-repeat="attachment in message.attachments | filter: {inline: true}">
+                        <div>
+                            <strong>{{ attachment.name }}</strong>
+                        <span>
+                        {{ attachment.size / 1024 | number: 0}} KB </span>
+                            <a ng-href="{{ attachment.url }}" target="_blank" rel="noopener noreferrer">
+                                Download
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -213,8 +213,10 @@ def post_intercom_event(event_name, user_id):
         response = requests.post(
             url='https://api.intercom.io/events',
             data=anyjson.serialize(payload),
-            auth=(settings.INTERCOM_APP_ID, settings.INTERCOM_KEY),
-            headers={'Content-Type': 'application/json'}
+            headers={
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer %s' % settings.INTERCOM_KEY,
+            }
         )
 
         return response

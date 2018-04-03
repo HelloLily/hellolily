@@ -87,38 +87,6 @@ class EmailAttachmentSerializer(serializers.ModelSerializer):
         )
 
 
-class EmailMessageSerializer(serializers.ModelSerializer):
-    account = serializers.PrimaryKeyRelatedField(read_only=True)
-    sender = RecipientSerializer(many=False, read_only=True)
-    received_by = RecipientSerializer(many=True, read_only=True)
-    received_by_cc = RecipientSerializer(many=True, read_only=True)
-    attachments = EmailAttachmentSerializer(many=True, read_only=True)
-    labels = EmailLabelSerializer(many=True, read_only=True)
-    sent_date = serializers.ReadOnlyField()
-
-    class Meta:
-        model = EmailMessage
-        fields = (
-            'id',
-            'account',
-            'labels',
-            'sent_date',
-            'body_html',
-            'body_text',
-            'received_by',
-            'received_by_cc',
-            'sender',
-            'attachments',
-            'read',
-            'subject',
-            'is_starred',
-            'is_spam',
-            'is_draft',
-            'is_archived',
-            'reply_to',
-        )
-
-
 class EmailAccountSerializer(WritableNestedSerializer):
     labels = EmailLabelSerializer(many=True, read_only=True)
     is_public = serializers.BooleanField()
@@ -127,6 +95,7 @@ class EmailAccountSerializer(WritableNestedSerializer):
     default_template = serializers.SerializerMethodField()
     shared_email_configs = RelatedSharedEmailConfigSerializer(many=True, source='sharedemailconfig_set')
     color = serializers.CharField(validators=[HexcodeValidator])
+    label = serializers.CharField()
 
     gmail_service = None
 
@@ -294,6 +263,213 @@ class EmailAccountSerializer(WritableNestedSerializer):
             'shared_email_configs',
         )
     read_only_fields = ('email_address', 'is_authorized', 'is_syncing', 'is_public',)
+
+
+class EmailAccountSerializerSimple(serializers.ModelSerializer):
+    class Meta:
+        model = EmailAccount
+        fields = (
+            'id',
+            'email_address',
+            'label',
+            'color',
+        )
+
+
+class EmailMessageBaseSerializer(serializers.ModelSerializer):
+    account = serializers.PrimaryKeyRelatedField(read_only=True)
+    sender = RecipientSerializer(many=False, read_only=True)
+    received_by = RecipientSerializer(many=True, read_only=True)
+    received_by_cc = RecipientSerializer(many=True, read_only=True)
+    attachments = EmailAttachmentSerializer(many=True, read_only=True)
+    labels = EmailLabelSerializer(many=True, read_only=True)
+    sent_date = serializers.ReadOnlyField()
+    thread_id = serializers.CharField(required=False)
+
+    class Meta:
+        model = EmailMessage
+        fields = (
+            'id',
+            'account',
+            'labels',
+            'sent_date',
+            'body_html',
+            'body_text',
+            'received_by',
+            'received_by_cc',
+            'sender',
+            'attachments',
+            'has_attachment',
+            'read',
+            'subject',
+            'is_starred',
+            'is_spam',
+            'is_draft',
+            'is_archived',
+            'reply_to',
+            'thread_id',
+            'message_type',
+        )
+
+    def to_representation(self, instance):
+        ret = super(EmailMessageBaseSerializer, self).to_representation(instance)
+
+        user = self.context['request'].user
+        email_account = instance.account
+        privacy = None
+
+        if email_account.owner == user:
+            fields_to_keep = {  # AKA, return every field.
+                'id',
+                'account',
+                'labels',
+                'sent_date',
+                'body_html',
+                'body_text',
+                'received_by',
+                'received_by_cc',
+                'sender',
+                'attachments',
+                'has_attachment',
+                'read',
+                'subject',
+                'is_starred',
+                'is_spam',
+                'is_draft',
+                'is_archived',
+                'reply_to',
+                'thread_id',
+                'message_type',
+            }
+        else:
+            shared_config = email_account.sharedemailconfig_set.filter(user=user).first()
+            if shared_config:
+                privacy = shared_config.privacy
+            else:
+                privacy = email_account.privacy
+
+            if privacy == EmailAccount.METADATA:
+                fields_to_keep = {
+                    'id',
+                    'sent_date',
+                    'received_by',
+                    'received_by_cc',
+                    'sender',
+                    'message_type',
+                }
+            elif privacy == EmailAccount.PRIVATE:
+                fields_to_keep = {
+                    'id',
+                }
+            else:
+                fields_to_keep = {  # AKA, return every field.
+                    'id',
+                    'account',
+                    'labels',
+                    'sent_date',
+                    'body_html',
+                    'body_text',
+                    'received_by',
+                    'received_by_cc',
+                    'sender',
+                    'attachments',
+                    'has_attachment',
+                    'read',
+                    'subject',
+                    'is_starred',
+                    'is_spam',
+                    'is_draft',
+                    'is_archived',
+                    'reply_to',
+                    'thread_id',
+                    'message_type',
+                }
+
+        fields_to_pop = set(self.fields).difference(fields_to_keep)
+        [ret.pop(field, '') for field in fields_to_pop]
+
+        if privacy is not None:
+            ret.update({'privacy': privacy})
+
+        return ret
+
+
+class EmailMessageDetailSerializer(EmailMessageBaseSerializer):
+
+    class Meta:
+        model = EmailMessage
+        fields = (
+            'id',
+            'account',
+            'labels',
+            'sent_date',
+            'body_html',
+            'body_text',
+            'received_by',
+            'received_by_cc',
+            'sender',
+            'attachments',
+            'has_attachment',
+            'read',
+            'subject',
+            'is_starred',
+            'is_spam',
+            'is_draft',
+            'is_archived',
+            'reply_to',
+            'thread_id',
+            'message_type',
+        )
+
+
+class EmailMessageListSerializer(EmailMessageBaseSerializer):
+    account = EmailAccountSerializerSimple(read_only=True)
+    # Explicitly overwrite the EmailMessageBaseSerializer fields which should not be serialized.
+    labels = None
+    received_by_cc = None
+    attachments = None
+    thread_id = None
+
+    class Meta:
+        model = EmailMessage
+        fields = (
+            'id',
+            'account',
+            'sent_date',
+            'body_text',
+            'received_by',
+            'sender',
+            'has_attachment',
+            'read',
+            'subject',
+            'is_starred',
+            'message_type',
+        )
+
+
+class EmailMessageActivityStreamSerializer(EmailMessageBaseSerializer):
+    account = EmailAccountSerializerSimple(read_only=True)
+    # Explicitly overwrite the EmailMessageBaseSerializer fields which should not be serialized.
+    labels = None
+    received_by_cc = None
+    attachments = None
+    thread_id = None
+
+    class Meta:
+        model = EmailMessage
+        fields = (
+            'id',
+            'account',
+            'sent_date',
+            'body_text',
+            'received_by',
+            'sender',
+            'subject',
+        )
+
+
+class EmailMessageDashboardSerializer(EmailMessageActivityStreamSerializer):
+    pass
 
 
 class RelatedEmailAccountSerializer(RelatedSerializerMixin, EmailAccountSerializer):

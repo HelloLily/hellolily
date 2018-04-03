@@ -8,6 +8,10 @@ build:
 	@echo ""
 	@DOCKER_USER_ID=1000 docker-compose -f docker-compose.yml -f docker-compose.new-build.yml build
 	@echo ""
+	@echo "Make: npm install"
+	@echo ""
+	@npm install
+	@echo ""
 	@echo "Make: gulp clean"
 	@echo ""
 	@gulp clean

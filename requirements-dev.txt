@@ -17,6 +17,7 @@ coverage==4.2
 netifaces==0.10.5
 enum34==1.1.6
 pipdeptree
+locustio
 
 #######################################################
 ### Celery debugging                                ###

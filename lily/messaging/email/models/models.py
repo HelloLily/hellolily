@@ -187,6 +187,8 @@ class EmailMessage(models.Model):
     """
     EmailMessage has all information from an email message.
     """
+    NORMAL, REPLY, REPLY_ALL, FORWARD, FORWARD_MULTI = range(5)
+
     account = models.ForeignKey(EmailAccount, related_name='messages')
     body_html = models.TextField(default='')
     body_text = models.TextField(default='')
@@ -202,6 +204,11 @@ class EmailMessage(models.Model):
     snippet = models.TextField(default='')
     subject = models.TextField(default='')
     thread_id = models.CharField(max_length=50, db_index=True)
+    is_inbox = models.NullBooleanField(_('Is inbox'), db_index=True, default=True)
+    is_trashed = models.NullBooleanField(_('Is trashed'), db_index=True, default=False)
+    is_spam = models.NullBooleanField(_('Is spam'), db_index=True, default=False)
+    is_sent = models.NullBooleanField(_('Is sent'), db_index=True, default=False)
+    is_draft = models.NullBooleanField(_('Is draft'), db_index=True, default=False)
 
     @property
     def tenant_id(self):
@@ -252,14 +259,6 @@ class EmailMessage(models.Model):
             return self.labels.filter(label_id=label_name).exists()
 
     @property
-    def is_trashed(self):
-        # When the instance variable is present, don't evaluate the corresponding label.
-        if hasattr(self, '_is_trashed'):
-            return self._is_trashed
-        else:
-            return self.fast_label_check(settings.GMAIL_LABEL_TRASH)
-
-    @property
     def is_starred(self):
         # When the instance variable is present, don't evaluate the corresponding label.
         if hasattr(self, '_is_starred'):
@@ -268,28 +267,15 @@ class EmailMessage(models.Model):
             return self.fast_label_check(settings.GMAIL_LABEL_STAR)
 
     @property
-    def is_draft(self):
-        return self.fast_label_check(settings.GMAIL_LABEL_DRAFT)
-
-    @property
     def is_important(self):
         return self.fast_label_check(settings.GMAIL_LABEL_IMPORTANT)
 
     @property
-    def is_spam(self):
-        # When the instance variable is present, don't evaluate the corresponding label.
-        if hasattr(self, '_is_spam'):
-            return self._is_spam
-        else:
-            return self.fast_label_check(settings.GMAIL_LABEL_SPAM)
-
-    @property
     def is_archived(self):
-        # When the instance variable is present, don't evaluate the corresponding label.
         if hasattr(self, '_is_archived'):
             return self._is_archived
         else:
-            return not self.fast_label_check(settings.GMAIL_LABEL_INBOX)
+            return not self.is_inbox
 
     @property
     def is_deleted(self):
@@ -320,6 +306,43 @@ class EmailMessage(models.Model):
         Return the content type (Django model) for this model
         """
         return ContentType.objects.get(app_label="email", model="emailmessage")
+
+    @property
+    def message_type(self):
+        """
+        return if this message is a reply, reply-all, forward, forward-multi or just a normal email.
+        """
+        # Get the whole thread this message belongs to.
+        thread = EmailMessage.objects.filter(thread_id=self.thread_id)
+
+        # Restrict the thread to only older messages.
+        thread = thread.filter(sent_date__gt=self.sent_date).order_by('sent_date')
+
+        # Restrict the thread to just the outgoing messages.
+        email = thread.filter(sender__email_address=self.account.email_address)
+
+        # And retrieve only necessary fields.
+        email = email.only('id', 'received_by', 'received_by_cc')
+
+        # And we only want the first one.
+        email = email.first()
+
+        if email:
+            receivers = set(email.received_by.all()) | set(email.received_by_cc.all())
+            numbers_of_receivers = len(receivers)
+
+            if email.subject.startswith('Re: '):
+                if numbers_of_receivers == 1:
+                    return EmailMessage.REPLY, email.id
+                else:
+                    return EmailMessage.REPLY_ALL, email.id
+            elif email.subject.startswith('Fwd: '):
+                    if numbers_of_receivers == 1:
+                        return EmailMessage.FORWARD, email.id
+                    else:
+                        return EmailMessage.FORWARD_MULTI, email.id
+
+        return EmailMessage.NORMAL
 
     def __unicode__(self):
         return u'%s: %s' % (self.sender, self.snippet)

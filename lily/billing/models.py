@@ -28,7 +28,7 @@ class Billing(models.Model):
         if settings.BILLING_ENABLED and not self.free_forever:
             return self.plan.tier == 0
         else:
-            # Billing isn't enabled so just return true.
+            # Billing isn't enabled so just return false.
             return False
 
     @property

@@ -5,24 +5,15 @@ from lily.utils.functions import parse_phone_number
 
 def search_number(tenant_id, number):
     """
-    If the phone number belongs to an account, this returns the first account and all its contacts
-    Else if the number belongs to a contact, this returns the first contact and all its accounts
+    Return the first account the number belongs to, otherwise if there is, return the first contact with that number.
     """
+    # TODO: use tenant_id in the filtering.
+    contact = None
     phone_number = parse_phone_number(number)
-    accounts = Account.objects.filter(phone_numbers__number=phone_number, is_deleted=False)
-    contacts = Contact.objects.filter(phone_numbers__number=phone_number, is_deleted=False)
 
-    accounts_result = []
-    contacts_result = []
+    account = Account.objects.filter(phone_numbers__number=phone_number, is_deleted=False).only('id', 'name').first()
 
-    if accounts:
-        accounts_result = [accounts[0]]
-    elif contacts:
-        contacts_result = [contacts[0]]
-
-    return {
-        'data': {
-            'accounts': accounts_result,
-            'contacts': contacts_result,
-        },
-    }
+    if not account:
+        contact = Contact.objects.filter(phone_numbers__number=phone_number,
+                                         is_deleted=False).only('id', 'first_name', 'last_name').first()
+    return account, contact

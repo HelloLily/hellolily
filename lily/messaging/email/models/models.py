@@ -209,6 +209,7 @@ class EmailMessage(models.Model):
     is_spam = models.NullBooleanField(_('Is spam'), db_index=True, default=False)
     is_sent = models.NullBooleanField(_('Is sent'), db_index=True, default=False)
     is_draft = models.NullBooleanField(_('Is draft'), db_index=True, default=False)
+    is_starred = models.NullBooleanField(_('Is starred'), db_index=True, default=False)
 
     @property
     def tenant_id(self):
@@ -259,23 +260,12 @@ class EmailMessage(models.Model):
             return self.labels.filter(label_id=label_name).exists()
 
     @property
-    def is_starred(self):
-        # When the instance variable is present, don't evaluate the corresponding label.
-        if hasattr(self, '_is_starred'):
-            return self._is_starred
-        else:
-            return self.fast_label_check(settings.GMAIL_LABEL_STAR)
-
-    @property
     def is_important(self):
         return self.fast_label_check(settings.GMAIL_LABEL_IMPORTANT)
 
     @property
     def is_archived(self):
-        if hasattr(self, '_is_archived'):
-            return self._is_archived
-        else:
-            return not self.is_inbox
+        return not self.is_inbox
 
     @property
     def is_deleted(self):
@@ -322,7 +312,7 @@ class EmailMessage(models.Model):
         email = thread.filter(sender__email_address=self.account.email_address)
 
         # And retrieve only necessary fields.
-        email = email.only('id', 'received_by', 'received_by_cc')
+        email = email.only('id', 'subject', 'received_by', 'received_by_cc')
 
         # And we only want the first one.
         email = email.first()

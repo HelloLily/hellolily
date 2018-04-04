@@ -9,6 +9,9 @@
   "engines": {
     "node": "8.5.0"
   },
+  "scripts": {
+    "postinstall": "gulp clean && gulp build"
+  },
   "dependencies": {
     "angular-elastic": "2.5.1",
     "angular-ui-bootstrap": "2.5.0",

@@ -105,7 +105,7 @@ class SearchView(LoginRequiredMixin, View):
 
         hits, facets, total, took = search.do_search(return_fields)
 
-        if model_type == 'email_emailmessage':  # TODO: remove with ES refactor.
+        if model_type == 'email_emailmessage':
             content_type = ContentType.objects.get(app_label='email', model='emailmessage')
             email_accounts = EmailAccount.objects.filter(
                 tenant=user.tenant,

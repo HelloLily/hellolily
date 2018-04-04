@@ -5,7 +5,6 @@ from .models.models import EmailMessage
 from lily.messaging.email.utils import convert_br_to_newline
 
 
-# TODO: Remove with ES update.
 class EmailMessageMapping(BaseMapping):
     @classmethod
     def get_model(cls):

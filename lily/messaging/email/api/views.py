@@ -16,7 +16,7 @@ from lily.accounts.models import Account
 from lily.contacts.models import Contact
 from lily.messaging.email.connector import GmailConnector, NotFoundError, FailedServiceCallException
 from lily.messaging.email.credentials import InvalidCredentialsError
-from lily.messaging.email.utils import get_email_parameter_api_dict, reindex_email_message, get_shared_email_accounts
+from lily.messaging.email.utils import get_email_parameter_api_dict, get_shared_email_accounts
 from lily.users.models import UserInfo
 from lily.users.api.serializers import LilyUserSerializer
 from lily.utils.functions import format_phone_number
@@ -26,7 +26,7 @@ from .serializers import (EmailLabelSerializer, EmailAccountSerializer, EmailMes
                           EmailTemplateFolderSerializer, EmailTemplateSerializer, SharedEmailConfigSerializer,
                           TemplateVariableSerializer, EmailMessageDetailSerializer,
                           EmailMessageActivityStreamSerializer, EmailMessageDashboardSerializer,
-                          EmailAccountSerializerSimple)
+                          SimpleEmailAccountSerializer)
 from ..models.models import (EmailLabel, EmailAccount, EmailMessage, EmailTemplateFolder, EmailTemplate,
                              SharedEmailConfig, TemplateVariable, Recipient)
 from ..tasks import (trash_email_message, toggle_read_email_message,
@@ -120,7 +120,7 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
     def color(self, request):
         email_account_list = get_shared_email_accounts(request.user)
 
-        serializer = EmailAccountSerializerSimple(email_account_list, many=True)
+        serializer = SimpleEmailAccountSerializer(email_account_list, many=True)
 
         return Response(serializer.data)
 
@@ -204,9 +204,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
 
     def perform_update(self, serializer):
         """
-        For now, only the read status will be updated. Opposite to others email modification (archive, spam, star, etc)
-        read status is a model field. This enables calculations of the unread count per label. So in this case
-        update database directly. Save will trigger an update of the search index.
+        Update the read status of an email message asynchronous through the manager and directly on the database.
         """
         email = self.get_object()
         email.read = self.request.data['read']
@@ -222,8 +220,8 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
     @detail_route(methods=['put'])
     def archive(self, request, pk=None):
         """
-        Archive an email message asynchronous through the manager and not directly on the database. Just update the
-        search index by an instance variable so changes are immediately visible.
+        Archive an email message asynchronous through the manager and directly on the database.
+
         An email message is archived by removing the inbox label and the provided label of the current inbox.
         """
         email = self.get_object()
@@ -239,8 +237,8 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         if settings.GMAIL_LABEL_INBOX not in remove_labels:
             remove_labels.append(settings.GMAIL_LABEL_INBOX)
 
-        email._is_archived = True
-        reindex_email_message(email)
+        email.is_inbox = False
+        email.save()
         serializer = self.get_serializer(email, partial=True)
         add_and_remove_labels_for_message.delay(email.id, remove_labels=remove_labels)
         return Response(serializer.data)
@@ -248,14 +246,11 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
     @detail_route(methods=['put'])
     def trash(self, request, pk=None):
         """
-        Trash an email message asynchronous through the manager and not directly on the database. Just update the
-        search index by an instance variable so changes are immediately visible.
+        Trash an email message asynchronous through the manager and directly on the database.
         """
         email = self.get_object()
-        if email.is_trashed:
-            email._is_deleted = True
-        email._is_trashed = True
-        reindex_email_message(email)
+        email.is_trashed = True
+        email.save()
         serializer = self.get_serializer(email, partial=True)
         trash_email_message.apply_async(args=(email.id,))
         return Response(serializer.data)
@@ -263,8 +258,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
     @detail_route(methods=['put'])
     def move(self, request, pk=None):
         """
-        Move an email message asynchronous through the manager and not directly on the database. Just update the
-        search index by an instance variable so changes are immediately visible.
+        Move an email message asynchronous through the manager and not directly on the database.
         """
         email = self.get_object()
         serializer = self.get_serializer(email, partial=True)
@@ -278,12 +272,11 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
     @detail_route(methods=['put'])
     def star(self, request, pk=None):
         """
-        Star an email message asynchronous through the manager and not directly on the database. Just update the
-        search index by an instance variable so changes are immediately visible.
+        Star an email message asynchronous through the manager and directly on the database.
         """
         email = self.get_object()
-        email._is_starred = request.data['starred']
-        reindex_email_message(email)
+        email.is_starred = request.data['starred']
+        email.save()
         serializer = self.get_serializer(email, partial=True)
         toggle_star_email_message.delay(email.id, star=request.data['starred'])
         return Response(serializer.data)
@@ -291,12 +284,11 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
     @detail_route(methods=['put'])
     def spam(self, request, pk=None):
         """
-        Mark / unmark an email message as spam asynchronous through the manager and not directly on the database. Just
-        update the search index by an instance variable so changes are immediately visible.
+        Mark / unmark an email message as spam asynchronous through the manager and directly on the database.
         """
         email = self.get_object()
-        email._is_spam = request.data['markAsSpam']
-        reindex_email_message(email)
+        email.is_spam = request.data['markAsSpam']
+        email.save()
         serializer = self.get_serializer(email, partial=True)
         toggle_spam_email_message.delay(email.id, spam=request.data['markAsSpam'])
         return Response(serializer.data)
@@ -469,6 +461,7 @@ class SearchView(APIView):
         page = request.query_params.get('page', '0')
         page = int(page) + 1
         size = int(request.query_params.get('size', '20'))
+        size = min(size, 100)  # Limit page size to a maximum.
         sort = request.query_params.get('sort', '-sent_date')
 
         # Mail labeling parameters.
@@ -486,7 +479,6 @@ class SearchView(APIView):
         thread_id = request.query_params.get('thread', None)
 
         # Parameters indiciating search use case.
-        activity_stream = request.query_params.get('activity_stream', None)
         dashboard = request.query_params.get('dashboard', None)
         activity_stream = request.query_params.get('activity_stream', None)
 
@@ -500,7 +492,8 @@ class SearchView(APIView):
         else:
             # Only search within the email accounts indicated by the account_ids parameter.
             account_ids = account_ids.split(',')
-            email_accounts = EmailAccount.objects.filter(pk__in=account_ids)
+            email_accounts = get_shared_email_accounts(user, False)
+            email_accounts = email_accounts.filter(pk__in=account_ids)
 
         email_accounts = email_accounts.exclude(is_active=False, is_deleted=True)
 
@@ -547,6 +540,7 @@ class SearchView(APIView):
             total_number_of_results = 0
             for email_account in email_accounts:
                 if label_id:
+                    # Retrieve the label corresponding to the label_id, otherwise Gmail defaults to all mail.
                     label_name = label_id
                     if label_id not in [settings.GMAIL_LABEL_INBOX, settings.GMAIL_LABEL_SPAM,
                                         settings.GMAIL_LABEL_TRASH, settings.GMAIL_LABEL_SENT,
@@ -556,17 +550,19 @@ class SearchView(APIView):
                             label_name = email_account.labels.get(label_id=label_id).name
                         except EmailLabel.DoesNotExist:
                             logger.error(
-                                "Incorrect label id {0} with search request for account {1}.".format(label_id,
-                                                                                                     email_account)
+                                "Incorrect label id {0} with search request for account {1}.".format(
+                                    label_id,
+                                    email_account
+                                )
                             )
+                            # Failing label lookup within one account should not halt the complete search.
+                            continue
 
                     q = u"{0} {1}:{2}".format(q, 'label', label_name)
 
-                # With label_id missing Gmail defaults to searching through all mail.
-
                 try:
                     connector = GmailConnector(email_account)
-                    messages, number_of_results = connector.search(query=q, max_results=max_results)
+                    messages, number_of_results = connector.search(query=q, size=max_results)
                     messages_ids.extend([message['id'] for message in messages])
                     total_number_of_results += min(number_of_results, max_results)
                 except (InvalidCredentialsError, NotFoundError, HttpAccessTokenRefreshError,
@@ -587,7 +583,7 @@ class SearchView(APIView):
             # User isn't searching by a keyword, just show the emails for current box. Where current email box is:
             # 1. A combination of included and excluded labels.
             # email_accounts = list(email_accounts.prefetch_related('labels'))
-            email_accounts = list(email_accounts)  # TODO: list needed?
+            email_accounts = list(email_accounts)
             message_list = message_list.filter(
                 account__in=email_accounts,
             )

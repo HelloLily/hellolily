@@ -10,7 +10,7 @@ build:
 	@echo ""
 	@echo "Make: npm install"
 	@echo ""
-	@npm install
+	@npm install --ignore-scripts
 	@echo ""
 	@echo "Make: gulp clean"
 	@echo ""

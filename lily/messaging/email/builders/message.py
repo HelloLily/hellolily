@@ -118,6 +118,7 @@ class MessageBuilder(object):
         self.message.is_draft = settings.GMAIL_LABEL_DRAFT in message_info.get('labelIds', [])
         self.message.is_trashed = settings.GMAIL_LABEL_TRASH in message_info.get('labelIds', [])
         self.message.is_spam = settings.GMAIL_LABEL_SPAM in message_info.get('labelIds', [])
+        self.message.is_starred = settings.GMAIL_LABEL_STAR in message_info.get('labelIds', [])
 
         # Get the available Label objects for the message from the database and the missing ones by the API.
         # First, get all labels from the database.

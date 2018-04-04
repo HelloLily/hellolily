@@ -84,14 +84,26 @@ def process_row(id):
         is_draft = True if row[0] else False
 
         cursor.execute("""
+            SELECT count(1)
+              FROM email_emaillabel
+             INNER JOIN email_emailmessage_labels
+                ON (email_emaillabel.id = email_emailmessage_labels.emaillabel_id)
+             WHERE (email_emailmessage_labels.emailmessage_id = %s AND email_emaillabel.label_id = %s)
+        """, [id, settings.GMAIL_LABEL_STAR])
+
+        row = cursor.fetchone()
+        is_starred = True if row[0] else False
+
+        cursor.execute("""
             UPDATE email_emailmessage
                SET is_inbox = %s,
                    is_sent = %s,
                    is_trashed = %s,
                    is_spam = %s,
                    is_draft = %s,
+                   is_starred = %s
              WHERE email_emailmessage.id = %s
-        """, [is_inbox, is_sent, is_trashed, is_spam, is_draft, id])
+        """, [is_inbox, is_sent, is_trashed, is_spam, is_draft, is_starred, id])
 
 def noop():
     pass
@@ -107,27 +119,32 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='emailmessage',
             name='is_inbox',
-            field=models.NullBooleanField(default=True, verbose_name='Is inbox'),
+            field=models.NullBooleanField(default=True, db_index=True, verbose_name='Is inbox'),
         ),
         migrations.AlterField(
             model_name='emailmessage',
             name='is_sent',
-            field=models.NullBooleanField(default=False, verbose_name='Is sent'),
+            field=models.NullBooleanField(default=False, db_index=True, verbose_name='Is sent'),
         ),
         migrations.AlterField(
             model_name='emailmessage',
             name='is_spam',
-            field=models.NullBooleanField(default=False, verbose_name='Is spam'),
+            field=models.NullBooleanField(default=False, db_index=True, verbose_name='Is spam'),
         ),
         migrations.AlterField(
             model_name='emailmessage',
             name='is_trashed',
-            field=models.NullBooleanField(default=False, verbose_name='Is trashed'),
+            field=models.NullBooleanField(default=False, db_index=True, verbose_name='Is trashed'),
         ),
         migrations.AlterField(
             model_name='emailmessage',
             name='is_draft',
-            field=models.NullBooleanField(default=False, verbose_name='Is draft'),
+            field=models.NullBooleanField(default=False, db_index=True, verbose_name='Is draft'),
+        ),
+        migrations.AlterField(
+            model_name='emailmessage',
+            name='is_starred',
+            field=models.NullBooleanField(default=False, db_index=True, verbose_name='Is starred'),
         ),
         migrations.RunPython(set_boolean_field, noop),
     ]

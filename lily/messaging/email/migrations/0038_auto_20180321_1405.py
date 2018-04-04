@@ -37,4 +37,9 @@ class Migration(migrations.Migration):
             name='is_draft',
             field=models.NullBooleanField(db_index=True, verbose_name='Is draft'),
         ),
+        migrations.AddField(
+            model_name='emailmessage',
+            name='is_starred',
+            field=models.NullBooleanField(db_index=True, verbose_name='Is starred'),
+        ),
     ]

@@ -410,7 +410,7 @@ class GmailConnector(object):
             ))
         return response
 
-    def search(self, query, max_results=100):
+    def search(self, query, size=100):
         # The maxResults parameter on the API service call is used for the number of results per page and not for the
         # total search results.
         response = self.execute_service_call(
@@ -423,7 +423,7 @@ class GmailConnector(object):
         number_of_results = response.get('resultSizeEstimate')
 
         # Check if there are more pages.
-        while 'nextPageToken' in response and len(messages) < max_results:
+        while 'nextPageToken' in response and len(messages) < size:
             page_token = response.get('nextPageToken')
             response = self.execute_service_call(
                 self.gmail_service.service.users().messages().list(
@@ -434,7 +434,7 @@ class GmailConnector(object):
 
             messages.extend(response.get('messages', []))
 
-        return messages[0:max_results], number_of_results
+        return messages[0:size], number_of_results
 
     def cleanup(self):
         """

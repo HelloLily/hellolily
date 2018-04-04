@@ -265,7 +265,7 @@ class EmailAccountSerializer(WritableNestedSerializer):
     read_only_fields = ('email_address', 'is_authorized', 'is_syncing', 'is_public',)
 
 
-class EmailAccountSerializerSimple(serializers.ModelSerializer):
+class SimpleEmailAccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = EmailAccount
         fields = (
@@ -273,6 +273,7 @@ class EmailAccountSerializerSimple(serializers.ModelSerializer):
             'email_address',
             'label',
             'color',
+            'is_syncing',
         )
 
 
@@ -423,7 +424,7 @@ class EmailMessageDetailSerializer(EmailMessageBaseSerializer):
 
 
 class EmailMessageListSerializer(EmailMessageBaseSerializer):
-    account = EmailAccountSerializerSimple(read_only=True)
+    account = SimpleEmailAccountSerializer(read_only=True)
     # Explicitly overwrite the EmailMessageBaseSerializer fields which should not be serialized.
     labels = None
     received_by_cc = None
@@ -448,7 +449,7 @@ class EmailMessageListSerializer(EmailMessageBaseSerializer):
 
 
 class EmailMessageActivityStreamSerializer(EmailMessageBaseSerializer):
-    account = EmailAccountSerializerSimple(read_only=True)
+    account = SimpleEmailAccountSerializer(read_only=True)
     # Explicitly overwrite the EmailMessageBaseSerializer fields which should not be serialized.
     labels = None
     received_by_cc = None

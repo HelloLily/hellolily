@@ -46,8 +46,7 @@ from .services import GmailService
 from .tasks import (send_message, create_draft_email_message, update_draft_email_message,
                     add_and_remove_labels_for_message, trash_email_message)
 from .utils import (get_attachment_filename_from_url, get_email_parameter_choices, create_recipients,
-                    render_email_body, replace_cid_in_html, create_reply_body_header, reindex_email_message,
-                    extract_script_tags)
+                    render_email_body, replace_cid_in_html, create_reply_body_header, extract_script_tags)
 
 
 logger = logging.getLogger(__name__)
@@ -478,8 +477,8 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
 
         try:
             email = EmailMessage.objects.get(pk=self.object.id)
-            email._is_trashed = True  # Make sure the draft isn't shown immediately anymore.
-            reindex_email_message(email)
+            email.is_trashed = True  # Make sure the draft isn't shown immediately anymore.
+            email.save()
         except EmailMessage.DoesNotExist:
             pass
 
@@ -548,8 +547,8 @@ class EmailMessageDraftView(EmailMessageComposeView):
         if current_draft_pk:
             try:
                 email = EmailMessage.objects.get(pk=current_draft_pk)
-                email._is_trashed = True  # Make sure the old draft isn't shown immediately anymore.
-                reindex_email_message(email)
+                email.is_trashed = True  # Make sure the old draft isn't shown immediately anymore.
+                email.save()
             except EmailMessage.DoesNotExist:
                 pass
 
@@ -647,11 +646,11 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
                 remove_labels.append(settings.GMAIL_LABEL_INBOX)
 
             email_message = EmailMessage.objects.get(pk=self.object.id)
-            email_message._is_archived = True
+            email_message.is_inbox = False
             labels_to_remove = EmailLabel.objects.filter(label_id__in=remove_labels,
                                                          account=self.object.account)
             email_message.labels.remove(*labels_to_remove)
-            reindex_email_message(email_message)
+            email_message.save()
             add_and_remove_labels_for_message.delay(self.object.id, remove_labels=remove_labels)
 
         if is_ajax(self.request):

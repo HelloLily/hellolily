@@ -47,7 +47,7 @@ function EmailAccount($resource) {
             color: {
                 method: 'GET',
                 url: '/api/messaging/email/accounts/color/',
-                isArray: false,
+                isArray: true,
             },
             cancel: {
                 method: 'DELETE',

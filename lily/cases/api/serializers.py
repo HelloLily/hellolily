@@ -165,6 +165,13 @@ class CaseSerializer(WritableNestedSerializer):
                 'newly_assigned': False,
             })
 
+        if (('status' in validated_data and status.name == 'Open') or
+                ('is_archived' in validated_data and not validated_data.get('is_archived'))):
+            # Case is reopened or unarchived, so we want to notify the user again.
+            validated_data.update({
+                'newly_assigned': True,
+            })
+
         if 'assigned_to' in validated_data or instance.assigned_to_id:
             Group('tenant-%s' % user.tenant.id).send({
                 'text': anyjson.serialize({

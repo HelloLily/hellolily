@@ -23,6 +23,7 @@ yarn.lock
 tags
 .history/
 .vscode/
+package-lock.json
 
 celerybeat-schedule.*
 celeryev.pid

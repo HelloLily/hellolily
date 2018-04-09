@@ -90,7 +90,7 @@ script:
   - ./ci/git_merge.sh
 
   # Run a hook to check if there are unhandled migrations.
-  - ./checks/git/migrations.sh
+#  - ./checks/git/migrations.sh
 
   # Run migrations to catch any migration errors
   - docker-compose run --rm web python manage.py migrate

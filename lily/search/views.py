@@ -308,18 +308,16 @@ class PhoneNumberSearchView(LoginRequiredMixin, View):
 
         response = {
             'data': {
-                'accounts': [],
-                'contacts': [],
             },
         }
 
         account, contact = search_number(self.request.user.tenant_id, number)
 
         if account:
-            response['data']['accounts'].append({'id': account.id, 'name': account.name})
+            response['data']['account'] = {'id': account.id, 'name': account.name}
 
         if contact:
-            response['data']['contacts'].append({'id': contact.id, 'name': contact.full_name})
+            response['data']['contact'] = {'id': contact.id, 'name': contact.full_name}
 
         return HttpResponse(anyjson.dumps(response), content_type='application/json; charset=utf-8')
 

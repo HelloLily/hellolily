@@ -177,13 +177,6 @@ class DataproviderView(APIView):
 
         description = result.get('description')
 
-        try:
-            description.encode('windows-1252').decode('utf-8')
-        except UnicodeEncodeError:
-            pass
-        else:
-            description = description.encode('windows-1252').decode('utf-8')
-
         # Build dict with account information.
         account_information = {
             'name': result.get('company'),

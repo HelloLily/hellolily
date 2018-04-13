@@ -2,19 +2,16 @@ import logging
 import re
 
 from django.conf import settings
-from django.contrib.sites.models import Site
 from django.core.validators import RegexValidator
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
-from templated_email import send_templated_mail
 
 from lily.api.fields import DynamicQuerySetPrimaryKeyRelatedField
 from lily.api.nested.mixins import RelatedSerializerMixin
 from lily.api.nested.serializers import WritableNestedSerializer
 from lily.messaging.email.credentials import get_credentials
-from lily.users.models import UserInfo
 
 from ..models.models import (EmailLabel, EmailAccount, EmailMessage, Recipient, EmailAttachment, EmailTemplateFolder,
                              EmailTemplate, SharedEmailConfig, TemplateVariable, DefaultEmailTemplate)
@@ -233,30 +230,6 @@ class EmailAccountSerializer(WritableNestedSerializer):
                 instance.is_syncing = False
 
             instance.save()
-
-        if user.info.email_account_status == UserInfo.INCOMPLETE:
-            user.info.email_account_status = UserInfo.COMPLETE
-            user.info.save()
-
-            # Send an email to the first email account in the tenant.
-            if EmailAccount.objects.count() == 1:
-                # Get the current site.
-                try:
-                    current_site = Site.objects.get_current()
-                except Site.DoesNotExist:
-                    current_site = 'Lily'
-
-                send_templated_mail(
-                    template_name='first_impressions',
-                    recipient_list=[instance.email_address],
-                    context={
-                        'current_site': current_site,
-                        'first_name': user.first_name,
-                    },
-                    from_email=settings.EMAIL_PERSONAL_HOST_USER,
-                    auth_user=settings.EMAIL_PERSONAL_HOST_USER,
-                    auth_password=settings.EMAIL_PERSONAL_HOST_PASSWORD
-                )
 
         return super(EmailAccountSerializer, self).update(instance, validated_data)
 

@@ -147,7 +147,6 @@
                         enabled: '{{ user.tenant.timelogging_enabled }}' == 'True',
                         billingDefault: '{{ user.tenant.billing_default }}' == 'True',
                     },
-                    emailAccountStatus: parseInt('{{ user.info.email_account_status }}'),
                     user_hash: '{{ user.user_hash }}',
                     limitReached: {
                         accounts: '{{ limit_reached.accounts }}' == 'True',

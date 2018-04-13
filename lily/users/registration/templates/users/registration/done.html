@@ -1,0 +1,47 @@
+{% extends 'users/registration/_base.html' %}
+{% load static %}
+
+{% block left-panel %}
+    Not sure how something in Lily works?
+    Check out our
+    <a href="https://intercom.help/lily" target="_blank">help center</a>
+    or send us a chat message with your questions!
+
+    <br />
+    <br />
+
+    Take a look at our
+    <a href="https://hellolily.com/blog/whats-new-lately/" target="_blank">release notes</a>
+    to see what we have changed, updated, or added lately.
+{% endblock left-panel %}
+
+{% block right-panel %}
+    <h2 class="align-center">
+        Awesome, you're all set!
+    </h2>
+
+    <div class="center-picture align-center">
+        <img src="{% static 'users/images/flag-checkered.svg' %}">
+    </div>
+
+    <p class="align-center">
+        Lily will create your environment in the background.
+    </p>
+    <p class="align-center">
+        Ready, set...
+    </p>
+
+    <form action="" method="post" class="login-form" novalidate>
+        {% csrf_token %}
+        {{ wizard.management_form }}
+
+        {% include 'users/_form_fields.html' with form=wizard.form %}
+
+        <div class="spacer-20"></div>
+        <button type="submit" class="hl-primary-btn blue">
+            Let's go!
+        </button>
+    </form>
+
+    {{ block.super }}
+{% endblock right-panel %}

@@ -1,7 +1,12 @@
+import freemail
+from babel.numbers import get_territory_currencies
 from django.conf import settings
+from django.contrib.gis.geoip2 import GeoIP2
 from django.db import models
+from tldextract import tldextract
 
-from lily.billing.models import Billing
+from lily.billing.models import Billing, Plan
+from lily.tenant.utils import create_defaults_for_tenant
 from lily.utils.countries import COUNTRIES
 from lily.utils.currencies import CURRENCIES
 
@@ -25,12 +30,40 @@ class TenantManager(models.Manager):
 
 
 class Tenant(models.Model):
-    name = models.CharField(max_length=255, blank=True)
-    country = models.CharField(blank=True, max_length=2, verbose_name='country', choices=COUNTRIES)
-    currency = models.CharField(blank=True, max_length=3, verbose_name='currency', choices=CURRENCIES)
-    timelogging_enabled = models.BooleanField(default=False)
-    billing = models.ForeignKey(Billing, null=True, blank=True)
-    billing_default = models.BooleanField(default=False)
+    name = models.CharField(
+        max_length=255,
+        blank=True
+    )
+    # domain = models.CharField(
+    #     max_length=255,
+    #     null=True,
+    #     unique=True  # TODO: do we want this to be unique?
+    # )
+    country = models.CharField(
+        blank=True,
+        max_length=2,
+        verbose_name='country',
+        choices=COUNTRIES
+    )
+    currency = models.CharField(
+        blank=True,
+        max_length=3,
+        verbose_name='currency',
+        choices=CURRENCIES
+    )
+    billing = models.ForeignKey(
+        to=Billing,
+        null=True,
+        blank=True
+    )
+    # Defines whether users can log their hours on cases.
+    timelogging_enabled = models.BooleanField(
+        default=False
+    )
+    # Defines a default value for the Billable field when a user logs their hours.
+    billing_default = models.BooleanField(
+        default=False
+    )
 
     @property
     def admin(self):
@@ -41,6 +74,47 @@ class Tenant(models.Model):
             admins = admins.filter(is_superuser=False)
 
         return admins.first()
+
+    @staticmethod
+    def create_tenant(domain='', **extra_fields):
+        extra_fields.setdefault('name', '')
+        extra_fields.setdefault('country', '')
+        extra_fields.setdefault('currency', '')
+
+        if domain and not freemail.is_free(domain):
+            # We can guess some field values based on the domain.
+            tld = tldextract.extract(domain)
+            geo_ip = GeoIP2()
+
+            if not extra_fields['name']:
+                # Use the domain of the email address as tenant name.
+                extra_fields['name'] = tld.domain.title()
+
+            if not extra_fields['country']:
+                country_code = geo_ip.country(tld.registered_domain).get('country_code')
+                if country_code in [c[0] for c in COUNTRIES]:
+                    extra_fields['country'] = country_code
+
+            if not extra_fields['currency']:
+                currency = get_territory_currencies(extra_fields['country'])[-1]
+                if currency in [c[0] for c in CURRENCIES]:
+                    extra_fields['currency'] = currency
+
+        if settings.BILLING_ENABLED:
+            # Chargebee needs extra info on who to bill, so for now only create the plans without activating the trial.
+            plan, created = Plan.objects.get_or_create(name=settings.CHARGEBEE_PRO_TRIAL_PLAN_NAME)
+            billing = Billing.objects.create(plan=plan)
+        else:
+            billing = Billing.objects.create()
+
+        tenant = Tenant.objects.create(
+            billing=billing,
+            **extra_fields
+        )
+
+        create_defaults_for_tenant(tenant)
+
+        return tenant
 
     def __unicode__(self):
         if self.name:

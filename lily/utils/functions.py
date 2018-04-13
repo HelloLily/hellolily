@@ -324,3 +324,24 @@ def has_required_tier(required_tier, tenant=None):
     else:
         # Billing isn't enable so always return true.
         return True
+
+
+def guess_name_from_email(email):
+    """
+    Guess the name of a person using their email address.
+
+    Example:
+        email = 'some.name@domain.com'
+        first_name, last_name = guess_name_from_email(email)
+
+    Args:
+        email (str): The email address to guess the name from.
+
+    Returns:
+        (list): A list of names.
+    """
+
+    full_name = email.split('@')[0]
+    name = re.split('[._]', full_name)
+
+    return name

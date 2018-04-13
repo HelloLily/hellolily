@@ -1,0 +1,112 @@
+{% load static %}
+
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="Lily CRM system" />
+        <meta name="author" content="Devhouse Spindle" />
+        <meta name="google-site-verification" content="_xITnxGZwmxCoTvAruAPex70sjtgMAmV8UOXPKszexQ" />
+        <link rel="apple-touch-icon" sizes="57x57" href="{% static 'users/images/favicons/apple-touch-icon-57x57.png' %}">
+        <link rel="apple-touch-icon" sizes="60x60" href="{% static 'users/images/favicons/apple-touch-icon-60x60.png' %}">
+        <link rel="apple-touch-icon" sizes="72x72" href="{% static 'users/images/favicons/apple-touch-icon-72x72.png' %}">
+        <link rel="apple-touch-icon" sizes="76x76" href="{% static 'users/images/favicons/apple-touch-icon-76x76.png' %}">
+        <link rel="apple-touch-icon" sizes="114x114" href="{% static 'users/images/favicons/apple-touch-icon-114x114.png' %}">
+        <link rel="apple-touch-icon" sizes="120x120" href="{% static 'users/images/favicons/apple-touch-icon-120x120.png' %}">
+        <link rel="apple-touch-icon" sizes="144x144" href="{% static 'users/images/favicons/apple-touch-icon-144x144.png' %}">
+        <link rel="apple-touch-icon" sizes="152x152" href="{% static 'users/images/favicons/apple-touch-icon-152x152.png' %}">
+        <link rel="apple-touch-icon" sizes="180x180" href="{% static 'users/images/favicons/apple-touch-icon-180x180.png' %}">
+        <link rel="icon" type="image/png" href="{% static 'users/images/favicons/favicon-32x32.png' %}" sizes="32x32">
+        <link rel="icon" type="image/png" href="{% static 'users/images/favicons/android-chrome-192x192.png' %}" sizes="192x192">
+        <link rel="icon" type="image/png" href="{% static 'users/images/favicons/favicon-96x96.png' %}" sizes="96x96">
+        <link rel="icon" type="image/png" href="{% static 'users/images/favicons/favicon-16x16.png' %}" sizes="16x16">
+        <link rel="manifest" href="{% static 'users/images/favicons/manifest.json' %}">
+        <link rel="mask-icon" href="{% static 'users/images/favicons/safari-pinned-tab.svg' %}" color="#5bbad5">
+        <link rel="shortcut icon" href="{% static 'users/images/favicons/favicon.ico' %}">
+        <meta name="apple-mobile-web-app-title" content="Lily">
+        <meta name="application-name" content="Lily">
+        <meta name="msapplication-TileColor" content="#27244c">
+        <meta name="msapplication-TileImage" content="{% static 'users/images/favicons/mstile-144x144.png' %}">
+        <meta name="msapplication-config" content="{% static 'users/images/favicons/browserconfig.xml' %}">
+        <meta name="theme-color" content="#fff">
+        <link href="{% static 'users/css/users_base.css' %}" rel="stylesheet" type="text/css">
+        <link href="{% static 'users/plugins/toastr/toastr.css' %}" rel="stylesheet" type="text/css">
+        <title>{% block title %}Lily{% endblock title %}</title>
+    </head>
+
+    <body class="screen-bg" style="background-image: url('{% static 'users/images/login-bg.jpg' %}')">
+        <div class="wrapper">
+            <div class="wrapper-cell">
+                <div class="container">
+                    <div class="panels">
+                        <div class="left-panel">
+                            <div class="logo">
+                                <img class="logo-image" src="{% static 'users/images/logo-white.svg' %}">
+                            </div>
+                            <div>
+                                {% block left-panel %}
+                                    Not sure how something in Lily works?
+                                    Check out our
+                                    <a href="https://intercom.help/lily" target="_blank">help center</a>
+                                    or send us a chat message with your questions!
+
+                                    <br />
+                                    <br />
+
+                                    Take a look at our
+                                    <a href="https://hellolily.com/blog/whats-new-lately/" target="_blank">release notes</a>
+                                    to see what we have changed, updated, or added lately.
+                                {% endblock left-panel %}
+                            </div>
+                        </div>
+                        <div class="right-panel">
+                            {% block right-panel %}
+
+                            {% endblock right-panel %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript" src="{% static 'users/plugins/jquery/jquery.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'users/plugins/hideshowpassword/hideshowpassword.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'users/plugins/toastr/toastr.js' %}"></script>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-60721851-2" async></script>
+        <script>
+            var reset_password_element = document.getElementById('reset_password');
+
+            if (reset_password_element) {
+                reset_password_element.addEventListener('click', (event) => {
+                    email = document.getElementById('id_auth-username').value;
+
+                    if(email.length) {
+                        event.preventDefault();
+                        window.location = "{% url 'password_reset' %}?email=" + encodeURIComponent(email);
+                    }
+                });
+            }
+
+            $(document).ready(function() {
+                {% for message in messages %}
+                    console.log('{{ message.level_tag }}');
+                    toastr['{{ message.level_tag }}']('{{ message.message }}');
+                {% endfor %}
+
+                $('.hideshowpassword').hideShowPassword(false, true, {
+                    toggle: {
+                        className: 'hideshowpassword-toggle',
+                    },
+                });
+            });
+
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'UA-60721851-2');
+        </script>
+
+    </body>
+</html>

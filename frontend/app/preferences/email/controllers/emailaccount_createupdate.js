@@ -131,12 +131,7 @@ function EmailAccountUpdateController($scope, $state, $stateParams, $timeout, HL
         EmailAccount.cancel({id: vm.emailAccount.id}).$promise.then(response => {
             currentUser.displayEmailWarning = false;
 
-            if (response.hasOwnProperty('info')) {
-                currentUser.emailAccountStatus = response.info.email_account_status;
-                $state.go('base.dashboard', {}, {reload: true});
-            } else {
-                $state.go('base.preferences.emailaccounts', {}, {reload: true});
-            }
+            $state.go('base.preferences.emailaccounts', {}, {reload: true});
         });
     }
 
@@ -176,19 +171,11 @@ function EmailAccountUpdateController($scope, $state, $stateParams, $timeout, HL
             // If there's an ID set it means we're dealing with an existing account, so update it.
             EmailAccount.patch(args).$promise.then(() => {
                 User.me().$promise.then(user => {
-                    const currentEmailAccountStatus = currentUser.emailAccountStatus;
-
                     toastr.success('I\'ve updated the email account for you!', 'Done');
 
                     // Update global user variable.
                     currentUser.displayEmailWarning = false;
-                    currentUser.emailAccountStatus = user.info.email_account_status;
-
-                    if (currentEmailAccountStatus) {
-                        $state.go('base.preferences.emailaccounts', {}, {reload: true});
-                    } else {
-                        $state.go('base.dashboard', {}, {reload: true});
-                    }
+                    $state.go('base.preferences.emailaccounts', {}, {reload: true});
                 });
             }, response => {
                 _handleBadResponse(response, form);

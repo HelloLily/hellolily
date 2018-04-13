@@ -1,0 +1,29 @@
+{% extends 'users/users_base.html' %}
+{% load static %}
+
+{% block title %}Lily | Registration{% endblock title%}
+
+{% block left-panel %}
+Sign up now and experience how Lily helps you communicate with your customers.
+
+<ul>
+    <li>
+        Look at the activity stream to see exactly what has been said between your team and a customer
+    </li>
+    <li>
+        Share email inboxes easily with your colleagues
+    </li>
+    <li>
+        Easily transfer work from one colleague to another
+    </li>
+</ul>
+{% endblock left-panel %}
+
+{% block right-panel %}
+    {% if current_step %}
+        <!-- Calculate the width of the progress bar based on current step of total steps, minus 10px because of padding -->
+        <div class="progress-bar" style="width: calc(100% / {{ step_count }} * {{ current_step }} - 10px)">
+            step {{ current_step }} of {{ step_count }}
+        </div>
+    {% endif %}
+{% endblock right-panel %}

@@ -1,18 +1,7 @@
 angular.module('app.dashboard').config(dashboardConfig);
 
-dashboardConfig.$inject = ['$stateProvider', '$urlRouterProvider'];
-function dashboardConfig($stateProvider, $urlRouterProvider) {
-    $urlRouterProvider.when('/',  ['$state', 'User', ($state, User) => {
-        User.me().$promise.then(user => {
-            if (user.info !== null && !user.info.email_account_status) {
-                // User has logged in for the first time, so redirect to the email account setup.
-                $state.go('base.preferences.emailaccounts.setup');
-            } else {
-                $state.go('base.dashboard');
-            }
-        });
-    }]);
-
+dashboardConfig.$inject = ['$stateProvider'];
+function dashboardConfig($stateProvider) {
     $stateProvider.state('base.dashboard', {
         url: '/',
         views: {

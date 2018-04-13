@@ -21,6 +21,9 @@ function preferencesConfig($stateProvider) {
             userSession: ['UserSession', function(UserSession) {
                 return UserSession.query().$promise;
             }],
+            user: ['User', function(User) {
+                return User.me().$promise;
+            }],
         },
     });
 }
@@ -28,15 +31,16 @@ function preferencesConfig($stateProvider) {
 angular.module('app.preferences').controller('PreferencesUserSecurityController', PreferencesUserSecurityController);
 
 PreferencesUserSecurityController.$inject = ['$compile', '$scope', '$state', '$templateCache', 'Settings',
-    'TwoFactor', 'UserSession', 'twoFactor', 'userSession'];
+    'TwoFactor', 'UserSession', 'twoFactor', 'userSession', 'user'];
 function PreferencesUserSecurityController($compile, $scope, $state, $templateCache, Settings,
-    TwoFactor, UserSession, twoFactor, userSession) {
+    TwoFactor, UserSession, twoFactor, userSession, user) {
     const vm = this;
 
     Settings.page.setAllTitles('list', 'security');
 
     vm.twoFactor = twoFactor;
     vm.userSessions = userSession.results;
+    vm.user = user;
     vm.messages = messages.alerts.preferences.twoFactorAuth;
 
     vm.showBackupPhoneNumbers = showBackupPhoneNumbers;

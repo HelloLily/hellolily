@@ -1,0 +1,32 @@
+{% extends 'users/registration/_base.html' %}
+{% load static %}
+
+{% block right-panel %}
+    <h2 class="align-center">
+        Please verify your email address
+    </h2>
+
+    <div class="center-picture align-center">
+        <img src="{% static 'users/images/lock.svg' %}">
+    </div>
+
+    <p class="align-center">
+        A code has been sent to <b>{{ email }}</b> you provided.
+    </p>
+    <div class="spacer-20"></div>
+    <p class="align-center">
+        Your account will not be created until you verify that you're the legitimate owner.
+    </p>
+
+    <div class="spacer-20"></div>
+     <form action="" method="post" class="login-form" novalidate>
+        {% csrf_token %}
+        {% include 'users/_form_fields.html' with form=form %}
+
+        <button type="submit" class="hl-primary-btn blue">
+            Next
+        </button>
+    </form>
+
+    {{ block.super }}
+{% endblock right-panel %}

@@ -1,0 +1,4 @@
+:repo:deb http://ppa.launchpad.net/maxmind/ppa/ubuntu xenial main
+libmaxminddb0
+libmaxminddb-dev
+mmdb-bin

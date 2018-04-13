@@ -52,14 +52,9 @@ var config = {
         sass: {
             src: [
                 'frontend/app/stylesheets/**/*.scss',
-                '!frontend/app/stylesheets/login.scss',
             ],
             base: 'frontend/app/stylesheets/app.scss',
             fileName: 'app.css',
-            login: {
-                src: ['frontend/app/stylesheets/login.scss'],
-                fileName: 'login.css',
-            },
         },
         templates: {
             src: [
@@ -106,23 +101,6 @@ var config = {
                 '!frontend/vendor/**/*.js',
                 '!frontend/vendor/**/*.html',
             ],
-        },
-    },
-    anonymousVendor: {
-        buildDir: 'lily/static/vendor/',
-        js: {
-            src: [
-                'frontend/vendor/**/*jquery.min.js',
-                'frontend/vendor/**/hideShowPassword.min.js',
-                'frontend/vendor/metronic/assets/global/plugins/bootstrap-toastr/toastr.js',
-            ],
-            fileName: 'anonymous_vendor.js',
-        },
-        css: {
-            src: [
-                'frontend/vendor/metronic/assets/global/plugins/bootstrap-toastr/toastr.css',
-            ],
-            fileName: 'anonymous_vendor.css',
         },
     },
     cdn: {
@@ -219,23 +197,6 @@ gulp.task('app-css', [], function() {
         }));
 });
 
-gulp.task('login-css', [], function() {
-    return gulp.src(config.app.sass.login.src)
-        .pipe(sourcemaps.init())
-        .pipe(sass({includePaths: ['./node_modules/']}))
-        .pipe(rebaseUrls({root: config.cdn.root}))
-        .pipe(cdnizer({
-            defaultCDNBase: config.cdn.defaultBase,
-            files: config.cdn.src,
-        }))
-        .pipe(ifElse(isProduction, uglifyCss))
-        .pipe(rename(config.app.sass.login.fileName))
-        .pipe(sourcemaps.write('./'))
-        .pipe(gulp.dest(config.app.buildDir))
-        .pipe(ifElse(isWatcher, size))
-        .pipe(ifElse(isWatcher, livereload));
-});
-
 /**
  * App templates.
  */
@@ -277,39 +238,6 @@ gulp.task('vendor-js', [], function() {
         .pipe(concat(config.vendor.js.fileName))
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest(config.vendor.buildDir))
-        .pipe(ifElse(isWatcher, size))
-        .pipe(ifElse(isWatcher, livereload));
-});
-
-gulp.task('anonymous-vendor-js', [], function() {
-    return gulp.src(config.anonymousVendor.js.src)
-        .pipe(sourcemaps.init())
-        .pipe(cached('anonymous-vendor-js'))
-        .pipe(ifElse(isProduction, uglify))
-        .pipe(remember('anonymous-vendor-js'))
-
-        .pipe(concat(config.anonymousVendor.js.fileName))
-        .pipe(sourcemaps.write('./'))
-        .pipe(gulp.dest(config.anonymousVendor.buildDir))
-        .pipe(ifElse(isWatcher, size))
-        .pipe(ifElse(isWatcher, livereload));
-});
-
-gulp.task('anonymous-vendor-css', [], function() {
-    return gulp.src(config.anonymousVendor.css.src)
-        .pipe(sourcemaps.init())
-        .pipe(cached('anonymous-vendor-css'))
-        .pipe(rebaseUrls({root: config.cdn.root}))
-        .pipe(cdnizer({
-            defaultCDNBase: config.cdn.defaultBase,
-            files: config.cdn.src,
-        }))
-        .pipe(ifElse(isProduction, uglifyCss))
-        .pipe(remember('anonymous-vendor-css'))
-
-        .pipe(concat(config.anonymousVendor.css.fileName))
-        .pipe(sourcemaps.write('./'))
-        .pipe(gulp.dest(config.anonymousVendor.buildDir))
         .pipe(ifElse(isWatcher, size))
         .pipe(ifElse(isWatcher, livereload));
 });
@@ -359,8 +287,8 @@ gulp.task('heroku-assets', [], function() {
 /**
  * Concatenate, minify and make source maps of all js and css.
  */
-gulp.task('build', ['app-js', 'app-css', 'app-templates', 'app-assets', 'vendor-js', 'anonymous-vendor-js',
-    'anonymous-vendor-css', 'vendor-css', 'vendor-assets', 'analytics', 'heroku-assets', 'login-css'], function() {});
+gulp.task('build', ['app-js', 'app-css', 'app-templates', 'app-assets', 'vendor-js', 'vendor-css', 'vendor-assets',
+    'analytics', 'heroku-assets'], function() {});
 
 /**
  * Watch for changes

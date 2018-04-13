@@ -12,11 +12,10 @@ from django.db.models import Manager, Model
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APIClient, APITestCase
-from rest_framework.utils import model_meta
 
 from lily.tenant.factories import TenantFactory
 from lily.tenant.middleware import set_current_user
-from lily.users.models import LilyUser
+from lily.users.models import LilyUser, UserInfo
 
 
 class UserBasedTest(object):
@@ -46,11 +45,17 @@ class UserBasedTest(object):
             password=password,
             tenant_id=tenant_1.id
         )
+
         account_admin = Group.objects.get_or_create(name='account_admin')[0]
         cls.user_obj.groups.add(account_admin)
 
+        cls.user_obj.info = UserInfo.objects.create(
+            registration_finished=True
+        )
+        cls.user_obj.save()
+
         cls.user = APIClient()
-        cls.user.login(email=cls.user_obj.email, password=password)
+        cls.user.login(username=cls.user_obj.email, password=password)
 
         # Set the superuser on the class.
         cls.superuser_obj = LilyUser.objects.create_superuser(
@@ -58,8 +63,13 @@ class UserBasedTest(object):
             password=password,
             tenant_id=tenant_1.id
         )
+        cls.superuser_obj.info = UserInfo.objects.create(
+            registration_finished=True
+        )
+        cls.superuser_obj.save()
+
         cls.superuser = APIClient()
-        cls.superuser.login(email=cls.superuser_obj.email, password=password)
+        cls.superuser.login(username=cls.superuser_obj.email, password=password)
 
         # Set the authenticated user from another tenant on the class.
         cls.other_tenant_user_obj = LilyUser.objects.create_user(
@@ -67,8 +77,13 @@ class UserBasedTest(object):
             password=password,
             tenant_id=tenant_2.id
         )
+        cls.other_tenant_user_obj.info = UserInfo.objects.create(
+            registration_finished=True
+        )
+        cls.other_tenant_user_obj.save()
+
         cls.other_tenant_user = APIClient()
-        cls.other_tenant_user.login(email=cls.other_tenant_user_obj.email, password=password)
+        cls.other_tenant_user.login(username=cls.other_tenant_user_obj.email, password=password)
 
     @classmethod
     def tearDownClass(cls):
@@ -157,12 +172,8 @@ class CompareObjectsMixin(object):
         """
         Compare two objects with each other based on the fields of the API serializer.
         """
-        serializer = serializer if serializer else self.serializer_cls()
-        serializer_field_list = serializer.get_field_names(
-            serializer._declared_fields,
-            model_meta.get_field_info(self.model_cls)
-        )
-
+        serializer = serializer if serializer else self.serializer_cls
+        serializer_field_list = serializer.Meta.fields
         model_field_list = [f.name for f in self.model_cls._meta.get_fields()]
 
         for field in serializer_field_list:

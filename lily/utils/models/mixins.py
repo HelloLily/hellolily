@@ -8,7 +8,6 @@ from lily.tenant.models import TenantMixin
 from lily.socialmedia.models import SocialMedia
 
 from .models import PhoneNumber, Address, EmailAddress
-from .fields import PhoneNumberFormSetField, AddressFormSetField, EmailAddressFormSetField
 
 
 class DeletedMixin(TimeStampedModel):
@@ -41,12 +40,32 @@ class Common(DeletedMixin, TenantMixin):
     """
     Common model to make it possible to easily define relations to other models.
     """
-    phone_numbers = PhoneNumberFormSetField(PhoneNumber, blank=True, verbose_name=_('list of phone numbers'))
-    social_media = models.ManyToManyField(SocialMedia, blank=True, verbose_name=_('list of social media'))
-    addresses = AddressFormSetField(Address, blank=True, verbose_name=_('list of addresses'))
-    email_addresses = EmailAddressFormSetField(EmailAddress, blank=True, verbose_name=_('list of email addresses'))
-    notes = GenericRelation('notes.Note', content_type_field='gfk_content_type', object_id_field='gfk_object_id',
-                            verbose_name='list of notes')
+    phone_numbers = models.ManyToManyField(
+        to=PhoneNumber,
+        blank=True,
+        verbose_name=_('list of phone numbers')
+    )
+    social_media = models.ManyToManyField(
+        to=SocialMedia,
+        blank=True,
+        verbose_name=_('list of social media')
+    )
+    addresses = models.ManyToManyField(
+        to=Address,
+        blank=True,
+        verbose_name=_('list of addresses')
+    )
+    email_addresses = models.ManyToManyField(
+        to=EmailAddress,
+        blank=True,
+        verbose_name=_('list of email addresses')
+    )
+    notes = GenericRelation(
+        to='notes.Note',
+        content_type_field='gfk_content_type',
+        object_id_field='gfk_object_id',
+        verbose_name=_('list of notes')
+    )
 
     @property
     def twitter(self):

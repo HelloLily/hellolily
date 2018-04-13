@@ -1,4 +1,4 @@
-<div ng-if="currentUser.emailAccountStatus > 0">
+<div>
     <div ng-if="$state.current.name !== 'base.preferences.emailaccounts.edit' && currentUser.displayEmailWarning" class="notification-container is-alert">
         <a ui-sref="base.preferences.emailaccounts">
             Oops, something went wrong with one of your email accounts, could you help me fix it?
@@ -322,16 +322,6 @@
             </div>
         <div class="clearfix"></div>
         <!-- END PAGE ACTIONS -->
-        </div>
-    </div>
-</div>
-<div ng-if="currentUser.emailAccountStatus === 0">
-    <div class="page-header-inner">
-        <!-- BEGIN LOGO -->
-        <div class="page-header-logo-container">
-            <span class="page-header-logo">
-                <i class="lilicon hl-lily-icon"></i>
-            </span>
         </div>
     </div>
 </div>

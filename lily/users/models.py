@@ -1,14 +1,21 @@
+import calendar
 import hashlib
 import hmac
-import urllib
+from datetime import datetime, timedelta
 
+import avinit
+import chargebee
+import pytz
+import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import UserManager, PermissionsMixin, Group
 from django.contrib.auth.signals import user_logged_out
+from django.core.files.base import ContentFile
 from django.core.mail import send_mail
-from django.db import models
+from django.db import models, transaction
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
@@ -20,44 +27,128 @@ from lily.utils.models.models import Webhook
 
 
 class LilyUserManager(TenantManager, UserManager):
-
-    def _create_user(self, email, password, is_staff, is_superuser, tenant_id=None, **extra_fields):
+    """
+    The user model that is used everywhere.
+    """
+    @classmethod
+    def normalize_email(cls, email):
         """
-        Creates and saves a User with the given username, email and password.
+        Normalize the email address by lowercasing it.
+        """
+        return email.lower()
+
+    def _create_user(self, email, password, tenant_id, **extra_fields):
+        """
+        Creates and saves a User with the given email, password and extra fields.
         """
         now = timezone.now()
-        if not email:
-            raise ValueError('The given email address must be set')
         email = self.normalize_email(email)
-
-        # Find or create a tenant.
-        if tenant_id:
-            # Don't use get_or_create.
-            # Creating a tenant with the provided id collides with tenants created for the users in our test cases.
-            tenant = Tenant.objects.get(pk=tenant_id)
-        else:
-            tenant = Tenant.objects.create()
+        password = make_password(password)
 
         # Create default onboarding info.
         user_info = UserInfo.objects.create()
 
-        user = self.model(tenant=tenant, email=email, is_staff=is_staff, is_active=True, is_superuser=is_superuser,
-                          last_login=now, date_joined=now, info=user_info, **extra_fields)
-        user.set_password(password)
-        user.save(using=self._db)
+        picture = extra_fields.pop('picture', None)
+
+        user = self.create(
+            tenant_id=tenant_id,
+            email=email.lower(),
+            password=password,
+            last_login=now,
+            date_joined=now,
+            info=user_info,
+            **extra_fields
+        )
+
+        if not picture:
+            gravatar_hash = hashlib.md5(user.email.lower().encode('utf-8', errors='replace')).hexdigest()
+            response = requests.get('https://secure.gravatar.com/avatar/{}'.format(gravatar_hash), params={
+                'default': '404',
+                'size': '200'
+            })
+
+            if response.status_code == requests.codes.ok:
+                extension = response.headers.get('Content-Type', '/').split('/')[-1]
+
+                if extension:
+                    picture = ContentFile(
+                        content=response.content,
+                        name='profile-picture.{}'.format(extension)
+                    )
+
+        if picture:
+            user.picture.save(picture.name, picture)
 
         return user
 
     def create_user(self, email, password=None, **extra_fields):
-        return self._create_user(email, password, False, False, **extra_fields)
+        """
+        Prepare the creation of a new user.
+        """
+        extra_fields.setdefault('is_active', True)
+        extra_fields.setdefault('is_staff', False)
+        extra_fields.setdefault('is_superuser', False)
 
-    def create_superuser(self, email, password, **extra_fields):
-        user = self._create_user(email, password, True, True, **extra_fields)
+        tenant = extra_fields.pop('tenant', None)
+        tenant_id = extra_fields.pop('tenant_id', None)
 
-        account_admin = Group.objects.get_or_create(name='account_admin')[0]
-        user.groups.add(account_admin)
+        if tenant and tenant_id:
+            raise ValueError('Parameters are mutually exclusive: tenant and tenant_id')
+
+        if tenant:
+            tenant_id = tenant.pk
+
+        with transaction.atomic():
+            new_tenant_created = False
+            if not tenant_id:
+                new_tenant_created = True
+                tenant = Tenant.create_tenant(domain=email)
+
+                tenant_id = tenant.pk
+
+            extra_fields['tenant_id'] = tenant_id
+
+            user = self._create_user(email, password, **extra_fields)
+
+            if new_tenant_created:
+                # Add the user to the admin group.
+                account_admin = Group.objects.get_or_create(name='account_admin')[0]
+                user.groups.add(account_admin)
+
+                # Start a trial for this user/tenant.
+                if settings.BILLING_ENABLED:
+                    trial_end = datetime.now() + timedelta(days=30)
+                    # Chargebee wants the time in seconds.
+                    trial_end_seconds = calendar.timegm(trial_end.timetuple())
+
+                    result = chargebee.Subscription.create({
+                        'plan_id': tenant.billing.plan.name,
+                        'trial_end': trial_end_seconds,
+                        'customer': {
+                            'first_name': user.first_name,
+                            'last_name': user.last_name,
+                            'email': user.email,
+                            'company': tenant.name,
+                        },
+                    })
+
+                    tenant.billing.customer_id = result.customer.id
+                    tenant.billing.subscription_id = result.subscription.id
+                    tenant.billing.trial_end = trial_end
+                    tenant.billing.save()
 
         return user
+
+    def create_superuser(self, email, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return self.create_user(email, **extra_fields)
 
 
 class Team(TenantMixin):
@@ -98,6 +189,11 @@ class UserInfo(models.Model):
         (SKIPPED, _('Skipped')),
     )
 
+    registration_finished = models.BooleanField(
+        verbose_name=_('User has finished the registration process'),
+        default=False
+    )
+    # TODO: migration that removes this field.
     email_account_status = models.IntegerField(choices=STATUS_CHOICES, default=INCOMPLETE)
 
 
@@ -108,48 +204,99 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
 
     Password and email are required. Other fields are optional.
     """
-    first_name = models.CharField(_('first name'), max_length=255)
-    last_name = models.CharField(_('last name'), max_length=255)
-    picture = models.ImageField(upload_to=get_lilyuser_picture_upload_path, verbose_name=_('picture'), blank=True)
-    email = models.EmailField(_('email address'), max_length=255, unique=True)
-    position = models.CharField(_('position'), max_length=255, blank=True)
+    first_name = models.CharField(
+        verbose_name=_('first name'),
+        max_length=255
+    )
+    last_name = models.CharField(
+        verbose_name=_('last name'),
+        max_length=255
+    )
+    picture = models.ImageField(
+        upload_to=get_lilyuser_picture_upload_path,
+        verbose_name=_('picture'),
+        blank=True
+    )
+    email = models.EmailField(
+        verbose_name=_('email address'),
+        max_length=255,
+        unique=True
+    )
+    position = models.CharField(
+        verbose_name=_('position'),
+        max_length=255,
+        blank=True
+    )
     is_staff = models.BooleanField(
-        _('staff status'),
-        default=False,
-        help_text=_('Designates whether the user can log into this admin site.')
+        verbose_name=_('is staff'),
+        default=False
     )
     is_active = models.BooleanField(
-        _('active'),
-        default=True,
-        help_text=_('Designates whether this user should be treated as active. '
-                    'Unselect this instead of deleting accounts.')
+        verbose_name=_('is active'),
+        default=True
     )
-    date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
+    date_joined = models.DateTimeField(
+        verbose_name=_('date joined'),
+        default=timezone.now
+    )
     teams = models.ManyToManyField(
-        Team,
+        to=Team,
         verbose_name=_('Lily teams'),
         blank=True,
         related_name='user_set',
         related_query_name='user',
     )
+    phone_number = models.CharField(
+        verbose_name=_('phone number'),
+        max_length=40,
+        blank=True
+    )
+    internal_number = models.PositiveSmallIntegerField(
+        verbose_name=_('internal number'),
+        blank=True,
+        null=True
+    )
+    social_media = models.ManyToManyField(
+        to=SocialMedia,
+        verbose_name=_('list of social media'),
+        blank=True
+    )
+    language = models.CharField(
+        verbose_name=_('language'),
+        max_length=3,
+        choices=settings.LANGUAGES,
+        default='en'
+    )
+    timezone = TimeZoneField(
+        choices=[(pytz.timezone(tz), tz) for tz in pytz.common_timezones],
+        max_length=63,
+        default='Europe/Amsterdam'
+    )
 
-    phone_number = models.CharField(_('phone number'), max_length=40, blank=True)
-    internal_number = models.PositiveSmallIntegerField(_('internal number'), blank=True, null=True)
-    social_media = models.ManyToManyField(SocialMedia, blank=True, verbose_name=_('list of social media'))
-
-    language = models.CharField(_('language'), max_length=3, choices=settings.LANGUAGES, default='en')
-    timezone = TimeZoneField(default='Europe/Amsterdam')
-
-    primary_email_account = models.ForeignKey('email.EmailAccount', blank=True, null=True, on_delete=models.SET_NULL)
-    webhooks = models.ManyToManyField(Webhook, blank=True)
-
-    info = models.ForeignKey(UserInfo, blank=True, null=True, on_delete=models.SET_NULL)
+    primary_email_account = models.ForeignKey(
+        to='email.EmailAccount',
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL
+    )
+    webhooks = models.ManyToManyField(
+        to=Webhook,
+        blank=True
+    )
+    info = models.ForeignKey(
+        to=UserInfo,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL
+    )
 
     objects = LilyUserManager()
     all_objects = UserManager()
 
-    EMAIL_TEMPLATE_PARAMETERS = ['first_name', 'last_name', 'full_name', 'position',
-                                 'phone_number', 'current_email_address', 'user_team', 'profile_picture']
+    EMAIL_TEMPLATE_PARAMETERS = [
+        'first_name', 'last_name', 'full_name', 'position', 'phone_number', 'current_email_address', 'user_team',
+        'profile_picture',
+    ]
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name', ]
@@ -199,14 +346,7 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
         if self.picture:
             return self.picture.url
         else:
-            gravatar_hash = self.email.lower().encode('utf-8', errors='replace')
-            gravatar_hash = hashlib.md5(gravatar_hash).hexdigest()
-
-            # Try to get the Gravatar or show a default image if not available.
-            gravatar_url = 'https://secure.gravatar.com/avatar/' + gravatar_hash + '?'
-            gravatar_url += urllib.quote(urllib.urlencode({'d': 'mm', 's': str(200)}))
-
-            return gravatar_url
+            return avinit.get_avatar_data_url(self.full_name)
 
     @property
     def twitter(self):

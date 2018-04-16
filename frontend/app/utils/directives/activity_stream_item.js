@@ -47,6 +47,7 @@ function ActivityStreamItemController($scope, $state) {
 
     vm.replyOnEmail = replyOnEmail;
     vm.removeFromList = removeFromList;
+    vm.formatBytes = formatBytes;
 
     /////
 
@@ -82,5 +83,16 @@ function ActivityStreamItemController($scope, $state) {
         vm.item.notes = vm.item.notes.filter(note => note.id !== deletedNote.id);
 
         $scope.$apply();
+    }
+
+    function formatBytes(bytes, decimals) {
+        if (bytes === 0) return '0 Bytes';
+
+        const k = 1024;
+        const dm = decimals || 2;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
     }
 }

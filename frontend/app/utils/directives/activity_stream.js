@@ -1,9 +1,10 @@
 angular.module('app.utils.directives').directive('activityStream', ActivityStreamDirective);
 
 ActivityStreamDirective.$inject = ['$filter', '$q', '$state', 'Account', 'Case', 'Change', 'Contact', 'Deal',
-    'EmailAccount', 'EmailDetail', 'HLGravatar', 'HLResource', 'HLUtils', 'HLForms', 'Note', 'TimeLog', 'User'];
+    'EmailAccount', 'EmailDetail', 'EmailMessage', 'HLGravatar', 'HLResource', 'HLUtils', 'HLForms', 'Note',
+    'TimeLog', 'User'];
 function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Contact, Deal, EmailAccount,
-    EmailDetail, HLGravatar, HLResource, HLUtils, HLForms, Note, TimeLog, User) {
+    EmailDetail, EmailMessage, HLGravatar, HLResource, HLUtils, HLForms, Note, TimeLog, User) {
     return {
         restrict: 'E',
         replace: true,
@@ -468,6 +469,12 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
 
                         emailMessageList.forEach(email => {
                             if (!email.is_draft) {
+                                if (email.has_attachment) {
+                                    EmailMessage.attachments({id: email.id}).$promise.then(response => {
+                                        email.attachments = response.attachments;
+                                    });
+                                }
+
                                 User.search({filterquery: 'email:' + email.sender_email, is_active: 'All'}).$promise.then(userResults => {
                                     if (userResults.objects[0]) {
                                         email.profile_picture = userResults.objects[0].profile_picture;

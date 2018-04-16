@@ -86,6 +86,12 @@ function EmailMessage($resource, $q) {
                     id: '@id',
                 },
             },
+            attachments: {
+                url: '/api/messaging/email/email/:id/attachments/',
+                params: {
+                    id: '@id',
+                },
+            },
         }
     );
 

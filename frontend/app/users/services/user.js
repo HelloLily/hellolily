@@ -2,8 +2,8 @@ angular.module('app.users.services').factory('User', User);
 
 User.$inject = ['$resource', 'CacheFactory'];
 function User($resource, CacheFactory) {
-    var cache = CacheFactory.get('userCache');
-    var interceptor = {
+    const cache = CacheFactory.get('userCache');
+    const interceptor = {
         // Interceptor used to remove/update the cache on update/delete.
         response: function(response) {
             var cacheKey = response.config.url;
@@ -24,7 +24,7 @@ function User($resource, CacheFactory) {
         },
     };
 
-    var _user = $resource(
+    const _user = $resource(
         '/api/users/:id/',
         null,
         {
@@ -41,6 +41,7 @@ function User($resource, CacheFactory) {
             search: {
                 url: '/search/search/?type=users_lilyuser&filterquery=:filterquery',
                 method: 'GET',
+                cache: cache,
                 transformResponse: function(data) {
                     let jsonData = angular.fromJson(data);
                     let objects = [];

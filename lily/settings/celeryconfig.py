@@ -64,6 +64,10 @@ CELERY_ROUTES = (
         # When task is created in first sync, this task will be routed to email_first_sync.
         'queue': 'email_scheduled_tasks'
     }},
+    {'migrate_email_messages': {
+        # Temporary main task to migrate all the email messages in batches.
+        'queue': 'other_tasks'
+    }},
 )
 CELERYBEAT_SCHEDULE = {
     'synchronize_email_account_scheduler': {

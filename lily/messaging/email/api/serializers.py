@@ -198,6 +198,15 @@ class EmailAccountSerializer(WritableNestedSerializer):
                         shared_config_object = instance.sharedemailconfig_set.get(pk=shared_config.get('id'))
 
                         if shared_config.get('is_deleted'):
+                            try:
+                                # Delete default template setting if one was set.
+                                DefaultEmailTemplate.objects.get(
+                                    user=shared_config_object.user,
+                                    account=instance,
+                                ).delete()
+                            except DefaultEmailTemplate.DoesNotExist:
+                                pass
+
                             shared_config_object.delete()
                         else:
                             shared_config_object.privacy = shared_config.get('privacy')

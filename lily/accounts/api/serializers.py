@@ -119,6 +119,7 @@ class AccountSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
             'cocnumber',
             'contacts',
             'content_type',
+            'created',
             'customer_id',
             'description',
             'email_addresses',

@@ -1,7 +1,5 @@
 from django_filters import rest_framework as filters
 from rest_framework.filters import OrderingFilter
-from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from lily.api.filters import ElasticSearchFilter
@@ -10,24 +8,6 @@ from lily.api.mixins import ModelChangesMixin, TimeLogMixin, DataExistsMixin
 from .serializers import (DealSerializer, DealNextStepSerializer, DealWhyCustomerSerializer, DealWhyLostSerializer,
                           DealFoundThroughSerializer, DealContactedBySerializer, DealStatusSerializer)
 from ..models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost, DealFoundThrough, DealContactedBy, DealStatus
-
-
-class DealContactedByList(APIView):
-    swagger_schema = None
-
-    def get(self, request, format=None):
-        return Response(Deal.CONTACTED_BY_CHOICES)
-
-
-class DealNextStepList(APIView):
-    model = DealNextStep
-    serializer_class = DealNextStepSerializer
-    swagger_schema = None
-
-    def get(self, request, format=None):
-        queryset = self.model.objects.filter(tenant_id=self.request.user.tenant_id)
-        serializer = DealNextStepSerializer(queryset, many=True)
-        return Response(serializer.data)
 
 
 class DealWhyCustomerViewSet(ModelViewSet):

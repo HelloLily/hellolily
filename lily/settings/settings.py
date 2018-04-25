@@ -253,6 +253,7 @@ GEOIP_PATH = local_path('geoip/')
 #######################################################################################################################
 MIDDLEWARE_CLASSES = (
     # See https://docs.djangoproject.com/en/dev/ref/middleware/#middleware-ordering for ordering hints
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'lily.middleware.SetRemoteAddrFromForwardedFor',
     # 'django.contrib.sessions.middleware.SessionMiddleware',  # Replaced by user_sessions.
@@ -359,6 +360,7 @@ INSTALLED_APPS = (
     'user_sessions',  # Sessions used for http requests
     'drf_yasg',
     'ddtrace.contrib.django',
+    'corsheaders',
 
     # Django
     'django.contrib.admin',
@@ -659,6 +661,7 @@ REST_FRAMEWORK = {
     'DEFAULT_METADATA_CLASS': 'lily.api.drf_extensions.metadata.CustomMetaData',
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',  # Use application/json instead of multipart/form-data requests in tests.
     'DEFAULT_PAGINATION_CLASS': 'lily.api.drf_extensions.pagination.CustomPagination',
+    'COERCE_DECIMAL_TO_STRING': False,
 }
 
 #######################################################################################################################
@@ -768,6 +771,10 @@ SHELL_PLUS_POST_IMPORTS = (
     ('lily.tags.factories', '*'),
     ('lily.tenant.factories', '*'),
     ('lily.users.factories', '*'),
+)
+
+CORS_ORIGIN_WHITELIST = (
+    'localhost:3001',
 )
 
 SWAGGER_SETTINGS = {

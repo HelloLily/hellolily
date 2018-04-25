@@ -77,7 +77,7 @@ class Contact(Common, TaggedObjectMixin):
             self._primary_email = self.email_addresses.filter(status=EmailAddress.PRIMARY_STATUS).first()
 
             if not self._primary_email:
-                self._primary_email = ''
+                self._primary_email = None
 
         return self._primary_email
 

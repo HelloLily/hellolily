@@ -2,6 +2,7 @@ from django_filters import CharFilter
 from django_filters import rest_framework as filters
 from rest_framework import viewsets
 from rest_framework.filters import OrderingFilter
+from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from lily.api.filters import ElasticSearchFilter
@@ -129,6 +130,24 @@ class CaseStatusViewSet(viewsets.ModelViewSet):
         Set the queryset here so it filters on tenant and works with pagination.
         """
         return super(CaseStatusViewSet, self).get_queryset().all()
+
+
+class CasePrioritiesList(APIView):
+    def get(self, request, format=None):
+        priorities = Case.PRIORITY_CHOICES
+        date_increments = [5, 3, 1, 0]
+        results = []
+
+        for priority in priorities:
+            value = priority[0]
+
+            results.append({
+                'id': value,
+                'name': priority[1],
+                'date_increment': date_increments[value]
+            })
+
+        return Response({'results': results})
 
 
 class CaseTypeViewSet(viewsets.ModelViewSet):

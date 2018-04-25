@@ -400,6 +400,14 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
 
         return Response({'attachments': serializer.data})
 
+    @detail_route(methods=['GET'])
+    def thread(self, request, pk):
+        email = self.get_object()
+        messages = EmailMessage.objects.filter(thread_id=email.thread_id).order_by('sent_date')
+        serializer = EmailMessageSerializer(messages, many=True)
+
+        return Response({'results': serializer.data})
+
 
 class EmailTemplateFolderViewSet(viewsets.ModelViewSet):
     """

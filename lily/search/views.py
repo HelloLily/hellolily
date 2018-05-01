@@ -306,25 +306,18 @@ class PhoneNumberSearchView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         number = kwargs.get('number', None)
 
-        if number:
-            # For now we'll always convert the phone number to a certain format.
-            # In the future we might change how we handle phone numbers.
-            number = parse_phone_number(number)
-
         response = {
             'data': {
-                'accounts': [],
-                'contacts': [],
             },
         }
 
-        results = search_number(self.request.user.tenant_id, number)
+        account, contact = search_number(self.request.user.tenant_id, number)
 
-        for account in results['data']['accounts']:
-            response['data']['accounts'].append({'id': account.id, 'name': account.name})
+        if account:
+            response['data']['account'] = {'id': account.id, 'name': account.name}
 
-        for contact in results['data']['contacts']:
-            response['data']['contacts'].append({'id': contact.id, 'name': contact.full_name})
+        if contact:
+            response['data']['contact'] = {'id': contact.id, 'name': contact.full_name}
 
         return HttpResponse(anyjson.dumps(response), content_type='application/json; charset=utf-8')
 
@@ -346,15 +339,12 @@ class InternalNumberSearchView(LoginRequiredMixin, View):
             name = ''
             internal_number = results.get('internal_number', '')
 
-            result = search_number(request.user.tenant_id, number)
-            data = result.get('data')
-            accounts = data.get('accounts')
-            contacts = data.get('contacts')
+            account, contact = search_number(request.user.tenant_id, number)
 
-            if contacts:
-                name = contacts[0].full_name
-            elif accounts:
-                name = accounts[0].name
+            if contact:
+                name = contact.full_name
+            elif account:
+                name = account.name
 
             if name:
                 response = 'status=ACK&callername=%s' % name

@@ -237,22 +237,20 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
 
     function searchPhoneNumber(phoneNumber) {
         if (!vm.account.id && phoneNumber) {
-            // There was a call for the current user, so try to find an account with the given number.
+            // There was a call for the current user, so try to find an account or contact with the given number.
             Account.searchByPhoneNumber({number: phoneNumber}).$promise.then(response => {
-                if (response.data.accounts.length) {
-                    response.data.accounts.forEach(account => {
-                        const exists = vm.accountSuggestions.phone.some(suggestion => suggestion.account.id === account.id);
+                if (response.data.account) {
+                    const account = response.data.account;
+                    const exists = vm.accountSuggestions.phone.some(suggestion => suggestion.account.id === account.id);
 
-                        if (!exists) vm.accountSuggestions.phone.push({phoneNumber, account});
-                    });
+                    if (!exists) vm.accountSuggestions.phone.push({phoneNumber, account});
 
                     vm.showSuggestions.phone = true;
-                } else if (response.data.contacts.length) {
-                    response.data.contacts.forEach(contact => {
-                        const exists = vm.contactSuggestions.phone.some(suggestion => suggestion.contact.id === contact.id);
+                } else if (response.data.contact) {
+                    const contact = response.data.contact;
+                    const exists = vm.contactSuggestions.phone.some(suggestion => suggestion.contact.id === contact.id);
 
-                        if (!exists) vm.contactSuggestions.phone.push({phoneNumber, contact});
-                    });
+                    if (!exists) vm.contactSuggestions.phone.push({phoneNumber, contact});
 
                     vm.showSuggestions.phone = true;
                 }

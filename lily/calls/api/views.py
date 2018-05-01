@@ -48,40 +48,29 @@ class CallViewSet(viewsets.ModelViewSet):
             return response
 
         caller_number = parse_phone_number(request.data['caller_number'])
-        result = search_number(called_user.tenant_id, caller_number)
-        search_data = result.get('data', {})
-        accounts = search_data['accounts']
-        contacts = search_data['contacts']
+        account, contact = search_number(called_user.tenant_id, caller_number)
 
-        # If a single accounts with this number has been found, show information about and link to this account.
-        if accounts and len(accounts) == 1:
+        # If a account with this number has been found, show information about and link to this account.
+        if account:
             data = {
                 'destination': 'account',
                 'icon': static('app/images/notification_icons/account.png'),
                 'params': {
-                    'name': accounts[0].name,
+                    'name': account.name,
                     'number': caller_number,
-                    'id': accounts[0].id,
+                    'id': account.id,
                 },
             }
 
-            # If there are also contacts, change the title. If there's only one contact, we prepend this contacts
-            # name, else we append "Somebody from"
-            if contacts:
-                if len(contacts) > 1:
-                    data['params']['name'] = 'Somebody from %s' % data['params']['name']
-                else:
-                    data['params']['name'] = '%s from %s' % (contacts[0].full_name, data['params']['name'])
-
-        # If there are contacts but no accounts, show information about and link to the first contact.
-        elif contacts:
+        # There is no account for the number, but if there is a contact, show information about and link to it.
+        elif contact:
             data = {
                 'destination': 'contact',
                 'icon': static('app/images/notification_icons/contact.png'),
                 'params': {
-                    'name': contacts[0].full_name,
+                    'name': contact.full_name,
                     'number': caller_number,
-                    'id': contacts[0].id,
+                    'id': contact.id,
                 },
             }
 

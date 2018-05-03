@@ -14,6 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from lily.contacts.models import Contact
 from lily.tenant.middleware import get_current_user
+from lily.users.models import LilyUser
 from lily.utils.forms.fields import TagsField, FormSetField
 from lily.utils.forms.mixins import FormSetFormMixin
 from lily.utils.forms.widgets import Wysihtml5Input, AjaxSelect2Widget, HorizontalRadioSelect
@@ -446,8 +447,11 @@ class CreateUpdateTemplateVariableForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(CreateUpdateTemplateVariableForm, self).__init__(*args, **kwargs)
 
-        if get_current_user() != self.instance.owner:
-            self.fields['is_public'].widget = self.fields['is_public'].hidden_widget()
+        try:
+            if get_current_user() != self.instance.owner:
+                self.fields['is_public'].widget = self.fields['is_public'].hidden_widget()
+        except LilyUser.DoesNotExist:
+            pass
 
         email_parameter_choices = get_email_parameter_choices()
         self.fields['variables'].choices += [[x, x] for x in email_parameter_choices.keys()]

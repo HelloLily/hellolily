@@ -111,14 +111,21 @@ class MessageBuilder(object):
         self.get_or_create_message({'id': message_id})
         self.message.thread_id = message_info['threadId']
 
-        # UNREAD identifier check to see if message is read.
-        self.message.read = settings.GMAIL_LABEL_UNREAD not in message_info.get('labelIds', [])
+        # Set boolean identifier for some labels for faster filtering.
+        labels = message_info.get('labelIds', [])
+        self.message.read = settings.GMAIL_LABEL_UNREAD not in labels
+        self.message.is_inbox_message = settings.GMAIL_LABEL_INBOX in labels
+        self.message.is_sent_message = settings.GMAIL_LABEL_SENT in labels
+        self.message.is_draft_message = settings.GMAIL_LABEL_DRAFT in labels
+        self.message.is_trashed_message = settings.GMAIL_LABEL_TRASH in labels
+        self.message.is_spam_message = settings.GMAIL_LABEL_SPAM in labels
+        self.message.is_starred_message = settings.GMAIL_LABEL_STAR in labels
 
         # Get the available Label objects for the message from the database and the missing ones by the API.
         # First, get all labels from the database.
         db_labels = self.manager.email_account.labels.all()
 
-        message_label_set = set(label for label in message_info.get('labelIds', []))
+        message_label_set = set(label for label in labels)
         db_label_set = set(label.label_id for label in db_labels)
 
         # Use set operations to get the available and missing labels.

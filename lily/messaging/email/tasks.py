@@ -2,6 +2,7 @@ import logging
 import traceback
 
 from celery.task import task
+from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from oauth2client.client import HttpAccessTokenRefreshError
@@ -630,3 +631,40 @@ def cleanup_deleted_email_accounts():
     for account in account_list:
         logger.warning('Permanently deleting email account: %s with id %s.' % (account.email_address, account.pk))
         delete_email_account.delay(account_id=account.pk)
+
+
+@task(name='migrate_email_messages', trail=False, ignore_result=False)
+def migrate_email_messages():
+    messages = EmailMessage.objects.filter(
+        is_inbox_message__isnull=True
+    ).order_by()[0:100]
+
+    if messages:
+        logger.debug('Migrating the next %s messages.' % (len(messages)))
+        for message in messages:
+            labels = set(message.labels.all().values_list('name', flat=True))
+            message.is_inbox_message = settings.GMAIL_LABEL_INBOX in labels
+            message.is_sent_message = settings.GMAIL_LABEL_SENT in labels
+            message.is_draft_message = settings.GMAIL_LABEL_DRAFT in labels
+            message.is_trashed_message = settings.GMAIL_LABEL_TRASH in labels
+            message.is_spam_message = settings.GMAIL_LABEL_SPAM in labels
+            message.is_starred_message = settings.GMAIL_LABEL_STAR in labels
+
+            message.skip_signal = True  # Above fields aren't part of the search index, so skip the post_save signal.
+            message.save(
+                update_fields=[
+                    "is_inbox_message",
+                    "is_sent_message",
+                    "is_draft_message",
+                    "is_trashed_message",
+                    "is_spam_message",
+                    "is_starred_message"
+                ]
+            )
+
+        # There are possibly messages left to migrate, so add new batch in the queue. Process next batch with a delay
+        # so there are resources for normal db usage.
+        migrate_email_messages.apply_async(
+            queue='other_tasks',
+            countdown=30
+        )

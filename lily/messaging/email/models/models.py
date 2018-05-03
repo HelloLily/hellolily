@@ -202,6 +202,12 @@ class EmailMessage(models.Model):
     snippet = models.TextField(default='')
     subject = models.TextField(default='')
     thread_id = models.CharField(max_length=50, db_index=True)
+    is_inbox_message = models.NullBooleanField(_('Is inbox'), db_index=True)
+    is_trashed_message = models.NullBooleanField(_('Is trashed'), db_index=True)
+    is_spam_message = models.NullBooleanField(_('Is spam'), db_index=True)
+    is_sent_message = models.NullBooleanField(_('Is sent'), db_index=True)
+    is_draft_message = models.NullBooleanField(_('Is draft'), db_index=True)
+    is_starred_message = models.NullBooleanField(_('Is starred'), db_index=True)
 
     @property
     def tenant_id(self):

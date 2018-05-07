@@ -27,6 +27,7 @@ class CallViewSet(viewsets.ModelViewSet):
     filter_backends = (OrderingFilter,)
     # OrderingFilter: set the default ordering fields.
     ordering = ('id',)
+    swagger_schema = None
 
     def get_queryset(self):
         """
@@ -102,7 +103,7 @@ class CallViewSet(viewsets.ModelViewSet):
         """
         user = self.request.user
         internal_number = user.internal_number
-        call = Call.objects.filter(internal_number=internal_number, status=Call.ANSWERED).last()
+        call = CallRecord.objects.filter(internal_number=internal_number, status=Call.ANSWERED).last()
 
         if call:
             call = self.get_serializer(call).data
@@ -121,6 +122,7 @@ class CallRecordViewSet(mixins.RetrieveModelMixin,
     filter_backends = (OrderingFilter,)
     # OrderingFilter: set the default ordering fields.
     ordering = ('start', )
+    swagger_schema = None
 
     @list_route(methods=['GET'])
     def latest(self, request):

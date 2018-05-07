@@ -22,3 +22,4 @@ class CallNotificationViewSet(mixins.CreateModelMixin,
     serializer_class = CallNotificationSerializer
     # Set the permission class to only allow vg ips.
     permission_classes = (IsAuthenticated, VoipgridIpAddress, )
+    swagger_schema = None

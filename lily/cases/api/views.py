@@ -1,5 +1,5 @@
-from django_filters import FilterSet, CharFilter
-from django_filters.rest_framework import DjangoFilterBackend
+from django_filters import CharFilter
+from django_filters import rest_framework as filters
 from rest_framework import viewsets
 from rest_framework.filters import OrderingFilter
 from rest_framework.views import APIView
@@ -30,7 +30,7 @@ def queryset_filter(request, queryset):
     return queryset
 
 
-class CaseFilter(FilterSet):
+class CaseFilter(filters.FilterSet):
     """
     Class to filter case queryset.
     """
@@ -46,38 +46,44 @@ class CaseFilter(FilterSet):
 
 class CaseViewSet(ModelChangesMixin, TimeLogMixin, viewsets.ModelViewSet):
     """
-    Returns a list of all **active** cases in the system.
+    retrieve:
+    Returns the given case.
 
-    #Search#
-    Searching is enabled on this API.
+    list:
+    Returns a list of all cases.
 
-    To search, provide a field name to search on followed by the value you want to search for to the search parameter.
+    create:
+    Creates a new case.
 
-    #Filtering#
-    Filtering is enabled on this API.
+    update:
+    Overwrites the whole case with the given data.
 
-    To filter, use the field name as parameter name followed by the value you want to filter on.
+    ***
 
-    #Ordering#
-    Ordering is enabled on this API.
+    > Note: The case is automatically archived if the status is set to 'Closed'.
 
-    To order, provide a comma seperated list to the ordering argument. Use `-` minus to inverse the ordering.
+    partial_update:
+    Updates just the fields in the request data of the given case.
 
-    #Examples#
-    - plain: `/api/cases/`
-    - search: `/api/cases/?search=subject:Doremi`
-    - filter: `/api/cases/?type=1`
-    - order: `/api/cases/?ordering=subject,-id`
+    ***
 
-    #Returns#
-    * List of cases with related fields
+    > <label>Note:</label> The case is automatically archived if the status is set to 'Closed'.
+
+    delete:
+    Deletes the given case.
+
+    changes:
+    Returns all the changes performed on the given case.
+
+    timelogs:
+    Returns all timelogs for the given case.
     """
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
     queryset = Case.objects
     # Set the serializer class for this viewset.
     serializer_class = CaseSerializer
     # Set all filter backends that this viewset uses.
-    filter_backends = (ElasticSearchFilter, OrderingFilter, DjangoFilterBackend,)
+    filter_backends = (ElasticSearchFilter, OrderingFilter, filters.DjangoFilterBackend,)
 
     # ElasticSearchFilter: set the model type.
     model_type = 'cases_case'
@@ -103,6 +109,7 @@ class TeamsCaseList(APIView):
     model = Case
     serializer_class = CaseSerializer
     filter_class = CaseFilter
+    swagger_schema = None
 
     def get_queryset(self):
         queryset = self.model.objects.filter(tenant_id=self.request.user.tenant_id)
@@ -115,6 +122,7 @@ class CaseStatusViewSet(viewsets.ModelViewSet):
     queryset = CaseStatus.objects
     # Set the serializer class for this viewset.
     serializer_class = CaseStatusSerializer
+    swagger_schema = None
 
     def get_queryset(self):
         """
@@ -127,6 +135,7 @@ class CaseTypeViewSet(viewsets.ModelViewSet):
     model = CaseType
     queryset = CaseType.objects
     serializer_class = CaseTypeSerializer
+    swagger_schema = None
 
     def get_queryset(self):
         """

@@ -7,7 +7,6 @@ class ContentTypeSerializer(serializers.ModelSerializer):
     """
     Serializer for Django's ContentType model.
     """
-
     def __init__(self, instance=None, data=empty, **kwargs):
         kwargs.update({
             'read_only': True,  # This serializer must always be read only.

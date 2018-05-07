@@ -18,6 +18,8 @@ class Notifications(APIView):
     """
     List all notifications posted in request.messages
     """
+    swagger_schema = None
+
     def get(self, request, format=None, *args, **kwargs):
         storage = get_messages(request)
         notifications = []
@@ -35,6 +37,7 @@ class CallerName(APIView):
     """
     Serve a caller name to voipgrid based on the phone number provided
     """
+    swagger_schema = None
 
     def get(self, request, format=None, *args, **kwargs):
         name = '[NK]'
@@ -72,6 +75,7 @@ class CountryViewSet(ModelViewSet):
     queryset = Address.objects
     allowed_methods = ['OPTIONS', 'POST']
     serializer_class = AddressSerializer
+    swagger_schema = None
 
     def get_queryset(self):
         """
@@ -84,5 +88,7 @@ class CountryViewSet(ModelViewSet):
 
 
 class AppHash(APIView):
+    swagger_schema = None
+
     def get(self, request, format=None, *args, **kwargs):
         return Response({'app_hash': settings.CURRENT_COMMIT_SHA})

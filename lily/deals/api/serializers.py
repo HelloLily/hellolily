@@ -129,32 +129,94 @@ class DealSerializer(WritableNestedSerializer):
     Serializer for the deal model.
     """
     # Set non mutable fields.
-    created = serializers.DateTimeField(read_only=True)
     created_by = RelatedLilyUserSerializer(read_only=True)
-    modified = serializers.DateTimeField(read_only=True)
-    content_type = ContentTypeSerializer(read_only=True)
+    content_type = ContentTypeSerializer(
+        read_only=True,
+        help_text='This is what the object is identified as in the back-end.',
+    )
 
     # Custom fields.
-    description = SanitizedHtmlCharField()
+    description = SanitizedHtmlCharField(
+        help_text='Any extra text to describe the deal (supports Markdown).',
+    )
 
     # Related fields.
-    account = RelatedAccountSerializer(required=False, allow_null=True)
-    contact = RelatedContactSerializer(required=False, allow_null=True)
-    assigned_to = RelatedLilyUserSerializer(required=False, allow_null=True, assign_only=True)
-    assigned_to_teams = RelatedTeamSerializer(many=True, required=False, assign_only=True)
-    next_step = RelatedDealNextStepSerializer(assign_only=True)
-    tags = RelatedTagSerializer(many=True, required=False, create_only=True)
-    why_lost = RelatedDealWhyLostSerializer(assign_only=True, allow_null=True, required=False)
-    why_customer = RelatedDealWhyCustomerSerializer(assign_only=True, allow_null=True, required=False)
-    found_through = RelatedDealFoundThroughSerializer(assign_only=True, allow_null=True, required=False)
-    contacted_by = RelatedDealContactedBySerializer(assign_only=True, allow_null=True, required=False)
-    status = RelatedDealStatusSerializer(assign_only=True)
+    account = RelatedAccountSerializer(
+        required=False,
+        allow_null=True,
+        help_text='Account for which the deal is being created.',
+    )
+    contact = RelatedContactSerializer(
+        required=False,
+        allow_null=True,
+        help_text='Contact for which the deal is being created.',
+    )
+    assigned_to = RelatedLilyUserSerializer(
+        required=False,
+        allow_null=True,
+        assign_only=True,
+        help_text='Person which the deal is assigned to.',
+    )
+    assigned_to_teams = RelatedTeamSerializer(
+        many=True,
+        required=False,
+        assign_only=True,
+        help_text='List of teams the deal is assigned to.',
+    )
+    next_step = RelatedDealNextStepSerializer(
+        assign_only=True,
+        help_text='Allows the user to set what the next action is for the deal.',
+    )
+    tags = RelatedTagSerializer(
+        many=True,
+        required=False,
+        create_only=True,
+        help_text='Any tags used to further categorize the deal.',
+    )
+    why_lost = RelatedDealWhyLostSerializer(
+        assign_only=True,
+        allow_null=True,
+        required=False,
+        help_text='Allows the user to set why the deal was lost.',
+    )
+    why_customer = RelatedDealWhyCustomerSerializer(
+        assign_only=True,
+        allow_null=True,
+        required=False,
+        help_text='Why does someone want to become a customer.',
+    )
+    found_through = RelatedDealFoundThroughSerializer(
+        assign_only=True,
+        allow_null=True,
+        required=False,
+        help_text='How did the customer find your company.',
+    )
+    contacted_by = RelatedDealContactedBySerializer(
+        assign_only=True,
+        allow_null=True,
+        required=False,
+        help_text='How did the customer contact your company.',
+    )
+    status = RelatedDealStatusSerializer(
+        assign_only=True,
+        help_text='The status of the deal.',
+    )
 
     # Show string versions of fields.
     currency_display = serializers.CharField(source='get_currency_display', read_only=True)
 
-    amount_once = RegexDecimalField(max_digits=19, decimal_places=2, required=True)
-    amount_recurring = RegexDecimalField(max_digits=19, decimal_places=2, required=True)
+    amount_once = RegexDecimalField(
+        max_digits=19,
+        decimal_places=2,
+        required=True,
+        help_text='One time payment for the deal.',
+    )
+    amount_recurring = RegexDecimalField(
+        max_digits=19,
+        decimal_places=2,
+        required=True,
+        help_text='Recurring costs for the deal.',
+    )
 
     def validate(self, data):
         new_business = data.get('new_business')
@@ -379,3 +441,23 @@ class DealSerializer(WritableNestedSerializer):
             'why_customer',
             'why_lost',
         )
+        extra_kwargs = {
+            'created': {
+                'help_text': 'Shows the date and time when the deal was created.',
+            },
+            'modified': {
+                'help_text': 'Shows the date and time when the deal was last modified.',
+            },
+            'next_step_date': {
+                'help_text': 'Shows the date and time for when the next step should be executed.',
+            },
+            'closed_date': {
+                'help_text': 'Shows the date and time when the deal was set to \'Won\' or \'Closed\'.',
+            },
+            'newly_assigned': {
+                'help_text': 'True if the assignee was changed and that person hasn\'t accepted yet.',
+            },
+            'name': {
+                'help_text': 'A short description of the deal.',
+            },
+        }

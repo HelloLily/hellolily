@@ -1,5 +1,4 @@
-from django_filters import FilterSet
-from django_filters.rest_framework import DjangoFilterBackend
+from django_filters import rest_framework as filters
 from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -14,6 +13,8 @@ from ..models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost, DealFound
 
 
 class DealContactedByList(APIView):
+    swagger_schema = None
+
     def get(self, request, format=None):
         return Response(Deal.CONTACTED_BY_CHOICES)
 
@@ -21,6 +22,7 @@ class DealContactedByList(APIView):
 class DealNextStepList(APIView):
     model = DealNextStep
     serializer_class = DealNextStepSerializer
+    swagger_schema = None
 
     def get(self, request, format=None):
         queryset = self.model.objects.filter(tenant_id=self.request.user.tenant_id)
@@ -33,6 +35,7 @@ class DealWhyCustomerViewSet(ModelViewSet):
     queryset = DealWhyCustomer.objects
     # Set the serializer class for this viewset.
     serializer_class = DealWhyCustomerSerializer
+    swagger_schema = None
 
     def get_queryset(self):
         """
@@ -45,6 +48,7 @@ class DealWhyLostViewSet(ModelViewSet):
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
     queryset = DealWhyLost.objects
     serializer_class = DealWhyLostSerializer
+    swagger_schema = None
 
     def get_queryset(self):
         """
@@ -58,6 +62,7 @@ class DealNextStepViewSet(ModelViewSet):
     queryset = DealNextStep.objects
     # Set the serializer class for this viewset.
     serializer_class = DealNextStepSerializer
+    swagger_schema = None
 
     def get_queryset(self):
         """
@@ -71,6 +76,7 @@ class DealFoundThroughViewSet(ModelViewSet):
     queryset = DealFoundThrough.objects
     # Set the serializer class for this viewset.
     serializer_class = DealFoundThroughSerializer
+    swagger_schema = None
 
     def get_queryset(self):
         """
@@ -84,6 +90,7 @@ class DealContactedByViewSet(ModelViewSet):
     queryset = DealContactedBy.objects
     # Set the serializer class for this viewset.
     serializer_class = DealContactedBySerializer
+    swagger_schema = None
 
     def get_queryset(self):
         """
@@ -97,6 +104,7 @@ class DealStatusViewSet(ModelViewSet):
     queryset = DealStatus.objects
     # Set the serializer class for this viewset.
     serializer_class = DealStatusSerializer
+    swagger_schema = None
 
     def get_queryset(self):
         """
@@ -105,7 +113,7 @@ class DealStatusViewSet(ModelViewSet):
         return super(DealStatusViewSet, self).get_queryset().all()
 
 
-class DealFilter(FilterSet):
+class DealFilter(filters.FilterSet):
     class Meta:
         model = Deal
         fields = {
@@ -135,40 +143,40 @@ class DealFilter(FilterSet):
 
 class DealViewSet(ModelChangesMixin, TimeLogMixin, ModelViewSet):
     """
-    Returns a list of all **active** deals in the system.
+    retrieve:
+    Returns the given deal.
 
-    #Search#
-    Searching is enabled on this API.
+    list:
+    Returns a list of all deals.
 
-    To search, provide a field name to search on followed by the value you want to search for to the search parameter.
+    create:
+    Creates a new deal.
 
-    #Filtering#
-    Filtering is enabled on this API.
+    update:
+    Overwrites the whole deal with the given data.
 
-    To filter, use the field name as parameter name followed by the value you want to filter on.
+    > Note: Next step date is automatically incremented based on the next step unless the next step is 'None'.
 
-    The following fields can be filtered on the exact value and
+    partial_update:
+    Updates just the fields in the request data of the given deal.
 
-    #Ordering#
-    Ordering is enabled on this API.
+    > Note: Next step date is automatically incremented based on the next step unless the next step is 'None'.
 
-    To order, provide a comma seperated list to the ordering argument. Use `-` minus to inverse the ordering.
+    delete:
+    Deletes the given deal.
 
-    #Examples#
-    - plain: `/api/deals/`
-    - search: `/api/deals/?search=subject:Doremi`
-    - filter: `/api/deals/?type=1`
-    - order: `/api/deals/?ordering=subject,-id`
+    changes:
+    Returns all the changes performed on the given deal.
 
-    #Returns#
-    * List of cases with related fields
+    timelogs:
+    Returns all timelogs for the given deal.
     """
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
     queryset = Deal.objects
     # Set the serializer class for this viewset.
     serializer_class = DealSerializer
     # Set all filter backends that this viewset uses.
-    filter_backends = (ElasticSearchFilter, OrderingFilter, DjangoFilterBackend, )
+    filter_backends = (ElasticSearchFilter, OrderingFilter, filters.DjangoFilterBackend, )
 
     # ElasticSearchFilter: set the model type.
     model_type = 'deals_deal'

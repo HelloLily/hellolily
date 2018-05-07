@@ -41,27 +41,72 @@ class ContactSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
     """
     Serializer for the contact model.
     """
-    # Custom fields.
-    description = SanitizedHtmlCharField()
-
     # Set non mutable fields.
-    created = serializers.DateTimeField(read_only=True)
-    modified = serializers.DateTimeField(read_only=True)
-    full_name = serializers.CharField(read_only=True)
-    content_type = ContentTypeSerializer(read_only=True)
+    full_name = serializers.CharField(
+        read_only=True,
+        help_text='Read-only property to reduce the need to concatenate.'
+    )
+    content_type = ContentTypeSerializer(
+        read_only=True,
+        help_text='This is what the object is identified as in the back-end.',
+    )
 
     # Related fields.
-    phone_numbers = RelatedPhoneNumberSerializer(many=True, required=False, create_only=True)
-    addresses = RelatedAddressSerializer(many=True, required=False, create_only=True)
-    email_addresses = RelatedEmailAddressSerializer(many=True, required=False, create_only=True)
-    social_media = RelatedSocialMediaSerializer(many=True, required=False, create_only=True)
-    accounts = RelatedAccountSerializer(many=True, required=False)
-    tags = RelatedTagSerializer(many=True, required=False, create_only=True)
-    functions = RelatedFunctionSerializer(many=True, required=False, create_only=True)
+    phone_numbers = RelatedPhoneNumberSerializer(
+        many=True,
+        required=False,
+        create_only=True,
+        help_text='Phone numbers belonging to the contact.',
+    )
+    addresses = RelatedAddressSerializer(
+        many=True,
+        required=False,
+        create_only=True,
+        help_text='Addresses belonging to the contact.',
+    )
+    email_addresses = RelatedEmailAddressSerializer(
+        many=True,
+        required=False,
+        create_only=True,
+        help_text='Email addresses belonging to the contact.',
+    )
+    social_media = RelatedSocialMediaSerializer(
+        many=True,
+        required=False,
+        create_only=True,
+        help_text='Social media accounts belonging to the contact.',
+    )
+    accounts = RelatedAccountSerializer(
+        many=True,
+        required=False,
+        help_text='Accounts the contact works at.',
+    )
+    tags = RelatedTagSerializer(
+        many=True,
+        required=False,
+        create_only=True,
+        help_text='Any tags used to further categorize the contact.',
+    )
+    functions = RelatedFunctionSerializer(
+        many=True,
+        required=False,
+        create_only=True,
+    )
+    description = SanitizedHtmlCharField(
+        help_text='Any extra text to describe the contact (supports Markdown).',
+    )
 
     # Show string versions of fields.
-    gender_display = serializers.CharField(source='get_gender_display', read_only=True)
-    salutation_display = serializers.CharField(source='get_salutation_display', read_only=True)
+    gender_display = serializers.CharField(
+        source='get_gender_display',
+        read_only=True,
+        help_text='Human readable value of the contact\'s gender.',
+    )
+    salutation_display = serializers.CharField(
+        source='get_salutation_display',
+        read_only=True,
+        help_text='Human readable value of the contact\'s salutation.',
+    )
 
     class Meta:
         model = Contact
@@ -85,10 +130,23 @@ class ContactSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
             'salutation_display',
             'social_media',
             'tags',
-            'title',
             'functions',
         )
         read_only_fields = ('is_deleted', )
+        extra_kwargs = {
+            'created': {
+                'help_text': 'Shows the date and time when the contact was created.',
+            },
+            'modified': {
+                'help_text': 'Shows the date and time when the contact was last modified.',
+            },
+            'first_name': {
+                'help_text': 'The first name of the contact.',
+            },
+            'last_name': {
+                'help_text': 'The last name of the contact.',
+            },
+        }
 
     def validate(self, data):
         if not isinstance(data, dict):

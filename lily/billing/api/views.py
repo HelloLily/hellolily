@@ -18,6 +18,7 @@ from ..models import Plan
 
 class BillingViewSet(ViewSet):
     permission_classes = (IsAuthenticated, IsAccountAdmin, )
+    swagger_schema = None
 
     @list_route(methods=['GET', 'PATCH'])
     def subscription(self, request):

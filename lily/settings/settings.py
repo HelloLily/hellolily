@@ -347,6 +347,7 @@ INSTALLED_APPS = (
     'two_factor',
     'otp_yubikey',
     'user_sessions',  # Sessions used for http requests
+    'drf_yasg',
 
     # Django
     'django.contrib.admin',
@@ -732,5 +733,19 @@ SHELL_PLUS_POST_IMPORTS = (
     ('lily.tenant.factories', '*'),
     ('lily.users.factories', '*'),
 )
+
+SWAGGER_SETTINGS = {
+    'DEFAULT_INFO': 'lily.api.swagger_settings.swagger_info',
+    'DEFAULT_AUTO_SCHEMA_CLASS': 'lily.api.swagger_settings.LilyAutoSchema',
+    'DEFAULT_FILTER_INSPECTORS': [],
+    'DEFAULT_PAGINATOR_INSPECTORS': ['lily.api.swagger_settings.CustomPaginationInspector'],
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    },
+}
 
 from .celeryconfig import *  # noqa

@@ -1,8 +1,8 @@
 from django.db import transaction
 from django.db.models import Q
 from django.utils.datastructures import MultiValueDictKeyError
-from django_filters import FilterSet
-from django_filters.rest_framework import DjangoFilterBackend
+from django_filters import rest_framework as filters
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import detail_route
 from rest_framework import status
 from rest_framework.response import Response
@@ -26,7 +26,7 @@ from .serializers import AccountSerializer, AccountStatusSerializer
 from ..models import Account, AccountStatus, Website
 
 
-class AccountFilter(FilterSet):
+class AccountFilter(filters.FilterSet):
     class Meta:
         model = Account
         fields = {
@@ -40,7 +40,6 @@ class AccountFilter(FilterSet):
             'customer_id': ['exact', ],
             'description': ['exact', ],
             'email_addresses': ['exact', ],
-            'flatname': ['exact', ],
             'iban': ['exact', ],
             'legalentity': ['exact', ],
             'id': ['exact', ],
@@ -56,23 +55,35 @@ class AccountFilter(FilterSet):
 
 class AccountViewSet(ModelChangesMixin, ModelViewSet):
     """
-    Returns a list of all **active** accounts in the system.
+    Accounts are companies you've had contact with and for which you wish to store information.
 
-    #Search#
-    Searching is enabled on this API.
+    retrieve:
+    Returns the given account.
 
-    To search, provide a field name to search on followed by the value you want
-    to search for to the search parameter.
+    list:
+    Returns a list of all the existing active accounts.
 
-    #Returns#
-    * List of accounts with related fields
+    create:
+    Creates a new account.
+
+    update:
+    Overwrites the whole account with the given data.
+
+    partial_update:
+    Updates just the fields in the request data of the given account.
+
+    delete:
+    Deletes the given account.
+
+    changes:
+    Returns all the changes performed on the given account.
     """
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
     queryset = Account.objects
     # Set the serializer class for this viewset.
     serializer_class = AccountSerializer
     # Set all filter backends that this viewset uses.
-    filter_backends = (ElasticSearchFilter, OrderingFilter, DjangoFilterBackend, )
+    filter_backends = (ElasticSearchFilter, OrderingFilter, filters.DjangoFilterBackend, )
 
     # ElasticSearchFilter: set the model type.
     model_type = 'accounts_account'
@@ -93,6 +104,7 @@ class AccountViewSet(ModelChangesMixin, ModelViewSet):
 
         return super(AccountViewSet, self).get_queryset().filter(is_deleted=False)
 
+    @swagger_auto_schema(auto_schema=None)
     @detail_route(methods=['GET', ])
     def calls(self, request, pk=None):
         account = self.get_object()
@@ -122,6 +134,7 @@ class AccountStatusViewSet(ModelViewSet):
     queryset = AccountStatus.objects
     # Set the serializer class for this viewset.
     serializer_class = AccountStatusSerializer
+    swagger_schema = None
 
     def get_queryset(self):
         """
@@ -133,6 +146,7 @@ class AccountStatusViewSet(ModelViewSet):
 class AccountImport(APIView):
     permission_classes = (IsAuthenticated, IsAccountAdmin, )
     classes = (FileUploadParser, )
+    swagger_schema = None
 
     def post(self, request):
         try:

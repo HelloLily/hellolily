@@ -17,9 +17,16 @@ class NoteSerializer(serializers.ModelSerializer):
     gfk_content_type = serializers.PrimaryKeyRelatedField(
         queryset=ContentType.objects.filter(model__in=NOTABLE_MODELS),
         write_only=True,
+        help_text='Content type of the object the note is linked to.',
     )
-    gfk_object_id = serializers.IntegerField(write_only=True)
-    content = SanitizedHtmlCharField(required=True)
+    gfk_object_id = serializers.IntegerField(
+        write_only=True,
+        help_text='ID of the object the note is linked to.',
+    )
+    content = SanitizedHtmlCharField(
+        required=True,
+        help_text='The actual contents of the note (supports Markdown).',
+    )
 
     def create(self, validated_data):
         user = self.context.get('request').user
@@ -44,6 +51,11 @@ class NoteSerializer(serializers.ModelSerializer):
             'modified',
             'type',
         )
+        extra_kwargs = {
+            'is_pinned': {
+                'help_text': 'If true the note will show at the top of the activity stream.',
+            },
+        }
 
 
 class RelatedNoteSerializer(RelatedSerializerMixin, NoteSerializer):

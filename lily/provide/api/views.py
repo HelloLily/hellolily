@@ -17,6 +17,7 @@ class DataproviderView(APIView):
     """
     View that makes an API call to Dataprovider to look up information for an account.
     """
+    swagger_schema = None
 
     def post(self, request, *args, **kwargs):
         """

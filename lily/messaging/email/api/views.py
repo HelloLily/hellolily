@@ -418,7 +418,7 @@ class EmailTemplateFolderViewSet(viewsets.ModelViewSet):
     # Set the serializer class for this viewset.
     serializer_class = EmailTemplateFolderSerializer
     # Set all filter backends that this viewset uses.
-    filter_backends = (filters.OrderingFilter, )
+    filter_backends = (OrderingFilter, )
     swagger_schema = None
 
     # OrderingFilter: set the default ordering fields.
@@ -469,7 +469,7 @@ class EmailTemplateViewSet(viewsets.ModelViewSet):
     # Set the serializer class for this viewset.
     serializer_class = EmailTemplateSerializer
     # Set all filter backends that this viewset uses.
-    filter_backends = (filters.OrderingFilter, filters.DjangoFilterBackend)
+    filter_backends = (OrderingFilter, filters.DjangoFilterBackend)
     filter_class = EmailTemplateFilter
     swagger_schema = None
 

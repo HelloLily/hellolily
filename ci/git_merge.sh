@@ -14,7 +14,7 @@ do_merge() {
     git checkout master || exit 1
 
     echo "Merging develop into master."
-    git merge --no-edit develop || exit 1
+    git merge --ff-only --no-edit develop || exit 1
 }
 
 if can_merge; then

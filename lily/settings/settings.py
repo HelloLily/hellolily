@@ -718,7 +718,7 @@ BOOTSTRAP3 = {
 VOIPGRID_IPS = os.environ.get('VOIPGRID_IPS', '127.0.0.1')
 
 # Temporary setting to fine tune the email migration background task.
-MIGRATE_EMAIL_COUNTDOWN = os.environ.get('MIGRATE_EMAIL_COUNTDOWN', '30')
+MIGRATE_EMAIL_COUNTDOWN = int(os.environ.get('MIGRATE_EMAIL_COUNTDOWN', '30'))
 
 SHELL_PLUS_POST_IMPORTS = (
     ('django.db', 'connection'),

@@ -1,4 +1,4 @@
-from random import randint
+from random import randint, randrange
 
 import unicodedata
 
@@ -38,6 +38,7 @@ class LilyUserFactory(DjangoModelFactory):
     is_active = LazyAttribute(lambda o: bool(randint(0, 1)))
 
     phone_number = LazyAttribute(lambda o: faker.phone_number())
+    internal_number = LazyAttribute(lambda o: (randrange(1, 32767)))
 
     language = FuzzyChoice(dict(LANGUAGES).keys())
     timezone = FuzzyChoice(dict(TimeZoneField.CHOICES).values())

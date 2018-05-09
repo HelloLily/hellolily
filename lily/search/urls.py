@@ -17,5 +17,5 @@ urlpatterns = [
         name='search_view'),
     url(r'^internal-number/(?P<number>(\+)?([\d\-]+))$',
         InternalNumberSearchView.as_view(),
-        name='search_view'),
+        name='search_internal_number_view'),
 ]

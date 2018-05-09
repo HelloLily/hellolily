@@ -10,11 +10,12 @@ import anyjson
 import freemail
 from lily.accounts.models import Account, Website
 from lily.cases.models import Case
+from lily.contacts.models import Contact
 from lily.deals.models import Deal
 from lily.messaging.email.models.models import EmailAccount
-from lily.users.models import LilyUser
 from lily.utils.functions import parse_phone_number
 from lily.search.functions import search_number
+from lily.utils.models.models import PhoneNumber
 
 from .lily_search import LilySearch
 
@@ -324,22 +325,21 @@ class PhoneNumberSearchView(LoginRequiredMixin, View):
 
 class InternalNumberSearchView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        number = kwargs.get('number', None)
+        phone_number = kwargs.get('number', None)
 
-        if number:
+        if phone_number:
             # For now we'll always convert the phone number to a certain format.
             # In the future we might change how we handle phone numbers.
-            number = parse_phone_number(number)
+            phone_number = parse_phone_number(phone_number)
 
-        results = self._search_number(number)
+        results = self._get_user_internal_number(phone_number)
 
         response_format = request.GET.get('format')
-
         if response_format and response_format.lower() == 'grid':
-            name = ''
+            name = None
             internal_number = results.get('internal_number', '')
 
-            account, contact = search_number(request.user.tenant_id, number)
+            account, contact = search_number(request.user.tenant_id, phone_number)
 
             if contact:
                 name = contact.full_name
@@ -363,100 +363,103 @@ class InternalNumberSearchView(LoginRequiredMixin, View):
 
         return HttpResponse(anyjson.dumps(results), content_type='application/json; charset=utf-8')
 
-    def _get_last_contacted(self, number):
+    def _get_contact_assignee_by_account(self, account):
         """
-        Look for an account with the given number.
-        If it exists look for a case of deal with a contact and return
-        the contact and assignee of the case or deal.
+        Return a contact and assignee of a case or deal belonging to the provided account.
 
         Args:
-            number (str): Contains the number we want to look for.
-        Returns:
-            contact (obj): Contact belonging to the case/deal.
-            assignee (obj): Assignee of the case/deal.
-        """
-        tenant_id = self.request.user.tenant_id
+            account (obj): Account to which cases or deals belong to.
 
-        search = LilySearch(tenant_id=tenant_id, model_type='accounts_account', sort='-modified')
-        search.filter_query('phone_numbers.number:"%s"' % number)
-        hits, facets, total, took = search.do_search()
+        Returns:
+            contact (obj): Contact belonging to the case or deal.
+            assignee (obj): Assignee of the case or deal.
+        """
+        tenant = self.request.user.tenant
+
         contact = None
         assignee = None
 
-        if hits:
-            contact = None
-            # Look for cases/deal which have a contact.
-            filter_query = 'account.id:%s AND NOT(_missing_:contact)' % hits[0].get('id')
+        if account:
+            # Look for case and deal with a contact.
+            case = Case.objects.filter(
+                tenant=tenant,
+                account=account,
+                contact__isnull=False,
+                is_deleted=False
+            ).order_by(
+                '-modified'
+            ).first()
 
-            search = LilySearch(tenant_id=tenant_id, model_type='cases_case', sort='-modified')
-            search.filter_query(filter_query)
-            cases, facets, total, took = search.do_search()
+            deal = Deal.objects.filter(
+                tenant=tenant,
+                account=account,
+                contact__isnull=False,
+                is_deleted=False
+            ).order_by(
+                '-modified'
+            ).first()
 
-            if cases:
-                contact = cases[0].get('contact')
-                assignee = cases[0].get('assigned_to')
-            else:
-                search = LilySearch(tenant_id=tenant_id, model_type='deals_deal', sort='-modified')
-                search.filter_query(filter_query)
-                deals, facets, total, took = search.do_search()
-
-                if deals:
-                    contact = deals[0].get('contact')
-                    assignee = deals[0].get('assigned_to')
-
-            if contact:
-                # Fetch the contact so the data in _search_number is consistent.
-                search = LilySearch(tenant_id=tenant_id, model_type='contacts_contact')
-                search.filter_query('id:%s' % contact.get('id'))
-                hits, facets, total, took = search.do_search()
-
-                contact = hits[0]
+            if case:
+                contact = case.contact
+                assignee = case.assigned_to
+            elif deal:
+                contact = deal.contact
+                assignee = deal.assigned_to
 
         return contact, assignee
 
-    def _search_number(self, number):
+    def _get_user_internal_number(self, phone_number):
         """
-        Looks for a contact based on the given number and returns the internal number of the user assigned to a deal,
-        case or account based on that contact.
+        First look up a contact or account by the provided phone number. Next determine for that contact or account
+        the case / deal with the latest interaction. Return that user and its internal number to which that deal or
+        case is assigned to.
 
         Args:
-            number (str): Contains the number we want to look for.
+            phone_number (str): Formatted phone number.
 
         Returns:
-            internal_number (int): The internal number of the user.
-            user (int): ID of the user the internal number belongs to.
+            JSON string containing:
+                internal_number (int): The internal number of the user.
+                user (int): ID of the user the internal number belongs to.
         """
-        # Try to find a contact with the given phone number.
-        search = LilySearch(
-            tenant_id=self.request.user.tenant_id,
-            model_type='contacts_contact',
-            sort='-modified'
-        )
-        search.filter_query('phone_numbers.number:"%s"' % number)
+        tenant = self.request.user.tenant
 
-        hits, facets, total, took = search.do_search()
-
-        user = {}
-        contact = None
+        user = None
         assignee = None
-        accounts = []
 
-        if hits:
-            contact = hits[0]
-        else:
-            contact, assignee = self._get_last_contacted(number)
+        phone_numbers = PhoneNumber.objects.filter(
+            tenant=tenant,
+            number=phone_number
+        )
 
-        week_ago = date.today() - timedelta(days=7)
+        # Try to find a contact with the given phone number.
+        contact = Contact.objects.filter(
+            tenant=tenant,
+            phone_numbers__in=phone_numbers,
+        ).order_by(
+            '-modified'
+        ).first()
+
+        # Try to find an account with the given phone number.
+        account = Account.objects.filter(
+            tenant=tenant,
+            phone_numbers__in=phone_numbers,
+        ).order_by(
+            '-modified'
+        ).first()
+
+        if not contact:
+            contact, assignee = self._get_contact_assignee_by_account(account)
 
         if contact:
-            accounts = contact.get('accounts')
-
-            cases = Case.objects.filter(contact=contact.get('id'), is_deleted=False).order_by('-modified')
+            cases = Case.objects.filter(
+                contact=contact,
+                is_deleted=False
+            ).order_by('-modified')
             open_case = cases.filter(status__name='New').first()
 
             deals = Deal.objects.filter(
-                contact=contact.get('id'),
-                status__name='Open',
+                contact=contact,
                 is_deleted=False
             ).order_by('-modified')
             open_deal = deals.filter(status__name='Open').first()
@@ -467,13 +470,14 @@ class InternalNumberSearchView(LoginRequiredMixin, View):
 
                 # If there is an open deal and an open case the one with the most recent note.
                 if latest_case_note and latest_deal_note:
-                    # Check the latest modified note.
+                    # Get the user of the case or deal with the note with the most recent interaction.
                     if latest_case_note.modified > latest_deal_note.modified:
                         user = open_case.assigned_to
                     else:
                         user = open_deal.assigned_to
                 else:
-                    # No notes for both types, so check modified date.
+                    # No attached notes for both the case or deal.
+                    # Get the user of the case or deal with the most recent interaction.
                     if open_case.modified > open_deal.modified:
                         user = open_case.assigned_to
                     else:
@@ -485,12 +489,20 @@ class InternalNumberSearchView(LoginRequiredMixin, View):
                 # No open case, so use open deal.
                 user = open_deal.assigned_to
             else:
-                # Get closed cases and deals.
-                latest_closed_case = cases.filter(Q(created__gte=week_ago) & Q(status__name='Closed')).first()
-                latest_closed_deal = deals.filter(Q(created__lte=week_ago) &
-                                                   (Q(status__name='Won') | Q(status__name='Lost'))).first()
+                week_ago = date.today() - timedelta(days=7)
+                # Get a case that is not older then a week and closed.
+                latest_closed_case = cases.filter(
+                    Q(created__gte=week_ago) &
+                    Q(status__name='Closed')
+                ).first()
+                # Get a deal that is not older then a week and won or lost.
+                latest_closed_deal = deals.filter(
+                    Q(created__gte=week_ago) &
+                    (Q(status__name='Won') | Q(status__name='Lost'))
+                ).first()
 
                 if latest_closed_case and latest_closed_deal:
+                    # Get the user of the case or deal with the most recent interaction.
                     if latest_closed_case.modified > latest_closed_deal.modified:
                         user = latest_closed_case.assigned_to
                     else:
@@ -502,28 +514,16 @@ class InternalNumberSearchView(LoginRequiredMixin, View):
                     # No closed case, so use closed deal.
                     user = latest_closed_deal.assigned_to
                 else:
+                    # None of the above rules applies, so use account if possible.
+                    accounts = contact.accounts.all()
                     if accounts:
-                        # None of the above applies, so use account if possible.
-                        account = Account.objects.get(pk=accounts[0].get('id'))
+                        account = accounts.first()
                         user = account.assigned_to
-        else:
-            # Try to find an account with the given phone number.
-            search = LilySearch(
-                tenant_id=self.request.user.tenant_id,
-                model_type='accounts_account',
-                size=1,
-            )
-            search.filter_query('phone_numbers.number:"%s"' % number)
-
-            hits, facets, total, took = search.do_search()
-
-            if hits:
-                # None of the above applies, so use an account if possible.
-                account = Account.objects.get(pk=hits[0].get('id'))
-                user = account.assigned_to
+        elif account:
+            user = account.assigned_to
 
         if not user and assignee:
-            user = LilyUser.objects.get(pk=assignee.get('id'))
+            user = assignee
 
         if user:
             return {

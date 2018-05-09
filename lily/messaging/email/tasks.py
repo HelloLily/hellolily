@@ -666,5 +666,5 @@ def migrate_email_messages():
         # so there are resources for normal db usage.
         migrate_email_messages.apply_async(
             queue='other_tasks',
-            countdown=30
+            countdown=settings.MIGRATE_EMAIL_COUNTDOWN
         )

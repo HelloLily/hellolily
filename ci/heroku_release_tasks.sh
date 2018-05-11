@@ -3,9 +3,9 @@
 # Check if migration is needed.
 python manage.py makemigrations --dry-run --noinput | grep -q "No changes detected"
 
-if [ $? -ne 1 ]
+if [ $? -ne 0 ]
 then
-    echo "Proceed: migrations up-to-date with models. Proceed with the deployment"
+    echo "Migrations up-to-date with models. Proceed with the deployment"
     exit 0
 else
     echo "Migrations needed, setting Heroku app to maintenance mode."

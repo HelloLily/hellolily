@@ -1,3 +1,6 @@
+### Run release phase tasks like migrations
+release: ci/heroku_release_tasks.sh
+
 ### Django runs on this
 web: bin/start-pgbouncer-stunnel daphne lily.asgi:channel_layer --port $PORT --bind 0.0.0.0
 

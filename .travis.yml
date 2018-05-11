@@ -53,7 +53,6 @@ install:
   - travis_retry npm install -g eslint
   - gem install scss_lint
   - gem install travis --no-rdoc --no-ri
-  - curl https://cli-assets.heroku.com/install-standalone.sh | sh
 
 # The steps are run in the following order:
   # Install apt addons

@@ -34,10 +34,18 @@
                         <span><a ui-sref="base.email.detail({id: message.id})" uib-tooltip="view"><i class="fa fa-eye"></i></a></span>
                     </td>
                 </tr>
-                <tr ng-hide="vm.table.items.length">
-                    <td colspan="5">No unread email messages</td>
+                <tr ng-if="!vm.table.items.length && (vm.filterList | filter: {selected: true}).length">
+                    <td colspan="7">
+                        Awesome! All of the unread emails in the selected inbox(es) have been read.
+                    </td>
                 </tr>
             </tbody>
         </table>
+
+        <div ng-if="vm.filterList.length === 0">
+            <div class="empty-state-description no-top">
+                <p>This is where you’ll find all your unread email.</p>
+            </div>
+        </div>
     </widget-body>
 </widget>

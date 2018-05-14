@@ -9,8 +9,8 @@
     </widget-header>
 
     <widget-filters>
-        <due-date-filter filter-store="vm.table.dueDateFilter" filter-field="next_step_date" type="'deal'" class="due-date-filter"></due-date-filter>
-        <users-filter users-store="vm.table.usersFilter" storage-name="dealUsersFilter" class="user-filter"></users-filter>
+        <due-date-filter filter-store="vm.table.dueDateFilter" filter-field="next_step_date" type="'deal'" class="due-date-filter" conditions="vm.table.conditions"></due-date-filter>
+        <users-filter users-store="vm.table.usersFilter" storage-name="dealUsersFilter" class="user-filter" conditions="vm.table.conditions"></users-filter>
     </widget-filters>
 
     <widget-body>
@@ -83,9 +83,18 @@
             </tbody>
             <tbody>
                 <tr ng-show="vm.numOfDeals == 0">
-                    <td colspan="7">No deals</td>
+                    <td colspan="7" ng-if="vm.table.conditions.dueDate && vm.table.conditions.user">
+                        Well done, you’ve completed all your selected deals!
+                    </td>
+                    <td colspan="7" ng-if="!(vm.table.conditions.dueDate && vm.table.conditions.user)">No deals</td>
                 </tr>
             </tbody>
         </table>
+
+        <div ng-if="$root.currentUser.objectCounts.deals === 0">
+            <div class="empty-state-description no-top">
+                <p>All the deals you need to complete will show up here.</p>
+            </div>
+        </div>
     </widget-body>
 </widget>

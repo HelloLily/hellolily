@@ -15,7 +15,9 @@ from django.views.generic import FormView
 from django.views.generic.base import View, TemplateView, RedirectView
 
 from lily.accounts.models import Account
+from lily.cases.models import Case
 from lily.contacts.models import Contact
+from lily.deals.models import Deal
 from lily.messaging.email.models.models import EmailAccount, EmailAttachment
 from lily.users.models import LilyUser
 from lily.utils.models.models import PhoneNumber
@@ -245,6 +247,16 @@ class BaseView(LoginRequiredMixin, TemplateView):
             'SLACK_LILY_CLIENT_ID': settings.SLACK_LILY_CLIENT_ID,
             'DEBUG': settings.DEBUG,
             'account_admin': account_admin,
+        })
+
+        case_count = Case.objects.count()
+        deal_count = Deal.objects.count()
+
+        kwargs.update({
+            'object_counts': {
+                'cases': case_count,
+                'deals': deal_count,
+            }
         })
 
         if not has_required_tier(1):

@@ -6,6 +6,7 @@ function usersFilter() {
         scope: {
             usersStore: '=',
             storageName: '@',
+            conditions: '=?',
         },
         templateUrl: 'dashboard/directives/users_filter.html',
         controller: UsersFilterController,
@@ -55,6 +56,10 @@ function UsersFilterController($filter, $state, $timeout, LocalStorage, User, Us
             }
 
             vm.nameDisplay = vm.storedNameDisplay;
+
+            if (vm.currentUser.selected && vm.nameDisplay.length === 1 && vm.conditions) {
+                vm.conditions.user = true;
+            }
         }, 50);
     }
 
@@ -240,6 +245,14 @@ function UsersFilterController($filter, $state, $timeout, LocalStorage, User, Us
         }
 
         selectedFilter = $filter('unique')(selectedFilter);
+
+        if (vm.conditions) {
+            if (vm.currentUser.selected && selectedFilter.length === 1) {
+                vm.conditions.user = true;
+            } else {
+                vm.conditions.user = false;
+            }
+        }
 
         const filter = selectedFilter.join(' OR ');
 

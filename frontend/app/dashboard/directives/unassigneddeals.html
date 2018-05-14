@@ -27,10 +27,8 @@
                 </tr>
             </thead>
             <tbody>
-                <tr ng-hide="vm.table.items.length">
-                    <td colspan="7">
-                        There are no unassigned deals
-                    </td>
+                <tr ng-if="!vm.table.items.length">
+                    <td colspan="7">All deals for the selected types and teams have been assigned.</td>
                 </tr>
                 <tr ng-repeat="deal in vm.table.items">
                     <td><a ui-sref="base.deals.detail({ id: deal.id })">{{ deal.name }}</a></td>

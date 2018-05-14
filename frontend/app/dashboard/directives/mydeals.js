@@ -23,6 +23,10 @@ function MyDealsController($filter, $scope, $timeout, Case, Deal, HLUtils, HLRes
         items: [],
         dueDateFilter: storage.get('dueDateFilter', ''),
         usersFilter: storage.get('usersFilter', ''),
+        conditions: {
+            dueDate: false,
+            user: false,
+        },
     };
     vm.numOfDeals = 0;
 

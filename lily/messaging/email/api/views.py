@@ -196,7 +196,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         """
         trash_email_message.apply_async(args=(instance.id,))
 
-    @detail_route(methods=['put'])
+    @detail_route(methods=['put', 'patch'])
     def archive(self, request, pk=None):
         """
         Archive an email message asynchronous through the manager and not directly on the database. Just update the
@@ -237,7 +237,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         trash_email_message.apply_async(args=(email.id,))
         return Response(serializer.data)
 
-    @detail_route(methods=['put'])
+    @detail_route(methods=['put', 'patch'])
     def move(self, request, pk=None):
         """
         Move an email message asynchronous through the manager and not directly on the database. Just update the
@@ -252,7 +252,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         )
         return Response(serializer.data)
 
-    @detail_route(methods=['put'])
+    @detail_route(methods=['put', 'patch'])
     def star(self, request, pk=None):
         """
         Star an email message asynchronous through the manager and not directly on the database. Just update the
@@ -265,7 +265,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         toggle_star_email_message.delay(email.id, star=request.data['starred'])
         return Response(serializer.data)
 
-    @detail_route(methods=['put'])
+    @detail_route(methods=['put', 'patch'])
     def spam(self, request, pk=None):
         """
         Mark / unmark an email message as spam asynchronous through the manager and not directly on the database. Just

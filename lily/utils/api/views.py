@@ -9,6 +9,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
+from lily.utils.countries import COUNTRIES
 
 from .serializers import AddressSerializer
 from ..models.models import Address
@@ -85,6 +86,20 @@ class CountryViewSet(ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         raise exceptions.PermissionDenied
+
+
+class CountryList(APIView):
+    swagger_schema = None
+
+    def get(self, request, format=None):
+        results = {}
+
+        for country in COUNTRIES:
+            results.update({
+                country[0]: country[1]
+            })
+
+        return Response({'results': results})
 
 
 class AppHash(APIView):

@@ -1,13 +1,7 @@
 #!/bin/bash
 
-# Check if migration is needed.
-python manage.py makemigrations --dry-run --noinput | grep -q "No changes detected"
-
-if [ $? -ne 0 ]
-then
-    echo "Migrations up-to-date with models. Proceed with the deployment"
-    exit 0
-else
+# Run migrations if needed.
+if [ $(docker-compose run --rm web python manage.py showmigrations | grep '\[ \]' | wc -l) -gt 0 ]; then
     echo "Migrations needed, setting Heroku app to maintenance mode."
     python ./ci/patch_heroku_app.py ${HEROKU_APP_NAME} ${HEROKU_API_KEY} maintenance true
     echo "Scaling down beat dynos to 0."

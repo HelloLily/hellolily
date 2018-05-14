@@ -139,8 +139,6 @@
 
         initEmailCompose: function(emailComposeConfig) {
             var self = this;
-            var decodedEditorValue;
-            var $composeEmailTemplate;
 
             if (typeof emailComposeConfig === 'object') {
                 $.extend(self.config, emailComposeConfig);
@@ -161,15 +159,6 @@
 
             if (self.config.recipient) {
                 $(self.config.sendToNormalField).select2('data', self.config.recipient);
-            }
-
-            // Decode special chars
-            decodedEditorValue = self.decodeEntities(editor.getValue());
-            $composeEmailTemplate = $(decodedEditorValue).closest('#compose-email-template');
-
-            // If there's a template, we're dealing with a draft, so set currentTemplate
-            if ($composeEmailTemplate.length) {
-                self.config.currentTemplate = $composeEmailTemplate[0].innerHTML;
             }
         },
 

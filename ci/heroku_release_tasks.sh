@@ -9,6 +9,7 @@ if [ $(python manage.py showmigrations | grep '\[ \]' | wc -l) -gt 0 ]; then
     echo "Running migrations."
     python manage.py migrate
     migration_result=$?
+    echo $migration_result
     echo "Migrations done, switching maintenance mode off."
     python ./ci/patch_heroku_app.py ${HEROKU_APP_NAME} ${HEROKU_API_KEY} maintenance false
     echo "Scaling beat dynos up back to 1."

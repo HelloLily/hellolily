@@ -7,14 +7,14 @@ if [ $(python manage.py showmigrations | grep '\[ \]' | wc -l) -gt 0 ]; then
     echo "Scaling down beat dynos to 0."
     python ./ci/patch_heroku_app.py ${HEROKU_APP_NAME}/formation/beat ${HEROKU_API_KEY} quantity 0
     echo "Running migrations."
-    python manage.py migrate
-    migration_result=$?
+    if [ $(python manage.py migrate | grep 'Migration error.' | wc -l) -gt 0 ]; then
+        exit 1
+    fi
     echo $migration_result
     echo "Migrations done, switching maintenance mode off."
     python ./ci/patch_heroku_app.py ${HEROKU_APP_NAME} ${HEROKU_API_KEY} maintenance false
     echo "Scaling beat dynos up back to 1."
     python ./ci/patch_heroku_app.py ${HEROKU_APP_NAME}/formation/beat ${HEROKU_API_KEY} quantity 1
-    exit $migration_result
 else
     echo "No Migration needed, proceeding with the deployment."
 fi

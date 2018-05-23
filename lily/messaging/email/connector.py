@@ -59,6 +59,14 @@ class GmailConnector(object):
         else:
             self.gmail_service = GmailService(credentials)
 
+    def backoff(self, msg, attempt):
+        if not settings.TESTING:  # Disable sleeping while running tests.
+            sleep_time = (2 ** attempt) + random.randint(0, 1000) / 1000
+
+            logger.warning(msg.format(sleep_time))
+
+            time.sleep(sleep_time)
+
     def execute_service_call(self, service):
         """
         Try to execute a service call.
@@ -82,19 +90,13 @@ class GmailConnector(object):
                     if error.get('code') == 403 and error.get('errors')[0].get('reason') in ['rateLimitExceeded',
                                                                                              'userRateLimitExceeded']:
                         # Apply exponential backoff.
-                        sleep_time = (2 ** n) + random.randint(0, 1000) / 1000
-                        logger.warning('Limit overrated, sleeping for %s seconds' % sleep_time)
-                        time.sleep(sleep_time)
+                        self.backoff(msg='Limit overrated, sleeping for %s seconds', attempt=n)
                     elif error.get('code') == 429:
                         # Apply exponential backoff.
-                        sleep_time = (2 ** n) + random.randint(0, 1000) / 1000
-                        logger.warning('Too many concurrent requests for user, sleeping for %d seconds' % sleep_time)
-                        time.sleep(sleep_time)
+                        self.backoff(msg='Too many concurrent requests for user, sleeping for %d seconds', attempt=n)
                     elif error.get('code') == 503 or error.get('code') == 500:
                         # Apply exponential backoff.
-                        sleep_time = (2 ** n) + random.randint(0, 1000) / 1000
-                        logger.warning('Backend error, sleeping for %d seconds' % sleep_time)
-                        time.sleep(sleep_time)
+                        self.backoff(msg='Backend error, sleeping for %d seconds', attempt=n)
                     elif error.get('code') == 400 and error.get('message') == 'labelId not found':
                         raise LabelNotFoundError
                     elif error.get('code') == 400 and error.get('message') == 'Invalid label: SENT':

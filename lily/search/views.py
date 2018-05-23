@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -8,6 +8,8 @@ from django.views.generic.base import View
 
 import anyjson
 import freemail
+from pytz import utc
+
 from lily.accounts.models import Account, Website
 from lily.cases.models import Case
 from lily.contacts.models import Contact
@@ -490,6 +492,8 @@ class InternalNumberSearchView(LoginRequiredMixin, View):
                 user = open_deal.assigned_to
             else:
                 week_ago = date.today() - timedelta(days=7)
+                week_ago = datetime(week_ago.year, week_ago.month, week_ago.day, tzinfo=utc)
+
                 # Get a case that is not older then a week and closed.
                 latest_closed_case = cases.filter(
                     Q(created__gte=week_ago) &

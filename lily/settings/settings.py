@@ -51,7 +51,6 @@ if not CURRENT_COMMIT_SHA:
 #######################################################################################################################
 # Try to read as much configuration from ENV
 DEBUG = boolean(os.environ.get('DEBUG', 0))
-TESTING = False
 
 ADMINS = eval(os.environ.get('ADMINS', '()'))
 MANAGERS = ADMINS
@@ -239,7 +238,6 @@ CHANNEL_SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # For websocket 
 #######################################################################################################################
 # USER SESSIONS                                                                                                       #
 #######################################################################################################################
-# TODO: check how to install the libmaxminddb c library on heroku.
 GEOIP_PATH = local_path('geoip/')
 
 #######################################################################################################################

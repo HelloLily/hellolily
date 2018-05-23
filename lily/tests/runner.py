@@ -5,6 +5,18 @@ from django.test.runner import DiscoverRunner
 from django.conf import settings
 
 
+class DisableMigrations(object):
+    """
+    Fake migrations module to disable migrations in tests.
+    """
+
+    def __contains__(self, item):
+        return True
+
+    def __getitem__(self, item):
+        return None
+
+
 class LilyNoseTestSuiteRunner(DiscoverRunner):
     """
     Bootstrap into the testsuite running process.
@@ -25,3 +37,6 @@ class LilyNoseTestSuiteRunner(DiscoverRunner):
         # manage.py test already does this, but not when providing a path, like
         # manage.py test lily/contacts/tests.
         settings.DEBUG = False
+
+        # Disable migrations so the database is built faster.
+        settings.MIGRATION_MODULES = DisableMigrations()

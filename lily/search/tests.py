@@ -342,7 +342,7 @@ class InternalNumberSearchAPITestCase(UserBasedTest, APITestCase):
         response = self.user.get(reverse(self.search_url, kwargs={'number': self.phone_number.number}))
 
         # Verify response.
-        # self._verify_response(response, assigned_to_user)
+        self._verify_response(response, assigned_to_user)
 
     def _verify_response(self, response, user):
         self.assertEqual(response.status_code, status.HTTP_200_OK)

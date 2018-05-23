@@ -140,6 +140,7 @@ ALLOWED_HOSTS = [
     'hellolily.herokuapp.com',
     'hellolily-staging.herokuapp.com',
     'app.hellolily.com',
+    'app.hellolily.nl',
     'localhost',
 ]
 

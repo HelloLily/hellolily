@@ -615,15 +615,32 @@ def get_extensions_for_type(general_type):
     yield '.bak'
 
 
-def get_shared_email_accounts(user):
+def get_shared_email_accounts(user, only_public=True):
     if not user.tenant.billing.is_free_plan:
         # Team plan allows sharing of email account.
-        # Get a list of email accounts which are publicly shared or shared specifically with the user.
-        shared_email_account_list = EmailAccount.objects.filter(
-            Q(owner=user) |
-            Q(privacy=EmailAccount.PUBLIC) |
-            (Q(sharedemailconfig__user__id=user.pk) & Q(sharedemailconfig__privacy=EmailAccount.PUBLIC))
-        )
+        if only_public:
+            # Get a list of email accounts which are publicly shared or shared specifically with the user.
+            shared_email_account_list = EmailAccount.objects.filter(
+                Q(owner=user) |
+                Q(privacy=EmailAccount.PUBLIC) |
+                (Q(sharedemailconfig__user__id=user.pk) & Q(sharedemailconfig__privacy=EmailAccount.PUBLIC))
+            )
+        else:
+            # Get a list of email accounts which are publicly shared or shared specifically with the user, including
+            # accounts that only share metadata or as read only.
+            shared_email_account_list = EmailAccount.objects.filter(
+                Q(owner=user) |
+                Q(privacy=EmailAccount.PUBLIC) |
+                Q(privacy=EmailAccount.READ_ONLY) |
+                Q(privacy=EmailAccount.METADATA) |
+                (
+                    Q(sharedemailconfig__user__id=user.pk) & (
+                        Q(sharedemailconfig__privacy=EmailAccount.PUBLIC) |
+                        Q(sharedemailconfig__privacy=EmailAccount.READ_ONLY) |
+                        Q(sharedemailconfig__privacy=EmailAccount.METADATA)
+                    )
+                )
+            )
     else:
         # Free plan, so only allow own email accounts.
         shared_email_account_list = EmailAccount.objects.filter(

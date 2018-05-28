@@ -48,28 +48,28 @@
             <div class="stream-item-meta">
                 <div class="stream-item-meta-object">
                     <div class="stream-item-meta-title">From:</div>
-                    <span ng-show="vm.item.sender_name">
-                        <a ui-sref="base.email.composeEmail({ email: vm.item.sender_email })">
-                            {{ ::vm.item.sender_name }}
+                    <span ng-show="vm.item.sender.name">
+                        <a ui-sref="base.email.composeEmail({ email: vm.item.sender.email_address })">
+                            {{ ::vm.item.sender.name }}
                         </a>
                     </span>
-                    <span ng-show="!vm.item.sender_name">
-                        <a ui-sref="base.email.composeEmail({ email: vm.item.sender_email })">
-                            {{ ::vm.item.sender_email }}
+                    <span ng-show="!vm.item.sender.name">
+                        <a ui-sref="base.email.composeEmail({ email: vm.item.sender.email_address })">
+                            {{ ::vm.item.sender.email_address }}
                         </a>
                     </span>
                 </div>
 
                 <div class="stream-item-meta-object">
                     <div class="stream-item-meta-title">To:</div>
-                    <span ng-if="vm.item.received_by_email.length == 1" ng-repeat="recipient in vm.item.received_by_email">
-                        <a uib-tooltip="{{ recipient }}" ui-sref="base.email.composeEmail({ email: recipient })">
-                            {{ recipient }}
+                    <span ng-if="vm.item.received_by.length == 1" ng-repeat="recipient in vm.item.received_by">
+                        <a uib-tooltip="{{ recipient.email_address }}" ui-sref="base.email.composeEmail({ email: recipient.email_address })">
+                            {{ recipient.email_address }}
                         </a>
                     </span>
-                    <span ng-if="vm.item.received_by_email.length > 1 ">
+                    <span ng-if="vm.item.received_by.length > 1 ">
                         <a ui-sref="base.email.detail({ id: vm.item.id })">
-                            {{ vm.item.received_by_email.length }} recipients
+                            {{ vm.item.received_by.length }} recipients
                         </a>
                     </span>
                 </div>
@@ -92,7 +92,7 @@
             </div>
 
             <div class="stream-item-description has-scroll" ng-if="vm.item.account && vm.item.shown">
-                <p class="detail-plain-text" ng-bind-html="vm.item.body"></p>
+                <p class="detail-plain-text" ng-bind-html="vm.item.body_text"></p>
             </div>
 
             <div class="stream-item-description hidden-content" ng-if="!vm.item.account && vm.item.shown">

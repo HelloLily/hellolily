@@ -112,14 +112,12 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                 const requestLength = ((page + 1) * PAGE_SIZE) + 1;
 
                 let dateQuery = '';
-                let emailDateQuery = '';
                 let contentType = scope.target;
                 let currentObject = obj;
                 let targetPlural = scope.target + 's';
 
                 if (scope.dateStart && scope.dateEnd) {
                     dateQuery = ` AND modified:[${scope.dateStart} TO ${scope.dateEnd}]`;
-                    emailDateQuery = `sent_date:[${scope.dateStart} TO ${scope.dateEnd}]`;
                 }
 
                 page += 1;
@@ -464,9 +462,13 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                     });
 
                     const params = {
-                        filterquery: emailDateQuery,
+                        activity_stream: 1,
                         size: requestLength,
                     };
+                    if (scope.dateStart && scope.dateEnd) {
+                        params.date_start = scope.dateStart;
+                        params.date_end = scope.dateEnd;
+                    }
 
                     if (contentType === 'account') {
                         params.account_related = currentObject.id;
@@ -487,9 +489,15 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                                 }
                             }
 
-                            User.search({filterquery: 'email:' + email.sender_email, is_active: 'All'}).$promise.then(userResults => {
+                            User.search({filterquery: 'email:' + email.sender.email_address, is_active: 'All'}).$promise.then(userResults => {
                                 if (userResults.objects[0]) {
                                     email.profile_picture = userResults.objects[0].profile_picture;
+                                }
+                            });
+
+                            tenantEmailAccountList.forEach(emailAddress => {
+                                if (emailAddress.email_address === email.sender_email) {
+                                    email.right = true;
                                 }
                             });
 

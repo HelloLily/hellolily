@@ -210,12 +210,12 @@ class EmailMessage(models.Model):
     snippet = models.TextField(default='')
     subject = models.TextField(default='')
     thread_id = models.CharField(max_length=50, db_index=True)
-    is_inbox_message = models.NullBooleanField(_('Is inbox'), db_index=True)
-    is_trashed_message = models.NullBooleanField(_('Is trashed'), db_index=True)
-    is_spam_message = models.NullBooleanField(_('Is spam'), db_index=True)
-    is_sent_message = models.NullBooleanField(_('Is sent'), db_index=True)
-    is_draft_message = models.NullBooleanField(_('Is draft'), db_index=True)
-    is_starred_message = models.NullBooleanField(_('Is starred'), db_index=True)
+    is_inbox = models.NullBooleanField(_('Is inbox'), db_index=True)
+    is_trashed = models.NullBooleanField(_('Is trashed'), db_index=True)
+    is_spam = models.NullBooleanField(_('Is spam'), db_index=True)
+    is_sent = models.NullBooleanField(_('Is sent'), db_index=True)
+    is_draft = models.NullBooleanField(_('Is draft'), db_index=True)
+    is_starred = models.NullBooleanField(_('Is starred'), db_index=True)
     message_type = models.PositiveSmallIntegerField(choices=MESSAGE_TYPES, null=True, default=None)
     message_type_to_id = models.PositiveIntegerField(null=True, default=None)  # Id it is a reply to, or forward of.
 
@@ -268,44 +268,12 @@ class EmailMessage(models.Model):
             return self.labels.filter(label_id=label_name).exists()
 
     @property
-    def is_trashed(self):
-        # When the instance variable is present, don't evaluate the corresponding label.
-        if hasattr(self, '_is_trashed'):
-            return self._is_trashed
-        else:
-            return self.fast_label_check(settings.GMAIL_LABEL_TRASH)
-
-    @property
-    def is_starred(self):
-        # When the instance variable is present, don't evaluate the corresponding label.
-        if hasattr(self, '_is_starred'):
-            return self._is_starred
-        else:
-            return self.fast_label_check(settings.GMAIL_LABEL_STAR)
-
-    @property
-    def is_draft(self):
-        return self.fast_label_check(settings.GMAIL_LABEL_DRAFT)
-
-    @property
     def is_important(self):
         return self.fast_label_check(settings.GMAIL_LABEL_IMPORTANT)
 
     @property
-    def is_spam(self):
-        # When the instance variable is present, don't evaluate the corresponding label.
-        if hasattr(self, '_is_spam'):
-            return self._is_spam
-        else:
-            return self.fast_label_check(settings.GMAIL_LABEL_SPAM)
-
-    @property
     def is_archived(self):
-        # When the instance variable is present, don't evaluate the corresponding label.
-        if hasattr(self, '_is_archived'):
-            return self._is_archived
-        else:
-            return not self.fast_label_check(settings.GMAIL_LABEL_INBOX)
+        return not self.is_inbox
 
     @property
     def is_deleted(self):

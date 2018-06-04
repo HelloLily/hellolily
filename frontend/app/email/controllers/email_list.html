@@ -129,8 +129,11 @@
 
                     <div class="pull-right">
                         <ul class="email-pagination">
-                            <li class="email-pagination-info">
+                            <li class="email-pagination-info" ng-show="vm.table.totalItems">
                                 {{ vm.table.page * vm.table.pageSize + 1}}-{{ [(vm.table.page + 1) * vm.table.pageSize, vm.table.totalItems] | minValue }} of {{ vm.table.totalItems | number }}
+                            </li>
+                            <li class="email-pagination-info" ng-show="!vm.table.totalItems">
+                                {{ vm.table.page * vm.table.pageSize + 1}}-{{ [(vm.table.page + 1) * vm.table.pageSize, (vm.table.page * vm.table.pageSize) + vm.emailMessages.length] | minValue }}
                             </li>
                         </ul>
 
@@ -140,7 +143,12 @@
                                     <i class="fa fa-caret-left"></i>
                                 </a>
                             </li>
-                            <li class="hl-button-group-btn" ng-class="{'disabled': vm.table.page + 1 > vm.table.totalItems / vm.table.pageSize}">
+                            <li class="hl-button-group-btn" ng-class="{'disabled': vm.table.page + 1 > vm.table.totalItems / vm.table.pageSize}" ng-show="vm.table.totalItems">
+                                <a class="hl-button-group-btn-link" ng-click="vm.setPage(vm.table.page + 1)">
+                                    <i class="fa fa-caret-right"></i>
+                                </a>
+                            </li>
+                            <li class="hl-button-group-btn" ng-class="{'disabled': vm.emailMessages.length < vm.table.pageSize}" ng-show="!vm.table.totalItems">
                                 <a class="hl-button-group-btn-link" ng-click="vm.setPage(vm.table.page + 1)">
                                     <i class="fa fa-caret-right"></i>
                                 </a>
@@ -161,24 +169,23 @@
                     <i ng-class="{'fa fa-star': message.is_starred, 'fa fa-star-o': !message.is_starred}" ng-click="vm.toggleStarred(message)"></i>
                 </td>
                 <td ng-if="!vm.account">
-                    <div class="account-label" uib-tooltip="{{ message.account.email }}" ng-style="{'border-left-color': vm.colorCodes[message.account.id]}">
-                        {{ message.account.name || message.account.email }}
+                    <div class="account-label" uib-tooltip="{{ message.account.email_address }}" ng-style="{'border-left-color': vm.colorCodes[message.account.id]}">
+                        {{ message.account.label || message.account.email_address }}
                     </div>
                 </td>
                 <td contact-icon message="message"></td>
                 <td class="view-message hidden-xs" ng-show="vm.label.name != 'Sent' && vm.label.name != 'Draft'" ui-sref="base.email.detail({id: message.id})">
-                    <span ng-show="message.sender_name" title="{{ message.sender_email }}">{{ message.sender_name }}</span>
-                    <span ng-hide="message.sender_name">{{ message.sender_email }}</span>
+                    <span ng-show="message.sender.name" title="{{ message.sender.email_address }}">{{ message.sender.name }}</span>
+                    <span ng-hide="message.sender.name">{{ message.sender.email_address }}</span>
                 </td>
                 <td class="view-message hidden-xs" ng-show="vm.label.name == 'Sent'" ui-sref="base.email.detail({id: message.id})">
-                    <span ng-show="message.received_by_name">{{ message.received_by_name.join(', ') }}</span>
-                    <span ng-hide="message.received_by_name">{{ message.received_by_email.join(', ') }}</span>
+                    {{ vm.listEmailAddresses(message.received_by) }}
                 </td>
                 <td class="view-message hidden-xs" ng-show="vm.label.name == 'Draft'" ui-sref="base.email.draft({id: message.id})">
-                    {{ message.received_by_email.join(',') }}
+                    {{ vm.listEmailAddresses(message.received_by) }}
                 </td>
                 <td class="inbox-small-cells">
-                    <thread-info message_id="message.id"></thread-info>
+                    <thread-info message-type="message.message_type"></thread-info>
                 </td>
                 <td class="view-message inbox-small-cells" ui-sref="base.email.detail({id: message.id})">
                     <i class="lilicon hl-paperclip-icon" uib-tooltip="There is a file attached" tooltip-placement="left" ng-if="message.has_attachment"></i>
@@ -200,17 +207,26 @@
                 <td colspan="9">
                     <div class="pull-right">
                         <ul class="email-pagination">
-                            <li class="email-pagination-page-info">
+                            <li class="email-pagination-info" ng-show="vm.table.totalItems">
                                 {{ vm.table.page * vm.table.pageSize + 1}}-{{ [(vm.table.page + 1) * vm.table.pageSize, vm.table.totalItems] | minValue }} of {{ vm.table.totalItems | number }}
                             </li>
+                            <li class="email-pagination-info" ng-show="!vm.table.totalItems">
+                                {{ vm.table.page * vm.table.pageSize + 1}}-{{ [(vm.table.page + 1) * vm.table.pageSize, (vm.table.page * vm.table.pageSize) + vm.emailMessages.length] | minValue }}
+                            </li>
                         </ul>
-                        <ul class="hl-button-group">
+
+                        <ul class="hl-button-group pull-right">
                             <li class="hl-button-group-btn" ng-class="{'disabled': !vm.table.page}">
                                 <a class="hl-button-group-btn-link" ng-click="vm.setPage(vm.table.page - 1)">
                                     <i class="fa fa-caret-left"></i>
                                 </a>
                             </li>
-                            <li class="hl-button-group-btn" ng-class="{'disabled': vm.table.page + 1 > vm.table.totalItems / vm.table.pageSize}">
+                            <li class="hl-button-group-btn" ng-class="{'disabled': vm.table.page + 1 > vm.table.totalItems / vm.table.pageSize}" ng-show="vm.table.totalItems">
+                                <a class="hl-button-group-btn-link" ng-click="vm.setPage(vm.table.page + 1)">
+                                    <i class="fa fa-caret-right"></i>
+                                </a>
+                            </li>
+                            <li class="hl-button-group-btn" ng-class="{'disabled': vm.emailMessages.length < vm.table.pageSize}" ng-show="!vm.table.totalItems">
                                 <a class="hl-button-group-btn-link" ng-click="vm.setPage(vm.table.page + 1)">
                                     <i class="fa fa-caret-right"></i>
                                 </a>

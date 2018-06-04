@@ -44,6 +44,11 @@ function EmailAccount($resource) {
                 url: '/api/messaging/email/accounts/mine/',
                 isArray: true,
             },
+            color: {
+                method: 'GET',
+                url: '/api/messaging/email/accounts/color/',
+                isArray: true,
+            },
             cancel: {
                 method: 'DELETE',
                 url: '/api/messaging/email/accounts/:id/cancel',

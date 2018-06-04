@@ -114,12 +114,12 @@ class MessageBuilder(object):
         # Set boolean identifier for some labels for faster filtering.
         labels = message_info.get('labelIds', [])
         self.message.read = settings.GMAIL_LABEL_UNREAD not in labels
-        self.message.is_inbox_message = settings.GMAIL_LABEL_INBOX in labels
-        self.message.is_sent_message = settings.GMAIL_LABEL_SENT in labels
-        self.message.is_draft_message = settings.GMAIL_LABEL_DRAFT in labels
-        self.message.is_trashed_message = settings.GMAIL_LABEL_TRASH in labels
-        self.message.is_spam_message = settings.GMAIL_LABEL_SPAM in labels
-        self.message.is_starred_message = settings.GMAIL_LABEL_STAR in labels
+        self.message.is_inbox = settings.GMAIL_LABEL_INBOX in labels
+        self.message.is_sent = settings.GMAIL_LABEL_SENT in labels
+        self.message.is_draft = settings.GMAIL_LABEL_DRAFT in labels
+        self.message.is_trashed = settings.GMAIL_LABEL_TRASH in labels
+        self.message.is_spam = settings.GMAIL_LABEL_SPAM in labels
+        self.message.is_starred = settings.GMAIL_LABEL_STAR in labels
 
         # Get the available Label objects for the message from the database and the missing ones by the API.
         # First, get all labels from the database.

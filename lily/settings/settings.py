@@ -734,7 +734,6 @@ SHELL_PLUS_POST_IMPORTS = (
     ('lily.tags.factories', '*'),
     ('lily.tenant.factories', '*'),
     ('lily.users.factories', '*'),
-    ('lily.tenant.middleware', 'set_current_user'),
 )
 
 SWAGGER_SETTINGS = {

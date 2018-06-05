@@ -25,8 +25,8 @@
             </thead>
             <tbody>
                 <tr ng-repeat="message in vm.table.items">
-                    <td class="text-overflow-hidden" style="max-width: 160px;"><span uib-tooltip="{{ message.account.label }}">{{ message.account.label }}<span></td>
-                    <td>{{ message.sender.name || message.sender.email_address }}</td>
+                    <td class="text-overflow-hidden" style="max-width: 160px;"><span uib-tooltip="{{ message.account.name }}">{{ message.account.name }}<span></td>
+                    <td>{{ message.sender_name || message.sender_email }}</td>
                     <td><a ui-sref="base.email.detail({id: message.id})">{{ message.subject }}</a></td>
                     <td><date date="message.sent_date" show-time="true"></date></td>
                     <td>

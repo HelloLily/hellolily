@@ -3,14 +3,12 @@ angular.module('app.services').service('HLFilters', HLFilters);
 function HLFilters() {
     this.updateFilterQuery = (viewModel, hasClearButtons) => {
         // Update the filter based on the separate filters.
-        const filterStrings = [];
-        const specialFilterStrings = [];
-        const separateFilterStrings = [];
-        const accountFilterStrings = [];
+        let filterStrings = [];
+        let specialFilterStrings = [];
+        let separateFilterStrings = [];
         let filterList = viewModel.filterList;
 
         viewModel.table.filterQuery = '';
-        viewModel.table.accountFilter = '';
 
         if (hasClearButtons) {
             this._displayClearButtons(viewModel);
@@ -36,9 +34,6 @@ function HLFilters() {
                     } else {
                         filterStrings.push(filter.value);
                     }
-                    if (filter.id === 'account') {
-                        accountFilterStrings.push(filter.value);
-                    }
                 }
             }
         });
@@ -58,10 +53,6 @@ function HLFilters() {
 
         if (viewModel.table.usersFilter) {
             filterStrings.push('(' + viewModel.table.usersFilter + ')');
-        }
-
-        if (accountFilterStrings.length) {
-            viewModel.table.accountFilter = accountFilterStrings.join(',');
         }
 
         // Finally join all filters AND-wise.

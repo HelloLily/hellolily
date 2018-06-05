@@ -79,6 +79,45 @@ class EmailMessageTests(UserBasedTest, APITestCase):
         )
         self.assertEqual(self.email_message.reply_to, 'user5@example.com')
 
+    def test_email_message_trashed(self):
+        """
+        Test if the trashed property is correct with the absence / presence of the trash label.
+        """
+        # Verify that the email is initially not marked as trash.
+        self.assertFalse(self.email_message.is_trashed)
+
+        # Add the trash label.
+        self._add_label(settings.GMAIL_LABEL_TRASH)
+
+        # Verify that the email is marked as trashed.
+        self.assertTrue(self.email_message.is_trashed)
+
+    def test_email_message_starred(self):
+        """
+        Test if the starred property is correct with the absence / presence of the star label.
+        """
+        # Verify that the email is initially not starred.
+        self.assertFalse(self.email_message.is_starred)
+
+        # Add the star label.
+        self._add_label(settings.GMAIL_LABEL_STAR)
+
+        # Verify that the email is starred.
+        self.assertTrue(self.email_message.is_starred)
+
+    def test_email_message_draft(self):
+        """
+        Test if the draft property is correct with the absence / presence of the draft label.
+        """
+        # Verify that the email is initially not marked as a draft.
+        self.assertFalse(self.email_message.is_draft)
+
+        # Add the draft label.
+        self._add_label(settings.GMAIL_LABEL_DRAFT)
+
+        # Verify that the email is marked as a draft.
+        self.assertTrue(self.email_message.is_draft)
+
     def test_email_message_important(self):
         """
         Test if the important property is correct with the absence / presence of the important label.
@@ -91,6 +130,32 @@ class EmailMessageTests(UserBasedTest, APITestCase):
 
         # Verify that the email is marked as important.
         self.assertTrue(self.email_message.is_important)
+
+    def test_email_message_spam(self):
+        """
+        Test if the spam property is correct with the absence / presence of the spam label.
+        """
+        # Verify that the email is initially not marked as spam.
+        self.assertFalse(self.email_message.is_spam)
+
+        # Add the spam label.
+        self._add_label(settings.GMAIL_LABEL_SPAM)
+
+        # Verify that the email is marked as spam.
+        self.assertTrue(self.email_message.is_spam)
+
+    def test_email_message_archived(self):
+        """
+        Test if the archived property is correct with the absence / presence of the inbox label.
+        """
+        # Verify that the email is initially not archived.
+        self.assertTrue(self.email_message.is_archived)
+
+        # Add the inbox label.
+        self._add_label(settings.GMAIL_LABEL_INBOX)
+
+        # Verify that the email is not archived.
+        self.assertFalse(self.email_message.is_archived)
 
     def _add_label(self, label):
         # Add the provided label to the email message.

@@ -6,25 +6,21 @@ from lily.billing.api.views import BillingViewSet
 from lily.cases.api.views import CaseViewSet, CaseStatusViewSet, CaseTypeViewSet
 from lily.calls.api.views import CallViewSet, CallRecordViewSet
 from lily.contacts.api.views import ContactViewSet, ContactImport
-from lily.deals.api.views import (
-    DealViewSet, DealStatusViewSet, DealNextStepList, DealNextStepViewSet, DealWhyCustomerViewSet,
-    DealContactedByViewSet, DealWhyLostViewSet, DealFoundThroughViewSet
-)
-from lily.integrations.api.views import (
-    DocumentDetails, EstimatesList, IntegrationAuth, MoneybirdContactImport, PandaDocList, DocumentEventList,
-    DocumentEventCatch, PandaDocSharedKey, SlackEventCatch, IntegrationDetailsView
-)
-from lily.messaging.email.api.views import (
-    EmailLabelViewSet, EmailAccountViewSet, EmailMessageViewSet, EmailTemplateFolderViewSet, EmailTemplateViewSet,
-    SharedEmailConfigViewSet, TemplateVariableViewSet, SearchView
-)
+from lily.deals.api.views import (DealViewSet, DealStatusViewSet, DealNextStepList, DealNextStepViewSet,
+                                  DealWhyCustomerViewSet, DealContactedByViewSet, DealWhyLostViewSet,
+                                  DealFoundThroughViewSet)
+from lily.integrations.api.views import (DocumentDetails, EstimatesList, IntegrationAuth, MoneybirdContactImport,
+                                         PandaDocList, DocumentEventList, DocumentEventCatch, PandaDocSharedKey,
+                                         SlackEventCatch, IntegrationDetailsView)
+from lily.messaging.email.api.views import (EmailLabelViewSet, EmailAccountViewSet, EmailMessageViewSet,
+                                            EmailTemplateFolderViewSet, EmailTemplateViewSet, SharedEmailConfigViewSet,
+                                            TemplateVariableViewSet)
 from lily.notes.api.views import NoteViewSet
 from lily.provide.api.views import DataproviderView
 from lily.tenant.api.views import TenantViewSet
 from lily.timelogs.api.views import TimeLogViewSet
-from lily.users.api.views import (
-    LilyUserViewSet, TeamViewSet, TwoFactorDevicesViewSet, SessionViewSet, UserInviteViewSet
-)
+from lily.users.api.views import (LilyUserViewSet, TeamViewSet, TwoFactorDevicesViewSet, SessionViewSet,
+                                  UserInviteViewSet)
 from lily.utils.api.views import AppHash, CallerName, CountryViewSet, Notifications
 from lily.voipgrid.api.views import CallNotificationViewSet
 
@@ -100,7 +96,6 @@ urlpatterns = [
     url(r'^utils/notifications/$', Notifications.as_view()),
 
     url(r'^provide/dataprovider/$', DataproviderView.as_view()),
-    url(r'^messaging/email/search/$', SearchView.as_view()),
 
     url(r'^', include(router.urls)),
 ]

@@ -167,6 +167,12 @@ class SocialAuthCallbackView(RedirectView):
 class CustomLogoutView(LogoutView):
     next_page = 'login'
 
+    def dispatch(self, request, *args, **kwargs):
+        # Since we only redirect, show a nice popup message to the user.
+        messages.info(request, _('You are now logged out.'))
+
+        return super(CustomLogoutView, self).dispatch(request, *args, **kwargs)
+
 
 class CustomPasswordResetView(PasswordResetView):
     email_template_name = 'users/authentication/email/password_reset.email'

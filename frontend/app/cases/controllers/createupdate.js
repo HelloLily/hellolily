@@ -325,7 +325,7 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
         cleanedCase.expires = moment(cleanedCase.expires).format('YYYY-MM-DD');
 
         if (cleanedCase.id) {
-            // If there's an ID set it means we're dealing with an existing contact, so update it.
+            // If there's an ID set it means we're dealing with an existing case, so update it.
             cleanedCase.$update(function() {
                 toastr.success('I\'ve updated the case for you!', 'Done');
                 $state.go('base.cases.detail', {id: cleanedCase.id}, {reload: true});
@@ -333,7 +333,9 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
                 _handleBadResponse(response, form);
             });
         } else {
+            // Save the new case.
             cleanedCase.$save(function() {
+                // Track newly created cases in Intercom.
                 new Intercom('trackEvent', 'case-created');
 
                 toastr.success('I\'ve saved the case for you!', 'Yay');

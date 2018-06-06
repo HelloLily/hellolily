@@ -1,3 +1,4 @@
+import analytics
 from django.conf import settings
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.hashers import make_password
@@ -11,6 +12,7 @@ from user_sessions.templatetags.user_sessions import device
 
 from lily.api.nested.mixins import RelatedSerializerMixin
 from lily.api.nested.serializers import WritableNestedSerializer
+from lily.tenant.api.serializers import TenantSerializer
 from lily.utils.api.serializers import RelatedWebhookSerializer
 from lily.utils.functions import has_required_tier
 
@@ -85,6 +87,7 @@ class LilyUserSerializer(WritableNestedSerializer):
     primary_email_account = EmailAccountSerializer(allow_null=True, required=False)
     info = UserInfoSerializer(read_only=True)
     teams = RelatedTeamSerializer(many=True, required=False, assign_only=True)
+    tenant = TenantSerializer(read_only=True)
     has_two_factor = serializers.SerializerMethodField()
     has_password = serializers.SerializerMethodField()
 
@@ -111,6 +114,7 @@ class LilyUserSerializer(WritableNestedSerializer):
             'teams',
             'webhooks',
             'is_admin',
+            'tenant',
             'has_two_factor',
             'has_password',
         )
@@ -219,9 +223,9 @@ class LilyUserSerializer(WritableNestedSerializer):
                     increment_users = True
             else:
                 raise PermissionDenied
+
         if 'internal_number' in validated_data:
             internal_number = validated_data.get('internal_number')
-
             if internal_number:
                 try:
                     user = LilyUser.objects.get(internal_number=internal_number, tenant=current_user.tenant)
@@ -240,6 +244,12 @@ class LilyUserSerializer(WritableNestedSerializer):
                             raise serializers.ValidationError({
                                 'internal_number': [_('Another user is already using this internal number.')]
                             })
+
+                # Track changing internal number in Segment.
+                analytics.track(instance.id, 'internal-number-updated', {
+                    'internal_number_updated_by': current_user.id,
+                    'type': 'Admin' if current_user.is_admin else 'User',
+                })
 
         instance = super(LilyUserSerializer, self).update(instance, validated_data)
 

@@ -53,7 +53,11 @@ function HLNotifications($state, LocalStorage, HLSockets) {
                     break;
             }
             notification.close();
+            // Track clicking on the caller notification in Google analytics and Segment.
             ga('send', 'event', 'Caller info', 'Open', 'Popup');
+            analytics.track('caller-notification-click', {
+                'phone_number': data.params.number,
+            });
         };
     }
 

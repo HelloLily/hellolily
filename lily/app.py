@@ -1,6 +1,7 @@
 import sys
 import inspect
 
+import analytics
 from django.apps import AppConfig
 from django.conf import settings
 from django.forms.forms import BaseForm
@@ -25,6 +26,11 @@ class LilyConfig(AppConfig):
 
         self.patch_forms(local_apps)
         self.scan_indexes(local_apps)
+        self.import_signals(local_apps)
+
+        # Setup Segment.
+        analytics.write_key = settings.SEGMENT_PYTHON_SOURCE_WRITE_KEY
+        analytics.debug = settings.DEBUG
 
     def patch_forms(self, local_apps):
         """
@@ -62,3 +68,13 @@ class LilyConfig(AppConfig):
         Scan the installed apps for indexes.
         """
         ModelMappings.scan(local_apps)
+
+    def import_signals(self, local_apps):
+        """
+        Import signals for the local apps if available.
+        """
+        for app in local_apps:
+            try:
+                __import__('%s.signals' % app)
+            except ImportError:
+                continue

@@ -1,5 +1,6 @@
 from datetime import datetime
 
+import analytics
 import chargebee
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
@@ -52,6 +53,7 @@ class BillingViewSet(ViewSet):
                 'invoices': invoices.response,
             }
         elif request.method == 'PATCH':
+            old_plan = billing.plan
             plan_id = self.request.data.get('plan_id')
 
             if not plan_id or plan_id == settings.CHARGEBEE_PRO_TRIAL_PLAN_NAME:
@@ -92,6 +94,13 @@ class BillingViewSet(ViewSet):
                         billing.save()
 
                         limit_email_accounts(tenant)
+
+                        # Track subscription changes in Segment.
+                        analytics.track(self.request.user.id, 'subscription-changed', {
+                            'tenant_id': tenant.id,
+                            'old_plan_tier': old_plan.tier,
+                            'new_plan_tier': billing.plan.tier,
+                        })
 
                     return Response({'success': success}, content_type='application/json')
                 else:

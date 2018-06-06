@@ -12,8 +12,8 @@ function appConfig($stateProvider) {
 
 angular.module('app.base').controller('BaseController', BaseController);
 
-BaseController.$inject = ['$scope', '$state', '$http', 'AppHash', 'Settings', 'HLShortcuts', 'User'];
-function BaseController($scope, $state, $http, AppHash, Settings, HLShortcuts, User) {
+BaseController.$inject = ['$scope', '$state', '$http', '$location', 'AppHash', 'Settings', 'HLShortcuts', 'User'];
+function BaseController($scope, $state, $http, $location, AppHash, Settings, HLShortcuts, User) {
     // Make sure the settings are available everywhere.
     $scope.settings = Settings;
 
@@ -36,6 +36,41 @@ function BaseController($scope, $state, $http, AppHash, Settings, HLShortcuts, U
         $scope.$on('$viewContentLoaded', _contentLoadedActions);
 
         $scope.$on('$stateChangeError', _handleResolveErrors);
+
+        $scope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
+            const path = $location.path();
+            let queryString = '';
+            let referrer = '';
+
+            // Check if there is a query string?
+            if (path.indexOf('?') !== -1) {
+                queryString = path.substring(path.indexOf('?'), path.length);
+            }
+
+            // Check if there is a referer?
+            if (fromState.name) {
+                referrer = $location.protocol() + '://' + $location.host() + '/#' + fromState.url;
+            }
+
+            // Track a page event in Segment each time you change states.
+            analytics.page({
+                path: path,
+                referrer: referrer,
+                search: queryString,
+                url: $location.absUrl(),
+            });
+
+            // Identify a user in Segment when he navigates to a different state.
+            let currentUser = $scope.settings.currentUser;
+            analytics.identify(currentUser.id, {
+                name: currentUser.full_name,
+                email: currentUser.email,
+                tenantId: currentUser.tenant.id,
+                tenantName: currentUser.tenant.name,
+                planTier: currentUser.tenant.billing ? currentUser.tenant.billing.plan.tier : '',
+                isFreePlan: currentUser.tenant.billing ? currentUser.tenant.billing.is_free_plan : '',
+            });
+        });
     }
 
     function loadNotifications() {

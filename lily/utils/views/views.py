@@ -83,6 +83,8 @@ class BaseView(LoginRequiredMixin, TemplateView):
             'SENTRY_FRONTEND_PUBLIC_DSN': settings.SENTRY_FRONTEND_PUBLIC_DSN,
             'BILLING_ENABLED': settings.BILLING_ENABLED,
             'SLACK_LILY_CLIENT_ID': settings.SLACK_LILY_CLIENT_ID,
+            'SEGMENT_PYTHON_SOURCE_WRITE_KEY': settings.SEGMENT_PYTHON_SOURCE_WRITE_KEY,
+            'SEGMENT_JS_SOURCE_WRITE_KEY': settings.SEGMENT_JS_SOURCE_WRITE_KEY,
             'DEBUG': settings.DEBUG,
             'account_admin': account_admin,
         })

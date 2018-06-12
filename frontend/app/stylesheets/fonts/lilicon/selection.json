@@ -332,7 +332,7 @@
         "isMulticolor": false,
         "isMulticolor2": false,
         "tags": [
-          "incomming"
+          "incoming"
         ],
         "defaultCode": 59651,
         "grid": 0,
@@ -347,7 +347,7 @@
         "ligatures": "",
         "prevSize": 32,
         "code": 59652,
-        "name": "incomming"
+        "name": "incoming"
       },
       "setIdx": 0,
       "setId": 3,
@@ -362,7 +362,7 @@
         "isMulticolor": false,
         "isMulticolor2": false,
         "tags": [
-          "incomming-down"
+          "incoming-down"
         ],
         "defaultCode": 59652,
         "grid": 0,
@@ -377,7 +377,7 @@
         "ligatures": "",
         "prevSize": 32,
         "code": 59653,
-        "name": "incomming-down"
+        "name": "incoming-down"
       },
       "setIdx": 0,
       "setId": 3,
@@ -572,7 +572,7 @@
         "isMulticolor": false,
         "isMulticolor2": false,
         "tags": [
-          "calender"
+          "calendar"
         ],
         "defaultCode": 59659,
         "grid": 0,
@@ -587,7 +587,7 @@
         "ligatures": "",
         "prevSize": 32,
         "code": 59660,
-        "name": "calender"
+        "name": "calendar"
       },
       "setIdx": 0,
       "setId": 3,
@@ -1022,7 +1022,7 @@
         "isMulticolor": false,
         "isMulticolor2": false,
         "tags": [
-          "normal-prio"
+          "medium-prio"
         ],
         "defaultCode": 59675,
         "grid": 0,
@@ -1037,7 +1037,7 @@
         "ligatures": "",
         "prevSize": 32,
         "code": 59676,
-        "name": "normal-prio"
+        "name": "medium-prio"
       },
       "setIdx": 0,
       "setId": 3,

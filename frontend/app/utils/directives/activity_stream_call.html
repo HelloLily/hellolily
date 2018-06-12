@@ -1,6 +1,7 @@
 <div class="timeline-item-container is-call">
     <div class="activity-stream-image">
-        <i class="lilicon hl-phone-icon"></i>
+        <i class="lilicon hl-phone-inbound-icon yellow" ng-if="vm.item.direction === 0"></i>
+        <i class="lilicon hl-phone-outbound-icon yellow" ng-if="vm.item.direction === 1"></i>
     </div>
     <div class="activity-stream-item">
         <div class="stream-item-head" title="Created on {{ ::vm.item.date | date:'dd MMM yyyy - HH:mm' }}">
@@ -74,11 +75,11 @@
                     <div ng-repeat="transfer in vm.item.transfers">
                         <span class="item-time pull-right">{{ transfer.timestamp|date:'dd-MM-yyyy HH:mm:ss' }}</span>
                         <span ng-if="transfer.destination">
-                            The call was transfered to
+                            The call was transferred to
                             {{ transfer.destination.name || transfer.destination.number }}
                         </span>
                         <span ng-if="!transfer.destination">
-                            The call is being transfered, but nobody picked up yet.
+                            The call is being transferred, but nobody picked up yet.
                         </span>
                     </div>
                 </div>

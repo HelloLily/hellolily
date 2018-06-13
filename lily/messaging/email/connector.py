@@ -82,6 +82,11 @@ class GmailConnector(object):
             try:
                 return self.gmail_service.execute_service(service)
             except HttpError as error:
+                if error.resp.status == 502:
+                    # Apply exponential backoff.
+                    self.backoff(msg='Bad gateway, sleeping for %s seconds', attempt=n)
+                    continue
+
                 try:
                     error = anyjson.loads(error.content)
                     # Error could be nested, so unwrap if necessary.
@@ -136,6 +141,9 @@ class GmailConnector(object):
                 raise
 
         logger.exception('Service call failed after all retries')
+        self.email_account.is_authorized = False
+        self.email_account.is_syncing = False
+        self.email_account.save()
         raise FailedServiceCallException('Service call failed after all retries')
 
     def get_history(self):

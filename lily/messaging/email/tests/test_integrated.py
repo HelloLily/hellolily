@@ -211,26 +211,18 @@ class EmailTests(UserBasedTest, APITestCase):
 
         self._test_full_synchronize(mock_api_calls=mock_api_calls, label_data_after=self.verify_label_data_default)
 
-    def test_full_synchronize_failed_service_call_exception(self):
+    @patch.object(GmailService, '_get_http')
+    def test_full_synchronize_failed_service_call_exception(self, get_http_mock):
         """
         Do a full synchronize of one email account, with six simulated rateLimitExceeded errors which result in a
-        FailedServiceCallException.
+        FailedServiceCallException. After that the account stops syncing.
 
         Verifies that the correct (number of) labels and related emails are stored in the database and that the
         history id and synchronisation status are administered correctly.
         """
+        email_account = EmailAccount.objects.first()
 
         mock_api_calls = [
-            # Retrieve the history_id.
-            HttpMock('lily/messaging/email/tests/data/get_history_id.json', {'status': '200'}),
-            # Retrieve a list of all the messages in the email box.
-            HttpMock('lily/messaging/email/tests/data/all_message_id_list_single_page.json', {'status': '200'}),
-            # Retrieve all 10 email messages and their labels.
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a6008a4baa65f3.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_label_info_UNREAD.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_label_info_IMPORTANT.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_label_info_CATEGORY_PERSONAL.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_label_info_INBOX.json', {'status': '200'}),
             # Simulate one FailedServiceCallException by getting six times a rateLimitExceeded error.
             HttpMock('lily/messaging/email/tests/data/403.json', {'status': '403'}),
             HttpMock('lily/messaging/email/tests/data/403.json', {'status': '403'}),
@@ -238,24 +230,42 @@ class EmailTests(UserBasedTest, APITestCase):
             HttpMock('lily/messaging/email/tests/data/403.json', {'status': '403'}),
             HttpMock('lily/messaging/email/tests/data/403.json', {'status': '403'}),
             HttpMock('lily/messaging/email/tests/data/403.json', {'status': '403'}),
-            # And continue with syncing after the FailedServiceCallException.
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a600737124149d.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_label_info_DRAFT.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a600682d97904e.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_label_info_Label_2.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a60067ef5e0bf9.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_label_info_STARRED.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a600543e10c8e4.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a60053f67f5de4.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_label_info_Label_1.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a60053dea565fa.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a60044bb3e2a7a.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a60025b255c626.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_label_info_SENT.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a6001f325c4e9d.json', {'status': '200'}),
         ]
 
-        self._test_full_synchronize(mock_api_calls=mock_api_calls, label_data_after=self.verify_label_data_default)
+        # Mock the http instance with succesive http mock objects.
+        get_http_mock.side_effect = mock_api_calls
+
+        # Calling the scheduler once, with a missing history_id for the email account, it will effectively do a full
+        # initial synchronize.
+        # So make sure history_id is indeed missing and that the email account is in the right state.
+        self._verify_email_account_state(email_account=email_account, authorized=True, history_id=None,
+                                         is_syncing=False)
+
+        synchronize_email_account_scheduler()
+
+        # Retrieve the updated email account.
+        email_account.refresh_from_db()
+
+        # Verify the existence of labels and the number (un)read emails per label and archived email.
+        verify_label_data = {
+            # label: [available, total count, unread count],
+            'all_mail': [False, 0, 0],  # Mail without trash, spam or chat.
+            settings.GMAIL_LABEL_INBOX: [False, 0, 0],
+            settings.GMAIL_LABEL_UNREAD: [False, 0, 0],
+            settings.GMAIL_LABEL_STAR: [False, 0, 0],
+            settings.GMAIL_LABEL_IMPORTANT: [False, 0, 0],
+            settings.GMAIL_LABEL_SENT: [False, 0, 0],
+            settings.GMAIL_LABEL_DRAFT: [False, 0, 0],
+            settings.GMAIL_LABEL_SPAM: [False, 0, 0],
+            settings.GMAIL_LABEL_TRASH: [False, 0, 0],
+            settings.GMAIL_LABEL_CHAT: [False, 0, 0],
+            'Label_1': [False, 0, 0],
+            'Label_2': [False, 0, 0],
+        }
+        self._label_test(email_account, verify_label_data)
+
+        self._verify_email_account_state(email_account=email_account, authorized=False, history_id=None,
+                                         is_syncing=False)
 
     @patch.object(GmailService, 'execute_service')
     def test_full_synchronize_http_access_token_refresh_error(self, execute_service_mock):

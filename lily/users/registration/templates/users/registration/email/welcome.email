@@ -1,0 +1,55 @@
+{% extends 'email/base.html' %}
+
+{% block subject %}Welcome to Lily{% endblock %}
+
+{% block plain %}
+Hi {{ user.first_name|default:"there" }},
+
+Thanks for signing up for Lily!
+
+Log in to start using Lily to make your customer communication faster and more efficient.
+If you have any questions, please reply to this email, send us a tweet, or start chatting with us once you’ve logged in.
+You can also take a look at our help center for tips and tutorials about using Lily’s features.
+
+Enjoy!
+Team Lily
+{% endblock %}
+
+{% block html_preview %}
+Thanks for signing up for Lily
+{% endblock %}
+
+{% block html_header_1 %}
+Start of a
+{% endblock %}
+
+{% block html_header_2 %}
+new you.
+{% endblock %}
+
+{% block html_content %}
+<b>
+    Hi {{ user.first_name|default:"there" }},
+</b>
+<div style="height:20px;"></div>
+<div>
+    Thanks for signing up for Lily!
+</div>
+<div style="height:20px;"></div>
+<div>
+    <a href="https://app.hellolily.com/login/">Log in</a> to start using Lily to make your customer communication faster and more efficient.
+</div>
+<div>
+    If you have any questions, please reply to this email, send us a <a href="https://twitter.com/sayhellolily">tweet</a>, or start chatting with us once you’ve logged in.
+</div>
+<div>
+    You can also take a look at our <a href="https://intercom.help/lily">help center</a> for tips and tutorials about using Lily’s features.
+</div>
+<div style="height:20px;"></div>
+<div>
+    Enjoy!
+    <br />
+    <b>Team Lily</b>
+</div>
+<div style="height:100px;"></div>
+{% endblock %}

@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-import lily.utils.models.fields
 
 
 class Migration(migrations.Migration):
@@ -24,7 +23,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='function',
             name='manager',
-            field=models.ForeignKey(related_name='manager', verbose_name='manager', blank=True, to='contacts.Contact', null=True),
+            field=models.ForeignKey(
+                related_name='manager',
+                verbose_name='manager',
+                blank=True,
+                to='contacts.Contact',
+                null=True
+            ),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -40,25 +45,29 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='contact',
             name='addresses',
-            field=lily.utils.models.fields.AddressFormSetField(to='utils.Address', verbose_name='list of addresses', blank=True),
+            field=models.ManyToManyField(to='utils.Address', verbose_name='list of addresses', blank=True),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='contact',
             name='email_addresses',
-            field=lily.utils.models.fields.EmailAddressFormSetField(to='utils.EmailAddress', verbose_name='list of e-mail addresses', blank=True),
+            field=models.ManyToManyField(to='utils.EmailAddress', verbose_name='list of e-mail addresses', blank=True),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='contact',
             name='phone_numbers',
-            field=lily.utils.models.fields.PhoneNumberFormSetField(to='utils.PhoneNumber', verbose_name='list of phone numbers', blank=True),
+            field=models.ManyToManyField(to='utils.PhoneNumber', verbose_name='list of phone numbers', blank=True),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='contact',
             name='social_media',
-            field=models.ManyToManyField(to='socialmedia.SocialMedia', verbose_name='list of social media', blank=True),
+            field=models.ManyToManyField(
+                to='socialmedia.SocialMedia',
+                verbose_name='list of social media',
+                blank=True
+            ),
             preserve_default=True,
         ),
         migrations.AddField(

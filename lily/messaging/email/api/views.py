@@ -14,8 +14,6 @@ from rest_framework.viewsets import GenericViewSet
 from lily.accounts.models import Account
 from lily.messaging.email.utils import get_email_parameter_api_dict, reindex_email_message, get_shared_email_accounts
 from lily.search.lily_search import LilySearch
-from lily.users.models import UserInfo
-from lily.users.api.serializers import LilyUserSerializer
 from lily.utils.functions import format_phone_number
 from lily.utils.models.models import PhoneNumber
 
@@ -127,14 +125,6 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
         if not account.is_authorized:
             # Account is being added, so delete it.
             account.delete()
-
-        if not user.info.email_account_status:
-            # First time setup, so set status to skipped.
-            user.info.email_account_status = UserInfo.SKIPPED
-            user.info.save()
-
-            serializer = LilyUserSerializer(user, partial=True)
-            return Response(serializer.data)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 

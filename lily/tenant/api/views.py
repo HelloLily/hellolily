@@ -29,6 +29,7 @@ class TenantViewSet(mixins.UpdateModelMixin, mixins.ListModelMixin, GenericViewS
     def admin(self, request):
         account_admin = request.user.tenant.admin
 
-        serializer = LilyUserSerializer(account_admin)
+        context = self.get_serializer_context()
+        serializer = LilyUserSerializer(instance=account_admin, context=context)
 
         return Response({'admin': serializer.data})

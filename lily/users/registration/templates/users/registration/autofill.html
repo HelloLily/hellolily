@@ -1,0 +1,30 @@
+{% extends 'users/registration/_base.html' %}
+{% load static %}
+
+{% block right-panel %}
+    <h2 class="align-center">
+        Automatically create address book with all people you've emailed
+    </h2>
+
+    <div class="center-picture align-center">
+        <img src="{% static 'users/images/address-book.svg' %}">
+    </div>
+
+    <p class="align-center">
+        Lily will look for email addresses in your recent
+        email conversations and automatically create
+        accounts and contacts with gathered data from their websites.
+    </p>
+
+    <div class="spacer-20"></div>
+    <button type="submit" class="hl-primary-btn blue">
+        Autocreate
+    </button>
+
+    <div class="spacer-20"></div>
+    <div class="align-center disclaimer">
+        <a href="{{ success_url }}" class="faded">Skip step</a>
+    </div>
+
+    {{ block.super }}
+{% endblock right-panel %}

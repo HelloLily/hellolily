@@ -12,7 +12,6 @@ from celery.states import FAILURE
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.messages.views import SuccessMessageMixin
 from django.core.files.storage import default_storage
 from wsgiref.util import FileWrapper
 from django.urls import reverse
@@ -33,12 +32,12 @@ from lily.contacts.models import Contact
 from lily.google.token_generator import generate_token, validate_token
 from lily.integrations.credentials import get_credentials
 from lily.tenant.middleware import get_current_user
-from lily.users.models import UserInfo
 from lily.utils.functions import is_ajax, post_intercom_event, send_get_request, send_post_request
 from lily.utils.views.mixins import FormActionMixin
 
-from .forms import (ComposeEmailForm, CreateUpdateEmailTemplateForm, CreateUpdateTemplateVariableForm,
-                    EmailAccountCreateUpdateForm, EmailTemplateFileForm)
+from .forms import (
+    ComposeEmailForm, CreateUpdateEmailTemplateForm, CreateUpdateTemplateVariableForm, EmailTemplateFileForm
+)
 from .models.models import (EmailMessage, EmailAttachment, EmailAccount, EmailTemplate, DefaultEmailTemplate,
                             EmailOutboxMessage, EmailOutboxAttachment, TemplateVariable, GmailCredentialsModel,
                             EmailLabel)
@@ -107,13 +106,11 @@ class OAuth2Callback(LoginRequiredMixin, View):
             else:
                 messages.error(self.request, error.get('message'))
 
-            # Adding email account failed, administer it as skipping the email setup or otherwise the user will be
-            # stuck in redirect loop.
-            user = self.request.user
-            user.info.email_account_status = UserInfo.SKIPPED
-            user.info.save()
-
-            return HttpResponseRedirect('/#/preferences/emailaccounts')
+            if not request.user.info.registration_finished:
+                # User is still busy with registration, so redirect to email account setup step again.
+                return HttpResponseRedirect(reverse('register_email_account_setup'))
+            else:
+                return HttpResponseRedirect('/#/preferences/emailaccounts')
 
         # Create account based on email address.
         try:
@@ -146,43 +143,11 @@ class OAuth2Callback(LoginRequiredMixin, View):
 
         post_intercom_event(event_name='email-account-added', user_id=request.user.id)
 
-        if request.user.info and not request.user.info.email_account_status:
-            # First time setup, so we want a different view.
-            return HttpResponseRedirect('/#/preferences/emailaccounts/setup/%s' % account.pk)
+        if not request.user.info.registration_finished:
+            # User is still busy with registration, so redirect to the next step in the flow.
+            return HttpResponseRedirect(reverse('register_email_account_details'))
         else:
             return HttpResponseRedirect('/#/preferences/emailaccounts/edit/%s' % account.pk)
-
-
-class EmailAccountUpdateView(LoginRequiredMixin, SuccessMessageMixin, FormActionMixin, UpdateView):
-    template_name = 'email/emailaccount_form.html'
-    model = EmailAccount
-    form_class = EmailAccountCreateUpdateForm
-    success_message = _('%(label)s has been updated.')
-
-    def get_context_data(self, **kwargs):
-        """
-        Provide an url to go back to.
-        """
-        kwargs = super(EmailAccountUpdateView, self).get_context_data(**kwargs)
-        kwargs.update({
-            'back_url': self.get_success_url(),
-            'form_prevent_autofill': True,
-        })
-
-        return kwargs
-
-    def get_object(self, queryset=None):
-        """
-        A user is only able to edit accounts he owns.
-        """
-        email_account = super(EmailAccountUpdateView, self).get_object(queryset=queryset)
-        if not email_account.owner == self.request.user and not email_account.public:
-            raise Http404()
-
-        return email_account
-
-    def get_success_url(self):
-        return '/#/preferences/emailaccounts'
 
 
 class EmailMessageHTMLView(LoginRequiredMixin, DetailView):

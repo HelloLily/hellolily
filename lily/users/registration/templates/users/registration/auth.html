@@ -1,0 +1,66 @@
+{% extends 'users/registration/_base.html' %}
+{% load static %}
+
+{% block left-panel %}
+    {% if from_invite %}
+        Your colleague has invited you to join them using Lily.
+        <br />
+        <br />
+        With Lily, communicating with customers is a team effort.
+        Share email inboxes and transfer work between colleagues.
+        Look at the activity stream to see a record of communication that has happened between your team and your customer.
+        <br />
+        <br />
+        With Lily, customer communication is more efficient. Sign up and see how!
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+{% endblock left-panel %}
+
+{% block right-panel %}
+    <div class="social-login">
+        <a href="{% url 'social_login' provider_name='google' %}" class="google" role="button">
+            <span class="image">
+                <img src="{% static 'users/images/btn_google.svg' %}">
+            </span>
+            <span class="text">Sign up with Google</span>
+        </a>
+        <div class="spacer-20"></div>
+        <a href="{% url 'social_login' provider_name='microsoft' %}" class="microsoft" role="button">
+            <span class="image">
+                <img src="{% static 'users/images/btn_microsoft.svg' %}">
+            </span>
+            <span class="text">Sign up with Microsoft</span>
+        </a>
+    </div>
+    <div class="spacer-40"></div>
+    <hr class="social-divider">
+    <div class="spacer-40"></div>
+
+    <form action="" method="post" class="login-form" novalidate>
+        {% csrf_token %}
+
+        {% include 'users/_form_fields.html' with form=form %}
+
+        <div class="spacer-40"></div>
+        <button type="submit" class="hl-primary-btn blue">
+            Sign up
+        </button>
+    </form>
+
+    <div class="spacer-20"></div>
+    <div class="align-center faded disclaimer">
+        By registering, you agree to our
+        <br />
+        <a href="https://hellolily.com/privacy/" class="faded">privacy statement</a>
+        and
+        <a href="https://hellolily.com/pdf/Nederland-ICT-Voorwaarden-2014-ENGELS.pdf" class="faded">terms and conditions.</a>
+    </div>
+
+    <div class="spacer-20"></div>
+    <div class="align-center faded disclaimer">
+        <a class="faded" href="{% url 'login' %}">
+            Already have an account?
+        </a>
+    </div>
+{% endblock right-panel %}

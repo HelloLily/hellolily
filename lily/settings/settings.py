@@ -213,16 +213,18 @@ LOGIN_REDIRECT_URL = 'base_view'
 PASSWORD_RESET_TIMEOUT_DAYS = os.environ.get('PASSWORD_RESET_TIMEOUT_DAYS', 7)
 USER_INVITATION_TIMEOUT_DAYS = int(os.environ.get('USER_INVITATION_TIMEOUT_DAYS', 7))
 AUTH_USER_MODEL = 'users.LilyUser'
+AUTHENTICATION_MODEL_BACKEND = 'lily.users.authentication.backends.LilyModelBackend'
+AUTHENTICATION_SOCIAL_BACKEND = 'lily.users.authentication.backends.LilySocialBackend'
 AUTHENTICATION_BACKENDS = (
-    # 'django.contrib.auth.backends.ModelBackend',
-    'lily.users.auth_backends.LilyModelBackend',
+    AUTHENTICATION_MODEL_BACKEND,
+    AUTHENTICATION_SOCIAL_BACKEND,
 )
 
 #######################################################################################################################
 # TWO FACTOR AUTH                                                                                                     #
 #######################################################################################################################
 TWO_FACTOR_PATCH_ADMIN = False  # No need because we disabled it.
-TWO_FACTOR_SMS_GATEWAY = 'lily.users.gateway.LilyGateway'
+TWO_FACTOR_SMS_GATEWAY = 'lily.users.two_factor_auth.twilio.LilyTwilioGateway'
 TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID')
 TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN')
 TWILIO_CALLER_ID = os.environ.get('TWILIO_CALLER_ID')
@@ -322,6 +324,9 @@ INSTALLED_APPS = (
     'lily.tenant',
     'lily.timelogs',
     'lily.users',
+    'lily.users.authentication',
+    'lily.users.registration',
+    'lily.users.two_factor_auth',
     'lily.utils',
 
     # 3rd party
@@ -343,6 +348,7 @@ INSTALLED_APPS = (
     'django_otp',
     'django_otp.plugins.otp_static',
     'django_otp.plugins.otp_totp',
+    'django_otp.plugins.otp_email',
     'two_factor',
     'otp_yubikey',
     'user_sessions',  # Sessions used for http requests
@@ -391,7 +397,7 @@ BLACKLISTED_EMAIL_TAGS = [
 ]
 
 # django-templated-email
-TEMPLATED_EMAIL_TEMPLATE_DIR = 'email/'
+TEMPLATED_EMAIL_TEMPLATE_DIR = ''
 
 #######################################################################################################################
 # LOGGING CONFIG                                                                                                      #
@@ -600,7 +606,7 @@ GOOGLE_OAUTH2_CLIENT_SECRET = os.environ.get('GOOGLE_OAUTH2_CLIENT_SECRET', '')
 GMAIL_FULL_MESSAGE_BATCH_SIZE = os.environ.get('GMAIL_FULL_MESSAGE_BATCH_SIZE', 300)
 GMAIL_LABEL_UPDATE_BATCH_SIZE = os.environ.get('GMAIL_LABEL_UPDATE_BATCH_SIZE', 500)
 GMAIL_PARTIAL_SYNC_LIMIT = os.environ.get('GMAIL_PARTIAL_SYNC_LIMIT', 899)
-GMAIL_CALLBACK_URL = os.environ.get('GMAIL_CALLBACK_URL', 'http://localhost:8000/messaging/email/callback/')
+GMAIL_CALLBACK_URL = os.environ.get('GMAIL_CALLBACK_URL', 'http://localhost:8080/messaging/email/callback/')
 GMAIL_SYNC_DELAY_INTERVAL = 1
 GMAIL_SYNC_LOCK_LIFETIME = 300
 # A chuck size of -1 indicates that the entire file should be uploaded in a single request. If the underlying platform
@@ -697,6 +703,7 @@ TEST_SUPPRESS_LOG = True
 #######################################################################################################################
 # Registration form
 REGISTRATION_POSSIBLE = boolean(os.environ.get('REGISTRATION_POSSIBLE', 0))
+REGISTRATION_SESSION_KEY = os.environ.get('REGISTRATION_SESSION_KEY', 'registration_data')
 
 # Messaging framework
 MESSAGE_STORAGE = 'django.contrib.messages.storage.fallback.FallbackStorage'
@@ -718,6 +725,12 @@ VOIPGRID_IPS = os.environ.get('VOIPGRID_IPS', '127.0.0.1')
 
 # Temporary setting to fine tune the email migration background task.
 MIGRATE_EMAIL_COUNTDOWN = int(os.environ.get('MIGRATE_EMAIL_COUNTDOWN', '30'))
+
+SOCIAL_AUTH_GOOGLE_CLIENT_ID = os.environ.get('SOCIAL_AUTH_GOOGLE_CLIENT_ID', '')
+SOCIAL_AUTH_GOOGLE_SECRET = os.environ.get('SOCIAL_AUTH_GOOGLE_SECRET', '')
+
+SOCIAL_AUTH_MICROSOFT_CLIENT_ID = os.environ.get('SOCIAL_AUTH_MICROSOFT_CLIENT_ID', '')
+SOCIAL_AUTH_MICROSOFT_SECRET = os.environ.get('SOCIAL_AUTH_MICROSOFT_SECRET', '')
 
 SHELL_PLUS_POST_IMPORTS = (
     ('django.db', 'connection'),

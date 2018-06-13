@@ -1,51 +1,53 @@
-<div class="widget-heading">
-    <div class="widget-title">
-        <div class="widget-name">Two factor authentication</div>
+<div ng-if="vm.user.has_password">
+    <div class="widget-heading">
+        <div class="widget-title">
+            <div class="widget-name">Two factor authentication</div>
+        </div>
+        <div class="widget-tools">
+            <delete-confirmation model="TwoFactor" object="vm.twoFactor" message-object="vm.messages.disable" callback="vm.twoFactorDisabled()" button-class="hl-primary-btn" icon-class="" help-text="Disable two factor authentication" ng-if="vm.twoFactor.default">
+                Disable
+            </delete-confirmation>
+            <a href="/two-factor/setup/" class="hl-primary-btn-blue" ng-if="!vm.twoFactor.default">Enable</a>
+        </div>
+        <div class="clearfix"></div>
     </div>
-    <div class="widget-tools">
-        <delete-confirmation model="TwoFactor" object="vm.twoFactor" message-object="vm.messages.disable" callback="vm.twoFactorDisabled()" button-class="hl-primary-btn" icon-class="" help-text="Disable two factor authentication" ng-if="vm.twoFactor.default">
-            Disable
-        </delete-confirmation>
-        <a href="/two-factor/setup/" class="hl-primary-btn-blue" ng-if="!vm.twoFactor.default">Enable</a>
+
+    <div class="widget-body">
+        <table class="hl-table">
+
+            <tbody>
+                <tr ng-if="!vm.twoFactor.default">
+                    <td class="hl-table-column">
+                        <b class="text-red">Disabled:</b> you have not enabled two factor authentication yet.
+                    </td>
+                    <td class="hl-table-column" style="width: 100px;"></td>
+                </tr>
+            </tbody>
+            <tbody ng-if="vm.twoFactor.default">
+                <tr>
+                    <td class="hl-table-column">
+                        <b class="text-green">Enabled:</b> {{ vm.twoFactor.default }}
+                    </td>
+                    <td class="hl-table-column" style="width: 100px;"></td>
+                </tr>
+                <tr ng-if="vm.twoFactor.backup_phone_numbers.length">
+                    <td class="hl-table-column">If your primary method is not available, we are able to send backup tokens to {{ vm.twoFactor.backup_phone_numbers.length }} phone numbers.</td>
+                    <td class="hl-table-column"><a ng-click="vm.showBackupPhoneNumbers()" uib-tooltip="Let me see my phone numbers!">Show</a></td>
+                </tr>
+                <tr ng-if="!vm.twoFactor.backup_phone_numbers.length">
+                    <td class="hl-table-column">You currently have no backup phone number(s) available. It is highly recommended that you add one!</td>
+                    <td class="hl-table-column"><a href="/two-factor/backup/phone/register/" uib-tooltip="Add a new backup phone number">Add</a></td>
+                </tr>
+                <tr>
+                    <td class="hl-table-column">If you don't have any device with you, you can access your account using backup tokens.</td>
+                    <td class="hl-table-column"><a ng-click="vm.showBackupTokens()" uib-tooltip="Let me see my tokens!">Show</a></td>
+                </tr>
+            </tbody>
+        </table>
     </div>
-    <div class="clearfix"></div>
+
+    <div class="spacer-40"></div>
 </div>
-
-<div class="widget-body">
-    <table class="hl-table">
-
-        <tbody>
-            <tr ng-if="!vm.twoFactor.default">
-                <td class="hl-table-column">
-                    <b class="text-red">Disabled:</b> you have not enabled two factor authentication yet.
-                </td>
-                <td class="hl-table-column" style="width: 100px;"></td>
-            </tr>
-        </tbody>
-        <tbody ng-if="vm.twoFactor.default">
-            <tr>
-                <td class="hl-table-column">
-                    <b class="text-green">Enabled:</b> {{ vm.twoFactor.default }}
-                </td>
-                <td class="hl-table-column" style="width: 100px;"></td>
-            </tr>
-            <tr ng-if="vm.twoFactor.backup_phone_numbers.length">
-                <td class="hl-table-column">If your primary method is not available, we are able to send backup tokens to {{ vm.twoFactor.backup_phone_numbers.length }} phone numbers.</td>
-                <td class="hl-table-column"><a ng-click="vm.showBackupPhoneNumbers()" uib-tooltip="Let me see my phone numbers!">Show</a></td>
-            </tr>
-            <tr ng-if="!vm.twoFactor.backup_phone_numbers.length">
-                <td class="hl-table-column">You currently have no backup phone number(s) available. It is highly recommended that you add one!</td>
-                <td class="hl-table-column"><a href="/two-factor/backup/phone/register/" uib-tooltip="Add a new backup phone number">Add</a></td>
-            </tr>
-            <tr>
-                <td class="hl-table-column">If you don't have any device with you, you can access your account using backup tokens.</td>
-                <td class="hl-table-column"><a ng-click="vm.showBackupTokens()" uib-tooltip="Let me see my tokens!">Show</a></td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-
-<div class="spacer-40"></div>
 
 <div class="widget-heading">
     <div class="widget-title">

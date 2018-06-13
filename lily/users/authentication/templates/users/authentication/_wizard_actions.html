@@ -1,0 +1,27 @@
+<div class="row">
+    <div class="col-md-12">
+        {% if wizard.steps.current == 'auth' %}
+        <button type="submit" class="hl-primary-btn blue">
+            Login
+        </button>
+        {% else %}
+            <div class="col-2-row">
+                <div class="column">
+                    <button type="submit" class="hl-primary-btn blue no-margin">
+                        Next
+                    </button>
+                </div>
+
+                {% if wizard.steps.prev %}
+                    <div class="column">
+                        <button class="hl-primary-btn no-margin" name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}">
+                            Back
+                        </button>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="clearfix"></div>
+</div>

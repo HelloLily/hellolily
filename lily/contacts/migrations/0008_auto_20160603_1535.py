@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-import lily.utils.models.fields
 
 
 class Migration(migrations.Migration):
@@ -15,9 +14,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='contact',
             name='email_addresses',
-            field=lily.utils.models.fields.EmailAddressFormSetField(to='utils.EmailAddress',
-                                                                    verbose_name='list of email addresses',
-                                                                    blank=True),
+            field=models.ManyToManyField(
+                to='utils.EmailAddress',
+                verbose_name='list of email addresses',
+                blank=True
+            ),
             preserve_default=True,
         ),
     ]

@@ -26,6 +26,8 @@ def mail_to_lily(attrs, new=False):
     return attrs
 
 
+# TODO: this was removed, but server side nothing is sanitized anymore.
+# TODO: restore this to how it was so the api is safe again.
 class HtmlSanitizer(object):
     """
     Interface class for bleach. Making it easier to work with by setting project defaults.

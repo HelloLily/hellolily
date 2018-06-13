@@ -1,0 +1,38 @@
+{% extends 'anonymous/base.html' %}
+
+{% block head-title %}Setup Two-Factor Authentication{% endblock %}
+
+{% block page-content %}
+    <div class="row">
+        <div class="col-xs-12 col-sm-8 col-md-6 col-lg-4 col-sm-offset-2 col-md-offset-3 col-lg-offset-4">
+            <div class="portlet light">
+                <div class="portlet-title">
+                    <h3 class="form-title">Add backup phone</h3>
+                </div>
+
+                <div class="portlet-body">
+
+                    {% if wizard.steps.current == 'setup' %}
+                        <p>
+                            You'll be adding a backup phone number to your
+                            account. This number will be used if your primary method of
+                            registration is not available.
+                        </p>
+                    {% elif wizard.steps.current == 'validation' %}
+                        <p>
+                            We've sent a token to your phone number. Please
+                            enter the token you've received.
+                        </p>
+                    {% endif %}
+
+                    <form action="" method="post" novalidate>
+                        {% csrf_token %}
+                        {{ wizard.management_form }}
+                        {% include 'users/_form_fields.html' with form=wizard.form %}
+                        {% include 'users/authentication/_wizard_actions.html' %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends 'users/registration/_base.html' %}
+{% load static %}
+
+{% block right-panel %}
+    <h2 class="align-center">
+        Connect your Gmail account and Lily will show her true power
+    </h2>
+
+    <div class="center-picture align-center">
+        <img src="{% static 'users/images/gmail_logo.svg' %}">
+    </div>
+
+    <p class="align-center">
+        Share your email conversations with colleagues,
+        so your organization will be able to respond
+        based on a complete history of communication.
+    </p>
+
+    <form action="" method="post" class="login-form" novalidate>
+        {% csrf_token %}
+
+        <div class="spacer-20"></div>
+        <button type="submit" class="hl-primary-btn blue">
+            Select Gmail account
+        </button>
+    </form>
+
+    <div class="spacer-20"></div>
+    <div class="align-center disclaimer">
+        <a href="{% url 'register_done' %}" class="faded">Skip step</a>
+    </div>
+
+    {{ block.super }}
+{% endblock right-panel %}

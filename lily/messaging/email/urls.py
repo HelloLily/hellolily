@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
 from .views import (SetupEmailAuth, OAuth2Callback, EmailAttachmentProxy, EmailTemplateGetDefaultView,
-                    EmailMessageHTMLView, EmailAccountUpdateView, EmailTemplateListView, CreateEmailTemplateView,
+                    EmailMessageHTMLView, EmailTemplateListView, CreateEmailTemplateView,
                     UpdateEmailTemplateView, ParseEmailTemplateView, EmailMessageSendView, EmailTemplateDeleteView,
                     DetailEmailTemplateView, EmailMessageDraftView, EmailMessageReplyView, EmailMessageForwardView,
                     EmailMessageReplyAllView, CreateTemplateVariableView, UpdateTemplateVariableView)
@@ -12,9 +12,6 @@ urlpatterns = [
     url(r'^callback/$', OAuth2Callback.as_view(), name='gmail_callback'),
     url(r'^html/(?P<pk>[\d-]+)/$', EmailMessageHTMLView.as_view(), name='messaging_email_html'),
     url(r'^attachment/(?P<pk>[\d-]+)/$', EmailAttachmentProxy.as_view(), name='email_attachment_proxy_view'),
-
-    # Account config
-    url(r'^accounts/update/(?P<pk>[\d-]+)$', EmailAccountUpdateView.as_view(), name='messaging_email_account_update'),
 
     # Email templates
     url(r'^templates/$', EmailTemplateListView.as_view(), name='messaging_email_template_list'),

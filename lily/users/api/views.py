@@ -24,25 +24,17 @@ from two_factor.utils import default_device, backup_phones
 from user_sessions.models import Session
 from templated_email import send_templated_mail
 
+from lily.users.api.filters import TeamFilter, LilyUserFilter
 from lily.utils.api.permissions import IsAccountAdmin
 from lily.utils.functions import post_intercom_event
 
 from lily.utils.functions import has_required_tier
 
 from .utils import get_info_text_for_device
-from .serializers import (TeamSerializer, LilyUserSerializer, LilyUserTokenSerializer, SessionSerializer,
-                          UserInviteSerializer)
-from ..models import Team, LilyUser, UserInfo, UserInvite
-
-
-class TeamFilter(filters.FilterSet):
-    """
-    Class to filter case queryset.
-    """
-
-    class Meta:
-        model = Team
-        fields = ['name', ]
+from .serializers import (
+    TeamSerializer, LilyUserSerializer, LilyUserTokenSerializer, SessionSerializer, UserInviteSerializer
+)
+from ..models import Team, LilyUser, UserInvite
 
 
 class TeamViewSet(viewsets.ModelViewSet):
@@ -160,7 +152,7 @@ class UserInviteViewSet(viewsets.ModelViewSet):
 
             # Email to the user.
             send_templated_mail(
-                template_name='invitation',
+                template_name='users/invitation.email',
                 recipient_list=[email],
                 context={
                     'current_site': current_site,
@@ -178,15 +170,6 @@ class UserInviteViewSet(viewsets.ModelViewSet):
             post_intercom_event(event_name='invite-sent', user_id=self.request.user.id)
 
             return Response(status=status.HTTP_200_OK)
-
-
-class LilyUserFilter(filters.FilterSet):
-    class Meta:
-        model = LilyUser
-        fields = {
-            'is_active': ['exact', ],
-            'teams': ['isnull', ],
-        }
 
 
 class LilyUserViewSet(viewsets.ModelViewSet):
@@ -290,18 +273,6 @@ class LilyUserViewSet(viewsets.ModelViewSet):
 
         serializer = LilyUserTokenSerializer(request.user)
 
-        return Response(serializer.data)
-
-    @list_route(methods=['PATCH'])
-    def skip(self, request, pk=None):
-        """
-        Skip the first time email account setup.
-        """
-        user = self.request.user
-        user.info.email_account_status = UserInfo.SKIPPED
-        user.info.save()
-
-        serializer = self.get_serializer(user, partial=True)
         return Response(serializer.data)
 
     def partial_update(self, request, *args, **kwargs):

@@ -22,7 +22,7 @@
                         </form-group>
                     </form-portlet>
 
-                    <form-portlet portlet-title="Change your password">
+                    <form-portlet portlet-title="{{ vm.user.has_password ? 'Change your password' : 'Set a password' }}">
                         <form-group label-title="New password" label-id="password" field="userForm.password">
                             <password-strength>
                                 <input class="form-control password_strength"
@@ -49,7 +49,7 @@
                         </form-group>
                     </form-portlet>
 
-                    <form-portlet portlet-title="Current password">
+                    <form-portlet portlet-title="Current password" ng-if="vm.user.has_password">
                         <form-group label-title="Current password" label-id="password_confirmation" field="userForm.password_confirmation" required="true">
                             <input class="form-control"
                                 id="password_confirmation"

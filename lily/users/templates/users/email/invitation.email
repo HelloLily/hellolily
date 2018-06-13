@@ -1,0 +1,62 @@
+{% extends 'email/base.html' %}
+
+{% block subject %}You've been invited to Lily{% endblock %}
+
+{% block plain %}
+Hi {{ recipient_first_name }},
+
+{{ inviter_full_name }} has invited you to join their team on Lily. {{ inviter_first_name }} has already started using Lily to communicate more efficiently and wants to collaborate with you.
+
+To join, click the following link to create your account or copy/paste the link to the address bar in your browser:
+{{ invite_link }}
+
+This invitation is only valid with this email address and expires in fourteen days.
+
+If you have any questions, please reply to this email, send us a tweet, or start chatting with us once you’ve logged in.
+
+Have fun collaborating!
+{% endblock %}
+
+{% block html_preview %}
+{{ inviter_full_name }} has invited you to join their team on Lily.
+{% endblock %}
+
+{% block html_header_1 %}
+It’s not the same
+{% endblock %}
+
+{% block html_header_2 %}
+without you.
+{% endblock %}
+
+{% block html_content %}
+<b>
+    Hi {{ recipient_first_name }},
+</b>
+<div style="height:20px;"></div>
+<div>
+    {{ inviter_full_name }} has invited you to join their team on Lily. {{ inviter_first_name }} has already started using Lily to communicate more efficiently and wants to collaborate with you.
+</div>
+<div style="height:20px;"></div>
+<div>
+    To join, click the following <a href="{{ invite_link }}">link</a> to create your account.
+</div>
+<div style="height:20px;"></div>
+<div>
+    This invitation will expire in fourteen days.
+</div>
+<div style="height:20px;"></div>
+<div>
+    If you have any questions, please reply to this email, send us a <a href="https://twitter.com/sayhellolily">tweet</a>, or start chatting with us once you’ve logged in.
+</div>
+<div>
+    You can also take a look at our <a href="https://intercom.help/lily">help center</a> for tips and tutorials about using Lily’s features.
+</div>
+<div style="height:20px;"></div>
+<div>
+    Have fun collaborating!
+    <br />
+    <b>Team Lily</b>
+</div>
+<div style="height:100px;"></div>
+{% endblock %}

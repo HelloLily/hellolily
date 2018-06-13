@@ -1,0 +1,74 @@
+{% extends 'email/base.html' %}
+
+{% block subject %}Welcome to Lily, please verify your email address{% endblock %}
+
+{% block plain %}
+Hi {{ first_name|default:"there" }},
+
+Thanks for signing up for Lily! To finish setting up your Lily account, we just need to make sure this email address is yours.
+To verify your email address use this verification code:
+
+{{ code }}
+
+If you didn't request this code, you can safely ignore this email. Someone else might have typed your email address by mistake.
+
+If you have any questions, please reply to this email, send us a tweet, or start chatting with us once you’ve logged in.
+You can also take a look at our help center for tips and tutorials about using Lily’s features.
+
+Enjoy!
+Team Lily
+{% endblock %}
+
+{% block html_preview %}
+Thanks for signing up for Lily, please verify your email address.
+{% endblock %}
+
+{% block html_header_1 %}
+Start of a
+{% endblock %}
+
+{% block html_header_2 %}
+new you.
+{% endblock %}
+
+{% block html_content %}
+<b>
+    Hi {{ first_name|default:"there" }},
+</b>
+<div style="height:20px;"></div>
+<div>
+    Thanks for signing up for Lily!
+</div>
+<div>
+    To finish setting up your Lily account, we just need to make sure this email address is yours.
+</div>
+<div style="height:20px;"></div>
+<div>
+    To verify your email address use this verification code:
+</div>
+<div style="height:20px;"></div>
+<div style="font-size: 26px; font-weight: bold;">
+    {{ code }}
+</div>
+<div style="height:20px;"></div>
+<div>
+    If you didn't request this code, you can safely ignore this email.
+</div>
+<div>
+    Someone else might have typed your email address by mistake.
+</div>
+<div style="height:20px;"></div>
+<div>
+    If you have any questions, please reply to this email, send us a <a href="https://twitter.com/sayhellolily">tweet</a>, or start chatting with us once you’ve logged in.
+</div>
+<div>
+    You can also take a look at our <a href="https://intercom.help/lily">help center</a> for tips and tutorials about using Lily’s features.
+</div>
+<div style="height:20px;"></div>
+<div>
+    Enjoy!
+    <br />
+    <b>Team Lily</b>
+</div>
+<div style="height:100px;"></div>
+{% endblock %}

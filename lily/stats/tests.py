@@ -12,7 +12,7 @@ class StatsTests(TestCase):
         """
         user_obj = LilyUserFactory(is_active=True)
         team = TeamFactory()
-        self.client.login(email=user_obj.email, password='admin')
+        self.client.login(username=user_obj.email, password='admin')
 
         for pattern in case_patterns:
             # Loop over case patterns, these need the team_id kwarg.

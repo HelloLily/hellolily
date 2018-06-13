@@ -1,0 +1,23 @@
+{% extends 'users/registration/_base.html' %}
+{% load static %}
+
+{% block right-panel %}
+    <div class="profile-picture">
+        {% if request.user.picture %}
+            <img src="{{ request.user.picture.url }}">
+        {% endif %}
+    </div>
+    <div class="spacer-40"></div>
+
+    <form action="" method="post" class="login-form" novalidate>
+        {% csrf_token %}
+        {% include 'users/_form_fields.html' with form=form %}
+
+        <div class="spacer-40"></div>
+        <button type="submit" class="hl-primary-btn blue">
+            Next
+        </button>
+    </form>
+
+    {{ block.super }}
+{% endblock right-panel %}

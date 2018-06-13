@@ -91,10 +91,6 @@ function BaseController($scope, $state, $http, AppHash, Settings, HLShortcuts, U
             }
         });
 
-        if (!currentUser.emailAccountStatus && $state.current.name.indexOf('base.preferences.emailaccounts.setup') === -1) {
-            $state.go('base.preferences.emailaccounts.setup');
-        }
-
         Metronic.unblockUI();
         Metronic.initComponents(); // init core components
         HLSelect2.init();

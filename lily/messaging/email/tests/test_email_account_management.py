@@ -94,8 +94,10 @@ class OAuth2CallbackViewTests(UserBasedTest, APITestCase):
 
         # A valid authorization token was mocked, so verify that the user is redirected to the email setup screen.
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        self.assertEqual(response.url,
-                         '/#/preferences/emailaccounts/setup/{0}'.format(EmailAccount.objects.latest('id').pk))
+        self.assertEqual(
+            response.url,
+            '/#/preferences/emailaccounts/edit/{0}'.format(EmailAccount.objects.latest('id').pk)
+        )
 
         # Verify that an email account was added to the database belonging to the user.
         email_account = EmailAccount.objects.get(email_address='firstname.lastname@example.com')

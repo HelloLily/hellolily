@@ -71,10 +71,10 @@ class EmailAccount(TenantMixin, DeletedMixin):
     """
     PUBLIC, READ_ONLY, METADATA, PRIVATE = range(4)
     PRIVACY_CHOICES = (
-        (PUBLIC, _('Mailbox')),
-        (READ_ONLY, _('Email')),
-        (METADATA, _('Metadata')),
-        (PRIVATE, _('Nothing')),
+        (PUBLIC, _('Group inbox')),
+        (READ_ONLY, _('Public personal inbox')),
+        (METADATA, _('Personal inbox, with shared metadata')),
+        (PRIVATE, _('Private inbox')),
     )
 
     email_address = models.EmailField(max_length=254)

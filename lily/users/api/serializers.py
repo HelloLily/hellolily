@@ -23,7 +23,7 @@ class UserInfoSerializer(serializers.ModelSerializer):
         model = UserInfo
         fields = (
             'id',
-            'email_account_status',
+            'registration_finished',
         )
 
 
@@ -86,6 +86,7 @@ class LilyUserSerializer(WritableNestedSerializer):
     info = UserInfoSerializer(read_only=True)
     teams = RelatedTeamSerializer(many=True, required=False, assign_only=True)
     has_two_factor = serializers.SerializerMethodField()
+    has_password = serializers.SerializerMethodField()
 
     class Meta:
         model = LilyUser
@@ -111,7 +112,17 @@ class LilyUserSerializer(WritableNestedSerializer):
             'webhooks',
             'is_admin',
             'has_two_factor',
+            'has_password',
         )
+
+    def __init__(self, instance=None, *args, **kwargs):
+        super(LilyUserSerializer, self).__init__(instance, *args, **kwargs)
+
+        request = kwargs.get('context', {}).get('request', None)
+
+        if instance != request.user:
+            # Only show the has_password field when the current user asks their user record.
+            self.fields.pop('has_password')
 
     def validate_picture(self, value):
         if value and value.size > settings.LILYUSER_PICTURE_MAX_SIZE:
@@ -149,6 +160,15 @@ class LilyUserSerializer(WritableNestedSerializer):
         else:
             return None
 
+    def get_has_password(self, obj):
+        if self.context.get('request'):
+            user = self.context.get('request').user
+
+            if user == obj:
+                return user.has_usable_password()
+
+        return None
+
     def create(self, validated_data):
         return super(LilyUserSerializer, self).create(validated_data)
 
@@ -161,20 +181,24 @@ class LilyUserSerializer(WritableNestedSerializer):
         if webhooks and not has_required_tier(2):
             raise PermissionDenied
 
-        if self.instance:  # If there's an instance, it means we're updating.
-            if password and not password_confirmation:
-                raise serializers.ValidationError({
-                    'password_confirmation': _(
-                        'When changing passwords, you need to confirm with your current password.'
-                    ),
-                })
+        # If there's an instance, it means we're updating.
+        if self.instance:
+            # Only validate the current password if the user has a usable_password.
+            # Users with social auth don't have one, but they can set one.
+            if self.instance.has_usable_password():
+                if password and not password_confirmation:
+                    raise serializers.ValidationError({
+                        'password_confirmation': _(
+                            'When changing passwords, you need to confirm with your current password.'
+                        ),
+                    })
 
-            if email and email != self.instance.email and not password_confirmation:
-                raise serializers.ValidationError({
-                    'password_confirmation': _(
-                        'When changing email adresses, you need to confirm with your current password.'
-                    ),
-                })
+                if email and email != self.instance.email and not password_confirmation:
+                    raise serializers.ValidationError({
+                        'password_confirmation': _(
+                            'When changing email adresses, you need to confirm with your current password.'
+                        ),
+                    })
 
         return super(LilyUserSerializer, self).validate(data)
 

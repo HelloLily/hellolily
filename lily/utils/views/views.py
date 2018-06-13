@@ -1,18 +1,15 @@
-import json
 import logging
 
-from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import ImproperlyConfigured
 from django.core.files.storage import default_storage
-from django.urls import reverse_lazy
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.urls import reverse_lazy, reverse
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import FormView
-from django.views.generic.base import View, TemplateView, RedirectView
+from django.views.generic.base import TemplateView, RedirectView
 
 from lily.accounts.models import Account
 from lily.cases.models import Case
@@ -27,148 +24,6 @@ from ..tasks import import_sugar_csv
 
 
 logger = logging.getLogger(__name__)
-
-
-class ArchiveView(View):
-    """
-    Abstract view that makes it possible to archive an item which redirects to success_url afterwards.
-
-    Needs a post, with one or more ids[] for the instance to be archived.
-    Subclass needs to set `success_url` or override `get_success_url`.
-    """
-    model = None
-    queryset = None
-    success_url = None  # Needs to be set in subclass, or override get_success_url.
-    http_method_names = ['post']
-
-    def get_object_pks(self):
-        """
-        Get primary key(s) from POST.
-
-        Raises:
-            AttributeError: If no object_pks can be retrieved.
-        """
-        object_pks = self.request.POST.get('ids[]', None)
-        if not object_pks:
-            # No objects posted.
-            raise AttributeError(
-                'Generic Archive view %s must be called with at least one object pk.'
-                % self.__class__.__name__
-            )
-        # Always return as a list.
-        return object_pks.split(',')
-
-    def get_queryset(self):
-        """
-        Default function from MultipleObjectMixin.get_queryset, and slightly modified.
-
-        Raises:
-            ImproperlyConfigured: If there is no queryset or model set.
-        """
-        if self.queryset is not None:
-            queryset = self.queryset
-            if hasattr(queryset, '_clone'):
-                queryset = queryset._clone()
-        elif self.model is not None:
-            queryset = self.model._default_manager.all()
-        else:
-            raise ImproperlyConfigured(
-                "'%s' must define 'queryset' or 'model'"
-                % self.__class__.__name__
-            )
-
-        # Filter the queryset with the pk's posted.
-        queryset = queryset.filter(pk__in=self.get_object_pks())
-
-        return queryset
-
-    def get_success_message(self, n):
-        """
-        Should be overridden if there needs to be a success message after archiving objects.
-
-        Args:
-            n (int): Number of objects that were affected by the action.
-        """
-        pass
-
-    def get_success_url(self):
-        """
-        Returns the succes_url if set, otherwise will raise ImproperlyConfigured.
-
-        Returns:
-            the success_url.
-        """
-        self.success_url = self.request.POST.get('success_url', self.success_url)
-        if self.success_url is None:
-            raise ImproperlyConfigured(
-                "'%s' must define a success_url" % self.__class__.__name__
-            )
-        return self.success_url
-
-    def archive(self, archive=True, **kwargs):
-        """
-        Archives all objects found.
-
-        Returns:
-            HttpResponseRedirect object set to success_url.
-        """
-        queryset = self.get_queryset()
-        kwargs.update({'is_archived': archive})
-        queryset.update(**kwargs)
-        for item in queryset.all():
-            item.save()
-        self.get_success_message(len(queryset))
-
-        return HttpResponseRedirect(self.get_success_url())
-
-    def post(self, request, *args, **kwargs):
-        """
-        Catch post to start archive process.
-        """
-        return self.archive(archive=True)
-
-
-class UnarchiveView(ArchiveView):
-    """
-    Abstract view that makes it possible to un-archive an item which redirects to success_url afterwards.
-
-    Needs a post, with at least one pk for the instance to be archived.
-    """
-    def post(self, request, *args, **kwargs):
-        """
-        Catch post to start un-archive process.
-        """
-        return self.archive(archive=False)
-
-
-class AjaxUpdateView(LoginRequiredMixin, View):
-    """
-    View that provides an option to update models based on a url and POST data.
-    """
-    http_method_names = ['post']
-
-    def post(self, request, *args, **kwargs):
-        try:
-            app_name = kwargs.pop('app_name')
-            model_name = kwargs.pop('model_name').lower().capitalize()
-            object_id = kwargs.pop('object_id')
-
-            model = apps.get_model(app_name, model_name)
-            instance = model.objects.get(pk=object_id)
-
-            changed = False
-            for key, value in request.POST.items():
-                if hasattr(instance, key):
-                    setattr(instance, key, value)
-                    changed = True
-
-            if changed:
-                instance.save()
-        except:
-            raise Http404()
-
-        # Return response
-        return HttpResponse(json.dumps({}), content_type='application/json')
 
 
 class SugarCsvImportView(LoginRequiredMixin, FormView):
@@ -209,32 +64,15 @@ class SugarCsvImportView(LoginRequiredMixin, FormView):
         return file_name
 
 
-class RedirectSetMessageView(RedirectView):
-    message = ''
-    message_level = 'info'
-
-    def get_message_level(self):
-        if not self.message_level:
-            raise NotImplementedError(_('Didn\'t set the correct message level'))
-
-        return self.message_level
-
-    def get_message(self):
-        if not self.message:
-            raise NotImplementedError(_('No message has been set'))
-
-        return self.message
-
-    def dispatch(self, request, *args, **kwargs):
-        message_level = self.get_message_level()
-        message = self.get_message()
-        getattr(messages, message_level)(request, message)
-
-        return super(RedirectSetMessageView, self).dispatch(request, *args, **kwargs)
-
-
 class BaseView(LoginRequiredMixin, TemplateView):
     template_name = 'base.html'
+
+    def get(self, request, *args, **kwargs):
+        if not self.request.user.info.registration_finished:
+            # User is authenticated but has not finished the registration process, so redirect there.
+            return HttpResponseRedirect(reverse('register'))
+
+        return super(BaseView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         account_admin = self.request.user.tenant.admin.full_name

@@ -38,9 +38,9 @@ class StaticFilesStorage(CachedFilesMixin, S3BotoStorage):
         kwargs['acl'] = 'private'
         super(StaticFilesStorage, self).__init__(*args, **kwargs)
 
-    def hashed_name(self, name, content=None):
+    def hashed_name(self, name, content=None, filename=None):
         try:
-            out = super(StaticFilesStorage, self).hashed_name(name, content)
+            out = super(StaticFilesStorage, self).hashed_name(name, content, filename)
         except ValueError:
             # This means that a file could not be found, and normally this would
             # cause a fatal error, which seems rather excessive given that

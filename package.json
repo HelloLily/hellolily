@@ -32,6 +32,7 @@
     "urijs": "1.18.2"
   },
   "devDependencies": {
+    "babel-core": "6.26.0",
     "babel-cli": "6.26.0",
     "babel-preset-env": "1.6.1",
     "del": "2.2.2",

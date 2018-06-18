@@ -7,8 +7,7 @@
   },
   "homepage": "https://github.com/HelloLily/hellolily",
   "engines": {
-    "node": "8.5.0",
-    "yarn": "NOT USED - Please use npm"
+    "node": "8.5.0"
   },
   "scripts": {
     "postinstall": "gulp clean && gulp build"

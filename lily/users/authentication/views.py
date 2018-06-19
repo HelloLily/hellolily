@@ -133,10 +133,11 @@ class SocialAuthCallbackView(RedirectView):
             # If the user was invited, get the invitation data out of the session.
             session_data = self.request.session.get(settings.REGISTRATION_SESSION_KEY, {})
             invitation_data = session_data.get('invitation_data', {})
+            tenant_id = invitation_data.get('tenant_id')
 
             # There is no record of a user with this email address, so we create it.
             user = LilyUser.objects.create_user(
-                tenant_id=int(invitation_data.get('tenant_id', None)),
+                tenant_id=int(tenant_id) if tenant_id else None,
                 **profile
             )
 

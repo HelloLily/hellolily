@@ -155,7 +155,7 @@ urllib3==1.22
 freemail==1.2.19
 tldextract==1.7.5
 idna==2.6
-raven==6.3.0
+raven==6.9.0
 contextlib2==0.5.4
 phonenumberslite==8.8.1
 slacker==0.9.42

@@ -34,7 +34,7 @@ class RegistrationMixin(FormView):
             # User is not authenticated and is not on step 1 or 2, that are only steps they may be on right now.
             return HttpResponseRedirect(reverse('register_auth'))
         elif self.step_name == 'verify_email' and \
-                not self.request.session[settings.REGISTRATION_SESSION_KEY].get('auth_data'):
+                not self.request.session.get(settings.REGISTRATION_SESSION_KEY, {}).get('auth_data'):
             # Something is wrong with the session, so redirect to step 1.
             return HttpResponseRedirect(reverse('register_auth'))
 

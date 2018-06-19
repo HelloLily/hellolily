@@ -152,7 +152,7 @@ class UserInviteViewSet(viewsets.ModelViewSet):
 
             # Email to the user.
             send_templated_mail(
-                template_name='users/invitation.email',
+                template_name='users/email/invitation.email',
                 recipient_list=[email],
                 context={
                     'current_site': current_site,

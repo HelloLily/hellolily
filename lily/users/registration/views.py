@@ -8,7 +8,7 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic import RedirectView, FormView
 from django_otp.oath import totp
 from django_otp.util import random_hex
-from openid.cryptutil import sha256
+from hashlib import sha256
 from templated_email import send_templated_mail
 
 from lily.messaging.email.models.models import EmailAccount
@@ -298,6 +298,7 @@ class AcceptInvitationView(RedirectView):
                 self.request.session[settings.REGISTRATION_SESSION_KEY] = {}
 
             # Set the invitation data on the session.
+            self.request.session[settings.REGISTRATION_SESSION_KEY]['step'] = 1
             self.request.session[settings.REGISTRATION_SESSION_KEY]['invitation_data'] = {
                 'email': kwargs['email'],
                 'first_name': kwargs['first_name'],
@@ -333,13 +334,14 @@ class AcceptInvitationView(RedirectView):
             first_name=first_name
         ).values_list('id', flat=True).first()
 
-        correct_hash = sha256('{}-{}-{}-{}-{}'.format(
+        sha_input = '{}-{}-{}-{}-{}'.format(
             tenant_id,
             invite_id,
             email,
             datestring,
             settings.SECRET_KEY
-        )).hexdigest()
+        )
+        correct_hash = sha256(sha_input).hexdigest()
 
         if not invite_id or not sha256_hash == correct_hash or not len(datestring) == 8:
             # There should always be an invite object from the database.

@@ -13,6 +13,7 @@ from django.core.files import File
 from django.db import transaction
 import pytz
 
+from lily.messaging.email.connector import LabelNotFoundError
 from lily.messaging.email.utils import get_extensions_for_type
 
 from ..models.models import EmailMessage, EmailHeader, Recipient, EmailAttachment, NoEmailMessageId
@@ -134,8 +135,16 @@ class MessageBuilder(object):
         if missing_label_ids:
             # Labels missing in our database should be retrieved by the API.
             for label_id in missing_label_ids:
-                db_label = self.manager.get_label(label_id, use_db=False)
-                self.labels.append(db_label)
+                try:
+                    db_label = self.manager.get_label(label_id, use_db=False)
+                    self.labels.append(db_label)
+                except LabelNotFoundError:
+                    logger.error(
+                        'Label {} missing in db also not found via API for {}'.format(
+                            label_id,
+                            self.manager.email_account
+                        )
+                    )
 
         # Labels that exist both in Gmail and in our db. Those labels are already retrieved from the db above.
         available_label_ids = message_label_set & db_label_set

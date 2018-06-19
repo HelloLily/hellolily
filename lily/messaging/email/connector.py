@@ -92,6 +92,15 @@ class GmailConnector(object):
                     # Error could be nested, so unwrap if necessary.
                     error = error.get('error', error)
 
+                    if error:
+                        logger.error(
+                            'Error occurred for account {}:\nservice call: {}\nerror: {}'.format(
+                                self.email_account,
+                                service.to_json(),
+                                error
+                            )
+                        )
+
                     if error.get('code') == 403 and error.get('errors')[0].get('reason') in ['rateLimitExceeded',
                                                                                              'userRateLimitExceeded']:
                         # Apply exponential backoff.
@@ -108,6 +117,8 @@ class GmailConnector(object):
                         raise IllegalLabelError('Not allowed to set label SENT.')
                     elif error.get('code') == 400 and error.get('message') == 'Mail service not enabled':
                         raise MailNotEnabledError
+                    elif error.get('code') == 404 and service.methodId == 'gmail.users.labels.get':
+                        raise LabelNotFoundError
                     elif error.get('code') == 404:
                         raise NotFoundError
                     else:

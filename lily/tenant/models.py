@@ -1,3 +1,5 @@
+from socket import gaierror
+
 import freemail
 from babel.numbers import get_territory_currencies
 from django.conf import settings
@@ -91,11 +93,15 @@ class Tenant(models.Model):
                 extra_fields['name'] = tld.domain.title()
 
             if not extra_fields['country']:
-                country_code = geo_ip.country(tld.registered_domain).get('country_code')
-                if country_code in [c[0] for c in COUNTRIES]:
-                    extra_fields['country'] = country_code
+                try:
+                    country_code = geo_ip.country(tld.registered_domain).get('country_code')
+                except gaierror:
+                    pass
+                else:
+                    if country_code in [c[0] for c in COUNTRIES]:
+                        extra_fields['country'] = country_code
 
-            if not extra_fields['currency']:
+            if extra_fields['country'] and not extra_fields['currency']:
                 currency = get_territory_currencies(extra_fields['country'])[-1]
                 if currency in [c[0] for c in CURRENCIES]:
                     extra_fields['currency'] = currency

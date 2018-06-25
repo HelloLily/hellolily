@@ -3,6 +3,7 @@ from decimal import Decimal
 import csv
 import gc
 import logging
+import operator
 
 from django.core.files.storage import default_storage
 from django.core.management.base import BaseCommand
@@ -107,7 +108,7 @@ class Command(BaseCommand):
         with default_storage.open('twinfield_invoices.csv', 'wb') as csvfile:
             invoices = BillingInvoice.objects.all().values_list('invoice_id', flat=True)
 
-            # Not all columns` have to be filled in, but Twinfield does require all columns to be present.
+            # Not all columns have to be filled in, but Twinfield does require all columns to be present.
             twinfield_colums = [
                 'invcode', 'AR number', 'Group', 'invoice date', 'due date', 'header', 'footer', 'currency',
                 'quantity', 'article', 'subarticle', 'description', 'article price(vatexclusive)',
@@ -122,6 +123,8 @@ class Command(BaseCommand):
 
             writer = csv.writer(csvfile, delimiter=';')
             writer.writerow(twinfield_colums)
+
+            rows = []
 
             for row in self.read_csvfile('Invoices.csv'):
                 # TODO Fetch all customers.
@@ -198,11 +201,14 @@ class Command(BaseCommand):
                         # Rest won't be filled in.
                         data.append('')
 
-                writer.writerow(data)
+                rows.append(data)
 
                 BillingInvoice.objects.create(invoice_id=invoice_number)
 
-                gc.collect()
+            # Sort the rows by the code we generated based on the tenant ID.
+            rows = sorted(rows, key=operator.itemgetter(1), reverse=True)
+            writer.writerows(rows)
+            gc.collect()
 
     def read_csvfile(self, file_name):
         """

@@ -3,7 +3,6 @@ PreCommit:
     enabled: true
     on_warn: 'fail'
     include: 'frontend/app/**/*.js'
-    command: ['eslint', 'src', '__tests__', '--ext', '.js']
 
   ScssLint:
     enabled: true

@@ -16,7 +16,7 @@ from lily.messaging.email.api.views import (EmailLabelViewSet, EmailAccountViewS
                                             EmailTemplateFolderViewSet, EmailTemplateViewSet, SharedEmailConfigViewSet,
                                             TemplateVariableViewSet)
 from lily.notes.api.views import NoteViewSet
-from lily.provide.api.views import DataproviderView
+from lily.provide.api.views import DataproviderViewSet
 from lily.tenant.api.views import TenantViewSet
 from lily.timelogs.api.views import TimeLogViewSet
 from lily.users.api.views import (LilyUserViewSet, TeamViewSet, TwoFactorDevicesViewSet, SessionViewSet,
@@ -68,6 +68,7 @@ router.register(r'users', LilyUserViewSet)
 
 router.register(r'tenants', TenantViewSet)
 router.register(r'billing', BillingViewSet, base_name='billing')
+router.register(r'provide/dataprovider', DataproviderViewSet, base_name='dataprovider')
 
 router.register(r'utils/countries', CountryViewSet)
 
@@ -94,8 +95,6 @@ urlpatterns = [
     url(r'^utils/apphash/$', AppHash.as_view()),
     url(r'^utils/callername/$', CallerName.as_view()),
     url(r'^utils/notifications/$', Notifications.as_view()),
-
-    url(r'^provide/dataprovider/$', DataproviderView.as_view()),
 
     url(r'^', include(router.urls)),
 ]

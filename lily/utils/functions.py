@@ -6,11 +6,12 @@ from time import time
 
 import anyjson
 import phonenumbers
+import pycountry
 import requests
 from django import forms
 from django.conf import settings
+from phonenumbers import geocoder
 from requests_futures.sessions import FuturesSession
-
 from lily.tenant.middleware import get_current_user
 
 
@@ -95,10 +96,11 @@ def parse_phone_number(raw_number):
 
 def format_phone_number(number, country_code=None, international=False):
     if international:
-        # Parse phone number including country code.
+        # Parse phone number in E164 standard which is INTERNATIONAL format but with no formatting (spaces, separating
+        # symbols) applied, e.g. "+41446681800".
         number_format = phonenumbers.PhoneNumberFormat.E164
     else:
-        # Otherwise exclude country code.
+        # Parse phone number in NATIONAL standard which includes spaces, e.g. "044 668 1800".
         number_format = phonenumbers.PhoneNumberFormat.NATIONAL
 
     try:
@@ -106,6 +108,7 @@ def format_phone_number(number, country_code=None, international=False):
     except:
         parsed_number = ''
     else:
+        # Get the text representation of the phone number using the provided format and remove optional spaces.
         parsed_number = phonenumbers.format_number(parsed_number, number_format).replace(' ', '')
 
     return parsed_number
@@ -345,3 +348,44 @@ def guess_name_from_email(email):
     name = re.split('[._]', full_name)
 
     return name
+
+
+def strip_protocol_from_url(url):
+    """
+    Return the passed url without the protocol and www.
+    """
+    url = url.strip()
+
+    if url[:8] == 'https://':
+        url = url[8:]
+    if url[:7] == 'http://':
+        url = url[7:]
+    if url[:4] == 'www.':
+        url = url[4:]
+
+    return url
+
+
+def get_country_by_phone_number(phone_number):
+    """
+    Get the English text representation of the country the number belongs to. Netherlands is used as fallback.
+    """
+    try:
+        number_obj = phonenumbers.parse(phone_number, None)
+        country = geocoder.country_name_for_number(number_obj, "en")
+    except phonenumbers.NumberParseException:
+        country = "Netherlands"
+
+    return country
+
+
+def get_country_code_by_country(country):
+    """
+    Get the country code (ISO 3166-1 alpha-2) by the country name provided. Use NL as a fallback.
+    """
+    try:
+        country_code = pycountry.countries.get(name=country).alpha_2
+    except KeyError:
+        country_code = 'NL'
+
+    return country_code

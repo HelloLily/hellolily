@@ -33,8 +33,8 @@ function HLFields() {
                         }
 
                         if (fieldValue.website) {
-                            if (!fieldValue.is_primary || (fieldValue.is_primary && object.primaryWebsite)) {
-                                if (fieldValue.website !== object.primaryWebsite) {
+                            if (!fieldValue.is_primary || (fieldValue.is_primary && object.primary_website)) {
+                                if (fieldValue.website !== object.primary_website) {
                                     fieldValue.is_primary = false;
                                 }
 

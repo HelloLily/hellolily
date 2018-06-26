@@ -502,7 +502,10 @@ class EmailOutboxMessage(TenantMixin, models.Model):
     bcc = models.TextField(null=True, blank=True, verbose_name=_('bcc'))
     body = models.TextField(null=True, blank=True, verbose_name=_('html body'))
     cc = models.TextField(null=True, blank=True, verbose_name=_('cc'))
+    created = models.DateTimeField(default=timezone.now)
+    modified = models.DateTimeField(default=timezone.now)
     headers = models.TextField(null=True, blank=True, verbose_name=_('email headers'))
+    is_draft = models.BooleanField(default=False)
     mapped_attachments = models.IntegerField(verbose_name=_('number of mapped attachments'))
     original_attachment_ids = models.CharField(
         max_length=255,

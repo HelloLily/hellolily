@@ -1,77 +1,71 @@
-import json
-import urllib
-import urllib2
-
+import requests
 from django.conf import settings
 from django.http import Http404
-from django.utils.translation import ugettext_lazy as _
-
-from lily.utils.functions import parse_address, parse_phone_number
-
-from rest_framework.exceptions import APIException
+from rest_framework.decorators import list_route
+from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
-from rest_framework.views import APIView
+
+from lily.utils.functions import (
+    parse_address, parse_phone_number, strip_protocol_from_url, get_country_by_phone_number
+)
 
 
-class DataproviderView(APIView):
+class DataproviderViewSet(ViewSet):
     """
     View that makes an API call to Dataprovider to look up information for an account.
     """
     swagger_schema = None
 
-    def post(self, request, *args, **kwargs):
+    @list_route(methods=['POST'])
+    def phonenumber(self, request):
         """
-        Try to retrieve account information via Dataprovider based on the url in the request.
+        Try to retrieve account information via the Dataprovider enrich API by posting a country and phone number.
         """
-        # Construct the Dataprovider url by stripping the protocol of the query parameter.
-        query_website = self._strip_protocol(request.data['url'])
-        # Append the query parameters to the API url.
-        dataprovider_url = self._get_dataprovider_url(query_website)
+        url = settings.DATAPROVIDER_API_ENRICH_URL
+        api_key = settings.DATAPROVIDER_API_KEY
+        params = {
+            'api_key': api_key,
+        }
+        # Phone number is E164 formatted (INTERNATIONAL format but with no formatting).
+        phone_number = request.data['phonenumber']
+        country = get_country_by_phone_number(phone_number)
+        data = {
+            "country": country,
+            "phonenumber": phone_number
+        }
 
         try:
-            api_output = self._do_request_to_api(dataprovider_url)
-            account_information = self._get_account_information(api_output)
+            response = requests.post(url, params=params, json=data)
+        except Exception as e:
+            error = {'error': {'message': str(e)}}
+            return Response(error)
+
+        account_information = self._get_account_information(response.json())
+        return Response(account_information)
+
+    @list_route(methods=['POST'])
+    def url(self, request):
+        """
+        Try to retrieve account information via the Dataprovider lookup API by passing an url.
+        """
+        # Construct the Dataprovider url by stripping the protocol of the query parameter.
+        url = settings.DATAPROVIDER_API_LOOKUP_URL
+        api_key = settings.DATAPROVIDER_API_KEY
+        query_website = strip_protocol_from_url(request.data['url'])
+        params = {
+            'api_key': api_key,
+            'name': query_website,
+        }
+
+        try:
+            response = requests.get(url=url, params=params)
+            account_information = self._get_account_information(response.json())
             return Response(account_information)
         except Exception as e:
             error = {'error': {'message': str(e)}}
             return Response(error)
 
-    def _do_request_to_api(self, url):
-        """
-        Make a request to the given url and return the output.
-        """
-        response = urllib2.urlopen(url)
-        return response.read()
-
-    def _get_dataprovider_url(self, search_term):
-        """
-        Return the url to the Dataprovider API including the query string.
-        """
-        api_url = settings.DATAPROVIDER_API_URL
-        api_key = settings.DATAPROVIDER_API_KEY
-
-        query_params = {
-            'api_key': api_key,
-            'name': search_term,
-        }
-        return api_url + '?' + urllib.urlencode(query_params)
-
-    def _strip_protocol(self, url):
-        """
-        Remove the protocol from the url.
-        """
-        url = url.strip()
-
-        if url[:8] == 'https://':
-                url = url[8:]
-        if url[:7] == 'http://':
-                url = url[7:]
-        if url[:4] == 'www.':
-            url = url[4:]
-
-        return url
-
-    def _get_account_information(self, api_output):
+    def _get_account_information(self, json):
         """
         Create a dict with account information based on the json response from Dataprovider.
         """
@@ -79,24 +73,31 @@ class DataproviderView(APIView):
         email_limit = 5
         address_limit = 3
 
-        # Expected API output is json.
-        api_output_json = json.loads(api_output)
-
         # Return 404 when the api returned an error.
-        if api_output_json.get('error'):
-            raise Http404(api_output_json.get('error'))
+        if json.get('error'):
+            raise Http404(json.get('error'))
 
-        # Return error message when nothing was found.
-        if api_output_json.get('total') == 0:
-            raise APIException(_('I\'m so sorry, I couldn\'t find any data for this website.'))
+        if json.get('total') == 0:
+            # No results from Dataprovider so return an empty list.
+            return []
 
         # Filter useful data.
-        result = api_output_json['data'][0]
+        try:
+            # Lookup API returns data as a dict.
+            result = json['data'][0]
+        except (KeyError, IndexError):
+            # Enrich API returns a single hit.
+            result = json['data']
+
+        if not result:
+            # No results from Dataprovider so return an empty list.
+            return []
 
         # Get the keywords and convert to list.
         tags = result.get('keywords')
         if tags:
-            tags = result.get('keywords').strip().rstrip(',').split(',')
+            tags = [tag.strip() for tag in tags.split(',')]
+            tags = filter(None, tags)  # Remove empty tags.
 
         # Get email addresses as a list.
         emails = list(result.get('emailaddresses', []))
@@ -178,6 +179,8 @@ class DataproviderView(APIView):
 
         description = result.get('description')
 
+        website = result.get('hostname')
+
         # Build dict with account information.
         account_information = {
             'name': result.get('company'),
@@ -197,6 +200,7 @@ class DataproviderView(APIView):
             'social_media_profiles': social_media,
             'twitter': primary_twitter,
             'linkedin': primary_linkedin,
+            'primary_website': website,
         }
 
         return account_information

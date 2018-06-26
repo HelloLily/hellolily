@@ -129,11 +129,11 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
 
             vm.account.websites.forEach(website => {
                 if (website.is_primary) {
-                    vm.account.primaryWebsite = website.website;
+                    vm.account.primary_website = website.website;
                 }
             });
-            if (!vm.account.primaryWebsite || vm.account.primaryWebsite === '') {
-                vm.account.primaryWebsite = '';
+            if (!vm.account.primary_website || vm.account.primary_website === '') {
+                vm.account.primary_website = '';
             }
 
             if (vm.account.hasOwnProperty('social_media') && vm.account.social_media.length) {
@@ -154,12 +154,17 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
                     'number': $stateParams.phone_number,
                     'type': 'work',
                 });
+
+                vm.account.getDataproviderInfoByPhoneNumber(vm.callerNumber).then(() => {
+                    // With the retrieved info it is possible that the account already exists.
+                    vm.checkExistingAccount();
+                });
             }
 
             if (Settings.email.data && Settings.email.data.website) {
-                vm.account.primaryWebsite = Settings.email.data.website;
+                vm.account.primary_website = Settings.email.data.website;
 
-                vm.account.getDataproviderInfo(Settings.email.data.website).then(() => {
+                vm.account.getDataproviderInfoByUrl(Settings.email.data.website).then(() => {
                     if (!vm.account.name) {
                         const company = Settings.email.data.website.split('.').slice(0, -1).join(' ');
                         vm.account.name = company.charAt(0).toUpperCase() + company.slice(1);
@@ -172,7 +177,7 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
     function _mergeData(primary, dirtyForm) {
         const form = HLFields.cleanRelatedFields(dirtyForm);
 
-        if (!primary.primaryWebsite) primary.primaryWebsite = form.primaryWebsite;
+        if (!primary.primary_website) primary.primary_website = form.primary_website;
         if (form.description) {
             primary.description = `${form.description}\n\n${primary.description}`;
         }
@@ -205,7 +210,7 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
 
     function checkExistingAccount() {
         if (!vm.account.id) {
-            const filterquery = `domain:"${vm.account.primaryWebsite}" OR name:"${vm.account.name}"`;
+            const filterquery = `domain:"${vm.account.primary_website}" OR name:"${vm.account.name}"`;
 
             Account.search({filterquery}).$promise.then(results => {
                 vm.accountSuggestions.name = results.objects;
@@ -263,7 +268,7 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
         vm.accountSuggestions.name = [];
 
         toastr.info('Running around the world to fetch info', 'Here we go');
-        vm.account.getDataproviderInfo(vm.account.primaryWebsite).then(() => {
+        vm.account.getDataproviderInfoByUrl(vm.account.primary_website).then(() => {
             toastr.success('Got it!', 'Whoohoo');
         }, () => {
             toastr.error('I couldn\'t find any data', 'Sorry');
@@ -316,7 +321,7 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
 
         HLForms.blockUI();
 
-        const primaryWebsite = vm.account.primaryWebsite;
+        const primaryWebsite = vm.account.primary_website;
 
         // Make sure it's not an empty website being added.
         if (primaryWebsite && primaryWebsite !== 'http://' && primaryWebsite !== 'https://') {
@@ -430,8 +435,8 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
 
     function _handleBadResponse(response, form) {
         // Set error of the first website as the primary website error.
-        if (vm.account.primaryWebsite && response.data.websites && response.data.websites.length) {
-            response.data.primaryWebsite = response.data.websites.shift().website;
+        if (vm.account.primary_website && response.data.websites && response.data.websites.length) {
+            response.data.primary_website = response.data.websites.shift().website;
         }
 
         HLForms.setErrors(form, response.data);

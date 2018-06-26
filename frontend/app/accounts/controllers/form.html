@@ -17,23 +17,23 @@
 
         <form novalidate class="hl-form-body" name="accountForm">
             <form-portlet portlet-title="Who was it?">
-                <form-group label-title="Primary website" label-id="primary_website" field="accountForm.primaryWebsite">
+                <form-group label-title="Primary website" label-id="primary_website" field="accountForm.primary_website">
                     <div class="input-group">
                         <input class="form-control"
                                id="primary_website"
-                               name="primaryWebsite"
+                               name="primary_website"
                                maxlength="255"
                                placeholder="www.example.com"
                                type="text"
                                on-enter-key="vm.checkExistingAccount()"
                                ng-blur="vm.checkExistingAccount()"
-                               ng-model="vm.account.primaryWebsite" />
+                               ng-model="vm.account.primary_website" />
                             <span class="input-group-btn">
                                 <button autocomplete="off"
                                         class="hl-primary-btn hl-inline-form-button"
                                         type="button"
                                         ng-click="vm.loadDataproviderData()"
-                                        ng-disabled="!accountForm.primaryWebsite.$valid">
+                                        ng-disabled="!accountForm.primary_website.$valid">
                                     <i class="fa fa-magic"></i>
                                 </button>
                             </span>

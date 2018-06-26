@@ -120,7 +120,8 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
     _account.create = create;
     _account.updateModel = updateModel;
 
-    _account.prototype.getDataproviderInfo = getDataproviderInfo;
+    _account.prototype.getDataproviderInfoByUrl = getDataproviderInfoByUrl;
+    _account.prototype.getDataproviderInfoByPhoneNumber = getDataproviderInfoByPhoneNumber;
 
     // Make sure account statuses are available without an extra call to statuses.
     _account.getStatuses();
@@ -213,7 +214,7 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
     function create() {
         return new _account({
             name: '',
-            primaryWebsite: '',
+            primary_website: '',
             email_addresses: [],
             phone_numbers: [],
             addresses: [],
@@ -232,25 +233,47 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
         return domain;
     }
 
-    function getDataproviderInfo(url) {
+    function getDataproviderInfoByUrl(url) {
         var account = this;
         var deferred = $q.defer();
         var sanitizedUrl = _sanitizeDomain(url);
 
         if (sanitizedUrl.length > 1) {
             $http({
-                url: '/api/provide/dataprovider/',
+                url: '/api/provide/dataprovider/url/',
                 method: 'POST',
                 data: {url: sanitizedUrl},
             }).success(function(response) {
                 if (response.error) {
                     deferred.reject('Failed to load data');
+                } else if (response.length === 0) {
+                    deferred.reject('No data found');
                 } else {
                     account._storeDataproviderInfo(response);
                     deferred.resolve();
                 }
             }).error(function(error) {
                 deferred.reject(error);
+            });
+        }
+
+        return deferred.promise;
+    }
+
+    function getDataproviderInfoByPhoneNumber(phoneNumber) {
+        var account = this;
+        var deferred = $q.defer();
+
+        if (phoneNumber.length > 1) {
+            $http({
+                url: '/api/provide/dataprovider/phonenumber/',
+                method: 'POST',
+                data: {phonenumber: phoneNumber},
+            }).success(function(response) {
+                if (!response.error) {
+                    account._storeDataproviderInfo(response);
+                    deferred.resolve();
+                }
             });
         }
 

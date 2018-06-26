@@ -6,6 +6,7 @@ from time import time
 
 import anyjson
 import phonenumbers
+import pycountry
 import requests
 from django import forms
 from django.conf import settings
@@ -376,3 +377,15 @@ def get_country_by_phone_number(phone_number):
         country = "Netherlands"
 
     return country
+
+
+def get_country_code_by_country(country):
+    """
+    Get the country code (ISO 3166-1 alpha-2) by the country name provided. Use NL as a fallback.
+    """
+    try:
+        country_code = pycountry.countries.get(name=country).alpha_2
+    except KeyError:
+        country_code = 'NL'
+
+    return country_code

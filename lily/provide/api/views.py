@@ -6,8 +6,8 @@ from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 
 from lily.utils.functions import (
-    parse_address, parse_phone_number, strip_protocol_from_url, get_country_by_phone_number
-)
+    parse_address, parse_phone_number, strip_protocol_from_url, get_country_by_phone_number,
+    get_country_code_by_country)
 
 
 class DataproviderViewSet(ViewSet):
@@ -29,6 +29,8 @@ class DataproviderViewSet(ViewSet):
         # Phone number is E164 formatted (INTERNATIONAL format but with no formatting).
         phone_number = request.data['phonenumber']
         country = get_country_by_phone_number(phone_number)
+        country_code = get_country_code_by_country(country)
+        params.update({"default_country": country_code})
         data = {
             "country": country,
             "phonenumber": phone_number

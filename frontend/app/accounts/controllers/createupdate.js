@@ -393,7 +393,9 @@ function AccountCreateController($scope, $state, $stateParams, $timeout, Account
                 _handleBadResponse(response, form);
             });
         } else {
+            // Create a new account.
             vm.account.$save(() => {
+                // Track newly created accounts in Intercom.
                 new Intercom('trackEvent', 'account-created');
 
                 toastr.success('I\'ve saved the account for you!', 'Yay');

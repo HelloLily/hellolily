@@ -666,7 +666,7 @@ INTERCOM_APP_ID = os.environ.get('INTERCOM_APP_ID', '')
 INTERCOM_KEY = os.environ.get('INTERCOM_KEY', '')
 INTERCOM_HMAC_SECRET = os.environ.get('INTERCOM_HMAC_SECRET', '')
 
-# Sentry & Raven
+# Sentry & Raven.
 SENTRY_BACKEND_DSN = os.environ.get('SENTRY_BACKEND_DSN', '')
 SENTRY_BACKEND_PUBLIC_DSN = os.environ.get('SENTRY_BACKEND_PUBLIC_DSN', '')
 SENTRY_FRONTEND_DSN = os.environ.get('SENTRY_FRONTEND_DSN', '')
@@ -690,6 +690,10 @@ SLACK_LILY_CLIENT_ID = os.environ.get('SLACK_LILY_CLIENT_ID', '')
 SLACK_LILY_CLIENT_SECRET = os.environ.get('SLACK_LILY_CLIENT_SECRET', '')
 # Token used to verify requests are actually coming from Slack.
 SLACK_LILY_TOKEN = os.environ.get('SLACK_LILY_TOKEN', '')
+
+# Segment.
+SEGMENT_PYTHON_SOURCE_WRITE_KEY = os.environ.get('SEGMENT_PYTHON_SOURCE_WRITE_KEY', '')
+SEGMENT_JS_SOURCE_WRITE_KEY = os.environ.get('SEGMENT_JS_SOURCE_WRITE_KEY', '')
 
 #######################################################################################################################
 # TESTING                                                                                                             #

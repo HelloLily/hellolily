@@ -372,7 +372,9 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
                 _handleBadResponse(response, form);
             });
         } else {
+            // Create a new deal.
             cleanedDeal.$save(() => {
+                // Track newly created deals in Intercom.
                 new Intercom('trackEvent', 'deal-created');
 
                 toastr.success('I\'ve saved the deal for you!', 'Yay');

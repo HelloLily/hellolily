@@ -354,6 +354,7 @@ function ContactCreateUpdateController($scope, $state, $stateParams, $timeout, A
                 _handleBadResponse(response, form);
             });
         } else {
+            // Create a new contact.
             copiedContact.$save(() => {
                 toastr.success('I\'ve saved the contact for you!', 'Yay');
 

@@ -15,6 +15,7 @@ function callerInfo() {
 CallerInfoController.$inject = ['$state', 'Account', 'Call'];
 function CallerInfoController($state, Account, Call) {
     const vm = this;
+    let phoneNumber = '';
 
     vm.fetchCallerInfo = fetchCallerInfo;
 
@@ -24,6 +25,7 @@ function CallerInfoController($state, Account, Call) {
             const call = callInfo.call;
 
             if (call) {
+                phoneNumber = call.caller.number;
                 // There was a call for the current user, so try to find an account or contact with the given number.
                 Account.searchByPhoneNumber({number: call.caller.number}).$promise.then(response => {
                     if (response.data.account) {
@@ -47,6 +49,11 @@ function CallerInfoController($state, Account, Call) {
             } else {
                 toastr.error('No calls for you right now', 'No calls');
             }
+        });
+
+        // Track clicking on the caller info button in Segment.
+        analytics.track('caller-info-click', {
+            'phone_number': phoneNumber,
         });
     }
 }

@@ -1,4 +1,6 @@
 from itertools import chain
+
+import analytics
 import anyjson
 import HTMLParser
 import logging
@@ -427,6 +429,15 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
             )
             self.request.session['tasks'].update({'send_message': task.id})
             self.request.session.modified = True
+
+            # Track sending new email messages.
+            analytics.track(self.request.user.id, 'email-message-sent', {
+                'recipient_to': email_outbox_message.to,
+                'recipient_cc': email_outbox_message.cc,
+                'recipient_bcc': email_outbox_message.bcc,
+                'type': 'New',
+            })
+
         else:
             messages.error(
                 self.request,
@@ -664,6 +675,21 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
             )
             self.request.session['tasks'].update({'send_message': task.id})
             self.request.session.modified = True
+
+            # Track sending forward or reply messages in Segment.
+            mail_type = ''
+            if email_outbox_message.subject.startswith('Re: '):
+                mail_type = 'Reply'
+            elif email_outbox_message.subject.startswith('Fwd: '):
+                mail_type = 'Forward'
+
+            analytics.track(self.request.user.id, 'email-message-sent', {
+                'recipient_to': email_outbox_message.to,
+                'recipient_cc': email_outbox_message.cc,
+                'recipient_bcc': email_outbox_message.bcc,
+                'type': mail_type,
+            })
+
         else:
             messages.error(
                 self.request,

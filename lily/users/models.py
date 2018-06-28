@@ -8,15 +8,12 @@ import chargebee
 import pytz
 import requests
 from django.conf import settings
-from django.contrib import messages
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import UserManager, PermissionsMixin, Group
-from django.contrib.auth.signals import user_logged_out
 from django.core.files.base import ContentFile
 from django.core.mail import send_mail
 from django.db import models, transaction
-from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from timezone_field import TimeZoneField
@@ -402,12 +399,3 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
             ('send_invitation', _('Can send invitations to invite new users')),
         )
         unique_together = ('tenant', 'internal_number')
-
-
-@receiver(user_logged_out)
-def logged_out_callback(sender, **kwargs):
-    """
-    Set a confirmation message in the request that the user is logged out successfully.
-    """
-    request = kwargs['request']
-    messages.info(request, _('You are now logged out.'))

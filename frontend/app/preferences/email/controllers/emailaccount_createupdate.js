@@ -168,7 +168,8 @@ function EmailAccountUpdateController($scope, $state, $stateParams, $timeout, HL
         HLForms.clearErrors(form);
 
         if (cleanedAccount.id) {
-            // If there's an ID set it means we're dealing with an existing account, so update it.
+            // If there's an ID set it means we're dealing with an existing account, so update it. Also newly added
+            // email accounts already have an ID.
             EmailAccount.patch(args).$promise.then(() => {
                 User.me().$promise.then(user => {
                     toastr.success('I\'ve updated the email account for you!', 'Done');

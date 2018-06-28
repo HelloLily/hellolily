@@ -62,14 +62,16 @@ function BaseController($scope, $state, $http, $location, AppHash, Settings, HLS
 
             // Identify a user in Segment when he navigates to a different state.
             let currentUser = $scope.settings.currentUser;
-            analytics.identify(currentUser.id, {
-                name: currentUser.full_name,
-                email: currentUser.email,
-                tenantId: currentUser.tenant.id,
-                tenantName: currentUser.tenant.name,
-                planTier: currentUser.tenant.billing ? currentUser.tenant.billing.plan.tier : '',
-                isFreePlan: currentUser.tenant.billing ? currentUser.tenant.billing.is_free_plan : '',
-            });
+            if (currentUser) {
+                analytics.identify(currentUser.id, {
+                    name: currentUser.full_name,
+                    email: currentUser.email,
+                    tenant_id: currentUser.tenant.id,
+                    tenant_name: currentUser.tenant.name,
+                    plan_tier: currentUser.tenant.billing ? currentUser.tenant.billing.plan.tier : '',
+                    is_free_plan: currentUser.tenant.billing ? currentUser.tenant.billing.is_free_plan : '',
+                });
+            }
         });
     }
 

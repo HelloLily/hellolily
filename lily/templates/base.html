@@ -129,10 +129,10 @@
                 analytics.identify('{{ user.id }}', {
                     name: '{{ user.full_name }}',
                     email: '{{ user.email }}',
-                    tenantId: '{{ user.tenant.id }}',
-                    tenantName: '{{ user.tenant.name }}',
-                    planTier: '{{ user.tenant.billing.plan.tier }}',
-                    isFreePlan: '{{ user.tenant.billing.is_free_plan }}' == 'True',
+                    tenant_id: '{{ user.tenant.id }}',
+                    tenant_name: '{{ user.tenant.name }}',
+                    plan_tier: '{{ user.tenant.billing.plan.tier }}',
+                    is_free_plan: '{{ user.tenant.billing.is_free_plan }}' == 'True',
                 });
             </script>
             <script>

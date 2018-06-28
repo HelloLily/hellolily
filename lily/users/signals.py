@@ -46,10 +46,10 @@ def post_save_user_callback(sender, instance, created, **kwargs):
     analytics.identify(instance.id, {
         'name': instance.full_name,
         'email': instance.email,
-        'tenantId': instance.tenant.id,
-        'tenantName': instance.tenant.name,
-        'planTier': plan_tier,
-        'isFreePlan': instance.tenant.billing.is_free_plan,
+        'tenant_id': instance.tenant.id,
+        'tenant_name': instance.tenant.name,
+        'plan_tier': plan_tier,
+        'is_free_plan': instance.tenant.billing.is_free_plan,
     })
 
 

@@ -20,5 +20,5 @@ def post_save_callback(sender, instance, created, **kwargs):
         if user:  # User is missing when creating test data.
             analytics.track(user.id, 'case-created', {
                 'expires': instance.expires,
-                'assigned_to_id': instance.assigned_to.id,
+                'assigned_to_id': instance.assigned_to.id if instance.assigned_to else '',
             })

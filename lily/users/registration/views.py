@@ -304,13 +304,17 @@ class RegisterDoneView(RegistrationMixin, FormView):
         elif 'invitation_data' in self.request.session[settings.REGISTRATION_SESSION_KEY]:
             registration_type = 'Invite'
 
-        analytics.track(self.request.user.id, 'registration-finished', {
-            'type': registration_type,
-            'plan_tier': plan_tier,
-            'is_free_plan': self.request.user.tenant.billing.is_free_plan,
-            'tanant_id': self.request.user.tenant.id,
-            'tanant_name': self.request.user.tenant.name,
-        })
+        analytics.track(
+            self.request.user.id,
+            'registration-finished', {
+                'type': registration_type,
+                'plan_tier': plan_tier,
+                'is_free_plan': self.request.user.tenant.billing.is_free_plan,
+                'tanant_id': self.request.user.tenant.id,
+                'tanant_name': self.request.user.tenant.name,
+            },
+            anonymous_id='Anonymous' if self.request.user.is_anonymous() else None
+        )
 
         return super(RegisterDoneView, self).form_valid(form)
 

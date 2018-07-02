@@ -18,8 +18,12 @@ def post_save_callback(sender, instance, created, **kwargs):
     if created:
         user = get_current_user()
         if user:  # User is missing when creating test data.
-            analytics.track(user.id, 'deal-created', {
-                'assigned_to_id': instance.assigned_to.id if instance.assigned_to else '',
-                'status': instance.status.name,
-                'next_step': instance.next_step.name,
-            })
+            analytics.track(
+                user.id,
+                'deal-created', {
+                    'assigned_to_id': instance.assigned_to.id if instance.assigned_to else '',
+                    'status': instance.status.name,
+                    'next_step': instance.next_step.name,
+                },
+                anonymous_id='Anonymous' if user.is_anonymous() else None
+            )

@@ -11,7 +11,7 @@ class PlanSerializer(ModelSerializer):
     class Meta:
         model = Plan
         fields = (
-            'id'
+            'id',
             'name',
             'tier',
         )
@@ -27,5 +27,5 @@ class BillingSerializer(ModelSerializer):
         model = Billing
         fields = (
             'plan',
-            'is_free_plan'
+            'is_free_plan',
         )

@@ -1,6 +1,7 @@
 from rest_framework.exceptions import PermissionDenied
 
 from lily.api.nested.serializers import WritableNestedSerializer
+from lily.billing.api.serializer import BillingSerializer
 from lily.integrations.api.serializers import RelatedIntegrationSerializer
 from lily.tenant.models import Tenant
 from lily.utils.api.serializers import RelatedExternalAppLinkSerializer
@@ -13,6 +14,7 @@ class TenantSerializer(WritableNestedSerializer):
     """
     external_app_links = RelatedExternalAppLinkSerializer(read_only=True, many=True, source='externalapplink_set')
     integrations = RelatedIntegrationSerializer(read_only=True, many=True, source='integrationdetails_set')
+    billing = BillingSerializer(read_only=True)
 
     def update(self, instance, validated_data):
         if not self.context.get('request').user.is_admin:
@@ -34,6 +36,7 @@ class TenantSerializer(WritableNestedSerializer):
         fields = (
             'id',
             'billing_default',
+            'billing',
             'currency',
             'external_app_links',
             'integrations',

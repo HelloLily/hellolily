@@ -11,6 +11,7 @@ class PlanSerializer(ModelSerializer):
     class Meta:
         model = Plan
         fields = (
+            'id'
             'name',
             'tier',
         )

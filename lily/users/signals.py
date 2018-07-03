@@ -13,9 +13,9 @@ def logged_in_callback(sender, user, request, **kwargs):
     """
     Identify newly logged in user in Segment.
     """
-    plan_tier = None
+    plan = None
     try:
-        plan_tier = user.tenant.billing.plan.tier
+        plan = user.tenant.billing.plan
     except AttributeError:
         pass
 
@@ -24,7 +24,9 @@ def logged_in_callback(sender, user, request, **kwargs):
         'email': user.email,
         'tenant_id': user.tenant.id,
         'tenant_name': user.tenant.name,
-        'plan_tier': plan_tier,
+        'plan_id': plan.id if plan else '',
+        'plan_tier': plan.tier if plan else '',
+        'plan_name': plan.name if plan else '',
         'is_free_plan': user.tenant.billing.is_free_plan,
     })
 
@@ -37,9 +39,9 @@ def post_save_user_callback(sender, instance, created, **kwargs):
     if settings.TESTING:
         return
 
-    plan_tier = None
+    plan = None
     try:
-        plan_tier = instance.tenant.billing.plan.tier
+        plan = instance.tenant.billing.plan
     except AttributeError:
         pass
 
@@ -48,7 +50,9 @@ def post_save_user_callback(sender, instance, created, **kwargs):
         'email': instance.email,
         'tenant_id': instance.tenant.id,
         'tenant_name': instance.tenant.name,
-        'plan_tier': plan_tier,
+        'plan_id': plan.id if plan else '',
+        'plan_tier': plan.tier if plan else '',
+        'plan_name': plan.name if plan else '',
         'is_free_plan': instance.tenant.billing.is_free_plan,
     })
 

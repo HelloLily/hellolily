@@ -68,7 +68,9 @@ function BaseController($scope, $state, $http, $location, AppHash, Settings, HLS
                     email: currentUser.email,
                     tenant_id: currentUser.tenant.id,
                     tenant_name: currentUser.tenant.name,
+                    plan_id: currentUser.tenant.billing.plan ? currentUser.tenant.billing.plan.id : '',
                     plan_tier: currentUser.tenant.billing.plan ? currentUser.tenant.billing.plan.tier : '',
+                    plan_name: currentUser.tenant.billing.plan ? currentUser.tenant.billing.plan.name : '',
                     is_free_plan: currentUser.tenant.billing ? currentUser.tenant.billing.is_free_plan : '',
                 });
             }

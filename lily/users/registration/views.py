@@ -292,9 +292,9 @@ class RegisterDoneView(RegistrationMixin, FormView):
 
     def form_valid(self, form):
         # Track registration finished in Segment.
-        plan_tier = None
+        plan = None
         try:
-            plan_tier = self.request.user.tenant.billing.plan.tier
+            plan = self.request.user.tenant.billing.plan
         except AttributeError:
             pass
 
@@ -308,7 +308,9 @@ class RegisterDoneView(RegistrationMixin, FormView):
             self.request.user.id,
             'registration-finished', {
                 'type': registration_type,
-                'plan_tier': plan_tier,
+                'plan_id': plan.id if plan else '',
+                'plan_tier': plan.tier if plan else '',
+                'plan_name': plan.name if plan else '',
                 'is_free_plan': self.request.user.tenant.billing.is_free_plan,
                 'tanant_id': self.request.user.tenant.id,
                 'tanant_name': self.request.user.tenant.name,

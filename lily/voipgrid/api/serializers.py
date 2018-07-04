@@ -13,6 +13,8 @@ from lily.users.models import LilyUser
 
 
 logger = logging.getLogger(__name__)
+# For now outbound call integration is limted to VoIPGRID, Voys, Voys SA, Firm24, LegalThings, Converdis B.V, Converdis
+OUTBOUND_ENABLED_TENANTS = [10, 50, 52, 300, 534, 601, 613]
 
 
 class CallNotificationSerializer(serializers.Serializer):
@@ -54,15 +56,18 @@ class CallNotificationSerializer(serializers.Serializer):
         return data
 
     def create(self, validated_data):
-        caller = validated_data['caller']
+        destination = validated_data['destination']
+        tenant = self.context['request'].user.tenant
 
-        if validated_data['direction'] == 'outbound' or not caller.get('number', '').startswith('+'):
-            # We don't save outbound phonecalls, because they make everything much more complicated.
-            # We don't save phone calls from internal numbers because:
-            # - They aren't visible anywhere.
-            # - They are temporary phone calls when a user transfers the call.
-            # - They are just a simple call between colleagues.
-            return CallRecord()
+        if validated_data['direction'] == 'outbound':
+            if tenant.id not in OUTBOUND_ENABLED_TENANTS:
+                # For now we want to enable outbound call integration only for selected tenants to test the feature.
+                return CallRecord()
+            data = self.match_external_participant(destination)
+            if not data['source']:
+                # We don't save outbound calls where the destination isn't an account or a contact.
+                # This is the only reliable way to filter out internal calls.
+                return CallRecord()
 
         # Get the correct save function for the status type, e.g. status: in-progress will become save_in_progress.
         save_func = getattr(self, 'save_{}'.format(validated_data['status'].replace('-', '_')))

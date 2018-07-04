@@ -15,7 +15,7 @@ from .serializers import CallSerializer, CallRecordSerializer
 from ..models import Call, CallRecord
 
 
-class CallViewSet(viewsets.ModelViewSet):
+class CallViewSet(viewsets.ReadOnlyModelViewSet):
     """
     Returns a list of all calls in the system.
     """

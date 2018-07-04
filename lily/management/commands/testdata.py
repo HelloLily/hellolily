@@ -6,7 +6,8 @@ from factory import iterator, Iterator
 
 from lily.accounts.factories import AccountFactory
 from lily.billing.models import Plan, Billing
-from lily.calls.factories import CallFactory
+from lily.calls.factories import CallRecordFactory, CallParticipantFactory
+from lily.calls.models import CallParticipant
 from lily.cases.factories import CaseFactory, CaseTypeFactory, CaseStatusFactory
 from lily.contacts.factories import ContactFactory, FunctionFactory
 from lily.deals.factories import (DealFactory, DealContactedByFactory, DealFoundThroughFactory, DealNextStepFactory,
@@ -111,6 +112,50 @@ or use an existent tenant if passed as an argument."""
         self.notes_note(
             author=Iterator(authors),
             subject=subjects
+        )
+
+        user_participants = []
+        login_participants = []
+        account_participants = []
+
+        for user in logins:
+            full_name = u' '.join((user.first_name, user.last_name)).encode('utf-8').strip()
+            participant = CallParticipant.objects.create(
+                name=full_name,
+                number=user.phone_number,
+                internal_number=user.internal_number,
+                tenant=self.tenant
+            )
+            login_participants.append(participant)
+
+        for user in users:
+            full_name = u' '.join((user.first_name, user.last_name)).encode('utf-8').strip()
+            participant = CallParticipant.objects.create(
+                name=full_name,
+                number=user.phone_number,
+                internal_number=user.internal_number,
+                tenant=self.tenant
+            )
+            user_participants.append(participant)
+
+        for account in accounts:
+            if account.phone_numbers:
+                participant = CallParticipant.objects.create(
+                    name=account.name,
+                    number=account.phone_numbers.all()[0].number,
+                    tenant=self.tenant
+                )
+                account_participants.append(participant)
+
+        # Create callers and destinations lists so that when used as iterators for call record creation,
+        # every account calls every user and login, every user calls every account and login etc.
+        callers = 2 * account_participants + 2 * login_participants + 2 * user_participants
+        destinations = login_participants + user_participants + account_participants + user_participants \
+            + account_participants + login_participants
+
+        self.calls_callrecord(
+            caller=Iterator(callers),
+            destination=Iterator(destinations),
         )
 
         account_admin_group = Group.objects.get_or_create(name='account_admin')[0]
@@ -389,12 +434,23 @@ or use an existent tenant if passed as an argument."""
 
         return NoteFactory.create_batch(**kwargs)
 
-    def calls_call(self, **kwargs):
+    def calls_participant(self, **kwargs):
         kwargs.update({
             'size': kwargs.get('size', self.batch_size),
             'tenant': kwargs.get('tenant', self.tenant),
+            'number': kwargs.get('number'),
         })
 
-        self.stdout.write('Done with calls_call.')
+        return CallParticipantFactory.create_batch(**kwargs)
 
-        return CallFactory.create_batch(**kwargs)
+    def calls_callrecord(self, **kwargs):
+        kwargs.update({
+            'size': kwargs.get('size', self.batch_size),
+            'tenant': kwargs.get('tenant', self.tenant),
+            'caller': kwargs.get('caller'),
+            'destination': kwargs.get('destination'),
+        })
+
+        self.stdout.write('Done with calls_callrecord.')
+
+        return CallRecordFactory.create_batch(**kwargs)

@@ -96,6 +96,7 @@ class AccountSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
     )
     assigned_to = RelatedLilyUserSerializer(
         required=False,
+        allow_null=True,
         assign_only=True,
         help_text='Person which the account is assigned to.',
     )

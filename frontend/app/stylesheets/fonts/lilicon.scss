@@ -78,9 +78,9 @@ Lily has a large amount of icons that can be used.
         <tr>
             <td><i class="lilicon font-size-24 hl-phone-icon"></i><div style="margin-top: 10px">.hl-phone-icon</div></td>
             <td><i class="lilicon font-size-24 hl-phone-filled-icon"></i><div style="margin-top: 10px">.hl-phone-filled-icon</div></td>
-            <td><i class="lilicon font-size-24 hl-incomming-icon"></i><div style="margin-top: 10px">.hl-incomming-icon</div></td>
+            <td><i class="lilicon font-size-24 hl-incoming-icon"></i><div style="margin-top: 10px">.hl-incoming-icon</div></td>
             <td><i class="lilicon font-size-24 hl-outgoing-icon"></i><div style="margin-top: 10px">.hl-outgoing-icon</div></td>
-            <td><i class="lilicon font-size-24 hl-incomming-down-icon"></i><div style="margin-top: 10px">.hl-incomming-down-icon</div></td>
+            <td><i class="lilicon font-size-24 hl-incoming-down-icon"></i><div style="margin-top: 10px">.hl-incoming-down-icon</div></td>
             <td><i class="lilicon font-size-24 hl-outgoing-up-icon"></i><div style="margin-top: 10px">.hl-outgoing-up-icon</div></td>
             <td><i class="lilicon font-size-24 hl-forwarding-icon"></i><div style="margin-top: 10px">.hl-forwarding-icon</div></td>
         </tr>
@@ -122,16 +122,18 @@ Lily has a large amount of icons that can be used.
 
 */
 
+$icomoon-font-path: "./fonts/lilicon" !default;
+
 @font-face {
     font-family: "lilicon";
-    src: url("./fonts/lilicon/lilicon.eot?ls2e23");
-    src: url("./fonts/lilicon/lilicon.eot?ls2e23#iefix") format("embedded-opentype"),
-    url("./fonts/lilicon/lilicon.ttf?ls2e23") format("truetype"),
-    url("./fonts/lilicon/lilicon.woff?ls2e23") format("woff"),
-    url("./fonts/lilicon/lilicon.svg?ls2e23#lilicon") format("svg");
+    src: url("#{$icomoon-font-path}/lilicon.eot?ez3l0t");
+    src: url("#{$icomoon-font-path}/lilicon.eot?ez3l0t#iefix") format("embedded-opentype"),
+        url("#{$icomoon-font-path}/lilicon.ttf?ez3l0t") format("truetype"),
+        url("#{$icomoon-font-path}/lilicon.woff?ez3l0t") format("woff"),
+        url("#{$icomoon-font-path}/lilicon.svg?ez3l0t#lilicon") format("svg");
     font-weight: normal;
     font-style: normal;
-}
+  }
 
 .lilicon {
     /* use !important to prevent issues with browser extensions that change fonts */
@@ -146,8 +148,10 @@ Lily has a large amount of icons that can be used.
     /* Better Font Rendering =========== */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-}
+  }
 
+$hl-phone-inbound-icon: "\e93c";
+$hl-phone-outbound-icon: "\e93d";
 $hl-entities-icon: "\e93b";
 $hl-entity-inactive-icon: "\e938";
 $hl-entity-active-icon: "\e939";
@@ -158,8 +162,8 @@ $hl-postpone-icon: "\e910";
 $hl-deals-icon: "\e901";
 $hl-deals-filled-icon: "\e902";
 $hl-outgoing-icon: "\e903";
-$hl-incomming-icon: "\e904";
-$hl-incomming-down-icon: "\e905";
+$hl-incoming-icon: "\e904";
+$hl-incoming-down-icon: "\e905";
 $hl-outgoing-up-icon: "\e906";
 $hl-phone-filled-icon: "\e907";
 $hl-asterix-icon: "\e908";
@@ -180,10 +184,10 @@ $hl-company-icon: "\e917";
 $hl-stats-icon: "\e918";
 $hl-paperclip-icon: "\e919";
 $hl-options-icon: "\e91a";
-$hl-prio-icon-low: "\e91b";
-$hl-prio-icon-medium: "\e91c";
-$hl-prio-icon-high: "\e91d";
-$hl-prio-icon-critical: "\e91e";
+$hl-low-prio-icon: "\e91b";
+$hl-medium-prio-icon: "\e91c";
+$hl-high-prio-icon: "\e91d";
+$hl-critical-prio-icon: "\e91e";
 $hl-toggle-right-icon: "\e91f";
 $hl-toggle-left-icon: "\e920";
 $hl-toggle-up-icon: "\e921";
@@ -208,6 +212,18 @@ $hl-statistics-icon: "\e930";
 $hl-administration-icon: "\e936";
 $hl-dashboard-icon: "\e934";
 $hl-forwarding-icon: "\e937";
+
+.hl-phone-inbound-icon {
+    &:before {
+        content: $hl-phone-inbound-icon;
+    }
+}
+
+.hl-phone-outbound-icon {
+    &:before {
+        content: $hl-phone-outbound-icon;
+    }
+}
 
 .hl-entities-icon {
     &:before {
@@ -269,15 +285,15 @@ $hl-forwarding-icon: "\e937";
     }
 }
 
-.hl-incomming-icon {
+.hl-incoming-icon {
     &:before {
-        content: $hl-incomming-icon;
+        content: $hl-incoming-icon;
     }
 }
 
-.hl-incomming-down-icon {
+.hl-incoming-down-icon {
     &:before {
-        content: $hl-incomming-down-icon;
+        content: $hl-incoming-down-icon;
     }
 }
 
@@ -403,25 +419,25 @@ $hl-forwarding-icon: "\e937";
 
 .hl-prio-icon-low {
     &:before {
-        content: $hl-prio-icon-low;
+        content: $hl-low-prio-icon;
     }
 }
 
 .hl-prio-icon-medium {
     &:before {
-        content: $hl-prio-icon-medium;
+        content: $hl-medium-prio-icon;
     }
 }
 
 .hl-prio-icon-high {
     &:before {
-        content: $hl-prio-icon-high;
+        content: $hl-high-prio-icon;
     }
 }
 
 .hl-prio-icon-critical {
     &:before {
-        content: $hl-prio-icon-critical;
+        content: $hl-critical-prio-icon;
     }
 }
 

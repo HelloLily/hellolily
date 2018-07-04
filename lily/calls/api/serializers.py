@@ -2,45 +2,12 @@ from django.utils.timezone import now
 from rest_framework import serializers
 
 from lily.api.serializers import ContentTypeSerializer
-from lily.voipgrid.api.serializers import CallNotificationSerializer
 
 from ..models import Call, CallRecord, CallParticipant, CallTransfer
 
 
 class CallSerializer(serializers.ModelSerializer):
     content_type = ContentTypeSerializer(read_only=True)
-
-    def create(self, validated_data):
-        """
-        For backwards compatibility this serializer temporarily saves callrecords before it is removed.
-        """
-        # Use the save_participant from the notification serializer because it tries to find smart names.
-        # Smart names are based upon users/account/contact information.
-        call_notification_serializer = CallNotificationSerializer()
-
-        caller = call_notification_serializer.save_participant(data={
-            'name': validated_data.get('caller_name'),
-            'number': validated_data.get('caller_number'),
-            'account_number': None
-        })
-
-        destination = call_notification_serializer.save_participant(data={
-            'name': '',
-            'number': validated_data.get('called_number'),
-            'account_number': validated_data.get('internal_number', None)
-        })
-
-        CallRecord.objects.create(
-            call_id=validated_data.get('unique_id'),
-            start=now(),
-            end=None,
-            status=CallRecord.ENDED,
-            direction=CallRecord.INBOUND,
-            caller=caller,
-            destination=destination,
-        )
-
-        return Call()
 
     class Meta:
         model = Call

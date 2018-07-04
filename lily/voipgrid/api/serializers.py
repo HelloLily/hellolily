@@ -13,8 +13,8 @@ from lily.users.models import LilyUser
 
 
 logger = logging.getLogger(__name__)
-# For now outbound call integration is limted to VoIPGRID, Voys, Voys SA, Firm24, LegalThings, Converdis B.V, Converdis
-OUTBOUND_ENABLED_TENANTS = [10, 50, 52, 300, 534, 601, 613]
+# For now outbound call integration is limted to VoIPGRID, Voys, Voys SA, Lily, Firm24, LegalThings, Converdis B.V, Converdis
+OUTBOUND_ENABLED_TENANTS = [10, 50, 52, 130, 300, 534, 601, 613]
 
 
 class CallNotificationSerializer(serializers.Serializer):

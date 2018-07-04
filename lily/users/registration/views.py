@@ -12,7 +12,9 @@ from django_otp.util import random_hex
 from hashlib import sha256
 from templated_email import send_templated_mail
 
+from lily.messaging.email.credentials import get_credentials
 from lily.messaging.email.models.models import EmailAccount
+from lily.messaging.email.services import GmailService
 from lily.users.models import LilyUser, UserInvite
 from lily.users.registration.mixins import RegistrationMixin
 from lily.utils.functions import guess_name_from_email
@@ -266,6 +268,20 @@ class RegisterEmailAccountDetailsView(RegistrationMixin, FormView):
         self.email_account.privacy = cleaned_data['privacy']
         self.email_account.only_new = cleaned_data['only_new']
         self.email_account.is_authorized = True
+
+        if self.email_account.only_new:
+            # When the user only wants to synchronize only new email messages, retrieve the history id of the email
+            # account. That history id is used for the successive (history) sync to retrieve only the changes starting
+            # from this moment.
+            credentials = get_credentials(self.email_account)
+
+            # Setup service to retrieve history id from Google.
+            gmail_service = GmailService(credentials)
+            profile = gmail_service.execute_service(gmail_service.service.users().getProfile(userId='me'))
+
+            self.email_account.history_id = profile.get('historyId')
+            self.email_account.is_syncing = False
+
         self.email_account.save()
 
         return super(RegisterEmailAccountDetailsView, self).form_valid(form)

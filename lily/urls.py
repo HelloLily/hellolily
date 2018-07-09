@@ -46,3 +46,5 @@ if any([settings.DEBUG, settings.TESTING]):
         url(r'^media/(.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
         url(r'^static/(.*)$', serve, {'document_root': settings.STATIC_ROOT}),
     ]
+
+urlpatterns += [url(r'^silk/', include('silk.urls', namespace='silk'))]

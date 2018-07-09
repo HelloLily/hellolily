@@ -261,6 +261,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'lily.tenant.middleware.TenantMiddleware',
     'two_factor.middleware.threadlocals.ThreadLocals',
+    'silk.middleware.SilkyMiddleware',
 )
 
 #######################################################################################################################
@@ -353,6 +354,7 @@ INSTALLED_APPS = (
     'otp_yubikey',
     'user_sessions',  # Sessions used for http requests
     'drf_yasg',
+    'silk',
 
     # Django
     'django.contrib.admin',

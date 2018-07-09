@@ -165,3 +165,4 @@ netaddr==0.7.19
 drf-yasg==1.7.1
 avinit==1.2.1
 analytics-python==1.2.9
+django-silk==3.0.1

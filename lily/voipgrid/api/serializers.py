@@ -1,5 +1,6 @@
 import json
 import logging
+import traceback
 
 from channels import Group
 from django.contrib.staticfiles.templatetags.staticfiles import static
@@ -10,6 +11,10 @@ from lily.accounts.models import Account
 from lily.calls.models import CallRecord, CallParticipant, CallTransfer
 from lily.contacts.models import Contact
 from lily.users.models import LilyUser
+from lily.utils.functions import get_country_code_by_country
+
+import phonenumbers
+from phonenumbers import geocoder, NumberParseException
 
 
 logger = logging.getLogger(__name__)
@@ -57,13 +62,36 @@ class CallNotificationSerializer(serializers.Serializer):
         return data
 
     def create(self, validated_data):
+        caller = validated_data['caller']
         destination = validated_data['destination']
         tenant = self.context['request'].user.tenant
 
         if validated_data['direction'] == 'outbound':
+
             if tenant.id not in OUTBOUND_ENABLED_TENANTS:
                 # For now we want to enable outbound call integration only for selected tenants to test the feature.
                 return CallRecord()
+
+            # Because of GRID-4965, the API returns the destination number in the same format user inserted it,
+            # so if country code is missing let's patch it with the one from the caller number.
+            if not destination['number'].startswith('+'):
+                if caller['number'].startswith('+'):
+                    try:
+                        caller_number = phonenumbers.parse(caller['number'], None)
+                        country_code = get_country_code_by_country(
+                            geocoder.country_name_for_number(caller_number, 'en')
+                        )
+                        destination_number = phonenumbers.parse(destination['number'], country_code)
+
+                        if phonenumbers.is_valid_number(destination_number):
+                            destination['number'] = phonenumbers.format_number(
+                                destination_number,
+                                phonenumbers.PhoneNumberFormat.E164
+                            )
+
+                    except NumberParseException, e:
+                        logger.error(traceback.format_exc(e))
+
             data = self.match_external_participant(destination)
             if not data['source']:
                 # We don't save outbound calls where the destination isn't an account or a contact.
@@ -162,6 +190,18 @@ class CallNotificationSerializer(serializers.Serializer):
             else:
                 # If there was no user found with one of the internal numbers, just use first from the list.
                 internal_number = internal_number_list[0]
+
+        if not name:
+            if number:
+                user = LilyUser.objects.filter(
+                    phone_number=number,
+                    is_active=True
+                ).order_by('-last_login').first()
+                if user:
+                    name = user.full_name
+                    if user.internal_number:
+                        internal_number = user.internal_number
+                    source = user
 
         if not name:
             name = self.context['request'].user.tenant.name

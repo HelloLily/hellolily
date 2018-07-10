@@ -13,6 +13,7 @@ from lily.tests.utils import UserBasedTest
 from lily.utils.models.factories import PhoneNumberFactory
 from lily.users.models import LilyUser, UserInfo
 
+import phonenumbers
 
 faker = Factory.create('nl_NL')
 
@@ -345,7 +346,7 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
             ended - A and B hang up (reason: completed)
         """
         contact = factories.ContactFactory.create(tenant=self.user_obj.tenant)
-        phone_number = PhoneNumberFactory(tenant=self.user_obj.tenant)
+        phone_number = PhoneNumberFactory(tenant=self.user_obj.tenant, number=self.generate_number())
         contact.phone_numbers.add(phone_number)
 
         participant_a = self.generate_participant()
@@ -363,7 +364,7 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
             ended - A and B hang up (reason: completed)
         """
         account = factories.AccountFactory.create(tenant=self.user_obj.tenant)
-        phone_number = PhoneNumberFactory(tenant=self.user_obj.tenant)
+        phone_number = PhoneNumberFactory(tenant=self.user_obj.tenant, number=self.generate_number())
         account.phone_numbers.add(phone_number)
 
         participant_a = self.generate_participant(internal=True)
@@ -387,6 +388,65 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
 
         self.generic_test_with_no_saved_call_records('outbound', participant_a, participant_b)
 
+    def test_simple_outbound_call_no_country_code_in_called_number(self):
+        """
+        Test a simple outbound call to an existing contact.
+
+        Notifications:
+            ringing - A (internal) calls B (external, known contact)
+            in-progress - A calls with B
+            ended - A and B hang up (reason: completed)
+        """
+        direction = 'outbound'
+        contact = factories.ContactFactory.create(tenant=self.user_obj.tenant)
+        phone_number = PhoneNumberFactory(tenant=self.user_obj.tenant, number=self.generate_number())
+        contact.phone_numbers.add(phone_number)
+        phonenumbers_object = phonenumbers.parse(phone_number.number, None)
+
+        phone_number_without_country_code = phonenumbers.format_number(
+            phonenumbers_object,
+            phonenumbers.PhoneNumberFormat.NATIONAL,
+        )
+        phone_number_without_country_code = phone_number_without_country_code.replace(' ', '')
+        country_code = phone_number.number[:3]
+
+        participant_a = self.generate_participant()
+        participant_b = self.generate_participant(phone_number_without_country_code)
+
+        call_id = '100'
+        destination_b = self.generate_destination(number=participant_b['number'], targets=[participant_b, ])
+
+        ringing = self.generate_ringing_json(direction, call_id, caller=participant_a, destination=destination_b)
+        request = self.user.post(reverse(self.list_url), ringing)
+        self.assertEqual(request.status_code, status.HTTP_201_CREATED)
+
+        crs = CallRecord.objects.all()
+        self.assertEqual(len(crs), 1)  # There should only be one call record.
+        self.assertEqual(crs[0].status, CallRecord.RINGING)  # The status should be ringing.
+        self.assertEqual(crs[0].caller.number, participant_a['number'])  # There should be a caller saved.
+        self.assertEqual(crs[0].destination, None)  # Don't save the destination yet.
+
+        in_progress = self.generate_in_progress_json(direction, call_id, caller=participant_a, target=participant_b)
+        request = self.user.post(reverse(self.list_url), in_progress)
+        self.assertEqual(request.status_code, status.HTTP_201_CREATED)
+
+        crs = CallRecord.objects.all()
+        normalized_destination_number = country_code + participant_b['number'][1:]
+        self.assertEqual(len(crs), 1)  # There should only be one call record.
+        self.assertEqual(crs[0].status, CallRecord.IN_PROGRESS)  # The status should be in progress.
+        self.assertEqual(crs[0].destination.number, normalized_destination_number)  # Destination should be filled now.
+        self.assertEqual(crs[0].caller.number, participant_a['number'])  # Caller number should be unaltered.
+
+        ended = self.generate_ended_json(direction, call_id, caller=participant_a, number=participant_b['number'])
+        request = self.user.post(reverse(self.list_url), ended)
+        self.assertEqual(request.status_code, status.HTTP_201_CREATED)
+
+        crs = CallRecord.objects.all()
+        self.assertEqual(len(crs), 1)  # There should only be one call record.
+        self.assertEqual(crs[0].status, CallRecord.ENDED)  # The status should be ended.
+        self.assertEqual(crs[0].destination.number, normalized_destination_number)  # Destination should be unaltered.
+        self.assertEqual(crs[0].caller.number, participant_a['number'])  # Caller number should be unaltered..
+
     def test_simple_outbound_call_with_tenant_without_outbound_integration(self):
         """
         Test a simple outbound call with a tenant which doesn't have outbound integration enabled.
@@ -402,7 +462,7 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         self.user_obj = self.user_without_outbound_obj
 
         contact = factories.ContactFactory.create(tenant=self.user_obj.tenant)
-        phone_number = PhoneNumberFactory(tenant=self.user_obj.tenant)
+        phone_number = PhoneNumberFactory(tenant=self.user_obj.tenant, number=self.generate_number())
         contact.phone_numbers.add(phone_number)
 
         participant_a = self.generate_participant()
@@ -437,7 +497,7 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         """
 
         contact = factories.ContactFactory.create(tenant=self.user_obj.tenant)
-        phone_number = PhoneNumberFactory(tenant=self.user_obj.tenant)
+        phone_number = PhoneNumberFactory(tenant=self.user_obj.tenant, number=self.generate_number())
         contact.phone_numbers.add(phone_number)
 
         direction = 'outbound'
@@ -469,7 +529,7 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
             ended - A and B hang up (reason: busy or no-answer, differs per device)
         """
         account = factories.AccountFactory.create(tenant=self.user_obj.tenant)
-        phone_number = PhoneNumberFactory(tenant=self.user_obj.tenant)
+        phone_number = PhoneNumberFactory(tenant=self.user_obj.tenant, number=self.generate_number())
         account.phone_numbers.add(phone_number)
 
         participant_a = self.generate_participant(internal=True)
@@ -499,7 +559,7 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
             ended - A calls B (reason: busy)
         """
         contact = factories.ContactFactory.create(tenant=self.user_obj.tenant)
-        phone_number = PhoneNumberFactory(tenant=self.user_obj.tenant)
+        phone_number = PhoneNumberFactory(tenant=self.user_obj.tenant, number=self.generate_number())
         contact.phone_numbers.add(phone_number)
 
         direction = 'outbound'
@@ -610,7 +670,7 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         direction = 'outbound'
 
         contact = factories.ContactFactory.create(tenant=self.user_obj.tenant)
-        phone_number = PhoneNumberFactory(tenant=self.user_obj.tenant)
+        phone_number = PhoneNumberFactory(tenant=self.user_obj.tenant, number=self.generate_number())
         contact.phone_numbers.add(phone_number)
 
         participant_a = self.generate_participant(internal=True)
@@ -789,7 +849,7 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         direction = 'outbound'
 
         contact = factories.ContactFactory.create(tenant=self.user_obj.tenant)
-        phone_number = PhoneNumberFactory(tenant=self.user_obj.tenant)
+        phone_number = PhoneNumberFactory(tenant=self.user_obj.tenant, number=self.generate_number())
         contact.phone_numbers.add(phone_number)
 
         participant_a = self.generate_participant(internal=True)
@@ -1164,7 +1224,7 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         direction = 'outbound'
 
         account = factories.AccountFactory.create(tenant=self.user_obj.tenant)
-        phone_number = PhoneNumberFactory(tenant=self.user_obj.tenant)
+        phone_number = PhoneNumberFactory(tenant=self.user_obj.tenant, number=self.generate_number())
         account.phone_numbers.add(phone_number)
 
         participant_a = self.generate_participant(internal=True)
@@ -1337,7 +1397,7 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         direction = 'outbound'
 
         account = factories.AccountFactory.create(tenant=self.user_obj.tenant)
-        phone_number = PhoneNumberFactory(tenant=self.user_obj.tenant)
+        phone_number = PhoneNumberFactory(tenant=self.user_obj.tenant, number=self.generate_number())
         account.phone_numbers.add(phone_number)
 
         participant_a = self.generate_participant(internal=True)
@@ -1498,7 +1558,7 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         direction = 'outbound'
 
         contact = factories.ContactFactory.create(tenant=self.user_obj.tenant)
-        phone_number = PhoneNumberFactory(tenant=self.user_obj.tenant)
+        phone_number = PhoneNumberFactory(tenant=self.user_obj.tenant, number=self.generate_number())
         contact.phone_numbers.add(phone_number)
 
         participant_a = self.generate_participant(internal=True)

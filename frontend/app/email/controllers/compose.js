@@ -209,8 +209,10 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
                 angular.element(HLInbox.config.emailAccountInput).select2('val', SelectedEmailAccount.currentAccountId);
             }
 
-            HLInbox.setSuccesURL($scope.previousState);
-            HLInbox.setCurrentInbox(Settings.email.previousInbox.params.labelId);
+            if (Settings.email.previousInbox) {
+                HLInbox.setSuccesURL($scope.previousState);
+                HLInbox.setCurrentInbox(Settings.email.previousInbox.params.labelId);
+            }
 
             HLInbox.initEmailCompose({
                 messageType,

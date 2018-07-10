@@ -3,6 +3,7 @@ import hashlib
 import hmac
 from datetime import datetime, timedelta
 
+import analytics
 import avinit
 import chargebee
 import pytz
@@ -133,6 +134,13 @@ class LilyUserManager(TenantManager, UserManager):
                     tenant.billing.subscription_id = result.subscription.id
                     tenant.billing.trial_end = trial_end
                     tenant.billing.save()
+
+                    # Track subscription changes in Segment.
+                    # It's a new subscription, so old_plan_tier param is missing.
+                    analytics.track(user.id, 'subscription-changed', {
+                        'tenant_id': tenant.id,
+                        'new_plan_tier': tenant.billing.plan.tier,
+                    })
 
         return user
 

@@ -95,13 +95,6 @@ class BillingViewSet(ViewSet):
 
                         limit_email_accounts(tenant)
 
-                        # Track subscription changes in Segment.
-                        analytics.track(self.request.user.id, 'subscription-changed', {
-                            'tenant_id': tenant.id,
-                            'old_plan_tier': old_plan.tier,
-                            'new_plan_tier': billing.plan.tier,
-                        })
-
                     return Response({'success': success}, content_type='application/json')
                 else:
                     user_count = tenant.lilyuser_set.filter(is_active=True).count()
@@ -124,6 +117,13 @@ class BillingViewSet(ViewSet):
             data = {
                 'url': result.hosted_page.url,
             }
+
+            # Track subscription changes in Segment.
+            analytics.track(self.request.user.id, 'subscription-changed', {
+                'tenant_id': tenant.id,
+                'old_plan_tier': old_plan.tier,
+                'new_plan_tier': billing.plan.tier,
+            })
 
         return Response(data, content_type='application/json')
 

@@ -1,6 +1,7 @@
 from datetime import datetime
 import logging
 
+import analytics
 import chargebee
 from celery.task import task
 from django.conf import settings
@@ -20,6 +21,7 @@ def check_subscriptions():
         for tenant in tenants:
             subscription = tenant.billing.get_subscription()
             billing = tenant.billing
+            old_plan = billing.plan
 
             if not billing.free_forever and subscription:
                 convert_to_free = False
@@ -52,3 +54,14 @@ def check_subscriptions():
                     billing.save()
 
                     logger.info('Updated subscription for %s' % tenant.name)
+
+                # Track subscription changes in Segment.
+                analytics.track(
+                    None,
+                    'subscription-changed', {
+                        'tenant_id': tenant.id,
+                        'old_plan_tier': old_plan.tier,
+                        'new_plan_tier': billing.plan.tier,
+                    },
+                    anonymous_id='Anonymous'
+                )

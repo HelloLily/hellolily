@@ -25,6 +25,7 @@ def check_subscriptions():
 
             if not billing.free_forever and subscription:
                 convert_to_free = False
+                track_in_segment = False
 
                 if subscription.plan_id == settings.CHARGEBEE_PRO_TRIAL_PLAN_NAME:
                     # Once the free pro trial is done we will convert to the free plan.
@@ -38,6 +39,8 @@ def check_subscriptions():
 
                 if convert_to_free:
                     # Subscription was set to cancelled for whatever reason (expired trial, card declined, etc)
+                    track_in_segment = True
+
                     chargebee.Subscription.update(subscription.id, {
                         'plan_id': settings.CHARGEBEE_FREE_PLAN_NAME,
                     })
@@ -50,18 +53,21 @@ def check_subscriptions():
                     logger.info('Set subscription for %s to free plan' % tenant.name)
                 elif subscription.plan_id != billing.plan.name:
                     # The plan changed in Chargebee (e.g. manual change), but not in the database.
+                    track_in_segment = True
+
                     billing.plan = Plan.objects.get(name=subscription.plan_id)
                     billing.save()
 
                     logger.info('Updated subscription for %s' % tenant.name)
 
-                # Track subscription changes in Segment.
-                analytics.track(
-                    None,
-                    'subscription-changed', {
-                        'tenant_id': tenant.id,
-                        'old_plan_tier': old_plan.tier,
-                        'new_plan_tier': billing.plan.tier,
-                    },
-                    anonymous_id='Anonymous'
-                )
+                if track_in_segment:
+                    # Track subscription changes in Segment.
+                    analytics.track(
+                        None,
+                        'subscription-changed', {
+                            'tenant_id': tenant.id,
+                            'old_plan_tier': old_plan.tier,
+                            'new_plan_tier': billing.plan.tier,
+                        },
+                        anonymous_id='Anonymous'
+                    )

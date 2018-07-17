@@ -192,19 +192,6 @@ class CallNotificationSerializer(serializers.Serializer):
                 internal_number = internal_number_list[0]
 
         if not name:
-            if number:
-                user = LilyUser.objects.filter(
-                    phone_number=number,
-                    is_active=True
-                ).order_by('-last_login').first()
-                if user:
-                    name = user.full_name
-                    internal_number = ''
-                    if user.internal_number:
-                        internal_number = user.internal_number
-                    source = user
-
-        if not name:
             name = self.context['request'].user.tenant.name
 
         return {

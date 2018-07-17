@@ -199,6 +199,7 @@ class CallNotificationSerializer(serializers.Serializer):
                 ).order_by('-last_login').first()
                 if user:
                     name = user.full_name
+                    internal_number = ''
                     if user.internal_number:
                         internal_number = user.internal_number
                     source = user

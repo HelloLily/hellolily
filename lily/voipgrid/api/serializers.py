@@ -203,7 +203,8 @@ class CallNotificationSerializer(serializers.Serializer):
                     pass
                 if user:
                     name = user.full_name
-                    internal_number = user.internal_number
+                    if user.internal_number:
+                        internal_number = user.internal_number
                     source = user
 
         # And if there is no match with internal_number or phone_number, just use the tenant name.

@@ -145,11 +145,12 @@ function ContactListController($scope, $window, Settings, Account, Contact, HLUt
      * Count the total amount of contacts used to see whether or not the empty state should be shown.
      */
     function showEmptyState() {
-        Contact.query({}, data => {
-            if (data.pagination.total === 1) {
-                $scope.showEmptyState = true;
-            }
-        });
+        // TODO: Use more db friendly check if empty state should be shown.
+        // Contact.query({}, data => {
+        //     if (data.pagination.total === 1) {
+        //         $scope.showEmptyState = true;
+        //     }
+        // });
     }
 
     /**

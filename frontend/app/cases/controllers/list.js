@@ -110,14 +110,14 @@ function CaseListController($filter, $scope, $timeout, Case, HLFilters, HLUtils,
     /**
      * showEmptyState is used to count the total amount of cases used to show or not
      * show the empty state.
-     *
      */
     function showEmptyState() {
-        Case.query({}, data => {
-            if (data.pagination.total === 1) {
-                vm.showEmptyState = true;
-            }
-        });
+        // TODO: Use more db friendly check if empty state should be shown.
+        // Case.query({}, data => {
+        //     if (data.pagination.total === 1) {
+        //         vm.showEmptyState = true;
+        //     }
+        // });
     }
 
     function assignToMyTeams({id}) {

@@ -204,11 +204,12 @@ function AccountList($filter, $scope, $window, Settings, Account, LocalStorage, 
      * Count the total amount of accounts used to see whether or not the empty state should be shown.
      */
     function showEmptyState() {
-        Account.query({}, function(data) {
-            if (data.pagination.total === 1) {
-                vm.showEmptyState = true;
-            }
-        });
+        // TODO: Use more db friendly check if empty state should be shown.
+        // Account.query({}, function(data) {
+        //     if (data.pagination.total === 1) {
+        //         vm.showEmptyState = true;
+        //     }
+        // });
     }
 
     /**

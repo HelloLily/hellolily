@@ -176,7 +176,9 @@ class CallNotificationSerializer(serializers.Serializer):
         source = None
 
         internal_number_list = self.get_target_internal_numbers(data)
+        user = None
 
+        # First try to find a matching user with internal number.
         if internal_number_list:
             user = LilyUser.objects.filter(
                 internal_number__in=internal_number_list,
@@ -191,6 +193,20 @@ class CallNotificationSerializer(serializers.Serializer):
                 # If there was no user found with one of the internal numbers, just use first from the list.
                 internal_number = internal_number_list[0]
 
+        # Many users do not have their internal number set in Lily. In this case try with the phone_number field.
+        if not name:
+            if number:
+                # Only use the returned user if there was one exact match, otherwise it's probably a company number.
+                try:
+                    user = LilyUser.objects.get(phone_number=number, is_active=True)
+                except (LilyUser.MultipleObjectsReturned, LilyUser.DoesNotExist):
+                    pass
+                if user:
+                    name = user.full_name
+                    internal_number = user.internal_number
+                    source = user
+
+        # And if there is no match with internal_number or phone_number, just use the tenant name.
         if not name:
             name = self.context['request'].user.tenant.name
 

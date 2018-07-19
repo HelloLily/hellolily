@@ -11,7 +11,7 @@ from lily.accounts.models import Account
 from lily.calls.models import CallRecord, CallParticipant, CallTransfer
 from lily.contacts.models import Contact
 from lily.users.models import LilyUser
-from lily.utils.functions import get_country_code_by_country
+from lily.utils.functions import get_country_code_by_country, get_phone_number_without_country_code
 
 import phonenumbers
 from phonenumbers import geocoder, NumberParseException
@@ -198,9 +198,21 @@ class CallNotificationSerializer(serializers.Serializer):
             if number:
                 # Only use the returned user if there was one exact match, otherwise it's probably a company number.
                 try:
-                    user = LilyUser.objects.get(phone_number=number, is_active=True)
+                    user = LilyUser.objects.get(
+                        phone_number=number,
+                        is_active=True,
+                    )
                 except (LilyUser.MultipleObjectsReturned, LilyUser.DoesNotExist):
                     pass
+                # And in Lily the phone number can also be in national format, search also with that
+                if not user:
+                    try:
+                        user = LilyUser.objects.get(
+                            phone_number__endswith=get_phone_number_without_country_code(number),
+                            is_active=True,
+                        )
+                    except (LilyUser.MultipleObjectsReturned, LilyUser.DoesNotExist):
+                        pass
                 if user:
                     name = user.full_name
                     if user.internal_number:

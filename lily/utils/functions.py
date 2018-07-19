@@ -389,3 +389,24 @@ def get_country_code_by_country(country):
         country_code = 'NL'
 
     return country_code
+
+
+def get_phone_number_without_country_code(phone_number):
+    """
+    Return the given phone number in the national format.
+    """
+    try:
+        number_obj = phonenumbers.parse(phone_number, None)
+        number_in_national_format = phonenumbers.format_number(
+            number_obj,
+            phonenumbers.PhoneNumberFormat.NATIONAL,
+        )
+        number_in_national_format = number_in_national_format.replace(' ', '')
+        number_in_national_format = number_in_national_format.replace('-', '')
+        number_in_national_format = number_in_national_format.replace('(', '').replace(')', '')
+    except phonenumbers.NumberParseException:
+        if phone_number.startswith('+'):
+            number_in_national_format = '0' + phone_number[3:]
+        else:
+            number_in_national_format = phone_number
+    return number_in_national_format

@@ -38,6 +38,11 @@ function User($resource, CacheFactory) {
                 cache: cache,
                 isArray: false,
             },
+            unassigned: {
+                method: 'GET',
+                url: '/api/users/unassigned/',
+                isArray: false,
+            },
             search: {
                 url: '/search/search/?type=users_lilyuser&filterquery=:filterquery',
                 method: 'GET',

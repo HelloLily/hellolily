@@ -289,6 +289,27 @@ class LilyUserSerializer(WritableNestedSerializer):
         return internal_value
 
 
+class BasicLilyUserSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField(read_only=True)
+    profile_picture = serializers.CharField(read_only=True)
+    picture = serializers.ImageField(write_only=True, required=False)
+
+    class Meta:
+        model = LilyUser
+        fields = (
+            'id',
+            'first_name',
+            'last_name',
+            'full_name',
+            'email',
+            'language',
+            'internal_number',
+            'phone_number',
+            'profile_picture',
+            'picture',
+        )
+
+
 class RelatedLilyUserSerializer(RelatedSerializerMixin, serializers.ModelSerializer):
     profile_picture = serializers.CharField(read_only=True)
 

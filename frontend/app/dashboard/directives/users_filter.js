@@ -65,7 +65,7 @@ function UsersFilterController($filter, $state, $timeout, LocalStorage, User, Us
 
     function loadTeams() {
         UserTeams.query().$promise.then(response => {
-            User.query({teams__isnull: 'True'}).$promise.then(userResponse => {
+            User.unassigned().$promise.then(userResponse => {
                 let teams = [];
                 const unassignedTeam = {
                     users: [],

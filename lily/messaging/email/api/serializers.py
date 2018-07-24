@@ -85,7 +85,7 @@ class EmailAttachmentSerializer(serializers.ModelSerializer):
 
 
 class EmailAccountSerializer(WritableNestedSerializer):
-    labels = serializers.SerializerMethodField('get_relevant_labels')
+    labels = EmailLabelSerializer(many=True, read_only=True)
     is_public = serializers.BooleanField()
     privacy_display = serializers.CharField(source='get_privacy_display', read_only=True)
     owner = serializers.SerializerMethodField()
@@ -93,16 +93,6 @@ class EmailAccountSerializer(WritableNestedSerializer):
     shared_email_configs = RelatedSharedEmailConfigSerializer(many=True, source='sharedemailconfig_set')
     color = serializers.CharField(validators=[HexcodeValidator])
     label = serializers.CharField()
-
-    def get_relevant_labels(self, email_account):
-        # Prevent serializing labels that aren't used to decrease number of database queries.
-        qs = EmailLabel.objects.exclude(
-            account=email_account,
-            label_id__in=['CATEGORY_PROMOTIONS', 'IMPORTANT', 'CATEGORY_FORUMS', 'STARRED', 'CHAT', 'CATEGORY_SOCIAL',
-                          'UNREAD', 'CATEGORY_UPDATES', 'CATEGORY_PERSONAL']
-        )
-        serializer = EmailLabelSerializer(many=True, read_only=True, instance=qs)
-        return serializer.data
 
     gmail_service = None
 

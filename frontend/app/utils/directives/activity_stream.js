@@ -144,11 +144,6 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
 
                 notePromise.then(results => {
                     results.forEach(note => {
-                        // Get user for notes to show profile picture correctly.
-                        User.get({id: note.author.id, is_active: 'All'}, userObject => {
-                            note.author = userObject;
-                        });
-
                         // If it's a contact's note, add extra attribute to the note
                         // so we can identify it in the template.
                         if (scope.target === 'account' && note.gfk_content_type === 'contact') {
@@ -356,13 +351,6 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                             activity.push(caseItem);
                             Note.search({filterquery: 'gfk_content_type:case AND gfk_object_id:' + caseItem.id, size: 15})
                                 .$promise.then(notes => {
-                                    notes.map(note => {
-                                        // Get user for notes to show profile picture correctly.
-                                        User.get({id: note.author.id, is_active: 'All'}, author => {
-                                            note.author = author;
-                                        });
-                                    });
-
                                     caseItem.notes = notes;
                                 });
                         });
@@ -396,13 +384,6 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                                 filterquery: 'gfk_content_type:deal AND gfk_object_id:' + deal.id,
                                 size: 15,
                             }).$promise.then(notes => {
-                                notes.map(note => {
-                                    // Get user for notes to show profile picture correctly.
-                                    User.get({id: note.author.id, is_active: 'All'}, author => {
-                                        note.author = author;
-                                    });
-                                });
-
                                 deal.notes = notes;
                             });
 
@@ -425,13 +406,6 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                         data.map(call => {
                             Note.search({filterquery: 'gfk_content_type:callrecord AND gfk_object_id:' + call.id, size: 15})
                                 .$promise.then(notes => {
-                                    angular.forEach(notes, note => {
-                                        // Get user for notes to show profile picture correctly.
-                                        User.get({id: note.author.id, is_active: 'All'}, author => {
-                                            note.author = author;
-                                        });
-                                    });
-
                                     call.notes = notes;
 
                                     if (notes.length > 0) {
@@ -478,6 +452,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                                 }
                             }
 
+                            // TODO: Search api call really needed?
                             User.search({filterquery: 'email:' + email.sender.email_address, is_active: 'All'}).$promise.then(userResults => {
                                 if (userResults.objects[0]) {
                                     email.profile_picture = userResults.objects[0].profile_picture;

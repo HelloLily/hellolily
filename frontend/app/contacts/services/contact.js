@@ -68,13 +68,13 @@ function Contact($filter, $resource, HLResource, Settings) {
                 },
             },
             getCalls: {
-                url: '/api/contacts/:id/calls',
+                url: '/api/contacts/:id/calls/',
                 transformResponse: data => {
                     const jsonData = angular.fromJson(data);
 
                     if (jsonData) {
-                        if (jsonData.results && jsonData.results.length > 0) {
-                            jsonData.results.map(call => {
+                        if (jsonData && jsonData.length > 0) {
+                            jsonData.map(call => {
                                 call.activityType = 'call';
                                 call.color = 'yellow';
                                 call.date = call.start;
@@ -84,6 +84,7 @@ function Contact($filter, $resource, HLResource, Settings) {
 
                     return jsonData;
                 },
+                isArray: true,
             },
             exists: {
                 method: 'GET',

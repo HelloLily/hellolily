@@ -424,7 +424,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                     promises.push(callPromise);
 
                     callPromise.then(data => {
-                        data.results.map(call => {
+                        data.map(call => {
                             Note.search({filterquery: 'gfk_content_type:callrecord AND gfk_object_id:' + call.id, size: 15})
                                 .$promise.then(notes => {
                                     angular.forEach(notes, note => {

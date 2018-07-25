@@ -120,13 +120,13 @@ class AccountViewSet(ModelChangesMixin, DataExistsMixin, ModelViewSet):
 
         calls = CallRecord.objects.filter(
             Q(caller__number__in=phone_numbers) | Q(destination__number__in=phone_numbers)
-        )
+        ).order_by(
+            '-start'
+        )[:100]
 
-        page = self.paginate_queryset(calls)
+        serializer = CallRecordSerializer(calls, many=True, context={'request': request})
 
-        return self.get_paginated_response(
-            CallRecordSerializer(page, many=True, context={'request': request}).data
-        )
+        return Response(serializer.data)
 
 
 class AccountStatusViewSet(ModelViewSet):

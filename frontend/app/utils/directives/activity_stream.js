@@ -417,9 +417,6 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                         });
                     });
 
-                    const tenantEmailAccountPromise = EmailAccount.query().$promise;
-                    promises.push(tenantEmailAccountPromise);
-
                     const params = {
                         activity_stream: 1,
                         size: requestLength,
@@ -436,13 +433,9 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                     }
 
                     const emailPromise = EmailDetail.search(params).$promise;
-
                     promises.push(emailPromise);
 
-                    $q.all([tenantEmailAccountPromise, emailPromise]).then(results => {
-                        let tenantEmailAccountList = results[0].results;
-                        let emailMessageList = results[1];
-
+                    emailPromise.then(emailMessageList => {
                         emailMessageList.forEach(email => {
                             if (!email.is_draft) {
                                 if (email.has_attachment) {
@@ -456,12 +449,6 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                             User.search({filterquery: 'email:' + email.sender.email_address, is_active: 'All'}).$promise.then(userResults => {
                                 if (userResults.objects[0]) {
                                     email.profile_picture = userResults.objects[0].profile_picture;
-                                }
-                            });
-
-                            tenantEmailAccountList.forEach(emailAddress => {
-                                if (emailAddress.email_address === email.sender_email) {
-                                    email.right = true;
                                 }
                             });
 

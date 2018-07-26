@@ -107,6 +107,7 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
                                 call.activityType = 'call';
                                 call.color = 'yellow';
                                 call.date = call.start;
+                                call.notes = [];
                             });
                         }
                     }

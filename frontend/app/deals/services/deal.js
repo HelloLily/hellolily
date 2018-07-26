@@ -40,6 +40,7 @@ function Deal($resource, CacheFactory, HLCache, HLForms, HLResource, HLUtils) {
                                     color: 'blue',
                                     date: obj.modified,
                                     total_size: jsonData.total,
+                                    notes: [],
                                 });
 
                                 objects.push(deal);

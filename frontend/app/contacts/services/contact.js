@@ -78,6 +78,7 @@ function Contact($filter, $resource, HLResource, Settings) {
                                 call.activityType = 'call';
                                 call.color = 'yellow';
                                 call.date = call.start;
+                                call.notes = [];
                             });
                         }
                     }

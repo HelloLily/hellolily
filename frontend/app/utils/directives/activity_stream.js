@@ -158,7 +158,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
 
                 const changePromise = Change.query({id: currentObject.id, model: targetPlural}).$promise;
 
-                promises.push(changePromise);  // Add promise to list of all promises for later handling
+                promises.push(changePromise);  // Add promise to list of all promises for later handling.
 
                 changePromise.then(results => {
                     let changes = [];
@@ -332,8 +332,9 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                     // Add promise to list of all promises for later handling.
                     promises.push(casePromise);
 
-                    casePromise.then(response => {
-                        response.objects.forEach(caseItem => {
+                    casePromise.then(cases => {
+                        const caseIds = [];
+                        cases.objects.forEach(caseItem => {
                             // Get user object for the assigned to user.
                             if (caseItem.assigned_to) {
                                 User.get({id: caseItem.assigned_to.id, is_active: 'All'}, userObject => {
@@ -349,13 +350,29 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                             }
 
                             caseItem.activityType = 'case';
+                            caseItem.notes = [];
 
                             activity.push(caseItem);
-                            Note.search({filterquery: 'gfk_content_type:case AND gfk_object_id:' + caseItem.id, size: 15})
-                                .$promise.then(notes => {
-                                    caseItem.notes = notes;
-                                });
+                            caseIds.push(caseItem.id);
                         });
+
+                        if (caseIds.length > 0) {
+                            // Query all case notes in one call.
+                            const fq = 'gfk_content_type:case AND gfk_object_id:(' + caseIds.join(' OR ') + ')';
+                            const caseNotePromise = Note.search({filterquery: fq, size: 15 * caseIds.length}).$promise;
+                            promises.push(caseNotePromise);  // Add promise to list of all promises for later handling.
+
+                            // Match and add notes to the relevant case.
+                            caseNotePromise.then(notes => {
+                                cases.objects.forEach(caseItem => {
+                                    notes.forEach(note => {
+                                        if (note.gfk_object_id === caseItem.id) {
+                                            caseItem.notes.push(note);
+                                        }
+                                    });
+                                });
+                            });
+                        }
                     });
 
                     const dealPromise = Deal.search({
@@ -366,8 +383,9 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                     // Add promise to list of all promises for later handling.
                     promises.push(dealPromise);
 
-                    dealPromise.then(results => {
-                        results.objects.forEach(deal => {
+                    dealPromise.then(deals => {
+                        const dealIds = [];
+                        deals.objects.forEach(deal => {
                             if (deal.assigned_to) {
                                 // Get user object for the assigned to user.
                                 User.get({id: deal.assigned_to.id, is_active: 'All'}, userObject => {
@@ -382,15 +400,27 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                                 });
                             }
 
-                            Note.search({
-                                filterquery: 'gfk_content_type:deal AND gfk_object_id:' + deal.id,
-                                size: 15,
-                            }).$promise.then(notes => {
-                                deal.notes = notes;
-                            });
-
                             activity.push(deal);
+                            dealIds.push(deal.id);
                         });
+
+                        if (dealIds.length > 0) {
+                            // Query all case notes in one call.
+                            const fq = 'gfk_content_type:deal AND gfk_object_id:(' + dealIds.join(' OR ') + ')';
+                            const dealNotePromise = Note.search({filterquery: fq, size: 15 * dealIds.length}).$promise;
+                            promises.push(dealNotePromise);  // Add promise to list of all promises for later handling.
+
+                            // Match and add notes to the relevant deal.
+                            dealNotePromise.then(notes => {
+                                deals.objects.forEach(deal => {
+                                    notes.forEach(note => {
+                                        if (note.gfk_object_id === deal.id) {
+                                            deal.notes.push(note);
+                                        }
+                                    });
+                                });
+                            });
+                        }
                     });
 
                     let callPromise;
@@ -404,19 +434,33 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                     // Add promise to list of all promises for later handling.
                     promises.push(callPromise);
 
-                    callPromise.then(data => {
-                        data.map(call => {
-                            Note.search({filterquery: 'gfk_content_type:callrecord AND gfk_object_id:' + call.id, size: 15})
-                                .$promise.then(notes => {
-                                    call.notes = notes;
+                    callPromise.then(calls => {
+                        const callIds = [];
+                        calls.map(call => {
+                            activity.push(call);
+                            callIds.push(call.id);
+                        });
 
-                                    if (notes.length > 0) {
+                        if (callIds.length > 0) {
+                            // Query all case notes in one call.
+                            const fq = 'gfk_content_type:callrecord AND gfk_object_id:(' + callIds.join(' OR ') + ')';
+                            const callNotePromise = Note.search({filterquery: fq, size: 15 * callIds.length}).$promise;
+                            promises.push(callNotePromise);  // Add promise to list of all promises for later handling.
+
+                            // Match and add notes to the relevant call.
+                            callNotePromise.then(notes => {
+                                calls.objects.forEach(call => {
+                                    notes.forEach(note => {
+                                        if (note.gfk_object_id === call.id) {
+                                            call.notes.push(note);
+                                        }
+                                    });
+                                    if (call.notes.length > 0) {
                                         call.showDetails = true;
                                     }
                                 });
-
-                            activity.push(call);
-                        });
+                            });
+                        }
                     });
 
                     const params = {

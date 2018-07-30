@@ -67,6 +67,14 @@ function Case($resource, CacheFactory, HLCache, HLResource, HLUtils) {
             query: {
                 isArray: false,
             },
+            exists: {
+                method: 'GET',
+                url: '/api/cases/exists/',
+                cache: CacheFactory.get('dataCache'),
+                transformResponse: function(data) {
+                    return angular.fromJson(data);
+                },
+            },
         }
     );
 

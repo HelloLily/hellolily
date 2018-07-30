@@ -5,7 +5,7 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.views import APIView
 
 from lily.api.filters import ElasticSearchFilter
-from lily.api.mixins import ModelChangesMixin, TimeLogMixin
+from lily.api.mixins import ModelChangesMixin, TimeLogMixin, DataExistsMixin
 
 from .serializers import CaseSerializer, CaseStatusSerializer, CaseTypeSerializer
 from ..models import Case, CaseStatus, CaseType
@@ -44,7 +44,7 @@ class CaseFilter(filters.FilterSet):
         fields = ['type', 'status', 'not_type', 'not_status', ]
 
 
-class CaseViewSet(ModelChangesMixin, TimeLogMixin, viewsets.ModelViewSet):
+class CaseViewSet(ModelChangesMixin, TimeLogMixin, DataExistsMixin, viewsets.ModelViewSet):
     """
     retrieve:
     Returns the given case.

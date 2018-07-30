@@ -200,15 +200,9 @@ function AccountList($filter, $scope, $window, Settings, Account, LocalStorage, 
         vm.table.filter = queryString;
     }
 
-    /**
-     * Count the total amount of accounts used to see whether or not the empty state should be shown.
-     */
     function showEmptyState() {
-        Account.query({}, function(data) {
-            if (data.pagination.total === 1) {
-                vm.showEmptyState = true;
-            }
-        });
+        // Show the empty state when there are no accounts yet.
+        vm.showEmptyState = !Account.exists();
     }
 
     /**

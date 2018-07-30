@@ -114,6 +114,14 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
                     return jsonData;
                 },
             },
+            exists: {
+                method: 'GET',
+                url: '/api/accounts/exists/',
+                cache: CacheFactory.get('dataCache'),
+                transformResponse: function(data) {
+                    return angular.fromJson(data);
+                },
+            },
         });
 
     _account.getAccounts = getAccounts;

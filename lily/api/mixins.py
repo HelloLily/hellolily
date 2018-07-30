@@ -3,7 +3,7 @@ import json
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError as DjangoValidationError
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import empty
 from rest_framework.response import Response
@@ -258,3 +258,13 @@ class PhoneNumberFormatMixin(object):
                     phone.save()
 
         return instance
+
+
+class DataExistsMixin(object):
+    @list_route(methods=['GET'])
+    def exists(self, request):
+        """
+        Return if there is any data.
+        """
+        exists = self.get_queryset().exists()
+        return Response(exists)

@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from lily.api.filters import ElasticSearchFilter
-from lily.api.mixins import ModelChangesMixin, TimeLogMixin
+from lily.api.mixins import ModelChangesMixin, TimeLogMixin, DataExistsMixin
 
 from .serializers import (DealSerializer, DealNextStepSerializer, DealWhyCustomerSerializer, DealWhyLostSerializer,
                           DealFoundThroughSerializer, DealContactedBySerializer, DealStatusSerializer)
@@ -141,7 +141,7 @@ class DealFilter(filters.FilterSet):
         }
 
 
-class DealViewSet(ModelChangesMixin, TimeLogMixin, ModelViewSet):
+class DealViewSet(ModelChangesMixin, TimeLogMixin, DataExistsMixin, ModelViewSet):
     """
     retrieve:
     Returns the given deal.

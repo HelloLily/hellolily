@@ -85,6 +85,14 @@ function Contact($filter, $resource, HLResource, Settings) {
                     return jsonData;
                 },
             },
+            exists: {
+                method: 'GET',
+                url: '/api/contacts/exists/',
+                cache: CacheFactory.get('dataCache'),
+                transformResponse: function(data) {
+                    return angular.fromJson(data);
+                },
+            },
         }
     );
 

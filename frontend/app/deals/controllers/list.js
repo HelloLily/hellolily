@@ -111,17 +111,9 @@ function DealListController($filter, $scope, $state, $timeout, Deal, HLFilters, 
         });
     }
 
-    /**
-     * showEmptyState is used to count the total amount of deals used to show or not
-     * show the empty state.
-     *
-     */
     function showEmptyState() {
-        Deal.query({}, data => {
-            if (data.pagination.total === 0) {
-                vm.showEmptyState = true;
-            }
-        });
+        // Show the empty state when there are no deals yet.
+        vm.showEmptyState = !Deal.exists();
     }
 
     function assignToMyTeams({id}) {

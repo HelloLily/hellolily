@@ -1,7 +1,7 @@
 angular.module('app.contacts.services').factory('Contact', Contact);
 
-Contact.$inject = ['$filter', '$resource', 'HLResource', 'Settings'];
-function Contact($filter, $resource, HLResource, Settings) {
+Contact.$inject = ['$filter', '$resource', 'HLResource', 'Settings', 'CacheFactory'];
+function Contact($filter, $resource, HLResource, Settings, CacheFactory) {
     const _contact = $resource(
         '/api/contacts/:id/',
         null,

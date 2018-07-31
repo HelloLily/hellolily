@@ -20,4 +20,11 @@ function HLCache(CacheFactory) {
         // Expired items will remain in the cache until requested, at which point they are removed.
         deleteOnExpire: 'passive',
     });
+
+    new CacheFactory('volatileCache', {
+        // Items added to this cache expire after 5 seconds.
+        maxAge: 5 * 1000,
+        // Expired items will remain in the cache until requested, at which point they are removed.
+        deleteOnExpire: 'passive',
+    });
 }

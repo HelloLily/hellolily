@@ -118,19 +118,6 @@ class EmailMessageTests(UserBasedTest, APITestCase):
         # Verify that the email is marked as a draft.
         self.assertTrue(self.email_message.is_draft)
 
-    def test_email_message_important(self):
-        """
-        Test if the important property is correct with the absence / presence of the important label.
-        """
-        # Verify that the email is initially not marked as important.
-        self.assertFalse(self.email_message.is_important)
-
-        # Add the important label.
-        self._add_label(settings.GMAIL_LABEL_IMPORTANT)
-
-        # Verify that the email is marked as important.
-        self.assertTrue(self.email_message.is_important)
-
     def test_email_message_spam(self):
         """
         Test if the spam property is correct with the absence / presence of the spam label.

@@ -127,6 +127,10 @@ class MessageBuilder(object):
         db_labels = self.manager.email_account.labels.all()
 
         message_label_set = set(label for label in labels)
+        # Remove labels the we won't use in Lily.
+        remove = {'CATEGORY_PROMOTIONS', 'IMPORTANT', 'CATEGORY_FORUMS', 'CHAT', 'CATEGORY_SOCIAL', 'CATEGORY_UPDATES',
+                  'CATEGORY_PERSONAL'}
+        message_label_set = message_label_set - remove
         db_label_set = set(label.label_id for label in db_labels)
 
         # Use set operations to get the available and missing labels.

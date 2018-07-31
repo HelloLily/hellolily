@@ -28,12 +28,10 @@ class EmailTests(UserBasedTest, APITestCase):
         settings.GMAIL_LABEL_INBOX: [True, 5, 4],
         settings.GMAIL_LABEL_UNREAD: [True, 6, 6],
         settings.GMAIL_LABEL_STAR: [True, 1, 1],
-        settings.GMAIL_LABEL_IMPORTANT: [True, 7, 6],
         settings.GMAIL_LABEL_SENT: [True, 2, 0],
         settings.GMAIL_LABEL_DRAFT: [True, 1, 0],
         settings.GMAIL_LABEL_SPAM: [True, 0, 0],
         settings.GMAIL_LABEL_TRASH: [True, 0, 0],
-        settings.GMAIL_LABEL_CHAT: [True, 0, 0],
         'Label_1': [True, 3, 2],
         'Label_2': [True, 2, 2],
     }
@@ -43,12 +41,10 @@ class EmailTests(UserBasedTest, APITestCase):
         settings.GMAIL_LABEL_INBOX: True,
         settings.GMAIL_LABEL_UNREAD: True,
         settings.GMAIL_LABEL_STAR: False,
-        settings.GMAIL_LABEL_IMPORTANT: True,
         settings.GMAIL_LABEL_SENT: False,
         settings.GMAIL_LABEL_DRAFT: False,
         settings.GMAIL_LABEL_SPAM: False,
         settings.GMAIL_LABEL_TRASH: False,
-        settings.GMAIL_LABEL_CHAT: False,
         'Label_1': False,
         'Label_2': False,
     }
@@ -61,8 +57,6 @@ class EmailTests(UserBasedTest, APITestCase):
         # Retrieve all 10 email messages and their labels.
         HttpMock('lily/messaging/email/tests/data/get_message_info_15a6008a4baa65f3.json', {'status': '200'}),
         HttpMock('lily/messaging/email/tests/data/get_label_info_UNREAD.json', {'status': '200'}),
-        HttpMock('lily/messaging/email/tests/data/get_label_info_IMPORTANT.json', {'status': '200'}),
-        HttpMock('lily/messaging/email/tests/data/get_label_info_CATEGORY_PERSONAL.json', {'status': '200'}),
         HttpMock('lily/messaging/email/tests/data/get_label_info_INBOX.json', {'status': '200'}),
         HttpMock('lily/messaging/email/tests/data/get_message_info_15a600737124149d.json', {'status': '200'}),
         HttpMock('lily/messaging/email/tests/data/get_label_info_DRAFT.json', {'status': '200'}),
@@ -150,8 +144,6 @@ class EmailTests(UserBasedTest, APITestCase):
             # Retrieve all 10 email messages and their labels.
             HttpMock('lily/messaging/email/tests/data/get_message_info_15a6008a4baa65f3.json', {'status': '200'}),
             HttpMock('lily/messaging/email/tests/data/get_label_info_UNREAD.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_label_info_IMPORTANT.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_label_info_CATEGORY_PERSONAL.json', {'status': '200'}),
             HttpMock('lily/messaging/email/tests/data/get_label_info_INBOX.json', {'status': '200'}),
             HttpMock('lily/messaging/email/tests/data/get_message_info_15a600737124149d.json', {'status': '200'}),
             HttpMock('lily/messaging/email/tests/data/get_label_info_DRAFT.json', {'status': '200'}),
@@ -187,8 +179,6 @@ class EmailTests(UserBasedTest, APITestCase):
             # Retrieve all 10 email messages and their labels.
             HttpMock('lily/messaging/email/tests/data/get_message_info_15a6008a4baa65f3.json', {'status': '200'}),
             HttpMock('lily/messaging/email/tests/data/get_label_info_UNREAD.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_label_info_IMPORTANT.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_label_info_CATEGORY_PERSONAL.json', {'status': '200'}),
             HttpMock('lily/messaging/email/tests/data/get_label_info_INBOX.json', {'status': '200'}),
             # Simulate one rateLimitExceeded error.
             HttpMock('lily/messaging/email/tests/data/403.json', {'status': '403'}),
@@ -253,12 +243,10 @@ class EmailTests(UserBasedTest, APITestCase):
             settings.GMAIL_LABEL_INBOX: [False, 0, 0],
             settings.GMAIL_LABEL_UNREAD: [False, 0, 0],
             settings.GMAIL_LABEL_STAR: [False, 0, 0],
-            settings.GMAIL_LABEL_IMPORTANT: [False, 0, 0],
             settings.GMAIL_LABEL_SENT: [False, 0, 0],
             settings.GMAIL_LABEL_DRAFT: [False, 0, 0],
             settings.GMAIL_LABEL_SPAM: [False, 0, 0],
             settings.GMAIL_LABEL_TRASH: [False, 0, 0],
-            settings.GMAIL_LABEL_CHAT: [False, 0, 0],
             'Label_1': [False, 0, 0],
             'Label_2': [False, 0, 0],
         }
@@ -298,12 +286,10 @@ class EmailTests(UserBasedTest, APITestCase):
             settings.GMAIL_LABEL_INBOX: [False, 0, 0],
             settings.GMAIL_LABEL_UNREAD: [False, 0, 0],
             settings.GMAIL_LABEL_STAR: [False, 0, 0],
-            settings.GMAIL_LABEL_IMPORTANT: [False, 0, 0],
             settings.GMAIL_LABEL_SENT: [False, 0, 0],
             settings.GMAIL_LABEL_DRAFT: [False, 0, 0],
             settings.GMAIL_LABEL_SPAM: [False, 0, 0],
             settings.GMAIL_LABEL_TRASH: [False, 0, 0],
-            settings.GMAIL_LABEL_CHAT: [False, 0, 0],
             'Label_1': [False, 3, 2],
             'Label_2': [False, 2, 2],
         }
@@ -568,7 +554,6 @@ class EmailTests(UserBasedTest, APITestCase):
         verify_label_data['all_mail'] = [True, 10, 4]
         verify_label_data[settings.GMAIL_LABEL_INBOX] = [True, 5, 2]
         verify_label_data[settings.GMAIL_LABEL_UNREAD] = [True, 4, 4]
-        verify_label_data[settings.GMAIL_LABEL_IMPORTANT] = [True, 7, 4]
         verify_label_data['Label_2'] = [True, 2, 1]
 
         self._test_incremental_synchronize(mock_api_calls=mock_api_calls, label_data_after=verify_label_data,
@@ -606,7 +591,6 @@ class EmailTests(UserBasedTest, APITestCase):
         verify_label_data['all_mail'] = [True, 10, 7]
         verify_label_data[settings.GMAIL_LABEL_INBOX] = [True, 5, 5]
         verify_label_data[settings.GMAIL_LABEL_UNREAD] = [True, 7, 7]
-        verify_label_data[settings.GMAIL_LABEL_IMPORTANT] = [True, 7, 7]
         verify_label_data['Label_1'] = [True, 3, 3]
 
         self._test_incremental_synchronize(mock_api_calls=mock_api_calls, label_data_after=verify_label_data,
@@ -645,7 +629,6 @@ class EmailTests(UserBasedTest, APITestCase):
         verify_label_data['all_mail'] = [True, 9, 6]
         verify_label_data[settings.GMAIL_LABEL_INBOX] = [True, 4, 3]
         verify_label_data[settings.GMAIL_LABEL_UNREAD] = [True, 6, 6]
-        verify_label_data[settings.GMAIL_LABEL_IMPORTANT] = [True, 6, 5]
         verify_label_data[settings.GMAIL_LABEL_SPAM] = [True, 1, 1]
 
         self._test_incremental_synchronize(mock_api_calls=mock_api_calls, label_data_after=verify_label_data,
@@ -655,7 +638,6 @@ class EmailTests(UserBasedTest, APITestCase):
         verify_labels = self.verify_label_availability_default.copy()
         verify_labels[settings.GMAIL_LABEL_SPAM] = True
         verify_labels[settings.GMAIL_LABEL_INBOX] = False
-        verify_labels[settings.GMAIL_LABEL_IMPORTANT] = False  # Marking mail as spam also removes the important label.
 
         self._test_email_message(message_id, label_data=verify_labels)
 
@@ -680,16 +662,12 @@ class EmailTests(UserBasedTest, APITestCase):
 
         # Update the label data matching the mutation that was in the history update.
         verify_label_data = self.verify_label_data_default.copy()
-        # Unmarking mail as spam, doesn't restore the important label.
-        verify_label_data[settings.GMAIL_LABEL_IMPORTANT] = [True, 6, 5]
 
         self._test_incremental_synchronize(mock_api_calls=mock_api_calls, label_data_after=verify_label_data,
                                            history_id_after=8851)
 
         # Verify that the correct email message is unmarked as spam.
         verify_labels = self.verify_label_availability_default.copy()
-        # Unmarking mail as spam, doesn't restore the important label.
-        verify_labels[settings.GMAIL_LABEL_IMPORTANT] = False
 
         self._test_email_message(message_id, label_data=verify_labels)
 
@@ -749,7 +727,6 @@ class EmailTests(UserBasedTest, APITestCase):
         verify_label_data['all_mail'] = [True, 9, 5]
         verify_label_data[settings.GMAIL_LABEL_INBOX] = [True, 4, 3]
         verify_label_data[settings.GMAIL_LABEL_UNREAD] = [True, 5, 5]
-        verify_label_data[settings.GMAIL_LABEL_IMPORTANT] = [True, 6, 5]
 
         self._test_incremental_synchronize(mock_api_calls=mock_api_calls, label_data_after=verify_label_data,
                                            history_id_after=9733)
@@ -784,7 +761,6 @@ class EmailTests(UserBasedTest, APITestCase):
         verify_label_data['all_mail'] = [True, 12, 8]
         verify_label_data[settings.GMAIL_LABEL_INBOX] = [True, 7, 6]
         verify_label_data[settings.GMAIL_LABEL_UNREAD] = [True, 8, 8]
-        verify_label_data[settings.GMAIL_LABEL_IMPORTANT] = [True, 9, 8]
 
         self._test_incremental_synchronize(mock_api_calls=mock_api_calls, label_data_after=verify_label_data,
                                            history_id_after=9841)
@@ -849,7 +825,6 @@ class EmailTests(UserBasedTest, APITestCase):
         verify_labels = self.verify_label_availability_default.copy()
         verify_labels[settings.GMAIL_LABEL_INBOX] = False
         verify_labels[settings.GMAIL_LABEL_UNREAD] = False
-        verify_labels[settings.GMAIL_LABEL_IMPORTANT] = False
         verify_labels[settings.GMAIL_LABEL_SENT] = True
         self._test_email_message(message_id, label_data=verify_labels)
 
@@ -938,9 +913,8 @@ class EmailTests(UserBasedTest, APITestCase):
         """
         for label_name, label_data in label_data.items():
             if label_name == 'all_mail':
-                # Verify the number of archived email, ie. all email without the labels SPAM, TRASH and CHAT.
-                label_names_exclude = [settings.GMAIL_LABEL_SPAM, settings.GMAIL_LABEL_TRASH,
-                                       settings.GMAIL_LABEL_CHAT]
+                # Verify the number of archived email, ie. all email without the labels SPAM and TRASH.
+                label_names_exclude = [settings.GMAIL_LABEL_SPAM, settings.GMAIL_LABEL_TRASH]
                 labels = email_account.labels.filter(label_id__in=label_names_exclude)
                 count_archived_mails = EmailMessage.objects.filter(account=email_account).exclude(
                     labels__in=labels).count()
@@ -949,6 +923,8 @@ class EmailTests(UserBasedTest, APITestCase):
                                  (count_archived_mails, label_data[1]))
             else:
                 if label_data[0]:
+                    db_count_per_label_total = 0
+                    db_count_per_label_unread = 0
                     if email_account.labels.filter(label_id=label_name).exists():
                         # Mail with label_name should be present in the database, verify number of emails associated.
                         label = email_account.labels.filter(label_id=label_name)[0]

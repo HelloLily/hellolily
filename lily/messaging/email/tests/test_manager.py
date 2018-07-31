@@ -90,8 +90,7 @@ class GmailManagerTests(UserBasedTest, APITestCase):
 
         email_account = EmailAccount.objects.first()
 
-        labels = [settings.GMAIL_LABEL_UNREAD, settings.GMAIL_LABEL_IMPORTANT, settings.GMAIL_LABEL_PERSONAL,
-                  settings.GMAIL_LABEL_INBOX]
+        labels = [settings.GMAIL_LABEL_UNREAD, settings.GMAIL_LABEL_INBOX]
         for label in labels:
             EmailLabelFactory.create(account=email_account, label_id=label)
 
@@ -105,9 +104,7 @@ class GmailManagerTests(UserBasedTest, APITestCase):
         # Verify that the email message has the correct labels.
         email_message = EmailMessage.objects.get(account=email_account, message_id=message_id)
         email_message_labels = set(email_message.labels.all().values_list('label_id', flat=True))
-        self.assertEqual(email_message_labels, set(
-            [settings.GMAIL_LABEL_UNREAD, settings.GMAIL_LABEL_IMPORTANT, settings.GMAIL_LABEL_PERSONAL,
-             settings.GMAIL_LABEL_INBOX]))
+        self.assertEqual(email_message_labels, set([settings.GMAIL_LABEL_UNREAD, settings.GMAIL_LABEL_INBOX]))
 
     @patch.object(GmailConnector, 'get_short_message_info')
     @patch.object(GmailConnector, 'get_message_info')
@@ -120,8 +117,7 @@ class GmailManagerTests(UserBasedTest, APITestCase):
         email_account = EmailAccount.objects.first()
         manager = GmailManager(email_account)
 
-        labels = [settings.GMAIL_LABEL_UNREAD, settings.GMAIL_LABEL_IMPORTANT, settings.GMAIL_LABEL_PERSONAL,
-                  settings.GMAIL_LABEL_INBOX]
+        labels = [settings.GMAIL_LABEL_UNREAD, settings.GMAIL_LABEL_INBOX]
         for label in labels:
             EmailLabelFactory.create(account=email_account, label_id=label)
 
@@ -148,8 +144,7 @@ class GmailManagerTests(UserBasedTest, APITestCase):
         # label removed.
         email_message = EmailMessage.objects.get(account=email_account, message_id=message_id)
         email_message_labels = set(email_message.labels.all().values_list('label_id', flat=True))
-        self.assertEqual(email_message_labels, set(
-            [settings.GMAIL_LABEL_UNREAD, settings.GMAIL_LABEL_IMPORTANT, settings.GMAIL_LABEL_PERSONAL]))
+        self.assertEqual(email_message_labels, set([settings.GMAIL_LABEL_UNREAD]))
 
     @patch.object(GmailConnector, 'get_label_list')
     def test_sync_labels(self, get_label_list_mock):
@@ -478,8 +473,7 @@ class GmailManagerTests(UserBasedTest, APITestCase):
 
         email_account = EmailAccount.objects.first()
         email_message = EmailMessageFactory.create(account=email_account, message_id=message_id)
-        labels = [settings.GMAIL_LABEL_UNREAD, settings.GMAIL_LABEL_IMPORTANT, settings.GMAIL_LABEL_TRASH,
-                  settings.GMAIL_LABEL_PERSONAL, settings.GMAIL_LABEL_INBOX]
+        labels = [settings.GMAIL_LABEL_UNREAD, settings.GMAIL_LABEL_TRASH, settings.GMAIL_LABEL_INBOX]
         for label in labels:
             EmailLabelFactory.create(account=email_account, label_id=label)
         manager = GmailManager(email_account)
@@ -488,9 +482,7 @@ class GmailManagerTests(UserBasedTest, APITestCase):
 
         # Verify that the email message is trashed by looking at the labels, ie. INBOX is not presnt and TRASH is.
         email_message_labels = set(email_message.labels.all().values_list('label_id', flat=True))
-        self.assertEqual(email_message_labels, set(
-            [settings.GMAIL_LABEL_UNREAD, settings.GMAIL_LABEL_IMPORTANT, settings.GMAIL_LABEL_TRASH,
-             settings.GMAIL_LABEL_PERSONAL]))
+        self.assertEqual(email_message_labels, set([settings.GMAIL_LABEL_UNREAD, settings.GMAIL_LABEL_TRASH]))
 
     @patch.object(GmailConnector, 'get_message_info')
     def test_download_message_utf16(self, get_message_info_mock):
@@ -505,8 +497,7 @@ class GmailManagerTests(UserBasedTest, APITestCase):
 
         email_account = EmailAccount.objects.first()
 
-        labels = [settings.GMAIL_LABEL_UNREAD, settings.GMAIL_LABEL_IMPORTANT, settings.GMAIL_LABEL_PERSONAL,
-                  settings.GMAIL_LABEL_INBOX]
+        labels = [settings.GMAIL_LABEL_UNREAD, settings.GMAIL_LABEL_INBOX]
         for label in labels:
             EmailLabelFactory.create(account=email_account, label_id=label)
 

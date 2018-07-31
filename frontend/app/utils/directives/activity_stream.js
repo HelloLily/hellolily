@@ -419,9 +419,6 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                         });
                     });
 
-                    const tenantEmailAccountPromise = EmailAccount.query().$promise;
-                    promises.push(tenantEmailAccountPromise);
-
                     const params = {
                         filterquery: emailDateQuery,
                         size: requestLength,
@@ -434,13 +431,9 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                     }
 
                     const emailPromise = EmailDetail.search(params).$promise;
-
                     promises.push(emailPromise);
 
-                    $q.all([tenantEmailAccountPromise, emailPromise]).then(results => {
-                        let tenantEmailAccountList = results[0].results;
-                        let emailMessageList = results[1];
-
+                    emailPromise.then(emailMessageList => {
                         emailMessageList.forEach(email => {
                             if (!email.is_draft) {
                                 if (email.has_attachment) {
@@ -455,12 +448,6 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                                     email.profile_picture = userResults.objects[0].profile_picture;
                                 } else {
                                     email.profile_picture = HLGravatar.getGravatar(email.sender.email_address);
-                                }
-                            });
-
-                            tenantEmailAccountList.forEach(emailAddress => {
-                                if (emailAddress.email_address === email.sender_email) {
-                                    email.right = true;
                                 }
                             });
 

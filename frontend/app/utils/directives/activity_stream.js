@@ -1,10 +1,10 @@
 angular.module('app.utils.directives').directive('activityStream', ActivityStreamDirective);
 
 ActivityStreamDirective.$inject = ['$filter', '$q', '$state', 'Account', 'Case', 'Change', 'Contact', 'Deal',
-    'EmailAccount', 'EmailDetail', 'EmailMessage', 'HLGravatar', 'HLResource', 'HLUtils', 'HLForms', 'Note',
+    'EmailAccount', 'EmailDetail', 'EmailMessage', 'HLResource', 'HLUtils', 'HLForms', 'Note',
     'TimeLog', 'User'];
 function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Contact, Deal, EmailAccount,
-    EmailDetail, EmailMessage, HLGravatar, HLResource, HLUtils, HLForms, Note, TimeLog, User) {
+    EmailDetail, EmailMessage, HLResource, HLUtils, HLForms, Note, TimeLog, User) {
     return {
         restrict: 'E',
         replace: true,
@@ -490,8 +490,6 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                             User.search({filterquery: 'email:' + email.sender.email_address, is_active: 'All'}).$promise.then(userResults => {
                                 if (userResults.objects[0]) {
                                     email.profile_picture = userResults.objects[0].profile_picture;
-                                } else {
-                                    email.profile_picture = HLGravatar.getGravatar(email.sender.email_address);
                                 }
                             });
 

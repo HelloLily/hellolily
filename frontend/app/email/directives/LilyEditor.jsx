@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-
 import FroalaEditor from 'react-froala-wysiwyg';
+import { DashboardModal } from '@uppy/react';
 
 import { MAX_FILE_SIZE } from './constants';
 
-const Uppy = require('uppy/lib/core');
-const XHRUpload = require('uppy/lib/plugins/XHRUpload');
+const Uppy = require('@uppy/core');
+const XHRUpload = require('@uppy/xhr-upload');
 
 const uppy = Uppy({
   restrictions: {
@@ -18,8 +18,6 @@ uppy.use(XHRUpload, {
 })
 
 uppy.run();
-
-const DashboardModal = require('uppy/lib/react/DashboardModal');
 
 class LilyEditor extends Component {
   constructor(props) {
@@ -44,7 +42,8 @@ class LilyEditor extends Component {
       ],
       spellcheck: false,
       fullPage: true,
-      iframeStyle: 'body {font-family: Roboto, sans-serif; font-size: 14px;} body table td {border: 0 !important;}', // TODO: TEMPORARY STYLING
+      // TODO: TEMPORARY STYLING
+      iframeStyle: 'body {font-family: Roboto, sans-serif; font-size: 14px;} body table td {border: 0 !important;}',
       events: {
         'froalaEditor.commands.after': this.handleCommandAfter,
         'froalaEditor.initialized': (e, editor) => this.setState({ editor })
@@ -60,7 +59,6 @@ class LilyEditor extends Component {
         indent_char: ' ',
         indent_size: 4,
       },
-      heightMin: 150,
       heightMax: this.props.maxHeight
       // saveURL: '/api/messaging/email/email/save_draft/',
       // saveParams: {
@@ -69,7 +67,7 @@ class LilyEditor extends Component {
     }
 
     this.state = {
-      files: []
+      files: [],
     }
   }
 

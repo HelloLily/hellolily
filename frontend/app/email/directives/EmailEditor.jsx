@@ -3,11 +3,10 @@ import 'regenerator-runtime/runtime';
 import { react2angular } from 'react2angular';
 import axios from 'axios';
 import throttle from 'lodash.throttle';
-
-import Select from 'react-select';
+import Select, { components } from 'react-select';
 import AsyncCreatable from 'react-select/lib/Async';
 
-import { EMAIL_REGEX, VARIABLE_REGEX, TYPED_TEXT_REGEX } from './constants';
+import { EMAIL_REGEX, VARIABLE_REGEX, TYPED_TEXT_REGEX, SELECT_STYLES, NEW_MESSAGE } from './constants';
 import LilyEditor from './LilyEditor.jsx';
 
 function convertKeys(data) {
@@ -61,12 +60,17 @@ axios.defaults.transformResponse = [(data, headers) => {
 //   return JSON.stringify(convertKeys(data));
 // }];
 
+// Styling overrides for selects in the editor component.
 const styles = {
-  control: (base, state) => ({
+  ...SELECT_STYLES,
+  control: base => ({
     ...base,
     background: '#fff',
-    border: 'none'
-  }),
+    minHeight: '30px',
+    height: '34px',
+    border: 'none',
+    borderRadius: '0'
+  })
 }
 
 class EmailEditor extends Component {
@@ -79,7 +83,8 @@ class EmailEditor extends Component {
     this.state = {
       user,
       subject: '',
-      modalOpen: false
+      modalOpen: false,
+      messageType: NEW_MESSAGE,
     };
   }
 
@@ -98,9 +103,6 @@ class EmailEditor extends Component {
 
     if (recipients) {
       recipients.forEach((recipient, index) => {
-        // TODO: Temporary, since our conversion should happen for every request, not just axios requests.
-        delete recipient.$promise;
-        delete recipient.$resolved;
         recipient = convertKeys(recipient);
 
         const data = {
@@ -120,9 +122,9 @@ class EmailEditor extends Component {
 
     let initialTemplate = this.props.template;
 
-    const accountRequest = await this.getEmailAccounts();
+    const accountResponse = await this.getEmailAccounts();
 
-    const emailAccounts = accountRequest.data.results.map(account => {
+    const emailAccounts = accountResponse.data.results.map(account => {
       const label = `${account.label} (${account.emailAddress})`;
 
       return { value: account, label };
@@ -144,8 +146,8 @@ class EmailEditor extends Component {
 
     state.emailAccounts = emailAccounts;
 
-    const templateRequest = await this.getEmailTemplates();
-    const templates = templateRequest.data.results.map(template => {
+    const templateResponse = await this.getEmailTemplates();
+    const templates = templateResponse.data.results.map(template => {
       return { value: template, label: template.name };
     });
 
@@ -155,24 +157,26 @@ class EmailEditor extends Component {
 
       state.template = template;
 
-      // TODO: Implement check to see if the message is a reply.
-      // const subject = this.props.messageType === NEW_MESSAGE ? subject : this.state.message.subject;
-      const subject = template.value.subject;
-      state.subject = subject;
+      // Only overwrite the subject if a new message is being created.
+      if (this.state.messageType === NEW_MESSAGE) {
+        state.subject = subject;
+      }
 
       this.loadTemplate(template.value.bodyHtml, subject, template.value.customVariables);
     }
 
     state.templates = templates;
 
+    // The PandaDoc API call always requires an email address,
+    // so only continue if a recipient has been passed as a prop.
     if (documentId && state.recipients.length > 0) {
       try {
-        const documentRequest = await this.getDocument(documentId, state.recipients[0].value.emailAddress);
+        const documentResponse = await this.getDocument(documentId, state.recipients[0].value.emailAddress);
 
-        state.document = documentRequest.data.document;
+        state.document = documentResponse.data.document;
       } catch(error) {
         // TODO: Show some sort of notification to the user.
-        alert('Document couldn\'t be loaded');
+        toastr.error('Document couldn\'t be loaded');
         console.log(error.response.data.error);
       }
     }
@@ -188,16 +192,11 @@ class EmailEditor extends Component {
     return axios.get(`/api/messaging/email/templates/`);
   }
 
-  async getContacts() {
-    return axios.get(`/api/contacts/`);
-  }
-
   getRecipients = async query => {
     const searchQuery = query ? `?search=first_name:${query}` : '';
-    const contactRequest = await axios.get(`/api/contacts/${searchQuery}`);
-    const contacts = this.createRecipientOptions(contactRequest.data.results, query);
-
-    console.log(contacts);
+    const contactResponse = await axios.get(`/api/contacts/${searchQuery}`);
+    // const contactResponse = await axios.get(`/api/contacts/${searchQuery}`);
+    const contacts = this.createRecipientOptions(contactResponse.data.results, query);
 
     return contacts;
   }
@@ -242,10 +241,10 @@ class EmailEditor extends Component {
         const label = this.createRecipientLabel(emailAddress.emailAddress, contact.fullName);
         const contactCopy = Object.assign({}, contact);
 
-        let accounts = [];
+        let functions = [];
 
-        if (contact.accounts.length > 0) {
-          accounts = contact.accounts.filter(account => {
+        if (contact.functions.length > 0) {
+          functions = contact.functions.filter(account => {
             // TODO: This check shouldn't be needed in the live version.
             if (account.domains) {
               // Check if any of the domains contain the email's domain.
@@ -255,21 +254,21 @@ class EmailEditor extends Component {
             }
           });
 
-          if (accounts.length === 0) {
-            accounts = contact.accounts;
+          if (functions.length === 0) {
+            functions = contact.functions;
           }
 
           // TODO: Temporary disable, re-enable on live.
-          // accounts = accounts.filter(account => account.isActive);
+          functions = functions.filter(account => account.isActive);
 
-          if (accounts.length === 0) {
+          if (functions.length === 0) {
             // If isn't active at the filtered account(s),
             // don't show the email address at all.
             return;
           }
         }
 
-        contactCopy.accounts = accounts;
+        contactCopy.functions = functions;
         contactCopy.emailAddress = emailAddress.emailAddress;
 
         const contactData = {
@@ -294,6 +293,8 @@ class EmailEditor extends Component {
 
   handleRecipientChange = recipients => {
     const newState = { recipients };
+
+    console.log(recipients);
 
     if (recipients.length === 1) {
       const contact = recipients[0];
@@ -640,27 +641,29 @@ class EmailEditor extends Component {
       });
   }
 
-  optionRenderer = option => {
-    if (option.value.hasOwnProperty('emailAddress')) {
-      const contact = option.value;
+  RecipientOption = props => {
+    if (props.value.hasOwnProperty('emailAddress')) {
+      const contact = props.value;
       let accounts = '';
 
-      if (contact.accounts && contact.accounts.length) {
-        accounts = ` (${contact.accounts.map(account => account.name).join(', ')})`;
+      if (contact.functions && contact.functions.length) {
+        accounts = ` (${contact.functions.map(account => account.accountName).join(', ')})`;
       }
 
       return (
-        <div>
-          <div>{contact.fullName} {accounts}</div>
-          <div className="text-muted">{contact.emailAddress}</div>
-        </div>
-      );
+        <components.Option {...props}>
+          <div>
+            <div>{contact.fullName} {accounts}</div>
+            <div className="text-muted">{contact.emailAddress}</div>
+          </div>
+        </components.Option>
+      )
     } else {
       // Render differently for option creation.
       return (
-        <div className={option.className}>
-          {option.label}
-        </div>
+        <components.Option {...props}>
+          {props.label}
+        </components.Option>
       )
     }
   }
@@ -670,11 +673,13 @@ class EmailEditor extends Component {
     const className = fixed ? 'editor fixed' : 'editor';
     const recipientProps = {
       styles,
-      multi: true,
+      isMulti: true,
+      defaultOptions: true,
       loadOptions: throttle(this.getRecipients, 250),
-      optionRenderer: this.optionRenderer,
+      components: {Option: this.RecipientOption},
       isValidNewOption: this.validateEmailAddress,
-      className: 'editor-select-input'
+      className: 'editor-select-input',
+      placeholder: ''
     }
 
     return (
@@ -707,13 +712,13 @@ class EmailEditor extends Component {
               { ...recipientProps }
             />
 
-            {!this.state.showCcInput && <button className="hl-primary-btn no-border" onClick={() => this.setState({ showCcInput: true })}>CC</button>}
-            {!this.state.showBccInput && <button className="hl-primary-btn no-border" onClick={() => this.setState({ showBccInput: true })}>BCC</button>}
+            {!this.state.showCcInput && <button className="hl-primary-btn no-border" onClick={() => this.setState({ showCcInput: true })}>Cc</button>}
+            {!this.state.showBccInput && <button className="hl-primary-btn no-border" onClick={() => this.setState({ showBccInput: true })}>Bcc</button>}
           </div>
 
           {this.state.showCcInput &&
             <div className="editor-input-group">
-              <label>CC</label>
+              <label>Cc</label>
 
               <AsyncCreatable
                 name="recipientsCc"
@@ -733,7 +738,7 @@ class EmailEditor extends Component {
 
           {this.state.showBccInput &&
             <div className="editor-input-group">
-              <label>BCC</label>
+              <label>Bcc</label>
 
               <AsyncCreatable
                 name="recipientsBcc"

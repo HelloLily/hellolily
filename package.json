@@ -13,6 +13,9 @@
     "postinstall": "gulp clean && gulp build"
   },
   "dependencies": {
+    "@uppy/core": "^0.26.0",
+    "@uppy/react": "^0.26.0",
+    "@uppy/xhr-upload": "^0.26.0",
     "angular-elastic": "2.5.1",
     "angular-ui-bootstrap": "2.5.0",
     "angular-xeditable": "0.6.0",
@@ -24,6 +27,7 @@
     "markdown-it": "^8.3.1",
     "moment": "^2.18.1",
     "ng-file-upload": "12.2.12",
+    "raven-js": "^3.26.4",
     "react": "^16.3.0",
     "react-dom": "^16.3.0",
     "react-froala-wysiwyg": "2.8.1",
@@ -34,7 +38,6 @@
     "uppy": "^0.24.2"
   },
   "devDependencies": {
-    "babel-core": "6.26.0",
     "babel-cli": "6.26.0",
     "babel-core": "6.26.0",
     "babel-preset-env": "1.6.1",
@@ -70,7 +73,6 @@
     "gulp-watch": "4.3.10",
     "gulp-wrap": "0.13.0",
     "markdown-styleguide-generator": "2.0.4",
-    "gulp-imagemin": "3.2.0",
     "react2angular": "2.0.1",
     "regenerator-runtime": "^0.11.1"
   }

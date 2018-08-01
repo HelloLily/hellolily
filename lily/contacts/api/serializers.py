@@ -19,9 +19,13 @@ from ..models import Contact, Function
 
 class FunctionSerializer(serializers.ModelSerializer):
     account_name = serializers.SerializerMethodField()
+    domains = serializers.SerializerMethodField()
 
     def get_account_name(self, obj):
         return obj.account.name
+
+    def get_domains(self, obj):
+        return [website.full_domain for website in obj.account.websites.all()]
 
     class Meta:
         model = Function
@@ -30,6 +34,7 @@ class FunctionSerializer(serializers.ModelSerializer):
             'account',
             'account_name',
             'is_active',
+            'domains',
         )
 
 

@@ -143,7 +143,7 @@ class LilyUserManager(TenantManager, UserManager):
                     })
             elif settings.BILLING_ENABLED:
                 # No new tenant, but user was created so we update the current subscription.
-                tenant.billing.update_subscription(1)
+                user.tenant.billing.update_subscription(1)
 
         return user
 

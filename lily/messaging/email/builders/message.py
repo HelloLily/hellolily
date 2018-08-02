@@ -14,7 +14,7 @@ from django.db import transaction
 import pytz
 
 from lily.messaging.email.connector import LabelNotFoundError
-from lily.messaging.email.utils import get_extensions_for_type
+from lily.messaging.email.utils import get_extensions_for_type, determine_message_type
 
 from ..models.models import EmailMessage, EmailHeader, Recipient, EmailAttachment, NoEmailMessageId
 
@@ -42,6 +42,7 @@ class MessageBuilder(object):
         self.received_by_cc = None
         self.attachments = []
         self.inline_attachments = {}
+        self.created = False
 
     def get_or_create_message(self, message_dict):
         """
@@ -93,13 +94,10 @@ class MessageBuilder(object):
             message_info (dict): with message info
             message_id (string): message_id of email
         """
-        # Save labels
         self.store_labels_and_thread_for_message(message_info, message_id)
-
         self.message.snippet = message_info['snippet']
-
-        # Save the payload
         self._save_message_payload(message_info['payload'])
+        self._save_message_type()
 
     def store_labels_and_thread_for_message(self, message_info, message_id):
         """
@@ -109,7 +107,7 @@ class MessageBuilder(object):
             message_info (dict): message info dict
             message_id (string): message_id of email
         """
-        self.get_or_create_message({'id': message_id})
+        _, self.created = self.get_or_create_message({'id': message_id})
         self.message.thread_id = message_info['threadId']
 
         # Set boolean identifier for some labels for faster filtering.
@@ -153,7 +151,7 @@ class MessageBuilder(object):
         # Labels that exist both in Gmail and in our db. Those labels are already retrieved from the db above.
         available_label_ids = message_label_set & db_label_set
         if available_label_ids:
-            # Use dict comprehension to get a dictonary with the label_id as the keys and the label as the value.
+            # Use dict comprehension to get a dictionary with the label_id as the keys and the label as the value.
             db_label_dict = {label.label_id: label for label in db_labels}
             for label_id in available_label_ids:
                 self.labels.append(db_label_dict[label_id])
@@ -472,6 +470,20 @@ class MessageBuilder(object):
                 elif header_name == 'cc':
                     self.received_by_cc.add(recipient)
 
+    def _save_message_type(self):
+        if self.created:
+            # Only determine message_type at creation, no need to update the message type at label changes.
+            if self.message.sent_date and self.message.sender_id:
+                # Message is an email, not a chat.
+                message_type, message_type_to_id = determine_message_type(
+                    self.message.thread_id,
+                    self.message.sent_date,
+                    self.message.account.email_address
+                )
+                self.message.message_type = message_type
+                if message_type_to_id:
+                    self.message.message_type_to_id = message_type_to_id
+
     def save(self):
         # Only save if there is a sent date, otherwise it's a chat message.
         if self.message.sent_date and self.message.sender_id:
@@ -563,3 +575,4 @@ class MessageBuilder(object):
         self.received_by_cc = None
         self.attachments = []
         self.inline_attachments = {}
+        self.created = False

@@ -187,6 +187,15 @@ class EmailMessage(models.Model):
     """
     EmailMessage has all information from an email message.
     """
+    NORMAL, REPLY, REPLY_ALL, FORWARD, FORWARD_MULTI = range(5)
+    MESSAGE_TYPES = (
+        (NORMAL, _('Email message')),
+        (REPLY, _('Reply email message')),
+        (REPLY_ALL, _('Reply-all email message')),
+        (FORWARD, _('Forward email message')),
+        (FORWARD_MULTI, _('Forward-multi email message')),
+    )
+
     account = models.ForeignKey(EmailAccount, related_name='messages')
     body_html = models.TextField(default='')
     body_text = models.TextField(default='')
@@ -208,6 +217,8 @@ class EmailMessage(models.Model):
     is_sent_message = models.NullBooleanField(_('Is sent'), db_index=True)
     is_draft_message = models.NullBooleanField(_('Is draft'), db_index=True)
     is_starred_message = models.NullBooleanField(_('Is starred'), db_index=True)
+    message_type = models.PositiveSmallIntegerField(choices=MESSAGE_TYPES, null=True, default=None)
+    message_type_to_id = models.PositiveIntegerField(null=True, default=None)  # Id it is a reply to, or forward of.
 
     @property
     def tenant_id(self):

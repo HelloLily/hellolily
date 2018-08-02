@@ -678,3 +678,41 @@ def restore_email_account_settings(tenant):
 
         email_account.is_active = True
         email_account.save()
+
+
+def determine_message_type(thread_id, sent_date, email_address):
+    """
+    Determine if the message is a reply, reply-all, forward, forward-multi or just a normal email.
+    Return the message type and the message id it's a reply to, or forward of.
+    """
+    # Get the whole thread this message belongs to.
+    thread = EmailMessage.objects.filter(thread_id=thread_id)
+
+    # Restrict the thread to only older messages.
+    thread = thread.filter(sent_date__gt=sent_date).order_by('sent_date')
+
+    # Restrict the thread to just the outgoing messages.
+    email = thread.filter(sender__email_address=email_address)
+
+    # And retrieve only necessary fields.
+    email = email.only('id', 'subject', 'received_by', 'received_by_cc')
+
+    # And we only want the first one.
+    email = email.first()
+
+    if email:
+        receivers = set(email.received_by.all()) | set(email.received_by_cc.all())
+        numbers_of_receivers = len(receivers)
+
+        if email.subject.startswith('Re: '):
+            if numbers_of_receivers == 1:
+                return EmailMessage.REPLY, email.id
+            else:
+                return EmailMessage.REPLY_ALL, email.id
+        elif email.subject.startswith('Fwd: '):
+                if numbers_of_receivers == 1:
+                    return EmailMessage.FORWARD, email.id
+                else:
+                    return EmailMessage.FORWARD_MULTI, email.id
+
+    return EmailMessage.NORMAL, None

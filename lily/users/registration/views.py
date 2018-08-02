@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+from distutils.util import strtobool
 
 import analytics
 from django.conf import settings
@@ -266,7 +267,7 @@ class RegisterEmailAccountDetailsView(RegistrationMixin, FormView):
         self.email_account.from_name = cleaned_data['from_name']
         self.email_account.label = cleaned_data['label']
         self.email_account.privacy = cleaned_data['privacy']
-        self.email_account.only_new = cleaned_data['only_new']
+        self.email_account.only_new = bool(strtobool(cleaned_data['only_new']))
         self.email_account.is_authorized = True
 
         if self.email_account.only_new:

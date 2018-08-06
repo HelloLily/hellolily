@@ -449,7 +449,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
 
                             // Match and add notes to the relevant call.
                             callNotePromise.then(notes => {
-                                calls.objects.forEach(call => {
+                                calls.forEach(call => {
                                     notes.forEach(note => {
                                         if (note.gfk_object_id === call.id) {
                                             call.notes.push(note);
@@ -487,7 +487,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                                 }
                             }
 
-                            User.search({filterquery: 'email:' + email.sender.email_address, is_active: 'All'}).$promise.then(userResults => {
+                            User.search({filterquery: 'email:' + email.sender_email, is_active: 'All'}).$promise.then(userResults => {
                                 if (userResults.objects[0]) {
                                     email.profile_picture = userResults.objects[0].profile_picture;
                                 }

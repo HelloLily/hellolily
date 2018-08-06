@@ -150,11 +150,13 @@ class SocialAuthCallbackView(RedirectView):
             # Send welcome mail to the new user.
             send_templated_mail(
                 template_name='users/registration/email/welcome.email',
-                from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[user.email, ],
                 context={
                     'user': user,
-                }
+                },
+                from_email=settings.EMAIL_PERSONAL_HOST_USER,
+                auth_user=settings.EMAIL_PERSONAL_HOST_USER,
+                auth_password=settings.EMAIL_PERSONAL_HOST_PASSWORD
             )
 
             return reverse('register_profile')

@@ -1,7 +1,7 @@
 angular.module('app.contacts.services').factory('Contact', Contact);
 
-Contact.$inject = ['$filter', '$resource', 'HLResource', 'Settings'];
-function Contact($filter, $resource, HLResource, Settings) {
+Contact.$inject = ['$filter', '$resource', 'HLResource', 'Settings', 'CacheFactory'];
+function Contact($filter, $resource, HLResource, Settings, CacheFactory) {
     const _contact = $resource(
         '/api/contacts/:id/',
         null,
@@ -68,21 +68,31 @@ function Contact($filter, $resource, HLResource, Settings) {
                 },
             },
             getCalls: {
-                url: '/api/contacts/:id/calls',
+                url: '/api/contacts/:id/calls/',
                 transformResponse: data => {
                     const jsonData = angular.fromJson(data);
 
                     if (jsonData) {
-                        if (jsonData.results && jsonData.results.length > 0) {
-                            jsonData.results.map(call => {
+                        if (jsonData && jsonData.length > 0) {
+                            jsonData.map(call => {
                                 call.activityType = 'call';
                                 call.color = 'yellow';
                                 call.date = call.start;
+                                call.notes = [];
                             });
                         }
                     }
 
                     return jsonData;
+                },
+                isArray: true,
+            },
+            exists: {
+                method: 'GET',
+                url: '/api/contacts/exists/',
+                cache: CacheFactory.get('dataCache'),
+                transformResponse: function(data) {
+                    return angular.fromJson(data);
                 },
             },
         }

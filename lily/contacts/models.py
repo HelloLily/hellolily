@@ -61,7 +61,7 @@ class Contact(Common, TaggedObjectMixin):
     @property
     def content_type(self):
         """
-        Return the content type (Django model) for this model
+        Return the content type (Django model) for this model.
         """
         return ContentType.objects.get(app_label='contacts', model='contact')
 
@@ -86,20 +86,21 @@ class Contact(Common, TaggedObjectMixin):
         """
         Return the city of the contact, otherwise return the city of the account the contact belongs to.
         """
-        city = ''
+        city = self.account_city
 
         address = self.addresses.first()
         if address:
             city = address.city
             if not city:
                 city = self.account_city
-        else:
-            city = self.account_city
 
         return city
 
     @property
     def account_city(self):
+        """
+        Return the city of the first account.
+        """
         city = ''
 
         account = self.accounts.first()
@@ -110,17 +111,11 @@ class Contact(Common, TaggedObjectMixin):
 
     @property
     def work_phone(self):
-        for phone in self.phone_numbers.all():
-            if phone.type == 'work':
-                return phone
-        return None
+        return self.phone_numbers.filter(type='work').first()
 
     @property
     def mobile_phone(self):
-        for phone in self.phone_numbers.all():
-            if phone.type == 'mobile':
-                return phone
-        return None
+        return self.phone_numbers.filter(type='mobile').first()
 
     @property
     def phone_number(self):
@@ -138,10 +133,7 @@ class Contact(Common, TaggedObjectMixin):
         if mobile_phone:
             return mobile_phone
 
-        try:
-            return self.phone_numbers.filter(type__in=['work', 'mobile', 'home', 'pager', 'other'])[0]
-        except:
-            return None
+        return self.phone_numbers.filter(type__in=['home', 'pager', 'other']).first()
 
     @property
     def full_name(self):
@@ -155,20 +147,21 @@ class Contact(Common, TaggedObjectMixin):
         """
         Return the full address of the contact, otherwise return the address of the account the contact belongs to.
         """
-        address_full = ''
+        address_full = self.account_address
 
         address = self.addresses.first()
         if address:
             address_full = address.full
             if not address_full:
                 address_full = self.account_address
-        else:
-            address_full = self.account_address
 
         return address_full
 
     @property
     def account_address(self):
+        """
+        Return the first full address of the first account.
+        """
         address_full = ''
 
         account = self.accounts.first()
@@ -199,7 +192,7 @@ class Function(DeletedMixin):
     contact = models.ForeignKey(Contact, related_name='functions')
     title = models.CharField(max_length=50, blank=True)
     department = models.CharField(max_length=50, blank=True)
-    # Limited relation: only possible with contacts related to the same account
+    # Limited relation: only possible with contacts related to the same account.
     manager = models.ForeignKey(Contact, related_name='manager', blank=True, null=True, on_delete=models.SET_NULL)
     is_active = models.BooleanField(default=True)
     phone_numbers = models.ManyToManyField(PhoneNumber)

@@ -13,7 +13,7 @@ from tablib import UnsupportedFormat, Dataset
 
 from lily.accounts.models import Account, AccountStatus
 from lily.api.filters import ElasticSearchFilter
-from lily.api.mixins import ModelChangesMixin
+from lily.api.mixins import ModelChangesMixin, DataExistsMixin
 
 from lily.calls.api.serializers import CallRecordSerializer
 from lily.calls.models import CallRecord
@@ -21,11 +21,10 @@ from lily.contacts.api.serializers import ContactSerializer
 from lily.contacts.models import Contact, Function
 from lily.socialmedia.models import SocialMedia
 from lily.utils.api.permissions import IsAccountAdmin
-from lily.utils.functions import uniquify
 from lily.utils.models.models import EmailAddress, PhoneNumber, Address
 
 
-class ContactViewSet(ModelChangesMixin, viewsets.ModelViewSet):
+class ContactViewSet(ModelChangesMixin, DataExistsMixin, viewsets.ModelViewSet):
     """
     Contacts are people you want to store the information of.
 
@@ -86,17 +85,16 @@ class ContactViewSet(ModelChangesMixin, viewsets.ModelViewSet):
         contact = self.get_object()
 
         phone_numbers = contact.phone_numbers.all().values_list('number', flat=True)
-        phone_numbers = uniquify(phone_numbers)  # Filter out double numbers.
 
         calls = CallRecord.objects.filter(
             Q(caller__number__in=phone_numbers) | Q(destination__number__in=phone_numbers)
-        )
+        ).order_by(
+            '-start'
+        )[:100]
 
-        page = self.paginate_queryset(calls)
+        serializer = CallRecordSerializer(calls, many=True, context={'request': request})
 
-        return self.get_paginated_response(
-            CallRecordSerializer(page, many=True, context={'request': request}).data
-        )
+        return Response(serializer.data)
 
 
 class ContactImport(APIView):

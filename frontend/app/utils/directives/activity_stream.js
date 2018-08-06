@@ -1,10 +1,10 @@
 angular.module('app.utils.directives').directive('activityStream', ActivityStreamDirective);
 
 ActivityStreamDirective.$inject = ['$filter', '$q', '$state', 'Account', 'Case', 'Change', 'Contact', 'Deal',
-    'EmailAccount', 'EmailDetail', 'EmailMessage', 'HLGravatar', 'HLResource', 'HLUtils', 'HLForms', 'Note',
+    'EmailAccount', 'EmailDetail', 'EmailMessage', 'HLResource', 'HLUtils', 'HLForms', 'Note',
     'TimeLog', 'User'];
 function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Contact, Deal, EmailAccount,
-    EmailDetail, EmailMessage, HLGravatar, HLResource, HLUtils, HLForms, Note, TimeLog, User) {
+    EmailDetail, EmailMessage, HLResource, HLUtils, HLForms, Note, TimeLog, User) {
     return {
         restrict: 'E',
         replace: true,
@@ -146,11 +146,6 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
 
                 notePromise.then(results => {
                     results.forEach(note => {
-                        // Get user for notes to show profile picture correctly.
-                        User.get({id: note.author.id, is_active: 'All'}, userObject => {
-                            note.author = userObject;
-                        });
-
                         // If it's a contact's note, add extra attribute to the note
                         // so we can identify it in the template.
                         if (scope.target === 'account' && note.gfk_content_type === 'contact') {
@@ -163,7 +158,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
 
                 const changePromise = Change.query({id: currentObject.id, model: targetPlural}).$promise;
 
-                promises.push(changePromise);  // Add promise to list of all promises for later handling
+                promises.push(changePromise);  // Add promise to list of all promises for later handling.
 
                 changePromise.then(results => {
                     let changes = [];
@@ -337,8 +332,9 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                     // Add promise to list of all promises for later handling.
                     promises.push(casePromise);
 
-                    casePromise.then(response => {
-                        response.objects.forEach(caseItem => {
+                    casePromise.then(cases => {
+                        const caseIds = [];
+                        cases.objects.forEach(caseItem => {
                             // Get user object for the assigned to user.
                             if (caseItem.assigned_to) {
                                 User.get({id: caseItem.assigned_to.id, is_active: 'All'}, userObject => {
@@ -354,20 +350,29 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                             }
 
                             caseItem.activityType = 'case';
+                            caseItem.notes = [];
 
                             activity.push(caseItem);
-                            Note.search({filterquery: 'gfk_content_type:case AND gfk_object_id:' + caseItem.id, size: 15})
-                                .$promise.then(notes => {
-                                    notes.map(note => {
-                                        // Get user for notes to show profile picture correctly.
-                                        User.get({id: note.author.id, is_active: 'All'}, author => {
-                                            note.author = author;
-                                        });
-                                    });
-
-                                    caseItem.notes = notes;
-                                });
+                            caseIds.push(caseItem.id);
                         });
+
+                        if (caseIds.length > 0) {
+                            // Query all case notes in one call.
+                            const fq = 'gfk_content_type:case AND gfk_object_id:(' + caseIds.join(' OR ') + ')';
+                            const caseNotePromise = Note.search({filterquery: fq, size: 15 * caseIds.length}).$promise;
+                            promises.push(caseNotePromise);  // Add promise to list of all promises for later handling.
+
+                            // Match and add notes to the relevant case.
+                            caseNotePromise.then(notes => {
+                                cases.objects.forEach(caseItem => {
+                                    notes.forEach(note => {
+                                        if (note.gfk_object_id === caseItem.id) {
+                                            caseItem.notes.push(note);
+                                        }
+                                    });
+                                });
+                            });
+                        }
                     });
 
                     const dealPromise = Deal.search({
@@ -378,8 +383,9 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                     // Add promise to list of all promises for later handling.
                     promises.push(dealPromise);
 
-                    dealPromise.then(results => {
-                        results.objects.forEach(deal => {
+                    dealPromise.then(deals => {
+                        const dealIds = [];
+                        deals.objects.forEach(deal => {
                             if (deal.assigned_to) {
                                 // Get user object for the assigned to user.
                                 User.get({id: deal.assigned_to.id, is_active: 'All'}, userObject => {
@@ -394,22 +400,27 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                                 });
                             }
 
-                            Note.search({
-                                filterquery: 'gfk_content_type:deal AND gfk_object_id:' + deal.id,
-                                size: 15,
-                            }).$promise.then(notes => {
-                                notes.map(note => {
-                                    // Get user for notes to show profile picture correctly.
-                                    User.get({id: note.author.id, is_active: 'All'}, author => {
-                                        note.author = author;
+                            activity.push(deal);
+                            dealIds.push(deal.id);
+                        });
+
+                        if (dealIds.length > 0) {
+                            // Query all case notes in one call.
+                            const fq = 'gfk_content_type:deal AND gfk_object_id:(' + dealIds.join(' OR ') + ')';
+                            const dealNotePromise = Note.search({filterquery: fq, size: 15 * dealIds.length}).$promise;
+                            promises.push(dealNotePromise);  // Add promise to list of all promises for later handling.
+
+                            // Match and add notes to the relevant deal.
+                            dealNotePromise.then(notes => {
+                                deals.objects.forEach(deal => {
+                                    notes.forEach(note => {
+                                        if (note.gfk_object_id === deal.id) {
+                                            deal.notes.push(note);
+                                        }
                                     });
                                 });
-
-                                deal.notes = notes;
                             });
-
-                            activity.push(deal);
-                        });
+                        }
                     });
 
                     let callPromise;
@@ -423,30 +434,34 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                     // Add promise to list of all promises for later handling.
                     promises.push(callPromise);
 
-                    callPromise.then(data => {
-                        data.results.map(call => {
-                            Note.search({filterquery: 'gfk_content_type:callrecord AND gfk_object_id:' + call.id, size: 15})
-                                .$promise.then(notes => {
-                                    angular.forEach(notes, note => {
-                                        // Get user for notes to show profile picture correctly.
-                                        User.get({id: note.author.id, is_active: 'All'}, author => {
-                                            note.author = author;
-                                        });
+                    callPromise.then(calls => {
+                        const callIds = [];
+                        calls.map(call => {
+                            activity.push(call);
+                            callIds.push(call.id);
+                        });
+
+                        if (callIds.length > 0) {
+                            // Query all case notes in one call.
+                            const fq = 'gfk_content_type:callrecord AND gfk_object_id:(' + callIds.join(' OR ') + ')';
+                            const callNotePromise = Note.search({filterquery: fq, size: 15 * callIds.length}).$promise;
+                            promises.push(callNotePromise);  // Add promise to list of all promises for later handling.
+
+                            // Match and add notes to the relevant call.
+                            callNotePromise.then(notes => {
+                                calls.objects.forEach(call => {
+                                    notes.forEach(note => {
+                                        if (note.gfk_object_id === call.id) {
+                                            call.notes.push(note);
+                                        }
                                     });
-
-                                    call.notes = notes;
-
-                                    if (notes.length > 0) {
+                                    if (call.notes.length > 0) {
                                         call.showDetails = true;
                                     }
                                 });
-
-                            activity.push(call);
-                        });
+                            });
+                        }
                     });
-
-                    const tenantEmailAccountPromise = EmailAccount.query().$promise;
-                    promises.push(tenantEmailAccountPromise);
 
                     const params = {
                         filterquery: emailDateQuery,
@@ -460,13 +475,9 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                     }
 
                     const emailPromise = EmailDetail.search(params).$promise;
-
                     promises.push(emailPromise);
 
-                    $q.all([tenantEmailAccountPromise, emailPromise]).then(results => {
-                        let tenantEmailAccountList = results[0].results;
-                        let emailMessageList = results[1];
-
+                    emailPromise.then(emailMessageList => {
                         emailMessageList.forEach(email => {
                             if (!email.is_draft) {
                                 if (email.has_attachment) {
@@ -474,23 +485,15 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                                         email.attachments = response.attachments;
                                     });
                                 }
-
-                                User.search({filterquery: 'email:' + email.sender_email, is_active: 'All'}).$promise.then(userResults => {
-                                    if (userResults.objects[0]) {
-                                        email.profile_picture = userResults.objects[0].profile_picture;
-                                    } else {
-                                        email.profile_picture = HLGravatar.getGravatar(email.sender_email);
-                                    }
-                                });
-
-                                tenantEmailAccountList.forEach(emailAddress => {
-                                    if (emailAddress.email_address === email.sender_email) {
-                                        email.right = true;
-                                    }
-                                });
-
-                                activity.push(email);
                             }
+
+                            User.search({filterquery: 'email:' + email.sender.email_address, is_active: 'All'}).$promise.then(userResults => {
+                                if (userResults.objects[0]) {
+                                    email.profile_picture = userResults.objects[0].profile_picture;
+                                }
+                            });
+
+                            activity.push(email);
                         });
                     });
                 }

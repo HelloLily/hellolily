@@ -67,7 +67,8 @@ class CallRecord(TenantMixin):
     )
     # The start and end time of the conversation, can be used to calculate the duration.
     start = models.DateTimeField(
-        verbose_name=_('Start')
+        verbose_name=_('Start'),
+        db_index=True
     )
     end = models.DateTimeField(
         null=True,

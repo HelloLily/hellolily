@@ -141,15 +141,9 @@ function ContactListController($scope, $window, Settings, Account, Contact, HLUt
         $scope.table.filter = queryString;
     };
 
-    /**
-     * Count the total amount of contacts used to see whether or not the empty state should be shown.
-     */
     function showEmptyState() {
-        Contact.query({}, data => {
-            if (data.pagination.total === 1) {
-                $scope.showEmptyState = true;
-            }
-        });
+        // Show the empty state when there are no contacts yet.
+        $scope.showEmptyState = !Contact.exists();
     }
 
     /**

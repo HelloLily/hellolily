@@ -24,6 +24,7 @@ class NoteMapping(BaseMapping):
                         'type': 'string',
                         'analyzer': 'normal_edge_analyzer',
                     },
+                    'profile_picture': {'type': 'string'},
                 },
             },
             'content': {
@@ -82,6 +83,7 @@ class NoteMapping(BaseMapping):
             'author': {
                 'full_name': obj.author.full_name,
                 'id': obj.author.id,
+                'profile_picture': obj.author.profile_picture
             },
             'content': obj.content,
             'content_type': obj.content_type.id,

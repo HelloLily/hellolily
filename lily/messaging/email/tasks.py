@@ -7,6 +7,7 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from oauth2client.client import HttpAccessTokenRefreshError
 
+from lily.messaging.email.utils import determine_message_type
 from lily.utils.functions import post_intercom_event
 from .manager import GmailManager
 from .models.models import (EmailAccount, EmailMessage, EmailOutboxMessage, EmailTemplateAttachment,
@@ -636,29 +637,33 @@ def cleanup_deleted_email_accounts():
 @task(name='migrate_email_messages', trail=False, ignore_result=False)
 def migrate_email_messages():
     messages = EmailMessage.objects.filter(
-        is_inbox_message__isnull=True
+        message_type__isnull=True
     ).order_by()[0:100]
 
     if messages:
         logger.debug('Migrating the next %s messages.' % (len(messages)))
         for message in messages:
-            labels = set(message.labels.all().values_list('name', flat=True))
-            message.is_inbox_message = settings.GMAIL_LABEL_INBOX in labels
-            message.is_sent_message = settings.GMAIL_LABEL_SENT in labels
-            message.is_draft_message = settings.GMAIL_LABEL_DRAFT in labels
-            message.is_trashed_message = settings.GMAIL_LABEL_TRASH in labels
-            message.is_spam_message = settings.GMAIL_LABEL_SPAM in labels
-            message.is_starred_message = settings.GMAIL_LABEL_STAR in labels
+            try:
+                message_type, message_type_to_id = determine_message_type(
+                    message.thread_id,
+                    message.sent_date,
+                    message.account.email_address
+                )
+            except:
+                # If for some reason a message is not having a thread id, sent date or account with an email address,
+                # don't let the task fail. Just set the message type to the default type.
+                logger.debug("Failed to determine message type for %s" % (message.id))
+                message_type = EmailMessage.NORMAL
+
+            message.message_type = message_type
+            if message_type_to_id:
+                message.message_type_to_id = message_type_to_id
 
             message.skip_signal = True  # Above fields aren't part of the search index, so skip the post_save signal.
             message.save(
                 update_fields=[
-                    "is_inbox_message",
-                    "is_sent_message",
-                    "is_draft_message",
-                    "is_trashed_message",
-                    "is_spam_message",
-                    "is_starred_message"
+                    "message_type",
+                    "message_type_to_id"
                 ]
             )
 

@@ -40,6 +40,7 @@ function Deal($resource, CacheFactory, HLCache, HLForms, HLResource, HLUtils) {
                                     color: 'blue',
                                     date: obj.modified,
                                     total_size: jsonData.total,
+                                    notes: [],
                                 });
 
                                 objects.push(deal);
@@ -101,6 +102,14 @@ function Deal($resource, CacheFactory, HLCache, HLForms, HLResource, HLUtils) {
             },
             getDocuments: {
                 url: '/api/integrations/documents/:contact/',
+            },
+            exists: {
+                method: 'GET',
+                url: '/api/deals/exists/',
+                cache: CacheFactory.get('dataCache'),
+                transformResponse: function(data) {
+                    return angular.fromJson(data);
+                },
             },
         }
     );

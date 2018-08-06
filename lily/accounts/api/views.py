@@ -14,7 +14,7 @@ from rest_framework.permissions import IsAuthenticated
 from tablib import Dataset, UnsupportedFormat
 
 from lily.api.filters import ElasticSearchFilter
-from lily.api.mixins import ModelChangesMixin
+from lily.api.mixins import ModelChangesMixin, DataExistsMixin
 from lily.calls.api.serializers import CallRecordSerializer
 from lily.calls.models import CallRecord
 from lily.utils.functions import uniquify
@@ -53,7 +53,7 @@ class AccountFilter(filters.FilterSet):
         }
 
 
-class AccountViewSet(ModelChangesMixin, ModelViewSet):
+class AccountViewSet(ModelChangesMixin, DataExistsMixin, ModelViewSet):
     """
     Accounts are companies you've had contact with and for which you wish to store information.
 
@@ -120,13 +120,13 @@ class AccountViewSet(ModelChangesMixin, ModelViewSet):
 
         calls = CallRecord.objects.filter(
             Q(caller__number__in=phone_numbers) | Q(destination__number__in=phone_numbers)
-        )
+        ).order_by(
+            '-start'
+        )[:100]
 
-        page = self.paginate_queryset(calls)
+        serializer = CallRecordSerializer(calls, many=True, context={'request': request})
 
-        return self.get_paginated_response(
-            CallRecordSerializer(page, many=True, context={'request': request}).data
-        )
+        return Response(serializer.data)
 
 
 class AccountStatusViewSet(ModelViewSet):

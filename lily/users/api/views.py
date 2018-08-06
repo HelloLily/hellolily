@@ -32,7 +32,8 @@ from lily.utils.functions import has_required_tier
 
 from .utils import get_info_text_for_device
 from .serializers import (
-    TeamSerializer, LilyUserSerializer, LilyUserTokenSerializer, SessionSerializer, UserInviteSerializer
+    TeamSerializer, LilyUserSerializer, LilyUserTokenSerializer, SessionSerializer, UserInviteSerializer,
+    BasicLilyUserSerializer
 )
 from ..models import Team, LilyUser, UserInvite
 
@@ -315,6 +316,15 @@ class LilyUserViewSet(viewsets.ModelViewSet):
             tenant.billing.update_subscription(-1)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @list_route(methods=['GET', ])
+    def unassigned(self, request):
+        # Retrieve users that aren't assigned to a team.
+        queryset = self.get_queryset().filter(teams__isnull=True)
+        filtered_queryset = self.filter_class(request.GET, queryset=queryset).qs
+        #  Use the basic serializer to excluded nested fields.
+        serializer = BasicLilyUserSerializer(filtered_queryset, context={'request': request}, many=True)
+        return Response(serializer.data)
 
 
 class TwoFactorDevicesViewSet(viewsets.ViewSet):

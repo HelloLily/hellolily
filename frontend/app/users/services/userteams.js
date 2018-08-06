@@ -1,13 +1,14 @@
 angular.module('app.users.services').factory('UserTeams', UserTeams);
 
-UserTeams.$inject = ['$resource'];
-function UserTeams($resource) {
+UserTeams.$inject = ['$resource', 'CacheFactory'];
+function UserTeams($resource, CacheFactory) {
     const _userTeam = $resource(
         '/api/users/team/:id/',
         null,
         {
             query: {
                 isArray: false,
+                cache: CacheFactory.get('volatileCache'),
             },
             search: {
                 url: '/search/search/?type=users_team&filterquery=:filterquery',
@@ -32,6 +33,7 @@ function UserTeams($resource) {
                 method: 'GET',
                 url: '/api/users/team/mine/',
                 isArray: true,
+                cache: CacheFactory.get('volatileCache'),
             },
         }
     );

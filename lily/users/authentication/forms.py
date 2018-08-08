@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.contrib.auth import password_validation
 from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm
 from django.utils.translation import ugettext_lazy as _
@@ -64,9 +65,11 @@ class CustomPasswordResetForm(PasswordResetForm):
                   context, from_email, to_email, html_email_template_name=None):
         send_templated_mail(
             template_name=email_template_name,
-            from_email=from_email,
             recipient_list=[to_email, ],
-            context=context
+            context=context,
+            from_email=settings.EMAIL_PERSONAL_HOST_USER,
+            auth_user=settings.EMAIL_PERSONAL_HOST_USER,
+            auth_password=settings.EMAIL_PERSONAL_HOST_PASSWORD
         )
 
 

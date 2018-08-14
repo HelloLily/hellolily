@@ -18,11 +18,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--tenant',
-            action='store',
-            dest='tenant',
-            default='',
-            help='Specify a tenant to import the accounts for.'
+            '--tenant', action='store', dest='tenant', default='', help='Specify a tenant to import the accounts for.'
         )
         parser.add_argument(
             '--tag',
@@ -51,7 +47,8 @@ class Command(BaseCommand):
 
             website = Website.objects.create(
                 website=row.get('website'),
-                is_primary=True, account=account,
+                is_primary=True,
+                account=account,
                 tenant=tenant,
             )
 

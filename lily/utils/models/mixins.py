@@ -40,26 +40,10 @@ class Common(DeletedMixin, TenantMixin):
     """
     Common model to make it possible to easily define relations to other models.
     """
-    phone_numbers = models.ManyToManyField(
-        to=PhoneNumber,
-        blank=True,
-        verbose_name=_('list of phone numbers')
-    )
-    social_media = models.ManyToManyField(
-        to=SocialMedia,
-        blank=True,
-        verbose_name=_('list of social media')
-    )
-    addresses = models.ManyToManyField(
-        to=Address,
-        blank=True,
-        verbose_name=_('list of addresses')
-    )
-    email_addresses = models.ManyToManyField(
-        to=EmailAddress,
-        blank=True,
-        verbose_name=_('list of email addresses')
-    )
+    phone_numbers = models.ManyToManyField(to=PhoneNumber, blank=True, verbose_name=_('list of phone numbers'))
+    social_media = models.ManyToManyField(to=SocialMedia, blank=True, verbose_name=_('list of social media'))
+    addresses = models.ManyToManyField(to=Address, blank=True, verbose_name=_('list of addresses'))
+    email_addresses = models.ManyToManyField(to=EmailAddress, blank=True, verbose_name=_('list of email addresses'))
     notes = GenericRelation(
         to='notes.Note',
         content_type_field='gfk_content_type',

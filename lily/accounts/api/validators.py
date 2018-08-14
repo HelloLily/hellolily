@@ -16,7 +16,9 @@ class HostnameValidator(RegexValidator):
         r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|'  # ...or ipv4
         r'\[?[A-F0-9]*:[A-F0-9:]+\]?)'  # ...or ipv6
         r'(?::\d+)?'  # optional port
-        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+        r'(?:/?|[/?]\S+)$',
+        re.IGNORECASE
+    )
 
     message = _('Please enter a valid URL.')
 

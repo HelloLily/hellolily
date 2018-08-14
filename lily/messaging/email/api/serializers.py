@@ -13,10 +13,11 @@ from lily.api.nested.mixins import RelatedSerializerMixin
 from lily.api.nested.serializers import WritableNestedSerializer
 from lily.messaging.email.credentials import get_credentials
 
-from ..models.models import (EmailLabel, EmailAccount, EmailMessage, Recipient, EmailAttachment, EmailTemplateFolder,
-                             EmailTemplate, SharedEmailConfig, TemplateVariable, DefaultEmailTemplate)
+from ..models.models import (
+    EmailLabel, EmailAccount, EmailMessage, Recipient, EmailAttachment, EmailTemplateFolder, EmailTemplate,
+    SharedEmailConfig, TemplateVariable, DefaultEmailTemplate
+)
 from ..services import GmailService
-
 
 logger = logging.getLogger(__name__)
 
@@ -138,9 +139,7 @@ class EmailAccountSerializer(WritableNestedSerializer):
             })
 
         if self.instance and self.instance.only_new is None and 'only_new' not in validated_data:
-            raise serializers.ValidationError({
-                'only_new': [_('Please select one of the email sync options')]
-            })
+            raise serializers.ValidationError({'only_new': [_('Please select one of the email sync options')]})
 
         return validated_data
 
@@ -275,7 +274,13 @@ class EmailAccountSerializer(WritableNestedSerializer):
             'privacy_display',
             'shared_email_configs',
         )
-    read_only_fields = ('email_address', 'is_authorized', 'is_syncing', 'is_public',)
+
+    read_only_fields = (
+        'email_address',
+        'is_authorized',
+        'is_syncing',
+        'is_public',
+    )
 
 
 class RelatedEmailAccountSerializer(RelatedSerializerMixin, EmailAccountSerializer):
@@ -297,8 +302,7 @@ class EmailTemplateSerializer(serializers.ModelSerializer):
         """
         if instance:
             queryset = EmailAccount.objects.filter(
-                default_templates__template=instance,
-                default_templates__user=self.context.get('request').user
+                default_templates__template=instance, default_templates__user=self.context.get('request').user
             )
         else:
             queryset = EmailAccount.objects.all()
@@ -328,10 +332,11 @@ class EmailTemplateSerializer(serializers.ModelSerializer):
         # All email account ids the user submitted through the default_for field.
         validated_account_ids = set([obj.pk for obj in validated_data.pop('default_for', [])])
         # All the email account ids that are in the database, submitted by the user or linked to this template.
-        existing_account_ids = set(DefaultEmailTemplate.objects.filter(
-            Q(user_id=user.pk),
-            Q(account_id__in=validated_account_ids) | Q(template_id=instance.pk)
-        ).values_list('account_id', flat=True))
+        existing_account_ids = set(
+            DefaultEmailTemplate.objects.filter(
+                Q(user_id=user.pk), Q(account_id__in=validated_account_ids) | Q(template_id=instance.pk)
+            ).values_list('account_id', flat=True)
+        )
 
         # Defaults to add are in validated_account_ids but not in existing_account_ids.
         add_list = list(validated_account_ids - existing_account_ids)
@@ -342,26 +347,15 @@ class EmailTemplateSerializer(serializers.ModelSerializer):
 
         # Add new default email template relations.
         for add_pk in add_list:
-            DefaultEmailTemplate.objects.create(
-                user_id=user.pk,
-                template_id=instance.pk,
-                account_id=add_pk
-            )
+            DefaultEmailTemplate.objects.create(user_id=user.pk, template_id=instance.pk, account_id=add_pk)
 
         # Edit existing email template relations.
-        DefaultEmailTemplate.objects.filter(
-            user_id=user.pk,
-            account_id__in=edit_list
-        ).update(
-            template_id=instance.pk
-        )
+        DefaultEmailTemplate.objects.filter(user_id=user.pk, account_id__in=edit_list).update(template_id=instance.pk)
 
         if not self.partial:
             # If not partial then we need to delete the unreferenced default_for relations.
             DefaultEmailTemplate.objects.filter(
-                user_id=user.pk,
-                template_id=instance.pk,
-                account_id__in=del_list
+                user_id=user.pk, template_id=instance.pk, account_id__in=del_list
             ).delete()
 
         return super(EmailTemplateSerializer, self).update(instance, validated_data)

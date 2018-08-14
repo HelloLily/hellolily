@@ -11,11 +11,9 @@ class CustomAuthenticationTokenForm(AuthenticationTokenForm):
         label=_("Token"),
         min_value=1,
         max_value=int('9' * totp_digits()),
-        widget=forms.NumberInput(
-            attrs={
-                'class': 'auth-token-input',
-            }
-        )
+        widget=forms.NumberInput(attrs={
+            'class': 'auth-token-input',
+        })
     )
 
 
@@ -24,11 +22,9 @@ class CustomDeviceValidationForm(DeviceValidationForm):
         label=_("Token"),
         min_value=1,
         max_value=int('9' * totp_digits()),
-        widget=forms.NumberInput(
-            attrs={
-                'class': 'auth-token-input',
-            }
-        )
+        widget=forms.NumberInput(attrs={
+            'class': 'auth-token-input',
+        })
     )
 
 

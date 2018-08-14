@@ -25,15 +25,10 @@ urlpatterns = [
 
     # Django rest
     url(r'^api/', include('lily.api.urls')),
-
     url(r'^$', BaseView.as_view(), name='base_view'),
-
     url(
         regex=r'^favicon.ico$',
-        view=RedirectView.as_view(
-            url=settings.STATIC_URL + 'app/images/favicons/favicon.ico',
-            permanent=True
-        ),
+        view=RedirectView.as_view(url=settings.STATIC_URL + 'app/images/favicons/favicon.ico', permanent=True),
         name='favicon'
     ),
     url(r'^404.html$', TemplateView.as_view(template_name='404.html')),

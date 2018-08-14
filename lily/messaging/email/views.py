@@ -40,19 +40,21 @@ from lily.utils.views.mixins import FormActionMixin
 from .forms import (
     ComposeEmailForm, CreateUpdateEmailTemplateForm, CreateUpdateTemplateVariableForm, EmailTemplateFileForm
 )
-from .models.models import (EmailMessage, EmailAttachment, EmailAccount, EmailTemplate, DefaultEmailTemplate,
-                            EmailOutboxMessage, EmailOutboxAttachment, TemplateVariable, GmailCredentialsModel,
-                            EmailLabel)
+from .models.models import (
+    EmailMessage, EmailAttachment, EmailAccount, EmailTemplate, DefaultEmailTemplate, EmailOutboxMessage,
+    EmailOutboxAttachment, TemplateVariable, GmailCredentialsModel, EmailLabel
+)
 from .services import GmailService
-from .tasks import (send_message, create_draft_email_message, update_draft_email_message,
-                    add_and_remove_labels_for_message, trash_email_message)
-from .utils import (get_attachment_filename_from_url, get_email_parameter_choices, create_recipients,
-                    render_email_body, replace_cid_in_html, create_reply_body_header, reindex_email_message,
-                    extract_script_tags, get_filtered_message)
-
+from .tasks import (
+    send_message, create_draft_email_message, update_draft_email_message, add_and_remove_labels_for_message,
+    trash_email_message
+)
+from .utils import (
+    get_attachment_filename_from_url, get_email_parameter_choices, create_recipients, render_email_body,
+    replace_cid_in_html, create_reply_body_header, reindex_email_message, extract_script_tags, get_filtered_message
+)
 
 logger = logging.getLogger(__name__)
-
 
 FLOW = OAuth2WebServerFlow(
     client_id=settings.GOOGLE_OAUTH2_CLIENT_ID,
@@ -79,8 +81,7 @@ class OAuth2Callback(LoginRequiredMixin, View):
         error = request.GET.get('error')
         if error:
             messages.error(
-                self.request,
-                _('Sorry, Lily needs authorization from Google to synchronize your email account.')
+                self.request, _('Sorry, Lily needs authorization from Google to synchronize your email account.')
             )
             return HttpResponseRedirect('/#/preferences/emailaccounts')
 
@@ -117,9 +118,7 @@ class OAuth2Callback(LoginRequiredMixin, View):
         # Create account based on email address.
         try:
             account, created = EmailAccount.objects.get_or_create(
-                owner=request.user,
-                tenant_id=request.user.tenant_id,
-                email_address=profile.get('emailAddress')
+                owner=request.user, tenant_id=request.user.tenant_id, email_address=profile.get('emailAddress')
             )
         except EmailAccount.MultipleObjectsReturned:
             account, created = EmailAccount.objects.get_or_create(
@@ -169,8 +168,7 @@ class EmailAttachmentProxy(View):
     def get(self, request, *args, **kwargs):
         try:
             attachment = EmailAttachment.objects.get(
-                pk=self.kwargs['pk'],
-                message__account__tenant_id=self.request.user.tenant.id
+                pk=self.kwargs['pk'], message__account__tenant_id=self.request.user.tenant.id
             )
         except:
             raise Http404()
@@ -334,20 +332,15 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
         recipient = None
 
         if email_address:
-            recipient = Contact.objects.filter(
-                email_addresses__email_address=email_address
-            ).order_by('created').first()
+            recipient = Contact.objects.filter(email_addresses__email_address=email_address
+                                               ).order_by('created').first()
 
             if not recipient:
-                recipient = Account.objects.filter(
-                    email_addresses__email_address=email_address
-                ).order_by('created').first()
+                recipient = Account.objects.filter(email_addresses__email_address=email_address
+                                                   ).order_by('created').first()
 
         if recipient:
-            context.update({
-                'recipient': recipient,
-                'email_address': email_address
-            })
+            context.update({'recipient': recipient, 'email_address': email_address})
 
         return context
 
@@ -367,8 +360,10 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
                 except DefaultEmailTemplate.DoesNotExist:
                     message = _('Sorry, I couldn\'t load the given template. Please try a different one.')
                 else:
-                    message = _('Sorry, I couldn\'t load the given template. '
-                                'I\'ll load your default email template instead.')
+                    message = _(
+                        'Sorry, I couldn\'t load the given template. '
+                        'I\'ll load your default email template instead.'
+                    )
 
                 messages.warning(self.request, message)
                 template = None
@@ -408,44 +403,42 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
         """
         send_logger = logging.getLogger('email_errors_temp_logger')
 
-        send_logger.info('Begin creating task for email_outbox_message %d to %s' % (
-            email_outbox_message.id, email_outbox_message.to
-        ))
+        send_logger.info(
+            'Begin creating task for email_outbox_message %d to %s' %
+            (email_outbox_message.id, email_outbox_message.to)
+        )
 
         task = send_message.apply_async(
-            args=(email_outbox_message.id,),
+            args=(email_outbox_message.id, ),
             max_retries=1,
             default_retry_delay=100,
         )
 
-        send_logger.info('Task (%s) status %s for email_outbox_message %d' % (
-            task.id, task.status, email_outbox_message.id
-        ))
+        send_logger.info(
+            'Task (%s) status %s for email_outbox_message %d' % (task.id, task.status, email_outbox_message.id)
+        )
 
         if task.status is not FAILURE:
-            messages.info(
-                self.request,
-                _('Gonna deliver your email as fast as I can.')
-            )
+            messages.info(self.request, _('Gonna deliver your email as fast as I can.'))
             self.request.session['tasks'].update({'send_message': task.id})
             self.request.session.modified = True
 
             # Track sending new email messages.
-            analytics.track(self.request.user.id, 'email-message-sent', {
-                'recipient_to': email_outbox_message.to,
-                'recipient_cc': email_outbox_message.cc,
-                'recipient_bcc': email_outbox_message.bcc,
-                'type': 'New',
-            })
+            analytics.track(
+                self.request.user.id, 'email-message-sent', {
+                    'recipient_to': email_outbox_message.to,
+                    'recipient_cc': email_outbox_message.cc,
+                    'recipient_bcc': email_outbox_message.bcc,
+                    'type': 'New',
+                }
+            )
 
         else:
-            messages.error(
-                self.request,
-                _('Sorry, I couldn\'t send your email.')
+            messages.error(self.request, _('Sorry, I couldn\'t send your email.'))
+            send_logger.error(
+                _('Failed to create send_message task (%s) outbox message id was %d. TRACE: %s') %
+                (task.id, email_outbox_message.id, task.traceback)
             )
-            send_logger.error(_('Failed to create send_message task (%s) outbox message id was %d. TRACE: %s') % (
-                task.id, email_outbox_message.id, task.traceback
-            ))
 
         # Remove the old draft when sending an email message.
         if self.object and self.remove_old_message:
@@ -457,7 +450,7 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
         """
         Removes the current draft.
         """
-        task = trash_email_message.apply_async(args=(self.object.id,))
+        task = trash_email_message.apply_async(args=(self.object.id, ))
 
         try:
             email = EmailMessage.objects.get(pk=self.object.id)
@@ -467,19 +460,16 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
             pass
 
         if not task:
-            messages.error(
-                self.request,
-                _('Sorry, I couldn\'t remove your email draft.')
+            messages.error(self.request, _('Sorry, I couldn\'t remove your email draft.'))
+            logging.error(
+                _('Failed to create remove_draft task for email account %d. Draft message id was %d.') %
+                (self.object.send_from, self.object.id)
             )
-            logging.error(_('Failed to create remove_draft task for email account %d. Draft message id was %d.') % (
-                self.object.send_from, self.object.id
-            ))
 
         return task
 
 
 class EmailMessageSendOrArchiveView(EmailMessageComposeView):
-
     def form_valid(self, form):
         email_outbox_message = super(EmailMessageSendOrArchiveView, self).form_valid(form)
 
@@ -489,7 +479,6 @@ class EmailMessageSendOrArchiveView(EmailMessageComposeView):
 
 
 class EmailMessageSendView(EmailMessageComposeView):
-
     def form_valid(self, form):
         email_outbox_message = super(EmailMessageSendView, self).form_valid(form)
 
@@ -502,7 +491,6 @@ class EmailMessageSendView(EmailMessageComposeView):
 
 
 class EmailMessageDraftView(EmailMessageComposeView):
-
     def form_valid(self, form):
         email_message = super(EmailMessageDraftView, self).form_valid(form)
 
@@ -537,34 +525,31 @@ class EmailMessageDraftView(EmailMessageComposeView):
                 pass
 
             task = update_draft_email_message.apply_async(
-                args=(email_outbox_message.id, current_draft_pk,),
+                args=(
+                    email_outbox_message.id,
+                    current_draft_pk,
+                ),
                 max_retries=1,
                 default_retry_delay=100,
             )
         else:
             task = create_draft_email_message.apply_async(
-                args=(email_outbox_message.id,),
+                args=(email_outbox_message.id, ),
                 max_retries=1,
                 default_retry_delay=100,
             )
 
         if task:
-            messages.info(
-                self.request,
-                _('Creating a draft as fast as I can.')
-            )
+            messages.info(self.request, _('Creating a draft as fast as I can.'))
             self.request.session['tasks'].update({'create_draft_email_message': task.id})
             self.request.session.modified = True
         else:
-            messages.error(
-                self.request,
-                _('Sorry, I couldn\'t save you email as a draft.')
-            )
+            messages.error(self.request, _('Sorry, I couldn\'t save you email as a draft.'))
             logging.error(
-                _('Failed to create create_draft_email_message task for email account %d. '
-                  'Outbox message id was %d.') % (
-                      email_outbox_message.send_from, email_outbox_message.id
-                )
+                _(
+                    'Failed to create create_draft_email_message task for email account %d. '
+                    'Outbox message id was %d.'
+                ) % (email_outbox_message.send_from, email_outbox_message.id)
             )
 
         return task
@@ -631,8 +616,7 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
 
             email_message = EmailMessage.objects.get(pk=self.object.id)
             email_message._is_archived = True
-            labels_to_remove = EmailLabel.objects.filter(label_id__in=remove_labels,
-                                                         account=self.object.account)
+            labels_to_remove = EmailLabel.objects.filter(label_id__in=remove_labels, account=self.object.account)
             email_message.labels.remove(*labels_to_remove)
             reindex_email_message(email_message)
             add_and_remove_labels_for_message.delay(self.object.id, remove_labels=remove_labels)
@@ -654,9 +638,10 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
         """
         send_logger = logging.getLogger('email_errors_temp_logger')
 
-        send_logger.info('Begin creating reply/forward task for email_outbox_message %d to %s' % (
-            email_outbox_message.id, email_outbox_message.to
-        ))
+        send_logger.info(
+            'Begin creating reply/forward task for email_outbox_message %d to %s' %
+            (email_outbox_message.id, email_outbox_message.to)
+        )
 
         task = send_message.apply_async(
             args=(email_outbox_message.id, self.object.id),
@@ -664,15 +649,13 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
             default_retry_delay=100,
         )
 
-        send_logger.info('Reply/forward Task (%s) status %s for email_outbox_message %d' % (
-            task.id, task.status, email_outbox_message.id
-        ))
+        send_logger.info(
+            'Reply/forward Task (%s) status %s for email_outbox_message %d' %
+            (task.id, task.status, email_outbox_message.id)
+        )
 
         if task:
-            messages.info(
-                self.request,
-                _('Sending email as fast as I can.')
-            )
+            messages.info(self.request, _('Sending email as fast as I can.'))
             self.request.session['tasks'].update({'send_message': task.id})
             self.request.session.modified = True
 
@@ -683,23 +666,24 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
             elif email_outbox_message.subject.startswith('Fwd: '):
                 mail_type = 'Forward'
 
-            analytics.track(self.request.user.id, 'email-message-sent', {
-                'recipient_to': email_outbox_message.to,
-                'recipient_cc': email_outbox_message.cc,
-                'recipient_bcc': email_outbox_message.bcc,
-                'type': mail_type,
-            })
+            analytics.track(
+                self.request.user.id, 'email-message-sent', {
+                    'recipient_to': email_outbox_message.to,
+                    'recipient_cc': email_outbox_message.cc,
+                    'recipient_bcc': email_outbox_message.bcc,
+                    'type': mail_type,
+                }
+            )
 
         else:
-            messages.error(
-                self.request,
-                _('Sorry, I couldn\'t send your email.')
+            messages.error(self.request, _('Sorry, I couldn\'t send your email.'))
+            logging.error(
+                _('Failed to create %s task for email account %d. Outbox message id was %d.') % (
+                    self.action,
+                    email_outbox_message.send_from,
+                    email_outbox_message.id,
+                )
             )
-            logging.error(_('Failed to create %s task for email account %d. Outbox message id was %d.') % (
-                self.action,
-                email_outbox_message.send_from,
-                email_outbox_message.id,
-            ))
 
         return task
 
@@ -907,10 +891,13 @@ class EmailTemplateDeleteView(LoginRequiredMixin, FormActionMixin, DeleteView):
         response = super(EmailTemplateDeleteView, self).delete(request, *args, **kwargs)
         messages.success(self.request, _('%s (Email template) has been deleted.' % self.object.name))
         if is_ajax(self.request):
-            return HttpResponse(anyjson.serialize({
-                'error': False,
-                'redirect_url': self.get_success_url()
-            }), content_type='application/json')
+            return HttpResponse(
+                anyjson.serialize({
+                    'error': False,
+                    'redirect_url': self.get_success_url()
+                }),
+                content_type='application/json'
+            )
         return response
 
     def get_success_url(self):
@@ -924,19 +911,19 @@ class ParseEmailTemplateView(LoginRequiredMixin, FormView):
     form_class = EmailTemplateFileForm
 
     def form_valid(self, form):
-        return HttpResponse(anyjson.serialize({
-            'error': False,
-            'form': form.cleaned_data
-        }), content_type='application/json')
+        return HttpResponse(
+            anyjson.serialize({
+                'error': False,
+                'form': form.cleaned_data
+            }), content_type='application/json'
+        )
 
     def form_invalid(self, form):
         # Every form error will show up as a notification later
         for field, error in form.errors.items():  # pylint: disable=W0612
             messages.warning(self.request, error)
 
-        return HttpResponse(anyjson.serialize({
-            'error': True
-        }), content_type='application/json')
+        return HttpResponse(anyjson.serialize({'error': True}), content_type='application/json')
 
 
 class EmailTemplateGetDefaultView(LoginRequiredMixin, View):
@@ -947,15 +934,16 @@ class EmailTemplateGetDefaultView(LoginRequiredMixin, View):
 
         try:
             default_email_template_id = DefaultEmailTemplate.objects.get(
-                user=request.user.pk,
-                account_id=account_id
+                user=request.user.pk, account_id=account_id
             ).template_id
         except DefaultEmailTemplate.DoesNotExist:
             default_email_template_id = None
 
-        return HttpResponse(anyjson.serialize({
-            'template_id': default_email_template_id,
-        }), content_type='application/json')
+        return HttpResponse(
+            anyjson.serialize({
+                'template_id': default_email_template_id,
+            }), content_type='application/json'
+        )
 
 
 class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
@@ -1034,15 +1022,15 @@ class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
                         sign_url = 'https://app.pandadoc.com/s/%s' % response.json().get('id')
                         lookup.update({'document': {'sign_url': sign_url}})
                     else:
-                        error_message = ('The PandaDoc sign URL could not be created \
-                                          because the recipient isn\'t correct')
+                        error_message = (
+                            'The PandaDoc sign URL could not be created \
+                                          because the recipient isn\'t correct'
+                        )
                 else:
                     error_message = 'The document doesn\'t seem to be valid.'
 
                 if error_message:
-                    errors.update({
-                        'document': error_message
-                    })
+                    errors.update({'document': error_message})
 
         if 'emailaccount_id' in self.request.GET:
             try:
@@ -1069,14 +1057,10 @@ class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
                     variable = custom_variable
 
                 if public:
-                    template_variable = TemplateVariable.objects.filter(
-                        name__iexact=variable,
-                        is_public=True
-                    )
+                    template_variable = TemplateVariable.objects.filter(name__iexact=variable, is_public=True)
                 else:
                     template_variable = TemplateVariable.objects.filter(
-                        name__iexact=variable,
-                        owner=get_current_user()
+                        name__iexact=variable, owner=get_current_user()
                     )
 
                 if template_variable:
@@ -1105,12 +1089,15 @@ class DetailEmailTemplateView(LoginRequiredMixin, DetailView):
                 'name': name,
             })
 
-        return HttpResponse(anyjson.serialize({
-            'template': parsed_template,
-            'template_subject': parsed_subject,
-            'attachments': attachments,
-            'errors': errors,
-        }), content_type='application/json')
+        return HttpResponse(
+            anyjson.serialize({
+                'template': parsed_template,
+                'template_subject': parsed_subject,
+                'attachments': attachments,
+                'errors': errors,
+            }),
+            content_type='application/json'
+        )
 
 
 class CreateUpdateTemplateVariableMixin(LoginRequiredMixin):

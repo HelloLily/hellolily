@@ -11,7 +11,8 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '-c', '--cutoff',
+            '-c',
+            '--cutoff',
             action='store',
             dest='cutoff',
             default='',

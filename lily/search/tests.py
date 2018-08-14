@@ -57,10 +57,7 @@ class InternalNumberSearchAPITestCase(UserBasedTest, APITestCase):
         case.save()
 
         case_notes = NoteFactory.create_batch(
-            size=5,
-            tenant=self.user_obj.tenant,
-            gfk_content_type=case.content_type,
-            gfk_object_id=case.id
+            size=5, tenant=self.user_obj.tenant, gfk_content_type=case.content_type, gfk_object_id=case.id
         )
 
         for note in case_notes:
@@ -80,10 +77,7 @@ class InternalNumberSearchAPITestCase(UserBasedTest, APITestCase):
         deal.save()
 
         deal_notes = NoteFactory.create_batch(
-            size=5,
-            tenant=self.user_obj.tenant,
-            gfk_content_type=deal.content_type,
-            gfk_object_id=deal.id
+            size=5, tenant=self.user_obj.tenant, gfk_content_type=deal.content_type, gfk_object_id=deal.id
         )
 
         for note in deal_notes:
@@ -214,10 +208,7 @@ class InternalNumberSearchAPITestCase(UserBasedTest, APITestCase):
         """
         # The case closed the most recent.
         cases = CaseFactory.create_batch(size=5, tenant=self.user_obj.tenant)
-        Case.objects.all().update(
-            modified=datetime(2018, 1, 1, tzinfo=utc),
-            status=self.case_status_closed
-        )
+        Case.objects.all().update(modified=datetime(2018, 1, 1, tzinfo=utc), status=self.case_status_closed)
 
         case = cases[0]
         case.contact = self.contact
@@ -228,10 +219,7 @@ class InternalNumberSearchAPITestCase(UserBasedTest, APITestCase):
         case.save()
 
         deals = DealFactory.create_batch(size=5, tenant=self.user_obj.tenant)
-        Deal.objects.all().update(
-            modified=datetime(2018, 1, 1, tzinfo=utc),
-            status=self.deal_status_lost
-        )
+        Deal.objects.all().update(modified=datetime(2018, 1, 1, tzinfo=utc), status=self.deal_status_lost)
 
         deal = deals[0]
         deal.is_deleted = False
@@ -271,16 +259,10 @@ class InternalNumberSearchAPITestCase(UserBasedTest, APITestCase):
         Test having a contact with no open deals or cases. There is only a case closed less than a week ago.
         """
         cases = CaseFactory.create_batch(size=5, tenant=self.user_obj.tenant)
-        Case.objects.all().update(
-            modified=datetime(2018, 1, 1, tzinfo=utc),
-            status=self.case_status_closed
-        )
+        Case.objects.all().update(modified=datetime(2018, 1, 1, tzinfo=utc), status=self.case_status_closed)
 
         DealFactory.create_batch(size=5, tenant=self.user_obj.tenant)
-        Deal.objects.all().update(
-            modified=datetime(2018, 1, 1, tzinfo=utc),
-            status=self.deal_status_lost
-        )
+        Deal.objects.all().update(modified=datetime(2018, 1, 1, tzinfo=utc), status=self.deal_status_lost)
 
         case = cases[0]
         case.contact = self.contact
@@ -303,16 +285,10 @@ class InternalNumberSearchAPITestCase(UserBasedTest, APITestCase):
         Test having a contact with no open deals or cases. There is only a deal closed less than a week ago.
         """
         CaseFactory.create_batch(size=5, tenant=self.user_obj.tenant)
-        Case.objects.all().update(
-            modified=datetime(2018, 1, 1, tzinfo=utc),
-            status=self.case_status_closed
-        )
+        Case.objects.all().update(modified=datetime(2018, 1, 1, tzinfo=utc), status=self.case_status_closed)
 
         deals = DealFactory.create_batch(size=5, tenant=self.user_obj.tenant)
-        Deal.objects.all().update(
-            modified=datetime(2018, 1, 1, tzinfo=utc),
-            status=self.deal_status_lost
-        )
+        Deal.objects.all().update(modified=datetime(2018, 1, 1, tzinfo=utc), status=self.deal_status_lost)
 
         deal = deals[0]
         deal.is_deleted = False

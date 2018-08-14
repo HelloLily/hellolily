@@ -17,15 +17,18 @@ from lily.search.lily_search import LilySearch
 from lily.utils.functions import format_phone_number
 from lily.utils.models.models import PhoneNumber
 
-from .serializers import (EmailLabelSerializer, EmailAccountSerializer, EmailMessageSerializer,
-                          EmailTemplateFolderSerializer, EmailTemplateSerializer, SharedEmailConfigSerializer,
-                          TemplateVariableSerializer, EmailAttachmentSerializer)
-from ..models.models import (EmailLabel, EmailAccount, EmailMessage, EmailTemplateFolder, EmailTemplate,
-                             SharedEmailConfig, TemplateVariable)
-from ..tasks import (trash_email_message, toggle_read_email_message,
-                     add_and_remove_labels_for_message, toggle_star_email_message, toggle_spam_email_message)
+from .serializers import (
+    EmailLabelSerializer, EmailAccountSerializer, EmailMessageSerializer, EmailTemplateFolderSerializer,
+    EmailTemplateSerializer, SharedEmailConfigSerializer, TemplateVariableSerializer, EmailAttachmentSerializer
+)
+from ..models.models import (
+    EmailLabel, EmailAccount, EmailMessage, EmailTemplateFolder, EmailTemplate, SharedEmailConfig, TemplateVariable
+)
+from ..tasks import (
+    trash_email_message, toggle_read_email_message, add_and_remove_labels_for_message, toggle_star_email_message,
+    toggle_spam_email_message
+)
 from ..utils import get_filtered_message
-
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +38,7 @@ class EmailLabelViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = EmailLabelSerializer
 
     # Set all filter backends that this viewset uses.
-    filter_backends = (filters.DjangoFilterBackend,)
+    filter_backends = (filters.DjangoFilterBackend, )
     filter_fields = ('account__id', 'label_id')
     swagger_schema = None
 
@@ -49,7 +52,7 @@ class SharedEmailConfigViewSet(viewsets.ModelViewSet):
     swagger_schema = None
 
     # Set all filter backends that this viewset uses.
-    filter_backends = (filters.DjangoFilterBackend,)
+    filter_backends = (filters.DjangoFilterBackend, )
     filter_fields = {
         'email_account',
         'is_hidden',
@@ -73,19 +76,16 @@ class SharedEmailConfigViewSet(viewsets.ModelViewSet):
         serializer.save(tenant_id=self.request.user.tenant_id, user=self.request.user, is_hidden=is_hidden)
 
     def get_queryset(self):
-        return SharedEmailConfig.objects.filter(tenant_id=self.request.user.tenant_id,
-                                                user=self.request.user)
+        return SharedEmailConfig.objects.filter(tenant_id=self.request.user.tenant_id, user=self.request.user)
 
 
-class EmailAccountViewSet(mixins.DestroyModelMixin,
-                          mixins.UpdateModelMixin,
-                          viewsets.ReadOnlyModelViewSet):
+class EmailAccountViewSet(mixins.DestroyModelMixin, mixins.UpdateModelMixin, viewsets.ReadOnlyModelViewSet):
     queryset = EmailAccount.objects.all()
     serializer_class = EmailAccountSerializer
     swagger_schema = None
 
     # Set all filter backends that this viewset uses.
-    filter_backends = (filters.DjangoFilterBackend,)
+    filter_backends = (filters.DjangoFilterBackend, )
     filter_fields = (
         'owner',
         'sharedemailconfig__user__id',
@@ -129,11 +129,9 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class EmailMessageViewSet(mixins.RetrieveModelMixin,
-                          mixins.ListModelMixin,
-                          mixins.UpdateModelMixin,
-                          mixins.DestroyModelMixin,
-                          GenericViewSet):
+class EmailMessageViewSet(
+    mixins.RetrieveModelMixin, mixins.ListModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, GenericViewSet
+):
     queryset = EmailMessage.objects.all()
     serializer_class = EmailMessageSerializer
     swagger_schema = None
@@ -192,7 +190,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         """
         Delete an email message asynchronous through the manager and not directly on the database.
         """
-        trash_email_message.apply_async(args=(instance.id,))
+        trash_email_message.apply_async(args=(instance.id, ))
 
     @detail_route(methods=['put'])
     def archive(self, request, pk=None):
@@ -232,7 +230,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         email._is_trashed = True
         reindex_email_message(email)
         serializer = self.get_serializer(email, partial=True)
-        trash_email_message.apply_async(args=(email.id,))
+        trash_email_message.apply_async(args=(email.id, ))
         return Response(serializer.data)
 
     @detail_route(methods=['put'])
@@ -489,15 +487,13 @@ class EmailTemplateViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_200_OK)
 
 
-class TemplateVariableViewSet(mixins.DestroyModelMixin,
-                              mixins.RetrieveModelMixin,
-                              GenericViewSet):
+class TemplateVariableViewSet(mixins.DestroyModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
     """
     TemplateVariable API.
     """
     queryset = TemplateVariable.objects
     serializer_class = TemplateVariableSerializer
-    filter_backends = (OrderingFilter,)
+    filter_backends = (OrderingFilter, )
     ordering = ('name', )
     swagger_schema = None
 
@@ -507,9 +503,6 @@ class TemplateVariableViewSet(mixins.DestroyModelMixin,
 
         default_variables = get_email_parameter_api_dict()
 
-        template_variables = {
-            'default': default_variables,
-            'custom': serializer.data
-        }
+        template_variables = {'default': default_variables, 'custom': serializer.data}
 
         return Response(template_variables)

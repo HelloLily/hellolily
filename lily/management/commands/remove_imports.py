@@ -10,13 +10,7 @@ class Command(BaseCommand):
     help = """Remove all deals imported with specific "imported from" marker."""
 
     def add_arguments(self, parser):
-        parser.add_argument(
-            '--tenant',
-            dest='tenant',
-            action='store',
-            default='',
-            help='Specify a tenant.'
-        )
+        parser.add_argument('--tenant', dest='tenant', action='store', default='', help='Specify a tenant.')
         parser.add_argument(
             '--imported-from',
             dest='imported_from',
@@ -39,8 +33,10 @@ class Command(BaseCommand):
         deals_to_remove = Deal.objects.filter(tenant=self.tenant, imported_from=self.imported_from)
 
         if deals_to_remove.count() > 0:
-            self.stdout.write('Deleting %s deals from tenant %s with tag %s in 10 sec'
-                              ', hit Ctrl+C to abort.' % (deals_to_remove.count(), self.tenant.id, self.imported_from))
+            self.stdout.write(
+                'Deleting %s deals from tenant %s with tag %s in 10 sec'
+                ', hit Ctrl+C to abort.' % (deals_to_remove.count(), self.tenant.id, self.imported_from)
+            )
             time.sleep(10)
             deals_to_remove.delete()
         else:

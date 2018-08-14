@@ -1,7 +1,9 @@
 from django.conf.urls import url
 
-from .views import (CasesTotalCountLastWeek, CasesPerTypeCountLastWeek, CasesWithTagsLastWeek, CasesCountPerStatus,
-                    CasesTopTags, DealsUrgentFollowUp, DealsWon, DealsLost, DealsAmountRecurring)
+from .views import (
+    CasesTotalCountLastWeek, CasesPerTypeCountLastWeek, CasesWithTagsLastWeek, CasesCountPerStatus, CasesTopTags,
+    DealsUrgentFollowUp, DealsWon, DealsLost, DealsAmountRecurring
+)
 
 case_patterns = [
     url(r'^cases/total/(?P<team_id>[\d]+)/$', CasesTotalCountLastWeek.as_view(), name='stats_cases_total'),
@@ -17,6 +19,5 @@ deal_patterns = [
     url(r'^deals/lost/$', DealsLost.as_view(), name='stats_deals_lost'),
     url(r'^deals/amountrecurring/$', DealsAmountRecurring.as_view(), name='stats_deals_amount_recurring'),
 ]
-
 
 urlpatterns = case_patterns + deal_patterns

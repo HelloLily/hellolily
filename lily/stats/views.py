@@ -12,14 +12,10 @@ def dictfetchall(cursor):
     Return all rows from a cursor as a dict
     """
     desc = cursor.description
-    return [
-        dict(zip([col[0] for col in desc], row))
-        for row in cursor.fetchall()
-    ]
+    return [dict(zip([col[0] for col in desc], row)) for row in cursor.fetchall()]
 
 
 class RawDatabaseView(LoginRequiredMixin, View):
-
     def get(self, request, *args, **kwargs):
 
         query = self.get_query(request, *args, **kwargs)
@@ -51,7 +47,6 @@ class RawDatabaseView(LoginRequiredMixin, View):
 
 
 class CasesTotalCountLastWeek(RawDatabaseView):
-
     def get_query(self, request, *args, **kwargs):
         return '''
             SELECT
@@ -79,7 +74,6 @@ class CasesTotalCountLastWeek(RawDatabaseView):
 
 
 class CasesPerTypeCountLastWeek(RawDatabaseView):
-
     def get_query(self, request, *args, **kwargs):
         return '''
             SELECT
@@ -270,8 +264,7 @@ class DealsWon(RawDatabaseView):
             ORDER BY
                 users_lilyuser.last_name;
         '''.format(
-            tenant_id=request.user.tenant_id,
-            status_id=deal_status.pk
+            tenant_id=request.user.tenant_id, status_id=deal_status.pk
         )
 
 
@@ -303,8 +296,7 @@ class DealsLost(RawDatabaseView):
             ORDER BY
                 users_lilyuser.last_name;
         '''.format(
-            tenant_id=request.user.tenant_id,
-            status_id=deal_status.pk
+            tenant_id=request.user.tenant_id, status_id=deal_status.pk
         )
 
 
@@ -337,6 +329,5 @@ class DealsAmountRecurring(RawDatabaseView):
             ORDER BY
                 users_lilyuser.last_name,deals_deal.new_business;
         '''.format(
-            tenant_id=request.user.tenant_id,
-            status_id=deal_status.pk
+            tenant_id=request.user.tenant_id, status_id=deal_status.pk
         )

@@ -45,10 +45,7 @@ class Command(BaseCommand):
             help='If the tenant should be truncated. Only makes sense when using existing tenant.'
         )
         parser.add_argument(
-            '--verbose',
-            dest='verbose',
-            action='store_true',
-            help='If extra output should be printed.'
+            '--verbose', dest='verbose', action='store_true', help='If extra output should be printed.'
         )
 
     def clean_phone(self, phone):
@@ -92,8 +89,7 @@ class Command(BaseCommand):
         if options['truncate']:
             print "Warning, truncating tenant %s in a few seconds.." % tenant
             time.sleep(5)
-            for model in [Deal, Case, Website, PhoneNumber, SocialMedia, Tag, EmailAddress, Address,
-                          Account, Contact]:
+            for model in [Deal, Case, Website, PhoneNumber, SocialMedia, Tag, EmailAddress, Address, Account, Contact]:
                 model.objects.filter(tenant=tenant).delete()
 
         accounts = {}
@@ -130,13 +126,17 @@ class Command(BaseCommand):
 
                 if skype:
                     social_media = SocialMedia.objects.get_or_create(
-                        tenant=tenant, name='other', other_name='skype', username=skype)[0]
+                        tenant=tenant, name='other', other_name='skype', username=skype
+                    )[0]
                     account_instance.social_media.add(social_media)
 
                 if twitter:
                     social_media = SocialMedia.objects.get_or_create(
-                        tenant=tenant, name='twitter', username=twitter,
-                        profile_url='https://twitter.com/%s' % twitter)[0]
+                        tenant=tenant,
+                        name='twitter',
+                        username=twitter,
+                        profile_url='https://twitter.com/%s' % twitter
+                    )[0]
                     account_instance.social_media.add(social_media)
 
                 for tag in tags:
@@ -144,7 +144,8 @@ class Command(BaseCommand):
                         content_type = ContentType.objects.get_for_model(Account)
                         object_id = account_instance.id
                         Tag.objects.get_or_create(
-                            tenant=tenant, content_type=content_type, object_id=object_id, name=tag)
+                            tenant=tenant, content_type=content_type, object_id=object_id, name=tag
+                        )
 
                 if work_url:
                     if not (work_url.startswith('http://') or work_url.startswith('https://')):
@@ -160,20 +161,25 @@ class Command(BaseCommand):
                                 print 'found country %s' % country
                             country_code = code
                     address_instance = Address.objects.get_or_create(
-                        tenant=tenant, street=street, postal_code=zipcode, state_province=state,
-                        city=city, country=country_code)[0]
+                        tenant=tenant,
+                        street=street,
+                        postal_code=zipcode,
+                        state_province=state,
+                        city=city,
+                        country=country_code
+                    )[0]
                     account_instance.addresses.add(address_instance)
 
                 for number, number_type in [(mobile_phone, 'mobile'), (work_phone, 'work'), (fax_phone, 'fax')]:
                     if number:
                         number = self.clean_phone(number)
-                        phone = PhoneNumber.objects.get_or_create(
-                            tenant=tenant, type=number_type, number=number)[0]
+                        phone = PhoneNumber.objects.get_or_create(tenant=tenant, type=number_type, number=number)[0]
                         account_instance.phone_numbers.add(phone)
 
                 if primary_email:
                     email = EmailAddress.objects.get_or_create(
-                        tenant=tenant, email_address=primary_email, status=EmailAddress.PRIMARY_STATUS)[0]
+                        tenant=tenant, email_address=primary_email, status=EmailAddress.PRIMARY_STATUS
+                    )[0]
                     account_instance.email_addresses.add(email)
 
                 account_instance.save()
@@ -238,8 +244,8 @@ class Command(BaseCommand):
                         if not (website.startswith('http://') or website.startswith('https://')):
                             website = 'http://%s' % website
                         social_media = SocialMedia.objects.get_or_create(
-                            tenant=tenant, name='other', username=website,
-                            profile_url=website)[0]
+                            tenant=tenant, name='other', username=website, profile_url=website
+                        )[0]
                         contact_instance.social_media.add(social_media)
 
                 for address in addresses:
@@ -252,40 +258,52 @@ class Command(BaseCommand):
                                     print 'found country %s' % country
                                 country_code = code
                         address_instance = Address.objects.get_or_create(
-                            tenant=tenant, street=street, postal_code=zipcode, state_province=state,
-                            city=city, country=country_code)[0]
+                            tenant=tenant,
+                            street=street,
+                            postal_code=zipcode,
+                            state_province=state,
+                            city=city,
+                            country=country_code
+                        )[0]
                         contact_instance.addresses.add(address_instance)
 
                 if skype:
                     social_media = SocialMedia.objects.get_or_create(
-                        tenant=tenant, name='other', other_name='skype', username=skype)[0]
+                        tenant=tenant, name='other', other_name='skype', username=skype
+                    )[0]
                     contact_instance.social_media.add(social_media)
 
                 if linkedin:
                     social_media = SocialMedia.objects.get_or_create(
-                        tenant=tenant, name='linkedin', username=linkedin,
-                        profile_url=linkedin)[0]
+                        tenant=tenant, name='linkedin', username=linkedin, profile_url=linkedin
+                    )[0]
                     contact_instance.social_media.add(social_media)
 
                 if gplus:
                     social_media = SocialMedia.objects.get_or_create(
-                        tenant=tenant, name='googleplus', username=gplus,
-                        profile_url=gplus)[0]
+                        tenant=tenant, name='googleplus', username=gplus, profile_url=gplus
+                    )[0]
                     contact_instance.social_media.add(social_media)
 
                 if facebook:
                     start_username = facebook.rfind('/') + 1
                     facebook = facebook[start_username:]
                     social_media = SocialMedia.objects.get_or_create(
-                        tenant=tenant, name='facebook', username=facebook,
-                        profile_url='https://facebook.com/%s' % facebook)[0]
+                        tenant=tenant,
+                        name='facebook',
+                        username=facebook,
+                        profile_url='https://facebook.com/%s' % facebook
+                    )[0]
                     contact_instance.social_media.add(social_media)
 
                 for twitter in twitters:
                     if twitter:
                         social_media = SocialMedia.objects.get_or_create(
-                            tenant=tenant, name='twitter', username=twitter,
-                            profile_url='https://twitter.com/%s' % twitter)[0]
+                            tenant=tenant,
+                            name='twitter',
+                            username=twitter,
+                            profile_url='https://twitter.com/%s' % twitter
+                        )[0]
                         contact_instance.social_media.add(social_media)
 
                 first_added = False
@@ -296,18 +314,17 @@ class Command(BaseCommand):
                         else:
                             email_status = EmailAddress.PRIMARY_STATUS
                         email = EmailAddress.objects.get_or_create(
-                            tenant=tenant, email_address=email_address, status=email_status)[0]
+                            tenant=tenant, email_address=email_address, status=email_status
+                        )[0]
                         contact_instance.email_addresses.add(email)
                         first_added = True
 
-                for number, number_type in [
-                    (mobile_phone, 'mobile'), (work_phone, 'work'), (fax_phone, 'fax'), (work2_phone, 'work'),
-                    (work3_phone, 'work'), (work4_phone, 'work'), (other_phone, 'other'), (home_phone, 'home')
-                ]:
+                for number, number_type in [(mobile_phone, 'mobile'), (work_phone, 'work'), (fax_phone, 'fax'),
+                                            (work2_phone, 'work'), (work3_phone, 'work'), (work4_phone, 'work'),
+                                            (other_phone, 'other'), (home_phone, 'home')]:
                     if number:
                         number = self.clean_phone(number)
-                        phone = PhoneNumber.objects.get_or_create(
-                            tenant=tenant, type=number_type, number=number)[0]
+                        phone = PhoneNumber.objects.get_or_create(tenant=tenant, type=number_type, number=number)[0]
                         contact_instance.phone_numbers.add(phone)
 
                 if account_instance:

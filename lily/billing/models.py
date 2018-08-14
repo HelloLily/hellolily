@@ -74,11 +74,13 @@ class Billing(models.Model):
 
             if amount >= 1:
                 # Update the amount of users for the subscription.
-                chargebee.Subscription.update(subscription.id, {
-                    'plan_quantity': amount,
-                    'prorate': True,
-                    'invoice_immediately': False,
-                })
+                chargebee.Subscription.update(
+                    subscription.id, {
+                        'plan_quantity': amount,
+                        'prorate': True,
+                        'invoice_immediately': False,
+                    }
+                )
 
             return True
 

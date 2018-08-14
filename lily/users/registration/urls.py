@@ -5,7 +5,6 @@ from .views import (
     RegisterEmailAccountSetupView, RegisterEmailAccountDetailsView, RegisterDoneView, AcceptInvitationView
 )
 
-
 # Define the view flow for registration.
 registration_flow = (
     RegisterAuthView,
@@ -15,7 +14,6 @@ registration_flow = (
     RegisterEmailAccountDetailsView,
     RegisterDoneView,
 )
-
 
 # Loop over the steps in the registration flow and create a Django RegexURLPattern for each step.
 registration_steps = [
@@ -29,15 +27,10 @@ registration_steps = [
     ) for step_number, step_view in enumerate(registration_flow, start=1)
 ]
 
-
 # Actually register the urls to Django.
 urlpatterns = [
-    url(
-        regex=r'^$',
-        view=RegisterRedirectView.as_view(),
-        name='register'
-    ),
-    url(
+    url(regex=r'^$', view=RegisterRedirectView.as_view(), name='register'),
+    url(  # yapf: disable
         regex=r'^invitation/accept/(?P<first_name>.+)/(?P<email>.+)/(?P<tenant_id>[0-9]+)-(?P<date>[0-9]+)-(?P<hash>.+)/$',  # noqa
         view=AcceptInvitationView.as_view(),
         name='invitation_accept',

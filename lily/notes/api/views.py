@@ -5,11 +5,10 @@ from lily.notes.api.serializers import NoteSerializer
 from lily.notes.models import Note
 
 
-class NoteViewSet(mixins.CreateModelMixin,
-                  mixins.RetrieveModelMixin,
-                  mixins.UpdateModelMixin,
-                  mixins.DestroyModelMixin,
-                  GenericViewSet):
+class NoteViewSet(
+    mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin,
+    GenericViewSet
+):
     """
     Notes can be used to store information in the activity stream of an object.
 

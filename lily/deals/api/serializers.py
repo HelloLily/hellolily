@@ -25,6 +25,7 @@ class DealNextStepSerializer(serializers.ModelSerializer):
     """
     Serializer for deal next step model.
     """
+
     class Meta:
         model = DealNextStep
         fields = (
@@ -43,6 +44,7 @@ class DealWhyCustomerSerializer(serializers.ModelSerializer):
     """
     Serializer for deal why customer model.
     """
+
     class Meta:
         model = DealWhyCustomer
         fields = (
@@ -60,6 +62,7 @@ class DealWhyLostSerializer(serializers.ModelSerializer):
     """
     Serializer for deal why lost model.
     """
+
     class Meta:
         model = DealWhyLost
         fields = (
@@ -77,6 +80,7 @@ class DealFoundThroughSerializer(serializers.ModelSerializer):
     """
     Serializer for deal found through model.
     """
+
     class Meta:
         model = DealFoundThrough
         fields = (
@@ -94,6 +98,7 @@ class DealContactedBySerializer(serializers.ModelSerializer):
     """
     Serializer for deal contacted by model.
     """
+
     class Meta:
         model = DealContactedBy
         fields = (
@@ -111,6 +116,7 @@ class DealStatusSerializer(serializers.ModelSerializer):
     """
     Serializer for deal status model.
     """
+
     class Meta:
         model = DealStatus
         fields = (
@@ -136,9 +142,7 @@ class DealSerializer(WritableNestedSerializer):
     )
 
     # Custom fields.
-    description = SanitizedHtmlCharField(
-        help_text='Any extra text to describe the deal (supports Markdown).',
-    )
+    description = SanitizedHtmlCharField(help_text='Any extra text to describe the deal (supports Markdown).', )
 
     # Related fields.
     account = RelatedAccountSerializer(
@@ -359,8 +363,9 @@ class DealSerializer(WritableNestedSerializer):
                 'newly_assigned': False,
             })
 
-        if (('status' in validated_data and status.name == 'Open') or
-                ('is_archived' in validated_data and not validated_data.get('is_archived'))):
+        deal_status_open = 'status' in validated_data and status.name == 'Open'
+        deal_is_unarchived = 'is_archived' in validated_data and not validated_data.get('is_archived')
+        if deal_status_open and deal_is_unarchived:
             # Deal is reopened or unarchived, so we want to notify the user again.
             validated_data.update({
                 'newly_assigned': True,
@@ -393,10 +398,10 @@ class DealSerializer(WritableNestedSerializer):
                 }),
             })
 
-        if (not instance.assigned_to_id or
-                instance.assigned_to_id and
-                'assigned_to' in validated_data and
-                not validated_data.get('assigned_to')):
+        if (
+            not instance.assigned_to_id or
+            instance.assigned_to_id and 'assigned_to' in validated_data and not validated_data.get('assigned_to')
+        ):
             Group('tenant-%s' % user.tenant.id).send({
                 'text': anyjson.serialize({
                     'event': 'deal-unassigned',

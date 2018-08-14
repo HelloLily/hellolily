@@ -10,7 +10,6 @@ import dj_database_url
 import raven
 from django.conf import global_settings
 
-
 #######################################################################################################################
 # MISCELLANEOUS SETTINGS                                                                                              #
 #######################################################################################################################
@@ -59,12 +58,9 @@ MANAGERS = ADMINS
 ROOT_URLCONF = 'lily.urls'
 
 # Database connection settings
-DATABASES = {
-    'default': dj_database_url.config(default='postgres://localhost')
-}
+DATABASES = {'default': dj_database_url.config(default='postgres://localhost')}
 
 SITE_ID = os.environ.get('SITE_ID', 1)
-
 
 #######################################################################################################################
 # REDIS CONFIG                                                                                                        #
@@ -178,13 +174,12 @@ LILYUSER_PICTURE_MAX_SIZE = os.environ.get('MAX_AVATAR_SIZE', 300 * 1024)
 
 EMAIL_ATTACHMENT_UPLOAD_TO = 'messaging/email/attachments/%(tenant_id)d/%(message_id)d/%(filename)s'
 
-EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO = ('messaging/email/templates/attachments'
-                                       '/%(tenant_id)d/%(template_id)d/%(filename)s')
-
-
-STATICFILES_DIRS = (
-    local_path('static/'),
+EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO = (
+    'messaging/email/templates/attachments'
+    '/%(tenant_id)d/%(template_id)d/%(filename)s'
 )
+
+STATICFILES_DIRS = (local_path('static/'), )
 
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
@@ -268,11 +263,10 @@ MIDDLEWARE_CLASSES = (
 #######################################################################################################################
 TEMPLATES = [{
     'BACKEND': 'django.template.backends.django.DjangoTemplates',
-    'DIRS': [
-        local_path('templates/'),
-    ],
+    'DIRS': [local_path('templates/'), ],
     'OPTIONS': {
-        'debug': DEBUG,
+        'debug':
+            DEBUG,
         'context_processors': [
             'django.contrib.auth.context_processors.auth',
             'django.template.context_processors.debug',
@@ -282,12 +276,12 @@ TEMPLATES = [{
             # 'django.template.context_processors.tz',
             'django.contrib.messages.context_processors.messages',
         ],
-        'loaders': [
-            ('django.template.loaders.cached.Loader', [
+        'loaders': [(
+            'django.template.loaders.cached.Loader', [
                 'django.template.loaders.filesystem.Loader',
                 'django.template.loaders.app_directories.Loader',
-            ]),
-        ],
+            ]
+        ), ],
     },
 }]
 
@@ -515,11 +509,7 @@ logging.config.dictConfig(LOGGING)
 #######################################################################################################################
 
 if DEBUG:
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-        }
-    }
+    CACHES = {'default': {'BACKEND': 'django.core.cache.backends.dummy.DummyCache', }}
 else:
     CACHES = {
         'default': {
@@ -578,10 +568,12 @@ def es_url_to_dict(url):
     parse = urlparse(url)
     port = parse.port if parse.port else (80 if parse.scheme == 'http' else 443)
     use_ssl = port is 443
-    host = {'host': parse.hostname,
-            'port': port,
-            'use_ssl': use_ssl,
-            'http_auth': '%s:%s' % (parse.username, parse.password)}
+    host = {
+        'host': parse.hostname,
+        'port': port,
+        'use_ssl': use_ssl,
+        'http_auth': '%s:%s' % (parse.username, parse.password)
+    }
     return tuple(sorted(host.items()))
 
 
@@ -628,8 +620,9 @@ GMAIL_LABEL_SENT = os.environ.get('GMAIL_LABEL_SENT', 'SENT')
 GMAIL_LABEL_DRAFT = os.environ.get('GMAIL_LABEL_DRAFT', 'DRAFT')
 GMAIL_LABEL_CHAT = os.environ.get('GMAIL_LABEL_CHAT', 'CHAT')
 GMAIL_LABEL_PERSONAL = os.environ.get('GMAIL_LABEL_PERSONAL', 'CATEGORY_PERSONAL')
-GMAIL_LABELS_DONT_MANIPULATE = [GMAIL_LABEL_UNREAD, GMAIL_LABEL_STAR, GMAIL_LABEL_IMPORTANT, GMAIL_LABEL_SENT,
-                                GMAIL_LABEL_DRAFT, GMAIL_LABEL_CHAT]
+GMAIL_LABELS_DONT_MANIPULATE = [
+    GMAIL_LABEL_UNREAD, GMAIL_LABEL_STAR, GMAIL_LABEL_IMPORTANT, GMAIL_LABEL_SENT, GMAIL_LABEL_DRAFT, GMAIL_LABEL_CHAT
+]
 MAX_SYNC_FAILURES = 3
 
 #######################################################################################################################
@@ -638,9 +631,7 @@ MAX_SYNC_FAILURES = 3
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-    ],
+    'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.IsAuthenticated', ],
     'DEFAULT_AUTHENTICATION_CLASSES': (
         # Authenticate with multiple classes and set the tenant user afterwards.
         # If you want to add another authentication option, do it in this class instead of here.
@@ -650,9 +641,12 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.JSONParser',
         'rest_framework.parsers.MultiPartParser',
     ),
-    'DEFAULT_METADATA_CLASS': 'lily.api.drf_extensions.metadata.CustomMetaData',
-    'TEST_REQUEST_DEFAULT_FORMAT': 'json',  # Use application/json instead of multipart/form-data requests in tests.
-    'DEFAULT_PAGINATION_CLASS': 'lily.api.drf_extensions.pagination.CustomPagination',
+    'DEFAULT_METADATA_CLASS':
+        'lily.api.drf_extensions.metadata.CustomMetaData',
+    'TEST_REQUEST_DEFAULT_FORMAT':
+        'json',  # Use application/json instead of multipart/form-data requests in tests.
+    'DEFAULT_PAGINATION_CLASS':
+        'lily.api.drf_extensions.pagination.CustomPagination',
 }
 
 #######################################################################################################################

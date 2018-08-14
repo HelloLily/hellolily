@@ -19,12 +19,16 @@ class NoteMapping(BaseMapping):
             'author': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'full_name': {
                         'type': 'string',
                         'analyzer': 'normal_edge_analyzer',
                     },
-                    'profile_picture': {'type': 'string'},
+                    'profile_picture': {
+                        'type': 'string'
+                    },
                 },
             },
             'content': {
@@ -64,8 +68,7 @@ class NoteMapping(BaseMapping):
         """
         Maps related models, how to get an instance list from a signal sender.
         """
-        return {
-        }
+        return {}
 
     @classmethod
     def prepare_batch(cls, queryset):

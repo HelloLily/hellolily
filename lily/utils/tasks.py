@@ -3,7 +3,6 @@ import logging
 from celery.task import task
 from django.core.management import call_command
 
-
 logger = logging.getLogger(__name__)
 
 

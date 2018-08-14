@@ -46,28 +46,40 @@ CELERY_QUEUES = (
     Queue('other_tasks', routing_key='other_tasks'),
 )
 CELERY_ROUTES = (
-    {'synchronize_email_account_scheduler': {
-        'queue': 'email_scheduled_tasks'
-    }},
-    {'incremental_synchronize_email_account': {
-        'queue': 'email_scheduled_tasks'
-    }},
-    {'full_synchronize_email_account': {
-        # Task created by this task, will be routed to queue3.
-        'queue': 'email_scheduled_tasks'
-    }},
-    {'download_email_message': {
-        # When task is created in first sync, this task will be routed to email_first_sync.
-        'queue': 'email_scheduled_tasks'
-    }},
-    {'update_labels_for_message': {
-        # When task is created in first sync, this task will be routed to email_first_sync.
-        'queue': 'email_scheduled_tasks'
-    }},
-    {'migrate_email_messages': {
-        # Temporary main task to migrate all the email messages in batches.
-        'queue': 'other_tasks'
-    }},
+    {
+        'synchronize_email_account_scheduler': {
+            'queue': 'email_scheduled_tasks'
+        }
+    },
+    {
+        'incremental_synchronize_email_account': {
+            'queue': 'email_scheduled_tasks'
+        }
+    },
+    {
+        'full_synchronize_email_account': {
+            # Task created by this task, will be routed to queue3.
+            'queue': 'email_scheduled_tasks'
+        }
+    },
+    {
+        'download_email_message': {
+            # When task is created in first sync, this task will be routed to email_first_sync.
+            'queue': 'email_scheduled_tasks'
+        }
+    },
+    {
+        'update_labels_for_message': {
+            # When task is created in first sync, this task will be routed to email_first_sync.
+            'queue': 'email_scheduled_tasks'
+        }
+    },
+    {
+        'migrate_email_messages': {
+            # Temporary main task to migrate all the email messages in batches.
+            'queue': 'other_tasks'
+        }
+    },
 )
 CELERYBEAT_SCHEDULE = {
     'synchronize_email_account_scheduler': {

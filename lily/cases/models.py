@@ -51,10 +51,12 @@ class Case(TenantMixin, TaggedObjectMixin, DeletedMixin, ArchivedMixin):
     type = models.ForeignKey(CaseType, related_name='cases')
 
     assigned_to_teams = models.ManyToManyField(Team, related_name='assigned_to_teams', blank=True)
-    assigned_to = models.ForeignKey(LilyUser, related_name='assigned_cases', null=True, blank=True,
-                                    on_delete=models.SET_NULL)
-    created_by = models.ForeignKey(LilyUser, related_name='created_cases', null=True, blank=True,
-                                   on_delete=models.SET_NULL)
+    assigned_to = models.ForeignKey(
+        LilyUser, related_name='assigned_cases', null=True, blank=True, on_delete=models.SET_NULL
+    )
+    created_by = models.ForeignKey(
+        LilyUser, related_name='created_cases', null=True, blank=True, on_delete=models.SET_NULL
+    )
 
     account = models.ForeignKey(Account, null=True, blank=True, on_delete=models.SET_NULL)
     contact = models.ForeignKey(Contact, null=True, blank=True, on_delete=models.SET_NULL)

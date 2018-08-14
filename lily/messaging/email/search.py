@@ -21,7 +21,9 @@ class EmailMessageMapping(BaseMapping):
             'account': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'name': {
                         'type': 'string',
                         'index_analyzer': 'normal_edge_analyzer',
@@ -30,7 +32,9 @@ class EmailMessageMapping(BaseMapping):
                         'type': 'string',
                         'analyzer': 'email_analyzer',
                     },
-                    'privacy': {'type': 'integer'},
+                    'privacy': {
+                        'type': 'integer'
+                    },
                 }
             },
             'label_id': {
@@ -128,9 +132,7 @@ class EmailMessageMapping(BaseMapping):
             'received_by_cc',
             'labels',
             'account',
-        ).select_related(
-            'sender',
-        )
+        ).select_related('sender', )
 
     @classmethod
     def obj_to_doc(cls, obj):

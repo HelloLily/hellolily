@@ -34,7 +34,14 @@ class PhoneNumberSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PhoneNumber
-        fields = ('id', 'status_name', 'number', 'type', 'other_type', 'status',)
+        fields = (
+            'id',
+            'status_name',
+            'number',
+            'type',
+            'other_type',
+            'status',
+        )
 
 
 class RelatedPhoneNumberSerializer(RelatedSerializerMixin, PhoneNumberSerializer):
@@ -76,7 +83,12 @@ class EmailAddressSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = EmailAddress
-        fields = ('id', 'email_address', 'status', 'status_name', )
+        fields = (
+            'id',
+            'email_address',
+            'status',
+            'status_name',
+        )
 
 
 class RelatedEmailAddressSerializer(RelatedSerializerMixin, EmailAddressSerializer):
@@ -90,8 +102,9 @@ class TagSerializer(serializers.ModelSerializer):
     """
     Serializer used to serialize tags.
     """
-    content_type = serializers.PrimaryKeyRelatedField(queryset=ContentType.objects.filter(model__in=TAGABLE_MODELS),
-                                                      write_only=True)
+    content_type = serializers.PrimaryKeyRelatedField(
+        queryset=ContentType.objects.filter(model__in=TAGABLE_MODELS), write_only=True
+    )
     object_id = serializers.IntegerField(write_only=True)
 
     def validate_name(self, value):
@@ -99,7 +112,13 @@ class TagSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tag
-        fields = ('id', 'name', 'content_type', 'object_id', 'last_used', )
+        fields = (
+            'id',
+            'name',
+            'content_type',
+            'object_id',
+            'last_used',
+        )
 
 
 class RelatedTagSerializer(RelatedSerializerMixin, TagSerializer):
@@ -112,7 +131,13 @@ class RelatedTagSerializer(RelatedSerializerMixin, TagSerializer):
 
     class Meta:
         model = Tag
-        fields = ('id', 'name', 'content_type', 'object_id', 'last_used', )
+        fields = (
+            'id',
+            'name',
+            'content_type',
+            'object_id',
+            'last_used',
+        )
 
 
 class ExternalAppLinkSerializer(serializers.ModelSerializer):

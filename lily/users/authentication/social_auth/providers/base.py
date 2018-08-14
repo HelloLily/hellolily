@@ -12,10 +12,7 @@ class BaseAuthProvider(object):
                 extension = response.headers.get('Content-Type', '/').split('/')[-1]
 
                 if extension:
-                    picture = ContentFile(
-                        content=response.content,
-                        name='profile-picture.{}'.format(extension)
-                    )
+                    picture = ContentFile(content=response.content, name='profile-picture.{}'.format(extension))
 
         return picture
 

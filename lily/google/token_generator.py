@@ -13,14 +13,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Helper methods for creating & verifying XSRF tokens."""
 
 __authors__ = [
     '"Doug Coker" <dcoker@google.com>',
     '"Joe Gregorio" <jcgregorio@google.com>',
-    ]
-
+]
 
 import base64
 import hmac
@@ -28,12 +26,11 @@ import time
 
 from oauth2client import util
 
-
 # Delimiter character
 DELIMITER = ':'
 
 # 1 hour in seconds
-DEFAULT_TIMEOUT_SECS = 1*60*60
+DEFAULT_TIMEOUT_SECS = 1 * 60 * 60
 
 
 @util.positional(2)
@@ -60,9 +57,7 @@ def generate_token(key, user_id, action_id="", when=None):
     digester.update(str(when))
     digest = digester.digest()
 
-    token = base64.urlsafe_b64encode('%s%s%d' % (digest,
-                                                 DELIMITER,
-                                                 when))
+    token = base64.urlsafe_b64encode('%s%s%d' % (digest, DELIMITER, when))
     return token
 
 
@@ -98,8 +93,7 @@ def validate_token(key, token, user_id, action_id="", current_time=None):
         return False
 
     # The given token should match the generated one with the same time.
-    expected_token = generate_token(key, user_id, action_id=action_id,
-                                    when=token_time)
+    expected_token = generate_token(key, user_id, action_id=action_id, when=token_time)
     if len(token) != len(expected_token):
         return False
 

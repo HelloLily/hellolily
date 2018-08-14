@@ -22,7 +22,6 @@ from lily.utils.functions import has_required_tier
 from ..forms import SugarCsvImportForm
 from ..tasks import import_sugar_csv
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -37,12 +36,14 @@ class SugarCsvImportView(LoginRequiredMixin, FormView):
 
         sugar_import = form.cleaned_data.get('sugar_import')
 
-        import_sugar_csv.apply_async(args=(
-            form.cleaned_data.get('model'),
-            path,
-            self.request.user.tenant_id,
-            sugar_import,
-        ))
+        import_sugar_csv.apply_async(
+            args=(
+                form.cleaned_data.get('model'),
+                path,
+                self.request.user.tenant_id,
+                sugar_import,
+            )
+        )
 
         messages.info(self.request, _('Import started, you should see results in de appropriate list'))
 
@@ -119,10 +120,7 @@ class RedirectAccountContactView(LoginRequiredMixin, RedirectView):
     permanent = False
 
     def get_redirect_url(self, *args, **kwargs):
-        phone_nr_list = PhoneNumber.objects.filter(
-            number=kwargs.get('phone_nr'),
-            status=PhoneNumber.ACTIVE_STATUS
-        )
+        phone_nr_list = PhoneNumber.objects.filter(number=kwargs.get('phone_nr'), status=PhoneNumber.ACTIVE_STATUS)
 
         for phone_nr in phone_nr_list:
             account = phone_nr.account_set.filter(tenant=self.request.user.tenant).first()

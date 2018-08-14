@@ -11,7 +11,6 @@ from django.core.management.base import BaseCommand
 from lily.billing.models import BillingInvoice
 from lily.tenant.models import Tenant
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -28,14 +27,13 @@ class Command(BaseCommand):
             # Not all columns` have to be filled in, but Twinfield does require all columns to be present.
             twinfield_colums = [
                 'code', 'name', 'website', 'defaultaddress', 'addresstype', 'Companyname', 'Attentionof',
-                'addressline1', 'addressline2', 'postcode', 'City', 'country', 'telephone', 'fax', 'VATno',
-                'CoRegno', 'emailaddress', 'collection', 'collectioncode', 'mandateinfo', 'firstcollection',
-                'signaturedate', 'defaultbank', 'Accountholder', 'accountnumber', 'IBAN', 'BICcode',
-                'NationalBankID', 'Bankname', 'bankaddress', 'bankaddressnumber', 'bankpostalcode',
-                'banklocation', 'bankstate', 'Reference', 'bankcountry', 'duedays', 'ebilling',
-                'ebillingemailadress', 'generalledgeraccount', 'creditlimit', 'creditmanager', 'blocked',
-                'authorised', 'segmentcode', 'remind', 'reminderemailaddress', 'comment', 'discountitem',
-                'Sendtype', 'Emailaddress'
+                'addressline1', 'addressline2', 'postcode', 'City', 'country', 'telephone', 'fax', 'VATno', 'CoRegno',
+                'emailaddress', 'collection', 'collectioncode', 'mandateinfo', 'firstcollection', 'signaturedate',
+                'defaultbank', 'Accountholder', 'accountnumber', 'IBAN', 'BICcode', 'NationalBankID', 'Bankname',
+                'bankaddress', 'bankaddressnumber', 'bankpostalcode', 'banklocation', 'bankstate', 'Reference',
+                'bankcountry', 'duedays', 'ebilling', 'ebillingemailadress', 'generalledgeraccount', 'creditlimit',
+                'creditmanager', 'blocked', 'authorised', 'segmentcode', 'remind', 'reminderemailaddress', 'comment',
+                'discountitem', 'Sendtype', 'Emailaddress'
             ]
 
             writer = csv.writer(csvfile, delimiter=';')
@@ -117,8 +115,8 @@ class Command(BaseCommand):
             ]
 
             eu_countries = [
-                'BE', 'BG', 'CZ', 'DK', 'DE', 'EE', 'IE', 'EL', 'ES', 'FR', 'HR', 'IT', 'CY', 'LV',
-                'LT', 'LU', 'HU', 'MT', 'NL', 'AT', 'PL', 'PT', 'RO', 'SI', 'SK', 'FI', 'SE', 'UK'
+                'BE', 'BG', 'CZ', 'DK', 'DE', 'EE', 'IE', 'EL', 'ES', 'FR', 'HR', 'IT', 'CY', 'LV', 'LT', 'LU', 'HU',
+                'MT', 'NL', 'AT', 'PL', 'PT', 'RO', 'SI', 'SK', 'FI', 'SE', 'UK'
             ]
 
             writer = csv.writer(csvfile, delimiter=';')

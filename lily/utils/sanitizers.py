@@ -32,6 +32,7 @@ class HtmlSanitizer(object):
     """
     Interface class for bleach. Making it easier to work with by setting project defaults.
     """
+
     def __init__(self, html):
         self.html = html
 

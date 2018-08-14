@@ -11,9 +11,7 @@ class TenantAdmin(admin.ModelAdmin):
         'name',
         'country',
     )
-    search_fields = (
-        'name',
-    )
+    search_fields = ('name', )
 
 
 class TenantFilteredChoicesMixin(object):

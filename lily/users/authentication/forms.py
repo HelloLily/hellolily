@@ -46,12 +46,10 @@ class CustomPasswordResetForm(PasswordResetForm):
     email = forms.EmailField(
         label=_('Email address'),
         max_length=255,
-        widget=forms.TextInput(
-            attrs={
-                'autofocus': True,
-                'placeholder': _('Email address'),
-            }
-        )
+        widget=forms.TextInput(attrs={
+            'autofocus': True,
+            'placeholder': _('Email address'),
+        })
     )
 
     def get_users(self, email):
@@ -61,11 +59,14 @@ class CustomPasswordResetForm(PasswordResetForm):
         })
         return (u for u in active_users)
 
-    def send_mail(self, subject_template_name, email_template_name,
-                  context, from_email, to_email, html_email_template_name=None):
+    def send_mail(
+        self, subject_template_name, email_template_name, context, from_email, to_email, html_email_template_name=None
+    ):
         send_templated_mail(
             template_name=email_template_name,
-            recipient_list=[to_email, ],
+            recipient_list=[
+                to_email,
+            ],
             context=context,
             from_email=settings.EMAIL_PERSONAL_HOST_USER,
             auth_user=settings.EMAIL_PERSONAL_HOST_USER,
@@ -80,6 +81,7 @@ class CustomSetPasswordForm(forms.Form):
     We don't want two password fields to match with each other, we want one that can display in plain text.
     LilyUser is used for validation instead of User.
     """
+
     def __init__(self, user, *args, **kwargs):
         self.user = user
         super(CustomSetPasswordForm, self).__init__(*args, **kwargs)

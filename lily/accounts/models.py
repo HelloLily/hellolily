@@ -54,10 +54,7 @@ class Account(Common, TaggedObjectMixin):
     flatname = models.CharField(max_length=255, blank=True)
     status = models.ForeignKey(AccountStatus, related_name='accounts')
     company_size = models.CharField(
-        max_length=15,
-        choices=ACCOUNT_SIZE_CHOICES,
-        verbose_name=_('company size'),
-        blank=True
+        max_length=15, choices=ACCOUNT_SIZE_CHOICES, verbose_name=_('company size'), blank=True
     )
     logo = models.ImageField(upload_to=get_account_logo_upload_path, blank=True)
     description = models.TextField(blank=True)

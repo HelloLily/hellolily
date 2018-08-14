@@ -61,7 +61,7 @@ class GmailConnector(object):
 
     def backoff(self, msg, attempt):
         if not settings.TESTING:  # Disable sleeping while running tests.
-            sleep_time = (2 ** attempt) + random.randint(0, 1000) / 1000
+            sleep_time = (2**attempt) + random.randint(0, 1000) / 1000
 
             logger.warning(msg.format(sleep_time))
 
@@ -95,14 +95,13 @@ class GmailConnector(object):
                     if error:
                         logger.error(
                             'Error occurred for account {}:\nservice call: {}\nerror: {}'.format(
-                                self.email_account,
-                                service.to_json(),
-                                error
+                                self.email_account, service.to_json(), error
                             )
                         )
 
-                    if error.get('code') == 403 and error.get('errors')[0].get('reason') in ['rateLimitExceeded',
-                                                                                             'userRateLimitExceeded']:
+                    if error.get('code') == 403 and error.get('errors')[0].get('reason') in [
+                        'rateLimitExceeded', 'userRateLimitExceeded'
+                    ]:
                         # Apply exponential backoff.
                         self.backoff(msg='Limit overrated, sleeping for %s seconds', attempt=n)
                     elif error.get('code') == 429:
@@ -164,22 +163,24 @@ class GmailConnector(object):
         Returns:
             list with messageIds and threadIds
         """
-        response = self.execute_service_call(self.gmail_service.service.users().history().list(
-            userId='me',
-            startHistoryId=self.history_id,
-            quotaUser=self.email_account.id,
-        ))
+        response = self.execute_service_call(
+            self.gmail_service.service.users().history().list(
+                userId='me',
+                startHistoryId=self.history_id,
+                quotaUser=self.email_account.id,
+            )
+        )
 
         history = response.get('history', [])
 
         # Check if there are more pages.
         while 'nextPageToken' in response:
             page_token = response.get('nextPageToken')
-            response = self.execute_service_call(self.gmail_service.service.users().history().list(
-                userId='me',
-                startHistoryId=self.history_id,
-                pageToken=page_token
-            ))
+            response = self.execute_service_call(
+                self.gmail_service.service.users().history().list(
+                    userId='me', startHistoryId=self.history_id, pageToken=page_token
+                )
+            )
 
             history.extend(response.get('history', []))
 
@@ -207,19 +208,22 @@ class GmailConnector(object):
                 userId='me',
                 quotaUser=self.email_account.id,
                 q='!in:chats',
-            ))
+            )
+        )
 
         messages = response['messages'] if 'messages' in response else []
 
         # Check if there are more pages.
         while 'nextPageToken' in response:
             page_token = response['nextPageToken']
-            response = self.execute_service_call(self.gmail_service.service.users().messages().list(
-                userId='me',
-                quotaUser=self.email_account.id,
-                pageToken=page_token,
-                q='!in:chats',
-            ))
+            response = self.execute_service_call(
+                self.gmail_service.service.users().messages().list(
+                    userId='me',
+                    quotaUser=self.email_account.id,
+                    pageToken=page_token,
+                    q='!in:chats',
+                )
+            )
             messages.extend(response.get('messages', []))
 
         if history_id > self.history_id:
@@ -238,11 +242,13 @@ class GmailConnector(object):
         Returns:
             dict with message info
         """
-        response = self.execute_service_call(self.gmail_service.service.users().messages().get(
-            userId='me',
-            id=message_id,
-            quotaUser=self.email_account.id,
-        ))
+        response = self.execute_service_call(
+            self.gmail_service.service.users().messages().get(
+                userId='me',
+                id=message_id,
+                quotaUser=self.email_account.id,
+            )
+        )
 
         return response
 
@@ -253,10 +259,12 @@ class GmailConnector(object):
         Returns:
             list with label info
         """
-        response = self.execute_service_call(self.gmail_service.service.users().labels().list(
-            userId='me',
-            quotaUser=self.email_account.id,
-        ))
+        response = self.execute_service_call(
+            self.gmail_service.service.users().labels().list(
+                userId='me',
+                quotaUser=self.email_account.id,
+            )
+        )
 
         return response['labels']
 
@@ -269,11 +277,13 @@ class GmailConnector(object):
 
         Return dict with label info
         """
-        response = self.execute_service_call(self.gmail_service.service.users().labels().get(
-            userId='me',
-            id=label_id,
-            quotaUser=self.email_account.id,
-        ))
+        response = self.execute_service_call(
+            self.gmail_service.service.users().labels().get(
+                userId='me',
+                id=label_id,
+                quotaUser=self.email_account.id,
+            )
+        )
         return response
 
     def get_short_message_info(self, message_id):
@@ -286,12 +296,14 @@ class GmailConnector(object):
         Returns:
             dict with message info, with threadId & labels
         """
-        response = self.execute_service_call(self.gmail_service.service.users().messages().get(
-            userId='me',
-            id=message_id,
-            fields='labelIds,threadId',
-            quotaUser=self.email_account.id,
-        ))
+        response = self.execute_service_call(
+            self.gmail_service.service.users().messages().get(
+                userId='me',
+                id=message_id,
+                fields='labelIds,threadId',
+                quotaUser=self.email_account.id,
+            )
+        )
         return response
 
     def save_history_id(self):
@@ -318,7 +330,8 @@ class GmailConnector(object):
                 messageId=message_id,
                 id=attachment_id,
                 quotaUser=self.email_account.id,
-            ))
+            )
+        )
         return response
 
     def update_labels(self, message_id, labels):
@@ -328,7 +341,8 @@ class GmailConnector(object):
                 id=message_id,
                 body=labels,
                 quotaUser=self.email_account.id,
-            ))
+            )
+        )
         return response
 
     def trash_email_message(self, message_id):
@@ -337,7 +351,8 @@ class GmailConnector(object):
                 userId='me',
                 id=message_id,
                 quotaUser=self.email_account.id,
-            ))
+            )
+        )
         return response
 
     def delete_email_message(self, message_id):
@@ -347,7 +362,8 @@ class GmailConnector(object):
                 userId='me',
                 id=message_id,
                 quotaUser=self.email_account.id,
-            ))
+            )
+        )
         return response
 
     def send_email_message(self, message_string, thread_id=None):
@@ -371,7 +387,8 @@ class GmailConnector(object):
                 body=message_dict,
                 media_body=media,
                 quotaUser=self.email_account.id,
-            ))
+            )
+        )
 
         return response
 
@@ -391,7 +408,8 @@ class GmailConnector(object):
                 userId='me',
                 media_body=media,
                 quotaUser=self.email_account.id,
-            ))
+            )
+        )
         return response
 
     def update_draft_email_message(self, message_string, draft_id):
@@ -411,7 +429,8 @@ class GmailConnector(object):
                 media_body=media,
                 id=draft_id,
                 quotaUser=self.email_account.id,
-            ))
+            )
+        )
         return response
 
     def delete_draft_email_message(self, message_id):
@@ -420,7 +439,8 @@ class GmailConnector(object):
                 userId='me',
                 id=message_id,
                 quotaUser=self.email_account.id,
-            ))
+            )
+        )
         return response
 
     def get_history_id(self):
@@ -428,7 +448,8 @@ class GmailConnector(object):
             self.gmail_service.service.users().getProfile(
                 userId='me',
                 fields='historyId',
-            ))
+            )
+        )
         return response
 
     def cleanup(self):

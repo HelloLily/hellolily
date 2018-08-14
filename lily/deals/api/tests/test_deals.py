@@ -72,8 +72,12 @@ class DealTests(GenericAPITestCase):
 
             if with_relations:
                 # If relations are needed, override them, because a dict is needed instead of an instance.
-                obj['tags'] = [TagFactory.stub().__dict__, ]
-                obj['notes'] = [NoteFactory.stub().__dict__, ]
+                obj['tags'] = [
+                    TagFactory.stub().__dict__,
+                ]
+                obj['notes'] = [
+                    NoteFactory.stub().__dict__,
+                ]
 
             object_list.append(obj)
 

@@ -26,7 +26,6 @@ class CallSerializer(serializers.ModelSerializer):
 
 
 class CallParticipantSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = CallParticipant
         fields = (

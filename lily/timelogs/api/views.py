@@ -27,7 +27,10 @@ class TimeLogViewSet(ModelViewSet):
     delete:
     Deletes the given time log.
     """
-    permission_classes = (IsAuthenticated, IsFeatureAvailable, )
+    permission_classes = (
+        IsAuthenticated,
+        IsFeatureAvailable,
+    )
     queryset = TimeLog.objects
     # Set the serializer class for this viewset.
     serializer_class = TimeLogSerializer

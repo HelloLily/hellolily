@@ -54,8 +54,9 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
         Test if the execute service call returns the content of the json file.
         """
         # Mock the http instance.
-        get_http_mock.return_value = HttpMock('lily/messaging/email/tests/data/all_message_id_list_single_page.json',
-                                              {'status': '200'})
+        get_http_mock.return_value = HttpMock(
+            'lily/messaging/email/tests/data/all_message_id_list_single_page.json', {'status': '200'}
+        )
 
         email_account = EmailAccount.objects.first()
 
@@ -67,7 +68,8 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
                 userId='me',
                 quotaUser=email_account.id,
                 q='!in:chats',
-            ))
+            )
+        )
 
         # Verify that the service call returned the correct json object.
         with open('lily/messaging/email/tests/data/all_message_id_list_single_page.json') as infile:
@@ -98,7 +100,8 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
                 userId='me',
                 quotaUser=email_account.id,
                 q='!in:chats',
-            ))
+            )
+        )
 
         # Verify that the service call returned the correct json object.
         with open('lily/messaging/email/tests/data/all_message_id_list_single_page.json') as infile:
@@ -134,7 +137,8 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
                     userId='me',
                     quotaUser=email_account.id,
                     q='!in:chats',
-                ))
+                )
+            )
             self.fail('FailedServiceCallException should have been raised.')
         except FailedServiceCallException:
             pass
@@ -158,7 +162,8 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
                     userId='me',
                     quotaUser=email_account.id,
                     q='!in:chats',
-                ))
+                )
+            )
             self.fail('HttpAccessTokenRefreshError should have been raised.')
         except HttpAccessTokenRefreshError:
             pass
@@ -188,8 +193,10 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
 
         # Verify that all messages are retrieved and that the history id is set correct,
         self.assertEqual(len(messages), 10, "{0} Messages found, it should be {1}.".format(len(messages), 10))
-        self.assertEqual(connector.history_id, u'8095',
-                         "History id {0} is incorrect, it should be {1}.".format(connector.history_id, u'8095'))
+        self.assertEqual(
+            connector.history_id, u'8095',
+            "History id {0} is incorrect, it should be {1}.".format(connector.history_id, u'8095')
+        )
 
     @patch.object(GmailService, '_get_http')
     def test_get_all_message_id_list_paged(self, get_http_mock):
@@ -216,8 +223,10 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
 
         # Verify that all messages are retrieved and that the history id is set correct,
         self.assertEqual(len(messages), 10, "{0} Messages found, it should be {1}.".format(len(messages), 10))
-        self.assertEqual(connector.history_id, u'8095',
-                         "History id {0} is incorrect, it should be {1}.".format(connector.history_id, 8095))
+        self.assertEqual(
+            connector.history_id, u'8095',
+            "History id {0} is incorrect, it should be {1}.".format(connector.history_id, 8095)
+        )
 
     @patch.object(GmailConnector, 'execute_service_call')
     def test_get_all_message_id_list_http_access_token_refresh_error(self, execute_service_call_mock):
@@ -270,8 +279,9 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
         """
         Test the GmailConnector in retrieving the info of a single email message.
         """
-        get_http_mock.return_value = HttpMock('lily/messaging/email/tests/data/get_message_info_15a6008a4baa65f3.json',
-                                              {'status': '200'})
+        get_http_mock.return_value = HttpMock(
+            'lily/messaging/email/tests/data/get_message_info_15a6008a4baa65f3.json', {'status': '200'}
+        )
 
         email_account = EmailAccount.objects.first()
 
@@ -291,8 +301,9 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
         """
         Test the GmailConnector in retrieving the info of a single label.
         """
-        get_http_mock.return_value = HttpMock('lily/messaging/email/tests/data/get_label_info_INBOX.json',
-                                              {'status': '200'})
+        get_http_mock.return_value = HttpMock(
+            'lily/messaging/email/tests/data/get_label_info_INBOX.json', {'status': '200'}
+        )
 
         email_account = EmailAccount.objects.first()
 
@@ -329,7 +340,8 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
         message_id = '15a6008a4baa65f3'
         get_http_mock.return_value = HttpMock(
             'lily/messaging/email/tests/data/get_short_message_info_{0}_archived.json'.format(message_id),
-            {'status': '200'})
+            {'status': '200'}
+        )
 
         email_account = EmailAccount.objects.first()
 
@@ -337,8 +349,8 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
         response = connector.get_short_message_info(message_id)
 
         # Verify that the service call returned the correct json object.
-        with open('lily/messaging/email/tests/data/get_short_message_info_{0}_archived.json'.format(
-                message_id)) as infile:
+        with open('lily/messaging/email/tests/data/get_short_message_info_{0}_archived.json'.format(message_id)
+                  ) as infile:
             json_obj = json.load(infile)
             self.assertEqual(response, json_obj)
 
@@ -347,8 +359,9 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
         """
         Test the GmailConnector in retrieving the history updates.
         """
-        get_http_mock.return_value = HttpMock('lily/messaging/email/tests/data/get_history_archived.json',
-                                              {'status': '200'})
+        get_http_mock.return_value = HttpMock(
+            'lily/messaging/email/tests/data/get_history_archived.json', {'status': '200'}
+        )
 
         email_account = EmailAccount.objects.first()
 
@@ -368,8 +381,9 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
         """
         Test the GmailConnector in saving the updated historty id to the email account.
         """
-        get_http_mock.return_value = HttpMock('lily/messaging/email/tests/data/get_history_archived.json',
-                                              {'status': '200'})
+        get_http_mock.return_value = HttpMock(
+            'lily/messaging/email/tests/data/get_history_archived.json', {'status': '200'}
+        )
 
         email_account = EmailAccount.objects.first()
 
@@ -405,8 +419,9 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
         """
         Test the GmailConnector on sending an email message.
         """
-        get_http_mock.return_value = HttpMock('lily/messaging/email/tests/data/send_email_message.json',
-                                              {'status': '200'})
+        get_http_mock.return_value = HttpMock(
+            'lily/messaging/email/tests/data/send_email_message.json', {'status': '200'}
+        )
 
         email_account = EmailAccount.objects.first()
         email_outbox_message = """Content-Type: multipart/related;
@@ -456,8 +471,9 @@ per inceptos himenaeos. Ut aliquet elit sed augue bibendum malesuada.</body></ht
         """
         message_id = '15af6279e8b72e9c'
 
-        get_http_mock.return_value = HttpMock('lily/messaging/email/tests/data/send_email_message_reply.json',
-                                              {'status': '200'})
+        get_http_mock.return_value = HttpMock(
+            'lily/messaging/email/tests/data/send_email_message_reply.json', {'status': '200'}
+        )
 
         email_account = EmailAccount.objects.first()
         email_outbox_message = """Content-Type: multipart/related;
@@ -508,7 +524,8 @@ per inceptos himenaeos. Ut aliquet elit sed augue bibendum malesuada.</body></ht
         message_id = '15af6279f554fd15'
 
         get_http_mock.return_value = HttpMock(
-            'lily/messaging/email/tests/data/trash_email_message_{0}.json'.format(message_id), {'status': '200'})
+            'lily/messaging/email/tests/data/trash_email_message_{0}.json'.format(message_id), {'status': '200'}
+        )
 
         email_account = EmailAccount.objects.first()
         connector = GmailConnector(email_account)

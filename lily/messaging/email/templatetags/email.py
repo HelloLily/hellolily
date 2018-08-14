@@ -12,7 +12,6 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from lily.messaging.email.utils import INBOX, SENT, DRAFTS, TRASH, SPAM
 
-
 register = template.Library()
 
 
@@ -102,10 +101,13 @@ def other_mailbox_folders(email_account, active_url):
         return other_folders_sorted
 
     def get_folder_html(folder_name, folder):
-        folder_url = reverse('messaging_email_account_folder', kwargs={
-            'account_id': email_account.id,
-            'folder': urllib.quote_plus(folder.get('full_name').encode('utf-8'))
-        })
+        folder_url = reverse(
+            'messaging_email_account_folder',
+            kwargs={
+                'account_id': email_account.id,
+                'folder': urllib.quote_plus(folder.get('full_name').encode('utf-8'))
+            }
+        )
         is_endpoint = is_active = urllib.unquote_plus(folder_url.encode('utf-8')) == urllib.unquote_plus(active_url)
 
         data_href = u'data-href="%(folder_url)s"' % {'folder_url': folder_url}

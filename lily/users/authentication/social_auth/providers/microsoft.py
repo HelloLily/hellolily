@@ -7,7 +7,10 @@ from .base import BaseAuthProvider
 class MicrosoftAuthProvider(BaseAuthProvider):
     client_id = settings.SOCIAL_AUTH_MICROSOFT_CLIENT_ID
     client_secret = settings.SOCIAL_AUTH_MICROSOFT_SECRET
-    scope = ['openid', 'User.Read', ]
+    scope = [
+        'openid',
+        'User.Read',
+    ]
     auth_uri = 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize'
     token_uri = 'https://login.microsoftonline.com/common/oauth2/v2.0/token'
     jwks_uri = 'https://login.microsoftonline.com/common/discovery/v2.0/keys'

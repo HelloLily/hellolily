@@ -10,7 +10,6 @@ from two_factor.views.utils import class_view_decorator
 
 from .forms import CustomPhoneNumberForm, CustomDeviceValidationForm
 
-
 FRONTEND_TWO_FACTOR_URL = '/#/preferences/user/security'
 
 
@@ -32,8 +31,7 @@ class TwoFactorSetupView(SetupView):
     def get(self, request, *args, **kwargs):
         if not request.user.has_usable_password():
             messages.error(
-                request,
-                'Cannot enable two factor auth now, please enable regular login by adding a password first.'
+                request, 'Cannot enable two factor auth now, please enable regular login by adding a password first.'
             )
             return redirect(self.success_url)
 

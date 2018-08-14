@@ -2,10 +2,9 @@ from django.conf.urls import url
 
 from .social_auth.helpers import SOCIAL_AUTH_PROVIDERS
 from .views import (
-    CustomLoginView, SocialAuthView, SocialAuthCallbackView, CustomLogoutView,
-    CustomPasswordResetView, CustomPasswordResetConfirmView
+    CustomLoginView, SocialAuthView, SocialAuthCallbackView, CustomLogoutView, CustomPasswordResetView,
+    CustomPasswordResetConfirmView
 )
-
 
 urlpatterns = [
     url(

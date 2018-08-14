@@ -29,10 +29,18 @@ class AccountMapping(BaseMapping):
                 'type': 'object',
                 'index': 'no',
                 'properties': {
-                    'address': {'type': 'string'},
-                    'postal_code': {'type': 'string'},
-                    'city': {'type': 'string'},
-                    'country': {'type': 'string'},
+                    'address': {
+                        'type': 'string'
+                    },
+                    'postal_code': {
+                        'type': 'string'
+                    },
+                    'city': {
+                        'type': 'string'
+                    },
+                    'country': {
+                        'type': 'string'
+                    },
                 },
             },
             'assigned_to': {
@@ -53,12 +61,16 @@ class AccountMapping(BaseMapping):
             'email_addresses': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'email_address': {
                         'type': 'string',
                         'analyzer': 'email_analyzer',
                     },
-                    'status': {'type': 'integer'},
+                    'status': {
+                        'type': 'integer'
+                    },
                 }
             },
             'modified': {
@@ -75,7 +87,9 @@ class AccountMapping(BaseMapping):
             'phone_numbers': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'number': {
                         'type': 'string',
                         'index_analyzer': 'normal_ngram_analyzer',
@@ -84,15 +98,23 @@ class AccountMapping(BaseMapping):
                         'type': 'string',
                         'index_analyzer': 'normal_ngram_analyzer',
                     },
-                    'type': {'type': 'string'},
-                    'status': {'type': 'integer'},
-                    'status_name': {'type': 'string'},
+                    'type': {
+                        'type': 'string'
+                    },
+                    'status': {
+                        'type': 'integer'
+                    },
+                    'status_name': {
+                        'type': 'string'
+                    },
                 }
             },
             'status': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'name': {
                         'type': 'string',
                         'index_analyzer': 'normal_edge_analyzer'
@@ -102,32 +124,46 @@ class AccountMapping(BaseMapping):
             'tags': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'name': {
                         'type': 'string',
                         'index_analyzer': 'normal_edge_analyzer',
                     },
-                    'object_id': {'type': 'integer'},
+                    'object_id': {
+                        'type': 'integer'
+                    },
                 },
             },
             'websites': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'website': {
                         'type': 'string',
                         'index': 'not_analyzed',
                     },
-                    'is_primary': {'type': 'boolean'},
+                    'is_primary': {
+                        'type': 'boolean'
+                    },
                 }
             },
             'social_media': {
                 'type': 'object',
                 'index': 'no',
                 'properties': {
-                    'name': {'type': 'string'},
-                    'profile_url': {'type': 'string'},
-                    'username': {'type': 'string'},
+                    'name': {
+                        'type': 'string'
+                    },
+                    'profile_url': {
+                        'type': 'string'
+                    },
+                    'username': {
+                        'type': 'string'
+                    },
                 },
             },
             'domain': {
@@ -187,20 +223,28 @@ class AccountMapping(BaseMapping):
                 'city': address.city,
                 'country': address.get_country_display() if address.country else None,
             } for address in obj.addresses.all()],
-            'assigned_to': obj.assigned_to.full_name if obj.assigned_to else None,
-            'content_type': obj.content_type.id,
-            'created': obj.created,
-            'customer_id': obj.customer_id,
-            'description': obj.description,
+            'assigned_to':
+                obj.assigned_to.full_name if obj.assigned_to else None,
+            'content_type':
+                obj.content_type.id,
+            'created':
+                obj.created,
+            'customer_id':
+                obj.customer_id,
+            'description':
+                obj.description,
             'email_addresses': [{
                 'id': email.id,
                 'email_address': email.email_address,
                 'status': email.status,
                 'is_active': email.is_active,
             } for email in obj.email_addresses.all()],
-            'modified': obj.modified,
-            'name': obj.name,
-            'name_words': obj.name,
+            'modified':
+                obj.modified,
+            'name':
+                obj.name,
+            'name_words':
+                obj.name,
             'phone_numbers': [{
                 'id': phone_number.id,
                 'number': phone_number.number,

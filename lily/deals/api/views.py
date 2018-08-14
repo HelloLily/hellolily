@@ -7,8 +7,10 @@ from rest_framework.viewsets import ModelViewSet
 from lily.api.filters import ElasticSearchFilter
 from lily.api.mixins import ModelChangesMixin, TimeLogMixin, DataExistsMixin
 
-from .serializers import (DealSerializer, DealNextStepSerializer, DealWhyCustomerSerializer, DealWhyLostSerializer,
-                          DealFoundThroughSerializer, DealContactedBySerializer, DealStatusSerializer)
+from .serializers import (
+    DealSerializer, DealNextStepSerializer, DealWhyCustomerSerializer, DealWhyLostSerializer,
+    DealFoundThroughSerializer, DealContactedBySerializer, DealStatusSerializer
+)
 from ..models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost, DealFoundThrough, DealContactedBy, DealStatus
 
 
@@ -118,21 +120,57 @@ class DealFilter(filters.FilterSet):
         model = Deal
         fields = {
             'account': ['exact', ],
-            'amount_once': ['exact', 'lt', 'lte', 'gt', 'gte', ],
-            'amount_recurring': ['exact', 'lt', 'lte', 'gt', 'gte', ],
+            'amount_once': [
+                'exact',
+                'lt',
+                'lte',
+                'gt',
+                'gte',
+            ],
+            'amount_recurring': [
+                'exact',
+                'lt',
+                'lte',
+                'gt',
+                'gte',
+            ],
             'assigned_to': ['exact', ],
             'card_sent': ['exact', ],
-            'closed_date': ['exact', 'lt', 'lte', 'gt', 'gte', ],
+            'closed_date': [
+                'exact',
+                'lt',
+                'lte',
+                'gt',
+                'gte',
+            ],
             'contacted_by': ['exact', ],
-            'created': ['exact', 'lt', 'lte', 'gt', 'gte', ],
+            'created': [
+                'exact',
+                'lt',
+                'lte',
+                'gt',
+                'gte',
+            ],
             'currency': ['exact', ],
             'found_through': ['exact', ],
             'is_checked': ['exact', ],
-            'modified': ['exact', 'lt', 'lte', 'gt', 'gte', ],
+            'modified': [
+                'exact',
+                'lt',
+                'lte',
+                'gt',
+                'gte',
+            ],
             'name': ['exact', ],
             'new_business': ['exact', ],
             'next_step': ['exact', ],
-            'next_step_date': ['exact', 'lt', 'lte', 'gt', 'gte', ],
+            'next_step_date': [
+                'exact',
+                'lt',
+                'lte',
+                'gt',
+                'gte',
+            ],
             'quote_id': ['exact', ],
             'status': ['exact', ],
             'twitter_checked': ['exact', ],
@@ -176,7 +214,11 @@ class DealViewSet(ModelChangesMixin, TimeLogMixin, DataExistsMixin, ModelViewSet
     # Set the serializer class for this viewset.
     serializer_class = DealSerializer
     # Set all filter backends that this viewset uses.
-    filter_backends = (ElasticSearchFilter, OrderingFilter, filters.DjangoFilterBackend, )
+    filter_backends = (
+        ElasticSearchFilter,
+        OrderingFilter,
+        filters.DjangoFilterBackend,
+    )
 
     # ElasticSearchFilter: set the model type.
     model_type = 'deals_deal'

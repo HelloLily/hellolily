@@ -95,8 +95,7 @@ class OAuth2CallbackViewTests(UserBasedTest, APITestCase):
         # A valid authorization token was mocked, so verify that the user is redirected to the email setup screen.
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.assertEqual(
-            response.url,
-            '/#/preferences/emailaccounts/edit/{0}'.format(EmailAccount.objects.latest('id').pk)
+            response.url, '/#/preferences/emailaccounts/edit/{0}'.format(EmailAccount.objects.latest('id').pk)
         )
 
         # Verify that an email account was added to the database belonging to the user.
@@ -171,8 +170,9 @@ class EmailAccountManagementTests(UserBasedTest, APITestCase):
         super(EmailAccountManagementTests, cls).setUpTestData()
 
         # Create an email account for the user.
-        cls.email_accounts = EmailAccountFactory.create_batch(size=2, owner=cls.user_obj, tenant=cls.user_obj.tenant,
-                                                              is_authorized=False)
+        cls.email_accounts = EmailAccountFactory.create_batch(
+            size=2, owner=cls.user_obj, tenant=cls.user_obj.tenant, is_authorized=False
+        )
 
     def tearDown(self):
         self.get_credentials_mock_patcher.stop()
@@ -192,12 +192,19 @@ class EmailAccountManagementTests(UserBasedTest, APITestCase):
         only_new = False
         privacy = EmailAccount.READ_ONLY
         shared_email_configs = []
-        stub_dict = {'id': email_account.pk, 'from_name': from_name, 'label': label, 'only_new': only_new,
-                     'privacy': privacy, 'shared_email_configs': shared_email_configs}
+        stub_dict = {
+            'id': email_account.pk,
+            'from_name': from_name,
+            'label': label,
+            'only_new': only_new,
+            'privacy': privacy,
+            'shared_email_configs': shared_email_configs
+        }
 
         # Make the API call to patch the email account.
-        response = self.user.patch('/api/messaging/email/accounts/{0}/'.format(email_account.pk),
-                                   data=stub_dict, format='json')
+        response = self.user.patch(
+            '/api/messaging/email/accounts/{0}/'.format(email_account.pk), data=stub_dict, format='json'
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Verify that the email account is up to date with the patched data.
@@ -225,12 +232,19 @@ class EmailAccountManagementTests(UserBasedTest, APITestCase):
         only_new = True
         privacy = EmailAccount.READ_ONLY
         shared_email_configs = []
-        stub_dict = {'id': email_account.pk, 'from_name': from_name, 'label': label, 'only_new': only_new,
-                     'privacy': privacy, 'shared_email_configs': shared_email_configs}
+        stub_dict = {
+            'id': email_account.pk,
+            'from_name': from_name,
+            'label': label,
+            'only_new': only_new,
+            'privacy': privacy,
+            'shared_email_configs': shared_email_configs
+        }
 
         # Make the API call to patch the email account.
-        response = self.user.patch('/api/messaging/email/accounts/{0}/'.format(email_account.pk),
-                                   data=stub_dict, format='json')
+        response = self.user.patch(
+            '/api/messaging/email/accounts/{0}/'.format(email_account.pk), data=stub_dict, format='json'
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Verify that the email account is up to date with the patched data.
@@ -252,17 +266,27 @@ class EmailAccountManagementTests(UserBasedTest, APITestCase):
         only_new = False
         privacy = EmailAccount.PRIVATE
         # Share one of my email account with another user.
-        shared_email_configs = [{"user": self.superuser_obj.pk, "privacy": EmailAccount.PUBLIC,
-                                 "email_account": self.email_accounts[0].pk}]
+        shared_email_configs = [{
+            "user": self.superuser_obj.pk,
+            "privacy": EmailAccount.PUBLIC,
+            "email_account": self.email_accounts[0].pk
+        }]
         # TODO: Sharing with a user of an other tenant is possible via tests, should be restricted by tenant.
         # But it is restricted in the frontend.
 
-        stub_dict = {'id': email_account.pk, 'from_name': from_name, 'label': label, 'only_new': only_new,
-                     'privacy': privacy, 'shared_email_configs': shared_email_configs}
+        stub_dict = {
+            'id': email_account.pk,
+            'from_name': from_name,
+            'label': label,
+            'only_new': only_new,
+            'privacy': privacy,
+            'shared_email_configs': shared_email_configs
+        }
 
         # Make the API call to patch the email account.
-        response = self.user.patch('/api/messaging/email/accounts/{0}/'.format(email_account.pk),
-                                   data=stub_dict, format='json')
+        response = self.user.patch(
+            '/api/messaging/email/accounts/{0}/'.format(email_account.pk), data=stub_dict, format='json'
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Verify that the email account is up to date with the patched data.
@@ -284,15 +308,25 @@ class EmailAccountManagementTests(UserBasedTest, APITestCase):
         privacy = EmailAccount.PRIVATE
 
         # Share one of my email accounts with another user.
-        shared_email_configs = [{"user": self.superuser_obj.pk, "privacy": EmailAccount.PUBLIC,
-                                 "email_account": self.email_accounts[0].pk}]
+        shared_email_configs = [{
+            "user": self.superuser_obj.pk,
+            "privacy": EmailAccount.PUBLIC,
+            "email_account": self.email_accounts[0].pk
+        }]
 
-        stub_dict = {'id': email_account.pk, 'from_name': from_name, 'label': label, 'only_new': only_new,
-                     'privacy': privacy, 'shared_email_configs': shared_email_configs}
+        stub_dict = {
+            'id': email_account.pk,
+            'from_name': from_name,
+            'label': label,
+            'only_new': only_new,
+            'privacy': privacy,
+            'shared_email_configs': shared_email_configs
+        }
 
         # Make the API call to patch the email account.
-        response = self.user.patch('/api/messaging/email/accounts/{0}/'.format(email_account.pk),
-                                   data=stub_dict, format='json')
+        response = self.user.patch(
+            '/api/messaging/email/accounts/{0}/'.format(email_account.pk), data=stub_dict, format='json'
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(SharedEmailConfig.objects.filter(email_account=self.email_accounts[0]).exists())
 
@@ -302,8 +336,9 @@ class EmailAccountManagementTests(UserBasedTest, APITestCase):
         stub_dict['shared_email_configs'] = shared_email_configs
 
         # Make the API call to patch the email account.
-        response = self.user.patch('/api/messaging/email/accounts/{0}/'.format(email_account.pk),
-                                   data=stub_dict, format='json')
+        response = self.user.patch(
+            '/api/messaging/email/accounts/{0}/'.format(email_account.pk), data=stub_dict, format='json'
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         # Verify that the previous created shared email config object is not available anymore.
         self.assertFalse(SharedEmailConfig.objects.filter(email_account=self.email_accounts[0]).exists())
@@ -325,9 +360,14 @@ class EmailAccountManagementTests(UserBasedTest, APITestCase):
         self.assertIsNone(self.user_obj.primary_email_account)
 
         # Api call to set primary email account.
-        request = self.user.patch('/api/users/me/',
-                                  {'id': 'me', 'primary_email_account': {'id': self.email_accounts[0].pk}},
-                                  format='json')
+        request = self.user.patch(
+            '/api/users/me/', {
+                'id': 'me',
+                'primary_email_account': {
+                    'id': self.email_accounts[0].pk
+                }
+            }, format='json'
+        )
 
         # Verify the request was succesfull and the user account has the right primary email account set.
         self.assertEqual(request.status_code, status.HTTP_200_OK)
@@ -336,9 +376,14 @@ class EmailAccountManagementTests(UserBasedTest, APITestCase):
         self.assertEqual(self.user_obj.primary_email_account.pk, primary_email_account_id)
 
         # Switch to another email account as the primary one.
-        response = self.user.patch('/api/users/me/',
-                                   {'id': 'me', 'primary_email_account': {'id': self.email_accounts[1].pk}},
-                                   format='json')
+        response = self.user.patch(
+            '/api/users/me/', {
+                'id': 'me',
+                'primary_email_account': {
+                    'id': self.email_accounts[1].pk
+                }
+            }, format='json'
+        )
 
         # Verify the request was succesfull and the user account has the right primary email account set.
         self.assertEqual(response.status_code, status.HTTP_200_OK)

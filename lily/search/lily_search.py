@@ -9,7 +9,6 @@ from lily.contacts.models import Contact
 from lily.messaging.email.utils import get_shared_email_accounts
 from lily.search.connections_utils import get_es_client_kwargs, get_index_name
 
-
 logger = logging.getLogger(__name__)
 
 main_index = settings.ES_INDEXES['default']
@@ -36,11 +35,7 @@ class LilySearch(object):
 
         # Always filter on Tenant.
         self.tenant_id = tenant_id
-        self.raw_filters = [{
-            'term': {
-                'tenant': tenant_id
-            }
-        }]
+        self.raw_filters = [{'term': {'tenant': tenant_id}}]
 
         # Set the facet.
         self.facet = facet
@@ -89,27 +84,11 @@ class LilySearch(object):
                 },
             }
 
-            facet_filter_dict = {
-                'and': [
-                    {
-                        'term': {
-                            'tenant': self.tenant_id,
-                        }
-                    }
-                ]
-            }
+            facet_filter_dict = {'and': [{'term': {'tenant': self.tenant_id, }}]}
 
             if self.facet['filters']:
                 for facet_filter in self.facet['filters']:
-                    facet_filter_dict['and'].append(
-                        {
-                            'query': {
-                                'query_string': {
-                                    'query': facet_filter
-                                }
-                            }
-                        }
-                    )
+                    facet_filter_dict['and'].append({'query': {'query_string': {'query': facet_filter}}})
 
             facet_raw['facet_filter'] = facet_filter_dict
 
@@ -145,9 +124,7 @@ class LilySearch(object):
 
                         if facet and (not facet.get('last_used') or hit.get('last_used') > facet.get('last_used')):
                             # Set the latest usage date.
-                            facet.update({
-                                'last_used': hit.get('last_used')
-                            })
+                            facet.update({'last_used': hit.get('last_used')})
 
                 return hits, facets, execute.count, execute.took
 
@@ -172,10 +149,14 @@ class LilySearch(object):
         if query.strip():
             raw_query = {
                 'multi_match': {
-                    'query': query,
-                    'type': 'cross_fields',
-                    'operator': 'and',
-                    'analyzer': 'cross_analyzer',
+                    'query':
+                        query,
+                    'type':
+                        'cross_fields',
+                    'operator':
+                        'and',
+                    'analyzer':
+                        'cross_analyzer',
                     'fields': [
                         'id',
                         'tags.name',
@@ -252,11 +233,7 @@ class LilySearch(object):
             emails.extend(contact_emails)
         if not emails:
             # Disable results if no email at all for account.
-            self.raw_filters.append({
-                'limit': {
-                    'value': 0
-                }
-            })
+            self.raw_filters.append({'limit': {'value': 0}})
             return
         # Enclose emails with quotes.
         emails = set(['"%s"' % email for email in emails])
@@ -275,11 +252,7 @@ class LilySearch(object):
         emails = set(['"%s"' % email.email_address for email in contact.email_addresses.all() if email.email_address])
 
         if not emails:
-            self.raw_filters.append({
-                'limit': {
-                    'value': 0
-                }
-            })
+            self.raw_filters.append({'limit': {'value': 0}})
             return
         join = ' OR '.join(emails)
         filterquery = 'sender_email:(%s) OR received_by_email:(%s) OR received_by_cc_email:(%s)' % (join, join, join)
@@ -297,11 +270,7 @@ class LilySearch(object):
 
         if not email_account_list:
             # Disable results if no email at all for account.
-            self.raw_filters.append({
-                'limit': {
-                    'value': 0
-                }
-            })
+            self.raw_filters.append({'limit': {'value': 0}})
             return
 
         email_accounts = set(['%s' % email.email_address for email in email_account_list])

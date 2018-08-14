@@ -28,6 +28,7 @@ class LilyUserManager(TenantManager, UserManager):
     """
     The user model that is used everywhere.
     """
+
     @classmethod
     def normalize_email(cls, email):
         """
@@ -60,19 +61,19 @@ class LilyUserManager(TenantManager, UserManager):
 
         if not picture:
             gravatar_hash = hashlib.md5(user.email.lower().encode('utf-8', errors='replace')).hexdigest()
-            response = requests.get('https://secure.gravatar.com/avatar/{}'.format(gravatar_hash), params={
-                'default': '404',
-                'size': '200'
-            })
+            response = requests.get(
+                'https://secure.gravatar.com/avatar/{}'.format(gravatar_hash),
+                params={
+                    'default': '404',
+                    'size': '200'
+                }
+            )
 
             if response.status_code == requests.codes.ok:
                 extension = response.headers.get('Content-Type', '/').split('/')[-1]
 
                 if extension:
-                    picture = ContentFile(
-                        content=response.content,
-                        name='profile-picture.{}'.format(extension)
-                    )
+                    picture = ContentFile(content=response.content, name='profile-picture.{}'.format(extension))
 
         if picture:
             user.picture.save(picture.name, picture)
@@ -137,10 +138,12 @@ class LilyUserManager(TenantManager, UserManager):
 
                     # Track subscription changes in Segment.
                     # It's a new subscription, so old_plan_tier param is missing.
-                    analytics.track(user.id, 'subscription-changed', {
-                        'tenant_id': tenant.id,
-                        'new_plan_tier': tenant.billing.plan.tier,
-                    })
+                    analytics.track(
+                        user.id, 'subscription-changed', {
+                            'tenant_id': tenant.id,
+                            'new_plan_tier': tenant.billing.plan.tier,
+                        }
+                    )
             elif settings.BILLING_ENABLED:
                 # No new tenant, but user was created so we update the current subscription.
                 user.tenant.billing.update_subscription(1)
@@ -198,8 +201,7 @@ class UserInfo(models.Model):
     )
 
     registration_finished = models.BooleanField(
-        verbose_name=_('User has finished the registration process'),
-        default=False
+        verbose_name=_('User has finished the registration process'), default=False
     )
     # TODO: migration that removes this field.
     email_account_status = models.IntegerField(choices=STATUS_CHOICES, default=INCOMPLETE)
@@ -212,41 +214,14 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
 
     Password and email are required. Other fields are optional.
     """
-    first_name = models.CharField(
-        verbose_name=_('first name'),
-        max_length=255
-    )
-    last_name = models.CharField(
-        verbose_name=_('last name'),
-        max_length=255
-    )
-    picture = models.ImageField(
-        upload_to=get_lilyuser_picture_upload_path,
-        verbose_name=_('picture'),
-        blank=True
-    )
-    email = models.EmailField(
-        verbose_name=_('email address'),
-        max_length=255,
-        unique=True
-    )
-    position = models.CharField(
-        verbose_name=_('position'),
-        max_length=255,
-        blank=True
-    )
-    is_staff = models.BooleanField(
-        verbose_name=_('is staff'),
-        default=False
-    )
-    is_active = models.BooleanField(
-        verbose_name=_('is active'),
-        default=True
-    )
-    date_joined = models.DateTimeField(
-        verbose_name=_('date joined'),
-        default=timezone.now
-    )
+    first_name = models.CharField(verbose_name=_('first name'), max_length=255)
+    last_name = models.CharField(verbose_name=_('last name'), max_length=255)
+    picture = models.ImageField(upload_to=get_lilyuser_picture_upload_path, verbose_name=_('picture'), blank=True)
+    email = models.EmailField(verbose_name=_('email address'), max_length=255, unique=True)
+    position = models.CharField(verbose_name=_('position'), max_length=255, blank=True)
+    is_staff = models.BooleanField(verbose_name=_('is staff'), default=False)
+    is_active = models.BooleanField(verbose_name=_('is active'), default=True)
+    date_joined = models.DateTimeField(verbose_name=_('date joined'), default=timezone.now)
     teams = models.ManyToManyField(
         to=Team,
         verbose_name=_('Lily teams'),
@@ -254,60 +229,39 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
         related_name='user_set',
         related_query_name='user',
     )
-    phone_number = models.CharField(
-        verbose_name=_('phone number'),
-        max_length=40,
-        blank=True
-    )
-    internal_number = models.PositiveSmallIntegerField(
-        verbose_name=_('internal number'),
-        blank=True,
-        null=True
-    )
-    social_media = models.ManyToManyField(
-        to=SocialMedia,
-        verbose_name=_('list of social media'),
-        blank=True
-    )
-    language = models.CharField(
-        verbose_name=_('language'),
-        max_length=3,
-        choices=settings.LANGUAGES,
-        default='en'
-    )
+    phone_number = models.CharField(verbose_name=_('phone number'), max_length=40, blank=True)
+    internal_number = models.PositiveSmallIntegerField(verbose_name=_('internal number'), blank=True, null=True)
+    social_media = models.ManyToManyField(to=SocialMedia, verbose_name=_('list of social media'), blank=True)
+    language = models.CharField(verbose_name=_('language'), max_length=3, choices=settings.LANGUAGES, default='en')
     timezone = TimeZoneField(
-        choices=[(pytz.timezone(tz), tz) for tz in pytz.common_timezones],
-        max_length=63,
-        default='Europe/Amsterdam'
+        choices=[(pytz.timezone(tz), tz) for tz in pytz.common_timezones], max_length=63, default='Europe/Amsterdam'
     )
 
     primary_email_account = models.ForeignKey(
-        to='email.EmailAccount',
-        blank=True,
-        null=True,
-        on_delete=models.SET_NULL
+        to='email.EmailAccount', blank=True, null=True, on_delete=models.SET_NULL
     )
-    webhooks = models.ManyToManyField(
-        to=Webhook,
-        blank=True
-    )
-    info = models.ForeignKey(
-        to=UserInfo,
-        blank=True,
-        null=True,
-        on_delete=models.SET_NULL
-    )
+    webhooks = models.ManyToManyField(to=Webhook, blank=True)
+    info = models.ForeignKey(to=UserInfo, blank=True, null=True, on_delete=models.SET_NULL)
 
     objects = LilyUserManager()
     all_objects = UserManager()
 
     EMAIL_TEMPLATE_PARAMETERS = [
-        'first_name', 'last_name', 'full_name', 'position', 'phone_number', 'current_email_address', 'user_team',
+        'first_name',
+        'last_name',
+        'full_name',
+        'position',
+        'phone_number',
+        'current_email_address',
+        'user_team',
         'profile_picture',
     ]
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name', ]
+    REQUIRED_FIELDS = [
+        'first_name',
+        'last_name',
+    ]
 
     def save(self, *args, **kwargs):
         self.email = self.email.lower()
@@ -389,11 +343,7 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
 
     @property
     def user_hash(self):
-        return hmac.new(
-            settings.INTERCOM_HMAC_SECRET,
-            str(self.pk),
-            digestmod=hashlib.sha256
-        ).hexdigest()
+        return hmac.new(settings.INTERCOM_HMAC_SECRET, str(self.pk), digestmod=hashlib.sha256).hexdigest()
 
     @property
     def is_admin(self):
@@ -406,7 +356,5 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
         verbose_name = _('user')
         verbose_name_plural = _('users')
         ordering = ['first_name', 'last_name']
-        permissions = (
-            ('send_invitation', _('Can send invitations to invite new users')),
-        )
+        permissions = (('send_invitation', _('Can send invitations to invite new users')), )
         unique_together = ('tenant', 'internal_number')

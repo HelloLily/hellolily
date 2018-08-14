@@ -29,10 +29,7 @@ class DataproviderViewSet(ViewSet):
         # Phone number is E164 formatted (INTERNATIONAL format but with no formatting).
         phone_number = request.data['phonenumber']
         country = get_country_by_phone_number(phone_number)
-        data = {
-            "country": country,
-            "phonenumber": phone_number
-        }
+        data = {"country": country, "phonenumber": phone_number}
 
         try:
             response = requests.post(url, params=params, json=data)

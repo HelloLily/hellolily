@@ -34,7 +34,6 @@ from ..credentials import get_access_token, get_credentials, put_credentials, Li
 from ..models import Document, IntegrationCredentials, IntegrationDetails, SlackDetails, IntegrationType, DocumentEvent
 from ..tasks import import_moneybird_contacts
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -72,7 +71,10 @@ class DocumentDetails(APIView):
 
 
 class PandaDocList(APIView):
-    permission_classes = (IsAuthenticated, IsFeatureAvailable, )
+    permission_classes = (
+        IsAuthenticated,
+        IsFeatureAvailable,
+    )
     serializer = DocumentSerializer
     parser_classes = (JSONParser, FormParser)
     swagger_schema = None
@@ -114,7 +116,10 @@ class PandaDocList(APIView):
 
 
 class DocumentEventList(APIView):
-    permission_classes = (IsAuthenticated, IsFeatureAvailable, )
+    permission_classes = (
+        IsAuthenticated,
+        IsFeatureAvailable,
+    )
     model = DocumentEvent
     serializer_class = DocumentEventSerializer
     swagger_schema = None
@@ -128,9 +133,7 @@ class DocumentEventList(APIView):
     def post(self, request):
         event_data = request.data
 
-        duplicate_error = {
-            'duplicate_event': 'Only one event per type allowed'
-        }
+        duplicate_error = {'duplicate_event': 'Only one event per type allowed'}
 
         events = []
 
@@ -158,9 +161,7 @@ class DocumentEventList(APIView):
                 }
 
                 if not data.get('extra_days'):
-                    data.update({
-                        'set_to_today': event.get('set_to_today', False)
-                    })
+                    data.update({'set_to_today': event.get('set_to_today', False)})
 
                 event_id = event.get('id')
 
@@ -286,9 +287,7 @@ class MoneybirdContactImport(APIView):
         credentials = get_credentials('moneybird')
 
         if not credentials:
-            errors = {
-                'no_credentials': [_('No Moneybird credentials found')]
-            }
+            errors = {'no_credentials': [_('No Moneybird credentials found')]}
             return HttpResponseBadRequest(anyjson.serialize(errors), content_type='application/json')
 
         credentials.integration_context.update({
@@ -297,7 +296,7 @@ class MoneybirdContactImport(APIView):
 
         put_credentials('moneybird', credentials)
 
-        import_moneybird_contacts.apply_async(args=(self.request.user.tenant.id,))
+        import_moneybird_contacts.apply_async(args=(self.request.user.tenant.id, ))
 
         return Response({'import_started': True})
 
@@ -371,10 +370,7 @@ class IntegrationAuth(APIView):
 
         if is_slack:
             # Save a unique identifier so we can verify the follow up request from Slack is legit.
-            state = sha256('%s-%s' % (
-                self.request.user.id,
-                settings.SECRET_KEY
-            )).hexdigest()
+            state = sha256('%s-%s' % (self.request.user.id, settings.SECRET_KEY)).hexdigest()
 
             params.update({'state': state})
 
@@ -418,10 +414,7 @@ class IntegrationAuth(APIView):
         if is_slack:
             state = request.GET.get('state')
 
-            generated_state = sha256('%s-%s' % (
-                self.request.user.id,
-                settings.SECRET_KEY
-            )).hexdigest()
+            generated_state = sha256('%s-%s' % (self.request.user.id, settings.SECRET_KEY)).hexdigest()
 
             if state != generated_state:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -456,9 +449,7 @@ class IntegrationDetailsView(APIView):
         # If no credentials exist then the given integration isn't installed.
         has_integration = credentials is not None
 
-        details = {
-            'has_integration': has_integration
-        }
+        details = {'has_integration': has_integration}
 
         if has_integration:
             details.update({
@@ -595,23 +586,19 @@ class SlackEventCatch(APIView):
             if model == 'case':
                 title = obj.subject
 
-                fields = [
-                    {
-                        'title': _('Priority & type'),
-                        'value': '%s, %s' % (obj.get_priority_display(), obj.type.name),
-                        'short': True
-                    },
-                    {
-                        'title': _('Status'),
-                        'value': obj.status.name,
-                        'short': True
-                    },
-                    {
-                        'title': _('Expiry date'),
-                        'value': self.format_slack_date(obj.expires),
-                        'short': True
-                    }
-                ]
+                fields = [{
+                    'title': _('Priority & type'),
+                    'value': '%s, %s' % (obj.get_priority_display(), obj.type.name),
+                    'short': True
+                }, {
+                    'title': _('Status'),
+                    'value': obj.status.name,
+                    'short': True
+                }, {
+                    'title': _('Expiry date'),
+                    'value': self.format_slack_date(obj.expires),
+                    'short': True
+                }]
 
                 COLORS = ['#a0e0d4', '#97d5fc', '#ffd191', '#ff7097']
 
@@ -661,11 +648,7 @@ class SlackEventCatch(APIView):
 
                     account_string += '\n'
 
-                fields.append({
-                    'title': _('Works at'),
-                    'value': account_string,
-                    'short': True
-                })
+                fields.append({'title': _('Works at'), 'value': account_string, 'short': True})
 
             if model != 'contact':
                 fields.append({

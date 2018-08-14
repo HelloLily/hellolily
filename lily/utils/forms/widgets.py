@@ -1,6 +1,5 @@
 import json
 
-
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.query import QuerySet
 from django.forms.formsets import BaseFormSet
@@ -37,9 +36,7 @@ class TagInput(TextInput):
         })
 
         if 'class' not in kwargs:
-            extra_attrs.update({
-                'class': 'tags'
-            })
+            extra_attrs.update({'class': 'tags'})
         attrs.update(extra_attrs)
 
         return super(TagInput, self).build_attrs(self.attrs, attrs=attrs)
@@ -49,6 +46,7 @@ class AddonTextInput(TextInput):
     """
     Creates a text input with an addon (icon)
     """
+
     def __init__(self, attrs=None, div_attrs=None, button_attrs=None, icon_attrs=None):
         if 'is_button' not in icon_attrs.keys() or icon_attrs.get('is_button'):
             span = '''
@@ -116,10 +114,12 @@ class AddonTextInput(TextInput):
         icon_attrs = dict([(key, conditional_escape(val)) for key, val in self.icon_attrs.items()])
         button_attrs = dict([(key, conditional_escape(val)) for key, val in self.button_attrs.items()])
 
-        html = self.html_template % dict(div_attrs=flatatt(div_attrs),
-                                         input_attrs=flatatt(input_attrs),
-                                         button_attrs=flatatt(button_attrs),
-                                         icon_attrs=flatatt(icon_attrs))
+        html = self.html_template % dict(
+            div_attrs=flatatt(div_attrs),
+            input_attrs=flatatt(input_attrs),
+            button_attrs=flatatt(button_attrs),
+            icon_attrs=flatatt(icon_attrs)
+        )
 
         return mark_safe(force_text(html))
 
@@ -172,6 +172,7 @@ class AjaxSelect2Widget(Widget):
         url (str): url for ajax call from Select2
         filter_on (str): id of field that Select2 adds as filter with ajax call
     """
+
     def __init__(self, model, url, tags=None, attrs=None, **kwargs):
         super(AjaxSelect2Widget, self).__init__(attrs)
         self.model = model
@@ -244,9 +245,7 @@ class Wysihtml5Input(Textarea):
     """
 
     def __init__(self, attrs=None):
-        default_attrs = {
-            'class': 'inbox-editor inbox-wysihtml5 form-control'
-        }
+        default_attrs = {'class': 'inbox-editor inbox-wysihtml5 form-control'}
         if attrs:
             default_attrs.update(attrs)
         super(Wysihtml5Input, self).__init__(default_attrs)

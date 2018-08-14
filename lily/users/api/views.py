@@ -46,7 +46,10 @@ class TeamViewSet(viewsets.ModelViewSet):
     serializer_class = TeamSerializer
     filter_class = TeamFilter
     queryset = Team.objects
-    permission_classes = (IsAuthenticated, IsAccountAdmin,)
+    permission_classes = (
+        IsAuthenticated,
+        IsAccountAdmin,
+    )
     unrestricted_methods = ['GET']
     swagger_schema = None
 
@@ -136,20 +139,21 @@ class UserInviteViewSet(viewsets.ModelViewSet):
             # We always want to create a new invite.
             invite = UserInvite.objects.create(**params)
 
-            hash = sha256('%s-%s-%s-%s-%s' % (
-                tenant_id,
-                invite.id,
-                email,
-                date_string,
-                settings.SECRET_KEY
-            )).hexdigest()
-            invite_link = '%s://%s%s' % (protocol, current_site, reverse_lazy('invitation_accept', kwargs={
-                'tenant_id': tenant_id,
-                'first_name': first_name,
-                'email': email,
-                'date': date_string,
-                'hash': hash,
-            }))
+            hash = sha256('%s-%s-%s-%s-%s' % (tenant_id, invite.id, email, date_string, settings.SECRET_KEY)
+                          ).hexdigest()
+            invite_link = '%s://%s%s' % (
+                protocol, current_site,
+                reverse_lazy(
+                    'invitation_accept',
+                    kwargs={
+                        'tenant_id': tenant_id,
+                        'first_name': first_name,
+                        'email': email,
+                        'date': date_string,
+                        'hash': hash,
+                    }
+                )
+            )
 
             # Email to the user.
             send_templated_mail(
@@ -198,7 +202,10 @@ class LilyUserViewSet(viewsets.ModelViewSet):
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
     queryset = LilyUser.objects
     # Set the parsers for this viewset.
-    parser_classes = (JSONParser, MultiPartParser, )
+    parser_classes = (
+        JSONParser,
+        MultiPartParser,
+    )
     # Set the serializer class for this viewset.
     serializer_class = LilyUserSerializer
     # Set all filter backends that this viewset uses.
@@ -207,10 +214,18 @@ class LilyUserViewSet(viewsets.ModelViewSet):
 
     # OrderingFilter: set all possible fields to order by.
     ordering_fields = (
-        'id', 'first_name', 'last_name', 'email', 'phone_number', 'is_active',
+        'id',
+        'first_name',
+        'last_name',
+        'email',
+        'phone_number',
+        'is_active',
     )
     # OrderingFilter: set the default ordering fields.
-    ordering = ('first_name', 'last_name', )
+    ordering = (
+        'first_name',
+        'last_name',
+    )
     # DjangoFilter: set the filter class.
     filter_class = LilyUserFilter
 
@@ -220,11 +235,8 @@ class LilyUserViewSet(viewsets.ModelViewSet):
         """
         # TODO: find out what to do with linked objects when deactivating a user
         # TODO: remove the token page and include it in the normal account page
-        queryset = super(LilyUserViewSet, self).get_queryset().filter(
-            tenant_id=self.request.user.tenant_id
-        ).exclude(
-            first_name=''
-        )
+        queryset = super(LilyUserViewSet,
+                         self).get_queryset().filter(tenant_id=self.request.user.tenant_id).exclude(first_name='')
 
         # By default we filter out non-active users.
         is_active = self.request.query_params.get('is_active', 'True')
@@ -317,7 +329,9 @@ class LilyUserViewSet(viewsets.ModelViewSet):
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @list_route(methods=['GET', ])
+    @list_route(methods=[
+        'GET',
+    ])
     def unassigned(self, request):
         # Retrieve users that aren't assigned to a team.
         queryset = self.get_queryset().filter(teams__isnull=True)
@@ -329,10 +343,10 @@ class LilyUserViewSet(viewsets.ModelViewSet):
 
 class TwoFactorDevicesViewSet(viewsets.ViewSet):
     swagger_schema = None
-
     """
     A simple ViewSet for listing or disabling two factor devices.
     """
+
     def list(self, request):
         try:
             token_set = request.user.staticdevice_set.first().token_set.all()
@@ -340,17 +354,19 @@ class TwoFactorDevicesViewSet(viewsets.ViewSet):
             token_set = []
 
         return Response({
-            'default': get_info_text_for_device(default_device(request.user)),
-            'backup_phone_numbers': [
-                {
-                    'id': phone.pk,
-                    'number': mask_phone_number(format_phone_number(phone.number)),
-                } for phone in backup_phones(request.user)
-            ],
+            'default':
+                get_info_text_for_device(default_device(request.user)),
+            'backup_phone_numbers': [{
+                'id': phone.pk,
+                'number': mask_phone_number(format_phone_number(phone.number)),
+            } for phone in backup_phones(request.user)],
             'backup_tokens': [token.token for token in token_set],
         })
 
-    @list_route(methods=['get', 'post', ])
+    @list_route(methods=[
+        'get',
+        'post',
+    ])
     def regenerate_tokens(self, request):
         number_of_tokens = 10
         token_list = []
@@ -364,14 +380,18 @@ class TwoFactorDevicesViewSet(viewsets.ViewSet):
 
         return Response(token_list, status=status.HTTP_201_CREATED)
 
-    @list_route(methods=['delete', ])
+    @list_route(methods=[
+        'delete',
+    ])
     def disable(self, request, pk=None):
         for device in devices_for_user(request.user):
             device.delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @detail_route(methods=['delete', ])
+    @detail_route(methods=[
+        'delete',
+    ])
     def remove_phone(self, request, pk=None):
         try:
             request.user.phonedevice_set.get(name='backup', pk=pk).delete()
@@ -381,12 +401,10 @@ class TwoFactorDevicesViewSet(viewsets.ViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class SessionViewSet(mixins.RetrieveModelMixin,
-                     mixins.ListModelMixin,
-                     mixins.DestroyModelMixin,
-                     viewsets.GenericViewSet):
+class SessionViewSet(
+    mixins.RetrieveModelMixin, mixins.ListModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet
+):
     swagger_schema = None
-
     """
     A simple ViewSet for listing or deleting sessions.
     """

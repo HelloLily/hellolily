@@ -21,6 +21,7 @@ class CaseStatusSerializer(serializers.ModelSerializer):
     """
     Serializer for case status model.
     """
+
     class Meta:
         model = CaseStatus
         fields = (
@@ -37,6 +38,7 @@ class CaseTypeSerializer(serializers.ModelSerializer):
     """
     Serializer for case type model.
     """
+
     class Meta:
         model = CaseType
         fields = (
@@ -100,9 +102,7 @@ class CaseSerializer(WritableNestedSerializer):
         help_text='Any tags used to further categorize the case.',
     )
 
-    description = SanitizedHtmlCharField(
-        help_text='Any extra text to describe the case (supports Markdown).',
-    )
+    description = SanitizedHtmlCharField(help_text='Any extra text to describe the case (supports Markdown).', )
 
     # Show string versions of fields.
     priority_display = serializers.CharField(
@@ -185,9 +185,7 @@ class CaseSerializer(WritableNestedSerializer):
 
         # Automatically archive the case if the status is set to 'Closed'.
         if status.name == 'Closed' and 'is_archived' not in validated_data:
-            validated_data.update({
-                'is_archived': True
-            })
+            validated_data.update({'is_archived': True})
 
         # Check if the case being reassigned. If so we want to notify that user.
         if assigned_to and assigned_to != user.pk:
@@ -200,8 +198,9 @@ class CaseSerializer(WritableNestedSerializer):
                 'newly_assigned': False,
             })
 
-        if (('status' in validated_data and status.name == 'Open') or
-                ('is_archived' in validated_data and not validated_data.get('is_archived'))):
+        status_open = 'status' in validated_data and status.name == 'Open'
+        is_archived = 'is_archived' in validated_data and not validated_data.get('is_archived')
+        if status_open and is_archived:
             # Case is reopened or unarchived, so we want to notify the user again.
             validated_data.update({
                 'newly_assigned': True,
@@ -214,10 +213,11 @@ class CaseSerializer(WritableNestedSerializer):
                 }),
             })
 
-        if (not instance.assigned_to_id or
-                instance.assigned_to_id and
-                'assigned_to' in validated_data and
-                not validated_data.get('assigned_to')):
+        case_unassigned = 'assigned_to' in validated_data and not validated_data.get('assigned_to')
+        case_newly_unassigned = instance.assigned_to_id and case_unassigned
+        if not instance.assigned_to_id or case_newly_unassigned:
+            # The case has no user assigned to it.
+            # The case is assigned but the user passed an empty value, meaning they want to unassign it.
             Group('tenant-%s' % user.tenant.id).send({
                 'text': anyjson.serialize({
                     'event': 'case-unassigned',
@@ -272,6 +272,7 @@ class RelatedCaseSerializer(RelatedSerializerMixin, CaseSerializer):
     """
     Serializer for the case model when used as a relation.
     """
+
     class Meta:
         model = Case
         # Override the fields because we don't want related fields in this serializer.

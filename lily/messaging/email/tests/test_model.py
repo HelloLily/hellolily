@@ -24,16 +24,11 @@ class EmailMessageTests(UserBasedTest, APITestCase):
         cls.email_account = EmailAccountFactory.create(owner=cls.user_obj, tenant=cls.user_obj.tenant)
 
         # Create a default recipient
-        recipient = Recipient.objects.create(
-            name='Firstname Lastname',
-            email_address='user1@example.com'
-        )
+        recipient = Recipient.objects.create(name='Firstname Lastname', email_address='user1@example.com')
 
         # Create a default email message, initially without any labels.
         cls.email_message = EmailMessage.objects.create(
-            account=cls.email_account,
-            sent_date=timezone.now(),
-            sender=recipient
+            account=cls.email_account, sent_date=timezone.now(), sender=recipient
         )
 
     def test_reply_to(self):
@@ -48,34 +43,22 @@ class EmailMessageTests(UserBasedTest, APITestCase):
 
         Test with different forms of the reply-to header.
         """
-        header = EmailHeader.objects.create(
-            message=self.email_message,
-            name='reply-to',
-            value='user2@example.com'
-        )
+        header = EmailHeader.objects.create(message=self.email_message, name='reply-to', value='user2@example.com')
+        self.assertEqual(self.email_message.reply_to, header.value)
+
+        self.email_message.headers.all().delete()
+        header = EmailHeader.objects.create(message=self.email_message, name='Reply-To', value='user3@example.com')
         self.assertEqual(self.email_message.reply_to, header.value)
 
         self.email_message.headers.all().delete()
         header = EmailHeader.objects.create(
-            message=self.email_message,
-            name='Reply-To',
-            value='user3@example.com'
-        )
-        self.assertEqual(self.email_message.reply_to, header.value)
-
-        self.email_message.headers.all().delete()
-        header = EmailHeader.objects.create(
-            message=self.email_message,
-            name='Reply-To',
-            value='"Firstname Lastname" <user4@example.com>'
+            message=self.email_message, name='Reply-To', value='"Firstname Lastname" <user4@example.com>'
         )
         self.assertEqual(self.email_message.reply_to, 'user4@example.com')
 
         self.email_message.headers.all().delete()
         header = EmailHeader.objects.create(
-            message=self.email_message,
-            name='Reply-To',
-            value='Firstname Lastname <user5@example.com>'
+            message=self.email_message, name='Reply-To', value='Firstname Lastname <user5@example.com>'
         )
         self.assertEqual(self.email_message.reply_to, 'user5@example.com')
 
@@ -147,15 +130,12 @@ class EmailMessageTests(UserBasedTest, APITestCase):
     def _add_label(self, label):
         # Add the provided label to the email message.
         label = EmailLabel.objects.create(
-            account=self.email_account,
-            label_id=label,
-            label_type=EmailLabel.LABEL_SYSTEM
+            account=self.email_account, label_id=label, label_type=EmailLabel.LABEL_SYSTEM
         )
         self.email_message.labels.add(label)
 
 
 class EmailAccountTests(UserBasedTest, APITestCase):
-
     def setUp(self):
         # Reset changes made to the email account in a test.
         self.email_account.refresh_from_db()

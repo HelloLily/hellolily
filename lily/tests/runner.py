@@ -25,6 +25,7 @@ class LilyNoseTestSuiteRunner(DiscoverRunner):
     Settings it changes:
         * TESTING=True, useful to check if we are running tests.
     """
+
     def __init__(self, *args, **kwargs):
         super(LilyNoseTestSuiteRunner, self).__init__(*args, **kwargs)
 

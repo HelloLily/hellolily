@@ -50,12 +50,10 @@ class RegistrationVerifyEmailForm(forms.Form):
     code = forms.CharField(
         label=_('Code'),
         max_length=6,
-        widget=forms.TextInput(
-            attrs={
-                'autofocus': True,
-                'placeholder': 'Your six digit code',
-            }
-        )
+        widget=forms.TextInput(attrs={
+            'autofocus': True,
+            'placeholder': 'Your six digit code',
+        })
     )
 
     def __init__(self, code, *args, **kwargs):
@@ -87,31 +85,23 @@ class RegistrationProfileForm(forms.Form):
     last_name = forms.CharField(
         label=_('Last name'),
         max_length=255,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': 'Last name',
-                'autocomplete': 'family-name',
-            }
-        )
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Last name',
+            'autocomplete': 'family-name',
+        })
     )
     company_name = forms.CharField(
         label=_('Company name'),
         max_length=255,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': 'Company name',
-                'autocomplete': 'organization',
-            }
-        )
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Company name',
+            'autocomplete': 'organization',
+        })
     )
     country = forms.ChoiceField(
-        label=_('Country'),
-        choices=COUNTRIES,
-        widget=forms.Select(
-            attrs={
-                'autocomplete': 'country',
-            }
-        )
+        label=_('Country'), choices=COUNTRIES, widget=forms.Select(attrs={
+            'autocomplete': 'country',
+        })
     )
 
 
@@ -132,22 +122,10 @@ class RegistrationEmailAccountForm(forms.Form):
         (True, _('Only sync messages I receive or edit starting now')),
     )
 
-    from_name = forms.CharField(
-        label=_('From name'),
-        max_length=255
-    )
-    label = forms.CharField(
-        label=_('Mailbox name'),
-        max_length=255
-    )
-    privacy = forms.ChoiceField(
-        label=_('Sharing'),
-        choices=PRIVACY_CHOICES
-    )
-    only_new = forms.ChoiceField(
-        label=_('History'),
-        choices=ONLY_NEW_CHOICES
-    )
+    from_name = forms.CharField(label=_('From name'), max_length=255)
+    label = forms.CharField(label=_('Mailbox name'), max_length=255)
+    privacy = forms.ChoiceField(label=_('Sharing'), choices=PRIVACY_CHOICES)
+    only_new = forms.ChoiceField(label=_('History'), choices=ONLY_NEW_CHOICES)
 
 
 class RegistrationAutofillForm(forms.Form):

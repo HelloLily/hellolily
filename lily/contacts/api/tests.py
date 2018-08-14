@@ -62,13 +62,25 @@ class ContactTests(GenericAPITestCase):
 
             if with_relations:
                 # If relations are needed, override them, because a dict is needed instead of an instance.
-                obj['phone_numbers'] = [PhoneNumberFactory.stub().__dict__, ]
-                obj['social_media'] = [SocialMediaFactory.stub().__dict__, ]
-                obj['addresses'] = [AddressFactory.stub().__dict__, ]
-                obj['email_addresses'] = [EmailAddressFactory.stub().__dict__, ]
-                obj['accounts'] = [AccountFactory.stub().__dict__, ]
+                obj['phone_numbers'] = [
+                    PhoneNumberFactory.stub().__dict__,
+                ]
+                obj['social_media'] = [
+                    SocialMediaFactory.stub().__dict__,
+                ]
+                obj['addresses'] = [
+                    AddressFactory.stub().__dict__,
+                ]
+                obj['email_addresses'] = [
+                    EmailAddressFactory.stub().__dict__,
+                ]
+                obj['accounts'] = [
+                    AccountFactory.stub().__dict__,
+                ]
                 obj['accounts'][0]['status'] = {'id': AccountStatusFactory.create(tenant=self.user_obj.tenant).id}
-                obj['tags'] = [TagFactory.stub().__dict__, ]
+                obj['tags'] = [
+                    TagFactory.stub().__dict__,
+                ]
 
                 del obj['accounts'][0]['tenant']
 
@@ -106,27 +118,30 @@ class ContactTests(GenericAPITestCase):
         contact['accounts'].append({'id': 999})
         request = self.user.post(self.get_url(self.list_url), contact)
         self.assertStatus(request, status.HTTP_400_BAD_REQUEST, contact)
-        self.assertEqual(request.data, {
-            'phone_numbers': [{
-                'id': ['Referencing to objects with an id is not allowed.']
-            }],
-            'accounts': [{
-                'name': ['Company name already in use.']
-            }, {
-                'id': ['The id must point to an existing object.']}
-            ]})
+        self.assertEqual(
+            request.data, {
+                'phone_numbers': [{
+                    'id': ['Referencing to objects with an id is not allowed.']
+                }],
+                'accounts': [{
+                    'name': ['Company name already in use.']
+                }, {
+                    'id': ['The id must point to an existing object.']
+                }]
+            }
+        )
 
         # Check that deleted objects can't be referenced.
         Account.objects.get(pk=account_id).delete()
-        contact['accounts'] = [{'id': account_id}, ]
+        contact['accounts'] = [
+            {
+                'id': account_id
+            },
+        ]
         del contact['phone_numbers']  # Clear phone_numbers, only check account referencing.
         request = self.user.post(self.get_url(self.list_url), contact)
         self.assertStatus(request, status.HTTP_400_BAD_REQUEST, contact)
-        self.assertEqual(request.data, {
-            'accounts': [{
-                'id': ['The id must point to an existing object.']
-            }]
-        })
+        self.assertEqual(request.data, {'accounts': [{'id': ['The id must point to an existing object.']}]})
 
     def test_create_object_validation(self):
         """
@@ -138,14 +153,12 @@ class ContactTests(GenericAPITestCase):
         request = self.user.post(self.get_url(self.list_url), stub_dict)
         self.assertStatus(request, status.HTTP_400_BAD_REQUEST, stub_dict)
 
-        self.assertEqual(request.data, {
-            'first_name': [
-                'Please enter a valid first name.'
-            ],
-            'last_name': [
-                'Please enter a valid last name.'
-            ]
-        })
+        self.assertEqual(
+            request.data, {
+                'first_name': ['Please enter a valid first name.'],
+                'last_name': ['Please enter a valid last name.']
+            }
+        )
 
     def test_update_object_with_relations(self):
         """
@@ -177,7 +190,11 @@ class ContactTests(GenericAPITestCase):
 
         # Create a new contact and connect it to an existing account.
         contact = self._create_object_stub(with_relations=True)
-        contact['accounts'] = [{'id': account.pk}, ]
+        contact['accounts'] = [
+            {
+                'id': account.pk
+            },
+        ]
 
         # Perform normal create.
         request = self.user.post(self.get_url(self.list_url), contact)
@@ -218,12 +235,10 @@ class ContactTests(GenericAPITestCase):
 
         for field_name, object_list in fields.items():
             self.assertNotIn(
-                object_list[0].pk,
-                [item['id'] for item in request.data.get(field_name)],
+                object_list[0].pk, [item['id'] for item in request.data.get(field_name)],
                 '%s %s was -not- deleted while it should have been.' % (field_name, object_list[0].pk)
             )
             self.assertIn(
-                object_list[1].pk,
-                [item['id'] for item in request.data.get(field_name)],
+                object_list[1].pk, [item['id'] for item in request.data.get(field_name)],
                 '%s %s -was- deleted while it should have been.' % (field_name, object_list[1].pk)
             )

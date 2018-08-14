@@ -9,8 +9,4 @@ class LilyTwilioGateway(Twilio):
 
     def send_sms(self, device, token):
         body = 'Your Lily token is: %s' % token
-        self.client.messages.create(
-            to=device.number.as_e164,
-            from_=getattr(settings, 'TWILIO_CALLER_ID'),
-            body=body
-        )
+        self.client.messages.create(to=device.number.as_e164, from_=getattr(settings, 'TWILIO_CALLER_ID'), body=body)

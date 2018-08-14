@@ -20,7 +20,9 @@ class DealMapping(BaseMapping):
             'account': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'customer_id': {
                         'type': 'string',
                         'index_analyzer': 'normal_edge_analyzer'
@@ -29,7 +31,9 @@ class DealMapping(BaseMapping):
                         'type': 'string',
                         'index_analyzer': 'normal_edge_analyzer',
                     },
-                    'is_deleted': {'type': 'boolean'},
+                    'is_deleted': {
+                        'type': 'boolean'
+                    },
                 }
             },
             'amount_once': {
@@ -41,7 +45,9 @@ class DealMapping(BaseMapping):
             'assigned_to': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'full_name': {
                         'type': 'string',
                         'analyzer': 'normal_edge_analyzer',
@@ -51,7 +57,9 @@ class DealMapping(BaseMapping):
             'assigned_to_teams': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'name': {
                         'type': 'string',
                         'analyzer': 'normal_edge_analyzer',
@@ -67,18 +75,24 @@ class DealMapping(BaseMapping):
             'contact': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'full_name': {
                         'type': 'string',
                         'analyzer': 'normal_edge_analyzer',
                     },
-                    'is_deleted': {'type': 'boolean'},
+                    'is_deleted': {
+                        'type': 'boolean'
+                    },
                 },
             },
             'contacted_by': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'full_name': {
                         'type': 'string',
                         'analyzer': 'normal_edge_analyzer',
@@ -91,7 +105,9 @@ class DealMapping(BaseMapping):
             'created_by': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'full_name': {
                         'type': 'string',
                         'analyzer': 'normal_edge_analyzer',
@@ -111,7 +127,9 @@ class DealMapping(BaseMapping):
             'found_through': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'name': {
                         'type': 'string',
                         'analyzer': 'normal_edge_analyzer',
@@ -140,13 +158,19 @@ class DealMapping(BaseMapping):
             'next_step': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'name': {
                         'type': 'string',
                         'analyzer': 'normal_edge_analyzer',
                     },
-                    'date_increment': {'type': 'integer'},
-                    'position': {'type': 'integer'}
+                    'date_increment': {
+                        'type': 'integer'
+                    },
+                    'position': {
+                        'type': 'integer'
+                    }
                 }
             },
             'next_step_date': {
@@ -158,23 +182,31 @@ class DealMapping(BaseMapping):
             'status': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'name': {
                         'type': 'string',
                         'analyzer': 'normal_edge_analyzer',
                     },
-                    'position': {'type': 'integer'},
+                    'position': {
+                        'type': 'integer'
+                    },
                 },
             },
             'tags': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'name': {
                         'type': 'string',
                         'index_analyzer': 'normal_edge_analyzer',
                     },
-                    'object_id': {'type': 'integer'},
+                    'object_id': {
+                        'type': 'integer'
+                    },
                 },
             },
             'twitter_checked': {
@@ -183,7 +215,9 @@ class DealMapping(BaseMapping):
             'why_customer': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'name': {
                         'type': 'string',
                         'analyzer': 'normal_edge_analyzer',

@@ -8,7 +8,6 @@ from django.db import connection
 
 from lily.deals.models import Deal
 
-
 logger = logging.getLogger(__name__)
 
 

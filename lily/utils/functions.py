@@ -24,11 +24,14 @@ def autostrip(cls):
     We added the exception for fields with a PasswordInput widget.
     """
 
-    fields = [(key, value) for key, value in cls.base_fields.iteritems()
+    fields = [(key, value)
+              for key, value in cls.base_fields.iteritems()
               if isinstance(value, forms.CharField) and not isinstance(value.widget, forms.PasswordInput)]
     for field_name, field_object in fields:
+
         def get_clean_func(original_clean):
             return lambda value: original_clean(value and value.strip())
+
         clean_func = get_clean_func(getattr(field_object, 'clean'))
         setattr(field_object, 'clean', clean_func)
     return cls
@@ -207,11 +210,7 @@ def post_intercom_event(event_name, user_id):
         response (Response): Object containing the response information.
     """
     if not any([settings.DEBUG, settings.TESTING]):
-        payload = {
-            'event_name': event_name,
-            'user_id': user_id,
-            'created_at': int(time())
-        }
+        payload = {'event_name': event_name, 'user_id': user_id, 'created_at': int(time())}
 
         response = requests.post(
             url='https://api.intercom.io/events',
@@ -237,9 +236,7 @@ def send_get_request(url, credentials):
     Returns:
         response (Response): Object containing the response information.
     """
-    headers = {
-        'Authorization': 'Bearer %s' % credentials.access_token
-    }
+    headers = {'Authorization': 'Bearer %s' % credentials.access_token}
 
     response = requests.get(url, headers=headers)
 
@@ -260,9 +257,7 @@ def send_post_request(url, credentials, params, patch=False, async_request=False
           option is used then returns an Future object instead. In this case the Response object
           can be got by calling response.result() for the returned value.
     """
-    headers = {
-        'Authorization': 'Bearer %s' % credentials.access_token
-    }
+    headers = {'Authorization': 'Bearer %s' % credentials.access_token}
 
     if async_request:
         session = FuturesSession()

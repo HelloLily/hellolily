@@ -6,7 +6,6 @@ from faker.factory import Factory
 
 from .models import SocialMedia
 
-
 faker = Factory.create('nl_NL')
 social_media = {
     'twitter': 'https://twitter.com/%s',

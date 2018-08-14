@@ -10,8 +10,9 @@ from oauth2client.client import HttpAccessTokenRefreshError
 from lily.messaging.email.utils import determine_message_type
 from lily.utils.functions import post_intercom_event
 from .manager import GmailManager
-from .models.models import (EmailAccount, EmailMessage, EmailOutboxMessage, EmailTemplateAttachment,
-                            EmailOutboxAttachment, EmailAttachment)
+from .models.models import (
+    EmailAccount, EmailMessage, EmailOutboxMessage, EmailTemplateAttachment, EmailOutboxAttachment, EmailAttachment
+)
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +29,7 @@ def synchronize_email_account_scheduler():
             # Initiate a full sync of the email account.
             logger.info('Adding task for a full sync of %s', email_account)
             full_synchronize_email_account.apply_async(
-                args=(email_account.pk,),
+                args=(email_account.pk, ),
                 max_retries=1,
                 default_retry_delay=100,
             )
@@ -36,7 +37,7 @@ def synchronize_email_account_scheduler():
             # The email account is done with a full synchroniazation, so initiate an incremental synchronization.
             logger.info('Adding task for incremental sync for: %s', email_account)
             incremental_synchronize_email_account.apply_async(
-                args=(email_account.pk,),
+                args=(email_account.pk, ),
                 max_retries=1,
                 default_retry_delay=100,
             )
@@ -46,7 +47,7 @@ def synchronize_email_account_scheduler():
 def synchronize_labels_scheduler():
     for email_account in EmailAccount.objects.filter(is_authorized=True, is_deleted=False):
         synchronize_labels.apply_async(
-            args=(email_account.pk,),
+            args=(email_account.pk, ),
             max_retries=1,
             default_retry_delay=100,
         )
@@ -361,7 +362,7 @@ def send_message(email_outbox_message_id, original_message_id=None):
         original_message_id (int, optional): ID of the original EmailMessage
     """
     send_logger = logging.getLogger('email_errors_temp_logger')
-    send_logger.info('Start sending email_outbox_message: %d' % (email_outbox_message_id,))
+    send_logger.info('Start sending email_outbox_message: %d' % (email_outbox_message_id, ))
 
     sent_success = False
     try:
@@ -636,18 +637,14 @@ def cleanup_deleted_email_accounts():
 
 @task(name='migrate_email_messages', trail=False, ignore_result=False)
 def migrate_email_messages():
-    messages = EmailMessage.objects.filter(
-        message_type__isnull=True
-    ).order_by()[0:100]
+    messages = EmailMessage.objects.filter(message_type__isnull=True).order_by()[0:100]
 
     if messages:
         logger.debug('Migrating the next %s messages.' % (len(messages)))
         for message in messages:
             try:
                 message_type, message_type_to_id = determine_message_type(
-                    message.thread_id,
-                    message.sent_date,
-                    message.account.email_address
+                    message.thread_id, message.sent_date, message.account.email_address
                 )
             except:
                 # If for some reason a message is not having a thread id, sent date or account with an email address,
@@ -660,16 +657,8 @@ def migrate_email_messages():
                 message.message_type_to_id = message_type_to_id
 
             message.skip_signal = True  # Above fields aren't part of the search index, so skip the post_save signal.
-            message.save(
-                update_fields=[
-                    "message_type",
-                    "message_type_to_id"
-                ]
-            )
+            message.save(update_fields=["message_type", "message_type_to_id"])
 
         # There are possibly messages left to migrate, so add new batch in the queue. Process next batch with a delay
         # so there are resources for normal db usage.
-        migrate_email_messages.apply_async(
-            queue='other_tasks',
-            countdown=settings.MIGRATE_EMAIL_COUNTDOWN
-        )
+        migrate_email_messages.apply_async(queue='other_tasks', countdown=settings.MIGRATE_EMAIL_COUNTDOWN)

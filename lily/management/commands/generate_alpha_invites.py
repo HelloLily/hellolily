@@ -22,20 +22,21 @@ class Command(BaseCommand):
             tenant_id = row['tenant']
             date_string = date.today().strftime('%d%m%Y')
 
-            invite_hash = sha256('%s-%s-%s-%s' % (
-                tenant_id,
-                email,
-                date_string,
-                settings.SECRET_KEY
-            )).hexdigest()
+            invite_hash = sha256('%s-%s-%s-%s' % (tenant_id, email, date_string, settings.SECRET_KEY)).hexdigest()
 
-            invite_link = '%s://%s%s' % ('https', current_site, reverse_lazy('invitation_accept', kwargs={
-                'tenant_id': tenant_id,
-                'first_name': first_name,
-                'email': email,
-                'date': date_string,
-                'hash': invite_hash,
-            }))
+            invite_link = '%s://%s%s' % (
+                'https', current_site,
+                reverse_lazy(
+                    'invitation_accept',
+                    kwargs={
+                        'tenant_id': tenant_id,
+                        'first_name': first_name,
+                        'email': email,
+                        'date': date_string,
+                        'hash': invite_hash,
+                    }
+                )
+            )
 
             print invite_link
 

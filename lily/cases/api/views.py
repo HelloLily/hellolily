@@ -41,7 +41,12 @@ class CaseFilter(filters.FilterSet):
 
     class Meta:
         model = Case
-        fields = ['type', 'status', 'not_type', 'not_status', ]
+        fields = [
+            'type',
+            'status',
+            'not_type',
+            'not_status',
+        ]
 
 
 class CaseViewSet(ModelChangesMixin, TimeLogMixin, DataExistsMixin, viewsets.ModelViewSet):
@@ -83,14 +88,24 @@ class CaseViewSet(ModelChangesMixin, TimeLogMixin, DataExistsMixin, viewsets.Mod
     # Set the serializer class for this viewset.
     serializer_class = CaseSerializer
     # Set all filter backends that this viewset uses.
-    filter_backends = (ElasticSearchFilter, OrderingFilter, filters.DjangoFilterBackend,)
+    filter_backends = (
+        ElasticSearchFilter,
+        OrderingFilter,
+        filters.DjangoFilterBackend,
+    )
 
     # ElasticSearchFilter: set the model type.
     model_type = 'cases_case'
     # OrderingFilter: set all possible fields to order by.
-    ordering_fields = ('id', 'created', 'modified', 'priority', 'subject',)
+    ordering_fields = (
+        'id',
+        'created',
+        'modified',
+        'priority',
+        'subject',
+    )
     # OrderingFilter: set the default ordering fields.
-    ordering = ('id',)
+    ordering = ('id', )
     # DjangoFilter: set the filter class.
     filter_class = CaseFilter
 

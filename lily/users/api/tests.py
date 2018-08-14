@@ -26,18 +26,12 @@ class LilyUserTests(GenericAPITestCase):
 
     def _create_object(self, with_relations=False, size=1, **kwargs):
         return super(LilyUserTests, self)._create_object(
-            with_relations=with_relations,
-            size=size,
-            is_active=True,
-            **kwargs
+            with_relations=with_relations, size=size, is_active=True, **kwargs
         )
 
     def _create_object_stub(self, with_relations=False, size=1, with_email=False, **kwargs):
         list_or_dict = super(LilyUserTests, self)._create_object_stub(
-            with_relations=with_relations,
-            size=size,
-            is_active=True,
-            **kwargs
+            with_relations=with_relations, size=size, is_active=True, **kwargs
         )
 
         if size > 1:

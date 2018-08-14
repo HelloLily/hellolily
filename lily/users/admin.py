@@ -7,9 +7,7 @@ from .models import LilyUser, Team, UserInfo
 
 @admin.register(LilyUser)
 class LilyUserAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
-    list_select_related = (
-        'tenant',
-    )
+    list_select_related = ('tenant', )
     list_display = (
         'id',
         'full_name',
@@ -61,17 +59,11 @@ class LilyUserAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
-    list_select_related = (
-        'tenant',
-    )
+    list_select_related = ('tenant', )
     list_display = (
         'id',
         'name',
         'tenant',
     )
-    search_fields = (
-        'name',
-    )
-    list_filter = (
-        TenantFilter,
-    )
+    search_fields = ('name', )
+    list_filter = (TenantFilter, )

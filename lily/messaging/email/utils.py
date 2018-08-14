@@ -184,10 +184,11 @@ class TemplateParser(object):
         Escape variables and delete Django syntax around variables that are not allowed.
         """
         # Filter on parameters with the following syntax: model.field
-        param_regex = (re.compile('(%s[\s]*[a-zA-Z]+\.[a-zA-Z_]+[\s]*%s)' % (
-            re.escape(VARIABLE_TAG_START),
-            re.escape(VARIABLE_TAG_END)
-        )))
+        param_regex = (
+            re.compile(
+                '(%s[\s]*[a-zA-Z]+\.[a-zA-Z_]+[\s]*%s)' % (re.escape(VARIABLE_TAG_START), re.escape(VARIABLE_TAG_END))
+            )
+        )
         parameter_list = [x for x in re.findall(param_regex, text)]
 
         for parameter in parameter_list:
@@ -459,9 +460,7 @@ def create_reply_body_header(email_message):
         'sender': email_message.sender.name,
         'email_address': email_message.sender.email_address
     }
-    reply_header = ('<br /><br />' +
-                    reply_string +
-                    '<hr />')
+    reply_header = ('<br /><br />' + reply_string + '<hr />')
 
     return reply_header
 
@@ -492,15 +491,15 @@ def create_recipients(receivers, filter_emails=[]):
 
         if not name:
             # If no name was synced try to load a contact
-            recipient = Contact.objects.filter(email_addresses__email_address=receiver.email_address).order_by(
-                'created').first()
+            recipient = Contact.objects.filter(email_addresses__email_address=receiver.email_address
+                                               ).order_by('created').first()
 
             if recipient:
                 # If contact exists, set contact's full name as name
                 name = recipient.full_name
             else:
-                recipient = Account.objects.filter(email_addresses__email_address=receiver.email_address).order_by(
-                    'created').first()
+                recipient = Account.objects.filter(email_addresses__email_address=receiver.email_address
+                                                   ).order_by('created').first()
 
                 if recipient:
                     # Otherwise if account exists, set account's name as name
@@ -514,10 +513,7 @@ def create_recipients(receivers, filter_emails=[]):
             })
         else:
             # Otherwise only display the email address
-            recipients.append({
-                'id': receiver.email_address,
-                'text': receiver.email_address
-            })
+            recipients.append({'id': receiver.email_address, 'text': receiver.email_address})
 
         email_addresses.append(receiver.email_address)
 
@@ -620,15 +616,12 @@ def get_shared_email_accounts(user):
         # Team plan allows sharing of email account.
         # Get a list of email accounts which are publicly shared or shared specifically with the user.
         shared_email_account_list = EmailAccount.objects.filter(
-            Q(owner=user) |
-            Q(privacy=EmailAccount.PUBLIC) |
+            Q(owner=user) | Q(privacy=EmailAccount.PUBLIC) |
             (Q(sharedemailconfig__user__id=user.pk) & Q(sharedemailconfig__privacy=EmailAccount.PUBLIC))
         )
     else:
         # Free plan, so only allow own email accounts.
-        shared_email_account_list = EmailAccount.objects.filter(
-            Q(owner=user),
-        )
+        shared_email_account_list = EmailAccount.objects.filter(Q(owner=user), )
 
     shared_email_account_list = shared_email_account_list.filter(
         tenant=user.tenant,
@@ -637,15 +630,14 @@ def get_shared_email_accounts(user):
 
     # Get a list of email accounts the user doesn't want to follow.
     email_account_exclude_list = SharedEmailConfig.objects.filter(
-        user=user,
-        is_hidden=True
-    ).values_list('email_account_id', flat=True)
+        user=user, is_hidden=True
+    ).values_list(
+        'email_account_id', flat=True
+    )
 
     # Exclude those email accounts from the accounts that are shared with the user.
     # So it's a list of email accounts the user wants to follow or is allowed to view.
-    email_account_list = shared_email_account_list.exclude(
-        id__in=email_account_exclude_list
-    )
+    email_account_list = shared_email_account_list.exclude(id__in=email_account_exclude_list)
 
     return email_account_list
 
@@ -710,9 +702,9 @@ def determine_message_type(thread_id, sent_date, email_address):
             else:
                 return EmailMessage.REPLY_ALL, email.id
         elif email.subject.startswith('Fwd: '):
-                if numbers_of_receivers == 1:
-                    return EmailMessage.FORWARD, email.id
-                else:
-                    return EmailMessage.FORWARD_MULTI, email.id
+            if numbers_of_receivers == 1:
+                return EmailMessage.FORWARD, email.id
+            else:
+                return EmailMessage.FORWARD_MULTI, email.id
 
     return EmailMessage.NORMAL, None

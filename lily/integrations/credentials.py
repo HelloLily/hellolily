@@ -81,17 +81,10 @@ def get_access_token(credentials, integration_type, code=None):
 
     if code:
         # Trade the auth code for an access token.
-        payload.update({
-            'grant_type': 'authorization_code',
-            'redirect_uri': credentials.redirect_uri,
-            'code': code
-        })
+        payload.update({'grant_type': 'authorization_code', 'redirect_uri': credentials.redirect_uri, 'code': code})
     else:
         # Already authenticated once, but access token expired.
-        payload.update({
-            'grant_type': 'refresh_token',
-            'refresh_token': credentials.refresh_token
-        })
+        payload.update({'grant_type': 'refresh_token', 'refresh_token': credentials.refresh_token})
 
     if isinstance(integration_type, basestring):
         # Sometimes we pass just a string, so fetch the actual integration type.
@@ -131,8 +124,16 @@ def get_access_token(credentials, integration_type, code=None):
 
 
 class LilyOAuthCredentials(Credentials):
-    def __init__(self, client_id, client_secret, redirect_uri, access_token=None, refresh_token=None,
-                 expires=None, integration_context=None):
+    def __init__(
+        self,
+        client_id,
+        client_secret,
+        redirect_uri,
+        access_token=None,
+        refresh_token=None,
+        expires=None,
+        integration_context=None
+    ):
         self.access_token = access_token
         self.client_id = client_id
         self.client_secret = client_secret

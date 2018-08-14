@@ -93,7 +93,9 @@ class RegisterAuthView(RegistrationMixin, FormView):
             # Send welcome mail to the new user.
             send_templated_mail(
                 template_name='users/registration/email/welcome.email',
-                recipient_list=[user.email, ],
+                recipient_list=[
+                    user.email,
+                ],
                 context={
                     'user': user,
                 },
@@ -128,7 +130,9 @@ class RegisterAuthView(RegistrationMixin, FormView):
             # Send welcome mail to the new user and include their email verification code.
             send_templated_mail(
                 template_name='users/registration/email/welcome_with_verification.email',
-                recipient_list=[cleaned_data['email'], ],
+                recipient_list=[
+                    cleaned_data['email'],
+                ],
                 context={
                     'first_name': first_name,
                     'code': code,
@@ -170,9 +174,7 @@ class RegisterVerifyEmailView(RegistrationMixin, FormView):
 
         # Create a new user instance with the given email and password.
         user = LilyUser.objects.create_user(
-            first_name=auth_data['first_name'],
-            email=auth_data['email'],
-            password=auth_data['password']
+            first_name=auth_data['first_name'], email=auth_data['email'], password=auth_data['password']
         )
 
         # Because we don't call `authenticate` we need to set the authentication backend manually.
@@ -187,7 +189,10 @@ class RegisterVerifyEmailView(RegistrationMixin, FormView):
         invitation_data = self.request.session.get(settings.REGISTRATION_SESSION_KEY, {}).get('invitation_data', {})
 
         if invitation_data:
-            UserInvite.objects.filter(email__in=[user.email, invitation_data['email'], ]).delete()
+            UserInvite.objects.filter(email__in=[
+                user.email,
+                invitation_data['email'],
+            ]).delete()
         else:
             UserInvite.objects.filter(email=user.email).delete()
 
@@ -382,17 +387,12 @@ class AcceptInvitationView(RedirectView):
             return False
 
         invite_id = UserInvite.objects.filter(
-            email__iexact=email,
-            first_name=first_name
-        ).values_list('id', flat=True).first()
+            email__iexact=email, first_name=first_name
+        ).values_list(
+            'id', flat=True
+        ).first()
 
-        sha_input = '{}-{}-{}-{}-{}'.format(
-            tenant_id,
-            invite_id,
-            email,
-            datestring,
-            settings.SECRET_KEY
-        )
+        sha_input = '{}-{}-{}-{}-{}'.format(tenant_id, invite_id, email, datestring, settings.SECRET_KEY)
         correct_hash = sha256(sha_input).hexdigest()
 
         if not invite_id or not sha256_hash == correct_hash or not len(datestring) == 8:

@@ -34,29 +34,19 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         password = 'password'
 
         # Set the authenticated user on the class.
-        cls.user_obj = LilyUser.objects.create_user(
-            email='user3@lily.com',
-            password=password,
-            tenant_id=tenant_1.id
-        )
+        cls.user_obj = LilyUser.objects.create_user(email='user3@lily.com', password=password, tenant_id=tenant_1.id)
 
-        cls.user_obj.info = UserInfo.objects.create(
-            registration_finished=True
-        )
+        cls.user_obj.info = UserInfo.objects.create(registration_finished=True)
 
         cls.user = APIClient()
         cls.user.login(username=cls.user_obj.email, password=password)
 
         # Let's set another user with a tenant without outbound integration.
         cls.user_without_outbound_obj = LilyUser.objects.create_user(
-            email='user4@lily.com',
-            password=password,
-            tenant_id=tenant_2.id
+            email='user4@lily.com', password=password, tenant_id=tenant_2.id
         )
 
-        cls.user_without_outbound_obj.info = UserInfo.objects.create(
-            registration_finished=True
-        )
+        cls.user_without_outbound_obj.info = UserInfo.objects.create(registration_finished=True)
 
         cls.user_without_outbound = APIClient()
         cls.user_without_outbound.login(username=cls.user_obj.email, password=password)
@@ -70,7 +60,9 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
     def generate_participant(self, number=None, internal=False):
         return {
             'account_number': randrange(100, 999) if internal else None,
-            'user_numbers': [str(randrange(100, 999)), ] if internal else [],
+            'user_numbers': [
+                str(randrange(100, 999)),
+            ] if internal else [],
             'number': number or self.generate_number(),
             'name': faker.name(),
         }
@@ -133,8 +125,9 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
             'redirector': redirector or self.generate_participant(),
         }
 
-    def generate_cold_transfer_json(self, direction, call_id, merged_id, caller=None, destination=None,
-                                    redirector=None):
+    def generate_cold_transfer_json(
+        self, direction, call_id, merged_id, caller=None, destination=None, redirector=None
+    ):
         return {
             'call_id': '24c562241e9f-1502721212.{}'.format(call_id),
             'merged_id': '24c562241e9f-1502721212.{}'.format(merged_id),
@@ -174,7 +167,11 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
             ended - A and B hang up (reason: completed)
         """
         call_id = '100'
-        destination_b = self.generate_destination(number=participant_b['number'], targets=[participant_b, ])
+        destination_b = self.generate_destination(
+            number=participant_b['number'], targets=[
+                participant_b,
+            ]
+        )
 
         ringing = self.generate_ringing_json(direction, call_id, caller=participant_a, destination=destination_b)
         request = self.user.post(reverse(self.list_url), ringing)
@@ -216,7 +213,11 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
             ended - A and B hang up (reason: completed)
         """
         call_id = '100'
-        destination_b = self.generate_destination(number=participant_b['number'], targets=[participant_b, ])
+        destination_b = self.generate_destination(
+            number=participant_b['number'], targets=[
+                participant_b,
+            ]
+        )
 
         ringing = self.generate_ringing_json(direction, call_id, caller=participant_a, destination=destination_b)
         request = self.user.post(reverse(self.list_url), ringing)
@@ -248,7 +249,11 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
             ended - A and B hang up (reason: busy or no-answer, differs per device)
         """
         call_id = '100'
-        destination_b = self.generate_destination(number=participant_b['number'], targets=[participant_b, ])
+        destination_b = self.generate_destination(
+            number=participant_b['number'], targets=[
+                participant_b,
+            ]
+        )
 
         ringing = self.generate_ringing_json(direction, call_id, caller=participant_a, destination=destination_b)
         request = self.user.post(reverse(self.list_url), ringing)
@@ -414,7 +419,11 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         participant_b = self.generate_participant(phone_number_without_country_code)
 
         call_id = '100'
-        destination_b = self.generate_destination(number=participant_b['number'], targets=[participant_b, ])
+        destination_b = self.generate_destination(
+            number=participant_b['number'], targets=[
+                participant_b,
+            ]
+        )
 
         ringing = self.generate_ringing_json(direction, call_id, caller=participant_a, destination=destination_b)
         request = self.user.post(reverse(self.list_url), ringing)
@@ -590,8 +599,16 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         participant_b_internal = deepcopy(participant_b)
         participant_b_internal['number'] = str(participant_b['account_number'])
 
-        destination_b = self.generate_destination(number=participant_b['number'], targets=[participant_b, ])
-        destination_c = self.generate_destination(number=participant_c['number'], targets=[participant_c, ])
+        destination_b = self.generate_destination(
+            number=participant_b['number'], targets=[
+                participant_b,
+            ]
+        )
+        destination_c = self.generate_destination(
+            number=participant_c['number'], targets=[
+                participant_c,
+            ]
+        )
 
         ringing_ab = self.generate_ringing_json('inbound', call_id_ab, caller=participant_a, destination=destination_b)
         request = self.user.post(reverse(self.list_url), ringing_ab)
@@ -633,7 +650,11 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         self.assertEqual(len(crs), 1)  # There should still only be one call record.
 
         warm_transfer = self.generate_warm_transfer_json(
-            'inbound', call_id_ab, call_id_bc, caller=participant_a, target=participant_c,
+            'inbound',
+            call_id_ab,
+            call_id_bc,
+            caller=participant_a,
+            target=participant_c,
             redirector=participant_b_internal
         )
         request = self.user.post(reverse(self.list_url), warm_transfer)
@@ -683,8 +704,16 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         participant_b_internal = deepcopy(participant_b)
         participant_b_internal['number'] = str(participant_b['account_number'])
 
-        destination_b = self.generate_destination(number=participant_b['number'], targets=[participant_b, ])
-        destination_c = self.generate_destination(number=participant_c['number'], targets=[participant_c, ])
+        destination_b = self.generate_destination(
+            number=participant_b['number'], targets=[
+                participant_b,
+            ]
+        )
+        destination_c = self.generate_destination(
+            number=participant_c['number'], targets=[
+                participant_c,
+            ]
+        )
 
         ringing_ab = self.generate_ringing_json(direction, call_id_ab, caller=participant_a, destination=destination_b)
         request = self.user.post(reverse(self.list_url), ringing_ab)
@@ -721,7 +750,11 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         self.assertEqual(len(crs), 1)  # There should still only be one call record.
 
         warm_transfer = self.generate_warm_transfer_json(
-            direction, call_id_ab, call_id_bc, caller=participant_a, target=participant_c,
+            direction,
+            call_id_ab,
+            call_id_bc,
+            caller=participant_a,
+            target=participant_c,
             redirector=participant_b_internal
         )
         request = self.user.post(reverse(self.list_url), warm_transfer)
@@ -763,12 +796,18 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         participant_b_internal['number'] = str(participant_b['account_number'])
         participant_c = self.generate_participant(internal=True)
 
-        destination_b = self.generate_destination(number=participant_b['number'], targets=[participant_b, ])
-        destination_c = self.generate_destination(number=participant_c['number'], targets=[participant_c, ])
-
-        ringing_ab = self.generate_ringing_json(
-            'inbound', call_id_ab, caller=participant_a, destination=destination_b
+        destination_b = self.generate_destination(
+            number=participant_b['number'], targets=[
+                participant_b,
+            ]
         )
+        destination_c = self.generate_destination(
+            number=participant_c['number'], targets=[
+                participant_c,
+            ]
+        )
+
+        ringing_ab = self.generate_ringing_json('inbound', call_id_ab, caller=participant_a, destination=destination_b)
         request = self.user.post(reverse(self.list_url), ringing_ab)
         self.assertEqual(request.status_code, status.HTTP_201_CREATED)
 
@@ -799,7 +838,11 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         self.assertEqual(len(crs), 1)  # There should still only be one call record.
 
         cold_transfer = self.generate_cold_transfer_json(
-            'inbound', call_id_ab, call_id_bc, caller=participant_a, destination=destination_c,
+            'inbound',
+            call_id_ab,
+            call_id_bc,
+            caller=participant_a,
+            destination=destination_c,
             redirector=participant_b_internal
         )
         request = self.user.post(reverse(self.list_url), cold_transfer)
@@ -858,12 +901,18 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         participant_b_internal['number'] = str(participant_b['account_number'])
         participant_c = self.generate_participant(number=phone_number.number)
 
-        destination_b = self.generate_destination(number=participant_b['number'], targets=[participant_b, ])
-        destination_c = self.generate_destination(number=participant_c['number'], targets=[participant_c, ])
-
-        ringing_ab = self.generate_ringing_json(
-            direction, call_id_ab, caller=participant_a, destination=destination_b
+        destination_b = self.generate_destination(
+            number=participant_b['number'], targets=[
+                participant_b,
+            ]
         )
+        destination_c = self.generate_destination(
+            number=participant_c['number'], targets=[
+                participant_c,
+            ]
+        )
+
+        ringing_ab = self.generate_ringing_json(direction, call_id_ab, caller=participant_a, destination=destination_b)
         request = self.user.post(reverse(self.list_url), ringing_ab)
         self.assertEqual(request.status_code, status.HTTP_201_CREATED)
 
@@ -889,7 +938,11 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         self.assertEqual(len(crs), 1)  # There should only be one call record.
 
         cold_transfer = self.generate_cold_transfer_json(
-            direction, call_id_ab, call_id_bc, caller=participant_a, destination=destination_c,
+            direction,
+            call_id_ab,
+            call_id_bc,
+            caller=participant_a,
+            destination=destination_c,
             redirector=participant_b_internal
         )
         request = self.user.post(reverse(self.list_url), cold_transfer)
@@ -934,7 +987,11 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         direction = 'inbound'
         participant_a = self.generate_participant()
         participant_b = self.generate_participant(internal=True)
-        destination_b = self.generate_destination(number=participant_b['number'], targets=[participant_b, ])
+        destination_b = self.generate_destination(
+            number=participant_b['number'], targets=[
+                participant_b,
+            ]
+        )
         participant_c = self.generate_participant(internal=True)
 
         ringing = self.generate_ringing_json(direction, call_id, caller=participant_a, destination=destination_b)
@@ -1044,8 +1101,14 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         participant_a = self.generate_participant()
         participant_b = self.generate_participant()
         # The exception for fixed destination is that everything seems external but there is a user_number.
-        participant_b['user_numbers'] = [str(randrange(100, 999)), ]
-        destination_b = self.generate_destination(number=participant_b['number'], targets=[participant_b, ])
+        participant_b['user_numbers'] = [
+            str(randrange(100, 999)),
+        ]
+        destination_b = self.generate_destination(
+            number=participant_b['number'], targets=[
+                participant_b,
+            ]
+        )
 
         ringing = self.generate_ringing_json(direction, call_id, caller=participant_a, destination=destination_b)
         request = self.user.post(reverse(self.list_url), ringing)
@@ -1087,11 +1150,18 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         direction = 'inbound'
         participant_a = self.generate_participant()
         participant_b = self.generate_participant(internal=True)
-        destination_b = self.generate_destination(number=participant_b['number'], targets=[participant_b, ])
+        destination_b = self.generate_destination(
+            number=participant_b['number'], targets=[
+                participant_b,
+            ]
+        )
         participant_c = self.generate_participant(internal=True)
-        destination_bc = self.generate_destination(number=participant_b['number'], targets=[
-            participant_b, participant_c,
-        ])
+        destination_bc = self.generate_destination(
+            number=participant_b['number'], targets=[
+                participant_b,
+                participant_c,
+            ]
+        )
 
         ringing = self.generate_ringing_json(direction, call_id, caller=participant_a, destination=destination_b)
         request = self.user.post(reverse(self.list_url), ringing)
@@ -1142,8 +1212,16 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         participant_b_internal['number'] = str(participant_b['account_number'])
         participant_c = self.generate_participant(internal=True)
 
-        destination_b = self.generate_destination(number=participant_b['number'], targets=[participant_b, ])
-        destination_c = self.generate_destination(number=participant_c['number'], targets=[participant_c, ])
+        destination_b = self.generate_destination(
+            number=participant_b['number'], targets=[
+                participant_b,
+            ]
+        )
+        destination_c = self.generate_destination(
+            number=participant_c['number'], targets=[
+                participant_c,
+            ]
+        )
 
         ringing_ab = self.generate_ringing_json('inbound', call_id_ab, caller=participant_a, destination=destination_b)
         request = self.user.post(reverse(self.list_url), ringing_ab)
@@ -1185,7 +1263,11 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         self.assertEqual(len(crs), 1)  # There should still only be one call record.
 
         warm_transfer = self.generate_warm_transfer_json(
-            'inbound', call_id_bc, call_id_ab, caller=participant_a, target=participant_c,
+            'inbound',
+            call_id_bc,
+            call_id_ab,
+            caller=participant_a,
+            target=participant_c,
             redirector=participant_b_internal
         )
         request = self.user.post(reverse(self.list_url), warm_transfer)
@@ -1233,8 +1315,16 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         participant_b_internal['number'] = str(participant_b['account_number'])
         participant_c = self.generate_participant(number=phone_number.number)
 
-        destination_b = self.generate_destination(number=participant_b['number'], targets=[participant_b, ])
-        destination_c = self.generate_destination(number=participant_c['number'], targets=[participant_c, ])
+        destination_b = self.generate_destination(
+            number=participant_b['number'], targets=[
+                participant_b,
+            ]
+        )
+        destination_c = self.generate_destination(
+            number=participant_c['number'], targets=[
+                participant_c,
+            ]
+        )
 
         ringing_ab = self.generate_ringing_json(direction, call_id_ab, caller=participant_a, destination=destination_b)
         request = self.user.post(reverse(self.list_url), ringing_ab)
@@ -1271,7 +1361,11 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         self.assertEqual(len(crs), 1)  # There should still only be one call record.
 
         warm_transfer = self.generate_warm_transfer_json(
-            direction, call_id_bc, call_id_ab, caller=participant_a, target=participant_c,
+            direction,
+            call_id_bc,
+            call_id_ab,
+            caller=participant_a,
+            target=participant_c,
             redirector=participant_b_internal
         )
         request = self.user.post(reverse(self.list_url), warm_transfer)
@@ -1313,8 +1407,16 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         participant_b_internal['number'] = str(participant_b['account_number'])
         participant_c = self.generate_participant(internal=True)
 
-        destination_b = self.generate_destination(number=participant_b['number'], targets=[participant_b, ])
-        destination_c = self.generate_destination(number=participant_c['number'], targets=[participant_c, ])
+        destination_b = self.generate_destination(
+            number=participant_b['number'], targets=[
+                participant_b,
+            ]
+        )
+        destination_c = self.generate_destination(
+            number=participant_c['number'], targets=[
+                participant_c,
+            ]
+        )
 
         ringing_ab = self.generate_ringing_json('inbound', call_id_ab, caller=participant_a, destination=destination_b)
         request = self.user.post(reverse(self.list_url), ringing_ab)
@@ -1347,7 +1449,11 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         self.assertEqual(len(crs), 1)  # There should still only be one call record.
 
         cold_transfer = self.generate_cold_transfer_json(
-            'inbound', call_id_bc, call_id_ab, caller=participant_a, destination=destination_c,
+            'inbound',
+            call_id_bc,
+            call_id_ab,
+            caller=participant_a,
+            destination=destination_c,
             redirector=participant_b_internal
         )
         request = self.user.post(reverse(self.list_url), cold_transfer)
@@ -1406,8 +1512,16 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         participant_b_internal['number'] = str(participant_b['account_number'])
         participant_c = self.generate_participant(number=phone_number.number)
 
-        destination_b = self.generate_destination(number=participant_b['number'], targets=[participant_b, ])
-        destination_c = self.generate_destination(number=participant_c['number'], targets=[participant_c, ])
+        destination_b = self.generate_destination(
+            number=participant_b['number'], targets=[
+                participant_b,
+            ]
+        )
+        destination_c = self.generate_destination(
+            number=participant_c['number'], targets=[
+                participant_c,
+            ]
+        )
 
         ringing_ab = self.generate_ringing_json(direction, call_id_ab, caller=participant_a, destination=destination_b)
         request = self.user.post(reverse(self.list_url), ringing_ab)
@@ -1435,7 +1549,11 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         self.assertEqual(len(crs), 1)  # There should still only be one call record.
 
         cold_transfer = self.generate_cold_transfer_json(
-            direction, call_id_bc, call_id_ab, caller=participant_a, destination=destination_c,
+            direction,
+            call_id_bc,
+            call_id_ab,
+            caller=participant_a,
+            destination=destination_c,
             redirector=participant_b_internal
         )
         request = self.user.post(reverse(self.list_url), cold_transfer)
@@ -1487,8 +1605,16 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         participant_b_internal['number'] = str(participant_b['account_number'])
         participant_c = self.generate_participant(internal=True)
 
-        destination_b = self.generate_destination(number=participant_b['number'], targets=[participant_b, ])
-        destination_c = self.generate_destination(number=participant_c['number'], targets=[participant_c, ])
+        destination_b = self.generate_destination(
+            number=participant_b['number'], targets=[
+                participant_b,
+            ]
+        )
+        destination_c = self.generate_destination(
+            number=participant_c['number'], targets=[
+                participant_c,
+            ]
+        )
 
         ringing_ab = self.generate_ringing_json('inbound', call_id_ab, caller=participant_a, destination=destination_b)
         request = self.user.post(reverse(self.list_url), ringing_ab)
@@ -1521,7 +1647,11 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         self.assertEqual(len(crs), 1)  # There should still only be one call record.
 
         cold_transfer = self.generate_cold_transfer_json(
-            'inbound', call_id_ab, call_id_bc, caller=participant_a, destination=destination_c,
+            'inbound',
+            call_id_ab,
+            call_id_bc,
+            caller=participant_a,
+            destination=destination_c,
             redirector=participant_b_internal
         )
         request = self.user.post(reverse(self.list_url), cold_transfer)
@@ -1567,8 +1697,16 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         participant_b_internal['number'] = str(participant_b['account_number'])
         participant_c = self.generate_participant(number=phone_number.number)
 
-        destination_b = self.generate_destination(number=participant_b['number'], targets=[participant_b, ])
-        destination_c = self.generate_destination(number=participant_c['number'], targets=[participant_c, ])
+        destination_b = self.generate_destination(
+            number=participant_b['number'], targets=[
+                participant_b,
+            ]
+        )
+        destination_c = self.generate_destination(
+            number=participant_c['number'], targets=[
+                participant_c,
+            ]
+        )
 
         ringing_ab = self.generate_ringing_json(direction, call_id_ab, caller=participant_a, destination=destination_b)
         request = self.user.post(reverse(self.list_url), ringing_ab)
@@ -1596,7 +1734,11 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         self.assertEqual(len(crs), 1)  # There should still only be one call record.
 
         cold_transfer = self.generate_cold_transfer_json(
-            direction, call_id_ab, call_id_bc, caller=participant_a, destination=destination_c,
+            direction,
+            call_id_ab,
+            call_id_bc,
+            caller=participant_a,
+            destination=destination_c,
             redirector=participant_b_internal
         )
         request = self.user.post(reverse(self.list_url), cold_transfer)

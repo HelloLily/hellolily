@@ -16,7 +16,6 @@ from lily.utils.functions import get_country_code_by_country, get_phone_number_w
 import phonenumbers
 from phonenumbers import geocoder, NumberParseException
 
-
 logger = logging.getLogger(__name__)
 # For now outbound call integration is limted to VoIPGRID, Voys, Voys SA, Lily, Firm24, LegalThings,
 # Converdis B.V, Converdis
@@ -26,8 +25,17 @@ OUTBOUND_ENABLED_TENANTS = [10, 50, 52, 130, 300, 534, 601, 613]
 class CallNotificationSerializer(serializers.Serializer):
     call_id = serializers.CharField()
     timestamp = serializers.DateTimeField()
-    status = serializers.ChoiceField(choices=('ringing', 'in-progress', 'ended', 'warm-transfer', 'cold-transfer', ))
-    direction = serializers.ChoiceField(choices=('inbound', 'outbound', ))
+    status = serializers.ChoiceField(choices=(
+        'ringing',
+        'in-progress',
+        'ended',
+        'warm-transfer',
+        'cold-transfer',
+    ))
+    direction = serializers.ChoiceField(choices=(
+        'inbound',
+        'outbound',
+    ))
     caller = serializers.DictField()
     destination = serializers.DictField()
 
@@ -41,7 +49,10 @@ class CallNotificationSerializer(serializers.Serializer):
         return {}
 
     def validate(self, data):
-        if data['status'] in ['warm-transfer', 'cold-transfer', ]:
+        if data['status'] in [
+            'warm-transfer',
+            'cold-transfer',
+        ]:
             merged_id = data.get('merged_id')
             redirector = data.get('redirector')
 
@@ -85,8 +96,7 @@ class CallNotificationSerializer(serializers.Serializer):
 
                         if phonenumbers.is_valid_number(destination_number):
                             destination['number'] = phonenumbers.format_number(
-                                destination_number,
-                                phonenumbers.PhoneNumberFormat.E164
+                                destination_number, phonenumbers.PhoneNumberFormat.E164
                             )
 
                     except NumberParseException, e:
@@ -102,19 +112,13 @@ class CallNotificationSerializer(serializers.Serializer):
         save_func = getattr(self, 'save_{}'.format(validated_data['status'].replace('-', '_')))
 
         logger.info(
-            'Now saving call_id: "{}" using function {}.'.format(
-                validated_data['call_id'],
-                save_func.__name__
-            )
+            'Now saving call_id: "{}" using function {}.'.format(validated_data['call_id'], save_func.__name__)
         )
 
         result = save_func(validated_data)
 
         logger.info(
-            'Done saving call_id: "{}" using function {}.'.format(
-                validated_data['call_id'],
-                save_func.__name__
-            )
+            'Done saving call_id: "{}" using function {}.'.format(validated_data['call_id'], save_func.__name__)
         )
 
         return result
@@ -181,8 +185,7 @@ class CallNotificationSerializer(serializers.Serializer):
         # First try to find a matching user with internal number.
         if internal_number_list:
             user = LilyUser.objects.filter(
-                internal_number__in=internal_number_list,
-                is_active=True
+                internal_number__in=internal_number_list, is_active=True
             ).order_by('-last_login').first()
 
             if user:
@@ -235,18 +238,14 @@ class CallNotificationSerializer(serializers.Serializer):
         number = data['number'] or ''
         source = None
 
-        contact = Contact.objects.filter(
-            phone_numbers__number=number,
-            is_deleted=False
-        ).order_by('-modified').first()
+        contact = Contact.objects.filter(phone_numbers__number=number, is_deleted=False).order_by('-modified').first()
 
         if contact:
             name = contact.full_name
             source = contact
         else:
             account = Account.objects.filter(
-                phone_numbers__number=number,
-                is_deleted=False
+                phone_numbers__number=number, is_deleted=False
             ).order_by('-modified').first()
 
             if account:
@@ -274,9 +273,7 @@ class CallNotificationSerializer(serializers.Serializer):
             data = self.match_internal_participant(caller)
 
         participant = CallParticipant.objects.get_or_create(
-            name=data['name'],
-            number=data['number'],
-            internal_number=data['internal_number']
+            name=data['name'], number=data['number'], internal_number=data['internal_number']
         )[0]
 
         return participant, data['source']
@@ -304,9 +301,7 @@ class CallNotificationSerializer(serializers.Serializer):
             data = self.match_external_participant(target)
 
         participant = CallParticipant.objects.get_or_create(
-            name=data['name'],
-            number=data['number'],
-            internal_number=data['internal_number']
+            name=data['name'], number=data['number'], internal_number=data['internal_number']
         )[0]
 
         return participant
@@ -314,15 +309,19 @@ class CallNotificationSerializer(serializers.Serializer):
     def save_ringing(self, data):
         caller, source = self.save_caller(direction=data['direction'], caller=data['caller'])
 
-        cr = CallRecord.objects.get_or_create(call_id=data['call_id'], defaults={
-            'call_id': data['call_id'],
-            'start': data['timestamp'],
-            'end': None,
-            'status': CallRecord.RINGING,
-            'direction': CallRecord.INBOUND if data['direction'] == 'inbound' else CallRecord.OUTBOUND,
-            'caller': caller,
-            'destination': None,  # During ringing we don't want to store destination yet, only when it's picked up.
-        })[0]
+        cr = CallRecord.objects.get_or_create(
+            call_id=data['call_id'],
+            defaults={
+                'call_id': data['call_id'],
+                'start': data['timestamp'],
+                'end': None,
+                'status': CallRecord.RINGING,
+                'direction': CallRecord.INBOUND if data['direction'] == 'inbound' else CallRecord.OUTBOUND,
+                'caller': caller,
+                'destination':
+                    None,  # During ringing we don't want to store destination yet, only when it's picked up.
+            }
+        )[0]
 
         if data['direction'] == 'inbound':
             # Only send notifications for incoming calls.
@@ -341,15 +340,16 @@ class CallNotificationSerializer(serializers.Serializer):
 
             if last_transfer and not last_transfer.destination:
                 last_transfer.destination = self.save_destination(
-                    direction=data['direction'],
-                    destination=data['destination']
+                    direction=data['direction'], destination=data['destination']
                 )
 
                 last_transfer.save()
             else:
                 updated_data = {
-                    'destination': self.save_destination(direction=data['direction'], destination=data['destination']),
-                    'status': CallRecord.IN_PROGRESS,
+                    'destination':
+                        self.save_destination(direction=data['direction'], destination=data['destination']),
+                    'status':
+                        CallRecord.IN_PROGRESS,
                 }
 
                 for attr, value in updated_data.items():
@@ -397,11 +397,7 @@ class CallNotificationSerializer(serializers.Serializer):
             cr.call_id = data['call_id']
             cr.save()
 
-        CallTransfer.objects.create(
-            timestamp=data['timestamp'],
-            call=cr,
-            destination=None
-        )
+        CallTransfer.objects.create(timestamp=data['timestamp'], call=cr, destination=None)
 
         return cr
 

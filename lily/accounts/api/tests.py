@@ -77,12 +77,10 @@ class AccountTests(GenericAPITestCase):
 
         for field_name, object_list in fields.items():
             self.assertNotIn(
-                object_list[0].pk,
-                [item['id'] for item in request.data.get(field_name)],
+                object_list[0].pk, [item['id'] for item in request.data.get(field_name)],
                 '%s %s was -not- deleted while it should have been.' % (field_name, object_list[0].pk)
             )
             self.assertIn(
-                object_list[1].pk,
-                [item['id'] for item in request.data.get(field_name)],
+                object_list[1].pk, [item['id'] for item in request.data.get(field_name)],
                 '%s %s -was- deleted while it should have been.' % (field_name, object_list[1].pk)
             )

@@ -48,11 +48,7 @@ class Call(TenantMixin):
 
 class CallRecord(TenantMixin):
     RINGING, IN_PROGRESS, ENDED = range(3)
-    CALL_STATUS_CHOICES = (
-        (RINGING, _('Ringing')),
-        (IN_PROGRESS, _('In progress')),
-        (ENDED, _('Ended'))
-    )
+    CALL_STATUS_CHOICES = ((RINGING, _('Ringing')), (IN_PROGRESS, _('In progress')), (ENDED, _('Ended')))
 
     INBOUND, OUTBOUND = range(2)
     CALL_DIRECTION_CHOICES = (
@@ -61,19 +57,10 @@ class CallRecord(TenantMixin):
     )
 
     # Per tenant unique id of a call as received from the telephony platform.
-    call_id = models.CharField(
-        max_length=255,
-        verbose_name=_('Call id')
-    )
+    call_id = models.CharField(max_length=255, verbose_name=_('Call id'))
     # The start and end time of the conversation, can be used to calculate the duration.
-    start = models.DateTimeField(
-        verbose_name=_('Start'),
-        db_index=True
-    )
-    end = models.DateTimeField(
-        null=True,
-        verbose_name=_('End')
-    )
+    start = models.DateTimeField(verbose_name=_('Start'), db_index=True)
+    end = models.DateTimeField(null=True, verbose_name=_('End'))
     status = models.PositiveSmallIntegerField(
         choices=CALL_STATUS_CHOICES,
         verbose_name=_('Status'),
@@ -83,10 +70,7 @@ class CallRecord(TenantMixin):
         verbose_name=_('Type'),
     )
     caller = models.ForeignKey(
-        to='CallParticipant',
-        on_delete=models.CASCADE,
-        verbose_name=_('From'),
-        related_name='calls_made'
+        to='CallParticipant', on_delete=models.CASCADE, verbose_name=_('From'), related_name='calls_made'
     )
     destination = models.ForeignKey(
         to='CallParticipant',
@@ -95,41 +79,29 @@ class CallRecord(TenantMixin):
         related_name='calls_received',
         null=True  # Can be null because on ringing event you don't know who picked up the phone yet.
     )
-    notes = GenericRelation(
-        to='notes.Note',
-        content_type_field='gfk_content_type',
-        object_id_field='gfk_object_id'
-    )
+    notes = GenericRelation(to='notes.Note', content_type_field='gfk_content_type', object_id_field='gfk_object_id')
 
     @property
     def content_type(self):
         """
         Return the content type (Django model) for this model.
         """
-        return ContentType.objects.get(
-            app_label='calls',
-            model='callrecord'
-        )
+        return ContentType.objects.get(app_label='calls', model='callrecord')
 
     def __unicode__(self):
-        return '%s: Call from %s' % (
-            self.call_id,
-            self.caller
-        )
+        return '%s: Call from %s' % (self.call_id, self.caller)
 
     class Meta:
-        unique_together = ('tenant', 'call_id', )
+        unique_together = (
+            'tenant',
+            'call_id',
+        )
 
 
 class CallTransfer(TenantMixin):
-    timestamp = models.DateTimeField(
-        verbose_name=_('Timestamp')
-    )
+    timestamp = models.DateTimeField(verbose_name=_('Timestamp'))
     call = models.ForeignKey(
-        to='CallRecord',
-        on_delete=models.CASCADE,
-        verbose_name=_('Call'),
-        related_name='transfers'
+        to='CallRecord', on_delete=models.CASCADE, verbose_name=_('Call'), related_name='transfers'
     )
     destination = models.ForeignKey(
         to='CallParticipant',
@@ -140,29 +112,21 @@ class CallTransfer(TenantMixin):
     )
 
     def __unicode__(self):
-        return 'Transfer to %s' % (
-            self.destination
-        )
+        return 'Transfer to %s' % (self.destination)
 
 
 class CallParticipant(TenantMixin):
-    name = models.CharField(
-        max_length=255,
-        blank=True,
-        verbose_name=_('Name')
-    )
-    number = models.CharField(
-        max_length=40,
-        verbose_name=_('Number')
-    )
-    internal_number = models.CharField(
-        max_length=5,
-        blank=True,
-        verbose_name=_('Interal number')
-    )
+    name = models.CharField(max_length=255, blank=True, verbose_name=_('Name'))
+    number = models.CharField(max_length=40, verbose_name=_('Number'))
+    internal_number = models.CharField(max_length=5, blank=True, verbose_name=_('Interal number'))
 
     def __unicode__(self):
         return self.name or self.number
 
     class Meta:
-        unique_together = ('tenant', 'name', 'number', 'internal_number', )
+        unique_together = (
+            'tenant',
+            'name',
+            'number',
+            'internal_number',
+        )

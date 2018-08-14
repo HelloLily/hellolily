@@ -28,9 +28,7 @@ def _is_factory(member):
     Returns:
         bool: True if class member is a Factory class.
     """
-    return (inspect.isclass(member) and
-            issubclass(member, factory.Factory) and
-            member.__module__.startswith('lily.'))
+    return (inspect.isclass(member) and issubclass(member, factory.Factory) and member.__module__.startswith('lily.'))
 
 
 project_apps = [app for app in settings.INSTALLED_APPS if app.startswith('lily.')]

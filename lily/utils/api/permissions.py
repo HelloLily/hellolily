@@ -8,6 +8,7 @@ class IsAccountAdmin(BasePermission):
     Global permission check for if the user is in the account_admin group.
     Certain endpoints might allow other users to access certain methods.
     """
+
     def has_permission(self, request, view):
         user = request.user
 

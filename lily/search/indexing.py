@@ -9,7 +9,6 @@ from elasticutils.contrib.django import tasks
 from lily.search.connections_utils import get_es_client, get_index_name
 from lily.utils import logutil
 
-
 logger = logging.getLogger('search')
 main_index = settings.ES_INDEXES['default']
 es = get_es_client(maxsize=1)
@@ -33,8 +32,7 @@ def update_in_index(instance, mapping):
             try:
                 document = mapping.extract_document(instance.id, instance)
             except Exception as exc:
-                logger.exception('Unable to extract document {0}: {1}'.format(
-                    instance, repr(exc)))
+                logger.exception('Unable to extract document {0}: {1}'.format(instance, repr(exc)))
             else:
                 # Index object direct instead of bulk_index, to prevent multiple reads from db
                 mapping.index(document, id_=instance.id, es=es, index=main_index_with_type)

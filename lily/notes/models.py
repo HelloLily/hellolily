@@ -7,7 +7,6 @@ from lily.tenant.models import TenantMixin
 from lily.utils.models.mixins import DeletedMixin
 from lily.users.models import LilyUser
 
-
 NOTABLE_MODELS = ('account', 'contact', 'deal', 'case', 'call', 'callrecord')
 
 

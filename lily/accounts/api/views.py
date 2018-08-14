@@ -36,7 +36,13 @@ class AccountFilter(filters.FilterSet):
             'bic': ['exact', ],
             'cocnumber': ['exact', ],
             'contacts': ['exact', ],
-            'created': ['exact', 'lt', 'lte', 'gt', 'gte', ],
+            'created': [
+                'exact',
+                'lt',
+                'lte',
+                'gt',
+                'gte',
+            ],
             'customer_id': ['exact', ],
             'description': ['exact', ],
             'email_addresses': ['exact', ],
@@ -83,7 +89,11 @@ class AccountViewSet(ModelChangesMixin, DataExistsMixin, ModelViewSet):
     # Set the serializer class for this viewset.
     serializer_class = AccountSerializer
     # Set all filter backends that this viewset uses.
-    filter_backends = (ElasticSearchFilter, OrderingFilter, filters.DjangoFilterBackend, )
+    filter_backends = (
+        ElasticSearchFilter,
+        OrderingFilter,
+        filters.DjangoFilterBackend,
+    )
 
     # ElasticSearchFilter: set the model type.
     model_type = 'accounts_account'
@@ -105,7 +115,9 @@ class AccountViewSet(ModelChangesMixin, DataExistsMixin, ModelViewSet):
         return super(AccountViewSet, self).get_queryset().filter(is_deleted=False)
 
     @swagger_auto_schema(auto_schema=None)
-    @detail_route(methods=['GET', ])
+    @detail_route(methods=[
+        'GET',
+    ])
     def calls(self, request, pk=None):
         account = self.get_object()
 
@@ -120,9 +132,7 @@ class AccountViewSet(ModelChangesMixin, DataExistsMixin, ModelViewSet):
 
         calls = CallRecord.objects.filter(
             Q(caller__number__in=phone_numbers) | Q(destination__number__in=phone_numbers)
-        ).order_by(
-            '-start'
-        )[:100]
+        ).order_by('-start')[:100]
 
         serializer = CallRecordSerializer(calls, many=True, context={'request': request})
 
@@ -144,7 +154,10 @@ class AccountStatusViewSet(ModelViewSet):
 
 
 class AccountImport(APIView):
-    permission_classes = (IsAuthenticated, IsAccountAdmin, )
+    permission_classes = (
+        IsAuthenticated,
+        IsAccountAdmin,
+    )
     classes = (FileUploadParser, )
     swagger_schema = None
 
@@ -160,8 +173,9 @@ class AccountImport(APIView):
         # The following set of fields should be present as headers in the uploaded file.
         required_fields = {u'company name'}
         # The following set of fields are optional.
-        optional_fields = {u'website', u'email address', u'phone number', u'twitter', u'address', u'postal code',
-                           u'city'}
+        optional_fields = {
+            u'website', u'email address', u'phone number', u'twitter', u'address', u'postal code', u'city'
+        }
 
         # The following headers are present in the uploaded file.
         available_in_upload = set(imported_data.headers)
@@ -175,8 +189,11 @@ class AccountImport(APIView):
 
         if bool(missing_in_upload):
             return Response(
-                {'file_accounts': {'The follwing columns are missing: {0}'.format(', '.join(missing_in_upload))}},
-                status=status.HTTP_409_CONFLICT)
+                {
+                    'file_accounts': {'The follwing columns are missing: {0}'.format(', '.join(missing_in_upload))}
+                },
+                status=status.HTTP_409_CONFLICT,
+            )
 
         tenant = self.request.user.tenant
         error = []
@@ -207,46 +224,42 @@ class AccountImport(APIView):
                             account.save()
                     except Account.DoesNotExist:
                         account_status = AccountStatus.objects.get(name='Relation', tenant=tenant)
-                        account = Account(name=company_name,
-                                          tenant=tenant,
-                                          status=account_status,
-                                          description=description)
+                        account = Account(
+                            name=company_name, tenant=tenant, status=account_status, description=description
+                        )
                         account.skip_signal = True
                         account.save()
 
                     if u'website' in optional_in_upload and row.get(u'website'):
-                        website = Website(website=row.get(u'website'),
-                                          is_primary=True, account=account,
-                                          tenant=tenant)
+                        website = Website(website=row.get(u'website'), is_primary=True, account=account, tenant=tenant)
                         website.skip_signal = True
                         website.save()
 
                     if u'email address' in optional_in_upload and row.get(u'email address'):
-                        email_address = EmailAddress(email_address=row.get(u'email address'),
-                                                     status=EmailAddress.PRIMARY_STATUS,
-                                                     tenant=tenant)
+                        email_address = EmailAddress(
+                            email_address=row.get(u'email address'), status=EmailAddress.PRIMARY_STATUS, tenant=tenant
+                        )
                         email_address.skip_signal = True
                         email_address.save()
 
                     if u'phone number' in optional_in_upload and row.get(u'phone number'):
-                        phone_number = PhoneNumber(number=row.get(u'phone number'),
-                                                   tenant=tenant)
+                        phone_number = PhoneNumber(number=row.get(u'phone number'), tenant=tenant)
                         phone_number.skip_signal = True
                         phone_number.save()
 
                     if u'twitter' in optional_in_upload and row.get(u'twitter'):
-                        twitter = SocialMedia(name='twitter',
-                                              username=row.get(u'twitter'),
-                                              profile_url='https://twitter.com/{0}'.format(row.get(u'twitter')),
-                                              tenant=tenant)
+                        twitter = SocialMedia(
+                            name='twitter',
+                            username=row.get(u'twitter'),
+                            profile_url='https://twitter.com/{0}'.format(row.get(u'twitter')),
+                            tenant=tenant
+                        )
                         twitter.skip_signal = True
                         twitter.save()
 
                     # An Address consists of multiple, optional fields. So create or update the instance.
                     if u'address' in optional_in_upload and row.get(u'address'):
-                        address = Address(address=row.get(u'address'),
-                                          type='visiting',
-                                          tenant=tenant)
+                        address = Address(address=row.get(u'address'), type='visiting', tenant=tenant)
                         address.skip_signal = True
                         address.save()
 
@@ -254,9 +267,7 @@ class AccountImport(APIView):
                         if address:
                             address.postal_code = row.get(u'postal code')
                         else:
-                            address = Address(postal_code=row.get(u'postal code'),
-                                              type='visiting',
-                                              tenant=tenant)
+                            address = Address(postal_code=row.get(u'postal code'), type='visiting', tenant=tenant)
                         address.skip_signal = True
                         address.save()
 
@@ -264,9 +275,7 @@ class AccountImport(APIView):
                         if address:
                             address.city = row.get(u'city')
                         else:
-                            address = Address(city=row.get(u'city'),
-                                              type='visiting',
-                                              tenant=tenant)
+                            address = Address(city=row.get(u'city'), type='visiting', tenant=tenant)
                         address.skip_signal = True
                         address.save()
 

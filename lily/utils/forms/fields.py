@@ -5,7 +5,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from .widgets import TagInput, FormSetWidget
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -36,8 +35,17 @@ class FormSetField(Field):
     widget = FormSetWidget
     is_formset = True
 
-    def __init__(self, queryset=None, formset_class=None, template=None, form_attrs=None, related_name=None,
-                 limit_choices_to=None, *args, **kwargs):
+    def __init__(
+        self,
+        queryset=None,
+        formset_class=None,
+        template=None,
+        form_attrs=None,
+        related_name=None,
+        limit_choices_to=None,
+        *args,
+        **kwargs
+    ):
         self.queryset = queryset
         self.formset_class = formset_class
         self.template = template

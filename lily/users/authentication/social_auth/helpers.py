@@ -10,7 +10,6 @@ from requests_oauthlib import OAuth2Session
 from .providers.google import GoogleAuthProvider
 from .providers.microsoft import MicrosoftAuthProvider
 
-
 SOCIAL_AUTH_PROVIDERS = {
     'google': GoogleAuthProvider,
     'microsoft': MicrosoftAuthProvider,

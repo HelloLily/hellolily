@@ -24,6 +24,7 @@ class GmailManager(object):
         message_builder: MessageBuilder instance
         label_builder: LabelBuilder instance
     """
+
     def __init__(self, email_account):
         """
         Args:
@@ -44,16 +45,12 @@ class GmailManager(object):
 
         # Check for message_ids that are saved as non email messages.
         no_message_ids_in_db = set(
-            NoEmailMessageId.objects.filter(
-                account=self.email_account
-            ).values_list('message_id', flat='true')
+            NoEmailMessageId.objects.filter(account=self.email_account).values_list('message_id', flat='true')
         )
 
         # Check for message_ids that are saved as email messages.
         message_ids_in_db = set(
-            EmailMessage.objects.filter(
-                account=self.email_account
-            ).values_list('message_id', flat='true')
+            EmailMessage.objects.filter(account=self.email_account).values_list('message_id', flat='true')
         )
 
         # What do we need to do with every email message?
@@ -78,11 +75,7 @@ class GmailManager(object):
                 )
 
         # Finally, add a task to keep track when the sync queue is finished.
-        app.send_task(
-            'full_sync_finished',
-            args=[self.email_account.id],
-            queue='email_first_sync'
-        )
+        app.send_task('full_sync_finished', args=[self.email_account.id], queue='email_first_sync')
         # Only if transaction was successful, we update the history ID.
         self.connector.save_history_id()
         logger.debug('Finished queuing up tasks for email sync, storing history id for %s' % self.email_account)
@@ -138,8 +131,10 @@ class GmailManager(object):
                 self.email_account.is_authorized = False
                 self.email_account.is_syncing = False
                 self.email_account.save()
-                logger.error('Repeated 404 error on incremental syncing. Authorization revoked for account %s' %
-                             self.email_account)
+                logger.error(
+                    'Repeated 404 error on incremental syncing. Authorization revoked for account %s' %
+                    self.email_account
+                )
             return
 
         self.connector.save_history_id()
@@ -259,10 +254,7 @@ class GmailManager(object):
 
         if delete_label_ids:
             # TODO: LILY-2342 Research that removing a label isn't deleting messages on cascade.
-            EmailLabel.objects.filter(
-                account=self.email_account,
-                label_id__in=delete_label_ids
-            ).delete()
+            EmailLabel.objects.filter(account=self.email_account, label_id__in=delete_label_ids).delete()
 
     def update_unread_count(self):
         """
@@ -339,10 +331,7 @@ class GmailManager(object):
         except NotFoundError:
             return
 
-        logger.debug('Storing label info for message: %s, account %s' % (
-            message_id,
-            self.email_account
-        ))
+        logger.debug('Storing label info for message: %s, account %s' % (message_id, self.email_account))
 
         # Keep track if anything has changed.
         changed = False
@@ -366,8 +355,7 @@ class GmailManager(object):
             try:
                 self.message_builder.save()
             except Exception:
-                logger.exception(
-                    'Couldn\'t save message %s for account %s' % (message_id, self.email_account))
+                logger.exception('Couldn\'t save message %s for account %s' % (message_id, self.email_account))
 
     def add_and_remove_labels_for_message(self, email_message, add_labels=[], remove_labels=[]):
         """
@@ -404,8 +392,10 @@ class GmailManager(object):
                 try:
                     self.connector.update_labels(email_message.message_id, labels)
                 except LabelNotFoundError:
-                    logger.error('label not found, update labels failed! %s: %s' %
-                                 (self.email_account, email_message.message_id))
+                    logger.error(
+                        'label not found, update labels failed! %s: %s' %
+                        (self.email_account, email_message.message_id)
+                    )
                 except HttpError:
                     # Other than a label error, so raise.
                     logger.error('update labels failed! %s: %s' % (self.email_account, email_message.message_id))
@@ -413,12 +403,15 @@ class GmailManager(object):
                 else:
                     # API call to update labelling successfull, so also update the labelling in the database.
                     email_message.labels.remove(
-                        *list(EmailLabel.objects.filter(label_id__in=labels['removeLabelIds'],
-                                                        account=self.email_account))
+                        *list(
+                            EmailLabel.objects.
+                            filter(label_id__in=labels['removeLabelIds'], account=self.email_account)
+                        )
                     )
                     email_message.labels.add(
-                        *list(EmailLabel.objects.filter(label_id__in=labels['addLabelIds'],
-                                                        account=self.email_account))
+                        *list(
+                            EmailLabel.objects.filter(label_id__in=labels['addLabelIds'], account=self.email_account)
+                        )
                     )
                     # Labels updated in the database, so no need to retry / continue the for-loop.
                     break

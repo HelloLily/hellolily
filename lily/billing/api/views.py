@@ -18,7 +18,10 @@ from ..models import Plan
 
 
 class BillingViewSet(ViewSet):
-    permission_classes = (IsAuthenticated, IsAccountAdmin, )
+    permission_classes = (
+        IsAuthenticated,
+        IsAccountAdmin,
+    )
     swagger_schema = None
 
     @list_route(methods=['GET', 'PATCH'])
@@ -119,11 +122,13 @@ class BillingViewSet(ViewSet):
             }
 
             # Track subscription changes in Segment.
-            analytics.track(self.request.user.id, 'subscription-changed', {
-                'tenant_id': tenant.id,
-                'old_plan_tier': old_plan.tier,
-                'new_plan_tier': billing.plan.tier,
-            })
+            analytics.track(
+                self.request.user.id, 'subscription-changed', {
+                    'tenant_id': tenant.id,
+                    'old_plan_tier': old_plan.tier,
+                    'new_plan_tier': billing.plan.tier,
+                }
+            )
 
         return Response(data, content_type='application/json')
 

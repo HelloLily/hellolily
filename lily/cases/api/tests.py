@@ -39,12 +39,8 @@ class CaseTests(GenericAPITestCase):
             obj['account'] = {
                 'id': account.pk,
             }
-            obj['type'] = {
-                'id': casetype.pk
-            }
-            obj['status'] = {
-                'id': casestatus.pk
-            }
+            obj['type'] = {'id': casetype.pk}
+            obj['status'] = {'id': casestatus.pk}
 
             if with_relations:
                 # If relations are needed, override them, because a dict is needed instead of an instance.

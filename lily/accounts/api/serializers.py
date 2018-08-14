@@ -12,8 +12,9 @@ from rest_framework import serializers
 from lily.api.serializers import ContentTypeSerializer
 from lily.socialmedia.api.serializers import RelatedSocialMediaSerializer
 from lily.users.api.serializers import RelatedLilyUserSerializer
-from lily.utils.api.serializers import (RelatedAddressSerializer, RelatedEmailAddressSerializer,
-                                        RelatedPhoneNumberSerializer, RelatedTagSerializer)
+from lily.utils.api.serializers import (
+    RelatedAddressSerializer, RelatedEmailAddressSerializer, RelatedPhoneNumberSerializer, RelatedTagSerializer
+)
 
 from ..models import Account, Website, AccountStatus
 from .validators import DuplicateAccountName, HostnameValidator
@@ -43,6 +44,7 @@ class ContactForAccountSerializer(serializers.ModelSerializer):
     Serializer for Contact model related to Accounts.
     This serializer is a small subset for the related Contact model.
     """
+
     class Meta:
         model = Contact
         fields = (
@@ -59,6 +61,7 @@ class AccountStatusSerializer(serializers.ModelSerializer):
     """
     Serializer for account status model.
     """
+
     class Meta:
         model = AccountStatus
         fields = (
@@ -78,8 +81,7 @@ class AccountSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
     """
     # Read only fields.
     content_type = ContentTypeSerializer(
-        read_only=True,
-        help_text='This is what the object is identified as in the back-end.'
+        read_only=True, help_text='This is what the object is identified as in the back-end.'
     )
     contacts = ContactForAccountSerializer(
         many=True,
@@ -140,9 +142,7 @@ class AccountSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
         validators=[DuplicateAccountName()],
         help_text='The name of the account.',
     )
-    description = SanitizedHtmlCharField(
-        help_text='Any extra text to describe the account (supports Markdown).',
-    )
+    description = SanitizedHtmlCharField(help_text='Any extra text to describe the account (supports Markdown).', )
 
     def create(self, validated_data):
         tenant = self.context.get('request').user.tenant
@@ -196,6 +196,7 @@ class RelatedAccountSerializer(RelatedSerializerMixin, AccountSerializer):
     """
     Serializer for the account model when used as a relation.
     """
+
     class Meta:
         model = Account
         fields = (  # No related fields in this serializer.

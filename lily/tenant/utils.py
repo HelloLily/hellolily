@@ -15,64 +15,79 @@ def create_defaults_for_tenant(tenant):
     from lily.utils.models.models import EmailAddress
 
     # Team
-    team_list = ['Sales', 'Customer care', 'Finance', ]
-    Team.objects.bulk_create([
-        Team(
-            tenant=tenant,
-            name=name
-        ) for name in team_list
-    ])
+    team_list = [
+        'Sales',
+        'Customer care',
+        'Finance',
+    ]
+    Team.objects.bulk_create([Team(tenant=tenant, name=name) for name in team_list])
 
     # AccountStatus
-    account_status_list = ['Customer', 'Relation', 'Prospect', 'Former customer', ]
+    account_status_list = [
+        'Customer',
+        'Relation',
+        'Prospect',
+        'Former customer',
+    ]
     AccountStatus.objects.bulk_create([
-        AccountStatus(
-            tenant=tenant,
-            position=position,
-            name=name
-        ) for position, name in enumerate(account_status_list, start=1)
+        AccountStatus(tenant=tenant, position=position, name=name)
+        for position, name in enumerate(account_status_list, start=1)
     ])
 
     # CaseType
-    case_type_list = ['Callback', 'Support', 'Finance', 'Sales', 'Other', ]
-    CaseType.objects.bulk_create([
-        CaseType(
-            tenant=tenant,
-            name=name
-        ) for name in case_type_list
-    ])
+    case_type_list = [
+        'Callback',
+        'Support',
+        'Finance',
+        'Sales',
+        'Other',
+    ]
+    CaseType.objects.bulk_create([CaseType(tenant=tenant, name=name) for name in case_type_list])
 
     # CaseStatus
-    case_status_list = ['New', 'Processing', 'Pending input', 'Follow up', 'Closed', ]
+    case_status_list = [
+        'New',
+        'Processing',
+        'Pending input',
+        'Follow up',
+        'Closed',
+    ]
     CaseStatus.objects.bulk_create([
-        CaseStatus(
-            tenant=tenant,
-            position=position,
-            name=name
-        ) for position, name in enumerate(case_status_list, start=1)
+        CaseStatus(tenant=tenant, position=position, name=name)
+        for position, name in enumerate(case_status_list, start=1)
     ])
 
     # DealContactedBy
-    deal_contact_by_list = ['Phone', 'Website form', 'Email', 'Chat', 'Social media', 'Exhibition', 'Other', ]
+    deal_contact_by_list = [
+        'Phone',
+        'Website form',
+        'Email',
+        'Chat',
+        'Social media',
+        'Exhibition',
+        'Other',
+    ]
     DealContactedBy.objects.bulk_create([
-        DealContactedBy(
-            tenant=tenant,
-            position=position,
-            name=name
-        ) for position, name in enumerate(deal_contact_by_list, start=1)
+        DealContactedBy(tenant=tenant, position=position, name=name)
+        for position, name in enumerate(deal_contact_by_list, start=1)
     ])
 
     # DealFoundThrough
     deal_found_through_list = [
-        'Search engine', 'Social media', 'Talk with employee', 'Existing customer', 'Cold calling',
-        'Public speaking', 'Press and articles', 'Exhibition', 'Radio/TV', 'Other',
+        'Search engine',
+        'Social media',
+        'Talk with employee',
+        'Existing customer',
+        'Cold calling',
+        'Public speaking',
+        'Press and articles',
+        'Exhibition',
+        'Radio/TV',
+        'Other',
     ]
     DealFoundThrough.objects.bulk_create([
-        DealFoundThrough(
-            tenant=tenant,
-            position=position,
-            name=name
-        ) for position, name in enumerate(deal_found_through_list, start=1)
+        DealFoundThrough(tenant=tenant, position=position, name=name)
+        for position, name in enumerate(deal_found_through_list, start=1)
     ])
 
     # DealNextStep
@@ -84,12 +99,8 @@ def create_defaults_for_tenant(tenant):
         ('None', '0'),
     )
     DealNextStep.objects.bulk_create([
-        DealNextStep(
-            tenant=tenant,
-            position=position,
-            name=next_step[0],
-            date_increment=next_step[1]
-        ) for position, next_step in enumerate(deal_next_steps, start=1)
+        DealNextStep(tenant=tenant, position=position, name=next_step[0], date_increment=next_step[1])
+        for position, next_step in enumerate(deal_next_steps, start=1)
     ])
 
     # DealWhyCustomer
@@ -101,11 +112,8 @@ def create_defaults_for_tenant(tenant):
         'Other',
     ]
     DealWhyCustomer.objects.bulk_create([
-        DealWhyCustomer(
-            tenant=tenant,
-            position=position,
-            name=name
-        ) for position, name in enumerate(deal_why_customer_list, start=1)
+        DealWhyCustomer(tenant=tenant, position=position, name=name)
+        for position, name in enumerate(deal_why_customer_list, start=1)
     ])
 
     # DealWhyLost
@@ -115,24 +123,24 @@ def create_defaults_for_tenant(tenant):
         'No response to quote',
         'We replied too late',
         'Not a customer for us',
-        'Missing features', 'Other',
+        'Missing features',
+        'Other',
     ]
     DealWhyLost.objects.bulk_create([
-        DealWhyLost(
-            tenant=tenant,
-            position=position,
-            name=name
-        ) for position, name in enumerate(deal_why_lost_list, start=1)
+        DealWhyLost(tenant=tenant, position=position, name=name)
+        for position, name in enumerate(deal_why_lost_list, start=1)
     ])
 
     # DealStatus
-    deal_status_list = ['New', 'Open', 'Won', 'Lost', ]
+    deal_status_list = [
+        'New',
+        'Open',
+        'Won',
+        'Lost',
+    ]
     DealStatus.objects.bulk_create([
-        DealStatus(
-            tenant=tenant,
-            position=position,
-            name=name
-        ) for position, name in enumerate(deal_status_list, start=1)
+        DealStatus(tenant=tenant, position=position, name=name)
+        for position, name in enumerate(deal_status_list, start=1)
     ])
 
     # Team Lily
@@ -173,18 +181,15 @@ def create_defaults_for_tenant(tenant):
     account.social_media.add(twitter)
 
     # Add Team Lily default contacts
-    lily_contacts = [
-        {
-            'first_name': 'Sjoerd',
-            'last_name': 'Romkes',
-            'email_address': 'sjoerd@hellolily.com',
-        },
-        {
-            'first_name': 'Support',
-            'last_name': 'Lily',
-            'email_address': 'lily@hellolily.com',
-        }
-    ]
+    lily_contacts = [{
+        'first_name': 'Sjoerd',
+        'last_name': 'Romkes',
+        'email_address': 'sjoerd@hellolily.com',
+    }, {
+        'first_name': 'Support',
+        'last_name': 'Lily',
+        'email_address': 'lily@hellolily.com',
+    }]
 
     for contact in lily_contacts:
         contact_instance = Contact.objects.create(
@@ -226,9 +231,11 @@ def create_defaults_for_tenant(tenant):
     EmailTemplate.objects.create(
         name='Example signature',
         subject='',
-        body_html=('Regards,<br>'
-                   '[[ user.full_name ]]<br>'
-                   'Phone: [[ user.phone_number ]]<br>'
-                   'Email: [[ user.current_email_address ]]'),
+        body_html=(
+            'Regards,<br>'
+            '[[ user.full_name ]]<br>'
+            'Phone: [[ user.phone_number ]]<br>'
+            'Email: [[ user.current_email_address ]]'
+        ),
         tenant=tenant,
     )

@@ -4,7 +4,6 @@ from django.utils.translation import ugettext_lazy as _
 from lily.tenant.models import TenantMixin
 from lily.utils.countries import COUNTRIES
 
-
 PHONE_TYPE_CHOICES = (
     ('work', _('Work')),
     ('mobile', _('Mobile')),
@@ -29,17 +28,10 @@ class PhoneNumber(TenantMixin):
     )
 
     number = models.CharField(max_length=40)
-    type = models.CharField(
-        max_length=15,
-        choices=PHONE_TYPE_CHOICES,
-        default='work',
-        verbose_name=_('type')
-    )
+    type = models.CharField(max_length=15, choices=PHONE_TYPE_CHOICES, default='work', verbose_name=_('type'))
     other_type = models.CharField(max_length=15, blank=True, null=True)  # used in combination with type='other'.
     status = models.PositiveSmallIntegerField(
-        choices=PHONE_STATUS_CHOICES,
-        default=ACTIVE_STATUS,
-        verbose_name=_('status')
+        choices=PHONE_STATUS_CHOICES, default=ACTIVE_STATUS, verbose_name=_('status')
     )
 
     def __unicode__(self):
@@ -106,9 +98,7 @@ class EmailAddress(TenantMixin):
 
     email_address = models.EmailField(max_length=255, verbose_name=_('email address'))
     status = models.PositiveSmallIntegerField(
-        choices=EMAIL_STATUS_CHOICES,
-        default=OTHER_STATUS,
-        verbose_name=_('status')
+        choices=EMAIL_STATUS_CHOICES, default=OTHER_STATUS, verbose_name=_('status')
     )
 
     @property

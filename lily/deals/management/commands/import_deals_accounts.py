@@ -9,7 +9,6 @@ from django.core.management.base import BaseCommand
 from lily.accounts.models import Account
 from lily.deals.models import Deal
 
-
 logger = logging.getLogger(__name__)
 
 

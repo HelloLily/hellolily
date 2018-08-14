@@ -6,9 +6,7 @@ from .models import Case, CaseType, CaseStatus
 
 @admin.register(Case)
 class CaseAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
-    list_select_related = (
-        'tenant',
-    )
+    list_select_related = ('tenant', )
     list_display = (
         'id',
         'subject',
@@ -34,16 +32,12 @@ class CaseAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
         'contact',
         'parcel',
     )
-    filter_horizontal = (
-        'assigned_to_teams',
-    )
+    filter_horizontal = ('assigned_to_teams', )
 
 
 @admin.register(CaseType)
 class CaseTypeAdmin(admin.ModelAdmin):
-    list_select_related = (
-        'tenant',
-    )
+    list_select_related = ('tenant', )
     list_display = (
         'id',
         'name',
@@ -51,9 +45,7 @@ class CaseTypeAdmin(admin.ModelAdmin):
         'is_archived',
         'tenant',
     )
-    search_fields = (
-        'name',
-    )
+    search_fields = ('name', )
     list_filter = (
         'use_as_filter',
         'is_archived',
@@ -63,18 +55,14 @@ class CaseTypeAdmin(admin.ModelAdmin):
 
 @admin.register(CaseStatus)
 class CaseStatusAdmin(admin.ModelAdmin):
-    list_select_related = (
-        'tenant',
-    )
+    list_select_related = ('tenant', )
     list_display = (
         'id',
         'position',
         'name',
         'tenant',
     )
-    search_fields = (
-        'name',
-    )
+    search_fields = ('name', )
     list_filter = (
         'position',
         TenantFilter,

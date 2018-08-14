@@ -61,18 +61,13 @@ class RelatedSerializerMixin(ValidateEverythingSimultaneouslyMixin):
         This is basically a copy of the super.to_internal_value(), but we need the option to only use certain fields.
         """
         if not isinstance(data, dict):
-            message = self.error_messages['invalid'].format(
-                datatype=type(data).__name__
-            )
-            raise ValidationError({
-                api_settings.NON_FIELD_ERRORS_KEY: [message]
-            })
+            message = self.error_messages['invalid'].format(datatype=type(data).__name__)
+            raise ValidationError({api_settings.NON_FIELD_ERRORS_KEY: [message]})
 
         validated_values = OrderedDict()
         errors = OrderedDict()
         fields = fields or [
-            field for field in self.fields.values()
-            if (not field.read_only) or (field.default is not empty)
+            field for field in self.fields.values() if (not field.read_only) or (field.default is not empty)
         ]
 
         for field in fields:
@@ -107,6 +102,7 @@ class RelatedSerializerMixin(ValidateEverythingSimultaneouslyMixin):
         For generic relations autofill the content_type_id and object_id and remove the unique_together validator on
         creates, because then it's always unique (false error).
         """
+
         def custom_validate_empty_values(self, data):
             """
             The custom validate empty function that always checks for empty values, even on partial update.
@@ -130,12 +126,8 @@ class RelatedSerializerMixin(ValidateEverythingSimultaneouslyMixin):
         if isinstance(data, int):
             data = {'id': data}
         elif not isinstance(data, dict):
-            message = self.error_messages['invalid'].format(
-                datatype=type(data).__name__
-            )
-            raise ValidationError({
-                api_settings.NON_FIELD_ERRORS_KEY: [message]
-            })
+            message = self.error_messages['invalid'].format(datatype=type(data).__name__)
+            raise ValidationError({api_settings.NON_FIELD_ERRORS_KEY: [message]})
 
         # Store local reference to prevent looping multiple times to find the root (which is what self.root does).
         root = self.root
@@ -152,7 +144,9 @@ class RelatedSerializerMixin(ValidateEverythingSimultaneouslyMixin):
                 # Get the id field so we can validate it. Skip validation of other fields.
 
                 id_field = self.fields.get('id')
-                return self.to_internal_value_fields(data, [id_field, ])
+                return self.to_internal_value_fields(data, [
+                    id_field,
+                ])
 
         elif root.partial:
             # Partial update with no id, so check if everything is filled despite being a partial update.

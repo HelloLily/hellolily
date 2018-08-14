@@ -24,13 +24,19 @@ class ContactMapping(BaseMapping):
             'accounts': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'name': {
                         'type': 'string',
                         'analyzer': 'normal_edge_analyzer',
                     },
-                    'customer_id': {'type': 'string'},
-                    'function': {'type': 'string'},
+                    'customer_id': {
+                        'type': 'string'
+                    },
+                    'function': {
+                        'type': 'string'
+                    },
                     'phone_numbers': {
                         'type': 'object',
                         'properties': {
@@ -58,9 +64,15 @@ class ContactMapping(BaseMapping):
                 'type': 'object',
                 'index': 'no',
                 'properties': {
-                    'name': {'type': 'string'},
-                    'profile_url': {'type': 'string'},
-                    'username': {'type': 'string'},
+                    'name': {
+                        'type': 'string'
+                    },
+                    'profile_url': {
+                        'type': 'string'
+                    },
+                    'username': {
+                        'type': 'string'
+                    },
                 },
             },
             'title': {
@@ -90,18 +102,24 @@ class ContactMapping(BaseMapping):
             'email_addresses': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'email_address': {
                         'type': 'string',
                         'analyzer': 'email_analyzer',
                     },
-                    'status': {'type': 'integer'},
+                    'status': {
+                        'type': 'integer'
+                    },
                 }
             },
             'phone_numbers': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'number': {
                         'type': 'string',
                         'index_analyzer': 'normal_ngram_analyzer',
@@ -110,20 +128,30 @@ class ContactMapping(BaseMapping):
                         'type': 'string',
                         'index_analyzer': 'normal_ngram_analyzer',
                     },
-                    'type': {'type': 'string'},
-                    'status': {'type': 'integer'},
-                    'status_name': {'type': 'string'},
+                    'type': {
+                        'type': 'string'
+                    },
+                    'status': {
+                        'type': 'integer'
+                    },
+                    'status_name': {
+                        'type': 'string'
+                    },
                 }
             },
             'tags': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'name': {
                         'type': 'string',
                         'index_analyzer': 'normal_edge_analyzer',
                     },
-                    'object_id': {'type': 'integer'},
+                    'object_id': {
+                        'type': 'integer'
+                    },
                 },
             },
             'created': {
@@ -183,20 +211,28 @@ class ContactMapping(BaseMapping):
                 'country': address.get_country_display() if address.country else None,
                 'type': address.get_type_display(),
             } for address in obj.addresses.all()],
-            'content_type': obj.content_type.id,
-            'created': obj.created,
-            'description': obj.description,
+            'content_type':
+                obj.content_type.id,
+            'created':
+                obj.created,
+            'description':
+                obj.description,
             'email_addresses': [{
                 'id': email.id,
                 'email_address': email.email_address,
                 'status': email.status,
                 'is_active': email.is_active,
             } for email in obj.email_addresses.all()],
-            'first_name': obj.first_name,
-            'full_name': obj.full_name,
-            'gender': obj.get_gender_display(),
-            'last_name': obj.last_name,
-            'modified': obj.modified,
+            'first_name':
+                obj.first_name,
+            'full_name':
+                obj.full_name,
+            'gender':
+                obj.get_gender_display(),
+            'last_name':
+                obj.last_name,
+            'modified':
+                obj.modified,
             'phone_numbers': [{
                 'id': phone_number.id,
                 'number': phone_number.number,
@@ -205,7 +241,8 @@ class ContactMapping(BaseMapping):
                 'status': phone_number.status,
                 'status_name': phone_number.get_status_display(),
             } for phone_number in obj.phone_numbers.all()],
-            'salutation': obj.get_salutation_display(),
+            'salutation':
+                obj.get_salutation_display(),
             'social_media': [{
                 'id': soc.id,
                 'name': soc.get_name_display(),
@@ -217,17 +254,23 @@ class ContactMapping(BaseMapping):
                 'name': tag.name,
                 'object_id': tag.object_id,
             } for tag in obj.tags.all()],
-            'title': obj.title,
+            'title':
+                obj.title,
             'active_at': [f.account_id for f in functions if f.is_active]
         }
 
         for function in functions:
             account = {
-                'id': function.account_id,
-                'name': function.account.name if function.account.name else '',
-                'customer_id': function.account.customer_id,
-                'function': function.title,
-                'is_active': function.is_active,
+                'id':
+                    function.account_id,
+                'name':
+                    function.account.name if function.account.name else '',
+                'customer_id':
+                    function.account.customer_id,
+                'function':
+                    function.title,
+                'is_active':
+                    function.is_active,
                 'phone_numbers': [{
                     'number': phone_number.number,
                     'formatted_number': format_phone_number(phone_number.number),

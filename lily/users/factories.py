@@ -16,7 +16,6 @@ from lily.tenant.factories import TenantFactory
 
 from .models import Team, LilyUser, UserInfo
 
-
 faker = Factory.create('nl_NL')
 
 
@@ -61,10 +60,7 @@ class LilyUserFactory(DjangoModelFactory):
     @post_generation
     def auth_token(self, create, extracted, **kwargs):
         if create:
-            Token.objects.create(
-                key=self.email.split('@')[0][0:40],
-                user=self
-            )
+            Token.objects.create(key=self.email.split('@')[0][0:40], user=self)
 
     @post_generation
     def info(self, create, extracted, **kwargs):

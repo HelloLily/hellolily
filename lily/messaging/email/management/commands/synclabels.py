@@ -5,7 +5,6 @@ from django.core.management import BaseCommand
 from ...manager import GmailManager
 from ...models.models import EmailAccount
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -35,8 +34,4 @@ class Command(BaseCommand):
                 if manager:
                     manager.cleanup()
 
-            logger.info('sync done for %s (%s/%s)' % (
-                email_account,
-                index + 1,
-                number_of_accounts
-            ))
+            logger.info('sync done for %s (%s/%s)' % (email_account, index + 1, number_of_accounts))

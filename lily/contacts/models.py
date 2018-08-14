@@ -175,8 +175,10 @@ class Contact(Common, TaggedObjectMixin):
     def __unicode__(self):
         return self.full_name
 
-    EMAIL_TEMPLATE_PARAMETERS = ['first_name', 'last_name', 'full_name', 'twitter', 'linkedin', 'work_phone',
-                                 'mobile_phone', 'primary_email', 'account_city', 'address', 'city']
+    EMAIL_TEMPLATE_PARAMETERS = [
+        'first_name', 'last_name', 'full_name', 'twitter', 'linkedin', 'work_phone', 'mobile_phone', 'primary_email',
+        'account_city', 'address', 'city'
+    ]
 
     class Meta:
         ordering = ['last_name', 'first_name']

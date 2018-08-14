@@ -3,7 +3,6 @@ from django.urls import reverse
 
 from threading import local
 
-
 _thread_locals = local()
 
 
@@ -29,6 +28,7 @@ class TenantMiddleware(object):
     """
     Make the user that makes the request retrievable from anywhere.
     """
+
     def process_request(self, request):
         """
         Save a reference to the user in local threading. When in Django admin,

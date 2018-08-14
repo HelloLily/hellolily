@@ -192,16 +192,14 @@ class LilyUserSerializer(WritableNestedSerializer):
             if self.instance.has_usable_password():
                 if password and not password_confirmation:
                     raise serializers.ValidationError({
-                        'password_confirmation': _(
-                            'When changing passwords, you need to confirm with your current password.'
-                        ),
+                        'password_confirmation':
+                            _('When changing passwords, you need to confirm with your current password.'),
                     })
 
                 if email and email != self.instance.email and not password_confirmation:
                     raise serializers.ValidationError({
-                        'password_confirmation': _(
-                            'When changing email adresses, you need to confirm with your current password.'
-                        ),
+                        'password_confirmation':
+                            _('When changing email adresses, you need to confirm with your current password.'),
                     })
 
         return super(LilyUserSerializer, self).validate(data)
@@ -246,10 +244,12 @@ class LilyUserSerializer(WritableNestedSerializer):
                             })
 
                 # Track changing internal number in Segment.
-                analytics.track(instance.id, 'internal-number-updated', {
-                    'internal_number_updated_by': current_user.id,
-                    'type': 'Admin' if current_user.is_admin else 'User',
-                })
+                analytics.track(
+                    instance.id, 'internal-number-updated', {
+                        'internal_number_updated_by': current_user.id,
+                        'type': 'Admin' if current_user.is_admin else 'User',
+                    }
+                )
 
         instance = super(LilyUserSerializer, self).update(instance, validated_data)
 
@@ -282,9 +282,7 @@ class LilyUserSerializer(WritableNestedSerializer):
         primary_email_account = data.get('primary_email_account')
 
         if primary_email_account:
-            internal_value.update({
-                'primary_email_account': primary_email_account
-            })
+            internal_value.update({'primary_email_account': primary_email_account})
 
         return internal_value
 
@@ -334,7 +332,7 @@ class LilyUserTokenSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LilyUser
-        fields = ('auth_token',)
+        fields = ('auth_token', )
 
 
 class SessionSerializer(serializers.ModelSerializer):

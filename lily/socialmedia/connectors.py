@@ -135,9 +135,7 @@ class Twitter(BaseConnector):
     _domain = 'twitter.com'
     _username_regex = re.compile(r'[a-z0-9._-]+$', re.IGNORECASE)
     _profile_url_base = 'https://twitter.com/%(username)s'
-    _profile_url_paths = (
-        re.compile(r'/(?P<username>[a-z0-9._-]+)/?$', re.IGNORECASE),
-    )
+    _profile_url_paths = (re.compile(r'/(?P<username>[a-z0-9._-]+)/?$', re.IGNORECASE), )
     _profile_url_allowed_query_params = ()
 
 

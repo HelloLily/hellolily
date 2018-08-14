@@ -31,15 +31,11 @@ class SocialMediaSerializer(serializers.ModelSerializer):
 
         try:
             data['username'], data['profile_url'] = getattr(self, 'validate_%s' % data.get('name'))(
-                username=data.get('username'),
-                profile_url=data.get('profile_url')
+                username=data.get('username'), profile_url=data.get('profile_url')
             )
         except TypeError:
             error_msg = _('Please fill in username or profile url.')
-            raise serializers.ValidationError({
-                'username': error_msg,
-                'profile_url': error_msg
-            })
+            raise serializers.ValidationError({'username': error_msg, 'profile_url': error_msg})
         except AttributeError:
             pass  # We have no custom validation function for this type of social media
 

@@ -10,8 +10,9 @@ from lily.api.mixins import PhoneNumberFormatMixin
 from lily.api.serializers import ContentTypeSerializer
 from lily.integrations.credentials import get_credentials
 from lily.socialmedia.api.serializers import RelatedSocialMediaSerializer
-from lily.utils.api.serializers import (RelatedPhoneNumberSerializer, RelatedAddressSerializer,
-                                        RelatedEmailAddressSerializer, RelatedTagSerializer)
+from lily.utils.api.serializers import (
+    RelatedPhoneNumberSerializer, RelatedAddressSerializer, RelatedEmailAddressSerializer, RelatedTagSerializer
+)
 from lily.utils.functions import send_get_request, send_post_request, has_required_tier
 
 from ..models import Contact, Function
@@ -43,8 +44,7 @@ class ContactSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
     """
     # Set non mutable fields.
     full_name = serializers.CharField(
-        read_only=True,
-        help_text='Read-only property to reduce the need to concatenate.'
+        read_only=True, help_text='Read-only property to reduce the need to concatenate.'
     )
     content_type = ContentTypeSerializer(
         read_only=True,
@@ -92,9 +92,7 @@ class ContactSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
         required=False,
         create_only=True,
     )
-    description = SanitizedHtmlCharField(
-        help_text='Any extra text to describe the contact (supports Markdown).',
-    )
+    description = SanitizedHtmlCharField(help_text='Any extra text to describe the contact (supports Markdown).', )
 
     # Show string versions of fields.
     gender_display = serializers.CharField(
@@ -203,9 +201,7 @@ class ContactSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
         email_addresses = instance.email_addresses.all()
 
         if len(email_addresses) == 1:
-            original_data.update({
-                'original_email_address': email_addresses[0].email_address
-            })
+            original_data.update({'original_email_address': email_addresses[0].email_address})
 
         instance = super(ContactSerializer, self).update(instance, validated_data)
 
@@ -320,10 +316,7 @@ class ContactSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
                         'send_estimates_to_email': validated_email_address,
                     })
 
-        params = {
-            'contact': params,
-            'administration_id': administration_id
-        }
+        params = {'contact': params, 'administration_id': administration_id}
 
         response = send_post_request(post_url, credentials, params, patch, True)
 
@@ -332,6 +325,7 @@ class RelatedContactSerializer(RelatedSerializerMixin, ContactSerializer):
     """
     Serializer for the contact model when used as a relation.
     """
+
     class Meta:
         model = Contact
         # Override the fields because we don't want related fields in this serializer.

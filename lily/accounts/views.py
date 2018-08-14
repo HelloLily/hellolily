@@ -82,12 +82,14 @@ class ExportAccountView(ExportListViewMixin, View):
         else:
             # Fetch address info from database
             if column == 'addresses':
-                result = '\r\n'.join(['%s, %s, %s, %s' % (
-                    address['address'] or '',
-                    address['postal_code'] or '',
-                    address['city'] or '',
-                    address['country'] or '',
-                ) for address in value])
+                result = '\r\n'.join([
+                    '%s, %s, %s, %s' % (
+                        address['address'] or '',
+                        address['postal_code'] or '',
+                        address['city'] or '',
+                        address['country'] or '',
+                    ) for address in value
+                ])
             elif isinstance(value, list):
                 result = ', '.join(value)
             else:

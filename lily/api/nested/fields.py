@@ -7,10 +7,9 @@ class RelatedPrimaryKeyField(IntegerField):
     """
     Field that validates primary key values for nested serializers.
     """
+
     def __init__(self, **kwargs):
-        kwargs.update({
-            'required': kwargs.pop('required', False)
-        })
+        kwargs.update({'required': kwargs.pop('required', False)})
 
         super(RelatedPrimaryKeyField, self).__init__(**kwargs)
 

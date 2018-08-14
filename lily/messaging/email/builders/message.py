@@ -33,6 +33,7 @@ class MessageBuilder(object):
     """
     Builder to get, create or update Messages
     """
+
     def __init__(self, manager):
         self.manager = manager
         self.message = None
@@ -126,8 +127,10 @@ class MessageBuilder(object):
 
         message_label_set = set(label for label in labels)
         # Remove labels the we won't use in Lily.
-        remove = {'CATEGORY_PROMOTIONS', 'IMPORTANT', 'CATEGORY_FORUMS', 'CHAT', 'CATEGORY_SOCIAL', 'CATEGORY_UPDATES',
-                  'CATEGORY_PERSONAL'}
+        remove = {
+            'CATEGORY_PROMOTIONS', 'IMPORTANT', 'CATEGORY_FORUMS', 'CHAT', 'CATEGORY_SOCIAL', 'CATEGORY_UPDATES',
+            'CATEGORY_PERSONAL'
+        }
         message_label_set = message_label_set - remove
         db_label_set = set(label.label_id for label in db_labels)
 
@@ -143,8 +146,7 @@ class MessageBuilder(object):
                 except LabelNotFoundError:
                     logger.error(
                         'Label {} missing in db also not found via API for {}'.format(
-                            label_id,
-                            self.manager.email_account
+                            label_id, self.manager.email_account
                         )
                     )
 
@@ -252,23 +254,25 @@ class MessageBuilder(object):
                     # Header part, not needed.
                     pass
                 elif mime_type in (
-                        'text/css',
-                        'application/octet-stream',
-                        'image/gif',
-                        'image/jpg',
-                        'image/x-png',
-                        'image/png',
-                        'image/jpeg',
+                    'text/css',
+                    'application/octet-stream',
+                    'image/gif',
+                    'image/jpg',
+                    'image/x-png',
+                    'image/png',
+                    'image/jpeg',
                 ):
                     # Attachments.
                     self._create_attachment(part, part_headers)
                 else:
                     self._create_attachment(part, part_headers)
-                    logging.warning('other mime_type %s for message %s, account %s' % (
-                        mime_type,
-                        self.message.message_id,
-                        self.manager.email_account,
-                    ))
+                    logging.warning(
+                        'other mime_type %s for message %s, account %s' % (
+                            mime_type,
+                            self.message.message_id,
+                            self.manager.email_account,
+                        )
+                    )
 
     def _create_attachment(self, part, headers):
         """
@@ -341,8 +345,7 @@ class MessageBuilder(object):
             else:
                 logger.warning('No part id, no filename')
                 file.name = 'attachment-%s-%s' % (
-                    len(self.attachments) + len(self.inline_attachments),
-                    extensions.next()
+                    len(self.attachments) + len(self.inline_attachments), extensions.next()
                 )
 
         final_file = File(file, file.name)
@@ -476,9 +479,7 @@ class MessageBuilder(object):
             if self.message.sent_date and self.message.sender_id:
                 # Message is an email, not a chat.
                 message_type, message_type_to_id = determine_message_type(
-                    self.message.thread_id,
-                    self.message.sent_date,
-                    self.message.account.email_address
+                    self.message.thread_id, self.message.sent_date, self.message.account.email_address
                 )
                 self.message.message_type = message_type
                 if message_type_to_id:
@@ -527,8 +528,7 @@ class MessageBuilder(object):
             logger.warning('Downloaded a message other than an email.')
 
             NoEmailMessageId.objects.get_or_create(
-                message_id=self.message.message_id,
-                account=self.manager.email_account
+                message_id=self.message.message_id, account=self.manager.email_account
             )
 
     def _get_encoding_from_headers(self, headers):

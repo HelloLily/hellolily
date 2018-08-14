@@ -10,8 +10,10 @@ from lily.calls.factories import CallRecordFactory, CallParticipantFactory
 from lily.calls.models import CallParticipant
 from lily.cases.factories import CaseFactory, CaseTypeFactory, CaseStatusFactory
 from lily.contacts.factories import ContactFactory, FunctionFactory
-from lily.deals.factories import (DealFactory, DealContactedByFactory, DealFoundThroughFactory, DealNextStepFactory,
-                                  DealStatusFactory, DealWhyCustomerFactory)
+from lily.deals.factories import (
+    DealFactory, DealContactedByFactory, DealFoundThroughFactory, DealNextStepFactory, DealStatusFactory,
+    DealWhyCustomerFactory
+)
 from lily.notes.factories import NoteFactory
 from lily.tenant.factories import TenantFactory
 from lily.tenant.models import Tenant
@@ -24,26 +26,37 @@ or use an existent tenant if passed as an argument."""
 
     # please keep in sync with methods defined below
     target_choices = [
-        'all', 'users_teams', 'users_user', 'contacts_contact', 'accounts_account', 'accounts_function', 'calls_call',
-        'cases_case_type', 'cases_case_status', 'cases_case', 'deals_deal_contacted_by', 'deals_deal_found_through',
-        'deals_deal_next_step', 'deals_deal_status', 'deals_deal_why_customer', 'deals_deal', 'notes_note',
+        'all',
+        'users_teams',
+        'users_user',
+        'contacts_contact',
+        'accounts_account',
+        'accounts_function',
+        'calls_call',
+        'cases_case_type',
+        'cases_case_status',
+        'cases_case',
+        'deals_deal_contacted_by',
+        'deals_deal_found_through',
+        'deals_deal_next_step',
+        'deals_deal_status',
+        'deals_deal_why_customer',
+        'deals_deal',
+        'notes_note',
         'users_login',
     ]
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '-t', '--target',
+            '-t',
+            '--target',
             action='store',
             dest='target',
             default='all',
             help='Choose a specific target, options are: %s' % self.target_choices
         )
         parser.add_argument(
-            '-b', '--batch-size',
-            action='store',
-            dest='batch_size',
-            default='20',
-            help='Override the batch size.'
+            '-b', '--batch-size', action='store', dest='batch_size', default='20', help='Override the batch size.'
         )
         parser.add_argument(
             '--tenant',
@@ -71,11 +84,7 @@ or use an existent tenant if passed as an argument."""
 
         getattr(self, self.target)()
 
-        self.stdout.write('Done running "%s" with batch size %s in %s.' % (
-            self.target,
-            self.batch_size,
-            self.tenant
-        ))
+        self.stdout.write('Done running "%s" with batch size %s in %s.' % (self.target, self.batch_size, self.tenant))
 
     def all(self, **kwargs):
         teams = self.users_team()
@@ -84,10 +93,7 @@ or use an existent tenant if passed as an argument."""
 
         accounts = self.accounts_account(assigned_to=Iterator(users))
         contacts = self.contacts_contact()
-        self.accounts_function(
-            account=Iterator(accounts[:len(accounts)]),
-            contact=Iterator(contacts[:len(contacts)])
-        )
+        self.accounts_function(account=Iterator(accounts[:len(accounts)]), contact=Iterator(contacts[:len(contacts)]))
 
         cases = self.cases_case(
             assigned_to=Iterator(users[:len(users) / 2]),  # Only use half the users for coupling.
@@ -104,15 +110,10 @@ or use an existent tenant if passed as an argument."""
         # Only use half of the user list and the usable users as authors.
         authors = users[:len(users) / 2] + logins
         subjects = Iterator(
-            accounts[:len(accounts) / 4] +
-            contacts[:len(contacts) / 4] +
-            cases[:len(cases) / 4] +
+            accounts[:len(accounts) / 4] + contacts[:len(contacts) / 4] + cases[:len(cases) / 4] +
             deals[:len(deals) / 4]
         )
-        self.notes_note(
-            author=Iterator(authors),
-            subject=subjects
-        )
+        self.notes_note(author=Iterator(authors), subject=subjects)
 
         user_participants = []
         login_participants = []
@@ -121,29 +122,21 @@ or use an existent tenant if passed as an argument."""
         for user in logins:
             full_name = u' '.join((user.first_name, user.last_name)).encode('utf-8').strip()
             participant = CallParticipant.objects.create(
-                name=full_name,
-                number=user.phone_number,
-                internal_number=user.internal_number,
-                tenant=self.tenant
+                name=full_name, number=user.phone_number, internal_number=user.internal_number, tenant=self.tenant
             )
             login_participants.append(participant)
 
         for user in users:
             full_name = u' '.join((user.first_name, user.last_name)).encode('utf-8').strip()
             participant = CallParticipant.objects.create(
-                name=full_name,
-                number=user.phone_number,
-                internal_number=user.internal_number,
-                tenant=self.tenant
+                name=full_name, number=user.phone_number, internal_number=user.internal_number, tenant=self.tenant
             )
             user_participants.append(participant)
 
         for account in accounts:
             if account.phone_numbers:
                 participant = CallParticipant.objects.create(
-                    name=account.name,
-                    number=account.phone_numbers.all()[0].number,
-                    tenant=self.tenant
+                    name=account.name, number=account.phone_numbers.all()[0].number, tenant=self.tenant
                 )
                 account_participants.append(participant)
 
@@ -177,9 +170,7 @@ or use an existent tenant if passed as an argument."""
             })
 
             self.tenant.billing = Billing.objects.create(
-                customer_id=result.customer.id,
-                subscription_id=result.subscription.id,
-                plan=plan
+                customer_id=result.customer.id, subscription_id=result.subscription.id, plan=plan
             )
 
         self.tenant.save()
@@ -188,10 +179,7 @@ or use an existent tenant if passed as an argument."""
         # Email template variables
 
     def users_team(self, **kwargs):
-        kwargs.update({
-            'size': kwargs.get('size', 5),
-            'tenant': kwargs.get('tenant', self.tenant)
-        })
+        kwargs.update({'size': kwargs.get('size', 5), 'tenant': kwargs.get('tenant', self.tenant)})
         teams = TeamFactory.create_batch(**kwargs)
 
         self.stdout.write('Done with users_team.')
@@ -222,20 +210,24 @@ or use an existent tenant if passed as an argument."""
 
         user = LilyUserFactory.create(**kwargs)
 
-        self.stdout.write('\nYou can now login as a normal user in %(tenant)s with:\n%(email)s\n%(password)s\n' % {
-            'tenant': self.tenant,
-            'email': user.email,
-            'password': 'admin'
-        })
+        self.stdout.write(
+            '\nYou can now login as a normal user in %(tenant)s with:\n%(email)s\n%(password)s\n' % {
+                'tenant': self.tenant,
+                'email': user.email,
+                'password': 'admin'
+            }
+        )
 
         kwargs['email'] = 'superuser%s@lily.com' % self.tenant.pk
         superuser = LilySuperUserFactory.create(**kwargs)
 
-        self.stdout.write('\nYou can now login as a superuser in %(tenant)s with:\n%(email)s\n%(password)s\n\n' % {
-            'tenant': self.tenant,
-            'email': superuser.email,
-            'password': 'admin'
-        })
+        self.stdout.write(
+            '\nYou can now login as a superuser in %(tenant)s with:\n%(email)s\n%(password)s\n\n' % {
+                'tenant': self.tenant,
+                'email': superuser.email,
+                'password': 'admin'
+            }
+        )
 
         return [user, superuser]
 
@@ -383,20 +375,27 @@ or use an existent tenant if passed as an argument."""
 
     def deals_deal(self, **kwargs):
         kwargs.update({
-            'size': kwargs.get('size', self.batch_size) / 2,
-            'tenant': kwargs.get('tenant', self.tenant),
-            'account': kwargs.get('account') if kwargs.get('account') else iterator(self.accounts_account),
-            'contact': kwargs.get('contact') if kwargs.get('contact') else iterator(self.contacts_contact),
-            'assigned_to': kwargs.get('assigned_to') if kwargs.get('assigned_to') else iterator(self.users_user),
-            'contacted_by': kwargs.get('contacted_by') if kwargs.get('contacted_by') else
-            iterator(self.deals_deal_contacted_by),
-            'found_through': kwargs.get('found_through') if kwargs.get('found_through') else
-            iterator(self.deals_deal_found_through),
-            'next_step': kwargs.get('next_step') if kwargs.get('next_step') else
-            iterator(self.deals_deal_next_step),
-            'status': kwargs.get('status') if kwargs.get('status') else iterator(self.deals_deal_status),
-            'why_customer': kwargs.get('why_customer') if kwargs.get('why_customer') else
-            iterator(self.deals_deal_why_customer),
+            'size':
+                kwargs.get('size', self.batch_size) / 2,
+            'tenant':
+                kwargs.get('tenant', self.tenant),
+            'account':
+                kwargs.get('account') if kwargs.get('account') else iterator(self.accounts_account),
+            'contact':
+                kwargs.get('contact') if kwargs.get('contact') else iterator(self.contacts_contact),
+            'assigned_to':
+                kwargs.get('assigned_to') if kwargs.get('assigned_to') else iterator(self.users_user),
+            'contacted_by':
+                kwargs.get('contacted_by') if kwargs.get('contacted_by') else iterator(self.deals_deal_contacted_by),
+            'found_through':
+                kwargs.get('found_through')
+                if kwargs.get('found_through') else iterator(self.deals_deal_found_through),
+            'next_step':
+                kwargs.get('next_step') if kwargs.get('next_step') else iterator(self.deals_deal_next_step),
+            'status':
+                kwargs.get('status') if kwargs.get('status') else iterator(self.deals_deal_status),
+            'why_customer':
+                kwargs.get('why_customer') if kwargs.get('why_customer') else iterator(self.deals_deal_why_customer),
         })
         contact = kwargs.pop('contact')
         kwargs['contact'] = None

@@ -1,8 +1,7 @@
 import datetime
 import factory
 
-from factory.declarations import (SubFactory, LazyAttribute, SelfAttribute,
-                                  Sequence, Iterator)
+from factory.declarations import (SubFactory, LazyAttribute, SelfAttribute, Sequence, Iterator)
 from factory.django import DjangoModelFactory
 from factory.fuzzy import FuzzyChoice, FuzzyDate
 from faker.factory import Factory

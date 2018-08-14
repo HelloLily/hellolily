@@ -24,9 +24,9 @@ class CallViewSet(viewsets.ReadOnlyModelViewSet):
     # Set the serializer class for this viewset.
     serializer_class = CallSerializer
     # Set all filter backends that this viewset uses.
-    filter_backends = (OrderingFilter,)
+    filter_backends = (OrderingFilter, )
     # OrderingFilter: set the default ordering fields.
-    ordering = ('id',)
+    ordering = ('id', )
     swagger_schema = None
 
     def get_queryset(self):
@@ -41,8 +41,7 @@ class CallViewSet(viewsets.ReadOnlyModelViewSet):
         """
         response = super(CallViewSet, self).create(request, *args, **kwargs)
         called_user = LilyUser.objects.filter(
-            internal_number=request.data['internal_number'],
-            tenant_id=request.user.tenant_id
+            internal_number=request.data['internal_number'], tenant_id=request.user.tenant_id
         ).first()
 
         if not called_user:
@@ -111,15 +110,13 @@ class CallViewSet(viewsets.ReadOnlyModelViewSet):
         return Response({'call': call})
 
 
-class CallRecordViewSet(mixins.RetrieveModelMixin,
-                        mixins.ListModelMixin,
-                        viewsets.GenericViewSet):
+class CallRecordViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
     queryset = CallRecord.objects
     # Set the serializer class for this viewset.
     serializer_class = CallRecordSerializer
     # Set all filter backends that this viewset uses.
-    filter_backends = (OrderingFilter,)
+    filter_backends = (OrderingFilter, )
     # OrderingFilter: set the default ordering fields.
     ordering = ('start', )
     swagger_schema = None

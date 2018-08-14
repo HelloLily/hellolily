@@ -10,7 +10,9 @@ class TeamFilter(filters.FilterSet):
 
     class Meta:
         model = Team
-        fields = ['name', ]
+        fields = [
+            'name',
+        ]
 
 
 class LilyUserFilter(filters.FilterSet):

@@ -11,7 +11,6 @@ from lily.utils.models.models import Address, EmailAddress, PhoneNumber
 
 from .credentials import get_credentials
 
-
 logger = logging.getLogger(__name__)
 
 

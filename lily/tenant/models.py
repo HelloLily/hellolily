@@ -32,40 +32,19 @@ class TenantManager(models.Manager):
 
 
 class Tenant(models.Model):
-    name = models.CharField(
-        max_length=255,
-        blank=True
-    )
+    name = models.CharField(max_length=255, blank=True)
     # domain = models.CharField(
     #     max_length=255,
     #     null=True,
     #     unique=True  # TODO: do we want this to be unique?
     # )
-    country = models.CharField(
-        blank=True,
-        max_length=2,
-        verbose_name='country',
-        choices=COUNTRIES
-    )
-    currency = models.CharField(
-        blank=True,
-        max_length=3,
-        verbose_name='currency',
-        choices=CURRENCIES
-    )
-    billing = models.ForeignKey(
-        to=Billing,
-        null=True,
-        blank=True
-    )
+    country = models.CharField(blank=True, max_length=2, verbose_name='country', choices=COUNTRIES)
+    currency = models.CharField(blank=True, max_length=3, verbose_name='currency', choices=CURRENCIES)
+    billing = models.ForeignKey(to=Billing, null=True, blank=True)
     # Defines whether users can log their hours on cases.
-    timelogging_enabled = models.BooleanField(
-        default=False
-    )
+    timelogging_enabled = models.BooleanField(default=False)
     # Defines a default value for the Billable field when a user logs their hours.
-    billing_default = models.BooleanField(
-        default=False
-    )
+    billing_default = models.BooleanField(default=False)
 
     @property
     def admin(self):
@@ -113,10 +92,7 @@ class Tenant(models.Model):
         else:
             billing = Billing.objects.create()
 
-        tenant = Tenant.objects.create(
-            billing=billing,
-            **extra_fields
-        )
+        tenant = Tenant.objects.create(billing=billing, **extra_fields)
 
         create_defaults_for_tenant(tenant)
 

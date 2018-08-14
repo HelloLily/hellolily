@@ -39,9 +39,7 @@ class TenantTests(CompareObjectsMixin, UserBasedTest, APITestCase):
         ExternalAppLinkFactory.create(tenant_id=cls.other_tenant_user_obj.tenant_id)
 
     def get_url(self, name, ordering=None, *args, **kwargs):
-        return '%s?%s' % (reverse(name, *args, **kwargs), urlencode({
-            'ordering': ordering or ','.join(self.ordering)
-        }))
+        return '%s?%s' % (reverse(name, *args, **kwargs), urlencode({'ordering': ordering or ','.join(self.ordering)}))
 
     def _create_object_stub(self, size=1, **kwargs):
         """

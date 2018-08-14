@@ -32,7 +32,6 @@ from lily.utils.models.mixins import DeletedMixin
 
 from ..sanitize import sanitize_html_email
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -380,11 +379,13 @@ class EmailAttachment(models.Model):
         return self.attachment.name.split('/')[-1]
 
     def download_url(self):
-        return reverse('download', kwargs={
-            'model_name': 'email',
-            'field_name': 'attachment',
-            'object_id': self.id,
-        })
+        return reverse(
+            'download', kwargs={
+                'model_name': 'email',
+                'field_name': 'attachment',
+                'object_id': self.id,
+            }
+        )
 
     class Meta:
         app_label = 'email'
@@ -484,9 +485,7 @@ class EmailTemplateAttachment(TenantMixin):
 
     """
     attachment = models.FileField(
-        verbose_name=_('template attachment'),
-        upload_to=get_template_attachment_upload_path,
-        max_length=255
+        verbose_name=_('template attachment'), upload_to=get_template_attachment_upload_path, max_length=255
     )
     content_type = models.CharField(max_length=255, verbose_name=_('content type'))
     size = models.PositiveIntegerField(default=0)
@@ -516,16 +515,12 @@ class EmailOutboxMessage(TenantMixin, models.Model):
     headers = models.TextField(null=True, blank=True, verbose_name=_('email headers'))
     mapped_attachments = models.IntegerField(verbose_name=_('number of mapped attachments'))
     original_attachment_ids = models.CharField(
-        max_length=255,
-        default='',
-        validators=[validate_comma_separated_integer_list]
+        max_length=255, default='', validators=[validate_comma_separated_integer_list]
     )
     subject = models.CharField(null=True, blank=True, max_length=255, verbose_name=_('subject'))
     send_from = models.ForeignKey(EmailAccount, verbose_name=_('from'), related_name='outbox_messages')
     template_attachment_ids = models.CharField(
-        max_length=255,
-        default='',
-        validators=[validate_comma_separated_integer_list]
+        max_length=255, default='', validators=[validate_comma_separated_integer_list]
     )
     to = models.TextField(verbose_name=_('to'))
     original_message_id = models.CharField(null=True, blank=True, max_length=50, db_index=True)
@@ -540,8 +535,7 @@ class EmailOutboxMessage(TenantMixin, models.Model):
         if self.send_from.from_name:
             # Add account name to From header if one is available
             from_email = '"%s" <%s>' % (
-                Header(u'%s' % self.send_from.from_name, 'utf-8'),
-                self.send_from.email_address
+                Header(u'%s' % self.send_from.from_name, 'utf-8'), self.send_from.email_address
             )
         else:
             # Otherwise only add the email address

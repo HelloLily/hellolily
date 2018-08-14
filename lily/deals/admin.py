@@ -6,9 +6,7 @@ from .models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost, DealFoundT
 
 @admin.register(Deal)
 class DealAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
-    list_select_related = (
-        'tenant',
-    )
+    list_select_related = ('tenant', )
     list_display = (
         'id',
         'name',
@@ -45,9 +43,7 @@ class DealAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
 
 @admin.register(DealNextStep)
 class DealNextStepAdmin(admin.ModelAdmin):
-    list_select_related = (
-        'tenant',
-    )
+    list_select_related = ('tenant', )
     list_display = (
         'id',
         'name',
@@ -55,9 +51,7 @@ class DealNextStepAdmin(admin.ModelAdmin):
         'position',
         'tenant',
     )
-    search_fields = (
-        'name',
-    )
+    search_fields = ('name', )
     list_filter = (
         'date_increment',
         'position',
@@ -67,18 +61,14 @@ class DealNextStepAdmin(admin.ModelAdmin):
 
 @admin.register(DealWhyCustomer)
 class DealWhyCustomerAdmin(admin.ModelAdmin):
-    list_select_related = (
-        'tenant',
-    )
+    list_select_related = ('tenant', )
     list_display = (
         'id',
         'name',
         'position',
         'tenant',
     )
-    search_fields = (
-        'name',
-    )
+    search_fields = ('name', )
     list_filter = (
         'position',
         TenantFilter,
@@ -87,18 +77,14 @@ class DealWhyCustomerAdmin(admin.ModelAdmin):
 
 @admin.register(DealWhyLost)
 class DealWhyLostAdmin(admin.ModelAdmin):
-    list_select_related = (
-        'tenant',
-    )
+    list_select_related = ('tenant', )
     list_display = (
         'id',
         'name',
         'position',
         'tenant',
     )
-    search_fields = (
-        'name',
-    )
+    search_fields = ('name', )
     list_filter = (
         'position',
         TenantFilter,
@@ -107,18 +93,14 @@ class DealWhyLostAdmin(admin.ModelAdmin):
 
 @admin.register(DealFoundThrough)
 class DealFoundThroughAdmin(admin.ModelAdmin):
-    list_select_related = (
-        'tenant',
-    )
+    list_select_related = ('tenant', )
     list_display = (
         'id',
         'name',
         'position',
         'tenant',
     )
-    search_fields = (
-        'name',
-    )
+    search_fields = ('name', )
     list_filter = (
         'position',
         TenantFilter,
@@ -127,18 +109,14 @@ class DealFoundThroughAdmin(admin.ModelAdmin):
 
 @admin.register(DealContactedBy)
 class DealContactedByAdmin(admin.ModelAdmin):
-    list_select_related = (
-        'tenant',
-    )
+    list_select_related = ('tenant', )
     list_display = (
         'id',
         'name',
         'position',
         'tenant',
     )
-    search_fields = (
-        'name',
-    )
+    search_fields = ('name', )
     list_filter = (
         'position',
         TenantFilter,
@@ -147,18 +125,14 @@ class DealContactedByAdmin(admin.ModelAdmin):
 
 @admin.register(DealStatus)
 class DealStatusAdmin(admin.ModelAdmin):
-    list_select_related = (
-        'tenant',
-    )
+    list_select_related = ('tenant', )
     list_display = (
         'id',
         'name',
         'position',
         'tenant',
     )
-    search_fields = (
-        'name',
-    )
+    search_fields = ('name', )
     list_filter = (
         'position',
         TenantFilter,

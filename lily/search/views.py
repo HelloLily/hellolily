@@ -26,6 +26,7 @@ class SearchView(LoginRequiredMixin, View):
     """
     Generic search view suitable for all models that have search enabled.
     """
+
     def get(self, request):
         """
         Parses the GET parameters to create a search
@@ -73,10 +74,7 @@ class SearchView(LoginRequiredMixin, View):
             }
 
         # Passing arguments as **kwargs means we can use the defaults.
-        search = LilySearch(
-            tenant_id=request.user.tenant_id,
-            **kwargs
-        )
+        search = LilySearch(tenant_id=request.user.tenant_id, **kwargs)
 
         id_arg = request.GET.get('id', '')
         if id_arg:
@@ -117,9 +115,7 @@ class SearchView(LoginRequiredMixin, View):
             ).distinct('id')
 
             if user.tenant.billing.is_free_plan:
-                email_accounts = email_accounts.filter(
-                    owner=user,
-                )
+                email_accounts = email_accounts.filter(owner=user, )
 
             filtered_hits = []
 
@@ -264,8 +260,9 @@ class EmailAddressSearchView(LoginRequiredMixin, View):
             second_level_domain = Website(website=domain).second_level
 
             # Try to find an account which contains the domain.
-            search.filter_query('email_addresses.email_address:"%s" OR second_level_domain:"%s"' %
-                                (domain, second_level_domain))
+            search.filter_query(
+                'email_addresses.email_address:"%s" OR second_level_domain:"%s"' % (domain, second_level_domain)
+            )
 
             hits, facets, total, took = search.do_search()
             if hits:
@@ -310,8 +307,7 @@ class PhoneNumberSearchView(LoginRequiredMixin, View):
         number = kwargs.get('number', None)
 
         response = {
-            'data': {
-            },
+            'data': {},
         }
 
         account, contact = search_number(self.request.user.tenant_id, number)
@@ -384,22 +380,12 @@ class InternalNumberSearchView(LoginRequiredMixin, View):
         if account:
             # Look for case and deal with a contact.
             case = Case.objects.filter(
-                tenant=tenant,
-                account=account,
-                contact__isnull=False,
-                is_deleted=False
-            ).order_by(
-                '-modified'
-            ).first()
+                tenant=tenant, account=account, contact__isnull=False, is_deleted=False
+            ).order_by('-modified').first()
 
             deal = Deal.objects.filter(
-                tenant=tenant,
-                account=account,
-                contact__isnull=False,
-                is_deleted=False
-            ).order_by(
-                '-modified'
-            ).first()
+                tenant=tenant, account=account, contact__isnull=False, is_deleted=False
+            ).order_by('-modified').first()
 
             if case:
                 contact = case.contact
@@ -429,41 +415,28 @@ class InternalNumberSearchView(LoginRequiredMixin, View):
         user = None
         assignee = None
 
-        phone_numbers = PhoneNumber.objects.filter(
-            tenant=tenant,
-            number=phone_number
-        )
+        phone_numbers = PhoneNumber.objects.filter(tenant=tenant, number=phone_number)
 
         # Try to find a contact with the given phone number.
         contact = Contact.objects.filter(
             tenant=tenant,
             phone_numbers__in=phone_numbers,
-        ).order_by(
-            '-modified'
-        ).first()
+        ).order_by('-modified').first()
 
         # Try to find an account with the given phone number.
         account = Account.objects.filter(
             tenant=tenant,
             phone_numbers__in=phone_numbers,
-        ).order_by(
-            '-modified'
-        ).first()
+        ).order_by('-modified').first()
 
         if not contact:
             contact, assignee = self._get_contact_assignee_by_account(account)
 
         if contact:
-            cases = Case.objects.filter(
-                contact=contact,
-                is_deleted=False
-            ).order_by('-modified')
+            cases = Case.objects.filter(contact=contact, is_deleted=False).order_by('-modified')
             open_case = cases.filter(status__name='New').first()
 
-            deals = Deal.objects.filter(
-                contact=contact,
-                is_deleted=False
-            ).order_by('-modified')
+            deals = Deal.objects.filter(contact=contact, is_deleted=False).order_by('-modified')
             open_deal = deals.filter(status__name='Open').first()
 
             if open_case and open_deal:
@@ -495,14 +468,10 @@ class InternalNumberSearchView(LoginRequiredMixin, View):
                 week_ago = datetime(week_ago.year, week_ago.month, week_ago.day, tzinfo=utc)
 
                 # Get a case that is not older then a week and closed.
-                latest_closed_case = cases.filter(
-                    Q(created__gte=week_ago) &
-                    Q(status__name='Closed')
-                ).first()
+                latest_closed_case = cases.filter(Q(created__gte=week_ago) & Q(status__name='Closed')).first()
                 # Get a deal that is not older then a week and won or lost.
                 latest_closed_deal = deals.filter(
-                    Q(created__gte=week_ago) &
-                    (Q(status__name='Won') | Q(status__name='Lost'))
+                    Q(created__gte=week_ago) & (Q(status__name='Won') | Q(status__name='Lost'))
                 ).first()
 
                 if latest_closed_case and latest_closed_deal:

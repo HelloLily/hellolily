@@ -55,9 +55,20 @@ class Urllib3HttpBlockingConnection(Urllib3HttpConnection):
     :arg maxsize: the maximum number of connections which will be kept open to
         this host.
     """
-    def __init__(self, host='localhost', port=9200, http_auth=None,
-                 use_ssl=False, verify_certs=False, ca_certs=None, client_cert=None,
-                 maxsize=10, block=False, **kwargs):
+
+    def __init__(
+        self,
+        host='localhost',
+        port=9200,
+        http_auth=None,
+        use_ssl=False,
+        verify_certs=False,
+        ca_certs=None,
+        client_cert=None,
+        maxsize=10,
+        block=False,
+        **kwargs
+    ):
 
         super(Urllib3HttpConnection, self).__init__(host=host, port=port, **kwargs)
         self.headers = {}

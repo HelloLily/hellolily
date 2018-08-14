@@ -15,7 +15,9 @@ def skip_signal():
             if hasattr(instance, 'skip_signal') and instance.skip_signal:
                 return None
             return signal_func(sender, instance, **kwargs)
+
         return _decorator
+
     return _skip_signal
 
 

@@ -28,7 +28,9 @@ class TagMapping(BaseMapping):
             'content_type': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'name': {
                         'type': 'string',
                         'index_analyzer': 'normal_edge_analyzer'

@@ -58,16 +58,29 @@ class ContactViewSet(ModelChangesMixin, DataExistsMixin, viewsets.ModelViewSet):
     # Set the serializer class for this viewset.
     serializer_class = ContactSerializer
     # Set all filter backends that this viewset uses.
-    filter_backends = (ElasticSearchFilter, OrderingFilter,)
+    filter_backends = (
+        ElasticSearchFilter,
+        OrderingFilter,
+    )
 
     # ElasticSearchFilter: set the model type.
     model_type = 'contacts_contact'
     # OrderingFilter: set all possible fields to order by.
     ordering_fields = (
-        'id', 'first_name', 'last_name', 'full_name', 'gender', 'gender_display', 'salutation', 'salutation_display',
+        'id',
+        'first_name',
+        'last_name',
+        'full_name',
+        'gender',
+        'gender_display',
+        'salutation',
+        'salutation_display',
     )
     # OrderingFilter: set the default ordering fields.
-    ordering = ('last_name', 'first_name',)
+    ordering = (
+        'last_name',
+        'first_name',
+    )
 
     def get_queryset(self):
         """
@@ -80,7 +93,9 @@ class ContactViewSet(ModelChangesMixin, DataExistsMixin, viewsets.ModelViewSet):
         return super(ContactViewSet, self).get_queryset().filter(is_deleted=False)
 
     @swagger_auto_schema(auto_schema=None)
-    @detail_route(methods=['GET', ])
+    @detail_route(methods=[
+        'GET',
+    ])
     def calls(self, request, pk=None):
         contact = self.get_object()
 
@@ -88,9 +103,7 @@ class ContactViewSet(ModelChangesMixin, DataExistsMixin, viewsets.ModelViewSet):
 
         calls = CallRecord.objects.filter(
             Q(caller__number__in=phone_numbers) | Q(destination__number__in=phone_numbers)
-        ).order_by(
-            '-start'
-        )[:100]
+        ).order_by('-start')[:100]
 
         serializer = CallRecordSerializer(calls, many=True, context={'request': request})
 
@@ -98,7 +111,10 @@ class ContactViewSet(ModelChangesMixin, DataExistsMixin, viewsets.ModelViewSet):
 
 
 class ContactImport(APIView):
-    permission_classes = (IsAuthenticated, IsAccountAdmin, )
+    permission_classes = (
+        IsAuthenticated,
+        IsAccountAdmin,
+    )
     classes = (FileUploadParser, )
     swagger_schema = None
 
@@ -114,8 +130,10 @@ class ContactImport(APIView):
         # The following set of fields should be present as headers in the uploaded file.
         required_fields = {u'first name', u'last name'}
         # The following set of fields are optional.
-        optional_fields = {u'company name', u'email address', u'phone number', u'address', u'postal code', u'city',
-                           u'twitter', u'linkedin'}
+        optional_fields = {
+            u'company name', u'email address', u'phone number', u'address', u'postal code', u'city', u'twitter',
+            u'linkedin'
+        }
 
         # The following headers are present in the uploaded file.
         available_in_upload = set(imported_data.headers)
@@ -127,8 +145,11 @@ class ContactImport(APIView):
 
         if bool(missing_in_upload):
             return Response(
-                {'file_contacts': {'The follwing columns are missing: {0}'.format(', '.join(missing_in_upload))}},
-                status=status.HTTP_409_CONFLICT)
+                {
+                    'file_contacts': {'The follwing columns are missing: {0}'.format(', '.join(missing_in_upload))}
+                },
+                status=status.HTTP_409_CONFLICT,
+            )
 
         tenant = self.request.user.tenant
         duplicate = []
@@ -140,8 +161,9 @@ class ContactImport(APIView):
             full_name = "{0} {1}".format(first_name, last_name)
 
             # Check if the contact already exists, possibly when the user re-uploads the same file.
-            if Contact.objects.filter(first_name=first_name, last_name=last_name, tenant=tenant,
-                                      is_deleted=False).exists():
+            if Contact.objects.filter(
+                first_name=first_name, last_name=last_name, tenant=tenant, is_deleted=False
+            ).exists():
                 # A small chance people have the same name, so acceptable to have wrongly marked duplicates.
                 duplicate.append(full_name)
                 continue
@@ -163,10 +185,9 @@ class ContactImport(APIView):
                     for field in extra_in_upload_wo_company:
                         description += '{0}: {1}\n'.format(field, row.get(field))
 
-                    contact = Contact(first_name=first_name,
-                                      last_name=last_name,
-                                      tenant=tenant,
-                                      description=description)
+                    contact = Contact(
+                        first_name=first_name, last_name=last_name, tenant=tenant, description=description
+                    )
                     # Skip the signal at this moment, so on a rollback the instance isn't still in the search index.
                     contact.skip_signal = True
                     contact.save()
@@ -178,30 +199,25 @@ class ContactImport(APIView):
                             account = Account.objects.get(name=company_name, tenant=tenant, is_deleted=False)
                         except Account.DoesNotExist:
                             account_status = AccountStatus.objects.get(name='Relation', tenant=tenant)
-                            account = Account(name=company_name,
-                                              tenant=tenant,
-                                              status=account_status)
+                            account = Account(name=company_name, tenant=tenant, status=account_status)
                             account.skip_signal = True
                             account.save()
 
                     if u'email address' in optional_in_upload and row.get(u'email address'):
-                        email_address = EmailAddress(email_address=row.get(u'email address'),
-                                                     status=EmailAddress.PRIMARY_STATUS,
-                                                     tenant=tenant)
+                        email_address = EmailAddress(
+                            email_address=row.get(u'email address'), status=EmailAddress.PRIMARY_STATUS, tenant=tenant
+                        )
                         email_address.skip_signal = True
                         email_address.save()
 
                     if u'phone number' in optional_in_upload and row.get(u'phone number'):
-                        phone_number = PhoneNumber(number=row.get(u'phone number'),
-                                                   tenant=tenant)
+                        phone_number = PhoneNumber(number=row.get(u'phone number'), tenant=tenant)
                         phone_number.skip_signal = True
                         phone_number.save()
 
                     # An Address consists of multiple, optional fields. So create or update the instance.
                     if u'address' in optional_in_upload and row.get(u'address'):
-                        address = Address(address=row.get(u'address'),
-                                          type='visiting',
-                                          tenant=tenant)
+                        address = Address(address=row.get(u'address'), type='visiting', tenant=tenant)
                         address.skip_signal = True
                         address.save()
 
@@ -209,9 +225,7 @@ class ContactImport(APIView):
                         if address:
                             address.postal_code = row.get(u'postal code')
                         else:
-                            address = Address(postal_code=row.get(u'postal code'),
-                                              type='visiting',
-                                              tenant=tenant)
+                            address = Address(postal_code=row.get(u'postal code'), type='visiting', tenant=tenant)
                         address.skip_signal = True
                         address.save()
 
@@ -219,26 +233,27 @@ class ContactImport(APIView):
                         if address:
                             address.city = row.get(u'city')
                         else:
-                            address = Address(city=row.get(u'city'),
-                                              type='visiting',
-                                              tenant=tenant)
+                            address = Address(city=row.get(u'city'), type='visiting', tenant=tenant)
                         address.skip_signal = True
                         address.save()
 
                     if u'twitter' in optional_in_upload and row.get(u'twitter'):
-                        twitter = SocialMedia(name='twitter',
-                                              username=row.get(u'twitter'),
-                                              profile_url='https://twitter.com/{0}'.format(row.get(u'twitter')),
-                                              tenant=tenant)
+                        twitter = SocialMedia(
+                            name='twitter',
+                            username=row.get(u'twitter'),
+                            profile_url='https://twitter.com/{0}'.format(row.get(u'twitter')),
+                            tenant=tenant
+                        )
                         twitter.skip_signal = True
                         twitter.save()
 
                     if u'linkedin' in optional_in_upload and row.get(u'linkedin'):
-                        linkedin = SocialMedia(name='linkedin',
-                                               username=row.get(u'linkedin'),
-                                               profile_url='https://www.linkedin.com/in/{0}'.format(
-                                                   row.get(u'linkedin')),
-                                               tenant=tenant)
+                        linkedin = SocialMedia(
+                            name='linkedin',
+                            username=row.get(u'linkedin'),
+                            profile_url='https://www.linkedin.com/in/{0}'.format(row.get(u'linkedin')),
+                            tenant=tenant
+                        )
                         linkedin.skip_signal = True
                         linkedin.save()
 

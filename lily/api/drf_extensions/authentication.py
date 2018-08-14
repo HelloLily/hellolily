@@ -16,6 +16,7 @@ class TokenGETAuthentication(TokenAuthentication):
     """
     Allows for token authentication based on the GET parameter.
     """
+
     def authenticate(self, request):
         token = request.GET.get('key', None)
         if not token:
@@ -61,9 +62,7 @@ class PandaDocSignatureAuthentication(BaseAuthentication):
 
         if not deal:
             # No shared key set by the user so we have no way to verify the request.
-            raise PermissionDenied({
-                'detail': _('No deal found.')
-            })
+            raise PermissionDenied({'detail': _('No deal found.')})
 
         # Use the deal to retrieve the tenant.
         deal = Deal.objects.get(pk=metadata.get('deal'))

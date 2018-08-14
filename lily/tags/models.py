@@ -6,7 +6,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from lily.tenant.models import TenantMixin
 
-
 TAGABLE_MODELS = ('account', 'contact', 'deal', 'case')
 
 

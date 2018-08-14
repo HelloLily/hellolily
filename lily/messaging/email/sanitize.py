@@ -12,16 +12,15 @@ _ALLOWED_TAGS = [
 ]
 
 _ALLOWED_ATTRIBUTES = [
-    'abbr', 'accept', 'accept-charset', 'accesskey', 'action', 'align', 'alt', 'autocomplete', 'autosave',
-    'axis', 'bgcolor', 'border', 'cellpadding', 'cellspacing', 'challenge', 'char', 'charoff', 'charset',
-    'checked', 'cid', 'cite', 'clear', 'color', 'cols', 'colspan', 'compact', 'contenteditable', 'coords',
-    'datetime', 'dir', 'disabled', 'draggable', 'dropzone', 'enctype', 'for', 'frame', 'headers', 'height',
-    'high', 'href', 'hreflang', 'hspace', 'ismap', 'keytype', 'label', 'lang', 'list', 'longdesc', 'low',
-    'max', 'maxlength', 'media', 'method', 'min', 'multiple', 'name', 'nohref', 'noshade', 'novalidate',
-    'nowrap', 'open', 'optimum', 'pattern', 'placeholder', 'prompt', 'pubdate', 'radiogroup', 'readonly',
-    'rel', 'required', 'rev', 'reversed', 'rows', 'rowspan', 'rules', 'scope', 'selected', 'shape', 'size',
-    'span', 'spellcheck', 'src', 'start', 'step', 'style', 'summary', 'tabindex', 'target', 'title', 'type',
-    'usemap', 'valign', 'value', 'vspace', 'width', 'wrap'
+    'abbr', 'accept', 'accept-charset', 'accesskey', 'action', 'align', 'alt', 'autocomplete', 'autosave', 'axis',
+    'bgcolor', 'border', 'cellpadding', 'cellspacing', 'challenge', 'char', 'charoff', 'charset', 'checked', 'cid',
+    'cite', 'clear', 'color', 'cols', 'colspan', 'compact', 'contenteditable', 'coords', 'datetime', 'dir', 'disabled',
+    'draggable', 'dropzone', 'enctype', 'for', 'frame', 'headers', 'height', 'high', 'href', 'hreflang', 'hspace',
+    'ismap', 'keytype', 'label', 'lang', 'list', 'longdesc', 'low', 'max', 'maxlength', 'media', 'method', 'min',
+    'multiple', 'name', 'nohref', 'noshade', 'novalidate', 'nowrap', 'open', 'optimum', 'pattern', 'placeholder',
+    'prompt', 'pubdate', 'radiogroup', 'readonly', 'rel', 'required', 'rev', 'reversed', 'rows', 'rowspan', 'rules',
+    'scope', 'selected', 'shape', 'size', 'span', 'spellcheck', 'src', 'start', 'step', 'style', 'summary', 'tabindex',
+    'target', 'title', 'type', 'usemap', 'valign', 'value', 'vspace', 'width', 'wrap'
 ]
 
 _ALLOWED_STYLES = [

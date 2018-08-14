@@ -43,11 +43,7 @@ class EmailMessageFactory(DjangoModelFactory):
     subject = LazyAttribute(lambda o: faker.word())
     sender = SubFactory(RecipientFactory)
     body_text = LazyAttribute(lambda o: faker.text())
-    sent_date = LazyAttribute(
-        lambda o: faker.date_time_between_dates(
-            past_date, current_date, utc
-        )
-    )
+    sent_date = LazyAttribute(lambda o: faker.date_time_between_dates(past_date, current_date, utc))
     account = SubFactory(EmailAccountFactory)
     message_id = FuzzyText()
 

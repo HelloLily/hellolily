@@ -9,7 +9,8 @@ class SugarCsvImportForm(Form):
     accounts or contacts can be imported for the logged in tenant.
     """
     csvfile = forms.FileField(label=_('CSV'))
-    model = forms.ChoiceField(label=_('Import rows as'), choices=(('contact', _('Contacts')),
-                                                                  ('account', _('Accounts')),
-                                                                  ('function', _('Functions'))))
+    model = forms.ChoiceField(
+        label=_('Import rows as'),
+        choices=(('contact', _('Contacts')), ('account', _('Accounts')), ('function', _('Functions')))
+    )
     sugar_import = forms.ChoiceField(label=_('From source:'), choices=((1, _('Sugar')), (0, _('Other'))))

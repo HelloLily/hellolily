@@ -49,7 +49,9 @@ class LilyUserMapping(BaseMapping):
             'teams': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'name': {
                         'type': 'string',
                         'analyzer': 'normal_edge_analyzer',

@@ -18,8 +18,4 @@ def post_save_callback(sender, instance, created, **kwargs):
     if created:
         user = get_current_user()
         if user:  # User is missing when creating test data.
-            analytics.track(
-                user.id,
-                'contact-created',
-                anonymous_id='Anonymous' if user.is_anonymous() else None
-            )
+            analytics.track(user.id, 'contact-created', anonymous_id='Anonymous' if user.is_anonymous() else None)

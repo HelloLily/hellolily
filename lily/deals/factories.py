@@ -19,12 +19,7 @@ past_date = datetime.date.today() - datetime.timedelta(days=10)
 future_date = datetime.date.today() + datetime.timedelta(days=10)
 current_date = datetime.date.today()
 
-NEXT_STEP_NAMES = [
-    'Follow up',
-    'Activation',
-    'Request feedback',
-    'None'
-]
+NEXT_STEP_NAMES = ['Follow up', 'Activation', 'Request feedback', 'None']
 
 NEXT_STEP_DATE_INCREMENTS = [4, 2, 30, 0]
 
@@ -135,14 +130,14 @@ class DealFactory(DjangoModelFactory):
     status = SubFactory(DealStatusFactory, tenant=SelfAttribute('..tenant'))
     twitter_checked = FuzzyChoice([True, False])
     why_customer = SubFactory(DealWhyCustomerFactory, tenant=SelfAttribute('..tenant'))
-    why_lost = SubFactory(DealWhyLostFactory,
-                          tenant=SelfAttribute('..tenant'),
-                          name=LazyAttribute(lambda o: faker.word() if o.factory_parent.status.is_lost else "")
-                          )
+    why_lost = SubFactory(
+        DealWhyLostFactory,
+        tenant=SelfAttribute('..tenant'),
+        name=LazyAttribute(lambda o: faker.word() if o.factory_parent.status.is_lost else "")
+    )
     closed_date = LazyAttribute(
-        lambda o: faker.date_time_between_dates(
-            past_date, current_date, utc
-        ) if o.status.is_won or o.status.is_lost else None
+        lambda o: faker.date_time_between_dates(past_date, current_date, utc)
+        if o.status.is_won or o.status.is_lost else None
     )
 
     class Meta:

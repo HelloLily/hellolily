@@ -44,7 +44,11 @@ class CustomLoginView(LoginView):
         redirect_to = request.GET.get(REDIRECT_FIELD_NAME, '')
 
         #  Prevent redirects to files, since that can be used to extrapolate auth status by 3rd parties.
-        blocked_redirects = [settings.STATIC_URL, settings.MEDIA_URL, reverse('favicon'), ]
+        blocked_redirects = [
+            settings.STATIC_URL,
+            settings.MEDIA_URL,
+            reverse('favicon'),
+        ]
         if any([redirect_to.startswith(blocked) for blocked in blocked_redirects]):
             redirect_to = '/'
             request.GET = request.GET.copy()
@@ -67,8 +71,7 @@ class CustomLoginView(LoginView):
             redirect_to = reverse('register')
         else:
             redirect_to = self.request.POST.get(
-                self.redirect_field_name,
-                self.request.GET.get(self.redirect_field_name, '')
+                self.redirect_field_name, self.request.GET.get(self.redirect_field_name, '')
             )
             if not is_safe_url(url=redirect_to, host=self.request.get_host()):
                 redirect_to = resolve_url(settings.LOGIN_REDIRECT_URL)
@@ -80,12 +83,7 @@ class CustomLoginView(LoginView):
                 # User logged in using a static backup code, refresh it with a new one.
                 device.token_set.create(token=StaticToken.random_token())
 
-            signals.user_verified.send(
-                sender=__name__,
-                request=self.request,
-                user=self.get_user(),
-                device=device
-            )
+            signals.user_verified.send(sender=__name__, request=self.request, user=self.get_user(), device=device)
 
         return redirect(redirect_to)
 
@@ -136,10 +134,7 @@ class SocialAuthCallbackView(RedirectView):
             tenant_id = invitation_data.get('tenant_id')
 
             # There is no record of a user with this email address, so we create it.
-            user = LilyUser.objects.create_user(
-                tenant_id=int(tenant_id) if tenant_id else None,
-                **profile
-            )
+            user = LilyUser.objects.create_user(tenant_id=int(tenant_id) if tenant_id else None, **profile)
 
             # Because we don't call `authenticate` we need to set the authentication backend manually.
             user.backend = settings.AUTHENTICATION_SOCIAL_BACKEND
@@ -150,7 +145,9 @@ class SocialAuthCallbackView(RedirectView):
             # Send welcome mail to the new user.
             send_templated_mail(
                 template_name='users/registration/email/welcome.email',
-                recipient_list=[user.email, ],
+                recipient_list=[
+                    user.email,
+                ],
                 context={
                     'user': user,
                 },

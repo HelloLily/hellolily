@@ -19,17 +19,17 @@ from lily.utils.forms.fields import TagsField, FormSetField
 from lily.utils.forms.mixins import FormSetFormMixin
 from lily.utils.forms.widgets import Wysihtml5Input, AjaxSelect2Widget, HorizontalRadioSelect
 
-from ..models.models import (EmailAccount, EmailTemplateFolder, EmailTemplate, EmailOutboxAttachment,
-                             EmailTemplateAttachment, TemplateVariable, EmailAttachment)
+from ..models.models import (
+    EmailAccount, EmailTemplateFolder, EmailTemplate, EmailOutboxAttachment, EmailTemplateAttachment, TemplateVariable,
+    EmailAttachment
+)
 from .widgets import EmailAttachmentWidget
 from ..utils import get_email_parameter_choices, TemplateParser, get_shared_email_accounts
-
 
 logger = logging.getLogger(__name__)
 
 
 class EmailAccountCreateUpdateForm(ModelForm):
-
     class Meta:
         model = EmailAccount
         fields = (
@@ -47,9 +47,10 @@ class AttachmentBaseForm(ModelForm):
     """
     Form for uploading email attachments.
     """
+
     class Meta:
         models = EmailOutboxAttachment
-        fields = ('attachment',)
+        fields = ('attachment', )
         widgets = {
             'attachment': EmailAttachmentWidget(),
         }
@@ -62,10 +63,7 @@ class ComposeEmailForm(FormSetFormMixin, forms.Form):
     draft_pk = forms.IntegerField(widget=forms.HiddenInput(), required=False)
 
     template = forms.ModelChoiceField(
-        label=_('Template'),
-        queryset=EmailTemplate.objects,
-        empty_label=_('Choose a template'),
-        required=False
+        label=_('Template'), queryset=EmailTemplate.objects, empty_label=_('Choose a template'), required=False
     )
 
     send_from = forms.ChoiceField()
@@ -73,9 +71,7 @@ class ComposeEmailForm(FormSetFormMixin, forms.Form):
     send_to_normal = TagsField(
         label=_('To'),
         widget=AjaxSelect2Widget(
-            attrs={
-                'class': 'tags-ajax'
-            },
+            attrs={'class': 'tags-ajax'},
             url=reverse_lazy('search_view'),
             model=Contact,
             filter_on='contacts_contact',
@@ -85,9 +81,7 @@ class ComposeEmailForm(FormSetFormMixin, forms.Form):
         label=_('Cc'),
         required=False,
         widget=AjaxSelect2Widget(
-            attrs={
-                'class': 'tags-ajax'
-            },
+            attrs={'class': 'tags-ajax'},
             url=reverse_lazy('search_view'),
             model=Contact,
             filter_on='contacts_contact',
@@ -97,9 +91,7 @@ class ComposeEmailForm(FormSetFormMixin, forms.Form):
         label=_('Bcc'),
         required=False,
         widget=AjaxSelect2Widget(
-            attrs={
-                'class': 'tags-ajax'
-            },
+            attrs={'class': 'tags-ajax'},
             url=reverse_lazy('search_view'),
             model=Contact,
             filter_on='contacts_contact',
@@ -122,8 +114,7 @@ class ComposeEmailForm(FormSetFormMixin, forms.Form):
         # Only show the checkbox for existing attachments if we have a pk and if we forward.
         if 'initial' in kwargs and 'draft_pk' in kwargs['initial'] and self.message_type == 'forward':
             existing_attachment_list = EmailAttachment.objects.filter(
-                message_id=kwargs['initial']['draft_pk'],
-                inline=False
+                message_id=kwargs['initial']['draft_pk'], inline=False
             )
             choices = [(attachment.id, attachment.name) for attachment in existing_attachment_list]
             self.fields['existing_attachments'] = forms.MultipleChoiceField(
@@ -174,8 +165,11 @@ class ComposeEmailForm(FormSetFormMixin, forms.Form):
 
         # Make sure at least one of the send_to_X fields is filled in when sending the email
         if 'submit-send' in self.data:
-            if not any([cleaned_data.get('send_to_normal'), cleaned_data.get('send_to_cc'),
-                        cleaned_data.get('send_to_bcc')]):
+            if not any([
+                cleaned_data.get('send_to_normal'),
+                cleaned_data.get('send_to_cc'),
+                cleaned_data.get('send_to_bcc')
+            ]):
                 self._errors['send_to_normal'] = self.error_class([_('Please provide at least one recipient.')])
 
         # Clean send_to addresses.
@@ -260,10 +254,7 @@ class CreateUpdateEmailTemplateForm(ModelForm):
     variables = forms.ChoiceField(label=_('Insert variable'), choices=[['', 'Select a category']], required=False)
     values = forms.ChoiceField(label=_('Insert value'), choices=[['', 'Select a variable']], required=False)
     folder = forms.ModelChoiceField(
-        label=_('Folder'),
-        queryset=EmailTemplateFolder.objects,
-        empty_label=_('Choose a folder'),
-        required=False
+        label=_('Folder'), queryset=EmailTemplateFolder.objects, empty_label=_('Choose a folder'), required=False
     )
 
     attachments = FormSetField(
@@ -288,7 +279,9 @@ class CreateUpdateEmailTemplateForm(ModelForm):
 
         for value in email_parameter_choices:
             for val in email_parameter_choices[value]:
-                self.fields['values'].choices += [[val, email_parameter_choices[value][val]], ]
+                self.fields['values'].choices += [
+                    [val, email_parameter_choices[value][val]],
+                ]
 
         # Add custom variables to choices
         queryset = TemplateVariable.objects.all().filter(Q(is_public=True) | Q(owner=get_current_user()))
@@ -299,7 +292,9 @@ class CreateUpdateEmailTemplateForm(ModelForm):
             if template_variable.is_public:
                 custom_variable_name += '.public'
 
-            self.fields['values'].choices += [[custom_variable_name, template_variable.name], ]
+            self.fields['values'].choices += [
+                [custom_variable_name, template_variable.name],
+            ]
 
         if self.instance and self.instance.pk:
             self.fields['id'].widget.attrs['readonly'] = True
@@ -315,9 +310,9 @@ class CreateUpdateEmailTemplateForm(ModelForm):
         text_part = cleaned_data.get('body_text')
 
         if not html_part and not text_part:
-            self._errors['body_html'] = self.error_class(
-                [_('Please fill in the html part or the text part, at least one of these is required.')]
-            )
+            self._errors['body_html'] = self.error_class([
+                _('Please fill in the html part or the text part, at least one of these is required.')
+            ])
         elif html_part:
             # For some reason sometimes nbsp's are added, so remove them
             parsed_template = TemplateParser(self.clean_nbsp(html_part))
@@ -392,9 +387,7 @@ class CreateUpdateEmailTemplateForm(ModelForm):
             'values': forms.Select(attrs={
                 'disabled': 'disabled',
             }),
-            'body_html': Wysihtml5Input(attrs={
-                'container_class': 'email-template-body'
-            }),
+            'body_html': Wysihtml5Input(attrs={'container_class': 'email-template-body'}),
         }
 
 
@@ -458,7 +451,9 @@ class CreateUpdateTemplateVariableForm(ModelForm):
 
         for value in email_parameter_choices:
             for val in email_parameter_choices[value]:
-                self.fields['values'].choices += [[val, email_parameter_choices[value][val]], ]
+                self.fields['values'].choices += [
+                    [val, email_parameter_choices[value][val]],
+                ]
 
     def clean(self):
         cleaned_data = super(CreateUpdateTemplateVariableForm, self).clean()
@@ -499,8 +494,6 @@ class CreateUpdateTemplateVariableForm(ModelForm):
             'values': forms.Select(attrs={
                 'disabled': 'disabled',
             }),
-            'text': Wysihtml5Input(attrs={
-                'container_class': 'email-template-body'
-            }),
+            'text': Wysihtml5Input(attrs={'container_class': 'email-template-body'}),
             'is_public': HorizontalRadioSelect(),
         }

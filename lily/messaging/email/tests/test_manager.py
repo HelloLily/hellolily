@@ -70,9 +70,11 @@ class GmailManagerTests(UserBasedTest, APITestCase):
         # Count the number of times the send_task mock was called to download a new message or to administer the
         # synchronization finished.
         call_download_email_message_count = sum(
-            call[0][0] == 'download_email_message' for call in send_task_mock.call_args_list)
+            call[0][0] == 'download_email_message' for call in send_task_mock.call_args_list
+        )
         call_full_sync_finished_count = sum(
-            call[0][0] == 'full_sync_finished' for call in send_task_mock.call_args_list)
+            call[0][0] == 'full_sync_finished' for call in send_task_mock.call_args_list
+        )
 
         self.assertEqual(call_download_email_message_count, len(messages))
         self.assertEqual(call_full_sync_finished_count, 1)
@@ -129,8 +131,8 @@ class GmailManagerTests(UserBasedTest, APITestCase):
         manager.download_message(message_id)
 
         # The message with labels is now present in the database so downloading it again will only update it's labels.
-        with open('lily/messaging/email/tests/data/get_short_message_info_{0}_archived.json'.format(
-                message_id)) as infile:
+        with open('lily/messaging/email/tests/data/get_short_message_info_{0}_archived.json'.format(message_id)
+                  ) as infile:
             json_obj = json.load(infile)
             get_short_message_info_mock.return_value = json_obj
 
@@ -306,8 +308,8 @@ class GmailManagerTests(UserBasedTest, APITestCase):
             cc=anyjson.dumps(None),
             bcc=anyjson.dumps(None),
             body="<html><body>In hac habitasse platea dictumst. Class aptent taciti sociosqu ad litora torquent "
-                 "per conubia nostra, per inceptos himenaeos. Ut aliquet elit sed augue bibendum malesuada."
-                 "</body></html>",
+            "per conubia nostra, per inceptos himenaeos. Ut aliquet elit sed augue bibendum malesuada."
+            "</body></html>",
             headers={},
             mapped_attachments=0,
             template_attachment_ids='',
@@ -319,8 +321,10 @@ class GmailManagerTests(UserBasedTest, APITestCase):
         manager.send_email_message(email_outbox_message.message())
 
         # Verify that is stored in the database as an email message.
-        self.assertTrue(EmailMessage.objects.filter(account=email_account, message_id=message_id).exists(),
-                        "Send message missing from the database.")
+        self.assertTrue(
+            EmailMessage.objects.filter(account=email_account, message_id=message_id).exists(),
+            "Send message missing from the database."
+        )
 
         # Verify that the email message has the correct labels.
         email_message = EmailMessage.objects.get(account=email_account, message_id=message_id)
@@ -366,11 +370,11 @@ class GmailManagerTests(UserBasedTest, APITestCase):
             cc=anyjson.dumps(None),
             bcc=anyjson.dumps(None),
             body="<html><body>Maecenas metus turpis, eleifend at dignissim ac, feugiat vel erat. Aenean at urna "
-                 "convallis, egestas massa sed, rhoncus est.<br><br>Firstname Lastname (user1@example.com) wrote on "
-                 "22 March 2017 13:14:<hr><div dir=\"ltr\">Aliquam eleifend pharetra ligula, id feugiat ipsum laoreet "
-                 "a. Aenean sed volutpat magna, ut viverra turpis. Morbi suscipit, urna in pellentesque venenatis, "
-                 "mauris elit placerat justo, sit amet vestibulum purus dui id massa. In vitae libero et nunc "
-                 "facilisis imperdiet. Sed pharetra aliquet luctus.</div></body></html>",
+            "convallis, egestas massa sed, rhoncus est.<br><br>Firstname Lastname (user1@example.com) wrote on "
+            "22 March 2017 13:14:<hr><div dir=\"ltr\">Aliquam eleifend pharetra ligula, id feugiat ipsum laoreet "
+            "a. Aenean sed volutpat magna, ut viverra turpis. Morbi suscipit, urna in pellentesque venenatis, "
+            "mauris elit placerat justo, sit amet vestibulum purus dui id massa. In vitae libero et nunc "
+            "facilisis imperdiet. Sed pharetra aliquet luctus.</div></body></html>",
             headers={},
             mapped_attachments=0,
             template_attachment_ids='',
@@ -382,8 +386,10 @@ class GmailManagerTests(UserBasedTest, APITestCase):
         manager.send_email_message(email_outbox_message.message(), thread_id=thread_id)
 
         # Verify that is stored in the database as an email message.
-        self.assertTrue(EmailMessage.objects.filter(account=email_account, message_id=message_id).exists(),
-                        "Send reply message missing from the database.")
+        self.assertTrue(
+            EmailMessage.objects.filter(account=email_account, message_id=message_id).exists(),
+            "Send reply message missing from the database."
+        )
 
         # Verify that the email message has the correct labels.
         email_message = EmailMessage.objects.get(account=email_account, message_id=message_id)
@@ -391,8 +397,10 @@ class GmailManagerTests(UserBasedTest, APITestCase):
         self.assertEqual(email_message_labels, set([settings.GMAIL_LABEL_SENT]), "Send message mssing the SEND label.")
 
         # Verify that the email emssage has the correct thread id.
-        self.assertEqual(email_message.thread_id, thread_id,
-                         "Message {0} should have thread_id {1}.".format(email_message.message_id, thread_id))
+        self.assertEqual(
+            email_message.thread_id, thread_id,
+            "Message {0} should have thread_id {1}.".format(email_message.message_id, thread_id)
+        )
 
     @patch.object(GmailConnector, 'get_label_info')
     @patch.object(GmailConnector, 'send_email_message')
@@ -428,9 +436,9 @@ class GmailManagerTests(UserBasedTest, APITestCase):
             cc=anyjson.dumps(None),
             bcc=anyjson.dumps(None),
             body=u"<html><body>In hac habitasse platea dictumst. Class aptent taciti sociosqu ad litora torquent "
-                 u"per conubia nostra, per inceptos himenaeos. Ut aliquet elit sed augue bibendum malesuada."
-                 u"But here also some weird characters ˚ø∆¨•ª¥¶†§ƒ√ª©∑´®º^˙∆ø˚˙∑•ª©®^º–π∆ªº^˙ª•ª¨©¶ ÖÄÖÄÖÄöäöäöäöä."
-                 u"</body></html>",
+            u"per conubia nostra, per inceptos himenaeos. Ut aliquet elit sed augue bibendum malesuada."
+            u"But here also some weird characters ˚ø∆¨•ª¥¶†§ƒ√ª©∑´®º^˙∆ø˚˙∑•ª©®^º–π∆ªº^˙ª•ª¨©¶ ÖÄÖÄÖÄöäöäöäöä."
+            u"</body></html>",
             headers={},
             mapped_attachments=0,
             template_attachment_ids='',
@@ -442,8 +450,10 @@ class GmailManagerTests(UserBasedTest, APITestCase):
         manager.send_email_message(email_outbox_message.message())
 
         # Verify that is stored in the database as an email message.
-        self.assertTrue(EmailMessage.objects.filter(account=email_account, message_id=message_id).exists(),
-                        "Send message missing from the database.")
+        self.assertTrue(
+            EmailMessage.objects.filter(account=email_account, message_id=message_id).exists(),
+            "Send message missing from the database."
+        )
 
         # Verify that the email message has the correct labels.
         email_message = EmailMessage.objects.get(account=email_account, message_id=message_id)

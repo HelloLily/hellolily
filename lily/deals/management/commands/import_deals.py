@@ -12,7 +12,6 @@ from django.utils import timezone
 from lily.deals.models import Deal
 from lily.users.models import LilyUser
 
-
 logger = logging.getLogger(__name__)
 
 CURRENCY = 'EUR'
@@ -93,8 +92,7 @@ class Command(BaseCommand):
                     # Set created date to original created date in sugar.
                     if attribute == 'created':
                         value = timezone.make_aware(
-                            datetime.strptime(str(value), "%d-%m-%Y %H.%M"),
-                            timezone.get_current_timezone()
+                            datetime.strptime(str(value), "%d-%m-%Y %H.%M"), timezone.get_current_timezone()
                         )
                     deal_kwargs[attribute] = value
 
@@ -139,9 +137,8 @@ class Command(BaseCommand):
 
                 deal.is_archived = True
 
-                some_time_ago = timezone.make_aware(
-                    (datetime.now() - timedelta(6 * 365 / 12)), timezone.get_current_timezone()
-                )
+                some_time_ago = timezone.make_aware((datetime.now() - timedelta(6 * 365 / 12)),
+                                                    timezone.get_current_timezone())
 
                 is_special = values.get('Sales Stage', '') == 'Special'
                 if is_special and deal.created > some_time_ago:
@@ -156,8 +153,7 @@ class Command(BaseCommand):
                 if user_id and user_id in self.user_mapping:
                     try:
                         deal.assigned_to = LilyUser.objects.get(
-                            pk=self.user_mapping[user_id],
-                            tenant_id=self.tenant_pk
+                            pk=self.user_mapping[user_id], tenant_id=self.tenant_pk
                         )
                     except LilyUser.DoesNotExist:
                         if user_id not in self.already_logged:

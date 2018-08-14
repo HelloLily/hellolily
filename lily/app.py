@@ -36,6 +36,7 @@ class LilyConfig(AppConfig):
         """
         Patch all the forms to strip whitespaces from field input.
         """
+
         def is_form(member):
             """
             Allow only custom made classes which are a subclass from BaseForm to pass.

@@ -19,8 +19,10 @@ def post_save_callback(sender, instance, created, **kwargs):
 
     if created:
         user = get_current_user()
-        analytics.track(user.id, 'email-account-created', {
-            'email_account_id': instance.id,
-            'email_account_type': 'Google',
-            'email_account_address': instance.email_address,
-        })
+        analytics.track(
+            user.id, 'email-account-created', {
+                'email_account_id': instance.id,
+                'email_account_type': 'Google',
+                'email_account_address': instance.email_address,
+            }
+        )

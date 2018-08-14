@@ -168,12 +168,12 @@ class FormActionMixin(object):
         context = super(FormActionMixin, self).get_context_data(**kwargs)
 
         context.update({
-            'form_action_url': reverse(
-                viewname=self.get_form_action_url_name(),
-                args=self.get_form_action_url_args(),
-                kwargs=self.get_form_action_url_kwargs(),
-            ),
-
+            'form_action_url':
+                reverse(
+                    viewname=self.get_form_action_url_name(),
+                    args=self.get_form_action_url_args(),
+                    kwargs=self.get_form_action_url_kwargs(),
+                ),
         })
 
         return context

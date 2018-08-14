@@ -37,26 +37,24 @@ It is possible to specify multiple models, using comma separation."""
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '-t', '--target',
+            '-t',
+            '--target',
             action='store',
             dest='target',
             default='',
             help='Choose specific model targets, comma separated (no added space after comma).'
         )
         parser.add_argument(
-            '-q', '--queries',
+            '-q',
+            '--queries',
             action='store_true',
             dest='queries',
             help='Show the queries that were executed during the command.'
         )
+        parser.add_argument('-l', '--list', action='store_true', dest='list', help='List available models to target.')
         parser.add_argument(
-            '-l', '--list',
-            action='store_true',
-            dest='list',
-            help='List available models to target.'
-        )
-        parser.add_argument(
-            '-f', '--force',
+            '-f',
+            '--force',
             action='store_true',
             dest='force',
             help='Force the creation of the new index, removing the old one (leftovers).'
@@ -85,8 +83,7 @@ It is possible to specify multiple models, using comma separation."""
                 travis_link = 'https://travis-ci.org/HelloLily/hellolily/builds/{0}'.format(travis_build)
                 slack = Slacker(os.environ.get('SLACK_API_TOKEN'))
                 slack.chat.post_message(
-                    '#lily_ci',
-                    'Indexing failed with reason `{0}` in Travis build {1}.'.format(repr(e), travis_link)
+                    '#lily_ci', 'Indexing failed with reason `{0}` in Travis build {1}.'.format(repr(e), travis_link)
                 )
 
     def handle_args(self, *args):
@@ -193,8 +190,10 @@ It is possible to specify multiple models, using comma separation."""
                         self.stdout.write('Removing leftover "%s"' % key)
                         self.es.indices.delete(key)
                     else:
-                        raise Exception('Found leftover %s, proceed with -f to remove.'
-                                        ' Make sure indexing this model is not already running!' % key)
+                        raise Exception(
+                            'Found leftover %s, proceed with -f to remove.'
+                            ' Make sure indexing this model is not already running!' % key
+                        )
 
             # Create new index.
             index_settings = {
@@ -219,10 +218,30 @@ It is possible to specify multiple models, using comma separation."""
             if old_index:
                 self.es.indices.update_aliases({
                     'actions': [
-                        {'remove': {'index': old_index, 'alias': main_index}},
-                        {'remove': {'index': old_index, 'alias': main_index_base}},
-                        {'add': {'index': temp_index, 'alias': main_index}},
-                        {'add': {'index': temp_index, 'alias': main_index_base}},
+                        {
+                            'remove': {
+                                'index': old_index,
+                                'alias': main_index
+                            }
+                        },
+                        {
+                            'remove': {
+                                'index': old_index,
+                                'alias': main_index_base
+                            }
+                        },
+                        {
+                            'add': {
+                                'index': temp_index,
+                                'alias': main_index
+                            }
+                        },
+                        {
+                            'add': {
+                                'index': temp_index,
+                                'alias': main_index_base
+                            }
+                        },
                     ]
                 })
                 self.stdout.write('Removing previous index "%s"' % old_index)
@@ -236,8 +255,18 @@ It is possible to specify multiple models, using comma separation."""
                     self.es.indices.delete(main_index)
                 self.es.indices.update_aliases({
                     'actions': [
-                        {'add': {'index': temp_index, 'alias': main_index}},
-                        {'add': {'index': temp_index, 'alias': main_index_base}},
+                        {
+                            'add': {
+                                'index': temp_index,
+                                'alias': main_index
+                            }
+                        },
+                        {
+                            'add': {
+                                'index': temp_index,
+                                'alias': main_index_base
+                            }
+                        },
                     ]
                 })
             self.stdout.write('')

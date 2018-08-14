@@ -35,20 +35,21 @@ class Command(BaseCommand):
 
                 call_command('create_tenant', tenant=tenant.id)
 
-                invite_hash = sha256('%s-%s-%s-%s' % (
-                    tenant.id,
-                    email,
-                    date_string,
-                    settings.SECRET_KEY
-                )).hexdigest()
+                invite_hash = sha256('%s-%s-%s-%s' % (tenant.id, email, date_string, settings.SECRET_KEY)).hexdigest()
 
-                invite_link = '%s://%s%s' % ('https', current_site, reverse_lazy('invitation_accept', kwargs={
-                    'tenant_id': tenant.id,
-                    'first_name': first_name,
-                    'email': email,
-                    'date': date_string,
-                    'hash': invite_hash,
-                }))
+                invite_link = '%s://%s%s' % (
+                    'https', current_site,
+                    reverse_lazy(
+                        'invitation_accept',
+                        kwargs={
+                            'tenant_id': tenant.id,
+                            'first_name': first_name,
+                            'email': email,
+                            'date': date_string,
+                            'hash': invite_hash,
+                        }
+                    )
+                )
 
                 spamwriter.writerow([company, email, first_name, last_name, invite_link, country])
 

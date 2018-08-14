@@ -40,18 +40,12 @@ class UserBasedTest(object):
         tenant_2 = TenantFactory.create()
 
         # Set the authenticated user on the class.
-        cls.user_obj = LilyUser.objects.create_user(
-            email='user1@lily.com',
-            password=password,
-            tenant_id=tenant_1.id
-        )
+        cls.user_obj = LilyUser.objects.create_user(email='user1@lily.com', password=password, tenant_id=tenant_1.id)
 
         account_admin = Group.objects.get_or_create(name='account_admin')[0]
         cls.user_obj.groups.add(account_admin)
 
-        cls.user_obj.info = UserInfo.objects.create(
-            registration_finished=True
-        )
+        cls.user_obj.info = UserInfo.objects.create(registration_finished=True)
         cls.user_obj.save()
 
         cls.user = APIClient()
@@ -59,13 +53,9 @@ class UserBasedTest(object):
 
         # Set the superuser on the class.
         cls.superuser_obj = LilyUser.objects.create_superuser(
-            email='superuser1@lily.com',
-            password=password,
-            tenant_id=tenant_1.id
+            email='superuser1@lily.com', password=password, tenant_id=tenant_1.id
         )
-        cls.superuser_obj.info = UserInfo.objects.create(
-            registration_finished=True
-        )
+        cls.superuser_obj.info = UserInfo.objects.create(registration_finished=True)
         cls.superuser_obj.save()
 
         cls.superuser = APIClient()
@@ -73,13 +63,9 @@ class UserBasedTest(object):
 
         # Set the authenticated user from another tenant on the class.
         cls.other_tenant_user_obj = LilyUser.objects.create_user(
-            email='user2@lily.com',
-            password=password,
-            tenant_id=tenant_2.id
+            email='user2@lily.com', password=password, tenant_id=tenant_2.id
         )
-        cls.other_tenant_user_obj.info = UserInfo.objects.create(
-            registration_finished=True
-        )
+        cls.other_tenant_user_obj.info = UserInfo.objects.create(registration_finished=True)
         cls.other_tenant_user_obj.save()
 
         cls.other_tenant_user = APIClient()
@@ -127,6 +113,7 @@ class CompareObjectsMixin(object):
     """
     Baseclass that provides functionality for tests that compare objects.
     """
+
     def assertStatus(self, request, desired_code, original_data=None):
         """
         Helper function to assert that the response of the API is what is expected.
@@ -214,9 +201,7 @@ class GenericAPITestCase(CompareObjectsMixin, UserBasedTest, APITestCase):
             return super(GenericAPITestCase, self).__call__(result)
 
     def get_url(self, name, ordering=None, *args, **kwargs):
-        return '%s?%s' % (reverse(name, *args, **kwargs), urlencode({
-            'ordering': ordering or ','.join(self.ordering)
-        }))
+        return '%s?%s' % (reverse(name, *args, **kwargs), urlencode({'ordering': ordering or ','.join(self.ordering)}))
 
     def test_get_list_unauthenticated(self):
         """
@@ -474,11 +459,5 @@ def get_dummy_credentials():
     user_agent = 'refresh_checker/1.0'
 
     return OAuth2Credentials(
-        access_token,
-        client_id,
-        client_secret,
-        refresh_token,
-        token_expiry,
-        GOOGLE_TOKEN_URI,
-        user_agent
+        access_token, client_id, client_secret, refresh_token, token_expiry, GOOGLE_TOKEN_URI, user_agent
     )

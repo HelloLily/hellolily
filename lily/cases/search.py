@@ -21,18 +21,24 @@ class CaseMapping(BaseMapping):
             'account': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'name': {
                         'type': 'string',
                         'analyzer': 'normal_edge_analyzer',
                     },
-                    'is_deleted': {'type': 'boolean'},
+                    'is_deleted': {
+                        'type': 'boolean'
+                    },
                 },
             },
             'assigned_to': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'full_name': {
                         'type': 'string',
                         'analyzer': 'normal_edge_analyzer',
@@ -42,7 +48,9 @@ class CaseMapping(BaseMapping):
             'assigned_to_teams': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'name': {
                         'type': 'string',
                         'analyzer': 'normal_edge_analyzer',
@@ -52,12 +60,16 @@ class CaseMapping(BaseMapping):
             'contact': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'name': {
                         'type': 'string',
                         'analyzer': 'normal_edge_analyzer',
                     },
-                    'is_deleted': {'type': 'boolean'},
+                    'is_deleted': {
+                        'type': 'boolean'
+                    },
                 },
             },
             'created': {
@@ -66,7 +78,9 @@ class CaseMapping(BaseMapping):
             'created_by': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'full_name': {
                         'type': 'string',
                         'analyzer': 'normal_edge_analyzer',
@@ -99,7 +113,9 @@ class CaseMapping(BaseMapping):
             'status': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'name': {
                         'type': 'string',
                         'analyzer': 'normal_edge_analyzer',
@@ -113,18 +129,24 @@ class CaseMapping(BaseMapping):
             'tags': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'name': {
                         'type': 'string',
                         'index_analyzer': 'normal_edge_analyzer',
                     },
-                    'object_id': {'type': 'integer'},
+                    'object_id': {
+                        'type': 'integer'
+                    },
                 },
             },
             'type': {
                 'type': 'object',
                 'properties': {
-                    'id': {'type': 'integer'},
+                    'id': {
+                        'type': 'integer'
+                    },
                     'name': {
                         'type': 'string',
                         'index_analyzer': 'normal_edge_analyzer',

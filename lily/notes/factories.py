@@ -11,7 +11,6 @@ from lily.users.factories import LilyUserFactory
 
 from .models import Note
 
-
 faker = Factory.create('nl_NL')
 
 

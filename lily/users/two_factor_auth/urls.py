@@ -3,7 +3,6 @@ from two_factor.views import QRGeneratorView
 
 from .views import TwoFactorSetupView, TwoFactorPhoneSetupView
 
-
 urlpatterns = [
     url(
         regex=r'^setup/$',

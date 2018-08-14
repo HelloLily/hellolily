@@ -23,6 +23,5 @@ class Command(migrate.Command):
                 travis_link = 'https://travis-ci.org/HelloLily/hellolily/builds/{0}'.format(travis_build)
                 slack = Slacker(os.environ.get('SLACK_API_TOKEN'))
                 slack.chat.post_message(
-                    '#lily_ci',
-                    'Migration failed with reason `{0}` in Travis build {1}.'.format(repr(e), travis_link)
+                    '#lily_ci', 'Migration failed with reason `{0}` in Travis build {1}.'.format(repr(e), travis_link)
                 )

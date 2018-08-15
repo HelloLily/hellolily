@@ -5,6 +5,7 @@ from babel.numbers import get_territory_currencies
 from django.conf import settings
 from django.contrib.gis.geoip2 import GeoIP2
 from django.db import models
+from geoip2.errors import AddressNotFoundError
 from tldextract import tldextract
 
 from lily.billing.models import Billing, Plan
@@ -95,7 +96,7 @@ class Tenant(models.Model):
             if not extra_fields['country']:
                 try:
                     country_code = geo_ip.country(tld.registered_domain).get('country_code')
-                except gaierror:
+                except (gaierror, AddressNotFoundError):
                     pass
                 else:
                     if country_code in [c[0] for c in COUNTRIES]:

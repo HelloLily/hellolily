@@ -22,3 +22,8 @@ PreCommit:
   TravisLint:
     enabled: true
     on_warn: 'fail'
+
+  CustomScript:
+    enabled: true
+    description: "Check python yapf formatting"
+    required_executable: './checks/git/yapf.sh'

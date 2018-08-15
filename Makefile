@@ -83,9 +83,14 @@ cleanfiles:
 	@rm -rf lily/files/
 	@echo ""
 
+format:
+	@echo "Make: yapf --recursive --in-place --parallel --exclude '**/migrations/*.py' ./lily/"
+	@yapf --recursive --in-place --parallel --exclude '**/migrations/*.py' ./lily/
+	@echo "Done."
+
 setup: pull build migrate index testdata run
 
 help:
 	@$(MAKE) -pRrq -f $(lastword $(MAKEFILE_LIST)) : 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | egrep -v -e '^[^[:alnum:]]' -e '^$@$$' | xargs
 
-.PHONY: default build pull makemigrations migrate index testdata run up down manage cleanfiles setup help
+.PHONY: default build pull makemigrations migrate index testdata run up down manage cleanfiles format setup help

@@ -114,6 +114,13 @@ class RegistrationProfileForm(forms.Form):
         )
     )
 
+    def __init__(self, show_tenant_fields=True, *args, **kwargs):
+        super(RegistrationProfileForm, self).__init__(*args, **kwargs)
+
+        if not show_tenant_fields:
+            self.fields.pop('company_name')
+            self.fields.pop('country')
+
 
 class RegistrationEmailAccountSetupForm(forms.Form):
     pass

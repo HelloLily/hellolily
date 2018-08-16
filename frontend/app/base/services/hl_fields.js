@@ -10,7 +10,7 @@ function HLFields() {
      * @returns (object): returns the object with the related fields cleaned.
      */
     this.cleanRelatedFields = function(object) {
-        var relatedFields = ['email_addresses', 'phone_numbers', 'websites', 'addresses'];
+        var relatedFields = ['email_addresses', 'phone_numbers', 'websites'];
 
         angular.forEach(object, function(fieldValues, field) {
             var cleanedValues = [];

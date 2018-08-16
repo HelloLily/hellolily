@@ -145,10 +145,17 @@ class DataproviderViewSet(ViewSet):
         # Make the full address.
         addresses = []
         if address or result.get('city') or result.get('zipcode') or result.get('country'):
+            # There are some exceptions on the country codes, so make sure results of Dataprovider conform to the
+            # ISO 3166-1 alpha-2 standard we use.
+            mapping = {
+                'UK': 'GB',
+                'EL': 'GR',
+            }
+            country = mapping.get(result.get('country'), result.get('country')) if result.get('country') else ''
             addresses = [{
                 'address': address_line,
                 'city': result.get('city'),
-                'country': result.get('country'),
+                'country': country,
                 'postal_code': result.get('zipcode'),
             }]
 

@@ -38,6 +38,7 @@ function Contact($filter, $resource, HLResource, Settings, CacheFactory) {
                 method: 'DELETE',
             },
             addressOptions: {
+                cache: CacheFactory.get('dataCache'),
                 url: '/api/utils/countries/',
                 method: 'OPTIONS',
             },

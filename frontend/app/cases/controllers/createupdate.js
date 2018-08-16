@@ -228,7 +228,9 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
     }
 
     $scope.$watch('vm.case.priority', (newValue, oldValue) => {
-        if (typeof oldValue !== undefined && newValue !== oldValue) {
+        // Only change the expiry date when the priority actually gets changed.
+        // So don't change if we're just loading the case.
+        if ((vm.case && vm.case.id && oldValue && newValue !== oldValue) || (!vm.case.id && newValue !== oldValue)) {
             if (!vm.case.expires) {
                 vm.case.expires = moment();
             }

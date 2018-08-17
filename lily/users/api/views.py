@@ -276,21 +276,28 @@ class LilyUserViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data)
 
-    def partial_update(self, request, *args, **kwargs):
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
         instance = self.get_object()
-        picture = self.request.data.get('picture')
 
-        if picture:
-            if not self.request.FILES:
-                if instance.picture:
-                    # Picture property was set, but no files were sent.
-                    # This means it's still the old picture.
-                    self.request.data['picture'] = instance.picture
-                else:
-                    # Otherwise remove picture from request data to prevent errors.
-                    del self.request.data['picture']
+        data = request.data.copy()  # Make a copy because the QueryDict instance is immutable.
+        picture = data.get('picture')
 
-        return super(LilyUserViewSet, self).partial_update(request, args, kwargs)
+        if picture and not request.FILES:
+            # Picture property was set, but no files were sent.
+            # This means we clear it.
+            data['picture'] = None
+
+        serializer = self.get_serializer(instance, data=data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
 
     def destroy(self, request, *args, **kwargs):
         """

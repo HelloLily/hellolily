@@ -82,7 +82,7 @@ class LilyUserSerializer(WritableNestedSerializer):
     password_confirmation = serializers.CharField(write_only=True, required=False, max_length=128)
     full_name = serializers.CharField(read_only=True)
     profile_picture = serializers.CharField(read_only=True)
-    picture = serializers.ImageField(write_only=True, required=False)
+    picture = serializers.ImageField(write_only=True, required=False, allow_null=True)
     webhooks = RelatedWebhookSerializer(many=True, required=False, create_only=True)
     primary_email_account = EmailAccountSerializer(allow_null=True, required=False)
     info = UserInfoSerializer(read_only=True)

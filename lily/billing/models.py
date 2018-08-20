@@ -1,4 +1,5 @@
 from datetime import datetime
+from errno import ETIMEDOUT
 
 import chargebee
 from django.conf import settings
@@ -54,7 +55,16 @@ class Billing(models.Model):
         subscription = None
 
         if self.subscription_id:
-            subscription = chargebee.Subscription.retrieve(self.subscription_id).subscription
+            max_attempts = 3
+            for attempt in range(max_attempts):
+                try:
+                    subscription = chargebee.Subscription.retrieve(self.subscription_id).subscription
+                except ETIMEDOUT:
+                    # If this is the last attempt, reraise the exception (attempt is zero indexed).
+                    if attempt == max_attempts - 1:
+                        raise
+                else:
+                    break
 
         return subscription
 

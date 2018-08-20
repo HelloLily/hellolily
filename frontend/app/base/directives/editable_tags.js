@@ -63,7 +63,17 @@ function EditableTagsController($timeout, HLSearch, HLUtils) {
             tag.is_deleted = true;
         }
 
-        args.tags = $data.concat(removedTags);
+        // Prevent patching tags with identical names.
+        const uniqueTags = $data.reduce((accumulator, tag) => {
+            const foundTag = accumulator.find(acc => acc.name === tag.name);
+            if (!foundTag) {
+                accumulator.push(tag);
+            }
+            return accumulator;
+        }, []);
+
+
+        args.tags = uniqueTags.concat(removedTags);
 
         return vm.viewModel.updateModel(args).then(function(response) {
             HLUtils.unblockUI(form);

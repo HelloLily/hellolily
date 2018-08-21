@@ -48,8 +48,6 @@ class AddressSerializer(serializers.ModelSerializer):
     """
     Serializer used to serialize addresses.
     """
-    address = serializers.CharField(required=True)
-
     class Meta:
         model = Address
         fields = (

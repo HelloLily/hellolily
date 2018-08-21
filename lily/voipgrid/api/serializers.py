@@ -18,9 +18,6 @@ from phonenumbers import geocoder, NumberParseException
 
 
 logger = logging.getLogger(__name__)
-# For now outbound call integration is limted to VoIPGRID, Voys, Voys SA, Lily, Firm24, LegalThings,
-# Converdis B.V, Converdis
-OUTBOUND_ENABLED_TENANTS = [10, 50, 52, 130, 300, 534, 601, 613]
 
 
 class CallNotificationSerializer(serializers.Serializer):
@@ -64,13 +61,8 @@ class CallNotificationSerializer(serializers.Serializer):
     def create(self, validated_data):
         caller = validated_data['caller']
         destination = validated_data['destination']
-        tenant = self.context['request'].user.tenant
 
         if validated_data['direction'] == 'outbound':
-
-            if tenant.id not in OUTBOUND_ENABLED_TENANTS:
-                # For now we want to enable outbound call integration only for selected tenants to test the feature.
-                return CallRecord()
 
             # Because of GRID-4965, the API returns the destination number in the same format user inserted it,
             # so if country code is missing let's patch it with the one from the caller number.

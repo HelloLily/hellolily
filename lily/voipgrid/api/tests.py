@@ -5,13 +5,12 @@ from django.utils import timezone
 from faker.factory import Factory
 from rest_framework import status
 from rest_framework.reverse import reverse
-from rest_framework.test import APIClient, APITestCase
+from rest_framework.test import APITestCase
 
 from lily import factories
 from lily.calls.models import CallRecord
 from lily.tests.utils import UserBasedTest
 from lily.utils.models.factories import PhoneNumberFactory
-from lily.users.models import LilyUser, UserInfo
 
 import phonenumbers
 
@@ -21,45 +20,6 @@ faker = Factory.create('nl_NL')
 class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
     list_url = 'callnotification-list'
     detail_url = 'callnotification-detail'
-
-    @classmethod
-    def setUpTestData(cls):
-        """
-        Outbound calls are for now only available for certain tenant ids so we need a special user.
-        This method override should be removed when we enable outbound call integration to all tenants.
-        """
-        super(CallNotificationsAPITestCase, cls).setUpTestData()
-        tenant_1 = factories.TenantFactory.create(id=10)
-        tenant_2 = factories.TenantFactory.create(id=30)
-        password = 'password'
-
-        # Set the authenticated user on the class.
-        cls.user_obj = LilyUser.objects.create_user(
-            email='user3@lily.com',
-            password=password,
-            tenant_id=tenant_1.id
-        )
-
-        cls.user_obj.info = UserInfo.objects.create(
-            registration_finished=True
-        )
-
-        cls.user = APIClient()
-        cls.user.login(username=cls.user_obj.email, password=password)
-
-        # Let's set another user with a tenant without outbound integration.
-        cls.user_without_outbound_obj = LilyUser.objects.create_user(
-            email='user4@lily.com',
-            password=password,
-            tenant_id=tenant_2.id
-        )
-
-        cls.user_without_outbound_obj.info = UserInfo.objects.create(
-            registration_finished=True
-        )
-
-        cls.user_without_outbound = APIClient()
-        cls.user_without_outbound.login(username=cls.user_obj.email, password=password)
 
     def generate_number(self, internal=False):
         if internal:
@@ -446,32 +406,6 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         self.assertEqual(crs[0].status, CallRecord.ENDED)  # The status should be ended.
         self.assertEqual(crs[0].destination.number, normalized_destination_number)  # Destination should be unaltered.
         self.assertEqual(crs[0].caller.number, participant_a['number'])  # Caller number should be unaltered..
-
-    def test_simple_outbound_call_with_tenant_without_outbound_integration(self):
-        """
-        Test a simple outbound call with a tenant which doesn't have outbound integration enabled.
-        This is a temporary test case which should be removed when the feature is released to all tenants.
-
-        Notifications:
-            ringing - A (internal) calls B (external, unknown)
-            in-progress - A calls with B
-            ended - A and B hang up (reason: completed)
-        """
-        # We need to set the user with a tenant without outbound integration as our main user.
-        user_tmp = self.user_obj
-        self.user_obj = self.user_without_outbound_obj
-
-        contact = factories.ContactFactory.create(tenant=self.user_obj.tenant)
-        phone_number = PhoneNumberFactory(tenant=self.user_obj.tenant, number=self.generate_number())
-        contact.phone_numbers.add(phone_number)
-
-        participant_a = self.generate_participant()
-        participant_b = self.generate_participant(number=phone_number.number)
-
-        self.generic_test_with_no_saved_call_records('outbound', participant_a, participant_b)
-
-        # Let's reset the user back to normal for other tests.
-        self.user_obj = user_tmp
 
     def test_inbound_no_pickup(self):
         """

@@ -1,3 +1,4 @@
+import analytics
 from django import http
 from django.conf import settings
 from django.contrib import messages
@@ -60,7 +61,8 @@ class CustomLoginView(LoginView):
         return super(CustomLoginView, self).dispatch(request, *args, **kwargs)
 
     def done(self, form_list, **kwargs):
-        login(self.request, self.get_user())
+        user = self.get_user()
+        login(self.request, user)
 
         if not self.request.user.info.registration_finished:
             # If the user has not finished registration yet, redirect them there to finish it now.
@@ -73,7 +75,7 @@ class CustomLoginView(LoginView):
             if not is_safe_url(url=redirect_to, host=self.request.get_host()):
                 redirect_to = resolve_url(settings.LOGIN_REDIRECT_URL)
 
-        device = getattr(self.get_user(), 'otp_device', None)
+        device = getattr(user, 'otp_device', None)
 
         if device:
             if isinstance(device, StaticDevice):
@@ -83,9 +85,14 @@ class CustomLoginView(LoginView):
             signals.user_verified.send(
                 sender=__name__,
                 request=self.request,
-                user=self.get_user(),
+                user=user,
                 device=device
             )
+
+        # Track login type in Segment.
+        analytics.track(user.id, 'user-login', {
+            'login_type': 'Traditional',
+        })
 
         return redirect(redirect_to)
 
@@ -128,6 +135,11 @@ class SocialAuthCallbackView(RedirectView):
             # User was authenticated, so do a login.
             login(self.request, user)
 
+            # Track login type in Segment.
+            analytics.track(user.id, 'user-login', {
+                'login_type': '{}-{}'.format('Social', self.provider_name),
+            })
+
             return reverse('base_view')
         elif not LilyUser.all_objects.filter(email=profile['email'].lower()).exists():
             # If the user was invited, get the invitation data out of the session.
@@ -146,6 +158,11 @@ class SocialAuthCallbackView(RedirectView):
 
             # Log the new user in.
             login(self.request, user)
+
+            # Track login type in Segment.
+            analytics.track(user.id, 'user-login', {
+                'login_type': '{}-{}'.format('Social', self.provider_name),
+            })
 
             # Send welcome mail to the new user.
             send_templated_mail(

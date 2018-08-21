@@ -141,7 +141,9 @@ function CaseCreateUpdateController($scope, $state, $stateParams, Account, Case,
             Case.getStatuses(response => {
                 vm.statusChoices = response.results;
 
-                vm.case.status = vm.statusChoices[0];
+                if (!currentCase) {
+                    vm.case.status = vm.statusChoices[0];
+                }
             });
 
             vm.casePriorities = Case.getCasePriorities();

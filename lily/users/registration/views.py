@@ -2,6 +2,7 @@ from datetime import date, timedelta
 from distutils.util import strtobool
 
 import analytics
+import chargebee
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login
@@ -242,6 +243,16 @@ class RegisterProfileView(RegistrationMixin, FormView):
             tenant.name = cleaned_data['company_name']
             tenant.country = cleaned_data['country']
             tenant.save()
+
+        subscription_id = tenant.billing.subscription_id
+        if subscription_id:
+            chargebee.Subscription.update(subscription_id, {
+                'customer': {
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'company': tenant.name,
+                },
+            })
 
         return super(RegisterProfileView, self).form_valid(form)
 

@@ -1,5 +1,6 @@
 from datetime import datetime
 import logging
+from errno import ETIMEDOUT
 
 import chargebee
 from celery.task import task
@@ -36,9 +37,18 @@ def check_subscriptions():
 
                 if convert_to_free:
                     # Subscription was set to cancelled for whatever reason (expired trial, card declined, etc)
-                    chargebee.Subscription.update(subscription.id, {
-                        'plan_id': settings.CHARGEBEE_FREE_PLAN_NAME,
-                    })
+                    max_attempts = 3
+                    for attempt in range(max_attempts):
+                        try:
+                            chargebee.Subscription.update(subscription.id, {
+                                'plan_id': settings.CHARGEBEE_FREE_PLAN_NAME,
+                            })
+                        except ETIMEDOUT:
+                            # If this is the last attempt, reraise the exception (attempt is zero indexed).
+                            if attempt == max_attempts - 1:
+                                raise
+                        else:
+                            break
 
                     billing.plan = Plan.objects.get(name=settings.CHARGEBEE_FREE_PLAN_NAME)
                     billing.save()

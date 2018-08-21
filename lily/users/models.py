@@ -50,7 +50,7 @@ class LilyUserManager(TenantManager, UserManager):
 
         user = self.create(
             tenant_id=tenant_id,
-            email=email.lower(),
+            email=email,
             password=password,
             last_login=now,
             date_joined=now,
@@ -59,7 +59,7 @@ class LilyUserManager(TenantManager, UserManager):
         )
 
         if not picture:
-            gravatar_hash = hashlib.md5(user.email.lower().encode('utf-8', errors='replace')).hexdigest()
+            gravatar_hash = hashlib.md5(email.encode('utf-8', errors='replace')).hexdigest()
             response = requests.get('https://secure.gravatar.com/avatar/{}'.format(gravatar_hash), params={
                 'default': '404',
                 'size': '200'

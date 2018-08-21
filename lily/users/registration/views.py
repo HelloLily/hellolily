@@ -204,6 +204,19 @@ class RegisterProfileView(RegistrationMixin, FormView):
     success_url = reverse_lazy('register_email_account_setup')
     step_name = 'profile'
 
+    def __init__(self, **kwargs):
+        super(RegisterProfileView, self).__init__(**kwargs)
+
+        self.first_user = LilyUser.objects.all().count() == 1
+
+    def get_form_kwargs(self):
+        kwargs = super(RegisterProfileView, self).get_form_kwargs()
+
+        # Only show the tenant fields if this is the first registered user for this tenant.
+        kwargs['show_tenant_fields'] = self.first_user
+
+        return kwargs
+
     def get_initial(self):
         initial = super(RegisterProfileView, self).get_initial()
 
@@ -224,10 +237,11 @@ class RegisterProfileView(RegistrationMixin, FormView):
         user.last_name = cleaned_data['last_name']
         user.save()
 
-        tenant = user.tenant
-        tenant.name = cleaned_data['company_name']
-        tenant.country = cleaned_data['country']
-        tenant.save()
+        if self.first_user:
+            tenant = user.tenant
+            tenant.name = cleaned_data['company_name']
+            tenant.country = cleaned_data['country']
+            tenant.save()
 
         return super(RegisterProfileView, self).form_valid(form)
 

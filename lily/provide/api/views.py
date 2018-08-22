@@ -154,9 +154,9 @@ class DataproviderViewSet(ViewSet):
             country = mapping.get(result.get('country'), result.get('country')) if result.get('country') else ''
             addresses = [{
                 'address': address_line,
-                'city': result.get('city'),
+                'city': result.get('city', ''),
                 'country': country,
-                'postal_code': result.get('zipcode'),
+                'postal_code': result.get('zipcode', ''),
             }]
 
         # Get social media profiles.

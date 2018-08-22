@@ -169,7 +169,7 @@ COUNTRIES = (
     ('NA', _('Namibia')),
     ('NR', _('Nauru')),
     ('NP', _('Nepal')),
-    ('NL', _('Netherlads')),
+    ('NL', _('Netherlands')),
     ('NC', _('New Caledonia')),
     ('NZ', _('New Zealand')),
     ('NI', _('Nicaragua')),

@@ -1,5 +1,5 @@
 ### Django runs on this
-web: bin/start-pgbouncer-stunnel daphne lily.asgi:channel_layer --port $PORT --bind 0.0.0.0
+web: bin/start-pgbouncer-stunnel daphne lily.asgi:channel_layer --port $PORT --bind 0.0.0.0 --http-timeout 28
 
 consumer: python manage.py runworker
 

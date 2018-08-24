@@ -2,12 +2,26 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from django_extensions.db.models import TimeStampedModel
 
 from lily.tenant.models import TenantMixin
 from lily.socialmedia.models import SocialMedia
+from lily.utils.models.fields import CreatedDateTimeField, ModifiedDateTimeField
 
 from .models import PhoneNumber, Address, EmailAddress
+
+
+class TimeStampedModel(models.Model):
+    created = CreatedDateTimeField(verbose_name=_('created'))
+    modified = ModifiedDateTimeField(verbose_name=_('modified'))
+
+    def save(self, **kwargs):
+        self.update_modified = kwargs.pop('update_modified', getattr(self, 'update_modified', True))
+        super(TimeStampedModel, self).save(**kwargs)
+
+    class Meta:
+        get_latest_by = 'modified'
+        ordering = ('-modified', '-created',)
+        abstract = True
 
 
 class DeletedMixin(TimeStampedModel):
@@ -31,6 +45,16 @@ class DeletedMixin(TimeStampedModel):
             self.is_deleted = True
             self.deleted = timezone.now()
             self.save()
+
+    class Meta:
+        abstract = True
+
+
+class ArchivedMixin(models.Model):
+    """
+    Archived model, if set to true, the instance is archived.
+    """
+    is_archived = models.BooleanField(default=False)
 
     class Meta:
         abstract = True
@@ -84,16 +108,6 @@ class Common(DeletedMixin, TenantMixin):
             pass
         else:
             return linkedin.profile_url
-
-    class Meta:
-        abstract = True
-
-
-class ArchivedMixin(models.Model):
-    """
-    Archived model, if set to true, the instance is archived.
-    """
-    is_archived = models.BooleanField(default=False)
 
     class Meta:
         abstract = True

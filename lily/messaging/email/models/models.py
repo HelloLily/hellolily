@@ -21,14 +21,13 @@ from django.core.validators import validate_comma_separated_integer_list
 from django.db import models
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
-from django_extensions.db.models import TimeStampedModel
 from django.utils.translation import ugettext_lazy as _
 from bs4 import UnicodeDammit
 from oauth2client.contrib.django_orm import CredentialsField
 
 from lily.tenant.models import TenantMixin
 from lily.users.models import LilyUser
-from lily.utils.models.mixins import DeletedMixin
+from lily.utils.models.mixins import DeletedMixin, TimeStampedModel
 
 from ..sanitize import sanitize_html_email
 

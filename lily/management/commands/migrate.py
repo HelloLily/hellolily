@@ -1,6 +1,7 @@
 import os
 import traceback
 
+from django.conf import settings
 from django.core.management.commands import migrate
 
 from slacker import Slacker
@@ -11,6 +12,8 @@ class Command(migrate.Command):
         """
         Wrapper around default django migrate command to print a default message and send a slack message on error.
         """
+        settings.MIGRATING = True
+
         try:
             super(Command, self).handle(*args, **options)
         except Exception, e:
@@ -26,3 +29,6 @@ class Command(migrate.Command):
                     '#lily_ci',
                     'Migration failed with reason `{0}` in Travis build {1}.'.format(repr(e), travis_link)
                 )
+        else:
+            # Set migrating to False again to prevent tests failing.
+            settings.MIGRATING = False

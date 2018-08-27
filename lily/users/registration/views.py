@@ -238,8 +238,8 @@ class RegisterProfileView(RegistrationMixin, FormView):
         user.last_name = cleaned_data['last_name']
         user.save()
 
+        tenant = user.tenant
         if self.first_user:
-            tenant = user.tenant
             tenant.name = cleaned_data['company_name']
             tenant.country = cleaned_data['country']
             tenant.save()

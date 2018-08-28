@@ -144,7 +144,10 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         self.assertEqual(len(crs), 1)  # There should only be one call record.
         self.assertEqual(crs[0].status, CallRecord.RINGING)  # The status should be ringing.
         self.assertEqual(crs[0].caller.number, participant_a['number'])  # There should be a caller saved.
-        self.assertEqual(crs[0].destination, None)  # Don't save the destination yet.
+        if direction == 'inbound':
+            self.assertEqual(crs[0].destination, None)  # For inbound calls don't save the destination yet.
+        else:
+            self.assertEqual(crs[0].destination.number, participant_b['number'])  # Destination should be filled now.
 
         in_progress = self.generate_in_progress_json(direction, call_id, caller=participant_a, target=participant_b)
         request = self.user.post(reverse(self.list_url), in_progress)
@@ -218,7 +221,10 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         self.assertEqual(len(crs), 1)  # There should only be one call record.
         self.assertEqual(crs[0].status, CallRecord.RINGING)  # The status should be ringing.
         self.assertEqual(crs[0].caller.number, participant_a['number'])  # There should be a caller saved.
-        self.assertEqual(crs[0].destination, None)  # Don't save the destination yet.
+        if direction == 'inbound':
+            self.assertEqual(crs[0].destination, None)  # For inbound calls don't save the destination yet.
+        else:
+            self.assertEqual(crs[0].destination.number, participant_b['number'])  # Destination should be filled now.
 
         ended = self.generate_ended_json(
             direction, call_id, reason='busy', caller=participant_a, number=participant_b['number']
@@ -229,7 +235,10 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         crs = CallRecord.objects.all()
         self.assertEqual(len(crs), 1)  # There should only be one call record.
         self.assertEqual(crs[0].status, CallRecord.ENDED)  # The status should be ended.
-        self.assertEqual(crs[0].destination, None)  # There still shouldn't be a destination.
+        if direction == 'inbound':
+            self.assertEqual(crs[0].destination, None)  # There still shouldn't be a destination.
+        else:
+            self.assertEqual(crs[0].destination.number, participant_b['number'])  # For outbound destination is filled.
 
     def generic_test_automatic_pickup(self, direction, participant_a, participant_b):
         """
@@ -381,20 +390,20 @@ class CallNotificationsAPITestCase(UserBasedTest, APITestCase):
         self.assertEqual(request.status_code, status.HTTP_201_CREATED)
 
         crs = CallRecord.objects.all()
+        normalized_destination_number = country_code + participant_b['number'][1:]
         self.assertEqual(len(crs), 1)  # There should only be one call record.
         self.assertEqual(crs[0].status, CallRecord.RINGING)  # The status should be ringing.
         self.assertEqual(crs[0].caller.number, participant_a['number'])  # There should be a caller saved.
-        self.assertEqual(crs[0].destination, None)  # Don't save the destination yet.
+        self.assertEqual(crs[0].destination.number, normalized_destination_number)  # Destination should be filled now.
 
         in_progress = self.generate_in_progress_json(direction, call_id, caller=participant_a, target=participant_b)
         request = self.user.post(reverse(self.list_url), in_progress)
         self.assertEqual(request.status_code, status.HTTP_201_CREATED)
 
         crs = CallRecord.objects.all()
-        normalized_destination_number = country_code + participant_b['number'][1:]
         self.assertEqual(len(crs), 1)  # There should only be one call record.
         self.assertEqual(crs[0].status, CallRecord.IN_PROGRESS)  # The status should be in progress.
-        self.assertEqual(crs[0].destination.number, normalized_destination_number)  # Destination should be filled now.
+        self.assertEqual(crs[0].destination.number, normalized_destination_number)  # Destination should be unaltered.
         self.assertEqual(crs[0].caller.number, participant_a['number'])  # Caller number should be unaltered.
 
         ended = self.generate_ended_json(direction, call_id, caller=participant_a, number=participant_b['number'])

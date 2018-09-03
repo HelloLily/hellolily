@@ -7,13 +7,12 @@ from rest_framework.fields import empty, SkipField, set_value
 from rest_framework.settings import api_settings
 from rest_framework.validators import UniqueTogetherValidator
 
-from lily.api.mixins import ValidateEverythingSimultaneouslyMixin
 from .fields import RelatedPrimaryKeyField
 from .serializers import WritableNestedListSerializer
 from .validators import CreateOnlyValidator, AssignOnlyValidator
 
 
-class RelatedSerializerMixin(ValidateEverythingSimultaneouslyMixin):
+class RelatedSerializerMixin(object):
     """
     Mixin used for related model serializers.
 

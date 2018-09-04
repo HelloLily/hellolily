@@ -69,7 +69,7 @@ class LilyUserFactory(DjangoModelFactory):
     @post_generation
     def info(self, create, extracted, **kwargs):
         if create:
-            self.info = UserInfo.objects.create()
+            self.info = UserInfo.objects.create(registration_finished=True)
             self.save()
 
     class Meta:

@@ -1,3 +1,5 @@
+import logging
+
 import analytics
 from django import http
 from django.conf import settings
@@ -26,6 +28,8 @@ from lily.users.models import LilyUser
 from lily.users.two_factor_auth.forms import CustomAuthenticationTokenForm
 
 from .forms import CustomAuthenticationForm, CustomPasswordResetForm, CustomSetPasswordForm
+
+logger = logging.getLogger(__name__)
 
 
 @class_view_decorator(sensitive_post_parameters())
@@ -125,7 +129,8 @@ class SocialAuthCallbackView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         try:
             profile = get_profile(self.request, self.provider_name)
-        except OAuth2Error:
+        except OAuth2Error as e:
+            logger.exception("Unable to get the profile, error: {}".format(e))
             messages.error(self.request, 'Unable to get access to your account, please try again.')
             return reverse('login')
 

@@ -7,7 +7,11 @@ from .base import BaseAuthProvider
 class GoogleAuthProvider(BaseAuthProvider):
     client_id = settings.SOCIAL_AUTH_GOOGLE_CLIENT_ID
     client_secret = settings.SOCIAL_AUTH_GOOGLE_SECRET
-    scope = ['openid', 'email', 'profile']
+    scope = [
+        'https://www.googleapis.com/auth/plus.me',
+        'https://www.googleapis.com/auth/userinfo.email',
+        'https://www.googleapis.com/auth/userinfo.profile'
+    ]
     auth_uri = 'https://accounts.google.com/o/oauth2/v2/auth'
     token_uri = 'https://www.googleapis.com/oauth2/v4/token'
     jwks_uri = 'https://www.googleapis.com/oauth2/v3/certs'

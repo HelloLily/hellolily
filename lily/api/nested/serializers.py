@@ -10,8 +10,6 @@ from rest_framework.fields import empty
 from rest_framework.serializers import SerializerMetaclass
 from requests_futures.sessions import FuturesSession
 
-from lily.api.mixins import ValidateEverythingSimultaneouslyMixin
-
 
 def is_dirty(instance, data):
     """
@@ -97,7 +95,7 @@ class WritableNestedSerializerMetaclass(SerializerMetaclass):
 
 
 @six.add_metaclass(WritableNestedSerializerMetaclass)
-class WritableNestedSerializer(ValidateEverythingSimultaneouslyMixin, serializers.ModelSerializer):
+class WritableNestedSerializer(serializers.ModelSerializer):
     simple_data = {}
     fk_data = {}
     fk_reverse_data = {}

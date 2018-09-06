@@ -233,7 +233,7 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
                 self.object.body_html = extract_script_tags(self.object.body_html)
                 self.object.body_html = replace_cid_in_html(self.object.body_html, attachments, request)
             except EmailMessage.DoesNotExist:
-                pass
+                raise Http404()
 
     def form_valid(self, form):
         """

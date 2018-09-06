@@ -65,6 +65,9 @@ DATABASES = {
 
 SITE_ID = os.environ.get('SITE_ID', 1)
 
+TESTING = False  # Is set to True in the testrunner.
+MIGRATING = False  # Is set to True in the migrate command.
+
 
 #######################################################################################################################
 # REDIS CONFIG                                                                                                        #
@@ -700,7 +703,6 @@ SEGMENT_JS_SOURCE_WRITE_KEY = os.environ.get('SEGMENT_JS_SOURCE_WRITE_KEY', '')
 #######################################################################################################################
 TEST_RUNNER = 'lily.tests.runner.LilyNoseTestSuiteRunner'
 NOSE_ARGS = ['--nocapture', '--nologcapture', '--verbosity=3']
-TESTING = False  # Is set to True in the testrunner.
 TEST_SUPPRESS_LOG = True
 
 #######################################################################################################################

@@ -244,15 +244,16 @@ class RegisterProfileView(RegistrationMixin, FormView):
             tenant.country = cleaned_data['country']
             tenant.save()
 
-        subscription_id = tenant.billing.subscription_id
-        if subscription_id:
-            chargebee.Subscription.update(subscription_id, {
-                'customer': {
-                    'first_name': user.first_name,
-                    'last_name': user.last_name,
-                    'company': tenant.name,
-                },
-            })
+        if settings.BILLING_ENABLED:
+            subscription_id = tenant.billing.subscription_id
+            if subscription_id:
+                chargebee.Subscription.update(subscription_id, {
+                    'customer': {
+                        'first_name': user.first_name,
+                        'last_name': user.last_name,
+                        'company': tenant.name,
+                    },
+                })
 
         return super(RegisterProfileView, self).form_valid(form)
 

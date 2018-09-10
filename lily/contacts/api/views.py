@@ -115,7 +115,7 @@ class ContactImport(APIView):
         required_fields = {u'first name', u'last name'}
         # The following set of fields are optional.
         optional_fields = {u'company name', u'email address', u'phone number', u'address', u'postal code', u'city',
-                           u'twitter', u'linkedin'}
+                           u'twitter', u'linkedin', u'mobile'}
 
         # The following headers are present in the uploaded file.
         available_in_upload = set(imported_data.headers)
@@ -137,7 +137,7 @@ class ContactImport(APIView):
         for row in imported_data.dict:
             first_name = row.get(u'first name')
             last_name = row.get(u'last name')
-            full_name = "{0} {1}".format(first_name, last_name)
+            full_name = u'{0} {1}'.format(first_name, last_name)
 
             # Check if the contact already exists, possibly when the user re-uploads the same file.
             if Contact.objects.filter(first_name=first_name, last_name=last_name, tenant=tenant,
@@ -152,16 +152,18 @@ class ContactImport(APIView):
             address = None
             twitter = None
             linkedin = None
+            mobile = None
             try:
                 # Use atomic to rollback all intermediate database actions if an error occurs in just one of them.
                 with transaction.atomic():
                     # All the extra fields excluding 'company' that are present in the upload are placed in the
                     # description field.
-                    description = ''
+                    description = u''
                     extra_in_upload_wo_company = set(extra_in_upload)
                     extra_in_upload_wo_company.discard(u'company name')
                     for field in extra_in_upload_wo_company:
-                        description += '{0}: {1}\n'.format(field, row.get(field))
+                        if row.get(field):
+                            description += '{0}: {1}\n'.format(field.capitalize(), row.get(field))
 
                     contact = Contact(first_name=first_name,
                                       last_name=last_name,
@@ -242,6 +244,15 @@ class ContactImport(APIView):
                         linkedin.skip_signal = True
                         linkedin.save()
 
+                    if u'mobile' in optional_in_upload and row.get(u'mobile'):
+                        mobile = PhoneNumber(
+                            number=row.get(u'mobile'),
+                            tenant=tenant,
+                            type='mobile',
+                        )
+                        mobile.skip_signal = True
+                        mobile.save()
+
             except Exception:
                 # On an exception all databaase actions are rolled back. Because of the skip_signal=True no data is
                 # added to the search index.
@@ -275,6 +286,10 @@ class ContactImport(APIView):
                     account.save()
 
                     Function.objects.create(account=account, contact=contact)
+                if mobile:
+                    mobile.skip_signal = False
+                    mobile.save()
+                    contact.phone_numbers.add(mobile)
 
                 created.append(full_name)
 

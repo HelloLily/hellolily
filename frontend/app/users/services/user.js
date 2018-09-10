@@ -20,6 +20,13 @@ function User($resource, CacheFactory) {
                 cache.remove(cacheKey);
             }
 
+            // After updating or removing a user, also invalidate user search cache.
+            cache.keys().map((key) => {
+                if (key.startsWith('/search/search/')) {
+                    cache.remove(key);
+                }
+            });
+
             return response;
         },
     };

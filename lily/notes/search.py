@@ -81,13 +81,14 @@ class NoteMapping(BaseMapping):
         """
         return {
             'author': {
-                'full_name': obj.author.full_name,
                 'id': obj.author.id,
+                'full_name': obj.author.full_name,
                 'profile_picture': obj.author.profile_picture
             },
             'content': obj.content,
             'content_type': obj.content_type.id,
             'date': obj.created,
+            'created': obj.created,
             'gfk_content_type': obj.gfk_content_type.model,
             'gfk_object_id': obj.gfk_object_id,
             'is_pinned': obj.is_pinned,

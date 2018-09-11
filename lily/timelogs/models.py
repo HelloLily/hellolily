@@ -17,5 +17,12 @@ class TimeLog(TenantMixin):
     def __unicode__(self):
         return '%sh logged for %s with ID %s' % (self.hours_logged, self.gfk_content_type.model, self.gfk_object_id)
 
+    @property
+    def content_type(self):
+        """
+        Return the content type (Django model) for this model
+        """
+        return ContentType.objects.get(app_label='timelogs', model='timelog')
+
     class Meta:
         ordering = ['-date']

@@ -6,14 +6,14 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 
 from lily.api.filters import ElasticSearchFilter
-from lily.api.mixins import ModelChangesMixin, DataExistsMixin
+from lily.api.mixins import ModelChangesMixin, DataExistsMixin, NoteMixin
 from lily.calls.api.serializers import CallRecordSerializer
 from lily.calls.models import CallRecord
 from lily.contacts.api.serializers import ContactSerializer
 from lily.contacts.models import Contact
 
 
-class ContactViewSet(ModelChangesMixin, DataExistsMixin, viewsets.ModelViewSet):
+class ContactViewSet(ModelChangesMixin, DataExistsMixin, NoteMixin, viewsets.ModelViewSet):
     """
     Contacts are people you want to store the information of.
 
@@ -83,4 +83,6 @@ class ContactViewSet(ModelChangesMixin, DataExistsMixin, viewsets.ModelViewSet):
 
         serializer = CallRecordSerializer(calls, many=True, context={'request': request})
 
-        return Response(serializer.data)
+        return Response({'results': serializer.data})
+
+                {'file_contacts': {'The following columns are missing: {0}'.format(', '.join(missing_in_upload))}},

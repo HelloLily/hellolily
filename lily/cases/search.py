@@ -173,6 +173,7 @@ class CaseMapping(BaseMapping):
             'assigned_to': {
                 'id': obj.assigned_to.id,
                 'full_name': obj.assigned_to.full_name,
+                'profile_picture': obj.assigned_to.profile_picture,
             } if obj.assigned_to else None,
             'assigned_to_teams': [{
                 'id': team.id,
@@ -188,6 +189,7 @@ class CaseMapping(BaseMapping):
             'created_by': {
                 'id': obj.created_by.id,
                 'full_name': obj.created_by.full_name,
+                'profile_picture': obj.created_by.profile_picture,
             } if obj.created_by else None,
             'description': obj.description,
             'expires': obj.expires,

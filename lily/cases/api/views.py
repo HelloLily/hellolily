@@ -1,12 +1,15 @@
+from django.db.models import Q
 from django_filters import CharFilter
 from django_filters import rest_framework as filters
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets
+from rest_framework.decorators import list_route
 from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from lily.api.filters import ElasticSearchFilter
-from lily.api.mixins import ModelChangesMixin, TimeLogMixin, DataExistsMixin
+from lily.api.mixins import ModelChangesMixin, TimeLogMixin, DataExistsMixin, NoteMixin
 
 from .serializers import CaseSerializer, CaseStatusSerializer, CaseTypeSerializer
 from ..models import Case, CaseStatus, CaseType
@@ -45,7 +48,7 @@ class CaseFilter(filters.FilterSet):
         fields = ['type', 'status', 'not_type', 'not_status', ]
 
 
-class CaseViewSet(ModelChangesMixin, TimeLogMixin, DataExistsMixin, viewsets.ModelViewSet):
+class CaseViewSet(ModelChangesMixin, TimeLogMixin, DataExistsMixin, NoteMixin, viewsets.ModelViewSet):
     """
     retrieve:
     Returns the given case.
@@ -101,6 +104,27 @@ class CaseViewSet(ModelChangesMixin, TimeLogMixin, DataExistsMixin, viewsets.Mod
         """
         queryset = super(CaseViewSet, self).get_queryset().filter(is_deleted=False)
         return queryset_filter(self.request, queryset)
+
+    @swagger_auto_schema(auto_schema=None)
+    @list_route(methods=['GET'])
+    def open(self, request):
+        account = request.GET.get('account')
+        contact = request.GET.get('contact')
+
+        closed_status = CaseStatus.objects.get(name='Closed')
+
+        cases = Case.objects.filter(is_archived=False, is_deleted=False).exclude(status=closed_status)
+
+        if account and contact:
+            cases = cases.filter(Q(account_id=account) | Q(contact_id=contact))
+        elif account:
+            cases = cases.filter(account_id=account)
+        elif contact:
+            cases = cases.filter(contact_id=contact)
+
+        serializer = CaseSerializer(cases, many=True)
+
+        return Response({'results': serializer.data})
 
 
 class TeamsCaseList(APIView):

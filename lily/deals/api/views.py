@@ -1,9 +1,13 @@
+from django.db.models import Q
 from django_filters import rest_framework as filters
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework.decorators import list_route
 from rest_framework.filters import OrderingFilter
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from lily.api.filters import ElasticSearchFilter
-from lily.api.mixins import ModelChangesMixin, TimeLogMixin, DataExistsMixin
+from lily.api.mixins import ModelChangesMixin, TimeLogMixin, DataExistsMixin, NoteMixin
 
 from .serializers import (DealSerializer, DealNextStepSerializer, DealWhyCustomerSerializer, DealWhyLostSerializer,
                           DealFoundThroughSerializer, DealContactedBySerializer, DealStatusSerializer)
@@ -121,7 +125,7 @@ class DealFilter(filters.FilterSet):
         }
 
 
-class DealViewSet(ModelChangesMixin, TimeLogMixin, DataExistsMixin, ModelViewSet):
+class DealViewSet(ModelChangesMixin, TimeLogMixin, DataExistsMixin, NoteMixin, ModelViewSet):
     """
     retrieve:
     Returns the given deal.
@@ -172,3 +176,29 @@ class DealViewSet(ModelChangesMixin, TimeLogMixin, DataExistsMixin, ModelViewSet
         Set the queryset here so it filters on tenant and works with pagination.
         """
         return super(DealViewSet, self).get_queryset().filter(is_deleted=False)
+
+    @swagger_auto_schema(auto_schema=None)
+    @list_route(methods=['GET'])
+    def open(self, request):
+        account = request.GET.get('account')
+        contact = request.GET.get('contact')
+
+        lost_status = DealStatus.objects.get(name='Lost')
+        won_status = DealStatus.objects.get(name='Won')
+
+        deals = Deal.objects.filter(
+            is_archived=False, is_deleted=False
+        ).exclude(
+            Q(status=lost_status) | Q(status=won_status)
+        )
+
+        if account and contact:
+            deals = deals.filter(Q(account_id=account) | Q(contact_id=contact))
+        elif account:
+            deals = deals.filter(account_id=account)
+        elif contact:
+            deals = deals.filter(contact_id=contact)
+
+        serializer = DealSerializer(deals, many=True)
+
+        return Response({'results': serializer.data})

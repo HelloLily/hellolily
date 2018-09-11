@@ -1,8 +1,12 @@
+import anyjson
 import logging
 
+from base64 import b64encode
+from django.apps import apps
 from django.conf import settings
 from django.db.models import Q
 from django_filters import rest_framework as filters
+from oauth2client.client import OAuth2WebServerFlow
 import phonenumbers
 from rest_framework import viewsets, mixins, status
 from rest_framework.filters import OrderingFilter
@@ -12,8 +16,9 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from lily.accounts.models import Account
-from lily.messaging.email.utils import get_email_parameter_api_dict, reindex_email_message, get_shared_email_accounts
+from lily.google.token_generator import generate_token
 from lily.messaging.email.tasks import send_message
+from lily.messaging.email.utils import reindex_email_message, get_shared_email_accounts
 from lily.search.lily_search import LilySearch
 from lily.utils.functions import format_phone_number
 from lily.utils.models.models import PhoneNumber
@@ -30,6 +35,15 @@ from ..utils import get_filtered_message
 
 
 logger = logging.getLogger(__name__)
+
+FLOW = OAuth2WebServerFlow(
+    client_id=settings.GOOGLE_OAUTH2_CLIENT_ID,
+    client_secret=settings.GOOGLE_OAUTH2_CLIENT_SECRET,
+    redirect_uri=settings.GMAIL_CALLBACK_URL,
+    scope='https://mail.google.com/',
+    prompt='consent',
+    access_type='offline',
+)
 
 
 class EmailLabelViewSet(viewsets.ReadOnlyModelViewSet):
@@ -111,7 +125,7 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
 
         serializer = self.get_serializer(email_account_list, many=True)
 
-        return Response(serializer.data)
+        return Response({'results': serializer.data})
 
     @detail_route(methods=['delete'])
     def cancel(self, request, pk):
@@ -129,6 +143,15 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
             account.delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @list_route(methods=['GET'])
+    def setup(self, request):
+        state = b64encode(anyjson.serialize({
+            'token': generate_token(settings.SECRET_KEY, request.user.pk),
+        }))
+        authorize_url = FLOW.step1_get_authorize_url(state=state)
+
+        return Response({'url': authorize_url})
 
 
 class EmailMessageViewSet(mixins.RetrieveModelMixin,
@@ -398,7 +421,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         attachments = email.attachments.all()
         serializer = EmailAttachmentSerializer(attachments, many=True)
 
-        return Response({'attachments': serializer.data})
+        return Response({'results': serializer.data})
 
     @detail_route(methods=['GET'])
     def thread(self, request, pk):
@@ -496,7 +519,7 @@ class EmailTemplateViewSet(viewsets.ModelViewSet):
             template.folder = folder
             template.save()
 
-        return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class TemplateVariableViewSet(mixins.DestroyModelMixin,
@@ -515,7 +538,12 @@ class TemplateVariableViewSet(mixins.DestroyModelMixin,
         queryset = TemplateVariable.objects.all().filter(Q(is_public=True) | Q(owner=request.user))
         serializer = TemplateVariableSerializer(queryset, many=True)
 
-        default_variables = get_email_parameter_api_dict()
+        default_variables = {}
+
+        for model in apps.get_models():
+            if hasattr(model, 'EMAIL_TEMPLATE_PARAMETERS'):
+                for field in model.EMAIL_TEMPLATE_PARAMETERS:
+                    default_variables.setdefault(model._meta.verbose_name.lower(), []).append(field)
 
         template_variables = {
             'default': default_variables,

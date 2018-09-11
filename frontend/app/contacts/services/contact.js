@@ -86,7 +86,6 @@ function Contact($filter, $resource, HLResource, Settings, CacheFactory) {
 
                     return jsonData;
                 },
-                isArray: true,
             },
             exists: {
                 method: 'GET',

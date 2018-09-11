@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from lily.api.serializers import ContentTypeSerializer
 from ..models import TimeLog
 
 
@@ -7,7 +8,7 @@ class TimeLogSerializer(serializers.ModelSerializer):
     """
     Serializer for the TimeLog model.
     """
-    # Show string versions of fields.
+    content_type = ContentTypeSerializer(read_only=True)
     date = serializers.DateTimeField(required=False)
     user = serializers.SerializerMethodField()
 
@@ -35,6 +36,7 @@ class TimeLogSerializer(serializers.ModelSerializer):
             'id',
             'billable',
             'content',
+            'content_type',
             'date',
             'gfk_content_type',
             'gfk_object_id',

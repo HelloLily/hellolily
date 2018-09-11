@@ -324,10 +324,10 @@ class EmailTemplateSerializer(serializers.ModelSerializer):
             queryset = EmailAccount.objects.all()
         return queryset
 
-    default_for = DynamicQuerySetPrimaryKeyRelatedField(many=True, queryset=get_default_for_queryset)
+    default_for = DynamicQuerySetPrimaryKeyRelatedField(many=True, queryset=get_default_for_queryset, required=False)
 
     def create(self, validated_data):
-        default_for = validated_data.pop('default_for')
+        default_for = validated_data.get('default_for', [])
         instance = super(EmailTemplateSerializer, self).create(validated_data)
 
         for email_account_id in default_for:

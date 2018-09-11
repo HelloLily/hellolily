@@ -168,7 +168,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                         let futureTime;
 
                         // Merge individual changes to a single change if they're within a certain time period.
-                        results.objects.map((change, index) => {
+                        results.results.map((change, index) => {
                             let currentTime = moment(change.created);
                             let addNewChange = false;
 
@@ -198,7 +198,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                             }
                         });
                     } else {
-                        changes = results.objects;
+                        changes = results.results;
                     }
 
                     changes.map(change => {
@@ -436,7 +436,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
 
                     callPromise.then(calls => {
                         const callIds = [];
-                        calls.map(call => {
+                        calls.results.map(call => {
                             activity.push(call);
                             callIds.push(call.id);
                         });
@@ -449,7 +449,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
 
                             // Match and add notes to the relevant call.
                             callNotePromise.then(notes => {
-                                calls.forEach(call => {
+                                calls.results.forEach(call => {
                                     notes.forEach(note => {
                                         if (note.gfk_object_id === call.id) {
                                             call.notes.push(note);
@@ -482,7 +482,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                             if (!email.is_draft) {
                                 if (email.has_attachment) {
                                     EmailMessage.attachments({id: email.id}).$promise.then(response => {
-                                        email.attachments = response.attachments;
+                                        email.attachments = response.results;
                                     });
                                 }
                             }

@@ -48,7 +48,6 @@ function User($resource, CacheFactory) {
             unassigned: {
                 method: 'GET',
                 url: '/api/users/unassigned/',
-                isArray: true,
                 cache: CacheFactory.get('volatileCache'),
             },
             search: {

@@ -88,7 +88,7 @@ function LabelListController($filter, $interval, $scope, $state, $timeout, Email
     function _getAccountInfo() {
         EmailAccount.mine(results => {
             // Sort accounts on ID.
-            const orderedResults = $filter('orderBy')(results, 'id');
+            const orderedResults = $filter('orderBy')(results.results, 'id');
             const accountList = [];
 
             // Make sure primary account is set first.

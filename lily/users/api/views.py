@@ -26,17 +26,14 @@ from templated_email import send_templated_mail
 
 from lily.users.api.filters import TeamFilter, LilyUserFilter
 from lily.utils.api.permissions import IsAccountAdmin
-from lily.utils.functions import post_intercom_event
-
-from lily.utils.functions import has_required_tier
+from lily.utils.functions import post_intercom_event, has_required_tier
 
 from .utils import get_info_text_for_device
 from .serializers import (
     TeamSerializer, LilyUserSerializer, LilyUserTokenSerializer, SessionSerializer, UserInviteSerializer,
     BasicLilyUserSerializer
 )
-from ..models import Team, LilyUser, UserInfo, UserInvite, UserSettings
-from ..models import Team, LilyUser, UserInvite
+from ..models import Team, LilyUser, UserInvite, UserSettings
 
 
 class TeamViewSet(viewsets.ModelViewSet):
@@ -227,16 +224,19 @@ class LilyUserViewSet(viewsets.ModelViewSet):
             first_name=''
         )
 
-        # By default we filter out non-active users.
-        is_active = self.request.query_params.get('is_active', 'True')
+        if 'is_active' in self.request.query_params:
+            queryset = queryset.filter(is_active=self.request.query_params.get('is_active'))
 
-        # Value must be one of these, or it is ignored and we filter out non-active users.
-        if is_active not in ['All', 'True', 'False']:
-            is_active = 'True'
+        # # By default we filter out non-active users.
+        # is_active = self.request.query_params.get('is_active', 'True')
 
-        # If the value is `All`, do not filter, otherwise filter the queryset on is_active status.
-        if is_active in ['True', 'False']:
-            queryset = queryset.filter(is_active=(is_active == 'True'))
+        # # Value must be one of these, or it is ignored and we filter out non-active users.
+        # if is_active not in ['All', 'True', 'False']:
+        #     is_active = 'True'
+
+        # # If the value is `All`, do not filter, otherwise filter the queryset on is_active status.
+        # if is_active in ['True', 'False']:
+        #     queryset = queryset.filter(is_active=(is_active == 'True'))
 
         return queryset
 
@@ -279,47 +279,6 @@ class LilyUserViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
-
-    @detail_route(methods=['GET', 'PATCH'], url_path='settings')
-    def user_settings(self, request, pk=None):
-        user = self.get_object()
-
-        if not user.settings:
-            user.settings = UserSettings.objects.create()
-            user.save()
-
-        method = request.method
-        data = request.data
-
-        if method == 'GET':
-            component = request.query_params.get('component')
-
-            user_settings = user.settings.data
-
-            if component:
-                user_settings = user_settings.get(component)
-
-            return Response({'results': user_settings})
-        elif method == 'PATCH':
-            component = data.get('component')
-
-            if not component:
-                # Since there is no way of knowing what to store the data as,
-                # the request is considered invalid.
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-
-            # Key will be component's name, so no need to store it again.
-            del data['component']
-
-            # Make sure the key is always set.
-            user.settings.data.setdefault(component, {})
-            # Update the values for the component with the actual data.
-            user.settings.data[component].update(data)
-            user.settings.save()
-
-            return Response(status=status.HTTP_204_NO_CONTENT)
-
-        return Response(status=status.HTTP_400_BAD_REQUEST)
         instance = self.get_object()
 
         data = request.data.copy()  # Make a copy because the QueryDict instance is immutable.
@@ -373,7 +332,46 @@ class LilyUserViewSet(viewsets.ModelViewSet):
         filtered_queryset = self.filter_class(request.GET, queryset=queryset).qs
         #  Use the basic serializer to excluded nested fields.
         serializer = BasicLilyUserSerializer(filtered_queryset, context={'request': request}, many=True)
-        return Response(serializer.data)
+        return Response({'results': serializer.data})
+
+    @detail_route(methods=['GET', 'PATCH'], url_path='settings')
+    def user_settings(self, request, pk=None):
+        user = self.get_object()
+
+        if not user.settings:
+            user.settings = UserSettings.objects.create()
+            user.save()
+
+        method = request.method
+        data = request.data
+
+        if method == 'GET':
+            component = request.query_params.get('component')
+
+            user_settings = user.settings.data
+
+            if component:
+                user_settings = user_settings.get(component)
+
+            return Response({'results': user_settings})
+        elif method == 'PATCH':
+            # Key will be component's name, so no need to store it again.
+            component = data.pop('component')
+
+            if not component:
+                # Since there is no way of knowing what to store the data as,
+                # the request is considered invalid.
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+
+            # Make sure the key is always set.
+            user.settings.data.setdefault(component, {})
+            # Update the values for the component with the actual data.
+            user.settings.data[component].update(data)
+            user.settings.save()
+
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class TwoFactorDevicesViewSet(viewsets.ViewSet):
@@ -411,7 +409,7 @@ class TwoFactorDevicesViewSet(viewsets.ViewSet):
             token = device.token_set.create(token=StaticToken.random_token())
             token_list.append(token.token)
 
-        return Response(token_list, status=status.HTTP_201_CREATED)
+        return Response({'results': token_list}, status=status.HTTP_201_CREATED)
 
     @list_route(methods=['delete', ])
     def disable(self, request, pk=None):

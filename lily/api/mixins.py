@@ -4,7 +4,10 @@ from django.contrib.contenttypes.models import ContentType
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 
+from lily.api.serializers import ContentTypeSerializer
 from lily.changes.models import Change
+from lily.notes.models import Note
+from lily.notes.api.serializers import NoteSerializer
 from lily.socialmedia.models import SocialMedia
 from lily.timelogs.models import TimeLog
 from lily.timelogs.api.serializers import TimeLogSerializer
@@ -142,7 +145,7 @@ class ModelChangesMixin(object):
 
         return response
 
-    @detail_route(methods=['get'])
+    @detail_route(methods=['GET'])
     def changes(self, request, pk=None):
         obj = self.get_object()
 
@@ -156,19 +159,24 @@ class ModelChangesMixin(object):
                 'profile_picture': change.user.profile_picture,
             }
 
+            change_content_type = ContentType.objects.get_for_model(Change)
+            serializer = ContentTypeSerializer(change_content_type)
+            content_type = serializer.data
+
             changes.append({
                 'id': change.id,
                 'action': change.action,
                 'data': json.loads(change.data),
                 'user': user,
                 'created': change.created,
+                'content_type': content_type,
             })
 
-        return Response({'objects': changes})
+        return Response({'results': changes})
 
 
 class TimeLogMixin(object):
-    @detail_route(methods=['get'])
+    @detail_route(methods=['GET'])
     def timelogs(self, request, pk=None):
         obj = self.get_object()
 
@@ -176,7 +184,7 @@ class TimeLogMixin(object):
 
         serializer = TimeLogSerializer(timelogs, many=True)
 
-        return Response({'objects': serializer.data})
+        return Response({'results': serializer.data})
 
 
 class PhoneNumberFormatMixin(object):
@@ -229,4 +237,16 @@ class DataExistsMixin(object):
         Return if there is any data.
         """
         exists = self.get_queryset().exists()
-        return Response(exists)
+        return Response({'exists': exists})
+
+
+class NoteMixin(object):
+    @detail_route(methods=['GET'])
+    def notes(self, request, pk=None):
+        obj = self.get_object()
+
+        notes = Note.objects.filter(gfk_object_id=obj.id, gfk_content_type=obj.content_type, is_deleted=False)
+
+        serializer = NoteSerializer(notes, many=True)
+
+        return Response({'results': serializer.data})

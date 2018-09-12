@@ -239,6 +239,29 @@
                 $(toolbar).find('.current-font').text(el.html());
             });
 
+            $(toolbar).find('a[data-wysihtml5-command="restoreEmail"]').click(function(e) {
+                const storageItem = localStorage.getItem('emailComposeContent');
+
+                if (storageItem) {
+                    swal({
+                        title: 'Restore email',
+                        html: 'Do you wish to restore the subject and content of your previously typed email?',
+                        type: 'info',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes',
+                        cancelButtonText: 'No',
+                    }).then(function(isConfirm) {
+                        const previousEmail = JSON.parse(storageItem);
+
+                        if (isConfirm) {
+                            $('#id_subject').val(previousEmail.subject);
+                            editor.setValue(previousEmail.content);
+                            self.resizeEditor();
+                        }
+                    }).done();
+                }
+            });
+
             // Not putting this in the initListeners since it's only used in the email compose
             $(window).on('resize', function() {
                 self.resizeEditor();
@@ -335,6 +358,12 @@
                 $containerDiv.find('#compose-email-template').remove();
             }
 
+            const subject = $('#id_subject').val();
+            const content = HLInbox.getEditor().getValue();
+
+            // Store the email's subject and content so they can be restored if the editor freezes.
+            localStorage.setItem('emailComposeContent', JSON.stringify({subject, content}));
+
             $containerDiv.find('#resize-div').remove();
 
             /**
@@ -355,6 +384,9 @@
             Metronic.blockUI($('.inbox-content'), false, '');
 
             $form.submit();
+
+            // The email freeze should happen before submit, so clearing after submit should be fine.
+            localStorage.removeItem('emailComposeContent');
         },
 
         handleInboxComposeSubmit: function(inboxCompose, event) {

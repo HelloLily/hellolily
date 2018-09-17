@@ -10,7 +10,10 @@ class BaseRelatedValidator(object):
 
     def set_context(self, serializer):
         self.serializer = serializer
-        self.instance = serializer.root.instance
+        self.instance = serializer.parent.instance
+        if not self.instance:
+            # When the root serializer is also the parent, the parent is None, so fall back to the root serializer.
+            self.instance = serializer.root.instance
 
         if hasattr(serializer.parent, 'many'):
             self.many = True

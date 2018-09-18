@@ -1,11 +1,12 @@
 import logging
 import re
 import mimetypes
+import anyjson
 import json
 import os
 
 from datetime import datetime
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, UnicodeDammit
 import html2text
 from urllib import unquote
 
@@ -18,6 +19,7 @@ from django.template import Context
 from django.template.base import VARIABLE_TAG_START, VARIABLE_TAG_END
 from django.template.loader_tags import BlockNode, ExtendsNode
 from django.utils.translation import ugettext_lazy as _
+from django.utils.safestring import mark_safe
 
 from jinja2.sandbox import SandboxedEnvironment
 from jinja2 import TemplateSyntaxError
@@ -302,9 +304,10 @@ def replace_cid_in_html(html, mapped_attachments, request):
 
 def replace_cid_and_change_headers(html, pk):
     """
-    Check in the html source if there is an image tag with the attribute cid. Loop through the attachemnts that are
-    linked with the email. If there is a match replace the source of the image with the cid information.
-    After read the image information form the disk and put the data in a dummy header.
+    Check in the html source if there is an image tag with the attribute cid.
+    Loop through the attachments that are linked with the email. If there is a
+    match replace the source of the image with the cid information. After read
+    the image information from the disk and put the data in a dummy header.
     At least create a plain text version of the html email.
 
     Args:
@@ -323,7 +326,10 @@ def replace_cid_and_change_headers(html, pk):
     dummy_headers = []
     inline_images = []
     soup = create_a_beautiful_soup_object(html)
-    attachments = EmailAttachment.objects.filter(message_id=pk)
+
+    attachments = []
+    if pk:
+        attachments = EmailAttachment.objects.filter(message_id=pk)
 
     if soup and attachments:
         inline_images = soup.findAll('img', {'cid': lambda cid: cid})
@@ -372,6 +378,12 @@ def replace_cid_and_change_headers(html, pk):
     body_text_handler.ignore_links = True
     body_text_handler.body_width = 0
     body_text = body_text_handler.handle(html)
+
+    # After django 1.11 update forcing the html part of the body to be unicode is needed to avoid encoding errors.
+    dammit = UnicodeDammit(body_html)
+    encoding = dammit.original_encoding
+    if encoding:
+        body_html = body_html.decode(encoding)
 
     return body_html, body_text, dummy_headers
 
@@ -716,3 +728,66 @@ def determine_message_type(thread_id, sent_date, email_address):
                     return EmailMessage.FORWARD_MULTI, email.id
 
     return EmailMessage.NORMAL, None
+
+
+def get_formatted_reply_email_subject(subject, prefix='Re: '):
+    while True:
+        if subject.lower().startswith('re:') or subject.lower().startswith('fw:'):
+            subject = subject[3:].lstrip()
+        elif subject.lower().startswith('fwd:'):
+            subject = subject[4:].lstrip()
+        else:
+            break
+
+    return u'%s%s' % (prefix, subject)
+
+
+def get_formatted_email_body(action, email_message):
+    body_header = create_reply_body_header(email_message)
+
+    if action in ['forward', 'forward-multi']:
+        forward_header_to = []
+        for recipient in email_message.received_by.all():
+            if recipient.name:
+                forward_header_to.append(recipient.name + ' &lt;' + recipient.email_address + '&gt;')
+            else:
+                forward_header_to.append(recipient.email_address)
+
+        body_header = (
+            '<br /><br />'
+            '<hr />'
+            '---------- Forwarded message ---------- <br />'
+            'From: {from_email}<br/>'
+            'Date: {date}<br/>'
+            'Subject: {subject}<br/>'
+            'To: {to}<br />'
+        ).format(
+            from_email=email_message.sender.email_address,
+            date=email_message.sent_date.ctime(),
+            subject=get_formatted_reply_email_subject(email_message.subject, prefix=''),
+            to=', '.join(forward_header_to)
+        )
+
+    return body_header + mark_safe(email_message.reply_body)
+
+
+class EmailHeaderInputException(Exception):
+    pass
+
+
+def get_email_headers(action, email_message=None):
+    """ Returns the email headers for all actions. """
+    headers = {}
+    if action == 'compose':
+        return headers
+
+    if action != 'compose' and email_message is None:
+        raise EmailHeaderInputException()
+
+    message_id = email_message.get_message_id()
+    if action in ['reply', 'reply_all', 'forward', 'forward-multi']:
+        headers['References'] = message_id
+    if action in ['reply', 'reply-all']:
+        headers['In-Reply-To'] = message_id
+
+    return anyjson.dumps(headers)

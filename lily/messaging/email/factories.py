@@ -1,8 +1,9 @@
 import datetime
 import unicodedata
+from random import randint
 
 from django.utils.timezone import utc
-from factory.declarations import SubFactory, LazyAttribute
+from factory.declarations import SubFactory, LazyAttribute, List, SelfAttribute
 from factory.django import DjangoModelFactory
 from factory.fuzzy import FuzzyChoice, FuzzyText, FuzzyInteger
 from faker.factory import Factory
@@ -10,18 +11,30 @@ from factory.helpers import post_generation
 
 from lily.tenant.factories import TenantFactory
 from lily.users.factories import LilyUserFactory
-from .models.models import EmailAccount, EmailMessage, Recipient, EmailLabel
+from .models.models import (EmailAccount, EmailMessage, Recipient, EmailLabel,
+                            EmailDraft)
 
 faker = Factory.create('nl_NL')
 
 current_date = datetime.datetime.now()
 past_date = current_date - datetime.timedelta(days=10)
 
+email_address = LazyAttribute(
+    lambda o: unicodedata.normalize(
+        'NFD',
+        faker.safe_email()
+    ).encode('ascii', 'ignore')
+)
+
+email_addresses = List([
+    email_address for _ in range(randint(1, 4))
+])
+
 
 class EmailAccountFactory(DjangoModelFactory):
     tenant = SubFactory(TenantFactory)
-    owner = SubFactory(LilyUserFactory)
-    email_address = LazyAttribute(lambda o: unicodedata.normalize('NFD', faker.safe_email()).encode('ascii', 'ignore'))
+    owner = SubFactory(LilyUserFactory, tenant=SelfAttribute('..tenant'))
+    email_address = email_address
     from_name = LazyAttribute(lambda o: faker.name())
     label = LazyAttribute(lambda o: faker.word())
     is_authorized = True
@@ -33,7 +46,7 @@ class EmailAccountFactory(DjangoModelFactory):
 
 class RecipientFactory(DjangoModelFactory):
     name = LazyAttribute(lambda o: faker.name())
-    email_address = LazyAttribute(lambda o: unicodedata.normalize('NFD', faker.safe_email()).encode('ascii', 'ignore'))
+    email_address = email_address
 
     class Meta:
         model = Recipient
@@ -79,3 +92,19 @@ class EmailLabelFactory(DjangoModelFactory):
 
     class Meta:
         model = EmailLabel
+
+
+class EmailDraftFactory(DjangoModelFactory):
+    tenant = SubFactory(TenantFactory)
+    send_from = SubFactory(EmailAccountFactory, tenant=SelfAttribute('..tenant'))
+    to = email_addresses
+    cc = email_addresses
+    bcc = email_addresses
+
+    subject = LazyAttribute(lambda o: faker.word())
+    body = LazyAttribute(lambda o: faker.text())
+
+    mapped_attachments = FuzzyInteger(0, 5)
+
+    class Meta:
+        model = EmailDraft

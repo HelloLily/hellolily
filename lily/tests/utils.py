@@ -106,7 +106,7 @@ class UserBasedTest(object):
             # If required size is 1, just give the object instead of a list.
             return object_list[0]
 
-    def _create_object_stub(self, with_relations=False, size=1, **kwargs):
+    def _create_object_stub(self, with_relations=False, size=1, force_to_list=False, **kwargs):
         """
         Default implentation for the creation of stubs, this doesn't do anything with relations other than
         what the factory does by default.
@@ -116,11 +116,16 @@ class UserBasedTest(object):
 
         object_list = self.factory_cls.stub_batch(size=size, **kwargs)
 
-        if size > 1:
+        return self._formatted_stub(object_list, size, force_to_list)
+
+    def _formatted_stub(self, object_list, size, force_to_list=False):
+        """ Returns the object or a list of object(s) depending on size and
+        force_to_list. """
+        if size > 1 or force_to_list:
             return [obj.__dict__ for obj in object_list]
-        else:
-            # If required size is 1, just give the object instead of a list.
-            return object_list[0].__dict__
+
+        # If required size is 1 and force_to_list is False, just give the object instead of a list.
+        return object_list[0].__dict__
 
 
 class CompareObjectsMixin(object):
@@ -133,15 +138,15 @@ class CompareObjectsMixin(object):
         If the response status code doesn't match log the response for debugging.
         """
         if request.status_code != desired_code:
-            print ''
-            print '%s.%s' % (self.model_cls.__name__, self._testMethodName)
-            print request.data
-            print ''
+            print('')
+            print('%s.%s' % (self.model_cls.__name__, self._testMethodName))
+            print(request.data)
+            print('')
             if original_data:
                 for key in request.data:
-                    print 'original data:'
-                    print original_data.get(key, 'Original data not available for %s' % key)
-            print ''
+                    print('original data:')
+                    print(original_data.get(key, 'Original data not available for %s' % key))
+            print('')
 
         self.assertEqual(request.status_code, desired_code)
 

@@ -1,8 +1,12 @@
+import anyjson
+
 from django.utils import timezone
 from rest_framework.test import APITestCase
 
 from lily.messaging.email.factories import EmailAccountFactory, EmailMessageFactory
-from lily.messaging.email.models.models import EmailMessage, Recipient, EmailLabel, EmailHeader, EmailAccount
+from lily.messaging.email.models.models import (EmailMessage, Recipient, EmailLabel, EmailHeader, EmailAccount,
+                                                EmailOutboxMessage, EmailDraft)
+
 from lily.messaging.email.utils import get_filtered_message
 from lily.settings import settings
 from lily.tenant.factories import TenantFactory
@@ -413,3 +417,128 @@ class EmailAccountTests(UserBasedTest, APITestCase):
                 return True
 
         return False
+
+
+class EmailOutboxMessageTests(UserBasedTest, APITestCase):
+    """
+    Class for unit testing the email message model.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        super(EmailOutboxMessageTests, cls).setUpTestData()
+
+        # Create an email account for the user.
+        cls.email_account = EmailAccountFactory.create(
+            owner=cls.user_obj,
+            tenant=cls.user_obj.tenant
+        )
+
+        cls.body_content = (
+            'In hac habitasse platea dictumst. Class '
+            'aptent taciti sociosqu ad litora torquent per conubia nostra'
+            ', per inceptos himenaeos. Ut aliquet elit sed augue bibendum '
+            'malesuada.'
+        )
+
+        to = 'user2@example.com'
+        kwargs = dict(
+            subject='Mauris ex tortor, hendrerit non sem eu, varius purus.',
+            send_from=cls.email_account,
+            to=anyjson.dumps([to]),
+            cc=anyjson.dumps(None),
+            bcc=anyjson.dumps(None),
+            body='<html><body><br/>{}</body></html>'.format(cls.body_content),
+            headers={},
+            mapped_attachments=0,
+            template_attachment_ids='',
+            original_message_id='',
+            tenant=cls.user_obj.tenant
+        )
+
+        cls.email_outbox_message = EmailOutboxMessage.objects.create(**kwargs)
+
+        # Some fields are different types in EmailDraft
+        kwargs['to'] = [to]
+        kwargs['cc'] = []
+        kwargs['bcc'] = []
+        kwargs['send_from'] = cls.email_account
+
+        cls.email_draft = EmailDraft.objects.create(**kwargs)
+
+    def test_mime_message(self):
+        """
+        Test if the body of email outbox message is (roughly) the same as the
+        email draft message. This test is to help refactoring the draft email
+        model. Can be removed as soon as it is proven that draft emails can be
+        used with the gmail API.
+        """
+
+        outbox_message_should_contain = [
+            'From nobody ',
+            'Content-Type: multipart/related;',
+            ' boundary=',
+            'MIME-Version: 1.0',
+            'Subject: {}'.format(self.email_outbox_message.subject),
+            'From: ',
+            'To: {}'.format(self.email_draft.to[0]),
+            '',
+            '--===============',
+            'Content-Type: multipart/alternative;',
+            ' boundary=',
+            'MIME-Version: 1.0',
+            '',
+            '--==============',
+            'Content-Type: text/plain; charset="utf-8"',
+            'MIME-Version: 1.0',
+            'Content-Transfer-Encoding: 7bit',
+            '',
+            '',
+            self.body_content,
+            '',
+            '--==============',
+            'Content-Type: text/html; charset="utf-8"',
+            'MIME-Version: 1.0',
+            'Content-Transfer-Encoding: 7bit',
+            '',
+            self.email_outbox_message.body,
+            '--==============',
+            '',
+            '--==============',
+        ]
+
+        outbox_message = str(self.email_outbox_message.message()).split('\n')
+        for contains, line in zip(outbox_message_should_contain, outbox_message):
+            self.assertIn(contains, line)
+
+        draft_message_should_contain = [
+            'From nobody ',
+            'Content-Type: multipart/alternative;',
+            ' boundary=',
+            'MIME-Version: 1.0',
+            'Subject: {}'.format(self.email_outbox_message.subject),
+            'From: ',
+            'To: {}'.format(self.email_draft.to[0]),
+            'Date: ',
+            'Message-ID: <',
+            '',
+            '--==============',
+            'Content-Type: text/plain; charset="utf-8"',
+            'MIME-Version: 1.0',
+            'Content-Transfer-Encoding: 7bit',
+            '',
+            '',
+            self.body_content,
+            '',
+            '--==============',
+            'Content-Type: text/html; charset="utf-8"',
+            'MIME-Version: 1.0',
+            'Content-Transfer-Encoding: 7bit',
+            '',
+            self.email_outbox_message.body,
+            '--=============='
+        ]
+
+        draft_message = str(self.email_draft.mime_message()).split('\n')
+        for contains, line in zip(draft_message_should_contain, draft_message):
+            self.assertIn(contains, line)

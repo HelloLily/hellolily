@@ -13,9 +13,14 @@ from lily.api.fields import DynamicQuerySetPrimaryKeyRelatedField
 from lily.api.nested.mixins import RelatedSerializerMixin
 from lily.api.nested.serializers import WritableNestedSerializer
 from lily.messaging.email.credentials import get_credentials
+from lily.messaging.email.utils import (
+    get_formatted_reply_email_subject,
+    get_formatted_email_body,
+    get_email_headers
+)
 
 from ..models.models import (EmailLabel, EmailAccount, EmailMessage, Recipient, EmailAttachment, EmailTemplateFolder,
-                             EmailTemplate, SharedEmailConfig, TemplateVariable, DefaultEmailTemplate)
+                             EmailTemplate, SharedEmailConfig, TemplateVariable, DefaultEmailTemplate, EmailDraft)
 from ..services import GmailService
 
 
@@ -29,8 +34,6 @@ class HexcodeValidator(RegexValidator):
 
 
 class SharedEmailConfigSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(read_only=True)
-
     class Meta:
         model = SharedEmailConfig
         fields = (
@@ -289,7 +292,14 @@ class EmailAccountSerializer(WritableNestedSerializer):
 
 
 class RelatedEmailAccountSerializer(RelatedSerializerMixin, EmailAccountSerializer):
-    pass
+    class Meta:
+        model = EmailAccount
+        fields = (
+            'id',
+            'email_address',
+            'from_name',
+            'owner',
+        )
 
 
 class EmailTemplateSerializer(serializers.ModelSerializer):
@@ -409,4 +419,113 @@ class TemplateVariableSerializer(serializers.ModelSerializer):
             'text',
             'is_public',
             'owner',
+        )
+
+
+class EmailDraftReadUpdateSerializer(serializers.ModelSerializer):
+    send_from = RelatedEmailAccountSerializer(read_only=True)
+
+    class Meta:
+        model = EmailDraft
+        fields = (
+            'id',
+            'send_from',
+            'to',
+            'cc',
+            'bcc',
+            'subject',
+            'body',
+        )
+
+
+class EmailDraftCreateSerializer(serializers.ModelSerializer):
+    def get_message_queryset(self):
+        return EmailMessage.objects.filter(account__in=self.context['available_accounts'])
+
+    def get_account_queryset(self):
+        return self.context['available_accounts']
+
+    action_map = {
+        'compose': EmailMessage.NORMAL,
+        'reply': EmailMessage.REPLY,
+        'reply-all': EmailMessage.REPLY_ALL,
+        'forward': EmailMessage.FORWARD,
+        'forward-multi': EmailMessage.FORWARD_MULTI,
+    }
+
+    action = serializers.ChoiceField(choices=action_map.keys(), write_only=True)
+    message = DynamicQuerySetPrimaryKeyRelatedField(required=False, queryset=get_message_queryset, write_only=True)
+    send_from = DynamicQuerySetPrimaryKeyRelatedField(queryset=get_account_queryset, allow_null=True)
+
+    def validate(self, data):
+        action = data.get('action')
+        message = data.get('message')
+        send_from = data.get('send_from')
+
+        if action != 'compose' and not message:
+            raise serializers.ValidationError({
+                'message': _('Original message id is required when action is not `compose`.')
+            })
+        elif action == 'compose' and message:
+            raise serializers.ValidationError({
+                'message': _('Original message id not allowed when action is `{}`.'.format(action))
+            })
+        elif action == 'compose' and not send_from and not self.context.get('request').user.primary_email_account_id:
+            raise serializers.ValidationError({
+                'message': _('`send_from` is required when action is `{}` and no primary email account is set.'.format(
+                    action
+                ))
+            })
+        elif not self.context['available_accounts']:
+            raise serializers.ValidationError(
+                _('Can\'t create a draft because no email accounts are accessible.')
+            )
+
+        return data
+
+    def create(self, validated_data):
+        action = validated_data.get('action')
+        email_message = validated_data.get('message', '')
+        account = validated_data.get('send_from')
+
+        subject = ''
+        body = ''
+        if action == 'compose':
+            headers = get_email_headers(action)
+        else:
+            account = email_message.account
+            headers = get_email_headers(action, email_message)
+
+            prefix = 'Re: '
+            if action in ['forward', 'forward-multi']:
+                prefix = 'Fwd: '
+
+            subject = get_formatted_reply_email_subject(email_message.subject, prefix)
+            body = get_formatted_email_body(action, email_message)
+
+        if email_message:
+            email_message = email_message.id
+
+        if not account:
+            account = self.context.get('request').user.primary_email_account
+
+        return EmailDraft.objects.create(
+            send_from=account,
+            headers=headers,
+            to=[],
+            cc=[],
+            bcc=[],
+            subject=subject,
+            body=body,
+            original_message_id=email_message,
+            mapped_attachments=0
+        )
+
+    class Meta:
+        model = EmailDraft
+        fields = (
+            'id',
+            'action',
+            'message',
+            'send_from',
         )

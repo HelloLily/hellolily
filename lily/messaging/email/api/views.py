@@ -19,11 +19,12 @@ from lily.utils.models.models import PhoneNumber
 
 from .serializers import (EmailLabelSerializer, EmailAccountSerializer, EmailMessageSerializer,
                           EmailTemplateFolderSerializer, EmailTemplateSerializer, SharedEmailConfigSerializer,
-                          TemplateVariableSerializer, EmailAttachmentSerializer)
+                          TemplateVariableSerializer, EmailAttachmentSerializer, EmailDraftCreateSerializer,
+                          EmailDraftReadUpdateSerializer)
 from ..models.models import (EmailLabel, EmailAccount, EmailMessage, EmailTemplateFolder, EmailTemplate,
-                             SharedEmailConfig, TemplateVariable)
-from ..tasks import (trash_email_message, toggle_read_email_message,
-                     add_and_remove_labels_for_message, toggle_star_email_message, toggle_spam_email_message)
+                             SharedEmailConfig, TemplateVariable, EmailDraft)
+from ..tasks import (trash_email_message, toggle_read_email_message, add_and_remove_labels_for_message,
+                     toggle_star_email_message, toggle_spam_email_message)
 from ..utils import get_filtered_message
 
 
@@ -513,3 +514,43 @@ class TemplateVariableViewSet(mixins.DestroyModelMixin,
         }
 
         return Response(template_variables)
+
+
+class EmailDraftViewSet(viewsets.ModelViewSet):
+    # Set the queryset, without .all() this filters on the tenant and takes
+    # care of setting the `base_name`.
+    queryset = EmailDraft.objects
+    # Set all filter backends that this viewset uses.
+    filter_backends = (OrderingFilter,)
+    ordering_fields = ('id',)
+    ordering = ('id',)
+
+    def initial(self, request, *args, **kwargs):
+        """ Anything that should happen after permission checks and before dispatching. """
+        super(EmailDraftViewSet, self).initial(request, *args, **kwargs)
+
+        # Store the email accounts on the class so we only have to fetch them once.
+        self.available_accounts = get_shared_email_accounts(self.request.user)
+
+    def get_queryset(self):
+        return super(EmailDraftViewSet, self).get_queryset().filter(
+            send_from__in=self.available_accounts  # get_shared_email_accounts(self.request.user)
+        ).order_by('id')
+
+    def get_serializer_class(self):
+        method_serializer_classes = {
+            ('POST', ): EmailDraftCreateSerializer,
+            ('GET', 'PUT', 'PATCH', ): EmailDraftReadUpdateSerializer
+        }
+
+        for methods, serializer_cls in method_serializer_classes.items():
+            if self.request.method in methods:
+                return serializer_cls
+
+    def get_serializer_context(self):
+        context = super(EmailDraftViewSet, self).get_serializer_context()
+
+        # We give the available email accounts to the serializer to prevent extra queries to fetch them again.
+        context['available_accounts'] = self.available_accounts
+
+        return context

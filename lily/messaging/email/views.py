@@ -19,7 +19,6 @@ from wsgiref.util import FileWrapper
 from django.urls import reverse
 from django.http import HttpResponseRedirect, HttpResponseBadRequest, Http404, HttpResponse
 from django.template import Context, Template
-from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import UpdateView, DeleteView, CreateView, FormView
 from django.views.generic.base import View
@@ -46,9 +45,13 @@ from .models.models import (EmailMessage, EmailAttachment, EmailAccount, EmailTe
 from .services import GmailService
 from .tasks import (send_message, create_draft_email_message, update_draft_email_message,
                     add_and_remove_labels_for_message, trash_email_message)
-from .utils import (get_attachment_filename_from_url, get_email_parameter_choices, create_recipients,
-                    render_email_body, replace_cid_in_html, create_reply_body_header, reindex_email_message,
-                    extract_script_tags, get_filtered_message)
+from .utils import (
+    get_attachment_filename_from_url, get_email_parameter_choices,
+    create_recipients, render_email_body, replace_cid_in_html,
+    reindex_email_message, extract_script_tags,
+    get_filtered_message, get_formatted_reply_email_subject,
+    get_formatted_email_body
+)
 
 
 logger = logging.getLogger(__name__)
@@ -599,14 +602,8 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
 
     def get_subject(self, prefix='Re: '):
         subject = self.object.subject
-        while True:
-            if subject.lower().startswith('re:') or subject.lower().startswith('fw:'):
-                subject = subject[3:].lstrip()
-            elif subject.lower().startswith('fwd:'):
-                subject = subject[4:].lstrip()
-            else:
-                break
-        return u'%s%s' % (prefix, subject)
+
+        return get_formatted_reply_email_subject(prefix, subject)
 
     def form_valid(self, form):
         email_outbox_message = super(EmailMessageReplyOrForwardView, self).form_valid(form)
@@ -731,20 +728,11 @@ class EmailMessageReplyView(EmailMessageReplyOrForwardView):
             'initial': {
                 'subject': self.get_subject(prefix='Re: '),
                 'send_to_normal': self.object.reply_to,
-                'body_html': create_reply_body_header(self.object) + mark_safe(self.object.reply_body),
+                'body_html': get_formatted_email_body(self.action, self.object),
             },
         })
 
         return kwargs
-
-    def get_email_headers(self):
-        headers = super(EmailMessageReplyView, self).get_email_headers()
-        message_id = self.object.get_message_id()
-        headers.update({
-            'In-Reply-To': message_id,
-        })
-
-        return headers
 
 
 class EmailMessageReplyAllView(EmailMessageReplyView):
@@ -769,7 +757,7 @@ class EmailMessageReplyAllView(EmailMessageReplyView):
                 'subject': self.get_subject(prefix='Re: '),
                 'send_to_normal': self.object.reply_to,
                 'send_to_cc': recipients,
-                'body_html': create_reply_body_header(self.object) + mark_safe(self.object.reply_body),
+                'body_html': get_formatted_email_body(self.action, self.object),
             },
         })
 
@@ -796,30 +784,12 @@ class EmailMessageForwardView(EmailMessageReplyOrForwardView):
         kwargs = super(EmailMessageForwardView, self).get_form_kwargs()
         kwargs['message_type'] = self.action
 
-        forward_header_to = []
-
-        for recipient in self.object.received_by.all():
-            if recipient.name:
-                forward_header_to.append(recipient.name + ' &lt;' + recipient.email_address + '&gt;')
-            else:
-                forward_header_to.append(recipient.email_address)
-
-        forward_header = (
-            '<br /><br />'
-            '<hr />'
-            '---------- Forwarded message ---------- <br />'
-            'From: ' + self.object.sender.email_address + '<br/>'
-            'Date: ' + self.object.sent_date.ctime() + '<br/>'
-            'Subject: ' + self.get_subject('') + '<br/>'
-            'To: ' + ', '.join(forward_header_to) + '<br />'
-        )
-
         # Provide initial data.
         kwargs.update({
             'initial': {
                 'draft_pk': self.object.pk,
                 'subject': self.get_subject(prefix='Fwd: '),
-                'body_html': forward_header + mark_safe(self.object.reply_body),
+                'body_html': get_formatted_email_body(self.action, self.object),
             },
         })
 

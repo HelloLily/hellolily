@@ -19,9 +19,10 @@ from lily.utils.models.models import PhoneNumber
 
 from .serializers import (EmailLabelSerializer, EmailAccountSerializer, EmailMessageSerializer,
                           EmailTemplateFolderSerializer, EmailTemplateSerializer, SharedEmailConfigSerializer,
-                          TemplateVariableSerializer, EmailAttachmentSerializer)
+                          TemplateVariableSerializer, EmailAttachmentSerializer, EmailDraftReadSerializer,
+                          EmailDraftCreateSerializer, EmailDraftUpdateSerializer)
 from ..models.models import (EmailLabel, EmailAccount, EmailMessage, EmailTemplateFolder, EmailTemplate,
-                             SharedEmailConfig, TemplateVariable)
+                             SharedEmailConfig, TemplateVariable, EmailDraft)
 from ..tasks import (trash_email_message, toggle_read_email_message,
                      add_and_remove_labels_for_message, toggle_star_email_message, toggle_spam_email_message)
 from ..utils import get_filtered_message
@@ -513,3 +514,69 @@ class TemplateVariableViewSet(mixins.DestroyModelMixin,
         }
 
         return Response(template_variables)
+
+
+class EmailDraftFilter(filters.FilterSet):
+    pass
+
+
+class EmailDraftViewSet(viewsets.ModelViewSet):
+    # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
+    queryset = EmailDraft.objects
+    # Set all filter backends that this viewset uses.
+    # filter_backends = (OrderingFilter, EmailDraftFilter, )  # TODO: proper filtering and sorting and stuff.
+
+    def dispatch(self, request, *args, **kwargs):
+        response = super(EmailDraftViewSet, self).dispatch(request, *args, **kwargs)
+
+        # Store the email accounts on the class so we only have to fetch them once.
+        self.available_email_accounts = get_shared_email_accounts(self.request.user)
+
+        return response
+
+    def get_queryset(self):
+        return super(EmailDraftViewSet, self).get_queryset().filter(account__in=self.available_email_accounts)
+
+    def get_serializer_class(self):
+        method_serializer_classes = {
+            ('GET', ): EmailDraftReadSerializer,
+            ('POST', ): EmailDraftCreateSerializer,
+            ('PUT', 'PATCH', ): EmailDraftUpdateSerializer,
+        }
+
+        for methods, serializer_cls in method_serializer_classes.items():
+            if self.request.method in methods:
+                return serializer_cls
+
+    def get_serializer_context(self):
+        context = super(EmailDraftViewSet, self).get_serializer_context()
+
+        # We give the available email accounts to the serializer to prevent extra queries to fetch them again.
+        context['available_email_accounts'] = self.available_email_accounts
+
+        return context
+
+    def retrieve(self, request, *args, **kwargs):
+        # Return a draft, but only for the email accounts the user has access to.
+        return super(EmailDraftViewSet, self).retrieve(request, *args, **kwargs)
+
+    def list(self, request, *args, **kwargs):
+        # Return a list of drafts for the email accounts the user has access to.
+        return super(EmailDraftViewSet, self).list(request, *args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        # Create takes only basic arguments:
+        #   - type: new/reply/reply-all/forward.
+        return super(EmailDraftViewSet, self).create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        # Updating should only take message parameters.
+        return super(EmailDraftViewSet, self).update(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        # Updating should only take message parameters.
+        return super(EmailDraftViewSet, self).partial_update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        # Destroy the draft and let the sync do the rest.
+        return super(EmailDraftViewSet, self).destroy(request, *args, **kwargs)

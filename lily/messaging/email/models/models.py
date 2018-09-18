@@ -15,7 +15,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import InMemoryUploadedFile, TemporaryUploadedFile
 from django.core.files.storage import default_storage
-from django.core.mail import SafeMIMEText, SafeMIMEMultipart
+from django.core.mail import SafeMIMEText, SafeMIMEMultipart, EmailMultiAlternatives
 from django.urls import reverse
 from django.core.validators import validate_comma_separated_integer_list
 from django.db import models
@@ -205,6 +205,8 @@ class EmailMessage(models.Model):
     read = models.BooleanField(default=False, db_index=True)
     received_by = models.ManyToManyField(Recipient, related_name='received_messages')
     received_by_cc = models.ManyToManyField(Recipient, related_name='received_messages_as_cc')
+    # TODO also use this field in the sync.
+    received_by_bcc = models.ManyToManyField(Recipient, related_name='received_messages_as_bcc')  # For drafts/sent.
     sender = models.ForeignKey(Recipient, related_name='sent_messages')
     sent_date = models.DateTimeField(db_index=True)
     snippet = models.TextField(default='')
@@ -653,3 +655,33 @@ def post_delete_mail_attachment_handler(sender, **kwargs):
     attachment = kwargs['instance']
     storage, filename = attachment.attachment.storage, attachment.attachment.name
     storage.delete(filename)
+
+
+class EmailDraft(TimeStampedModel, TenantMixin):
+    """
+    This is the email draft model, it wraps around normal email messages with the draft label.
+    """
+    remote_id = models.CharField(max_length=255, verbose_name=_('Google draft id'), blank=True, db_index=True)
+
+    account = models.ForeignKey(EmailAccount, related_name='drafts')
+    message = models.OneToOneField(to=EmailMessage, related_name='draft_info', verbose_name=_('Message'))
+
+    send = models.BooleanField(verbose_name=_('Sending'))
+
+    def to_string(self):
+        message = self.message
+
+        msg = EmailMultiAlternatives(
+            subject=message.subject,
+            body='text body',
+            from_email='allard.stijnman@wearespindle.com',
+            to=['allard@wearespindle.com', ],
+            cc=[],
+            bcc=[],
+            headers={},
+            alternatives=[('body html', 'text/html'), ],
+            reply_to=[],
+            attachments=[],
+        )
+
+        return msg.message().as_string()

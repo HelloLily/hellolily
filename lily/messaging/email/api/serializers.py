@@ -14,7 +14,7 @@ from lily.api.nested.serializers import WritableNestedSerializer
 from lily.messaging.email.credentials import get_credentials
 
 from ..models.models import (EmailLabel, EmailAccount, EmailMessage, Recipient, EmailAttachment, EmailTemplateFolder,
-                             EmailTemplate, SharedEmailConfig, TemplateVariable, DefaultEmailTemplate)
+                             EmailTemplate, SharedEmailConfig, TemplateVariable, DefaultEmailTemplate, EmailDraft)
 from ..services import GmailService
 
 
@@ -400,3 +400,114 @@ class TemplateVariableSerializer(serializers.ModelSerializer):
             'is_public',
             'owner',
         )
+
+
+class EmailDraftReadSerializer(serializers.ModelSerializer):
+    message = EmailMessageSerializer()
+
+    class Meta:
+        model = EmailDraft
+        fields = '__all__'
+
+
+class EmailDraftCreateSerializer(serializers.ModelSerializer):
+    def get_message_queryset(self):
+        return EmailMessage.objects.filter(account__in=self.context['available_accounts'])
+
+    action_map = {
+        'compose': EmailMessage.NORMAL,
+        'reply': EmailMessage.REPLY,
+        'reply-all': EmailMessage.REPLY_ALL,
+        'forward': EmailMessage.FORWARD,
+        'forward-multi': EmailMessage.FORWARD_MULTI,
+    }
+
+    action = serializers.ChoiceField(choices=action_map.keys())
+    message = DynamicQuerySetPrimaryKeyRelatedField(required=False, queryset=get_message_queryset)
+
+    def validate(self, data):
+        action = data.get('action')
+        message = data.get('message')
+
+        if action != 'compose' and not message:
+            raise serializers.ValidationError({
+                'message': _('Original message id is required when action is not `compose`.')
+            })
+        elif action == 'compose' and message:
+            raise serializers.ValidationError({
+                'message': _('Original message id not allowed when action is `compose`.')
+            })
+        elif not self.context['available_email_accounts']:
+            raise serializers.ValidationError(
+                _('Can\'t create a draft because no email accounts are accessable.')
+            )
+
+        return data
+
+    def create(self, validated_data):
+        available_email_accounts = self.context['available_email_accounts']
+        primary_email_account_id = self.request.user.primary_email_account_id
+        action = validated_data.get('action')
+        message = validated_data.get('message')
+
+        if action == 'compose':
+            if primary_email_account_id:
+                account_id = self.request.user.primary_email_account_id
+            else:
+                for account in available_email_accounts:
+                    if account.owner == self.request.user:
+                        account_id = account.id
+                        break
+                else:
+                    # There was no account the user owned, so just use the first one they have access to.
+                    account_id = available_email_accounts[0].id
+            thread_id = ''
+        else:
+            # This is not a blank message.
+            account_id = message.account
+            thread_id = message.thread_id
+
+            # TODO: subject, body,
+
+        message = EmailMessage.objects.create(
+            account_id=account_id,
+            labels=EmailLabel,  # Draft label for email account.
+            message_id='',
+            read=True,
+            sender=Recipient,  # Recipient with the name and email address of the email account.
+            received_by=Recipient,  # This is actually the 'to' field.
+            received_by_cc=Recipient,  # This is actually the 'cc' field.
+            received_by_bcc=Recipient,  # This is actually the 'bcc' field.
+            sent_date='now()',
+            snippet='',
+            subject='',
+            thread_id=thread_id,  # The thread id of the original message if this is a reply or forward.
+            is_inbox_message=False,
+            is_trashed_message=False,
+            is_spam_message=False,
+            is_sent_message=False,
+            is_draft_message=True,
+            is_starred_message=False,
+            message_type=self.action_map[action],
+            message_type_to_id='',
+        )
+        draft = EmailDraft.objects.create(
+            message=message
+        )
+
+        return draft
+
+    class Meta:
+        model = EmailDraft
+        fields = (
+            'action',
+            'message',
+        )
+
+
+class EmailDraftUpdateSerializer(serializers.ModelSerializer):
+    message = EmailMessageSerializer()
+
+    class Meta:
+        model = EmailDraft
+        fields = '__all__'

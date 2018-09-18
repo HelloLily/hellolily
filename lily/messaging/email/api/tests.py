@@ -161,11 +161,23 @@ class DraftEmailTests(GenericAPITestCase):
         self._test_create_action_object('forward-all', with_message=True, should_succeed=False)
 
     @patch('lily.messaging.email.api.views.get_shared_email_accounts')
-    def test__creation_without_available_accounts(self, get_shared_email_account_mock):
+    def test__creation_without_available_accounts(self, get_shared_email_accounts_mock):
         """
         Test that creating an email without available accounts is not possible.
         """
-        get_shared_email_account_mock.return_value = EmailAccount.objects.none()  # we require a queryset
+        get_shared_email_accounts_mock.return_value = EmailAccount.objects.none()  # we require a queryset
 
         for action in ['compose', 'reply', 'reply-all', 'forward', 'forward-multi']:
             self._test_create_action_object(action, should_succeed=False)
+
+    @patch('lily.messaging.email.api.views.send_message')
+    def test_send_email(self, send_message_mock):
+        """
+        Test that sending an email is possible
+        """
+        set_current_user(self.user_obj)
+
+        email = self._create_object(size=1)
+
+        self.user.post(self.get_url(self.detail_url, action_name='send', kwargs={'pk': email.pk}))
+        self.assertEqual(send_message_mock.call_count, 1)

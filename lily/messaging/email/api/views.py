@@ -13,6 +13,7 @@ from rest_framework.viewsets import GenericViewSet
 
 from lily.accounts.models import Account
 from lily.messaging.email.utils import get_email_parameter_api_dict, reindex_email_message, get_shared_email_accounts
+from lily.messaging.email.tasks import send_message
 from lily.search.lily_search import LilySearch
 from lily.utils.functions import format_phone_number
 from lily.utils.models.models import PhoneNumber
@@ -554,3 +555,11 @@ class EmailDraftViewSet(viewsets.ModelViewSet):
         context['available_accounts'] = self.available_accounts
 
         return context
+
+    @detail_route(methods=['post'])
+    def send(self, request, pk=None):
+        draft = self.get_object()
+
+        send_message.delay(draft.id, draft=True)
+
+        return Response({'status': 'Email is being sent'})

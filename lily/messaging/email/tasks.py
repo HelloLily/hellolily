@@ -11,7 +11,7 @@ from lily.messaging.email.utils import determine_message_type
 from lily.utils.functions import post_intercom_event
 from .manager import GmailManager
 from .models.models import (EmailAccount, EmailMessage, EmailOutboxMessage, EmailTemplateAttachment,
-                            EmailOutboxAttachment, EmailAttachment)
+                            EmailOutboxAttachment, EmailAttachment, EmailDraft, EmailDraftAttachment)
 
 logger = logging.getLogger(__name__)
 
@@ -352,24 +352,37 @@ def add_and_remove_labels_for_message(self, email_id, add_labels=[], remove_labe
 
 
 @task(name='send_message', logger=logger)
-def send_message(email_outbox_message_id, original_message_id=None):
+def send_message(email_id, original_message_id=None, draft=False):
     """
-    Send EmailOutboxMessage.
+    Send EmailOutboxMessage or EmailDraft.
 
     Args:
         email_outbox_message_id (int): id of the EmailOutboxMessage
         original_message_id (int, optional): ID of the original EmailMessage
+        draft (bool, optional): whether the newer EmailDraft should be queried
     """
     send_logger = logging.getLogger('email_errors_temp_logger')
-    send_logger.info('Start sending email_outbox_message: %d' % (email_outbox_message_id,))
+    send_logger.info('Start sending email_outbox_message: %d' % (email_id,))
+
+    # Below describes the differences between EmailOutboxMessage and EmailDraft.
+    # As soon as EmailDraft is proven to work, this class can be refactored to only work for EmailDraft.
+    email_class = EmailOutboxMessage
+    email_attachment_class = EmailOutboxAttachment
+    email_attachment_to_email_class_field_name = 'email_outbox_message'
+    email_message_function_name = 'message'
+    if draft:
+        email_class = EmailDraft
+        email_attachment_class = EmailDraftAttachment
+        email_attachment_to_email_class_field_name = 'email_draft'
+        email_message_function_name = 'mime_message'
 
     sent_success = False
     try:
-        email_outbox_message = EmailOutboxMessage.objects.get(pk=email_outbox_message_id)
-    except EmailOutboxMessage.DoesNotExist:
+        email = email_class.objects.get(pk=email_id)
+    except email_class.DoesNotExist:
         raise
 
-    email_account = email_outbox_message.send_from
+    email_account = email.send_from
     if not email_account.is_authorized:
         logger.error('EmailAccount not authorized: %s', email_account)
         return sent_success
@@ -385,33 +398,33 @@ def send_message(email_outbox_message_id, original_message_id=None):
             raise
 
     # Add template attachments.
-    if email_outbox_message.template_attachment_ids:
-        template_attachment_id_list = email_outbox_message.template_attachment_ids.split(',')
+    if email.template_attachment_ids:
+        template_attachment_id_list = email.template_attachment_ids.split(',')
         for template_attachment_id in template_attachment_id_list:
             try:
                 template_attachment = EmailTemplateAttachment.objects.get(pk=template_attachment_id)
             except EmailTemplateAttachment.DoesNotExist:
                 pass
             else:
-                attachment = EmailOutboxAttachment()
+                attachment = email_attachment_class()
                 attachment.content_type = template_attachment.content_type
                 attachment.size = template_attachment.size
-                attachment.email_outbox_message = email_outbox_message
+                setattr(attachment, email_attachment_to_email_class_field_name, email)
                 attachment.attachment = template_attachment.attachment
                 attachment.tenant_id = template_attachment.tenant_id
                 attachment.save()
 
     # Add attachment from original message (if mail is being forwarded).
-    if email_outbox_message.original_attachment_ids:
-        original_attachment_id_list = email_outbox_message.original_attachment_ids.split(',')
+    if email.original_attachment_ids:
+        original_attachment_id_list = email.original_attachment_ids.split(',')
         for attachment_id in original_attachment_id_list:
             try:
                 original_attachment = EmailAttachment.objects.get(pk=attachment_id)
             except EmailAttachment.DoesNotExist:
                 pass
             else:
-                outbox_attachment = EmailOutboxAttachment()
-                outbox_attachment.email_outbox_message = email_outbox_message
+                outbox_attachment = email_attachment_class()
+                setattr(attachment, email_attachment_to_email_class_field_name, email)
                 outbox_attachment.tenant_id = original_attachment.message.tenant_id
 
                 file = default_storage._open(original_attachment.attachment.name)
@@ -430,10 +443,10 @@ def send_message(email_outbox_message_id, original_message_id=None):
     manager = None
     try:
         manager = GmailManager(email_account)
-        manager.send_email_message(email_outbox_message.message(), original_message_thread_id)
+        manager.send_email_message(getattr(email, email_message_function_name)(), original_message_thread_id)
         logger.debug('Message sent from: %s', email_account)
         # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more.
-        email_outbox_message.delete()
+        email.delete()
         sent_success = True
         # TODO: This should probably be moved to the front end once
         # we can notify users about sent mails.
@@ -448,9 +461,12 @@ def send_message(email_outbox_message_id, original_message_id=None):
         if manager:
             manager.cleanup()
 
-    send_logger.info(
-        'Done sending email_outbox_message: %d And sent_succes value: %s' % (email_outbox_message_id, sent_success)
-    )
+    send_logger.info('Done sending {}: {} And sent_succes value: {}'.format(
+        email_attachment_to_email_class_field_name,
+        email_id,
+        sent_success
+    ))
+
     return sent_success
 
 

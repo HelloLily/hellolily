@@ -218,10 +218,15 @@ class GenericAPITestCase(CompareObjectsMixin, UserBasedTest, APITestCase):
         if 'GenericAPITestCase' not in str(type(self)):
             return super(GenericAPITestCase, self).__call__(result)
 
-    def get_url(self, name, ordering=None, *args, **kwargs):
-        return '%s?%s' % (reverse(name, *args, **kwargs), urlencode({
-            'ordering': ordering or ','.join(self.ordering)
-        }))
+    def get_url(self, name, ordering=None, action_name='', *args, **kwargs):
+        base_url = reverse(name, *args, **kwargs)
+
+        if action_name != '':
+            action_name += '/'
+
+        query_params = urlencode({'ordering': ordering or ','.join(self.ordering)})
+
+        return '{}{}?{}'.format(base_url, action_name, query_params)
 
     def test_get_list_unauthenticated(self):
         """

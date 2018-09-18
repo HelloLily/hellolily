@@ -675,7 +675,6 @@ class EmailDraft(TenantMixin, models.Model):
     to = ArrayField(models.EmailField(max_length=254), verbose_name=_('to'))
     cc = ArrayField(models.EmailField(max_length=254), verbose_name=_('cc'))
     bcc = ArrayField(models.EmailField(max_length=254), verbose_name=_('bcc'))
-
     headers = JSONField(default=dict, verbose_name=_('email headers'))
     subject = models.CharField(blank=True, max_length=255, verbose_name=_('subject'))
     body = models.TextField(blank=True, verbose_name=_('html body'))

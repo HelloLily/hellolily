@@ -495,12 +495,6 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                                 }
                             });
 
-                            tenantEmailAccountList.forEach(emailAddress => {
-                                if (emailAddress.email_address === email.sender_email) {
-                                    email.right = true;
-                                }
-                            });
-
                             activity.push(email);
                         });
                     });

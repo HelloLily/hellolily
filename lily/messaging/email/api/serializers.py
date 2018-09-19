@@ -292,6 +292,7 @@ class EmailMessageBaseSerializer(serializers.ModelSerializer):
             'reply_to',
             'thread_id',
             'message_type',
+            'message_type_to_id',
         )
 
     def to_representation(self, instance):
@@ -323,6 +324,7 @@ class EmailMessageBaseSerializer(serializers.ModelSerializer):
                 'reply_to',
                 'thread_id',
                 'message_type',
+                'message_type_to_id',
             }
         else:
             shared_config = email_account.sharedemailconfig_set.filter(user=user).first()
@@ -339,6 +341,7 @@ class EmailMessageBaseSerializer(serializers.ModelSerializer):
                     'received_by_cc',
                     'sender',
                     'message_type',
+                    'message_type_to_id',
                 }
             elif privacy == EmailAccount.PRIVATE:
                 fields_to_keep = {
@@ -366,6 +369,7 @@ class EmailMessageBaseSerializer(serializers.ModelSerializer):
                     'reply_to',
                     'thread_id',
                     'message_type',
+                    'message_type_to_id',
                 }
 
         fields_to_pop = set(self.fields).difference(fields_to_keep)
@@ -402,6 +406,7 @@ class EmailMessageDetailSerializer(EmailMessageBaseSerializer):
             'reply_to',
             'thread_id',
             'message_type',
+            'message_type_to_id',
         )
 
 
@@ -427,6 +432,7 @@ class EmailMessageListSerializer(EmailMessageBaseSerializer):
             'subject',
             'is_starred',
             'message_type',
+            'message_type_to_id',
         )
 
 

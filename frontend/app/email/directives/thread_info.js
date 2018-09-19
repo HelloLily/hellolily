@@ -5,6 +5,7 @@ function ThreadInfoDirective() {
         restrict: 'E',
         scope: {
             messageType: '=',
+            messageTypeToId: '=',
         },
         controller: ThreadInfoController,
         controllerAs: 'vm',
@@ -27,18 +28,18 @@ function ThreadInfoController($state, EmailMessage) {
 
     function activate() {
         vm.action = 'nothing';
-        if (vm.messageType[0] === 1 ) {
+        if (vm.messageType === 1 ) {
             vm.action = 'reply';
-            vm.nextMessage = vm.messageType[1];
-        } else if (vm.messageType[0] === 2 ) {
+            vm.nextMessage = vm.messageTypeToId;
+        } else if (vm.messageType === 2 ) {
             vm.action = 'reply-all';
-            vm.nextMessage = vm.messageType[1];
-        } else if (vm.messageType[0] === 3 ) {
+            vm.nextMessage = vm.messageTypeToId;
+        } else if (vm.messageType === 3 ) {
             vm.action = 'forward';
-            vm.nextMessage = vm.messageType[1];
-        } else if (vm.messageType[0] === 4 ) {
+            vm.nextMessage = vm.messageTypeToId;
+        } else if (vm.messageType === 4 ) {
             vm.action = 'reply-all fa-flip-horizontal';
-            vm.nextMessage = vm.messageType[1];
+            vm.nextMessage = vm.messageTypeToId;
         }
     }
 

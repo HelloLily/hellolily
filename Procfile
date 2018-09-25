@@ -1,5 +1,5 @@
 ### Django runs on this
-web: bin/start-pgbouncer-stunnel daphne lily.asgi:channel_layer --port $PORT --bind 0.0.0.0 --http-timeout 28
+web: bin/start-pgbouncer-stunnel daphne lily.asgi:channel_layer --port $PORT --bind 0.0.0.0 --http-timeout 60
 
 consumer: unset DISABLE_DATADOG_AGENT && /app/.profile.d/datadog.sh; DATADOG_TRACE_ENABLED="true" bin/start-pgbouncer-stunnel python manage.py runworker
 

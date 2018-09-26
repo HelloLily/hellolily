@@ -2,7 +2,7 @@ import sys
 import inspect
 
 import analytics
-from ddtrace import patch_all
+# from ddtrace import patch_all
 from django.apps import AppConfig
 from django.conf import settings
 from django.forms.forms import BaseForm
@@ -28,7 +28,7 @@ class LilyConfig(AppConfig):
         """
         Code run on startup of django.
         """
-        patch_all()
+        # patch_all()
 
         local_apps = [app for app in settings.INSTALLED_APPS if app.startswith('lily')]
 

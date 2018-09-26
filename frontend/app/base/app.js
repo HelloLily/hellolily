@@ -39,6 +39,7 @@ angular.module('app', [
     'app.deals',
     'app.email',
     'app.integrations',
+    'app.objectfiles',
     'app.preferences',
     'app.stats',
     'app.tags',

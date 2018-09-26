@@ -38,6 +38,9 @@ function caseConfig($stateProvider) {
             timeLogs: ['TimeLog', 'currentCase', (TimeLog, currentCase) => {
                 return TimeLog.getForObject({id: currentCase.id, model: 'cases'}).$promise;
             }],
+            files: ['ObjectFile', 'currentCase', (ObjectFile, currentCase) => {
+                return ObjectFile.getForObject({id: currentCase.id, model: 'cases'}).$promise;
+            }],
         },
     });
 }
@@ -45,9 +48,9 @@ function caseConfig($stateProvider) {
 angular.module('app.cases').controller('CaseDetailController', CaseDetailController);
 
 CaseDetailController.$inject = ['$scope', 'Case', 'HLResource', 'HLUtils', 'LocalStorage', 'Settings', 'Tenant',
-    'currentCase', 'caseAccount', 'caseContact', 'timeLogs'];
+    'currentCase', 'caseAccount', 'caseContact', 'timeLogs', 'files'];
 function CaseDetailController($scope, Case, HLResource, HLUtils, LocalStorage, Settings, Tenant, currentCase,
-    caseAccount, caseContact, timeLogs) {
+    caseAccount, caseContact, timeLogs, files) {
     const vm = this;
     const storage = new LocalStorage('caseDetail');
 
@@ -69,6 +72,7 @@ function CaseDetailController($scope, Case, HLResource, HLUtils, LocalStorage, S
     vm.case = currentCase;
     vm.case.account = caseAccount;
     vm.case.contact = caseContact;
+    vm.case.files = files.results;
     vm.case.timeLogs = timeLogs.objects;
     vm.mergeStreams = storage.get('mergeStreams', false);
 

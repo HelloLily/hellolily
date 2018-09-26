@@ -184,6 +184,7 @@ EMAIL_ATTACHMENT_UPLOAD_TO = 'messaging/email/attachments/%(tenant_id)d/%(messag
 EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO = ('messaging/email/templates/attachments'
                                        '/%(tenant_id)d/%(template_id)d/%(filename)s')
 
+OBJECT_FILE_UPLOAD_TO = 'models/files/%(tenant_id)d/%(content_type)s/%(object_id)d/%(filename)s'
 
 STATICFILES_DIRS = (
     local_path('static/'),
@@ -317,6 +318,7 @@ INSTALLED_APPS = (
     'lily.google',
     'lily.messaging.email',
     'lily.notes',
+    'lily.objectfiles',
     'lily.parcels',
     'lily.integrations',
     'lily.provide',

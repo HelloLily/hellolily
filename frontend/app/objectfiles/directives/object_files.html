@@ -1,0 +1,40 @@
+<span ng-if="!vm.currentUser.tenant.isFreePlan">
+  <simple-widget>
+      <widget-header>
+          <div class="widget-label"></div>
+          <div class="widget-name display-inline-block">Files</div>
+
+          <button class="hl-primary-btn pull-right" ng-click="vm.openModal()">
+              <i class="fa fa-plus"></i> File
+          </button>
+      </widget-header>
+
+      <widget-body>
+          <div class="widget-content no-padding">
+              <table class="widget-table break-words">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th class="w-10">Size</th>
+                    <th class="w-15">Date</th>
+                    <th class="w-10">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr ng-repeat="file in vm.object.files">
+                    <td>{{ file.name }}</td>
+                    <td>{{ file.size }}</td>
+                    <td><date date="file.date"></date></td>
+                    <td>
+                      <delete-confirmation model="ObjectFile" object="file" callback="vm.removeFromList(file)" button-class="hl-primary-btn-smll"></delete-confirmation>
+                    </td>
+                  </tr>
+                  <tr ng-show="vm.object.files.length === 0">
+                      <td colspan="4">No files</td>
+                  </tr>
+                </tbody>
+              </table>
+          </div>
+      </widget-body>
+  </simple-widget>
+</span>

@@ -4,6 +4,8 @@ from django.contrib.contenttypes.models import ContentType
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 
+from lily.objectfiles.models import ObjectFile
+from lily.objectfiles.api.serializers import ObjectFileSerializer
 from lily.changes.models import Change
 from lily.socialmedia.models import SocialMedia
 from lily.timelogs.models import TimeLog
@@ -177,6 +179,18 @@ class TimeLogMixin(object):
         serializer = TimeLogSerializer(timelogs, many=True)
 
         return Response({'objects': serializer.data})
+
+
+class FileMixin(object):
+    @detail_route(methods=['get'])
+    def files(self, request, pk=None):
+        obj = self.get_object()
+
+        files = ObjectFile.objects.filter(gfk_object_id=obj.id, gfk_content_type=obj.content_type)
+
+        serializer = ObjectFileSerializer(files, many=True)
+
+        return Response({'results': serializer.data})
 
 
 class PhoneNumberFormatMixin(object):

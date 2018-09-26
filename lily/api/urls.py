@@ -2,6 +2,7 @@ from django.conf.urls import url, include
 from rest_framework.routers import DefaultRouter
 
 from lily.accounts.api.views import AccountViewSet, AccountStatusViewSet, AccountImport
+from lily.objectfiles.api.views import ObjectFileViewSet
 from lily.billing.api.views import BillingViewSet
 from lily.cases.api.views import CaseViewSet, CaseStatusViewSet, CaseTypeViewSet
 from lily.calls.api.views import CallViewSet, CallRecordViewSet
@@ -47,6 +48,8 @@ router.register(r'deals/found-through', DealFoundThroughViewSet)
 router.register(r'deals/contacted-by', DealContactedByViewSet)
 router.register(r'deals/statuses', DealStatusViewSet)
 router.register(r'deals', DealViewSet)
+
+router.register(r'files', ObjectFileViewSet)
 
 router.register(r'messaging/email/labels', EmailLabelViewSet)
 router.register(r'messaging/email/accounts', EmailAccountViewSet)

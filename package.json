@@ -13,6 +13,9 @@
     "postinstall": "gulp clean && gulp build"
   },
   "dependencies": {
+    "@uppy/core": "^0.27.1",
+    "@uppy/dashboard": "^0.27.3",
+    "@uppy/xhr-upload": "^0.27.2",
     "angular-elastic": "2.5.1",
     "angular-ui-bootstrap": "2.5.0",
     "angular-xeditable": "0.6.0",

@@ -1,6 +1,5 @@
 import logging
 
-from ddtrace import tracer
 from django.conf import settings
 from django.db.models import Q
 from django_filters import rest_framework as filters
@@ -460,7 +459,6 @@ class TemplateVariableViewSet(mixins.DestroyModelMixin,
 
 class SearchView(APIView):
 
-    @tracer.wrap()
     def get(self, request, format=None):
         user = request.user
 

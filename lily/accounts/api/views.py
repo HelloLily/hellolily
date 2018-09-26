@@ -1,4 +1,3 @@
-from ddtrace import tracer
 from django.db import transaction
 from django.db.models import Q
 from django.utils.datastructures import MultiValueDictKeyError
@@ -95,7 +94,6 @@ class AccountViewSet(ModelChangesMixin, DataExistsMixin, ModelViewSet):
     # DjangoFilter: set the filter class.
     filter_class = AccountFilter
 
-    @tracer.wrap()
     def get_queryset(self):
         """
         Set the queryset here so it filters on tenant and works with pagination.

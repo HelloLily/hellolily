@@ -1,43 +1,45 @@
 from django.contrib import admin
 
-from lily.tenant.admin import TenantFilter
+from lily.tenant.admin import TenantFilter, EstimateCountPaginator
 from lily.tenant.admin import TenantFilteredChoicesMixin
-from .models import LilyUser, Team, UserInfo
+from .models import LilyUser, Team, UserInfo, UserInvite
 
 
 @admin.register(LilyUser)
 class LilyUserAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
-    list_select_related = (
-        'tenant',
-    )
-    list_display = (
-        'id',
-        'full_name',
-        'email',
-        'is_staff',
-        'is_superuser',
-        'is_active',
-        'tenant',
-    )
-    search_fields = (
-        'first_name',
-        'last_name',
-        'email',
-    )
-    list_filter = (
-        'is_staff',
-        'is_superuser',
-        'is_active',
-        TenantFilter,
-    )
-    tenant_filtered_fields = (
-        'teams',
-        'social_media',
-    )
-    filter_horizontal = (
-        'teams',
-        'user_permissions',
-        'social_media',
+    # List view settings.
+    list_max_show_all = 100
+    list_per_page = 50
+    ordering = ['-id', ]
+    show_full_result_count = False
+    paginator = EstimateCountPaginator
+    list_select_related = ('tenant', )
+    list_display = ('id', 'full_name', 'email', 'is_staff', 'is_superuser', 'is_active', 'tenant', )
+    list_display_links = ('id', 'full_name', 'email', )
+    search_fields = ('first_name', 'last_name', 'email', )
+    list_filter = ('is_staff', 'is_superuser', 'is_active', TenantFilter, )
+
+    # Form view settings.
+    tenant_filtered_fields = ('primary_email_account', 'teams', )
+    filter_horizontal = ('groups', 'user_permissions', 'teams', )
+    readonly_fields = ('tenant', )
+    raw_id_fields = ('info',)
+    fieldsets = (
+        (None, {
+            'fields': (
+                'tenant', 'email', 'password', 'is_active', 'is_staff', 'is_superuser', 'first_name', 'last_name',
+                'last_login', 'date_joined', 'picture', 'position', 'phone_number', 'internal_number',
+                'language', 'timezone', 'primary_email_account', 'info',
+            )
+        }),
+        ('Related fields', {
+            'classes': ('collapse',),
+            'fields': (
+                'groups',
+                'user_permissions',
+                'teams',
+            ),
+        }),
     )
 
     def save_model(self, request, obj, form, change):
@@ -60,18 +62,87 @@ class LilyUserAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
 
 
 @admin.register(Team)
-class TeamAdmin(admin.ModelAdmin):
-    list_select_related = (
-        'tenant',
+class TeamAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
+    # List view settings.
+    list_max_show_all = 100
+    list_per_page = 50
+    ordering = ['-id', ]
+    show_full_result_count = False
+    paginator = EstimateCountPaginator
+    list_select_related = ('tenant', )
+    list_display = ('id', 'name', 'tenant', )
+    list_display_links = ('id', 'name', )
+    search_fields = ('name', )
+    list_filter = (TenantFilter, )
+
+    # Form view settings.
+    tenant_filtered_fields = ()
+    filter_horizontal = ()
+    readonly_fields = ('tenant', 'active_users', )
+    fieldsets = (
+        (None, {
+            'fields': (
+                'tenant',
+                'name',
+                'active_users',
+            ),
+        }),
     )
-    list_display = (
-        'id',
-        'name',
-        'tenant',
+
+
+@admin.register(UserInfo)
+class UserInfoAdmin(admin.ModelAdmin):
+    # List view settings.
+    list_max_show_all = 100
+    list_per_page = 50
+    ordering = ['-id', ]
+    show_full_result_count = False
+    paginator = EstimateCountPaginator
+    list_select_related = ()
+    list_display = ('id', 'registration_finished', 'email_account_status', )
+    list_display_links = ('id', 'registration_finished', )
+    search_fields = ()
+    list_filter = ('registration_finished', )
+
+    # Form view settings.
+    tenant_filtered_fields = ()
+    filter_horizontal = ()
+    readonly_fields = ()
+    fieldsets = (
+        (None, {
+            'fields': (
+                'registration_finished',
+                'email_account_status',
+            ),
+        }),
     )
-    search_fields = (
-        'name',
-    )
-    list_filter = (
-        TenantFilter,
+
+
+@admin.register(UserInvite)
+class UserInviteAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
+    # List view settings.
+    list_max_show_all = 100
+    list_per_page = 50
+    ordering = ['-id', ]
+    show_full_result_count = False
+    paginator = EstimateCountPaginator
+    list_select_related = ('tenant', )
+    list_display = ('id', 'first_name', 'email', 'date', 'tenant', )
+    list_display_links = ('id', 'first_name', )
+    search_fields = ('first_name', 'email', )
+    list_filter = ('date', TenantFilter, )
+
+    # Form view settings.
+    tenant_filtered_fields = ()
+    filter_horizontal = ()
+    readonly_fields = ('tenant', 'date', )
+    fieldsets = (
+        (None, {
+            'fields': (
+                'tenant',
+                'first_name',
+                'email',
+                'date',
+            ),
+        }),
     )

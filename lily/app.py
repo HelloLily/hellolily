@@ -2,7 +2,7 @@ import sys
 import inspect
 
 import analytics
-# from ddtrace import patch_all
+from ddtrace import patch_all
 from django.apps import AppConfig
 from django.conf import settings
 from django.forms.forms import BaseForm
@@ -41,7 +41,8 @@ class LilyConfig(AppConfig):
         analytics.debug = settings.DEBUG
 
         # Setup DataDog.
-        # if settings.DATADOG_ENABLED:
+        if settings.DATADOG_ENABLED:
+            patch_all()
         #     # patch_boto()
         #     # patch_elasticsearch()
         #     # patch_redis()

@@ -506,7 +506,11 @@ else:
                 'level': 'DEBUG',
                 'handlers': ['console', ],
                 'propagate': True,
-            }
+            },
+            'ddtrace': {
+                'handlers': ['console'],
+                'level': 'WARNING',
+            },
         },
     })
 

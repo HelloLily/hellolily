@@ -42,7 +42,7 @@ class LilyConfig(AppConfig):
 
         # Setup DataDog.
         if settings.DATADOG_ENABLED:
-            patch_all()
+            patch_all(django=True)
         #     # patch_boto()
         #     # patch_elasticsearch()
         #     # patch_redis()

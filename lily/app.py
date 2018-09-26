@@ -2,15 +2,16 @@ import sys
 import inspect
 
 import analytics
+from ddtrace import patch_all
 from django.apps import AppConfig
 from django.conf import settings
 from django.forms.forms import BaseForm
 
-from ddtrace.contrib.boto.patch import patch as patch_boto
-from ddtrace.contrib.elasticsearch.patch import patch as patch_elasticsearch
-from ddtrace.contrib.redis.patch import patch as patch_redis
-from ddtrace.contrib.requests.patch import patch as patch_requests
-from ddtrace.contrib.django.patch import patch as patch_django
+# from ddtrace.contrib.boto.patch import patch as patch_boto
+# from ddtrace.contrib.elasticsearch.patch import patch as patch_elasticsearch
+# from ddtrace.contrib.redis.patch import patch as patch_redis
+# from ddtrace.contrib.requests.patch import patch as patch_requests
+# from ddtrace.contrib.django.patch import patch as patch_django
 # from ddtrace.contrib.django.restframework import patch_restframework
 
 from lily.search.scan_search import ModelMappings
@@ -41,12 +42,21 @@ class LilyConfig(AppConfig):
 
         # Setup DataDog.
         if settings.DATADOG_ENABLED:
-            patch_boto()
-            patch_elasticsearch()
-            patch_redis()
-            patch_requests()
-            patch_django()
+            # patch_boto()
+            # patch_elasticsearch()
+            # patch_redis()
+            # patch_requests()
+            # patch_django()
             # patch_restframework()
+            patch_all(
+                celery=True,
+                boto=True,
+                elasticsearch=True,
+                redis=True,
+                requests=True,
+                Django=True,
+                restframework=True,
+            )
 
     def patch_forms(self, local_apps):
         """

@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 import html2text
 from urllib import unquote
 
+from ddtrace import tracer
 from django.apps import apps
 from django.db.models.query_utils import Q
 from django.conf import settings
@@ -615,6 +616,7 @@ def get_extensions_for_type(general_type):
     yield '.bak'
 
 
+@tracer.wrap()
 def get_shared_email_accounts(user, only_public=True):
     if not user.tenant.billing.is_free_plan:
         # Team plan allows sharing of email account.

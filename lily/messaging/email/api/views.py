@@ -1,5 +1,6 @@
 import logging
 
+from ddtrace import tracer
 from django.conf import settings
 from django.db.models import Q
 from django_filters import rest_framework as filters
@@ -459,6 +460,7 @@ class TemplateVariableViewSet(mixins.DestroyModelMixin,
 
 class SearchView(APIView):
 
+    @tracer.wrap()
     def get(self, request, format=None):
         user = request.user
 
@@ -662,6 +664,7 @@ class SearchView(APIView):
 
         return Response(result)
 
+    @tracer.wrap()
     def _determine_label_filtering(self, queryset, folder_id, email_accounts):
         """
         Return a queryset for filtering messages by labels or boolean fields for common labels.
@@ -698,6 +701,7 @@ class SearchView(APIView):
 
         return queryset
 
+    @tracer.wrap()
     def _get_related_account_email_addresses(self, account_id):
         """
         Get a list of email addresses of the account and of the contacts of the account.
@@ -719,6 +723,7 @@ class SearchView(APIView):
 
         return email_addresses
 
+    @tracer.wrap()
     def _get_related_contact_email_addresses(self, contact_id):
         """
         Get a list of email addresses of the contact.
@@ -732,6 +737,7 @@ class SearchView(APIView):
         email_addresses = [email.email_address for email in contact.email_addresses.all() if email.email_address]
         return email_addresses
 
+    @tracer.wrap()
     def _message_filter_on_related(self, queryset, email_addresses):
         """
         Return a queryset for all the email messages sent or received by one of the email addressses which aren't

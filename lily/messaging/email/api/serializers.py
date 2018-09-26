@@ -1,6 +1,7 @@
 import logging
 import re
 
+from ddtrace import tracer
 from django.conf import settings
 from django.core.validators import RegexValidator
 from django.db.models import Q
@@ -295,6 +296,7 @@ class EmailMessageBaseSerializer(serializers.ModelSerializer):
             'message_type_to_id',
         )
 
+    @tracer.wrap()
     def to_representation(self, instance):
         ret = super(EmailMessageBaseSerializer, self).to_representation(instance)
 

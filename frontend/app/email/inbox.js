@@ -384,9 +384,6 @@
             Metronic.blockUI($('.inbox-content'), false, '');
 
             $form.submit();
-
-            // The email freeze should happen before submit, so clearing after submit should be fine.
-            localStorage.removeItem('emailComposeContent');
         },
 
         handleInboxComposeSubmit: function(inboxCompose, event) {

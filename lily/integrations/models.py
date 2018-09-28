@@ -47,7 +47,7 @@ class Document(TenantMixin):
 
 class DocumentEvent(TenantMixin):
     event_type = models.CharField(max_length=255)
-    document_status = models.CharField(max_length=255, blank=True, null=True)
+    document_status = models.CharField(max_length=255)
     status = models.ForeignKey(DealStatus, blank=True, null=True, on_delete=models.SET_NULL)
     next_step = models.ForeignKey(DealNextStep, blank=True, null=True, on_delete=models.SET_NULL)
     extra_days = models.PositiveIntegerField(blank=True, null=True)

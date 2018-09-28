@@ -311,7 +311,7 @@ class GmailManagerTests(UserBasedTest, APITestCase):
             headers={},
             mapped_attachments=0,
             template_attachment_ids='',
-            original_message_id=None,
+            original_message_id='',
             tenant=self.user_obj.tenant
         )
 
@@ -374,7 +374,7 @@ class GmailManagerTests(UserBasedTest, APITestCase):
             headers={},
             mapped_attachments=0,
             template_attachment_ids='',
-            original_message_id=None,
+            original_message_id='',
             tenant=self.user_obj.tenant
         )
 
@@ -434,7 +434,7 @@ class GmailManagerTests(UserBasedTest, APITestCase):
             headers={},
             mapped_attachments=0,
             template_attachment_ids='',
-            original_message_id=None,
+            original_message_id='',
             tenant=self.user_obj.tenant
         )
 

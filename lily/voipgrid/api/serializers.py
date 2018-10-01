@@ -283,7 +283,17 @@ class CallNotificationSerializer(serializers.Serializer):
         """
         # Get the target out of the destination, but use the main destination number.
         # We use the main number because target numbers can be dial templates or callgroup ids and stuff.
-        target = destination['target']
+        if direction == 'inbound':
+            target = destination['target']
+        # For outbound calls we want to save the destination already at ringing stage.
+        # Target isn't then defined yet so let's create one based on the destination number.
+        else:  # direction == outbound
+            target = {
+                'user_numbers': [],
+                'number': destination['number'],
+                'account_number': None,
+                'name': '',
+            }
 
         if not target['number'].startswith('+'):
             # The target number may be internal due to call forwarding.
@@ -306,6 +316,12 @@ class CallNotificationSerializer(serializers.Serializer):
     def save_ringing(self, data):
         caller, source = self.save_caller(direction=data['direction'], caller=data['caller'])
 
+        # For inbound calls we wan't to store the destination only when the call is picked up.
+        if data['direction'] == 'inbound':
+            destination = None
+        else:   # For outbound calls we can and want to save the destination already now.
+            destination = self.save_destination(direction=data['direction'], destination=data['destination'])
+
         cr = CallRecord.objects.get_or_create(call_id=data['call_id'], defaults={
             'call_id': data['call_id'],
             'start': data['timestamp'],
@@ -313,7 +329,7 @@ class CallNotificationSerializer(serializers.Serializer):
             'status': CallRecord.RINGING,
             'direction': CallRecord.INBOUND if data['direction'] == 'inbound' else CallRecord.OUTBOUND,
             'caller': caller,
-            'destination': None,  # During ringing we don't want to store destination yet, only when it's picked up.
+            'destination': destination,
         })[0]
 
         if data['direction'] == 'inbound':
@@ -338,14 +354,13 @@ class CallNotificationSerializer(serializers.Serializer):
                 )
 
                 last_transfer.save()
-            else:
-                updated_data = {
-                    'destination': self.save_destination(direction=data['direction'], destination=data['destination']),
-                    'status': CallRecord.IN_PROGRESS,
-                }
-
-                for attr, value in updated_data.items():
-                    setattr(cr, attr, value)
+            elif data['direction'] == 'inbound':
+                destination = self.save_destination(direction=data['direction'], destination=data['destination'])
+                cr.destination = destination
+                cr.status = CallRecord.IN_PROGRESS
+                cr.save()
+            else:  # For outbound calls the destination has been saved already in ringing stage.
+                cr.status = CallRecord.IN_PROGRESS
                 cr.save()
         except CallRecord.DoesNotExist:
             caller, source = self.save_caller(direction=data['direction'], caller=data['caller'])

@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.views.decorators.cache import never_cache
+from django_otp import user_has_device
 from django_otp.plugins.otp_static.models import StaticToken
 from two_factor.forms import MethodForm, TOTPDeviceForm, YubiKeyDeviceForm
 from two_factor.models import PhoneDevice
@@ -65,6 +66,18 @@ class TwoFactorPhoneSetupView(PhoneSetupView):
         ('setup', CustomPhoneNumberForm),
         ('validation', CustomDeviceValidationForm),
     )
+
+    @never_cache
+    def dispatch(self, request, *args, **kwargs):
+        # This view is only used to add backup phone numbers, so the user must be authenticated and have 2fa enabled.
+        if not request.user.is_authenticated() or not user_has_device(request.user):
+            return redirect(self.success_url)
+
+        # Call the super of PhoneSetupView to strip it of the decorators.
+        # PhoneSetupView sets the otp_required decorator, it checks if the user was logged in using 2fa. If not it
+        # tries redirecting to the login page, but using if 2fa is not setup or user logged in using social auth, it
+        # results in a redirect loop.
+        return super(PhoneSetupView, self).dispatch(request, *args, **kwargs)
 
     def done(self, form_list, **kwargs):
         """

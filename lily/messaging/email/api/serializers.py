@@ -217,8 +217,13 @@ class EmailAccountSerializer(WritableNestedSerializer):
         default_template = None
 
         if self.context:
-            user = self.context.get('request').user
-            default_template = obj.default_templates.filter(user=user).first()
+            try:
+                default_template = obj.default_template[0]
+            except AttributeError:
+                user = self.context.get('request').user
+                default_template = obj.default_templates.filter(user=user).first()
+            except IndexError:
+                default_template = None
 
         return {
             'id': default_template.template.id,

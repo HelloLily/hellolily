@@ -158,11 +158,13 @@ class Account(Common, TaggedObjectMixin):
 
     def get_contacts(self):
         if not hasattr(self, '_contacts'):
-            functions = self.functions.all()
-            self._contacts = []
-            for function in functions:
-                if not (function.is_deleted or function.contact.is_deleted):
-                    self._contacts.append(function.contact)
+            functions = self.functions.prefetch_related(
+                'contact',
+            ).filter(
+                is_deleted=False,
+                contact__is_deleted=False
+            )
+            self._contacts = [f.contact for f in functions]
 
         return self._contacts
 

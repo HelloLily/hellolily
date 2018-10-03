@@ -2,7 +2,7 @@ import logging
 
 from ddtrace import tracer
 from django.conf import settings
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 from django_filters import rest_framework as filters
 import phonenumbers
 from rest_framework.filters import OrderingFilter
@@ -20,7 +20,7 @@ from lily.messaging.email.connector import GmailConnector, NotFoundError, Failed
 from lily.messaging.email.credentials import InvalidCredentialsError
 from lily.messaging.email.utils import get_email_parameter_api_dict, get_shared_email_accounts
 from lily.utils.functions import format_phone_number
-from lily.utils.models.models import PhoneNumber
+from lily.utils.models.models import PhoneNumber, EmailAddress
 
 from .serializers import (EmailLabelSerializer, EmailAccountSerializer, EmailMessageListSerializer,
                           EmailTemplateFolderSerializer, EmailTemplateSerializer, SharedEmailConfigSerializer,
@@ -28,7 +28,7 @@ from .serializers import (EmailLabelSerializer, EmailAccountSerializer, EmailMes
                           EmailMessageActivityStreamSerializer, EmailMessageDashboardSerializer,
                           SimpleEmailAccountSerializer, EmailAttachmentSerializer)
 from ..models.models import (EmailLabel, EmailAccount, EmailMessage, EmailTemplateFolder, EmailTemplate,
-                             SharedEmailConfig, TemplateVariable, Recipient)
+                             SharedEmailConfig, TemplateVariable, Recipient, DefaultEmailTemplate)
 from ..tasks import (trash_email_message, toggle_read_email_message,
                      add_and_remove_labels_for_message, toggle_star_email_message, toggle_spam_email_message)
 from ..utils import get_filtered_message
@@ -100,7 +100,14 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
     )
 
     def get_queryset(self):
-        return EmailAccount.objects.filter(is_deleted=False).distinct('id')
+        qs = DefaultEmailTemplate.objects.filter(user=self.request.user).first()
+        email_account_list = EmailAccount.objects.filter(is_deleted=False).distinct('id')
+        email_account_list = email_account_list.prefetch_related(
+            'labels',
+            'sharedemailconfig_set',
+            Prefetch('default_templates', qs, 'default_template'),
+        )
+        return email_account_list
 
     def perform_destroy(self, instance):
         if instance.owner_id == self.request.user.id:
@@ -112,8 +119,14 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
 
     @list_route()
     def mine(self, request):
+        qs = DefaultEmailTemplate.objects.filter(user=request.user).first()
         email_account_list = get_shared_email_accounts(request.user)
-
+        email_account_list = email_account_list.prefetch_related(
+            'labels',
+            'sharedemailconfig_set',
+            'owner',
+            Prefetch('default_templates', qs, 'default_template'),
+        )
         serializer = self.get_serializer(email_account_list, many=True)
 
         return Response(serializer.data)
@@ -625,7 +638,7 @@ class SearchView(APIView):
         # The serializer will query for account, sender and star label, so instead of the extra separate queries,
         # retrieve them now.
         message_list = message_list.select_related('account', 'sender')
-        message_list = message_list.prefetch_related('labels')
+        message_list = message_list.prefetch_related('labels', 'received_by', 'received_by_cc')
 
         if activity_stream:
             message_list = message_list[:size]
@@ -708,18 +721,21 @@ class SearchView(APIView):
         """
         email_addresses = []
         try:
-            account = Account.objects.get(id=account_id)
+            account = Account.objects.prefetch_related('email_addresses').get(id=account_id)
         except Account.DoesNotExist:
             return email_addresses
 
-        email_addresses = [email.email_address for email in account.email_addresses.all() if email.email_address]
-
         contacts = account.get_contacts()
-        for contact in contacts:
-            contact_email_addresses = [
-                email.email_address for email in contact.email_addresses.all() if email.email_address
-            ]
-            email_addresses.extend(contact_email_addresses)
+
+        email_addresses = account.email_addresses.all()
+        email_addresses = email_addresses | EmailAddress.objects.filter(contact__in=contacts)
+        email_addresses = email_addresses.exclude(
+            email_address__isnull=True
+        ).values_list(
+            'email_address', flat=True
+        ).distinct()
+
+        email_addresses = list(email_addresses)
 
         return email_addresses
 
@@ -730,11 +746,18 @@ class SearchView(APIView):
         """
         email_addresses = []
         try:
-            contact = Contact.objects.get(id=contact_id)
+            contact = Contact.objects.prefetch_related('email_addresses').get(id=contact_id)
         except Contact.DoesNotExist:
             return email_addresses
 
-        email_addresses = [email.email_address for email in contact.email_addresses.all() if email.email_address]
+        email_addresses = contact.email_addresses.exclude(
+            email_address__isnull=True
+        ).values_list(
+            'email_address', flat=True
+        ).distinct()
+
+        email_addresses = list(email_addresses)
+
         return email_addresses
 
     @tracer.wrap()

@@ -303,7 +303,7 @@ class EmailMessage(models.Model):
         """
         Return the content type (Django model) for this model
         """
-        return ContentType.objects.get(app_label="email", model="emailmessage")
+        return ContentType(id=45, app_label="email", model="emailmessage")
 
     def __unicode__(self):
         return u'%s: %s' % (self.sender, self.snippet)

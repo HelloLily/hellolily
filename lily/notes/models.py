@@ -36,7 +36,7 @@ class Note(TenantMixin, DeletedMixin):
         """
         Return the content type (Django model) for this model
         """
-        return ContentType.objects.get(app_label='notes', model='note')
+        return ContentType(id=21, app_label='notes', model='note')
 
     def __unicode__(self):
         return self.content

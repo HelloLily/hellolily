@@ -63,7 +63,7 @@ class Contact(Common, TaggedObjectMixin):
         """
         Return the content type (Django model) for this model.
         """
-        return ContentType.objects.get(app_label='contacts', model='contact')
+        return ContentType(id=18, app_label='contacts', model='contact')
 
     @property
     def primary_email(self):

@@ -136,7 +136,7 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
         """
         Return the content type (Django model) for this model
         """
-        return ContentType.objects.get(app_label='deals', model='deal')
+        return ContentType(id=29, app_label='deals', model='deal')
 
     def __unicode__(self):
         return self.name

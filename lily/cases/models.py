@@ -72,7 +72,7 @@ class Case(TenantMixin, TaggedObjectMixin, DeletedMixin, ArchivedMixin):
         """
         Return the content type (Django model) for this model.
         """
-        return ContentType.objects.get(app_label='cases', model='case')
+        return ContentType(id=30, app_label='cases', model='case')
 
     def __unicode__(self):
         return self.subject

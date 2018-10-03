@@ -76,7 +76,7 @@ class Account(Common, TaggedObjectMixin):
         """
         Return the content type (Django model) for this model
         """
-        return ContentType.objects.get(app_label="accounts", model="account")
+        return ContentType(id=11, app_label="accounts", model="account")
 
     def primary_email(self):
         return self.email_addresses.filter(status=EmailAddress.PRIMARY_STATUS).first()

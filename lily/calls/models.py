@@ -40,7 +40,7 @@ class Call(TenantMixin):
         """
         Return the content type (Django model) for this model.
         """
-        return ContentType.objects.get(app_label='calls', model='call')
+        return ContentType(id=81, app_label='calls', model='call')
 
     def __unicode__(self):
         return '%s: Call from %s to %s' % (self.unique_id, self.caller_number, self.called_number)
@@ -106,10 +106,7 @@ class CallRecord(TenantMixin):
         """
         Return the content type (Django model) for this model.
         """
-        return ContentType.objects.get(
-            app_label='calls',
-            model='callrecord'
-        )
+        return ContentType(id=104, app_label='calls', model='callrecord')
 
     def __unicode__(self):
         return '%s: Call from %s' % (

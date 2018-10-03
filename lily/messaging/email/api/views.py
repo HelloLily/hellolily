@@ -643,6 +643,8 @@ class SearchView(APIView):
         if activity_stream:
             message_list = message_list[:size]
 
+            self._add_privacy_to_messages(message_list, email_accounts, user)
+
             # No paginator needed for the activity stream.
             serializer = EmailMessageActivityStreamSerializer(message_list, many=True, context={'request': request})
 
@@ -652,6 +654,8 @@ class SearchView(APIView):
             }
         elif dashboard:
             message_list = message_list[:size]
+
+            self._add_privacy_to_messages(message_list, email_accounts, user)
 
             # No paginator needed for the dashboard.
             serializer = EmailMessageDashboardSerializer(message_list, many=True, context={'request': request})
@@ -666,6 +670,8 @@ class SearchView(APIView):
             offset = limit - size
             message_list = message_list[offset:limit]
 
+            self._add_privacy_to_messages(message_list, email_accounts, user)
+
             serializer = EmailMessageListSerializer(message_list, many=True, context={'request': request})
 
             result = {
@@ -676,6 +682,38 @@ class SearchView(APIView):
                 result['total'] = total_number_of_results
 
         return Response(result)
+
+    def _add_privacy_to_messages(self, message_list, email_accounts, user):
+        """
+        Extend the email messages in the message list with a privacy value.
+        :param message_list: query set with email messages.
+        :param email_accounts: list with email accounts.
+        :param user: logged in user.
+        """
+        # Retrieve all shared config settings for the email accounts for this user.
+        shared_configs = SharedEmailConfig.objects.filter(
+            email_account__in=email_accounts,
+            user=user
+        ).only(
+            'email_account_id',
+            'privacy'
+        ).values()
+
+        # Map the result to emailaccount:privacy pairs.
+        shared_configs = {sc['email_account_id']: sc['privacy'] for sc in shared_configs}
+
+        # Create a similar mapping based on privacy settings for the email accounts as a fallback.
+        fallback_shared_configs = {ea.id: ea.privacy for ea in email_accounts}
+
+        # Extend email message with privacy field.
+        for email_message in message_list:
+            email_message._privacy = shared_configs.get(
+                email_message.account_id,
+                fallback_shared_configs.get(
+                    email_message.account_id,
+                    EmailAccount.PRIVATE  # Mark the message as private as the ultimate fallback.
+                )
+            )
 
     @tracer.wrap()
     def _determine_label_filtering(self, queryset, folder_id, email_accounts):

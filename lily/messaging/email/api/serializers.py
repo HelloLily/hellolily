@@ -335,11 +335,7 @@ class EmailMessageBaseSerializer(serializers.ModelSerializer):
                 'message_type_to_id',
             }
         else:
-            shared_config = email_account.sharedemailconfig_set.filter(user=user).first()
-            if shared_config:
-                privacy = shared_config.privacy
-            else:
-                privacy = email_account.privacy
+            privacy = instance._privacy
 
             if privacy == EmailAccount.METADATA:
                 fields_to_keep = {

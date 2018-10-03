@@ -308,8 +308,9 @@ class EmailMessageBaseSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         email_account = instance.account
         privacy = None
+        owner_id = email_account.owner_id
 
-        if email_account.owner == user:
+        if owner_id == user.pk:
             fields_to_keep = {  # AKA, return every field.
                 'id',
                 'account',

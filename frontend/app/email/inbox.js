@@ -387,11 +387,11 @@
         },
 
         handleInboxComposeSubmit: function(inboxCompose, event) {
+            event.preventDefault();
+
             var draftPk;
             var buttonName = $(inboxCompose).attr('name');
             var $form = $($(inboxCompose).closest('form'));
-
-            event.preventDefault();
 
             if (buttonName === 'submit-save') {
                 draftPk = $('#id_draft_pk').val();

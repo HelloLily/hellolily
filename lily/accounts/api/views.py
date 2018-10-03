@@ -112,9 +112,9 @@ class AccountViewSet(ModelChangesMixin, DataExistsMixin, ModelViewSet):
         contact_list = account.get_contacts()
 
         # Get all the unique phone numbers of the account and of it's contacts as a flat list.
-        phone_numbers = account.phone_numbers.all().values_list('number', flat=True)
-        phone_numbers |= PhoneNumber.objects.filter(contact__in=contact_list).values_list('number', flat=True)
-        phone_numbers = list(phone_numbers.distinct())
+        phone_numbers = account.phone_numbers.all()
+        phone_numbers |= PhoneNumber.objects.filter(contact__in=contact_list)
+        phone_numbers = list(phone_numbers.values_list('number', flat=True).distinct())
 
         calls = CallRecord.objects.filter(
             Q(caller__number__in=phone_numbers) | Q(destination__number__in=phone_numbers)

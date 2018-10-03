@@ -683,6 +683,7 @@ class SearchView(APIView):
 
         return Response(result)
 
+    @tracer.wrap()
     def _add_privacy_to_messages(self, message_list, email_accounts, user):
         """
         Extend the email messages in the message list with a privacy value.

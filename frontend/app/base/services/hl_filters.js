@@ -8,7 +8,7 @@ function HLFilters() {
         let separateFilterStrings = [];
         let filterList = viewModel.filterList;
 
-        viewModel.table.filterQuery = '';
+        let filterQuery = '';
 
         if (hasClearButtons) {
             this._displayClearButtons(viewModel);
@@ -23,17 +23,15 @@ function HLFilters() {
                 if (!filter.selected) {
                     filterStrings.push('is_archived:false');
                 }
-            } else {
-                if (filter.selected) {
-                    if (filter.isSpecialFilter) {
-                        if (filter.separate) {
-                            separateFilterStrings.push(filter.value);
-                        } else {
-                            specialFilterStrings.push(filter.value);
-                        }
+            } else if (filter.selected) {
+                if (filter.isSpecialFilter) {
+                    if (filter.separate) {
+                        separateFilterStrings.push(filter.value);
                     } else {
-                        filterStrings.push(filter.value);
+                        specialFilterStrings.push(filter.value);
                     }
+                } else {
+                    filterStrings.push(filter.value);
                 }
             }
         });

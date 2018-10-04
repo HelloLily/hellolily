@@ -9,8 +9,8 @@ function unreadEmailDirective() {
     };
 }
 
-UnreadEmailController.$inject = ['$scope', '$interval', 'EmailAccount', 'EmailMessage', 'HLFilters', 'HLUtils', 'LocalStorage'];
-function UnreadEmailController($scope, $interval, EmailAccount, EmailMessage, HLFilters, HLUtils, LocalStorage) {
+UnreadEmailController.$inject = ['$scope', '$timeout', '$interval', 'EmailAccount', 'EmailMessage', 'HLFilters', 'HLUtils', 'LocalStorage'];
+function UnreadEmailController($scope, $timeout, $interval, EmailAccount, EmailMessage, HLFilters, HLUtils, LocalStorage) {
     var vm = this;
     let reloadInterval;
 
@@ -35,13 +35,11 @@ function UnreadEmailController($scope, $interval, EmailAccount, EmailMessage, HL
         }
     });
 
-    activate();
+    $timeout(activate);
 
     //////
 
     function activate() {
-        _watchTable();
-
         EmailAccount.mine(function(emailAccounts) {
             var filterList = [];
 
@@ -58,6 +56,8 @@ function UnreadEmailController($scope, $interval, EmailAccount, EmailMessage, HL
 
             vm.filterList = filterList;
         });
+
+        $timeout(_watchTable);
     }
 
     function updateTable(blockUI = false) {

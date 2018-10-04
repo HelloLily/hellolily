@@ -50,14 +50,14 @@ function ListFilterController($filter, $timeout, HLFilters) {
             update = true;
         }
 
-        // Always update the display in case we have things selected by default.
-        // Update the filter query only if we're not already updating it.
-        updateFilterDisplayName(!update);
-
         if (update) {
             updateAllSelected();
             updateFilterQuery();
         }
+
+        // Always update the display in case we have things selected by default.
+        // Update the filter query only if we're not already updating it.
+        updateFilterDisplayName(!update);
     }
 
     function setAll(value) {

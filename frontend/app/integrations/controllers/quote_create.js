@@ -146,9 +146,9 @@ function QuoteCreateController($http, $timeout, Settings, currentDeal, dealConta
     function saveDocument(data) {
         $http({
             method: 'POST',
-            url: '/api/integrations/documents/' + vm.deal.contact.id + '/',
+            url: `/api/integrations/documents/${vm.deal.id}/`,
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-            data: 'deal_id=' + vm.deal.id + '&document_id=' + data.document.id,
+            data: `document_id=${data.document.id}&contact_id=${vm.deal.contact.id}`,
         });
     }
 }

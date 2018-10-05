@@ -86,7 +86,7 @@ urlpatterns = [
     url(r'integrations/documents/events/catch/$', DocumentEventCatch.as_view()),
     url(r'integrations/documents/events/shared-key/$', PandaDocSharedKey.as_view()),
     url(r'integrations/documents/events/$', DocumentEventList.as_view()),
-    url(r'integrations/documents/(?P<contact_id>[0-9]+)/$', PandaDocList.as_view()),
+    url(r'integrations/documents/(?P<deal_id>[0-9]+)/$', PandaDocList.as_view()),
     url(r'integrations/moneybird/import/$', MoneybirdContactImport.as_view()),
     url(r'integrations/documents/(?P<document_id>.+)/$', DocumentDetails.as_view()),
     url(r'integrations/moneybird/estimates/(?P<contact_id>[0-9]+)/$', EstimatesList.as_view()),

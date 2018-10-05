@@ -107,7 +107,7 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
         });
 
         if (vm.tenant.hasPandaDoc && vm.deal.contact) {
-            Deal.getDocuments({contact: vm.deal.contact.id}, response => {
+            Deal.getDocuments({deal: vm.deal.id}, response => {
                 const documents = response.documents;
 
                 documents.forEach(document => {

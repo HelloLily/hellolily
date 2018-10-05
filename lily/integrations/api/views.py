@@ -14,6 +14,8 @@ from django.db import transaction, IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.utils.translation import ugettext_lazy as _
 from django.utils.text import Truncator
+from django.core.exceptions import ObjectDoesNotExist
+
 from oauth2client.contrib.django_orm import Storage
 from rest_framework import status
 from rest_framework.parsers import FormParser, JSONParser
@@ -77,11 +79,11 @@ class PandaDocList(APIView):
     parser_classes = (JSONParser, FormParser)
     swagger_schema = None
 
-    def get(self, request, contact_id, format=None):
+    def get(self, request, deal_id, format=None):
         """
         List all PandaDoc documents.
         """
-        documents = Document.objects.filter(contact=self.kwargs['contact_id'])
+        documents = Document.objects.filter(deal_id=deal_id)
         temp_documents = []
 
         credentials = get_credentials('pandadoc')
@@ -101,10 +103,10 @@ class PandaDocList(APIView):
 
         return Response({'documents': temp_documents})
 
-    def post(self, request, contact_id):
-        contact = Contact.objects.get(pk=contact_id)
+    def post(self, request, deal_id):
+        contact = Contact.objects.get(pk=request.POST.get('contact_id'))
 
-        deal = Deal.objects.get(pk=request.POST.get('deal_id'))
+        deal = Deal.objects.get(pk=deal_id)
         document_id = request.POST.get('document_id')
 
         document = Document.objects.create(contact=contact, deal=deal, document_id=document_id)
@@ -143,11 +145,7 @@ class DocumentEventList(APIView):
 
                 if not event_id:
                     # New object so check if event with given parameters already exists.
-                    try:
-                        DocumentEvent.objects.exists(event_type=event_type, document_status=document_status)
-                    except:
-                        pass
-                    else:
+                    if DocumentEvent.objects.exists(event_type=event_type, document_status=document_status):
                         return HttpResponseBadRequest(anyjson.serialize(duplicate_error))
 
                 data = {
@@ -561,7 +559,7 @@ class SlackEventCatch(APIView):
 
             try:
                 obj = content_type.get_object_for_this_type(pk=obj_id, tenant=details.tenant)
-            except:
+            except (ObjectDoesNotExist, ValueError):
                 return None
 
             fields = []

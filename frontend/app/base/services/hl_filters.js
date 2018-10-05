@@ -8,8 +8,6 @@ function HLFilters() {
         let separateFilterStrings = [];
         let filterList = viewModel.filterList;
 
-        let filterQuery = '';
-
         if (hasClearButtons) {
             this._displayClearButtons(viewModel);
         }

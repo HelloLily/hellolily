@@ -101,7 +101,7 @@ function Deal($resource, CacheFactory, HLCache, HLForms, HLResource, HLUtils) {
                 isArray: false,
             },
             getDocuments: {
-                url: '/api/integrations/documents/:contact/',
+                url: '/api/integrations/documents/:deal',
             },
             exists: {
                 method: 'GET',

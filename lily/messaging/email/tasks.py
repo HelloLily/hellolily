@@ -11,7 +11,7 @@ from lily.messaging.email.utils import determine_message_type
 from lily.utils.functions import post_intercom_event
 from .manager import GmailManager
 from .models.models import (EmailAccount, EmailMessage, EmailOutboxMessage, EmailTemplateAttachment,
-                            EmailOutboxAttachment, EmailAttachment)
+                            EmailOutboxAttachment, EmailAttachment, EmailBody)
 
 logger = logging.getLogger(__name__)
 
@@ -670,6 +670,25 @@ def migrate_email_messages():
         # There are possibly messages left to migrate, so add new batch in the queue. Process next batch with a delay
         # so there are resources for normal db usage.
         migrate_email_messages.apply_async(
+            queue='other_tasks',
+            countdown=settings.MIGRATE_EMAIL_COUNTDOWN
+        )
+
+
+@task(name='migrate_email_messages_html', trail=False, ignore_result=False)
+def migrate_email_messages_html():
+    messages = EmailMessage.objects.filter(
+        body_html_fk__isnull=True
+    ).order_by()[0:1000]
+
+    if messages:
+        for message in messages:
+            eb = EmailBody.objects.create(content=message.body_html)
+            message.body_html_fk = eb
+            message.skip_signal = True
+            message.save()
+
+        migrate_email_messages_html.apply_async(
             queue='other_tasks',
             countdown=settings.MIGRATE_EMAIL_COUNTDOWN
         )

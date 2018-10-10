@@ -182,6 +182,16 @@ class Recipient(models.Model):
         unique_together = ('name', 'email_address')
 
 
+
+class EmailBody(models.Model):
+    """
+    Body for an EmailMessage.
+    """
+    content = models.TextField(default='')
+
+    class Meta:
+        app_label = 'email'
+
 class EmailMessage(models.Model):
     """
     EmailMessage has all information from an email message.
@@ -197,6 +207,7 @@ class EmailMessage(models.Model):
 
     account = models.ForeignKey(EmailAccount, related_name='messages')
     body_html = models.TextField(default='')
+    body_html_fk = models.ForeignKey(EmailBody, null=True)
     body_text = models.TextField(default='')
     draft_id = models.CharField(max_length=50, db_index=True, default='')
     has_attachment = models.BooleanField(default=False)

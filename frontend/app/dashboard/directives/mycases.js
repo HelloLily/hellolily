@@ -9,8 +9,8 @@ function myCasesDirective() {
     };
 }
 
-MyCasesController.$inject = ['$filter', '$scope', 'Case', 'HLUtils', 'HLResource', 'HLSockets', 'LocalStorage'];
-function MyCasesController($filter, $scope, Case, HLUtils, HLResource, HLSockets, LocalStorage) {
+MyCasesController.$inject = ['$filter', '$scope', '$timeout', 'Case', 'HLUtils', 'HLResource', 'HLSockets', 'LocalStorage'];
+function MyCasesController($filter, $scope, $timeout, Case, HLUtils, HLResource, HLSockets, LocalStorage) {
     const vm = this;
     const storage = new LocalStorage('myCasesWidget');
 
@@ -36,16 +36,15 @@ function MyCasesController($filter, $scope, Case, HLUtils, HLResource, HLSockets
 
     HLSockets.bind('case-assigned', getMyCases);
 
-    $scope.$on('$destroy', () => {
-        HLSockets.unbind('case-assigned', getMyCases);
-    });
+    $scope.$on('$destroy', () => HLSockets.unbind('case-assigned', getMyCases));
 
-    activate();
+    $timeout(activate);
 
     /////
 
     function activate() {
         _watchTable();
+        getMyCases();
     }
 
     function getMyCases(blockUI = false) {
@@ -61,12 +60,12 @@ function MyCasesController($filter, $scope, Case, HLUtils, HLResource, HLSockets
             filterQuery += ' AND (' + vm.table.usersFilter + ')';
         }
 
-        if (blockUI) HLUtils.blockUI('#myCasesBlockTarget', true);
-
         if (vm.table.dueDateFilter !== '') {
             field = vm.table.order.column;
             descending = vm.table.order.descending;
         }
+
+        if (blockUI) HLUtils.blockUI('#myCasesBlockTarget', true);
 
         Case.getCases(field, descending, filterQuery).then(data => {
             let objects = data.objects;

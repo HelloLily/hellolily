@@ -20,10 +20,13 @@ function UsersFilterController($filter, $state, $timeout, LocalStorage, User, Us
     const vm = this;
     const storage = new LocalStorage(vm.storageName);
 
-    vm.storedNameDisplay = storage.get('nameDisplay', []);
     vm.storedTeamsSelection = storage.get('teamsSelection', []);
-    vm.storedCurrentUserSelected = storage.get('currentUserSelected', false);
-    vm.currentUser = currentUser;
+    vm.storedCurrentUserSelected = storage.get('currentUserSelected', true);
+
+    vm.nameDisplay = [];
+
+    // Make sure the currentUser is not shared across multiple filters.
+    vm.currentUser = Object.assign({}, currentUser);
     vm.teams = [];
 
     vm.toggleUser = toggleUser;
@@ -36,31 +39,11 @@ function UsersFilterController($filter, $state, $timeout, LocalStorage, User, Us
     //////
 
     function activate() {
-        $timeout(() => {
-            loadTeams();
+        if (vm.storedCurrentUserSelected && !vm.currentUser.selected) {
+            vm.toggleUser(null, vm.currentUser);
+        }
 
-            // When on free plan and on the dashboard we want to set the current user as selected.
-            if (vm.currentUser.tenant.isFreePlan) {
-                if ($state.current.name === 'base.dashboard') {
-                    // toggleUser toggle the selected state of the given user.
-                    // This leads to every even widget not actually being filtered
-                    // So set the selected state to false before toggling.
-                    if (vm.currentUser.selected) {
-                        vm.currentUser.selected = false;
-                    }
-
-                    vm.toggleUser(null, vm.currentUser);
-                }
-            } else {
-                vm.currentUser.selected = vm.storedCurrentUserSelected;
-            }
-
-            vm.nameDisplay = vm.storedNameDisplay;
-
-            if (vm.currentUser.selected && vm.nameDisplay.length === 1 && vm.conditions) {
-                vm.conditions.user = true;
-            }
-        }, 50);
+        loadTeams();
     }
 
     function loadTeams() {
@@ -258,7 +241,6 @@ function UsersFilterController($filter, $state, $timeout, LocalStorage, User, Us
 
         vm.nameDisplay = $filter('unique')(names);
 
-        storage.put('nameDisplay', vm.nameDisplay);
         storage.put('teamsSelection', vm.teams);
         storage.put('currentUserSelected', vm.currentUser.selected);
 

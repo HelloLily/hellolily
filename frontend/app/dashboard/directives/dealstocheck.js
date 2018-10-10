@@ -10,8 +10,8 @@ function dealsToCheckDirective() {
     };
 }
 
-DealsToCheckController.$inject = ['$scope', 'Deal', 'HLResource', 'HLUtils', 'HLSockets', 'LocalStorage', 'UserTeams'];
-function DealsToCheckController($scope, Deal, HLResource, HLUtils, HLSockets, LocalStorage, UserTeams) {
+DealsToCheckController.$inject = ['$scope', '$timeout', 'Deal', 'HLResource', 'HLUtils', 'HLSockets', 'LocalStorage', 'UserTeams'];
+function DealsToCheckController($scope, $timeout, Deal, HLResource, HLUtils, HLSockets, LocalStorage, UserTeams) {
     var storage = new LocalStorage('dealsToCheckWidget');
     var vm = this;
 
@@ -36,7 +36,7 @@ function DealsToCheckController($scope, Deal, HLResource, HLUtils, HLSockets, Lo
         HLSockets.unbind('deal-assigned', _getDealsToCheck);
     });
 
-    activate();
+    $timeout(activate);
 
     ///////////
 
@@ -72,10 +72,25 @@ function DealsToCheckController($scope, Deal, HLResource, HLUtils, HLSockets, Lo
     }
 
     function _watchTable() {
-        $scope.$watchGroup(['vm.table.order.descending', 'vm.table.order.column', 'vm.table.usersFilter'], function() {
-            _getDealsToCheck(true);
-            storage.put('order', vm.table.order);
-            storage.put('usersFilter', vm.table.usersFilter);
+        $scope.$watch('vm.table.order.descending', (newValue, oldValue) => {
+            if (newValue || oldValue) {
+                _getDealsToCheck(true);
+                storage.put('order', vm.table.order);
+            }
+        });
+
+        $scope.$watch('vm.table.order.column', (newValue, oldValue) => {
+            if (newValue || oldValue) {
+                _getDealsToCheck(true);
+                storage.put('order', vm.table.order);
+            }
+        });
+
+        $scope.$watch('vm.table.usersFilter', (newValue, oldValue) => {
+            if (newValue || oldValue) {
+                _getDealsToCheck(true);
+                storage.put('usersFilter', vm.table.usersFilter);
+            }
         });
     }
 

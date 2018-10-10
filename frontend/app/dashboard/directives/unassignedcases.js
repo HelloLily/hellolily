@@ -40,54 +40,52 @@ function UnassignedCasesController($http, $scope, $state, $timeout, Case, HLFilt
         HLSockets.unbind('case-unassigned', updateTable);
     });
 
-    activate();
+    $timeout(activate);
 
     /////
 
     function activate() {
-        $timeout(() => {
-            const filterSpecialList = [{
-                name: 'Unassigned',
-                value: '_missing_:assigned_to_teams',
-                selected: false,
+        const filterSpecialList = [{
+            name: 'Unassigned',
+            value: '_missing_:assigned_to_teams',
+            selected: false,
+            isSpecialFilter: true,
+            separate: true,
+        }];
+
+        vm.teams.map(team => {
+            filterSpecialList.unshift({
+                name: team.name,
+                value: `assigned_to_teams.id:${team.id}`,
+                selected: team.selected,
                 isSpecialFilter: true,
                 separate: true,
-            }];
+            });
+        });
 
-            vm.teams.map(team => {
-                filterSpecialList.unshift({
-                    name: team.name,
-                    value: `assigned_to_teams.id:${team.id}`,
-                    selected: team.selected,
+        HLFilters.getStoredSelections(filterSpecialList, vm.storedFilterSpecialList);
+
+        vm.filterSpecialList = filterSpecialList;
+
+        Case.getCaseTypes({is_archived: 'All'}).$promise.then(response =>  {
+            const filterList = [];
+
+            response.results.forEach(caseType => {
+                filterList.push({
+                    name: caseType.name,
+                    value: `type.id:${caseType.id}`,
+                    selected: false,
                     isSpecialFilter: true,
-                    separate: true,
+                    isArchived: caseType.is_archived,
                 });
             });
 
-            HLFilters.getStoredSelections(filterSpecialList, vm.storedFilterSpecialList);
+            HLFilters.getStoredSelections(filterList, vm.storedFilterList);
 
-            vm.filterSpecialList = filterSpecialList;
+            vm.filterList = filterList;
 
-            Case.getCaseTypes({is_archived: 'All'}).$promise.then(response =>  {
-                const filterList = [];
-
-                response.results.forEach(caseType => {
-                    filterList.push({
-                        name: caseType.name,
-                        value: `type.id:${caseType.id}`,
-                        selected: false,
-                        isSpecialFilter: true,
-                        isArchived: caseType.is_archived,
-                    });
-                });
-
-                HLFilters.getStoredSelections(filterList, vm.storedFilterList);
-
-                vm.filterList = filterList;
-
-                _watchTable();
-            });
-        }, 150);
+            _watchTable();
+        });
     }
 
     function updateTable(blockUI = false) {

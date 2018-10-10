@@ -12,17 +12,19 @@ function myDealsDirective() {
 MyDealsController.$inject = ['$filter', '$scope', '$timeout', 'Case', 'Deal', 'HLUtils', 'HLResource', 'HLSockets', 'LocalStorage', 'Tenant'];
 function MyDealsController($filter, $scope, $timeout, Case, Deal, HLUtils, HLResource, HLSockets, LocalStorage, Tenant) {
     const vm = this;
-    const storage = new LocalStorage('deals');
+
+    vm.storageName = 'dealsWidget';
+    vm.storage = new LocalStorage(vm.storageName);
 
     vm.highPrioDeals = 0;
     vm.table = {
-        order: storage.get('order', {
+        order: vm.storage.get('order', {
             descending: true,
             column: 'next_step.date_increment', // string: current sorted column
         }),
         items: [],
-        dueDateFilter: storage.get('dueDateFilter', ''),
-        usersFilter: storage.get('usersFilter', ''),
+        dueDateFilter: vm.storage.get('dueDateFilter', ''),
+        usersFilter: vm.storage.get('usersFilter', ''),
         conditions: {
             dueDate: false,
             user: false,
@@ -36,24 +38,21 @@ function MyDealsController($filter, $scope, $timeout, Case, Deal, HLUtils, HLRes
 
     HLSockets.bind('deal-assigned', getMyDeals);
 
-    $scope.$on('$destroy', () => {
-        HLSockets.unbind('deal-assigned', getMyDeals);
-    });
+    $scope.$on('$destroy', () => HLSockets.unbind('deal-assigned', getMyDeals));
 
-    activate();
+    $timeout(activate);
 
     /////
 
     function activate() {
         _watchTable();
+        getMyDeals();
     }
 
     function getMyDeals(blockUI = false) {
         var field = 'next_step.position';
         var descending = false;
         var filterQuery = 'is_archived:false AND NOT next_step.name:"None"';
-
-        if (blockUI) HLUtils.blockUI('#myDealsBlockTarget', true);
 
         if (vm.table.dueDateFilter) {
             filterQuery += ' AND ' + vm.table.dueDateFilter;
@@ -62,6 +61,8 @@ function MyDealsController($filter, $scope, $timeout, Case, Deal, HLUtils, HLRes
         if (vm.table.usersFilter) {
             filterQuery += ' AND (' + vm.table.usersFilter + ')';
         }
+
+        if (blockUI) HLUtils.blockUI('#myDealsBlockTarget', true);
 
         Deal.getDeals(field, descending, filterQuery).then(data => {
             if (vm.table.dueDateFilter !== '') {
@@ -113,7 +114,7 @@ function MyDealsController($filter, $scope, $timeout, Case, Deal, HLUtils, HLRes
         const deal = $filter('where')(vm.table.items, {id: data.id});
 
         return Deal.updateModel(data, field, deal).then(response => {
-            getMyDeals();
+            getMyDeals(true);
         });
     }
 
@@ -130,14 +131,14 @@ function MyDealsController($filter, $scope, $timeout, Case, Deal, HLUtils, HLRes
         $scope.$watch('vm.table.dueDateFilter', (newValue, oldValue) => {
             if (newValue || oldValue) {
                 getMyDeals(true);
-                storage.put('dueDateFilter', vm.table.dueDateFilter);
+                vm.storage.put('dueDateFilter', vm.table.dueDateFilter);
             }
         });
 
         $scope.$watch('vm.table.usersFilter', (newValue, oldValue) => {
             if (newValue || oldValue) {
                 getMyDeals(true);
-                storage.put('usersFilter', vm.table.usersFilter);
+                vm.storage.put('usersFilter', vm.table.usersFilter);
             }
         });
     }

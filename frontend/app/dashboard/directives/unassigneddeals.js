@@ -40,54 +40,52 @@ function UnassignedDealsController($http, $scope, $state, $timeout, Deal, HLFilt
         HLSockets.unbind('deal-unassigned', updateTable);
     });
 
-    activate();
+    $timeout(activate);
 
     /////
 
     function activate() {
-        $timeout(() => {
-            let filterSpecialList = [{
-                name: 'Unassigned',
-                value: '_missing_:assigned_to_teams',
-                selected: false,
+        let filterSpecialList = [{
+            name: 'Unassigned',
+            value: '_missing_:assigned_to_teams',
+            selected: false,
+            isSpecialFilter: true,
+            separate: true,
+        }];
+
+        vm.teams.map((team) => {
+            filterSpecialList.unshift({
+                name: team.name,
+                value: 'assigned_to_teams:' + team.id,
+                selected: team.selected,
                 isSpecialFilter: true,
                 separate: true,
-            }];
+            });
+        });
 
-            vm.teams.map((team) => {
-                filterSpecialList.unshift({
-                    name: team.name,
-                    value: 'assigned_to_teams:' + team.id,
-                    selected: team.selected,
+        HLFilters.getStoredSelections(filterSpecialList, vm.storedFilterSpecialList);
+
+        vm.filterSpecialList = filterSpecialList;
+
+        Deal.getNextSteps((response) => {
+            let filterList = [];
+
+            angular.forEach(response.results, (nextStep) => {
+                filterList.push({
+                    name: nextStep.name,
+                    value: 'next_step.id:' + nextStep.id,
+                    selected: false,
+                    position: nextStep.position,
                     isSpecialFilter: true,
-                    separate: true,
                 });
             });
 
-            HLFilters.getStoredSelections(filterSpecialList, vm.storedFilterSpecialList);
+            HLFilters.getStoredSelections(filterList, vm.storedFilterList);
 
-            vm.filterSpecialList = filterSpecialList;
+            vm.filterList = filterList;
 
-            Deal.getNextSteps((response) => {
-                let filterList = [];
-
-                angular.forEach(response.results, (nextStep) => {
-                    filterList.push({
-                        name: nextStep.name,
-                        value: 'next_step.id:' + nextStep.id,
-                        selected: false,
-                        position: nextStep.position,
-                        isSpecialFilter: true,
-                    });
-                });
-
-                HLFilters.getStoredSelections(filterList, vm.storedFilterList);
-
-                vm.filterList = filterList;
-
-                _watchTable();
-            });
-        }, 150);
+            _watchTable();
+        });
     }
 
     function updateTable(blockUI = false) {

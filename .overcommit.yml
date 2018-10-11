@@ -12,7 +12,7 @@ PreCommit:
     enabled: true
     on_warn: 'fail'
     flags: ['--max-line-length=119']
-    exclude: ['**/migrations/**', 'lily/google/**', '**/__init__.py', 'taskmonitor/**']
+    exclude: ['**/migrations/**', 'lily/google/**', '**/__init__.py']
 
   TrailingWhitespace:
     enabled: true

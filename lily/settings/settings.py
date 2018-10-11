@@ -343,7 +343,6 @@ INSTALLED_APPS = (
     'collectfast',
     'templated_email',
     'storages',
-    'taskmonitor',
     'elasticutils',
     'timezone_field',
     'django_nose',

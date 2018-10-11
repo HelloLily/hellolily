@@ -203,6 +203,7 @@ function DealCreateUpdateController($filter, $scope, $state, $stateParams, Accou
             vm.deal.assigned_to_teams = vm.ownTeams;
             // Set new business on default when creating a deal.
             vm.deal.new_business = true;
+            vm.deal.status = Deal.openStatus;
 
             if ($stateParams.accountId) {
                 Account.get({id: $stateParams.accountId}).$promise.then(account => {

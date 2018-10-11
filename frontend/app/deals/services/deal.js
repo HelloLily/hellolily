@@ -79,6 +79,8 @@ function Deal($resource, CacheFactory, HLCache, HLForms, HLResource, HLUtils) {
                             _deal.lostStatus = status;
                         } else if (status.name === 'Won') {
                             _deal.wonStatus = status;
+                        } else if (status.name === 'Open') {
+                            _deal.openStatus = status;
                         }
                     });
 

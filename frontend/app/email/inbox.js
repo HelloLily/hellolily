@@ -389,9 +389,11 @@
         handleInboxComposeSubmit: function(inboxCompose, event) {
             event.preventDefault();
 
-            var draftPk;
-            var buttonName = $(inboxCompose).attr('name');
-            var $form = $($(inboxCompose).closest('form'));
+            var draftPk; // eslint-disable-line vars-on-top
+            var buttonName = $(inboxCompose).attr('name'); // eslint-disable-line vars-on-top
+
+            var $form = $($(inboxCompose).closest('form')); // eslint-disable-line vars-on-top
+
 
             if (buttonName === 'submit-save') {
                 draftPk = $('#id_draft_pk').val();

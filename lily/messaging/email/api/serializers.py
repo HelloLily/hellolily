@@ -274,6 +274,7 @@ class EmailMessageBaseSerializer(serializers.ModelSerializer):
     labels = EmailLabelSerializer(many=True, read_only=True)
     sent_date = serializers.ReadOnlyField()
     thread_id = serializers.CharField(required=False)
+    body_html = serializers.StringRelatedField(read_only=True)
 
     class Meta:
         model = EmailMessage
@@ -421,6 +422,7 @@ class EmailMessageListSerializer(EmailMessageBaseSerializer):
     received_by_cc = None
     attachments = None
     thread_id = None
+    body_html = None
 
     class Meta:
         model = EmailMessage
@@ -447,6 +449,7 @@ class EmailMessageActivityStreamSerializer(EmailMessageBaseSerializer):
     received_by_cc = None
     attachments = None
     thread_id = None
+    body_html = None
 
     class Meta:
         model = EmailMessage

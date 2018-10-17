@@ -358,9 +358,10 @@ class CreateUpdateEmailTemplateForm(ModelForm):
 
     def save(self, commit=True):
         instance = super(CreateUpdateEmailTemplateForm, self).save(False)
-        instance.body_html = linebreaksbr(instance.body_html.strip(), autoescape=False)
+        instance.body_html.content = linebreaksbr(instance.body_html.content.strip(), autoescape=False)
 
         if commit:
+            instance.body_html.content.save()
             instance.save()
 
         for attachment_form in self.cleaned_data.get('attachments'):

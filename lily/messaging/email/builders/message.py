@@ -16,7 +16,7 @@ import pytz
 from lily.messaging.email.connector import LabelNotFoundError
 from lily.messaging.email.utils import get_extensions_for_type, determine_message_type
 
-from ..models.models import EmailMessage, EmailHeader, Recipient, EmailAttachment, NoEmailMessageId
+from ..models.models import EmailMessage, EmailHeader, Recipient, EmailAttachment, NoEmailMessageId, EmailBody
 
 logger = logging.getLogger(__name__)
 
@@ -166,7 +166,7 @@ class MessageBuilder(object):
         if 'headers' in payload:
             self._create_message_headers(payload['headers'])
 
-        self.message.body_html = ''
+        self.message.body_html = EmailBody.objects.create(content='')
         self.message.body_text = ''
 
         # Check Message is split up in parts
@@ -295,7 +295,7 @@ class MessageBuilder(object):
             if cd == 'inline' and 'content-id' in headers:
                 # However there is still a chance that the content is incorrectly marked as inline. Look if there is a
                 # reference to the cid in the body.
-                body = self.message.body_html
+                body = self.message.body_html.content
                 cid = headers.get('content-id')
                 match = re.match(r"<(.*)>", cid)
                 if match:
@@ -395,7 +395,7 @@ class MessageBuilder(object):
 
         # Only add if there is a body.
         if decoded_body:
-            self.message.body_html += decoded_body.encode(encoding).decode('utf-8', errors='replace')
+            self.message.body_html.content += decoded_body.encode(encoding).decode('utf-8', errors='replace')
 
     def _create_body_text(self, body, encoding=None):
         """
@@ -489,6 +489,9 @@ class MessageBuilder(object):
         if self.message.sent_date and self.message.sender_id:
 
             self.message.skip_signal = True  # Disable intermediate reindexing of the message.
+
+            # Save the body.
+            self.message.body_html.save()
 
             # Check for attachments.
             if self.attachments or self.inline_attachments:

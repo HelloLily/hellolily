@@ -182,15 +182,18 @@ class Recipient(models.Model):
         unique_together = ('name', 'email_address')
 
 
-
 class EmailBody(models.Model):
     """
     Body for an EmailMessage.
     """
     content = models.TextField(default='')
 
+    def __unicode__(self):
+        return self.content
+
     class Meta:
         app_label = 'email'
+
 
 class EmailMessage(models.Model):
     """
@@ -206,8 +209,7 @@ class EmailMessage(models.Model):
     )
 
     account = models.ForeignKey(EmailAccount, related_name='messages')
-    body_html = models.TextField(default='')
-    body_html_fk = models.ForeignKey(EmailBody, null=True)
+    body_html = models.ForeignKey(EmailBody, null=True)
     body_text = models.TextField(default='')
     draft_id = models.CharField(max_length=50, db_index=True, default='')
     has_attachment = models.BooleanField(default=False)
@@ -243,15 +245,15 @@ class EmailMessage(models.Model):
         """
         if self.body_html:
             # In case of html, wrap body in blockquote tag.
-            soup = create_a_beautiful_soup_object(self.body_html)
+            soup = create_a_beautiful_soup_object(self.body_html.content)
 
             if not soup.html:
                 # Haven't figured out yet how to do this elegantly.
-                html = '<html>%s</html>' % self.body_html
+                html = '<html>%s</html>' % self.body_html.content
                 soup = create_a_beautiful_soup_object(html)
 
             if not soup or soup.get_text == "":
-                html = self.body_html
+                html = self.body_html.content
             else:
                 soup.html.unwrap()
                 html = soup.decode()

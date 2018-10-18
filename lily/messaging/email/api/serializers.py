@@ -1,3 +1,4 @@
+import analytics
 import logging
 import re
 
@@ -151,6 +152,15 @@ class EmailAccountSerializer(WritableNestedSerializer):
         if tenant.billing.is_free_plan and email_account_count >= settings.FREE_PLAN_EMAIL_ACCOUNT_LIMIT:
             raise serializers.ValidationError({
                 'limit_reached': _('You\'ve reached the limit of email accounts for the free plan.'),
+            })
+
+        # Track newly ceated accounts in segment.
+        if not settings.TESTING:
+            user = self.context.get('request').user
+            analytics.track(user.id, 'email-account-created', {
+                'email_account_id': validated_data.get('id'),
+                'email_account_type': 'Google',
+                'email_account_address': validated_data.get('email_address'),
             })
 
         return super(EmailAccountSerializer, self).create(validated_data)

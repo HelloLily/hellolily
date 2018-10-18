@@ -1,3 +1,5 @@
+import analytics
+
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
@@ -191,6 +193,18 @@ class ContactSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
 
         if has_required_tier(2) and credentials and credentials.integration_context.get('auto_sync'):
             self.send_moneybird_contact(validated_data, instance, credentials)
+
+        # Track newly ceated accounts in segment.
+        if not settings.TESTING:
+            user = self.context.get('request').user
+            request_source = self.context.get('request').get_host()
+            creation_type = 'manual' if request_source == 'app.hellolily.com' else 'automatic'
+            analytics.track(
+                user.id,
+                'contact-created', {
+                    'creation_type': creation_type,
+                },
+            )
 
         return instance
 

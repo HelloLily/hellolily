@@ -1,7 +1,9 @@
+import analytics
 import datetime
 import anyjson
 
 from channels import Group
+from django.conf import settings
 from django.utils.timezone import utc
 from django.utils.translation import ugettext_lazy as _
 
@@ -320,7 +322,23 @@ class DealSerializer(WritableNestedSerializer):
                 }),
             })
 
-        return super(DealSerializer, self).create(validated_data)
+        instance = super(DealSerializer, self).create(validated_data)
+
+        # Track newly ceated accounts in segment.
+        if not settings.TESTING:
+            request_source = self.context.get('request').get_host()
+            creation_type = 'manual' if request_source == 'app.hellolily.com' else 'automatic'
+            analytics.track(
+                user.id,
+                'deal-created', {
+                    'assigned_to_id': instance.assigned_to_id if instance.assigned_to else '',
+                    'status': instance.status.name,
+                    'next_step': instance.next_step.name,
+                    'creation_type': creation_type,
+                },
+            )
+
+        return instance
 
     def update(self, instance, validated_data):
         user = self.context.get('request').user

@@ -14,12 +14,12 @@
 {% endif %}
 
 {% for field in form.visible_fields %}
-    <div class="field-wrapper">
+    <div class="field-wrapper{% if field.name == 'privacy' or field.name == 'terms' %} compact{% endif %}">
         <label class="field-label" for="{{ field.name }}">{{ field.label }}</label>
         {{ field }}
         {{ field.errors }}
         {% if field.help_text %}
-        <p class="help">{{ field.help_text|safe }}</p>
+            <p class="help">{{ field.help_text|safe }}</p>
         {% endif %}
     </div>
 {% endfor %}

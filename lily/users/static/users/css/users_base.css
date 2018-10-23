@@ -143,6 +143,9 @@
     position: relative;
     margin-bottom: 20px;
 }
+.field-wrapper.compact {
+    margin-bottom: 5px;
+}
 .field-wrapper input,
 .field-wrapper select {
     width: 100%;
@@ -197,6 +200,19 @@
 
 .field-wrapper select:invalid {
     color: #d5d5d5;
+}
+
+.field-wrapper input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    float: left;
+    margin-top: 1px;
+}
+.field-wrapper label[for="privacy"],
+.field-wrapper label[for="terms"] {
+    display: inline-block;
+    padding-left: 3px;
+    text-transform: none;
 }
 
 .field-label {
@@ -258,6 +274,11 @@
 .col-2-row:after {
     content: "";
     clear: both;
+    display: block;
+}
+
+.spacer-10 {
+    height: 10px;
     display: block;
 }
 

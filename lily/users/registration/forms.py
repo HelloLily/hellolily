@@ -1,6 +1,7 @@
 import freemail
 from django import forms
 from django.utils.encoding import force_text
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from lily.messaging.email.models.models import EmailAccount
@@ -31,7 +32,36 @@ class RegistrationAuthForm(forms.Form):
                 'class': 'hideshowpassword',
                 'autocomplete': 'current-password',
             }
+        )
+    )
+
+    url = '<a href="https://hellolily.com/privacy/" target="_blank" class="faded">Privacy Statement</a>'
+    privacy = forms.BooleanField(
+        widget=forms.CheckboxInput(
+            attrs={'class': 'required'}
         ),
+        label=mark_safe(
+            "I accept the {}.".format(url)
+        ),
+        error_messages={
+            'required': u"Please read and accept our Privacy Statement."
+        }
+    )
+
+    url = (
+        '<a href="https://hellolily.com/pdf/Nederland-ICT-Voorwaarden-2014-ENGELS.pdf" target="_blank" class="faded">'
+        'Terms and Conditions</a>'
+    )
+    terms = forms.BooleanField(
+        widget=forms.CheckboxInput(
+            attrs={'class': 'required'}
+        ),
+        label=mark_safe(
+            "I accept the {}.".format(url)
+        ),
+        error_messages={
+            'required': u"Please read and accept our Terms and Conditions."
+        }
     )
 
     def clean_email(self):

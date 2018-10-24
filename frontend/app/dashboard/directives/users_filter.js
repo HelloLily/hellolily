@@ -34,19 +34,16 @@ function UsersFilterController($filter, $state, $timeout, LocalStorage, User, Us
     vm.toggleCollapsed = toggleCollapsed;
     vm.hasSelection = hasSelection;
 
-    activate();
+    $timeout(activate, 100);
 
     //////
 
     function activate() {
-        if (vm.storedCurrentUserSelected && !vm.currentUser.selected) {
-            vm.toggleUser(null, vm.currentUser);
-        }
-
         loadTeams();
     }
 
     function loadTeams() {
+        const names = [];
         UserTeams.query().$promise.then(response => {
             User.unassigned().$promise.then(userResponse => {
                 let teams = [];
@@ -135,16 +132,29 @@ function UsersFilterController($filter, $state, $timeout, LocalStorage, User, Us
                                 if (storedUser.id === user.id) {
                                     user.selected = storedUser.selected;
                                 }
+                                if (user.selected) {
+                                    names.push(user.full_name);
+                                }
 
                                 return user;
                             });
                         });
+
+                        if (team.selected) {
+                            names.push(team.name);
+                        }
 
                         return team;
                     });
                 });
 
                 vm.teams = teams;
+
+                vm.nameDisplay = $filter('unique')(names);
+
+                if (vm.storedCurrentUserSelected && !vm.currentUser.selected ) {
+                    vm.toggleUser(vm.teams, vm.currentUser);
+                }
             });
         });
     }

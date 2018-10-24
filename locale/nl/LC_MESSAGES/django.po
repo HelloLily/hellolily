@@ -171,7 +171,7 @@ msgstr ""
 msgid "Select one or more team(s)"
 msgstr ""
 
-msgid "Select a user"
+msgid "Select a colleague"
 msgstr ""
 
 msgid "Expires"
@@ -693,7 +693,7 @@ msgstr ""
 msgid "There was an error in your file:<br> %s"
 msgstr ""
 
-msgid "Select the users wich to share the account with."
+msgid "Select the colleagues which to share the account with."
 msgstr ""
 
 msgid "Make the email account accessible for the whole company."
@@ -702,7 +702,7 @@ msgstr ""
 msgid "System"
 msgstr ""
 
-msgid "User"
+msgid "Colleague"
 msgstr ""
 
 msgid "template name"
@@ -1233,14 +1233,14 @@ msgstr ""
 msgid "staff status"
 msgstr ""
 
-msgid "Designates whether the user can log into this admin site."
+msgid "Designates whether the colleague can log into this admin site."
 msgstr ""
 
 msgid "active"
 msgstr ""
 
 msgid ""
-"Designates whether this user should be treated as active. Unselect this "
+"Designates whether this colleague should be treated as active. Unselect this "
 "instead of deleting accounts."
 msgstr ""
 
@@ -1259,13 +1259,13 @@ msgstr ""
 msgid "language"
 msgstr ""
 
-msgid "user"
+msgid "colleague"
 msgstr ""
 
-msgid "users"
+msgid "colleagues"
 msgstr ""
 
-msgid "Can send invitations to invite new users"
+msgid "Can send invitations to invite new colleagues"
 msgstr ""
 
 msgid "You are now logged out."

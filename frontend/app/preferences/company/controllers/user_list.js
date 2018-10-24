@@ -29,7 +29,7 @@ function PreferencesCompanyUserList($compile, $scope, $state, $templateCache, HL
     const vm = this;
     const storage = new LocalStorage('userList');
 
-    Settings.page.setAllTitles('list', 'users');
+    Settings.page.setAllTitles('list', 'colleagues');
 
     vm.table = {
         page: 1,  // current page of pagination: 1-index
@@ -218,7 +218,7 @@ function PreferencesCompanyUserList($compile, $scope, $state, $templateCache, HL
                     args.teams = selectedTeams;
 
                     User.patch(args).$promise.then(() => {
-                        toastr.success('I\'ve updated the users\' teams for you!', 'Done');
+                        toastr.success('I\'ve updated the colleagues\' teams for you!', 'Done');
                         _updateUsers();
                     }, response => {
                         HLForms.setErrors(form, response.data);

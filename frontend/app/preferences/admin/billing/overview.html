@@ -46,8 +46,8 @@
                             <td>{{ vm.plan.name }} <a class="hl-primary-btn-smll m-l-10" ui-sref="base.preferences.admin.billing.edit"><i class="lilicon hl-edit-icon"></i> Update</a></td>
                         </tr>
                         <tr>
-                            <td>Price per user</td>
-                            <td><span ng-bind-html="vm.plan.price | currencySymbol:vm.plan.currency_code:true"></span> x {{ vm.subscription.plan_quantity }} users</td>
+                            <td>Price per colleague</td>
+                            <td><span ng-bind-html="vm.plan.price | currencySymbol:vm.plan.currency_code:true"></span> x {{ vm.subscription.plan_quantity }} colleagues</td>
                         </tr>
                         <tr>
                             <td>Total per month</td>

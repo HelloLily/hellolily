@@ -14,6 +14,7 @@ from celery.states import FAILURE
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from wsgiref.util import FileWrapper
 from django.urls import reverse
@@ -167,7 +168,7 @@ class EmailMessageHTMLView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(EmailMessageHTMLView, self).get_context_data(**kwargs)
         context['body_html'] = render_email_body(
-            self.object.body_html.content,
+            self.object.body_html_content,
             self.object.attachments.all(),
             self.request
         )
@@ -239,13 +240,10 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
                 attachments = EmailAttachment.objects.filter(message_id=self.object.pk)
 
                 # Strip malicious/unwanted content when replying.
-                self.object.body_html.content = extract_script_tags(self.object.body_html.content)
-                self.object.body_html.content = replace_cid_in_html(
-                    self.object.body_html.content,
-                    attachments,
-                    request
-                )
-                self.object.body_html.save()
+                content = extract_script_tags(self.object.body_html_content)
+                content = replace_cid_in_html(content, attachments, request)
+                html_file = ContentFile(content=content, name=self.message.message_id)
+                self.message.body_html.save(html_file.name, html_file)
             except EmailMessage.DoesNotExist:
                 raise Http404()
 
@@ -596,7 +594,7 @@ class EmailMessageDraftView(EmailMessageComposeView):
                     'subject': self.object.subject,
                     'send_to_normal': create_recipients(self.object.received_by.all()),
                     'send_to_cc': create_recipients(self.object.received_by_cc.all()),
-                    'body_html': self.object.body_html.content,
+                    'body_html': self.object.body_html_content,
                 },
             })
         return kwargs

@@ -10,13 +10,14 @@ from bs4 import BeautifulSoup, UnicodeDammit
 from dateutil.parser import parse
 from django.conf import settings
 from django.core.files import File
+from django.core.files.base import ContentFile
 from django.db import transaction
 import pytz
 
 from lily.messaging.email.connector import LabelNotFoundError
 from lily.messaging.email.utils import get_extensions_for_type, determine_message_type
 
-from ..models.models import EmailMessage, EmailHeader, Recipient, EmailAttachment, NoEmailMessageId, EmailBody
+from ..models.models import EmailMessage, EmailHeader, Recipient, EmailAttachment, NoEmailMessageId
 
 logger = logging.getLogger(__name__)
 
@@ -166,7 +167,7 @@ class MessageBuilder(object):
         if 'headers' in payload:
             self._create_message_headers(payload['headers'])
 
-        self.message.body_html = EmailBody.objects.create(content='')
+        self.message._body_html = ''
         self.message.body_text = ''
 
         # Check Message is split up in parts
@@ -295,7 +296,7 @@ class MessageBuilder(object):
             if cd == 'inline' and 'content-id' in headers:
                 # However there is still a chance that the content is incorrectly marked as inline. Look if there is a
                 # reference to the cid in the body.
-                body = self.message.body_html.content
+                body = self.message._body_html
                 cid = headers.get('content-id')
                 match = re.match(r"<(.*)>", cid)
                 if match:
@@ -395,7 +396,7 @@ class MessageBuilder(object):
 
         # Only add if there is a body.
         if decoded_body:
-            self.message.body_html.content += decoded_body.encode(encoding).decode('utf-8', errors='replace')
+            self.message._body_html += decoded_body.encode(encoding).decode('utf-8', errors='replace')
 
     def _create_body_text(self, body, encoding=None):
         """
@@ -490,8 +491,13 @@ class MessageBuilder(object):
 
             self.message.skip_signal = True  # Disable intermediate reindexing of the message.
 
-            # Save the body.
-            self.message.body_html.save()
+            # Save the body as a file.
+            if self.message._body_html:
+                html_file = ContentFile(
+                    content=self.message._body_html,
+                    name=self.message.message_id
+                )
+                self.message.body_html.save(html_file.name, html_file)
 
             # Check for attachments.
             if self.attachments or self.inline_attachments:

@@ -274,7 +274,7 @@ class EmailMessageBaseSerializer(serializers.ModelSerializer):
     labels = EmailLabelSerializer(many=True, read_only=True)
     sent_date = serializers.ReadOnlyField()
     thread_id = serializers.CharField(required=False)
-    body_html = serializers.StringRelatedField(read_only=True)
+    body_html = serializers.FileField(read_only=True)
 
     class Meta:
         model = EmailMessage

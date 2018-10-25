@@ -2,6 +2,7 @@ import logging
 import traceback
 
 from celery.task import task
+from chunkator import chunkator
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
@@ -692,3 +693,22 @@ def migrate_email_messages_html():
             queue='other_tasks',
             countdown=settings.MIGRATE_EMAIL_COUNTDOWN
         )
+
+
+@task(name='migrate_email_messages_s3', trail=False, ignore_result=False)
+def migrate_email_messages_s3():
+    cnt = 0
+    for message in chunkator(EmailMessage.objects.all(), 500):
+        if message.body_html_fk:
+            content = message.body_html_fk.content
+            html_file = ContentFile(
+                content=content,
+                name=message.message_id
+            )
+            message.skip_signal = True
+            message.body_html.save(html_file.name, html_file)
+            message.save()
+
+            if cnt % 500:
+                print cnt
+                cnt += 1

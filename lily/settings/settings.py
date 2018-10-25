@@ -183,6 +183,7 @@ EMAIL_ATTACHMENT_UPLOAD_TO = 'messaging/email/attachments/%(tenant_id)d/%(messag
 
 EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO = ('messaging/email/templates/attachments'
                                        '/%(tenant_id)d/%(template_id)d/%(filename)s')
+EMAIL_BODY_HTML_TO = 'messaging/email/body/%(tenant_id)d/%(account_id)d/%(year)d/%(month)d/%(filename)s'
 
 
 STATICFILES_DIRS = (
@@ -250,6 +251,7 @@ GEOIP_PATH = local_path('geoip/')
 # MIDDLEWARE CLASSES                                                                                                  #
 #######################################################################################################################
 MIDDLEWARE_CLASSES = (
+    'silk.middleware.SilkyMiddleware',
     # See https://docs.djangoproject.com/en/dev/ref/middleware/#middleware-ordering for ordering hints
     'django.middleware.security.SecurityMiddleware',
     'lily.middleware.SetRemoteAddrFromForwardedFor',
@@ -367,6 +369,8 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.staticfiles',
     'django.contrib.messages',
+
+    'silk',
 )
 
 #######################################################################################################################

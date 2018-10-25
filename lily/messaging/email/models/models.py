@@ -64,6 +64,16 @@ def get_outbox_attachment_upload_path(instance, filename):
     }
 
 
+def get_body_html_upload_path(instance, filename):
+    return settings.EMAIL_BODY_HTML_TO % {
+        'tenant_id': instance.tenant_id,
+        'account_id': instance.account_id,
+        'year': instance.sent_date.year,
+        'month': instance.sent_date.month,
+        'filename': instance.message_id
+    }
+
+
 class EmailAccount(TenantMixin, DeletedMixin):
     """
     Email account linked to a user.
@@ -209,7 +219,8 @@ class EmailMessage(models.Model):
     )
 
     account = models.ForeignKey(EmailAccount, related_name='messages')
-    body_html = models.ForeignKey(EmailBody, null=True)
+    body_html_fk = models.ForeignKey(EmailBody, null=True)
+    body_html = models.FileField(upload_to=get_body_html_upload_path, blank=True)
     body_text = models.TextField(default='')
     draft_id = models.CharField(max_length=50, db_index=True, default='')
     has_attachment = models.BooleanField(default=False)
@@ -237,6 +248,18 @@ class EmailMessage(models.Model):
         return self.account.tenant_id
 
     @property
+    def body_html_content(self):
+        content = ''
+        if self.body_html and self.body_html.file:
+            f = self.body_html.file
+            f.open()
+            lines = f.readlines()
+            f.close()
+            for line in lines:
+                content += line
+        return content
+
+    @property
     def reply_body(self):
         from ..utils import create_a_beautiful_soup_object
         """
@@ -245,15 +268,15 @@ class EmailMessage(models.Model):
         """
         if self.body_html:
             # In case of html, wrap body in blockquote tag.
-            soup = create_a_beautiful_soup_object(self.body_html.content)
+            soup = create_a_beautiful_soup_object(self.body_html_content)
 
             if not soup.html:
                 # Haven't figured out yet how to do this elegantly.
-                html = '<html>%s</html>' % self.body_html.content
+                html = '<html>%s</html>' % self.body_html_content
                 soup = create_a_beautiful_soup_object(html)
 
             if not soup or soup.get_text == "":
-                html = self.body_html.content
+                html = self.body_html_content
             else:
                 soup.html.unwrap()
                 html = soup.decode()

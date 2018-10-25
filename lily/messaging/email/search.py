@@ -163,7 +163,7 @@ class EmailMessageMapping(BaseMapping):
             'received_by_cc_name': [receiver.name for receiver in received_by_cc if receiver.name],
             'message_id': obj.message_id,
             'thread_id': obj.thread_id,
-            'body': obj.body_text or cls.body_html_parsed(obj),
+            'body': obj.body_text or cls.body_html_parsed(obj),  # TODO: Handle missing plain text in serializer.
             'is_trashed': obj.is_trashed,
             'is_starred': obj.is_starred,
             'is_spam': obj.is_spam,
@@ -177,6 +177,6 @@ class EmailMessageMapping(BaseMapping):
 
     @classmethod
     def body_html_parsed(cls, obj):
-        soup = BeautifulSoup(obj.body_html, 'lxml')
+        soup = BeautifulSoup(obj.body_html_content, 'lxml')
         soup = convert_br_to_newline(soup)
         return soup.get_text()

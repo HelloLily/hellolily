@@ -4,6 +4,7 @@ import re
 
 from django import forms
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.urls import reverse_lazy
 from django.core.validators import validate_email
 from django.db.models.fields.files import FieldFile
@@ -358,10 +359,14 @@ class CreateUpdateEmailTemplateForm(ModelForm):
 
     def save(self, commit=True):
         instance = super(CreateUpdateEmailTemplateForm, self).save(False)
-        instance.body_html.content = linebreaksbr(instance.body_html.content.strip(), autoescape=False)
+        content = linebreaksbr(instance.body_html_content.strip(), autoescape=False)
+        html_file = ContentFile(
+            content=content,
+            name=instance.message_id
+        )
 
         if commit:
-            instance.body_html.content.save()
+            instance.body_html.save(html_file.name, html_file)
             instance.save()
 
         for attachment_form in self.cleaned_data.get('attachments'):

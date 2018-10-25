@@ -166,14 +166,6 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
                 const contact = results[0].objects[0];
                 templates = results[1].results;
 
-                if (emailMessage && !email) {
-                    if (emailMessage.reply_to) {
-                        email = emailMessage.reply_to;
-                    } else {
-                        email = emailMessage.sender.email_address;
-                    }
-                }
-
                 if (contact) {
                     // The text which is actually used in the application/select2.
                     const usedText = '"' + contact.full_name + '" <' + email + '>';

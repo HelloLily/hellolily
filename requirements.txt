@@ -147,14 +147,14 @@ pycparser==2.18
 anyjson==0.3.3
 simplejson==3.11.1
 chardet==3.0.4  # Old version in case of issues is: 2.3.0
-requests==2.18.4
+requests==2.20.0
 requests-futures==0.9.7
 requests-cache==0.4.13
 unicodecsv==0.13.0
-urllib3==1.22
+urllib3==1.24
 freemail==1.2.19
 tldextract==1.7.5
-idna==2.6
+idna==2.7
 raven==6.9.0
 contextlib2==0.5.4
 phonenumberslite==8.8.1

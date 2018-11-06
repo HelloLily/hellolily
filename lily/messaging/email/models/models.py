@@ -5,7 +5,6 @@ from email.mime.audio import MIMEAudio
 from email.mime.base import MIMEBase
 from email.mime.image import MIMEImage
 from email.mime.text import MIMEText
-from email.utils import parseaddr
 import logging
 import mimetypes
 import os
@@ -318,15 +317,13 @@ class EmailMessage(models.Model):
 
     @property
     def reply_to(self):
+        from ..utils import get_reply_to_email_from_headers
         """
         Return the reply to address if it is present as a header, otherwise use email address of the sender.
         """
-        header = self.headers.filter(name__istartswith='reply-to').first()
-        if header:
-            # A reply-to header can contain a plain email address, an email address enclosed by brackets,
-            # or has a "name" <foo@bar.com> construction.
-            # So return only the email address instead of the actual header value.
-            return parseaddr(header.value)[1]
+        email = get_reply_to_email_from_headers(self.headers)
+        if email:
+            return email
         else:
             return self.sender.email_address
 

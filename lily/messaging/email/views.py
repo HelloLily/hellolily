@@ -42,13 +42,13 @@ from .forms import (
 )
 from .models.models import (EmailMessage, EmailAttachment, EmailAccount, EmailTemplate, DefaultEmailTemplate,
                             EmailOutboxMessage, EmailOutboxAttachment, TemplateVariable, GmailCredentialsModel,
-                            EmailLabel)
+                            EmailLabel, Recipient)
 from .services import GmailService
 from .tasks import (send_message, create_draft_email_message, update_draft_email_message,
                     add_and_remove_labels_for_message, trash_email_message)
 from .utils import (get_attachment_filename_from_url, get_email_parameter_choices, create_recipients,
                     render_email_body, replace_cid_in_html, create_reply_body_header, reindex_email_message,
-                    extract_script_tags, get_filtered_message)
+                    extract_script_tags, get_filtered_message, get_reply_to_email_from_headers)
 
 
 logger = logging.getLogger(__name__)
@@ -726,11 +726,15 @@ class EmailMessageReplyView(EmailMessageReplyOrForwardView):
         kwargs = super(EmailMessageComposeView, self).get_form_kwargs()
         kwargs['message_type'] = self.action
 
+        recipients = self.get_reply_to_as_recipients()
+        if self.object.is_sent_message:
+            recipients = self.get_receivers_as_recipients()
+
         # Provide initial data.
         kwargs.update({
             'initial': {
                 'subject': self.get_subject(prefix='Re: '),
-                'send_to_normal': self.object.reply_to,
+                'send_to_normal': recipients,
                 'body_html': create_reply_body_header(self.object) + mark_safe(self.object.reply_body),
             },
         })
@@ -746,6 +750,29 @@ class EmailMessageReplyView(EmailMessageReplyOrForwardView):
 
         return headers
 
+    def get_reply_to_as_recipients(self):
+        """
+        Return the reply to address as a recipient if it is present as a header.
+        Otherwise return the original sender (also a recipient).
+        """
+        email = get_reply_to_email_from_headers(self.object.headers)
+        if email:
+            recipient = Recipient(email_address=email)
+        else:
+            recipient = self.object.sender
+
+        return create_recipients([recipient])
+
+    def get_receivers_as_recipients(self):
+        # Combine all the receivers into a single array
+        # TODO: Once the sync is correct we might need to split this up
+        # This means that send_to_normal will get all standard receivers
+        # and send_to_cc will get all CC receivers
+        receivers = list(chain(self.object.received_by.all(), self.object.received_by_cc.all()))
+        filter_emails = [self.object.sender.email_address, self.object.account.email_address]
+
+        return create_recipients(receivers, filter_emails)
+
 
 class EmailMessageReplyAllView(EmailMessageReplyView):
     action = 'reply_all'
@@ -754,21 +781,12 @@ class EmailMessageReplyAllView(EmailMessageReplyView):
         kwargs = super(EmailMessageComposeView, self).get_form_kwargs()
         kwargs['message_type'] = self.action
 
-        # Combine all the receivers into a single array
-        # TODO: Once the sync is correct we might need to split this up
-        # This means that send_to_normal will get all standard receivers
-        # and send_to_cc will get all CC receivers
-        receivers = list(chain(self.object.received_by.all(), self.object.received_by_cc.all()))
-        filter_emails = [self.object.sender.email_address, self.object.account.email_address]
-
-        recipients = create_recipients(receivers, filter_emails)
-
         # Provide initial data.
         kwargs.update({
             'initial': {
                 'subject': self.get_subject(prefix='Re: '),
-                'send_to_normal': self.object.reply_to,
-                'send_to_cc': recipients,
+                'send_to_normal': self.get_reply_to_as_recipients(),
+                'send_to_cc': self.get_receivers_as_recipients(),
                 'body_html': create_reply_body_header(self.object) + mark_safe(self.object.reply_body),
             },
         })

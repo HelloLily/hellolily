@@ -163,35 +163,7 @@ function EmailComposeController($scope, $state, $stateParams, $templateCache, $q
 
             // This part should only be executed if we've loaded a contact.
             if (contactPromise) {
-                const contact = results[0].objects[0];
                 templates = results[1].results;
-
-                if (emailMessage && !email) {
-                    if (emailMessage.reply_to) {
-                        email = emailMessage.reply_to;
-                    } else {
-                        email = emailMessage.sender.email_address;
-                    }
-                }
-
-                if (contact) {
-                    // The text which is actually used in the application/select2.
-                    const usedText = '"' + contact.full_name + '" <' + email + '>';
-                    // The text shown in the recipient input.
-                    const displayedText = contact.full_name + ' <' + email + '>';
-
-                    recipient = {
-                        id: usedText,
-                        text: displayedText,
-                        object_id: contact.id,
-                    };
-                } else if (email) {
-                    recipient = {
-                        id: email,
-                        text: email,
-                        object_id: null,
-                    };
-                }
             } else {
                 templates = results[0];
             }

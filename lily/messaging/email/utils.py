@@ -19,6 +19,8 @@ from django.template.base import VARIABLE_TAG_START, VARIABLE_TAG_END
 from django.template.loader_tags import BlockNode, ExtendsNode
 from django.utils.translation import ugettext_lazy as _
 
+from email.utils import parseaddr
+
 from jinja2.sandbox import SandboxedEnvironment
 from jinja2 import TemplateSyntaxError
 
@@ -489,7 +491,6 @@ def create_recipients(receivers, filter_emails=[]):
             continue
 
         name = receiver.name
-
         if not name:
             # If no name was synced try to load a contact
             recipient = Contact.objects.filter(email_addresses__email_address=receiver.email_address).order_by(
@@ -509,8 +510,8 @@ def create_recipients(receivers, filter_emails=[]):
         if name:
             # If a name is available we setup the select2 field differently
             recipients.append({
-                'id': '"' + name + '" <' + receiver.email_address + '>',
-                'text': name + ' <' + receiver.email_address + '>'
+                'id': '"{}" <{}>'.format(name, receiver.email_address),
+                'text': '{} <{}>'.format(name, receiver.email_address)
             })
         else:
             # Otherwise only display the email address
@@ -716,3 +717,16 @@ def determine_message_type(thread_id, sent_date, email_address):
                     return EmailMessage.FORWARD_MULTI, email.id
 
     return EmailMessage.NORMAL, None
+
+
+def get_reply_to_email_from_headers(headers):
+    """
+    Return the reply to address if it is present as a header, otherwise return None.
+    """
+    header = headers.filter(name__istartswith='reply-to').first()
+    if not header:
+        return None
+    # A reply-to header can contain a plain email address, an email address enclosed by brackets,
+    # or has a "name" <foo@bar.com> construction.
+    # So return only the email address instead of the actual header value.
+    return parseaddr(header.value)[1]

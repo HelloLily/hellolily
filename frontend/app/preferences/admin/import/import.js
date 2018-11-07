@@ -48,6 +48,7 @@ function PreferencesImportController(HLForms, HLUtils, Settings, Upload) {
         if (vm.csv instanceof File) {
             data.csv = vm.csv;
         }
+        data.import_type = 'accounts';
 
         HLUtils.blockUI(formName, true);
         HLForms.clearErrors(form);
@@ -57,7 +58,7 @@ function PreferencesImportController(HLForms, HLUtils, Settings, Upload) {
         vm.import_accounts_result_created_updated = null;
 
         Upload.upload({
-            url: 'api/accounts/import/',
+            url: 'api/import/',
             method: 'POST',
             data: data,
         }).then(function(response) {
@@ -88,6 +89,7 @@ function PreferencesImportController(HLForms, HLUtils, Settings, Upload) {
         if (vm.csv instanceof File) {
             data.csv = vm.csv;
         }
+        data.import_type = 'contacts';
 
         HLUtils.blockUI(formName, true);
         HLForms.clearErrors(form);
@@ -98,7 +100,7 @@ function PreferencesImportController(HLForms, HLUtils, Settings, Upload) {
         vm.import_contacts_result_created = null;
 
         Upload.upload({
-            url: 'api/contacts/import/',
+            url: 'api/import/',
             method: 'POST',
             data: data,
         }).then(function(response) {

@@ -28,13 +28,15 @@
                             <li class="hl-instruction-list-item">Please note that headers are case sensitive</li>
                         </ul>
 
-                        <form-group field="importAccountsForm.file_accounts">
+                        <form-group field="importAccountsForm.import_file">
                             <div>
                                 <div class="hl-select-file">
-                                    <input class="hl-select-file-input" size="10" id="file_accounts" type="file" ngf-select ng-model="vm.csv" name="file_accounts" accept="text/csv" ngf-max-size="2MB" required>
+                                    <input class="hl-select-file-input" size="10" id="import_file" type="file" ngf-select ng-model="vm.csv" name="import_file" accept="text/csv" ngf-max-size="5MB" required>
                                 </div>
                                 <div class="clearfix"></div>
                                 <div class="spacer-20"></div>
+
+                                <input type="hidden" name="import_type" value="accounts" />
 
                                 <button type="button" class="hl-primary-btn-blue" ng-click="vm.importAccounts(importAccountsForm)">
                                     <i class="fa fa-upload"></i> Import
@@ -97,13 +99,15 @@
                             <li class="hl-instruction-list-item">Please note that headers are case sensitve</li>
                         </ul>
 
-                        <form-group field="importContactsForm.file_contacts">
+                        <form-group field="importContactsForm.import_file">
                             <div>
                                 <div class="hl-select-file">
-                                    <input class="hl-select-file-input" size="10" id="file_contacts" type="file" ngf-select ng-model="vm.csv" name="file_contacts" accept="text/csv" ngf-max-size="2MB" required>
+                                    <input class="hl-select-file-input" size="10" id="import_file" type="file" ngf-select ng-model="vm.csv" name="import_file" accept="text/csv" ngf-max-size="5MB" required>
                                 </div>
                                 <div class="clearfix"></div>
                                 <div class="spacer-20"></div>
+
+                                <input type="hidden" name="import_type" value="contacts" />
 
                                 <button type="button" class="hl-primary-btn-blue" ng-click="vm.importContacts(importContactsForm)">
                                     <i class="fa fa-upload"></i> Import

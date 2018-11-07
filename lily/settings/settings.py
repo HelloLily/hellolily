@@ -184,6 +184,8 @@ EMAIL_ATTACHMENT_UPLOAD_TO = 'messaging/email/attachments/%(tenant_id)d/%(messag
 EMAIL_TEMPLATE_ATTACHMENT_UPLOAD_TO = ('messaging/email/templates/attachments'
                                        '/%(tenant_id)d/%(template_id)d/%(filename)s')
 
+CSV_IMPORT_UPLOAD_TO = 'upload/import/%(tenant_id)d/%(filename)s'
+
 
 STATICFILES_DIRS = (
     local_path('static/'),
@@ -315,6 +317,7 @@ INSTALLED_APPS = (
     'lily.contacts',
     'lily.deals',
     'lily.google',
+    'lily.importer',
     'lily.messaging.email',
     'lily.notes',
     'lily.parcels',
@@ -732,6 +735,10 @@ VOIPGRID_IPS = os.environ.get('VOIPGRID_IPS', '127.0.0.1')
 
 # Temporary setting to fine tune the email migration background task.
 MIGRATE_EMAIL_COUNTDOWN = int(os.environ.get('MIGRATE_EMAIL_COUNTDOWN', '30'))
+
+# Import related settings.
+IMPORT_COUNTDOWN = int(os.environ.get('IMPORT_COUNTDOWN', '3'))
+IMPORT_BATCH_SIZE = int(os.environ.get('IMPORT_BATCH_SIZE', '250'))
 
 SOCIAL_AUTH_GOOGLE_CLIENT_ID = os.environ.get('SOCIAL_AUTH_GOOGLE_CLIENT_ID', '')
 SOCIAL_AUTH_GOOGLE_SECRET = os.environ.get('SOCIAL_AUTH_GOOGLE_SECRET', '')

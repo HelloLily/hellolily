@@ -4,7 +4,7 @@
         <div class="widget-name">
             <i class="fa fa-users"></i>
             <span ng-if="vm.object.id && vm.list">
-                Colleagues at
+                Contacts at
                 <a ui-sref="base.accounts.detail({id: vm.object.id })">{{ vm.object.name }}</a>
             </span>
             <span ng-if="vm.object.id && !vm.list">
@@ -63,7 +63,7 @@
                     </td>
                 </tr>
                 <tr ng-hide="vm.list.length">
-                    <td colspan="3">No colleagues</td>
+                    <td colspan="3">No contacts</td>
                 </tr>
             </tbody>
         </table>

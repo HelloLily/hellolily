@@ -1,3 +1,4 @@
+import analytics
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
@@ -154,6 +155,19 @@ class AccountSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
             })
 
         instance = super(AccountSerializer, self).create(validated_data)
+
+        # Track newly ceated accounts in segment.
+        if not settings.TESTING:
+            user = self.context.get('request').user
+            request_source = self.context.get('request').get_host()
+            creation_type = 'manual' if request_source == 'app.hellolily.com' else 'automatic'
+            analytics.track(
+                user.id,
+                'account-created', {
+                    'assigned_to_id': instance.assigned_to.id if instance.assigned_to else '',
+                    'creation_type': creation_type,
+                },
+            )
 
         return instance
 

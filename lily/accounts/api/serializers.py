@@ -230,6 +230,7 @@ class RelatedAccountSerializer(RelatedSerializerMixin, AccountSerializer):
             'phone_numbers',
             'is_deleted',
             'primary_email',
+            'phone_number',
             # 'bankaccountnumber',
             # 'company_size',
             # 'bic',

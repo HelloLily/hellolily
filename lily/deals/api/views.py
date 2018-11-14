@@ -165,7 +165,10 @@ class DealViewSet(ModelChangesMixin, TimeLogMixin, DataExistsMixin, NoteMixin, M
     # ElasticSearchFilter: set the model type.
     model_type = 'deals_deal'
     # OrderingFilter: set all possible fields to order by.
-    ordering_fields = ('id', )
+    ordering_fields = (
+        'id', 'subject', 'status.id', 'why_lost.id', 'next_step.id', 'next_step_date', 'assigned_to.id',
+        'amount_once', 'amount_recurring', 'new_business', 'created', 'created_by.id', 'closed_date',
+    )
     # OrderingFilter: set the default ordering fields.
     ordering = ('id', )
     # DjangoFilter: set the filter class.

@@ -78,11 +78,8 @@ class Account(Common, TaggedObjectMixin):
         """
         return ContentType.objects.get(app_label="accounts", model="account")
 
-    def primary_email(self):
-        return self.email_addresses.filter(status=EmailAddress.PRIMARY_STATUS).first()
-
     @property
-    def any_email_address(self):
+    def primary_email(self):
         """
         Will return any email address set to this account if one exists.
 
@@ -93,7 +90,7 @@ class Account(Common, TaggedObjectMixin):
             EmailAddress or None.
         """
         if not hasattr(self, '_any_email_address'):
-            self._any_email_address = self.primary_email()
+            self._any_email_address = self.email_addresses.filter(status=EmailAddress.PRIMARY_STATUS).first()
             if self._any_email_address is None:
                 try:
                     self._any_email_address = self.email_addresses.all()[0]
@@ -175,7 +172,7 @@ class Account(Common, TaggedObjectMixin):
 
         return super(Account, self).save(*args, **kwargs)
 
-    EMAIL_TEMPLATE_PARAMETERS = ['name', 'work_phone', 'any_email_address', 'city', 'address']
+    EMAIL_TEMPLATE_PARAMETERS = ['name', 'work_phone', 'primary_email', 'city', 'address']
 
     class Meta:
         ordering = ['name']

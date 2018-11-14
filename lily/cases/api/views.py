@@ -92,7 +92,10 @@ class CaseViewSet(ModelChangesMixin, TimeLogMixin, DataExistsMixin, NoteMixin, v
     # ElasticSearchFilter: set the model type.
     model_type = 'cases_case'
     # OrderingFilter: set all possible fields to order by.
-    ordering_fields = ('id', 'created', 'modified', 'priority', 'subject',)
+    ordering_fields = (
+        'id', 'subject', 'type.id', 'status.id', 'priority', 'created', 'modified',
+        'expires', 'assigned_to.id', 'created_by.id',
+    )
     # OrderingFilter: set the default ordering fields.
     ordering = ('id',)
     # DjangoFilter: set the filter class.

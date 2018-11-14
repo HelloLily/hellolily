@@ -22,7 +22,7 @@ from lily.tenant.api.views import TenantViewSet
 from lily.timelogs.api.views import TimeLogViewSet
 from lily.users.api.views import (LilyUserViewSet, TeamViewSet, TwoFactorDevicesViewSet, SessionViewSet,
                                   UserInviteViewSet)
-from lily.utils.api.views import AppHash, CallerName, CountryViewSet, CountryList, Notifications
+from lily.utils.api.views import AppHash, CallerName, CountryViewSet, CountryList, CurrencyList, Notifications
 from lily.voipgrid.api.views import CallNotificationViewSet
 
 # Define routes, using the default router so the API is browsable.
@@ -97,6 +97,7 @@ urlpatterns = [
     url(r'^utils/callername/$', CallerName.as_view()),
     url(r'^utils/notifications/$', Notifications.as_view()),
     url(r'^utils/countries-new/$', CountryList.as_view()),
+    url(r'^utils/currencies/$', CurrencyList.as_view()),
 
     url(r'^', include(router.urls)),
 ]

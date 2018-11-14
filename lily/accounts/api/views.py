@@ -73,11 +73,12 @@ class AccountViewSet(ModelChangesMixin, DataExistsMixin, NoteMixin, ModelViewSet
     serializer_class = AccountSerializer
     # Set all filter backends that this viewset uses.
     filter_backends = (ElasticSearchFilter, OrderingFilter, filters.DjangoFilterBackend, )
+    search_fields = ('name', )
 
     # ElasticSearchFilter: set the model type.
     model_type = 'accounts_account'
     # OrderingFilter: set all possible fields to order by.
-    ordering_fields = ('id', )
+    ordering_fields = ('id', 'customer_id', 'name', 'assigned_to.id', 'created', 'modified', 'status.id', )
     # OrderingFilter: set the default ordering fields.
     ordering = ('id', )
     # DjangoFilter: set the filter class.
@@ -88,7 +89,7 @@ class AccountViewSet(ModelChangesMixin, DataExistsMixin, NoteMixin, ModelViewSet
         Set the queryset here so it filters on tenant and works with pagination.
         """
         if 'filter_deleted' in self.request.GET:
-            if self.request.GET.get('filter_deleted') == 'False':
+            if self.request.GET.get('filter_deleted') in ['False', 'false']:
                 return super(AccountViewSet, self).get_queryset()
 
         return super(AccountViewSet, self).get_queryset().filter(is_deleted=False)
@@ -130,5 +131,3 @@ class AccountStatusViewSet(ModelViewSet):
         Set the queryset here so it filters on tenant and works with pagination.
         """
         return super(AccountStatusViewSet, self).get_queryset().all()
-
-                {'file_accounts': {'The following columns are missing: {0}'.format(', '.join(missing_in_upload))}},

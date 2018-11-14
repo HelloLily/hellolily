@@ -89,7 +89,7 @@
                 </div>
 
                 <div ng-repeat="item in activity.list.pinned" class="pinned-items">
-                    <activity-stream-item item="item" activity="ac_tivity" object="object" delete-callback="activity.removeFromList(item)" update-callback="activity.updateModel"></activity-stream-item>
+                    <activity-stream-item item="item" activity="activity" object="object" delete-callback="activity.removeFromList(item)" update-callback="activity.updateModel"></activity-stream-item>
                 </div>
 
                 <div ng-repeat="(key, value) in activity.list.nonPinned" ng-show="value.isVisible">

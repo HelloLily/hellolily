@@ -1,7 +1,7 @@
 ### Django runs on this
 web: bin/start-pgbouncer daphne lily.asgi:channel_layer --port $PORT --bind 0.0.0.0 --http-timeout 28
 
-consumer: python manage.py runworker
+consumer: unset DISABLE_DATADOG_AGENT && /app/.profile.d/datadog.sh; DATADOG_TRACE_ENABLED="true" bin/start-pgbouncer-stunnel python manage.py runworker
 
 ### Celery workers
 

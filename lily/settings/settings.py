@@ -359,6 +359,7 @@ INSTALLED_APPS = (
     'otp_yubikey',
     'user_sessions',  # Sessions used for http requests
     'drf_yasg',
+    'ddtrace.contrib.django',
 
     # Django
     'django.contrib.admin',
@@ -700,6 +701,13 @@ SLACK_LILY_TOKEN = os.environ.get('SLACK_LILY_TOKEN', '')
 # Segment.
 SEGMENT_PYTHON_SOURCE_WRITE_KEY = os.environ.get('SEGMENT_PYTHON_SOURCE_WRITE_KEY', '')
 SEGMENT_JS_SOURCE_WRITE_KEY = os.environ.get('SEGMENT_JS_SOURCE_WRITE_KEY', '')
+
+# Datadog
+DATADOG_ENABLED = os.environ.get('DATADOG_TRACE_ENABLED', 'false') == 'true'  # Since it's a string convert to bool.
+DATADOG_TRACE = {
+    'DEFAULT_SERVICE': 'web',
+    'ENABLED': DATADOG_ENABLED,
+}
 
 #######################################################################################################################
 # TESTING                                                                                                             #

@@ -180,10 +180,18 @@ class LilyUserSerializer(WritableNestedSerializer):
         password = data.get('password')
         password_confirmation = data.get('password_confirmation')
         email = data.get('email')
-        webhooks = data.get('webhooks')
+        webhooks = data.get('webhooks', [])
 
         if webhooks and not has_required_tier(2):
             raise PermissionDenied
+
+        for webhook in webhooks:
+            if any(allowed_host in webhook['url'] for allowed_host in settings.ALLOWED_HOSTS):
+                raise serializers.ValidationError({
+                    'url': _(
+                        'You should set your url to something external to Lily.'
+                    )
+                })
 
         # If there's an instance, it means we're updating.
         if self.instance:

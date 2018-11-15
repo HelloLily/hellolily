@@ -4,7 +4,7 @@ from factory.django import DjangoModelFactory
 from factory.fuzzy import FuzzyChoice
 from faker.factory import Factory
 
-from .models import EmailAddress, PhoneNumber, Address, PHONE_TYPE_CHOICES, ExternalAppLink
+from .models import EmailAddress, PhoneNumber, Address, PHONE_TYPE_CHOICES, ExternalAppLink, Webhook
 from lily.utils.countries import COUNTRIES
 
 faker = Factory.create('nl_NL')
@@ -44,3 +44,11 @@ class ExternalAppLinkFactory(DjangoModelFactory):
 
     class Meta:
         model = ExternalAppLink
+
+
+class WebhookFactory(DjangoModelFactory):
+    name = LazyAttribute(lambda o: faker.company())
+    url = LazyAttribute(lambda o: faker.url())
+
+    class Meta:
+        model = Webhook

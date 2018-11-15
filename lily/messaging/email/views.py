@@ -601,9 +601,7 @@ class EmailMessageReplyOrForwardView(EmailMessageComposeView):
         return kwargs
 
     def get_subject(self, prefix='Re: '):
-        subject = self.object.subject
-
-        return get_formatted_reply_email_subject(prefix, subject)
+        return get_formatted_reply_email_subject(self.object.subject, prefix)
 
     def form_valid(self, form):
         email_outbox_message = super(EmailMessageReplyOrForwardView, self).form_valid(form)

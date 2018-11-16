@@ -124,10 +124,6 @@ deploy:
     run:
       - "${DEPLOY_COMMAND}"
 
-after_deploy:
-  # Push the new docker images to DockerHub after deploy.
-  - Dockers/push.sh
-
 notifications:
   email: false
   slack:

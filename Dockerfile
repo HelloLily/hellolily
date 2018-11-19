@@ -1,4 +1,4 @@
-FROM hellolily/baseimage:latest
+FROM hellolily/base:latest
 LABEL maintainer=HelloLily
 
 ENV HOME /home/docker

@@ -45,7 +45,7 @@ services:
       driver: "none"
 
   app:
-    image: "hellolily/hellolily-app:latest"
+    image: "hellolily/hellolily:latest"
     command: "/bin/true"
     networks:
       - internal

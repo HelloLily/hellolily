@@ -43,7 +43,7 @@ docker-compose pull
 To build your own images locally you can use
 
 ```bash
-DOCKER_USER_ID=1000 docker-compose -f docker-compose.yml -f docker-compose.new-build.yml build
+docker-compose -f docker-compose.yml -f docker-compose.new-build.yml build
 ```
 
 > This command needs to run every time the Dockerfile, requirements or patches are adjusted. Good practice would be to run it every time the git repo is updated. If nothing changed, the command will complete almost instantly.

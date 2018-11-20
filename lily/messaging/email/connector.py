@@ -276,7 +276,7 @@ class GmailConnector(object):
         ))
         return response
 
-    def get_short_message_info(self, message_id):
+    def get_labels_and_thread_id_for_message_id(self, message_id):
         """
         Fetch labels & threadId for given message.
 

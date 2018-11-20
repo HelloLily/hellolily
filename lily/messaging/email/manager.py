@@ -335,7 +335,7 @@ class GmailManager(object):
             return
 
         try:
-            message_info = self.connector.get_short_message_info(message_id)
+            message_info = self.connector.get_labels_and_thread_id_for_message_id(message_id)
         except NotFoundError:
             return
 
@@ -381,7 +381,7 @@ class GmailManager(object):
         # We should do some tries to update.
         for n in range(0, 6):
             try:
-                message_info = self.connector.get_short_message_info(email_message.message_id)
+                message_info = self.connector.get_labels_and_thread_id_for_message_id(email_message.message_id)
             except NotFoundError:
                 logger.debug('Message not available on remote.')
                 EmailMessage.objects.get(pk=email_message.id).delete()

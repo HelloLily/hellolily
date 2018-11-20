@@ -1,0 +1,153 @@
+{
+  "internalDate": "1543328207000",
+  "historyId": "61420",
+  "id": "16755866c49c1423",
+  "snippet": "Dit is inline denk ik",
+  "sizeEstimate": 160082,
+  "threadId": "16755866c49c1423",
+  "labelIds": [
+    "CATEGORY_PERSONAL",
+    "INBOX"
+  ],
+  "payload": {
+    "mimeType": "multipart/related",
+    "body": {
+      "size": 0
+    },
+    "partId": "",
+    "filename": "",
+    "headers": [
+      {
+        "name": "Delivered-To",
+        "value": "anonymous@wearespindle.com"
+      },
+      {
+        "name": "Received",
+        "value": "by 2002:a02:5b49:0:0:0:0:0 with SMTP id g70csp1316987jab;    Tue, 27 Nov 2018 06:15:32 -0800 (PST)"
+      },
+      {
+        "name": "X-Received",
+        "value": "by 2002:a50:cdd0:: with SMTP id h16mr17278077edj.151.1543328132547;    Tue, 27 Nov 2018 06:15:32 -0800 (PST)"
+      },
+      {
+        "name": "Return-Path",
+        "value": "<anonymous@gmail.com>"
+      },
+      {
+        "name": "Received",
+        "value": "from mail-sor-f41.google.com (mail-sor-f41.google.com. [209.85.220.41])    by mx.google.com with SMTPS id x22sor2510704eda.18.2018.11.27.06.15.32    for <anonymous@wearespindle.com>    (Google Transport Security);    Tue, 27 Nov 2018 06:15:32 -0800 (PST)"
+      },
+      {
+        "name": "X-Received",
+        "value": "by 2002:a50:bac6:: with SMTP id x64mr27458237ede.191.1543328130779; Tue, 27 Nov 2018 06:15:30 -0800 (PST)"
+      },
+      {
+        "name": "MIME-Version",
+        "value": "1.0"
+      },
+      {
+        "name": "From",
+        "value": "Anonymous <anonymous@gmail.com>"
+      },
+      {
+        "name": "Date",
+        "value": "Tue, 27 Nov 2018 15:16:47 +0100"
+      },
+      {
+        "name": "Message-ID",
+        "value": "<CAMbQiDvo12cH2x+=3emzcSFQP_aZvOisOdDb6HyWnOcdvU8bmg@mail.gmail.com>"
+      },
+      {
+        "name": "Subject",
+        "value": "Test inline attachment"
+      },
+      {
+        "name": "To",
+        "value": "anonymous@wearespindle.com"
+      },
+      {
+        "name": "Content-Type",
+        "value": "multipart/related; boundary=\"000000000000020dba057ba615fc\""
+      }
+    ],
+    "parts": [
+      {
+        "mimeType": "multipart/alternative",
+        "body": {
+          "size": 0
+        },
+        "partId": "0",
+        "filename": "",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "multipart/alternative; boundary=\"000000000000020db4057ba615fb\""
+          }
+        ],
+        "parts": [
+          {
+            "mimeType": "text/plain",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "text/plain; charset=\"UTF-8\""
+              }
+            ],
+            "body": {
+              "data": "W2ltYWdlOiByaWNrYW5kbW9ydHkucG5nXQ0KDQpEaXQgaXMgaW5saW5lIGRlbmsgaWsNCg==",
+              "size": 52
+            },
+            "partId": "0.0",
+            "filename": ""
+          },
+          {
+            "mimeType": "text/html",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "text/html; charset=\"UTF-8\""
+              }
+            ],
+            "body": {
+              "data": "PGRpdiBkaXI9Imx0ciI-PGRpdj48aW1nIHNyYz0iY2lkOmlpX2pvenRyZ3Z1MCIgYWx0PSJyaWNrYW5kbW9ydHkucG5nIiB3aWR0aD0iNTQ2IiBoZWlnaHQ9IjI4MCI-PC9kaXY-PGRpdj48YnI-PC9kaXY-PGRpdj5EaXQgaXMgaW5saW5lIGRlbmsgaWs8YnI-PC9kaXY-PC9kaXY-DQo=",
+              "size": 161
+            },
+            "partId": "0.1",
+            "filename": ""
+          }
+        ]
+      },
+      {
+        "mimeType": "image/png",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "image/png; name=\"rickandmorty.png\""
+          },
+          {
+            "name": "Content-Disposition",
+            "value": "inline; filename=\"rickandmorty.png\""
+          },
+          {
+            "name": "Content-Transfer-Encoding",
+            "value": "base64"
+          },
+          {
+            "name": "Content-ID",
+            "value": "<ii_joztrgvu0>"
+          },
+          {
+            "name": "X-Attachment-Id",
+            "value": "ii_joztrgvu0"
+          }
+        ],
+        "body": {
+          "attachmentId": "randomId",
+          "size": 113100
+        },
+        "partId": "1",
+        "filename": "rickandmorty.png"
+      }
+    ]
+  }
+}

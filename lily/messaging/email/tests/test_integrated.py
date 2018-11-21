@@ -24,12 +24,12 @@ class EmailTests(UserBasedTest, APITestCase):
 
     verify_label_data_default = {
         # label: [available, total count, unread count],
-        'all_mail': [True, 10, 6],  # Mail without trash, spam or chat.
+        'all_mail': [True, 9, 6],  # Mail without draft, trash, spam or chat.
         settings.GMAIL_LABEL_INBOX: [True, 5, 4],
         settings.GMAIL_LABEL_UNREAD: [True, 6, 6],
         settings.GMAIL_LABEL_STAR: [True, 1, 1],
         settings.GMAIL_LABEL_SENT: [True, 2, 0],
-        settings.GMAIL_LABEL_DRAFT: [True, 1, 0],
+        settings.GMAIL_LABEL_DRAFT: [True, 0, 0],  # Drafts are not synced to Lily
         settings.GMAIL_LABEL_SPAM: [True, 0, 0],
         settings.GMAIL_LABEL_TRASH: [True, 0, 0],
         'Label_1': [True, 3, 2],
@@ -461,6 +461,8 @@ class EmailTests(UserBasedTest, APITestCase):
         Verifies that the correct (number of) labels and related emails are stored in the database and that the
         history id and synchronisation status are administered correctly. Also verify that the history update is
         reflected correctly on the right email message.
+
+        Drafts are not synchronized, therefore message_id_2 should be ignored.
         """
         message_id_1 = '15a6008a4baa65f3'
         message_id_2 = '15a600682d97904e'
@@ -477,7 +479,7 @@ class EmailTests(UserBasedTest, APITestCase):
 
         # Update the label data matching the mutation that was in the history update.
         verify_label_data = self.verify_label_data_default.copy()
-        verify_label_data['all_mail'] = [True, 10, 8]
+        verify_label_data['all_mail'] = [True, 9, 8]
         verify_label_data[settings.GMAIL_LABEL_INBOX] = [True, 3, 2]
 
         self._test_incremental_synchronize(mock_api_calls=mock_api_calls, label_data_after=verify_label_data,
@@ -551,7 +553,7 @@ class EmailTests(UserBasedTest, APITestCase):
 
         # Update the label data matching the mutation that was in the history update.
         verify_label_data = self.verify_label_data_default.copy()
-        verify_label_data['all_mail'] = [True, 10, 4]
+        verify_label_data['all_mail'] = [True, 9, 4]
         verify_label_data[settings.GMAIL_LABEL_INBOX] = [True, 5, 2]
         verify_label_data[settings.GMAIL_LABEL_UNREAD] = [True, 4, 4]
         verify_label_data['Label_2'] = [True, 2, 1]
@@ -588,7 +590,7 @@ class EmailTests(UserBasedTest, APITestCase):
 
         # Update the label data matching the mutation that was in the history update.
         verify_label_data = self.verify_label_data_default.copy()
-        verify_label_data['all_mail'] = [True, 10, 7]
+        verify_label_data['all_mail'] = [True, 9, 7]
         verify_label_data[settings.GMAIL_LABEL_INBOX] = [True, 5, 5]
         verify_label_data[settings.GMAIL_LABEL_UNREAD] = [True, 7, 7]
         verify_label_data['Label_1'] = [True, 3, 3]
@@ -626,7 +628,7 @@ class EmailTests(UserBasedTest, APITestCase):
 
         # Update the label data matching the mutation that was in the history update.
         verify_label_data = self.verify_label_data_default.copy()
-        verify_label_data['all_mail'] = [True, 9, 6]
+        verify_label_data['all_mail'] = [True, 8, 6]
         verify_label_data[settings.GMAIL_LABEL_INBOX] = [True, 4, 3]
         verify_label_data[settings.GMAIL_LABEL_UNREAD] = [True, 6, 6]
         verify_label_data[settings.GMAIL_LABEL_SPAM] = [True, 1, 1]
@@ -693,7 +695,7 @@ class EmailTests(UserBasedTest, APITestCase):
 
         # Update the label data matching the mutation that was in the history update.
         verify_label_data = self.verify_label_data_default.copy()
-        verify_label_data['all_mail'] = [True, 9, 5]
+        verify_label_data['all_mail'] = [True, 8, 5]
         verify_label_data[settings.GMAIL_LABEL_INBOX] = [True, 4, 3]
         verify_label_data[settings.GMAIL_LABEL_TRASH] = [True, 1, 1]
 
@@ -724,7 +726,7 @@ class EmailTests(UserBasedTest, APITestCase):
 
         # Update the label data matching the mutation that was in the history update.
         verify_label_data = self.verify_label_data_default.copy()
-        verify_label_data['all_mail'] = [True, 9, 5]
+        verify_label_data['all_mail'] = [True, 8, 5]
         verify_label_data[settings.GMAIL_LABEL_INBOX] = [True, 4, 3]
         verify_label_data[settings.GMAIL_LABEL_UNREAD] = [True, 5, 5]
 
@@ -758,7 +760,7 @@ class EmailTests(UserBasedTest, APITestCase):
 
         # Update the label data matching the mutation that was in the history update.
         verify_label_data = self.verify_label_data_default.copy()
-        verify_label_data['all_mail'] = [True, 12, 8]
+        verify_label_data['all_mail'] = [True, 11, 8]
         verify_label_data[settings.GMAIL_LABEL_INBOX] = [True, 7, 6]
         verify_label_data[settings.GMAIL_LABEL_UNREAD] = [True, 8, 8]
 
@@ -817,7 +819,7 @@ class EmailTests(UserBasedTest, APITestCase):
 
         # Verify that the number of emails per label is updated with the send email message.
         label_data_after = self.verify_label_data_default.copy()
-        label_data_after['all_mail'] = [True, 11, 7]
+        label_data_after['all_mail'] = [True, 10, 7]
         label_data_after[settings.GMAIL_LABEL_SENT] = [True, 3, 0]
         self._label_test(self.email_account, label_data_after)
 
@@ -921,32 +923,31 @@ class EmailTests(UserBasedTest, APITestCase):
                 self.assertEqual(count_archived_mails, label_data[1],
                                  "Number of All mail-emails was %d but should be %d." %
                                  (count_archived_mails, label_data[1]))
-            else:
-                if label_data[0]:
-                    db_count_per_label_total = 0
-                    db_count_per_label_unread = 0
-                    if email_account.labels.filter(label_id=label_name).exists():
-                        # Mail with label_name should be present in the database, verify number of emails associated.
-                        label = email_account.labels.filter(label_id=label_name)[0]
-                        db_count_per_label_total = label.messages.count()
-                        db_count_per_label_unread = label.messages.filter(read=False).count()
-                        self.assertEqual(db_count_per_label_total, label_data[1],
-                                         "Total number of messages for label %s was %d but should be %d." %
-                                         (label_name, db_count_per_label_total, label_data[1]))
-                        self.assertEqual(db_count_per_label_unread, label_data[2],
-                                         "Number of unread messages for label %s was %d but should be %d." %
-                                         (label_name, db_count_per_label_unread, label_data[2]))
-                    else:
-                        self.assertEqual(0, label_data[1],
-                                         "Total number of messages for label %s was %d but should be %d." % (
-                                         label_name, db_count_per_label_total, label_data[1]))
-                        self.assertEqual(0, label_data[2],
-                                         "Number of unread messages for label %s was %d but should be %d." % (
-                                         label_name, db_count_per_label_unread, label_data[2]))
+            elif label_data[0]:
+                db_count_per_label_total = 0
+                db_count_per_label_unread = 0
+                if email_account.labels.filter(label_id=label_name).exists():
+                    # Mail with label_name should be present in the database, verify number of emails associated.
+                    label = email_account.labels.filter(label_id=label_name)[0]
+                    db_count_per_label_total = label.messages.count()
+                    db_count_per_label_unread = label.messages.filter(read=False).count()
+                    self.assertEqual(db_count_per_label_total, label_data[1],
+                                     "Total number of messages for label %s was %d but should be %d." %
+                                     (label_name, db_count_per_label_total, label_data[1]))
+                    self.assertEqual(db_count_per_label_unread, label_data[2],
+                                     "Number of unread messages for label %s was %d but should be %d." %
+                                     (label_name, db_count_per_label_unread, label_data[2]))
                 else:
-                    # Mail with label_name should not be present in the database.
-                    exists = email_account.labels.filter(label_id=label_name).exists()
-                    self.assertFalse(exists, "Label {0} shouldn't be in the database.".format(label_name))
+                    self.assertEqual(0, label_data[1],
+                                     "Total number of messages for label %s was %d but should be %d." % (
+                                     label_name, db_count_per_label_total, label_data[1]))
+                    self.assertEqual(0, label_data[2],
+                                     "Number of unread messages for label %s was %d but should be %d." % (
+                                     label_name, db_count_per_label_unread, label_data[2]))
+            else:
+                # Mail with label_name should not be present in the database.
+                exists = email_account.labels.filter(label_id=label_name).exists()
+                self.assertFalse(exists, "Label {0} shouldn't be in the database.".format(label_name))
 
     def _verify_email_account_state(self, email_account, authorized, history_id, is_syncing):
         """

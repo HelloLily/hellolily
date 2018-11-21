@@ -43,8 +43,7 @@ from .models.models import (EmailMessage, EmailAttachment, EmailAccount, EmailTe
                             EmailOutboxMessage, EmailOutboxAttachment, TemplateVariable, GmailCredentialsModel,
                             EmailLabel)
 from .services import GmailService
-from .tasks import (send_message, create_draft_email_message, update_draft_email_message,
-                    add_and_remove_labels_for_message, trash_email_message)
+from .tasks import send_message, add_and_remove_labels_for_message
 from .utils import (
     get_attachment_filename_from_url, get_email_parameter_choices,
     create_recipients, render_email_body, replace_cid_in_html,
@@ -460,25 +459,20 @@ class EmailMessageComposeView(LoginRequiredMixin, FormView):
         """
         Removes the current draft.
         """
-        task = trash_email_message.apply_async(args=(self.object.id,))
-
         try:
             email = EmailMessage.objects.get(pk=self.object.id)
-            email._is_trashed = True  # Make sure the draft isn't shown immediately anymore.
-            reindex_email_message(email)
         except EmailMessage.DoesNotExist:
-            pass
-
-        if not task:
             messages.error(
                 self.request,
                 _('Sorry, I couldn\'t remove your email draft.')
             )
-            logging.error(_('Failed to create remove_draft task for email account %d. Draft message id was %d.') % (
+            logging.error(_('Failed to remove draft for email account %d. Draft message id was %d.') % (
                 self.object.send_from, self.object.id
             ))
-
-        return task
+        else:
+            email._is_trashed = True  # Make sure the draft isn't shown immediately anymore.
+            email.delete()
+            reindex_email_message(email)
 
 
 class EmailMessageSendOrArchiveView(EmailMessageComposeView):
@@ -509,68 +503,14 @@ class EmailMessageDraftView(EmailMessageComposeView):
     def form_valid(self, form):
         email_message = super(EmailMessageDraftView, self).form_valid(form)
 
+        task = None
         if form.data.get('send_draft', False) == 'true':
             task = self.send_message(email_message)
-        else:
-            task = self.draft_message(email_message)
 
-        if is_ajax(self.request):
+        if is_ajax(self.request) and task:
             return HttpResponse(anyjson.dumps({'task_id': task.id}), content_type='application/json')
         else:
             return HttpResponseRedirect(self.get_success_url())
-
-    def draft_message(self, email_outbox_message):
-        """
-        Creates a task for async creating a draft and sets messages for feedback.
-
-        Args:
-            email_outbox_message (instance): EmailOutboxMessage instance
-
-        Returns:
-            Task instance
-        """
-        current_draft_pk = self.kwargs.get('pk', None)
-
-        if current_draft_pk:
-            try:
-                email = EmailMessage.objects.get(pk=current_draft_pk)
-                email._is_trashed = True  # Make sure the old draft isn't shown immediately anymore.
-                reindex_email_message(email)
-            except EmailMessage.DoesNotExist:
-                pass
-
-            task = update_draft_email_message.apply_async(
-                args=(email_outbox_message.id, current_draft_pk,),
-                max_retries=1,
-                default_retry_delay=100,
-            )
-        else:
-            task = create_draft_email_message.apply_async(
-                args=(email_outbox_message.id,),
-                max_retries=1,
-                default_retry_delay=100,
-            )
-
-        if task:
-            messages.info(
-                self.request,
-                _('Creating a draft as fast as I can.')
-            )
-            self.request.session['tasks'].update({'create_draft_email_message': task.id})
-            self.request.session.modified = True
-        else:
-            messages.error(
-                self.request,
-                _('Sorry, I couldn\'t save you email as a draft.')
-            )
-            logging.error(
-                _('Failed to create create_draft_email_message task for email account %d. '
-                  'Outbox message id was %d.') % (
-                      email_outbox_message.send_from, email_outbox_message.id
-                )
-            )
-
-        return task
 
     def get_form_kwargs(self):
         kwargs = super(EmailMessageComposeView, self).get_form_kwargs()

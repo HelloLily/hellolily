@@ -31,6 +31,7 @@ from lily.search.indexing import update_in_index
 
 from .models.models import EmailAttachment, EmailMessage, EmailAccount, SharedEmailConfig
 from .sanitize import sanitize_html_email
+from .exceptions import EmailHeaderInputException
 
 _EMAIL_PARAMETER_DICT = {}
 _EMAIL_PARAMETER_API_DICT = {}
@@ -769,10 +770,6 @@ def get_formatted_email_body(action, email_message):
         )
 
     return body_header + mark_safe(email_message.reply_body)
-
-
-class EmailHeaderInputException(Exception):
-    pass
 
 
 def get_email_headers(action, email_message=None):

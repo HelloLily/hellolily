@@ -21,14 +21,6 @@ from ..models.models import EmailMessage, EmailHeader, Recipient, EmailAttachmen
 logger = logging.getLogger(__name__)
 
 
-class MessageBuilderException(Exception):
-    pass
-
-
-class AttachmentException(MessageBuilderException):
-    pass
-
-
 class MessageBuilder(object):
     """
     Builder to get, create or update Messages

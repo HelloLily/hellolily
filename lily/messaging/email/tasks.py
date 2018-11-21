@@ -296,8 +296,7 @@ def trash_email_message(self, email_id):
             try:
                 manager = GmailManager(email_message.account)
                 if email_message.is_draft:
-                    logger.debug('Trashing draft: %s', email_message)
-                    manager.delete_draft_email_message(email_message)
+                    pass
                 elif email_message.is_trashed:
                     logger.debug('Deleting email message: %s', email_message)
                     manager.delete_email_message(email_message)
@@ -468,86 +467,6 @@ def send_message(email_id, original_message_id=None, draft=False):
     ))
 
     return sent_success
-
-
-@task(name='create_draft_email_message', logger=logger)
-def create_draft_email_message(email_outbox_message_id):
-    """
-    Create a draft of an email message according to the provided EmailOutboxMessage.
-    """
-    draft_success = False
-    try:
-        email_outbox_message = EmailOutboxMessage.objects.get(pk=email_outbox_message_id)
-    except EmailOutboxMessage.DoesNotExist:
-        raise
-
-    email_account = email_outbox_message.send_from
-
-    if not email_account.is_authorized:
-        logger.error('EmailAccount not authorized: %s', email_account)
-        return draft_success
-
-    manager = None
-    try:
-        manager = GmailManager(email_account)
-
-        # Create the draft.
-        manager.create_draft_email_message(email_outbox_message.message())
-        logger.debug('Message saved as draft for: %s', email_account)
-
-        # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more.
-        email_outbox_message.delete()
-        draft_success = True
-    except HttpAccessTokenRefreshError:
-        logger.warning('EmailAccount not authorized: %s', email_account)
-        pass
-    except Exception:
-        logger.exception('Couldn\'t create draft')
-        raise
-    finally:
-        if manager:
-            manager.cleanup()
-
-    return draft_success
-
-
-@task(name='update_draft_email_message', logger=logger)
-def update_draft_email_message(email_outbox_message_id, current_draft_pk):
-    """
-    Update a draft of an email message accordingly to the provided EmailOutboxMessage and the current draft id.
-    """
-    draft_success = False
-    email_outbox_message = EmailOutboxMessage.objects.get(pk=email_outbox_message_id)
-    current_draft = EmailMessage.objects.get(pk=current_draft_pk)
-
-    email_account = email_outbox_message.send_from
-
-    if not email_account.is_authorized:
-        logger.error('EmailAccount not authorized: %s', email_account)
-        return draft_success
-
-    manager = None
-    try:
-        manager = GmailManager(email_account)
-
-        # Update current draft.
-        manager.update_draft_email_message(email_outbox_message.message(), draft_id=current_draft.draft_id)
-        logger.debug('Updated draft for: %s', email_account)
-
-        # Seems like everything went right, so the EmailOutboxMessage object isn't needed any more.
-        email_outbox_message.delete()
-        draft_success = True
-    except HttpAccessTokenRefreshError:
-        logger.warning('EmailAccount not authorized: %s', email_account)
-        pass
-    except Exception:
-        logger.exception('Couldn\'t create or update draft')
-        raise
-    finally:
-        if manager:
-            manager.cleanup()
-
-    return draft_success
 
 
 @task(name='toggle_star_email_message', logger=logger)

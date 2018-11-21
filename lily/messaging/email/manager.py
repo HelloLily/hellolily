@@ -10,6 +10,7 @@ from .builders.message import MessageBuilder
 from .connector import GmailConnector, NotFoundError, LabelNotFoundError, MailNotEnabledError
 from .credentials import InvalidCredentialsError
 from .models.models import EmailLabel, EmailMessage, NoEmailMessageId
+from .exceptions import UnsupportedMessageException
 
 logger = logging.getLogger(__name__)
 
@@ -104,8 +105,9 @@ class GmailManager(object):
             message_info = self.connector.get_message_info(message_id)
         except NotFoundError:
             logger.debug('Message already deleted from remote')
+        except UnsupportedMessageException:
+            logger.debug('Importing draft messages from Gmail is not supported')
         else:
-            # TODO: LILY-2203 draft_id is missing when downloaded message is a draft.
             self.message_builder.store_message_info(message_info, message_id)
             self.message_builder.save()
 
@@ -113,7 +115,7 @@ class GmailManager(object):
         """
         Synchronize EmailAccount by history.
 
-        Fetches the changes from the GMail api and creates tasks for the mutations.
+        Fetches the changes from the Gmail api and creates tasks for the mutations.
         """
         logger.info('updating history for %s with history_id %s' % (self.email_account, self.email_account.history_id))
         old_history_id = self.email_account.history_id
@@ -494,6 +496,8 @@ class GmailManager(object):
             full_message_dict = self.connector.get_message_info(message_dict['id'])
         except NotFoundError:
             logger.debug('Message already deleted from remote')
+        except UnsupportedMessageException:
+            logger.debug('Importing draft messages from Gmail is not supported')
         else:
             # Store updated message.
             self.message_builder.store_message_info(full_message_dict, message_dict['id'])
@@ -528,69 +532,12 @@ class GmailManager(object):
             full_message_dict = self.connector.get_message_info(message_dict['id'])
         except NotFoundError:
             logger.debug('Message already deleted from remote')
+        except UnsupportedMessageException:
+            logger.debug('Importing draft messages from Gmail is not supported')
         else:
             # Store updated message.
             self.message_builder.store_message_info(full_message_dict, message_dict['id'])
             self.message_builder.save()
-            self.update_unread_count()
-
-    def create_draft_email_message(self, email_message):
-        """
-        Create email draft.
-
-        Args:
-            email_message (instance): Email instance
-        """
-        # Create draft message.
-        draft_dict = self.connector.create_draft_email_message(email_message.as_string())
-
-        try:
-            message_dict = self.connector.get_message_info(draft_dict['message']['id'])
-        except NotFoundError:
-            logger.debug('Message already deleted from remote')
-        else:
-            # Store updated message.
-            self.message_builder.store_message_info(message_dict, draft_dict['message']['id'])
-            self.message_builder.message.draft_id = draft_dict.get('id', '')
-            self.message_builder.save()
-            self.update_unread_count()
-
-    def update_draft_email_message(self, email_message, draft_id):
-        """
-        Update email draft.
-
-        Args:
-            email_message (instance): Email instance
-            draft_id (string): id of current draft
-        """
-        # Update draft message.
-        draft_dict = self.connector.update_draft_email_message(email_message.as_string(), draft_id)
-
-        try:
-            message_dict = self.connector.get_message_info(draft_dict['message']['id'])
-        except NotFoundError:
-            logger.debug('Message already deleted from remote')
-        else:
-            # Store updated message.
-            self.message_builder.store_message_info(message_dict, draft_dict['message']['id'])
-            self.message_builder.message.draft_id = draft_dict.get('id', '')
-            self.message_builder.save()
-            self.update_unread_count()
-
-    def delete_draft_email_message(self, email_message):
-        """
-        Delete current draft.
-
-        Args:
-            email_message (instance): EmailMessage instance
-        """
-        try:
-            self.connector.delete_draft_email_message(email_message.draft_id)
-        except NotFoundError:
-            # Draft exists in Lily but not anymore on remote, so remove it from the database.
-            logger.debug('Draft already deleted from remote.')
-            EmailMessage.objects.filter(message_id=email_message.message_id, account=self.email_account).delete()
-        else:
             self.update_unread_count()
 
     def cleanup(self):

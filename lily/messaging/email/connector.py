@@ -10,38 +10,12 @@ from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseUpload
 from oauth2client.client import HttpAccessTokenRefreshError
 
-from .credentials import get_credentials, InvalidCredentialsError
+from .credentials import get_credentials
 from .services import GmailService
+from .exceptions import (UnsupportedMessageException, NotFoundError, LabelNotFoundError, IllegalLabelError,
+                         MailNotEnabledError, FailedServiceCallException, InvalidCredentialsError)
 
 logger = logging.getLogger(__name__)
-
-
-class FailedServiceCallException(Exception):
-    pass
-
-
-class ConnectorError(Exception):
-    pass
-
-
-class AuthError(ConnectorError):
-    pass
-
-
-class NotFoundError(ConnectorError):
-    pass
-
-
-class LabelNotFoundError(ConnectorError):
-    pass
-
-
-class IllegalLabelError(ConnectorError):
-    pass
-
-
-class MailNotEnabledError(ConnectorError):
-    pass
 
 
 class GmailConnector(object):
@@ -244,6 +218,10 @@ class GmailConnector(object):
             quotaUser=self.email_account.id,
         ))
 
+        labels = response.get('labelIds', [])
+        if settings.GMAIL_LABEL_DRAFT in labels:
+            raise UnsupportedMessageException()
+
         return response
 
     def get_label_list(self):
@@ -373,54 +351,6 @@ class GmailConnector(object):
                 quotaUser=self.email_account.id,
             ))
 
-        return response
-
-    def create_draft_email_message(self, message_string):
-        # Possible TODO: only use MediaIOBaseUpload on large email bodys instead of always:
-        # http://stackoverflow.com/questions/27875858/#33155212
-        fd = StringIO(message_string)
-        media = MediaIoBaseUpload(
-            fd,
-            mimetype='message/rfc822',
-            chunksize=settings.GMAIL_CHUNK_SIZE,
-            resumable=settings.GMAIL_UPLOAD_RESUMABLE
-        )
-
-        response = self.execute_service_call(
-            self.gmail_service.service.users().drafts().create(
-                userId='me',
-                media_body=media,
-                quotaUser=self.email_account.id,
-            ))
-        return response
-
-    def update_draft_email_message(self, message_string, draft_id):
-        # Possible TODO: only use MediaIOBaseUpload on large email bodys instead of always:
-        # http://stackoverflow.com/questions/27875858/#33155212
-        fd = StringIO(message_string)
-        media = MediaIoBaseUpload(
-            fd,
-            mimetype='message/rfc822',
-            chunksize=settings.GMAIL_CHUNK_SIZE,
-            resumable=settings.GMAIL_UPLOAD_RESUMABLE
-        )
-
-        response = self.execute_service_call(
-            self.gmail_service.service.users().drafts().update(
-                userId='me',
-                media_body=media,
-                id=draft_id,
-                quotaUser=self.email_account.id,
-            ))
-        return response
-
-    def delete_draft_email_message(self, message_id):
-        response = self.execute_service_call(
-            self.gmail_service.service.users().drafts().delete(
-                userId='me',
-                id=message_id,
-                quotaUser=self.email_account.id,
-            ))
         return response
 
     def get_history_id(self):

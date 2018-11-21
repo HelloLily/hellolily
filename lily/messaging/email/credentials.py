@@ -2,13 +2,10 @@ import logging
 from oauth2client.contrib.django_orm import Storage
 
 from .models.models import GmailCredentialsModel
+from .exceptions import InvalidCredentialsError
 
 
 logger = logging.getLogger(__name__)
-
-
-class InvalidCredentialsError(Exception):
-    pass
 
 
 def get_credentials(gmail_account):

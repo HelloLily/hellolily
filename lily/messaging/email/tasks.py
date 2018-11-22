@@ -424,7 +424,7 @@ def send_message(email_id, original_message_id=None, draft=False):
                 pass
             else:
                 outbox_attachment = email_attachment_class()
-                setattr(attachment, email_attachment_to_email_class_field_name, email)
+                setattr(outbox_attachment, email_attachment_to_email_class_field_name, email)
                 outbox_attachment.tenant_id = original_attachment.message.tenant_id
 
                 file = default_storage._open(original_attachment.attachment.name)

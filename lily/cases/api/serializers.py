@@ -5,7 +5,6 @@ from channels import Group
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
-
 from lily.accounts.api.serializers import RelatedAccountSerializer
 from lily.api.fields import SanitizedHtmlCharField
 from lily.api.nested.mixins import RelatedSerializerMixin
@@ -15,6 +14,7 @@ from lily.contacts.api.serializers import RelatedContactSerializer
 from lily.contacts.models import Function
 from lily.users.api.serializers import RelatedLilyUserSerializer, RelatedTeamSerializer
 from lily.utils.api.serializers import RelatedTagSerializer
+from lily.utils.request import is_external_referer
 
 from ..models import Case, CaseStatus, CaseType
 
@@ -174,14 +174,12 @@ class CaseSerializer(WritableNestedSerializer):
 
         # Track newly ceated accounts in segment.
         if not settings.TESTING:
-            request_source = self.context.get('request').get_host()
-            creation_type = 'manual' if request_source == 'app.hellolily.com' else 'automatic'
             analytics.track(
                 user.id,
                 'case-created', {
                     'expires': instance.expires,
                     'assigned_to_id': instance.assigned_to_id if instance.assigned_to else '',
-                    'creation_type': creation_type,
+                    'creation_type': 'automatic' if is_external_referer(self.context.get('request')) else 'manual',
                 },
             )
 

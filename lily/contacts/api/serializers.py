@@ -15,6 +15,8 @@ from lily.socialmedia.api.serializers import RelatedSocialMediaSerializer
 from lily.utils.api.serializers import (RelatedPhoneNumberSerializer, RelatedAddressSerializer,
                                         RelatedEmailAddressSerializer, RelatedTagSerializer)
 from lily.utils.functions import send_get_request, send_post_request, has_required_tier
+from lily.utils.request import is_external_referer
+
 
 from ..models import Contact, Function
 
@@ -196,13 +198,10 @@ class ContactSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
 
         # Track newly ceated accounts in segment.
         if not settings.TESTING:
-            user = self.context.get('request').user
-            request_source = self.context.get('request').get_host()
-            creation_type = 'manual' if request_source == 'app.hellolily.com' else 'automatic'
             analytics.track(
-                user.id,
+                self.context.get('request').user.id,
                 'contact-created', {
-                    'creation_type': creation_type,
+                    'creation_type': 'automatic' if is_external_referer(self.context.get('request')) else 'manual',
                 },
             )
 

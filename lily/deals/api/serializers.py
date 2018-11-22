@@ -19,6 +19,7 @@ from lily.contacts.models import Function
 from lily.users.api.serializers import RelatedLilyUserSerializer, RelatedTeamSerializer
 from lily.utils.api.serializers import RelatedTagSerializer
 from lily.utils.functions import add_business_days
+from lily.utils.request import is_external_referer
 
 from ..models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost, DealFoundThrough, DealContactedBy, DealStatus
 
@@ -326,15 +327,13 @@ class DealSerializer(WritableNestedSerializer):
 
         # Track newly ceated accounts in segment.
         if not settings.TESTING:
-            request_source = self.context.get('request').get_host()
-            creation_type = 'manual' if request_source == 'app.hellolily.com' else 'automatic'
             analytics.track(
                 user.id,
                 'deal-created', {
                     'assigned_to_id': instance.assigned_to_id if instance.assigned_to else '',
                     'status': instance.status.name,
                     'next_step': instance.next_step.name,
-                    'creation_type': creation_type,
+                    'creation_type': 'automatic' if is_external_referer(self.context.get('request')) else 'manual',
                 },
             )
 

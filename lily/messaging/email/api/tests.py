@@ -170,8 +170,8 @@ class DraftEmailTests(GenericAPITestCase):
         for action in ['compose', 'reply', 'reply-all', 'forward', 'forward-multi']:
             self._test_create_action_object(action, should_succeed=False)
 
-    @patch('lily.messaging.email.api.views.send_message')
-    def test_send_email(self, send_message_mock):
+    @patch('lily.messaging.email.api.views.send_message.delay')
+    def test_send_email(self, delay_mock):
         """
         Test that sending an email is possible
         """
@@ -180,4 +180,4 @@ class DraftEmailTests(GenericAPITestCase):
         email = self._create_object(size=1)
 
         self.user.post(self.get_url(self.detail_url, action_name='send', kwargs={'pk': email.pk}))
-        self.assertEqual(send_message_mock.call_count, 1)
+        self.assertEqual(delay_mock.call_count, 1)

@@ -516,6 +516,9 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                         } else {
                             activity[i].activitySortDate = activity[i].modified;
                         }
+                        // The timelog endpoint returns timezone information. To make sure activitySortDate
+                        // can be formatted correctly, we convert all activitySortDates to utc.
+                        activity[i].activitySortDate = moment(activity[i].activitySortDate).utc().format();
                     }
 
                     $filter('orderBy')(activity, 'activitySortDate', true).forEach(item => {

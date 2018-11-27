@@ -3,12 +3,15 @@ import json
 from mock import patch
 from rest_framework import status
 
+from django.forms.models import model_to_dict
+
 from lily.billing.models import Billing
 from lily.tenant.middleware import set_current_user
 from lily.tests.utils import GenericAPITestCase
 from lily.users.api.serializers import LilyUserSerializer
 from lily.users.factories import LilyUserFactory
 from lily.users.models import LilyUser
+from lily.utils.models.factories import WebhookFactory
 
 
 class LilyUserTests(GenericAPITestCase):
@@ -32,25 +35,29 @@ class LilyUserTests(GenericAPITestCase):
             **kwargs
         )
 
-    def _create_object_stub(self, with_relations=False, size=1, with_email=False, **kwargs):
-        list_or_dict = super(LilyUserTests, self)._create_object_stub(
+    def _create_object_stub(self, with_relations=False, size=1, with_email=False, with_webhooks=False, **kwargs):
+        object_list = super(LilyUserTests, self)._create_object_stub(
             with_relations=with_relations,
             size=size,
             is_active=True,
+            force_to_list=True,
             **kwargs
         )
 
-        if size > 1:
-            for obj in list_or_dict:
-                del obj['password']
-                if not with_email:
-                    del obj['email']
-        else:
-            del list_or_dict['password']
+        for obj in object_list:
+            del obj['password']
             if not with_email:
-                del list_or_dict['email']
+                del obj['email']
 
-        return list_or_dict
+            if with_webhooks:
+                webhook = model_to_dict(WebhookFactory(tenant=self.user_obj.tenant))
+                del webhook['id']
+                obj['webhooks'] = [webhook]
+
+        if size == 1:
+            return object_list[0]
+
+        return object_list
 
     def test_create_object_tenant_filter(self):
         set_current_user(self.user_obj)
@@ -74,6 +81,28 @@ class LilyUserTests(GenericAPITestCase):
 
         db_obj = self.model_cls.objects.get(pk=created_id)
         self._compare_objects(db_obj, json.loads(request.content))
+
+    def test_update_object_with_webhook(self):
+        set_current_user(self.user_obj)
+        stub_dict = self._create_object_stub(with_email=True, with_webhooks=True, email=self.user_obj.email)
+
+        self.user_obj.first_name = 'something'
+        self.user_obj.save()
+
+        request = self.user.put(self.get_url(self.detail_url, kwargs={'pk': self.user_obj.pk}), data=stub_dict)
+        self.assertStatus(request, status.HTTP_200_OK, stub_dict)
+
+    def test_update_object_with_webhook_to_lily(self):
+        set_current_user(self.user_obj)
+        stub_dict = self._create_object_stub(with_email=True, with_webhooks=True, email=self.user_obj.email)
+
+        self.user_obj.first_name = 'something'
+        self.user_obj.save()
+
+        stub_dict['webhooks'][0]['url'] = 'app.hellolily.com/some-url'
+
+        request = self.user.put(self.get_url(self.detail_url, kwargs={'pk': self.user_obj.pk}), data=stub_dict)
+        self.assertStatus(request, status.HTTP_400_BAD_REQUEST, stub_dict)
 
     def test_update_object_authenticated(self):
         set_current_user(self.user_obj)

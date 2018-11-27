@@ -42,7 +42,11 @@ class Command(BaseCommand):
             writer.writerow(twinfield_colums)
 
             for row in self.read_csvfile('Customers.csv'):
-                # TODO Fetch latest customers.
+                name = row['Company']
+
+                if not name:
+                    # Filter out empty tenants (this means they didn't complete registration).
+                    continue
 
                 customer_id = row['Customer Id']
 
@@ -56,7 +60,6 @@ class Command(BaseCommand):
 
                 data = []
 
-                name = row['Company']
                 vat_no = row['Vat Number']
                 billing_address = row['Billing Address Line1']
                 billing_address_alt = row['Billing Address Line2']

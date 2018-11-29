@@ -739,7 +739,7 @@ def get_formatted_reply_email_subject(subject, prefix='Re: '):
         else:
             break
 
-    return u'%s%s' % (prefix, subject)
+    return u'%s%s'.encode('utf-8') % (prefix, subject)
 
 
 def get_formatted_email_body(action, email_message):
@@ -765,7 +765,7 @@ def get_formatted_email_body(action, email_message):
             from_email=email_message.sender.email_address,
             date=email_message.sent_date.ctime(),
             subject=get_formatted_reply_email_subject(email_message.subject, prefix=''),
-            to=', '.join(forward_header_to)
+            to=', '.join(forward_header_to).encode('utf-8')
         )
 
     return body_header + mark_safe(email_message.reply_body)

@@ -9,6 +9,7 @@ from oauth2client.client import OAuth2Credentials
 from decimal import Decimal
 from django.contrib.auth.models import AnonymousUser, Group
 from django.db.models import Manager, Model
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APIClient, APITestCase
@@ -16,6 +17,9 @@ from rest_framework.test import APIClient, APITestCase
 from lily.tenant.factories import TenantFactory
 from lily.tenant.middleware import set_current_user
 from lily.users.models import LilyUser, UserInfo
+
+from lily.messaging.email.factories import EmailAccountFactory
+from lily.messaging.email.models.models import EmailMessage, Recipient
 
 
 class UserBasedTest(object):
@@ -473,6 +477,34 @@ class GenericAPITestCase(CompareObjectsMixin, UserBasedTest, APITestCase):
         request = self.other_tenant_user.delete(self.get_url(self.detail_url, kwargs={'pk': db_obj.pk}))
         self.assertStatus(request, status.HTTP_404_NOT_FOUND)
         self.assertEqual(request.data, {u'detail': u'Not found.'})
+
+
+class EmailBasedTest(object):
+    @classmethod
+    def setupEmailMessage(cls):
+        # Create an email account for the user.
+        cls.email_account = EmailAccountFactory.create(owner=cls.user_obj, tenant=cls.user_obj.tenant)
+
+        # Create a default recipient
+        sender = Recipient.objects.create(
+            name='Firstname Lastname',
+            email_address='user1@example.com',
+        )
+
+        # Create a default email message, initially without any labels.
+        cls.email_message = EmailMessage.objects.create(
+            subject='Simple Subject',
+            account=cls.email_account,
+            sent_date=timezone.now(),
+            sender=sender,
+        )
+
+        received_by = Recipient.objects.create(
+            name='Simple Name',
+            email_address='someuser@example.com',
+        )
+
+        cls.email_message.received_by.add(received_by)
 
 
 def get_dummy_credentials():

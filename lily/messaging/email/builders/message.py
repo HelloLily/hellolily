@@ -168,7 +168,6 @@ class MessageBuilder(object):
             payload,
             self.message.body_html,
             self.message.message_id,
-            self.attachments,
             self.manager.connector,
         )
 

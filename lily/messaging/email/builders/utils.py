@@ -29,7 +29,7 @@ NON_ATTACHMENT_MIME_TYPES = (
 )
 
 
-def get_attachments_from_payload(payload, body_html, message_id, attachments, connector):
+def get_attachments_from_payload(payload, body_html, message_id, connector):
     """
     Return a list of attachments that are created by extracting information from the payload.
 
@@ -39,14 +39,26 @@ def get_attachments_from_payload(payload, body_html, message_id, attachments, co
         connector (GmailConnector): active connector to communicate with Gmail
         message_id (string): containing a reference to the message stored on Gmail
         attachments (list): list of attachments previously created for naming purposes
+    """
+    attachments = []
+    append_attachments_from_payload(payload, body_html, message_id, attachments, connector)
+    return attachments
 
-    Raises:
-        Attachment exception if attachment couldn't be created.
 
+def append_attachments_from_payload(payload, body_html, message_id, attachments, connector):
+    """
+    Appends to the given attachments the attachments that are created by extracting information from the payload.
+
+    Args:
+        payload (dict): with attachment info
+        body_html (string): body that could contain references to attachments
+        connector (GmailConnector): active connector to communicate with Gmail
+        message_id (string): containing a reference to the message stored on Gmail
+        attachments (list): list of attachments previously created for naming purposes
     """
     if 'parts' in payload:
         for part in payload['parts']:
-            attachments = get_attachments_from_payload(part, body_html, message_id, attachments, connector)
+            append_attachments_from_payload(part, body_html, message_id, attachments, connector)
 
     if payload['mimeType'] in NON_ATTACHMENT_MIME_TYPES:
         return attachments

@@ -64,7 +64,7 @@ class EmailUtilsTestCase(UserBasedTest, TestCase):
         payload = message_info['payload']
 
         body_html = get_body_html_from_payload(payload, message_id)
-        attachments = get_attachments_from_payload(payload, body_html, message_id, [], connector)
+        attachments = get_attachments_from_payload(payload, body_html, message_id, connector)
 
         get_message_info_mock.assert_called_once()
         get_attachment_mock.assert_called_once()
@@ -84,7 +84,7 @@ class EmailUtilsTestCase(UserBasedTest, TestCase):
         payload = message_info['payload']
 
         body_html = get_body_html_from_payload(payload, message_id)
-        attachments = get_attachments_from_payload(payload, body_html, message_id, [], connector)
+        attachments = get_attachments_from_payload(payload, body_html, message_id, connector)
 
         get_message_info_mock.assert_called_once()
         get_attachment_mock.assert_called_once()

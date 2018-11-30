@@ -36,6 +36,9 @@ class RegisterRedirectView(RedirectView):
         if settings.REGISTRATION_SESSION_KEY not in self.request.session:
             return reverse('register_auth')
 
+        if 'step_name' not in self.request.session[settings.REGISTRATION_SESSION_KEY]:
+            return reverse('register_auth')
+
         return reverse(self.url_pattern.format(self.request.session[settings.REGISTRATION_SESSION_KEY]['step_name']))
 
 

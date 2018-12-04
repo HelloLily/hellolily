@@ -1,17 +1,18 @@
+# -*- coding: utf-8 -*-
 import json
 from django.test import TestCase
 
 from googleapiclient.discovery import build
-from lily.tests.utils import UserBasedTest, get_dummy_credentials
-from lily.messaging.email.factories import EmailAccountFactory
+from lily.tests.utils import UserBasedTest, EmailBasedTest, get_dummy_credentials
 from lily.messaging.email.services import GmailService
 from lily.messaging.email.connector import GmailConnector
+from lily.messaging.email.utils import get_formatted_email_body
 from lily.messaging.email.builders.utils import get_attachments_from_payload, get_body_html_from_payload
 
 from mock import patch
 
 
-class EmailUtilsTestCase(UserBasedTest, TestCase):
+class EmailUtilsTestCase(UserBasedTest, EmailBasedTest, TestCase):
     def setUp(self):
         # Patch the creation of a Gmail API service without the need for authorized credentials.
         credentials = get_dummy_credentials()
@@ -34,9 +35,7 @@ class EmailUtilsTestCase(UserBasedTest, TestCase):
     def setUpTestData(cls):
         # Create a user, handled by UserBasedTest.
         super(EmailUtilsTestCase, cls).setUpTestData()
-
-        # Create an email account for the user.
-        cls.email_account = EmailAccountFactory.create(owner=cls.user_obj, tenant=cls.user_obj.tenant)
+        super(EmailUtilsTestCase, cls).setupEmailMessage()
 
     def tearDown(self):
         self.get_credentials_mock_patcher.stop()
@@ -91,3 +90,44 @@ class EmailUtilsTestCase(UserBasedTest, TestCase):
 
         self.assertEqual(len(attachments), 1)
         self.assertTrue(attachments[0].inline)
+
+    def get_expected_email_body_parts(self, subject='Simple Subject', received_by='Simple Name'):
+        expected_body_html_part_one = (
+            '<br /><br /><hr />---------- Forwarded message ---------- <br />'
+            'From: user1@example.com<br/>'
+            'Date: '
+        )
+        expected_body_html_part_two = (
+            '<br/>Subject: {}<br/>'
+            'To: {} &lt;someuser@example.com&gt;<br />'
+        ).format(subject, received_by)
+
+        return expected_body_html_part_one, expected_body_html_part_two
+
+    def test_get_formatted_email_body_action_forward(self):
+        body_html = get_formatted_email_body('forward', self.email_message)
+
+        part_one, part_two = self.get_expected_email_body_parts()
+
+        self.assertIn(part_one, body_html)
+        self.assertIn(part_two, body_html)
+
+    def test_get_formatted_email_body_action_forward_complex_subject(self):
+        self.email_message.subject = 'Complex Sübject'
+        body_html = get_formatted_email_body('forward', self.email_message)
+
+        part_one, part_two = self.get_expected_email_body_parts(self.email_message.subject)
+
+        self.assertIn(part_one, body_html)
+        self.assertIn(part_two, body_html)
+
+    def test_get_formatted_email_body_action_forward_complex_recipient(self):
+        received_by = self.email_message.received_by.first()
+        received_by.name = 'Cömplicated Name'
+        received_by.save()
+        body_html = get_formatted_email_body('forward', self.email_message)
+
+        part_one, part_two = self.get_expected_email_body_parts(received_by=received_by.name)
+
+        self.assertIn(part_one, body_html)
+        self.assertIn(part_two, body_html)

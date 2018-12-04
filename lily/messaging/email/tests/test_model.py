@@ -1,20 +1,18 @@
 import anyjson
 
-from django.utils import timezone
 from rest_framework.test import APITestCase
 
 from lily.messaging.email.factories import EmailAccountFactory, EmailMessageFactory
-from lily.messaging.email.models.models import (EmailMessage, Recipient, EmailLabel, EmailHeader, EmailAccount,
-                                                EmailOutboxMessage, EmailDraft)
+from lily.messaging.email.models.models import EmailLabel, EmailHeader, EmailAccount, EmailOutboxMessage, EmailDraft
 
 from lily.messaging.email.utils import get_filtered_message
 from lily.settings import settings
 from lily.tenant.factories import TenantFactory
-from lily.tests.utils import UserBasedTest
+from lily.tests.utils import UserBasedTest, EmailBasedTest
 from lily.users.factories import LilyUserFactory
 
 
-class EmailMessageTests(UserBasedTest, APITestCase):
+class EmailMessageTests(UserBasedTest, EmailBasedTest, APITestCase):
     """
     Class for unit testing the email message model.
     """
@@ -23,22 +21,7 @@ class EmailMessageTests(UserBasedTest, APITestCase):
     def setUpTestData(cls):
         # Create a user, handled by UserBasedTest.
         super(EmailMessageTests, cls).setUpTestData()
-
-        # Create an email account for the user.
-        cls.email_account = EmailAccountFactory.create(owner=cls.user_obj, tenant=cls.user_obj.tenant)
-
-        # Create a default recipient
-        recipient = Recipient.objects.create(
-            name='Firstname Lastname',
-            email_address='user1@example.com'
-        )
-
-        # Create a default email message, initially without any labels.
-        cls.email_message = EmailMessage.objects.create(
-            account=cls.email_account,
-            sent_date=timezone.now(),
-            sender=recipient
-        )
+        super(EmailMessageTests, cls).setupEmailMessage()
 
     def test_reply_to(self):
         """

@@ -16,12 +16,9 @@ class EmailMessageTests(UserBasedTest, EmailBasedTest, APITestCase):
     """
     Class for unit testing the email message model.
     """
-
-    @classmethod
-    def setUpTestData(cls):
-        # Create a user, handled by UserBasedTest.
-        super(EmailMessageTests, cls).setUpTestData()
-        super(EmailMessageTests, cls).setupEmailMessage()
+    def setUp(self):
+        super(EmailMessageTests, self).setUp()
+        super(EmailMessageTests, self).setupEmailMessage()
 
     def test_reply_to(self):
         """

@@ -739,7 +739,7 @@ def get_formatted_reply_email_subject(subject, prefix='Re: '):
         else:
             break
 
-    return u'%s%s'.encode('utf-8') % (prefix, subject)
+    return '{}{}'.format(prefix, subject)
 
 
 def get_formatted_email_body(action, email_message):
@@ -749,9 +749,12 @@ def get_formatted_email_body(action, email_message):
         forward_header_to = []
         for recipient in email_message.received_by.all():
             if recipient.name:
-                forward_header_to.append(recipient.name + ' &lt;' + recipient.email_address + '&gt;')
+                forward_header_to.append('{} &lt;{}&gt;'.format(
+                    recipient.name.encode('utf-8'),
+                    recipient.email_address.encode('utf-8'))
+                )
             else:
-                forward_header_to.append(recipient.email_address)
+                forward_header_to.append(recipient.email_address.encode('utf-8'))
 
         body_header = (
             '<br /><br />'
@@ -765,7 +768,7 @@ def get_formatted_email_body(action, email_message):
             from_email=email_message.sender.email_address,
             date=email_message.sent_date.ctime(),
             subject=get_formatted_reply_email_subject(email_message.subject, prefix=''),
-            to=', '.join(forward_header_to).encode('utf-8')
+            to=', '.join(forward_header_to)
         )
 
     return body_header + mark_safe(email_message.reply_body)

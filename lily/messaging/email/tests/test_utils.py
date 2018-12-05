@@ -14,6 +14,9 @@ from mock import patch
 
 class EmailUtilsTestCase(UserBasedTest, EmailBasedTest, TestCase):
     def setUp(self):
+        super(EmailUtilsTestCase, self).setUp()
+        super(EmailUtilsTestCase, self).setupEmailMessage()
+
         # Patch the creation of a Gmail API service without the need for authorized credentials.
         credentials = get_dummy_credentials()
         self.get_credentials_mock_patcher = patch('lily.messaging.email.connector.get_credentials')
@@ -30,12 +33,6 @@ class EmailUtilsTestCase(UserBasedTest, EmailBasedTest, TestCase):
 
         # Reset changes made to the email account in a test.
         self.email_account.refresh_from_db()
-
-    @classmethod
-    def setUpTestData(cls):
-        # Create a user, handled by UserBasedTest.
-        super(EmailUtilsTestCase, cls).setUpTestData()
-        super(EmailUtilsTestCase, cls).setupEmailMessage()
 
     def tearDown(self):
         self.get_credentials_mock_patcher.stop()
@@ -91,7 +88,8 @@ class EmailUtilsTestCase(UserBasedTest, EmailBasedTest, TestCase):
         self.assertEqual(len(attachments), 1)
         self.assertTrue(attachments[0].inline)
 
-    def get_expected_email_body_parts(self, subject='Simple Subject', received_by='Simple Name'):
+    def get_expected_email_body_parts(self, subject='Simple Subject',
+                                      recipient='Simple Name &lt;someuser@example.com&gt;'):
         expected_body_html_part_one = (
             '<br /><br /><hr />---------- Forwarded message ---------- <br />'
             'From: user1@example.com<br/>'
@@ -99,8 +97,8 @@ class EmailUtilsTestCase(UserBasedTest, EmailBasedTest, TestCase):
         )
         expected_body_html_part_two = (
             '<br/>Subject: {}<br/>'
-            'To: {} &lt;someuser@example.com&gt;<br />'
-        ).format(subject, received_by)
+            'To: {}<br />'
+        ).format(subject, recipient)
 
         return expected_body_html_part_one, expected_body_html_part_two
 
@@ -127,7 +125,22 @@ class EmailUtilsTestCase(UserBasedTest, EmailBasedTest, TestCase):
         received_by.save()
         body_html = get_formatted_email_body('forward', self.email_message)
 
-        part_one, part_two = self.get_expected_email_body_parts(received_by=received_by.name)
+        recipient = 'Cömplicated Name &lt;someuser@example.com&gt;'
+        part_one, part_two = self.get_expected_email_body_parts(recipient=recipient)
+
+        self.assertIn(part_one, body_html)
+        self.assertIn(part_two, body_html)
+
+    def test_get_formatted_email_body_action_forward_simple(self):
+        self.email_message.subject = 'Simple Subject'
+        received_by = self.email_message.received_by.first()
+        received_by.name = None
+        received_by.email_address = 'support@ümail.nl'
+        received_by.save()
+
+        body_html = get_formatted_email_body('forward', self.email_message)
+
+        part_one, part_two = self.get_expected_email_body_parts(recipient=received_by.email_address)
 
         self.assertIn(part_one, body_html)
         self.assertIn(part_two, body_html)

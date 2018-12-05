@@ -18,20 +18,22 @@ from django.contrib.postgres.fields import ArrayField, JSONField
 from django.core.files.uploadedfile import InMemoryUploadedFile, TemporaryUploadedFile
 from django.core.files.storage import default_storage
 from django.core.mail import SafeMIMEText, SafeMIMEMultipart, EmailMultiAlternatives
+from django.core.files.base import File
 from django.urls import reverse
 from django.core.validators import validate_comma_separated_integer_list
 from django.db import models
+from django.db.models.fields.files import FieldFile
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 from oauth2client.contrib.django_orm import CredentialsField
+from storages.utils import clean_name
 
 from lily.tenant.models import TenantMixin
 from lily.users.models import LilyUser
 from lily.utils.models.mixins import DeletedMixin, TimeStampedModel
 
 from ..sanitize import sanitize_html_email
-
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +63,14 @@ def get_outbox_attachment_upload_path(instance, filename):
     return settings.EMAIL_ATTACHMENT_UPLOAD_TO % {
         'tenant_id': instance.tenant_id,
         'message_id': instance.email_outbox_message_id,
+        'filename': filename
+    }
+
+
+def get_draft_attachment_upload_path(instance, filename):
+    return settings.EMAIL_ATTACHMENT_UPLOAD_TO % {
+        'tenant_id': instance.tenant_id,
+        'message_id': instance.email_draft_id,
         'filename': filename
     }
 
@@ -721,14 +731,69 @@ class EmailDraft(TenantMixin, models.Model):
         verbose_name_plural = _('email draft messages')
 
 
+class CustomFieldFile(FieldFile):
+    def save(self, name, content, save=True):
+        """
+        The default FieldFile implementation of save uploads a field to storage. In our case we do not want to
+        to save the file to the storage, because there is none. Instead, we generate a presigned url which can be
+        used by frontend to upload directly to the storage. We do want to keep using the rest of the logic of saving
+        the instance, such as the logic to see if a name is available on s3.
+        """
+        name = self.field.generate_filename(self.instance, name)
+
+        # Get the proper name for the file, as it will actually be saved.
+        if name is None:
+            name = content.name
+
+        if not hasattr(content, 'chunks'):
+            content = File(content, name)
+
+        # Below is from core.files.storage.save.
+        name = self.storage.get_available_name(name, max_length=self.field.max_length)
+        # Above is from core.files.storage.save.
+
+        # Below is from backends.s3boto._save minus the actual storing to s3 with _save_content.
+        self.name = clean_name(name)
+        # Above is from backends.s3boto._save.
+
+        setattr(self.instance, self.field.name, self.name)
+        self._committed = True
+
+        # Save the object because it has changed, unless save is False.
+        if save:
+            self.instance.save()
+    save.alters_data = True
+
+
+class CustomFileField(models.FileField):
+    attr_class = CustomFieldFile
+
+
 class EmailDraftAttachment(TenantMixin):
     inline = models.BooleanField(default=False)
-    attachment = models.FileField(upload_to=get_outbox_attachment_upload_path, max_length=255)
+    attachment = CustomFileField(upload_to=get_draft_attachment_upload_path, max_length=255)
     size = models.PositiveIntegerField(default=0)
-    content_type = models.CharField(max_length=255, verbose_name=_('content type'))
     email_draft = models.ForeignKey(EmailDraft, related_name='attachments')
 
     def __unicode__(self):
+        return self.attachment.name
+
+    def generate_presigned_url(self):
+        # When DEBUG is true, the default FileSystemStrorage is used instead of MediaFilesStorage.
+        # When that is the case, generate_presigned_post_url does not exist, because S3 is not used at all.
+        if not hasattr(self.attachment.storage, 'generate_presigned_post_url'):
+            return 'some-fake-presigned-url'
+
+        return self.attachment.storage.generate_presigned_post_url(self.attachment.name)
+
+    def get_download_url(self):
+        return reverse('download', kwargs={
+            'model_name': 'draft',
+            'field_name': 'attachment',
+            'object_id': self.id,
+        })
+
+    def get_filename(self):
         return self.attachment.name
 
     class Meta:

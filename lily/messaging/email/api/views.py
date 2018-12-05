@@ -26,9 +26,11 @@ from lily.utils.models.models import PhoneNumber
 from .serializers import (EmailLabelSerializer, EmailAccountSerializer, EmailMessageSerializer,
                           EmailTemplateFolderSerializer, EmailTemplateSerializer, SharedEmailConfigSerializer,
                           TemplateVariableSerializer, EmailAttachmentSerializer, EmailDraftCreateSerializer,
-                          EmailDraftReadUpdateSerializer, SimpleEmailAccountSerializer, EmailMessageListSerializer)
+                          EmailDraftReadSerializer, EmailDraftUpdateSerializer, EmailDraftAttachmentReadSerializer,
+                          SimpleEmailAccountSerializer, EmailMessageListSerializer,
+                          EmailDraftAttachmentCreateSerializer)
 from ..models.models import (EmailLabel, EmailAccount, EmailMessage, EmailTemplateFolder, EmailTemplate,
-                             SharedEmailConfig, TemplateVariable, EmailDraft)
+                             SharedEmailConfig, TemplateVariable, EmailDraft, EmailDraftAttachment)
 from ..tasks import (trash_email_message, toggle_read_email_message, add_and_remove_labels_for_message,
                      toggle_star_email_message, toggle_spam_email_message)
 from ..utils import get_filtered_message
@@ -556,13 +558,14 @@ class EmailDraftViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return super(EmailDraftViewSet, self).get_queryset().filter(
-            send_from__in=self.available_accounts  # get_shared_email_accounts(self.request.user)
+            send_from__in=self.available_accounts
         ).order_by('id')
 
     def get_serializer_class(self):
         method_serializer_classes = {
             ('POST', ): EmailDraftCreateSerializer,
-            ('GET', 'PUT', 'PATCH', ): EmailDraftReadUpdateSerializer
+            ('GET', ): EmailDraftReadSerializer,
+            ('PUT', 'PATCH', ): EmailDraftUpdateSerializer
         }
 
         for methods, serializer_cls in method_serializer_classes.items():
@@ -718,3 +721,54 @@ class SearchView(APIView):
             }
 
         return Response(result)
+
+
+class EmailDraftAttachmentViewSet(viewsets.ModelViewSet):
+    # Set the queryset, without .all() this filters on the tenant and takes
+    # care of setting the `base_name`.
+    queryset = EmailDraftAttachment.objects
+    # Set all filter backends that this viewset uses.
+    filter_backends = (OrderingFilter,)
+    ordering_fields = ('id',)
+    ordering = ('id',)
+    serializer_class = EmailDraftAttachmentReadSerializer
+
+    def initial(self, request, *args, **kwargs):
+        """ Anything that should happen after permission checks and before dispatching. """
+        super(EmailDraftAttachmentViewSet, self).initial(request, *args, **kwargs)
+
+        # Store the email accounts on the class so we only have to fetch them once.
+        self.available_accounts = get_shared_email_accounts(self.request.user)
+
+        try:
+            self.draft = EmailDraft.objects.get(
+                pk=kwargs['draft_id'],
+                send_from__in=self.available_accounts
+            )
+        except EmailDraft.DoesNotExist:
+            raise NotFound()
+
+    def get_queryset(self):
+        return super(EmailDraftAttachmentViewSet, self).get_queryset().filter(
+            email_draft=self.draft,
+            email_draft__send_from__in=self.available_accounts
+        ).order_by('id')
+
+    def get_serializer_class(self):
+        method_serializer_classes = {
+            ('GET', ): EmailDraftAttachmentReadSerializer,
+            ('POST', ): EmailDraftAttachmentCreateSerializer,
+        }
+
+        for methods, serializer_cls in method_serializer_classes.items():
+            if self.request.method in methods:
+                return serializer_cls
+
+    def get_serializer_context(self):
+        context = super(EmailDraftAttachmentViewSet, self).get_serializer_context()
+
+        # We give the available email accounts to the serializer to prevent extra queries to fetch them again.
+        context['available_accounts'] = self.available_accounts
+        context['draft'] = self.draft
+
+        return context

@@ -1,9 +1,11 @@
 import analytics
 import logging
 import re
+import StringIO
 
 from django.conf import settings
 from django.core.validators import RegexValidator
+from django.core.files import File
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
@@ -20,7 +22,8 @@ from lily.messaging.email.utils import (
 )
 
 from ..models.models import (EmailLabel, EmailAccount, EmailMessage, Recipient, EmailAttachment, EmailTemplateFolder,
-                             EmailTemplate, SharedEmailConfig, TemplateVariable, DefaultEmailTemplate, EmailDraft)
+                             EmailTemplate, SharedEmailConfig, TemplateVariable, DefaultEmailTemplate, EmailDraft,
+                             EmailDraftAttachment)
 from ..services import GmailService
 
 
@@ -462,7 +465,24 @@ class TemplateVariableSerializer(serializers.ModelSerializer):
         )
 
 
-class EmailDraftReadUpdateSerializer(serializers.ModelSerializer):
+class EmailDraftReadSerializer(serializers.ModelSerializer):
+    send_from = RelatedEmailAccountSerializer(read_only=True)
+
+    class Meta:
+        model = EmailDraft
+        fields = (
+            'id',
+            'send_from',
+            'to',
+            'cc',
+            'bcc',
+            'subject',
+            'body',
+            'attachments',
+        )
+
+
+class EmailDraftUpdateSerializer(serializers.ModelSerializer):
     send_from = RelatedEmailAccountSerializer(read_only=True)
 
     class Meta:
@@ -573,4 +593,42 @@ class EmailDraftCreateSerializer(serializers.ModelSerializer):
             'bcc',
             'subject',
             'body',
+        )
+
+
+class EmailDraftAttachmentReadSerializer(serializers.ModelSerializer):
+    url = serializers.ReadOnlyField(source='get_download_url')
+    filename = serializers.ReadOnlyField(source='get_filename')
+
+    class Meta:
+        model = EmailDraftAttachment
+        fields = (
+            'id',
+            'url',
+            'filename',
+            'size',
+        )
+
+
+class EmailDraftAttachmentCreateSerializer(serializers.ModelSerializer):
+    presigned_url = serializers.ReadOnlyField(source='generate_presigned_url')
+    filename = serializers.CharField(required=True, write_only=True)
+
+    class Meta:
+        model = EmailDraftAttachment
+        fields = (
+            'id',
+            'presigned_url',
+            'filename',
+        )
+
+    def create(self, validated_data):
+        file = StringIO.StringIO()
+        file_name = validated_data.get('filename')
+        final_file = File(file, file_name)
+
+        # Faking a file here in order to trigger save on attachment.
+        return EmailDraftAttachment.objects.create(
+            email_draft=self.context['draft'],
+            attachment=File(StringIO.StringIO(), final_file)
         )

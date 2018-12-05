@@ -1,8 +1,10 @@
 import urlparse
+from mimetypes import guess_type
 
 from django.conf import settings
 from django.contrib.staticfiles.storage import CachedFilesMixin
 from storages.backends.s3boto import S3BotoStorage
+from django.utils.encoding import filepath_to_uri
 
 
 def domain(url):
@@ -26,6 +28,28 @@ class MediaFilesStorage(S3BotoStorage):
         kwargs['querystring_expire'] = 300
         super(MediaFilesStorage, self).__init__(*args, **kwargs)
 
+    def generate_presigned_post_url(self, name, expire=3600):
+        # Preserve the trailing slash after normalizing the path.
+        name = self._normalize_name(self._clean_name(name))
+        if self.custom_domain:
+            return '%s//%s/%s' % (self.url_protocol, self.custom_domain, filepath_to_uri(name))
+
+        if expire is None:
+            expire = self.querystring_expire
+
+        content_type, _ = guess_type(name)
+
+        return self.connection.generate_url(
+            expire,
+            method='PUT',
+            bucket=self.bucket.name,
+            key=self._encode_name(name),
+            headers={'Content-Type': content_type},
+            query_auth=self.querystring_auth,
+            force_http=not self.secure_urls,
+            response_headers={},
+        )
+
 
 class StaticFilesStorage(CachedFilesMixin, S3BotoStorage):
     """
@@ -35,6 +59,8 @@ class StaticFilesStorage(CachedFilesMixin, S3BotoStorage):
     def __init__(self, *args, **kwargs):
         kwargs['bucket'] = settings.STATIC_ROOT
         kwargs['custom_domain'] = domain(settings.STATIC_URL)
+        # Don't think this is even used
+        # Should be set with env var AWS_S3_CUSTOM_DOMAIN
         kwargs['acl'] = 'private'
         super(StaticFilesStorage, self).__init__(*args, **kwargs)
 

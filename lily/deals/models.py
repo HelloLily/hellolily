@@ -104,7 +104,7 @@ class Deal(TaggedObjectMixin, TenantMixin, DeletedMixin, ArchivedMixin):
     quote_id = models.CharField(max_length=255, blank=True)
     next_step_date = models.DateField(null=True, blank=True)
     import_id = models.CharField(max_length=100, default='', blank=True, db_index=True)
-    imported_from = models.CharField(max_length=50, null=True, blank=True)
+    imported_from = models.CharField(max_length=50, blank=True)
 
     # Voys specific fields.
     new_business = models.BooleanField(default=False)

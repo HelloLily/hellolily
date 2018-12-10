@@ -88,6 +88,18 @@ class EmailAttachmentSerializer(serializers.ModelSerializer):
         )
 
 
+class SimpleEmailAccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EmailAccount
+        fields = (
+            'id',
+            'email_address',
+            'label',
+            'color',
+            'is_syncing',
+        )
+
+
 class EmailMessageSerializer(serializers.ModelSerializer):
     account = serializers.PrimaryKeyRelatedField(read_only=True)
     sender = RecipientSerializer(many=False, read_only=True)

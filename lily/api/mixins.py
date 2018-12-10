@@ -146,7 +146,12 @@ class ModelChangesMixin(object):
     def changes(self, request, pk=None):
         obj = self.get_object()
 
-        change_objects = Change.objects.filter(object_id=obj.id, content_type=obj.content_type)
+        change_objects = Change.objects.prefetch_related(
+            'user',
+        ).filter(
+            object_id=obj.id,
+            content_type=obj.content_type
+        )
         changes = []
 
         for change in change_objects:

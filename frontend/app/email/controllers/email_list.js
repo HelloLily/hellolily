@@ -121,14 +121,14 @@ function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLa
         SelectedEmailAccount.setCurrentAccountId($stateParams.accountId);
         SelectedEmailAccount.setCurrentFolderId($stateParams.labelId);
 
-        getNumberOfEmailAccounts();
+        getColorOfEmailAccounts();
     }
 
-    function getNumberOfEmailAccounts() {
-        EmailAccount.query({}, data => {
+    function getColorOfEmailAccounts() {
+        EmailAccount.color(results => {
             const colorCodes = {};
 
-            data.results.forEach(account => {
+            results.forEach(account => {
                 let color;
 
                 if (account.color) {
@@ -142,11 +142,11 @@ function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLa
 
             vm.colorCodes = colorCodes;
 
-            if (data.pagination.total === 0) {
-                vm.showEmptyState = true;
-            } else {
-                let synced = data.results.filter(account => account.is_syncing === false);
+            if (results.length) {
+                let synced = results.filter(account => account.is_syncing === false);
                 vm.syncInProgress = synced.length ? false : true;
+            } else {
+                vm.showEmptyState = true;
             }
         });
     }

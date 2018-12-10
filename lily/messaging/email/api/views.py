@@ -1,7 +1,7 @@
 import logging
 
 from django.conf import settings
-from django.db.models import Q, Prefetch
+from django.db.models import Q
 from django_filters import rest_framework as filters
 import phonenumbers
 from rest_framework import viewsets, mixins, status
@@ -23,7 +23,7 @@ from .serializers import (EmailLabelSerializer, EmailAccountSerializer, EmailMes
                           TemplateVariableSerializer, EmailAttachmentSerializer, EmailDraftCreateSerializer,
                           EmailDraftReadUpdateSerializer, SimpleEmailAccountSerializer)
 from ..models.models import (EmailLabel, EmailAccount, EmailMessage, EmailTemplateFolder, EmailTemplate,
-                             SharedEmailConfig, TemplateVariable, EmailDraft, DefaultEmailTemplate)
+                             SharedEmailConfig, TemplateVariable, EmailDraft)
 from ..tasks import (trash_email_message, toggle_read_email_message, add_and_remove_labels_for_message,
                      toggle_star_email_message, toggle_spam_email_message)
 from ..utils import get_filtered_message
@@ -95,13 +95,10 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
     )
 
     def get_queryset(self):
-        qs = DefaultEmailTemplate.objects.filter(user=self.request.user).first()
-
         email_account_list = EmailAccount.objects.filter(is_deleted=False).distinct('id')
         email_account_list = email_account_list.prefetch_related(
             'labels',
             'sharedemailconfig_set',
-            Prefetch('default_templates', qs, 'default_template'),
         )
 
         return email_account_list
@@ -116,13 +113,11 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
 
     @list_route()
     def mine(self, request):
-        qs = DefaultEmailTemplate.objects.filter(user=request.user).first()
         email_account_list = get_shared_email_accounts(request.user)
         email_account_list = email_account_list.prefetch_related(
             'labels',
             'sharedemailconfig_set',
             'owner',
-            Prefetch('default_templates', qs, 'default_template'),
         )
         serializer = self.get_serializer(email_account_list, many=True)
 

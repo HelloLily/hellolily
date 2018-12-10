@@ -802,7 +802,7 @@ class EmailTests(UserBasedTest, APITestCase):
             headers={},
             mapped_attachments=0,
             template_attachment_ids='',
-            original_message_id='',
+            original_message_id=None,
             tenant=self.user_obj.tenant
         )
 

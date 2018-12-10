@@ -35,7 +35,7 @@ class PhoneNumber(TenantMixin):
         default='work',
         verbose_name=_('type')
     )
-    other_type = models.CharField(max_length=15, blank=True)  # used in combination with type='other'.
+    other_type = models.CharField(max_length=15, blank=True, null=True)  # used in combination with type='other'.
     status = models.PositiveSmallIntegerField(
         choices=PHONE_STATUS_CHOICES,
         default=ACTIVE_STATUS,
@@ -148,7 +148,7 @@ class Webhook(TenantMixin):
     A link to a webhook.
     """
     url = models.URLField(max_length=255)
-    name = models.CharField(max_length=255, blank=True)
+    name = models.CharField(max_length=255, null=True, blank=True)
 
     def __unicode__(self):
         return self.name

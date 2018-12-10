@@ -20,9 +20,9 @@ class SocialMedia(TenantMixin):
     )
 
     name = models.CharField(max_length=30, choices=SOCIAL_NAME_CHOICES)
-    other_name = models.CharField(max_length=30, blank=True)  # used in combination with name='other'
+    other_name = models.CharField(max_length=30, blank=True, null=True)  # used in combination with name='other'
     username = models.CharField(max_length=100, blank=True)
-    profile_url = models.URLField(max_length=255, blank=True)
+    profile_url = models.URLField(max_length=255, blank=True, null=True)
 
     def __unicode__(self):
         return self.name

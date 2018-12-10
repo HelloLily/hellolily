@@ -10,7 +10,7 @@ from lily.api.filters import ElasticSearchFilter
 from lily.api.mixins import ModelChangesMixin, DataExistsMixin
 from lily.calls.api.serializers import CallRecordSerializer
 from lily.calls.models import CallRecord
-from lily.utils.functions import uniquify
+from lily.utils.models.models import PhoneNumber
 from .serializers import AccountSerializer, AccountStatusSerializer
 from ..models import Account, AccountStatus
 

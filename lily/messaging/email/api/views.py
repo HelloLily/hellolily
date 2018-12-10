@@ -1,7 +1,7 @@
 import logging
 
 from django.conf import settings
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 from django_filters import rest_framework as filters
 import phonenumbers
 from rest_framework import viewsets, mixins, status
@@ -21,9 +21,9 @@ from lily.utils.models.models import PhoneNumber
 from .serializers import (EmailLabelSerializer, EmailAccountSerializer, EmailMessageSerializer,
                           EmailTemplateFolderSerializer, EmailTemplateSerializer, SharedEmailConfigSerializer,
                           TemplateVariableSerializer, EmailAttachmentSerializer, EmailDraftCreateSerializer,
-                          EmailDraftReadUpdateSerializer)
+                          EmailDraftReadUpdateSerializer, SimpleEmailAccountSerializer)
 from ..models.models import (EmailLabel, EmailAccount, EmailMessage, EmailTemplateFolder, EmailTemplate,
-                             SharedEmailConfig, TemplateVariable, EmailDraft)
+                             SharedEmailConfig, TemplateVariable, EmailDraft, DefaultEmailTemplate)
 from ..tasks import (trash_email_message, toggle_read_email_message, add_and_remove_labels_for_message,
                      toggle_star_email_message, toggle_spam_email_message)
 from ..utils import get_filtered_message
@@ -95,7 +95,16 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
     )
 
     def get_queryset(self):
-        return EmailAccount.objects.filter(is_deleted=False).distinct('id')
+        qs = DefaultEmailTemplate.objects.filter(user=self.request.user).first()
+
+        email_account_list = EmailAccount.objects.filter(is_deleted=False).distinct('id')
+        email_account_list = email_account_list.prefetch_related(
+            'labels',
+            'sharedemailconfig_set',
+            Prefetch('default_templates', qs, 'default_template'),
+        )
+
+        return email_account_list
 
     def perform_destroy(self, instance):
         if instance.owner_id == self.request.user.id:
@@ -107,10 +116,22 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
 
     @list_route()
     def mine(self, request):
+        qs = DefaultEmailTemplate.objects.filter(user=request.user).first()
         email_account_list = get_shared_email_accounts(request.user)
-
+        email_account_list = email_account_list.prefetch_related(
+            'labels',
+            'sharedemailconfig_set',
+            'owner',
+            Prefetch('default_templates', qs, 'default_template'),
+        )
         serializer = self.get_serializer(email_account_list, many=True)
 
+        return Response(serializer.data)
+
+    @list_route()
+    def color(self, request):
+        email_account_list = get_shared_email_accounts(request.user)
+        serializer = SimpleEmailAccountSerializer(email_account_list, many=True)
         return Response(serializer.data)
 
     @detail_route(methods=['delete'])

@@ -97,18 +97,19 @@ class AccountViewSet(ModelChangesMixin, DataExistsMixin, ModelViewSet):
     @detail_route(methods=['GET', ])
     def calls(self, request, pk=None):
         account = self.get_object()
-
-        phone_numbers = list(account.phone_numbers.all().values_list('number', flat=True))
-
         contact_list = account.get_contacts()
 
-        for contact in contact_list:
-            phone_numbers += list(contact.phone_numbers.all().values_list('number', flat=True))
-
-        phone_numbers = uniquify(phone_numbers)  # Filter out double numbers.
+        # Get all the unique phone numbers of the account and of it's contacts as a flat list.
+        phone_numbers = account.phone_numbers.all()
+        phone_numbers |= PhoneNumber.objects.filter(contact__in=contact_list)
+        phone_numbers = list(phone_numbers.values_list('number', flat=True).distinct())
 
         calls = CallRecord.objects.filter(
             Q(caller__number__in=phone_numbers) | Q(destination__number__in=phone_numbers)
+        ).prefetch_related(
+            'caller',
+            'destination',
+            'transfers',
         ).order_by(
             '-start'
         )[:100]

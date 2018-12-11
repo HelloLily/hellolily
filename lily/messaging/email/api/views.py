@@ -1,5 +1,6 @@
 import logging
 
+from ddtrace import tracer
 from django.conf import settings
 from django.db.models import Q
 from django_filters import rest_framework as filters
@@ -595,23 +596,33 @@ class SearchView(APIView):
     """
 
     def get(self, request, format=None):
-        user = request.user
+        with tracer.trace('SearchView.get: parameter setup'):
+            user = request.user
 
-        # Search query.
-        q = request.query_params.get('q', '').strip()
+            # Search query.
+            q = request.query_params.get('q', '').strip()
 
-        # Paging parameters.
-        page = request.query_params.get('page', '0')
-        page = int(page) + 1
-        size = int(request.query_params.get('size', '20'))
-        sort = request.query_params.get('sort', '-sent_date')
+            # Paging parameters.
+            page = request.query_params.get('page', '0')
+            page = int(page) + 1
+            size = int(request.query_params.get('size', '20'))
+            sort = request.query_params.get('sort', '-sent_date')
 
-        # Mail labeling parameters.
-        label_id = request.query_params.get('label', None)
+            # Mail labeling parameters.
+            label_id = request.query_params.get('label', None)
 
-        # Get a list of all email accounts added by the user or publicly shared with the user as a group inbox.
-        email_accounts = get_shared_email_accounts(user, True)
-        email_accounts = email_accounts.exclude(is_active=False, is_deleted=True, is_authorized=False)
+            account_ids = request.query_params.get('account', None)  # None means search in all owned email accounts.
+
+        with tracer.trace('SearchView.get: email_accounts setup'):
+            # Get a list of all email accounts added by the user or publicly shared with the user as a group inbox.
+            email_accounts = get_shared_email_accounts(user, True)
+
+            if account_ids:
+                # Only search within the email accounts indicated by the account_ids parameter.
+                account_ids = account_ids.split(',')
+                email_accounts = email_accounts.filter(pk__in=account_ids)
+
+            email_accounts = email_accounts.exclude(is_active=False, is_deleted=True, is_authorized=False)
 
         message_list = EmailMessage.objects
 
@@ -633,64 +644,67 @@ class SearchView(APIView):
             max_results = 3 * size
 
             messages_ids = []
-            for email_account in email_accounts:
-                if label_id:
-                    # Retrieve the label corresponding to the label_id, otherwise Gmail defaults to all mail.
-                    label_name = label_id
-                    if label_id not in gmail_labels:
-                        # Retrieve the label name if label_id will differ from the user set label name.
-                        try:
-                            label_name = email_account.labels.get(label_id=label_id).name
-                        except EmailLabel.DoesNotExist:
-                            logger.error(
-                                "Incorrect label id {0} with search request for account {1}.".format(
-                                    label_id,
-                                    email_account
+            with tracer.trace('SearchView.get: retrieving message_ids by Gmail API'):
+                for email_account in email_accounts:
+                    if label_id:
+                        # Retrieve the label corresponding to the label_id, otherwise Gmail defaults to all mail.
+                        label_name = label_id
+                        if label_id not in gmail_labels:
+                            # Retrieve the label name if label_id will differ from the user set label name.
+                            try:
+                                label_name = email_account.labels.get(label_id=label_id).name
+                            except EmailLabel.DoesNotExist:
+                                logger.error(
+                                    "Incorrect label id {0} with search request for account {1}.".format(
+                                        label_id,
+                                        email_account
+                                    )
                                 )
-                            )
-                            # Failing label lookup within one account should not halt the complete search.
-                            continue
+                                # Failing label lookup within one account should not halt the complete search.
+                                continue
 
-                    q = u"{0} {1}:{2}".format(q, 'label', label_name)
+                        q = u"{0} {1}:{2}".format(q, 'label', label_name)
 
-                try:
-                    connector = GmailConnector(email_account)
-                    messages = connector.search(query=q, size=max_results)
-                    messages_ids.extend([message['id'] for message in messages])
-                except (InvalidCredentialsError, NotFoundError, HttpAccessTokenRefreshError,
-                        FailedServiceCallException) as e:
-                    logger.error(
-                        "Failed to search within account {0} with error: {1}.".format(email_account, e)
-                    )
-                    # Failing search within one account should not halt the complete search.
-                    continue
+                    try:
+                        connector = GmailConnector(email_account)
+                        messages = connector.search(query=q, size=max_results)
+                        messages_ids.extend([message['id'] for message in messages])
+                    except (InvalidCredentialsError, NotFoundError, HttpAccessTokenRefreshError,
+                            FailedServiceCallException) as e:
+                        logger.error(
+                            "Failed to search within account {0} with error: {1}.".format(email_account, e)
+                        )
+                        # Failing search within one account should not halt the complete search.
+                        continue
 
-            # Retrieve messages from the database.
-            message_list = message_list.filter(
-                message_id__in=messages_ids,
-                account__in=email_accounts
-            )
+                # Retrieve messages from the database.
+                message_list = message_list.filter(
+                    message_id__in=messages_ids,
+                    account__in=email_accounts
+                )
 
-        message_list = message_list.order_by(sort)
+        with tracer.trace('SearchView.get: retrieving messages from db'):
+            message_list = message_list.order_by(sort)
 
-        # The serializer will query for account, sender and star label, so instead of the extra separate queries,
-        # retrieve them now.
-        message_list = message_list.select_related('account', 'sender')
-        message_list = message_list.prefetch_related('labels', 'received_by')
+            # The serializer will query for account, sender and star label, so instead of the extra separate queries,
+            # retrieve them now.
+            message_list = message_list.select_related('account', 'sender')
+            message_list = message_list.prefetch_related('labels', 'received_by')
 
-        # It's possible Google search returns message_id's that aren't in the database (due to 'sync from now').
-        actual_number_of_results = len(message_list)
+            # It's possible Google search returns message_id's that aren't in the database (due to 'sync from now').
+            actual_number_of_results = len(message_list)
 
-        # Construct paginator.
-        limit = size * page
-        offset = limit - size
-        message_list = message_list[offset:limit]
+        with tracer.trace('SearchView.get: serializing messages'):
+            # Construct paginator.
+            limit = size * page
+            offset = limit - size
+            message_list = message_list[offset:limit]
 
-        serializer = EmailMessageListSerializer(message_list, many=True)
+            serializer = EmailMessageListSerializer(message_list, many=True)
 
-        result = {
-            'hits': serializer.data,
-            'total': actual_number_of_results,
-        }
+            result = {
+                'hits': serializer.data,
+                'total': actual_number_of_results,
+            }
 
         return Response(result)

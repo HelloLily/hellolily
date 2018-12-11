@@ -84,18 +84,18 @@ function EmailMessage($resource, $q) {
                         objects.total = jsonData.total;
                         if (jsonData.hits && jsonData.hits.length > 0) {
                             jsonData.hits.forEach(function(obj) {
-                                let email_message = $.extend(obj, {
+                                let emailMessage = $.extend(obj, {
                                     sender_email: obj.sender.email_address,
                                     sender_name: obj.sender.name,
                                     received_by_email: [],
                                 });
-                                email_message.account.email = email_message.account.email_address;
-                                email_message.account.name = email_message.account.label;
-                                email_message.received_by.forEach(function(receiver) {
-                                    email_message.received_by_email.push(receiver.email_address);
+                                emailMessage.account.email = emailMessage.account.email_address;
+                                emailMessage.account.name = emailMessage.account.label;
+                                emailMessage.received_by.forEach(function(receiver) {
+                                    emailMessage.received_by_email.push(receiver.email_address);
                                 });
 
-                                objects.hits.push(email_message);
+                                objects.hits.push(emailMessage);
                             });
                         }
                     }

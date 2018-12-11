@@ -739,7 +739,7 @@ def get_formatted_reply_email_subject(subject, prefix='Re: '):
         else:
             break
 
-    return '{}{}'.encode('utf-8').format(prefix, subject)
+    return '{}{}'.format(prefix, subject.encode('utf-8'))
 
 
 def get_formatted_email_body(action, email_message):

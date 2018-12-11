@@ -760,7 +760,7 @@ def get_formatted_reply_email_subject(subject, prefix='Re: '):
 
 
 def get_formatted_email_body(action, email_message):
-    body_header = create_reply_body_header(email_message)
+    body_header = create_reply_body_header(email_message).encode('utf-8')
 
     if action in ['forward', 'forward-multi']:
         forward_header_to = []
@@ -788,7 +788,7 @@ def get_formatted_email_body(action, email_message):
             to=', '.join(forward_header_to)
         )
 
-    return body_header + mark_safe(email_message.reply_body)
+    return '{}{}'.format(body_header, mark_safe(email_message.reply_body))
 
 
 class EmailHeaderInputException(Exception):

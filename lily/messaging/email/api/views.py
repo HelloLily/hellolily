@@ -4,14 +4,18 @@ from django.conf import settings
 from django.db.models import Q
 from django_filters import rest_framework as filters
 import phonenumbers
+from oauth2client.client import HttpAccessTokenRefreshError
 from rest_framework import viewsets, mixins, status
 from rest_framework.filters import OrderingFilter
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
 from lily.accounts.models import Account
+from lily.messaging.email.connector import GmailConnector, NotFoundError, FailedServiceCallException
+from lily.messaging.email.credentials import InvalidCredentialsError
 from lily.messaging.email.utils import get_email_parameter_api_dict, reindex_email_message, get_shared_email_accounts
 from lily.messaging.email.tasks import send_message
 from lily.search.lily_search import LilySearch
@@ -21,7 +25,7 @@ from lily.utils.models.models import PhoneNumber
 from .serializers import (EmailLabelSerializer, EmailAccountSerializer, EmailMessageSerializer,
                           EmailTemplateFolderSerializer, EmailTemplateSerializer, SharedEmailConfigSerializer,
                           TemplateVariableSerializer, EmailAttachmentSerializer, EmailDraftCreateSerializer,
-                          EmailDraftReadUpdateSerializer, SimpleEmailAccountSerializer)
+                          EmailDraftReadUpdateSerializer, SimpleEmailAccountSerializer, EmailMessageListSerializer)
 from ..models.models import (EmailLabel, EmailAccount, EmailMessage, EmailTemplateFolder, EmailTemplate,
                              SharedEmailConfig, TemplateVariable, EmailDraft)
 from ..tasks import (trash_email_message, toggle_read_email_message, add_and_remove_labels_for_message,
@@ -579,3 +583,114 @@ class EmailDraftViewSet(viewsets.ModelViewSet):
         send_message.delay(draft.id, draft=True)
 
         return Response({'status': 'Email is being sent'})
+
+
+class SearchView(APIView):
+    """
+    Search for email messages by using the Gmail Search API. Our search therefor provides the same operators Gmail
+    offers: https://support.google.com/mail/answer/7190
+
+    The Gmail API returns message_id's for the messages that are the result of the search query. Using those
+    messages_id's the corresponding email messages are subsequently retrieved from our database.
+    """
+
+    def get(self, request, format=None):
+        user = request.user
+
+        # Search query.
+        q = request.query_params.get('q', '').strip()
+
+        # Paging parameters.
+        page = request.query_params.get('page', '0')
+        page = int(page) + 1
+        size = int(request.query_params.get('size', '20'))
+        sort = request.query_params.get('sort', '-sent_date')
+
+        # Mail labeling parameters.
+        label_id = request.query_params.get('label', None)
+
+        # Get a list of all email accounts added by the user or publicly shared with the user as a group inbox.
+        email_accounts = get_shared_email_accounts(user, True)
+        email_accounts = email_accounts.exclude(is_active=False, is_deleted=True, is_authorized=False)
+
+        message_list = EmailMessage.objects
+
+        if q:
+            # System Gmail labels visible in Lily, where the user can search in.
+            gmail_labels = [
+                settings.GMAIL_LABEL_INBOX,
+                settings.GMAIL_LABEL_SPAM,
+                settings.GMAIL_LABEL_TRASH,
+                settings.GMAIL_LABEL_SENT,
+                settings.GMAIL_LABEL_DRAFT
+            ]
+
+            if label_id and label_id not in gmail_labels:
+                # Also retrieve related user set labels because later the label name will be queried.
+                email_accounts = email_accounts.prefetch_related('labels')
+
+            # Prevent too much calls on the search api, so restrict number of search results per email account.
+            max_results = 3 * size
+
+            messages_ids = []
+            for email_account in email_accounts:
+                if label_id:
+                    # Retrieve the label corresponding to the label_id, otherwise Gmail defaults to all mail.
+                    label_name = label_id
+                    if label_id not in gmail_labels:
+                        # Retrieve the label name if label_id will differ from the user set label name.
+                        try:
+                            label_name = email_account.labels.get(label_id=label_id).name
+                        except EmailLabel.DoesNotExist:
+                            logger.error(
+                                "Incorrect label id {0} with search request for account {1}.".format(
+                                    label_id,
+                                    email_account
+                                )
+                            )
+                            # Failing label lookup within one account should not halt the complete search.
+                            continue
+
+                    q = u"{0} {1}:{2}".format(q, 'label', label_name)
+
+                try:
+                    connector = GmailConnector(email_account)
+                    messages = connector.search(query=q, size=max_results)
+                    messages_ids.extend([message['id'] for message in messages])
+                except (InvalidCredentialsError, NotFoundError, HttpAccessTokenRefreshError,
+                        FailedServiceCallException) as e:
+                    logger.error(
+                        "Failed to search within account {0} with error: {1}.".format(email_account, e)
+                    )
+                    # Failing search within one account should not halt the complete search.
+                    continue
+
+            # Retrieve messages from the database.
+            message_list = message_list.filter(
+                message_id__in=messages_ids,
+                account__in=email_accounts
+            )
+
+        message_list = message_list.order_by(sort)
+
+        # The serializer will query for account, sender and star label, so instead of the extra separate queries,
+        # retrieve them now.
+        message_list = message_list.select_related('account', 'sender')
+        message_list = message_list.prefetch_related('labels', 'received_by')
+
+        # It's possible Google search returns message_id's that aren't in the database (due to 'sync from now').
+        actual_number_of_results = len(message_list)
+
+        # Construct paginator.
+        limit = size * page
+        offset = limit - size
+        message_list = message_list[offset:limit]
+
+        serializer = EmailMessageListSerializer(message_list, many=True)
+
+        result = {
+            'hits': serializer.data,
+            'total': actual_number_of_results,
+        }
+
+        return Response(result)

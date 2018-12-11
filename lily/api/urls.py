@@ -15,7 +15,7 @@ from lily.integrations.api.views import (DocumentDetails, EstimatesList, Integra
                                          SlackEventCatch, IntegrationDetailsView)
 from lily.messaging.email.api.views import (EmailLabelViewSet, EmailAccountViewSet, EmailMessageViewSet,
                                             EmailTemplateFolderViewSet, EmailTemplateViewSet, SharedEmailConfigViewSet,
-                                            TemplateVariableViewSet, EmailDraftViewSet)
+                                            TemplateVariableViewSet, EmailDraftViewSet, SearchView)
 from lily.notes.api.views import NoteViewSet
 from lily.provide.api.views import DataproviderViewSet
 from lily.tenant.api.views import TenantViewSet
@@ -96,6 +96,8 @@ urlpatterns = [
     url(r'^utils/apphash/$', AppHash.as_view()),
     url(r'^utils/callername/$', CallerName.as_view()),
     url(r'^utils/notifications/$', Notifications.as_view()),
+
+    url(r'^messaging/email/search/$', SearchView.as_view()),
 
     url(r'^', include(router.urls)),
 ]

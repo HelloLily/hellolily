@@ -756,24 +756,24 @@ def get_formatted_reply_email_subject(subject, prefix='Re: '):
         else:
             break
 
-    return '{}{}'.format(prefix, subject.encode('utf-8'))
+    return u'{}{}'.format(prefix, subject)
 
 
 def get_formatted_email_body(action, email_message):
-    body_header = create_reply_body_header(email_message).encode('utf-8')
+    body_header = create_reply_body_header(email_message)
 
     if action in ['forward', 'forward-multi']:
         forward_header_to = []
         for recipient in email_message.received_by.all():
             if recipient.name:
-                forward_header_to.append('{} &lt;{}&gt;'.format(
-                    recipient.name.encode('utf-8'),
-                    recipient.email_address.encode('utf-8'))
+                forward_header_to.append(u'{} &lt;{}&gt;'.format(
+                    recipient.name,
+                    recipient.email_address)
                 )
             else:
-                forward_header_to.append(recipient.email_address.encode('utf-8'))
+                forward_header_to.append(recipient.email_address)
 
-        body_header = (
+        body_header = unicode(
             '<br /><br />'
             '<hr />'
             '---------- Forwarded message ---------- <br />'
@@ -788,7 +788,7 @@ def get_formatted_email_body(action, email_message):
             to=', '.join(forward_header_to)
         )
 
-    return '{}{}'.format(body_header, mark_safe(email_message.reply_body))
+    return u'{}{}'.format(body_header, mark_safe(email_message.reply_body))
 
 
 class EmailHeaderInputException(Exception):

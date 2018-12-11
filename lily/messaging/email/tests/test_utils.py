@@ -12,17 +12,17 @@ class EmailUtilsTestCase(UserBasedTest, EmailBasedTest, TestCase):
 
     def get_expected_email_body_parts(self, subject='Simple Subject',
                                       recipient='Simple Name &lt;someuser@example.com&gt;'):
-        expected_body_html_part_one = (
+        expected_body_html_part_one = unicode(
             '<br /><br /><hr />---------- Forwarded message ---------- <br />'
             'From: user1@example.com<br/>'
             'Date: '
         )
-        expected_body_html_part_two = (
+        expected_body_html_part_two = unicode(
             '<br/>Subject: ' + subject + '<br/>'
             'To: ' + recipient + '<br />'
         )
 
-        return expected_body_html_part_one.encode('utf-8'), expected_body_html_part_two.encode('utf-8')
+        return expected_body_html_part_one, expected_body_html_part_two
 
     def test_get_formatted_email_body_action_forward(self):
         body_html = get_formatted_email_body('forward', self.email_message)
@@ -73,7 +73,7 @@ class EmailUtilsTestCase(UserBasedTest, EmailBasedTest, TestCase):
         sender.save()
         body_html = get_formatted_email_body('reply', self.email_message)
 
-        self.assertIn(sender.name.encode('utf-8'), body_html)
+        self.assertIn(sender.name, body_html)
 
     @patch('lily.messaging.email.utils.create_reply_body_header')
     def test_get_formatted_email_body_action_reply_complex_body_text(self, create_reply_body_header_mock):
@@ -81,8 +81,8 @@ class EmailUtilsTestCase(UserBasedTest, EmailBasedTest, TestCase):
 
         body_html = get_formatted_email_body('reply', self.email_message)
 
-        self.assertIn(u'\xad'.encode('utf-8'), body_html)
+        self.assertIn(u'\xad', body_html)
 
     def test_get_formatted_reply_email_subject(self):
         subject = get_formatted_reply_email_subject(u'\u2265')
-        self.assertEqual('Re: {}'.format(u'\u2265'.encode('utf-8')), subject)
+        self.assertEqual(u'Re: {}'.format(u'\u2265'), subject)

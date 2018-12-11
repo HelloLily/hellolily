@@ -33,7 +33,7 @@ class EmailUtilsTestCase(UserBasedTest, EmailBasedTest, TestCase):
         self.assertIn(part_two, body_html)
 
     def test_get_formatted_email_body_action_forward_complex_subject(self):
-        self.email_message.subject = 'Complex S\u2265bject'
+        self.email_message.subject = u'Complex S\u2265bject'
         body_html = get_formatted_email_body('forward', self.email_message)
 
         part_one, part_two = self.get_expected_email_body_parts(self.email_message.subject)
@@ -43,11 +43,11 @@ class EmailUtilsTestCase(UserBasedTest, EmailBasedTest, TestCase):
 
     def test_get_formatted_email_body_action_forward_complex_recipient(self):
         received_by = self.email_message.received_by.first()
-        received_by.name = 'C\u2265mplicated Name'
+        received_by.name = u'C\u2265mplicated Name'
         received_by.save()
         body_html = get_formatted_email_body('forward', self.email_message)
 
-        recipient = 'C\u2265mplicated Name &lt;someuser@example.com&gt;'
+        recipient = u'C\u2265mplicated Name &lt;someuser@example.com&gt;'
         part_one, part_two = self.get_expected_email_body_parts(recipient=recipient)
 
         self.assertIn(part_one, body_html)
@@ -57,7 +57,7 @@ class EmailUtilsTestCase(UserBasedTest, EmailBasedTest, TestCase):
         self.email_message.subject = 'Simple Subject'
         received_by = self.email_message.received_by.first()
         received_by.name = None
-        received_by.email_address = 'support@\u2265mail.nl'
+        received_by.email_address = u'support@\u2265mail.nl'
         received_by.save()
 
         body_html = get_formatted_email_body('forward', self.email_message)
@@ -69,7 +69,7 @@ class EmailUtilsTestCase(UserBasedTest, EmailBasedTest, TestCase):
 
     def test_get_formatted_email_body_action_reply_complex_recipient(self):
         sender = self.email_message.sender
-        sender.name = 'C\u2265mplicated Name'
+        sender.name = u'C\u2265mplicated Name'
         sender.save()
         body_html = get_formatted_email_body('reply', self.email_message)
 

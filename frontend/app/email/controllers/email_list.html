@@ -140,7 +140,7 @@
                                     <i class="fa fa-caret-left"></i>
                                 </a>
                             </li>
-                            <li class="hl-button-group-btn" ng-class="{'disabled': vm.table.page + 1 > vm.table.totalItems / vm.table.pageSize}">
+                            <li class="hl-button-group-btn" ng-class="{'disabled': vm.table.page + 1 >= vm.table.totalItems / vm.table.pageSize}">
                                 <a class="hl-button-group-btn-link" ng-click="vm.setPage(vm.table.page + 1)">
                                     <i class="fa fa-caret-right"></i>
                                 </a>
@@ -200,17 +200,18 @@
                 <td colspan="9">
                     <div class="pull-right">
                         <ul class="email-pagination">
-                            <li class="email-pagination-page-info">
+                            <li class="email-pagination-info">
                                 {{ vm.table.page * vm.table.pageSize + 1}}-{{ [(vm.table.page + 1) * vm.table.pageSize, vm.table.totalItems] | minValue }} of {{ vm.table.totalItems | number }}
                             </li>
                         </ul>
-                        <ul class="hl-button-group">
+
+                        <ul class="hl-button-group pull-right">
                             <li class="hl-button-group-btn" ng-class="{'disabled': !vm.table.page}">
                                 <a class="hl-button-group-btn-link" ng-click="vm.setPage(vm.table.page - 1)">
                                     <i class="fa fa-caret-left"></i>
                                 </a>
                             </li>
-                            <li class="hl-button-group-btn" ng-class="{'disabled': vm.table.page + 1 > vm.table.totalItems / vm.table.pageSize}">
+                            <li class="hl-button-group-btn" ng-class="{'disabled': vm.table.page + 1 > vm.table.totalItems / vm.table.pageSize}" ng-show="vm.table.totalItems">
                                 <a class="hl-button-group-btn-link" ng-click="vm.setPage(vm.table.page + 1)">
                                     <i class="fa fa-caret-right"></i>
                                 </a>

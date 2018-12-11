@@ -65,6 +65,44 @@ function EmailMessage($resource, $q) {
                     size: 20,
                 },
             },
+            searchGmail: {
+                method: 'GET',
+                url: 'api/messaging/email/search/',
+                params: {
+                    sort: '-sent_date',
+                    size: 20,
+                },
+                transformResponse: function(data) {
+                    // Restructure the data so it matches with the current structure of the elastic search output,
+                    // so follow up code is able to handle both.
+                    let jsonData = angular.fromJson(data);
+                    let objects = [];
+                    objects.hits  = [];
+                    objects.total = 0;
+
+                    if (jsonData) {
+                        objects.total = jsonData.total;
+                        if (jsonData.hits && jsonData.hits.length > 0) {
+                            jsonData.hits.forEach(function(obj) {
+                                let email_message = $.extend(obj, {
+                                    sender_email: obj.sender.email_address,
+                                    sender_name: obj.sender.name,
+                                    received_by_email: [],
+                                });
+                                email_message.account.email = email_message.account.email_address;
+                                email_message.account.name = email_message.account.label;
+                                email_message.received_by.forEach(function(receiver) {
+                                    email_message.received_by_email.push(receiver.email_address);
+                                });
+
+                                objects.hits.push(email_message);
+                            });
+                        }
+                    }
+
+                    return {objects};
+                },
+            },
             history: {
                 method: 'GET',
                 url: '/api/messaging/email/email/:id/history/',

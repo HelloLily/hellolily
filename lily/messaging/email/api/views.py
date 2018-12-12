@@ -648,38 +648,41 @@ class SearchView(APIView):
             max_results = 3 * size
 
             messages_ids = []
-            with tracer.trace('SearchView.get: retrieving message_ids by Gmail API'):
+
+            with tracer.trace('SearchView.get: for all accounts'):
                 for email_account in email_accounts:
                     if label_id:
-                        # Retrieve the label corresponding to the label_id, otherwise Gmail defaults to all mail.
-                        label_name = label_id
-                        if label_id not in gmail_labels:
-                            # Retrieve the label name if label_id will differ from the user set label name.
-                            try:
-                                label_name = email_account.labels.get(label_id=label_id).name
-                            except EmailLabel.DoesNotExist:
-                                logger.error(
-                                    "Incorrect label id {0} with search request for account {1}.".format(
-                                        label_id,
-                                        email_account
+                        with tracer.trace('SearchView.get: building q with label lookup'):
+                            # Retrieve the label corresponding to the label_id, otherwise Gmail defaults to all mail.
+                            label_name = label_id
+                            if label_id not in gmail_labels:
+                                # Retrieve the label name if label_id will differ from the user set label name.
+                                try:
+                                    label_name = email_account.labels.get(label_id=label_id).name
+                                except EmailLabel.DoesNotExist:
+                                    logger.error(
+                                        "Incorrect label id {0} with search request for account {1}.".format(
+                                            label_id,
+                                            email_account
+                                        )
                                     )
-                                )
-                                # Failing label lookup within one account should not halt the complete search.
-                                continue
+                                    # Failing label lookup within one account should not halt the complete search.
+                                    continue
 
-                        q = u"{0} {1}:{2}".format(q, 'label', label_name)
+                            q = u"{0} {1}:{2}".format(q, 'label', label_name)
 
-                    try:
-                        connector = GmailConnector(email_account)
-                        messages = connector.search(query=q, size=max_results)
-                        messages_ids.extend([message['id'] for message in messages])
-                    except (InvalidCredentialsError, NotFoundError, HttpAccessTokenRefreshError,
-                            FailedServiceCallException) as e:
-                        logger.error(
-                            "Failed to search within account {0} with error: {1}.".format(email_account, e)
-                        )
-                        # Failing search within one account should not halt the complete search.
-                        continue
+                    with tracer.trace('SearchView.get: retrieving message_ids by Gmail API'):
+                        try:
+                            connector = GmailConnector(email_account)
+                            messages = connector.search(query=q, size=max_results)
+                            messages_ids.extend([message['id'] for message in messages])
+                        except (InvalidCredentialsError, NotFoundError, HttpAccessTokenRefreshError,
+                                FailedServiceCallException) as e:
+                            logger.error(
+                                "Failed to search within account {0} with error: {1}.".format(email_account, e)
+                            )
+                            # Failing search within one account should not halt the complete search.
+                            continue
 
                 # Retrieve messages from the database.
                 message_list = message_list.filter(

@@ -59,6 +59,7 @@ class EmailUtilsTestCase(UserBasedTest, EmailBasedTest, TestCase):
 
         body_html = get_body_html_from_payload(payload, message_id)
         attachments = get_attachments_from_payload(payload, body_html, message_id, connector)
+        self.email_message.attachments.add(bulk=False, *attachments)
 
         get_message_info_mock.assert_called_once()
         get_attachment_mock.assert_called_once()
@@ -82,6 +83,8 @@ class EmailUtilsTestCase(UserBasedTest, EmailBasedTest, TestCase):
 
         get_message_info_mock.assert_called_once()
         get_attachment_mock.assert_called_once()
+
+        self.email_message.attachments.add(bulk=False, *attachments)
 
         self.assertEqual(len(attachments), 1)
         self.assertTrue(attachments[0].inline)

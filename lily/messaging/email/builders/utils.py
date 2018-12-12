@@ -98,7 +98,7 @@ def create_attachment(part, body_html, message_id, attachments, connector):
     headers = {name.lower(): value for name, value in headers.iteritems()}
 
     # Check if attachment is inline.
-    inline = headers and headers.get('content-id', False)
+    inline = bool(headers and headers.get('content-id', False))
 
     if headers and 'content-disposition' in headers:
         # If 'content-disposition' is present it supersedes inline determination by just the 'content-id'.

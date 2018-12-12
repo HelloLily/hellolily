@@ -686,6 +686,9 @@ class SearchView(APIView):
         with tracer.trace('SearchView.get: retrieving messages from db'):
             message_list = message_list.order_by(sort)
 
+            # Exclude fields that aren't serialized and potential large.
+            message_list = message_list.defer("body_html", "body_text", "snippet")
+
             # The serializer will query for account, sender and star label, so instead of the extra separate queries,
             # retrieve them now.
             message_list = message_list.select_related('account', 'sender')

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import json
 from django.test import TestCase
 
@@ -6,9 +5,8 @@ from googleapiclient.discovery import build
 from lily.tests.utils import UserBasedTest, EmailBasedTest, get_dummy_credentials
 from lily.messaging.email.services import GmailService
 from lily.messaging.email.connector import GmailConnector
-from lily.messaging.email.utils import get_formatted_email_body
+from lily.messaging.email.utils import get_formatted_email_body, get_formatted_reply_email_subject
 from lily.messaging.email.builders.utils import get_attachments_from_payload, get_body_html_from_payload
-
 from mock import patch
 
 
@@ -90,15 +88,15 @@ class EmailUtilsTestCase(UserBasedTest, EmailBasedTest, TestCase):
 
     def get_expected_email_body_parts(self, subject='Simple Subject',
                                       recipient='Simple Name &lt;someuser@example.com&gt;'):
-        expected_body_html_part_one = (
+        expected_body_html_part_one = unicode(
             '<br /><br /><hr />---------- Forwarded message ---------- <br />'
             'From: user1@example.com<br/>'
             'Date: '
         )
-        expected_body_html_part_two = (
-            '<br/>Subject: {}<br/>'
-            'To: {}<br />'
-        ).format(subject, recipient)
+        expected_body_html_part_two = unicode(
+            '<br/>Subject: ' + subject + '<br/>'
+            'To: ' + recipient + '<br />'
+        )
 
         return expected_body_html_part_one, expected_body_html_part_two
 
@@ -111,7 +109,7 @@ class EmailUtilsTestCase(UserBasedTest, EmailBasedTest, TestCase):
         self.assertIn(part_two, body_html)
 
     def test_get_formatted_email_body_action_forward_complex_subject(self):
-        self.email_message.subject = 'Complex Sübject'
+        self.email_message.subject = u'Complex S\u2265bject'
         body_html = get_formatted_email_body('forward', self.email_message)
 
         part_one, part_two = self.get_expected_email_body_parts(self.email_message.subject)
@@ -121,11 +119,11 @@ class EmailUtilsTestCase(UserBasedTest, EmailBasedTest, TestCase):
 
     def test_get_formatted_email_body_action_forward_complex_recipient(self):
         received_by = self.email_message.received_by.first()
-        received_by.name = 'Cömplicated Name'
+        received_by.name = u'C\u2265mplicated Name'
         received_by.save()
         body_html = get_formatted_email_body('forward', self.email_message)
 
-        recipient = 'Cömplicated Name &lt;someuser@example.com&gt;'
+        recipient = u'C\u2265mplicated Name &lt;someuser@example.com&gt;'
         part_one, part_two = self.get_expected_email_body_parts(recipient=recipient)
 
         self.assertIn(part_one, body_html)
@@ -135,7 +133,7 @@ class EmailUtilsTestCase(UserBasedTest, EmailBasedTest, TestCase):
         self.email_message.subject = 'Simple Subject'
         received_by = self.email_message.received_by.first()
         received_by.name = None
-        received_by.email_address = 'support@ümail.nl'
+        received_by.email_address = u'support@\u2265mail.nl'
         received_by.save()
 
         body_html = get_formatted_email_body('forward', self.email_message)
@@ -144,3 +142,23 @@ class EmailUtilsTestCase(UserBasedTest, EmailBasedTest, TestCase):
 
         self.assertIn(part_one, body_html)
         self.assertIn(part_two, body_html)
+
+    def test_get_formatted_email_body_action_reply_complex_recipient(self):
+        sender = self.email_message.sender
+        sender.name = u'C\u2265mplicated Name'
+        sender.save()
+        body_html = get_formatted_email_body('reply', self.email_message)
+
+        self.assertIn(sender.name, body_html)
+
+    @patch('lily.messaging.email.utils.create_reply_body_header')
+    def test_get_formatted_email_body_action_reply_complex_body_text(self, create_reply_body_header_mock):
+        create_reply_body_header_mock.return_value = u'\xad'
+
+        body_html = get_formatted_email_body('reply', self.email_message)
+
+        self.assertIn(u'\xad', body_html)
+
+    def test_get_formatted_reply_email_subject(self):
+        subject = get_formatted_reply_email_subject(u'\u2265')
+        self.assertEqual(u'Re: {}'.format(u'\u2265'), subject)

@@ -622,7 +622,11 @@ class SearchView(APIView):
                 account_ids = account_ids.split(',')
                 email_accounts = email_accounts.filter(pk__in=account_ids)
 
-            email_accounts = email_accounts.exclude(is_active=False, is_deleted=True, is_authorized=False)
+            email_accounts = email_accounts.exclude(
+                Q(is_active=False) |
+                Q(is_deleted=True) |
+                Q(is_authorized=False)
+            )
 
         message_list = EmailMessage.objects
 

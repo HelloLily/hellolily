@@ -106,9 +106,9 @@ class GmailManagerTests(UserBasedTest, APITestCase):
         email_message_labels = set(email_message.labels.all().values_list('label_id', flat=True))
         self.assertEqual(email_message_labels, set([settings.GMAIL_LABEL_UNREAD, settings.GMAIL_LABEL_INBOX]))
 
-    @patch.object(GmailConnector, 'get_short_message_info')
+    @patch.object(GmailConnector, 'get_labels_and_thread_id_for_message_id')
     @patch.object(GmailConnector, 'get_message_info')
-    def test_download_message_exists(self, get_message_info_mock, get_short_message_info_mock):
+    def test_download_message_exists(self, get_message_info_mock, get_labels_and_thread_id_for_message_id_mock):
         """
         Test the GmailManager on updating an existing message.
         """
@@ -129,10 +129,10 @@ class GmailManagerTests(UserBasedTest, APITestCase):
         manager.download_message(message_id)
 
         # The message with labels is now present in the database so downloading it again will only update it's labels.
-        with open('lily/messaging/email/tests/data/get_short_message_info_{0}_archived.json'.format(
+        with open('lily/messaging/email/tests/data/get_labels_and_thread_id_for_message_id_{0}_archived.json'.format(
                 message_id)) as infile:
             json_obj = json.load(infile)
-            get_short_message_info_mock.return_value = json_obj
+            get_labels_and_thread_id_for_message_id_mock.return_value = json_obj
 
         try:
             manager.download_message(message_id)
@@ -327,7 +327,7 @@ class GmailManagerTests(UserBasedTest, APITestCase):
         email_message_labels = set(email_message.labels.all().values_list('label_id', flat=True))
         self.assertEqual(email_message_labels, set([settings.GMAIL_LABEL_SENT]), "Send message mssing the SEND label.")
 
-        # Verify that the email emssage has the correct thread id. Because the email message is not part of a thread,
+        # Verify that the email message has the correct thread id. Because the email message is not part of a thread,
         # the thread_id should be the same as the message_id.
         self.assertEqual(email_message.thread_id, message_id, "Message_id and thread_id should be the same.")
 

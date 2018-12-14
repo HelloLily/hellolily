@@ -322,22 +322,23 @@ class GmailConnectorTests(UserBasedTest, APITestCase):
             self.assertEqual(response, json_obj['labels'])
 
     @patch.object(GmailService, '_get_http')
-    def test_get_short_message_info(self, get_http_mock):
+    def test_get_labels_and_thread_id_for_message_id(self, get_http_mock):
         """
         Test the GmailConnector in retrieving the short message info for a specific email message.
         """
         message_id = '15a6008a4baa65f3'
         get_http_mock.return_value = HttpMock(
-            'lily/messaging/email/tests/data/get_short_message_info_{0}_archived.json'.format(message_id),
+            'lily/messaging/email/tests/data/'
+            'get_labels_and_thread_id_for_message_id_{0}_archived.json'.format(message_id),
             {'status': '200'})
 
         email_account = EmailAccount.objects.first()
 
         connector = GmailConnector(email_account)
-        response = connector.get_short_message_info(message_id)
+        response = connector.get_labels_and_thread_id_for_message_id(message_id)
 
         # Verify that the service call returned the correct json object.
-        with open('lily/messaging/email/tests/data/get_short_message_info_{0}_archived.json'.format(
+        with open('lily/messaging/email/tests/data/get_labels_and_thread_id_for_message_id_{0}_archived.json'.format(
                 message_id)) as infile:
             json_obj = json.load(infile)
             self.assertEqual(response, json_obj)

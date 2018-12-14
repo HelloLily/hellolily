@@ -1,22 +1,19 @@
-import base64
 import datetime
 import email
 import gc
 import logging
 import re
-import StringIO
 
-from bs4 import BeautifulSoup, UnicodeDammit
 from dateutil.parser import parse
 from django.conf import settings
-from django.core.files import File
 from django.db import transaction
 import pytz
 
 from lily.messaging.email.connector import LabelNotFoundError
-from lily.messaging.email.utils import get_extensions_for_type, determine_message_type
+from lily.messaging.email.utils import determine_message_type
 
-from ..models.models import EmailMessage, EmailHeader, Recipient, EmailAttachment, NoEmailMessageId
+from ..models.models import EmailMessage, EmailHeader, Recipient, NoEmailMessageId
+from .utils import get_attachments_from_payload, get_body_html_from_payload, get_body_text_from_payload
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +38,6 @@ class MessageBuilder(object):
         self.received_by = None
         self.received_by_cc = None
         self.attachments = []
-        self.inline_attachments = {}
         self.created = False
 
     def get_or_create_message(self, message_dict):
@@ -62,7 +58,6 @@ class MessageBuilder(object):
         self.received_by = set()
         self.received_by_cc = set()
         self.attachments = []
-        self.inline_attachments = {}
 
         # Prevent memory leaks.
         gc.collect()
@@ -166,15 +161,15 @@ class MessageBuilder(object):
         if 'headers' in payload:
             self._create_message_headers(payload['headers'])
 
-        self.message.body_html = ''
-        self.message.body_text = ''
+        self.message.body_html = get_body_html_from_payload(payload, self.message.message_id)
+        self.message.body_text = get_body_text_from_payload(payload, self.message.message_id)
 
-        # Check Message is split up in parts
-        if 'parts' in payload:
-            for part in payload['parts']:
-                self._parse_message_part(part)
-        else:
-            self._parse_message_part(payload)
+        self.attachments = get_attachments_from_payload(
+            payload,
+            self.message.body_html,
+            self.message.message_id,
+            self.manager.connector,
+        )
 
     def _create_message_headers(self, headers):
         """
@@ -208,230 +203,6 @@ class MessageBuilder(object):
                         name=header['name'],
                         value=header['value'],
                     ))
-
-    def _parse_message_part(self, part):
-        """
-        Parse message part
-
-        Args:
-            part: dict with message part
-        """
-        # Check if part has child parts.
-        if 'parts' in part:
-            for part in part['parts']:
-                self._parse_message_part(part)
-        else:
-            part_headers = self._headers_to_dict(part.get('headers', {}))
-
-            # Get content type.
-            mime_type = part['mimeType']
-
-            # Check if part is an attachment.
-            if part['filename'] or 'data' not in part['body'] or mime_type == 'text/css':
-                self._create_attachment(part, part_headers)
-
-            # Handle non attachment.
-            else:
-                # Decode body part.
-                body = base64.urlsafe_b64decode(part['body']['data'].encode())
-
-                encoding = None
-                if part_headers:
-                    encoding = self._get_encoding_from_headers(part_headers)
-
-                if mime_type == 'text/html':
-                    self._create_body_html(body, encoding)
-
-                elif mime_type == 'text/plain':
-                    self._create_body_text(body, encoding)
-
-                elif mime_type == 'text/xml':
-                    # Conversation xml, do not store.
-                    pass
-                elif mime_type == 'text/rfc822-headers':
-                    # Header part, not needed.
-                    pass
-                elif mime_type in (
-                        'text/css',
-                        'application/octet-stream',
-                        'image/gif',
-                        'image/jpg',
-                        'image/x-png',
-                        'image/png',
-                        'image/jpeg',
-                ):
-                    # Attachments.
-                    self._create_attachment(part, part_headers)
-                else:
-                    self._create_attachment(part, part_headers)
-                    logging.warning('other mime_type %s for message %s, account %s' % (
-                        mime_type,
-                        self.message.message_id,
-                        self.manager.email_account,
-                    ))
-
-    def _create_attachment(self, part, headers):
-        """
-        Create an attachment for the given part.
-
-        Args:
-            part (dict): with attachment info
-            headers (dict): headers for message part
-
-        Raises:
-            Attachment exception if attachment couldn't be created.
-        """
-        logger.debug('Storing attachment for message %s' % self.message.message_id)
-        headers = {name.lower(): value for name, value in headers.iteritems()}
-
-        # Check if attachment is inline.
-        inline = False
-        if headers and headers.get('content-id', False):
-            inline = True
-
-        if headers and 'content-disposition' in headers:
-            # If 'content-disposition' is present it supersedes inline determination by just the 'content-id'.
-            cd = headers['content-disposition'].split(';')[0].lower()
-            if cd == 'inline' and 'content-id' in headers:
-                # However there is still a chance that the content is incorrectly marked as inline. Look if there is a
-                # reference to the cid in the body.
-                body = self.message.body_html
-                cid = headers.get('content-id')
-                match = re.match(r"<(.*)>", cid)
-                if match:
-                    # Removes surrounding <> from cid.
-                    cid = match.group(1)
-
-                # Look if the cid is in the body html.
-                inline = re.search("cid:{0}".format(cid), body) is not None
-
-        # Get file data from part or from remote.
-        if 'data' in part['body']:
-            file_data = part['body']['data']
-        elif 'attachmentId' in part['body']:
-            file_data = self.manager.get_attachment(self.message.message_id, part['body']['attachmentId'])
-            if file_data:
-                file_data = file_data.get('data')
-            else:
-                logger.warning('No attachment could be downloaded, not storing anything')
-                return
-        else:
-            logger.warning('No attachment, not storing anything')
-            return
-
-        file_data = base64.urlsafe_b64decode(file_data.encode('UTF-8'))
-
-        # Create as string file.
-        file = StringIO.StringIO(file_data)
-        if headers and 'content-type' in headers:
-            file.content_type = headers['content-type'].split(';')[0]
-        else:
-            file.content_type = 'application/octet-stream'
-
-        file.size = len(file_data)
-        file.name = part.get('filename', '').rsplit('\\')[-1]
-        if len(file.name) > 200:
-            file.name = None
-
-        # No filename in part, create a name.
-        if not file.name:
-            extensions = get_extensions_for_type(file.content_type)
-            if part.get('partId'):
-                file.name = 'attachment-%s%s' % (part.get('partId'), extensions.next())
-            else:
-                logger.warning('No part id, no filename')
-                file.name = 'attachment-%s-%s' % (
-                    len(self.attachments) + len(self.inline_attachments),
-                    extensions.next()
-                )
-
-        final_file = File(file, file.name)
-
-        # Create a EmailAttachment object.
-        attachment = EmailAttachment()
-        attachment.attachment = final_file
-        attachment.size = file.size
-        attachment.inline = inline
-        attachment.tenant_id = self.manager.email_account.tenant_id
-
-        # Check if inline attachment.
-        if inline:
-            attachment.cid = headers.get('content-id')
-
-        self.attachments.append(attachment)
-
-    def _create_body_html(self, body, encoding=None):
-        """
-        Parse string to a correct coded html body part and add to Message.body_html.
-
-        Args:
-            body (string): not encoded string
-            encoding (string): possible encoding type
-        """
-        decoded_body = None
-
-        # Use given encoding type.
-        if encoding:
-            try:
-                decoded_body = body.decode(encoding)
-            except (LookupError, UnicodeDecodeError):
-                pass
-
-        # BS4 decoding second.
-        if not decoded_body:
-            soup = BeautifulSoup(body, 'lxml')
-            if soup.original_encoding:
-                encoding = soup.original_encoding
-                try:
-                    decoded_body = body.decode(encoding)
-                except (LookupError, UnicodeDecodeError):
-                    pass
-
-        # If decoding fails, just force utf-8.
-        if not decoded_body and body:
-            logger.warning('couldn\'t decode, forced utf-8 > %s' % self.message.message_id)
-            encoding = 'utf-8'
-            decoded_body = body.decode(encoding, errors='replace')
-
-        # Only add if there is a body.
-        if decoded_body:
-            self.message.body_html += decoded_body.encode(encoding).decode('utf-8', errors='replace')
-
-    def _create_body_text(self, body, encoding=None):
-        """
-        Parse string to a correct coded text body part and add to Message.body_text.
-
-        Args:
-            body (string): not encoded string
-            encoding (string): possible encoding type
-        """
-        decoded_body = None
-
-        # Use given encoding type.
-        if encoding:
-            try:
-                decoded_body = body.decode(encoding)
-            except (LookupError, UnicodeDecodeError):
-                pass
-
-        # UnicodeDammit decoding second.
-        if not decoded_body:
-            dammit = UnicodeDammit(body)
-            if dammit.original_encoding:
-                encoding = dammit.original_encoding
-                try:
-                    decoded_body = body.decode(encoding)
-                except (LookupError, UnicodeDecodeError):
-                    pass
-
-        # If decoding fails, just force utf-8.
-        if not decoded_body and body:
-            logger.warning('couldn\'t decode, forced utf-8 > %s' % self.message.message_id)
-            encoding = 'utf-8'
-            decoded_body = body.decode(encoding, errors='replace')
-
-        if decoded_body:
-            self.message.body_text += decoded_body.encode(encoding).decode('utf-8', errors='replace')
 
     def _create_recipients(self, header_name, header_value):
         """
@@ -491,7 +262,7 @@ class MessageBuilder(object):
             self.message.skip_signal = True  # Disable intermediate reindexing of the message.
 
             # Check for attachments.
-            if self.attachments or self.inline_attachments:
+            if self.attachments:
                 self.message.has_attachment = True
 
             if not self.message.pk:
@@ -531,38 +302,6 @@ class MessageBuilder(object):
                 account=self.manager.email_account
             )
 
-    def _get_encoding_from_headers(self, headers):
-        """
-        Try to find encoding from headers
-
-        Args:
-            headers (list): of headers
-
-        Returns:
-            encoding or None: string with encoding type
-        """
-        headers = {name.lower(): value for name, value in headers.iteritems()}
-        if 'content-type' in headers:
-            for header_part in headers.get('content-type').split(';'):
-                if 'charset' in header_part.lower():
-                    return header_part.split('=')[-1].lower().strip('"\'')
-
-        return None
-
-    def _headers_to_dict(self, headers):
-        """
-        create dict from headers list
-
-        Args:
-            headers (list): of dicts with header info
-
-        Returns:
-            headers: dict with header_name : header_value
-        """
-        if headers:
-            headers = {header['name']: header['value'] for header in headers}
-        return headers
-
     def cleanup(self):
         """
         Cleanup references, to prevent reference cycle
@@ -574,5 +313,4 @@ class MessageBuilder(object):
         self.received_by = None
         self.received_by_cc = None
         self.attachments = []
-        self.inline_attachments = {}
         self.created = False

@@ -15,6 +15,10 @@ from lily.tests.utils import UserBasedTest, get_dummy_credentials
 from mock import patch
 
 
+def get_mock(filename, status):
+    return HttpMock('lily/messaging/email/tests/data/{}'.format(filename), {'status': status})
+
+
 class EmailTests(UserBasedTest, APITestCase):
     """
     Class for integrated email testing.
@@ -51,27 +55,27 @@ class EmailTests(UserBasedTest, APITestCase):
 
     mock_api_calls_default = [
         # Retrieve the history_id.
-        HttpMock('lily/messaging/email/tests/data/get_history_id.json', {'status': '200'}),
+        get_mock('get_history_id.json', '200'),
         # Retrieve a list of all the messages in the email box.
-        HttpMock('lily/messaging/email/tests/data/all_message_id_list_single_page.json', {'status': '200'}),
+        get_mock('all_message_id_list_single_page.json', '200'),
         # Retrieve all 10 email messages and their labels.
-        HttpMock('lily/messaging/email/tests/data/get_message_info_15a6008a4baa65f3.json', {'status': '200'}),
-        HttpMock('lily/messaging/email/tests/data/get_label_info_UNREAD.json', {'status': '200'}),
-        HttpMock('lily/messaging/email/tests/data/get_label_info_INBOX.json', {'status': '200'}),
-        HttpMock('lily/messaging/email/tests/data/get_message_info_15a600737124149d.json', {'status': '200'}),
-        HttpMock('lily/messaging/email/tests/data/get_label_info_DRAFT.json', {'status': '200'}),
-        HttpMock('lily/messaging/email/tests/data/get_message_info_15a600682d97904e.json', {'status': '200'}),
-        HttpMock('lily/messaging/email/tests/data/get_label_info_Label_2.json', {'status': '200'}),
-        HttpMock('lily/messaging/email/tests/data/get_message_info_15a60067ef5e0bf9.json', {'status': '200'}),
-        HttpMock('lily/messaging/email/tests/data/get_label_info_STARRED.json', {'status': '200'}),
-        HttpMock('lily/messaging/email/tests/data/get_message_info_15a600543e10c8e4.json', {'status': '200'}),
-        HttpMock('lily/messaging/email/tests/data/get_message_info_15a60053f67f5de4.json', {'status': '200'}),
-        HttpMock('lily/messaging/email/tests/data/get_label_info_Label_1.json', {'status': '200'}),
-        HttpMock('lily/messaging/email/tests/data/get_message_info_15a60053dea565fa.json', {'status': '200'}),
-        HttpMock('lily/messaging/email/tests/data/get_message_info_15a60044bb3e2a7a.json', {'status': '200'}),
-        HttpMock('lily/messaging/email/tests/data/get_message_info_15a60025b255c626.json', {'status': '200'}),
-        HttpMock('lily/messaging/email/tests/data/get_label_info_SENT.json', {'status': '200'}),
-        HttpMock('lily/messaging/email/tests/data/get_message_info_15a6001f325c4e9d.json', {'status': '200'}),
+        get_mock('get_message_info_15a6008a4baa65f3.json', '200'),
+        get_mock('get_label_info_UNREAD.json', '200'),
+        get_mock('get_label_info_INBOX.json', '200'),
+        get_mock('get_message_info_15a600737124149d.json', '200'),
+        get_mock('get_label_info_DRAFT.json', '200'),
+        get_mock('get_message_info_15a600682d97904e.json', '200'),
+        get_mock('get_label_info_Label_2.json', '200'),
+        get_mock('get_message_info_15a60067ef5e0bf9.json', '200'),
+        get_mock('get_label_info_STARRED.json', '200'),
+        get_mock('get_message_info_15a600543e10c8e4.json', '200'),
+        get_mock('get_message_info_15a60053f67f5de4.json', '200'),
+        get_mock('get_label_info_Label_1.json', '200'),
+        get_mock('get_message_info_15a60053dea565fa.json', '200'),
+        get_mock('get_message_info_15a60044bb3e2a7a.json', '200'),
+        get_mock('get_message_info_15a60025b255c626.json', '200'),
+        get_mock('get_label_info_SENT.json', '200'),
+        get_mock('get_message_info_15a6001f325c4e9d.json', '200'),
     ]
 
     def setUp(self):
@@ -137,28 +141,28 @@ class EmailTests(UserBasedTest, APITestCase):
 
         mock_api_calls = [
             # Retrieve the history_id.
-            HttpMock('lily/messaging/email/tests/data/get_history_id.json', {'status': '200'}),
+            get_mock('get_history_id.json', '200'),
             # Retrieve a list of all the messages in the email box.
-            HttpMock('lily/messaging/email/tests/data/all_message_id_list_paged_1.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/all_message_id_list_paged_2.json', {'status': '200'}),
+            get_mock('all_message_id_list_paged_1.json', '200'),
+            get_mock('all_message_id_list_paged_2.json', '200'),
             # Retrieve all 10 email messages and their labels.
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a6008a4baa65f3.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_label_info_UNREAD.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_label_info_INBOX.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a600737124149d.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_label_info_DRAFT.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a600682d97904e.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_label_info_Label_2.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a60067ef5e0bf9.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_label_info_STARRED.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a600543e10c8e4.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a60053f67f5de4.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_label_info_Label_1.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a60053dea565fa.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a60044bb3e2a7a.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a60025b255c626.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_label_info_SENT.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a6001f325c4e9d.json', {'status': '200'}),
+            get_mock('get_message_info_15a6008a4baa65f3.json', '200'),
+            get_mock('get_label_info_UNREAD.json', '200'),
+            get_mock('get_label_info_INBOX.json', '200'),
+            get_mock('get_message_info_15a600737124149d.json', '200'),
+            get_mock('get_label_info_DRAFT.json', '200'),
+            get_mock('get_message_info_15a600682d97904e.json', '200'),
+            get_mock('get_label_info_Label_2.json', '200'),
+            get_mock('get_message_info_15a60067ef5e0bf9.json', '200'),
+            get_mock('get_label_info_STARRED.json', '200'),
+            get_mock('get_message_info_15a600543e10c8e4.json', '200'),
+            get_mock('get_message_info_15a60053f67f5de4.json', '200'),
+            get_mock('get_label_info_Label_1.json', '200'),
+            get_mock('get_message_info_15a60053dea565fa.json', '200'),
+            get_mock('get_message_info_15a60044bb3e2a7a.json', '200'),
+            get_mock('get_message_info_15a60025b255c626.json', '200'),
+            get_mock('get_label_info_SENT.json', '200'),
+            get_mock('get_message_info_15a6001f325c4e9d.json', '200'),
         ]
 
         self._test_full_synchronize(mock_api_calls=mock_api_calls, label_data_after=self.verify_label_data_default)
@@ -173,30 +177,30 @@ class EmailTests(UserBasedTest, APITestCase):
 
         mock_api_calls = [
             # Retrieve the history_id.
-            HttpMock('lily/messaging/email/tests/data/get_history_id.json', {'status': '200'}),
+            get_mock('get_history_id.json', '200'),
             # Retrieve a list of all the messages in the email box.
-            HttpMock('lily/messaging/email/tests/data/all_message_id_list_single_page.json', {'status': '200'}),
+            get_mock('all_message_id_list_single_page.json', '200'),
             # Retrieve all 10 email messages and their labels.
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a6008a4baa65f3.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_label_info_UNREAD.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_label_info_INBOX.json', {'status': '200'}),
+            get_mock('get_message_info_15a6008a4baa65f3.json', '200'),
+            get_mock('get_label_info_UNREAD.json', '200'),
+            get_mock('get_label_info_INBOX.json', '200'),
             # Simulate one rateLimitExceeded error.
-            HttpMock('lily/messaging/email/tests/data/403.json', {'status': '403'}),
+            get_mock('403.json', '403'),
             # And continue with syncing after a single error.
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a600737124149d.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_label_info_DRAFT.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a600682d97904e.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_label_info_Label_2.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a60067ef5e0bf9.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_label_info_STARRED.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a600543e10c8e4.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a60053f67f5de4.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_label_info_Label_1.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a60053dea565fa.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a60044bb3e2a7a.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a60025b255c626.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_label_info_SENT.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_message_info_15a6001f325c4e9d.json', {'status': '200'}),
+            get_mock('get_message_info_15a600737124149d.json', '200'),
+            get_mock('get_label_info_DRAFT.json', '200'),
+            get_mock('get_message_info_15a600682d97904e.json', '200'),
+            get_mock('get_label_info_Label_2.json', '200'),
+            get_mock('get_message_info_15a60067ef5e0bf9.json', '200'),
+            get_mock('get_label_info_STARRED.json', '200'),
+            get_mock('get_message_info_15a600543e10c8e4.json', '200'),
+            get_mock('get_message_info_15a60053f67f5de4.json', '200'),
+            get_mock('get_label_info_Label_1.json', '200'),
+            get_mock('get_message_info_15a60053dea565fa.json', '200'),
+            get_mock('get_message_info_15a60044bb3e2a7a.json', '200'),
+            get_mock('get_message_info_15a60025b255c626.json', '200'),
+            get_mock('get_label_info_SENT.json', '200'),
+            get_mock('get_message_info_15a6001f325c4e9d.json', '200'),
         ]
 
         self._test_full_synchronize(mock_api_calls=mock_api_calls, label_data_after=self.verify_label_data_default)
@@ -214,12 +218,12 @@ class EmailTests(UserBasedTest, APITestCase):
 
         mock_api_calls = [
             # Simulate one FailedServiceCallException by getting six times a rateLimitExceeded error.
-            HttpMock('lily/messaging/email/tests/data/403.json', {'status': '403'}),
-            HttpMock('lily/messaging/email/tests/data/403.json', {'status': '403'}),
-            HttpMock('lily/messaging/email/tests/data/403.json', {'status': '403'}),
-            HttpMock('lily/messaging/email/tests/data/403.json', {'status': '403'}),
-            HttpMock('lily/messaging/email/tests/data/403.json', {'status': '403'}),
-            HttpMock('lily/messaging/email/tests/data/403.json', {'status': '403'}),
+            get_mock('403.json', '403'),
+            get_mock('403.json', '403'),
+            get_mock('403.json', '403'),
+            get_mock('403.json', '403'),
+            get_mock('403.json', '403'),
+            get_mock('403.json', '403'),
         ]
 
         # Mock the http instance with succesive http mock objects.
@@ -309,7 +313,7 @@ class EmailTests(UserBasedTest, APITestCase):
 
         mock_api_calls = self.mock_api_calls_default + [
             # Retrieve the history updates since the first full synchronisation.
-            HttpMock('lily/messaging/email/tests/data/get_history_page_1_empty.json', {'status': '200'}),
+            get_mock('get_history_page_1_empty.json', '200'),
         ]
 
         self._test_incremental_synchronize(mock_api_calls=mock_api_calls,
@@ -328,10 +332,9 @@ class EmailTests(UserBasedTest, APITestCase):
 
         mock_api_calls = self.mock_api_calls_default + [
             # Retrieve the history updates since the first full synchronisation.
-            HttpMock('lily/messaging/email/tests/data/get_history_label_added.json', {'status': '200'}),
+            get_mock('get_history_label_added.json', '200'),
             # Retrieve the message to which the single label was added.
-            HttpMock('lily/messaging/email/tests/data/get_short_message_info_{0}_label_added.json'.format(message_id),
-                     {'status': '200'}),
+            get_mock('get_labels_and_thread_id_for_message_id_{0}_label_added.json'.format(message_id), '200'),
         ]
 
         # Update the label data matching the mutation that was in the history update.
@@ -361,14 +364,10 @@ class EmailTests(UserBasedTest, APITestCase):
 
         mock_api_calls = self.mock_api_calls_default + [
             # Retrieve the history updates since the first full synchronisation.
-            HttpMock('lily/messaging/email/tests/data/get_history_label_added_multiple.json', {'status': '200'}),
+            get_mock('get_history_label_added_multiple.json', '200'),
             # Retrieve the messages to which the label was added.
-            HttpMock(
-                'lily/messaging/email/tests/data/get_short_message_info_{0}_label_added.json'.format(message_id_2),
-                {'status': '200'}),
-            HttpMock(
-                'lily/messaging/email/tests/data/get_short_message_info_{0}_label_added.json'.format(message_id_1),
-                {'status': '200'}),
+            get_mock('get_labels_and_thread_id_for_message_id_{0}_label_added.json'.format(message_id_2), '200'),
+            get_mock('get_labels_and_thread_id_for_message_id_{0}_label_added.json'.format(message_id_1), '200'),
         ]
 
         # Update the label data matching the mutation that was in the history update.
@@ -402,11 +401,9 @@ class EmailTests(UserBasedTest, APITestCase):
 
         mock_api_calls = self.mock_api_calls_default + [
             # Retrieve the history updates since the first full synchronisation.
-            HttpMock('lily/messaging/email/tests/data/get_history_label_removed.json', {'status': '200'}),
+            get_mock('get_history_label_removed.json', '200'),
             # Retrieve the message to which the single label was removed.
-            HttpMock(
-                'lily/messaging/email/tests/data/get_short_message_info_{0}_label_removed.json'.format(message_id),
-                {'status': '200'}),
+            get_mock('get_labels_and_thread_id_for_message_id_{0}_label_removed.json'.format(message_id), '200'),
         ]
 
         self._test_incremental_synchronize(mock_api_calls=mock_api_calls,
@@ -431,14 +428,10 @@ class EmailTests(UserBasedTest, APITestCase):
 
         mock_api_calls = self.mock_api_calls_default + [
             # Retrieve the history updates since the first full synchronisation.
-            HttpMock('lily/messaging/email/tests/data/get_history_label_removed_multiple.json', {'status': '200'}),
+            get_mock('get_history_label_removed_multiple.json', '200'),
             # Retrieve the messages to which the single label was removed.
-            HttpMock(
-                'lily/messaging/email/tests/data/get_short_message_info_{0}_label_removed.json'.format(message_id_1),
-                {'status': '200'}),
-            HttpMock(
-                'lily/messaging/email/tests/data/get_short_message_info_{0}_label_removed.json'.format(message_id_2),
-                {'status': '200'}),
+            get_mock('get_labels_and_thread_id_for_message_id_{0}_label_removed.json'.format(message_id_1), '200'),
+            get_mock('get_labels_and_thread_id_for_message_id_{0}_label_removed.json'.format(message_id_2), '200'),
         ]
 
         # Update the label data matching the mutation that was in the history update.
@@ -467,12 +460,10 @@ class EmailTests(UserBasedTest, APITestCase):
 
         mock_api_calls = self.mock_api_calls_default + [
             # Retrieve the history updates since the first full synchronisation.
-            HttpMock('lily/messaging/email/tests/data/get_history_archived.json', {'status': '200'}),
+            get_mock('get_history_archived.json', '200'),
             # Retrieve the archived messages.
-            HttpMock('lily/messaging/email/tests/data/get_short_message_info_{0}_archived.json'.format(message_id_1),
-                     {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_short_message_info_{0}_archived.json'.format(message_id_2),
-                     {'status': '200'}),
+            get_mock('get_labels_and_thread_id_for_message_id_{0}_archived.json'.format(message_id_1), '200'),
+            get_mock('get_labels_and_thread_id_for_message_id_{0}_archived.json'.format(message_id_2), '200'),
         ]
 
         # Update the label data matching the mutation that was in the history update.
@@ -504,12 +495,10 @@ class EmailTests(UserBasedTest, APITestCase):
 
         mock_api_calls = self.mock_api_calls_default + [
             # Retrieve the history updates since the first full synchronisation.
-            HttpMock('lily/messaging/email/tests/data/get_history_starred.json', {'status': '200'}),
+            get_mock('get_history_starred.json', '200'),
             # Retrieve the starred messages.
-            HttpMock('lily/messaging/email/tests/data/get_short_message_info_{0}_starred.json'.format(message_id_1),
-                     {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_short_message_info_{0}_starred.json'.format(message_id_2),
-                     {'status': '200'}),
+            get_mock('get_labels_and_thread_id_for_message_id_{0}_starred.json'.format(message_id_1), '200'),
+            get_mock('get_labels_and_thread_id_for_message_id_{0}_starred.json'.format(message_id_2), '200'),
         ]
 
         # Update the label data matching the mutation that was in the history update.
@@ -541,12 +530,10 @@ class EmailTests(UserBasedTest, APITestCase):
 
         mock_api_calls = self.mock_api_calls_default + [
             # Retrieve the history updates since the first full synchronisation.
-            HttpMock('lily/messaging/email/tests/data/get_history_read.json', {'status': '200'}),
+            get_mock('get_history_read.json', '200'),
             # Retrieve the messages which were read.
-            HttpMock('lily/messaging/email/tests/data/get_short_message_info_{0}_read.json'.format(message_id_1),
-                     {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_short_message_info_{0}_read.json'.format(message_id_2),
-                     {'status': '200'}),
+            get_mock('get_labels_and_thread_id_for_message_id_{0}_read.json'.format(message_id_1), '200'),
+            get_mock('get_labels_and_thread_id_for_message_id_{0}_read.json'.format(message_id_2), '200'),
         ]
 
         # Update the label data matching the mutation that was in the history update.
@@ -580,10 +567,9 @@ class EmailTests(UserBasedTest, APITestCase):
 
         mock_api_calls = self.mock_api_calls_default + [
             # Retrieve the history updates since the first full synchronisation.
-            HttpMock('lily/messaging/email/tests/data/get_history_unread.json', {'status': '200'}),
+            get_mock('get_history_unread.json', '200'),
             # Retrieve the message which were marked unread.
-            HttpMock('lily/messaging/email/tests/data/get_short_message_info_{0}_unread.json'.format(message_id),
-                     {'status': '200'}),
+            get_mock('get_labels_and_thread_id_for_message_id_{0}_unread.json'.format(message_id), '200'),
         ]
 
         # Update the label data matching the mutation that was in the history update.
@@ -616,12 +602,11 @@ class EmailTests(UserBasedTest, APITestCase):
 
         mock_api_calls = self.mock_api_calls_default + [
             # Retrieve the history updates since the first full synchronisation.
-            HttpMock('lily/messaging/email/tests/data/get_history_spam.json', {'status': '200'}),
+            get_mock('get_history_spam.json', '200'),
             # Retrieve the message which were marked spam.
-            HttpMock('lily/messaging/email/tests/data/get_short_message_info_{0}_spam.json'.format(message_id),
-                     {'status': '200'}),
+            get_mock('get_labels_and_thread_id_for_message_id_{0}_spam.json'.format(message_id), '200'),
             # Retrieve the corresponding spam label.
-            HttpMock('lily/messaging/email/tests/data/get_label_info_SPAM.json', {'status': '200'}),
+            get_mock('get_label_info_SPAM.json', '200'),
         ]
 
         # Update the label data matching the mutation that was in the history update.
@@ -654,10 +639,9 @@ class EmailTests(UserBasedTest, APITestCase):
 
         mock_api_calls = self.mock_api_calls_default + [
             # Retrieve the history updates since the first full synchronisation.
-            HttpMock('lily/messaging/email/tests/data/get_history_unspam.json', {'status': '200'}),
+            get_mock('get_history_unspam.json', '200'),
             # Retrieve the message which were unmarked as spam.
-            HttpMock('lily/messaging/email/tests/data/get_short_message_info_{0}_unspam.json'.format(message_id),
-                     {'status': '200'}),
+            get_mock('get_labels_and_thread_id_for_message_id_{0}_unspam.json'.format(message_id), '200'),
         ]
 
         # Update the label data matching the mutation that was in the history update.
@@ -683,12 +667,11 @@ class EmailTests(UserBasedTest, APITestCase):
 
         mock_api_calls = self.mock_api_calls_default + [
             # Retrieve the history updates since the first full synchronisation.
-            HttpMock('lily/messaging/email/tests/data/get_history_trashed.json', {'status': '200'}),
+            get_mock('get_history_trashed.json', '200'),
             # Retrieve the trashed message.
-            HttpMock('lily/messaging/email/tests/data/get_short_message_info_{0}_trashed.json'.format(message_id),
-                     {'status': '200'}),
+            get_mock('get_labels_and_thread_id_for_message_id_{0}_trashed.json'.format(message_id), '200'),
             # Retrieve the corresponding trash label.
-            HttpMock('lily/messaging/email/tests/data/get_label_info_TRASH.json', {'status': '200'}),
+            get_mock('get_label_info_TRASH.json', '200'),
         ]
 
         # Update the label data matching the mutation that was in the history update.
@@ -719,7 +702,7 @@ class EmailTests(UserBasedTest, APITestCase):
 
         mock_api_calls = self.mock_api_calls_default + [
             # Retrieve the history updates since the first full synchronisation.
-            HttpMock('lily/messaging/email/tests/data/get_history_delete.json', {'status': '200'}),
+            get_mock('get_history_delete.json', '200'),
         ]
 
         # Update the label data matching the mutation that was in the history update.
@@ -748,12 +731,10 @@ class EmailTests(UserBasedTest, APITestCase):
 
         mock_api_calls = self.mock_api_calls_default + [
             # Retrieve the history updates since the first full synchronisation.
-            HttpMock('lily/messaging/email/tests/data/get_history_new_messages.json', {'status': '200'}),
+            get_mock('get_history_new_messages.json', '200'),
             # Retrieve the new messages.
-            HttpMock('lily/messaging/email/tests/data/get_message_info_{0}_new.json'.format(message_id_1),
-                     {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_message_info_{0}_new.json'.format(message_id_2),
-                     {'status': '200'}),
+            get_mock('get_message_info_{0}_new.json'.format(message_id_1), '200'),
+            get_mock('get_message_info_{0}_new.json'.format(message_id_2), '200'),
         ]
 
         # Update the label data matching the mutation that was in the history update.
@@ -782,9 +763,8 @@ class EmailTests(UserBasedTest, APITestCase):
         message_id = '15b33aad2c5dbe4a'
 
         mock_api_calls = self.mock_api_calls_default + [
-            HttpMock('lily/messaging/email/tests/data/send_email_message.json', {'status': '200'}),
-            HttpMock('lily/messaging/email/tests/data/get_message_info_{0}.json'.format(message_id),
-                     {'status': '200'}),
+            get_mock('send_email_message.json', '200'),
+            get_mock('get_message_info_{0}.json'.format(message_id), '200'),
         ]
 
         # Mock the http instance with succesive http mock objects.

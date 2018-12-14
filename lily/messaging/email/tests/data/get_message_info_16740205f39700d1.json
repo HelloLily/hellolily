@@ -1,0 +1,155 @@
+{
+  "internalDate": "1542969190000",
+  "historyId": "56538",
+  "payload": {
+    "mimeType": "multipart/mixed",
+    "body": {
+      "size": 0
+    },
+    "partId": "",
+    "filename": "",
+    "headers": [
+      {
+        "name": "Delivered-To",
+        "value": "anonymous@wearespindle.com"
+      },
+      {
+        "name": "Received",
+        "value": "by 2002:a02:5b49:0:0:0:0:0 with SMTP id g70csp1973302jab;        Fri, 23 Nov 2018 02:32:02 -0800 (PST)"
+      },
+      {
+        "name": "X-Received",
+        "value": "by 2002:a17:906:9613:: with SMTP id s19-v6mr10893538ejx.109.1542969122780;        Fri, 23 Nov 2018 02:32:02 -0800 (PST)"
+      },
+      {
+        "name": "Return-Path",
+        "value": "<anonymous@gmail.com>"
+      },
+      {
+        "name": "Received",
+        "value": "from mail-sor-f41.google.com (mail-sor-f41.google.com. [209.85.220.41])        by mx.google.com with SMTPS id h53sor691381ede.14.2018.11.23.02.32.02        for <anonymous@wearespindle.com>        (Google Transport Security);        Fri, 23 Nov 2018 02:32:02 -0800 (PST)"
+      },
+      {
+        "name": "Received-SPF",
+        "value": "pass (google.com: domain of anonymous@gmail.com designates 209.85.220.41 as permitted sender) client-ip=209.85.220.41;"
+      },
+      {
+        "name": "X-Received",
+        "value": "by 2002:a50:a517:: with SMTP id y23mr12822839edb.219.1542969121270; Fri, 23 Nov 2018 02:32:01 -0800 (PST)"
+      },
+      {
+        "name": "MIME-Version",
+        "value": "1.0"
+      },
+      {
+        "name": "From",
+        "value": "Anonymous <anonymous@gmail.com>"
+      },
+      {
+        "name": "Date",
+        "value": "Fri, 23 Nov 2018 11:33:10 +0100"
+      },
+      {
+        "name": "Subject",
+        "value": "Attachment testy thingy"
+      },
+      {
+        "name": "To",
+        "value": "anonymous@wearespindle.com"
+      },
+      {
+        "name": "Content-Type",
+        "value": "multipart/mixed; boundary=\"0000000000005fb99b057b527e9a\""
+      }
+    ],
+    "parts": [
+      {
+        "mimeType": "multipart/alternative",
+        "body": {
+          "size": 0
+        },
+        "partId": "0",
+        "filename": "",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "multipart/alternative; boundary=\"0000000000005fb998057b527e98\""
+          }
+        ],
+        "parts": [
+          {
+            "mimeType": "text/plain",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "text/plain; charset=\"UTF-8\""
+              }
+            ],
+            "body": {
+              "data": "DQo=",
+              "size": 2
+            },
+            "partId": "0.0",
+            "filename": ""
+          },
+          {
+            "mimeType": "text/html",
+            "headers": [
+              {
+                "name": "Content-Type",
+                "value": "text/html; charset=\"UTF-8\""
+              }
+            ],
+            "body": {
+              "data": "PGRpdiBkaXI9Imx0ciI-PGJyPjwvZGl2Pg0K",
+              "size": 27
+            },
+            "partId": "0.1",
+            "filename": ""
+          }
+        ]
+      },
+      {
+        "mimeType": "image/png",
+        "headers": [
+          {
+            "name": "Content-Type",
+            "value": "image/png; name=\"rickandmorty.png\""
+          },
+          {
+            "name": "Content-Disposition",
+            "value": "attachment; filename=\"rickandmorty.png\""
+          },
+          {
+            "name": "Content-Transfer-Encoding",
+            "value": "base64"
+          },
+          {
+            "name": "Content-ID",
+            "value": "<f_jotw0lra0>"
+          },
+          {
+            "name": "X-Attachment-Id",
+            "value": "f_jotw0lra0"
+          }
+        ],
+        "body": {
+          "attachmentId": "randomId",
+          "size": 113100
+        },
+        "partId": "1",
+        "filename": "rickandmorty.png"
+      }
+    ]
+  },
+  "snippet": "",
+  "sizeEstimate": 159905,
+  "threadId": "16740205f39700d1",
+  "labelIds": [
+    "UNREAD",
+    "IMPORTANT",
+    "CATEGORY_PERSONAL",
+    "INBOX"
+  ],
+  "id": "16740205f39700d1"
+}

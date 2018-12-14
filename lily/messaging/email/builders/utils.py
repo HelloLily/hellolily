@@ -36,9 +36,11 @@ def get_attachments_from_payload(payload, body_html, message_id, connector):
     Args:
         payload (dict): with attachment info
         body_html (string): body that could contain references to attachments
-        connector (GmailConnector): active connector to communicate with Gmail
         message_id (string): containing a reference to the message stored on Gmail
-        attachments (list): list of attachments previously created for naming purposes
+        connector (GmailConnector): active connector to communicate with Gmail
+
+    Returns:
+        attachments (list): list of attachments
     """
     attachments = []
     append_attachments_from_payload(payload, body_html, message_id, attachments, connector)
@@ -52,9 +54,12 @@ def append_attachments_from_payload(payload, body_html, message_id, attachments,
     Args:
         payload (dict): with attachment info
         body_html (string): body that could contain references to attachments
-        connector (GmailConnector): active connector to communicate with Gmail
         message_id (string): containing a reference to the message stored on Gmail
         attachments (list): list of attachments previously created for naming purposes
+        connector (GmailConnector): active connector to communicate with Gmail
+
+    Returns:
+        attachments (list): list of attachment
     """
     if 'parts' in payload:
         for part in payload['parts']:
@@ -81,14 +86,17 @@ def append_attachments_from_payload(payload, body_html, message_id, attachments,
 
 def create_attachment(part, body_html, message_id, attachments, connector):
     """
-    Create and add attachment and attachment to the given attachments for the given part.
+    Create and add attachment to the given attachments for the given part.
 
     Args:
         part (dict): with attachment info
         body_html (string): body that could contain references to attachments
-        connector (GmailConnector): active connector to communicate with Gmail
         message_id (string): containing a reference to the message stored on Gmail
         attachments (list): list of attachments previously created for naming purposes
+        connector (GmailConnector): active connector to communicate with Gmail
+
+    Returns:
+        attachment (EmailAttachment)
 
     Raises:
         Attachment exception if attachment couldn't be created.

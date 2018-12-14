@@ -268,7 +268,7 @@ def get_body_html_from_payload(payload, message_id):
             body_html += get_body_html_from_payload(part, message_id)
 
     headers = get_headers_from_payload(payload)
-    if payload['mimeType'] == 'text/html':
+    if 'body' in payload and 'data' in payload['body'] and payload['mimeType'] == 'text/html':
         body = base64.urlsafe_b64decode(payload['body']['data'].encode())
         encoding = get_encoding_from_headers(headers)
         body_html += create_body_html(body, message_id, encoding)

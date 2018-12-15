@@ -268,7 +268,7 @@ def get_body_html_from_payload(payload, message_id):
             body_html += get_body_html_from_payload(part, message_id)
 
     headers = get_headers_from_payload(payload)
-    if 'body' in payload and 'data' in payload['body'] and payload['mimeType'] == 'text/html':
+    if payload['mimeType'] == 'text/html' and 'body' in payload and 'data' in payload['body']:
         body = base64.urlsafe_b64decode(payload['body']['data'].encode())
         encoding = get_encoding_from_headers(headers)
         body_html += create_body_html(body, message_id, encoding)
@@ -290,7 +290,7 @@ def get_body_text_from_payload(payload, message_id):
             body_text += get_body_text_from_payload(part, message_id)
 
     headers = get_headers_from_payload(payload)
-    if payload['mimeType'] == 'text/plain':
+    if payload['mimeType'] == 'text/plain' and 'body' in payload and 'data' in payload['body']:
         body = base64.urlsafe_b64decode(payload['body']['data'].encode())
         encoding = get_encoding_from_headers(headers)
         body_text += create_body_text(body, message_id, encoding)

@@ -207,7 +207,7 @@ class UserInfo(models.Model):
     email_account_status = models.IntegerField(choices=STATUS_CHOICES, default=INCOMPLETE)
 
 
-class UserSettings(models.Model):
+class BrowserSettings(models.Model):
     data = JSONField(default={})
 
 
@@ -303,7 +303,7 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
         null=True,
         on_delete=models.SET_NULL
     )
-    settings = models.ForeignKey(UserSettings, blank=True, null=True, on_delete=models.SET_NULL)
+    settings = models.ForeignKey(BrowserSettings, blank=True, null=True, on_delete=models.SET_NULL)
 
     objects = LilyUserManager()
     all_objects = UserManager()

@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='UserSettings',
+            name='BrowserSettings',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('data', django.contrib.postgres.fields.jsonb.JSONField(default={})),
@@ -24,6 +24,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='lilyuser',
             name='settings',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='users.UserSettings'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='users.BrowserSettings'),
         ),
     ]

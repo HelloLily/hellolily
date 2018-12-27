@@ -36,7 +36,7 @@ from .serializers import (
     TeamSerializer, LilyUserSerializer, LilyUserTokenSerializer, SessionSerializer, UserInviteSerializer,
     BasicLilyUserSerializer
 )
-from ..models import Team, LilyUser, UserInvite, UserSettings
+from ..models import Team, LilyUser, UserInvite, BrowserSettings
 
 
 class TeamFilter(FilterSet):
@@ -357,11 +357,11 @@ class LilyUserViewSet(ElasticModelMixin, viewsets.ModelViewSet):
         return Response({'results': serializer.data})
 
     @detail_route(methods=['GET', 'PATCH'], url_path='settings')
-    def user_settings(self, request, pk=None):
+    def browser_settings(self, request, pk=None):
         user = self.get_object()
 
         if not user.settings:
-            user.settings = UserSettings.objects.create()
+            user.settings = BrowserSettings.objects.create()
             user.save()
 
         method = request.method
@@ -370,12 +370,12 @@ class LilyUserViewSet(ElasticModelMixin, viewsets.ModelViewSet):
         if method == 'GET':
             component = request.query_params.get('component')
 
-            user_settings = user.settings.data
+            browser_settings = user.settings.data
 
             if component:
-                user_settings = user_settings.get(component)
+                browser_settings = browser_settings.get(component)
 
-            return Response({'results': user_settings})
+            return Response({'results': browser_settings})
         elif method == 'PATCH':
             # Key will be component's name, so no need to store it again.
             component = data.pop('component')

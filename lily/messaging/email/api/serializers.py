@@ -527,9 +527,9 @@ class EmailDraftCreateSerializer(serializers.ModelSerializer):
         action = validated_data.get('action')
         email_message = validated_data.get('message', '')
         account = validated_data.get('send_from')
+        subject = validated_data.get('subject', '')
+        body = validated_data.get('body', '')
 
-        subject = ''
-        body = ''
         if action == 'compose':
             headers = get_email_headers(action)
         else:
@@ -552,9 +552,9 @@ class EmailDraftCreateSerializer(serializers.ModelSerializer):
         return EmailDraft.objects.create(
             send_from=account,
             headers=headers,
-            to=[],
-            cc=[],
-            bcc=[],
+            to=validated_data.get('to', []),
+            cc=validated_data.get('cc', []),
+            bcc=validated_data.get('bcc', []),
             subject=subject,
             body=body,
             original_message_id=email_message,
@@ -568,4 +568,9 @@ class EmailDraftCreateSerializer(serializers.ModelSerializer):
             'action',
             'message',
             'send_from',
+            'to',
+            'cc',
+            'bcc',
+            'subject',
+            'body',
         )

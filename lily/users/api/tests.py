@@ -37,7 +37,7 @@ class LilyUserTests(ElasticsearchApiTestCase, GenericAPITestCase):
             **kwargs
         )
 
-    def _create_object_stub(self, with_relations=False, size=1, with_email=False, with_webhooks=False, **kwargs):
+    def _create_object_stub(self, with_relations=False, size=1, with_webhooks=False, **kwargs):
         object_list = super(LilyUserTests, self)._create_object_stub(
             with_relations=with_relations,
             size=size,
@@ -48,8 +48,6 @@ class LilyUserTests(ElasticsearchApiTestCase, GenericAPITestCase):
 
         for obj in object_list:
             del obj['password']
-            if not with_email:
-                del obj['email']
 
             if with_webhooks:
                 webhook = model_to_dict(WebhookFactory(tenant=self.user_obj.tenant))
@@ -76,7 +74,7 @@ class LilyUserTests(ElasticsearchApiTestCase, GenericAPITestCase):
 
     def test_update_object_with_webhook(self):
         set_current_user(self.user_obj)
-        stub_dict = self._create_object_stub(with_email=True, with_webhooks=True, email=self.user_obj.email)
+        stub_dict = self._create_object_stub(with_webhooks=True, email=self.user_obj.email)
 
         self.user_obj.first_name = 'something'
         self.user_obj.save()
@@ -86,7 +84,7 @@ class LilyUserTests(ElasticsearchApiTestCase, GenericAPITestCase):
 
     def test_update_object_with_webhook_to_lily(self):
         set_current_user(self.user_obj)
-        stub_dict = self._create_object_stub(with_email=True, with_webhooks=True, email=self.user_obj.email)
+        stub_dict = self._create_object_stub(with_webhooks=True, email=self.user_obj.email)
 
         self.user_obj.first_name = 'something'
         self.user_obj.save()

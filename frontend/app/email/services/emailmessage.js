@@ -65,6 +65,44 @@ function EmailMessage($resource, $q) {
                     size: 20,
                 },
             },
+            searchGmail: {
+                method: 'GET',
+                url: 'api/messaging/email/search/',
+                params: {
+                    sort: '-sent_date',
+                    size: 20,
+                },
+                transformResponse: function(data) {
+                    // Restructure the data so it matches with the current structure of the elastic search output,
+                    // so follow up code is able to handle both.
+                    let jsonData = angular.fromJson(data);
+                    let objects = [];
+                    objects.hits  = [];
+                    objects.total = 0;
+
+                    if (jsonData) {
+                        objects.total = jsonData.total;
+                        if (jsonData.hits && jsonData.hits.length > 0) {
+                            jsonData.hits.forEach(function(obj) {
+                                let emailMessage = $.extend(obj, {
+                                    sender_email: obj.sender.email_address,
+                                    sender_name: obj.sender.name,
+                                    received_by_email: [],
+                                });
+                                emailMessage.account.email = emailMessage.account.email_address;
+                                emailMessage.account.name = emailMessage.account.label;
+                                emailMessage.received_by.forEach(function(receiver) {
+                                    emailMessage.received_by_email.push(receiver.email_address);
+                                });
+
+                                objects.hits.push(emailMessage);
+                            });
+                        }
+                    }
+
+                    return {objects};
+                },
+            },
             history: {
                 method: 'GET',
                 url: '/api/messaging/email/email/:id/history/',

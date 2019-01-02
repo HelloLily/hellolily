@@ -74,10 +74,14 @@ class ContactViewSet(ElasticModelMixin, ModelChangesMixin, DataExistsMixin, Note
     def calls(self, request, pk=None):
         contact = self.get_object()
 
-        phone_numbers = contact.phone_numbers.all().values_list('number', flat=True)
+        phone_numbers = list(contact.phone_numbers.all().values_list('number', flat=True))
 
         calls = CallRecord.objects.filter(
             Q(caller__number__in=phone_numbers) | Q(destination__number__in=phone_numbers)
+        ).prefetch_related(
+            'caller',
+            'destination',
+            'transfers',
         ).order_by(
             '-start'
         )[:100]

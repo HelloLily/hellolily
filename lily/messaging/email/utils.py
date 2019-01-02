@@ -26,7 +26,7 @@ from jinja2 import TemplateSyntaxError
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
 
-from .models.models import EmailAttachment, EmailAccount, SharedEmailConfig
+from .models.models import EmailAttachment, EmailAccount, SharedEmailConfig, EmailMessage
 from .sanitize import sanitize_html_email
 
 _EMAIL_PARAMETER_DICT = {}
@@ -608,15 +608,32 @@ def get_extensions_for_type(general_type):
     yield '.bak'
 
 
-def get_shared_email_accounts(user):
+def get_shared_email_accounts(user, only_public=True):
     if not user.tenant.billing.is_free_plan:
         # Team plan allows sharing of email account.
-        # Get a list of email accounts which are publicly shared or shared specifically with the user.
-        shared_email_account_list = EmailAccount.objects.filter(
-            Q(owner=user) |
-            Q(privacy=EmailAccount.PUBLIC) |
-            (Q(sharedemailconfig__user__id=user.pk) & Q(sharedemailconfig__privacy=EmailAccount.PUBLIC))
-        )
+        if only_public:
+            # Get a list of email accounts which are publicly shared or shared specifically with the user.
+            shared_email_account_list = EmailAccount.objects.filter(
+                Q(owner=user) |
+                Q(privacy=EmailAccount.PUBLIC) |
+                (Q(sharedemailconfig__user__id=user.pk) & Q(sharedemailconfig__privacy=EmailAccount.PUBLIC))
+            )
+        else:
+            # Get a list of email accounts which are publicly shared or shared specifically with the user, including
+            # accounts that only share metadata or as read only.
+            shared_email_account_list = EmailAccount.objects.filter(
+                Q(owner=user) |
+                Q(privacy=EmailAccount.PUBLIC) |
+                Q(privacy=EmailAccount.READ_ONLY) |
+                Q(privacy=EmailAccount.METADATA) |
+                (
+                    Q(sharedemailconfig__user__id=user.pk) & (
+                        Q(sharedemailconfig__privacy=EmailAccount.PUBLIC) |
+                        Q(sharedemailconfig__privacy=EmailAccount.READ_ONLY) |
+                        Q(sharedemailconfig__privacy=EmailAccount.METADATA)
+                    )
+                )
+            )
     else:
         # Free plan, so only allow own email accounts.
         shared_email_account_list = EmailAccount.objects.filter(
@@ -720,7 +737,7 @@ def get_formatted_reply_email_subject(subject, prefix='Re: '):
         else:
             break
 
-    return u'%s%s' % (prefix, subject)
+    return u'{}{}'.format(prefix, subject)
 
 
 def get_formatted_email_body(action, email_message):
@@ -730,11 +747,14 @@ def get_formatted_email_body(action, email_message):
         forward_header_to = []
         for recipient in email_message.received_by.all():
             if recipient.name:
-                forward_header_to.append(recipient.name + ' &lt;' + recipient.email_address + '&gt;')
+                forward_header_to.append(u'{} &lt;{}&gt;'.format(
+                    recipient.name,
+                    recipient.email_address)
+                )
             else:
                 forward_header_to.append(recipient.email_address)
 
-        body_header = (
+        body_header = unicode(
             '<br /><br />'
             '<hr />'
             '---------- Forwarded message ---------- <br />'
@@ -749,7 +769,7 @@ def get_formatted_email_body(action, email_message):
             to=', '.join(forward_header_to)
         )
 
-    return body_header + mark_safe(email_message.reply_body)
+    return u'{}{}'.format(body_header, mark_safe(email_message.reply_body))
 
 
 class EmailHeaderInputException(Exception):

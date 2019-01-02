@@ -22,7 +22,7 @@ class GmailService(object):
 
     def _get_http(self):
         """
-        Return the currenct http instance. Method added to enable mocking.
+        Return the current http instance. Method added to enable mocking.
 
         :return: current http instance
         """

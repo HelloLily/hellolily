@@ -88,6 +88,19 @@ class EmailAttachmentSerializer(serializers.ModelSerializer):
         )
 
 
+class SimpleEmailAccountSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = EmailAccount
+        fields = (
+            'id',
+            'email_address',
+            'label',
+            'color',
+            'is_syncing',
+        )
+
+
 class EmailMessageSerializer(serializers.ModelSerializer):
     account = serializers.PrimaryKeyRelatedField(read_only=True)
     sender = RecipientSerializer(many=False, read_only=True)
@@ -117,6 +130,28 @@ class EmailMessageSerializer(serializers.ModelSerializer):
             'is_draft',
             'is_archived',
             'reply_to',
+        )
+
+
+class EmailMessageListSerializer(EmailMessageSerializer):
+    account = SimpleEmailAccountSerializer(read_only=True)
+    # Explicitly overwrite the EmailMessageSerializer fields which should not be serialized.
+    labels = None
+    received_by_cc = None
+    attachments = None
+
+    class Meta:
+        model = EmailMessage
+        fields = (
+            'id',
+            'account',
+            'read',
+            'is_starred',
+            'sender',
+            'received_by',
+            'subject',
+            'sent_date',
+            'has_attachment',
         )
 
 
@@ -260,8 +295,13 @@ class EmailAccountSerializer(WritableNestedSerializer):
         default_template = None
 
         if self.context:
-            user = self.context.get('request').user
-            default_template = obj.default_templates.filter(user=user).first()
+            try:
+                default_template = obj.default_template[0]
+            except AttributeError:
+                user = self.context.get('request').user
+                default_template = obj.default_templates.filter(user=user).first()
+            except IndexError:
+                default_template = None
 
         return {
             'id': default_template.template.id,
@@ -529,9 +569,9 @@ class EmailDraftCreateSerializer(serializers.ModelSerializer):
         action = validated_data.get('action')
         email_message = validated_data.get('message', '')
         account = validated_data.get('send_from')
+        subject = validated_data.get('subject', '')
+        body = validated_data.get('body', '')
 
-        subject = ''
-        body = ''
         if action == 'compose':
             headers = get_email_headers(action)
         else:
@@ -554,9 +594,9 @@ class EmailDraftCreateSerializer(serializers.ModelSerializer):
         return EmailDraft.objects.create(
             send_from=account,
             headers=headers,
-            to=[],
-            cc=[],
-            bcc=[],
+            to=validated_data.get('to', []),
+            cc=validated_data.get('cc', []),
+            bcc=validated_data.get('bcc', []),
             subject=subject,
             body=body,
             original_message_id=email_message,
@@ -570,4 +610,9 @@ class EmailDraftCreateSerializer(serializers.ModelSerializer):
             'action',
             'message',
             'send_from',
+            'to',
+            'cc',
+            'bcc',
+            'subject',
+            'body',
         )

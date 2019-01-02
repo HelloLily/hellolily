@@ -147,6 +147,12 @@ ALLOWED_HOSTS = [
     'localhost',
 ]
 
+CORS_ORIGIN_WHITELIST = (
+    'localhost:3001',
+    'beta.hellolily.com'
+)
+CORS_ALLOW_CREDENTIALS = True
+
 #######################################################################################################################
 # UPLOADED MEDIA AND STATIC FILES                                                                                     #
 #######################################################################################################################
@@ -774,6 +780,7 @@ SHELL_PLUS_POST_IMPORTS = (
     ('lily.tags.factories', '*'),
     ('lily.tenant.factories', '*'),
     ('lily.users.factories', '*'),
+    ('lily.tenant.middleware', 'set_current_user'),
 )
 
 CORS_ORIGIN_WHITELIST = (

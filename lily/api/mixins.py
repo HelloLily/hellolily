@@ -150,7 +150,12 @@ class ModelChangesMixin(object):
     def changes(self, request, pk=None):
         obj = self.get_object()
 
-        change_objects = Change.objects.filter(object_id=obj.id, content_type=obj.content_type)
+        change_objects = Change.objects.prefetch_related(
+            'user',
+        ).filter(
+            object_id=obj.id,
+            content_type=obj.content_type
+        )
         changes = []
 
         for change in change_objects:
@@ -245,15 +250,14 @@ class NoteMixin(object):
     @detail_route(methods=['GET'])
     def notes(self, request, pk=None):
         obj = self.get_object()
-        
-    
+
         notes = Note.objects.filter(gfk_object_id=obj.id, gfk_content_type=obj.content_type, is_deleted=False)
 
         serializer = NoteSerializer(notes, many=True)
 
         return Response({'results': serializer.data})
-        
-        
+
+
 class ElasticModelMixin(object):
     """
     Destroy a model instance and remove it from Elasticsearch.

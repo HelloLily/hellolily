@@ -121,14 +121,14 @@ function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLa
         SelectedEmailAccount.setCurrentAccountId($stateParams.accountId);
         SelectedEmailAccount.setCurrentFolderId($stateParams.labelId);
 
-        getNumberOfEmailAccounts();
+        getColorOfEmailAccounts();
     }
 
-    function getNumberOfEmailAccounts() {
-        EmailAccount.query({}, data => {
+    function getColorOfEmailAccounts() {
+        EmailAccount.color(results => {
             const colorCodes = {};
 
-            data.results.forEach(account => {
+            results.forEach(account => {
                 let color;
 
                 if (account.color) {
@@ -142,11 +142,11 @@ function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLa
 
             vm.colorCodes = colorCodes;
 
-            if (data.pagination.total === 0) {
-                vm.showEmptyState = true;
-            } else {
-                let synced = data.results.filter(account => account.is_syncing === false);
+            if (results.length) {
+                let synced = results.filter(account => account.is_syncing === false);
                 vm.syncInProgress = synced.length ? false : true;
+            } else {
+                vm.showEmptyState = true;
             }
         });
     }
@@ -403,6 +403,70 @@ function EmailListController($scope, $state, $stateParams, EmailAccount, EmailLa
     }
 
     function _reloadMessages() {
+        // Reload the messages by retrieving them via the API. Depending if there is a search query present or not, use
+        // the Gmail or Elastic search API end point.
+        if (vm.table.searchQuery) {
+            _reloadMessagesGmail();
+        } else {
+            _reloadMessagesES();
+        }
+    }
+
+    function _reloadMessagesGmail() {
+        if ($stateParams.accountId) {
+            if ($stateParams.labelId) {
+                // Get the label for the given accountId.
+                EmailLabel.query({
+                    label_id: $stateParams.labelId,
+                    account__id: $stateParams.accountId,
+                }, function(response) {
+                    if (response.results && response.results.length) {
+                        vm.label = response.results[0];
+                        vm.label.name = _normalizeLabel(vm.label.name);
+                    } else {
+                        vm.label = {id: $stateParams.labelId, name: _normalizeLabel($stateParams.labelId)};
+                    }
+                });
+            }
+            // Get the account for the given accountId.
+            vm.account = EmailAccount.get({id: $stateParams.accountId});
+        } else {
+            vm.label = {id: $stateParams.labelId, name: _normalizeLabel($stateParams.labelId)};
+        }
+
+        EmailMessage.searchGmail({
+            q: vm.table.searchQuery,
+            size: vm.table.pageSize,
+            page: vm.table.page,
+            account: $stateParams.accountId,
+            label: $stateParams.labelId,
+        }, function(dataObjects) {
+            let data = dataObjects.objects;
+            let i;
+            let emailMessageIndex = data.hits.length;
+
+            // Make sure changes from the detail view are processed in the front end.
+            if (Settings.email.toRemove) {
+                while (emailMessageIndex--) {
+                    for (i = 0; i < Settings.email.toRemove.length; i++) {
+                        if (Settings.email.toRemove[i].id === data.hits[emailMessageIndex].id) {
+                            data.hits.splice(emailMessageIndex, 1);
+                        }
+                    }
+                }
+
+                Settings.email.toRemove = [];
+            }
+
+            vm.emailMessages = data.hits;
+            vm.syncMessage = vm.syncInProgress && data.hits.length === 0;
+            vm.table.totalItems = data.total;
+
+            HLUtils.unblockUI('#emailBase');
+        });
+    }
+
+    function _reloadMessagesES() {
         var filterquery = [];
 
         if ($stateParams.labelId) {

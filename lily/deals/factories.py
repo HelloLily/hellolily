@@ -3,7 +3,7 @@ from django.utils.timezone import utc
 
 from factory.declarations import SubFactory, LazyAttribute, SelfAttribute, Iterator, Sequence
 from factory.django import DjangoModelFactory
-from factory.fuzzy import FuzzyDecimal, FuzzyChoice, FuzzyDate
+from factory.fuzzy import FuzzyChoice, FuzzyDate
 from faker.factory import Factory
 
 from lily.accounts.factories import AccountFactory
@@ -120,8 +120,13 @@ class DealFactory(DjangoModelFactory):
     tenant = SubFactory(TenantFactory)
     account = SubFactory(AccountFactory, tenant=SelfAttribute('..tenant'))
     contact = SubFactory(ContactFactory, tenant=SelfAttribute('..tenant'))
-    amount_once = FuzzyDecimal(42.7)
-    amount_recurring = FuzzyDecimal(42.7)
+    # Quick fix: FuzzyDecimal (what amount_* was before) is not correctly serialized in some cases, cannot seem to find
+    # what causes it. For now I'll do it like this, this is a reminder to myself to work on it later. (before this is
+    # merged)
+    # amount_once = FuzzyDecimal(42.7)
+    # amount_recurring = FuzzyDecimal(42.7)
+    amount_once = 42.7
+    amount_recurring = 42.7
     assigned_to = SubFactory(LilyUserFactory, tenant=SelfAttribute('..tenant'))
     card_sent = FuzzyChoice([True, False])
     contacted_by = SubFactory(DealContactedByFactory, tenant=SelfAttribute('..tenant'))

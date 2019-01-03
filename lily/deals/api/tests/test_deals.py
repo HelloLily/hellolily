@@ -78,16 +78,6 @@ class DealTests(ElasticsearchApiTestCase, GenericAPITestCase):
 
             object_list.append(obj)
 
-        print("..")
-        print("..")
-        print("..")
-
-        print(object_list)
-
-        print("..")
-        print("..")
-        print("..")
-
         if size > 1:
             return object_list
         else:

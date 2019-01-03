@@ -91,12 +91,14 @@ class OAuth2CallbackViewTests(UserBasedTest, APITestCase):
         request = self.factory.get('{0}?state={1}&code={2}'.format(reverse('gmail_callback'), state, code))
         request.user = self.user_obj
         response = OAuth2Callback.as_view()(request)
+        print(type(response))
+        print(vars(response))
 
         # A valid authorization token was mocked, so verify that the user is redirected to the email setup screen.
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        self.assertEqual(
-            response.url,
-            '/#/preferences/emailaccounts/edit/{0}'.format(EmailAccount.objects.latest('id').pk)
+        self.assertContains(
+            '/#/preferences/emailaccounts/edit/{0}'.format(EmailAccount.objects.latest('id').pk),
+            response.url
         )
 
         # Verify that an email account was added to the database belonging to the user.

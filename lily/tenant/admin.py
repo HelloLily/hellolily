@@ -55,7 +55,6 @@ class TenantAdmin(admin.ModelAdmin):
     # Form view settings.
     tenant_filtered_fields = ()
     filter_horizontal = ()
-    readonly_fields = ()
     fieldsets = (
         (None, {
             'fields': (
@@ -78,6 +77,7 @@ class TenantFilteredChoicesMixin(object):
         Do not show all fk, m2m records as choices for this instance.
         """
         object_fields = [field.name for field in self.model._meta.concrete_fields]
+
         assert 'tenant' in object_fields, '%s has no tenant field' % self.model
 
         form = super(TenantFilteredChoicesMixin, self).get_form(request, obj, **kwargs)
@@ -86,10 +86,26 @@ class TenantFilteredChoicesMixin(object):
             qs = form.base_fields[field_name].queryset
             if obj:
                 form.base_fields[field_name].queryset = qs.filter(tenant=obj.tenant)
+            elif form.base_fields[field_name].required:
+                # When creating a new object which has a required field which is related to tenant, allow all possible
+                # related models. Since we are the only users of the admin page, we allow the user to add any related
+                # field. It could occur that a user adds a field related to tenant A, and tenant B on a different
+                # related field. Ideally an additional check should take place for all the fields on an admin form to
+                # make sure they are related to the same tenant, if there is any.
+                pass
             else:
                 # Simply do not allow selecting choices when adding a new obj.
                 form.base_fields[field_name].queryset = qs.none()
+
         return form
+
+    def get_readonly_fields(self, request, obj=None):
+        """ When creating a new object, the user should be able to select a tenant. Otherwise, make sure tenant is
+        read_only. """
+        if not obj:
+            return tuple([field for field in self.readonly_fields if field != 'tenant'])
+        else:
+            return self.readonly_fields
 
 
 class TenantFilter(SimpleListFilter):

@@ -148,7 +148,7 @@ class DealWhyLostAdmin(admin.ModelAdmin):
 
 
 @admin.register(DealFoundThrough)
-class DealFoundThroughAdmin(admin.ModelAdmin):
+class DealFoundThroughAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
     # List view settings.
     list_max_show_all = 100
     list_per_page = 50

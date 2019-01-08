@@ -148,7 +148,6 @@ ALLOWED_HOSTS = [
 ]
 
 CORS_ORIGIN_WHITELIST = (
-    'localhost:3001',
     'beta.hellolily.com'
 )
 CORS_ALLOW_CREDENTIALS = True
@@ -670,7 +669,6 @@ REST_FRAMEWORK = {
     'DEFAULT_METADATA_CLASS': 'lily.api.drf_extensions.metadata.CustomMetaData',
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',  # Use application/json instead of multipart/form-data requests in tests.
     'DEFAULT_PAGINATION_CLASS': 'lily.api.drf_extensions.pagination.CustomPagination',
-    'COERCE_DECIMAL_TO_STRING': False,
 }
 
 #######################################################################################################################

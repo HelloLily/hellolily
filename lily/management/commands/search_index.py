@@ -1,3 +1,4 @@
+
 from __future__ import absolute_import, unicode_literals
 import time
 
@@ -116,7 +117,7 @@ class Command(BaseCommand):
             index_names.sort()
             last_index = index_names[-1]
 
-            self.stdout.write("Pointing alias '{}' to '{}'".format(index, last_index))
+            self.stdout.write("Pointing alias '{}' to '{}'".format(last_index, index))
             connection.indices.delete_alias(name=index, index='*', ignore=404)
             connection.indices.put_alias(index=last_index, name=index)
 
@@ -225,6 +226,7 @@ class Command(BaseCommand):
 
         self.handle_create(models, options, connection)
         self.handle_populate(models, options, connection)
+        self.handle_list(models, options, connection)
         self.handle_autoalias(models, options, connection)
         self.handle_cleanup(models, options, connection)
 

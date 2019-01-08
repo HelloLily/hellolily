@@ -150,9 +150,7 @@ class OAuth2Callback(LoginRequiredMixin, View):
             # User is still busy with registration, so redirect to the next step in the flow.
             return HttpResponseRedirect(reverse('register_email_account_details'))
         else:
-            # return HttpResponseRedirect('/#/preferences/emailaccounts/edit/%s' % account.pk)
-            # TODO: Replace once proper front end server has been setup.
-            return HttpResponseRedirect('http://localhost:3001/preferences/emailaccounts/%s/edit' % account.pk)
+            return HttpResponseRedirect('/#/preferences/emailaccounts/edit/%s' % account.pk)
 
 
 class EmailMessageHTMLView(LoginRequiredMixin, DetailView):

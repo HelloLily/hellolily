@@ -41,9 +41,9 @@ services:
     ports:
       - 9203:9200
     environment:
+      - xpack.security.enabled=false  # Image comes with paid auth addon, we don't want that.
       - http.host=0.0.0.0  # Dev mode config.
       - transport.host=127.0.0.1  # Dev mode config.
-      - xpack.security.enabled=false  # Image comes with paid auth addon, we don't want that.
 
   app:
     image: "hellolily/hellolily:latest"

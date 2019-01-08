@@ -370,7 +370,7 @@ class SessionSerializer(serializers.ModelSerializer):
 
     def get_is_current(self, obj):
         if obj.session_key == self.context['request'].session.session_key:
-            return False
+            return True
 
         return False
 

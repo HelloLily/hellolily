@@ -436,7 +436,7 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
 
                     callPromise.then(calls => {
                         const callIds = [];
-                        calls.results.map(call => {
+                        calls.results.forEach(call => {
                             activity.push(call);
                             callIds.push(call.id);
                         });

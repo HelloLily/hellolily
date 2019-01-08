@@ -38,7 +38,7 @@ class CallRecordAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
 
 
 @admin.register(CallParticipant)
-class CallParticipantAdmin(admin.ModelAdmin):
+class CallParticipantAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
     # List view settings.
     list_max_show_all = 100
     list_per_page = 50
@@ -66,7 +66,7 @@ class CallParticipantAdmin(admin.ModelAdmin):
 
 
 @admin.register(CallTransfer)
-class CallTransferAdmin(admin.ModelAdmin):
+class CallTransferAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
     # List view settings.
     list_max_show_all = 100
     list_per_page = 50

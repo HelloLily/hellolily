@@ -66,7 +66,7 @@ class DealAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
 
 
 @admin.register(DealNextStep)
-class DealNextStepAdmin(admin.ModelAdmin):
+class DealNextStepAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
     # List view settings.
     list_max_show_all = 100
     list_per_page = 50
@@ -94,7 +94,7 @@ class DealNextStepAdmin(admin.ModelAdmin):
 
 
 @admin.register(DealWhyCustomer)
-class DealWhyCustomerAdmin(admin.ModelAdmin):
+class DealWhyCustomerAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
     # List view settings.
     list_max_show_all = 100
     list_per_page = 50
@@ -121,7 +121,7 @@ class DealWhyCustomerAdmin(admin.ModelAdmin):
 
 
 @admin.register(DealWhyLost)
-class DealWhyLostAdmin(admin.ModelAdmin):
+class DealWhyLostAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
     # List view settings.
     list_max_show_all = 100
     list_per_page = 50
@@ -175,7 +175,7 @@ class DealFoundThroughAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
 
 
 @admin.register(DealContactedBy)
-class DealContactedByAdmin(admin.ModelAdmin):
+class DealContactedByAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
     # List view settings.
     list_max_show_all = 100
     list_per_page = 50
@@ -202,7 +202,7 @@ class DealContactedByAdmin(admin.ModelAdmin):
 
 
 @admin.register(DealStatus)
-class DealStatusAdmin(admin.ModelAdmin):
+class DealStatusAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
     # List view settings.
     list_max_show_all = 100
     list_per_page = 50

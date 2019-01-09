@@ -27,40 +27,18 @@ function ThreadInfoController($state, EmailMessage) {
 
     function activate() {
         EmailMessage.history({id: vm.messageId}, function(history) {
-            vm.action = 'nothing';
-            if (history.replied_with) {
-                vm.action = _getEmailAddresses(history.replied_with).length === 1 ? 'reply' : 'reply-all';
-                vm.nextMessage = history.replied_with;
-            } else if (history.forwarded_with) {
-                if (_getEmailAddresses(history.replied_with).length === 1) {
-                    vm.action = 'forward';
-                } else {
-                    // hack, there is no forward all
-                    vm.action = 'reply-all fa-flip-horizontal';
-                }
-                vm.nextMessage = history.forwarded_with;
+            vm.action = history.action;
+            if (history.action === 'forward-multi') {
+                vm.action = 'reply-all fa-flip-horizontal';
+            }
+
+            if (history.action_message) {
+                vm.actionMessageId = history.action_message_id;
             }
         });
     }
 
-    function _getEmailAddresses(message) {
-        var emailAddresses = [];
-
-        // TODO: LILY-982: Fix empty messages being sent
-        if (message) {
-            if (message.received_by_email) {
-                emailAddresses = emailAddresses.concat(message.received_by_email);
-            }
-
-            if (message.received_by_cc_email) {
-                emailAddresses = emailAddresses.concat(message.received_by_cc_email);
-            }
-        }
-
-        return emailAddresses;
-    }
-
     function gotoMessage() {
-        $state.go('base.email.detail', {id: vm.nextMessage.id});
+        $state.go('base.email.detail', {id: vm.actionMessageId});
     }
 }

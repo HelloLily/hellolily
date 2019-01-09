@@ -698,7 +698,7 @@ def determine_message_type(thread_id, sent_date, email_address):
     # Get the whole thread this message belongs to.
     thread = EmailMessage.objects.filter(thread_id=thread_id)
 
-    # Restrict the thread to only older messages.
+    # Restrict the thread to only newer messages.
     thread = thread.filter(sent_date__gt=sent_date).order_by('sent_date')
 
     # Restrict the thread to just the outgoing messages.

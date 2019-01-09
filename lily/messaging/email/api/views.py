@@ -35,7 +35,7 @@ from ..models.models import (EmailLabel, EmailAccount, EmailMessage, EmailTempla
                              SharedEmailConfig, TemplateVariable, EmailDraft)
 from ..tasks import (trash_email_message, toggle_read_email_message, add_and_remove_labels_for_message,
                      toggle_star_email_message, toggle_spam_email_message)
-from ..utils import get_filtered_message
+from ..utils import get_filtered_message, determine_message_type
 
 
 logger = logging.getLogger(__name__)
@@ -183,8 +183,10 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
     serializer_class = EmailMessageSerializer
     swagger_schema = None
 
-    def get_object(self):
-        pk = int(self.kwargs['pk'])
+    def get_object(self, pk=None):
+        if not pk:
+            pk = int(self.kwargs['pk'])
+
         email_message = EmailMessage.objects.get(pk=pk)
         user = self.request.user
 
@@ -323,7 +325,30 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         Returns what happened to an email; did the user reply or forwarded the email message.
         """
         # FIXME: complete remove email search pending email refactor.
-        return Response({})
+        message = self.get_object()
+        message_type, message_type_to_id = determine_message_type(
+            message.thread_id,
+            message.sent_date,
+            message.account.email_address
+        )
+
+        data = dict(action='nothing')
+        if message_type_to_id:
+            if not self.get_object(message_type_to_id):
+                return Response({})
+
+            data['action_message_id'] = message_type_to_id
+
+            if message_type == EmailMessage.REPLY:
+                data['action'] = 'reply'
+            elif message_type == EmailMessage.REPLY_ALL:
+                data['action'] = 'reply-all'
+            elif message_type == EmailMessage.FORWARD:
+                data['action'] = 'forward'
+            elif message_type == EmailMessage.FORWARD_MULTI:
+                data['action'] = 'forward-multi'
+
+        return Response(data)
 
     @detail_route(methods=['post'])
     def extract(self, request, pk=None):

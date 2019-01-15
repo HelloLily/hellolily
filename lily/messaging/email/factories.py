@@ -11,8 +11,7 @@ from factory.helpers import post_generation
 
 from lily.tenant.factories import TenantFactory
 from lily.users.factories import LilyUserFactory
-from .models.models import (EmailAccount, EmailMessage, Recipient, EmailLabel,
-                            EmailDraft)
+from .models.models import EmailAccount, EmailMessage, Recipient, EmailLabel, EmailDraft, EmailDraftAttachment
 
 faker = Factory.create('nl_NL')
 
@@ -108,3 +107,11 @@ class EmailDraftFactory(DjangoModelFactory):
 
     class Meta:
         model = EmailDraft
+
+
+class EmailDraftAttachmentFactory(DjangoModelFactory):
+    inline = True
+    email_draft = SubFactory(EmailDraftFactory)
+
+    class Meta:
+        model = EmailDraftAttachment

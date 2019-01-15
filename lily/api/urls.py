@@ -15,7 +15,8 @@ from lily.integrations.api.views import (DocumentDetails, EstimatesList, Integra
                                          SlackEventCatch, IntegrationDetailsView)
 from lily.messaging.email.api.views import (EmailLabelViewSet, EmailAccountViewSet, EmailMessageViewSet,
                                             EmailTemplateFolderViewSet, EmailTemplateViewSet, SharedEmailConfigViewSet,
-                                            TemplateVariableViewSet, EmailDraftViewSet, SearchView)
+                                            TemplateVariableViewSet, EmailDraftViewSet, EmailDraftAttachmentViewSet,
+                                            SearchView)
 from lily.notes.api.views import NoteViewSet
 from lily.provide.api.views import DataproviderViewSet
 from lily.tenant.api.views import TenantViewSet
@@ -52,6 +53,7 @@ router.register(r'deals', DealViewSet)
 router.register(r'messaging/email/labels', EmailLabelViewSet)
 router.register(r'messaging/email/accounts', EmailAccountViewSet)
 router.register(r'messaging/email/email', EmailMessageViewSet)
+router.register(r'messaging/email/drafts/(?P<draft_id>[\d-]+)/attachments', EmailDraftAttachmentViewSet)
 router.register(r'messaging/email/drafts', EmailDraftViewSet)
 router.register(r'messaging/email/folders', EmailTemplateFolderViewSet)
 router.register(r'messaging/email/templates', EmailTemplateViewSet)

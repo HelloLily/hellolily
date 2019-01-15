@@ -15,7 +15,7 @@ from lily.accounts.models import Account
 from lily.cases.models import Case
 from lily.contacts.models import Contact
 from lily.deals.models import Deal
-from lily.messaging.email.models.models import EmailAccount, EmailAttachment
+from lily.messaging.email.models.models import EmailAccount, EmailAttachment, EmailDraftAttachment
 from lily.users.models import LilyUser
 from lily.utils.models.models import PhoneNumber
 from lily.utils.functions import has_required_tier
@@ -141,6 +141,10 @@ class DownloadRedirectView(LoginRequiredMixin, RedirectView):
     mapping = {
         'email': {
             'model_cls': EmailAttachment,
+            'fields': ('attachment', ),
+        },
+        'draft': {
+            'model_cls': EmailDraftAttachment,
             'fields': ('attachment', ),
         },
         'profile': {

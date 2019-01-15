@@ -1,9 +1,10 @@
 import json
 
 from lily.tests.utils import GenericAPITestCase
-from lily.messaging.email.factories import EmailDraftFactory, EmailAccountFactory, EmailMessageFactory
-from lily.messaging.email.models.models import EmailDraft, EmailAccount
-from lily.messaging.email.api.serializers import EmailDraftCreateSerializer
+from lily.messaging.email.factories import (EmailDraftFactory, EmailAccountFactory, EmailMessageFactory,
+                                            EmailDraftAttachmentFactory)
+from lily.messaging.email.models.models import EmailDraft, EmailAccount, EmailDraftAttachment
+from lily.messaging.email.api.serializers import EmailDraftCreateSerializer, EmailDraftAttachmentCreateSerializer
 from lily.tenant.middleware import set_current_user, get_current_user
 
 from rest_framework import status
@@ -181,3 +182,90 @@ class DraftEmailTests(GenericAPITestCase):
 
         self.user.post(self.get_url(self.detail_url, action_name='send', kwargs={'pk': email.pk}))
         self.assertEqual(delay_mock.call_count, 1)
+
+
+class DraftEmailAttachmentTests(GenericAPITestCase):
+    """
+    Class containing tests for the drafts email attachments API.
+    """
+
+    list_url = 'emaildraftattachment-list'
+    detail_url = 'emaildraftattachment-detail'
+    factory_cls = EmailDraftAttachmentFactory
+    model_cls = EmailDraftAttachment
+    serializer_cls = EmailDraftAttachmentCreateSerializer
+    ordering = ('-id', )  # Default ordering field.
+
+    def setUp(self):
+        email_account = EmailAccountFactory.create(owner=self.user_obj, tenant=self.user_obj.tenant)
+        self.email_draft = EmailDraftFactory(tenant=self.user_obj.tenant, send_from=email_account)
+
+    def get_url(self, *args, **kwargs):
+        if 'kwargs' not in kwargs:
+            kwargs['kwargs'] = dict()
+
+        kwargs['kwargs'].update(draft_id=self.get_or_create_draft().id)
+
+        return super(DraftEmailAttachmentTests, self).get_url(*args, **kwargs)
+
+    def get_or_create_draft(self):
+        """
+        Both _create_object and get_url require an email draft, while some tests make that only one of these
+        functions are called. To simplify, we use this method to return a draft when there isn't one.
+        """
+        if hasattr(self, 'email_draft'):
+            return self.email_draft
+
+        user = get_current_user()
+        email_account = EmailAccountFactory.create(owner=user, tenant=user.tenant)
+        self.email_draft = EmailDraftFactory(tenant=user.tenant, send_from=email_account)
+
+        return self.email_draft
+
+    def _create_object(self, **kwargs):
+        if 'email_draft' not in kwargs:
+            kwargs['email_draft'] = self.get_or_create_draft()
+
+        return super(DraftEmailAttachmentTests, self)._create_object(**kwargs)
+
+    def _create_object_stub(self, size=1, **kwargs):
+        object_list = super(DraftEmailAttachmentTests, self)._create_object_stub(size, force_to_list=True, **kwargs)
+
+        account = EmailAccountFactory(
+            owner=self.user_obj,
+            tenant=self.user_obj.tenant
+        )
+
+        email_draft = EmailDraftFactory.create(send_from=account)
+        for obj in object_list:
+            obj['email_draft'] = email_draft.id
+
+            if 'somename' not in obj:
+                obj['filename'] = 'theterminator.png'
+
+        if size == 1:
+            return object_list[0]
+
+        return object_list
+
+    def test_update_object_unauthenticated(self):
+        """ We only create or delete attachments, so the update tests can be skipped. """
+
+    def test_update_object_authenticated(self):
+        """ We only create or delete attachments, so the update tests can be skipped. """
+
+    def test_get_list_tenant_filter(self):
+        """
+        Test that users from different tenants can't access each other's data. First the draft id in the url is
+        resolved, when this belongs to another tenant, a 404 is shown instead of an empty list.
+        """
+        set_current_user(self.other_tenant_user_obj)
+        self._create_object(size=3, tenant=self.other_tenant_user_obj.tenant)
+
+        set_current_user(self.user_obj)
+        self._create_object(size=3)
+
+        request = self.other_tenant_user.get(self.get_url(self.list_url))
+
+        # The requested page is not found, because the draft belongs to someone else.
+        self.assertStatus(request, status.HTTP_404_NOT_FOUND)

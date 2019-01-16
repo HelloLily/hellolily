@@ -543,7 +543,7 @@ def reindex_email_message(instance):
     No need to check related models compared to the more generic post_save signal. Email messages have no related model
     mapping.
     """
-    if settings.ES_DISABLED:
+    if settings.ES_OLD_DISABLED:
         return
     if not isinstance(instance, EmailMessage):
         return

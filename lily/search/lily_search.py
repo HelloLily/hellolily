@@ -1,7 +1,7 @@
 import logging
 
 from django.conf import settings
-from elasticsearch.exceptions import RequestError
+from elasticsearch_old.exceptions import RequestError
 from elasticutils import S
 
 from lily.accounts.models import Account
@@ -12,7 +12,7 @@ from lily.search.connections_utils import get_es_client_kwargs, get_index_name
 
 logger = logging.getLogger(__name__)
 
-main_index = settings.ES_INDEXES['default']
+main_index = settings.ES_OLD_INDEXES['default']
 
 
 class LilySearch(object):
@@ -31,7 +31,7 @@ class LilySearch(object):
             page (int): page number of pagination
             size (int): max number of returned results
         """
-        search_request = S().es(**get_es_client_kwargs()).indexes(settings.ES_INDEXES['default'])
+        search_request = S().es(**get_es_client_kwargs()).indexes(settings.ES_OLD_INDEXES['default'])
         self.search = search_request.all()
 
         # Always filter on Tenant.
@@ -69,7 +69,7 @@ class LilySearch(object):
             count (int): total number of results
             took (int): milliseconds Elastic search took to get the results
         """
-        if settings.ES_DISABLED:
+        if settings.ES_OLD_DISABLED:
             return [], 0, 0
         self.search = self.search.filter_raw({'and': self.raw_filters})
 

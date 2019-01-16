@@ -579,7 +579,7 @@ FREE_PLAN_EMAIL_ACCOUNT_LIMIT = os.environ.get('FREE_PLAN_EMAIL_ACCOUNT_LIMIT', 
 # ELASTICSEARCH                                                                                                       #
 #######################################################################################################################
 # Set this property to true to run without a local Elasticsearch.
-ES_DISABLED = boolean(os.environ.get('ES_DISABLED', 0))
+ES_OLD_DISABLED = boolean(os.environ.get('ES_OLD_DISABLED', 0))
 
 # The location of the Elasticsearch cluster. The following really sucks:
 # ES supports two ways of configuring urls; by string and by dict, however:
@@ -599,18 +599,18 @@ def es_url_to_dict(url):
     return tuple(sorted(host.items()))
 
 
-ES_PROVIDER_ENV = os.environ.get('ES_PROVIDER_ENV', 'ES_DEV_URL')
-ES_URLS = [es_url_to_dict(os.environ.get(ES_PROVIDER_ENV, 'http://es:9200'))]
+ES_OLD_PROVIDER_ENV = os.environ.get('ES_OLD_PROVIDER_ENV', 'ES_OLD_DEV_URL')
+ES_OLD_URLS = [es_url_to_dict(os.environ.get(ES_OLD_PROVIDER_ENV, 'http://es_old:9200'))]
 
 # The index Elasticsearch uses (as a prefix).
-ES_INDEXES = {'default': 'main_index'}
+ES_OLD_INDEXES = {'default': 'main_index'}
 
-# Default timeout of elasticsearch is to short for bulk updating, so we extend te timeout
-ES_TIMEOUT = os.environ.get('ES_TIMEOUT', 20)  # Default is 5
+# Default timeout of elasticsearch is to short for bulk updating, so we extend the timeout
+ES_OLD_TIMEOUT = os.environ.get('ES_OLD_TIMEOUT', 20)  # Default is 5
 
-ES_MAXSIZE = os.environ.get('ES_MAXSIZE', 2)  # Default is 10
+ES_OLD_MAXSIZE = os.environ.get('ES_OLD_MAXSIZE', 2)  # Default is 10
 
-ES_BLOCK = os.environ.get('ES_BLOCK', True)  # Default is False
+ES_OLD_BLOCK = os.environ.get('ES_OLD_BLOCK', True)  # Default is False
 
 #######################################################################################################################
 # Gmail settings                                                                                                  #

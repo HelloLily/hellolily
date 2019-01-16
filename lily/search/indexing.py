@@ -3,7 +3,7 @@ import logging
 import traceback
 
 from django.conf import settings
-from elasticsearch.exceptions import NotFoundError
+from elasticsearch_old.exceptions import NotFoundError
 from elasticutils.contrib.django import tasks
 
 from lily.search.connections_utils import get_es_client, get_index_name
@@ -11,7 +11,7 @@ from lily.utils import logutil
 
 
 logger = logging.getLogger('search')
-main_index = settings.ES_INDEXES['default']
+main_index = settings.ES_OLD_INDEXES['default']
 es = get_es_client(maxsize=1)
 
 
@@ -21,7 +21,7 @@ def update_in_index(instance, mapping):
     Currently uses synchronous tasks. And because of that all exceptions are
     caught, so failures will not interfere with the regular model updates.
     """
-    if settings.ES_DISABLED:
+    if settings.ES_OLD_DISABLED:
         return
     if hasattr(instance, 'is_deleted') and instance.is_deleted:
         remove_from_index(instance, mapping)
@@ -49,7 +49,7 @@ def remove_from_index(instance, mapping):
     Currently uses synchronous tasks. And because of that all exceptions are
     caught, so failures will not interfere with the regular model updates.
     """
-    if settings.ES_DISABLED:
+    if settings.ES_OLD_DISABLED:
         return
     logger.info(u'Removing instance %s: %s' % (instance.__class__.__name__, instance.pk))
 

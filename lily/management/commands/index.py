@@ -165,7 +165,7 @@ It is possible to specify multiple models, using comma separation."""
         """
         for mapping in self.target_list:
             model_name = mapping.get_mapping_type_name()
-            main_index_base = settings.ES_INDEXES['default']
+            main_index_base = settings.ES_OLD_INDEXES['default']
             main_index = get_index_name(main_index_base, mapping)
 
             self.stdout.write('==> %s' % model_name)

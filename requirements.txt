@@ -1,3 +1,8 @@
+# PLEASE NOTE: ALL OF BELOW IS DUPLICATED IN
+# requirements* OF
+# https://github.com/HelloLily/docker-baseimage/
+# SO CHANGE SOMETHING HERE, CHANGE SOMETHING THERE
+
 #######################################################
 ### Base & Server                                   ###
 #######################################################
@@ -86,8 +91,8 @@ uritemplate==3.0.0
 #######################################################
 
 certifi==2017.7.27.1
-elasticsearch==1.6.0
-elasticutils==0.10.3
+https://github.com/HelloLily/elasticsearch_old/archive/master.zip
+https://github.com/HelloLily/elasticutils_old/archive/master.zip
 
 #######################################################
 ### Testing                                         ###

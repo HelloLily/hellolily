@@ -51,7 +51,7 @@ function User($resource, CacheFactory) {
                 cache: CacheFactory.get('volatileCache'),
             },
             search: {
-                url: '/api/users/',
+                url: '/search/search/?type=users_lilyuser&filterquery=:filterquery',
                 method: 'GET',
                 cache: cache,
                 transformResponse: function(data) {
@@ -60,13 +60,13 @@ function User($resource, CacheFactory) {
                     let total = 0;
 
                     if (jsonData) {
-                        if (jsonData.results && jsonData.results.length > 0) {
-                            jsonData.results.forEach(function(obj) {
+                        if (jsonData.hits && jsonData.hits.length > 0) {
+                            jsonData.hits.forEach(function(obj) {
                                 objects.push(obj);
                             });
                         }
 
-                        total = jsonData.pagination.total;
+                        total = jsonData.total;
                     }
 
                     return {

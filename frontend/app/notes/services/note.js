@@ -7,14 +7,14 @@ function Note($resource, HLResource) {
         null,
         {
             search: {
-                url: '/api/notes/?sort=-date',
+                url: '/search/search/?type=notes_note&size=:size&sort=-date&filterquery=:filterquery',
                 isArray: true,
                 transformResponse: data => {
                     const jsonData = angular.fromJson(data);
                     const objects = [];
 
-                    if (jsonData && jsonData.results && jsonData.results.length > 0) {
-                        jsonData.results.forEach(obj => {
+                    if (jsonData && jsonData.hits && jsonData.hits.length > 0) {
+                        jsonData.hits.forEach(obj => {
                             const noteObject = $.extend(obj, {activityType: 'note', color: 'yellow'});
                             objects.push(noteObject);
                         });

@@ -147,11 +147,11 @@ function PreferencesCompanyUserList($compile, $scope, $state, $templateCache, HL
             const filterQuery = vm.table.statusFilter !== undefined ? `is_active:${vm.table.statusFilter}` : '';
 
             User.search({
-                page: vm.table.page,
-                page_size: vm.table.pageSize,
-                ordering: ordering,
-                search: vm.table.searchQuery,
-                is_active: vm.table.statusFilter !== undefined ? vm.table.statusFilter : 'All',
+                filterquery: filterQuery,
+                page: vm.table.page - 1,
+                size: vm.table.pageSize,
+                sort: ordering,
+                q: vm.table.searchQuery,
             }, response => {
                 vm.table.items = response.objects;
                 vm.table.totalItems = response.total;

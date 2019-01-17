@@ -2,8 +2,8 @@ import urllib3
 
 import certifi
 from django.conf import settings
-from elasticsearch.connection.http_urllib3 import Urllib3HttpConnection
-from elasticsearch.exceptions import ImproperlyConfigured
+from elasticsearch_old.connection.http_urllib3 import Urllib3HttpConnection
+from elasticsearch_old.exceptions import ImproperlyConfigured
 from elasticutils.contrib.django import get_es
 
 
@@ -18,12 +18,12 @@ def get_es_client_kwargs(**kwargs_overrides):
     client_kwargs = {
         'verify_certs': True,
         'ca_certs': certifi.where(),
-        'urls': settings.ES_URLS,
-        'timeout': settings.ES_TIMEOUT,
-        'maxsize': settings.ES_MAXSIZE,
+        'urls': settings.ES_OLD_URLS,
+        'timeout': settings.ES_OLD_TIMEOUT,
+        'maxsize': settings.ES_OLD_MAXSIZE,
         'retry_on_status': (503, 504, 429),  # we add 429 (for concurrent requests)
         'connection_class': Urllib3HttpBlockingConnection,
-        'block': settings.ES_BLOCK
+        'block': settings.ES_OLD_BLOCK
     }
     client_kwargs.update(kwargs_overrides)
     return client_kwargs

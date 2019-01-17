@@ -7,7 +7,7 @@ from django.conf import settings
 from django.forms.forms import BaseForm
 
 from ddtrace.contrib.boto.patch import patch as patch_boto
-from ddtrace.contrib.elasticsearch.patch import patch as patch_elasticsearch
+# from ddtrace.contrib.elasticsearch.patch import patch as patch_elasticsearch
 from ddtrace.contrib.redis.patch import patch as patch_redis
 from ddtrace.contrib.requests.patch import patch as patch_requests
 
@@ -40,7 +40,7 @@ class LilyConfig(AppConfig):
         # Setup DataDog.
         if settings.DATADOG_ENABLED:
             patch_boto()
-            patch_elasticsearch()
+            # patch_elasticsearch() Temporarily disabled for old ES
             patch_redis()
             patch_requests()
 

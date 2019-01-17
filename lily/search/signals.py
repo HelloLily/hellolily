@@ -22,7 +22,7 @@ def skip_signal():
 @receiver(post_save)
 @skip_signal()
 def post_save_generic(sender, instance, **kwargs):
-    if settings.ES_DISABLED:
+    if settings.ES_OLD_DISABLED:
         return
     mapping = ModelMappings.model_to_mappings.get(sender)
     if mapping:
@@ -33,7 +33,7 @@ def post_save_generic(sender, instance, **kwargs):
 @receiver(m2m_changed)
 @skip_signal()
 def m2m_changed_generic(sender, instance, action, **kwargs):
-    if settings.ES_DISABLED:
+    if settings.ES_OLD_DISABLED:
         return
     if action.startswith('post_'):
         mapping = ModelMappings.model_to_mappings.get(type(instance))
@@ -44,7 +44,7 @@ def m2m_changed_generic(sender, instance, action, **kwargs):
 
 @receiver(post_delete)
 def post_delete_generic(sender, instance, **kwargs):
-    if settings.ES_DISABLED:
+    if settings.ES_OLD_DISABLED:
         return
     mapping = ModelMappings.model_to_mappings.get(sender)
     if mapping:

@@ -34,7 +34,7 @@ services:
     logging:
       driver: "none"
 
-  es:
+  es_old:
     image: elasticsearch:1.7-alpine  # Use latest version of 1.7.
     networks:
       internal:
@@ -73,7 +73,7 @@ services:
       - rabbit
       - redis
       - db
-      - es
+      - es_old
     ports:
       - "8080:8000"
       - "8083:8081"
@@ -94,7 +94,7 @@ services:
       - rabbit
       - redis
       - db
-      - es
+      - es_old
 
   worker1:
     extends: app
@@ -103,7 +103,7 @@ services:
       - rabbit
       - redis
       - db
-      - es
+      - es_old
 
   worker2:
     extends: app
@@ -112,4 +112,4 @@ services:
       - rabbit
       - redis
       - db
-      - es
+      - es_old

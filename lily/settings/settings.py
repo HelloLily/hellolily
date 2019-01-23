@@ -159,7 +159,6 @@ CORS_ALLOW_CREDENTIALS = True
 if DEBUG:
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
-
 else:
     DEFAULT_FILE_STORAGE = 'lily.pipeline.filestorages.MediaFilesStorage'
     STATICFILES_STORAGE = 'lily.pipeline.filestorages.StaticFilesStorage'
@@ -588,32 +587,71 @@ ES_OLD_DISABLED = boolean(os.environ.get('ES_OLD_DISABLED', 0))
 # (ElasticUtils expects it to be be hashable, which does not work with dict so we use a tuple).
 
 
-def es_url_to_dict(url):
+#######################################################################################################################
+# ES6 search settings
+#######################################################################################################################
+
+def es_url_to_connection(url):
     parse = urlparse(url)
     port = parse.port if parse.port else (80 if parse.scheme == 'http' else 443)
     use_ssl = port is 443
+
+    host = {
+        'hosts': '%s:%s' % (parse.hostname, port),
+        'use_ssl': use_ssl,
+    }
+
+    if parse.username and parse.password:
+        host['http_auth'] = (parse.username, parse.password)
+
+    return host
+
+
+ES_PROVIDER_ENV = os.environ.get('ES_PROVIDER_ENV', 'ES_DEV_URL')
+
+ELASTICSEARCH_DSL = {
+    'default': es_url_to_connection(os.environ.get(ES_PROVIDER_ENV, 'http://es:9200')),
+}
+
+# We use our own Elasticsearch synchronization, so we don't want to use the
+# builtin auto sync functionality.
+ELASTICSEARCH_DSL_AUTOSYNC = os.environ.get('ELASTICSEARCH_DSL_AUTOSYNC', False)
+
+# Set this parameter to true to refresh the Elasticsearch index after every
+# index or update.
+ELASTICSEARCH_DSL_AUTO_REFRESH = os.environ.get('ELASTICSEARCH_DSL_AUTO_REFRESH', False)
+
+
+#######################################################################################################################
+# ES1 search settings                                                                                                 #
+#######################################################################################################################
+
+def es_old_url_to_connection(url):
+    parse = urlparse(url)
+    port = parse.port if parse.port else (80 if parse.scheme == 'http' else 443)
+    use_ssl = port is 443
+
     host = {'host': parse.hostname,
             'port': port,
             'use_ssl': use_ssl,
             'http_auth': '%s:%s' % (parse.username, parse.password)}
+
     return tuple(sorted(host.items()))
 
 
 ES_OLD_PROVIDER_ENV = os.environ.get('ES_OLD_PROVIDER_ENV', 'ES_OLD_DEV_URL')
-ES_OLD_URLS = [es_url_to_dict(os.environ.get(ES_OLD_PROVIDER_ENV, 'http://es_old:9200'))]
+ES_OLD_URLS = [es_old_url_to_connection(os.environ.get(ES_OLD_PROVIDER_ENV, 'http://es_old:9200'))]
 
 # The index Elasticsearch uses (as a prefix).
 ES_OLD_INDEXES = {'default': 'main_index'}
 
 # Default timeout of elasticsearch is to short for bulk updating, so we extend the timeout
 ES_OLD_TIMEOUT = os.environ.get('ES_OLD_TIMEOUT', 20)  # Default is 5
-
 ES_OLD_MAXSIZE = os.environ.get('ES_OLD_MAXSIZE', 2)  # Default is 10
-
 ES_OLD_BLOCK = os.environ.get('ES_OLD_BLOCK', True)  # Default is False
 
 #######################################################################################################################
-# Gmail settings                                                                                                  #
+# Gmail settings                                                                                                      #
 #######################################################################################################################
 GOOGLE_OAUTH2_CLIENT_ID = os.environ.get('GOOGLE_OAUTH2_CLIENT_ID', '')
 GOOGLE_OAUTH2_CLIENT_SECRET = os.environ.get('GOOGLE_OAUTH2_CLIENT_SECRET', '')

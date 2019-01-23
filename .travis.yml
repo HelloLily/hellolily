@@ -95,8 +95,11 @@ script:
   # Run migrations to catch any migration errors
   - docker-compose run --rm web python manage.py migrate
 
-  # Run indexing to catch any indexing errors
+  # Run ES1 indexing to catch any indexing errors
   - docker-compose run --rm web python manage.py index
+
+  # Run ES6 indexing to catch any indexing errors
+  - docker-compose run --rm web python manage.py search_index -f
 
 after_success:
   # Only push if the tests and merge succeeded.

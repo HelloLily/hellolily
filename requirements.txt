@@ -93,6 +93,9 @@ uritemplate==3.0.0
 certifi==2017.7.27.1
 https://github.com/HelloLily/elasticsearch_old/archive/master.zip
 https://github.com/HelloLily/elasticutils_old/archive/master.zip
+elasticsearch==6.3.1
+elasticsearch-dsl==6.1.0
+https://github.com/HelloLily/django-elasticsearch-dsl/archive/lily-es6.zip
 
 #######################################################
 ### Testing                                         ###

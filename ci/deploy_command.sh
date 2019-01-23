@@ -9,7 +9,7 @@ if [ "${NEXT_ACTION}" == "deploy" ]; then
     fi
 
     if [ "${INDEXING_NEEDED}" == "true" ] ; then
-        deploy_command="${deploy_command} && TRAVIS_BUILD_ID=${TRAVIS_BUILD_ID} python manage.py index -f"
+        deploy_command="${deploy_command} && TRAVIS_BUILD_ID=${TRAVIS_BUILD_ID} python manage.py index -f && python manage.py search_index rebuild -f"
 
         # Put every mention of an index file change into an array.
         changed_files=()

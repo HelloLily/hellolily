@@ -3,7 +3,7 @@
 # Original: https://github.com/vishnubob/wait-for-it
 # Alpine compatible version: https://github.com/Eficode/wait-for
 
-TIMEOUT=15
+TIMEOUT=25
 QUIET=0
 
 echoerr() {

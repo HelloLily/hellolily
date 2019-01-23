@@ -99,7 +99,7 @@ script:
   - docker-compose run --rm web python manage.py index
 
   # Run ES6 indexing to catch any indexing errors
-  - docker-compose run --rm web python manage.py search_index -f
+  - docker-compose run --rm web python manage.py search_index rebuild -f
 
 after_success:
   # Only push if the tests and merge succeeded.

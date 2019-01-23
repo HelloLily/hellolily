@@ -39,10 +39,20 @@ services:
     networks:
       internal:
     ports:
-      - "9200:9200"
-      - "9300:9300"
+      - "9204:9200"
     logging:
       driver: "none"
+
+  es:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.1
+    networks:
+      internal:
+    ports:
+      - "9203:9200"
+    environment:
+      - http.host=0.0.0.0
+      - transport.host=127.0.0.1
+      - xpack.security.enabled=false
 
   app:
     image: "hellolily/hellolily:latest"
@@ -74,6 +84,7 @@ services:
       - redis
       - db
       - es_old
+      - es
     ports:
       - "8080:8000"
       - "8083:8081"
@@ -95,6 +106,7 @@ services:
       - redis
       - db
       - es_old
+      - es
 
   worker1:
     extends: app
@@ -104,6 +116,7 @@ services:
       - redis
       - db
       - es_old
+      - es
 
   worker2:
     extends: app
@@ -113,3 +126,4 @@ services:
       - redis
       - db
       - es_old
+      - es

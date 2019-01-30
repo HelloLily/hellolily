@@ -21,19 +21,33 @@ class EmailAccountAdmin(TenantFilteredChoicesMixin, admin.ModelAdmin):
     list_filter = ('privacy', 'is_active', 'is_authorized', 'is_syncing', 'only_new', TenantFilter, )
 
     # Form view settings.
-    tenant_filtered_fields = ()
-    filter_horizontal = ()
-    readonly_fields = ()
+    tenant_filtered_fields = ('owner', 'shared_with_users', )
+    filter_horizontal = ('shared_with_users', )
+    readonly_fields = ('tenant', 'only_new', )
     fieldsets = (
         (None, {
             'fields': (
                 'tenant',
+                'email_address',
+                'from_name',
+                'label',
+                'is_authorized',
+                'is_active',
+                'history_id',
+                'temp_history_id',
+                'is_syncing',
+                'sync_failure_count',
+                'only_new',
+                'owner',
+                'privacy',
+                'previous_privacy',
+                'color',
             ),
         }),
         ('Advanced options', {
             'classes': ('collapse',),
             'fields': (
-
+                'shared_with_users',
             ),
         }),
     )

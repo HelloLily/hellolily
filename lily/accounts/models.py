@@ -6,6 +6,7 @@ from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
+from lily.search.models import ElasticTenantManager
 from lily.tags.models import TaggedObjectMixin
 from lily.tenant.models import TenantMixin
 from lily.users.models import LilyUser
@@ -70,6 +71,7 @@ class Account(Common, TaggedObjectMixin):
     assigned_to = models.ForeignKey(LilyUser, null=True, blank=True, on_delete=models.SET_NULL)
 
     import_id = models.CharField(max_length=100, default='', blank=True, db_index=True)
+    elastic_objects = ElasticTenantManager()
 
     @property
     def content_type(self):
@@ -78,11 +80,8 @@ class Account(Common, TaggedObjectMixin):
         """
         return ContentType.objects.get(app_label="accounts", model="account")
 
-    def primary_email(self):
-        return self.email_addresses.filter(status=EmailAddress.PRIMARY_STATUS).first()
-
     @property
-    def any_email_address(self):
+    def primary_email(self):
         """
         Will return any email address set to this account if one exists.
 
@@ -93,7 +92,7 @@ class Account(Common, TaggedObjectMixin):
             EmailAddress or None.
         """
         if not hasattr(self, '_any_email_address'):
-            self._any_email_address = self.primary_email()
+            self._any_email_address = self.email_addresses.filter(status=EmailAddress.PRIMARY_STATUS).first()
             if self._any_email_address is None:
                 try:
                     self._any_email_address = self.email_addresses.all()[0]
@@ -177,7 +176,7 @@ class Account(Common, TaggedObjectMixin):
 
         return super(Account, self).save(*args, **kwargs)
 
-    EMAIL_TEMPLATE_PARAMETERS = ['name', 'work_phone', 'any_email_address', 'city', 'address']
+    EMAIL_TEMPLATE_PARAMETERS = ['name', 'work_phone', 'primary_email', 'city', 'address']
 
     class Meta:
         ordering = ['name']

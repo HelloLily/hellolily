@@ -4,6 +4,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from lily.accounts.models import Account
 from django.conf import settings
+
+from lily.search.models import ElasticTenantManager
 from lily.tags.models import TaggedObjectMixin
 from lily.utils.models.models import PhoneNumber, EmailAddress
 from lily.utils.models.mixins import Common, DeletedMixin
@@ -57,6 +59,7 @@ class Contact(Common, TaggedObjectMixin):
         through_fields=('contact', 'account'),
         related_name='contacts',
     )
+    elastic_objects = ElasticTenantManager()
 
     @property
     def content_type(self):
@@ -75,9 +78,6 @@ class Contact(Common, TaggedObjectMixin):
         """
         if not hasattr(self, '_primary_email'):
             self._primary_email = self.email_addresses.filter(status=EmailAddress.PRIMARY_STATUS).first()
-
-            if not self._primary_email:
-                self._primary_email = ''
 
         return self._primary_email
 

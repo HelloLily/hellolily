@@ -3,7 +3,7 @@ from django.utils.timezone import utc
 
 from factory.declarations import SubFactory, LazyAttribute, SelfAttribute, Iterator, Sequence
 from factory.django import DjangoModelFactory
-from factory.fuzzy import FuzzyDecimal, FuzzyChoice, FuzzyDate
+from factory.fuzzy import FuzzyChoice, FuzzyDecimal, FuzzyDate
 from faker.factory import Factory
 
 from lily.accounts.factories import AccountFactory

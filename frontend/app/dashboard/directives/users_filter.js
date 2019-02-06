@@ -54,7 +54,7 @@ function UsersFilterController($filter, $state, $timeout, LocalStorage, User, Us
                     collapsed: true,
                 };
 
-                for (let unassignedUser of userResponse) {
+                for (let unassignedUser of userResponse.results) {
                     unassignedTeam.users.push(unassignedUser);
                 }
 

@@ -1,11 +1,16 @@
+from django.db.models import Q
 from django_filters import CharFilter
 from django_filters import rest_framework as filters
+from django_filters.rest_framework import BooleanFilter, DateFilter
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets
+from rest_framework.decorators import list_route
 from rest_framework.filters import OrderingFilter
+from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from lily.api.filters import ElasticSearchFilter
-from lily.api.mixins import ModelChangesMixin, TimeLogMixin, DataExistsMixin
+from lily.api.mixins import ModelChangesMixin, TimeLogMixin, DataExistsMixin, ElasticModelMixin, NoteMixin
 
 from .serializers import CaseSerializer, CaseStatusSerializer, CaseTypeSerializer
 from ..models import Case, CaseStatus, CaseType
@@ -38,13 +43,25 @@ class CaseFilter(filters.FilterSet):
     status = CharFilter(name='status__status')
     not_type = CharFilter(name='type__type', exclude=True)
     not_status = CharFilter(name='status__status', exclude=True)
+    is_archived = BooleanFilter()
+    is_assigned = BooleanFilter()
+    expires = DateFilter()
 
     class Meta:
         model = Case
-        fields = ['type', 'status', 'not_type', 'not_status', ]
+        fields = {
+            'type': ['exact'],
+            'status': ['exact'],
+            'not_type': ['exact'],
+            'not_status': ['exact'],
+            'is_archived': ['exact'],
+            'expires': ['exact', 'gte', 'lte', 'lt', 'gt'],
+            'account__id': ['exact'],
+        }
 
 
-class CaseViewSet(ModelChangesMixin, TimeLogMixin, DataExistsMixin, viewsets.ModelViewSet):
+class CaseViewSet(ElasticModelMixin, ModelChangesMixin, TimeLogMixin, DataExistsMixin,
+                  NoteMixin, viewsets.ModelViewSet):
     """
     retrieve:
     Returns the given case.
@@ -79,18 +96,17 @@ class CaseViewSet(ModelChangesMixin, TimeLogMixin, DataExistsMixin, viewsets.Mod
     Returns all timelogs for the given case.
     """
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
-    queryset = Case.objects
+    queryset = Case.elastic_objects
     # Set the serializer class for this viewset.
     serializer_class = CaseSerializer
     # Set all filter backends that this viewset uses.
     filter_backends = (ElasticSearchFilter, OrderingFilter, filters.DjangoFilterBackend,)
 
-    # ElasticSearchFilter: set the model type.
-    model_type = 'cases_case'
     # OrderingFilter: set all possible fields to order by.
-    ordering_fields = ('id', 'created', 'modified', 'priority', 'subject',)
-    # OrderingFilter: set the default ordering fields.
-    ordering = ('id',)
+    ordering_fields = ('created', 'modified', 'type__name', 'status__name', 'assigned_to__first_name', 'priority',
+                       'subject', 'expires', 'created_by__first_name', )
+    # SearchFilter: set the fields that can be searched on.
+    search_fields = ('account', 'contact', 'assigned_to', 'created_by', 'status', 'subject', 'tags', 'type', )
     # DjangoFilter: set the filter class.
     filter_class = CaseFilter
 
@@ -100,6 +116,27 @@ class CaseViewSet(ModelChangesMixin, TimeLogMixin, DataExistsMixin, viewsets.Mod
         """
         queryset = super(CaseViewSet, self).get_queryset().filter(is_deleted=False)
         return queryset_filter(self.request, queryset)
+
+    @swagger_auto_schema(auto_schema=None)
+    @list_route(methods=['GET'])
+    def open(self, request):
+        account = request.GET.get('account')
+        contact = request.GET.get('contact')
+
+        closed_status = CaseStatus.objects.get(name='Closed')
+
+        cases = Case.objects.filter(is_archived=False, is_deleted=False).exclude(status=closed_status)
+
+        if account and contact:
+            cases = cases.filter(Q(account_id=account) | Q(contact_id=contact))
+        elif account:
+            cases = cases.filter(account_id=account)
+        elif contact:
+            cases = cases.filter(contact_id=contact)
+
+        serializer = CaseSerializer(cases, many=True)
+
+        return Response({'results': serializer.data})
 
 
 class TeamsCaseList(APIView):
@@ -129,6 +166,24 @@ class CaseStatusViewSet(viewsets.ModelViewSet):
         Set the queryset here so it filters on tenant and works with pagination.
         """
         return super(CaseStatusViewSet, self).get_queryset().all()
+
+
+class CasePrioritiesList(APIView):
+    def get(self, request, format=None):
+        priorities = Case.PRIORITY_CHOICES
+        date_increments = [5, 3, 1, 0]
+        results = []
+
+        for priority in priorities:
+            value = priority[0]
+
+            results.append({
+                'id': value,
+                'name': priority[1],
+                'date_increment': date_increments[value]
+            })
+
+        return Response({'results': results})
 
 
 class CaseTypeViewSet(viewsets.ModelViewSet):

@@ -42,4 +42,5 @@ class TenantSerializer(WritableNestedSerializer):
             'integrations',
             'name',
             'timelogging_enabled',
+            'country',
         )

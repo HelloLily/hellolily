@@ -9,7 +9,8 @@ if [ "${NEXT_ACTION}" == "deploy" ]; then
     fi
 
     if [ "${INDEXING_NEEDED}" == "true" ] ; then
-        deploy_command="${deploy_command} && TRAVIS_BUILD_ID=${TRAVIS_BUILD_ID} python manage.py index -f && python manage.py search_index rebuild -f"
+        # ES1 indexing
+        deploy_command="${deploy_command} && TRAVIS_BUILD_ID=${TRAVIS_BUILD_ID} python manage.py index -f"
 
         # Put every mention of an index file change into an array.
         changed_files=()
@@ -28,6 +29,13 @@ if [ "${NEXT_ACTION}" == "deploy" ]; then
 
         # Append the targets to the index command, strip the first comma.
         deploy_command="${deploy_command} -t ${targets:1}"
+
+        # ES6 indexing
+        deploy_command="${deploy_command} && TRAVIS_BUILD_ID=${TRAVIS_BUILD_ID} python manage.py search_index rebuild -f"
+        # Create the actual targets string.
+        for filename in ${changed_files_uniq[@]}; do
+            deploy_command+=" --models $(basename $(dirname "${filename}"))"
+        done
     fi
 
     if [ "${MIGRATION_NEEDED}" == "true" ] || [ "${INDEXING_NEEDED}" == "true" ] ; then

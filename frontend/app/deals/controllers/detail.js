@@ -73,7 +73,7 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
     vm.deal = currentDeal;
     vm.deal.account = dealAccount;
     vm.deal.contact = dealContact;
-    vm.deal.timeLogs = timeLogs.objects;
+    vm.deal.timeLogs = timeLogs.results;
     vm.currentUser = user;
     vm.tenant = tenant;
     vm.mergeStreams = storage.get('mergeStreams', false);

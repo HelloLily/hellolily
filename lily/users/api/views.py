@@ -36,7 +36,7 @@ from .serializers import (
     TeamSerializer, LilyUserSerializer, LilyUserTokenSerializer, SessionSerializer, UserInviteSerializer,
     BasicLilyUserSerializer
 )
-from ..models import Team, LilyUser, UserInvite
+from ..models import Team, LilyUser, UserInvite, BrowserSettings
 
 
 class TeamFilter(FilterSet):
@@ -359,6 +359,10 @@ class LilyUserViewSet(ElasticModelMixin, viewsets.ModelViewSet):
     @detail_route(methods=['GET', 'PATCH'], url_path='settings')
     def browser_settings(self, request, pk=None):
         user = self.get_object()
+
+        if not user.settings:
+            user.settings = BrowserSettings.objects.create()
+            user.save()
 
         method = request.method
         data = request.data

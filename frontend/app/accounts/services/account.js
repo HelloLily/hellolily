@@ -102,8 +102,8 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
                     let jsonData = angular.fromJson(data);
 
                     if (jsonData) {
-                        if (jsonData && jsonData.length > 0) {
-                            jsonData.map(call => {
+                        if (jsonData && jsonData.results && jsonData.results.length > 0) {
+                            jsonData.results.forEach(call => {
                                 call.activityType = 'call';
                                 call.color = 'yellow';
                                 call.date = call.start;
@@ -114,7 +114,7 @@ function Account($filter, $http, $q, $resource, HLResource, HLUtils, HLCache,
 
                     return jsonData;
                 },
-                isArray: true,
+                isArray: false,
             },
             exists: {
                 method: 'GET',

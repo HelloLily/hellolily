@@ -19,6 +19,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from timezone_field import TimeZoneField
 
+from lily.search.models import ElasticTenantManager
 from lily.socialmedia.models import SocialMedia
 from lily.tenant.models import TenantMixin, Tenant, TenantManager
 from lily.utils.models.models import Webhook
@@ -300,6 +301,7 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
 
     objects = LilyUserManager()
     all_objects = UserManager()
+    elastic_objects = ElasticTenantManager()
 
     EMAIL_TEMPLATE_PARAMETERS = [
         'first_name', 'last_name', 'full_name', 'position', 'phone_number', 'current_email_address', 'user_team',

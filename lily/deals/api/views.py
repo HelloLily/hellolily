@@ -1,36 +1,20 @@
+from django.db.models import Q
 from django_filters import rest_framework as filters
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework.decorators import list_route
 from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from lily.api.filters import ElasticSearchFilter
-from lily.api.mixins import ModelChangesMixin, TimeLogMixin, DataExistsMixin
+from lily.api.mixins import ModelChangesMixin, TimeLogMixin, DataExistsMixin, ElasticModelMixin, NoteMixin
 
 from .serializers import (DealSerializer, DealNextStepSerializer, DealWhyCustomerSerializer, DealWhyLostSerializer,
                           DealFoundThroughSerializer, DealContactedBySerializer, DealStatusSerializer)
 from ..models import Deal, DealNextStep, DealWhyCustomer, DealWhyLost, DealFoundThrough, DealContactedBy, DealStatus
 
 
-class DealContactedByList(APIView):
-    swagger_schema = None
-
-    def get(self, request, format=None):
-        return Response(Deal.CONTACTED_BY_CHOICES)
-
-
-class DealNextStepList(APIView):
-    model = DealNextStep
-    serializer_class = DealNextStepSerializer
-    swagger_schema = None
-
-    def get(self, request, format=None):
-        queryset = self.model.objects.filter(tenant_id=self.request.user.tenant_id)
-        serializer = DealNextStepSerializer(queryset, many=True)
-        return Response(serializer.data)
-
-
-class DealWhyCustomerViewSet(ModelViewSet):
+class DealWhyCustomerViewSet(ElasticModelMixin, ModelViewSet):
     # Set the queryset, this takes care of setting the `base_name`.
     queryset = DealWhyCustomer.objects
     # Set the serializer class for this viewset.
@@ -44,7 +28,7 @@ class DealWhyCustomerViewSet(ModelViewSet):
         return super(DealWhyCustomerViewSet, self).get_queryset().all()
 
 
-class DealWhyLostViewSet(ModelViewSet):
+class DealWhyLostViewSet(ElasticModelMixin, ModelViewSet):
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
     queryset = DealWhyLost.objects
     serializer_class = DealWhyLostSerializer
@@ -57,7 +41,7 @@ class DealWhyLostViewSet(ModelViewSet):
         return super(DealWhyLostViewSet, self).get_queryset().all()
 
 
-class DealNextStepViewSet(ModelViewSet):
+class DealNextStepViewSet(ElasticModelMixin, ModelViewSet):
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
     queryset = DealNextStep.objects
     # Set the serializer class for this viewset.
@@ -71,7 +55,7 @@ class DealNextStepViewSet(ModelViewSet):
         return super(DealNextStepViewSet, self).get_queryset().all()
 
 
-class DealFoundThroughViewSet(ModelViewSet):
+class DealFoundThroughViewSet(ElasticModelMixin, ModelViewSet):
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
     queryset = DealFoundThrough.objects
     # Set the serializer class for this viewset.
@@ -85,7 +69,7 @@ class DealFoundThroughViewSet(ModelViewSet):
         return super(DealFoundThroughViewSet, self).get_queryset().all()
 
 
-class DealContactedByViewSet(ModelViewSet):
+class DealContactedByViewSet(ElasticModelMixin, ModelViewSet):
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
     queryset = DealContactedBy.objects
     # Set the serializer class for this viewset.
@@ -99,7 +83,7 @@ class DealContactedByViewSet(ModelViewSet):
         return super(DealContactedByViewSet, self).get_queryset().all()
 
 
-class DealStatusViewSet(ModelViewSet):
+class DealStatusViewSet(ElasticModelMixin, ModelViewSet):
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
     queryset = DealStatus.objects
     # Set the serializer class for this viewset.
@@ -127,6 +111,7 @@ class DealFilter(filters.FilterSet):
             'created': ['exact', 'lt', 'lte', 'gt', 'gte', ],
             'currency': ['exact', ],
             'found_through': ['exact', ],
+            'is_archived': ['exact', ],
             'is_checked': ['exact', ],
             'modified': ['exact', 'lt', 'lte', 'gt', 'gte', ],
             'name': ['exact', ],
@@ -141,7 +126,7 @@ class DealFilter(filters.FilterSet):
         }
 
 
-class DealViewSet(ModelChangesMixin, TimeLogMixin, DataExistsMixin, ModelViewSet):
+class DealViewSet(ElasticModelMixin, ModelChangesMixin, TimeLogMixin, DataExistsMixin, NoteMixin, ModelViewSet):
     """
     retrieve:
     Returns the given deal.
@@ -172,18 +157,19 @@ class DealViewSet(ModelChangesMixin, TimeLogMixin, DataExistsMixin, ModelViewSet
     Returns all timelogs for the given deal.
     """
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
-    queryset = Deal.objects
+    queryset = Deal.elastic_objects
     # Set the serializer class for this viewset.
     serializer_class = DealSerializer
     # Set all filter backends that this viewset uses.
     filter_backends = (ElasticSearchFilter, OrderingFilter, filters.DjangoFilterBackend, )
 
-    # ElasticSearchFilter: set the model type.
-    model_type = 'deals_deal'
     # OrderingFilter: set all possible fields to order by.
-    ordering_fields = ('id', )
-    # OrderingFilter: set the default ordering fields.
-    ordering = ('id', )
+    ordering_fields = ('status', 'why_lost', 'next_step__name', 'next_step_date', 'assigned_to__first_name',
+                       'amount_once', 'amount_recurring', 'new_business', 'created', 'closed_date',
+                       'created_by__first_name', )
+    # SearchFilter: set the fields that can be searched on.
+    search_fields = ('account', 'assigned_to', 'created_by', 'contact', 'contacted_by', 'description', 'name',
+                     'status', 'tags', )
     # DjangoFilter: set the filter class.
     filter_class = DealFilter
 
@@ -192,3 +178,29 @@ class DealViewSet(ModelChangesMixin, TimeLogMixin, DataExistsMixin, ModelViewSet
         Set the queryset here so it filters on tenant and works with pagination.
         """
         return super(DealViewSet, self).get_queryset().filter(is_deleted=False)
+
+    @swagger_auto_schema(auto_schema=None)
+    @list_route(methods=['GET'])
+    def open(self, request):
+        account = request.GET.get('account')
+        contact = request.GET.get('contact')
+
+        lost_status = DealStatus.objects.get(name='Lost')
+        won_status = DealStatus.objects.get(name='Won')
+
+        deals = Deal.objects.filter(
+            is_archived=False, is_deleted=False
+        ).exclude(
+            Q(status=lost_status) | Q(status=won_status)
+        )
+
+        if account and contact:
+            deals = deals.filter(Q(account_id=account) | Q(contact_id=contact))
+        elif account:
+            deals = deals.filter(account_id=account)
+        elif contact:
+            deals = deals.filter(contact_id=contact)
+
+        serializer = DealSerializer(deals, many=True)
+
+        return Response({'results': serializer.data})

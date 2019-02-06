@@ -52,6 +52,7 @@ class TeamSerializer(serializers.ModelSerializer):
             users.append({
                 'id': user.id,
                 'full_name': user.full_name,
+                'profile_picture': user.profile_picture,
             })
 
         return users

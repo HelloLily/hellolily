@@ -615,11 +615,11 @@ ELASTICSEARCH_DSL = {
 
 # We use our own Elasticsearch synchronization, so we don't want to use the
 # builtin auto sync functionality.
-ELASTICSEARCH_DSL_AUTOSYNC = os.environ.get('ELASTICSEARCH_DSL_AUTOSYNC', False)
+ELASTICSEARCH_DSL_AUTOSYNC = boolean(os.environ.get('ELASTICSEARCH_DSL_AUTOSYNC', 0))
 
 # Set this parameter to true to refresh the Elasticsearch index after every
 # index or update.
-ELASTICSEARCH_DSL_AUTO_REFRESH = os.environ.get('ELASTICSEARCH_DSL_AUTO_REFRESH', False)
+ELASTICSEARCH_DSL_AUTO_REFRESH = boolean(os.environ.get('ELASTICSEARCH_DSL_AUTO_REFRESH', 0))
 
 
 #######################################################################################################################

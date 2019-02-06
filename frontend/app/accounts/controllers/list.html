@@ -101,7 +101,7 @@
                         </div>
                     </td>
                     <td class="hl-table-column" ng-show="vm.table.visibility.assignedTo">
-                        {{ ::account.assigned_to }}
+                        {{ ::account.assigned_to.full_name }}
                     </td>
                     <td class="hl-table-column" ng-show="vm.table.visibility.created"><date date="account.created"></date></td>
                     <td class="hl-table-column" ng-show="vm.table.visibility.modified"><date date="account.modified"></date></td>

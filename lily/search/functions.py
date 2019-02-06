@@ -8,6 +8,7 @@ def search_number(tenant_id, number):
     Return the first account the number belongs to, otherwise if there is, return the first contact with that number.
     """
     contact = None
+    # TODO LILY-2785 LILY-2786: This function should not exist.
     phone_number = parse_phone_number(number)
 
     account = Account.objects.filter(

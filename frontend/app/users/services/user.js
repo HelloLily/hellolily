@@ -48,8 +48,8 @@ function User($resource, CacheFactory) {
             unassigned: {
                 method: 'GET',
                 url: '/api/users/unassigned/',
-                isArray: true,
                 cache: CacheFactory.get('volatileCache'),
+                isArray: false,
             },
             search: {
                 url: '/search/search/?type=users_lilyuser&filterquery=:filterquery',

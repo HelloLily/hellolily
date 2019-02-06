@@ -14,21 +14,22 @@ function Change($resource) {
                 },
                 transformResponse: data => {
                     const jsonData = angular.fromJson(data);
-                    const objects = [];
+                    const results = [];
 
-                    if (jsonData && jsonData.objects && jsonData.objects.length > 0) {
-                        jsonData.objects.map(change => {
+                    if (jsonData && jsonData.results && jsonData.results.length > 0) {
+                        jsonData.results.map(change => {
                             if (change.action !== 'post') {
                                 change.activityType = 'change';
                                 change.date = change.created;
 
-                                objects.push(change);
+                                results.push(change);
                             }
                         });
                     }
 
-                    return {objects};
+                    return {results};
                 },
+                isArray: false,
             },
         });
 

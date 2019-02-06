@@ -58,7 +58,11 @@ class ExportAccountView(LoginRequiredMixin, ExportListViewMixin, View):
         'customerId': {
             'headers': [_('Customer ID')],
             'columns_for_item': ['customer_id']
-        }
+        },
+        'status': {
+            'headers': [_('Status')],
+            'columns_for_item': ['status']
+        },
     }
 
     # ExportListViewMixin

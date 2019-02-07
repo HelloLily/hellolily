@@ -131,7 +131,7 @@ CSRF_COOKIE_SECURE = boolean(os.environ.get('CSRF_COOKIE_SECURE', 0))
 # Show this view when csrf validation fails.
 CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
 
-CSRF_TRUSTED_ORIGINS = ['beta.hellolily.com']
+CSRF_TRUSTED_ORIGINS = ('beta.hellolily.com', )
 
 # Secure session cookie is only sent under https connection.
 SESSION_COOKIE_SECURE = boolean(os.environ.get('SESSION_COOKIE_SECURE', 0))

@@ -1,6 +1,5 @@
 import logging
 
-from django.apps import apps
 from ddtrace import tracer
 from django.conf import settings
 from django.db.models import Q
@@ -16,10 +15,11 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
 from lily.accounts.models import Account
-from lily.messaging.email.utils import get_shared_email_accounts, reindex_email_message
 from lily.messaging.email.connector import GmailConnector, NotFoundError, FailedServiceCallException
 from lily.messaging.email.credentials import InvalidCredentialsError
+from lily.messaging.email.utils import get_email_parameter_api_dict, reindex_email_message, get_shared_email_accounts
 from lily.messaging.email.tasks import send_message
+from lily.search.lily_search import LilySearch
 from lily.utils.functions import format_phone_number
 from lily.utils.models.models import PhoneNumber
 
@@ -33,7 +33,7 @@ from ..models.models import (EmailLabel, EmailAccount, EmailMessage, EmailTempla
                              SharedEmailConfig, TemplateVariable, EmailDraft, EmailDraftAttachment)
 from ..tasks import (trash_email_message, toggle_read_email_message, add_and_remove_labels_for_message,
                      toggle_star_email_message, toggle_spam_email_message)
-from ..utils import get_filtered_message, determine_message_type
+from ..utils import get_filtered_message
 
 
 logger = logging.getLogger(__name__)
@@ -128,7 +128,7 @@ class EmailAccountViewSet(mixins.DestroyModelMixin,
         )
         serializer = self.get_serializer(email_account_list, many=True)
 
-        return Response({'results': serializer.data})
+        return Response(serializer.data)
 
     @list_route()
     def color(self, request):
@@ -163,10 +163,8 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
     serializer_class = EmailMessageSerializer
     swagger_schema = None
 
-    def get_object(self, pk=None):
-        if not pk:
-            pk = int(self.kwargs['pk'])
-
+    def get_object(self):
+        pk = int(self.kwargs['pk'])
         email_message = EmailMessage.objects.get(pk=pk)
         user = self.request.user
 
@@ -221,7 +219,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         """
         trash_email_message.apply_async(args=(instance.id,))
 
-    @detail_route(methods=['put', 'patch'])
+    @detail_route(methods=['put'])
     def archive(self, request, pk=None):
         """
         Archive an email message asynchronous through the manager and not directly on the database. Just update the
@@ -262,7 +260,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         trash_email_message.apply_async(args=(email.id,))
         return Response(serializer.data)
 
-    @detail_route(methods=['put', 'patch'])
+    @detail_route(methods=['put'])
     def move(self, request, pk=None):
         """
         Move an email message asynchronous through the manager and not directly on the database. Just update the
@@ -277,7 +275,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         )
         return Response(serializer.data)
 
-    @detail_route(methods=['put', 'patch'])
+    @detail_route(methods=['put'])
     def star(self, request, pk=None):
         """
         Star an email message asynchronous through the manager and not directly on the database. Just update the
@@ -290,7 +288,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         toggle_star_email_message.delay(email.id, star=request.data['starred'])
         return Response(serializer.data)
 
-    @detail_route(methods=['put', 'patch'])
+    @detail_route(methods=['put'])
     def spam(self, request, pk=None):
         """
         Mark / unmark an email message as spam asynchronous through the manager and not directly on the database. Just
@@ -298,6 +296,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         """
         email = self.get_object()
         email._is_spam = request.data['markAsSpam']
+        reindex_email_message(email)
         serializer = self.get_serializer(email, partial=True)
         toggle_spam_email_message.delay(email.id, spam=request.data['markAsSpam'])
         return Response(serializer.data)
@@ -307,30 +306,68 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         """
         Returns what happened to an email; did the user reply or forwarded the email message.
         """
-        message = self.get_object()
-        message_type, message_type_to_id = determine_message_type(
-            message.thread_id,
-            message.sent_date,
-            message.account.email_address
+        email = self.get_object()
+
+        account_email = email.account.email_address
+        sent_from_account = (account_email == email.sender.email_address)
+
+        # Get the messages in the thread for the current email message.
+        search = LilySearch(
+            request.user.tenant_id,
+            model_type='email_emailmessage',
+            sort='sent_date',
+            size=100  # Paged results, when a thread is containing more that 100 results StopIteration could be thrown.
         )
+        search.filter_query('thread_id:%s' % email.thread_id)
+        thread, facets, total, took = search.do_search([
+            'message_id',
+            'received_by_email',
+            'received_by_cc_email',
+            'sender_email',
+            'sender_name',
+            'sent_date',
+        ])
 
-        data = dict(action='nothing')
-        if message_type_to_id:
-            if not self.get_object(message_type_to_id):
-                return Response({})
+        try:
+            # Get the index of the current email message in the thread.
+            index = (key for key, item in enumerate(thread) if item['message_id'] == email.message_id).next()
+        except StopIteration:
+            logger.exception('Number of messages larger that search page size for message %s.' % email.id)
+            results = {}
+            return Response(results)
 
-            data['action_message_id'] = message_type_to_id
+        # Only look at the messages in the thread after the current email message.
+        messages_after = thread[index + 1:]
 
-            if message_type == EmailMessage.REPLY:
-                data['action'] = 'reply'
-            elif message_type == EmailMessage.REPLY_ALL:
-                data['action'] = 'reply-all'
-            elif message_type == EmailMessage.FORWARD:
-                data['action'] = 'forward'
-            elif message_type == EmailMessage.FORWARD_MULTI:
-                data['action'] = 'forward-multi'
+        results = {}
 
-        return Response(data)
+        if not messages_after or sent_from_account:
+            # Current email message is the last in the thread or is send by the user and therefor not a possible reply
+            # or forwarded email message.
+            return Response(results)
+
+        # The current email message isn't the last in the thread. So look the follow up messages in the thread to
+        # determine what actions occured on the current email message. Current email message is not send from the
+        # account of the user, so it is a received email message. So determine is we replied or forwarded it.
+
+        # Get all the outgoing follow up messages in the thread.
+        next_messages = [item for item in messages_after if item['sender_email'] == account_email]
+        if len(next_messages):
+            # We only need to look at the first follow up message in the thread.
+            # TODO LILY-2244: improve search filter above so it leads to the only / first follow up message.
+            next_message = next_messages[0]
+
+            # Get all the mail addresses where the follow up message was sent to.
+            email_addresses = next_message.get('received_by_email', []) + next_message.get('received_by_cc_email', [])
+
+            if email_addresses.count(email.sender.email_address):
+                # The sender of the current, received email message is one of the reciepents of the follow up message,
+                # so it is a reply message.
+                results['replied_with'] = next_message
+            else:
+                results['forwarded_with'] = next_message
+
+        return Response(results)
 
     @detail_route(methods=['post'])
     def extract(self, request, pk=None):
@@ -384,15 +421,7 @@ class EmailMessageViewSet(mixins.RetrieveModelMixin,
         attachments = email.attachments.all()
         serializer = EmailAttachmentSerializer(attachments, many=True)
 
-        return Response({'results': serializer.data})
-
-    @detail_route(methods=['GET'])
-    def thread(self, request, pk):
-        email = self.get_object()
-        messages = EmailMessage.objects.filter(thread_id=email.thread_id).order_by('sent_date')
-        serializer = EmailMessageSerializer(messages, many=True)
-
-        return Response({'results': serializer.data})
+        return Response({'attachments': serializer.data})
 
 
 class EmailTemplateFolderViewSet(viewsets.ModelViewSet):
@@ -482,7 +511,7 @@ class EmailTemplateViewSet(viewsets.ModelViewSet):
             template.folder = folder
             template.save()
 
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_200_OK)
 
 
 class TemplateVariableViewSet(mixins.DestroyModelMixin,
@@ -501,12 +530,7 @@ class TemplateVariableViewSet(mixins.DestroyModelMixin,
         queryset = TemplateVariable.objects.all().filter(Q(is_public=True) | Q(owner=request.user))
         serializer = TemplateVariableSerializer(queryset, many=True)
 
-        default_variables = {}
-
-        for model in apps.get_models():
-            if hasattr(model, 'EMAIL_TEMPLATE_PARAMETERS'):
-                for field in model.EMAIL_TEMPLATE_PARAMETERS:
-                    default_variables.setdefault(model._meta.verbose_name.lower(), []).append(field)
+        default_variables = get_email_parameter_api_dict()
 
         template_variables = {
             'default': default_variables,

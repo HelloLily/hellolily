@@ -3,10 +3,10 @@ from rest_framework.routers import DefaultRouter
 
 from lily.accounts.api.views import AccountViewSet, AccountStatusViewSet
 from lily.billing.api.views import BillingViewSet
-from lily.cases.api.views import CaseViewSet, CaseStatusViewSet, CaseTypeViewSet, CasePrioritiesList
+from lily.cases.api.views import CaseViewSet, CaseStatusViewSet, CaseTypeViewSet
 from lily.calls.api.views import CallViewSet, CallRecordViewSet
 from lily.contacts.api.views import ContactViewSet
-from lily.deals.api.views import (DealViewSet, DealStatusViewSet, DealNextStepViewSet,
+from lily.deals.api.views import (DealViewSet, DealStatusViewSet, DealNextStepList, DealNextStepViewSet,
                                   DealWhyCustomerViewSet, DealContactedByViewSet, DealWhyLostViewSet,
                                   DealFoundThroughViewSet)
 from lily.importer.api.views import AccountContactImport
@@ -23,7 +23,7 @@ from lily.tenant.api.views import TenantViewSet
 from lily.timelogs.api.views import TimeLogViewSet
 from lily.users.api.views import (LilyUserViewSet, TeamViewSet, TwoFactorDevicesViewSet, SessionViewSet,
                                   UserInviteViewSet)
-from lily.utils.api.views import AppHash, CallerName, CountryViewSet, CountryList, CurrencyList, Notifications
+from lily.utils.api.views import AppHash, CallerName, CountryViewSet, Notifications
 from lily.voipgrid.api.views import CallNotificationViewSet
 
 # Define routes, using the default router so the API is browsable.
@@ -80,7 +80,7 @@ router.register(r'voipgrid/call-notifications', CallNotificationViewSet, base_na
 router.register(r'voys/call-notifications', CallNotificationViewSet, base_name='callnotification')
 
 urlpatterns = [
-    url(r'^cases/priorities/$', CasePrioritiesList.as_view()),
+    url(r'^deals/nextsteps/$', DealNextStepList.as_view()),
 
     url(r'^import/$', AccountContactImport.as_view()),
 
@@ -98,8 +98,6 @@ urlpatterns = [
     url(r'^utils/apphash/$', AppHash.as_view()),
     url(r'^utils/callername/$', CallerName.as_view()),
     url(r'^utils/notifications/$', Notifications.as_view()),
-    url(r'^utils/countries-new/$', CountryList.as_view()),
-    url(r'^utils/currencies/$', CurrencyList.as_view()),
 
     url(r'^messaging/email/search/$', SearchView.as_view()),
 

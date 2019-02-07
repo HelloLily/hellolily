@@ -147,9 +147,6 @@ class AccountSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
         help_text='Any extra text to describe the account (supports Markdown).',
     )
 
-    primary_email = RelatedEmailAddressSerializer(read_only=True)
-    phone_number = RelatedPhoneNumberSerializer(read_only=True)
-
     def create(self, validated_data):
         tenant = self.context.get('request').user.tenant
         account_count = Account.objects.filter(is_deleted=False).count()
@@ -193,8 +190,6 @@ class AccountSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
             'status',
             'tags',
             'websites',
-            'primary_email',
-            'phone_number',
         )
         read_only_fields = ('is_deleted', )
         extra_kwargs = {
@@ -229,8 +224,6 @@ class RelatedAccountSerializer(RelatedSerializerMixin, AccountSerializer):
             'email_addresses',
             'phone_numbers',
             'is_deleted',
-            'primary_email',
-            'phone_number',
             # 'bankaccountnumber',
             # 'company_size',
             # 'bic',

@@ -20,6 +20,7 @@ dist-packages/
 .tld_set
 yarn.lock
 .ipython/
+tags
 .history/
 .vscode/
 
@@ -37,6 +38,7 @@ lily/static/
 node_modules/
 Procfile.local
 TESTS-*.xml
+tags
 
 # /docs/sphinx/
 docs/sphinx/build/

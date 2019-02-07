@@ -73,7 +73,7 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
     vm.deal = currentDeal;
     vm.deal.account = dealAccount;
     vm.deal.contact = dealContact;
-    vm.deal.timeLogs = timeLogs.results;
+    vm.deal.timeLogs = timeLogs.objects;
     vm.currentUser = user;
     vm.tenant = tenant;
     vm.mergeStreams = storage.get('mergeStreams', false);
@@ -108,7 +108,7 @@ function DealDetailController($compile, $scope, $state, $templateCache, Account,
 
         if (vm.tenant.hasPandaDoc && vm.deal.contact) {
             Deal.getDocuments({deal: vm.deal.id}, response => {
-                const documents = response.results;
+                const documents = response.documents;
 
                 documents.forEach(document => {
                     document.status = document.status.replace('document.', '');

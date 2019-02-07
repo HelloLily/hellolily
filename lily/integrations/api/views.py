@@ -101,7 +101,7 @@ class PandaDocList(APIView):
                 # No details could be retreived, so it's probably been deleted in PandaDoc.
                 document.delete()
 
-        return Response({'results': temp_documents})
+        return Response({'documents': temp_documents})
 
     def post(self, request, deal_id):
         contact = Contact.objects.get(pk=request.POST.get('contact_id'))

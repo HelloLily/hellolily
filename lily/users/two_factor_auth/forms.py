@@ -14,7 +14,6 @@ class CustomAuthenticationTokenForm(AuthenticationTokenForm):
         widget=forms.NumberInput(
             attrs={
                 'class': 'auth-token-input',
-                'autofocus': True,
             }
         )
     )

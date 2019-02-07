@@ -1,12 +1,11 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import View
 
-from lily.accounts.models import Account
+from lily.search.lily_search import LilySearch
 from lily.utils.views.mixins import ExportListViewMixin
 
 
-class ExportAccountView(LoginRequiredMixin, ExportListViewMixin, View):
+class ExportAccountView(ExportListViewMixin, View):
     """
     View to make export of accounts possible
     """
@@ -53,7 +52,7 @@ class ExportAccountView(LoginRequiredMixin, ExportListViewMixin, View):
         },
         'tags': {
             'headers': [_('Tags')],
-            'columns_for_item': ['tags']
+            'columns_for_item': ['tag']
         },
         'customerId': {
             'headers': [_('Customer ID')],
@@ -69,32 +68,44 @@ class ExportAccountView(LoginRequiredMixin, ExportListViewMixin, View):
     def value_for_column(self, account, column):
         try:
             if column == 'url':
-                return '/#/accounts/%s' % account.id
+                return '/#/accounts/%s' % account['id']
             elif column == 'email_addresses':
                 # 'email_addresses' is a dict, so we need to process it differently.
-                value = [email.email_address for email in account.email_addresses.all()]
+                value = []
+                for email in account.get('email_addresses', []):
+                    value.append(email['email_address'])
             elif column == 'phone_numbers':
                 # 'phone_numbers' is a dict, so we need to process it differently.
-                value = [phone_number.number for phone_number in account.phone_numbers.all()]
-            elif column == 'addresses':
-                value = '\r\n'.join(['%s, %s, %s, %s' % (
-                    address.address,
-                    address.postal_code,
-                    address.city,
-                    address.get_country_display(),
-                ) for address in account.addresses.all()])
-            elif column == 'tags':
-                value = [tag.name for tag in account.tags.all()]
+                value = []
+                for phone_number in account.get('phone_numbers', []):
+                    value.append(phone_number['number'])
             else:
-                value = getattr(account, column)
+                value = account[column]
         except KeyError:
             result = ''
         else:
-            if isinstance(value, list):
+            # Fetch address info from database
+            if column == 'addresses':
+                result = '\r\n'.join(['%s, %s, %s, %s' % (
+                    address['address'] or '',
+                    address['postal_code'] or '',
+                    address['city'] or '',
+                    address['country'] or '',
+                ) for address in value])
+            elif isinstance(value, list):
                 result = ', '.join(value)
             else:
                 result = value
         return result
 
-    def get_queryset(self):
-        return Account.objects.all()
+    # ExportListViewMixin
+    def get_items(self):
+        search = LilySearch(
+            tenant_id=self.request.user.tenant_id,
+            model_type='accounts_account',
+            page=0,
+            size=1000000000,
+        )
+        if self.request.GET.get('export_filter'):
+            search.query_common_fields(self.request.GET.get('export_filter'))
+        return search.do_search()[0]

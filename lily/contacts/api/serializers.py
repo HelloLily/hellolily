@@ -112,9 +112,6 @@ class ContactSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
         help_text='Human readable value of the contact\'s salutation.',
     )
 
-    primary_email = RelatedEmailAddressSerializer(read_only=True)
-    phone_number = RelatedPhoneNumberSerializer(read_only=True)
-
     class Meta:
         model = Contact
         fields = (
@@ -138,8 +135,6 @@ class ContactSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
             'social_media',
             'tags',
             'functions',
-            'primary_email',
-            'phone_number',
         )
         read_only_fields = ('is_deleted', )
         extra_kwargs = {

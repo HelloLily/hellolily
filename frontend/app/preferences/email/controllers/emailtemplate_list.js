@@ -72,7 +72,7 @@ function PreferencesEmailTemplatesList($compile, $scope, $state, $templateCache,
 
     function makeDefault(emailTemplate) {
         EmailAccount.mine().$promise.then(emailAccounts => {
-            vm.emailAccounts = emailAccounts.results;
+            vm.emailAccounts = emailAccounts;
 
             vm.emailAccounts.forEach(emailAccount => {
                 // For every email account in emailTemplate.default_for set selected to true.

@@ -1,6 +1,5 @@
 import json
 
-from django_elasticsearch_dsl import Index
 from mock import patch
 from rest_framework import status
 
@@ -8,14 +7,14 @@ from django.forms.models import model_to_dict
 
 from lily.billing.models import Billing
 from lily.tenant.middleware import set_current_user
-from lily.tests.utils import ElasticsearchApiTestCase, GenericAPITestCase
+from lily.tests.utils import GenericAPITestCase
 from lily.users.api.serializers import LilyUserSerializer
 from lily.users.factories import LilyUserFactory
 from lily.users.models import LilyUser
 from lily.utils.models.factories import WebhookFactory
 
 
-class LilyUserTests(ElasticsearchApiTestCase, GenericAPITestCase):
+class LilyUserTests(GenericAPITestCase):
     """
     Class containing tests for the case API.
 
@@ -27,7 +26,6 @@ class LilyUserTests(ElasticsearchApiTestCase, GenericAPITestCase):
     factory_cls = LilyUserFactory
     model_cls = LilyUser
     serializer_cls = LilyUserSerializer
-    search_attribute = 'full_name'
 
     def _create_object(self, with_relations=False, size=1, **kwargs):
         return super(LilyUserTests, self)._create_object(
@@ -37,7 +35,7 @@ class LilyUserTests(ElasticsearchApiTestCase, GenericAPITestCase):
             **kwargs
         )
 
-    def _create_object_stub(self, with_relations=False, size=1, with_webhooks=False, **kwargs):
+    def _create_object_stub(self, with_relations=False, size=1, with_email=False, with_webhooks=False, **kwargs):
         object_list = super(LilyUserTests, self)._create_object_stub(
             with_relations=with_relations,
             size=size,
@@ -48,6 +46,8 @@ class LilyUserTests(ElasticsearchApiTestCase, GenericAPITestCase):
 
         for obj in object_list:
             del obj['password']
+            if not with_email:
+                del obj['email']
 
             if with_webhooks:
                 webhook = model_to_dict(WebhookFactory(tenant=self.user_obj.tenant))
@@ -59,9 +59,19 @@ class LilyUserTests(ElasticsearchApiTestCase, GenericAPITestCase):
 
         return object_list
 
+    def test_create_object_tenant_filter(self):
+        set_current_user(self.user_obj)
+        stub_dict = self._create_object_stub(with_email=True)
+
+        request = self.user.post(self.get_url(self.list_url), stub_dict)
+        self.assertStatus(request, status.HTTP_201_CREATED, stub_dict)
+
+        db_obj = self.model_cls.objects.get(pk=request.data.get('id'))
+        self.assertEqual(self.user_obj.tenant, db_obj.tenant)
+
     def test_create_object_authenticated(self):
         set_current_user(self.user_obj)
-        stub_dict = self._create_object_stub()
+        stub_dict = self._create_object_stub(with_email=True)
 
         request = self.user.post(self.get_url(self.list_url), stub_dict)
         self.assertStatus(request, status.HTTP_201_CREATED, stub_dict)
@@ -74,7 +84,7 @@ class LilyUserTests(ElasticsearchApiTestCase, GenericAPITestCase):
 
     def test_update_object_with_webhook(self):
         set_current_user(self.user_obj)
-        stub_dict = self._create_object_stub(with_webhooks=True, email=self.user_obj.email)
+        stub_dict = self._create_object_stub(with_email=True, with_webhooks=True, email=self.user_obj.email)
 
         self.user_obj.first_name = 'something'
         self.user_obj.save()
@@ -84,7 +94,7 @@ class LilyUserTests(ElasticsearchApiTestCase, GenericAPITestCase):
 
     def test_update_object_with_webhook_to_lily(self):
         set_current_user(self.user_obj)
-        stub_dict = self._create_object_stub(with_webhooks=True, email=self.user_obj.email)
+        stub_dict = self._create_object_stub(with_email=True, with_webhooks=True, email=self.user_obj.email)
 
         self.user_obj.first_name = 'something'
         self.user_obj.save()
@@ -96,7 +106,7 @@ class LilyUserTests(ElasticsearchApiTestCase, GenericAPITestCase):
 
     def test_update_object_authenticated(self):
         set_current_user(self.user_obj)
-        stub_dict = self._create_object_stub(email=self.user_obj.email)
+        stub_dict = self._create_object_stub(with_email=True, email=self.user_obj.email)
 
         self.user_obj.first_name = 'something'
         self.user_obj.save()
@@ -109,30 +119,6 @@ class LilyUserTests(ElasticsearchApiTestCase, GenericAPITestCase):
 
         db_obj = self.model_cls.objects.get(pk=created_id)
         self._compare_objects(db_obj, request.data)
-
-    def test_update_in_elasticsearch(self):
-        """
-        Test that the object is updated normally when the user is properly authenticated.
-        """
-        set_current_user(self.user_obj)
-        stub_dict = self._create_object_stub(email=self.user_obj.email)
-
-        self.user_obj.first_name = 'something'
-        self.user_obj.save()
-
-        self.es_doc_type().update(self.user_obj, refresh=True)
-        old_es_doc = self.es_doc_type.get(id=self.user_obj.pk)
-
-        response = self.user.put(self.get_url(self.detail_url, kwargs={'pk': self.user_obj.pk}), data=stub_dict)
-        self.assertStatus(response, status.HTTP_200_OK, stub_dict)
-
-        updated_id = response.data.get('id')
-        self.assertIsNotNone(updated_id)
-
-        Index(self.es_doc_type._doc_type.index).refresh()
-        updated_es_doc = self.es_doc_type.get(id=updated_id)
-
-        self.assertNotEqual(old_es_doc.to_dict(), updated_es_doc.to_dict())
 
     @patch.object(Billing, 'update_subscription')
     @patch.object(Billing, 'get_subscription')

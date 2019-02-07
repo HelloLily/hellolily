@@ -43,7 +43,7 @@ function UnreadEmailController($scope, $timeout, $interval, EmailAccount, EmailM
         EmailAccount.mine(function(emailAccounts) {
             var filterList = [];
 
-            angular.forEach(emailAccounts.results, function(account) {
+            angular.forEach(emailAccounts, function(account) {
                 filterList.push({
                     name: account.label,
                     value: 'account.id:' +  account.id,

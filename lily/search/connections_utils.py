@@ -21,7 +21,7 @@ def get_es_client_kwargs(**kwargs_overrides):
         'urls': settings.ES_OLD_URLS,
         'timeout': settings.ES_OLD_TIMEOUT,
         'maxsize': settings.ES_OLD_MAXSIZE,
-        'retry_on_status': (503, 504, 429),  # We add 429 for concurrent requests.
+        'retry_on_status': (503, 504, 429),  # we add 429 (for concurrent requests)
         'connection_class': Urllib3HttpBlockingConnection,
         'block': settings.ES_OLD_BLOCK
     }
@@ -30,9 +30,7 @@ def get_es_client_kwargs(**kwargs_overrides):
 
 
 def get_index_name(base_index_name, mapping):
-    """
-    Returns the full index name, based on the base index name and mapping or type.
-    """
+    """Returns the full index name, based on the base index name and mapping or type."""
     if 'get_mapping_type_name' in dir(mapping):
         return '%s.%s' % (base_index_name, mapping.get_mapping_type_name())
     return '%s.%s' % (base_index_name, mapping)

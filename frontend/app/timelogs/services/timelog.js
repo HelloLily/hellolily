@@ -34,15 +34,14 @@ function TimeLog($resource, HLResource) {
                 transformResponse: data => {
                     const jsonData = angular.fromJson(data);
 
-                    if (jsonData && jsonData.results && jsonData.results.length > 0) {
-                        jsonData.results.forEach(timeLog => {
+                    if (jsonData && jsonData.objects && jsonData.objects.length > 0) {
+                        jsonData.objects.forEach(timeLog => {
                             timeLog.activityType = 'timelog';
                         });
                     }
 
                     return jsonData;
                 },
-                isArray: false,
             },
         }
     );

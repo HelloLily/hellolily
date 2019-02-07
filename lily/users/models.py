@@ -12,7 +12,6 @@ from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import UserManager, PermissionsMixin, Group
-from django.contrib.postgres.fields import JSONField
 from django.core.files.base import ContentFile
 from django.core.mail import send_mail
 from django.db import models, transaction
@@ -20,7 +19,6 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from timezone_field import TimeZoneField
 
-from lily.search.models import ElasticTenantManager
 from lily.socialmedia.models import SocialMedia
 from lily.tenant.models import TenantMixin, Tenant, TenantManager
 from lily.utils.models.models import Webhook
@@ -207,10 +205,6 @@ class UserInfo(models.Model):
     email_account_status = models.IntegerField(choices=STATUS_CHOICES, default=INCOMPLETE)
 
 
-class BrowserSettings(models.Model):
-    data = JSONField(default={})
-
-
 class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
     """
     A custom user class implementing a fully featured User model with
@@ -303,11 +297,9 @@ class LilyUser(TenantMixin, PermissionsMixin, AbstractBaseUser):
         null=True,
         on_delete=models.SET_NULL
     )
-    settings = models.ForeignKey(BrowserSettings, blank=True, null=True, on_delete=models.SET_NULL)
 
     objects = LilyUserManager()
     all_objects = UserManager()
-    elastic_objects = ElasticTenantManager()
 
     EMAIL_TEMPLATE_PARAMETERS = [
         'first_name', 'last_name', 'full_name', 'position', 'phone_number', 'current_email_address', 'user_team',

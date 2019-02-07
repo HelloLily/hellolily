@@ -21,13 +21,17 @@ class DealNextStepTests(GenericAPITestCase):
         """
         Test that the creation of a deal is successfull with relations.
         """
+        pass
 
     def test_create_object_validation(self):
         """
         Test that the create of a deal is validated properly.
         """
+        pass
 
     def test_update_object_validation(self):
         """
         Test that the update of a deal is validated properly.
         """
+        # Update of the object.
+        pass

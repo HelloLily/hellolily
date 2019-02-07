@@ -1,20 +1,19 @@
 from django.db.models import Q
 from drf_yasg.utils import swagger_auto_schema
-from django_filters import rest_framework as filters
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 
 from lily.api.filters import ElasticSearchFilter
-from lily.api.mixins import ModelChangesMixin, DataExistsMixin, ElasticModelMixin, NoteMixin
+from lily.api.mixins import ModelChangesMixin, DataExistsMixin
 from lily.calls.api.serializers import CallRecordSerializer
 from lily.calls.models import CallRecord
 from lily.contacts.api.serializers import ContactSerializer
 from lily.contacts.models import Contact
 
 
-class ContactViewSet(ElasticModelMixin, ModelChangesMixin, DataExistsMixin, NoteMixin, viewsets.ModelViewSet):
+class ContactViewSet(ModelChangesMixin, DataExistsMixin, viewsets.ModelViewSet):
     """
     Contacts are people you want to store the information of.
 
@@ -44,30 +43,27 @@ class ContactViewSet(ElasticModelMixin, ModelChangesMixin, DataExistsMixin, Note
     Returns all the changes performed on the given contact.
     """
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
-    queryset = Contact.elastic_objects
+    queryset = Contact.objects
     # Set the serializer class for this viewset.
     serializer_class = ContactSerializer
     # Set all filter backends that this viewset uses.
-    filter_backends = (ElasticSearchFilter, OrderingFilter, filters.DjangoFilterBackend, )
+    filter_backends = (ElasticSearchFilter, OrderingFilter,)
 
     # ElasticSearchFilter: set the model type.
     model_type = 'contacts_contact'
-
     # OrderingFilter: set all possible fields to order by.
-    ordering_fields = ('first_name', 'last_name', 'created', 'modified', 'accounts__name', 'status', )
+    ordering_fields = (
+        'id', 'first_name', 'last_name', 'full_name', 'gender', 'gender_display', 'salutation', 'salutation_display',
+    )
     # OrderingFilter: set the default ordering fields.
-    ordering = ('last_name', 'first_name', )
-    # SearchFilter: set the fields that can be searched on.
-    search_fields = ('accounts__name', 'accounts__phone_numbers', 'description', 'email_addresses',
-                     'full_name', 'phone_numbers', 'tags', )
-    filter_fields = ('accounts', )
+    ordering = ('last_name', 'first_name',)
 
     def get_queryset(self):
         """
         Set the queryset here so it filters on tenant and works with pagination.
         """
         if 'filter_deleted' in self.request.GET:
-            if self.request.GET.get('filter_deleted') in ['False', 'false']:
+            if self.request.GET.get('filter_deleted') == 'False':
                 return super(ContactViewSet, self).get_queryset()
 
         return super(ContactViewSet, self).get_queryset().filter(is_deleted=False)
@@ -91,4 +87,4 @@ class ContactViewSet(ElasticModelMixin, ModelChangesMixin, DataExistsMixin, Note
 
         serializer = CallRecordSerializer(calls, many=True, context={'request': request})
 
-        return Response({'results': serializer.data})
+        return Response(serializer.data)

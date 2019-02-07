@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from lily.api.filters import ElasticSearchFilter
-from lily.api.mixins import ModelChangesMixin, DataExistsMixin, ElasticModelMixin, NoteMixin
+from lily.api.mixins import ModelChangesMixin, DataExistsMixin
 from lily.calls.api.serializers import CallRecordSerializer
 from lily.calls.models import CallRecord
 from lily.utils.models.models import PhoneNumber
@@ -42,7 +42,7 @@ class AccountFilter(filters.FilterSet):
         }
 
 
-class AccountViewSet(ElasticModelMixin, ModelChangesMixin, DataExistsMixin, NoteMixin, ModelViewSet):
+class AccountViewSet(ModelChangesMixin, DataExistsMixin, ModelViewSet):
     """
     Accounts are companies you've had contact with and for which you wish to store information.
 
@@ -68,18 +68,18 @@ class AccountViewSet(ElasticModelMixin, ModelChangesMixin, DataExistsMixin, Note
     Returns all the changes performed on the given account.
     """
     # Set the queryset, without .all() this filters on the tenant and takes care of setting the `base_name`.
-    queryset = Account.elastic_objects
+    queryset = Account.objects
     # Set the serializer class for this viewset.
     serializer_class = AccountSerializer
     # Set all filter backends that this viewset uses.
     filter_backends = (ElasticSearchFilter, OrderingFilter, filters.DjangoFilterBackend, )
-    search_fields = ('name', )
 
+    # ElasticSearchFilter: set the model type.
+    model_type = 'accounts_account'
     # OrderingFilter: set all possible fields to order by.
-    ordering_fields = ('name', 'status__name', 'created', 'modified', 'assigned_to__first_name')
-    # SearchFilter: set the fields that can be searched on.
-    search_fields = ('assigned_to', 'description', 'email_addresses', 'name', 'phone_numbers', 'status', 'tags',
-                     'websites')
+    ordering_fields = ('id', )
+    # OrderingFilter: set the default ordering fields.
+    ordering = ('id', )
     # DjangoFilter: set the filter class.
     filter_class = AccountFilter
 
@@ -88,7 +88,7 @@ class AccountViewSet(ElasticModelMixin, ModelChangesMixin, DataExistsMixin, Note
         Set the queryset here so it filters on tenant and works with pagination.
         """
         if 'filter_deleted' in self.request.GET:
-            if self.request.GET.get('filter_deleted') in ['False', 'false']:
+            if self.request.GET.get('filter_deleted') == 'False':
                 return super(AccountViewSet, self).get_queryset()
 
         return super(AccountViewSet, self).get_queryset().filter(is_deleted=False)
@@ -116,7 +116,7 @@ class AccountViewSet(ElasticModelMixin, ModelChangesMixin, DataExistsMixin, Note
 
         serializer = CallRecordSerializer(calls, many=True, context={'request': request})
 
-        return Response({'results': serializer.data})
+        return Response(serializer.data)
 
 
 class AccountStatusViewSet(ModelViewSet):

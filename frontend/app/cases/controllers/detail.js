@@ -69,7 +69,7 @@ function CaseDetailController($scope, Case, HLResource, HLUtils, LocalStorage, S
     vm.case = currentCase;
     vm.case.account = caseAccount;
     vm.case.contact = caseContact;
-    vm.case.timeLogs = timeLogs.results;
+    vm.case.timeLogs = timeLogs.objects;
     vm.mergeStreams = storage.get('mergeStreams', false);
 
     vm.changeCaseStatus = changeCaseStatus;

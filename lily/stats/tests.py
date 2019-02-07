@@ -2,11 +2,10 @@ from django.urls import reverse
 from django.test import TestCase
 
 from lily.users.factories import TeamFactory, LilyUserFactory
-from lily.tests.utils import UserBasedTest
 from .urls import case_patterns, deal_patterns
 
 
-class StatsTests(UserBasedTest, TestCase):
+class StatsTests(TestCase):
     def test_no_errors(self):
         """
         Test that the stats pages give no errors.

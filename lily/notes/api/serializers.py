@@ -13,7 +13,7 @@ class NoteSerializer(serializers.ModelSerializer):
     """
     # Show string versions of fields.
     content_type = ContentTypeSerializer(read_only=True)
-    author = serializers.SerializerMethodField()
+    author = serializers.StringRelatedField(read_only=True)
     gfk_content_type = serializers.PrimaryKeyRelatedField(
         queryset=ContentType.objects.filter(model__in=NOTABLE_MODELS),
         write_only=True,
@@ -36,13 +36,6 @@ class NoteSerializer(serializers.ModelSerializer):
         })
 
         return super(NoteSerializer, self).create(validated_data)
-
-    def get_author(self, obj):
-        return {
-            'id': obj.author.id,
-            'full_name': obj.author.full_name,
-            'profile_picture': obj.author.profile_picture,
-        }
 
     class Meta:
         model = Note

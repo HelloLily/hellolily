@@ -22,7 +22,7 @@ from lily.provide.api.views import DataproviderViewSet
 from lily.tenant.api.views import TenantViewSet
 from lily.timelogs.api.views import TimeLogViewSet
 from lily.users.api.views import (LilyUserViewSet, TeamViewSet, TwoFactorDevicesViewSet, SessionViewSet,
-                                  UserInviteViewSet)
+                                  UserInviteViewSet, BrowserSettingsViewSet)
 from lily.utils.api.views import AppHash, CallerName, CountryViewSet, Notifications
 from lily.voipgrid.api.views import CallNotificationViewSet
 
@@ -68,6 +68,7 @@ router.register(r'users/team', TeamViewSet)
 router.register(r'users/invites', UserInviteViewSet)
 router.register(r'users/two-factor', TwoFactorDevicesViewSet, base_name='Two factor devices')
 router.register(r'users/sessions', SessionViewSet)
+router.register(r'users/browser_settings', BrowserSettingsViewSet, base_name='Browser settings')
 router.register(r'users', LilyUserViewSet)
 
 router.register(r'tenants', TenantViewSet)

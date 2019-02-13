@@ -18,6 +18,7 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
 from two_factor.models import PhoneDevice
 from two_factor.templatetags.two_factor import mask_phone_number, format_phone_number
 from two_factor.utils import default_device, backup_phones
@@ -35,7 +36,7 @@ from .serializers import (
     TeamSerializer, LilyUserSerializer, LilyUserTokenSerializer, SessionSerializer, UserInviteSerializer,
     BasicLilyUserSerializer
 )
-from ..models import Team, LilyUser, UserInvite
+from ..models import Team, LilyUser, UserInvite, BrowserSettings
 
 
 class TeamViewSet(viewsets.ModelViewSet):
@@ -332,6 +333,45 @@ class LilyUserViewSet(viewsets.ModelViewSet):
         #  Use the basic serializer to excluded nested fields.
         serializer = BasicLilyUserSerializer(filtered_queryset, context={'request': request}, many=True)
         return Response(serializer.data)
+
+
+def create_browser_settings_if_not_exists(request):
+    if not request.user.browser_settings:
+        request.user.browser_settings = BrowserSettings.objects.create()
+        request.user.save()
+
+
+class BrowserSettingsViewSet(APIView):
+    permission_classes = (IsAuthenticated, )
+
+    def get(self, request):
+        create_browser_settings_if_not_exists(request)
+        component = request.query_params.get('component')
+
+        browser_settings = request.user.browser_settings.data
+
+        if component:
+            browser_settings = browser_settings.get(component)
+
+        return Response({'results': browser_settings})
+
+    def patch(self, request):
+        create_browser_settings_if_not_exists(request)
+        # Key will be component's name, so no need to store it again.
+        component = request.data.pop('component')
+
+        if not component:
+            # Since there is no way of knowing what to store the data as,
+            # the request is considered invalid.
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        # Make sure the key is always set.
+        request.user.browser_settings.setdefault(component, {})
+        # Update the values for the component with the actual data.
+        request.user.browser_settings.data[component].update(request.data)
+        request.user.browser_settings.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class TwoFactorDevicesViewSet(viewsets.ViewSet):

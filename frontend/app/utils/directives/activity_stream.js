@@ -493,6 +493,11 @@ function ActivityStreamDirective($filter, $q, $state, Account, Case, Change, Con
                                 }
                             });
 
+                            email.body = '';
+                            EmailMessage.get({id: email.id}).$promise.then(function(message) {
+                                email.body = message.plain_text;
+                            });
+
                             activity.push(email);
                         });
                     });

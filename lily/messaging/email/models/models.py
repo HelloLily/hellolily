@@ -4,6 +4,7 @@ import textwrap
 import logging
 import os
 
+from bs4 import BeautifulSoup
 from email.header import Header
 from email import Encoders
 from email.mime.audio import MIMEAudio
@@ -422,6 +423,17 @@ class EmailMessage(models.Model):
         Return the content type (Django model) for this model
         """
         return ContentType.objects.get(app_label="email", model="emailmessage")
+
+    def get_plain_text(self):
+        # To avoid circular dependency issue.
+        from lily.messaging.email.utils import convert_br_to_newline
+
+        if self.body_text:
+            return self.body_text
+
+        soup = BeautifulSoup(self.body_html, 'lxml')
+        soup = convert_br_to_newline(soup)
+        return soup.get_text()
 
     def __unicode__(self):
         return u'%s: %s' % (self.sender, self.snippet)

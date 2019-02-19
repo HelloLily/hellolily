@@ -112,6 +112,7 @@ class EmailMessageSerializer(serializers.ModelSerializer):
     attachments = EmailAttachmentSerializer(many=True, read_only=True)
     labels = EmailLabelSerializer(many=True, read_only=True)
     sent_date = serializers.ReadOnlyField()
+    plain_text = serializers.ReadOnlyField(source='get_plain_text')
 
     class Meta:
         model = EmailMessage
@@ -133,6 +134,7 @@ class EmailMessageSerializer(serializers.ModelSerializer):
             'is_draft',
             'is_archived',
             'reply_to',
+            'plain_text',
         )
 
 

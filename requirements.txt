@@ -12,6 +12,7 @@ django-appconf==1.0.2
 django-extensions==1.8.1
 django-filter==1.1.0
 djangorestframework==3.7.7
+djangorestframework-filters==0.10.1
 eventlet==0.19.0
 greenlet==0.4.10
 python-dateutil==2.6.0
@@ -90,7 +91,6 @@ uritemplate==3.0.0
 ### Search                                          ###
 #######################################################
 
-certifi==2017.7.27.1
 https://github.com/HelloLily/elasticsearch_old/archive/master.zip
 https://github.com/HelloLily/elasticutils_old/archive/master.zip
 elasticsearch==6.3.1
@@ -165,6 +165,7 @@ chardet==3.0.4  # Old version in case of issues is: 2.3.0
 requests==2.20.0
 requests-futures==0.9.7
 requests-cache==0.4.13
+certifi==2018.11.29
 unicodecsv==0.13.0
 urllib3==1.24
 freemail==1.2.19

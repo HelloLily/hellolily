@@ -5,11 +5,12 @@ if [ "${NEXT_ACTION}" == "deploy" ]; then
     deploy_command="python manage.py collectstatic --noinput"
 
     if [ "${MIGRATION_NEEDED}" == "true" ]; then
-        deploy_command="${deploy_command} && yes "yes" | TRAVIS_BUILD_ID=${TRAVIS_BUILD_ID} python manage.py migrate"
+        deploy_command+=" && yes "yes" | TRAVIS_BUILD_ID=${TRAVIS_BUILD_ID} python manage.py migrate"
     fi
 
-    if [ "${INDEXING_NEEDED}" == "true" ] ; then
-        deploy_command="${deploy_command} && TRAVIS_BUILD_ID=${TRAVIS_BUILD_ID} python manage.py index -f && python manage.py search_index rebuild -f"
+    if [ "${ES1_INDEXING_NEEDED}" == "true" ] ; then
+        # ES1 indexing
+        deploy_command+=" && TRAVIS_BUILD_ID=${TRAVIS_BUILD_ID} python manage.py index -f"
 
         # Put every mention of an index file change into an array.
         changed_files=()
@@ -27,10 +28,30 @@ if [ "${NEXT_ACTION}" == "deploy" ]; then
         done
 
         # Append the targets to the index command, strip the first comma.
-        deploy_command="${deploy_command} -t ${targets:1}"
+        deploy_command+=" -t ${targets:1}"
     fi
 
-    if [ "${MIGRATION_NEEDED}" == "true" ] || [ "${INDEXING_NEEDED}" == "true" ] ; then
+    if [ "${ES6_INDEXING_NEEDED}" == "true" ] ; then
+        deploy_command+=" && TRAVIS_BUILD_ID=${TRAVIS_BUILD_ID} python manage.py search_index rebuild -f"
+
+        # Put every mention of an index file change into an array.
+        changed_files=()
+        while read -r line; do
+            changed_files+=("$line")
+        done <<< "$(git log ${TRAVIS_COMMIT_RANGE} --name-only --pretty=format: '**/documents.py' | awk NF)"
+
+        # Filter out the duplicate file names, since we only want to run once per type.
+        changed_files_uniq=($(printf "%s\n" "${changed_files[@]}" | sort | uniq -c | awk '{ print $2 }'))
+
+        # Create the actual targets string.
+        for filename in ${changed_files_uniq[@]}; do
+            deploy_command+=" --models $(basename $(dirname "${filename}"))"
+        done
+    fi
+
+
+
+    if [ "${MIGRATION_NEEDED}" == "true" ] || [ "${ES1_INDEXING_NEEDED}" == "true" ] || [ "${ES6_INDEXING_NEEDED}" == "true" ]; then
         # Scale the beat dynos up after a successful deployment.
         deploy_command="${deploy_command} && python ./ci/patch_heroku_app.py ${HEROKU_APP_NAME}/formation/beat ${HEROKU_API_KEY} quantity 1"
 

@@ -7,7 +7,7 @@ from rest_framework import serializers
 from lily.accounts.api.serializers import RelatedAccountSerializer
 from lily.api.fields import SanitizedHtmlCharField
 from lily.api.nested.mixins import RelatedSerializerMixin
-from lily.api.nested.serializers import WritableNestedSerializer
+from lily.api.nested.serializers import NewWritableNestedSerializer
 from lily.api.mixins import PhoneNumberFormatMixin
 from lily.api.serializers import ContentTypeSerializer
 from lily.integrations.credentials import get_credentials
@@ -41,7 +41,7 @@ class RelatedFunctionSerializer(RelatedSerializerMixin, FunctionSerializer):
     pass
 
 
-class ContactSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
+class ContactSerializer(PhoneNumberFormatMixin, NewWritableNestedSerializer):
     """
     Serializer for the contact model.
     """
@@ -112,6 +112,9 @@ class ContactSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
         help_text='Human readable value of the contact\'s salutation.',
     )
 
+    primary_email = RelatedEmailAddressSerializer(read_only=True)
+    phone_number = RelatedPhoneNumberSerializer(read_only=True)
+
     class Meta:
         model = Contact
         fields = (
@@ -135,6 +138,8 @@ class ContactSerializer(PhoneNumberFormatMixin, WritableNestedSerializer):
             'social_media',
             'tags',
             'functions',
+            'primary_email',
+            'phone_number',
         )
         read_only_fields = ('is_deleted', )
         extra_kwargs = {

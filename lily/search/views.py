@@ -1,16 +1,17 @@
 from datetime import date, timedelta, datetime
 
+import anyjson
+import freemail
+
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.http.response import HttpResponse
 from django.views.generic.base import View
 
-import anyjson
-import freemail
 from pytz import utc
-
 from lily.accounts.models import Account, Website
+
 from lily.cases.models import Case
 from lily.contacts.models import Contact
 from lily.deals.models import Deal
@@ -314,6 +315,10 @@ class PhoneNumberSearchView(LoginRequiredMixin, View):
             },
         }
 
+        # TODO LILY-2786: Optimize number fetching queries.
+        # This function gets all accounts and contacts from the db, only
+        # returns the first one and then only gets the PK of the object here.
+        # These queries can be much faster and more simple.
         account, contact = search_number(self.request.user.tenant_id, number)
 
         if account:
@@ -368,10 +373,8 @@ class InternalNumberSearchView(LoginRequiredMixin, View):
     def _get_contact_assignee_by_account(self, account):
         """
         Return a contact and assignee of a case or deal belonging to the provided account.
-
         Args:
             account (obj): Account to which cases or deals belong to.
-
         Returns:
             contact (obj): Contact belonging to the case or deal.
             assignee (obj): Assignee of the case or deal.
@@ -415,10 +418,8 @@ class InternalNumberSearchView(LoginRequiredMixin, View):
         First look up a contact or account by the provided phone number. Next determine for that contact or account
         the case / deal with the latest interaction. Return that user and its internal number to which that deal or
         case is assigned to.
-
         Args:
             phone_number (str): Formatted phone number.
-
         Returns:
             JSON string containing:
                 internal_number (int): The internal number of the user.

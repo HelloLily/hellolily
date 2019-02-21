@@ -40,7 +40,8 @@ env:
     - GIT_COMMITTER_NAME="Travis CI"
     - GIT_SHALLOW="$(ci/git_make_unshallow.sh)"
     - MIGRATION_NEEDED="$(ci/migration_needed.sh)"
-    - INDEXING_NEEDED="$(ci/indexing_needed.sh)"
+    - ES1_INDEXING_NEEDED="$(ci/es1_indexing_needed.sh)"
+    - ES6_INDEXING_NEEDED="$(ci/es6_indexing_needed.sh)"
     - NEXT_ACTION="$(ci/next_action.sh)"
     - DEPLOY_COMMAND="$(ci/deploy_command.sh)"
     - DOCKER_USER_ID=2000
@@ -70,7 +71,8 @@ before_script:
   # Echo some variables for debug purposes.
   - echo "Git is shallow; ${GIT_SHALLOW}"
   - echo "Migration is needed; ${MIGRATION_NEEDED}"
-  - echo "Indexing is needed; ${INDEXING_NEEDED}"
+  - echo "ES1 indexing is needed; ${ES1_INDEXING_NEEDED}"
+  - echo "ES6 indexing is needed; ${ES6_INDEXING_NEEDED}"
   - echo "Next action is; ${NEXT_ACTION}"
   - echo "Current datetime is; $(date +'%Y%m%d%H%M')"
 
@@ -111,10 +113,10 @@ after_success:
 before_deploy:
   # If migrations are needed, set the heroku app to maintenance mode before the deploy. The maintenance mode
   # is switched off in the DEPLOY_COMMAND to make sure that maintenance mode stays on if migrations or indexing fail.
-  - if [ "${MIGRATION_NEEDED}" == "true" ] || [ "${INDEXING_NEEDED}" == "true" ] ; then python ./ci/patch_heroku_app.py ${HEROKU_APP_NAME} ${HEROKU_API_KEY} maintenance true; fi
+  - if [ "${MIGRATION_NEEDED}" == "true" ] || [ "${ES1_INDEXING_NEEDED}" == "true" ] || [ "${ES6_INDEXING_NEEDED}" == "true" ]; then python ./ci/patch_heroku_app.py ${HEROKU_APP_NAME} ${HEROKU_API_KEY} maintenance true; fi
 
   # If migrations or indexing are needed, scale down all beat dynos for the duration of the deploy.
-  - if [ "${MIGRATION_NEEDED}" == "true" ] || [ "${INDEXING_NEEDED}" == "true" ] ; then python ./ci/patch_heroku_app.py ${HEROKU_APP_NAME}/formation/beat ${HEROKU_API_KEY} quantity 0; fi
+  - if [ "${MIGRATION_NEEDED}" == "true" ] || [ "${ES1_INDEXING_NEEDED}" == "true" ] || [ "${ES6_INDEXING_NEEDED}" == "true" ]; then python ./ci/patch_heroku_app.py ${HEROKU_APP_NAME}/formation/beat ${HEROKU_API_KEY} quantity 0; fi
 
 deploy:
   - provider: heroku

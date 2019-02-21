@@ -130,6 +130,9 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 CSRF_COOKIE_SECURE = boolean(os.environ.get('CSRF_COOKIE_SECURE', 0))
 # Show this view when csrf validation fails.
 CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
+
+CSRF_TRUSTED_ORIGINS = ('beta.hellolily.com', )
+
 # Secure session cookie is only sent under https connection.
 SESSION_COOKIE_SECURE = boolean(os.environ.get('SESSION_COOKIE_SECURE', 0))
 # Prevent client side javascript from accessing session.
@@ -144,6 +147,7 @@ ALLOWED_HOSTS = [
     'hellolily-staging.herokuapp.com',
     'app.hellolily.com',
     'app.hellolily.nl',
+    'beta.hellolily.com',
     'localhost',
 ]
 
@@ -615,11 +619,11 @@ ELASTICSEARCH_DSL = {
 
 # We use our own Elasticsearch synchronization, so we don't want to use the
 # builtin auto sync functionality.
-ELASTICSEARCH_DSL_AUTOSYNC = os.environ.get('ELASTICSEARCH_DSL_AUTOSYNC', False)
+ELASTICSEARCH_DSL_AUTOSYNC = boolean(os.environ.get('ELASTICSEARCH_DSL_AUTOSYNC', 0))
 
 # Set this parameter to true to refresh the Elasticsearch index after every
 # index or update.
-ELASTICSEARCH_DSL_AUTO_REFRESH = os.environ.get('ELASTICSEARCH_DSL_AUTO_REFRESH', False)
+ELASTICSEARCH_DSL_AUTO_REFRESH = boolean(os.environ.get('ELASTICSEARCH_DSL_AUTO_REFRESH', 0))
 
 
 #######################################################################################################################

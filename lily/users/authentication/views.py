@@ -64,6 +64,12 @@ class CustomLoginView(LoginView):
 
         return super(CustomLoginView, self).dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, form, **kwargs):
+        context = super(CustomLoginView, self).get_context_data(form, **kwargs)
+        context['registration_possible'] = settings.REGISTRATION_POSSIBLE
+
+        return context
+
     def done(self, form_list, **kwargs):
         user = self.get_user()
         login(self.request, user)
@@ -152,36 +158,41 @@ class SocialAuthCallbackView(RedirectView):
             invitation_data = session_data.get('invitation_data', {})
             tenant_id = invitation_data.get('tenant_id')
 
-            # There is no record of a user with this email address, so we create it.
-            user = LilyUser.objects.create_user(
-                tenant_id=int(tenant_id) if tenant_id else None,
-                **profile
-            )
+            if not settings.REGISTRATION_POSSIBLE and not tenant_id:
+                # Registration is disabled and user was not invited, so prevent new user registration.
+                messages.info(self.request, 'Registration has been disabled.')
+                return reverse('login')
+            else:
+                # There is no record of a user with this email address, so we create it.
+                user = LilyUser.objects.create_user(
+                    tenant_id=int(tenant_id) if tenant_id else None,
+                    **profile
+                )
 
-            # Because we don't call `authenticate` we need to set the authentication backend manually.
-            user.backend = settings.AUTHENTICATION_SOCIAL_BACKEND
+                # Because we don't call `authenticate` we need to set the authentication backend manually.
+                user.backend = settings.AUTHENTICATION_SOCIAL_BACKEND
 
-            # Log the new user in.
-            login(self.request, user)
+                # Log the new user in.
+                login(self.request, user)
 
-            # Track login type in Segment.
-            analytics.track(user.id, 'user-login', {
-                'login_type': '{}-{}'.format('Social', self.provider_name),
-            })
+                # Track login type in Segment.
+                analytics.track(user.id, 'user-login', {
+                    'login_type': '{}-{}'.format('Social', self.provider_name),
+                })
 
-            # Send welcome mail to the new user.
-            send_templated_mail(
-                template_name='users/registration/email/welcome.email',
-                recipient_list=[user.email, ],
-                context={
-                    'user': user,
-                },
-                from_email=settings.EMAIL_PERSONAL_HOST_USER,
-                auth_user=settings.EMAIL_PERSONAL_HOST_USER,
-                auth_password=settings.EMAIL_PERSONAL_HOST_PASSWORD
-            )
+                # Send welcome mail to the new user.
+                send_templated_mail(
+                    template_name='users/registration/email/welcome.email',
+                    recipient_list=[user.email, ],
+                    context={
+                        'user': user,
+                    },
+                    from_email=settings.EMAIL_PERSONAL_HOST_USER,
+                    auth_user=settings.EMAIL_PERSONAL_HOST_USER,
+                    auth_password=settings.EMAIL_PERSONAL_HOST_PASSWORD
+                )
 
-            return reverse('register_profile')
+                return reverse('register_profile')
         else:
             # User is inactive, handle it.
             messages.error(self.request, _('This account is inactive.'))

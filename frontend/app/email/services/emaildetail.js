@@ -4,7 +4,7 @@ EmailDetail.$inject = ['$resource'];
 function EmailDetail($resource) {
     var _emailDetail = $resource(
         '',
-        {  // Defaults for parameters.
+        {
             size: 100,
         },
         {

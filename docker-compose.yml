@@ -31,8 +31,6 @@ services:
       - POSTGRES_USER=hellolily
     ports:
       - "5433:5432"
-    logging:
-      driver: "none"
 
   es_old:
     image: elasticsearch:1.7-alpine  # Use latest version of 1.7.

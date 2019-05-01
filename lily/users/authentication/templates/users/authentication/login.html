@@ -80,15 +80,17 @@
         {% endif %}
     </form>
 
-    {% if wizard.steps.current == 'auth' %}
-        <div class="spacer-20"></div>
-        <div class="align-center faded disclaimer">
-            <p>
-                Don't have an account yet?
-            </p>
-            <p>
-                <a href="{% url 'register' %}" class="faded">Sign up.</a>
-            </p>
-        </div>
+    {% if registration_possible %}
+        {% if wizard.steps.current == 'auth' %}
+            <div class="spacer-20"></div>
+            <div class="align-center faded disclaimer">
+                <p>
+                    Don't have an account yet?
+                </p>
+                <p>
+                    <a href="{% url 'register' %}" class="faded">Sign up.</a>
+                </p>
+            </div>
+        {% endif %}
     {% endif %}
 {% endblock right-panel %}

@@ -52,6 +52,15 @@ class RegisterAuthView(RegistrationMixin, FormView):
     success_url = reverse_lazy('register_verify_email')
     step_name = 'auth'
 
+    def get(self, request, *args, **kwargs):
+        was_invited = 'invitation_data' in request.session.get(settings.REGISTRATION_SESSION_KEY, {})
+
+        if not settings.REGISTRATION_POSSIBLE and not was_invited:
+            messages.info(self.request, 'Registration has been disabled.')
+            return HttpResponseRedirect(reverse('login'))
+
+        return super(RegisterAuthView, self).get(request, *args, **kwargs)
+
     def get_initial(self):
         initial = super(RegisterAuthView, self).get_initial()
 

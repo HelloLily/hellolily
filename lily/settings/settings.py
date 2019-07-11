@@ -327,6 +327,7 @@ INSTALLED_APPS = (
     'lily.contacts',
     'lily.deals',
     'lily.google',
+    'lily.hubspot',
     'lily.importer',
     'lily.messaging.email',
     'lily.notes',
@@ -466,6 +467,11 @@ if DEBUG:
                 'level': 'WARNING',
                 'handlers': ['console', ],
             },
+            # 'django.db.backends': {
+            #     'level': 'DEBUG',
+            #     'handlers': ['console', ],
+            #     'propagate': False,
+            # },
             'django.security': {  # More logging specifically for security related stuff.
                 'level': 'DEBUG',
                 'handlers': ['console', ],
@@ -485,7 +491,12 @@ if DEBUG:
                 'level': 'DEBUG',
                 'handlers': ['console', ],
                 'propagate': False,
-            }
+            },
+            'segment': {
+                'level': 'DEBUG',
+                'handlers': ['null', ],
+                'propagate': False,
+            },
         },
     })
 else:

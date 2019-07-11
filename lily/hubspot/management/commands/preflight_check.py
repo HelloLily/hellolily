@@ -58,13 +58,17 @@ def check_account_status_to_company_type_mapping(tenant_id):
 
 def check_accounts_with_non_unique_websites(tenant_id):
     sql_query = '''
-        SELECT      REGEXP_REPLACE("website", '^https?://(www.)?', '') as "stripped_website",
-                    tenant_id,
+        SELECT      REGEXP_REPLACE(accounts_website.website, '^https?://(www.)?', '') as "stripped_website",
+                    accounts_website.tenant_id,
                     COUNT(1) AS "dcount",
-                    ARRAY_AGG(account_id) AS "account ids"
+                    ARRAY_AGG(accounts_website.account_id) AS "account ids",
+                    ARRAY_AGG(accounts_website.id) AS "website ids"
         FROM        accounts_website
-        WHERE       website != 'http://' AND tenant_id = %s
-        GROUP BY    tenant_id, "stripped_website"
+        JOIN        accounts_account 
+        ON          accounts_website.account_id = accounts_account.id
+        WHERE       accounts_website.website != 'http://' AND accounts_website.tenant_id = 10 AND accounts_account.is_deleted = FALSE
+        GROUP BY    accounts_website.tenant_id,
+                    "stripped_website"
         HAVING      COUNT(accounts_website.website) > 1;
     '''
 

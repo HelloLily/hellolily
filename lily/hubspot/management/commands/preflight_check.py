@@ -66,7 +66,9 @@ def check_accounts_with_non_unique_websites(tenant_id):
         FROM        accounts_website
         JOIN        accounts_account 
         ON          accounts_website.account_id = accounts_account.id
-        WHERE       accounts_website.website != 'http://' AND accounts_website.tenant_id = 10 AND accounts_account.is_deleted = FALSE
+        WHERE       accounts_website.website != 'http://'
+        AND         accounts_website.tenant_id = 10 
+        AND         accounts_account.is_deleted = FALSE
         GROUP BY    accounts_website.tenant_id,
                     "stripped_website"
         HAVING      COUNT(accounts_website.website) > 1;

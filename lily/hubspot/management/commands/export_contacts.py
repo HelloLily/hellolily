@@ -112,8 +112,8 @@ class Command(BaseCommand):
                     'country': _s(address.country),
                     'twitterhandle': _s(twitter.username or ''),
 
-                    'lily_created': _s(contact.created),
-                    'lily_modified': _s(contact.modified),
+                    'lily_created': _s(contact.created.strftime("%d %b %Y - %H:%M:%S")),
+                    'lily_modified': _s(contact.modified.strftime("%d %b %Y - %H:%M:%S")),
 
                     'account_id': _s(account_id),
                 }

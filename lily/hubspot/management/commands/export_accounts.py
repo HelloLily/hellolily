@@ -112,8 +112,8 @@ class Command(BaseCommand):
                     'sells_hardware': 'hardware' in tags,
                     'freedom_url': _s(f_url),
 
-                    'lily_created': _s(account.created),
-                    'lily_modified': _s(account.modified),
+                    'lily_created': _s(account.created.strftime("%d %b %Y - %H:%M:%S")),
+                    'lily_modified': _s(account.modified.strftime("%d %b %Y - %H:%M:%S")),
                 }
                 writer.writerow(data)
 

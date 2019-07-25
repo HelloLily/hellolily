@@ -3,10 +3,8 @@
 # Database.
 host="localhost"
 port=5433
-username="postgres"
 username="hellolily"
 database="hellolily"
-role="hellolily"
 
 tenants="300, 543"
 
@@ -20,7 +18,10 @@ queries=(
 "TRUNCATE otp_static_staticdevice CASCADE;"
 "TRUNCATE otp_totp_totpdevice CASCADE;"
 "TRUNCATE otp_yubikey_remoteyubikeydevice CASCADE;"
+"TRUNCATE otp_yubikey_validationservice CASCADE;"
 "TRUNCATE two_factor_phonedevice CASCADE;"
+"TRUNCATE email_emailoutboxmessage CASCADE;"
+"TRUNCATE integrations_integrationdetails CASCADE;"
 "select pg_stat_reset();"
 "DELETE FROM accounts_account_addresses WHERE accounts_account_addresses.account_id IN (SELECT id FROM accounts_account WHERE tenant_id NOT IN($tenants));"
 "DELETE FROM accounts_account_email_addresses WHERE account_id IN (SELECT id FROM accounts_account WHERE tenant_id NOT IN($tenants));"
@@ -35,8 +36,6 @@ queries=(
 "DELETE FROM contacts_function WHERE contacts_function.contact_id IN (SELECT id FROM contacts_contact WHERE tenant_id NOT IN($tenants));"
 "DELETE FROM contacts_function WHERE contacts_function.account_id IN (SELECT id FROM accounts_account WHERE tenant_id NOT IN($tenants));"
 "DELETE FROM deals_deal_assigned_to_teams WHERE deals_deal_assigned_to_teams.deal_id IN (SELECT id FROM deals_deal WHERE tenant_id NOT IN($tenants));"
-"DELETE FROM integrations_slackdetails WHERE integrations_slackdetails.integrationdetails_ptr_id IN (SELECT id FROM integrations_integrationdetails WHERE tenant_id NOT IN($tenants));"
-"DELETE FROM integrations_integrationcredentials WHERE integrations_integrationcredentials.details_id IN (SELECT id FROM integrations_integrationdetails WHERE tenant_id NOT IN($tenants));"
 "DELETE FROM email_gmailcredentialsmodel WHERE email_gmailcredentialsmodel.id_id IN (SELECT id FROM email_emailaccount WHERE tenant_id NOT IN($tenants));"
 "DELETE FROM email_defaultemailtemplate WHERE email_defaultemailtemplate.template_id IN (SELECT id FROM email_emailtemplate WHERE tenant_id NOT IN($tenants));"
 "DELETE FROM email_emaillabel WHERE email_emaillabel.account_id IN (SELECT id FROM email_emailaccount WHERE tenant_id NOT IN($tenants));"
@@ -51,7 +50,7 @@ queries=(
 "UPDATE users_lilyuser SET primary_email_account_id = null;"  # users_lilyuser <> email_emailaccount have a circular reference, break it by setting primary email account to null.
 )
 
-tables=( "calls_calltransfer" "calls_callrecord" "calls_callparticipant" "changes_change" "email_emaildraft" "email_emaildraftattachment" "email_emailoutboxattachment" "email_emailoutboxmessage" "email_emailtemplateattachment" "email_sharedemailconfig" "email_templatevariable" "email_emailtemplate" "email_emailtemplatefolder" "importer_importupload" "integrations_document" "integrations_documentevent" "integrations_integrationdetails" "tags_tag" "timelogs_timelog" "users_team"  "users_userinvite" "utils_address" "utils_emailaddress" "utils_externalapplink" "utils_phonenumber" "utils_webhook" "calls_call" "notes_note" "socialmedia_socialmedia" "cases_case" "cases_casestatus" "cases_casetype" "parcels_parcel" "deals_deal" "deals_dealcontactedby" "deals_dealfoundthrough" "deals_dealnextstep" "deals_dealstatus" "deals_dealwhycustomer" "deals_dealwhylost" "email_emailaccount" "accounts_account" "accounts_accountstatus" "users_lilyuser" "contacts_contact" )
+tables=( "calls_calltransfer" "calls_callrecord" "calls_callparticipant" "changes_change" "email_emaildraft" "email_emaildraftattachment" "email_emailtemplateattachment" "email_sharedemailconfig" "email_templatevariable" "email_emailtemplate" "email_emailtemplatefolder" "importer_importupload" "integrations_document" "integrations_documentevent" "integrations_integrationdetails" "tags_tag" "timelogs_timelog" "users_team"  "users_userinvite" "utils_address" "utils_emailaddress" "utils_externalapplink" "utils_phonenumber" "utils_webhook" "calls_call" "notes_note" "socialmedia_socialmedia" "cases_case" "cases_casestatus" "cases_casetype" "parcels_parcel" "deals_deal" "deals_dealcontactedby" "deals_dealfoundthrough" "deals_dealnextstep" "deals_dealstatus" "deals_dealwhycustomer" "deals_dealwhylost" "email_emailaccount" "accounts_account" "accounts_accountstatus" "users_lilyuser" "contacts_contact" )
 
 for i in "${queries[@]}"
 do

@@ -14,7 +14,14 @@ queries=(
 "TRUNCATE email_emailmessage CASCADE;"
 "TRUNCATE email_recipient CASCADE;"  # Beacause email_emailmessage is truncated, there is no reference anymore to email_recipient.
 "TRUNCATE django_session CASCADE;"
+"TRUNCATE django_admin_log CASCADE"
 "TRUNCATE user_sessions_session CASCADE;"
+"TRUNCATE otp_static_statictoken CASCADE;"
+"TRUNCATE otp_static_staticdevice CASCADE;"
+"TRUNCATE otp_totp_totpdevice CASCADE;"
+"TRUNCATE otp_yubikey_remoteyubikeydevice CASCADE;"
+"TRUNCATE two_factor_phonedevice CASCADE;"
+"select pg_stat_reset();"
 "DELETE FROM accounts_account_addresses WHERE accounts_account_addresses.account_id IN (SELECT id FROM accounts_account WHERE tenant_id NOT IN($tenants));"
 "DELETE FROM accounts_account_email_addresses WHERE account_id IN (SELECT id FROM accounts_account WHERE tenant_id NOT IN($tenants));"
 "DELETE FROM accounts_account_phone_numbers WHERE account_id IN (SELECT id FROM accounts_account WHERE tenant_id NOT IN($tenants));"
@@ -40,11 +47,6 @@ queries=(
 "DELETE FROM users_lilyuser_teams WHERE users_lilyuser_teams.team_id IN (SELECT id FROM users_team WHERE tenant_id NOT IN($tenants));"
 "DELETE FROM users_lilyuser_groups WHERE users_lilyuser_groups.lilyuser_id IN (SELECT id FROM users_lilyuser WHERE tenant_id NOT IN($tenants));"
 "DELETE FROM users_lilyuser_user_permissions WHERE users_lilyuser_user_permissions.lilyuser_id IN (SELECT id FROM users_lilyuser WHERE tenant_id NOT IN($tenants))"
-"DELETE FROM otp_static_statictoken WHERE otp_static_statictoken.device_id IN (SELECT id FROM otp_static_staticdevice WHERE otp_static_staticdevice.user_id IN (SELECT id FROM users_lilyuser WHERE tenant_id NOT IN($tenants)))"
-"DELETE FROM otp_static_staticdevice WHERE otp_static_staticdevice.user_id IN (SELECT id FROM users_lilyuser WHERE tenant_id NOT IN($tenants))"
-"DELETE FROM otp_totp_totpdevice WHERE otp_totp_totpdevice.user_id IN (SELECT id FROM users_lilyuser WHERE tenant_id NOT IN($tenants))"
-"DELETE FROM otp_yubikey_remoteyubikeydevice WHERE otp_yubikey_remoteyubikeydevice.user_id IN (SELECT id FROM users_lilyuser WHERE tenant_id NOT IN($tenants))"
-"DELETE FROM two_factor_phonedevice WHERE two_factor_phonedevice.user_id IN (SELECT id FROM users_lilyuser WHERE tenant_id NOT IN($tenants))"
 "DELETE FROM authtoken_token WHERE authtoken_token.user_id IN (SELECT id FROM users_lilyuser WHERE tenant_id NOT IN($tenants))"
 "UPDATE users_lilyuser SET primary_email_account_id = null;"  # users_lilyuser <> email_emailaccount have a circular reference, break it by setting primary email account to null.
 )

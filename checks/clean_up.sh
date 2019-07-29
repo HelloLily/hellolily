@@ -48,6 +48,7 @@ queries=(
 "DELETE FROM users_lilyuser_user_permissions WHERE users_lilyuser_user_permissions.lilyuser_id IN (SELECT id FROM users_lilyuser WHERE tenant_id NOT IN($tenants))"
 "DELETE FROM authtoken_token WHERE authtoken_token.user_id IN (SELECT id FROM users_lilyuser WHERE tenant_id NOT IN($tenants))"
 "UPDATE users_lilyuser SET primary_email_account_id = null;"  # users_lilyuser <> email_emailaccount have a circular reference, break it by setting primary email account to null.
+"UPDATE users_lilyuser SET password = '!123456';"
 )
 
 tables=( "calls_calltransfer" "calls_callrecord" "calls_callparticipant" "changes_change" "email_emaildraft" "email_emaildraftattachment" "email_emailtemplateattachment" "email_sharedemailconfig" "email_templatevariable" "email_emailtemplate" "email_emailtemplatefolder" "importer_importupload" "integrations_document" "integrations_documentevent" "integrations_integrationdetails" "tags_tag" "timelogs_timelog" "users_team"  "users_userinvite" "utils_address" "utils_emailaddress" "utils_externalapplink" "utils_phonenumber" "utils_webhook" "calls_call" "notes_note" "socialmedia_socialmedia" "cases_case" "cases_casestatus" "cases_casetype" "parcels_parcel" "deals_deal" "deals_dealcontactedby" "deals_dealfoundthrough" "deals_dealnextstep" "deals_dealstatus" "deals_dealwhycustomer" "deals_dealwhylost" "email_emailaccount" "accounts_account" "accounts_accountstatus" "users_lilyuser" "contacts_contact" )

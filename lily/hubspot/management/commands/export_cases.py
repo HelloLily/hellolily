@@ -74,8 +74,7 @@ class Command(BaseCommand):
                     'description': _s(case.description),
                     'status': _s(status),
                     'category': _s(case_type_to_ticket_category_mapping.get(case.type_id)),
-                    # 'owner': _s(lilyuser_to_owner_mapping.get(case.assigned_to_id, '')),
-                    'owner': _s('allard.stijnman@wearespindle.com'),  # TODO: use mapping.
+                    'owner': _s(lilyuser_to_owner_mapping.get(case.assigned_to_id, '')),
                     'pipeline': pipeline,
 
                     'account_id': _s(case.account_id or ''),

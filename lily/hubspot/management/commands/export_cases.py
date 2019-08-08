@@ -1,12 +1,13 @@
-import StringIO
 import csv
+import StringIO
 
 from django.core.files.storage import default_storage
 from django.core.management.base import BaseCommand
 from django.core.paginator import Paginator
 
 from lily.cases.models import Case
-from lily.hubspot.mappings import lilyuser_to_owner_mapping
+from lily.hubspot.mappings import lilyuser_to_owner_mapping, case_status_to_ticket_status_mapping, \
+    case_type_to_ticket_category_mapping, case_priority_to_ticket_priority_mapping
 from lily.hubspot.prefetch_objects import tags_prefetch
 from lily.hubspot.utils import _s
 from lily.tenant.middleware import set_current_user
@@ -15,18 +16,16 @@ from lily.users.models import LilyUser
 
 field_names = (
     'case_id',
-    'priority',  # TODO: create a 'critical' priority on hubspot
+    'priority',
     'subject',
     'description',
-    'status',  # TODO: map status to status
+    'status',
     'category',  # 'type',  # TODO: map type to category
     'owner',  # assigned_to
-    # 'owner_team',  # assigned_to_teams
+    'pipeline',  # TODO: which pipeline? -> level support 1
 
     'account_id',
     'contact_id',
-
-    # 'tags',
 
     'lily_created',
     'lily_modified',
@@ -60,20 +59,30 @@ class Command(BaseCommand):
 
             self.stdout.write('    Page: {} / {}'.format(page_number, paginator.num_pages))
             for case in case_list:
+
+                if case.is_archived:
+                    pipeline = 'Support archived'
+                    status = 'Support archived'
+                else:
+                    pipeline = 'Level 1 support'
+                    status = case_status_to_ticket_status_mapping.get(case.status_id)
+
                 data = {
                     'case_id': _s(case.pk),
-                    'priority': _s(case.get_priority_display()),
+                    'priority': _s(case_priority_to_ticket_priority_mapping.get(case.priority)),
                     'subject': _s(case.subject),
                     'description': _s(case.description),
-                    'status': _s(case.status),
-                    'category': _s(case.type),
-                    'owner': _s(lilyuser_to_owner_mapping.get(case.assigned_to_id, '')),
+                    'status': _s(status),
+                    'category': _s(case_type_to_ticket_category_mapping.get(case.type_id)),
+                    # 'owner': _s(lilyuser_to_owner_mapping.get(case.assigned_to_id, '')),
+                    'owner': _s('allard.stijnman@wearespindle.com'),  # TODO: use mapping.
+                    'pipeline': pipeline,
 
-                    'account_id': _s(case.account_id),
-                    'contact_id': _s(case.contact_id),
+                    'account_id': _s(case.account_id or ''),
+                    'contact_id': _s(case.contact_id or ''),
 
-                    'lily_created': _s(case.created),
-                    'lily_modified': _s(case.modified),
+                    'lily_created': _s(case.created.strftime("%d %b %Y - %H:%M:%S")),
+                    'lily_modified': _s(case.modified.strftime("%d %b %Y - %H:%M:%S")),
                 }
                 writer.writerow(data)
 

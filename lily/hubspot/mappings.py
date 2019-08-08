@@ -32,7 +32,7 @@ lilyuser_to_owner_mapping = {
     # 216: u'admin@wearespindle.com',
     224: 'noe.snaterse@wearespindle.com',  # original: 'noe.snaterse@wearespindle.com',
     # 244: u'jukka.koivunen@wearespindle.com',
-    273: 'maarten.frolich@wearespindle.com',  # original: 'maarten.frolich@wearespindle.com',
+    273: 'maarten.frolich@voipgrid.nl',  # original: 'maarten.frolich@wearespindle.com',
     # 281: u'sjoerd+test@wearespindle.com',
     # 285: u'janneke.vandervelde@wearespindle.com',
     360: 'andreas.tieman@wearespindle.com',  # original: 'andreas.tieman@wearespindle.com',
@@ -66,7 +66,6 @@ lilyuser_to_owner_mapping = {
     1097: 'mattijs.jager@wearespindle.com',  # original: 'mattijs.jager@wearespindle.com',
 }
 
-
 ############################################################################
 # ACCOUNT MAPPINGS
 ############################################################################
@@ -83,4 +82,60 @@ account_status_to_company_type_mapping = {
 contact_status_to_contact_status_mapping = {
     Contact.ACTIVE_STATUS: 'active',
     Contact.INACTIVE_STATUS: 'inactive',
+}
+
+############################################################################
+# CASE MAPPINGS
+############################################################################
+case_priority_to_ticket_priority_mapping = {
+    0: 'Low',
+    1: 'Medium',
+    2: 'High',
+    3: 'High',  # Hubspot has no critical prio, so merge it with high.
+}
+
+case_status_to_ticket_status_mapping = {
+    10: 'Level 1 New',  # 'New',
+    57: 'Level 1 Closed',  # 'Closed',
+    70: 'Level 1 On hold',  # 'Investigating',
+    71: 'Level 1 Waiting on Partner',  # 'Waiting on external party',
+    72: 'Level 1 solved',  # 'Solved',
+    3007: 'Level 1 Waiting on External',  # 'Waiting on supplier',
+    3008: 'Level 1 Waiting on Partner',  # 'Waiting on partner',
+    3009: 'Level 1 Jira ticket',  # 'Jira ticket',
+}
+
+case_type_to_ticket_category_mapping = {
+    8: 'Other',  # 'Other',
+    20: 'Vialer',  # 'Vialer',
+    21: '',  # '_old_Activation',
+    22: '',  # '_old_Bad audio',
+    23: '',  # '_old_Callback',
+    24: 'API',  # 'API',
+    25: 'Documentation',  # 'Documentation',
+    26: '',  # '_old_External_nr_unreachable',
+    27: '',  # '_old_Freedom',
+    28: 'Network',  # 'Network',
+    29: 'Interconnect',  # 'Interconnect',
+    30: 'Devices',  # 'Devices',
+    31: '',  # '_old_PBX',
+    32: 'Outage',  # 'Outage',
+    396: 'Portal',  # 'Portal',
+    2124: 'Whitelabeling',  # 'Whitelabeling',
+    2125: 'Webapp',  # 'Webapp',
+    2126: 'Infrastructure',  # 'Infrastructure',
+    2127: '',  # 'Lily',
+    2128: 'Porting',  # 'Porting',
+    2129: 'Audio issues',  # 'Audio issues',
+    2130: 'Financial/Billing',  # 'Financial',
+    2141: 'Fraud',  # 'Fraud',
+    2463: 'Number activation',  # 'Number activation',
+    3012: 'Fax',  # 'Fax',
+    3013: 'Portal',  # 'Portal',
+    3014: 'Feature request',  # 'Feature request',
+    3015: 'Wiki',  # 'Wiki',
+    3016: 'Trunk',  # 'Trunk',
+    3017: 'Cloudcti',  # 'Cloudcti',
+    3018: 'Vialer-js',  # 'Vialer-js',
+    3954: 'Provisioning',  # 'Provisioning',
 }

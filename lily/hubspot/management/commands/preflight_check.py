@@ -4,7 +4,9 @@ from django.core.management.base import BaseCommand
 from django.db import connection
 
 from lily.accounts.models import AccountStatus, Account
-from lily.hubspot.mappings import lilyuser_to_owner_mapping, account_status_to_company_type_mapping
+from lily.cases.models import CaseStatus, CaseType
+from lily.hubspot.mappings import lilyuser_to_owner_mapping, account_status_to_company_type_mapping, \
+    case_status_to_ticket_status_mapping, case_type_to_ticket_category_mapping
 from lily.hubspot.utils import get_accounts_without_website, get_contacts_without_email_address
 from lily.tags.models import Tag
 from lily.tenant.middleware import set_current_user
@@ -16,6 +18,8 @@ def run_all_checks(tenant_id):
         # Mappings.
         # check_lilyuser_to_owner_mapping(tenant_id),
         check_account_status_to_company_type_mapping(tenant_id),
+        check_case_status_to_ticket_status_mapping(tenant_id),
+        check_case_type_to_ticket_category_mapping(tenant_id),
 
         # Account checks.
         check_accounts_with_non_unique_websites(tenant_id),
@@ -38,6 +42,32 @@ def check_lilyuser_to_owner_mapping(tenant_id):
 
     if missing_user_mappings:
         print('number of missing user mappings: {}'.format(len(missing_user_mappings)))
+        return False
+
+    return True
+
+
+def check_case_status_to_ticket_status_mapping(tenant_id):
+    statusses = set(CaseStatus.objects.filter(tenant_id=tenant_id).values_list('pk', flat=True))
+    mappings = set(case_status_to_ticket_status_mapping.keys())
+
+    missing_status_mappings = statusses.difference(mappings)
+
+    if missing_status_mappings:
+        print('number of missing case status mappings: {}'.format(len(missing_status_mappings)))
+        return False
+
+    return True
+
+
+def check_case_type_to_ticket_category_mapping(tenant_id):
+    types = set(CaseType.objects.filter(tenant_id=tenant_id).values_list('pk', flat=True))
+    mappings = set(case_type_to_ticket_category_mapping.keys())
+
+    missing_type_mappings = types.difference(mappings)
+
+    if missing_type_mappings:
+        print('number of missing case type mappings: {}'.format(len(missing_type_mappings)))
         return False
 
     return True

@@ -80,6 +80,7 @@ class Command(BaseCommand):
                     'account_id': _s(case.account_id or ''),
                     'contact_id': _s(case.contact_id or ''),
 
+                    'create_date': _s(case.created.strftime("%d/%m/%Y")),  # Tickets support native create date import.
                     'lily_created': _s(case.created.strftime("%d %b %Y - %H:%M:%S")),
                     'lily_modified': _s(case.modified.strftime("%d %b %Y - %H:%M:%S")),
                 }

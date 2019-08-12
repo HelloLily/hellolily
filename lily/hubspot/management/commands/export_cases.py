@@ -27,6 +27,7 @@ field_names = (
     'account_id',
     'contact_id',
 
+    'create_date',
     'lily_created',
     'lily_modified',
 )

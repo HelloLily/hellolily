@@ -32,8 +32,8 @@ class Command(BaseCommand):
 
         # self.export_account_notes(tenant_id)
         # self.export_contact_notes(tenant_id)
-        self.export_case_notes(tenant_id)
-        # self.export_deal_notes(tenant_id)
+        # self.export_case_notes(tenant_id)
+        self.export_deal_notes(tenant_id)
 
         self.stdout.write(self.style.SUCCESS('>>') + '  Successfully exported notes. \n\n')
 

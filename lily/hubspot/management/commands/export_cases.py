@@ -5,7 +5,9 @@ from django.core.files.storage import default_storage
 from django.core.management.base import BaseCommand
 from django.core.paginator import Paginator
 
+from lily.accounts.models import Account
 from lily.cases.models import Case
+from lily.contacts.models import Contact
 from lily.hubspot.mappings import lilyuser_to_owner_mapping, case_status_to_ticket_status_mapping, \
     case_type_to_ticket_category_mapping, case_priority_to_ticket_priority_mapping
 from lily.hubspot.prefetch_objects import tags_prefetch
@@ -54,6 +56,10 @@ class Command(BaseCommand):
         ).order_by('pk')
         paginator = Paginator(case_qs, 100)
 
+        # Prevent mention of deleted accounts/contacts, also prevent None values.
+        deleted_accounts = [None, ] + list(Account.objects.filter(is_deleted=True).values_list('id', flat=True))
+        deleted_contacts = [None, ] + list(Contact.objects.filter(is_deleted=True).values_list('id', flat=True))
+
         self.stdout.write('    Page: 0 / {}    ({} items)'.format(paginator.num_pages, paginator.count))
         for page_number in paginator.page_range:
             case_list = paginator.page(page_number).object_list
@@ -78,8 +84,8 @@ class Command(BaseCommand):
                     'owner': _s(lilyuser_to_owner_mapping.get(case.assigned_to_id, '')),
                     'pipeline': pipeline,
 
-                    'account_id': _s(case.account_id or ''),
-                    'contact_id': _s(case.contact_id or ''),
+                    'account_id': _s(case.account_id if case.account_id not in deleted_accounts else ''),
+                    'contact_id': _s(case.contact_id if case.contact_id not in deleted_contacts else ''),
 
                     'create_date': _s(case.created.strftime("%d/%m/%Y")),  # Tickets support native create date import.
                     'lily_created': _s(case.created.strftime("%d %b %Y - %H:%M:%S")),

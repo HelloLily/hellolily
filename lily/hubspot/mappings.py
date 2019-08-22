@@ -139,3 +139,61 @@ case_type_to_ticket_category_mapping = {
     3018: 'Vialer-js',  # 'Vialer-js',
     3954: 'Provisioning',  # 'Provisioning',
 }
+
+############################################################################
+# DEAL MAPPINGS
+############################################################################
+deal_status_to_status_mapping = {  # TODO: only use won and lost
+    7: '',  # Open
+    8: '',  # Proposal sent
+    9: 'Closed Won',  # Won
+    10: 'Closed Lost',  # Lost
+    11: '',  # Called
+    12: '',  # Emailed
+}
+
+deal_found_through_to_found_us_through_mapping = {
+    9: 'Search engine',  # Search engine
+    10: 'Social Media',  # Social media
+    11: 'Talk with employee',  # Talk with employee
+    12: 'Existing customer/partner',  # Existing customer
+    13: 'Other',  # Other
+    14: 'Radio',  # Radio
+    15: 'Public speaking',  # Public speaking
+    16: 'Press and articles',  # Press and articles
+    7072: 'Online advertising',  # Online advertising (search)
+    7073: 'Event',  # Event
+    7787: 'Online advertising',  # Online advertising (social)
+}
+
+deal_contacted_by_to_lead_source_mapping = {
+    8: 'Quote',  # Quote
+    9: 'Contact form',  # Contact form
+    10: 'Phone',  # Phone
+    11: 'Web chat',  # Webchat
+    12: 'Mail',  # E-mail
+    13: 'Other',  # Instant connect
+    14: 'Other',  # Other
+    544: 'Demo request online',  # Demo form
+}
+
+deal_why_customer_to_won_reason_mapping = {
+    18: 'Dissatisfied with the current supplier',  # Dissatisfied with the current supplier
+    20: 'Starting a new company',  # Starting a new company
+    23: 'Other',  # Other
+    24: 'Unknown',  # Unknown
+    3536: 'Expansion portfolio with VoIP services',  # Expansion portfolio with VoIP services
+    3537: 'Serving a new target group',  # Serving a new target group
+}
+
+deal_why_lost_to_lost_reason_mapping = {
+    18: 'Other',  # Other
+    467: 'Pricing products',  # Price
+    468: 'Functionalities platform',  # Functionality
+    469: 'Unreachable',  # Unreachable
+    470: 'Unfit as partner',  # Unfit as partner
+    5120: 'Unfit as partner',  # Reseller
+    5121: 'Spam / fake',  # Fake/spam
+    5122: 'No priority',  # No priority by lead
+    5123: 'End-User',  # End-user
+}

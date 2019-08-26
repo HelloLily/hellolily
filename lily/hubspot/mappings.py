@@ -192,8 +192,8 @@ deal_why_lost_to_lost_reason_mapping = {
     468: 'Functionalities platform',  # Functionality
     469: 'Unreachable',  # Unreachable
     470: 'Unfit as partner',  # Unfit as partner
-    5120: 'Unfit as partner',  # Reseller
+    5120: 'More suitable as (Voys) reseller',  # Reseller
     5121: 'Spam / fake',  # Fake/spam
     5122: 'No priority',  # No priority by lead
-    5123: 'End-User',  # End-user
+    5123: 'End customer',  # End-user
 }

@@ -13,7 +13,6 @@ from lily.socialmedia.models import SocialMedia
 from lily.tenant.middleware import set_current_user
 from lily.tenant.models import Tenant
 from lily.users.models import LilyUser
-from lily.utils.models.models import PhoneNumber
 
 
 field_names = (

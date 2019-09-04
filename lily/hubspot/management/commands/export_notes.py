@@ -14,6 +14,7 @@ from lily.notes.models import Note
 from lily.tenant.middleware import set_current_user
 from lily.users.models import LilyUser
 
+
 field_names = (
     'content',
     'author',
@@ -30,9 +31,9 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS('>>') + '  Starting with notes export. \n\n')
         set_current_user(LilyUser.objects.filter(tenant_id=tenant_id, is_active=True).first())
 
-        # self.export_account_notes(tenant_id)
-        # self.export_contact_notes(tenant_id)
-        # self.export_case_notes(tenant_id)
+        self.export_account_notes(tenant_id)
+        self.export_contact_notes(tenant_id)
+        self.export_case_notes(tenant_id)
         self.export_deal_notes(tenant_id)
 
         self.stdout.write(self.style.SUCCESS('>>') + '  Successfully exported notes. \n\n')

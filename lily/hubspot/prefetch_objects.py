@@ -1,6 +1,7 @@
 from django.db.models import Prefetch, Case, When, Value, IntegerField, Q
 
 from lily.accounts.models import Website, Account
+from lily.integrations.models import Document
 from lily.notes.models import Note
 from lily.socialmedia.models import SocialMedia
 from lily.tags.models import Tag
@@ -69,4 +70,10 @@ twitter_prefetch = Prefetch(
     lookup='social_media',
     queryset=SocialMedia.objects.filter(name='twitter'),
     to_attr='prefetched_twitters'
+)
+
+document_prefetch = Prefetch(
+    lookup='document_set',
+    queryset=Document.objects.all(),
+    to_attr='prefetched_documents'
 )

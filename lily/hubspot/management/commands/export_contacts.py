@@ -7,13 +7,11 @@ from django.core.paginator import Paginator
 
 from lily.contacts.models import Contact
 from lily.hubspot.mappings import contact_status_to_contact_status_mapping
-from lily.hubspot.prefetch_objects import (
-    addresses_prefetch, phone_prefetch, accounts_prefetch, twitter_prefetch, email_addresses_prefetch
-)
+from lily.hubspot.prefetch_objects import phone_prefetch, accounts_prefetch, twitter_prefetch, email_addresses_prefetch
 from lily.socialmedia.models import SocialMedia
 from lily.tenant.middleware import set_current_user
 from lily.users.models import LilyUser
-from lily.utils.models.models import Address, EmailAddress, PhoneNumber
+from lily.utils.models.models import EmailAddress, PhoneNumber
 
 
 def _s(value):
@@ -22,6 +20,8 @@ def _s(value):
 
 field_names = (
     'contact_id',
+    'account_id',
+
     'first_name',
     'last_name',
     'gender',
@@ -31,18 +31,10 @@ field_names = (
     'mobile_phone',
     'email',
 
-    'street',
-    'city',
-    'state',
-    'zip',
-    'country',
-
     'twitterhandle',
 
     'lily_created',
     'lily_modified',
-
-    'account_id',
 )
 
 
@@ -62,7 +54,6 @@ class Command(BaseCommand):
             is_deleted=False
         ).prefetch_related(
             accounts_prefetch,
-            addresses_prefetch,
             twitter_prefetch,
             phone_prefetch,
             email_addresses_prefetch
@@ -76,7 +67,6 @@ class Command(BaseCommand):
             self.stdout.write('    Page: {} / {}'.format(page_number, paginator.num_pages))
             for contact in contact_list:
                 account_id = contact.prefetched_accounts[0].pk if contact.prefetched_accounts else ''
-                address = contact.prefetched_addresses[0] if contact.prefetched_addresses else Address()
                 twitter = contact.prefetched_twitters[0] if contact.prefetched_twitters else SocialMedia()
                 phone_numbers = {pn.type: pn for pn in contact.prefetched_phone_numbers}
                 emails = contact.prefetched_email_addresses
@@ -98,24 +88,21 @@ class Command(BaseCommand):
 
                 data = {
                     'contact_id': _s(contact.pk),
+                    'account_id': _s(account_id),
+
                     'first_name': _s(contact.first_name),
                     'last_name': _s(contact.last_name),
                     'gender': _s(contact.get_gender_display()),
                     'status': _s(contact_status_to_contact_status_mapping[contact.status]),
+
                     'phone': _s(phone_numbers.get('work', PhoneNumber()).number),
                     'mobile_phone': _s(phone_numbers.get('mobile', PhoneNumber()).number),
                     'email': _s(primary_email.email_address),
-                    'street': _s(address.address),
-                    'city': _s(address.city),
-                    'state': _s(address.state_province),
-                    'zip': _s(address.postal_code),
-                    'country': _s(address.country),
+
                     'twitterhandle': _s(twitter.username or ''),
 
                     'lily_created': _s(contact.created.strftime("%d %b %Y - %H:%M:%S")),
                     'lily_modified': _s(contact.modified.strftime("%d %b %Y - %H:%M:%S")),
-
-                    'account_id': _s(account_id),
                 }
                 writer.writerow(data)
 

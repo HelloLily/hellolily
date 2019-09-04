@@ -18,9 +18,9 @@ class Command(BaseCommand):
             self.stderr.write('Cannot export, checks failed.')
             sys.exit(1)
 
-        # call_command('export_accounts', tenant_id)
-        # call_command('export_contacts', tenant_id)
-        # call_command('export_cases', tenant_id)
+        call_command('export_accounts', tenant_id)
+        call_command('export_contacts', tenant_id)
+        call_command('export_cases', tenant_id)
         call_command('export_deals', tenant_id)
         call_command('export_notes', tenant_id)
 

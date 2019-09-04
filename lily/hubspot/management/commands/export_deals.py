@@ -8,10 +8,11 @@ from django.core.paginator import Paginator
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
 from lily.deals.models import Deal
-from lily.hubspot.mappings import lilyuser_to_owner_mapping, deal_status_to_status_mapping, \
-    deal_found_through_to_found_us_through_mapping, deal_contacted_by_to_lead_source_mapping, \
-    deal_why_customer_to_won_reason_mapping, deal_why_lost_to_lost_reason_mapping
-from lily.hubspot.prefetch_objects import tags_prefetch
+from lily.hubspot.mappings import lilyuser_to_owner_mapping, deal_status_to_stage_mapping, \
+    deal_found_through_to_found_us_through_mapping, deal_contacted_by_to_contact_method_mapping, \
+    deal_why_customer_to_won_reason_mapping, deal_why_lost_to_lost_reason_mapping, deal_pipeline, \
+    deal_next_step_to_stage_mapping
+from lily.hubspot.prefetch_objects import document_prefetch
 from lily.hubspot.utils import _s
 from lily.tenant.middleware import set_current_user
 from lily.users.models import LilyUser
@@ -19,35 +20,25 @@ from lily.users.models import LilyUser
 
 field_names = (
     'deal_id',
-    'name',
-    'description',
-    'amount',  # 'amount_once',
-    'close_date',
-    # 'next_step_date',  # Only archived deals to hubspot, so never a next step date.
-
-    # Voys only fields
-    # 'new_business',
-    # 'is_checked',
-    # 'twitter_checked',
-    # 'card_sent',
-
-    'owner',  # assigned_to
-
-    'pipeline',  # This field is mandatory for hubspot and determines which statusses are available.
-    'status',
-
-    # 'original_source_type',  # 'found_through',  # This one for voys.
-    'found_us_through',  # 'found_through',
-    'lead_source',  # 'contacted_by',
-    # 'next_step',
-    'closed_won_reason',  # 'why_customer',
-    'closed_lost_reason',  # 'why_lost',
-
     'account_id',
     'contact_id',
 
-    # 'tags',
-    # 'pandadoc_urls',
+    'name',
+    'description',
+    'amount',  # 'amount_recurring',
+    'close_date',
+
+    'owner',  # assigned_to
+
+    'pipeline',  # This field is mandatory for hubspot and determines which stages are available.
+    'stage',
+
+    'found_us_through',  # 'found_through',
+    'contact_method',  # 'contacted_by',
+    'closed_won_reason',  # 'why_customer',
+    'closed_lost_reason',  # 'why_lost',
+
+    'pandadoc_urls',
 
     'lily_created',
     'lily_modified',
@@ -71,7 +62,7 @@ class Command(BaseCommand):
         deal_qs = Deal.objects.filter(
             is_deleted=False
         ).prefetch_related(
-            tags_prefetch
+            document_prefetch
         ).order_by('pk')
         paginator = Paginator(deal_qs, 100)
 
@@ -79,28 +70,45 @@ class Command(BaseCommand):
         deleted_accounts = [None, ] + list(Account.objects.filter(is_deleted=True).values_list('id', flat=True))
         deleted_contacts = [None, ] + list(Contact.objects.filter(is_deleted=True).values_list('id', flat=True))
 
+        pandadoc_url_base = 'https://app.pandadoc.com/a/#/documents/{}'
+
         self.stdout.write('    Page: 0 / {}    ({} items)'.format(paginator.num_pages, paginator.count))
         for page_number in paginator.page_range:
             deal_list = paginator.page(page_number).object_list
 
             self.stdout.write('    Page: {} / {}'.format(page_number, paginator.num_pages))
             for deal in deal_list:
+                if deal.next_step_id == 24:  # Next step = None
+                    stage = deal_status_to_stage_mapping.get(deal.status_id)
+                else:
+                    stage = deal_next_step_to_stage_mapping.get(deal.next_step_id)
+
+                pandadoc_urls = ''
+                for doc in deal.prefetched_documents:
+                    pandadoc_urls += pandadoc_url_base.format(doc.document_id)
+                    pandadoc_urls += '\n'
+
                 data = {
                     'deal_id': _s(deal.pk),
+                    'account_id': _s(deal.account_id if deal.account_id not in deleted_accounts else ''),
+                    'contact_id': _s(deal.contact_id if deal.contact_id not in deleted_contacts else ''),
+
                     'name': _s(deal.name),
                     'description': _s(deal.description),
-                    'amount': _s(deal.amount_once),
+                    'amount': _s(deal.amount_recurring),
                     'close_date': _s(deal.closed_date.strftime("%d/%m/%Y") if deal.closed_date else ''),
+
                     'owner': _s(lilyuser_to_owner_mapping.get(deal.assigned_to_id, '')),
-                    'pipeline': _s('New partners pipeline'),
-                    'status': _s(deal_status_to_status_mapping.get(deal.status_id)),
+
+                    'pipeline': _s(deal_pipeline),
+                    'stage': _s(stage),
+
                     'found_us_through': _s(deal_found_through_to_found_us_through_mapping.get(deal.found_through_id)),
-                    'lead_source': _s(deal_contacted_by_to_lead_source_mapping.get(deal.contacted_by_id)),
+                    'contact_method': _s(deal_contacted_by_to_contact_method_mapping.get(deal.contacted_by_id, '')),
                     'closed_won_reason': _s(deal_why_customer_to_won_reason_mapping.get(deal.why_customer_id, '')),
                     'closed_lost_reason': _s(deal_why_lost_to_lost_reason_mapping.get(deal.why_lost_id, '')),
 
-                    'account_id': _s(deal.account_id if deal.account_id not in deleted_accounts else ''),
-                    'contact_id': _s(deal.contact_id if deal.contact_id not in deleted_contacts else ''),
+                    'pandadoc_urls': _s(pandadoc_urls),
 
                     'lily_created': _s(deal.created.strftime("%d %b %Y - %H:%M:%S")),
                     'lily_modified': _s(deal.modified.strftime("%d %b %Y - %H:%M:%S")),

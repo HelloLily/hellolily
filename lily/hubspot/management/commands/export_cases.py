@@ -8,8 +8,8 @@ from django.core.paginator import Paginator
 from lily.accounts.models import Account
 from lily.cases.models import Case
 from lily.contacts.models import Contact
-from lily.hubspot.mappings import lilyuser_to_owner_mapping, case_status_to_ticket_status_mapping, \
-    case_type_to_ticket_category_mapping, case_priority_to_ticket_priority_mapping
+from lily.hubspot.mappings import lilyuser_to_owner_mapping, case_type_to_ticket_category_mapping, \
+    case_priority_to_ticket_priority_mapping, case_pipeline, case_status_to_ticket_stage_mapping
 from lily.hubspot.prefetch_objects import tags_prefetch
 from lily.hubspot.utils import _s
 from lily.tenant.middleware import set_current_user
@@ -18,16 +18,17 @@ from lily.users.models import LilyUser
 
 field_names = (
     'case_id',
+    'account_id',
+    'contact_id',
+
     'priority',
     'subject',
     'description',
-    'status',
-    'category',  # 'type',  # TODO: map type to category
-    'owner',  # assigned_to
-    'pipeline',  # TODO: which pipeline? -> level support 1
+    'category',
+    'owner',
 
-    'account_id',
-    'contact_id',
+    'pipeline',
+    'stage',
 
     'create_date',
     'lily_created',
@@ -67,25 +68,19 @@ class Command(BaseCommand):
             self.stdout.write('    Page: {} / {}'.format(page_number, paginator.num_pages))
             for case in case_list:
 
-                if case.is_archived:
-                    pipeline = 'Support archived'
-                    status = 'Support archived'
-                else:
-                    pipeline = 'Level 1 support'
-                    status = case_status_to_ticket_status_mapping.get(case.status_id)
-
                 data = {
                     'case_id': _s(case.pk),
+                    'account_id': _s(case.account_id if case.account_id not in deleted_accounts else ''),
+                    'contact_id': _s(case.contact_id if case.contact_id not in deleted_contacts else ''),
+
                     'priority': _s(case_priority_to_ticket_priority_mapping.get(case.priority)),
                     'subject': _s(case.subject),
                     'description': _s(case.description),
-                    'status': _s(status),
                     'category': _s(case_type_to_ticket_category_mapping.get(case.type_id)),
                     'owner': _s(lilyuser_to_owner_mapping.get(case.assigned_to_id, '')),
-                    'pipeline': pipeline,
 
-                    'account_id': _s(case.account_id if case.account_id not in deleted_accounts else ''),
-                    'contact_id': _s(case.contact_id if case.contact_id not in deleted_contacts else ''),
+                    'pipeline': _s(case_pipeline),
+                    'stage': _s(case_status_to_ticket_stage_mapping.get(case.status_id, '')),
 
                     'create_date': _s(case.created.strftime("%d/%m/%Y")),  # Tickets support native create date import.
                     'lily_created': _s(case.created.strftime("%d %b %Y - %H:%M:%S")),

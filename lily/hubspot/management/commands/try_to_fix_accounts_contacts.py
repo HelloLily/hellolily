@@ -35,7 +35,6 @@ class Command(BaseCommand):
         self.fix_accounts(tenant_id)
         self.fix_contacts(tenant_id)
         self.put_accounts_emails_in_contacts()
-        self.delete_accounts_with_cold_email_tag()
 
         self.stdout.write(self.style.SUCCESS('>>') + '  Successfully fixed. \n\n')
 
@@ -108,7 +107,8 @@ class Command(BaseCommand):
                         contact.full_name.replace(' ', '.').lower(),
                         _strip_website(website.website)
                     ).replace(' ', '')
-                else:
+
+                if not new_email or EmailAddress.objects.filter(email_address=new_email).exists():
                     new_email = u'contact-{}@data-from-import.nl'.format(contact.pk)
 
                 email_address = EmailAddress.objects.create(
@@ -157,22 +157,3 @@ class Command(BaseCommand):
                         account=account,
                         contact=contact
                     )
-
-    def delete_accounts_with_cold_email_tag(self):
-        self.stdout.write(u'Deleting accounts with cold email tags:')
-
-        account_content_type = Account().content_type
-        account_ids = Tag.objects.filter(
-            name='cold email',
-            content_type=account_content_type
-        ).values_list('object_id', flat=True)
-        account_list = Account.objects.filter(id__in=account_ids, is_deleted=False)
-
-        paginator = Paginator(account_list, 100)
-        self.stdout.write(u'    Page: 0 / {}    ({} items)'.format(paginator.num_pages, paginator.count))
-        for page_number in paginator.page_range:
-            object_list = paginator.page(page_number).object_list
-
-            self.stdout.write(u'    Page: {} / {}'.format(page_number, paginator.num_pages))
-            for account in object_list:
-                account.delete()

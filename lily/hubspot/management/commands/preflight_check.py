@@ -5,6 +5,7 @@ from django.db import connection
 
 from lily.accounts.models import AccountStatus, Account
 from lily.cases.models import CaseStatus, CaseType
+from lily.contacts.models import Contact
 from lily.hubspot.mappings import lilyuser_to_owner_mapping, account_status_to_company_type_mapping, \
     case_status_to_ticket_status_mapping, case_type_to_ticket_category_mapping
 from lily.hubspot.utils import get_accounts_without_website, get_contacts_without_email_address
@@ -16,7 +17,7 @@ from lily.users.models import LilyUser
 def run_all_checks(tenant_id):
     all_checks = (
         # Mappings.
-        # check_lilyuser_to_owner_mapping(tenant_id),
+        check_lilyuser_to_owner_mapping(tenant_id),
         check_account_status_to_company_type_mapping(tenant_id),
         check_case_status_to_ticket_status_mapping(tenant_id),
         check_case_type_to_ticket_category_mapping(tenant_id),

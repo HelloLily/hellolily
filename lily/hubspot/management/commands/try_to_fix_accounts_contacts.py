@@ -8,7 +8,6 @@ from lily.accounts.models import Website, Account
 from lily.contacts.models import Contact, Function
 from lily.hubspot.prefetch_objects import accounts_prefetch, email_addresses_prefetch
 from lily.hubspot.utils import get_accounts_without_website, get_contacts_without_email_address, _strip_website
-from lily.tags.models import Tag
 from lily.tenant.middleware import set_current_user
 from lily.users.models import LilyUser
 from lily.utils.functions import clean_website

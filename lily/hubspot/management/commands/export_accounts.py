@@ -7,10 +7,11 @@ from django.core.paginator import Paginator
 
 from lily.accounts.models import Account, Website
 from lily.hubspot.mappings import lilyuser_to_owner_mapping, account_status_to_company_type_mapping
-from lily.hubspot.prefetch_objects import website_prefetch, phone_prefetch, social_media_prefetch
-from lily.hubspot.utils import _s, _strip_website
+from lily.hubspot.prefetch_objects import website_prefetch, phone_prefetch, social_media_prefetch, addresses_prefetch
+from lily.hubspot.utils import _s, _strip_website, get_phone_numbers
 from lily.socialmedia.models import SocialMedia
 from lily.tenant.middleware import set_current_user
+from lily.tenant.models import Tenant
 from lily.users.models import LilyUser
 from lily.utils.models.models import PhoneNumber
 
@@ -45,6 +46,7 @@ class Command(BaseCommand):
     def handle(self, tenant_id, *args, **options):
         self.stdout.write(self.style.SUCCESS('>>') + '  Starting with accounts export')
         set_current_user(LilyUser.objects.filter(tenant_id=tenant_id, is_active=True).first())
+        tenant = Tenant.objects.get(id=tenant_id)
 
         csvfile = StringIO.StringIO()
         writer = csv.DictWriter(csvfile, fieldnames=field_names)
@@ -55,6 +57,7 @@ class Command(BaseCommand):
         ).prefetch_related(
             website_prefetch,
             phone_prefetch,
+            addresses_prefetch,
             social_media_prefetch
         ).order_by('pk')
         paginator = Paginator(account_qs, 100)
@@ -66,7 +69,7 @@ class Command(BaseCommand):
             self.stdout.write('    Page: {} / {}'.format(page_number, paginator.num_pages))
             for account in account_list:
                 website = account.prefetched_websites[0] if account.prefetched_websites else Website()
-                phone = account.prefetched_phone_numbers[0] if account.prefetched_phone_numbers else PhoneNumber()
+                phone_numbers = get_phone_numbers(account, tenant)
                 social_media = {social.name: social for social in account.prefetched_social_media}
 
                 f_url = 'https://freedom.voys.nl/client/{}'.format(account.customer_id) if account.customer_id else ''
@@ -78,7 +81,8 @@ class Command(BaseCommand):
                     'domain': _s(_strip_website(website.website)),
                     'owner': _s(lilyuser_to_owner_mapping.get(account.assigned_to_id, '')),
                     'type': _s(account_status_to_company_type_mapping[account.status_id]),
-                    'phone': _s(phone.number),
+
+                    'phone': _s(phone_numbers.get('phone') or phone_numbers.get('mobile')),
 
                     'twitterhandle': _s(social_media.get('twitter', SocialMedia()).username or ''),
                     'linkedin_company_page': _s(social_media.get('linkedin', SocialMedia()).profile_url or ''),

@@ -7,9 +7,12 @@ from django.core.paginator import Paginator
 
 from lily.contacts.models import Contact
 from lily.hubspot.mappings import contact_status_to_contact_status_mapping
-from lily.hubspot.prefetch_objects import phone_prefetch, accounts_prefetch, twitter_prefetch, email_addresses_prefetch
+from lily.hubspot.prefetch_objects import phone_prefetch, accounts_prefetch, twitter_prefetch, \
+    email_addresses_prefetch, addresses_prefetch
+from lily.hubspot.utils import get_phone_numbers
 from lily.socialmedia.models import SocialMedia
 from lily.tenant.middleware import set_current_user
+from lily.tenant.models import Tenant
 from lily.users.models import LilyUser
 from lily.utils.models.models import EmailAddress, PhoneNumber
 
@@ -45,6 +48,7 @@ class Command(BaseCommand):
     def handle(self, tenant_id, *args, **options):
         self.stdout.write(self.style.SUCCESS('>>') + '  Starting with contacts export')
         set_current_user(LilyUser.objects.filter(tenant_id=tenant_id, is_active=True).first())
+        tenant = Tenant.objects.get(id=tenant_id)
 
         csvfile = StringIO.StringIO()
         writer = csv.DictWriter(csvfile, fieldnames=field_names)
@@ -56,6 +60,7 @@ class Command(BaseCommand):
             accounts_prefetch,
             twitter_prefetch,
             phone_prefetch,
+            addresses_prefetch,
             email_addresses_prefetch
         ).order_by('pk')
         paginator = Paginator(contact_qs, 100)
@@ -68,8 +73,8 @@ class Command(BaseCommand):
             for contact in contact_list:
                 account_id = contact.prefetched_accounts[0].pk if contact.prefetched_accounts else ''
                 twitter = contact.prefetched_twitters[0] if contact.prefetched_twitters else SocialMedia()
-                phone_numbers = {pn.type: pn for pn in contact.prefetched_phone_numbers}
                 emails = contact.prefetched_email_addresses
+                phone_numbers = get_phone_numbers(contact, tenant)
 
                 if emails:
                     primary_email = emails[0]
@@ -95,8 +100,8 @@ class Command(BaseCommand):
                     'gender': _s(contact.get_gender_display()),
                     'status': _s(contact_status_to_contact_status_mapping[contact.status]),
 
-                    'phone': _s(phone_numbers.get('work', PhoneNumber()).number),
-                    'mobile_phone': _s(phone_numbers.get('mobile', PhoneNumber()).number),
+                    'phone': _s(phone_numbers.get('phone')),
+                    'mobile_phone': _s(phone_numbers.get('mobile')),
                     'email': _s(primary_email.email_address),
 
                     'twitterhandle': _s(twitter.username or ''),

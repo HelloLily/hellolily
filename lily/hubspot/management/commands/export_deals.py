@@ -33,7 +33,7 @@ field_names = (
     'pipeline',  # This field is mandatory for hubspot and determines which stages are available.
     'stage',
 
-    'found_us_through',  # 'found_through',
+    'found_through',  # 'found_through',
     'contact_method',  # 'contacted_by',
     'closed_won_reason',  # 'why_customer',
     'closed_lost_reason',  # 'why_lost',
@@ -103,7 +103,7 @@ class Command(BaseCommand):
                     'pipeline': _s(deal_pipeline),
                     'stage': _s(stage),
 
-                    'found_us_through': _s(deal_found_through_to_found_us_through_mapping.get(deal.found_through_id)),
+                    'found_through': _s(deal_found_through_to_found_us_through_mapping.get(deal.found_through_id, '')),
                     'contact_method': _s(deal_contacted_by_to_contact_method_mapping.get(deal.contacted_by_id, '')),
                     'closed_won_reason': _s(deal_why_customer_to_won_reason_mapping.get(deal.why_customer_id, '')),
                     'closed_lost_reason': _s(deal_why_lost_to_lost_reason_mapping.get(deal.why_lost_id, '')),

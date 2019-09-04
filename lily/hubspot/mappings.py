@@ -104,7 +104,7 @@ deal_next_step_to_stage_mapping = {
     386: 'Porting',  # Port approval received?
     387: 'Porting',  # Port activation
     402: 'Won',  # Courtesy call
-    2486: 'Proposal signed - Waiting for documents',  # Request documents
+    2489: 'Proposal signed - Waiting for documents',  # Request documents
 }
 
 deal_found_through_to_found_us_through_mapping = {

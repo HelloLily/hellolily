@@ -70,7 +70,7 @@ class Command(BaseCommand):
                         if website:
                             break
 
-                if not website or Website.objects.filter(website=clean_website(website), account=account).exists():
+                if not website or Website.objects.filter(website=clean_website(website)).exists():
                     website = 'account-{}-from-import.nl'.format(account.pk)
 
                 account.websites.add(Website.objects.create(

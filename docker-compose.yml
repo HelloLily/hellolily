@@ -65,8 +65,6 @@ services:
       - DATABASE_URL=postgres://hellolily:@db/hellolily
       - MULTI_TENANT=1
       - TLDEXTRACT_CACHE=./.tld_set
-      - DISABLE_DATADOG_AGENT=true
-      - DATADOG_TRACE_ENABLED=false
     volumes:
       - .:/home/docker/hellolily
     cap_drop:

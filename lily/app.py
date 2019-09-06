@@ -6,11 +6,6 @@ from django.apps import AppConfig
 from django.conf import settings
 from django.forms.forms import BaseForm
 
-from ddtrace.contrib.boto.patch import patch as patch_boto
-# from ddtrace.contrib.elasticsearch.patch import patch as patch_elasticsearch
-from ddtrace.contrib.redis.patch import patch as patch_redis
-from ddtrace.contrib.requests.patch import patch as patch_requests
-
 from lily.search.scan_search import ModelMappings
 from lily.utils.functions import autostrip
 
@@ -36,13 +31,6 @@ class LilyConfig(AppConfig):
         # Setup Segment.
         analytics.write_key = settings.SEGMENT_PYTHON_SOURCE_WRITE_KEY
         analytics.debug = settings.DEBUG
-
-        # Setup DataDog.
-        if settings.DATADOG_ENABLED:
-            patch_boto()
-            # patch_elasticsearch() Temporarily disabled for old ES
-            patch_redis()
-            patch_requests()
 
     def patch_forms(self, local_apps):
         """

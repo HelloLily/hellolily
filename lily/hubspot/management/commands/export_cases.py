@@ -30,6 +30,8 @@ field_names = (
     'pipeline',
     'stage',
 
+    'tags',
+
     'create_date',
     'lily_created',
     'lily_modified',
@@ -81,6 +83,8 @@ class Command(BaseCommand):
 
                     'pipeline': _s(case_pipeline),
                     'stage': _s(case_status_to_ticket_stage_mapping.get(case.status_id, '')),
+
+                    'tags': _s(','.join([tag.name for tag in case.prefetched_tags])),
 
                     'create_date': _s(case.created.strftime("%d/%m/%Y")),  # Tickets support native create date import.
                     'lily_created': _s(case.created.strftime("%d %b %Y - %H:%M:%S")),

@@ -144,7 +144,6 @@ X_FRAME_OPTIONS = os.environ.get('X_FRAME_OPTIONS', 'SAMEORIGIN')
 # A list of strings representing the valid host/domain names.
 ALLOWED_HOSTS = [
     'hellolily.herokuapp.com',
-    'hellolily-staging.herokuapp.com',
     'app.hellolily.com',
     'app.hellolily.nl',
     'beta.hellolily.com',

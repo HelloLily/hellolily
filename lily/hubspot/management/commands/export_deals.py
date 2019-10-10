@@ -8,12 +8,8 @@ from django.core.paginator import Paginator
 from lily.accounts.models import Account
 from lily.contacts.models import Contact
 from lily.deals.models import Deal
-from lily.hubspot.mappings import lilyuser_to_owner_mapping, deal_status_to_stage_mapping, \
-    deal_found_through_to_found_us_through_mapping, deal_contacted_by_to_contact_method_mapping, \
-    deal_why_customer_to_won_reason_mapping, deal_why_lost_to_lost_reason_mapping, deal_pipeline, \
-    deal_next_step_to_stage_mapping
 from lily.hubspot.prefetch_objects import document_prefetch
-from lily.hubspot.utils import _s
+from lily.hubspot.utils import _s, get_mappings
 from lily.tenant.middleware import set_current_user
 from lily.users.models import LilyUser
 
@@ -54,6 +50,7 @@ class Command(BaseCommand):
     def handle(self, tenant_id, *args, **options):
         self.stdout.write(self.style.SUCCESS('>>') + '  Starting with deals export')
         set_current_user(LilyUser.objects.filter(tenant_id=tenant_id, is_active=True).first())
+        m = get_mappings(tenant_id)
 
         csvfile = StringIO.StringIO()
         writer = csv.DictWriter(csvfile, fieldnames=field_names)
@@ -79,9 +76,9 @@ class Command(BaseCommand):
             self.stdout.write('    Page: {} / {}'.format(page_number, paginator.num_pages))
             for deal in deal_list:
                 if deal.next_step_id == 24:  # Next step = None
-                    stage = deal_status_to_stage_mapping.get(deal.status_id)
+                    stage = m.deal_status_to_stage_mapping.get(deal.status_id)
                 else:
-                    stage = deal_next_step_to_stage_mapping.get(deal.next_step_id)
+                    stage = m.deal_next_step_to_stage_mapping.get(deal.next_step_id)
 
                 pandadoc_urls = ''
                 for doc in deal.prefetched_documents:
@@ -98,15 +95,15 @@ class Command(BaseCommand):
                     'amount': _s(deal.amount_recurring),
                     'close_date': _s(deal.closed_date.strftime("%d/%m/%Y") if deal.closed_date else ''),
 
-                    'owner': _s(lilyuser_to_owner_mapping.get(deal.assigned_to_id, '')),
+                    'owner': _s(m.lilyuser_to_owner_mapping.get(deal.assigned_to_id, '')),
 
-                    'pipeline': _s(deal_pipeline),
+                    'pipeline': _s(m.deal_pipeline),
                     'stage': _s(stage),
 
-                    'found_through': _s(deal_found_through_to_found_us_through_mapping.get(deal.found_through_id, '')),
-                    'contact_method': _s(deal_contacted_by_to_contact_method_mapping.get(deal.contacted_by_id, '')),
-                    'closed_won_reason': _s(deal_why_customer_to_won_reason_mapping.get(deal.why_customer_id, '')),
-                    'closed_lost_reason': _s(deal_why_lost_to_lost_reason_mapping.get(deal.why_lost_id, '')),
+                    'found_through': _s(m.deal_found_through_to_found_through_mapping.get(deal.found_through_id, '')),
+                    'contact_method': _s(m.deal_contacted_by_to_contact_method_mapping.get(deal.contacted_by_id, '')),
+                    'closed_won_reason': _s(m.deal_why_customer_to_won_reason_mapping.get(deal.why_customer_id, '')),
+                    'closed_lost_reason': _s(m.deal_why_lost_to_lost_reason_mapping.get(deal.why_lost_id, '')),
 
                     'pandadoc_urls': _s(pandadoc_urls),
 

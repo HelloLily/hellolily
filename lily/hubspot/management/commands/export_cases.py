@@ -8,10 +8,8 @@ from django.core.paginator import Paginator
 from lily.accounts.models import Account
 from lily.cases.models import Case
 from lily.contacts.models import Contact
-from lily.hubspot.mappings import lilyuser_to_owner_mapping, case_type_to_ticket_category_mapping, \
-    case_priority_to_ticket_priority_mapping, case_pipeline, case_status_to_ticket_stage_mapping
 from lily.hubspot.prefetch_objects import tags_prefetch
-from lily.hubspot.utils import _s
+from lily.hubspot.utils import _s, get_mappings
 from lily.tenant.middleware import set_current_user
 from lily.users.models import LilyUser
 
@@ -47,6 +45,7 @@ class Command(BaseCommand):
     def handle(self, tenant_id, *args, **options):
         self.stdout.write(self.style.SUCCESS('>>') + '  Starting with cases export')
         set_current_user(LilyUser.objects.filter(tenant_id=tenant_id, is_active=True).first())
+        m = get_mappings(tenant_id)
 
         csvfile = StringIO.StringIO()
         writer = csv.DictWriter(csvfile, fieldnames=field_names)
@@ -75,14 +74,14 @@ class Command(BaseCommand):
                     'account_id': _s(case.account_id if case.account_id not in deleted_accounts else ''),
                     'contact_id': _s(case.contact_id if case.contact_id not in deleted_contacts else ''),
 
-                    'priority': _s(case_priority_to_ticket_priority_mapping.get(case.priority)),
+                    'priority': _s(m.case_priority_to_ticket_priority_mapping.get(case.priority)),
                     'subject': _s(case.subject),
                     'description': _s(case.description),
-                    'category': _s(case_type_to_ticket_category_mapping.get(case.type_id)),
-                    'owner': _s(lilyuser_to_owner_mapping.get(case.assigned_to_id, '')),
+                    'category': _s(m.case_type_to_ticket_category_mapping.get(case.type_id)),
+                    'owner': _s(m.lilyuser_to_owner_mapping.get(case.assigned_to_id, '')),
 
-                    'pipeline': _s(case_pipeline),
-                    'stage': _s(case_status_to_ticket_stage_mapping.get(case.status_id, '')),
+                    'pipeline': _s(m.case_pipeline),
+                    'stage': _s(m.case_status_to_ticket_stage_mapping.get(case.status_id, '')),
 
                     'tags': _s(','.join([tag.name for tag in case.prefetched_tags])),
 

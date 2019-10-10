@@ -1,25 +1,35 @@
 import sys
 
 from django.core.management.base import BaseCommand
-from django.db import connection
 
 from lily.accounts.models import AccountStatus, Account
 from lily.cases.models import CaseStatus, CaseType
-from lily.hubspot.mappings import lilyuser_to_owner_mapping, account_status_to_company_type_mapping, \
-    case_status_to_ticket_stage_mapping, case_type_to_ticket_category_mapping
-from lily.hubspot.utils import get_accounts_without_website, get_contacts_without_email_address
+from lily.hubspot.utils import get_mappings, get_accounts_without_website, get_contacts_without_email_address, \
+    get_accounts_with_non_unique_websites, get_contacts_with_non_unique_email_addresses
 from lily.tags.models import Tag
 from lily.tenant.middleware import set_current_user
 from lily.users.models import LilyUser
 
 
+# number of non unique websites: 244
+# number of accounts without a website: 20521
+# number of non unique email addresses: 2557
+# number of contacts without an email address: 2484
+
+
+# number of non unique websites: d
+# number of accounts without a website: 20521
+# number of contacts without an email address: 4358
+
+
 def run_all_checks(tenant_id):
+    m = get_mappings(tenant_id)
     all_checks = (
         # Mappings.
-        check_lilyuser_to_owner_mapping(tenant_id),
-        check_account_status_to_company_type_mapping(tenant_id),
-        check_case_status_to_ticket_status_mapping(tenant_id),
-        check_case_type_to_ticket_category_mapping(tenant_id),
+        check_lilyuser_to_owner_mapping(tenant_id, m),
+        check_account_status_to_company_type_mapping(tenant_id, m),
+        check_case_status_to_ticket_status_mapping(tenant_id, m),
+        check_case_type_to_ticket_category_mapping(tenant_id, m),
 
         # Account checks.
         check_accounts_with_non_unique_websites(tenant_id),
@@ -34,9 +44,9 @@ def run_all_checks(tenant_id):
     return all(all_checks)
 
 
-def check_lilyuser_to_owner_mapping(tenant_id):
+def check_lilyuser_to_owner_mapping(tenant_id, m):
     users = set(LilyUser.objects.filter(tenant_id=tenant_id, is_active=True).values_list('pk', flat=True))
-    mappings = set(lilyuser_to_owner_mapping.keys())
+    mappings = set(m.lilyuser_to_owner_mapping.keys())
 
     missing_user_mappings = users.difference(mappings)
 
@@ -47,9 +57,9 @@ def check_lilyuser_to_owner_mapping(tenant_id):
     return True
 
 
-def check_case_status_to_ticket_status_mapping(tenant_id):
+def check_case_status_to_ticket_status_mapping(tenant_id, m):
     statusses = set(CaseStatus.objects.filter(tenant_id=tenant_id).values_list('pk', flat=True))
-    mappings = set(case_status_to_ticket_stage_mapping.keys())
+    mappings = set(m.case_status_to_ticket_stage_mapping.keys())
 
     missing_status_mappings = statusses.difference(mappings)
 
@@ -60,9 +70,9 @@ def check_case_status_to_ticket_status_mapping(tenant_id):
     return True
 
 
-def check_case_type_to_ticket_category_mapping(tenant_id):
+def check_case_type_to_ticket_category_mapping(tenant_id, m):
     types = set(CaseType.objects.filter(tenant_id=tenant_id).values_list('pk', flat=True))
-    mappings = set(case_type_to_ticket_category_mapping.keys())
+    mappings = set(m.case_type_to_ticket_category_mapping.keys())
 
     missing_type_mappings = types.difference(mappings)
 
@@ -73,9 +83,9 @@ def check_case_type_to_ticket_category_mapping(tenant_id):
     return True
 
 
-def check_account_status_to_company_type_mapping(tenant_id):
+def check_account_status_to_company_type_mapping(tenant_id, m):
     statuses = set(AccountStatus.objects.filter(tenant_id=tenant_id).values_list('pk', flat=True))
-    mappings = set(account_status_to_company_type_mapping.keys())
+    mappings = set(m.account_status_to_company_type_mapping.keys())
 
     missing_user_mappings = statuses.difference(mappings)
 
@@ -87,26 +97,7 @@ def check_account_status_to_company_type_mapping(tenant_id):
 
 
 def check_accounts_with_non_unique_websites(tenant_id):
-    sql_query = '''
-        SELECT      REGEXP_REPLACE(accounts_website.website, '^https?://(www.)?', '') as "stripped_website",
-                    accounts_website.tenant_id,
-                    COUNT(1) AS "dcount",
-                    ARRAY_AGG(accounts_website.account_id) AS "account ids",
-                    ARRAY_AGG(accounts_website.id) AS "website ids"
-        FROM        accounts_website
-        JOIN        accounts_account
-        ON          accounts_website.account_id = accounts_account.id
-        WHERE       accounts_website.website != 'http://'
-        AND         accounts_website.tenant_id = %s
-        AND         accounts_account.is_deleted = FALSE
-        GROUP BY    accounts_website.tenant_id,
-                    "stripped_website"
-        HAVING      COUNT(accounts_website.website) > 1;
-    '''
-
-    with connection.cursor() as cursor:
-        cursor.execute(sql_query, [tenant_id, ])
-        results = cursor.fetchall()
+    results = get_accounts_with_non_unique_websites(tenant_id)
 
     if results:
         print('number of non unique websites: {}'.format(len(results)))
@@ -143,25 +134,7 @@ def check_accounts_with_cold_email_tag(tenant_id):
 
 
 def check_contacts_with_non_unique_email_addresses(tenant_id):
-    sql_query = '''
-        SELECT      utils_emailaddress.email_address,
-                    COUNT(utils_emailaddress.email_address) AS "dcount",
-                    ARRAY_AGG(contacts_contact_email_addresses.contact_id) AS "contact ids",
-                    ARRAY_AGG(utils_emailaddress.id) AS "email ids"
-        FROM        utils_emailaddress
-        JOIN        contacts_contact_email_addresses
-        ON          contacts_contact_email_addresses.emailaddress_id = utils_emailaddress.id
-        JOIN        contacts_contact
-        ON          contacts_contact_email_addresses.contact_id = contacts_contact.id
-        WHERE       utils_emailaddress.tenant_id = %s AND utils_emailaddress.status != 0
-        AND         contacts_contact.is_deleted = FALSE
-        GROUP BY    utils_emailaddress.tenant_id, utils_emailaddress.email_address
-        HAVING      COUNT(utils_emailaddress.email_address) > 1;
-    '''
-
-    with connection.cursor() as cursor:
-        cursor.execute(sql_query, [tenant_id, ])
-        results = cursor.fetchall()
+    results = get_contacts_with_non_unique_email_addresses(tenant_id)
 
     if results:
         print('number of non unique email addresses: {}'.format(len(results)))

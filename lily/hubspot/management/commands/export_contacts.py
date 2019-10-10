@@ -6,10 +6,9 @@ from django.core.management.base import BaseCommand
 from django.core.paginator import Paginator
 
 from lily.contacts.models import Contact
-from lily.hubspot.mappings import contact_status_to_contact_status_mapping
 from lily.hubspot.prefetch_objects import phone_prefetch, accounts_prefetch, twitter_prefetch, \
     email_addresses_prefetch, addresses_prefetch
-from lily.hubspot.utils import get_phone_numbers
+from lily.hubspot.utils import get_phone_numbers, get_mappings
 from lily.socialmedia.models import SocialMedia
 from lily.tenant.middleware import set_current_user
 from lily.tenant.models import Tenant
@@ -28,6 +27,7 @@ field_names = (
     'first_name',
     'last_name',
     'gender',
+    'description',
     'status',
 
     'phone',
@@ -49,6 +49,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS('>>') + '  Starting with contacts export')
         set_current_user(LilyUser.objects.filter(tenant_id=tenant_id, is_active=True).first())
         tenant = Tenant.objects.get(id=tenant_id)
+        m = get_mappings(tenant_id)
 
         csvfile = StringIO.StringIO()
         writer = csv.DictWriter(csvfile, fieldnames=field_names)
@@ -98,10 +99,10 @@ class Command(BaseCommand):
                     'first_name': _s(contact.first_name),
                     'last_name': _s(contact.last_name),
                     'gender': _s(contact.get_gender_display()),
-                    'status': _s(contact_status_to_contact_status_mapping[contact.status]),
+                    'description': _s(contact.description),
+                    'status': _s(m.contact_status_to_contact_status_mapping[contact.status]),
 
-                    'phone': _s(phone_numbers.get('phone')),
-                    'mobile_phone': _s(phone_numbers.get('mobile')),
+                    'phone': _s(phone_numbers),
                     'email': _s(primary_email.email_address),
 
                     'twitterhandle': _s(twitter.username or ''),

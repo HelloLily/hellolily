@@ -107,7 +107,7 @@ deal_next_step_to_stage_mapping = {
     2489: 'Proposal signed - Waiting for documents',  # Request documents
 }
 
-deal_found_through_to_found_us_through_mapping = {
+deal_found_through_to_found_through_mapping = {
     49: 'Search engine',  # Search engine
     50: 'Social Media',  # Social media
     51: 'Talk with employee',  # Talk with employee

@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Q
+from django.db.models.functions import Lower
 
 from lily.accounts.models import Website, Account
 from lily.contacts.models import Contact, Function
@@ -31,9 +32,9 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS('>>') + '  Starting fixing. \n\n')
         set_current_user(LilyUser.objects.filter(tenant_id=tenant_id, is_active=True).first())
 
-        self.fix_accounts(tenant_id)
-        self.deduplicate_contact_emails(tenant_id)
-        self.fix_contacts(tenant_id)
+        # self.fix_accounts(tenant_id)
+        # self.deduplicate_contact_emails(tenant_id)
+        # self.fix_contacts(tenant_id)
         self.put_accounts_emails_in_contacts()
 
         self.stdout.write(self.style.SUCCESS('>>') + '  Successfully fixed. \n\n')
@@ -133,15 +134,17 @@ class Command(BaseCommand):
     def put_accounts_emails_in_contacts(self):
         self.stdout.write(u'Fixing accounts with email addresses:')
 
-        existing_email_addresses = list(EmailAddress.objects.filter(
+        existing_email_addresses = [email.lower() for email in EmailAddress.objects.filter(
             contact__is_deleted=False
-        ).values_list('email_address', flat=True))
+        ).values_list('email_address', flat=True)]
 
         # Get all active email addresses for accounts, where the email address is not already included in a contact.
-        account_email_addresses = EmailAddress.objects.prefetch_related('account_set').filter(
+        account_email_addresses = EmailAddress.objects.prefetch_related('account_set').annotate(
+            email_lower=Lower('email_address')
+        ).filter(
             account__is_deleted=False,
         ).exclude(
-            Q(status=EmailAddress.INACTIVE_STATUS) | Q(email_address__in=existing_email_addresses)
+            Q(status=EmailAddress.INACTIVE_STATUS) | Q(email_lower__in=existing_email_addresses)
         )
 
         paginator = Paginator(account_email_addresses, 100)

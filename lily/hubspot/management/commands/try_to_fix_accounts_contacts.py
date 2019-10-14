@@ -32,9 +32,9 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS('>>') + '  Starting fixing. \n\n')
         set_current_user(LilyUser.objects.filter(tenant_id=tenant_id, is_active=True).first())
 
-        # self.fix_accounts(tenant_id)
-        # self.deduplicate_contact_emails(tenant_id)
-        # self.fix_contacts(tenant_id)
+        self.fix_accounts(tenant_id)
+        self.deduplicate_contact_emails(tenant_id)
+        self.fix_contacts(tenant_id)
         self.put_accounts_emails_in_contacts()
 
         self.stdout.write(self.style.SUCCESS('>>') + '  Successfully fixed. \n\n')

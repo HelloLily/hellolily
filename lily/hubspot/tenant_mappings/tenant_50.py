@@ -158,7 +158,7 @@ case_priority_to_ticket_priority_mapping = {
     3: 'High',  # Hubspot has no critical prio, so merge it with high.
 }
 
-case_pipeline = 'Support (CH) VoysNL'
+case_pipeline = 'CH Voys EU'
 case_status_to_ticket_stage_mapping = {
     50: 'New',  # 'New'
     52: 'Waiting on customer',  # 'Pending input'
@@ -197,7 +197,7 @@ case_type_to_ticket_category_mapping = {
 ############################################################################
 # DEAL MAPPINGS
 ############################################################################
-deal_pipeline = 'Voys NL'
+deal_pipeline = 'Voys EU'
 deal_status_to_stage_mapping = {
     31: 'New lead - unassigned',  # 'Open'
     32: 'Proposal sent',  # 'Proposal sent'

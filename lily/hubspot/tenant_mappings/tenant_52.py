@@ -92,6 +92,7 @@ deal_status_to_stage_mapping = {
     287: 'Proposal signed - Waiting for documents',  # Documents
 }
 
+deal_next_step_none_id = 24
 deal_next_step_to_stage_mapping = {
     342: 'First contact',  # First contact
     343: 'Proposal sent',  # Follow-up

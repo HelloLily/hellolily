@@ -8,7 +8,7 @@ from django.core.paginator import Paginator
 
 from lily.accounts.models import Account, Website
 from lily.hubspot.prefetch_objects import website_prefetch, phone_prefetch, social_media_prefetch, \
-    addresses_prefetch, tags_prefetch
+    addresses_prefetch, tags_prefetch, pinned_notes_prefetch
 from lily.hubspot.utils import _s, _strip_website, get_mappings, get_phone_numbers
 from lily.socialmedia.models import SocialMedia
 from lily.tenant.middleware import set_current_user
@@ -32,6 +32,8 @@ field_names = (
 
     'freedom_url',
     'entity',
+
+    'pinned_notes',
 
     'lily_created',
     'lily_modified',
@@ -63,9 +65,12 @@ class Command(BaseCommand):
             phone_prefetch,
             addresses_prefetch,
             social_media_prefetch,
+            pinned_notes_prefetch,
             tags_prefetch
         ).order_by('pk')
         paginator = Paginator(account_qs, 100)
+
+        users = {user.id: user.full_name for user in LilyUser.objects.all()}
 
         self.stdout.write('    Page: 0 / {}    ({} items)'.format(paginator.num_pages, paginator.count))
         for page_number in paginator.page_range:
@@ -77,6 +82,16 @@ class Command(BaseCommand):
                 phone_numbers = get_phone_numbers(account, tenant)
                 social_media = {social.name: social for social in account.prefetched_social_media}
                 tags = [tag.name for tag in account.prefetched_tags]
+
+                pinned_notes = ''
+                for note in account.prefetched_pinned_notes:
+                    content = _s(
+                        users.get(note.author_id) + ' created a note on ' + note.created.strftime(
+                            "%d %b %Y - %H:%M"
+                        ) + ':\n\n' + note.content + '\n\n'
+                    )
+
+                    pinned_notes += content
 
                 f_url = 'https://freedom.voys.nl/client/{}'.format(account.customer_id) if account.customer_id else ''
                 data = {
@@ -95,7 +110,9 @@ class Command(BaseCommand):
                     'facebook_company_page': _s(social_media.get('facebook', SocialMedia()).profile_url or ''),
 
                     'freedom_url': _s(f_url),
-                    'entity': _s('c_entity_VoysBE' if 'belgië' in tags else 'c_entity_VoysNL'),
+                    'entity': _s('c_entity_VoysBE' if u'belgië' in tags else 'c_entity_VoysNL'),
+
+                    'pinned_notes': pinned_notes,
 
                     'lily_created': _s(account.created.strftime("%d %b %Y - %H:%M:%S")),
                     'lily_modified': _s(account.modified.strftime("%d %b %Y - %H:%M:%S")),

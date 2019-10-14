@@ -75,7 +75,7 @@ class Command(BaseCommand):
 
             self.stdout.write('    Page: {} / {}'.format(page_number, paginator.num_pages))
             for deal in deal_list:
-                if deal.next_step_id == 24:  # Next step = None
+                if deal.next_step_id == m.deal_next_step_none_id:  # Next step = None
                     stage = m.deal_status_to_stage_mapping.get(deal.status_id)
                 else:
                     stage = m.deal_next_step_to_stage_mapping.get(deal.next_step_id)

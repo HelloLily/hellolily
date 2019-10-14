@@ -199,22 +199,22 @@ case_type_to_ticket_category_mapping = {
 ############################################################################
 deal_pipeline = 'Voys NL'
 deal_status_to_stage_mapping = {
-    31: '',  # 'Open'
-    32: '',  # 'Proposal sent'
-    33: '',  # 'Won'
-    34: '',  # 'Lost'
-    35: '',  # 'Called'
-    36: '',  # 'Emailed'
+    31: 'New lead - unassigned',  # 'Open'
+    32: 'Proposal sent',  # 'Proposal sent'
+    33: 'Done',  # 'Won'
+    34: 'Lost',  # 'Lost'
+    35: 'Contact',  # 'Called'
+    36: 'Request feedback',  # 'Emailed'
 }
 
+deal_next_step_none_id = 4
 deal_next_step_to_stage_mapping = {
-    1: '',  # 'Follow up'
-    2: '',  # 'Activation'
-    3: '',  # 'Feedback request'
-    4: '',  # 'None'
-    5: '',  # 'Contact'
-    385: '',  # 'Viewed'
-    388: '',  # 'Porting'
+    1: 'Follow up',  # 'Follow up'
+    2: 'Activate',  # 'Activation'
+    3: 'Request feedback',  # 'Feedback request'
+    5: 'Contact',  # 'Contact'
+    385: 'Proposal viewed',  # 'Viewed'
+    388: 'Porting',  # 'Porting'
 }
 
 deal_found_through_to_found_through_mapping = {

@@ -98,7 +98,7 @@ class Command(BaseCommand):
 
                     'first_name': _s(contact.first_name),
                     'last_name': _s(contact.last_name),
-                    'gender': _s(contact.get_gender_display()),
+                    'gender': _s(contact.get_gender_display().upper()),
                     'description': _s(contact.description),
                     'status': _s(m.contact_status_to_contact_status_mapping[contact.status]),
 

@@ -44,8 +44,14 @@ social_media_prefetch = Prefetch(
 
 notes_prefetch = Prefetch(
     lookup='notes',
-    queryset=Note.objects.all(),
+    queryset=Note.objects.filter(is_deleted=False),
     to_attr='prefetched_notes'
+)
+
+pinned_notes_prefetch = Prefetch(
+    lookup='notes',
+    queryset=Note.objects.filter(is_deleted=False, is_pinned=True),
+    to_attr='prefetched_pinned_notes'
 )
 
 tags_prefetch = Prefetch(

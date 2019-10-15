@@ -23,6 +23,7 @@ field_names = (
     'description',
     'amount',  # 'amount_recurring',
     'close_date',
+    'type',
 
     'owner',  # assigned_to
 
@@ -94,6 +95,7 @@ class Command(BaseCommand):
                     'description': _s(deal.description),
                     'amount': _s(deal.amount_recurring),
                     'close_date': _s(deal.closed_date.strftime("%d/%m/%Y") if deal.closed_date else ''),
+                    'type': _s('newbusiness' if deal.new_business else 'existingbusiness'),
 
                     'owner': _s(m.lilyuser_to_owner_mapping.get(deal.assigned_to_id, '')),
 

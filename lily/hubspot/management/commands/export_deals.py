@@ -58,11 +58,12 @@ class Command(BaseCommand):
         writer.writeheader()
 
         deal_qs = Deal.objects.filter(
-            is_deleted=False
+            is_deleted=False,
+            is_archived=False,
         ).prefetch_related(
             document_prefetch
         ).order_by('pk')
-        paginator = Paginator(deal_qs, 100)
+        paginator = Paginator(deal_qs, 1000)
 
         # Prevent mention of deleted accounts/contacts, also prevent None values.
         deleted_accounts = [None, ] + list(Account.objects.filter(is_deleted=True).values_list('id', flat=True))

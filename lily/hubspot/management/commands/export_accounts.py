@@ -68,7 +68,7 @@ class Command(BaseCommand):
             pinned_notes_prefetch,
             tags_prefetch
         ).order_by('pk')
-        paginator = Paginator(account_qs, 100)
+        paginator = Paginator(account_qs, 1000)
 
         users = {user.id: user.full_name for user in LilyUser.objects.all()}
 

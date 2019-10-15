@@ -64,7 +64,7 @@ class Command(BaseCommand):
             addresses_prefetch,
             email_addresses_prefetch
         ).order_by('pk')
-        paginator = Paginator(contact_qs, 100)
+        paginator = Paginator(contact_qs, 1000)
 
         self.stdout.write('    Page: 0 / {}    ({} items)'.format(paginator.num_pages, paginator.count))
         for page_number in paginator.page_range:

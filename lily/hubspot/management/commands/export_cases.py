@@ -52,11 +52,12 @@ class Command(BaseCommand):
         writer.writeheader()
 
         case_qs = Case.objects.filter(
-            is_deleted=False
+            is_deleted=False,
+            is_archived=False,
         ).prefetch_related(
             tags_prefetch
         ).order_by('pk')
-        paginator = Paginator(case_qs, 100)
+        paginator = Paginator(case_qs, 1000)
 
         # Prevent mention of deleted accounts/contacts, also prevent None values.
         deleted_accounts = [None, ] + list(Account.objects.filter(is_deleted=True).values_list('id', flat=True))

@@ -53,7 +53,7 @@ class Command(BaseCommand):
 
         case_qs = Case.objects.filter(
             is_deleted=False,
-            is_archived=False,
+            is_archived=True,
         ).prefetch_related(
             tags_prefetch
         ).order_by('pk')

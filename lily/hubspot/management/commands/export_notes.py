@@ -55,14 +55,14 @@ class Command(BaseCommand):
     def export_case_notes(self, tenant_id):
         content_type = Case().content_type
         filename = 'exports/tenant_{}/notes_for_tickets.csv'.format(tenant_id)
-        case_id_list = Case.objects.filter(is_deleted=False, is_archived=False).values_list('id', flat=True)
+        case_id_list = Case.objects.filter(is_deleted=False, is_archived=True).values_list('id', flat=True)
 
         self.export(filename, content_type, case_id_list)
 
     def export_deal_notes(self, tenant_id):
         content_type = Deal().content_type
         filename = 'exports/tenant_{}/notes_for_deals.csv'.format(tenant_id)
-        deal_id_list = Deal.objects.filter(is_deleted=False, is_archived=False).values_list('id', flat=True)
+        deal_id_list = Deal.objects.filter(is_deleted=False, is_archived=True).values_list('id', flat=True)
 
         self.export(filename, content_type, deal_id_list)
 

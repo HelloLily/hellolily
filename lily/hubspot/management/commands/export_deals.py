@@ -59,7 +59,7 @@ class Command(BaseCommand):
 
         deal_qs = Deal.objects.filter(
             is_deleted=False,
-            is_archived=False,
+            is_archived=True,
         ).prefetch_related(
             document_prefetch
         ).order_by('pk')

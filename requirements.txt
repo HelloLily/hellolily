@@ -65,7 +65,7 @@ collectfast==0.5.2
 django-pipeline==1.6.13
 futures==3.1.1
 django-storages==1.6.5
-Pillow==4.2.1
+Pillow==6.2.0
 
 #######################################################
 ### Celery & Email                                  ###

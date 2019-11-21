@@ -4,6 +4,7 @@ from bs4 import UnicodeDammit
 from django.db import connection
 
 from lily.utils.functions import format_phone_number
+from lily.utils.models.models import PhoneNumber
 
 
 def _u(value):
@@ -29,6 +30,35 @@ def _strip_website(website):
         website = website[4:]
 
     return website
+
+
+def get_phone_numbers_old(instance, tenant):
+    # Function to retrieve formatted phone numbers from an instance.
+    # Requires the Addresses and Phone_numbers to be prefetched.
+    country = tenant.country or None
+    if instance.prefetched_addresses:
+        country = instance.prefetched_addresses[0].country
+
+    phone_numbers = {pn.type: pn for pn in instance.prefetched_phone_numbers}
+
+    phone = phone_numbers.get('work', PhoneNumber()).number
+    mobile = phone_numbers.get('mobile', PhoneNumber()).number
+
+    extra_numbers = list(instance.prefetched_phone_numbers)
+
+    if phone:
+        # Remove all occurrences of phone from list.
+        extra_numbers = filter(lambda a: a != phone_numbers.get('work'), extra_numbers)
+
+    if mobile:
+        # Remove all occurrences of mobile from list.
+        extra_numbers = filter(lambda a: a != phone_numbers.get('mobile'), extra_numbers)
+
+    return {
+        'phone': _s(format_phone_number(phone, country, True) if phone else ''),
+        'mobile': _s(format_phone_number(mobile, country, True) if mobile else ''),
+        'extra_numbers': [en.number for en in extra_numbers],
+    }
 
 
 def get_phone_numbers(instance, tenant):

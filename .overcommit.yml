@@ -1,8 +1,8 @@
 PreCommit:
-  EsLint:
-    enabled: true
-    on_warn: 'fail'
-    include: 'frontend/app/**/*.js'
+#  EsLint:
+#    enabled: true
+#    on_warn: 'fail'
+#    include: 'frontend/app/**/*.js'
 
   ScssLint:
     enabled: true

@@ -128,7 +128,7 @@ phonenumbers==8.8.1
 ### User based sessions                             ###
 #######################################################
 
-django-user-sessions==1.5.2
+django-user-sessions==1.7.1
 geoip2==2.5.0
 maxminddb==1.3.0
 

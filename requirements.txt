@@ -143,7 +143,7 @@ social-auth-core==1.7.0
 requests-oauthlib==0.8.0
 oauthlib==2.0.7
 pyjwt==1.6.1
-cryptography==2.3.1
+cryptography==3.2
 asn1crypto==0.24.0
 cffi==1.11.5
 pycparser==2.18

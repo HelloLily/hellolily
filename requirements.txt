@@ -81,7 +81,7 @@ httplib2==0.10.3
 html2text==2018.1.9
 html5lib==0.999999999
 kombu==3.0.33
-lxml==4.2.5
+lxml==4.6.2
 pyasn1==0.1.9
 pyasn1-modules==0.0.8
 rsa==3.4.2

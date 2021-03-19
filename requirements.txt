@@ -45,7 +45,7 @@ hiredis==0.2.0
 Markdown==2.6.9 # markdown for inline docstrings on API
 MarkupSafe==1.0
 redis==2.10.6
-jinja2==2.9.6
+jinja2==2.11.3
 
 #######################################################
 ### Views & Forms                                   ###

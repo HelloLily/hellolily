@@ -13,7 +13,7 @@ django-extensions==1.8.1
 django-filter==1.1.0
 djangorestframework==3.7.7
 djangorestframework-filters==0.10.1
-eventlet==0.19.0
+eventlet==0.31.0
 greenlet==0.4.10
 python-dateutil==2.6.0
 pytz==2018.3

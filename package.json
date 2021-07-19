@@ -28,7 +28,7 @@
     "sprintf-js": "1.0.3",
     "sweetalert2": "4.1",
     "ui-select": "0.19.8",
-    "urijs": "1.18.2"
+    "urijs": "1.19.7"
   },
   "devDependencies": {
     "babel-core": "6.26.0",
